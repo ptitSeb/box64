@@ -3,6 +3,7 @@
 VECTOR_IMPL(voidp, (void))
 VECTOR_IMPL(char, (void))
 VECTOR_IMPL(charp, (void))
+VECTOR_IMPL(ccharp, (void))
 static void stringp_del(string_t **s) { return string_del(*s); }
 VECTOR_IMPL(string, stringp_del)
 

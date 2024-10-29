@@ -8,6 +8,7 @@
 #include "lang.h"
 #include "machine.h"
 #include "parse.h"
+#include "prepare.h"
 #include "khash.h"
 
 static void help(char *arg0) {
@@ -237,6 +238,7 @@ int main(int argc, char **argv) {
 			log_error_nopos("failed to parse the file\n");
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 0;
 		}
 		
@@ -246,6 +248,7 @@ int main(int argc, char **argv) {
 			file_del(emu_content);
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 2;
 		}
 		file_t *target_content = parse_file(target, in_file, f); // Takes ownership of f
@@ -254,6 +257,7 @@ int main(int argc, char **argv) {
 			file_del(emu_content);
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 0;
 		}
 		
@@ -264,6 +268,7 @@ int main(int argc, char **argv) {
 			file_del(target_content);
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 2;
 		}
 		VECTOR(references) *refs = references_from_file(ref_file, ref);
@@ -272,6 +277,7 @@ int main(int argc, char **argv) {
 			file_del(target_content);
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 2;
 		}
 		// vector_for(references, req, refs) request_print(req);
@@ -294,6 +300,7 @@ int main(int argc, char **argv) {
 			vector_del(references, refs);
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 2;
 		}
 		output_from_references(out, refs);
@@ -303,6 +310,7 @@ int main(int argc, char **argv) {
 		file_del(target_content);
 		del_machines();
 		del_str2kw();
+		prepare_cleanup();
 		return 0; }
 		
 	case MAIN_PROC: {
@@ -315,6 +323,7 @@ int main(int argc, char **argv) {
 			log_error_nopos("failed to parse the file\n");
 			del_machines();
 			del_str2kw();
+			prepare_cleanup();
 			return 0;
 		}
 		// print content
@@ -373,6 +382,7 @@ int main(int argc, char **argv) {
 		file_del(content);
 		del_machines();
 		del_str2kw();
+		prepare_cleanup();
 		return 0; }
 		
 	case MAIN_PREPARE:
@@ -380,6 +390,7 @@ int main(int argc, char **argv) {
 		dump_prepare(in_file, f); // Takes ownership of f
 		del_machines();
 		del_str2kw();
+		prepare_cleanup();
 		return 0;
 		
 	case MAIN_PREPROC: {
@@ -390,9 +401,13 @@ int main(int argc, char **argv) {
 		dump_preproc(arch, in_file, f); // Takes ownership of f
 		del_machines();
 		del_str2kw();
+		prepare_cleanup();
 		return 0; }
 	}
 	
 	log_internal_nopos("failed to run mode %u\n", ms);
+	del_machines();
+	del_str2kw();
+	prepare_cleanup();
 	return 2;
 }

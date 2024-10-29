@@ -1399,7 +1399,7 @@ static enum safeness_e get_safeness(type_t *emu_typ, type_t *target_typ, int *ne
 }
 
 // needs_S != NULL iff type is return
-static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
+static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ, int allow_nesting,
                         _Bool *needs_S, int *needs_D, int *needs_my, khash_t(conv_map) *conv_map, string_t *obj_name) {
 	if (emu_typ->converted) {
 		if (!string_add_string(dest, emu_typ->converted)) {
@@ -1499,7 +1499,7 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
 			return 1;
 		}
 		size_t idx = string_len(dest);
-		if (!convert_type(dest, emu_typ->val.array.typ, target_typ->val.array.typ, needs_S, needs_D, needs_my, conv_map, obj_name))
+		if (!convert_type(dest, emu_typ->val.array.typ, target_typ->val.array.typ, allow_nesting, needs_S, needs_D, needs_my, conv_map, obj_name))
 			return 0;
 		size_t end = string_len(dest);
 		if (idx == end) return 1;
@@ -1530,13 +1530,13 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
 			return 1;
 		} else {
 			if ((emu_typ->val.st->nmembers == 1) && (target_typ->typ == TYPE_STRUCT_UNION) && (target_typ->val.st->nmembers == 1)) {
-				return convert_type(dest, emu_typ->val.st->members[0].typ, target_typ->val.st->members[0].typ, needs_S, needs_D, needs_my, conv_map, obj_name);
+				return convert_type(dest, emu_typ->val.st->members[0].typ, target_typ->val.st->members[0].typ, allow_nesting, needs_S, needs_D, needs_my, conv_map, obj_name);
 			}
 			printf("Error: TODO: convert_type on structure as argument (%s)\n", string_content(obj_name));
 			return 0;
 		}
 	case TYPE_ENUM:
-		return convert_type(dest, emu_typ->val.typ, target_typ->val.typ, needs_S, needs_D, needs_my, conv_map, obj_name);
+		return convert_type(dest, emu_typ->val.typ, target_typ->val.typ, allow_nesting, needs_S, needs_D, needs_my, conv_map, obj_name);
 	case TYPE_PTR:
 		switch (get_safeness_ptr(emu_typ->val.typ, target_typ->val.typ, needs_D, needs_my, conv_map, obj_name)) {
 		default:
@@ -1554,6 +1554,15 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
 			return 1;
 			
 		case SAFE_EXPAND:
+			if (!allow_nesting) {
+				// TODO remove this with a better rebuild_wrappers.py
+				*needs_my = 1;
+				if (!string_add_char(dest, 'p')) {
+					printf("Error: failed to add type char for simple pointer\n");
+					return 0;
+				}
+				return 1;
+			}
 			if (!string_add_char(dest, emu_typ->is_const ? 'r' : 'b')) {
 				printf("Error: failed to add start type char for wrapping pointer\n");
 				return 0;
@@ -1564,12 +1573,12 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
 		do_expanded:
 			switch (emu_typ->typ) {
 			case TYPE_BUILTIN:
-				if (!convert_type(dest, emu_typ, target_typ, needs_S, needs_D, needs_my, conv_map, obj_name)) {
+				if (!convert_type(dest, emu_typ, target_typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 					return 0;
 				}
 				break;
 			case TYPE_ARRAY:
-				if (!convert_type(dest, emu_typ, target_typ, needs_S, needs_D, needs_my, conv_map, obj_name)) {
+				if (!convert_type(dest, emu_typ, target_typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 					return 0;
 				}
 				break;
@@ -1584,7 +1593,7 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
 					goto do_expanded;
 				}
 				for (size_t i = 0; i < emu_typ->val.st->nmembers; ++i) {
-					if (!convert_type(dest, emu_typ->val.st->members[i].typ, target_typ->val.st->members[i].typ, needs_S, needs_D, needs_my, conv_map, obj_name)) {
+					if (!convert_type(dest, emu_typ->val.st->members[i].typ, target_typ->val.st->members[i].typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 						return 0;
 					}
 				}
@@ -1592,17 +1601,17 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ,
 			case TYPE_ENUM:
 				emu_typ = emu_typ->val.typ;
 				target_typ = target_typ->val.typ;
-				if (!convert_type(dest, emu_typ, target_typ, needs_S, needs_D, needs_my, conv_map, obj_name)) {
+				if (!convert_type(dest, emu_typ, target_typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 					return 0;
 				}
 				break;
 			case TYPE_PTR:
-				if (!convert_type(dest, emu_typ, target_typ, needs_S, needs_D, needs_my, conv_map, obj_name)) {
+				if (!convert_type(dest, emu_typ, target_typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 					return 0;
 				}
 				break;
 			case TYPE_FUNCTION:
-				if (!convert_type(dest, emu_typ, target_typ, needs_S, needs_D, needs_my, conv_map, obj_name)) {
+				if (!convert_type(dest, emu_typ, target_typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 					return 0;
 				}
 				break;
@@ -1666,7 +1675,7 @@ int solve_request(request_t *req, type_t *emu_typ, type_t *target_typ, khash_t(c
 			printf("Error: failed to create function type string\n");
 			return 0;
 		}
-		if (!convert_type(req->val.fun.typ, emu_typ->val.fun.ret, target_typ->val.fun.ret, &req->val.fun.needs_S, &needs_D, &needs_my, conv_map, req->obj_name))
+		if (!convert_type(req->val.fun.typ, emu_typ->val.fun.ret, target_typ->val.fun.ret, 0, &req->val.fun.needs_S, &needs_D, &needs_my, conv_map, req->obj_name))
 			goto fun_fail;
 		idx_conv = string_len(req->val.fun.typ);
 		if (!string_add_char(req->val.fun.typ, 'F')) {
@@ -1692,7 +1701,7 @@ int solve_request(request_t *req, type_t *emu_typ, type_t *target_typ, khash_t(c
 			}
 		} else {
 			for (size_t i = 0; i < emu_typ->val.fun.nargs; ++i) {
-				if (!convert_type(req->val.fun.typ, emu_typ->val.fun.args[i], target_typ->val.fun.args[i], NULL, &needs_D, &needs_my, conv_map, req->obj_name))
+				if (!convert_type(req->val.fun.typ, emu_typ->val.fun.args[i], target_typ->val.fun.args[i], 1, NULL, &needs_D, &needs_my, conv_map, req->obj_name))
 					goto fun_fail;
 			}
 			if (emu_typ->val.fun.has_varargs) {

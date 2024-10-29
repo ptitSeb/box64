@@ -203,6 +203,7 @@ VECTOR_IMPL_STATIC(ppsource, ppsource_del)
 struct preproc_s {
 	machine_t *target;
 	VECTOR(ppsource) *prep;
+	VECTOR(ccharp) *pragma_once;
 	enum preproc_state_e {
 		PPST_NONE,
 		PPST_NL,
@@ -223,6 +224,7 @@ void preproc_del(preproc_t *src) {
 	macros_map_del(src->macros_map);
 	if (src->dirname) free(src->dirname);
 	if (src->cur_file) free(src->cur_file);
+	vector_del(ccharp, src->pragma_once);
 	free(src);
 }
 
@@ -343,6 +345,16 @@ preproc_t *preproc_new_file(machine_t *target, FILE *f, char *dirname, const cha
 	}
 	ret->prep = vector_new_cap(ppsource, 1);
 	if (!ret->prep) {
+		kh_destroy(macros_map, ret->macros_map);
+		kh_destroy(string_set, ret->macros_defined);
+		kh_destroy(string_set, ret->macros_used);
+		fclose(f);
+		free(ret);
+		return NULL;
+	}
+	ret->pragma_once = vector_new(ccharp);
+	if (!ret->pragma_once) {
+		vector_del(ppsource, ret->prep);
 		kh_destroy(macros_map, ret->macros_map);
 		kh_destroy(string_set, ret->macros_defined);
 		kh_destroy(string_set, ret->macros_used);
@@ -534,45 +546,47 @@ static VECTOR(preproc) *preproc_solve_macro(loginfo_t *li,
 #undef ONLYDIGS
 			}
 			if (do_add) {
-				preproc_token_t tok2;
 				preproc_token_t *tok1 = &mtok->val.tok;
-				switch (tok1->tokt) {
-				case PPTOK_INVALID:
-				case PPTOK_NEWLINE:
-				case PPTOK_BLANK:
-				case PPTOK_START_LINE_COMMENT:
-				case PPTOK_EOF: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.c = tok1->tokv.c}; break;
-				case PPTOK_SYM: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.sym = tok1->tokv.sym}; break;
-				case PPTOK_IDENT:
-				case PPTOK_IDENT_UNEXP:
-				case PPTOK_NUM: {
-					string_t *dup = string_dup(tok1->tokv.str);
-					if (!dup) {
-						LOG_MEMORY("failed to duplicate string");
+				if (tok1->tokt != PPTOK_NEWLINE) {
+					preproc_token_t tok2;
+					switch (tok1->tokt) {
+					case PPTOK_INVALID:
+					case PPTOK_NEWLINE:
+					case PPTOK_BLANK:
+					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_EOF: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.c = tok1->tokv.c}; break;
+					case PPTOK_SYM: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.sym = tok1->tokv.sym}; break;
+					case PPTOK_IDENT:
+					case PPTOK_IDENT_UNEXP:
+					case PPTOK_NUM: {
+						string_t *dup = string_dup(tok1->tokv.str);
+						if (!dup) {
+							LOG_MEMORY("failed to duplicate string");
+							vector_del(preproc, ret);
+							ret = NULL;
+							goto solve_done;
+						}
+						tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.str = dup};
+						break; }
+					case PPTOK_INCL:
+					case PPTOK_STRING: {
+						string_t *dup = string_dup(tok1->tokv.sstr);
+						if (!dup) {
+							LOG_MEMORY("failed to duplicate string");
+							vector_del(preproc, ret);
+							ret = NULL;
+							goto solve_done;
+						}
+						tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.sstr = dup, .tokv.sisstr = tok1->tokv.sisstr};
+						break; }
+					}
+					if (!vector_push(preproc, ret, tok2)) {
+						LOG_MEMORY("failed to add token to output vector");
+						preproc_token_del(&tok2);
 						vector_del(preproc, ret);
 						ret = NULL;
 						goto solve_done;
 					}
-					tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.str = dup};
-					break; }
-				case PPTOK_INCL:
-				case PPTOK_STRING: {
-					string_t *dup = string_dup(tok1->tokv.sstr);
-					if (!dup) {
-						LOG_MEMORY("failed to duplicate string");
-						vector_del(preproc, ret);
-						ret = NULL;
-						goto solve_done;
-					}
-					tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.sstr = dup, .tokv.sisstr = tok1->tokv.sisstr};
-					break; }
-				}
-				if (!vector_push(preproc, ret, tok2)) {
-					LOG_MEMORY("failed to add token to output vector");
-					preproc_token_del(&tok2);
-					vector_del(preproc, ret);
-					ret = NULL;
-					goto solve_done;
 				}
 			}
 			vector_pop_nodel(mtoken, st);
@@ -630,7 +644,8 @@ static VECTOR(preproc) *preproc_solve_macro(loginfo_t *li,
 			}
 			if (len) {
 				preproc_token_t tok2;
-				for (preproc_token_t *tok1 = vector_begin(preproc, toks_to_add) + tta_start; tok1 != vector_end(preproc, toks_to_add); ++tok1){
+				for (preproc_token_t *tok1 = vector_begin(preproc, toks_to_add) + tta_start; tok1 != vector_end(preproc, toks_to_add); ++tok1) {
+					if (tok1->tokt == PPTOK_NEWLINE) continue;
 					switch (tok1->tokt) {
 					case PPTOK_INVALID:
 					case PPTOK_NEWLINE:
@@ -779,6 +794,7 @@ static VECTOR(preproc) *preproc_do_expand(loginfo_t *li, const khash_t(macros_ma
 		return NULL;
 	}
 	vector_for(preproc, tok, toks) {
+		if (tok->tokt == PPTOK_NEWLINE) continue;
 		preproc_token_t tok2;
 		switch (tok->tokt) {
 		case PPTOK_INVALID:
@@ -2115,7 +2131,7 @@ start_cur_token:
 								}
 								marg = vector_new(preproc);
 								if (!marg) goto solve_err_mem;
-							} else {
+							} else if (tok2.tokt != PPTOK_NEWLINE) {
 								if (!vector_push(preproc, marg, tok2)) {
 									vector_del(preproc, marg);
 									goto solve_err_mem;
@@ -2409,18 +2425,32 @@ start_cur_token:
 					}
 				}
 				// cur_pathno == 0 if cur_file was from an #include "...", otherwise idx + 1
+				int has_once = 0;
+				vector_for(ccharp, fname, src->pragma_once) {
+					if (!strcmp(*fname, string_content(incl_file))) {
+						has_once = 1;
+						break;
+					}
+				}
+				if (has_once) {
 #ifdef LOG_INCLUDE
-				printf("Opening %s as %s from system path %zu\n", string_content(incl_file),
-				       is_sys ? "system header" : "cur header", is_next ? src->cur_pathno : 0);
+					printf("Skipping opening %s as %s from system path %zu\n", string_content(incl_file),
+					       is_sys ? "system header" : "cur header", is_next ? src->cur_pathno : 0);
 #endif
-				if ((is_sys || !try_open_dir(src, incl_file)) && !try_open_sys(src, incl_file, is_next ? src->cur_pathno : 0)) {
-					log_error(&li, "failed to open %s\n", string_content(incl_file));
-					string_del(incl_file);
-					src->st = PPST_NONE;
-					ret.tokt = PTOK_INVALID;
-					ret.loginfo = li;
-					ret.tokv.c = is_sys ? '<' : '"';
-					return ret;
+				} else {
+#ifdef LOG_INCLUDE
+					printf("Opening %s as %s from system path %zu\n", string_content(incl_file),
+					       is_sys ? "system header" : "cur header", is_next ? src->cur_pathno : 0);
+#endif
+					if ((is_sys || !try_open_dir(src, incl_file)) && !try_open_sys(src, incl_file, is_next ? src->cur_pathno : 0)) {
+						log_error(&li, "failed to open %s\n", string_content(incl_file));
+						string_del(incl_file);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.loginfo = li;
+						ret.tokv.c = is_sys ? '<' : '"';
+						return ret;
+					}
 				}
 				string_del(incl_file);
 				if (tok.tokt == PPTOK_NEWLINE) goto check_next_token;
@@ -2827,6 +2857,19 @@ start_cur_token:
 				tok = ppsrc_next_token(src);
 				if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
 					log_error(&tok.loginfo, "unknown pragma directive, skipping until EOL\n");
+					goto preproc_hash_err;
+				} else if (!strcmp(string_content(tok.tokv.str), "once")) {
+					const char *fname = tok.loginfo.filename;
+					if (!vector_push(ccharp, src->pragma_once, fname)) {
+						log_memory("failed to add filename to #pragma once list\n");
+						vector_clear(ppsource, src->prep);
+						ret.tokt = PTOK_INVALID;
+						ret.loginfo = tok.loginfo;
+						ret.tokv.c = (char)EOF;
+						return ret;
+					}
+					string_del(tok.tokv.str);
+					tok = ppsrc_next_token(src);
 					goto preproc_hash_err;
 				} else if (!strcmp(string_content(tok.tokv.str), "wrappers")) {
 					string_del(tok.tokv.str);
