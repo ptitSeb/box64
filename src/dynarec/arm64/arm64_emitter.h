@@ -820,9 +820,9 @@ int convert_bitmask(uint64_t bitmask);
 #define MRS_gen(L, o0, op1, CRn, CRm, op2, Rt)  (0b1101010100<<22 | (L)<<21 | 1<<20 | (o0)<<19 | (op1)<<16 | (CRn)<<12 | (CRm)<<8 | (op2)<<5 | (Rt))
 // mrs    x0, nzcv : 1101010100 1 1 1 011 0100 0010 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0010(2) op2=0
 // MRS : from System register
-#define MRS_nzvc(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 2, 0, Rt))
+#define MRS_nzcv(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 2, 0, Rt))
 // MSR : to System register
-#define MSR_nzvc(Rt)                   FEMIT(MRS_gen(0, 1, 3, 4, 2, 0, Rt))
+#define MSR_nzcv(Rt)                   FEMIT(MRS_gen(0, 1, 3, 4, 2, 0, Rt))
 // mrs    x0, fpcr : 1101010100 1 1 1 011 0100 0100 000 00000    o0=1(op0=3), op1=0b011(3) CRn=0b0100(4) CRm=0b0100(4) op2=0
 #define MRS_fpcr(Rt)                    EMIT(MRS_gen(1, 1, 3, 4, 4, 0, Rt))
 #define MSR_fpcr(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 4, 0, Rt))

@@ -910,6 +910,7 @@
 #ifndef IFNATIVE
 #define IFNATIVE(A)     if(dyn->insts[ninst].need_nat_flags&(A))
 #define IFNATIVEN(A)    if((dyn->insts[ninst].need_nat_flags&(A))==(A))
+#define IFNATIVE_BEFORE(A)     if(dyn->insts[ninst].before_nat_flags&(A))
 #endif
 
 #ifndef IFX
@@ -920,6 +921,16 @@
 #define IFX2X(A, B) if((dyn->insts[ninst].x64.gen_flags==(A) || dyn->insts[ninst].x64.gen_flags==(B) || dyn->insts[ninst].x64.gen_flags==((A)|(B))))
 #define IFXN(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A) && !(dyn->insts[ninst].x64.gen_flags&(B))))
 #define IFXNATIVE(X, N) if((dyn->insts[ninst].x64.gen_flags&(X)) && (dyn->insts[ninst].need_nat_flags&(N)))
+#endif
+#ifndef INVERTED_CARRY
+#define INVERTED_CARRY          !dyn->insts[ninst].normal_carry
+#define INVERTED_CARRY_BEFORE   !dyn->insts[ninst].normal_carry_before
+#endif
+#ifndef GEN_INVERTED_CARRY
+#define GEN_INVERTED_CARRY()
+#endif
+#ifndef INVERT_CARRY
+#define INVERT_CARRY(A)     if(dyn->insts[ninst].normal_carry) {if(arm64_flagm) CFINV(); else {MRS_nzcv(A); EORx_mask(A, A, 1, 35, 0); MSR_nzcv(A);}}
 #endif
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
@@ -1711,13 +1722,29 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         break;                                              \
     case B+0x2:                                             \
         INST_NAME(T1 "C " T2);                              \
+        IFNATIVE(NF_CF) {                                   \
+            if(INVERTED_CARRY) {                            \
+                GO( , cCS, cCC, X_CF)                       \
+            } else {                                        \
+                GO( , cCC, cCS, X_CF)                       \
+            }                                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0, 0)                         \
             , cEQ, cNE, X_CF)                               \
+        }                                                   \
         break;                                              \
     case B+0x3:                                             \
         INST_NAME(T1 "NC " T2);                             \
+        IFNATIVE(NF_CF) {                                   \
+            if(INVERTED_CARRY) {                            \
+                GO( , cCC, cCS, X_CF)                       \
+            } else {                                        \
+                GO( , cCS, cCC, X_CF)                       \
+            }                                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0, 0)                         \
             , cNE, cEQ, X_CF)                               \
+        }                                                   \
         break;                                              \
     case B+0x4:                                             \
         INST_NAME(T1 "Z " T2);                              \
@@ -1739,15 +1766,25 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         break;                                              \
     case B+0x6:                                             \
         INST_NAME(T1 "BE " T2);                             \
+        IFNATIVEN(NF_EQ|NF_CF) {                            \
+            INVERT_CARRY(x1);                               \
+            GO( , cHI, cLS, X_ZF|X_CF)                      \
+        } else {                                            \
         GO( MOV32w(x1, (1<<F_CF)|(1<<F_ZF));                \
             TSTw_REG(xFlags, x1)                            \
             , cEQ, cNE, X_CF|X_ZF)                          \
+        }                                                   \
         break;                                              \
     case B+0x7:                                             \
         INST_NAME(T1 "NBE " T2);                            \
+        IFNATIVEN(NF_EQ|NF_CF) {                            \
+            INVERT_CARRY(x1);                               \
+            GO( , cLS, cHI, X_ZF|X_CF)                      \
+        } else {                                            \
         GO( MOV32w(x1, (1<<F_CF)|(1<<F_ZF));                \
             TSTw_REG(xFlags, x1)                            \
             , cNE, cEQ, X_CF|X_ZF)                          \
+        }                                                   \
         break;                                              \
     case B+0x8:                                             \
         INST_NAME(T1 "S " T2);                              \

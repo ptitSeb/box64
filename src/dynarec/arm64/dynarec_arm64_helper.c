@@ -2383,7 +2383,11 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
             j64 = (GETMARKF2)-(dyn->native_size);
             CBZw(s1, j64);
         }
-        CALL_(UpdateFlags, -1, 0);
+        if(dyn->insts[ninst].need_nat_flags)
+            MRS_nzcv(s1);
+        CALL_(UpdateFlags, -1, s1);
+        if(dyn->insts[ninst].need_nat_flags)
+            MSR_nzcv(s1);
         MARKF2;
     }
 }
@@ -2395,12 +2399,18 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
     if(jmp<0)
         return;
     uint8_t flags_before = dyn->insts[ninst].need_nat_flags;
+    uint8_t nc_before = dyn->insts[ninst].normal_carry;
+    if(dyn->insts[ninst].invert_carry)
+        nc_before = 0;
     uint8_t flags_after = dyn->insts[jmp].need_nat_flags;
-    if(dyn->insts[jmp].nat_flags_op==NAT_FLAG_OP_TOUCH)
+    uint8_t nc_after = dyn->insts[jmp].normal_carry;
+    if(dyn->insts[jmp].nat_flags_op==NAT_FLAG_OP_TOUCH) {
         flags_after = dyn->insts[jmp].before_nat_flags;
+        nc_after = dyn->insts[jmp].normal_carry_before;
+    }
     uint8_t flags_x86 = flag2native(dyn->insts[jmp].x64.need_before);
     flags_x86 &= ~flags_after;
-    MESSAGE(LOG_DUMP, "\tFNative flags transform ---- ninst=%d -> %d %hhx -> %hhx/%hhx\n", ninst, jmp, flags_before, flags_after, flags_x86);
+    MESSAGE(LOG_DUMP, "\tNative Flags transform ---- ninst=%d -> %d %hhx -> %hhx/%hhx\n", ninst, jmp, flags_before, flags_after, flags_x86);
     // flags present in before and missing in after
     if((flags_before&NF_EQ) && (flags_x86&NF_EQ)) {
         CSETw(s1, cEQ);
@@ -2414,28 +2424,50 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
         CSETw(s1, cVS);
         BFIw(xFlags, s1, F_OF, 1);
     }
+    if((flags_before&NF_CF) && (flags_x86&NF_CF)) {
+        if(nc_before) // might need to invert carry
+            CSETw(s1, cCS);
+        else
+            CSETw(s1, cCC);
+        BFIw(xFlags, s1, F_CF, 1);
+    }
     // flags missing and needed later
     int mrs = 0;
-    #define GO_MRS(A)   if(!mrs) {mrs=1; MRS_nzvc(s2); }
+    #define GO_MRS(A)   if(!mrs) {mrs=1; MRS_nzcv(s2); }
     if(!(flags_before&NF_EQ) && (flags_after&NF_EQ)) {
         GO_MRS(s2);
-        BFIw(s1, xFlags, F_ZF, 1);
+        UBFXw(s1, xFlags, F_ZF, 1);
         BFIx(s2, s1, NZCV_Z, 1);
     }
     if(!(flags_before&NF_SF) && (flags_after&NF_SF)) {
         GO_MRS(s2);
-        BFIw(s1, xFlags, F_SF, 1);
+        UBFXw(s1, xFlags, F_SF, 1);
         BFIx(s2, s1, NZCV_N, 1);
     }
     if(!(flags_before&NF_VF) && (flags_after&NF_VF)) {
         GO_MRS(s2);
-        BFIw(s1, xFlags, F_OF, 1);
+        UBFXw(s1, xFlags, F_OF, 1);
         BFIx(s2, s1, NZCV_V, 1);
     }
+    if(!(flags_before&NF_CF) && (flags_after&NF_CF)) {
+        GO_MRS(s2);
+        BFIx(s2, xFlags, NZCV_C, 1);    // F_CF is bit 0
+        if(!nc_after)
+            EORx_mask(s2, s2, 1, 35, 0);    //mask=1<<NZCV_C
+    }
+    // special case for NF_CF changing state
+    if((flags_before&NF_CF) && (flags_after&NF_CF) && (nc_before!=nc_after)) {
+        if(arm64_flagm && !mrs) {
+            CFINV();
+        } else {
+            GO_MRS(s2);
+            EORx_mask(s2, s2, 1, 35, 0);  //mask=1<<NZCV_C
+        }
+    }
     #undef GL_MRS
-    if(mrs) MSR_nzvc(s2);
+    if(mrs) MSR_nzcv(s2);
 
-    MESSAGE(LOG_DUMP, "\tF---- Native flags transform\n");
+    MESSAGE(LOG_DUMP, "\t---- Native Flags transform\n");
 }
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {

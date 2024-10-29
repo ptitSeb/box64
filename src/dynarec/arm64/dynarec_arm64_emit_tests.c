@@ -54,8 +54,12 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_CF) {
         // inverted carry
-        CSETw(s4, cCC);
-        BFIw(xFlags, s4, F_CF, 1);
+        IFNATIVE(NF_CF) {
+            GEN_INVERTED_CARRY();
+        } else {
+            CSETw(s4, cCC);
+            BFIw(xFlags, s4, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -89,16 +93,20 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int 
     SUBSxw_U12(s3, s1, 0);   // res = s1 - 0
     // and now the tricky ones (and mostly unused), PF and AF
     // bc = (res & (~d | s)) | (~d & s) => is 0 here...
-    IFX(X_OF|X_AF|X_CF) {
-        IFXNATIVE(X_OF, NF_VF) {
-            IFX(X_AF|X_CF) {
-                MOV32w(s4, (1<<F_CF)|(1<<F_AF));
-                BICw(xFlags, xFlags, s4);
-            }
+    IFX(X_CF) {
+        IFNATIVE(NF_CF) {
+            GEN_INVERTED_CARRY();
         } else {
-            MOV32w(s4, (1<<F_OF)|(1<<F_AF)|(1<<F_CF));
-            BICw(xFlags, xFlags, s4);
+            BFCw(xFlags, F_CF, 1);
         }
+    }
+    IFX(X_OF) {
+        IFNATIVE(NF_VF) {} else {
+            BFCw(xFlags, F_OF, 1);
+        }
+    }
+    IFX(X_AF) {
+        BFCw(xFlags, F_AF, 1);
     }
     IFX(X_ZF) {
         IFNATIVE(NF_EQ) {} else {
@@ -253,16 +261,18 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     } else {
         SET_DFNONE(s4);
     }
-    IFX(X_CF | X_AF | X_OF) {
-        IFXNATIVE(X_OF, NF_VF) {
-            IFX(X_AF|X_CF) {
-                MOV32w(s3, (1<<F_CF)|(1<<F_AF));
-                BICw(xFlags, xFlags, s3);
-            }
-        } else {
-            MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
-            BICw(xFlags, xFlags, s3);
+    IFX(X_CF) {
+        IFNATIVE(NF_CF) {} else {
+            BFCw(xFlags, F_CF, 1);
         }
+    }
+    IFX(X_OF) {
+        IFNATIVE(NF_VF) {} else {
+            BFCw(xFlags, F_OF, 1);
+        }
+    }
+    IFX(X_AF) {
+        BFCw(xFlags, F_AF, 1);
     }
     ANDSxw_REG(s3, s1, s2);   // res = s1 & s2
     IFX_PENDOR0 {

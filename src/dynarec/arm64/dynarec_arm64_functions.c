@@ -686,6 +686,14 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         }
         if(dyn->insts[ninst].use_nat_flags || dyn->insts[ninst].set_nat_flags || dyn->insts[ninst].need_nat_flags)
             printf_log(LOG_NONE, " nf:%hhx/%hhx/%hhx", dyn->insts[ninst].set_nat_flags, dyn->insts[ninst].use_nat_flags, dyn->insts[ninst].need_nat_flags);
+        if(dyn->insts[ninst].invert_carry)
+            printf_log(LOG_NONE, " CI");
+        if(dyn->insts[ninst].gen_inverted_carry)
+            printf_log(LOG_NONE, " gic");
+        if(dyn->insts[ninst].before_nat_flags&NF_CF)
+            printf_log(LOG_NONE, " %ccb", dyn->insts[ninst].normal_carry_before?'n':'i');
+        if(dyn->insts[ninst].need_nat_flags&NF_CF)
+            printf_log(LOG_NONE, " %cc", dyn->insts[ninst].normal_carry?'n':'i');
         if(dyn->insts[ninst].pred_sz) {
             dynarec_log(LOG_NONE, ", pred=");
             for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)
@@ -806,15 +814,18 @@ int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st)
 }
 
 
-uint8_t mark_natflag(dynarec_arm_t* dyn, int ninst, uint8_t flag)
+uint8_t mark_natflag(dynarec_arm_t* dyn, int ninst, uint8_t flag, int before)
 {
-    if(dyn->insts[ninst].x64.set_flags) {
+    if(dyn->insts[ninst].x64.set_flags && !before) {
         dyn->insts[ninst].set_nat_flags |= flag;
         if(dyn->insts[ninst].x64.use_flags) {
             dyn->insts[ninst].use_nat_flags |= flag;
         }
     } else {
-        dyn->insts[ninst].use_nat_flags |= flag;
+        if(before)
+            dyn->insts[ninst].use_nat_flags_before |= flag;
+        else
+            dyn->insts[ninst].use_nat_flags |= flag;
     }
     return flag;
 }
@@ -826,6 +837,7 @@ uint8_t flag2native(uint8_t flags)
     if(flags&X_ZF) ret|=NF_EQ;
     if(flags&X_SF) ret|=NF_SF;
     if(flags&X_OF) ret|=NF_VF;
+    if(flags&X_CF) ret|=NF_CF;
     #else
     // no native flags on rv64 or la64
     #endif
@@ -834,140 +846,110 @@ uint8_t flag2native(uint8_t flags)
 
 int flagIsNative(uint8_t flags)
 {
-    if(flags&(X_AF|X_PF|X_CF)) return 0;
+    if(flags&(X_AF|X_PF)) return 0;
     return 1;
 }
 
-static int markNativeFlags(dynarec_native_t* dyn, int ninst, uint8_t flags, int start)
+static uint8_t getNativeFlagsUsed(dynarec_arm_t* dyn, int start, uint8_t flags)
 {
-    while(ninst>=0) {
-//printf_log(LOG_INFO, "markNativeFlags ninst=%d, flags=%x, start=%d, nat_flags_op=%d, need_nat_flag=%x, flag_gen=%x need_before=%x need_after=%x\n", ninst, flags, start, dyn->insts[ninst].nat_flags_op, dyn->insts[ninst].need_nat_flags, dyn->insts[ninst].x64.gen_flags, flag2native(dyn->insts[ninst].x64.need_before), flag2native(dyn->insts[ninst].x64.need_after));
-        // propagation already done
-        uint8_t flag_entry = (start && dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)?dyn->insts[ninst].before_nat_flags:dyn->insts[ninst].need_nat_flags;
-        if((flag_entry&flags)==flags) return flag_entry;
-        // no more flag propagation
-        if(!start && !flag2native(dyn->insts[ninst].x64.need_after)) return flags;
-        // flags destroyed, cancel native flags
-        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_UNUSABLE) return 0;
-        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_CANCELED) return 0;
-        if(!flagIsNative(dyn->insts[ninst].x64.use_flags))  return 0;
-        if(start) {
-            start = 0;
-            flags |= flag2native(dyn->insts[ninst].x64.need_before);
-        } else if(dyn->insts[ninst].x64.gen_flags && (flag2native(dyn->insts[ninst].x64.gen_flags)&flags)) {
-            // this is the emitter of the native flags! so, is it good or not?
-            if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH && (dyn->insts[ninst].set_nat_flags&flags)==flags) {
-                dyn->insts[ninst].need_nat_flags |= flags;
-                if(!dyn->insts[ninst].x64.may_set)  // if flags just may be set, continue!
-                    return flags;
-            } else
-                return 0;
-        }
-        if(dyn->insts[ninst].use_nat_flags)
-            flags |= dyn->insts[ninst].use_nat_flags;
-        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)   // can happens on operation that read and generate flags
-            dyn->insts[ninst].before_nat_flags |= flags;
-        else
-            dyn->insts[ninst].need_nat_flags |= flags;
-        flags |= flag2native(dyn->insts[ninst].x64.need_before);
-        if(!dyn->insts[ninst].pred_sz)
+    // propagate and check wich flags are actually used
+    uint8_t used_flags = 0;
+    int ninst = start;
+    while(ninst<dyn->size) {
+//printf_log(LOG_INFO, "getNativeFlagsUsed ninst:%d/%d, flags=%x, used_flags=%x, nat_flags_op_before:%x, nat_flags_op:%x, need_after:%x\n", ninst, start, flags, used_flags, dyn->insts[ninst].nat_flags_op_before, dyn->insts[ninst].nat_flags_op, flag2native(dyn->insts[ninst].x64.need_after));
+        // check if this is an opcode that generate flags but consume flags before
+        if(dyn->insts[ninst].nat_flags_op_before)
             return 0;
-        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i) {
-            int ret_flags = markNativeFlags(dyn, dyn->insts[ninst].pred[i], flags, 0);
-            if(!ret_flags)
+        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH && dyn->insts[ninst].use_nat_flags_before)
+            used_flags|=dyn->insts[ninst].use_nat_flags_before&flags;
+        // if the opcode generate flags, return
+        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH && (start!=ninst)) {
+            if(used_flags&~dyn->insts[ninst].set_nat_flags)    // check partial changes that would destroy flag state
                 return 0;
-            flags|=ret_flags;
+            return used_flags;
         }
-        ninst = dyn->insts[ninst].pred[0];
-    }
-    return 0;
-}
-
-static void unmarkNativeFlags(dynarec_native_t* dyn, int ninst, int start)
-{
-//printf_log(LOG_INFO, "unmarkNativeFlags ninst=%d, will check forward the real start\n", ninst);
-    // need to check if branch also goes forward to really start from the beggining
-    while((ninst<dyn->size) && dyn->insts[ninst].x64.has_next && !dyn->insts[ninst].nat_flags_op && dyn->insts[ninst+1].before_nat_flags)
-        ninst++;
-
-    while(ninst>=0) {
-//printf_log(LOG_INFO, "unmarkNativeFlags ninst=%d, start=%d\n", ninst, start);
-        // no more flag propagation
-        if(!start && !flag2native(dyn->insts[ninst].x64.need_after)) return;
-        // flags destroyed, but maybe it's be used
-        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_UNUSABLE) return;
-        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_CANCELED) return;
-        if(start)
-            start = 0;
-        else if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH) {
-            if(!dyn->insts[ninst].x64.may_set) {
-                dyn->insts[ninst].need_nat_flags = 0;
-                dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_CANCELED;
-                return;
-            }
+        // check if there is a callret barrier
+        if(dyn->insts[ninst].x64.has_callret)
+            return 0;
+        // check if flags are still needed
+        if(!(flag2native(dyn->insts[ninst].x64.need_after)&flags))
+            return used_flags;
+        // check if flags are destroyed, cancel the use then
+        if(dyn->insts[ninst].nat_flags_op && (start!=ninst))
+            return 0;
+        // check if flags are generated without native option
+        if((start!=ninst) && dyn->insts[ninst].x64.gen_flags && (flag2native(dyn->insts[ninst].x64.gen_flags&dyn->insts[ninst].x64.need_after)&used_flags)) {
+            if(used_flags&~flag2native(dyn->insts[ninst].x64.gen_flags&dyn->insts[ninst].x64.need_after))
+                return 0;   // partial covert, not supported for now (TODO: this might be fixable)
+            else
+                return used_flags;  // full covert... End of propagation
         }
-        dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_CANCELED;
-        #if 0
-        // check forward
-        if(dyn->insts[ninst].x64.has_next && dyn->insts[ninst+1].need_nat_flags)
-            unmarkNativeFlags(dyn, ninst+1, 1);
-        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1) {
+        // update used flags
+        used_flags |= (flag2native(dyn->insts[ninst].x64.need_after)&flags);
+        // go next
+        if(!dyn->insts[ninst].x64.has_next) {
+            // check if it's a jump to an opcode with only 1 preds, then just follow the jump
             int jmp = dyn->insts[ninst].x64.jmp_insts;
-            if(dyn->insts[jmp].need_nat_flags)
-                unmarkNativeFlags(dyn, jmp, 1);
-        }
-        #endif
-        // check if stop
-        if(((dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)?dyn->insts[ninst].before_nat_flags:dyn->insts[ninst].need_nat_flags)==0)
-                return;
-        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)   // can happens on operation that read and generate flags
-            dyn->insts[ninst].before_nat_flags = 0;
-        else
-            dyn->insts[ninst].need_nat_flags = 0;
-        if(!flag2native(dyn->insts[ninst].x64.need_before)) return;
-        if(!dyn->insts[ninst].pred_sz)
-            return;
-        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i)
-            unmarkNativeFlags(dyn, dyn->insts[ninst].pred[i], 0);
-        if(!dyn->insts[ninst].x64.has_next)
-            return;
-        ninst = dyn->insts[ninst].pred[0];
+            if(dyn->insts[ninst].x64.jmp && (jmp!=-1) && (getNominalPred(dyn, jmp)==ninst))
+                ninst = jmp;
+            else
+                return used_flags;
+        } else
+            ++ninst;
     }
+    return used_flags;
 }
 
-static void propagateNativeFlags(dynarec_native_t* dyn, int ninst)
+static void propagateNativeFlags(dynarec_arm_t* dyn, int start)
 {
-    uint8_t flags = dyn->insts[ninst].use_nat_flags&flag2native(dyn->insts[ninst].x64.need_before);
-    uint8_t flags_after = flag2native(dyn->insts[ninst].x64.need_after);
-    int marked_flags = markNativeFlags(dyn, ninst, flags, 1);
-    if(!marked_flags) {
-//printf_log(LOG_INFO, "unmarkNativeFlags ninst=%d, because marked_flags is 0\n", ninst);
-        unmarkNativeFlags(dyn, ninst, 1);
-        return;
-    }
-    uint8_t need_flags;
-    // check if all next have the correct flag, or if using non-native flags while native are used
-    if(dyn->insts[ninst].x64.has_next && (flags_after&marked_flags)) {
-        need_flags = dyn->insts[ninst+1].nat_flags_op?dyn->insts[ninst+1].before_nat_flags:dyn->insts[ninst+1].need_nat_flags;    // native flags used
-        flags_after = flag2native(dyn->insts[ninst+1].x64.need_before)&~need_flags; // flags that are needs to be x86
-        if((need_flags&~marked_flags) || (!need_flags && (flags_after&marked_flags))) {
-//printf_log(LOG_INFO, "unmarkNativeFlags ninst=%d, because: need_flags=%hhx, flag_after=%hhx, marked_flags=%hhx\n", ninst, need_flags, flags_after, marked_flags);
-            unmarkNativeFlags(dyn, ninst, 1);
+    int ninst = start;
+    // those are the flags generated by the opcode and used later on
+    uint8_t flags = dyn->insts[ninst].set_nat_flags&flag2native(dyn->insts[ninst].x64.need_after);
+    //check if they are actualy used before starting
+//printf_log(LOG_INFO, "propagateNativeFlags called for start=%d, flags=%x, will need:%x\n", start, flags, flag2native(dyn->insts[ninst].x64.need_after));
+    if(!flags) return;
+    // also check if some native flags are used but not genereated here
+    if(flag2native(dyn->insts[ninst].x64.need_after)&~flags) return;
+    uint8_t used_flags = getNativeFlagsUsed(dyn, start, flags);
+//printf_log(LOG_INFO, " will use:%x, carry:%d, generate inverted carry:%d\n", used_flags, used_flags&NF_CF, dyn->insts[ninst].gen_inverted_carry);
+    if(!used_flags) return; // the flags wont be used, so just cancel
+    int nc = dyn->insts[ninst].gen_inverted_carry?0:1;
+    int carry = used_flags&NF_CF;
+    // propagate
+    while(ninst<dyn->size) {
+        // check if this is an opcode that generate flags but consume flags before
+        if((start!=ninst) && dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH) {
+            if(dyn->insts[ninst].use_nat_flags_before) {
+                dyn->insts[ninst].before_nat_flags |= used_flags;
+                if(carry) dyn->insts[ninst].normal_carry_before = nc;
+            }
+            // if the opcode generate flags, return
             return;
         }
-    }
-    #if 0
-    // check at jump point, as native flags are not converted
-    int jmp = dyn->insts[ninst].x64.jmp_insts;
-    if(dyn->insts[ninst].x64.jmp && jmp!=-1) {
-        need_flags = dyn->insts[jmp].need_nat_flags;
-        flags_after = flag2native(dyn->insts[jmp].x64.need_before);
-        if(((need_flags&flags_after)!=need_flags) || (!need_flags && (flags_after&marked_flags))) {
-            unmarkNativeFlags(dyn, ninst, 1);
+        // check if flags are generated without native option
+        if((start!=ninst) && dyn->insts[ninst].x64.gen_flags && (flag2native(dyn->insts[ninst].x64.gen_flags&dyn->insts[ninst].x64.need_after)&used_flags))
             return;
-        }
+        // mark the opcode
+        uint8_t use_flags = flag2native(dyn->insts[ninst].x64.need_before|dyn->insts[ninst].x64.need_after);
+        if(dyn->insts[ninst].x64.use_flags) use_flags |= flag2native(dyn->insts[ninst].x64.use_flags);  // should not change anything
+//printf_log(LOG_INFO, " marking ninst=%d with %x | %x&%x => %x\n", ninst, dyn->insts[ninst].need_nat_flags, used_flags, use_flags, dyn->insts[ninst].need_nat_flags | (used_flags&use_flags));
+        dyn->insts[ninst].need_nat_flags |= used_flags&use_flags;
+        if(carry) dyn->insts[ninst].normal_carry = nc;
+        if(carry && dyn->insts[ninst].invert_carry) nc = 0;
+        // check if flags are still needed
+        if(!(flag2native(dyn->insts[ninst].x64.need_after)&used_flags))
+            return;
+        // go next
+        if(!dyn->insts[ninst].x64.has_next) {
+            // check if it's a jump to an opcode with only 1 preds, then just follow the jump
+            int jmp = dyn->insts[ninst].x64.jmp_insts;
+            if(dyn->insts[ninst].x64.jmp && (jmp!=-1) && (getNominalPred(dyn, jmp)==ninst))
+                ninst = jmp;
+            else
+                return;
+        } else
+            ++ninst;
     }
-    #endif
 }
 
 void updateNatveFlags(dynarec_native_t* dyn)
@@ -975,8 +957,8 @@ void updateNatveFlags(dynarec_native_t* dyn)
     if(!box64_dynarec_nativeflags)
         return;
     // backward check if native flags are used
-    for(int ninst=dyn->size-1; ninst>=0; --ninst)
-        if(dyn->insts[ninst].use_nat_flags) {
+    for(int ninst=0; ninst<dyn->size; ++ninst)
+        if(flag2native(dyn->insts[ninst].x64.gen_flags) && (dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)) {
             propagateNativeFlags(dyn, ninst);
         }
 }
@@ -996,11 +978,19 @@ int nativeFlagsNeedsTransform(dynarec_arm_t* dyn, int ninst)
     if(dyn->insts[ninst].set_nat_flags)
         return 0;
     uint8_t flags_before = dyn->insts[ninst].need_nat_flags;
+    uint8_t nc_before = dyn->insts[ninst].normal_carry;
+    if(dyn->insts[ninst].invert_carry)
+        nc_before = 0;
     uint8_t flags_after = dyn->insts[jmp].need_nat_flags;
-    if(dyn->insts[jmp].nat_flags_op==NAT_FLAG_OP_TOUCH)
+    uint8_t nc_after = dyn->insts[jmp].normal_carry;
+    if(dyn->insts[jmp].nat_flags_op==NAT_FLAG_OP_TOUCH) {
         flags_after = dyn->insts[jmp].before_nat_flags;
+        nc_after = dyn->insts[jmp].normal_carry_before;
+    }
     uint8_t flags_x86 = flag2native(dyn->insts[jmp].x64.need_before);
     flags_x86 &= ~flags_after;
+    if((flags_before&NF_CF) && (flags_after&NF_CF) && (nc_before!=nc_after))
+        return 1;
     // all flags_after should be present and none remaining flags_x86 
     if(((flags_before&flags_after)!=flags_after) || (flags_before&flags_x86))
         return 1;

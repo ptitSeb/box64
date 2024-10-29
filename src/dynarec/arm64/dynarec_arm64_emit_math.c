@@ -57,8 +57,10 @@ void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         }
     }
     IFX(X_CF) {
-        CSETw(s4, cCS);
-        BFIw(xFlags, s4, F_CF, 1);
+        IFNATIVE(NF_CF) {} else {
+            CSETw(s4, cCS);
+            BFIw(xFlags, s4, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -135,8 +137,10 @@ void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         }
     }
     IFX(X_CF) {
-        CSETw(s4, cCS);
-        BFIw(xFlags, s4, F_CF, 1);
+        IFNATIVE(NF_CF) {} else {
+            CSETw(s4, cCS);
+            BFIw(xFlags, s4, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -192,8 +196,12 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_CF) {
         // inverted carry
-        CSETw(s4, cCC);
-        BFIw(xFlags, s4, F_CF, 1);
+        IFNATIVE(NF_CF) {
+            GEN_INVERTED_CARRY();
+        } else {
+            CSETw(s4, cCC);
+            BFIw(xFlags, s4, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -271,8 +279,12 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
     IFX(X_CF) {
         // inverted carry
-        CSETw(s4, cCC);
-        BFIw(xFlags, s4, F_CF, 1);
+        IFNATIVE(NF_CF) {
+            GEN_INVERTED_CARRY();
+        } else {
+            CSETw(s4, cCC);
+            BFIw(xFlags, s4, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -980,9 +992,21 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     IFX(X_AF) {
         MOVxw_REG(s4, s1);
     }
-    MRS_nzvc(s3);
-    BFIx(s3, xFlags, 29, 1); // set C
-    MSR_nzvc(s3);      // load CC into ARM CF
+    IFNATIVE_BEFORE(NF_CF) {
+        if(INVERTED_CARRY_BEFORE) {
+            if(arm64_flagm)
+                CFINV();
+            else {
+                MRS_nzcv(s3);
+                EORx_mask(s3, s3, 1, 35, 0);  //mask=1<<NZCV_C
+                MSR_nzcv(s3);
+            }
+        }
+    } else {
+        MRS_nzcv(s3);
+        BFIx(s3, xFlags, 29, 1); // set C
+        MSR_nzcv(s3);      // load CC into ARM CF
+    }
     IFX(X_ZF|X_CF|X_OF|X_SF) {
         ADCSxw_REG(s1, s1, s2);
     } else {
@@ -1006,8 +1030,10 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         }
     }
     IFX(X_CF) {
-        CSETw(s3, cCS);
-        BFIw(xFlags, s3, F_CF, 1);
+        IFNATIVE(NF_CF) {} else {
+            CSETw(s3, cCS);
+            BFIw(xFlags, s3, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -1110,9 +1136,21 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_AF | X_OF) {
         MOVw_REG(s4, s1);
     }
-    MRS_nzvc(s3);
-    BFIx(s3, xFlags, 29, 1); // set C
-    MSR_nzvc(s3);      // load CC into ARM CF
+    IFNATIVE_BEFORE(NF_CF) {
+        if(INVERTED_CARRY_BEFORE) {
+            if(arm64_flagm)
+                CFINV();
+            else {
+                MRS_nzcv(s3);
+                EORx_mask(s3, s3, 1, 35, 0);  //mask=1<<NZCV_C
+                MSR_nzcv(s3);
+            }
+        }
+    } else {
+        MRS_nzcv(s3);
+        BFIx(s3, xFlags, 29, 1); // set C
+        MSR_nzcv(s3);      // load CC into ARM CF
+    }
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
@@ -1164,9 +1202,21 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_AF | X_OF) {
         MOVw_REG(s4, s1);
     }
-    MRS_nzvc(s3);
-    BFIx(s3, xFlags, 29, 1); // set C
-    MSR_nzvc(s3);      // load CC into ARM CF
+    IFNATIVE_BEFORE(NF_CF) {
+        if(INVERTED_CARRY_BEFORE) {
+            if(arm64_flagm)
+                CFINV();
+            else {
+                MRS_nzcv(s3);
+                EORx_mask(s3, s3, 1, 35, 0);  //mask=1<<NZCV_C
+                MSR_nzcv(s3);
+            }
+        }
+    } else {
+        MRS_nzcv(s3);
+        BFIx(s3, xFlags, 29, 1); // set C
+        MSR_nzcv(s3);      // load CC into ARM CF
+    }
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRw_U12(s1, xEmu, offsetof(x64emu_t, res));
@@ -1274,10 +1324,22 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    EORw_mask(s4, xFlags, 0, 0);        // invert CC because it's reverted for SUB on ARM
-    MRS_nzvc(s3);
-    BFIx(s3, s4, 29, 1); // set C
-    MSR_nzvc(s3);      // load CC into ARM CF
+    IFNATIVE_BEFORE(NF_CF) {
+        if(!INVERTED_CARRY_BEFORE) {
+            if(arm64_flagm)
+                CFINV();
+            else {
+                MRS_nzcv(s3);
+                EORx_mask(s3, s3, 1, 35, 0);  //mask=1<<NZCV_C
+                MSR_nzcv(s3);
+            }
+        }
+    } else {
+        EORw_mask(s4, xFlags, 0, 0);        // invert CC because it's reverted for SUB on ARM
+        MRS_nzcv(s3);
+        BFIx(s3, s4, 29, 1); // set C
+        MSR_nzcv(s3);      // load CC into ARM CF
+    }
     IFX(X_AF) {
         MVNxw_REG(s4, s1);
     }
@@ -1305,8 +1367,12 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFX(X_CF) {
         // Inverted carry
-        CSETw(s3, cCC);
-        BFIw(xFlags, s3, F_CF, 1);
+        IFNATIVE(NF_CF) {
+            GEN_INVERTED_CARRY();
+        } else {
+            CSETw(s3, cCC);
+            BFIw(xFlags, s3, F_CF, 1);
+        }
     }
     IFX(X_OF) {
         IFNATIVE(NF_VF) {} else {
@@ -1408,10 +1474,22 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    EORw_mask(s4, xFlags, 0, 0);        // invert CC because it's reverted for SUB on ARM
-    MRS_nzvc(s3);
-    BFIx(s3, s4, 29, 1); // set C
-    MSR_nzvc(s3);      // load CC into ARM CF
+    IFNATIVE_BEFORE(NF_CF) {
+        if(!INVERTED_CARRY_BEFORE) {
+            if(arm64_flagm)
+                CFINV();
+            else {
+                MRS_nzcv(s3);
+                EORx_mask(s3, s3, 1, 35, 0);  //mask=1<<NZCV_C
+                MSR_nzcv(s3);
+            }
+        }
+    } else {
+        EORw_mask(s4, xFlags, 0, 0);        // invert CC because it's reverted for SUB on ARM
+        MRS_nzcv(s3);
+        BFIx(s3, s4, 29, 1); // set C
+        MSR_nzcv(s3);      // load CC into ARM CF
+    }
     IFX(X_AF|X_OF|X_CF) {
         MVNw_REG(s4, s1);
     }
@@ -1463,10 +1541,22 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    EORw_mask(s4, xFlags, 0, 0);            // invert CC because it's reverted for SUB on ARM
-    MRS_nzvc(s3);
-    BFIx(s3, s4, 29, 1); // set C, bit 29
-    MSR_nzvc(s3);      // load CC into ARM CF
+    IFNATIVE_BEFORE(NF_CF) {
+        if(!INVERTED_CARRY_BEFORE) {
+            if(arm64_flagm)
+                CFINV();
+            else {
+                MRS_nzcv(s3);
+                EORx_mask(s3, s3, 1, 35, 0);  //mask=1<<NZCV_C
+                MSR_nzcv(s3);
+            }
+        }
+    } else {
+        EORw_mask(s4, xFlags, 0, 0);            // invert CC because it's reverted for SUB on ARM
+        MRS_nzcv(s3);
+        BFIx(s3, s4, 29, 1); // set C, bit 29
+        MSR_nzcv(s3);      // load CC into ARM CF
+    }
     IFX(X_AF|X_OF|X_CF) {
         MVNw_REG(s4, s1);
     }

@@ -923,9 +923,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_CF, SF_SUBSET);
                     GETED(0);
                     GETGD;
-                    MRS_nzvc(x3);
+                    MRS_nzcv(x3);
                     BFIx(x3, xFlags, 29, 1); // set C
-                    MSR_nzvc(x3);      // load CC into ARM CF
+                    MSR_nzcv(x3);      // load CC into ARM CF
                     IFX(X_CF) {
                         ADCSxw_REG(gd, gd, ed);
                         CSETw(x3, cCS);

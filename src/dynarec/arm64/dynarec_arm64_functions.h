@@ -54,7 +54,7 @@ int neoncache_no_i64(dynarec_arm_t* dyn, int ninst, int st, int a);
 // transform x86 flags to native flags
 uint8_t flag2native(uint8_t flags);
 // mark a instruction as using/generating flags. return flag
-uint8_t mark_natflag(dynarec_arm_t* dyn, int ninst, uint8_t flag);
+uint8_t mark_natflag(dynarec_arm_t* dyn, int ninst, uint8_t flag, int before);
 // propage the use of nativeflags or not (done between step 0 and step 1)
 void updateNatveFlags(dynarec_arm_t* dyn);
 // raz arm speicifc state when an opcode is unused

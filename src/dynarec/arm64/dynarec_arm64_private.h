@@ -12,6 +12,7 @@ typedef struct instsize_s instsize_t;
 #define NF_EQ   (1<<0)
 #define NF_SF   (1<<1)
 #define NF_VF   (1<<2)
+#define NF_CF   (1<<3)
 
 // Nothing happens to the native flags
 #define NAT_FLAG_OP_NONE        0
@@ -109,9 +110,15 @@ typedef struct instruction_arm64_s {
     uint8_t             last_write;
     uint8_t             set_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags;  // 0 or combinaison of native flags define
-    uint8_t             nat_flags_op;// what happens to native flags here
+    uint8_t             use_nat_flags_before;  // 0 or combinaison of native flags define
+    uint8_t             nat_flags_op:4;// what happens to native flags here
+    uint8_t             nat_flags_op_before:4;// what happens to native flags here
     uint8_t             before_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             need_nat_flags;
+    unsigned            gen_inverted_carry:1;
+    unsigned            normal_carry:1;
+    unsigned            normal_carry_before:1;
+    unsigned            invert_carry:1; // this opcode force an inverted carry
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
@@ -172,11 +179,11 @@ void CreateJmpNext(void* addr, void* next);
 #define GO_TRACE(A, B, s0)  \
     GETIP(addr);            \
     MOVx_REG(x1, xRIP);     \
-    MRS_nzvc(s0);           \
+    MRS_nzcv(s0);           \
     STORE_XEMU_CALL(xRIP);  \
     MOV32w(x2, B);          \
     CALL_(A, -1, s0);       \
-    MSR_nzvc(s0);           \
+    MSR_nzcv(s0);           \
     LOAD_XEMU_CALL(xRIP)
 
 #endif //__DYNAREC_ARM_PRIVATE_H_
