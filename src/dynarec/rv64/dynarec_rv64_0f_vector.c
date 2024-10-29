@@ -326,6 +326,14 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX_vector(v0, 1, VECTOR_SEW32);
             VFMUL_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
+        case 0x5B:
+            INST_NAME("CVTDQ2PS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETEX_vector(q0, 0, 0, VECTOR_SEW32);
+            GETGX_empty_vector(v0);
+            VFCVT_F_X_V(v0, q0, VECTOR_UNMASKED);
+            break;
         case 0x5C:
             INST_NAME("SUBPS Gx, Ex");
             nextop = F8;
@@ -465,6 +473,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x2C ... 0x2F:
         case 0x31:
         case 0x40 ... 0x4F:
+        case 0x60 ... 0x7F:
         case 0x80 ... 0xBF:
         case 0xC8 ... 0xCF:
             return 0;

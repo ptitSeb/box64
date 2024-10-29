@@ -122,6 +122,34 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VFMV_S_F(v0, v0);
             }
             break;
+        case 0x2D:
+            INST_NAME("CVTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, VECTOR_SEW32);
+                VFMV_F_S(d0, d0);
+            } else {
+                GETEXSS(d0, 0);
+            }
+            if (!box64_dynarec_fastround) FSFLAGSI(0);
+            u8 = sse_setround(dyn, ninst, x5, x6);
+            FCVTSxw(gd, d0, RD_DYN);
+            x87_restoreround(dyn, ninst, u8);
+            if (!rex.w) ZEROUP(gd);
+            if (!box64_dynarec_fastround) {
+                FRFLAGS(x5);
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
         case 0x38:
             return 0;
         case 0x58:
@@ -307,6 +335,41 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VFMV_S_F(v0, d0);
                 }
             }
+            break;
+        case 0x6F:
+            INST_NAME("MOVDQU Gx, Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, dyn->vector_eew);
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                VMV_V_V(v0, v1);
+            } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
+                SMREAD();
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                VLE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            break;
+        case 0x7E:
+            INST_NAME("MOVQ Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            if (MODREG) {
+                GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                GETGX_empty_vector(v0);
+                VMV_X_S(x4, v1);
+            } else {
+                SMREAD();
+                GETGX_empty_vector(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LD(x4, ed, fixedaddress);
+            }
+            if (!rv64_xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VMV_S_X(v0, x4);
             break;
         case 0xAE:
         case 0xB8:
