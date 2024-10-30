@@ -242,6 +242,27 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FCVTDS(v0, v1);
             }
             break;
+        case 0x5B:
+            INST_NAME("CVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 12);
+            v0 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 4; ++i) {
+                if (!box64_dynarec_fastround) {
+                    FSFLAGSI(0); // reset all bits
+                }
+                FLW(v0, wback, fixedaddress + i * 4);
+                FCVTWS(x3, v0, RD_RTZ);
+                if (!box64_dynarec_fastround) {
+                    FRFLAGS(x5); // get back FPSR to check the IOC bit
+                    ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                    BEQZ(x5, 8);
+                    MOV32w(x3, 0x80000000);
+                }
+                SW(x3, gback, gdoffset + i * 4);
+            }
+            break;
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
@@ -343,28 +364,6 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             SSE_LOOP_MV_Q2(x3);
             if (!MODREG) SMWRITE2();
-            break;
-
-        case 0x5B:
-            INST_NAME("CVTTPS2DQ Gx, Ex");
-            nextop = F8;
-            GETGX();
-            GETEX(x2, 0, 12);
-            v0 = fpu_get_scratch(dyn);
-            for (int i = 0; i < 4; ++i) {
-                if (!box64_dynarec_fastround) {
-                    FSFLAGSI(0); // reset all bits
-                }
-                FLW(v0, wback, fixedaddress + i * 4);
-                FCVTWS(x3, v0, RD_RTZ);
-                if (!box64_dynarec_fastround) {
-                    FRFLAGS(x5); // get back FPSR to check the IOC bit
-                    ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
-                    BEQZ(x5, 8);
-                    MOV32w(x3, 0x80000000);
-                }
-                SW(x3, gback, gdoffset + i * 4);
-            }
             break;
         case 0xAE:
             nextop = F8;

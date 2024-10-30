@@ -251,6 +251,33 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x50:
+            INST_NAME("MOVMSKPS Gd, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGD;
+            GETEX_vector(q0, 0, 0, VECTOR_SEW32);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
+            VSRL_VI(v0, q0, 31, VECTOR_UNMASKED);
+            if (rv64_xtheadvector) {
+                // Force the element width to 4bit
+                vector_vsetvli(dyn, ninst, x4, VECTOR_SEW32, VECTOR_LMUL8, 1);
+                VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x4, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                VMV_X_S(x4, VMASK);
+                BEXTI(gd, x4, 12);
+                BEXTI(x5, x4, 8);
+                ADDSL(gd, x5, gd, 1, x6);
+                BEXTI(x5, x4, 4);
+                ADDSL(gd, x5, gd, 1, x6);
+                BEXTI(x5, x4, 0);
+                ADDSL(gd, x5, gd, 1, x6);
+            } else {
+                VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                VMV_X_S(gd, VMASK);
+                ZEROUP(gd);
+            }
+            break;
         case 0x51:
             INST_NAME("SQRTPS Gx, Ex");
             nextop = F8;
