@@ -13,6 +13,7 @@
 
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFpip_t)(void*, int32_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef intptr_t (*lFpip_t)(void*, int32_t, void*);
@@ -34,6 +35,12 @@ typedef int32_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
 	GO(SSL_set_psk_client_callback, vFpp_t) \
 	GO(SSL_set_psk_server_callback, vFpp_t) \
 	GO(SSL_set_psk_use_session_callback, vFpp_t) \
+	GO(BIO_meth_set_create, iFpp_t) \
+	GO(BIO_meth_set_ctrl, iFpp_t) \
+	GO(BIO_meth_set_destroy, iFpp_t) \
+	GO(BIO_meth_set_puts, iFpp_t) \
+	GO(BIO_meth_set_read, iFpp_t) \
+	GO(BIO_meth_set_write, iFpp_t) \
 	GO(SSL_CTX_set_verify, vFpip_t) \
 	GO(SSL_set_verify, vFpip_t) \
 	GO(SSL_CTX_set_alpn_select_cb, vFppp_t) \

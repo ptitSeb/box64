@@ -22,10 +22,25 @@
 const char* crypto3Name = "libcrypto.so.3";
 #define LIBNAME crypto3
 
-typedef int(*iFppA_t)   (void*, void*, va_list);
+typedef void*(*pFv_t)     ();
+typedef int  (*iFppA_t)   (void*, void*, va_list);
+typedef int  (*iFpip_t)   (void*, int, void*);
+typedef void*(*pFppp_t)   (void*, void*, void*);
 
 #define ADDED_FUNCTIONS()                   \
     GO(BIO_vprintf, iFppA_t);               \
+    GO(i2t_ASN1_OBJECT, iFpip_t);           \
+    GO(i2v_ASN1_BIT_STRING, pFppp_t);       \
+    GO(i2v_GENERAL_NAME, pFppp_t);          \
+    GO(i2v_GENERAL_NAMES, pFppp_t);         \
+    GO(ASN1_BIT_STRING_it, pFv_t);          \
+    GO(EXTENDED_KEY_USAGE_it, pFv_t);       \
+    GO(ASN1_OCTET_STRING_it, pFv_t);        \
+    GO(GENERAL_NAMES_it, pFv_t);            \
+    GO(CERTIFICATEPOLICIES_it, pFv_t);      \
+    GO(POLICYINFO_it, pFv_t);               \
+    GO(CRL_DIST_POINTS_it, pFv_t);          \
+    GO(ISSUING_DIST_POINT_it, pFv_t);       \
 
 #include "generated/wrappedcrypto3types.h"
 
@@ -506,6 +521,86 @@ EXPORT void my3_EVP_MD_do_all_provided(x64emu_t* emu, void* ctx, void* cb, void*
     my->EVP_MD_do_all_provided(ctx, find_do_all_provided_cb_Fct(cb), arg);
 }
 
+EXPORT void my3_X509_STORE_set_verify_cb(x64emu_t* emu, void* ctx, void* cb)
+{
+    my->X509_STORE_set_verify_cb(ctx, find_verify_cb_Fct(cb));
+}
+
+EXPORT void* my3_PEM_read_bio_PrivateKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    return my->PEM_read_bio_PrivateKey(bp,x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT int my3_PEM_write_bio_PrivateKey(x64emu_t* emu, void* bp, void* x, void* enc, void* kstr, int klen, void* cb, void* u)
+{
+    return my->PEM_write_bio_PrivateKey(bp, x, enc, kstr, klen, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT int my3_PEM_write_bio_PrivateKey_traditional(x64emu_t* emu, void* bp, void* x, void* enc, void* kstr, int klen, void* cb, void* u)
+{
+    return my->PEM_write_bio_PrivateKey_traditional(bp, x, enc, kstr, klen, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my3_PEM_read_bio_PUBKEY(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    return my->PEM_read_bio_PUBKEY(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my3_PEM_read_bio_DHparams(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    return my->PEM_read_bio_DHparams(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+typedef struct my_v3_ext_method_s {
+    int ext_nid;
+    int ext_flags;
+    void* it;
+    void* ext_new;
+    void* ext_free;
+    void* d2i;
+    void* i2d;
+    void* i2s;
+    void* s2i;
+    void* i2v;
+    void* v2i;
+    void* i2r;
+    void* r2i;
+} my_v3_ext_method_t;
+
+EXPORT void* my3_X509V3_EXT_get(x64emu_t* emu, void* x)
+{
+    my_v3_ext_method_t* ret = my->X509V3_EXT_get(x);
+    if(ret) {
+        #define GO(A, W) if(ret->A) AddAutomaticBridge(my_lib->w.bridge, W, ret->A, 0, "v3_ext_method_" #A)
+        GO(ext_new, pFv);
+        GO(ext_free, vFp);
+        GO(d2i, pFppl);
+        GO(i2d, iFpp);
+        GO(i2s, pFpp);
+        GO(s2i, pFppp);
+        GO(i2v, pFppp);
+        GO(v2i, pFppp);
+        GO(i2r, iFpppi);
+        GO(r2i, pFppp);
+        #undef GO
+    }
+    return ret;
+}
+
 #define ALTMY my3_
+
+#define CUSTOM_INIT \
+    AddAutomaticBridge(lib->w.bridge, iFpip, my->i2t_ASN1_OBJECT, 0, "i2t_ASN1_OBJECT");            \
+    AddAutomaticBridge(lib->w.bridge, pFppp, my->i2v_ASN1_BIT_STRING, 0, "i2v_ASN1_BIT_STRING");    \
+    AddAutomaticBridge(lib->w.bridge, pFppp, my->i2v_GENERAL_NAME, 0, "i2v_GENERAL_NAME");          \
+    AddAutomaticBridge(lib->w.bridge, pFppp, my->i2v_GENERAL_NAMES, 0, "i2v_GENERAL_NAMES");        \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->ASN1_BIT_STRING_it, 0, "ASN1_BIT_STRING_it");        \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->EXTENDED_KEY_USAGE_it, 0, "EXTENDED_KEY_USAGE_it");  \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->ASN1_OCTET_STRING_it, 0, "ASN1_OCTET_STRING_it");    \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->GENERAL_NAMES_it, 0, "GENERAL_NAMES_it");            \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->CERTIFICATEPOLICIES_it, 0, "CERTIFICATEPOLICIES_it");\
+    AddAutomaticBridge(lib->w.bridge, pFv, my->POLICYINFO_it, 0, "POLICYINFO_it");                  \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->CRL_DIST_POINTS_it, 0, "CRL_DIST_POINTS_it");        \
+    AddAutomaticBridge(lib->w.bridge, pFv, my->ISSUING_DIST_POINT_it, 0, "ISSUING_DIST_POINT_it");  \
 
 #include "wrappedlib_init.h"

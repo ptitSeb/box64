@@ -3393,9 +3393,11 @@ wrappedcrypto3:
   - CRYPTO_set_locking_callback
 - pFp:
   - OPENSSL_sk_new
+  - X509V3_EXT_get
 - vFpp:
   - OPENSSL_sk_pop_free
   - X509_STORE_CTX_set_verify_cb
+  - X509_STORE_set_verify_cb
 - vFppp:
   - EVP_MD_do_all_provided
 - iFppp:
@@ -3409,11 +3411,14 @@ wrappedcrypto3:
 - pFpppp:
   - ASN1_d2i_bio
   - PEM_read_DHparams
+  - PEM_read_bio_DHparams
   - PEM_read_bio_DSAPrivateKey
   - PEM_read_bio_DSA_PUBKEY
   - PEM_read_bio_ECPrivateKey
   - PEM_read_bio_EC_PUBKEY
   - PEM_read_bio_PKCS7
+  - PEM_read_bio_PUBKEY
+  - PEM_read_bio_PrivateKey
   - PEM_read_bio_RSAPrivateKey
   - PEM_read_bio_RSA_PUBKEY
   - PEM_read_bio_X509
@@ -3428,6 +3433,8 @@ wrappedcrypto3:
 - iFppppipp:
   - PEM_write_bio_DSAPrivateKey
   - PEM_write_bio_ECPrivateKey
+  - PEM_write_bio_PrivateKey
+  - PEM_write_bio_PrivateKey_traditional
   - PEM_write_bio_RSAPrivateKey
 wrappedcurl:
 - iFpup:
@@ -5084,6 +5091,13 @@ wrappedlibssl3:
   - SSL_set_psk_client_callback
   - SSL_set_psk_server_callback
   - SSL_set_psk_use_session_callback
+- iFpp:
+  - BIO_meth_set_create
+  - BIO_meth_set_ctrl
+  - BIO_meth_set_destroy
+  - BIO_meth_set_puts
+  - BIO_meth_set_read
+  - BIO_meth_set_write
 - vFpip:
   - SSL_CTX_set_verify
   - SSL_set_verify
