@@ -1802,6 +1802,28 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
             VMULH_VV(q0, q0, q1, VECTOR_UNMASKED);
             break;
+        case 0xE6:
+            if (!box64_dynarec_fastround) return 0;
+            INST_NAME("CVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETEX_vector(v1, 0, 0, VECTOR_SEW32);
+            GETGX_empty_vector(v0);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VMV_V_V(d0, v1);
+            if (rv64_xtheadvector) {
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                ADDI(x4, xZR, 1); // RTZ
+                FSRM(x4, x4);
+                VFNCVT_X_F_W(v0, d0, VECTOR_UNMASKED);
+                FSRM(xZR, x4);
+            } else {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                VFNCVT_RTZ_X_F_W(v0, d0, VECTOR_UNMASKED);
+            }
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+            break;
         case 0xE8:
             INST_NAME("PSUBSB Gx, Ex");
             nextop = F8;
