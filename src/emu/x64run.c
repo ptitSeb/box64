@@ -2192,6 +2192,7 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
     if(unimp) {
         emu->quit = 1;
         UnimpOpcode(emu, is32bits);
+        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
     }
     // fork handling
     if(emu->fork) {
