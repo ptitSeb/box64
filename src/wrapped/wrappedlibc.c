@@ -2240,7 +2240,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
         if(self)
             newargv[1] = emu->context->fullpath;
         else {
