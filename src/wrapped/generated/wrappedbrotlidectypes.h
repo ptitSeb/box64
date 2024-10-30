@@ -11,7 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFppp_t)(void*, void*, void*);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(BrotliDecoderCreateInstance, pFppp_t) \
+	GO(BrotliDecoderSetMetadataCallbacks, vFpppp_t)
 
 #endif // __wrappedbrotlidecTYPES_H_

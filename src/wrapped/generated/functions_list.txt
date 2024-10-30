@@ -3319,6 +3319,10 @@ wrappedatspi:
   - atspi_event_listener_new
 wrappedayatanaappindicator3:
 wrappedbrotlidec:
+- pFppp:
+  - BrotliDecoderCreateInstance
+- vFpppp:
+  - BrotliDecoderSetMetadataCallbacks
 wrappedbz2:
 - iFp:
   - BZ2_bzCompressEnd
