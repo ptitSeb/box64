@@ -3632,6 +3632,7 @@ static int clone_fn(void* p)
     x64emu_t *emu = arg->emu;
     R_RSP = arg->stack;
     emu->flags.quitonexit = 1;
+    thread_forget_emu();    //TODO: not all will flags needs this, probably just CLONE_VM?
     thread_set_emu(emu);
     if(arg->flags&CLONE_NEWUSER) {
         init_mutexes(my_context);

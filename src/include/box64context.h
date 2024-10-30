@@ -267,6 +267,7 @@ int AddTLSPartition(box64context_t* context, int tlssize);
 
 // defined in fact in threads.c
 void thread_set_emu(x64emu_t* emu);
+void thread_forget_emu();
 x64emu_t* thread_get_emu(void);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex

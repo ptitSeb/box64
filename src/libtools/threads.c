@@ -161,7 +161,10 @@ static void emuthread_cancel(void* p)
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
 }
-
+void thread_forget_emu()
+{
+	pthread_setspecific(thread_key, NULL);
+}
 void thread_set_emu(x64emu_t* emu)
 {
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
