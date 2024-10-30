@@ -120,6 +120,29 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             break;
+        case 0x13:
+            INST_NAME("MOVLPS Ex, Gx");
+            nextop = F8;
+            GETG;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 0, VECTOR_SEW64);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW64);
+                if (rv64_xtheadvector) {
+                    VECTOR_LOAD_VMASK(0b01, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VMV_X_S(x4, v1);
+                    VMV_S_X(v0, x4);
+                }
+            } else {
+                VMV_X_S(x4, v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                SD(x4, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx, Ex");
             nextop = F8;
@@ -251,6 +274,21 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x2B:
+            INST_NAME("MOVNTPS Ex, Gx");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+            GETGX_vector(v0, 0, dyn->vector_eew);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_empty_vector(dyn, ninst, x1, ed);
+                VMV_V_V(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                VSE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                SMWRITE2();
+            }
+            break;
         case 0x50:
             INST_NAME("MOVMSKPS Gd, Ex");
             nextop = F8;
@@ -286,6 +324,18 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX_empty_vector(v1);
             VFSQRT_V(v1, v0, VECTOR_UNMASKED);
             break;
+        case 0x52:
+            if (!box64_dynarec_fastround) return 0;
+            INST_NAME("RSQRTPS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETEX_vector(v0, 0, 0, VECTOR_SEW32);
+            GETGX_empty_vector(v1);
+            LUI(x4, 0x3f800);
+            FMVWX(v0, x4); // 1.0f
+            VFSQRT_V(v1, v0, VECTOR_UNMASKED);
+            VFRDIV_VF(v1, v1, v0, VECTOR_UNMASKED);
+            break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;
@@ -293,9 +343,8 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX_vector(v0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v1);
             LUI(x4, 0x3f800);
-            d0 = fpu_get_scratch(dyn);
-            FMVWX(d0, x4); // 1.0f
-            VFRDIV_VF(v1, v0, d0, VECTOR_UNMASKED);
+            FMVWX(v0, x4); // 1.0f
+            VFRDIV_VF(v1, v0, v0, VECTOR_UNMASKED);
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
@@ -502,6 +551,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x40 ... 0x4F:
         case 0x60 ... 0x7F:
         case 0x80 ... 0xBF:
+        case 0xC3 ... 0xC5:
         case 0xC8 ... 0xCF:
             return 0;
         default:

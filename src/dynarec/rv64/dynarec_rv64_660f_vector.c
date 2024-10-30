@@ -897,18 +897,15 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x5B:
+            if (!box64_dynarec_fastround) return 0;
             INST_NAME("CVTPS2DQ Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(v1, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v0);
-            if (box64_dynarec_fastround) {
-                u8 = sse_setround(dyn, ninst, x6, x4);
-                VFCVT_X_F_V(v0, v1, VECTOR_UNMASKED);
-                x87_restoreround(dyn, ninst, u8);
-            } else {
-                return 0;
-            }
+            u8 = sse_setround(dyn, ninst, x6, x4);
+            VFCVT_X_F_V(v0, v1, VECTOR_UNMASKED);
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
