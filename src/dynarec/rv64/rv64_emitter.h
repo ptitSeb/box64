@@ -1633,6 +1633,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Warning: zero-extended on xtheadvector!
 #define VMV_X_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
 
+// Warning: xtheadvector only
+#define VEXT_X_V(rd, vs2, rs1) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, rs1, 0b010, rd, 0b1010111))
+
 //  Vector Integer Extension Instructions
 //  https://github.com/riscv/riscv-v-spec/blob/e49574c92b072fd4d71e6cb20f7e8154de5b83fe/v-spec.adoc#123-vector-integer-extension
 
