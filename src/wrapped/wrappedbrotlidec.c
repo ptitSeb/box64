@@ -122,7 +122,7 @@ static void* find_brotli_decoder_metadata_chunk_func_Fct(void* fct)
 }
 #undef SUPER
 
-EXPORT void* my_BrotliDecoderCreateInstance(x64emu_t, void* m, void* f, void* d)
+EXPORT void* my_BrotliDecoderCreateInstance(x64emu_t* emu, void* m, void* f, void* d)
 {
     return my->BrotliDecoderCreateInstance(find_brotli_alloc_func_Fct(m), find_brotli_free_func_Fct(f), d);
 }
