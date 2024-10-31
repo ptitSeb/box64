@@ -35,7 +35,7 @@ rbtree* init_rbtree(const char* name) {
     rbtree* tree = rbtreeMalloc(sizeof(rbtree));
     tree->root = NULL;
     tree->is_unstable = 0;
-    tree->name = name?"(rbtree)":name;
+    tree->name = name?name:"(rbtree)";
     return tree;
 }
 
