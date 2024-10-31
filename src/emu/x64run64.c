@@ -466,6 +466,21 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             else
                 return 0;
 
+        case 0x6C:                      /* INSB DX */
+        case 0x6D:                      /* INSD DX */
+        case 0x6E:                      /* OUTSB DX */
+        case 0x6F:                      /* OUTSD DX */
+#ifndef TEST_INTERPRETER
+            if(rex.is32bits && box64_ignoreint3)
+            {
+                F8;
+            } else {
+                F8;
+                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            }
+            #endif
+            break;
+
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
             GETEB_OFFS(1, tlsdata);
