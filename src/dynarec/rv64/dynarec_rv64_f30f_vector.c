@@ -96,6 +96,44 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            INST_NAME("MOVSLDUP Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            if (MODREG) {
+                q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                q1 = fpu_get_scratch(dyn);
+                VLE32_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            GETGX_empty_vector(q0);
+            ADDI(x4, xZR, 32);
+            v0 = fpu_get_scratch(dyn);
+            VSLL_VX(q0, q1, x4, VECTOR_UNMASKED);
+            VSRL_VX(v0, q0, x4, VECTOR_UNMASKED);
+            VOR_VV(q0, q0, v0, VECTOR_UNMASKED);
+            break;
+        case 0x16:
+            INST_NAME("MOVSHDUP Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            if (MODREG) {
+                q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                q1 = fpu_get_scratch(dyn);
+                VLE32_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            GETGX_empty_vector(q0);
+            ADDI(x4, xZR, 32);
+            v0 = fpu_get_scratch(dyn);
+            VSRL_VX(q0, q1, x4, VECTOR_UNMASKED);
+            VSLL_VX(v0, q0, x4, VECTOR_UNMASKED);
+            VOR_VV(q0, q0, v0, VECTOR_UNMASKED);
+            break;
         case 0x1E:
             return 0;
         case 0x2A:
