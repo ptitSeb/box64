@@ -1833,6 +1833,7 @@
 #() pFEpppV
 #() pFEpppA
 #() pFiiiii
+#() pFiiupL
 #() pFipipL
 #() pFipipp
 #() pFuiiiu
@@ -2446,6 +2447,7 @@
 #() vFpipipiu
 #() vFpippppu
 #() vFpuiippp
+#() vFpuipppp
 #() vFpuuuuuu
 #() vFpuuUUuu
 #() vFpuupupu
@@ -2784,6 +2786,7 @@
 #() iFdiippppL
 #() iFpiiiuuup
 #() iFpipiipip
+#() iFpippuuui
 #() iFpippuupp
 #() iFpCCWWpWu
 #() iFpWCuWCuu
