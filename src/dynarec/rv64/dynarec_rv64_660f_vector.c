@@ -766,6 +766,51 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         if (q0 != q1) VMV_V_V(q0, q1);
                     }
                     break;
+                case 0x16:
+                    nextop = F8;
+                    if (rex.w) {
+                        INST_NAME("PEXTRQ Ed, Gx, Ib");
+                    } else {
+                        INST_NAME("PEXTRD Ed, Gx, Ib");
+                    }
+                    SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
+                    GETGX_vector(q0, 1, dyn->vector_eew);
+                    if (MODREG) {
+                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        u8 = F8;
+                        if (u8 & (rex.w ? 1 : 3)) {
+                            if (rv64_xtheadvector) {
+                                ADDI(x4, xZR, (u8 & (rex.w ? 1 : 3)));
+                                VEXT_X_V(ed, q0, x4);
+                            } else {
+                                d0 = fpu_get_scratch(dyn);
+                                VSLIDEDOWN_VI(d0, q0, (u8 & (rex.w ? 1 : 3)), VECTOR_UNMASKED);
+                                VMV_X_S(ed, d0);
+                                if (!rex.w) ZEROUP(ed);
+                            }
+                        } else {
+                            VMV_X_S(ed, q0);
+                            if (!rv64_xtheadvector && !rex.w) ZEROUP(ed);
+                        }
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+                        u8 = F8;
+                        if (u8 & (rex.w ? 1 : 3)) {
+                            if (rv64_xtheadvector) {
+                                ADDI(x4, xZR, (u8 & (rex.w ? 1 : 3)));
+                                VEXT_X_V(x5, q0, x4);
+                            } else {
+                                d0 = fpu_get_scratch(dyn);
+                                VSLIDEDOWN_VI(d0, q0, (u8 & (rex.w ? 1 : 3)), VECTOR_UNMASKED);
+                                VMV_X_S(x5, d0);
+                            }
+                        } else {
+                            VMV_X_S(x5, q0);
+                        }
+                        SDxw(x5, ed, fixedaddress);
+                        SMWRITE2();
+                    }
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, Ed, Ib");
                     nextop = F8;
