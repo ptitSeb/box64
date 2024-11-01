@@ -808,6 +808,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 default: DEFAULT_VECTOR;
             }
             break;
+        case 0x40 ... 0x4F: return 0;
         case 0x50:
             INST_NAME("PMOVMSKD Gd, Ex");
             nextop = F8;
@@ -928,6 +929,26 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMAND_MM(VMASK, v0, VMASK);
                 VFSGNJN_VV(q0, q0, q0, VECTOR_MASKED);
             }
+            break;
+        case 0x5A:
+            INST_NAME("CVTPD2PS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+            GETGX_empty_vector(v0);
+            if (v1 & 1) {
+                d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                VMV_V_V(d1, v1);
+            } else {
+                d1 = v1;
+            }
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VFNCVT_F_F_W(d0, d1, VECTOR_UNMASKED);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+            if (!rv64_xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VMV_X_S(x4, d0);
+            VMV_S_X(v0, x4);
             break;
         case 0x5B:
             if (!box64_dynarec_fastround) return 0;
