@@ -95,6 +95,23 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            INST_NAME("MOVDDUP Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                GETGX_empty_vector(v0);
+                VMV_X_S(x4, v1);
+            } else {
+                SMREAD();
+                GETGX_empty_vector(v0);
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LD(x4, ed, fixedaddress);
+            }
+            VMV_V_X(v0, x4);
+            break;
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
             nextop = F8;
@@ -525,6 +542,25 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_V_V(v1, v0);
             }
             VRGATHER_VV(v0, v1, d0, VECTOR_UNMASKED);
+            break;
+        case 0x7C:
+            INST_NAME("HADDPS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW32);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VMV_V_V(v0, q0);
+            if (q1 & 1) VMV_V_V(d1, q1);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
+            VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+            ADDI(x4, xZR, 32);
+            VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED);
+            VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);
+            VFADD_VV(q0, d1, d0, VECTOR_UNMASKED);
             break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
