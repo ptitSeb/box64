@@ -850,6 +850,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VECTOR_LOAD_VMASK((u8 & 0xf), x4, 1);
                     VMERGE_VVM(q0, v1, d0);
                     break;
+                case 0x63: return 0;
                 default: DEFAULT_VECTOR;
             }
             break;
