@@ -631,6 +631,27 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(d0, x2);
             }
             break;
+        case 0xE6:
+            if (!box64_dynarec_fastround) return 0;
+            INST_NAME("CVTPD2DQ Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+            GETGX_empty_vector(v0);
+            if (v1 & 1) {
+                d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                VMV_V_V(d1, v1);
+            } else {
+                d1 = v1;
+            }
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VFNCVT_X_F_W(d0, d1, VECTOR_UNMASKED);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+            if (!rv64_xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VMV_X_S(x4, d0);
+            VMV_S_X(v0, x4);
+            break;
         default: DEFAULT_VECTOR;
     }
     return addr;
