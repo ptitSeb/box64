@@ -1140,10 +1140,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			conventions['F']: [
 				"\n#error Invalid return type: emulator\n",                # E
 				"fn({0});",                                                # v
-				"R_RAX=fn({0});",                                          # c
-				"R_RAX=fn({0});",                                          # w
-				"R_RAX=(int32_t)fn({0});",                                 # i
-				"R_RAX=(int64_t)fn({0});",                                 # I
+				"R_RAX=(uint8_t)fn({0});",                                 # c
+				"R_RAX=(uint16_t)fn({0});",                                # w
+				"R_RAX=(uint32_t)fn({0});",                                # i
+				"S_RAX=(int64_t)fn({0});",                                 # I
 				"R_RAX=(unsigned char)fn({0});",                           # C
 				"R_RAX=(unsigned short)fn({0});",                          # W
 				"R_RAX=(uint32_t)fn({0});",                                # u
