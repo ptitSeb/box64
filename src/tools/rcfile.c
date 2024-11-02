@@ -95,6 +95,7 @@ ENTRYSTRING_(BOX64_EMULATED_LIBS, emulated_libs)        \
 ENTRYBOOL(BOX64_ALLOWMISSINGLIBS, allow_missing_libs)   \
 ENTRYBOOL(BOX64_PREFER_WRAPPED, box64_prefer_wrapped)   \
 ENTRYBOOL(BOX64_PREFER_EMULATED, box64_prefer_emulated) \
+ENTRYBOOL(BOX64_WRAP_EGl, box64_wrap_egl)               \
 ENTRYBOOL(BOX64_CRASHHANDLER, box64_dummy_crashhandler) \
 ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
 ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \

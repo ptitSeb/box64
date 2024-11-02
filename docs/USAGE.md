@@ -299,6 +299,11 @@ Box64 will prefer emulated libs first (except for glibc, alsa, pulse, GL, vulkan
  * 0 : Native libs are preferred (Default.)
  * 1 : Emulated libs are preferred (Default for program running inside pressure-vessel)
 
+#### BOX64_WRAP_EGL *
+Box64 will prefer wrapped libs for EGL and GLESv2
+ * 0 : Emulated libs are preferred (Default)
+ * 1 : Native libs are preferred
+
 #### BOX64_CRASHHANDLER *
 Box64 will use a dummy crashhandler.so library
  * 0 : Use Emulated crashhandler.so library if needed

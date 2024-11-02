@@ -159,6 +159,7 @@ int box64_x11glx = 1;
 int allow_missing_libs = 0;
 int box64_prefer_emulated = 0;
 int box64_prefer_wrapped = 0;
+int box64_wrap_egl = 0;
 int box64_sse_flushto0 = 0;
 int box64_x87_no80bits = 0;
 int box64_sync_rounding = 0;
@@ -1515,6 +1516,13 @@ void LoadEnvVars(box64context_t *context)
         if (strcmp(getenv("BOX64_PREFER_EMULATED"), "1")==0) {
             box64_prefer_emulated = 1;
             printf_log(LOG_INFO, "BOX64: Prefering Emulated libs\n");
+        }
+    }
+    if(getenv("BOX64_WRAP_EGL")) {
+        char* p = getenv("BOX64_WRAP_EGL");
+        if (*p>='0' && *p<='1') {
+            box64_wrap_egl = *p - '0';
+            if(box64_wrap_egl) printf_log(LOG_INFO, "BOX64: Prefering Native(Wrapped) EGL/GLESv2\n");
         }
     }
 

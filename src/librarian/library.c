@@ -429,10 +429,17 @@ static const char* essential_libs[] = {
     "libxkbcommon-x11.so.0", "libpulse-simple.so.0", "libpulse.so.0", "libvulkan.so.1", "libvulkan.so",
     "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4", "libanl.so.1"
 };
+static const char* essential_libs_egl[] = {
+    "libEGL.so", "libGLESv2.so"
+};
 static int isEssentialLib(const char* name) {
     for (unsigned int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
         if(!strcmp(name, essential_libs[i]))
             return 1;
+    if(box64_wrap_egl)
+        for (unsigned int i=0; i<sizeof(essential_libs_egl)/sizeof(essential_libs_egl[0]); ++i)
+            if(!strcmp(name, essential_libs_egl[i]))
+                return 1;
     return 0;
 }
 
