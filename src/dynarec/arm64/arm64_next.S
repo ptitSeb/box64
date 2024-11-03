@@ -14,28 +14,36 @@
 arm64_next:
     // emu is r0
     // IP address is r1
-    sub     sp,  sp,  (8 * 12)
+    sub     sp,  sp,  (8 * 2)
     stp     x0,  x1,  [sp, (8 *  0)]
-    stp     x10, x11, [sp, (8 *  2)]
-    stp     x12, x13, [sp, (8 *  4)]
-    stp     x14, x15, [sp, (8 *  6)]
-    stp     x16, x17, [sp, (8 *  8)]
-    stp     x18, x27, [sp, (8 * 10)]    // also save x27(rip) to allow change in LinkNext
+    stp     x10, x11, [x0, (8 *  0)]
+    stp     x12, x13, [x0, (8 *  2)]
+    stp     x14, x15, [x0, (8 *  4)]
+    stp     x16, x17, [x0, (8 *  6)]
+    stp     x18, x19, [x0, (8 *  8)]
+    stp     x20, x21, [x0, (8 * 10)]
+    stp     x22, x23, [x0, (8 * 12)]
+    stp     x24, x25, [x0, (8 * 14)]
+    stp     x26, x27, [x0, (8 * 16)] 
 
     mov     x2, x30      // "from" is in lr, so put in x2
-    add     x3, sp, 8*11    // x3 is address to change rip
+
     // call the function
     bl      LinkNext
     // preserve return value
     mov     x3, x0
     // pop regs
     ldp     x0, x1,   [sp, (8 *  0)]
-    ldp     x10, x11, [sp, (8 *  2)]
-    ldp     x12, x13, [sp, (8 *  4)]
-    ldp     x14, x15, [sp, (8 *  6)]
-    ldp     x16, x17, [sp, (8 *  8)]
-    ldp     x18, x27, [sp, (8 * 10)]
-    add     sp,  sp, (8 * 12)
+    ldp     x10, x11, [x0, (8 *  0)]
+    ldp     x12, x13, [x0, (8 *  2)]
+    ldp     x14, x15, [x0, (8 *  4)]
+    ldp     x16, x17, [x0, (8 *  6)]
+    ldp     x18, x19, [x0, (8 *  8)]
+    ldp     x20, x21, [x0, (8 * 10)]
+    ldp     x22, x23, [x0, (8 * 12)]
+    ldp     x24, x25, [x0, (8 * 14)]
+    ldp     x26, x27, [x0, (8 * 16)]
+    add     sp,  sp, (8 * 2)
     // return offset is jump address
     br      x3
 

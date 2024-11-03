@@ -28,7 +28,7 @@
 #ifdef DYNAREC
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
 
-void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
+void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2)
 {
     int is32bits = (R_CS == 0x23);
     #ifdef HAVE_TRACE
@@ -53,7 +53,6 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         uintptr_t old_addr = addr;
         addr = (uintptr_t)getAlternate((void*)addr);    // set new address
         R_RIP = addr;   // but also new RIP!
-        *x3 = addr; // and the RIP in x27 register
         printf_log(LOG_DEBUG, " -> %p\n", (void*)addr);
         block = DBAlternateBlock(emu, old_addr, addr, is32bits);
     } else
@@ -66,12 +65,12 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
             } else {
                 dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
                 elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
-                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s), RIP=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)", (void*)*x3);
+                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s), RIP=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)", R_RIP);
             }
         }
         #endif
         //tableupdate(native_epilog, addr, table);
-        return native_epilog;
+        return native_epilog_fast;
     }
     if(!block->done) {
         // not finished yet... leave linker
@@ -81,11 +80,11 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
             printf_log(LOG_NONE, "Warning, NULL block at %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
         }
         #endif
-        return native_epilog;
+        return native_epilog_fast;
     }
     if(!(jblock=block->block)) {
         // null block, but done: go to epilog, no linker here
-        return native_epilog;
+        return native_epilog_fast;
     }
     //dynablock_t *father = block->father?block->father:block;
     return jblock;

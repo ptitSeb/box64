@@ -7,6 +7,7 @@
 .align 4
 
 .global arm64_epilog
+.global arm64_epilog_fast
 arm64_epilog:
     //update register -> emu
     stp     x10, x11, [x0, (8 *  0)]
@@ -18,6 +19,7 @@ arm64_epilog:
     stp     x22, x23, [x0, (8 * 12)]
     stp     x24, x25, [x0, (8 * 14)]
     stp     x26, x27, [x0, (8 * 16)] // put back reg value in emu, including EIP (so x27 must be EIP now)
+arm64_epilog_fast:
     //restore all used register
     add     sp, x28, 0
     //vpop     {d8-d15}
