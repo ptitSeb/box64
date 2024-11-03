@@ -33,6 +33,17 @@ la64_next:
     st.d   $r28, $a0, (8 * 13)
     st.d   $r29, $a0, (8 * 14)
     st.d   $r30, $a0, (8 * 15)
+    // restore xFlags from LBT.eflags
+    la.global $r12, la64_lbt
+    ldptr.d   $r12, $r12, 0
+    beqz      $r12, 1f
+    ori       $r13, $r0, 0b100011010101
+    andn      $r31, $r31, $r13
+    x86mfflag $r13, 0b111111
+    or        $r31, $r31, $r13
+1:
+    st.d   $r31, $a0, (8 * 16) // xFlags
+    st.d   $r20, $a0, (8 * 17) // put back reg value in emu, including EIP (so $r20 must be EIP now)
 
     move   $a2, $ra      // "from" is in ra, so put in a2
     // call the function
