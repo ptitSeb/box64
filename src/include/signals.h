@@ -62,5 +62,6 @@ void fini_signal_helper(void);
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code);
 void emit_interruption(x64emu_t* emu, int num, void* addr);
 void emit_div0(x64emu_t* emu, void* addr, int code);
+void check_exec(x64emu_t* emu, uintptr_t addr);
 
 #endif //__SIGNALS_H__

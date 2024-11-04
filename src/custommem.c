@@ -1438,8 +1438,11 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, 0);
                 mprotect((void*)cur, bend-cur, prot);
-            } else if(prot&PROT_DYNAREC_R)
+            } else if(prot&PROT_DYNAREC_R) {
+                if(mark)
+                    cleanDBFromAddressRange(cur, bend-cur, 0);
                 prot &= ~PROT_CUSTOM;
+            }
         }
         if (prot != oprot)
             rb_set(memprot, cur, bend, prot);
@@ -1514,8 +1517,9 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
                 dyn = PROT_DYNAREC_R;
             }
         }
-        if ((prot|dyn) != oprot)
-            rb_set(memprot, cur, bend, prot|dyn);
+        uint32_t new_prot = prot?(prot|dyn):prot;
+        if (new_prot != oprot)
+            rb_set(memprot, cur, bend, new_prot);
         cur = bend;
     }
     UNLOCK_PROT();

@@ -398,6 +398,7 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
 void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
+    int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
 
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
 
@@ -563,22 +564,42 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
+    uint32_t real_prot = 0;
+    if(prot&PROT_READ) real_prot|=PROT_READ;
+    if(prot&PROT_WRITE) real_prot|=PROT_WRITE;
+    if(prot&PROT_EXEC) real_prot|=PROT_WRITE;
+    if(prot&PROT_DYNAREC) real_prot|=PROT_WRITE;
+    sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
+    sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 0;
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[I386_EIP]) {
-            sigcontext->uc_mcontext.gregs[I386_ERR] = (info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
-            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
+            if(info->si_errno==0xbad0) {
+                //bad opcode
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 13;
+                info2->si_errno = 0;
+            } else if (info->si_errno==0xecec) {
+                // no excute bit on segment
+                sigcontext->uc_mcontext.gregs[I386_ERR] = (real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
+                info2->si_errno = 0;
+            }else {
+                sigcontext->uc_mcontext.gregs[I386_ERR] = (real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (getMmapped((uintptr_t)info->si_addr))?14:13;
+                //sigcontext->uc_mcontext.gregs[I386_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
+            }
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
-            sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0002;    // write flag issue
+            sigcontext->uc_mcontext.gregs[I386_ERR] = (real_prot&PROT_READ)?2:1;//0x0002;    // write flag issue
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
         } else {
             if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[I386_ESP])<16)
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 12; // stack overflow probably
             else
-                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
             //I386_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
-            sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0004;    // read error? there is no execute control in box64 anyway
+            sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0001;    // read error?
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
@@ -586,7 +607,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             info2->si_errno = 0;
         } else if(info->si_errno==0xdead) {
             // INT x
-            uint8_t int_n = info2->si_code;
+            uint8_t int_n = info->si_code;
             info2->si_errno = 0;
             info2->si_code = info->si_code;
             info2->si_addr = NULL;
@@ -621,7 +642,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
         sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
     }
     //TODO: SIGABRT generate what?
-    printf_log(LOG_DEBUG, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]));
+    printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]));
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu
@@ -684,7 +705,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             #undef GO
             for(int i=0; i<6; ++i)
                 emu->segs_serial[i] = 0;
-            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
+            printf_log((sig==10)?LOG_DEBUG:log_minimum, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled

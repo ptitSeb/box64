@@ -71,6 +71,7 @@ int Run(x64emu_t *emu, int step)
 #ifdef TEST_INTERPRETER
     test->memsize = 0;
 #else
+    check_exec(emu, R_RIP);
 x64emurun:
     while(1) 
 #endif
@@ -1813,7 +1814,7 @@ x64emurun:
             F8;
             if(rex.is32bits && box64_ignoreint3)
             {} else
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -1853,7 +1854,7 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             if(rex.is32bits && box64_ignoreint3)
             {} else
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -1882,7 +1883,7 @@ x64emurun:
         case 0xF4:                      /* HLT */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -2016,14 +2017,14 @@ x64emurun:
             // this is a privilege opcode
             if(rex.is32bits && box64_ignoreint3)
             {} else
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             break;
         case 0xFB:                      /* STI */
             // this is a privilege opcode
             if(rex.is32bits && box64_ignoreint3)
             {} else
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             break;
         case 0xFC:                      /* CLD */

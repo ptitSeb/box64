@@ -172,7 +172,7 @@ void native_ud(x64emu_t* emu)
 void native_priv(x64emu_t* emu)
 {
     emu->test.test = 0;
-    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
 }
 
 void native_int(x64emu_t* emu, int num)

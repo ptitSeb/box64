@@ -387,6 +387,19 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             R_RAX = tmp64u&0xFFFFFFFF;
             break;
 
+        case 0x34:                  /* SYSENTER */
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            STEP;
+            #endif
+            break;
+        case 0x35:                  /* SYSEXIT */
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            STEP;
+            #endif
+            break;
+
         case 0x38:  // these are some SSE3 opcodes
             opcode = F8;
             switch(opcode) {

@@ -1703,6 +1703,14 @@ static int isSysCpuCache(const char *path, const char* w, int* _cpu, int* _index
     return 1;
 }
 
+static long isProcMem(const char* path)
+{
+    long pid;
+    if(sscanf(path, "/proc/%ld/mem", &pid)==1)
+        return pid;
+    return 0;
+}
+
 EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
 {
     if(isProcSelf((const char*)path, "exe")) {
@@ -1918,6 +1926,10 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         CreateCpuCacheAssoc(tmp, cpu, index);
         lseek(tmp, 0, SEEK_SET);
         return tmp;
+    }
+    if(box64_wine && isProcMem(pathname) && (mode&O_WRONLY)) {
+        // deny using proc/XX/mem as it messes up with dynarec memory protection & tracking
+        return -1;
     }
     #endif
     int ret = open(pathname, flags, mode);
@@ -3411,24 +3423,33 @@ EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_
 {
     if(request == PTRACE_POKEUSER) {
         if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
-            ptrace(PTRACE_POKEDATA, pid, addr+(uintptr_t)userdata, data);
-            return 0;
+            long ret = ptrace(PTRACE_POKEDATA, pid, addr+(uintptr_t)userdata, data);
+            return ret;
         }
         // fallback to a generic local faking
-        if((uintptr_t)addr < sizeof(userdata))
+        if((uintptr_t)addr < sizeof(userdata)) {
             *(uintptr_t*)(addr+(uintptr_t)userdata) = (uintptr_t)data;
         // lets just ignore this for now!
-        return 0;
+            errno = 0;
+            return 0;
+        }
+        errno = EINVAL;
+        return -1;
     }
     if(request == PTRACE_PEEKUSER) {
         if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
             return ptrace(PTRACE_PEEKDATA, pid, addr+(uintptr_t)userdata, data);
         }
         // fallback to a generic local faking
-        if((uintptr_t)addr < sizeof(userdata))
+        if((uintptr_t)addr < sizeof(userdata)) {
+            errno = 0;
             return *(uintptr_t*)(addr+(uintptr_t)userdata);
+        }
+        errno = EINVAL;
+        return -1;
     }
-    return ptrace(request, pid, addr, data);
+    long ret = ptrace(request, pid, addr, data);
+    return ret;
 }
 
 // Backtrace stuff
