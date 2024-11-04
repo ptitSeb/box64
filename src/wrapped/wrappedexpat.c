@@ -20,6 +20,7 @@
 
 const char* expatName = "libexpat.so.1";
 #define LIBNAME expat
+#define ALTNAME "libexpat.so"
 
 #include "generated/wrappedexpattypes.h"
 
