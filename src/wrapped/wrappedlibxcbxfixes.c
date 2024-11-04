@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbxfixesName = "libxcb-xfixes.so";
-#else
-	const char* libxcbxfixesName = "libxcb-xfixes.so.0";
-#endif
+const char* libxcbxfixesName = "libxcb-xfixes.so.0";
+#define ALTNAME "libxcb-xfixes.so"
 
 #define LIBNAME libxcbxfixes
 

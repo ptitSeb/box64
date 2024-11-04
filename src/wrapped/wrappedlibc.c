@@ -74,13 +74,8 @@
 
 
 #define LIBNAME libc
-const char* libcName = 
-#ifdef ANDROID
-    "libc.so"
-#else
-    "libc.so.6"
-#endif
-    ;
+const char* libcName = "libc.so.6";
+#define ALTNAME "libc.so"
 
 typedef int (*iFi_t)(int);
 typedef int (*iFp_t)(void*);

@@ -12,11 +12,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* gstnetName = "libgstnet-1.0.so";
-#else
-    const char* gstnetName = "libgstnet-1.0.so.0";
-#endif
+const char* gstnetName = "libgstnet-1.0.so.0";
+#define ALTNAME "libgstnet-1.0.so"
 
 #define LIBNAME gstnet
 

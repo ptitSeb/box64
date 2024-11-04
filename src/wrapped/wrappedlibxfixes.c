@@ -11,18 +11,11 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* libxfixesName = "libXfixes.so";
-#else
-    const char* libxfixesName = "libXfixes.so.3";
-#endif
+const char* libxfixesName = "libXfixes.so.3";
+#define ALTNAME "libXfixes.so"
 
 #define LIBNAME libxfixes
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libxcb.so", "libXau.so", "libXdmcp.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libxcb.so.1", "libXau.so.6", "libXdmcp.so.6"
-#endif
 
 #include "wrappedlib_init.h"

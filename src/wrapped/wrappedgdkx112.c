@@ -18,11 +18,9 @@
 #include "emu/x64emu_private.h"
 #include "gtkclass.h"
 
-#ifdef ANDROID
-    const char* gdkx112Name = "libgdk-x11-2.0.so";
-#else
-    const char* gdkx112Name = "libgdk-x11-2.0.so.0";
-#endif
+const char* gdkx112Name = "libgdk-x11-2.0.so.0";
+#define ALTNAME "libgdk-x11-2.0.so"
+
 #define LIBNAME gdkx112
 
 static char* libname = NULL;
@@ -181,10 +179,6 @@ EXPORT uint32_t my_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, uin
 #define CUSTOM_INIT         \
     libname = lib->name;
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgobject-2.0.so", "libgio-2.0.so", "libgdk_pixbuf-2.0.so"
-#else
 #define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

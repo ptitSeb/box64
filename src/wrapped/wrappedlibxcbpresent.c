@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbpresentName = "libxcb-present.so";
-#else
-	const char* libxcbpresentName = "libxcb-present.so.0";
-#endif
+const char* libxcbpresentName = "libxcb-present.so.0";
+#define ALTNAME "libxcb-present.so"
 
 #define LIBNAME libxcbpresent
 

@@ -18,13 +18,9 @@
 #include "emu/x64emu_private.h"
 #include "callback.h"
 
-const char* gnutlsName = 
-#if ANDROID
-    "libgnutls.so"
-#else
-    "libgnutls.so.30"
-#endif
-    ;
+const char* gnutlsName = "libgnutls.so.30";
+#define ALTNAME "libgnutls.so"
+
 #define LIBNAME gnutls
 
 #include "generated/wrappedgnutlstypes.h"

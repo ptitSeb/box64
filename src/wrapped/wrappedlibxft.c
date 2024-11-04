@@ -18,11 +18,8 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-#ifdef ANDROID
-    const char* libxftName = "libXft.so";
-#else
-    const char* libxftName = "libXft.so.2";
-#endif
+const char* libxftName = "libXft.so.2";
+#define ALTNAME "libXft.so"
 
 #define LIBNAME libxft
 

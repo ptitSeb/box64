@@ -15,11 +15,8 @@
 #include "emu/x64emu_private.h"
 #include "box64context.h"
 
-#ifdef ANDROID
-    const char* libzName = "libz.so";
-#else
-    const char* libzName = "libz.so.1";
-#endif
+const char* libzName = "libz.so.1";
+#define ALTNAME "libz.so"
 
 #define LIBNAME libz
 

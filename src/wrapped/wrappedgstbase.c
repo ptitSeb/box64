@@ -20,11 +20,8 @@
 #include "gtkclass.h"
 #include "fileutils.h"
 
-#ifdef ANDROID
-    const char* gstbaseName = "libgstbase-1.0.so";
-#else
-    const char* gstbaseName = "libgstbase-1.0.so.0";
-#endif
+const char* gstbaseName = "libgstbase-1.0.so.0";
+#define ALTNAME "libgstbase-1.0.so"
 
 #define LIBNAME gstbase
 
@@ -237,10 +234,6 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
     SetGstBaseSrcID(my->gst_base_src_get_type());\
     SetGstAggregatorPadID(my->gst_aggregator_pad_get_type());
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgstreamer-1.0.so"
-#else
 #define NEEDED_LIBS "libgstreamer-1.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

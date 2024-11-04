@@ -20,11 +20,8 @@
 #include "gtkclass.h"
 #include "fileutils.h"
 
-#ifdef ANDROID
-    const char* gstvideoName = "libgstvideo-1.0.so";
-#else
-    const char* gstvideoName = "libgstvideo-1.0.so.0";
-#endif
+const char* gstvideoName = "libgstvideo-1.0.so.0";
+#define ALTNAME "libgstvideo-1.0.so"
 
 #define LIBNAME gstvideo
 
@@ -56,10 +53,6 @@ typedef size_t  (*LFv_t)();
     SetGstVideoFilterID(my->gst_video_filter_get_type());\
     SetGstVideoBufferPoolID(my->gst_video_buffer_pool_get_type());\
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgstreamer-1.0.so"
-#else
 #define NEEDED_LIBS "libgstreamer-1.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

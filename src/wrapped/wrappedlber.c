@@ -17,14 +17,9 @@
 #include "callback.h"
 
 
-const char* lberName =
-#ifdef ANDROID
-    "liblber-2.4.so"
-#else
-    "liblber-2.4.so.2"
-#endif
-    ;
-#define ALTNAME "liblber-2.5.so.0"
+const char* lberName = "liblber-2.4.so.2";
+#define ALTNAME "liblber-2.4.so"
+#define ALTNAME2 "liblber-2.5.so.0"
 #define LIBNAME lber
 
 #define ADDED_FUNCTIONS()           \

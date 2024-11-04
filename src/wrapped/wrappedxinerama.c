@@ -11,11 +11,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* xineramaName = "libXinerama.so";
-#else
-    const char* xineramaName = "libXinerama.so.1";
-#endif
+const char* xineramaName = "libXinerama.so.1";
+#define ALTNAME "libXinerama.so"
 
 #define LIBNAME xinerama
 

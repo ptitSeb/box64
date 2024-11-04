@@ -16,14 +16,9 @@
 #include "librarian.h"
 #include "callback.h"
 
-const char* ldaprName =
-#ifdef ANDROID
-    "libldap_r-2.4.so"
-#else
-    "libldap_r-2.4.so.2"
-#endif
-    ;
-#define ALTNAME "libldap-2.5.so.0"
+const char* ldaprName = "libldap_r-2.4.so.2";
+#define ALTNAME "libldap_r-2.4.so"
+#define ALTNAME2 "libldap-2.5.so.0"
 #define LIBNAME ldapr
 
 #define ADDED_FUNCTIONS() \

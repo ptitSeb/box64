@@ -11,18 +11,11 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* libxmuName = "libXmu.so";
-#else
-    const char* libxmuName = "libXmu.so.6";
-#endif
+const char* libxmuName = "libXmu.so.6";
+#define ALTNAME "libXmu.so"
 
 #define LIBNAME libxmu
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libXext.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
-#endif
 
 #include "wrappedlib_init.h"

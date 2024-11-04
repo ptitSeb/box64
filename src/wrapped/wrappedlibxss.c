@@ -11,18 +11,11 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* libxssName = "libXss.so";
-#else
-    const char* libxssName = "libXss.so.1";
-#endif
+const char* libxssName = "libXss.so.1";
+#define ALTNAME "libXss.so"
 
 #define LIBNAME libxss
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libXext.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
-#endif
 
 #include "wrappedlib_init.h"

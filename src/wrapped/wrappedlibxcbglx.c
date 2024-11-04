@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbglxName = "libxcb-glx.so";
-#else
-	const char* libxcbglxName = "libxcb-glx.so.0";
-#endif
+const char* libxcbglxName = "libxcb-glx.so.0";
+#define ALTNAME "libxcb-glx.so"
 
 #define LIBNAME libxcbglx
 

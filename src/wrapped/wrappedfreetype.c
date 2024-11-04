@@ -18,13 +18,9 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-const char* freetypeName = 
-#ifdef ANDROID
-    "libfreetype.so"
-#else
-    "libfreetype.so.6"
-#endif
-    ;
+const char* freetypeName = "libfreetype.so.6";
+#define ALTNAME "libfreetype.so"
+
 #define LIBNAME freetype
 
 typedef void  (*vFp_t)(void*);

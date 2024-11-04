@@ -18,6 +18,7 @@
 #include "myalign.h"
 
 const char* libx11xcbName = "libX11-xcb.so.1";
+#define ALTNAME "libX11-xcb.so"
 #define LIBNAME libx11xcb
 
 #define ADDED_FUNCTIONS()       \

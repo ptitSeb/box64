@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbsyncName = "libxcb-sync.so";
-#else
-	const char* libxcbsyncName = "libxcb-sync.so.1";
-#endif
+const char* libxcbsyncName = "libxcb-sync.so.1";
+#define ALTNAME "libxcb-sync.so"
 
 #define LIBNAME libxcbsync
 

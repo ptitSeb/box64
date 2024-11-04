@@ -12,11 +12,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* gstrtpName = "libgstrtp-1.0.so";
-#else
-    const char* gstrtpName = "libgstrtp-1.0.so.0";
-#endif
+const char* gstrtpName = "libgstrtp-1.0.so.0";
+#define ALTNAME "libgstrtp-1.0.so"
 
 #define LIBNAME gstrtp
 

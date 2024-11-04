@@ -18,11 +18,8 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-#ifdef ANDROID
-    const char* libusb1Name = "libusb-1.0.so";
-#else
-    const char* libusb1Name = "libusb-1.0.so.0";
-#endif
+const char* libusb1Name = "libusb-1.0.so.0";
+#define ALTNAME "libusb-1.0.so"
 
 #define LIBNAME libusb1
 

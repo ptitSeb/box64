@@ -12,6 +12,8 @@
 #include "x64emu.h"
 
 const char* xkbregistryName = "libxkbregistry.so.0";
+#define ALTNAME "libxkbregistry.so"
+
 #define LIBNAME xkbregistry
 
 #include "wrappedlib_init.h"

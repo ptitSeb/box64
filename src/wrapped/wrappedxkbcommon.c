@@ -12,6 +12,8 @@
 #include "x64emu.h"
 
 const char* xkbcommonName = "libxkbcommon.so.0";
+#define ALTNAME "libxkbcommon.so"
+
 #define LIBNAME xkbcommon
 
 #include "wrappedlib_init.h"

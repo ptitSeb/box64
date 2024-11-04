@@ -21,11 +21,9 @@
 #include "gtkclass.h"
 #include "fileutils.h"
 
-#ifdef ANDROID
-    const char* gstreamerName = "libgstreamer-1.0.so";
-#else
-    const char* gstreamerName = "libgstreamer-1.0.so.0";
-#endif
+const char* gstreamerName = "libgstreamer-1.0.so.0";
+#define ALTNAME "libgstreamer-1.0.so"
+
 #define LIBNAME gstreamer
 
 typedef void    (*vFv_t)();
@@ -1153,10 +1151,6 @@ EXPORT int my_gst_buffer_foreach_meta(x64emu_t* emu, void* buff, void* f, void* 
     SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
     SetGstBufferPoolID(my->gst_buffer_pool_get_type());        \
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgtk-3.so"
-#else
 #define NEEDED_LIBS "libgtk-3.so.0"
-#endif
 
 #include "wrappedlib_init.h"

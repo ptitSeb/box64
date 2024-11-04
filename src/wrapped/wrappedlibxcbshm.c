@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbshmName = "libxcb-shm.so";
-#else
-	const char* libxcbshmName = "libxcb-shm.so.0";
-#endif
+const char* libxcbshmName = "libxcb-shm.so.0";
+#define ALTNAME "libxcb-shm.so"
 
 #define LIBNAME libxcbshm
 

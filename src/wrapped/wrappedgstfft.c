@@ -12,11 +12,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* gstfftName = "libgstfft-1.0.so";
-#else
-    const char* gstfftName = "libgstfft-1.0.so.0";
-#endif
+const char* gstfftName = "libgstfft-1.0.so.0";
+#define ALTNAME "libgstfft-1.0.so"
 
 #define LIBNAME gstfft
 

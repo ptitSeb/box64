@@ -18,11 +18,8 @@
 #include "myalign.h"
 #include "bridge.h"
 
-#ifdef ANDROID
-    const char* vorbisfileName = "libvorbisfile.so";
-#else
-    const char* vorbisfileName = "libvorbisfile.so.3";
-#endif
+const char* vorbisfileName = "libvorbisfile.so.3";
+#define ALTNAME "libvorbisfile.so"
 
 #define LIBNAME vorbisfile
 
@@ -163,11 +160,5 @@ EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, v
     int32_t ret =  my->ov_test_callbacks(datasource, vf, initial, ibytes, cbs);
     return ret;
 }
-
-#ifdef PANDORA
-// No really ok, because it will depends on the order of initialisation
-#define PRE_INIT \
-    vorbisfileName = (box86->sdl1mixerlib || box86->sdl2mixerlib)?vorbisfileNameAlt:vorbisfileNameReg;
-#endif
 
 #include "wrappedlib_init.h"

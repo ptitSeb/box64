@@ -11,18 +11,11 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* libxrenderName = "libXrender.so";
-#else
-    const char* libxrenderName = "libXrender.so.1";
-#endif
+const char* libxrenderName = "libXrender.so.1";
+#define ALTNAME "libXrender.so"
 
 #define LIBNAME libxrender
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so"
-#else
 #define NEEDED_LIBS "libX11.so.6"
-#endif
 
 #include "wrappedlib_init.h"

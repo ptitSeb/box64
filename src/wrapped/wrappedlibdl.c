@@ -57,11 +57,8 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername) 
 int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 
 #define LIBNAME libdl
-#ifdef ANDROID
-    const char* libdlName = "libdl.so";
-#else
-    const char* libdlName = "libdl.so.2";
-#endif
+const char* libdlName = "libdl.so.2";
+#define ALTNAME "libdl.so"
 
 #define CLEARERR    if(dl->last_error) {box_free(dl->last_error); dl->last_error = NULL;}
 void dl_clear_error()

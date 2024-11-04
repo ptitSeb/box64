@@ -29,7 +29,7 @@ GO("libasound.so.2", libasound)
 GO("libasound.so", libasound)
 GO("libfreetype.so.6", freetype)
 GO("libfontconfig.so.1", fontconfig)
-#ifdef ANDROID
+
 GO("libX11.so", libx11)
 GO("libXext.so", libxext)
 GO("libXfixes.so", libxfixes)
@@ -42,7 +42,7 @@ GO("libxrandr.so", libxrandr)
 GO("libXss.so", libxss)
 GO("libXxf86vm.so", libxxf86vm)
 GO("libXinerama.so", xinerama)
-#else
+
 GO("libX11.so.6", libx11)
 GO("libXext.so.6", libxext)
 GO("libXfixes.so.3", libxfixes)
@@ -55,7 +55,7 @@ GO("libxrandr.so.2", libxrandr)
 GO("libXss.so.1", libxss)
 GO("libXxf86vm.so.1", libxxf86vm)
 GO("libXinerama.so.1", xinerama)
-#endif
+
 GO("libopenal.so.1", openal)
 GO("libopenal.so.0", openal)
 GO("libopenal.so", openal)

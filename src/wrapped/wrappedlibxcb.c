@@ -17,11 +17,8 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-#ifdef ANDROID
-	const char* libxcbName = "libxcb.so";
-#else
-	const char* libxcbName = "libxcb.so.1";
-#endif
+const char* libxcbName = "libxcb.so.1";
+#define ALTNAME "libxcb.so"
 
 #define LIBNAME libxcb
 

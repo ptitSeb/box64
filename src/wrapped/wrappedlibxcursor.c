@@ -11,19 +11,12 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-	const char* libxcursorName = "libXcursor.so";
-#else
-	const char* libxcursorName = "libXcursor.so.1";
-#endif
+const char* libxcursorName = "libXcursor.so.1";
+#define ALTNAME "libXcursor.so"
 
 #define LIBNAME libxcursor
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libXfixes.so", "libXrender.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libXfixes.so.3", "libXrender.so.1"
-#endif
 
 #include "wrappedlib_init.h"
 

@@ -18,11 +18,9 @@
 #include "emu/x64emu_private.h"
 #include "gtkclass.h"
 
-#ifdef ANDROID
-    const char* gdk3Name = "libgdk-3.so";
-#else
-    const char* gdk3Name = "libgdk-3.so.0";
-#endif
+const char* gdk3Name = "libgdk-3.so.0";
+#define ALTNAME "libgdk-3.so"
+
 #define LIBNAME gdk3
 
 //#define ADDED_FUNCTIONS()
@@ -198,10 +196,6 @@ EXPORT void my3_gdk_threads_set_lock_functions(x64emu_t* emu, void* enter_fn, vo
 
 #define ALTMY my3_
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgobject-2.0.so", "libgio-2.0.so", "libgdk_pixbuf-2.0.so"
-#else
 #define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

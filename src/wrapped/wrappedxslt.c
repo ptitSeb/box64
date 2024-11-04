@@ -17,13 +17,9 @@
 #include "callback.h"
 #include "globalsymbols.h"
 
-const char *xsltName =
-#ifdef ANDROID
-    "libxslt.so"
-#else
-    "libxslt.so.1"
-#endif
-    ;
+const char *xsltName = "libxslt.so.1";
+#define ALTNAME "libxslt.so"
+
 #define LIBNAME xslt
 
 #define ADDED_FUNCTIONS() \

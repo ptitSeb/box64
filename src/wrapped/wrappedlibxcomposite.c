@@ -12,11 +12,8 @@
 #include "x64emu.h"
 #include "debug.h"
 
-#ifdef ANDROID
-	const char* libxcompositeName = "libXcomposite.so";
-#else
-	const char* libxcompositeName = "libXcomposite.so.1";
-#endif
+const char* libxcompositeName = "libXcomposite.so.1";
+#define ALTNAME "libXcomposite.so"
 
 #define LIBNAME libxcomposite
 

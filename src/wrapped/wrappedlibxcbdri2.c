@@ -18,6 +18,8 @@
 #include "emu/x64emu_private.h"
 
 const char* libxcbdri2Name = "libxcb-dri2.so.0";
+#define ALTNAME "libxcb-dri2.so"
+
 #define LIBNAME libxcbdri2
 
 #include "wrappedlib_init.h"

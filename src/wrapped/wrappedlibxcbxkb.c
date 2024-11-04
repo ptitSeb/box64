@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbxkbName = "libxcb-xkb.so";
-#else
-	const char* libxcbxkbName = "libxcb-xkb.so.1";
-#endif
+const char* libxcbxkbName = "libxcb-xkb.so.1";
+#define ALTNAME "libxcb-xkb.so"
 
 #define LIBNAME libxcbxkb
 

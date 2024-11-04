@@ -11,11 +11,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-	const char* libxauName = "libXau.so";
-#else
-	const char* libxauName = "libXau.so.6";
-#endif
+const char* libxauName = "libXau.so.6";
+#define ALTNAME "libXau.so"
 
 #define LIBNAME libxau
 

@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-    const char* libxextName = "libXext.so";
-#else
-    const char* libxextName = "libXext.so.6";
-#endif
+const char* libxextName = "libXext.so.6";
+#define ALTNAME "libXext.so"
 
 #define LIBNAME libxext
 

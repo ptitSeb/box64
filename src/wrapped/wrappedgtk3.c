@@ -19,11 +19,8 @@
 #include "myalign.h"
 #include "gtkclass.h"
 
-#ifdef ANDROID
-    const char* gtk3Name = "libgtk-3.so";
-#else
-    const char* gtk3Name = "libgtk-3.so.0";
-#endif
+const char* gtk3Name = "libgtk-3.so.0";
+#define ALTNAME "libgtk-3.so"
 
 #define LIBNAME gtk3
 
@@ -840,10 +837,6 @@ EXPORT void my3_gtk_list_box_set_header_func(x64emu_t* emu, void* box, void* f, 
     SetGtkGestureLongPressID(my->gtk_gesture_long_press_get_type());\
     SetGtkActionID(my->gtk_action_get_type());
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgdk-3.so", "libpangocairo-1.0.so", "libgio-2.0.so"
-#else
 #define NEEDED_LIBS "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

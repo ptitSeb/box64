@@ -11,11 +11,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-	const char* xshmfenceName = "libxshmfence.so";
-#else
-	const char* xshmfenceName = "libxshmfence.so.1";
-#endif
+const char* xshmfenceName = "libxshmfence.so.1";
+#define ALTNAME "libxshmfence.so"
 
 #define LIBNAME xshmfence
 

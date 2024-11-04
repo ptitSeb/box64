@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbutilName = "libxcb-util.so";
-#else
-	const char* libxcbutilName = "libxcb-util.so.1";
-#endif
+const char* libxcbutilName = "libxcb-util.so.1";
+#define ALTNAME "libxcb-util.so"
 
 #define LIBNAME libxcbutil
 

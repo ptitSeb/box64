@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-    const char* libxxf86vmName = "libXxf86vm.so";
-#else
-    const char* libxxf86vmName = "libXxf86vm.so.1";
-#endif
+const char* libxxf86vmName = "libXxf86vm.so.1";
+#define ALTNAME "libXxf86vm.so"
 
 #define LIBNAME libxxf86vm
 

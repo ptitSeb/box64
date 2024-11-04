@@ -16,13 +16,8 @@
 #include "debug.h"
 #include "emu/x64emu_private.h"
 
-const char* libmName =
-#ifdef ANDROID
-    "libm.so"
-#else
-    "libm.so.6"
-#endif
-    ;
+const char* libmName = "libm.so.6";
+#define ALTNAME "libm.so"
 
 #define LIBNAME libm
 

@@ -17,13 +17,9 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* png16Name =
-#ifdef ANDROID
-	"libpng16.so"
-#else
-	"libpng16.so.16"
-#endif
-	;
+const char* png16Name = "libpng16.so.16";
+#define ALTNAME "libpng16.so"
+
 #define LIBNAME png16
 
 #include "generated/wrappedpng16types.h"

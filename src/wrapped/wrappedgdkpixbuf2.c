@@ -17,11 +17,9 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-    const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so";
-#else
-    const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
-#endif
+const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
+#define ALTNAME "libgdk_pixbuf-2.0.so"
+
 #define LIBNAME gdkpixbuf2
 
 #include "generated/wrappedgdkpixbuf2types.h"

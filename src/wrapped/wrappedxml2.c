@@ -18,13 +18,9 @@
 #include "callback.h"
 #include "myalign.h"
 
-const char* xml2Name =
-#ifdef ANDROID
-    "libxml2.so"
-#else
-    "libxml2.so.2"
-#endif
-    ;
+const char* xml2Name = "libxml2.so.2";
+#define ALTNAME "libxml2.so"
+
 #define LIBNAME xml2
 
 

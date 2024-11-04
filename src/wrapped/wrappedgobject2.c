@@ -19,11 +19,9 @@
 #include "gtkclass.h"
 #include "myalign.h"
 
-#ifdef ANDROID
-    const char* gobject2Name = "libgobject-2.0.so";
-#else
-    const char* gobject2Name = "libgobject-2.0.so.0";
-#endif
+const char* gobject2Name = "libgobject-2.0.so.0";
+#define ALTNAME "libgobject-2.0.so"
+
 #define LIBNAME gobject2
 
 typedef size_t(*LFv_t)(void);
@@ -943,10 +941,6 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
     SetGClassPeek(my->g_type_class_peek);   \
     SetGTypeParent(my->g_type_parent);
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libglib-2.0.so"
-#else
 #define NEEDED_LIBS "libglib-2.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

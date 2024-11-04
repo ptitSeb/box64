@@ -11,11 +11,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* libxiName = "libXi.so";
-#else
-    const char* libxiName = "libXi.so.6";
-#endif
+const char* libxiName = "libXi.so.6";
+#define ALTNAME "libXi.so"
 
 #define LIBNAME libxi
 

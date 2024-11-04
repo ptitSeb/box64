@@ -12,6 +12,8 @@
 #include "x64emu.h"
 
 const char* liboggName = "libogg.so.0";
+#define ALTNAME "libogg.so"
+
 #define LIBNAME libogg
 
 #include "wrappedlib_init.h"

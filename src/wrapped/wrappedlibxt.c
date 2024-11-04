@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-    const char* libxtName = "libXt.so";
-#else
-    const char* libxtName = "libXt.so.6";
-#endif
+const char* libxtName = "libXt.so.6";
+#define ALTNAME "libXt.so"
 
 #define LIBNAME libxt
 

@@ -12,21 +12,15 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* gmodule2Name = "libgmodule-2.0.so";
-#else
-    const char* gmodule2Name = "libgmodule-2.0.so.0";
-#endif
+const char* gmodule2Name = "libgmodule-2.0.so.0";
+#define ALTNAME "libgmodule-2.0.so"
+
 #define LIBNAME gmodule2
 
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libglib-2.0.so"
-#else
 #define NEEDED_LIBS "libglib-2.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

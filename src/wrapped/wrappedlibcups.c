@@ -18,13 +18,8 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-const char* libcupsName = 
-#ifdef ANDROID
-    "libcups.so"
-#else
-    "libcups.so.2"
-#endif
-    ;
+const char* libcupsName = "libcups.so.2";
+#define ALTNAME "libcups.so"
 
 #define LIBNAME libcups
 

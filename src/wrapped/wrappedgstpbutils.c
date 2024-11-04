@@ -12,11 +12,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* gstpbutilsName = "libgstpbutils-1.0.so";
-#else
-    const char* gstpbutilsName = "libgstpbutils-1.0.so.0";
-#endif
+const char* gstpbutilsName = "libgstpbutils-1.0.so.0";
+#define ALTNAME "libgstpbutils-1.0.so"
 
 #define LIBNAME gstpbutils
 
