@@ -416,7 +416,13 @@ else()
         "${BOX64_ROOT}/src/emu/x86syscall.c"
     )
 endif()
-if(NOT ANDROID)
+if(ANDROID)
+    if(NOT TERMUX)
+        list(APPEND ELFLOADER_SRC
+            "${BOX64_ROOT}/src/libtools/ashmem.c"
+        )
+    endif()
+else()
     list(APPEND ELFLOADER_SRC
         "${BOX64_ROOT}/src/libtools/obstack.c"
     )
@@ -723,16 +729,12 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedbrotlidec.c"
 )
 endif()
-if(ANDROID)
-    list(APPEND WRAPPEDS
-        "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
-    )
-endif()
 if(TERMUX)
     list(APPEND WRAPPEDS
         "${BOX64_ROOT}/src/wrapped/wrappediconv.c"
         "${BOX64_ROOT}/src/wrapped/wrappedtermuxexec.c"
         "${BOX64_ROOT}/src/wrapped/wrappedandroidsupport.c"
+        "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
     )
 endif()
 
@@ -1088,7 +1090,7 @@ else()
         if(TERMUX)
         target_link_libraries(${BOX64} c m dl android-sysv-semaphore)
         else()
-        target_link_libraries(${BOX64} c m dl)
+        target_link_libraries(${BOX64} c m dl android)
         endif()
     else()
 	    set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -lutil -Wl,--as-needed -pthread")
