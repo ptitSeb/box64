@@ -18,11 +18,8 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-#ifdef ANDROID
-    const char* fontconfigName = "libfontconfig.so";
-#else
-    const char* fontconfigName = "libfontconfig.so.1";
-#endif
+const char* fontconfigName = "libfontconfig.so.1";
+#define ALTNAME "libfontconfig.so"
 
 #define LIBNAME fontconfig
 
@@ -66,10 +63,6 @@ EXPORT void* my_FcPatternBuild(x64emu_t* emu, void* pattern, uint64_t* b)
     return my->FcPatternVaBuild(pattern, VARARGS);
 }
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libexpat.so", "libfreetype.so"
-#else
 #define NEEDED_LIBS "libexpat.so.1", "libfreetype.so.6"
-#endif
 
 #include "wrappedlib_init.h"
