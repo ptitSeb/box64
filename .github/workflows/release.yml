@@ -56,6 +56,7 @@ jobs:
               wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
               unzip android-ndk-r26b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r26b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
+              echo "NDK_LD_PREFIX=$PWD/android-ndk-r26b/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/31" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
               git clone https://github.com/termux/termux-docker.git
               sudo cp -rf termux-docker/system/arm /system
@@ -226,7 +227,7 @@ jobs:
             BOX64_DYNAREC_TEST=1 BOX64_DYNAREC_LA64NOEXT=1 ctest $CTEST_OPTIONS -E nocosim
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             export INTERPRETER=qemu-aarch64-static
-            export QEMU_LD_PREFIX=/system/lib64
+            export QEMU_LD_PREFIX="${{ env.NDK_LD_PREFIX }}"
             
             BOX64_DYNAREC=0 ctest $CTEST_OPTIONS
             ctest $CTEST_OPTIONS
