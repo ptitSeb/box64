@@ -340,6 +340,12 @@ BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_RDTSC_1GHZ=1
 BOX64_DYNAREC_STRONGMEM=2
 
+[DXMD.exe]
+#Deus Ex: Mankind Divide
+BOX64_DYNAREC_FASTROUND=0       #freeze without this
+BOX64_DYNAREC_CALLRET=1
+#BOX64_DYNAREC_BIGBLOCK=3       #tend to freeze with this
+
 # All the EA/Origin launcher process. Not 100% working yet
 [EALocalHostSvc.exe]
 BOX64_DYNAREC_STRONGMEM=1

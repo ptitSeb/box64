@@ -812,11 +812,13 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_FASTROUND");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_fastround = p[0]-'0';
         }
         if(!box64_dynarec_fastround)
             printf_log(LOG_INFO, "Dynarec will try to generate x86 precise IEEE->int rounding\n");
+        else if(box64_dynarec_fastround==2)
+            printf_log(LOG_INFO, "Dynarec will generate x86 very imprecise double->float rounding\n");
     }
     p = getenv("BOX64_DYNAREC_SAFEFLAGS");
     if(p) {

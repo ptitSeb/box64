@@ -412,7 +412,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            if(box64_dynarec_fastround) {
+            if(box64_dynarec_fastround==2) {
                 FCVTXN(v0, v1);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x4);
@@ -421,7 +421,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(vex.l) {
                 GETEY(v1);
-                if(box64_dynarec_fastround) {
+                if(box64_dynarec_fastround==2) {
                     FCVTXN2(v0, v1);
                 } else {
                     FCVTN2(v0, v1);
