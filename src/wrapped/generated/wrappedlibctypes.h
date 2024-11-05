@@ -114,6 +114,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(fork, iFv_t) \
 	GO(vfork, iFv_t) \
 	GO(iopl, iFi_t) \
+	GO(__libc_dlclose, iFp_t) \
 	GO(_setjmp, iFp_t) \
 	GO(atexit, iFp_t) \
 	GO(getcontext, iFp_t) \
@@ -179,7 +180,9 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(signal, pFip_t) \
 	GO(sigset, pFip_t) \
 	GO(sysv_signal, pFip_t) \
+	GO(__libc_dlopen_mode, pFpi_t) \
 	GO(backtrace_symbols, pFpi_t) \
+	GO(__libc_dlsym, pFpp_t) \
 	GO(__realpath_chk, pFpp_t) \
 	GO(realpath, pFpp_t) \
 	GO(fopen, SFpp_t) \

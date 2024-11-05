@@ -1159,9 +1159,9 @@ GO(__libc_current_sigrtmax, iFv)
 //GO(__libc_current_sigrtmax_private, 
 GO(__libc_current_sigrtmin, iFv)
 //GO(__libc_current_sigrtmin_private, 
-//GO(__libc_dlclose, 
-//GO(__libc_dlopen_mode, 
-//GO(__libc_dlsym, 
+GOM(__libc_dlclose, iFEp)
+GOM(__libc_dlopen_mode, pFEpi)
+GOM(__libc_dlsym, pFEpp)
 //GO(__libc_dlvsym, 
 //GO(__libc_dynarray_at_failure, 
 //GO(__libc_dynarray_emplace_enlarge, 
