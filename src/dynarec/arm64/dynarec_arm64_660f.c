@@ -235,7 +235,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SQXTN_32(q0, q0);
             } else {
                 if(arm64_frintts) {
-                    VFRINT32ZD(q0, q0);
+                    VFRINT32ZDQ(q0, v1);
                     VFCVTZSQD(q0, q0);
                     SQXTN_32(q0, q0);
                 } else {
@@ -275,7 +275,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 if(arm64_frintts) {
-                    VFRINT32XD(q0, q0);
+                    VFRINT32XDQ(q0, v1);
                     VFCVTZSQD(q0, q0);
                     SQXTN_32(q0, q0);
                 } else {
