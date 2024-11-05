@@ -4311,6 +4311,7 @@ wrappedlibc:
 - iFi:
   - iopl
 - iFp:
+  - __libc_dlclose
   - _setjmp
   - atexit
   - getcontext
@@ -4395,8 +4396,10 @@ wrappedlibc:
   - sigset
   - sysv_signal
 - pFpi:
+  - __libc_dlopen_mode
   - backtrace_symbols
 - pFpp:
+  - __libc_dlsym
   - __realpath_chk
   - realpath
 - SFpp:

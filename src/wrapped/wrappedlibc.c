@@ -3250,6 +3250,14 @@ EXPORT int my___libc_alloca_cutoff(x64emu_t* emu, size_t size)
     return (size<=(65536*4));
 }
 
+EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
+{
+    if(!req)
+        return 0;   // workaround for some strange calls
+    return nanosleep(req, rem);
+}
+#endif
+
 // DL functions from wrappedlibdl.c
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);
 int my_dlclose(x64emu_t* emu, void *handle);
@@ -3266,14 +3274,6 @@ EXPORT void* my___libc_dlsym(x64emu_t* emu, void* handle, void* name)
 {
     return my_dlsym(emu, handle, name);
 }
-
-EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
-{
-    if(!req)
-        return 0;   // workaround for some strange calls
-    return nanosleep(req, rem);
-}
-#endif
 
 #ifdef ANDROID
 void obstackSetup() {
