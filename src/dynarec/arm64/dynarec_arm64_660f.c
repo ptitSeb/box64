@@ -1741,7 +1741,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 if(arm64_frintts) {
                     u8 = sse_setround(dyn, ninst, x1, x2, x3);
-                    VFRINT32XS(v0, v1); // handle overflow
+                    VFRINT32XSQ(v0, v1); // handle overflow
                     VFCVTZSQS(v0, v0);
                 } else {
                     MRS_fpsr(x5);
@@ -3015,7 +3015,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
             } else {
                 if(arm64_frintts) {
-                    VFRINT32ZD(v0, v1); // handle overflow
+                    VFRINT32ZDQ(v0, v1); // handle overflow
                     VFCVTZSQD(v0, v0);  // convert double -> int64
                     SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
                 } else {
