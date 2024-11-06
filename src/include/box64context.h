@@ -35,7 +35,7 @@ typedef struct library_s library_t;
 typedef struct linkmap_s linkmap_t;
 typedef struct linkmap32_s linkmap32_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
-typedef struct rbtree rbtree;
+typedef struct rbtree rbtree_t;
 typedef struct atfork_fnc_s {
     uintptr_t prepare;
     uintptr_t parent;
@@ -172,7 +172,7 @@ typedef struct box64context_s {
     pthread_mutex_t     mutex_bridge;
     #endif
     uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
-    rbtree*             db_sizes;
+    rbtree_t*             db_sizes;
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
     #if defined(__riscv) || defined(__loongarch64)

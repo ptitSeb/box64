@@ -60,13 +60,13 @@ static pthread_mutex_t     mutex_prot;
 static pthread_mutex_t     mutex_blocks;
 #endif
 //#define TRACE_MEMSTAT
-rbtree* memprot = NULL;
+rbtree_t* memprot = NULL;
 int have48bits = 0;
 static int inited = 0;
 
-rbtree*  mapallmem = NULL;
-static rbtree*  mmapmem = NULL;
-static rbtree*  blockstree = NULL;
+rbtree_t*  mapallmem = NULL;
+static rbtree_t*  mmapmem = NULL;
+static rbtree_t*  blockstree = NULL;
 
 typedef struct blocklist_s {
     void*               block;
@@ -1937,12 +1937,12 @@ void init_custommem_helper(box64context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
-    blockstree = init_rbtree("blockstree");
+    blockstree = rbtree_init("blockstree");
     // if there is some blocks already
     if(n_blocks)
         for(int i=0; i<n_blocks; ++i)
             rb_set(blockstree, (uintptr_t)p_blocks[i].block, (uintptr_t)p_blocks[i].block+p_blocks[i].size, i);
-    memprot = init_rbtree("memprot");
+    memprot = rbtree_init("memprot");
     sigfillset(&critical_prot);
     init_mutexes();
 #ifdef DYNAREC
@@ -1967,9 +1967,9 @@ void init_custommem_helper(box64context_t* ctx)
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapallmem list
-    mapallmem = init_rbtree("mapallmem");
+    mapallmem = rbtree_init("mapallmem");
     // init mmapmem list
-    mmapmem = init_rbtree("mapmem");
+    mmapmem = rbtree_init("mapmem");
     // Load current MMap
     loadProtectionFromMap();
     reserveHighMem();
@@ -2056,13 +2056,13 @@ void fini_custommem_helper(box64context_t *ctx)
     kh_destroy(lockaddress, lockaddress);
     lockaddress = NULL;
 #endif
-    delete_rbtree(memprot);
+    rbtree_delete(memprot);
     memprot = NULL;
-    delete_rbtree(mmapmem);
+    rbtree_delete(mmapmem);
     mmapmem = NULL;
-    delete_rbtree(mapallmem);
+    rbtree_delete(mapallmem);
     mapallmem = NULL;
-    delete_rbtree(blockstree);
+    rbtree_delete(blockstree);
     blockstree = NULL;
 
     for(int i=0; i<n_blocks; ++i)
