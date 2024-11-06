@@ -626,7 +626,8 @@ class FunctionType(metaclass=FirstArgumentSingletonMeta):
 		
 		self.orig = CTypeNone(string, clause, filespec)
 		
-		self.hasemu = 'E' in self.orig.replaced
+		self.hasemu = 'E' in self.orig.replaced and (
+			(self.orig.recursive[1].structname != 'E') or ('E' in self.orig.recursive[0].name) or any('E' in ct.name for ct in self.orig.recursive[2:]))
 		if self.hasemu:
 			if ("E" in self.orig.recursive[0].name) or any("E" in ct.name for ct in self.orig.recursive[3:]):
 				raise NotImplementedError("x64emu_t* not as the first parameter")
@@ -642,7 +643,7 @@ class FunctionType(metaclass=FirstArgumentSingletonMeta):
 		if len(chk_type) < 2:
 			raise NotImplementedError("Type {0} too short".format(string))
 		
-		if self.orig.recursive[1].structname != "F":
+		if self.orig.recursive[1].structname not in ['E', 'F']:
 			raise NotImplementedError("Bad middle letter {0}".format(self.orig.recursive[1].structname))
 		
 		self.redirect = any(c not in FileSpec.values for c in chk_type) or (('v' in chk_type[1:]) and (len(chk_type) > 2))
@@ -1211,6 +1212,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 	# Files header and guard
 	files_header = {
 		"wrapper32.c": """
+		#include <errno.h>
 		#include <stdio.h>
 		#include <stdlib.h>
 		#include <stdint.h>
@@ -1490,9 +1492,13 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		def assertex(v: Optional[T]) -> T:
 			assert v is not None, "Value is None"
 			return v
+		if N.orig.recursive[1].structname == 'E':
+			f.write("errno = emu->libc_err; ")
 		f.write(function_args(zip(args[0], args[1]), lambda ct: assertex(ct.aspre)))
 		f.write(assertex(N.orig.recursive[0].asret).format(function_args(zip(args[0], args[1]), lambda ct: assertex(ct.asarg))[:-2]))
 		f.write(function_args(zip(args[0], args[1]), lambda ct: assertex(ct.aspost)))
+		if N.orig.recursive[1].structname == 'E':
+			f.write(" emu->libc_err = errno;")
 		f.write(" }\n")
 	
 	# TODO: src/wrapped/generated32/converter32.c&h

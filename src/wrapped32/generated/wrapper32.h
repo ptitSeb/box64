@@ -68,6 +68,7 @@ void iFd_32(x64emu_t *emu, uintptr_t fnc);
 void iFl_32(x64emu_t *emu, uintptr_t fnc);
 void iFL_32(x64emu_t *emu, uintptr_t fnc);
 void iFp_32(x64emu_t *emu, uintptr_t fnc);
+void iEp_32(x64emu_t *emu, uintptr_t fnc);
 void iFh_32(x64emu_t *emu, uintptr_t fnc);
 void iFS_32(x64emu_t *emu, uintptr_t fnc);
 void iFX_32(x64emu_t *emu, uintptr_t fnc);

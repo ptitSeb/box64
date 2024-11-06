@@ -1918,7 +1918,7 @@ GOM(vsyslog, vFEipp)
 //GOM(vwprintf, iFEpp) //%%
 //GO2(__vwprintf_chk, iFEvpp, my_vwprintf)
 //GO(vwscanf, iFpp)
-GOW(wait, iFp)
+GOW(wait, iEp)
 //GOW(__wait, iFp)
 //GOW(wait3, iFpip)
 //GOW(wait4, iFipip)
