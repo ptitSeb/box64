@@ -1315,16 +1315,16 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                     uintptr_t nextaddr = *(ptr_t*)from_ptrv(R_EBX + PK32(2));
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
-                } else if(is32bits && PK(1)==0x92) {
-                    uintptr_t nextaddr = *(ptr_t*)from_ptrv(R_EDX + PK32(2));
+                } else if(PK(1)==0x92) {
+                    uintptr_t nextaddr = is32bits?(*(ptr_t*)from_ptrv(R_EDX + PK32(2))):(*(uintptr_t*)(R_RDX + PK32(2)));
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
-                } else if(is32bits && PK(1)==0x50) {
-                    uintptr_t nextaddr = *(ptr_t*)from_ptrv(R_EAX + PK(2));
+                } else if(PK(1)==0x50) {
+                    uintptr_t nextaddr = is32bits?(*(ptr_t*)from_ptrv(R_EAX + PK(2))):(*(uintptr_t*)(R_RAX + PK(2)));
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
-                } else if(is32bits && PK(1)==0x52) {
-                    uintptr_t nextaddr = *(ptr_t*)from_ptrv(R_EDX + PK(2));
+                } else if(PK(1)==0x52) {
+                    uintptr_t nextaddr = is32bits?(*(ptr_t*)from_ptrv(R_EDX + PK(2))):(*(uintptr_t*)(R_RDX + PK(2)));
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
                 } else if(is32bits && PK(1)==0x10) {
