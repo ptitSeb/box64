@@ -202,6 +202,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else  if(strstr(s, "waitpid")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, 0x%x)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(int32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(uint32_t*)from_ptr(R_ESP+12));
                     perr = 1;
+                } else  if(!strcmp(s, "wait")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
+                    pu32 = from_ptrv(*(ptr_t*)from_ptr(R_ESP+4));
+                    perr = 1;
+                    if(pu32) post = 14;
                 } else  if(strstr(s, "clock_gettime")==s || strstr(s, "__clock_gettime")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(uint32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                     post = 1;
@@ -430,6 +435,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     }
                     case 13: if(R_EAX==0x25E)
                                 snprintf(buff2, 63, "%s", "here");
+                            break;
+                    case 14: snprintf(buff2, 63, " [%d]", *(int*)pu32);
                             break;
                 }
                 if(perr==1 && (S_EAX)<0)
