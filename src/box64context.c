@@ -287,7 +287,7 @@ box64context_t *NewBox64Context(int argc)
     initAllHelpers(context);
     
     #ifdef DYNAREC
-    context->db_sizes = init_rbtree("db_sizes");
+    context->db_sizes = rbtree_init("db_sizes");
     #endif
 
     return context;
@@ -391,7 +391,7 @@ void FreeBox64Context(box64context_t** context)
 
 #ifdef DYNAREC
     //dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, righter=%d\n", ctx->max_db_size, rb_get_righter(ctx->db_sizes));
-    delete_rbtree(ctx->db_sizes);
+    rbtree_delete(ctx->db_sizes);
 #endif
 
     finiAllHelpers(ctx);
