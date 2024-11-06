@@ -1933,7 +1933,9 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
         if(elf)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
+print_cycle_log(LOG_INFO);
 printf_log(LOG_NONE, DumpCPURegs(emu, R_RIP, emu->segs[_CS]==0x23));
+printf_log(LOG_NONE, "Emu Stack: %p 0x%lx%s\n", emu->init_stack, emu->size_stack, emu->stack2free?" owned":"");
         //if(!elf) {
         //    FILE* f = fopen("/proc/self/maps", "r");
         //    if(f) {
