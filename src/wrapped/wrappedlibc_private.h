@@ -344,7 +344,7 @@ GOM(execlp, iFEpV) // First argument is also part of the variadic
 GOM(execv, iFEpp)
 GOM(execve, iFEppp)
 GOM(execvp, iFEpp)
-GOW(execvpe, iFppp)
+GOWM(execvpe, iFEppp)
 GO(_exit, vFi)
 GOM(exit, vFEi)
 GOW(_Exit, vFi)

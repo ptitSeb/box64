@@ -4449,6 +4449,7 @@ wrappedlibc:
   - __vfprintf_chk
   - __vsscanf
   - execve
+  - execvpe
 - iFppV:
   - __asprintf
   - __isoc23_sscanf

@@ -284,19 +284,19 @@ EXPORT int my_pthread_attr_destroy(x64emu_t* emu, void* attr)
 EXPORT int my_pthread_attr_getstack(x64emu_t* emu, void* attr, void** stackaddr, size_t* stacksize)
 {
 	PTHREAD_ATTR_ALIGN(attr);
-	int ret = pthread_attr_getstack(PTHREAD_ATTR(attr), stackaddr, stacksize);
-	// no need to unalign, it's const for attr
-	if (ret==0)
-		GetStackSize(emu, (uintptr_t)attr, stackaddr, stacksize);
+	int ret = 0;
+	if(!GetStackSize(emu, (uintptr_t)attr, stackaddr, stacksize))
+		ret = pthread_attr_getstack(PTHREAD_ATTR(attr), stackaddr, stacksize);
+printf_log(LOG_INFO, "pthread_attr_getstack gives (%d) %p 0x%zx\n", ret, *stackaddr, *stacksize);
 	return ret;
 }
 
 EXPORT int my_pthread_attr_setstack(x64emu_t* emu, void* attr, void* stackaddr, size_t stacksize)
 {
-	if(!emu->context->stacksizes) {
-		emu->context->stacksizes = kh_init(threadstack);
+	if(!my_context->stacksizes) {
+		my_context->stacksizes = kh_init(threadstack);
 	}
-	AddStackSize(emu->context->stacksizes, (uintptr_t)attr, stackaddr, stacksize);
+	AddStackSize(my_context->stacksizes, (uintptr_t)attr, stackaddr, stacksize);
 	//Don't call actual setstack...
 	//return pthread_attr_setstack(attr, stackaddr, stacksize);
 	PTHREAD_ATTR_ALIGN(attr);
@@ -356,20 +356,25 @@ EXPORT int my_pthread_attr_getscope(x64emu_t* emu, pthread_attr_t* attr, int* sc
 	PTHREAD_ATTR_ALIGN(attr);
 	return pthread_attr_getscope(PTHREAD_ATTR(attr), scope);
 }
-EXPORT int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
+EXPORT int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, void** addr)
 {
 	(void)emu;
 	size_t size;
 	PTHREAD_ATTR_ALIGN(attr);
-	return pthread_attr_getstack(PTHREAD_ATTR(attr), addr, &size);
-	//return pthread_attr_getstackaddr(getAlignedAttr(attr), addr);
+	int ret = 0;
+	if(!GetStackSize(emu, (uintptr_t)attr, addr, &size ))
+		ret = pthread_attr_getstack(PTHREAD_ATTR(attr), addr, &size);
+printf_log(LOG_INFO, "pthread_attr_getstackaddr gives %p\n", *addr);
+	return ret;
 }
 EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
 {
 	(void)emu;
 	void* addr;
 	PTHREAD_ATTR_ALIGN(attr);
-	int ret = pthread_attr_getstack(PTHREAD_ATTR(attr), &addr, size);
+	int ret = 0;
+	if(!GetStackSize(emu, (uintptr_t)attr, &addr, size ))
+		ret = pthread_attr_getstack(PTHREAD_ATTR(attr), &addr, size);
 	if(!*size)
 		*size = 2*1024*1024;
 	//return pthread_attr_getstacksize(getAlignedAttr(attr), size);
@@ -470,6 +475,7 @@ EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_att
 		}
 		void* stack = emu->init_stack;
 		size_t sz = emu->size_stack;
+printf_log(LOG_INFO, "pthread_getattr_np called for self, stack=%p, sz=%lx\n", stack, sz);
 		if (!sz) {
 			// get default stack size
 			pthread_attr_t attr;

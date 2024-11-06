@@ -2442,6 +2442,60 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
     // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
     return execvp(path, argv);
 }
+// execvp should use PATH to search for the program first
+EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* const argv[], char* const envp[])
+{
+    // need to use BOX64_PATH / PATH here...
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
+    // use fullpath...
+    int self = isProcSelf(fullpath, "exe");
+    int x64 = FileIsX64ELF(fullpath);
+    int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
+    int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
+    printf_log(LOG_DEBUG, "execvpe(\"%s\", %p, %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, envp, x64, fullpath);
+    // hack to update the environ var if needed
+    if(envp == my_context->envv && environ) {
+        envp = environ;
+    }
+    if (x64 || x86 || script || self) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        int toadd = script?2:1;
+        char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
+        memset(newargv, 0, (i+toadd+1)*sizeof(char*));
+        newargv[0] = x86?emu->context->box86path:emu->context->box64path;
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        for (int j=0; j<i; ++j)
+            newargv[j+toadd] = argv[j];
+        if(self) newargv[1] = emu->context->fullpath;
+        //else if(script) newargv[2] = fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = fullpath;
+        }
+
+        printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
+        int ret;
+        ret = execvpe(newargv[0], newargv, envp);
+        box_free(fullpath);
+        return ret;
+    }
+    if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
+     && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
+     && !argv[2]) {
+        // uname -m is redirected to box64 -m
+        path = my_context->box64path;
+        char *argv2[3] = { my_context->box64path, argv[1], NULL };
+
+        return execvpe(path, argv2, envp);
+    }
+
+    // fullpath is gone, so the search will only be on PATH, not on BOX64_PATH (is that an issue?)
+    return execvpe(path, argv, envp);
+}
 
 EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
 {

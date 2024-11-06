@@ -31,7 +31,7 @@ EXPORT void* my___tls_get_addr(void* p)
 EXPORT void* my___libc_stack_end;
 void stSetup(box64context_t* context)
 {
-    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
+    my___libc_stack_end = context->stack + context->stacksz;
 }
 
 #ifdef STATICBUILD
