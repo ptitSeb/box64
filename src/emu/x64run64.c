@@ -466,6 +466,17 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             else
                 return 0;
 
+        case 0x69:                      /* IMUL Gd,Ed,Id */
+            nextop = F8;
+            GETED_OFFS(4, tlsdata);
+            GETGD;
+            tmp64u = F32S64;
+            if(rex.w)
+                GD->q[0] = imul64(emu, ED->q[0], tmp64u);
+            else
+                GD->q[0] = imul32(emu, ED->dword[0], tmp64u);
+            break;
+
         case 0x6C:                      /* INSB DX */
         case 0x6D:                      /* INSD DX */
         case 0x6E:                      /* OUTSB DX */
