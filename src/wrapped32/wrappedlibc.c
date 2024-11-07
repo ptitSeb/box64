@@ -704,6 +704,11 @@ EXPORT int my32_vsyslog(x64emu_t* emu, int priority, void* fmt, void* b) {
     PREPARE_VALIST_32;
     return vsyslog(priority, (const char*)fmt, VARARGS_32);
 }
+EXPORT int my32___vsyslog_chk(x64emu_t* emu, int priority, int flag, void* fmt, void* b) {
+    myStackAlign32((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST_32;
+    return vsyslog(priority, (const char*)fmt, VARARGS_32);
+}
 EXPORT int my32___syslog_chk(x64emu_t* emu, int priority, int flags, void* fmt, void* b) {
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
@@ -918,20 +923,14 @@ EXPORT int my32___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt,
     int r = vasprintf(strp, fmt, VARARGS_32);
     return r;
 }
-#if 0
 
 EXPORT int my32___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* fmt, void* b)
 {
-    #ifndef NOALIGN
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vasprintf;
-    return ((iFppp_t)f)(result_ptr, fmt, VARARGS_32);
-    #else
-    return vasprintf((char**)result_ptr, (char*)fmt, b);
-    #endif
+    return vasprintf(result_ptr, fmt, VARARGS_32);
 }
-#endif
+
 EXPORT int my32_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint32_t * b) {
     // need to align on arm
     myStackAlignW32((const char*)fmt, b, emu->scratch);
@@ -1610,6 +1609,16 @@ EXPORT long my32_writev(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
     return writev(fd, vec, niov);
 }
 
+EXPORT long my32_readv(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
+{
+    struct iovec vec[niov];
+    for(int i=0; i<niov; ++i) {
+        vec[i].iov_base = from_ptrv(iov[i].iov_base);
+        vec[i].iov_len = from_ulong(iov[i].iov_len);
+    }
+    return readv(fd, vec, niov);
+}
+
 #if 0
 
 EXPORT int my32_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
@@ -1716,7 +1725,7 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
     int x64 = FileIsX64ELF(fullpath);
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", fullpath, argv, x86);
+    printf_log(LOG_DEBUG, "execvp(\"%s\", %p) is x86=%d\n", fullpath, argv, x86);
     if (x86 || x64 || self) {
         int skip_first = 0;
         if(strlen(fullpath)>=strlen("wine-preloader") && strcmp(fullpath+strlen(fullpath)-strlen("wine-preloader"), "wine-preloader")==0)
@@ -1743,6 +1752,56 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
     return execv(fullpath, (void*)newargv);
 }
 // execvp should use PATH to search for the program first
+EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[])
+{
+    // need to use BOX32_PATH / PATH here...
+    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    // use fullpath now
+    int self = isProcSelf(fullpath, "exe");
+    int x86 = FileIsX86ELF(fullpath);
+    int x64 = FileIsX64ELF(fullpath);
+    char** newenvp = NULL;
+    // hack to update the environ var if needed
+    if(envp == from_ptrv(my_context->envv32) && environ)
+        newenvp = environ;
+    else {
+        int n=0;
+        while(envp[n]) ++n;
+        const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
+        for(int i=0; i<=n; ++i)
+            newenvp[i+1] = from_ptrv(envp[i]);
+    }
+    printf_log(LOG_DEBUG, "execvpe(\"%s\", %p, %p) is x86=%d\n", fullpath, argv, envp, x86);
+    if (x86 || x64 || self) {
+        int skip_first = 0;
+        if(strlen(fullpath)>=strlen("wine-preloader") && strcmp(fullpath+strlen(fullpath)-strlen("wine-preloader"), "wine-preloader")==0)
+            skip_first++;
+        // count argv...
+        int n=skip_first;
+        while(argv[n]) ++n;
+        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        newargv[0] = x64?emu->context->box64path:emu->context->box64path;
+        for(int i=0; i<n; ++i)
+            newargv[i+1] = from_ptrv(argv[skip_first+i]);
+        if(self) newargv[1] = emu->context->fullpath;
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n, newenvp);
+        int ret = execve(newargv[0], (char* const*)newargv, (char* const*)newenvp);
+        free(newargv);
+        free(newenvp);
+        return ret;
+    }
+    // count argv and create the 64bits argv version
+    int n=0;
+    while(argv[n]) ++n;
+    char** newargv = (char**)calloc(n+1, sizeof(char*));
+    for(int i=0; i<=n; ++i)
+        newargv[i] = from_ptrv(argv[i]);
+    int ret = execve(fullpath, (void*)newargv, (void*)newenvp);
+    free(newargv);
+    free(newenvp);
+    return ret;
+}
+
 typedef struct
 {
   int __allocated;
@@ -2745,12 +2804,12 @@ EXPORT long my32_prlimit64(void* pid, uint32_t res, void* new_rlim, void* old_rl
 {
     return syscall(__NR_prlimit64, pid, res, new_rlim, old_rlim);
 }
-
+#endif
 EXPORT void* my32_reallocarray(void* ptr, size_t nmemb, size_t size)
 {
     return realloc(ptr, nmemb*size);
 }
-
+#if 0
 #ifndef __OPEN_NEEDS_MODE
 # define __OPEN_NEEDS_MODE(oflag) \
   (((oflag) & O_CREAT) != 0)
@@ -3090,7 +3149,7 @@ EXPORT void* my32___errno_location(x64emu_t* emu)
 {
     // TODO: Find a better way to do this
     // cannot use __thread as it makes the address not 32bits
-    emu->libc_err = errno;
+    //emu->libc_err = errno;
     return &emu->libc_err;
 }
 

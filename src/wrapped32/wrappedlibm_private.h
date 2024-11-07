@@ -4,241 +4,241 @@
 
 // Complex numbers are passed in as an address in the stack
 
-GOW(acos, dFd)
-GOW(acosf, fFf)
-GOM(__acosf_finite, fFf) //%noE
-GOM(__acos_finite, dFd)  //%noE
-GOW(acosh, dFd)
-GOW(acoshf, fFf)
-GOM(__acoshf_finite, fFf) //%noE
-GOM(__acosh_finite, dFd)  //%noE
+GOW(acos, dEd)
+GOW(acosf, fEf)
+GOM(__acosf_finite, fEf) //%noE
+GOM(__acos_finite, dEd)  //%noE
+GOW(acosh, dEd)
+GOW(acoshf, fEf)
+GOM(__acoshf_finite, fEf) //%noE
+GOM(__acosh_finite, dEd)  //%noE
 #ifdef HAVE_LD80BITS
-GOW(acoshl, DFD)
+GOW(acoshl, DED)
 #else
-GOW2(acoshl, KFK, acosh)
+GOW2(acoshl, KEK, acosh)
 #endif
 #ifdef HAVE_LD80BITS
-GOW(acosl, DFD)
+GOW(acosl, DED)
 #else
-GOW2(acosl, KFK, acos)
+GOW2(acosl, KEK, acos)
 #endif
-GOW(asin, dFd)
-GOW(asinf, fFf)
-GOM(__asinf_finite, fFf) //%noE
-GOM(__asin_finite, dFd)  //%noE
-GOW(asinh, dFd)
-GOW(asinhf, fFf)
+GOW(asin, dEd)
+GOW(asinf, fEf)
+GOM(__asinf_finite, fEf) //%noE
+GOM(__asin_finite, dEd)  //%noE
+GOW(asinh, dEd)
+GOW(asinhf, fEf)
 #ifdef HAVE_LD80BITS
-GOW(asinhl, DFD)
+GOW(asinhl, DED)
 #else
-GOW2(asinhl, KFK, asinh)
+GOW2(asinhl, KEK, asinh)
 #endif
 #ifdef HAVE_LD80BITS
-GOW(asinl, DFD)
+GOW(asinl, DED)
 #else
-GOW2(asinl, KFK, asin)
+GOW2(asinl, KEK, asin)
 #endif
-GO(atan, dFd)
-GOW(atan2, dFdd)
-GOW(atan2f, fFff)
-GOM(__atan2f_finite, fFff) //%noE
-GOM(__atan2_finite, dFdd)  //%noE
+GO(atan, dEd)
+GOW(atan2, dEdd)
+GOW(atan2f, fEff)
+GOM(__atan2f_finite, fEff) //%noE
+GOM(__atan2_finite, dEdd)  //%noE
 // atan2l   // Weak
-GOW(atanf, fFf)
-GOW(atanh, dFd)
-GOW(atanhf, fFf)
+GOW(atanf, fEf)
+GOW(atanh, dEd)
+GOW(atanhf, fEf)
 // __atanhf_finite
 // __atanh_finite
 #ifdef HAVE_LD80BITS
-GOW(atanhl, DFD)
+GOW(atanhl, DED)
 #else
-GOW2(atanhl, KFK, atanh)
+GOW2(atanhl, KEK, atanh)
 #endif
 // atanl    // Weak
-//GOW(cabs, dFdd)     // only 1 arg, but is a double complex
-GOW(cabsf, fFff)    // only 1 arg, but is a float complex
+//GOW(cabs, dEdd)     // only 1 arg, but is a double complex
+GOW(cabsf, fEff)    // only 1 arg, but is a float complex
 // cabsl    // Weak
-//GOWS(cacos, pFps)   //%% complex
-GOWM(cacosf, UFs)   //%noE
-//GOWS(cacosh, pFps)  //%% complex
-GOWM(cacoshf, UFs)  //%noE
+//GOWS(cacos, pEps)   //%% complex
+GOWM(cacosf, UEs)   //%noE
+//GOWS(cacosh, pEps)  //%% complex
+GOWM(cacoshf, UEs)  //%noE
 // cacoshl  // Weak
 // cacosl   // Weak
-//GOW(carg, dFdd)     // 1arg, double complex
-GOW(cargf, fFff)    // 1arg, float complex
+//GOW(carg, dEdd)     // 1arg, double complex
+GOW(cargf, fEff)    // 1arg, float complex
 // cargl    // Weak
-//GOWS(casin, pFps)   //%%  complex
-GOWM(casinf, UFs)   //%noE
-//GOWS(casinh, pFps)  //%%  complex
-GOWM(casinhf, UFs)  //%noE
+//GOWS(casin, pEps)   //%%  complex
+GOWM(casinf, UEs)   //%noE
+//GOWS(casinh, pEps)  //%%  complex
+GOWM(casinhf, UEs)  //%noE
 // casinhl  // Weak
 // casinl   // Weak
-//GOWS(catan, pFps)   //%%   complex
-GOWM(catanf, UFs)   //%noE
-//GOWS(catanh, pFps)  //%%   complex
-GOWM(catanhf, UFs)  //%noE
+//GOWS(catan, pEps)   //%%   complex
+GOWM(catanf, UEs)   //%noE
+//GOWS(catanh, pEps)  //%%   complex
+GOWM(catanhf, UEs)  //%noE
 // catanhl  // Weak
 // catanl   // Weak
-GOW(cbrt, dFd)
-GOW(cbrtf, fFf)
+GOW(cbrt, dEd)
+GOW(cbrtf, fEf)
 #ifdef HAVE_LD80BITS
-GOW(cbrtl, DFD)
+GOW(cbrtl, DED)
 #else
-GOW2(cbrtl, KFK, cbrt)
+GOW2(cbrtl, KEK, cbrt)
 #endif
-//GOWS(ccos, pFps)    //%%   return complex
-GOWM(ccosf, UFs)    //%noE return complex
-//GOWS(ccosh, pFps)   //%%   return complex
-GOWM(ccoshf, UFs)   //%noE return complex
+//GOWS(ccos, pEps)    //%%   return complex
+GOWM(ccosf, UEs)    //%noE return complex
+//GOWS(ccosh, pEps)   //%%   return complex
+GOWM(ccoshf, UEs)   //%noE return complex
 // ccoshl   // Weak
 // ccosl    // Weak
-GOW(ceil, dFd)
-GOW(ceilf, fFf)
+GOW(ceil, dEd)
+GOW(ceilf, fEf)
 // ceill    // Weak
-//GOWS(cexp, pFps)     //%%   return complex
-GOWM(cexpf, UFs)     //%noE return complex
+//GOWS(cexp, pEps)     //%%   return complex
+GOWM(cexpf, UEs)     //%noE return complex
 // cexpl    // Weak
 // cimag    // Weak
 // cimagf   // Weak
 // cimagl   // Weak
-//GOS(clog, pFps)   //%% return a double complex, so ret 4
+//GOS(clog, pEps)   //%% return a double complex, so ret 4
 // clog10   // Weak
 // __clog10
 // clog10f  // Weak
 // __clog10f
 // clog10l  // Weak
 // __clog10l
-GOM(clogf, UFs)    //%noE float complex doesn't trigger the ret 4, but returns an u64!
+GOM(clogf, UEs)    //%noE float complex doesn't trigger the ret 4, but returns an u64!
 // clogl    // Weak
 // conj // Weak
 // conjf    // Weak
 // conjl    // Weak
-GOW(copysign, dFdd)
-GOW(copysignf, fFff)
+GOW(copysign, dEdd)
+GOW(copysignf, fEff)
 // copysignl    // Weak
-GOW(cos, dFd)
-GOW(cosf, fFf)
-GOW(cosh, dFd)
-GOW(coshf, fFf)
-GOM(__coshf_finite, fFf) //%noE
-GOM(__cosh_finite, dFd)  //%noE
+GOW(cos, dEd)
+GOW(cosf, fEf)
+GOW(cosh, dEd)
+GOW(coshf, fEf)
+GOM(__coshf_finite, fEf) //%noE
+GOM(__cosh_finite, dEd)  //%noE
 // coshl    // Weak
 // cosl // Weak
-//GOWS(cpow, pFpsvvvvs) //%% return complex
-GOWM(cpowf, UFsvvs)   //%noE
+//GOWS(cpow, pEpsvvvvs) //%% return complex
+GOWM(cpowf, UEsvvs)   //%noE
 // cpowl    // Weak
-//GOS(cproj, pFps)    //%%   double complex
-GOM(cprojf, UFs)    //%noE
+//GOS(cproj, pEps)    //%%   double complex
+GOM(cprojf, UEs)    //%noE
 // cprojl   // Weak
 // creal    // Weak
 // crealf   // Weak
 // creall   // Weak
-//GOWS(csin, pFps)    //%%   return complex
-GOWM(csinf, UFs)    //%noE return complex
-//GOWS(csinh, pFps)   //%%   return complex
-GOWM(csinhf, UFs)   //%noE return complex
+//GOWS(csin, pEps)    //%%   return complex
+GOWM(csinf, UEs)    //%noE return complex
+//GOWS(csinh, pEps)   //%%   return complex
+GOWM(csinhf, UEs)   //%noE return complex
 // csinhl   // Weak
 // csinl    // Weak
-//GOWS(csqrt, pFps)   //%%
-GOWM(csqrtf, UFs)   //%noE
+//GOWS(csqrt, pEps)   //%%
+GOWM(csqrtf, UEs)   //%noE
 // csqrtl   // Weak
-//GOWS(ctan, pFps)    //%%   return complex
-GOWM(ctanf, UFs)    //%noE return complex
-//GOWS(ctanh, pFps)   //%%   return complex
-GOWM(ctanhf, UFs)   //%noE return complex
+//GOWS(ctan, pEps)    //%%   return complex
+GOWM(ctanf, UEs)    //%noE return complex
+//GOWS(ctanh, pEps)   //%%   return complex
+GOWM(ctanhf, UEs)   //%noE return complex
 // ctanhl   // Weak
 // ctanl    // Weak
 // __cxa_finalize  // Weak
 // drem // Weak
 // dremf    // Weak
 // dreml    // Weak
-GOW(erf, dFd)
-GOW(erfc, dFd)
-GOW(erfcf, fFf)
+GOW(erf, dEd)
+GOW(erfc, dEd)
+GOW(erfcf, fEf)
 #ifdef HAVE_LD80BITS
-GOW(erfcl, DFD)
+GOW(erfcl, DED)
 #else
-GOW2(erfcl, KFK, erfc)
+GOW2(erfcl, KEK, erfc)
 #endif
-GOW(erff, fFf)
+GOW(erff, fEf)
 #ifdef HAVE_LD80BITS
-GOW(erfl, DFD)
+GOW(erfl, DED)
 #else
-GOW2(erfl, KFK, erf)
+GOW2(erfl, KEK, erf)
 #endif
-GOW(exp, dFd)
-GOW(exp10, dFd)
-GOW(exp10f, fFf)
+GOW(exp, dEd)
+GOW(exp10, dEd)
+GOW(exp10f, fEf)
 // __exp10f_finite
 // __exp10_finite
 // exp10l   // Weak
-GOW(exp2, dFd)
-GOW(exp2f, fFf)
-GOM(__exp2f_finite, fFf) //%noE
-GOM(__exp2_finite, dFd)  //%noE
+GOW(exp2, dEd)
+GOW(exp2f, fEf)
+GOM(__exp2f_finite, fEf) //%noE
+GOM(__exp2_finite, dEd)  //%noE
 // exp2l    // Weak
-GOW(expf, fFf)
-GOM(__expf_finite, fFf) //%noE
-GOM(__exp_finite, dFd)  //%noE
+GOW(expf, fEf)
+GOM(__expf_finite, fEf) //%noE
+GOM(__exp_finite, dEd)  //%noE
 // expl // Weak
-GOW(expm1, dFd)
-GOW(expm1f, fFf)
+GOW(expm1, dEd)
+GOW(expm1f, fEf)
 // expm1l   // Weak
-GOW(fabs, dFd)
-GOW(fabsf, fFf)
+GOW(fabs, dEd)
+GOW(fabsf, fEf)
 // fabsl    // Weak
 // fdim // Weak
 // fdimf    // Weak
 // fdiml    // Weak
-GO(feclearexcept, iFi)
-GO(fedisableexcept, iFi)
-GO(feenableexcept, iFi)
-GO(fegetenv, iFp)
-GO(fegetexcept, iFv)
-GO(fegetexceptflag, iFpi)
-GO(fegetround, iFv)
-GO(feholdexcept, iFp)
-GO(feraiseexcept, iFi)
-GO(fesetenv, iFp)
-GO(fesetexceptflag, iFpi)
-GO(fesetround, iFi)
-GO(fetestexcept, iFi)
-GO(feupdateenv, iFp)
-GOW(finite, iFd)
+GO(feclearexcept, iEi)
+GO(fedisableexcept, iEi)
+GO(feenableexcept, iEi)
+GO(fegetenv, iEp)
+GO(fegetexcept, iEv)
+GO(fegetexceptflag, iEpi)
+GO(fegetround, iEv)
+GO(feholdexcept, iEp)
+GO(feraiseexcept, iEi)
+GO(fesetenv, iEp)
+GO(fesetexceptflag, iEpi)
+GO(fesetround, iEi)
+GO(fetestexcept, iEi)
+GO(feupdateenv, iEp)
+GOW(finite, iEd)
 // __finite
-GOW(finitef, iFf)
-GO(__finitef, iFf)
+GOW(finitef, iEf)
+GO(__finitef, iEf)
 // finitel  // Weak
 // __finitel
-GOW(floor, dFd)
-GOW(floorf, fFf)
+GOW(floor, dEd)
+GOW(floorf, fEf)
 // floorl   // Weak
-GOW(fma, dFddd)
-GOW(fmaf, fFfff)
+GOW(fma, dEddd)
+GOW(fmaf, fEfff)
 // fmal // Weak
-GOW(fmax, dFdd)
-GOW(fmaxf, fFff)
+GOW(fmax, dEdd)
+GOW(fmaxf, fEff)
 // fmaxl    // Weak
-GOW(fmin, dFdd)
-GOW(fminf, fFff)
+GOW(fmin, dEdd)
+GOW(fminf, fEff)
 // fminl    // Weak
-GOW(fmod, dFdd)
-GOW(fmodf, fFff)
+GOW(fmod, dEdd)
+GOW(fmodf, fEff)
 // __fmodf_finite
 // __fmod_finite
 #ifdef HAVE_LD80BITS
-GOW(fmodl, DFDD)
+GOW(fmodl, DEDD)
 #else
-GOW2(fmodl, KFKK, fmod)
+GOW2(fmodl, KEKK, fmod)
 #endif
-GO(__fpclassify, iFd)
-GO(__fpclassifyf, iFf)
-GOW(frexp, dFdp)
-GOW(frexpf, fFfp)
+GO(__fpclassify, iEd)
+GO(__fpclassifyf, iEf)
+GOW(frexp, dEdp)
+GOW(frexpf, fEfp)
 #ifdef HAVE_LD80BITS
-GOW(frexpl, DFDp)
+GOW(frexpl, DEDp)
 #else
-GOW2(frexpl, KFKp, frexp)
+GOW2(frexpl, KEKp, frexp)
 #endif
 // gamma    // Weak
 // gammaf   // Weak
@@ -246,150 +246,150 @@ GOW2(frexpl, KFKp, frexp)
 // gammal   // Weak
 // __gamma_r_finite
 // __gmon_start__  // Weak
-GOW(hypot, dFdd)
-GOW(hypotf, fFff)
-GOM(__hypotf_finite, fFff) //%noE
-GOM(__hypot_finite, dFdd)  //%noE
+GOW(hypot, dEdd)
+GOW(hypotf, fEff)
+GOM(__hypotf_finite, fEff) //%noE
+GOM(__hypot_finite, dEdd)  //%noE
 // hypotl   // Weak
-GOW(ilogb, iFd)
-GOW(ilogbf, iFf)
+GOW(ilogb, iEd)
+GOW(ilogbf, iEf)
 // ilogbl   // Weak
 // __issignaling
 // __issignalingf
 // _ITM_deregisterTMCloneTable // Weak
 // _ITM_registerTMCloneTable   // Weak
-GO(j0, dFd)
-GO(j0f, fFf)
+GO(j0, dEd)
+GO(j0f, fEf)
 // __j0f_finite
 // __j0_finite
 // j0l
-GO(j1, dFd)
-GO(j1f, fFf)
+GO(j1, dEd)
+GO(j1f, fEf)
 // __j1f_finite
 // __j1_finite
 // j1l
-GO(jn, dFid)
-GO(jnf, fFif)
+GO(jn, dEid)
+GO(jnf, fEif)
 // __jnf_finite
 // __jn_finite
 // jnl
-GOW(ldexp, dFdi)
-GOW(ldexpf, fFfi)
+GOW(ldexp, dEdi)
+GOW(ldexpf, fEfi)
 #ifdef HAVE_LD80BITS
-GOW(ldexpl, DFD)
+GOW(ldexpl, DED)
 #else
-GOW2(ldexpl, KFK, ldexp)
+GOW2(ldexpl, KEK, ldexp)
 #endif
-GOW(lgamma, dFd)
-GOW(lgammaf, fFf)
-GOW(lgammaf_r, fFfp)
+GOW(lgamma, dEd)
+GOW(lgammaf, fEf)
+GOW(lgammaf_r, fEfp)
 // __lgammaf_r_finite
 #ifdef HAVE_LD80BITS
-GOW(lgammal, DFD)
+GOW(lgammal, DED)
 #else
-GOW2(lgammal, KFK, lgamma)
+GOW2(lgammal, KEK, lgamma)
 #endif
 #ifdef HAVE_LD80BITS
-GOW(lgammal_r, DFDp)
+GOW(lgammal_r, DEDp)
 #else
-GOW2(lgammal_r, KFKp, lgamma_r)
+GOW2(lgammal_r, KEKp, lgamma_r)
 #endif
-GOW(lgamma_r, dFdp)
+GOW(lgamma_r, dEdp)
 // __lgamma_r_finite
 DATAV(_LIB_VERSION, 4)
-GOW(llrint, IFd)
-GOW(llrintf, IFf)
+GOW(llrint, IEd)
+GOW(llrintf, IEf)
 // llrintl  // Weak
-GOW(llround, IFd)
-GOW(llroundf, IFf)
+GOW(llround, IEd)
+GOW(llroundf, IEf)
 // llroundl // Weak
-GOW(log, dFd)
-GOW(log10, dFd)
-GOW(log10f, fFf)
-GOM(__log10f_finite, fFf) //%noE
-GOM(__log10_finite, dFd)  //%noE
+GOW(log, dEd)
+GOW(log10, dEd)
+GOW(log10f, fEf)
+GOM(__log10f_finite, fEf) //%noE
+GOM(__log10_finite, dEd)  //%noE
 // log10l   // Weak
-GOW(log1p, dFd)
-GOW(log1pf, fFf)
+GOW(log1p, dEd)
+GOW(log1pf, fEf)
 // log1pl   // Weak
-GOW(log2, dFd)
-GOW(log2f, fFf)
-GOM(__log2f_finite, fFf) //%noE
-GOM(__log2_finite, dFd)  //%noE
+GOW(log2, dEd)
+GOW(log2f, fEf)
+GOM(__log2f_finite, fEf) //%noE
+GOM(__log2_finite, dEd)  //%noE
 // log2l    // Weak
-GOW(logb, dFd)
-GOW(logbf, fFf)
+GOW(logb, dEd)
+GOW(logbf, fEf)
 // logbl    // Weak
-GOW(logf, fFf)
-GOM(__logf_finite, fFf) //%noE
-GOM(__log_finite, dFd)  //%noE
+GOW(logf, fEf)
+GOM(__logf_finite, fEf) //%noE
+GOM(__log_finite, dEd)  //%noE
 #ifdef HAVE_LD80BITS
-GOW(logl, DFD)
+GOW(logl, DED)
 #else
-GOW2(logl, KFK, log)
+GOW2(logl, KEK, log)
 #endif
-GOW(lrint, iFd)
-GOW(lrintf, iFf)
+GOW(lrint, iEd)
+GOW(lrintf, iEf)
 // lrintl   // Weak
-GOW(lround, iFd)
-GOW(lroundf, iFf)
+GOW(lround, iEd)
+GOW(lroundf, iEf)
 // lroundl  // Weak
 // matherr  // Weak
-GOW(modf, dFdp)
-GOW(modff, fFfp)
+GOW(modf, dEdp)
+GOW(modff, fEfp)
 // modfl    // Weak
 // nan  // Weak
 // nanf // Weak
 // nanl // Weak
-GOW(nearbyint, dFd)
-GOW(nearbyintf, fFf)
+GOW(nearbyint, dEd)
+GOW(nearbyintf, fEf)
 // nearbyintl   // Weak
-GOW(nextafter, dFdd)
-GOW(nextafterf, fFff)
+GOW(nextafter, dEdd)
+GOW(nextafterf, fEff)
 // nextafterl   // Weak
-GOW(nexttoward, dFdD)
-GOW(nexttowardf, fFfD)
+GOW(nexttoward, dEdD)
+GOW(nexttowardf, fEfD)
 // nexttowardl  // Weak
-GOW(pow, dFdd)
-GOW(pow10, dFd)
-GOW(pow10f, fFf)
+GOW(pow, dEdd)
+GOW(pow10, dEd)
+GOW(pow10f, fEf)
 #ifdef HAVE_LD80BITS
-GOWM(pow10l, DFD)   //%noE
+GOWM(pow10l, DED)   //%noE
 #else
-GOWM(pow10l, KFK)   //%noE
+GOWM(pow10l, KEK)   //%noE
 #endif
-GOW(powf, fFff)
-GOM(__powf_finite, fFff) //%noE
-GOM(__pow_finite, dFdd)  //%noE
+GOW(powf, fEff)
+GOM(__powf_finite, fEff) //%noE
+GOM(__pow_finite, dEdd)  //%noE
 #ifdef HAVE_LD80BITS
-GOW(powl, DFDD)
+GOW(powl, DEDD)
 #else
-GOW2(powl, KFKK, pow)
+GOW2(powl, KEKK, pow)
 #endif
-GOW(remainder, dFdd)
-GOW(remainderf, fFff)
+GOW(remainder, dEdd)
+GOW(remainderf, fEff)
 // __remainderf_finite
 // __remainder_finite
 // remainderl   // Weak
-GOW(remquo, dFddp)
-GOW(remquof, fFffp)
+GOW(remquo, dEddp)
+GOW(remquof, fEffp)
 // remquol  // Weak
-GOW(rint, dFd)
-GOW(rintf, fFf)
+GOW(rint, dEd)
+GOW(rintf, fEf)
 // rintl    // Weak
-GOW(round, dFd)
-GOW(roundf, fFf)
+GOW(round, dEd)
+GOW(roundf, fEf)
 // roundl   // Weak
 // scalb    // Weak
 // scalbf   // Weak
 // __scalbf_finite
 // __scalb_finite
 // scalbl   // Weak
-GOW(scalbln, dFdi)
-GOW(scalblnf, fFfi)
+GOW(scalbln, dEdi)
+GOW(scalblnf, fEfi)
 // scalblnl // Weak
-GOW(scalbn, dFdi)
-GOW(scalbnf, fFfi)
+GOW(scalbn, dEdi)
+GOW(scalbnf, fEfi)
 // scalbnl  // Weak
 // __signbit
 // __signbitf
@@ -397,50 +397,50 @@ DATAB(signgam, 4)
 // significand  // Weak
 // significandf // Weak
 // significandl // Weak
-GOW(sin, dFd)
-GOW(sincos, vFdpp)
-GOW(sincosf, vFfpp)
+GOW(sin, dEd)
+GOW(sincos, vEdpp)
+GOW(sincosf, vEfpp)
 // sincosl  // Weak
-GOW(sinf, fFf)
-GOW(sinh, dFd)
-GOW(sinhf, fFf)
-GOM(__sinhf_finite, fFf) //%noE
-GOM(__sinh_finite, dFd)  //%noE
+GOW(sinf, fEf)
+GOW(sinh, dEd)
+GOW(sinhf, fEf)
+GOM(__sinhf_finite, fEf) //%noE
+GOM(__sinh_finite, dEd)  //%noE
 // sinhl    // Weak
 // sinl // Weak
-GOW(sqrt, dFd)
-GOW(sqrtf, fFf)
-GOM(__sqrtf_finite, fFf) //%noE
-GOM(__sqrt_finite, dFd)  //%noE
+GOW(sqrt, dEd)
+GOW(sqrtf, fEf)
+GOM(__sqrtf_finite, fEf) //%noE
+GOM(__sqrt_finite, dEd)  //%noE
 // sqrtl    // Weak
-GO(tan, dFd)
-GOW(tanf, fFf)
-GOW(tanh, dFd)
-GOW(tanhf, fFf)
+GO(tan, dEd)
+GOW(tanf, fEf)
+GOW(tanh, dEd)
+GOW(tanhf, fEf)
 // tanhl    // Weak
 // tanl // Weak
-GOW(tgamma, dFd)
-GOW(tgammaf, fFf)
+GOW(tgamma, dEd)
+GOW(tgammaf, fEf)
 #ifdef HAVE_LD80BITS
-GOW(tgammal, DFD)
+GOW(tgammal, DED)
 #else
-GOW2(tgammal, KFK, tgamma)
+GOW2(tgammal, KEK, tgamma)
 #endif
-GOW(trunc, dFd)
-GOW(truncf, fFf)
+GOW(trunc, dEd)
+GOW(truncf, fEf)
 // truncl   // Weak
-GO(y0, dFd)
-GO(y0f, fFf)
+GO(y0, dEd)
+GO(y0f, fEf)
 // __y0f_finite
 // __y0_finite
 // y0l
-GO(y1, dFd)
-GO(y1f, fFf)
+GO(y1, dEd)
+GO(y1f, fEf)
 // __y1f_finite
 // __y1_finite
 // y1l
-GO(yn, dFid)
-GO(ynf, fFif)
+GO(yn, dEid)
+GO(ynf, fEif)
 // __ynf_finite
 // __yn_finite
 // ynl

@@ -148,6 +148,7 @@ EXPORT void* my32_gethostbyname(x64emu_t* emu, const char* a)
         strings[idx++] = 0;
     }
     // done
+    emu->libc_herr = h_errno;
     return &ret;
 }
 

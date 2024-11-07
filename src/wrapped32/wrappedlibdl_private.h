@@ -2,14 +2,14 @@
 #error Meh...
 #endif
 
-GOM(dladdr, iFEpp)
-GOM(dladdr1, iFEpppi)
-GO2(dlclose, iFEp, my_dlclose)
-GO2(dlerror, pFEv, my_dlerror)
+GOM(dladdr, iEEpp)
+GOM(dladdr1, iEEpppi)
+GO2(dlclose, iEEp, my_dlclose)
+GO2(dlerror, pEEv, my_dlerror)
 //DATAB(_dlfcn_hook, 4)
-GOM(dlinfo, iFEpip)
-GO2(dlmopen, pFEppi, my_dlmopen)
-GO2(dlopen, pFEpi, my_dlopen)
-GO2(dlsym, pFEpp, my_dlsym)
-GO2(dlvsym, pFEppp, my_dlvsym)   // Weak
-GOM(_dl_find_object, iFEpp)
+GOM(dlinfo, iEEpip)
+GO2(dlmopen, pEEppi, my_dlmopen)
+GO2(dlopen, pEEpi, my_dlopen)
+GO2(dlsym, pEEpp, my_dlsym)
+GO2(dlvsym, pEEppp, my_dlvsym)   // Weak
+GOM(_dl_find_object, iEEpp)

@@ -1387,6 +1387,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
     int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
+if(sig==SIGABRT) log_minimum=LOG_NONE;
     if(signal_jmpbuf_active) {
         signal_jmpbuf_active = 0;
         longjmp(SIG_JMPBUF, 1);

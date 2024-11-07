@@ -15,175 +15,175 @@
 // __libc_allocate_rtsig
 // __libc_current_sigrtmax
 // __libc_current_sigrtmin
-GOM(pthread_atfork, iFEppp)
-GOM(__pthread_atfork, iFEppp)
-GOM(pthread_attr_destroy, iFEp)
+GOM(pthread_atfork, iEEppp)
+GOM(__pthread_atfork, iEEppp)
+GOM(pthread_attr_destroy, iEEp)
 // pthread_attr_getaffinity_np
-GOM(pthread_attr_getdetachstate, iFEpp)
-GOM(pthread_attr_getguardsize, iFEpp)
-GOM(pthread_attr_getinheritsched, iFEpp)
-GOM(pthread_attr_getschedparam, iFEpp)
-GOM(pthread_attr_getschedpolicy, iFEpp)
-GOM(pthread_attr_getscope, iFEpp)
-GOM(pthread_attr_getstack, iFEppp)
-GOM(pthread_attr_getstackaddr, iFEpp)
-GOM(pthread_attr_getstacksize, iFEpp)
-GOM(pthread_attr_init, iFEp)
-GOM(pthread_attr_setaffinity_np, iFEpup)
-GOM(pthread_attr_setdetachstate, iFEpi)
-GOM(pthread_attr_setguardsize, iFEpL)
-GOM(pthread_attr_setinheritsched, iFEpi)
-GOM(pthread_attr_setschedparam, iFEpp)
-GOM(pthread_attr_setschedpolicy, iFEpi)
-GOM(pthread_attr_setscope, iFEpi)
-GOM(pthread_attr_setstack, iFEppL)
-GOM(pthread_attr_setstackaddr, iFEpp)
-GOM(pthread_attr_setstacksize, iFEpL)
-GO(pthread_barrierattr_destroy, iFp)
-GO(pthread_barrierattr_getpshared, iFpp)
-GO(pthread_barrierattr_init, iFp)
-GO(pthread_barrierattr_setpshared, iFpi)
-GO(pthread_barrier_destroy, iFp)
-GO(pthread_barrier_init, iFppu)
-GO(pthread_barrier_wait, iFp)
-GO(pthread_cancel, iFh)
-GOM(_pthread_cleanup_pop, vFEpi)
-GOM(_pthread_cleanup_pop_restore, vFEpi)
-GOM(_pthread_cleanup_push, vFEppp)
-GOM(_pthread_cleanup_push_defer, vFEppp)
+GOM(pthread_attr_getdetachstate, iEEpp)
+GOM(pthread_attr_getguardsize, iEEpp)
+GOM(pthread_attr_getinheritsched, iEEpp)
+GOM(pthread_attr_getschedparam, iEEpp)
+GOM(pthread_attr_getschedpolicy, iEEpp)
+GOM(pthread_attr_getscope, iEEpp)
+GOM(pthread_attr_getstack, iEEppp)
+GOM(pthread_attr_getstackaddr, iEEpp)
+GOM(pthread_attr_getstacksize, iEEpp)
+GOM(pthread_attr_init, iEEp)
+GOM(pthread_attr_setaffinity_np, iEEpup)
+GOM(pthread_attr_setdetachstate, iEEpi)
+GOM(pthread_attr_setguardsize, iEEpL)
+GOM(pthread_attr_setinheritsched, iEEpi)
+GOM(pthread_attr_setschedparam, iEEpp)
+GOM(pthread_attr_setschedpolicy, iEEpi)
+GOM(pthread_attr_setscope, iEEpi)
+GOM(pthread_attr_setstack, iEEppL)
+GOM(pthread_attr_setstackaddr, iEEpp)
+GOM(pthread_attr_setstacksize, iEEpL)
+GO(pthread_barrierattr_destroy, iEp)
+GO(pthread_barrierattr_getpshared, iEpp)
+GO(pthread_barrierattr_init, iEp)
+GO(pthread_barrierattr_setpshared, iEpi)
+GO(pthread_barrier_destroy, iEp)
+GO(pthread_barrier_init, iEppu)
+GO(pthread_barrier_wait, iEp)
+GO(pthread_cancel, iEh)
+GOM(_pthread_cleanup_pop, vEEpi)
+GOM(_pthread_cleanup_pop_restore, vEEpi)
+GOM(_pthread_cleanup_push, vEEppp)
+GOM(_pthread_cleanup_push_defer, vEEppp)
 // __pthread_cleanup_routine
-GO(pthread_condattr_destroy, iFp)
-GO(pthread_condattr_getclock, iFpp)
-GO(pthread_condattr_getpshared, iFpp)
-GO(pthread_condattr_init, iFp)
-GO(pthread_condattr_setclock, iFpp)
-GO(pthread_condattr_setpshared, iFpi)
-GO2(pthread_cond_broadcast@GLIBC_2.0, iFEp, my32_pthread_cond_broadcast_old)
-GO2(pthread_cond_destroy@GLIBC_2.0, iFEp, my32_pthread_cond_destroy_old)
-GO2(pthread_cond_init@GLIBC_2.0, iFEpp, my32_pthread_cond_init_old)
-GO2(pthread_cond_signal@GLIBC_2.0, iFEp, my32_pthread_cond_signal_old)
-GO2(pthread_cond_timedwait@GLIBC_2.0, iFEpprLL_, my32_pthread_cond_timedwait_old)
-GO2(pthread_cond_wait@GLIBC_2.0, iFEpp, my32_pthread_cond_wait_old)
-GOM(pthread_cond_broadcast, iFEp)
-GOM(pthread_cond_destroy, iFEp)
-GOM(pthread_cond_init, iFEpp)
-GOM(pthread_cond_signal, iFEp)
-GOM(pthread_cond_timedwait, iFEpprLL_)
-GOM(pthread_cond_wait, iFEpp)
-GOM(pthread_create, iFEBh_ppp)
-GOM(pthread_detach, iFEh)
-GO(pthread_equal, iFhh)
-GO(pthread_exit, vFp)
-GOM(pthread_getaffinity_np, iFEhup)
-GOM(pthread_getattr_np, iFEhp)
-GO(pthread_getconcurrency, iFv)
-GO(pthread_getcpuclockid, iFhp)
-GO(pthread_getschedparam, iFhpp)
-GO(__pthread_getspecific, pFu)
-GO(pthread_getspecific, pFu)
-GO(pthread_getname_np, iFhpL)
-GOM(__pthread_initialize, vFv)  //%noE doesn't exist anymore...
+GO(pthread_condattr_destroy, iEp)
+GO(pthread_condattr_getclock, iEpp)
+GO(pthread_condattr_getpshared, iEpp)
+GO(pthread_condattr_init, iEp)
+GO(pthread_condattr_setclock, iEpp)
+GO(pthread_condattr_setpshared, iEpi)
+GO2(pthread_cond_broadcast@GLIBC_2.0, iEEp, my32_pthread_cond_broadcast_old)
+GO2(pthread_cond_destroy@GLIBC_2.0, iEEp, my32_pthread_cond_destroy_old)
+GO2(pthread_cond_init@GLIBC_2.0, iEEpp, my32_pthread_cond_init_old)
+GO2(pthread_cond_signal@GLIBC_2.0, iEEp, my32_pthread_cond_signal_old)
+GO2(pthread_cond_timedwait@GLIBC_2.0, iEEpprLL_, my32_pthread_cond_timedwait_old)
+GO2(pthread_cond_wait@GLIBC_2.0, iEEpp, my32_pthread_cond_wait_old)
+GOM(pthread_cond_broadcast, iEEp)
+GOM(pthread_cond_destroy, iEEp)
+GOM(pthread_cond_init, iEEpp)
+GOM(pthread_cond_signal, iEEp)
+GOM(pthread_cond_timedwait, iEEpprLL_)
+GOM(pthread_cond_wait, iEEpp)
+GOM(pthread_create, iEEBh_ppp)
+GOM(pthread_detach, iEEh)
+GO(pthread_equal, iEhh)
+GO(pthread_exit, vEp)
+GOM(pthread_getaffinity_np, iEEhup)
+GOM(pthread_getattr_np, iEEhp)
+GO(pthread_getconcurrency, iEv)
+GO(pthread_getcpuclockid, iEhp)
+GO(pthread_getschedparam, iEhpp)
+GO(__pthread_getspecific, pEu)
+GO(pthread_getspecific, pEu)
+GO(pthread_getname_np, iEhpL)
+GOM(__pthread_initialize, vEv)  //%noE doesn't exist anymore...
 // __pthread_initialize_minimal
-GO(pthread_join, iFHBp_)
-GOM(__pthread_key_create, iFEpp)
-GOM(pthread_key_create, iFEpp)
-GO(pthread_key_delete, iFu)
-GO(pthread_kill, iFhi)
-GO2(pthread_kill@GLIBC_2.0, iFEhi, my32_pthread_kill_old)
+GO(pthread_join, iEHBp_)
+GOM(__pthread_key_create, iEEpp)
+GOM(pthread_key_create, iEEpp)
+GO(pthread_key_delete, iEu)
+GO(pthread_kill, iEhi)
+GO2(pthread_kill@GLIBC_2.0, iEEhi, my32_pthread_kill_old)
 // pthread_kill_other_threads_np
-GO(__pthread_mutexattr_destroy, iFp)
-GO(pthread_mutexattr_destroy, iFp)
-GO(pthread_mutexattr_getprioceiling, iFpp)
-GO(pthread_mutexattr_getprotocol, iFpp)
+GO(__pthread_mutexattr_destroy, iEp)
+GO(pthread_mutexattr_destroy, iEp)
+GO(pthread_mutexattr_getprioceiling, iEpp)
+GO(pthread_mutexattr_getprotocol, iEpp)
 // pthread_mutexattr_getpshared
 // pthread_mutexattr_getrobust_np
-GO(pthread_mutexattr_gettype, iFpp)
-GO2(__pthread_mutexattr_init, iFp, my32_pthread_mutexattr_init)
-GOM(pthread_mutexattr_init, iFEp)
-GO(pthread_mutexattr_setprioceiling, iFpi)
-GO(pthread_mutexattr_setprotocol, iFpp)
-GO(pthread_mutexattr_setpshared, iFpi)
+GO(pthread_mutexattr_gettype, iEpp)
+GO2(__pthread_mutexattr_init, iEp, my32_pthread_mutexattr_init)
+GOM(pthread_mutexattr_init, iEEp)
+GO(pthread_mutexattr_setprioceiling, iEpi)
+GO(pthread_mutexattr_setprotocol, iEpp)
+GO(pthread_mutexattr_setpshared, iEpi)
 // pthread_mutexattr_setrobust_np
-GO(__pthread_mutexattr_settype, iFpi)
-GO(pthread_mutexattr_settype, iFpi)
+GO(__pthread_mutexattr_settype, iEpi)
+GO(pthread_mutexattr_settype, iEpi)
 // pthread_mutex_consistent_np
-GOM(__pthread_mutex_destroy, iFp)  //%noE
-GOM(pthread_mutex_destroy, iFp)    //%noE
+GOM(__pthread_mutex_destroy, iEp)  //%noE
+GOM(pthread_mutex_destroy, iEp)    //%noE
 // pthread_mutex_getprioceiling
-GOM(__pthread_mutex_init, iFpp)    //%noE
-GOM(pthread_mutex_init, iFpp)      //%noE
-GOM(__pthread_mutex_lock, iFp)     //%noE
-GOM(pthread_mutex_lock, iFp)       //%noE
+GOM(__pthread_mutex_init, iEpp)    //%noE
+GOM(pthread_mutex_init, iEpp)      //%noE
+GOM(__pthread_mutex_lock, iEp)     //%noE
+GOM(pthread_mutex_lock, iEp)       //%noE
 // pthread_mutex_setprioceiling
-GOM(pthread_mutex_timedlock, iFpp) //%noE
-GOM(__pthread_mutex_trylock, iFp)  //%noE
-GOM(pthread_mutex_trylock, iFp)    //%noE
-GOM(__pthread_mutex_unlock, iFp)   //%noE
-GOM(pthread_mutex_unlock, iFp)     //%noE
-GOM(pthread_once, iFEpp)
-GOM(__pthread_once, iFEpp)
-GOM(__pthread_register_cancel, vFEp)
+GOM(pthread_mutex_timedlock, iEpp) //%noE
+GOM(__pthread_mutex_trylock, iEp)  //%noE
+GOM(pthread_mutex_trylock, iEp)    //%noE
+GOM(__pthread_mutex_unlock, iEp)   //%noE
+GOM(pthread_mutex_unlock, iEp)     //%noE
+GOM(pthread_once, iEEpp)
+GOM(__pthread_once, iEEpp)
+GOM(__pthread_register_cancel, vEEp)
 // __pthread_register_cancel_defer
-GO(pthread_rwlockattr_destroy, vFp)
-GO(pthread_rwlockattr_getkind_np, iFpp)
+GO(pthread_rwlockattr_destroy, vEp)
+GO(pthread_rwlockattr_getkind_np, iEpp)
 // pthread_rwlockattr_getpshared
-GO(pthread_rwlockattr_init, iFp)
-GO(pthread_rwlockattr_setkind_np, iFpi)
+GO(pthread_rwlockattr_init, iEp)
+GO(pthread_rwlockattr_setkind_np, iEpi)
 // pthread_rwlockattr_setpshared
 // __pthread_rwlock_destroy
-GOM(pthread_rwlock_destroy, iFp)    //%noE
-GOM(__pthread_rwlock_init, iFpp)    //%noE
-GOM(pthread_rwlock_init, iFpp)  //%noE
-GO(__pthread_rwlock_rdlock, iFp)
-GO(pthread_rwlock_rdlock, iFp)
+GOM(pthread_rwlock_destroy, iEp)    //%noE
+GOM(__pthread_rwlock_init, iEpp)    //%noE
+GOM(pthread_rwlock_init, iEpp)  //%noE
+GO(__pthread_rwlock_rdlock, iEp)
+GO(pthread_rwlock_rdlock, iEp)
 // pthread_rwlock_timedrdlock
 // pthread_rwlock_timedwrlock
 // __pthread_rwlock_tryrdlock
-GO(pthread_rwlock_tryrdlock, iFp)
+GO(pthread_rwlock_tryrdlock, iEp)
 // __pthread_rwlock_trywrlock
-GO(pthread_rwlock_trywrlock, iFp)
-GO(__pthread_rwlock_unlock, iFp)
-GOM(pthread_rwlock_unlock, iFp) //%noE
-GO(__pthread_rwlock_wrlock, iFp)
-GOM(pthread_rwlock_wrlock, iFp) //%noE
-GO(pthread_self, hFv)
-GOM(pthread_setaffinity_np, iFEhup)
-GO(pthread_setcancelstate, iFip)
-GO(pthread_setcanceltype, iFip)
-GO(pthread_setconcurrency, iFi)
-GO(pthread_setname_np, iFhp)
-GO(pthread_setschedparam, iFhip)
-GO(pthread_setschedprio, iFhi)
-GO(__pthread_setspecific, iFup)
-GO(pthread_setspecific, iFup)
-GO(pthread_sigmask, iFipp)
-GO(pthread_spin_destroy, iFp)
-GO(pthread_spin_init, iFpi)
-GO(pthread_spin_lock, iFp)
-GO(pthread_spin_trylock, iFp)
-GO(pthread_spin_unlock, iFp)
-GO(pthread_testcancel, vFv)
-GO(pthread_timedjoin_np, iFppp)
-GO(pthread_tryjoin_np, iFpp)
-GOM(__pthread_unregister_cancel, vFEp)
+GO(pthread_rwlock_trywrlock, iEp)
+GO(__pthread_rwlock_unlock, iEp)
+GOM(pthread_rwlock_unlock, iEp) //%noE
+GO(__pthread_rwlock_wrlock, iEp)
+GOM(pthread_rwlock_wrlock, iEp) //%noE
+GO(pthread_self, hEv)
+GOM(pthread_setaffinity_np, iEEhup)
+GO(pthread_setcancelstate, iEip)
+GO(pthread_setcanceltype, iEip)
+GO(pthread_setconcurrency, iEi)
+GO(pthread_setname_np, iEhp)
+GO(pthread_setschedparam, iEhip)
+GO(pthread_setschedprio, iEhi)
+GO(__pthread_setspecific, iEup)
+GO(pthread_setspecific, iEup)
+GO(pthread_sigmask, iEipp)
+GO(pthread_spin_destroy, iEp)
+GO(pthread_spin_init, iEpi)
+GO(pthread_spin_lock, iEp)
+GO(pthread_spin_trylock, iEp)
+GO(pthread_spin_unlock, iEp)
+GO(pthread_testcancel, vEv)
+GO(pthread_timedjoin_np, iEppp)
+GO(pthread_tryjoin_np, iEpp)
+GOM(__pthread_unregister_cancel, vEEp)
 // __pthread_unregister_cancel_restore
 // __pthread_unwind
-GOM(__pthread_unwind_next, vFEp)
-GO(pthread_yield, iFv)
+GOM(__pthread_unwind_next, vEEp)
+GO(pthread_yield, iEv)
 // raise
 // __res_state
-GOM(sem_close, iFp) //%noE
-GOM(sem_destroy, iFp)   //%noE
-GOM(sem_getvalue, iFpp) //%noE
-GOM(sem_init, iFpiu)    //%noE
-GOM(sem_open, pFpOM)    //%noE
-GOM(sem_post, iFp)  //%noE
-GOM(sem_timedwait, iFprLL_) //%noE
-GOM(sem_trywait, iFp)   //%noE
-GO(sem_unlink, iFp)    // no need for M here?
-GOM(sem_wait, iFp)  //%noE
+GOM(sem_close, iEp) //%noE
+GOM(sem_destroy, iEp)   //%noE
+GOM(sem_getvalue, iEpp) //%noE
+GOM(sem_init, iEpiu)    //%noE
+GOM(sem_open, pEpOM)    //%noE
+GOM(sem_post, iEp)  //%noE
+GOM(sem_timedwait, iEprLL_) //%noE
+GOM(sem_trywait, iEp)   //%noE
+GO(sem_unlink, iEp)    // no need for M here?
+GOM(sem_wait, iEp)  //%noE
 // __sigaction
 // system
 // __vfork
 
-GOM(pthread_mutexattr_setkind_np, iFEpi)    // deprecated
+GOM(pthread_mutexattr_setkind_np, iEEpi)    // deprecated

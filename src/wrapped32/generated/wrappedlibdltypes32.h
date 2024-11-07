@@ -11,26 +11,26 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int32_t (*iFp_t)(void*);
-typedef void* (*pFv_t)(void);
-typedef int32_t (*iFpp_t)(void*, void*);
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFpp_t)(void*, void*);
-typedef int32_t (*iFpip_t)(void*, int32_t, void*);
-typedef void* (*pFppi_t)(void*, void*, int32_t);
-typedef void* (*pFppp_t)(void*, void*, void*);
-typedef int32_t (*iFpppi_t)(void*, void*, void*, int32_t);
+typedef int32_t (*iEp_t)(void*);
+typedef void* (*pEv_t)(void);
+typedef int32_t (*iEpp_t)(void*, void*);
+typedef void* (*pEpi_t)(void*, int32_t);
+typedef void* (*pEpp_t)(void*, void*);
+typedef int32_t (*iEpip_t)(void*, int32_t, void*);
+typedef void* (*pEppi_t)(void*, void*, int32_t);
+typedef void* (*pEppp_t)(void*, void*, void*);
+typedef int32_t (*iEpppi_t)(void*, void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(dlclose, iFp_t) \
-	GO(dlerror, pFv_t) \
-	GO(_dl_find_object, iFpp_t) \
-	GO(dladdr, iFpp_t) \
-	GO(dlopen, pFpi_t) \
-	GO(dlsym, pFpp_t) \
-	GO(dlinfo, iFpip_t) \
-	GO(dlmopen, pFppi_t) \
-	GO(dlvsym, pFppp_t) \
-	GO(dladdr1, iFpppi_t)
+	GO(dlclose, iEp_t) \
+	GO(dlerror, pEv_t) \
+	GO(_dl_find_object, iEpp_t) \
+	GO(dladdr, iEpp_t) \
+	GO(dlopen, pEpi_t) \
+	GO(dlsym, pEpp_t) \
+	GO(dlinfo, iEpip_t) \
+	GO(dlmopen, pEppi_t) \
+	GO(dlvsym, pEppp_t) \
+	GO(dladdr1, iEpppi_t)
 
 #endif // __wrappedlibdlTYPES32_H_

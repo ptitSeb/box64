@@ -11,28 +11,28 @@
 // aio_cancel
 // aio_cancel64
 // aio_error
-GO(aio_error64, iFp)
-GO(aio_fsync, iFip)
-GO(aio_fsync64, iFip)
+GO(aio_error64, iEp)
+GO(aio_fsync, iEip)
+GO(aio_fsync64, iEip)
 // aio_init
 // aio_read
-GO(aio_read64, iFp)
+GO(aio_read64, iEp)
 // aio_return
-GO(aio_return64, lFp)
-GO(aio_suspend, iFpip)
-GO(aio_suspend64, iFpip)
+GO(aio_return64, lEp)
+GO(aio_suspend, iEpip)
+GO(aio_suspend64, iEpip)
 // aio_write
-GO(aio_write64, iFp)
-GO(clock_getcpuclockid, iFup)
-GO(clock_getres, iFup)
-GO(clock_gettime, iFuBLL_)   // *timespec
-GO2(__clock_gettime, iFuBLL_, clock_gettime)
-GO(clock_nanosleep, iFuirLL_BLL_)
-//GO(clock_settime, iFup)
+GO(aio_write64, iEp)
+GO(clock_getcpuclockid, iEup)
+GO(clock_getres, iEuBLL_)
+GO(clock_gettime, iEuBLL_)   // *timespec
+GO2(__clock_gettime, iEuBLL_, clock_gettime)
+GO(clock_nanosleep, iEuirLL_BLL_)
+//GO(clock_settime, iEup)
 // lio_listio
 // lio_listio64
 // mq_close
-GO(mq_getattr, iFip)
+GO(mq_getattr, iEip)
 // mq_notify
 // mq_open
 // __mq_open_2
@@ -42,10 +42,10 @@ GO(mq_getattr, iFip)
 // mq_timedreceive
 // mq_timedsend
 // mq_unlink
-GO(shm_open, iFpOu)
-GO(shm_unlink, iFp)
-//GOM(timer_create, iFEupp)
-GO(timer_delete, iFu)
-GO(timer_getoverrun, iFu)
-//GO(timer_gettime, iFup)   //time_t is L, timespec is struct LL, itimerspec (the p) is 2 timespec
-//GO(timer_settime, iFuipp) //same, p are itimerspec
+GO(shm_open, iEpOu)
+GO(shm_unlink, iEp)
+//GOM(timer_create, iEEupp)
+GO(timer_delete, iEu)
+GO(timer_getoverrun, iEu)
+//GO(timer_gettime, iEup)   //time_t is L, timespec is struct LL, itimerspec (the p) is 2 timespec
+//GO(timer_settime, iEuipp) //same, p are itimerspec

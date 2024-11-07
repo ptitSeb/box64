@@ -554,12 +554,22 @@ void StopEmu(x64emu_t* emu, const char* reason, int is32bits)
     // dump stuff...
     printf_log(LOG_NONE, "==== CPU Registers ====\n%s\n", DumpCPURegs(emu, R_RIP, is32bits));
     printf_log(LOG_NONE, "======== Stack ========\nStack is from %lX to %lX\n", R_RBP, R_RSP);
-    if (R_RBP == R_RSP) {
-        printf_log(LOG_NONE, "RBP = RSP: leaf function detected; next 128 bytes should be either data or random.\n");
+    if(emu->segs[_CS]==0x23) {
+        if (R_EBP == R_ESP) {
+            printf_log(LOG_NONE, "EBP = ESP: leaf function detected; next 128 bytes should be either data or random.\n");
+        } else {
+            // TODO: display stack if operation should be allowed (to avoid crashes)
+            /* for (uint64_t *sp = R_RBP; sp >= R_RSP; --sp) {
+            } */
+        }
     } else {
-        // TODO: display stack if operation should be allowed (to avoid crashes)
-        /* for (uint64_t *sp = R_RBP; sp >= R_RSP; --sp) {
-        } */
+        if (R_RBP == R_RSP) {
+            printf_log(LOG_NONE, "RBP = RSP: leaf function detected; next 128 bytes should be either data or random.\n");
+        } else {
+            // TODO: display stack if operation should be allowed (to avoid crashes)
+            /* for (uint64_t *sp = R_RBP; sp >= R_RSP; --sp) {
+            } */
+        }
     }
     printf_log(LOG_NONE, "Old IP: %tX\n", emu->old_ip);
 #ifdef HAVE_TRACE

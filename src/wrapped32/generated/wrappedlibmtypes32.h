@@ -11,80 +11,80 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef uint64_t (*UFs_t)(void*);
-typedef float (*fFf_t)(float);
-typedef double (*dFd_t)(double);
-typedef long double (*DFD_t)(long double);
-typedef double (*KFK_t)(double);
-typedef float (*fFff_t)(float, float);
-typedef double (*dFdd_t)(double, double);
-typedef double (*KFKK_t)(double, double);
-typedef double (*KFKp_t)(double, void*);
-typedef uint64_t (*UFsvvs_t)(void*, void, void, void*);
+typedef uint64_t (*UEs_t)(void*);
+typedef float (*fEf_t)(float);
+typedef double (*dEd_t)(double);
+typedef long double (*DED_t)(long double);
+typedef double (*KEK_t)(double);
+typedef float (*fEff_t)(float, float);
+typedef double (*dEdd_t)(double, double);
+typedef double (*KEKK_t)(double, double);
+typedef double (*KEKp_t)(double, void*);
+typedef uint64_t (*UEsvvs_t)(void*, void, void, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(cacosf, UFs_t) \
-	GO(cacoshf, UFs_t) \
-	GO(casinf, UFs_t) \
-	GO(casinhf, UFs_t) \
-	GO(catanf, UFs_t) \
-	GO(catanhf, UFs_t) \
-	GO(ccosf, UFs_t) \
-	GO(ccoshf, UFs_t) \
-	GO(cexpf, UFs_t) \
-	GO(clogf, UFs_t) \
-	GO(cprojf, UFs_t) \
-	GO(csinf, UFs_t) \
-	GO(csinhf, UFs_t) \
-	GO(csqrtf, UFs_t) \
-	GO(ctanf, UFs_t) \
-	GO(ctanhf, UFs_t) \
-	GO(__acosf_finite, fFf_t) \
-	GO(__acoshf_finite, fFf_t) \
-	GO(__asinf_finite, fFf_t) \
-	GO(__coshf_finite, fFf_t) \
-	GO(__exp2f_finite, fFf_t) \
-	GO(__expf_finite, fFf_t) \
-	GO(__log10f_finite, fFf_t) \
-	GO(__log2f_finite, fFf_t) \
-	GO(__logf_finite, fFf_t) \
-	GO(__sinhf_finite, fFf_t) \
-	GO(__sqrtf_finite, fFf_t) \
-	GO(__acos_finite, dFd_t) \
-	GO(__acosh_finite, dFd_t) \
-	GO(__asin_finite, dFd_t) \
-	GO(__cosh_finite, dFd_t) \
-	GO(__exp2_finite, dFd_t) \
-	GO(__exp_finite, dFd_t) \
-	GO(__log10_finite, dFd_t) \
-	GO(__log2_finite, dFd_t) \
-	GO(__log_finite, dFd_t) \
-	GO(__sinh_finite, dFd_t) \
-	GO(__sqrt_finite, dFd_t) \
-	GO(pow10l, DFD_t) \
-	GO(acoshl, KFK_t) \
-	GO(acosl, KFK_t) \
-	GO(asinhl, KFK_t) \
-	GO(asinl, KFK_t) \
-	GO(atanhl, KFK_t) \
-	GO(cbrtl, KFK_t) \
-	GO(erfcl, KFK_t) \
-	GO(erfl, KFK_t) \
-	GO(ldexpl, KFK_t) \
-	GO(lgammal, KFK_t) \
-	GO(logl, KFK_t) \
-	GO(pow10l, KFK_t) \
-	GO(tgammal, KFK_t) \
-	GO(__atan2f_finite, fFff_t) \
-	GO(__hypotf_finite, fFff_t) \
-	GO(__powf_finite, fFff_t) \
-	GO(__atan2_finite, dFdd_t) \
-	GO(__hypot_finite, dFdd_t) \
-	GO(__pow_finite, dFdd_t) \
-	GO(fmodl, KFKK_t) \
-	GO(powl, KFKK_t) \
-	GO(frexpl, KFKp_t) \
-	GO(lgammal_r, KFKp_t) \
-	GO(cpowf, UFsvvs_t)
+	GO(cacosf, UEs_t) \
+	GO(cacoshf, UEs_t) \
+	GO(casinf, UEs_t) \
+	GO(casinhf, UEs_t) \
+	GO(catanf, UEs_t) \
+	GO(catanhf, UEs_t) \
+	GO(ccosf, UEs_t) \
+	GO(ccoshf, UEs_t) \
+	GO(cexpf, UEs_t) \
+	GO(clogf, UEs_t) \
+	GO(cprojf, UEs_t) \
+	GO(csinf, UEs_t) \
+	GO(csinhf, UEs_t) \
+	GO(csqrtf, UEs_t) \
+	GO(ctanf, UEs_t) \
+	GO(ctanhf, UEs_t) \
+	GO(__acosf_finite, fEf_t) \
+	GO(__acoshf_finite, fEf_t) \
+	GO(__asinf_finite, fEf_t) \
+	GO(__coshf_finite, fEf_t) \
+	GO(__exp2f_finite, fEf_t) \
+	GO(__expf_finite, fEf_t) \
+	GO(__log10f_finite, fEf_t) \
+	GO(__log2f_finite, fEf_t) \
+	GO(__logf_finite, fEf_t) \
+	GO(__sinhf_finite, fEf_t) \
+	GO(__sqrtf_finite, fEf_t) \
+	GO(__acos_finite, dEd_t) \
+	GO(__acosh_finite, dEd_t) \
+	GO(__asin_finite, dEd_t) \
+	GO(__cosh_finite, dEd_t) \
+	GO(__exp2_finite, dEd_t) \
+	GO(__exp_finite, dEd_t) \
+	GO(__log10_finite, dEd_t) \
+	GO(__log2_finite, dEd_t) \
+	GO(__log_finite, dEd_t) \
+	GO(__sinh_finite, dEd_t) \
+	GO(__sqrt_finite, dEd_t) \
+	GO(pow10l, DED_t) \
+	GO(acoshl, KEK_t) \
+	GO(acosl, KEK_t) \
+	GO(asinhl, KEK_t) \
+	GO(asinl, KEK_t) \
+	GO(atanhl, KEK_t) \
+	GO(cbrtl, KEK_t) \
+	GO(erfcl, KEK_t) \
+	GO(erfl, KEK_t) \
+	GO(ldexpl, KEK_t) \
+	GO(lgammal, KEK_t) \
+	GO(logl, KEK_t) \
+	GO(pow10l, KEK_t) \
+	GO(tgammal, KEK_t) \
+	GO(__atan2f_finite, fEff_t) \
+	GO(__hypotf_finite, fEff_t) \
+	GO(__powf_finite, fEff_t) \
+	GO(__atan2_finite, dEdd_t) \
+	GO(__hypot_finite, dEdd_t) \
+	GO(__pow_finite, dEdd_t) \
+	GO(fmodl, KEKK_t) \
+	GO(powl, KEKK_t) \
+	GO(frexpl, KEKp_t) \
+	GO(lgammal_r, KEKp_t) \
+	GO(cpowf, UEsvvs_t)
 
 #endif // __wrappedlibmTYPES32_H_
