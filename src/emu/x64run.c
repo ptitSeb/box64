@@ -1658,10 +1658,10 @@ x64emurun:
             break;
         case 0xD8:                      /* x87 opcodes */
             #ifdef TEST_INTERPRETER
-            if(!(addr = TestD8(test, rex, addr)))
+            if(!(addr = TestD8(test, rex, addr, 0)))
                 unimp = 1;
             #else
-            if(!(addr = RunD8(emu, rex, addr))) {
+            if(!(addr = RunD8(emu, rex, addr, 0))) {
                 unimp = 1;
                 goto fini;
             }
@@ -1673,10 +1673,10 @@ x64emurun:
             break;
         case 0xD9:                      /* x87 opcodes */
             #ifdef TEST_INTERPRETER
-            if(!(addr = TestD9(test, rex, addr)))
+            if(!(addr = TestD9(test, rex, addr, 0)))
                 unimp = 1;
             #else
-            if(!(addr = RunD9(emu, rex, addr))) {
+            if(!(addr = RunD9(emu, rex, addr, 0))) {
                 unimp = 1;
                 goto fini;
             }

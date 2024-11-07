@@ -23,9 +23,9 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestD8(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t TestD8(x64test_t *test, rex_t rex, uintptr_t addr, uintptr_t offs)
 #else
-uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs)
 #endif
 {
     uint8_t nextop;
@@ -125,36 +125,68 @@ uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr)
     } else
         switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 ST0.d += *(float*)ED;
                 break;
             case 1:         /* FMUL ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 ST0.d *= *(float*)ED;
                 break;
             case 2:      /* FCOM ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 fpu_fcom(emu, *(float*)ED);
                 break;
             case 3:     /* FCOMP */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 fpu_fcom(emu, *(float*)ED);
                 fpu_do_pop(emu);
                 break;
             case 4:         /* FSUB ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 ST0.d -= *(float*)ED;
                 break;
             case 5:         /* FSUBR ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 ST0.d = *(float*)ED - ST0.d;
                 break;
             case 6:         /* FDIV ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 ST0.d /= *(float*)ED;
                 break;
             case 7:         /* FDIVR ST0, float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 ST0.d = *(float*)ED / ST0.d;
                 break;
             default:

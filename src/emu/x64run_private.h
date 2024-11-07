@@ -122,7 +122,9 @@ reg64_t* TestEbO(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t
 reg64_t* GetEd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* TestEd(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* TestEd4(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEd4O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* TestEd8(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
+reg64_t* TestEd8O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset);
 reg64_t* TestEd8xw(x64test_t *test, int w, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 reg64_t* TestEdt(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
 uintptr_t GetEA(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta);
@@ -183,8 +185,8 @@ uintptr_t Run6764_32(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
 uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Run67660F(x64emu_t *emu, rex_t rex, uintptr_t addr);
-uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr);
-uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr);
+uintptr_t RunD8(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs);
+uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs);
 uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr);
@@ -224,8 +226,8 @@ uintptr_t Test6764_32(x64test_t *test, rex_t rex, int rep, int seg, uintptr_t ad
 uintptr_t Test670F(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Test6766(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Test67660F(x64test_t *test, rex_t rex, uintptr_t addr);
-uintptr_t TestD8(x64test_t *test, rex_t rex, uintptr_t addr);
-uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t TestD8(x64test_t *test, rex_t rex, uintptr_t addr, uintptr_t offs);
+uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr, uintptr_t offs);
 uintptr_t TestDA(x64test_t *test, rex_t rex, uintptr_t addr);
 uintptr_t TestDB(x64test_t *test, rex_t rex, uintptr_t addr);
 uintptr_t TestDC(x64test_t *test, rex_t rex, uintptr_t addr);

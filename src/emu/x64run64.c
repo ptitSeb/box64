@@ -756,6 +756,21 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             }
             break;
 
+        case 0xD8:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            return TestD8(test, rex, addr, tlsdata);
+            #else
+            return RunD8(emu, rex, addr, tlsdata);
+            #endif
+            break;
+        case 0xD9:                      /* x87 opcodes */
+            #ifdef TEST_INTERPRETER
+            return TestD9(test, rex, addr, tlsdata);
+            #else
+            return RunD9(emu, rex, addr, tlsdata);
+            #endif
+            break;
+
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
             addr += tmp32s;

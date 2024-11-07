@@ -23,9 +23,9 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t TestD9(x64test_t *test, rex_t rex, uintptr_t addr, uintptr_t offs)
 #else
-uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs)
 #endif
 {
     uint8_t nextop;
@@ -232,39 +232,67 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
     } else
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 fpu_do_push(emu);
                 ST0.d = *(float*)ED;
                 break;
             case 2:     /* FST Ed, ST0 */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 *(float*)ED = ST0.d;
                 break;
             case 3:     /* FSTP Ed, ST0 */
-                GETE4(0);
+                if(offs) {
+                    GETE4_OFFS(0, offs);
+                } else {
+                    GETE4(0);
+                }
                 *(float*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                _GETED(0);
+                if(offs) {
+                    _GETED_OFFS(0, offs);
+                } else {
+                    _GETED(0);
+                }
                 fpu_loadenv(emu, (char*)ED, 0);
                 break;
             case 5:     /* FLDCW Ew */
-                GETEW(0);
+                if(offs) {
+                    GETEW_OFFS(0, offs);
+                } else {
+                    GETEW(0);
+                }
                 emu->cw.x16 = EW->word[0];
                 // do something with cw?
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                GETE8(0);
+                if(offs) {
+                    GETE8_OFFS(0, offs);
+                } else {
+                    GETE8(0);
+                }
                 fpu_savenv(emu, (char*)ED, 0);
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
                 break;
             case 7: /* FNSTCW Ew */
-                GETEW(0);
+                if(offs) {
+                    GETEW_OFFS(0, offs);
+                } else {
+                    GETEW(0);
+                }
                 EW->word[0] = emu->cw.x16;
                 break;
             default:
