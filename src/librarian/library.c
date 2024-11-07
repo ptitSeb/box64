@@ -175,6 +175,8 @@ int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t 
     void* sym;
     if((sym = ElfGetWeakSymbolStartEnd(lib->e.elf, &start, &end, name, version, vername, local, veropt)))
     {
+        if(asked_size && asked_size!=end-start)
+            return 0;
         *offs = start;
         *sz = end-start;
         *weak = 1;
@@ -213,6 +215,8 @@ int EmuLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_
     void* sym;
     if((sym = ElfGetGlobalSymbolStartEnd(lib->e.elf, &start, &end, name, version, vername, local, veropt)))
     {
+        if(asked_size && asked_size!=end-start)
+            return 0;
         *offs = start;
         *sz = end-start;
         *weak = 0;
@@ -232,6 +236,8 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t
     void* sym;
     if((sym = ElfGetLocalSymbolStartEnd(lib->e.elf, &start, &end, name, version, vername, local, veropt)))
     {
+        if(asked_size && asked_size!=end-start)
+            return 0;
         *offs = start;
         *sz = end-start;
         *weak = 0;
