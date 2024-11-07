@@ -396,7 +396,7 @@ x64emurun:
         case 0x5E:
         case 0x5F:                      /* POP Reg */
             tmp8u = (opcode&7)+(rex.b<<3);
-            emu->regs[tmp8u].q[0] = is32bits?Pop32(emu):Pop64(emu);
+            emu->regs[tmp8u].q[0] = rex.is32bits?Pop32(emu):Pop64(emu);
             break;
         case 0x60:                      /* PUSHAD */
             if(rex.is32bits) {

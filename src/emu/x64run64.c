@@ -481,16 +481,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
         case 0x6D:                      /* INSD DX */
         case 0x6E:                      /* OUTSB DX */
         case 0x6F:                      /* OUTSD DX */
-#ifndef TEST_INTERPRETER
-            if(rex.is32bits && box64_ignoreint3)
-            {
-                F8;
-            } else {
-                F8;
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-            }
-            #endif
-            break;
+            return addr-1;  // skip 64/65 prefix and resume normal execution
 
         case 0x80:                      /* GRP Eb,Ib */
             nextop = F8;
@@ -663,6 +654,9 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
         case 0x90:                      /* NOP */
             break;
 
+        case 0x9D:                      /* POPF */
+            return addr-1;  // skip 64/65 prefix and resume normal execution
+
         case 0xA1:                      /* MOV EAX,FS:Od */
             if(rex.is32bits) {
                 tmp32s = F32S;
@@ -772,9 +766,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             break;
 
         case 0xEB:                      /* JMP Ib */
-            tmp32s = F8S; // jump is relative
-            addr += tmp32s;
-            break;
+            return addr-1;  // skip 64/65 prefix and resume normal execution
 
         case 0xF6:                      /* GRP3 Eb(,Ib) */
             nextop = F8;

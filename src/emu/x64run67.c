@@ -162,6 +162,31 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             cmp32(emu, R_EAX, F32);
         break;
 
+    case 0x50:
+    case 0x51:
+    case 0x52:
+    case 0x53:
+    case 0x55:
+    case 0x56:
+    case 0x57:                      /* PUSH Reg */
+        tmp8u = (opcode&7)+(rex.b<<3);
+        if(rex.is32bits)
+            Push32(emu, emu->regs[tmp8u].dword[0]);
+        else
+            Push64(emu, emu->regs[tmp8u].q[0]);
+        break;
+    case 0x58:
+    case 0x59:
+    case 0x5A:
+    case 0x5B:
+    case 0x5C:                      /* POP ESP */
+    case 0x5D:
+    case 0x5E:
+    case 0x5F:                      /* POP Reg */
+        tmp8u = (opcode&7)+(rex.b<<3);
+        emu->regs[tmp8u].q[0] = rex.is32bits?Pop32(emu):Pop64(emu);
+        break;
+
     case 0x63:                      /* MOVSXD Gd,Ed */
         nextop = F8;
         GETED32(0);
@@ -182,6 +207,8 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         return Run6766(emu, rex, rep, addr);
         #endif
 
+    case 0x70 ... 0x7F:
+        return addr-1;  // skip 67 prefix and resume normal execution
     case 0x80:                      /* GRP Eb,Ib */
         nextop = F8;
         GETEB32(1);

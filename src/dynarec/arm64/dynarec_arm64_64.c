@@ -436,6 +436,25 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
 
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            // just use regular conditional jump
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
+
         case 0x63:
             if(rex.is32bits) {
                 // ARPL here
@@ -946,6 +965,22 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x90:
             INST_NAME("NOP");
+            break;
+
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1z(xFlags);
+            MOV32w(x1, 0x3F7FD7);
+            ANDw_REG(xFlags, xFlags, x1);
+            MOV32w(x1, 0x202);
+            ORRw_REG(xFlags, xFlags, x1);
+            SET_DFNONE(x1);
+            if(box64_wine) {    // should this be done all the time?
+                TBZ_NEXT(xFlags, F_TF);
+                // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
+                jump_to_epilog(dyn, addr, 0, ninst);
+            }
             break;
 
         case 0xA1:

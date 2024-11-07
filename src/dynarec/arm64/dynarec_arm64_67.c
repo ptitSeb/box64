@@ -682,6 +682,25 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
 
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            // just use regular conditional jump
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
+
         case 0x63:
             INST_NAME("MOVSXD Gd, Ed");
             nextop = F8;
@@ -713,6 +732,21 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0x0F:
                     nextop = F8;
                     switch(nextop) {
+                        case 0x6F:
+                            INST_NAME("MOVDQA Gx,Ex");
+                            nextop = F8;
+                            if(MODREG) {
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                                GETGX_empty(v0);
+                                VMOVQ(v0, v1);
+                            } else {
+                                GETGX_empty(v0);
+                                SMREAD();
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                VLD128(v0, ed, fixedaddress);
+                            }
+                            break;
+
                         case 0x7E:
                             INST_NAME("MOVD Ed,Gx");
                             nextop = F8;
@@ -918,6 +952,25 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             break;
+
+        case 0x70:
+        case 0x71:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x76:
+        case 0x77:
+        case 0x78:
+        case 0x79:
+        case 0x7A:
+        case 0x7B:
+        case 0x7C:
+        case 0x7D:
+        case 0x7E:
+        case 0x7F:
+            // just use regular conditional jump
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
 
         case 0x81:
         case 0x83:
