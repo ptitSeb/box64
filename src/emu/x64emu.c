@@ -263,10 +263,6 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->quit = emu->quit;
     newemu->error = emu->error;
     newemu->x64emu_parity_tab = emu->x64emu_parity_tab;
-    // adapt R_RSP to new stack frame
-    uintptr_t oldst = (uintptr_t)((emu->init_stack)?emu->init_stack:emu->context->stack);
-    uintptr_t newst = (uintptr_t)((newemu->init_stack)?newemu->init_stack:newemu->context->stack);
-    newemu->regs[_SP].q[0] = emu->regs[_SP].q[0] + (intptr_t)(newst - oldst);
 }
 
 void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)

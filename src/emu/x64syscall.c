@@ -587,6 +587,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 {
                     void* stack_base = (void*)R_RSI;
                     int stack_size = 0;
+                    uintptr_t sp = R_RSI;
                     if(!R_RSI) {
                         // allocate a new stack...
                         int currstack = 0;
@@ -595,18 +596,19 @@ void EXPORT x64Syscall(x64emu_t *emu)
                         stack_size = (currstack && emu->size_stack)?emu->size_stack:(1024*1024);
                         stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
                         // copy value from old stack to new stack
-                        if(currstack)
+                        if(currstack) {
                             memcpy(stack_base, emu->init_stack, stack_size);
-                        else {
+                            sp = (uintptr_t)emu->init_stack + R_RSP - (uintptr_t)stack_base;
+                        } else {
                             int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_RSP);
                             memcpy(stack_base+stack_size-size_to_copy, (void*)R_RSP, size_to_copy);
+                            sp = (uintptr_t)stack_base+stack_size-size_to_copy;
                         }
                     }
                     x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RSI)?0:1);
                     SetupX64Emu(newemu, emu);
-                    //CloneEmu(newemu, emu);
-                    Push64(newemu, 0);
-                    PushExit(newemu);
+                    CloneEmu(newemu, emu);
+                    newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                     void* mystack = NULL;
                     if(my_context->stack_clone_used) {
                         mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
@@ -944,6 +946,7 @@ long EXPORT my_syscall(x64emu_t *emu)
             {
                 void* stack_base = (void*)R_RDX;
                 int stack_size = 0;
+                uintptr_t sp = R_RDX;
                 if(!stack_base) {
                     // allocate a new stack...
                     int currstack = 0;
@@ -952,18 +955,19 @@ long EXPORT my_syscall(x64emu_t *emu)
                     stack_size = (currstack)?emu->size_stack:(1024*1024);
                     stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
                     // copy value from old stack to new stack
-                    if(currstack)
+                    if(currstack) {
                         memcpy(stack_base, emu->init_stack, stack_size);
-                    else {
+                        sp = (uintptr_t)emu->init_stack + R_RSP - (uintptr_t)stack_base;
+                    } else {
                         int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_RSP);
                         memcpy(stack_base+stack_size-size_to_copy, (void*)R_RSP, size_to_copy);
+                        sp = (uintptr_t)stack_base+stack_size-size_to_copy;
                     }
                 }
                 x64emu_t * newemu = NewX64Emu(emu->context, R_RIP, (uintptr_t)stack_base, stack_size, (R_RDX)?0:1);
                 SetupX64Emu(newemu, emu);
-                //CloneEmu(newemu, emu);
-                Push64(newemu, 0);
-                PushExit(newemu);
+                CloneEmu(newemu, emu);
+                newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
                     mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
