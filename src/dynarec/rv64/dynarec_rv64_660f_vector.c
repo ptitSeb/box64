@@ -720,7 +720,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_vector(q0, 1, VECTOR_SEW16);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    GETEX_vector(q1, 0, 1, VECTOR_SEW16);
                     u8 = F8;
                     VECTOR_LOAD_VMASK(u8, x4, 1);
                     VADD_VI(q0, q1, 0, VECTOR_MASKED);
@@ -730,7 +730,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_vector(q0, 1, VECTOR_SEW8);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    GETEX_vector(q1, 0, 1, VECTOR_SEW8);
                     u8 = F8;
                     if (u8 > 31) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
@@ -1330,7 +1330,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("PSHUFD Gx, Ex, Ib");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+            GETEX_vector(q1, 0, 1, VECTOR_SEW64);
             GETGX_empty_vector(q0);
             v0 = fpu_get_scratch(dyn);
             tmp64u0 = F8;
