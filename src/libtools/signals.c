@@ -2243,8 +2243,10 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
     // get segments
     u->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
     // get FloatPoint status
-    u->uc_mcontext.fpregs = &u->xstate;
-    fpu_fxsave64(emu, &u->xstate);
+    u->uc_mcontext.fpregs = ucp + 408;
+    fpu_savenv(emu, (void*)u->uc_mcontext.fpregs, 1);
+    *(uint32_t*)(ucp + 432) = emu->mxcsr.x32;
+
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
     // ensure uc_link is properly initialized
@@ -2283,7 +2285,8 @@ EXPORT int my_setcontext(x64emu_t* emu, void* ucp)
     R_GS = (u->uc_mcontext.gregs[X64_CSGSFS]>>16)&0xffff;
     R_FS = (u->uc_mcontext.gregs[X64_CSGSFS]>>32)&0xffff;
     // set FloatPoint status
-    fpu_fxrstor64(emu, &u->xstate);
+    fpu_loadenv(emu, (void*)u->uc_mcontext.fpregs, 1);
+    emu->mxcsr.x32 = *(uint32_t*)(ucp + 432);
     // set signal mask
     sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
     // set uc_link

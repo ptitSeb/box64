@@ -863,8 +863,8 @@ EXPORT int my32_getcontext(x64emu_t* emu, void* ucp)
     u->uc_mcontext.gregs[I386_CS] = R_CS;
     u->uc_mcontext.gregs[I386_SS] = R_SS;
     // get FloatPoint status
-    if(u->uc_mcontext.fpregs)
-        save_fpreg(emu, from_ptrv(u->uc_mcontext.fpregs));
+    u->uc_mcontext.fpregs = to_ptrv(ucp + 236);    // magic offset of fpregs in an actual i386 u_context
+    fpu_savenv(emu, from_ptrv(u->uc_mcontext.fpregs), 1);   // it seems getcontext only save fpu env, not fpu regs
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
     // ensure uc_link is properly initialized
@@ -898,8 +898,7 @@ EXPORT int my32_setcontext(x64emu_t* emu, void* ucp)
     R_CS = u->uc_mcontext.gregs[I386_CS];
     R_SS = u->uc_mcontext.gregs[I386_SS];
     // set FloatPoint status
-    if(u->uc_mcontext.fpregs)
-        load_fpreg(emu, from_ptrv(u->uc_mcontext.fpregs));
+    fpu_loadenv(emu, from_ptrv(u->uc_mcontext.fpregs), 1);
     // set signal mask
     sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
     // set uc_link
