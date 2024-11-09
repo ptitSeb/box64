@@ -2342,6 +2342,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVeS(v0, 1, v0, 0);
             } else if(v0==v1 && (u8==0xe5)) {   // easy special case
                 VMOVeS(v0, 0, v0, 1);
+            } else if(v0==v1 && (u8==0x39)) {
+                VEXTQ_8(v0, v0, v0, 4);
             } else if(u8==0x4E && MODREG) {
                 VEXTQ_8(v0, v0, v1, 8);
             } else {
