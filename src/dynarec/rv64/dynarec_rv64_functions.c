@@ -72,23 +72,26 @@ void fpu_free_reg(dynarec_rv64_t* dyn, int reg)
     if (dyn->e.extcache[idx].t != EXT_CACHE_ST_F && dyn->e.extcache[idx].t != EXT_CACHE_ST_D && dyn->e.extcache[idx].t != EXT_CACHE_ST_I64)
         dyn->e.extcache[idx].v = 0;
 }
-// Get an MMX double reg
-int fpu_get_reg_emm(dynarec_rv64_t* dyn, int emm)
+
+// Get an MMX reg
+int fpu_get_reg_emm(dynarec_rv64_t* dyn, int t, int emm)
 {
-    dyn->e.fpuused[EMM0 + emm] = 1;
-    dyn->e.extcache[EMM0 + emm].t = EXT_CACHE_MM;
-    dyn->e.extcache[EMM0 + emm].n = emm;
-    dyn->e.news |= (1<<(EMM0 + emm));
-    return EXTREG(EMM0 + emm);
+    int i = EMM0 + emm;
+    dyn->e.fpuused[i] = 1;
+    dyn->e.extcache[i].t = t;
+    dyn->e.extcache[i].n = emm;
+    dyn->e.news |= (1 << (i));
+    return EXTREG(i);
 }
+
 // Get an XMM reg
 int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
 {
-    int i = XMM0+xmm;
+    int i = XMM0 + xmm;
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].t = t;
     dyn->e.extcache[i].n = xmm;
-    dyn->e.news |= (1<<i);
+    dyn->e.news |= (1 << i);
     return EXTREG(i);
 }
 // Reset fpu regs counter
@@ -484,9 +487,9 @@ void extcacheUnwind(extcache_t* cache)
     cache->fpu_scratch = 0;
     cache->fpu_extra_qscratch = 0;
     cache->fpu_reg = 0;
-    for(int i=0; i<8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         cache->x87cache[i] = -1;
-        cache->mmxcache[i] = -1;
+        cache->mmxcache[i].v = -1;
         cache->x87reg[i] = 0;
         cache->ssecache[i*2].v = -1;
         cache->ssecache[i*2+1].v = -1;
@@ -497,7 +500,9 @@ void extcacheUnwind(extcache_t* cache)
             cache->fpuused[i] = 1;
             switch (cache->extcache[i].t) {
                 case EXT_CACHE_MM:
-                    cache->mmxcache[cache->extcache[i].n] = EXTREG(i);
+                case EXT_CACHE_MMV:
+                    cache->mmxcache[cache->extcache[i].n].reg = EXTREG(i);
+                    cache->mmxcache[cache->extcache[i].n].vector = cache->extcache[i].t == EXT_CACHE_MMV;
                     ++cache->mmxcount;
                     ++cache->fpu_reg;
                     break;
@@ -602,6 +607,7 @@ const char* getCacheName(int t, int n)
         case EXT_CACHE_ST_F: sprintf(buff, "st%d", n); break;
         case EXT_CACHE_ST_I64: sprintf(buff, "STi%d", n); break;
         case EXT_CACHE_MM: sprintf(buff, "MM%d", n); break;
+        case EXT_CACHE_MMV: sprintf(buff, "MMV%d", n); break;
         case EXT_CACHE_SS: sprintf(buff, "SS%d", n); break;
         case EXT_CACHE_SD: sprintf(buff, "SD%d", n); break;
         case EXT_CACHE_SCR: sprintf(buff, "Scratch"); break;
@@ -664,6 +670,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
                 case EXT_CACHE_ST_F: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_ST_I64: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_MM: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+                case EXT_CACHE_MMV: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_SS: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_SD: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_XMMR: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
@@ -725,8 +732,8 @@ static void x87_reset(extcache_t* e)
 static void mmx_reset(extcache_t* e)
 {
     e->mmxcount = 0;
-    for (int i=0; i<8; ++i)
-        e->mmxcache[i] = -1;
+    for (int i = 0; i < 8; ++i)
+        e->mmxcache[i].v = -1;
 }
 
 static void sse_reset(extcache_t* e)

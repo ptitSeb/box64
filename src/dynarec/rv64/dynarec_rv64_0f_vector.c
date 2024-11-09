@@ -483,6 +483,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VADD_VX(q0, q1, xZR, VECTOR_MASKED);
             }
             break;
+        case 0x6F:
+            INST_NAME("MOVQ Gm, Em");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETG;
+            if (MODREG) {
+                v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, nextop & 7);
+                v0 = mmx_get_reg_empty_vector(dyn, ninst, x1, x2, x3, gd);
+                VMV_V_V(v0, v1);
+            } else {
+                v0 = mmx_get_reg_empty_vector(dyn, ninst, x1, x2, x3, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                LD(x4, ed, fixedaddress);
+                VMV_S_X(v0, x4);
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
             nextop = F8;
@@ -567,11 +583,10 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x00 ... 0x0F:
         case 0x18:
         case 0x1F:
-        case 0x2C ... 0x2F:
         case 0x31:
         case 0x40 ... 0x4F:
-        case 0x60 ... 0x7F:
         case 0x80 ... 0xBF:
+        case 0xC0 ... 0xC1:
         case 0xC3 ... 0xC5:
         case 0xC7 ... 0xCF:
             return 0;

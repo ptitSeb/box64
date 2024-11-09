@@ -524,17 +524,18 @@
         SMWRITE2();                                         \
     }
 
-#define GETGM()                     \
-    gd = ((nextop & 0x38) >> 3);    \
-    mmx_forget_reg(dyn, ninst, gd); \
-    gback = xEmu;                   \
+// Get GM, might use x1 as a scratch
+#define GETGM()                         \
+    gd = ((nextop & 0x38) >> 3);        \
+    mmx_forget_reg(dyn, ninst, x1, gd); \
+    gback = xEmu;                       \
     gdoffset = offsetof(x64emu_t, mmx[gd])
 
 // Get EM, might use x3
 #define GETEM(a, D, I12)                                                                         \
     if (MODREG) {                                                                                \
         ed = (nextop & 7);                                                                       \
-        mmx_forget_reg(dyn, ninst, ed);                                                          \
+        mmx_forget_reg(dyn, ninst, a, ed);                                                       \
         fixedaddress = offsetof(x64emu_t, mmx[ed]);                                              \
         wback = xEmu;                                                                            \
     } else {                                                                                     \
@@ -1292,6 +1293,8 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 
 #define ymm_mark_zero STEPNAME(ymm_mark_zero)
 
+#define mmx_get_reg_vector       STEPNAME(mmx_get_reg_vector)
+#define mmx_get_reg_empty_vector STEPNAME(mmx_get_reg_empty_vector)
 #define sse_get_reg_empty_vector STEPNAME(sse_get_reg_empty_vector)
 #define sse_get_reg_vector       STEPNAME(sse_get_reg_vector)
 #define sse_forget_reg_vector    STEPNAME(sse_forget_reg_vector)
@@ -1510,10 +1513,14 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b);
 // MMX helpers
 //  get float register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+//  get vector register for a MMX reg, create the entry if needed
+int mmx_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
 // get float register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+// get vector register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
 // forget float register for a MMX reg, create the entry if needed
-void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
+void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
 // SSE/SSE2 helpers
 //  get float register for a SSE reg, create the entry if needed

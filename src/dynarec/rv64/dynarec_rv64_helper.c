@@ -1566,38 +1566,108 @@ static int isx87Empty(dynarec_rv64_t* dyn)
 }
 
 // forget ext register for a MMX reg, does nothing if the regs is not loaded
-void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a)
+void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
-    if (dyn->e.mmxcache[a] == -1)
+    if (dyn->e.mmxcache[a].v == -1)
         return;
-    FSD(dyn->e.mmxcache[a], xEmu, offsetof(x64emu_t, mmx[a]));
-    fpu_free_reg(dyn, dyn->e.mmxcache[a]);
+    if (dyn->e.mmxcache[a].vector) {
+        SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 1);
+        VFMV_F_S(dyn->e.mmxcache[a].reg, dyn->e.mmxcache[a].reg);
+    }
+    FSD(dyn->e.mmxcache[a].reg, xEmu, offsetof(x64emu_t, mmx[a]));
+    fpu_free_reg(dyn, dyn->e.mmxcache[a].reg);
+    dyn->e.mmxcache[a].v = -1;
     return;
 }
 
-// get neon register for a MMX reg, create the entry if needed
+static void mmx_transfer_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
+{
+    if (dyn->e.mmxcache[a].v == -1)
+        return;
+
+    SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 1);
+    if (dyn->e.mmxcache[a].vector) {
+        VFMV_F_S(dyn->e.mmxcache[a].reg, dyn->e.mmxcache[a].reg);
+    } else {
+        VFMV_S_F(dyn->e.mmxcache[a].reg, dyn->e.mmxcache[a].reg);
+    }
+    dyn->e.mmxcache[a].vector = 1 - dyn->e.mmxcache[a].vector;
+    dyn->e.extcache[EXTIDX(dyn->e.mmxcache[a].reg)].t = dyn->e.mmxcache[a].vector ? EXT_CACHE_MMV : EXT_CACHE_MM;
+    return;
+}
+
+// get float register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
     if(!dyn->e.x87stack && isx87Empty(dyn))
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
-    if(dyn->e.mmxcache[a]!=-1)
-        return dyn->e.mmxcache[a];
+    if (dyn->e.mmxcache[a].v != -1) {
+        if (dyn->e.mmxcache[a].vector) {
+            mmx_transfer_reg(dyn, ninst, s1, a);
+        }
+        return dyn->e.mmxcache[a].reg;
+    }
+
     ++dyn->e.mmxcount;
-    int ret = dyn->e.mmxcache[a] = fpu_get_reg_emm(dyn, a);
-    FLD(ret, xEmu, offsetof(x64emu_t, mmx[a]));
-    return ret;
+    dyn->e.mmxcache[a].reg = fpu_get_reg_emm(dyn, EXT_CACHE_MM, a);
+    dyn->e.mmxcache[a].vector = 0;
+    FLD(dyn->e.mmxcache[a].reg, xEmu, offsetof(x64emu_t, mmx[a]));
+    return dyn->e.mmxcache[a].reg;
 }
-// get neon register for a MMX reg, but don't try to synch it if it needed to be created
+
+// get vector register for a MMX reg, create the entry if needed
+int mmx_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a)
+{
+    if (!dyn->e.x87stack && isx87Empty(dyn))
+        x87_purgecache(dyn, ninst, 0, s1, s2, s3);
+    if (dyn->e.mmxcache[a].v != -1) {
+        if (!dyn->e.mmxcache[a].vector) {
+            mmx_transfer_reg(dyn, ninst, s1, a);
+        }
+        return dyn->e.mmxcache[a].reg;
+    }
+
+    ++dyn->e.mmxcount;
+    dyn->e.mmxcache[a].reg = fpu_get_reg_emm(dyn, EXT_CACHE_MMV, a);
+    dyn->e.mmxcache[a].vector = 1;
+    FLD(dyn->e.mmxcache[a].reg, xEmu, offsetof(x64emu_t, mmx[a]));
+    SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 1);
+    VFMV_S_F(dyn->e.mmxcache[a].reg, dyn->e.mmxcache[a].reg);
+    return dyn->e.mmxcache[a].reg;
+}
+
+// get float register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a)
+{
+    if (!dyn->e.x87stack && isx87Empty(dyn))
+        x87_purgecache(dyn, ninst, 0, s1, s2, s3);
+    if (dyn->e.mmxcache[a].v != -1) {
+        dyn->e.mmxcache[a].vector = 0;
+        dyn->e.extcache[EXTIDX(dyn->e.mmxcache[a].reg)].t = EXT_CACHE_MM;
+        return dyn->e.mmxcache[a].reg;
+    }
+
+    ++dyn->e.mmxcount;
+    dyn->e.mmxcache[a].vector = 0;
+    return dyn->e.mmxcache[a].reg = fpu_get_reg_emm(dyn, EXT_CACHE_MM, a);
+}
+
+// get vector register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
     if(!dyn->e.x87stack && isx87Empty(dyn))
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
-    if(dyn->e.mmxcache[a]!=-1)
-        return dyn->e.mmxcache[a];
+    if (dyn->e.mmxcache[a].v != -1) {
+        dyn->e.mmxcache[a].vector = 1;
+        dyn->e.extcache[EXTIDX(dyn->e.mmxcache[a].reg)].t = EXT_CACHE_MMV;
+        return dyn->e.mmxcache[a].reg;
+    }
+
     ++dyn->e.mmxcount;
-    int ret = dyn->e.mmxcache[a] = fpu_get_reg_emm(dyn, a);
-    return ret;
+    dyn->e.mmxcache[a].vector = 1;
+    return dyn->e.mmxcache[a].reg = fpu_get_reg_emm(dyn, EXT_CACHE_MMV, a);
 }
+
 // purge the MMX cache only(needs 3 scratch registers)
 void mmx_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
 {
@@ -1606,29 +1676,39 @@ void mmx_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
     if(!next)
         dyn->e.mmxcount = 0;
     int old = -1;
-    for (int i=0; i<8; ++i)
-        if(dyn->e.mmxcache[i]!=-1) {
-            if (old==-1) {
-                MESSAGE(LOG_DUMP, "\tPurge %sMMX Cache ------\n", next?"locally ":"");
+    for (int i = 0; i < 8; ++i) {
+        if (dyn->e.mmxcache[i].v != -1) {
+            if (old == -1) {
+                MESSAGE(LOG_DUMP, "\tPurge %sMMX Cache ------\n", next ? "locally " : "");
                 ++old;
             }
-            FSD(dyn->e.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
-            if(!next) {
-                fpu_free_reg(dyn, dyn->e.mmxcache[i]);
-                dyn->e.mmxcache[i] = -1;
+            if (dyn->e.mmxcache[i].vector) {
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 1);
+                VFMV_F_S(dyn->e.mmxcache[i].reg, dyn->e.mmxcache[i].reg);
+            }
+            FSD(dyn->e.mmxcache[i].reg, xEmu, offsetof(x64emu_t, mmx[i]));
+            if (!next) {
+                fpu_free_reg(dyn, dyn->e.mmxcache[i].reg);
+                dyn->e.mmxcache[i].v = -1;
             }
         }
-    if(old!=-1) {
+    }
+    if (old != -1) {
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
     }
 }
 
 static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 {
-    for (int i=0; i<8; ++i)
-        if(dyn->e.mmxcache[i]!=-1) {
-            FLD(dyn->e.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
+    for (int i = 0; i < 8; ++i) {
+        if (dyn->e.mmxcache[i].v != -1) {
+            if (dyn->e.mmxcache[i].vector) {
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 1);
+                VFMV_F_S(dyn->e.mmxcache[i].reg, dyn->e.mmxcache[i].reg);
+            }
+            FSD(dyn->e.mmxcache[i].reg, xEmu, offsetof(x64emu_t, mmx[i]));
         }
+    }
 }
 
 // SSE / SSE2 helpers
@@ -1671,7 +1751,7 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 {
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 1) {
-            // it's in the fpu, forget it first...
+            // it's in the vpu, forget it first...
             sse_forget_reg_vector(dyn, ninst, s1, a);
             // update olds after the forget...
             dyn->e.olds[a].changed = 1;
@@ -1706,7 +1786,7 @@ int sse_get_reg_size_changed(dynarec_rv64_t* dyn, int ninst, int s1, int a, int 
 {
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 1) {
-            // it's in the fpu, forget it first...
+            // it's in the vpu, forget it first...
             sse_forget_reg_vector(dyn, ninst, s1, a);
             // update olds after the forget...
             dyn->e.olds[a].changed = 1;
@@ -2302,8 +2382,13 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             FLD(reg, xEmu, offsetof(x64emu_t, xmm[n]));
             break;
         case EXT_CACHE_MM:
+        case EXT_CACHE_MMV:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             FLD(reg, xEmu, offsetof(x64emu_t, mmx[n]));
+            if (t == EXT_CACHE_MMV) {
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 0);
+                VFMV_S_F(reg, reg);
+            }
             break;
         case EXT_CACHE_ST_D:
         case EXT_CACHE_ST_F:
@@ -2369,7 +2454,12 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
             FSD(reg, xEmu, offsetof(x64emu_t, xmm[n]));
             break;
         case EXT_CACHE_MM:
+        case EXT_CACHE_MMV:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
+            if (t == EXT_CACHE_MMV) {
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEW64, 0);
+                VFMV_F_S(reg, reg);
+            }
             FSD(reg, xEmu, offsetof(x64emu_t, mmx[n]));
             break;
         case EXT_CACHE_ST_D:
@@ -2462,6 +2552,9 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
     for (int i = 0; i < 8; ++i) {
         int j = findCacheSlot(dyn, ninst, EXT_CACHE_MM, i, &cache);
         if (j >= 0 && findCacheSlot(dyn, ninst, EXT_CACHE_MM, i, &cache_i2) == -1)
+            unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.extcache[j].t, cache.extcache[j].n);
+        j = findCacheSlot(dyn, ninst, EXT_CACHE_MMV, i, &cache);
+        if (j >= 0 && findCacheSlot(dyn, ninst, EXT_CACHE_MMV, i, &cache_i2) == -1)
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.extcache[j].t, cache.extcache[j].n);
     }
     for (int i = 0; i < 24; ++i) {

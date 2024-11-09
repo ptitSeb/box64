@@ -1366,8 +1366,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x6A:
             INST_NAME("PUNPCKHDQ Gm,Em");
             nextop = F8;
-            GETEM(x1, 0, 4);
             GETGM();
+            GETEM(x1, 0, 4);
             // GM->ud[0] = GM->ud[1];
             LWU(x3, gback, gdoffset + 1 * 4);
             SW(x3, gback, gdoffset + 0 * 4);
