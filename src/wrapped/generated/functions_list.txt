@@ -437,6 +437,7 @@
 #() vFLup
 #() vFLpL
 #() vFLpp
+#() vFpww
 #() vFpic
 #() vFpii
 #() vFpiI
@@ -682,6 +683,7 @@
 #() lFipi
 #() lFipL
 #() lFlll
+#() lFpup
 #() lFpli
 #() lFpLu
 #() lFpLd
@@ -915,6 +917,7 @@
 #() vFllii
 #() vFLuui
 #() vFLppi
+#() vFpwwu
 #() vFpiii
 #() vFpiiu
 #() vFpiid
@@ -950,6 +953,7 @@
 #() vFpddu
 #() vFpddd
 #() vFplll
+#() vFpllL
 #() vFplpp
 #() vFpLii
 #() vFpLuu
@@ -1114,6 +1118,7 @@
 #() iFpdip
 #() iFplii
 #() iFplip
+#() iFpllp
 #() iFplpi
 #() iFplpp
 #() iFpLii
@@ -1237,6 +1242,8 @@
 #() lFpilp
 #() lFpuip
 #() lFplip
+#() lFplup
+#() lFplpi
 #() lFplpp
 #() lFpLpp
 #() lFppii
@@ -1501,6 +1508,7 @@
 #() vFluipp
 #() vFLpppi
 #() vFLpppp
+#() vFpwwWW
 #() vFpiiii
 #() vFpiiiI
 #() vFpiiiu
@@ -1540,6 +1548,7 @@
 #() vFpddii
 #() vFpdddd
 #() vFpddpp
+#() vFpliip
 #() vFpluul
 #() vFplppp
 #() vFpLiii
@@ -1548,6 +1557,7 @@
 #() vFpLLpp
 #() vFpLpiL
 #() vFpLppi
+#() vFppiic
 #() vFppiii
 #() vFppiiu
 #() vFppiiL
@@ -2011,9 +2021,11 @@
 #() vFffffff
 #() vFdddddd
 #() vFdddppp
+#() vFpwwllc
 #() vFpiiiii
 #() vFpiiipp
 #() vFpiiuuu
+#() vFpiilli
 #() vFpiippi
 #() vFpiippp
 #() vFpiUuup
@@ -2283,6 +2295,7 @@
 #() lFipLpLL
 #() lFpipill
 #() lFpuuLLp
+#() lFpluuic
 #() lFppLipp
 #() lFpppLpp
 #() LFEuuppp
@@ -2462,6 +2475,7 @@
 #() vFpfffppp
 #() vFpddiidd
 #() vFpdddddd
+#() vFplilppp
 #() vFpLiiiLi
 #() vFpLiiipi
 #() vFpLiiuui
@@ -2501,6 +2515,7 @@
 #() vFpppppip
 #() vFppppppu
 #() vFppppppp
+#() cFppppppp
 #() iFElppppp
 #() iFEpupppp
 #() iFEpUuppp
@@ -2637,6 +2652,7 @@
 #() pFpiiippp
 #() pFpiiUdii
 #() pFpiipipp
+#() pFpiiplui
 #() pFpiipppp
 #() pFpipiupp
 #() pFpipippp
@@ -2745,6 +2761,7 @@
 #() vFpuppLLLL
 #() vFpUiUiupi
 #() vFpUuuUUUu
+#() vFpliicppp
 #() vFpLiiiLii
 #() vFpLLLiipi
 #() vFpLpLpLpp
@@ -5211,6 +5228,7 @@ wrappedlibx11xcb:
 - pFp:
   - XGetXCBConnection
 wrappedlibxau:
+wrappedlibxaw:
 wrappedlibxcb:
 - vFp:
   - xcb_disconnect
