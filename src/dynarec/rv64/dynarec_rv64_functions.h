@@ -18,7 +18,7 @@ void fpu_reset_scratch(dynarec_rv64_t* dyn);
 // Get an x87 double reg
 int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n);
 // Get an MMX double reg
-int fpu_get_reg_emm(dynarec_rv64_t* dyn, int emm);
+int fpu_get_reg_emm(dynarec_rv64_t* dyn, int t, int emm);
 // Get an XMM quad reg
 int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm);
 // Free a FPU/MMX/XMM reg
