@@ -199,11 +199,12 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
 {
     if(hasAlternate((void*)addr))
         return NULL;
-    if((getProtection(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ))  // cannot be run, get out of the Dynarec
-        return NULL;
     dynablock_t* block = getDB(addr);
-    if(block || !create)
+    if(block || !create) {
+        if(block && getNeedTest(addr) && (getProtection(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ))
+            block = NULL;
         return block;
+    }
 
     if(need_lock) {
         if(box64_dynarec_wait) {
@@ -214,11 +215,18 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         }
         block = getDB(addr);    // just in case
         if(block) {
+            if(block && getNeedTest(addr) && (getProtection_fast(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ))
+                block = NULL;
             mutex_unlock(&my_context->mutex_dyndump);
             return block;
         }
     }
-    
+
+    if((getProtection_fast(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ)) {// cannot be run, get out of the Dynarec
+        if(need_lock)
+            mutex_unlock(&my_context->mutex_dyndump);
+        return NULL;
+    }
     block = AddNewDynablock(addr);
 
     // fill the block

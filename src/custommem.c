@@ -440,6 +440,7 @@ static uint32_t     defered_prot_prot = 0;
 static sigset_t     critical_prot = {0};
 #define LOCK_PROT()         sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
 #define LOCK_PROT_READ()    sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
+#define LOCK_PROT_FAST()    mutex_lock(&mutex_prot)
 #define UNLOCK_PROT()       if(defered_prot_p) {                                \
                                 uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; \
                                 defered_prot_p = 0;                             \
@@ -451,6 +452,7 @@ static sigset_t     critical_prot = {0};
                                 mutex_unlock(&mutex_prot);                      \
                             }
 #define UNLOCK_PROT_READ()  mutex_unlock(&mutex_prot); pthread_sigmask(SIG_SETMASK, &old_sig, NULL)
+#define UNLOCK_PROT_FAST()  mutex_unlock(&mutex_prot)
 
 
 #ifdef TRACE_MEMSTAT
@@ -1639,6 +1641,14 @@ uint32_t getProtection(uintptr_t addr)
     LOCK_PROT_READ();
     uint32_t ret = rb_get(memprot, addr);
     UNLOCK_PROT_READ();
+    return ret;
+}
+
+uint32_t getProtection_fast(uintptr_t addr)
+{
+    LOCK_PROT_FAST();
+    uint32_t ret = rb_get(memprot, addr);
+    UNLOCK_PROT_FAST();
     return ret;
 }
 

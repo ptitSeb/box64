@@ -100,6 +100,7 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
 void refreshProtection(uintptr_t addr);
 uint32_t getProtection(uintptr_t addr);
+uint32_t getProtection_fast(uintptr_t addr);
 int getMmapped(uintptr_t addr);
 void loadProtectionFromMap(void);
 #ifdef DYNAREC
