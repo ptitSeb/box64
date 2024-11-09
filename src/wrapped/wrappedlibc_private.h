@@ -590,7 +590,11 @@ GO(gethostent, pFv)
 GO(gethostent_r, iFppLpp)
 GO(gethostid, lFv)
 GOW(gethostname, iFpL)
+#ifdef STATICBUILD
+//GO(__gethostname_chk, iFpLL)  // it's sometimes not defined, like in LA64 plateform, so lets no wrap it for now
+#else
 GO(__gethostname_chk, iFpLL)
+#endif
 GOW(getifaddrs, iFp)
 GO(getipv4sourcefilter, iFiuuppp)
 GOW(getitimer, iFup)
@@ -2405,7 +2409,11 @@ GOW(wcstoll, IFppi)
 //GOW(__wcstoll_l, 
 GOW(wcstoll_l, IFppip)
 GO(wcstombs, LFppL)
+#ifdef STATICBUILD
+//GO(__wcstombs_chk, LFppLL)    // it's sometimes not defined, like in LA64 plateform, so lets no wrap it for now
+#else
 GO(__wcstombs_chk, LFppLL)
+#endif
 GOW(wcstoq, IFppi)
 GO(wcstoul, LFppi)
 //GO(__wcstoul_internal, 
