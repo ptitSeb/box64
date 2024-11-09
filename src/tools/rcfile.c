@@ -727,6 +727,7 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
             box64_dynarec_test_start = 0x0;
             box64_dynarec_test_end = 0x0;
             if(box64_dynarec_test>2) box64_dynarec_test = 0;
+            printf_log(LOG_INFO, "Appling BOX64_DYNAREC_TEST=%d\n", box64_dynarec_test);
         } else {
             int ok = 0;
             if(sscanf(param->box64_dynarec_test, "0x%lX-0x%lX", &no_start, &no_end)==2)
