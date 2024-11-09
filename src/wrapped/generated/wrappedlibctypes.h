@@ -82,6 +82,7 @@ typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef intptr_t (*lFippL_t)(int32_t, void*, void*, uintptr_t);
 typedef intptr_t (*lFuipp_t)(uint32_t, int32_t, void*, void*);
+typedef intptr_t (*lFppLL_t)(void*, void*, uintptr_t, uintptr_t);
 typedef void (*vFpLLpp_t)(void*, uintptr_t, uintptr_t, void*, void*);
 typedef int32_t (*iFiipup_t)(int32_t, int32_t, void*, uint32_t, void*);
 typedef int32_t (*iFiippi_t)(int32_t, int32_t, void*, void*, int32_t);
@@ -229,6 +230,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
+	GO(__isoc23_vsscanf, iFppA_t) \
 	GO(__isoc99_vfscanf, iFppA_t) \
 	GO(__isoc99_vsscanf, iFppA_t) \
 	GO(__isoc99_vswscanf, iFppA_t) \
@@ -292,6 +294,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(scandir64, iFpppp_t) \
 	GO(readlinkat, lFippL_t) \
 	GO(ptrace, lFuipp_t) \
+	GO(__readlink_chk, lFppLL_t) \
 	GO(qsort_r, vFpLLpp_t) \
 	GO(__xmknodat, iFiipup_t) \
 	GO(__fxstatat, iFiippi_t) \

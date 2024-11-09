@@ -590,7 +590,7 @@ GO(gethostent, pFv)
 GO(gethostent_r, iFppLpp)
 GO(gethostid, lFv)
 GOW(gethostname, iFpL)
-//GO(__gethostname_chk, 
+GO(__gethostname_chk, iFpLL)
 GOW(getifaddrs, iFp)
 GO(getipv4sourcefilter, iFiuuppp)
 GOW(getitimer, iFup)
@@ -1601,7 +1601,7 @@ GOW(readdir_r, iFppp)
 GOWM(readlink, lFEppL)
 GOM(readlinkat, lFEippL)
 //GO(__readlinkat_chk, 
-//GO(__readlink_chk, 
+GOM(__readlink_chk, lFEppLL)
 //GO(__read_nocancel, 
 GOW(readv, lFipi)
 GO(realloc, pFpL)
@@ -2018,6 +2018,12 @@ GOW(strtof_l, fFppp)
 //GO(__strtof_nan, 
 GO(strtoimax, IFppi)
 GO2(__isoc23_strtoimax, IFppi, strtoimax)
+GO2(__isoc23_strtoll_l, IFppip, strtoll_l)
+GO2(__isoc23_strtoull_l, UFppip, strtoull_l)
+GO2(__isoc23_vsscanf, iFEppA, my_vsscanf)
+GO2(__isoc23_wcstoll, IFppi, wcstoll)
+GO2(__isoc23_wcstoul, LFppi, wcstoul)
+GO2(__isoc23_wcstoull, UFppi, wcstoull)
 GO(strtok, pFpp)
 GO(__strtok_r, pFppp)
 GOW(strtok_r, pFppp)
@@ -2399,7 +2405,7 @@ GOW(wcstoll, IFppi)
 //GOW(__wcstoll_l, 
 GOW(wcstoll_l, IFppip)
 GO(wcstombs, LFppL)
-//GO(__wcstombs_chk, 
+GO(__wcstombs_chk, LFppLL)
 GOW(wcstoq, IFppi)
 GO(wcstoul, LFppi)
 //GO(__wcstoul_internal, 

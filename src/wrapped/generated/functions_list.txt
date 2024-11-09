@@ -1787,6 +1787,7 @@
 #() UFuiCiu
 #() lFEippL
 #() lFEuipp
+#() lFEppLL
 #() lFipiIi
 #() lFipili
 #() lFipLli
@@ -4461,6 +4462,7 @@ wrappedlibc:
   - sscanf
   - swscanf
 - iFppA:
+  - __isoc23_vsscanf
   - __isoc99_vfscanf
   - __isoc99_vsscanf
   - __isoc99_vswscanf
@@ -4554,6 +4556,8 @@ wrappedlibc:
   - readlinkat
 - lFuipp:
   - ptrace
+- lFppLL:
+  - __readlink_chk
 - vFpLLpp:
   - qsort_r
 - iFiipup:

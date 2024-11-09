@@ -1824,6 +1824,7 @@ void uFbuuup(x64emu_t *emu, uintptr_t fnc);
 void UFuiCiu(x64emu_t *emu, uintptr_t fnc);
 void lFEippL(x64emu_t *emu, uintptr_t fnc);
 void lFEuipp(x64emu_t *emu, uintptr_t fnc);
+void lFEppLL(x64emu_t *emu, uintptr_t fnc);
 void lFipiIi(x64emu_t *emu, uintptr_t fnc);
 void lFipili(x64emu_t *emu, uintptr_t fnc);
 void lFipLli(x64emu_t *emu, uintptr_t fnc);

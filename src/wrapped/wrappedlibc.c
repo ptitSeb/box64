@@ -1715,6 +1715,11 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
     return readlink((const char*)path, (char*)buf, sz);
 }
 
+EXPORT ssize_t my___readlink_chk(x64emu_t* emu, void* path, void* buf, size_t sz, size_t buflen)
+{
+    return my_readlink(emu, path, buf, sz);
+}
+
 int getNCpu();  // defined in my_cpuid.c
 const char* getBoxCpuName();    // defined in my_cpuid.c
 const char* getCpuName(); // defined in my_cpu_id.c
@@ -3163,7 +3168,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else
-            cleanDBFromAddressRange((uintptr_t)addr, len, 1);
+            cleanDBFromAddressRange((uintptr_t)addr, len, (!prot)?1:0);
     }
     #endif
     if(!ret && len) {
