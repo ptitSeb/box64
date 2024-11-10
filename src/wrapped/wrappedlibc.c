@@ -3039,6 +3039,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         errno = EEXIST;
         return MAP_FAILED;
     }
+    int e = errno;
     if((ret==MAP_FAILED && (emu || box64_is32bits)) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%s (%d)\n", strerror(errno), errno);}
     if(((ret!=MAP_FAILED) && (emu || box64_is32bits)) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     #ifdef DYNAREC
@@ -3084,8 +3085,9 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         else
             setProtection((uintptr_t)ret, length, prot);
         if(old_addr && ret!=old_addr)
-            errno = EEXIST;
+            e = EEXIST;
     }
+    errno = e;  // preserve errno
     return ret;
 }
 EXPORT void* my_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset) __attribute__((alias("my_mmap64")));
@@ -3145,6 +3147,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     (void)emu;
     if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, 0x%lx)\n", addr, length);}
     int ret = internal_munmap(addr, length);
+    int e = errno;
     #ifdef DYNAREC
     if(!ret && box64_dynarec && length) {
         cleanDBFromAddressRange((uintptr_t)addr, length, 1);
@@ -3153,6 +3156,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     if(!ret) {
         freeProtection((uintptr_t)addr, length);
     }
+    errno = e;  // preseve errno
     return ret;
 }
 
