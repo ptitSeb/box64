@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 
 cmake_policy(SET CMP0065 NEW)
 
-SET(CMAKE_C_FLAGS_RELEASE  "-O0 -g")
-SET(CMAKE_CXX_FLAGS_RELEASE  "-O0 -g")
+SET(CMAKE_C_FLAGS_RELEASE  "-O3")
+SET(CMAKE_CXX_FLAGS_RELEASE  "-O3")
 
 option(RPI3ARM64 "Set to ON if targeting an RaspberryPI3 device with multiarch arm64 and armhf" ${RPI3ARM64})
 option(RPI4ARM64 "Set to ON if targeting an RaspberryPI4 device with multiarch arm64 and armhf" ${RPI4ARM64})
