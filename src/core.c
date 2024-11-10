@@ -513,9 +513,9 @@ HWCAP2_AFP
         uint32_t cpucfg2 = 0, idx = 2;
         asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
         if ((cpucfg2 >> 6) & 0b1) {
-            printf_log(LOG_INFO, "with extension LSX");
+            printf_log(LOG_INFO, "with extension LSX LASX");
         } else {
-            printf_log(LOG_INFO, "\nMissing LSX extension support, disabling Dynarec\n");
+            printf_log(LOG_INFO, "\nMissing LSX or LASX extension support, disabling Dynarec\n");
             box64_dynarec = 0;
             return;
         }
