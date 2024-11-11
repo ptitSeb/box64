@@ -532,8 +532,8 @@
     gdoffset = offsetof(x64emu_t, mmx[gd])
 
 // Get GM as vector, might use x1, x2 and x3
-#define GETGM_vector(a)                         \
-    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+#define GETGM_vector(a)          \
+    gd = ((nextop & 0x38) >> 3); \
     a = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd)
 
 // Get EM, might use x3

@@ -1633,14 +1633,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x7E:
             INST_NAME("MOVD Ed, Gm");
             nextop = F8;
-            GETGM();
+            gd = ((nextop & 0x38) >> 3);
+            v0 = mmx_get_reg(dyn, ninst, x1, x2, x3, gd);
             if ((nextop & 0xC0) == 0xC0) {
                 ed = xRAX + (nextop & 7) + (rex.b << 3);
-                LDxw(ed, gback, gdoffset);
+                if (rex.w)
+                    FMVXD(ed, v0);
+                else {
+                    FMVXW(ed, v0);
+                    ZEROUP(ed);
+                }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, 0);
-                LDxw(x1, gback, gdoffset);
-                SDxw(x1, wback, fixedaddress);
+                if (rex.w) {
+                    FMVXD(x1, v0);
+                    SD(x1, wback, fixedaddress);
+                } else {
+                    FMVXW(x1, v0);
+                    SW(x1, wback, fixedaddress);
+                }
                 SMWRITE2();
             }
             break;

@@ -499,22 +499,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_S_X(v0, x4);
             }
             break;
-        case 0x7E:
-            INST_NAME("MOVD Ed, Gm");
-            nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGM_vector(v0);
-            if (!rex.w) SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-            if ((nextop & 0xC0) == 0xC0) {
-                ed = xRAX + (nextop & 7) + (rex.b << 3);
-                VMV_X_S(ed, v0);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, 0);
-                VMV_X_S(x1, v0);
-                SDxw(x1, wback, fixedaddress);
-                SMWRITE2();
-            }
-            break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
             nextop = F8;
@@ -611,6 +595,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x31:
         case 0x40 ... 0x4F:
         case 0x77:
+        case 0x7E:
         case 0x80 ... 0xBF:
         case 0xC0 ... 0xC1:
         case 0xC3 ... 0xC5:
