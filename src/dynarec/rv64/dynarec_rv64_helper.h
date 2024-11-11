@@ -531,6 +531,11 @@
     gback = xEmu;                       \
     gdoffset = offsetof(x64emu_t, mmx[gd])
 
+// Get GM as vector, might use x1, x2 and x3
+#define GETGM_vector(a)          \
+    gd = ((nextop & 0x38) >> 3); \
+    a = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd)
+
 // Get EM, might use x3
 #define GETEM(a, D, I12)                                                                         \
     if (MODREG) {                                                                                \
@@ -542,6 +547,18 @@
         SMREAD();                                                                                \
         ed = 8;                                                                                  \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
+    }
+
+// Get EM as vector, might use x1, x2 and x3
+#define GETEM_vector(a, D)                                                                     \
+    if (MODREG) {                                                                              \
+        a = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));                          \
+    } else {                                                                                   \
+        SMREAD();                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D); \
+        a = fpu_get_scratch(dyn);                                                              \
+        FLD(a, ed, fixedaddress);                                                              \
+        VFMV_S_F(a, a);                                                                        \
     }
 
 #define GETGX_empty_vector(a)                   \

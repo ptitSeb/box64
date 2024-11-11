@@ -580,11 +580,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VMV_V_V(v0, d0);
             VSLIDEUP_VI(v0, d1, 2, VECTOR_UNMASKED);
             break;
+        case 0xFC:
+            INST_NAME("PADDB Gm, Em");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGM_vector(v0);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VADD_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0x00 ... 0x0F:
         case 0x18:
         case 0x1F:
         case 0x31:
         case 0x40 ... 0x4F:
+        case 0x77:
+        case 0x7E:
         case 0x80 ... 0xBF:
         case 0xC0 ... 0xC1:
         case 0xC3 ... 0xC5:
