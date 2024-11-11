@@ -58,7 +58,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FAST_8BIT_OPERATION(wb, gb, x1, ADD(wb, wb, x1));
             GETEB(x1, 0);
             GETGB(x2);
-            emit_add8(dyn, ninst, x1, x2, x4, x5);
+            emit_add8(dyn, ninst, x1, x2, x4, x5, x6);
             EBBACK(x5, 0);
             break;
         case 0x01:
@@ -77,7 +77,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FAST_8BIT_OPERATION(gb, wb, x1, ADD(gb, gb, x1));
             GETEB(x1, 0);
             GETGB(x2);
-            emit_add8(dyn, ninst, x2, x1, x4, x5);
+            emit_add8(dyn, ninst, x2, x1, x4, x5, x6);
             GBBACK(x5);
             break;
         case 0x03:
@@ -93,7 +93,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET_PENDING);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
-            emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
+            emit_add8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
             ANDI(xRAX, xRAX, ~0xff);
             OR(xRAX, xRAX, x1);
             break;

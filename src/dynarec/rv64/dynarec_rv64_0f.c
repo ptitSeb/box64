@@ -1762,7 +1762,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETED(1);
                 GETGD;
                 u8 = F8;
-                emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+                emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
                 WBACK;
             } else {
                 FAKEED;
@@ -1824,7 +1824,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETGD;
                 u8 = F8;
                 u8 &= (rex.w ? 0x3f : 0x1f);
-                emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+                emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
                 WBACK;
             } else {
                 FAKEED;
@@ -2251,7 +2251,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGB(x2);
             if (!(MODREG && wback == gb1 && !!(wb2) == !!(gb2)))
                 MV(x9, ed);
-            emit_add8(dyn, ninst, ed, gd, x4, x5);
+            emit_add8(dyn, ninst, ed, gd, x4, x5, x6);
             if (!(MODREG && wback == gb1 && !!(wb2) == !!(gb2)))
                 MV(gd, x9);
             EBBACK(x5, 0);

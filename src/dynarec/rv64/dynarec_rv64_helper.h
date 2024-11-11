@@ -898,43 +898,71 @@
 #define CLEAR_FLAGS() \
     IFX(X_ALL) { ANDI(xFlags, xFlags, ~((1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF2) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF))); }
 
+#define SET_FLAGS_NEZ(reg, F, scratch)      \
+    do {                                    \
+        if (rv64_xtheadcondmov) {           \
+            ORI(scratch, xFlags, 1 << F);   \
+            TH_MVNEZ(xFlags, scratch, reg); \
+        } else {                            \
+            BEQZ(reg, 8);                   \
+            ORI(xFlags, xFlags, 1 << F);    \
+        }                                   \
+    } while (0)
+
+#define SET_FLAGS_EQZ(reg, F, scratch)      \
+    do {                                    \
+        if (rv64_xtheadcondmov) {           \
+            ORI(scratch, xFlags, 1 << F);   \
+            TH_MVEQZ(xFlags, scratch, reg); \
+        } else {                            \
+            BNEZ(reg, 8);                   \
+            ORI(xFlags, xFlags, 1 << F);    \
+        }                                   \
+    } while (0)
+
+#define SET_FLAGS_LTZ(reg, F, scratch1, scratch2) \
+    do {                                          \
+        if (rv64_xtheadcondmov) {                 \
+            SLT(scratch1, reg, xZR);              \
+            ORI(scratch2, xFlags, 1 << F);        \
+            TH_MVNEZ(xFlags, scratch2, scratch1); \
+        } else {                                  \
+            BGE(reg, xZR, 8);                     \
+            ORI(xFlags, xFlags, 1 << F);          \
+        }                                         \
+    } while (0)
+
+// might use op1_ as scratch
 #define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)     \
-    IFX(X_AF | X_CF | X_OF)                                           \
-    {                                                                 \
+    IFX (X_AF | X_CF | X_OF) {                                        \
         /* calc borrow chain */                                       \
         /* bc = (res & (~op1 | op2)) | (~op1 & op2) */                \
         OR(scratch1, op1_, op2);                                      \
         AND(scratch2, res, scratch1);                                 \
         AND(op1_, op1_, op2);                                         \
         OR(scratch2, scratch2, op1_);                                 \
-        IFX(X_AF)                                                     \
-        {                                                             \
+        IFX (X_AF) {                                                  \
             /* af = bc & 0x8 */                                       \
             ANDI(scratch1, scratch2, 8);                              \
-            BEQZ(scratch1, 8);                                        \
-            ORI(xFlags, xFlags, 1 << F_AF);                           \
+            SET_FLAGS_NEZ(scratch1, F_AF, op1_);                      \
         }                                                             \
-        IFX(X_CF)                                                     \
-        {                                                             \
+        IFX (X_CF) {                                                  \
             /* cf = bc & (1<<(width-1)) */                            \
             if ((width) == 8) {                                       \
                 ANDI(scratch1, scratch2, 0x80);                       \
             } else {                                                  \
-                SRLI(scratch1, scratch2, (width)-1);                  \
+                SRLI(scratch1, scratch2, (width) - 1);                \
                 if ((width) != 64) ANDI(scratch1, scratch1, 1);       \
             }                                                         \
-            BEQZ(scratch1, 8);                                        \
-            ORI(xFlags, xFlags, 1 << F_CF);                           \
+            SET_FLAGS_NEZ(scratch1, F_CF, op1_);                      \
         }                                                             \
-        IFX(X_OF)                                                     \
-        {                                                             \
+        IFX (X_OF) {                                                  \
             /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */ \
-            SRLI(scratch1, scratch2, (width)-2);                      \
+            SRLI(scratch1, scratch2, (width) - 2);                    \
             SRLI(scratch2, scratch1, 1);                              \
             XOR(scratch1, scratch1, scratch2);                        \
             ANDI(scratch1, scratch1, 1);                              \
-            BEQZ(scratch1, 8);                                        \
-            ORI(xFlags, xFlags, 1 << F_OF2);                          \
+            SET_FLAGS_NEZ(scratch1, F_OF2, op1_);                     \
         }                                                             \
     }
 
@@ -1367,8 +1395,8 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
-void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
-void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4);
+void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5);
 void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 void emit_sub8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
@@ -1396,7 +1424,7 @@ void emit_xor16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 void emit_and16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 // void emit_and16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
-void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_inc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_dec32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_dec16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
@@ -1413,9 +1441,9 @@ void emit_sbb8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 void emit_sbb8c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6);
 void emit_sbb16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 // void emit_sbb16c(dynarec_rv64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
-void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
-void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_sar8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
@@ -1437,8 +1465,8 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
-void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
-void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
+void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
+void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
 void emit_shrd32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6);
 void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6);
 void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);

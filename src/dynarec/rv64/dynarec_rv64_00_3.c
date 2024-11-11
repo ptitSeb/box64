@@ -1105,7 +1105,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("NEG Eb");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEB(x1, 0);
-                    emit_neg8(dyn, ninst, x1, x2, x4);
+                    emit_neg8(dyn, ninst, x1, x2, x4, x5);
                     EBBACK(x5, 0);
                     break;
                 case 4:
@@ -1175,7 +1175,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("NEG Ed");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED(0);
-                    emit_neg32(dyn, ninst, rex, ed, x3, x4);
+                    emit_neg32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
                     break;
                 case 4:
