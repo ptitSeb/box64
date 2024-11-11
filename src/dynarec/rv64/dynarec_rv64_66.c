@@ -378,7 +378,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
             gd = xRAX + (opcode&7);
             ZEXTH(x1, gd);
-            emit_inc16(dyn, ninst, x1, x2, x3, x4);
+            emit_inc16(dyn, ninst, x1, x2, x3, x4, x5);
             INSHz(gd, x1, x3, x4, 1, 0);
             break;
         case 0x48:
@@ -1196,7 +1196,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("NEG Ew");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, 0);
-                    emit_neg16(dyn, ninst, ed, x2, x4);
+                    emit_neg16(dyn, ninst, ed, x2, x4, x5);
                     EWBACK;
                     break;
                 case 4:
@@ -1289,7 +1289,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("INC Ew");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
-                    emit_inc16(dyn, ninst, x1, x2, x4, x5);
+                    emit_inc16(dyn, ninst, x1, x2, x4, x5, x6);
                     EWBACK;
                     break;
                 case 1:

@@ -58,7 +58,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEB(x1, 1);
                     u8 = F8;
-                    emit_add8c(dyn, ninst, x1, u8, x2, x4, x5);
+                    emit_add8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
                     EBBACK(x5, 0);
                     break;
                 case 1: // OR

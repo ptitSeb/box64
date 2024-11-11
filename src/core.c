@@ -563,6 +563,9 @@ HWCAP2_AFP
     } else if (p != NULL && !strcasecmp(p, "xtheadmempair")) {
         RV64_Detect_Function();
         rv64_xtheadmempair = 0;
+    } else if (p != NULL && !strcasecmp(p, "xtheadcondmov")) {
+        RV64_Detect_Function();
+        rv64_xtheadcondmov = 0;
     }
 
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
@@ -577,8 +580,8 @@ HWCAP2_AFP
     if(rv64_xtheadbb) printf_log(LOG_INFO, " XTheadBb");
     if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
     if (rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
+    if (rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
     // if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
     // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
     // if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
