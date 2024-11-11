@@ -563,6 +563,9 @@ HWCAP2_AFP
     } else if (p != NULL && !strcasecmp(p, "xtheadmempair")) {
         RV64_Detect_Function();
         rv64_xtheadmempair = 0;
+    } else if (p != NULL && !strcasecmp(p, "xtheadcondmov")) {
+        RV64_Detect_Function();
+        rv64_xtheadcondmov = 0;
     }
 
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
