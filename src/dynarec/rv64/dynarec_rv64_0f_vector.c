@@ -499,6 +499,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_S_X(v0, x4);
             }
             break;
+        case 0x7F:
+            INST_NAME("MOVQ Em, Gm");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETG;
+            if (MODREG) {
+                v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd);
+                v0 = mmx_get_reg_empty_vector(dyn, ninst, x1, x2, x3, nextop & 7);
+                VMV_V_V(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd);
+                VMV_X_S(x4, v1);
+                SD(x4, ed, fixedaddress);
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
             nextop = F8;
