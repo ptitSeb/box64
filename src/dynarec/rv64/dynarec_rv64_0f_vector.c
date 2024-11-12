@@ -608,6 +608,14 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VSRL_VX(v0, v0, x4, VECTOR_UNMASKED);
             VMERGE_VXM(v0, v0, xZR);
             break;
+        case 0xEC:
+            INST_NAME("PADDSB Gm, Em");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            GETGM_vector(v0);
+            GETEM_vector(v1, 0);
+            VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xFC:
             INST_NAME("PADDB Gm, Em");
             nextop = F8;
