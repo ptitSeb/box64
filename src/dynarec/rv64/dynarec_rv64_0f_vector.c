@@ -634,6 +634,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xED:
+            INST_NAME("PADDSW Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xFC ... 0xFE:
             nextop = F8;
             if (opcode == 0xFC) {
