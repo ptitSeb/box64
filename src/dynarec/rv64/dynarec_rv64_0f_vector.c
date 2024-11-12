@@ -793,6 +793,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
             VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
+        case 0xF5:
+            INST_NAME("PMADDWD Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            q1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            q0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            ADDI(x3, xZR, 32);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VWMUL_VV(q0, v1, v0, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            VNSRL_WX(q1, q0, x3, VECTOR_UNMASKED);
+            VNSRL_WI(v0, q0, 0, VECTOR_UNMASKED);
+            VADD_VV(v0, v0, q1, VECTOR_UNMASKED);
+            break;
         case 0xF8 ... 0xFB:
             nextop = F8;
             if (opcode == 0xF8) {
