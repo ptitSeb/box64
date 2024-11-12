@@ -515,6 +515,25 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIPU_WI(q0, d0, 0, VECTOR_UNMASKED);
             break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gm, Em");
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            ADDI(x2, xZR, 0x10);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VSLIDEDOWN_VI(v0, q0, 4, VECTOR_UNMASKED);
+            VSLIDEDOWN_VI(v1, q1, 4, VECTOR_UNMASKED);
+            VWADDU_VX(d0, v0, xZR, VECTOR_UNMASKED);
+            VWMULU_VX(v0, v1, x2, VECTOR_UNMASKED); // shift left 4 bits
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VMACC_VX(d0, v0, x2, VECTOR_UNMASKED); // shift left 4 bits and merge
+            VMV_V_V(q0, d0);
+            break;
         case 0x6B:
             INST_NAME("PACKSSDW Gm, Em");
             nextop = F8;
