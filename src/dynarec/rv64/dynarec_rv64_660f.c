@@ -2088,7 +2088,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0xF1:
-            INST_NAME("PSLLQ Gx,Ex");
+            INST_NAME("PSLLW Gx,Ex");
             nextop = F8;
             GETGX();
             GETEX(x2, 0, 1);
@@ -2107,7 +2107,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0xF2:
-            INST_NAME("PSLLQ Gx,Ex");
+            INST_NAME("PSLLD Gx,Ex");
             nextop = F8;
             GETGX();
             GETEX(x2, 0, 1);
