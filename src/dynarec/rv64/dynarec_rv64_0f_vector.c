@@ -647,6 +647,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, u8, 1);
             VSADDU_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xE8:
+            INST_NAME("PSUBSB Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VSSUB_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xEC:
             INST_NAME("PADDSB Gm, Em");
             nextop = F8;
