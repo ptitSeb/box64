@@ -580,6 +580,34 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VMV_V_V(v0, d0);
             VSLIDEUP_VI(v0, d1, 2, VECTOR_UNMASKED);
             break;
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+            if (opcode == 0xD1) {
+                INST_NAME("PSRLW Gm, Em");
+                u8 = VECTOR_SEW16;
+                i32 = 16;
+            } else if (opcode == 0xD2) {
+                INST_NAME("PSRLD Gm, Em");
+                u8 = VECTOR_SEW32;
+                i32 = 32;
+            } else {
+                INST_NAME("PSRLQ Gm, Em");
+                u8 = VECTOR_SEW64;
+                i32 = 64;
+            }
+            nextop = F8;
+            GETGM_vector(v0);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VMV_X_S(x4, v1);
+            SLTIU(x3, x4, i32);
+            SUB(x3, xZR, x3);
+            NOT(x3, x3); // mask
+            VMV_V_X(VMASK, x3);
+            VSRL_VX(v0, v0, x4, VECTOR_UNMASKED);
+            VMERGE_VXM(v0, v0, xZR);
+            break;
         case 0xFC:
             INST_NAME("PADDB Gm, Em");
             nextop = F8;
