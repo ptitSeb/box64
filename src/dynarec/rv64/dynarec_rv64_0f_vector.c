@@ -631,6 +631,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
             VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
+        case 0xD8:
+        case 0xD9:
+            if (opcode == 0xD8) {
+                INST_NAME("PSUBUSB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else {
+                INST_NAME("PSUBUSW Gm, Em");
+                u8 = VECTOR_SEW16;
+            }
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VSSUBU_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xDC:
         case 0xDD:
             if (opcode == 0xDC) {
