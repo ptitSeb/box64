@@ -483,6 +483,20 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VADD_VX(q0, q1, xZR, VECTOR_MASKED);
             }
             break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
+            VMV_V_V(d0, v0);
+            VSLIDEUP_VI(d0, v1, 4, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
+            break;
         case 0x6B:
             INST_NAME("PACKSSDW Gm, Em");
             nextop = F8;
