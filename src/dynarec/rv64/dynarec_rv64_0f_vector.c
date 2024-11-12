@@ -522,16 +522,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(q1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-            ADDI(x2, xZR, 0x10);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VSLIDEDOWN_VI(v0, q0, 4, VECTOR_UNMASKED);
             VSLIDEDOWN_VI(v1, q1, 4, VECTOR_UNMASKED);
             VWADDU_VX(d0, v0, xZR, VECTOR_UNMASKED);
-            VWMULU_VX(v0, v1, x2, VECTOR_UNMASKED); // shift left 4 bits
+            VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-            VMACC_VX(d0, v0, x2, VECTOR_UNMASKED); // shift left 4 bits and merge
+            VSLL_VI(v0, v0, 8, VECTOR_UNMASKED);
+            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
             VMV_V_V(q0, d0);
             break;
         case 0x69:
@@ -541,16 +541,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(q1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-            ADDI(x2, xZR, 0x100);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VSLIDEDOWN_VI(v0, q0, 2, VECTOR_UNMASKED);
             VSLIDEDOWN_VI(v1, q1, 2, VECTOR_UNMASKED);
             VWADDU_VX(d0, v0, xZR, VECTOR_UNMASKED);
-            VWMULU_VX(v0, v1, x2, VECTOR_UNMASKED); // shift left 8 bits
+            VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-            VMACC_VX(d0, v0, x2, VECTOR_UNMASKED); // shift left 8 bits and merge
+            VSLL_VI(v0, v0, 16, VECTOR_UNMASKED);
+            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
             VMV_V_V(q0, d0);
             break;
         case 0x6A:
