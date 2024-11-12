@@ -497,6 +497,26 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
             break;
+        case 0x67:
+            INST_NAME("PACKUSWB Gm, Em");
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
+            if (q0 == q1) {
+                VMV_V_V(d0, q0);
+                VSLIDEUP_VI(d0, q1, 4, VECTOR_UNMASKED); // splice q0 and q1 here!
+                VMAX_VX(d0, d0, xZR, VECTOR_UNMASKED);
+            } else {
+                VSLIDEUP_VI(q0, q1, 4, VECTOR_UNMASKED); // splice q0 and q1 here!
+                VMAX_VX(d0, q0, xZR, VECTOR_UNMASKED);
+            }
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VNCLIPU_WI(q0, d0, 0, VECTOR_UNMASKED);
+            break;
         case 0x6B:
             INST_NAME("PACKSSDW Gm, Em");
             nextop = F8;
