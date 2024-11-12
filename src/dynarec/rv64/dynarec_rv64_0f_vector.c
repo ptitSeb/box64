@@ -598,6 +598,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             nextop = F8;
             GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
             SET_ELEMENT_WIDTH(x1, u8, 1);
             VMV_X_S(x4, v1);
@@ -618,25 +619,37 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 u8 = VECTOR_SEW16;
             }
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             VSADDU_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0xEC:
             INST_NAME("PADDSB Gm, Em");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
-        case 0xFC:
-            INST_NAME("PADDB Gm, Em");
+        case 0xFC ... 0xFE:
             nextop = F8;
+            if (opcode == 0xFC) {
+                INST_NAME("PADDB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0xFD) {
+                INST_NAME("PADDW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PADDD Gm, Em");
+                u8 = VECTOR_SEW32;
+            }
             GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             VADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x00 ... 0x0F:

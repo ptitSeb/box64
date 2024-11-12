@@ -549,7 +549,7 @@
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
 
-// Get EM as vector, might use x1, x2 and x3
+// Get EM as vector, might use x1, x2 and x3; requires SEW64
 #define GETEM_vector(a, D)                                                                     \
     if (MODREG) {                                                                              \
         a = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));                          \
