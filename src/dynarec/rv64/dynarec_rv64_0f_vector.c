@@ -724,6 +724,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xEF:
+            INST_NAME("PXOR Gm, Em");
+            nextop = F8;
+            GETG;
+            if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+                // special case
+                q0 = mmx_get_reg_empty_vector(dyn, ninst, x1, x2, x3, gd);
+                VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            } else {
+                GETGM_vector(v0);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETEM_vector(v1, 0);
+                VXOR_VV(v0, v0, v1, VECTOR_UNMASKED);
+            }
+            break;
         case 0xF1:
         case 0xF2:
         case 0xF3:
