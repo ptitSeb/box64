@@ -542,6 +542,26 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
             break;
+        case 0x64 ... 0x66:
+            if (opcode == 0x64) {
+                INST_NAME("PCMPGTB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0x65) {
+                INST_NAME("PCMPGTW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PCMPGTD Gm, Em");
+                u8 = VECTOR_SEW32;
+            }
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VMSLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
+            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
+            break;
         case 0x67:
             INST_NAME("PACKUSWB Gm, Em");
             nextop = F8;
