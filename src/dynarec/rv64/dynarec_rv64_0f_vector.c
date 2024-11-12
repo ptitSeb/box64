@@ -690,6 +690,35 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xF1:
+        case 0xF2:
+        case 0xF3:
+            if (opcode == 0xF1) {
+                INST_NAME("PSLLW Gm, Em");
+                u8 = VECTOR_SEW16;
+                i32 = 16;
+            } else if (opcode == 0xF2) {
+                INST_NAME("PSLLD Gm, Em");
+                u8 = VECTOR_SEW32;
+                i32 = 32;
+            } else {
+                INST_NAME("PSLLQ Gm, Em");
+                u8 = VECTOR_SEW64;
+                i32 = 64;
+            }
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VMV_X_S(x4, v1);
+            SLTIU(x3, x4, i32);
+            SUB(x3, xZR, x3);
+            NOT(x3, x3); // mask
+            VMV_V_X(VMASK, x3);
+            VSLL_VX(v0, v0, x4, VECTOR_UNMASKED);
+            VMERGE_VXM(v0, v0, xZR);
+            break;
         case 0xF8 ... 0xFB:
             nextop = F8;
             if (opcode == 0xF8) {
