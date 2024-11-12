@@ -665,6 +665,27 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xF8 ... 0xFB:
+            nextop = F8;
+            if (opcode == 0xF8) {
+                INST_NAME("PSUBB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0xF9) {
+                INST_NAME("PSUBW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else if (opcode == 0xFA) {
+                INST_NAME("PSUBD Gm, Em");
+                u8 = VECTOR_SEW32;
+            } else {
+                INST_NAME("PSUBQ Gm, Em");
+                u8 = VECTOR_SEW64;
+            }
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VSUB_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xFC ... 0xFE:
             nextop = F8;
             if (opcode == 0xFC) {
