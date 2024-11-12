@@ -645,6 +645,26 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_S_X(v0, x4);
             }
             break;
+        case 0x74 ... 0x76:
+            if (opcode == 0x74) {
+                INST_NAME("PCMPEQB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0x75) {
+                INST_NAME("PCMPEQW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PCMPEQD Gm, Em");
+                u8 = VECTOR_SEW32;
+            }
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VMSEQ_VV(VMASK, q1, q0, VECTOR_UNMASKED);
+            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
+            break;
         case 0x7F:
             INST_NAME("MOVQ Em, Gm");
             nextop = F8;
