@@ -875,6 +875,28 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VXOR_VI(v0, v0, 0x1F, VECTOR_UNMASKED);
             VAND_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xE1:
+        case 0xE2:
+            if (opcode == 0xE1) {
+                INST_NAME("PSRAW Gm, Em");
+                u8 = VECTOR_SEW16;
+                i32 = 16;
+            } else {
+                INST_NAME("PSRAD Gm, Em");
+                u8 = VECTOR_SEW32;
+                i32 = 32;
+            }
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            MOV32w(x5, i32 - 1);
+            q0 = fpu_get_scratch(dyn);
+            VMINU_VX(q0, v1, x5, VECTOR_UNMASKED);
+            VMV_X_S(x4, q0);
+            VSRA_VX(v0, v0, x4, VECTOR_UNMASKED);
+            break;
         case 0xE5:
             INST_NAME("PMULHW Gm, Em");
             nextop = F8;
