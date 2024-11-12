@@ -689,6 +689,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VXOR_VI(v0, v0, 0x1F, VECTOR_UNMASKED);
             VAND_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xE5:
+            INST_NAME("PMULHW Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VMULH_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xE8:
             INST_NAME("PSUBSB Gm, Em");
             nextop = F8;
