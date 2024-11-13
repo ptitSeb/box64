@@ -688,16 +688,18 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                 BNEZ_MARK3(x1);
                 // Aligned
-                MV(x4, gd);
-                AMOSWAPxw(x1, x4, wback, 1, 1);
+                AMOSWAPxw(gd, gd, wback, 1, 1);
+                if (!rex.w) ZEROUP(gd);
+                B_NEXT_nocond;
                 MARK3;
                 // Unaligned
                 ANDI(x5, wback, -(1 << (rex.w + 2)));
-                MARK2; // Use MARK2 as a "MARKLOCK" since we're running out of marks.
+                MARKLOCK;
                 LDxw(x1, wback, 0);
-                AMOSWAPxw(x3, x3, x5, 1, 1);
+                LRxw(x3, x5, 1, 1);
+                SCxw(x4, x3, x5, 1, 1);
+                BNEZ_MARKLOCK(x4);
                 SDxw(gd, wback, 0);
-                MARK;
                 MVxw(gd, x1);
                 SMDMB();
             }
