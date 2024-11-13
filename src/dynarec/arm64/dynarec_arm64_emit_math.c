@@ -989,9 +989,6 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    IFX(X_AF) {
-        MOVxw_REG(s4, s1);
-    }
     IFNATIVE_BEFORE(NF_CF) {
         if(INVERTED_CARRY_BEFORE) {
             if(arm64_flagm)
@@ -1007,6 +1004,10 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         BFIx(s3, xFlags, 29, 1); // set C
         MSR_nzcv(s3);      // load CC into ARM CF
     }
+    IFX(X_AF) {
+        ORRxw_REG(s3, s1, s2);    // s3 = op1 | op2
+        ANDxw_REG(s4, s1, s2);    // s4 = op1 & op2
+    }
     IFX(X_ZF|X_CF|X_OF|X_SF) {
         ADCSxw_REG(s1, s1, s2);
     } else {
@@ -1016,8 +1017,6 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
-        ORRxw_REG(s3, s4, s2);    // s3 = op1 | op2
-        ANDxw_REG(s4, s4, s2);    // s4 = op1 & op2
         BICxw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
         ORRxw_REG(s3, s3, s4);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
         LSRxw(s4, s3, 3);
@@ -1133,9 +1132,6 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    IFX(X_AF | X_OF) {
-        MOVw_REG(s4, s1);
-    }
     IFNATIVE_BEFORE(NF_CF) {
         if(INVERTED_CARRY_BEFORE) {
             if(arm64_flagm)
@@ -1151,13 +1147,15 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFIx(s3, xFlags, 29, 1); // set C
         MSR_nzcv(s3);      // load CC into ARM CF
     }
+    IFX(X_AF | X_OF) {
+        ORRw_REG(s3, s1, s2);    // s3 = op1 | op2
+        ANDw_REG(s4, s1, s2);    // s4 = op1 & op2
+    }
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
-        ORRw_REG(s3, s4, s2);    // s3 = op1 | op2
-        ANDw_REG(s4, s4, s2);    // s4 = op1 & op2
         BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
         ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
@@ -1171,8 +1169,7 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
     IFX(X_CF) {
-        LSRw(s3, s1, 8);
-        BFIw(xFlags, s3, F_CF, 1);
+        BFXILw(xFlags, s1, 8, 1);
     }
     COMP_ZFSF(s1, 8)
     IFX(X_PF) {
@@ -1199,9 +1196,6 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    IFX(X_AF | X_OF) {
-        MOVw_REG(s4, s1);
-    }
     IFNATIVE_BEFORE(NF_CF) {
         if(INVERTED_CARRY_BEFORE) {
             if(arm64_flagm)
@@ -1217,13 +1211,15 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFIx(s3, xFlags, 29, 1); // set C
         MSR_nzcv(s3);      // load CC into ARM CF
     }
+    IFX(X_AF | X_OF) {
+        ORRw_REG(s3, s1, s2);    // s3 = op1 | op2
+        ANDw_REG(s4, s1, s2);    // s4 = op1 & op2
+    }
     ADCw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
-        ORRw_REG(s3, s4, s2);    // s3 = op1 | op2
-        ANDw_REG(s4, s4, s2);    // s4 = op1 & op2
         BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
         ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
@@ -1237,8 +1233,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
     IFX(X_CF) {
-        LSRw(s3, s1, 16);
-        BFIw(xFlags, s3, F_CF, 1);
+        BFXILw(xFlags, s1, 16, 1);
     }
     COMP_ZFSF(s1, 16)
     IFX(X_PF) {
@@ -1341,7 +1336,8 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         MSR_nzcv(s3);      // load CC into ARM CF
     }
     IFX(X_AF) {
-        MVNxw_REG(s4, s1);
+        ORNxw_REG(s3, s2, s1);    // s3 = ~op1 | op2
+        BICxw_REG(s4, s2, s1);    // s4 = ~op1 & op2
     }
     IFX(X_ZF|X_CF|X_OF|X_SF) {
         SBCSxw_REG(s1, s1, s2);
@@ -1352,8 +1348,6 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
-        ORRxw_REG(s3, s4, s2);    // s3 = ~op1 | op2
-        ANDxw_REG(s4, s2, s4);    // s4 = ~op1 & op2
         ANDxw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRxw_REG(s3, s3, s4);   // s4 = (~op1 & op2) | ((~op1 | op2) & res)
         LSRw_IMM(s4, s3, 3);
@@ -1491,20 +1485,18 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MSR_nzcv(s3);      // load CC into ARM CF
     }
     IFX(X_AF|X_OF|X_CF) {
-        MVNw_REG(s4, s1);
+        ORNw_REG(s3, s2, s1);    // s3 = ~op1 | op2
+        BICw_REG(s4, s2, s1);    // s4 = ~op1 & op2
     }
     SBCw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF|X_CF) {
-        ORRw_REG(s3, s4, s2);    // s3 = ~op1 | op2
-        ANDw_REG(s4, s2, s4);    // s4 = ~op1 & op2
         ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            LSRw(s4, s3, 7);
-            BFIw(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
+            BFXILw(xFlags, s3, 7, 1);       // CF : bc & 0x80
         }
         IFX(X_AF) {
             LSRw(s4, s3, 3);
@@ -1558,20 +1550,18 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MSR_nzcv(s3);      // load CC into ARM CF
     }
     IFX(X_AF|X_OF|X_CF) {
-        MVNw_REG(s4, s1);
+        ORNw_REG(s3, s2, s1);    // s3 = ~op1 | op2
+        BICw_REG(s4, s2, s1);    // s4 = ~op1 & op2
     }
     SBCw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF|X_CF) {
-        ORRw_REG(s3, s4, s2);    // s3 = ~op1 | op2
-        ANDw_REG(s4, s2, s4);    // s4 = ~op1 & op2
         ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            LSRw(s4, s3, 15);
-            BFIw(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
+            BFXILw(xFlags, s3, 15, 1);    // CF : bc & 0x8000
         }
         IFX(X_AF) {
             LSRw(s4, s3, 3);
