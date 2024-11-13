@@ -1374,7 +1374,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("DIV Ew");
                     SETFLAGS(X_ALL, SF_SET);
-                    SET_DFNONE(x1);
                     GETEW(x1, 0);
                     UXTHw(x2, xRAX);
                     BFIw(x2, xRDX, 16, 16);
@@ -1392,12 +1391,17 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIz(xRAX, x3, 0, 16);
                     BFIz(xRDX, x4, 0, 16);
+                    SET_DFNONE(x2);
+                    IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
+                        if(box64_dynarec_test) {
+                            MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
+                            BICw(xFlags, xFlags, x1);
+                        }
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
-                    SET_DFNONE(x1);
                     GETSEW(x1, 0);
                     if(box64_dynarec_div0) {
                         CBNZw_MARK3(ed);
@@ -1415,6 +1419,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIz(xRAX, x3, 0, 16);
                     BFIz(xRDX, x4, 0, 16);
+                    SET_DFNONE(x2);
+                    IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
+                        if(box64_dynarec_test) {
+                            MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
+                            BICw(xFlags, xFlags, x1);
+                        }
                     break;
             }
             break;

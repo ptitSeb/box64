@@ -1388,7 +1388,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    SET_DFNONE(x2);
                     if(!rex.w) {
                         GETEDO(x6, 0);
                         if(box64_dynarec_div0) {
@@ -1452,12 +1451,17 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
+                    SET_DFNONE(x2);
+                    IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
+                        if(box64_dynarec_test) {
+                            MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
+                            BICw(xFlags, xFlags, x1);
+                        }
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
                     NOTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
-                    SET_DFNONE(x2)
                     if(!rex.w) {
                         GETSEDOw(x6, 0);
                         MOVw_REG(x3, xRAX);
@@ -1519,6 +1523,12 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
+                    SET_DFNONE(x2);
+                    IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
+                        if(box64_dynarec_test) {
+                            MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
+                            BICw(xFlags, xFlags, x1);
+                        }
                     break;
             }
             break;
