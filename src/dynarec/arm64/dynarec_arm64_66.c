@@ -119,8 +119,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
             UXTHw(x1, xRAX);
-            MOV32w(x2, i32);
-            emit_or16(dyn, ninst, x1, x2, x3, x4);
+            emit_or16c(dyn, ninst, x1, i32, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
 
@@ -493,8 +492,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    MOVZw(x5, i16);
-                    emit_or16(dyn, ninst, x1, x5, x2, x4);
+                    emit_or16c(dyn, ninst, x1, i16, x2, x4);
                     EWBACK;
                     break;
                 case 2: //ADC
