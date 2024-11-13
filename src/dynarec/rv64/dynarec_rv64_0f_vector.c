@@ -649,6 +649,19 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
             break;
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            GETGM_vector(v0);
+            GETED(0);
+            if (rex.w) {
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW64, 1);
+            } else {
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
+            }
+            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VMV_S_X(v0, ed);
+            break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
             nextop = F8;
