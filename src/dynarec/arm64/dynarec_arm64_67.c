@@ -863,8 +863,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 SETFLAGS(X_ALL, SF_SET_PENDING);
                                 GETEW32(x1, (opcode==0x81)?2:1);
                                 if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                                MOVZw(x5, i16);
-                                emit_xor16(dyn, ninst, x1, x5, x2, x4);
+                                emit_xor16c(dyn, ninst, x1, i16, x2, x4);
                                 EWBACK;
                                 break;
                             case 7: //CMP
