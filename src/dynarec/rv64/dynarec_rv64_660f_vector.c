@@ -1780,7 +1780,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VMUL_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xD6:

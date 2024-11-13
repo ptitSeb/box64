@@ -483,6 +483,51 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VADD_VX(q0, q1, xZR, VECTOR_MASKED);
             }
             break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VMV_V_V(d0, v0);
+            VSLIDEUP_VI(d0, v1, 4, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
+            break;
+        case 0x67:
+            INST_NAME("PACKUSWB Gm, Em");
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            if (q0 == q1) {
+                VMV_V_V(d0, q0);
+                VSLIDEUP_VI(d0, q1, 4, VECTOR_UNMASKED); // splice q0 and q1 here!
+                VMAX_VX(d0, d0, xZR, VECTOR_UNMASKED);
+            } else {
+                VSLIDEUP_VI(q0, q1, 4, VECTOR_UNMASKED); // splice q0 and q1 here!
+                VMAX_VX(d0, q0, xZR, VECTOR_UNMASKED);
+            }
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VNCLIPU_WI(q0, d0, 0, VECTOR_UNMASKED);
+            break;
+        case 0x6B:
+            INST_NAME("PACKSSDW Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VMV_V_V(d0, v0);
+            VSLIDEUP_VI(d0, v1, 2, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
+            break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
             nextop = F8;
@@ -631,6 +676,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
             VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
+        case 0xD5:
+            INST_NAME("PMULLW Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VMUL_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
         case 0xD8:
         case 0xD9:
             if (opcode == 0xD8) {
@@ -679,6 +733,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(v1, 0);
             VXOR_VI(v0, v0, 0x1F, VECTOR_UNMASKED);
             VAND_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
+        case 0xE5:
+            INST_NAME("PMULHW Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VMULH_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0xE8:
             INST_NAME("PSUBSB Gm, Em");
@@ -774,6 +837,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VSLL_VX(v0, v0, x4, VECTOR_UNMASKED);
             VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
             VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
+            break;
+        case 0xF5:
+            INST_NAME("PMADDWD Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            q1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            q0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            ADDI(x3, xZR, 32);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VWMUL_VV(q0, v1, v0, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            VNSRL_WX(q1, q0, x3, VECTOR_UNMASKED);
+            VNSRL_WI(v0, q0, 0, VECTOR_UNMASKED);
+            VADD_VV(v0, v0, q1, VECTOR_UNMASKED);
             break;
         case 0xF8 ... 0xFB:
             nextop = F8;
