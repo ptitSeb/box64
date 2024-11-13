@@ -270,7 +270,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x87:
-            INST_NAME("(LOCK)XCHG Ed, Gd");
+            INST_NAME("(LOCK) XCHG Ed, Gd");
             nextop = F8;
             if(MODREG) {
                 GETGD;
@@ -282,19 +282,23 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 SMDMB();
-                ANDI(x3, ed, (1<<(2+rex.w))-1);
+                ANDI(x3, ed, (1 << (2 + rex.w)) - 1);
                 BNE_MARK(x3, xZR);
-                MARKLOCK;
-                LRxw(x1, ed, 1, 0);
-                SCxw(x3, gd, ed, 0, 1);
-                BNE_MARKLOCK(x3, xZR);
-                B_MARK2_nocond;
+                AMOSWAPxw(gd, gd, ed, 1, 1);
+                if (!rex.w) ZEROUP(gd);
+                B_NEXT_nocond;
                 MARK;
+                // Unaligned
+                ANDI(x5, EDEADLK, -(1 << (rex.w + 2)));
                 LDxw(x1, ed, 0);
+                MARKLOCK;
+                LDxw(x1, wback, 0);
+                LRxw(x3, x5, 1, 1);
+                SCxw(x4, x3, x5, 1, 1);
+                BNEZ_MARKLOCK(x4);
                 SDxw(gd, ed, 0);
-                MARK2;
-                SMDMB();
                 MVxw(gd, x1);
+                SMDMB();
             }
             break;
         case 0x88:
