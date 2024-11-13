@@ -696,6 +696,21 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                         PUTEM_vector(q0);
                     }
                     break;
+                case 6:
+                    INST_NAME("PSLLQ Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETEM_vector(q0, 0);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        } else {
+                            MOV64x(x4, u8);
+                            VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        }
+                        PUTEM_vector(q0);
+                    }
+                    break;
                 default: DEFAULT_VECTOR;
             }
             break;
