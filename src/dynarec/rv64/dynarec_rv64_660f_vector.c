@@ -2089,15 +2089,15 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF2:
         case 0xF3:
             if (opcode == 0xF1) {
-                INST_NAME("PSRLW Gx, Ex");
+                INST_NAME("PSLLW Gx, Ex");
                 u8 = VECTOR_SEW16;
                 i32 = 16;
             } else if (opcode == 0xF2) {
-                INST_NAME("PSRLD Gx, Ex");
+                INST_NAME("PSLLD Gx, Ex");
                 u8 = VECTOR_SEW32;
                 i32 = 32;
             } else {
-                INST_NAME("PSRLQ Gx, Ex");
+                INST_NAME("PSLLQ Gx, Ex");
                 u8 = VECTOR_SEW64;
                 i32 = 64;
             }

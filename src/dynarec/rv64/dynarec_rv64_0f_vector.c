@@ -499,6 +499,22 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_S_X(v0, x4);
             }
             break;
+        case 0x7F:
+            INST_NAME("MOVQ Em, Gm");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETG;
+            if (MODREG) {
+                v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd);
+                v0 = mmx_get_reg_empty_vector(dyn, ninst, x1, x2, x3, nextop & 7);
+                VMV_V_V(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd);
+                VMV_X_S(x4, v1);
+                SD(x4, ed, fixedaddress);
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
             nextop = F8;
@@ -580,13 +596,91 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VMV_V_V(v0, d0);
             VSLIDEUP_VI(v0, d1, 2, VECTOR_UNMASKED);
             break;
-        case 0xFC:
-            INST_NAME("PADDB Gm, Em");
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+            if (opcode == 0xD1) {
+                INST_NAME("PSRLW Gm, Em");
+                u8 = VECTOR_SEW16;
+                i32 = 16;
+            } else if (opcode == 0xD2) {
+                INST_NAME("PSRLD Gm, Em");
+                u8 = VECTOR_SEW32;
+                i32 = 32;
+            } else {
+                INST_NAME("PSRLQ Gm, Em");
+                u8 = VECTOR_SEW64;
+                i32 = 64;
+            }
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            q0 = fpu_get_scratch(dyn);
             GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            if (MODREG) {
+                v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));
+                VMV_X_S(x4, v1);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, v1, x3, &fixedaddress, rex, NULL, 1, 0);
+                LD(x4, wback, fixedaddress);
+            }
+            SLTIU(x3, x4, i32);
+            SUB(x3, xZR, x3);
+            NOT(x3, x3); // mask
+            VSRL_VX(v0, v0, x4, VECTOR_UNMASKED);
+            VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
+            VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
+            break;
+        case 0xDC:
+        case 0xDD:
+            if (opcode == 0xDC) {
+                INST_NAME("PADDUSB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else {
+                INST_NAME("PADDUSW Gm, Em");
+                u8 = VECTOR_SEW16;
+            }
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VSADDU_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
+        case 0xEC:
+            INST_NAME("PADDSB Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
+        case 0xED:
+            INST_NAME("PADDSW Gm, Em");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VSADD_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
+        case 0xFC ... 0xFE:
+            nextop = F8;
+            if (opcode == 0xFC) {
+                INST_NAME("PADDB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0xFD) {
+                INST_NAME("PADDW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PADDD Gm, Em");
+                u8 = VECTOR_SEW32;
+            }
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             VADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x00 ... 0x0F:
