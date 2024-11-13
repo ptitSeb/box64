@@ -404,27 +404,35 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(MODREG) {
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOV32w(x5, i32);
                         UXTHw(x6, ed);
-                        emit_and16(dyn, ninst, x6, x5, x3, x4);
+                        emit_and16c(dyn, ninst, x6, i32, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        i64 = convert_bitmask_w(i32);
                         if(arm64_atomics) {
                             MOV32w(x5, ~i32);
                             UFLAG_IF {
                                 LDCLRALH(x5, x1, wback);
-                                MVNw_REG(x5, x5);
-                                emit_and16(dyn, ninst, x1, x5, x3, x4);
+                                if(i64) {
+                                    emit_and16c(dyn, ninst, x1, i32, x3, x4);
+                                } else {
+                                    MVNw_REG(x5, x5);
+                                    emit_and16(dyn, ninst, x1, x5, x3, x4);
+                                }
                             } else {
                                 STCLRLH(x5, wback);
                             }
                         } else {
-                            MOV32w(x5, i32);
+                            if(!i64) {MOV32w(x5, i32);}
                             MARKLOCK;
                             LDAXRH(x1, wback);
-                            emit_and16(dyn, ninst, x1, x5, x3, x4);
+                            if(i64) {
+                                emit_and16c(dyn, ninst, x1, i32, x3, x4);
+                            } else {
+                                emit_and16(dyn, ninst, x1, x5, x3, x4);
+                            }
                             STLXRH(x3, x1, wback);
                             CBNZx_MARKLOCK(x3);
                             SMDMB();
