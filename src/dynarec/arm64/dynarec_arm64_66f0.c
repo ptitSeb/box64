@@ -30,6 +30,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t nextop;
     uint8_t gd, ed, u8;
     uint8_t wback, wb1, wb2, gb1, gb2;
+    int16_t i16;
     int32_t i32;
     int64_t i64, j64;
     int64_t fixedaddress;
@@ -274,16 +275,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOV32w(x5, i32);
+                        MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_add16(dyn, ninst, x6, x5, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        MOV32w(x5, i32);
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        MOV32w(x5, i16);
                         if(!ALIGNED_ATOMICH) {
                             if(arm64_uscat) {
                                 ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
@@ -325,21 +326,21 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(opcode==0x81) {INST_NAME("LOCK OR Ew, Iw");} else {INST_NAME("LOCK OR Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         UXTHw(x6, ed);
-                        emit_or16c(dyn, ninst, x6, i32, x3, x4);
+                        emit_or16c(dyn, ninst, x6, i16, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        i64 = convert_bitmask_xw(i32);
-                        if(!i64) {MOV32w(x5, i32);}
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        i64 = convert_bitmask_w(i16);
+                        if(!i64) {MOV32w(x5, i16);}
                         if(arm64_atomics) {
                             UFLAG_IF {
                                 LDSETALH(x5, x1, wback);
                                 if(i64) {
-                                    emit_or16c(dyn, ninst, x1, i32, x3, x4);
+                                    emit_or16c(dyn, ninst, x1, i16, x3, x4);
                                 } else {
                                     emit_or16(dyn, ninst, x1, x5, x3, x4);
                                 }
@@ -350,7 +351,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             MARKLOCK;
                             LDAXRH(x1, wback);
                             if(i64) {
-                                emit_or16c(dyn, ninst, x1, i32, x3, x4);
+                                emit_or16c(dyn, ninst, x1, i16, x3, x4);
                             } else {
                                 emit_or16(dyn, ninst, x1, x5, x3, x4);
                             }
@@ -365,16 +366,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOV32w(x5, i32);
+                        MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_adc16(dyn, ninst, x6, x5, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        MOV32w(x5, i32);
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        MOV32w(x5, i16);
                         MARKLOCK;
                         LDAXRH(x1, wback);
                         emit_adc16(dyn, ninst, x1, x5, x3, x4);
@@ -388,16 +389,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOV32w(x5, i32);
+                        MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_sbb16(dyn, ninst, x6, x5, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        MOV32w(x5, i32);
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        MOV32w(x5, i16);
                         MARKLOCK;
                         LDAXRH(x1, wback);
                         emit_sbb16(dyn, ninst, x1, x5, x3, x4);
@@ -410,21 +411,21 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(opcode==0x81) {INST_NAME("LOCK AND Ew, Iw");} else {INST_NAME("LOCK AND Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         UXTHw(x6, ed);
-                        emit_and16c(dyn, ninst, x6, i32, x3, x4);
+                        emit_and16c(dyn, ninst, x6, i16, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        i64 = convert_bitmask_w(i32);
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        i64 = convert_bitmask_w(i16);
                         if(arm64_atomics) {
-                            MOV32w(x5, ~i32);
+                            MOV32w(x5, ~i16);
                             UFLAG_IF {
                                 LDCLRALH(x5, x1, wback);
                                 if(i64) {
-                                    emit_and16c(dyn, ninst, x1, i32, x3, x4);
+                                    emit_and16c(dyn, ninst, x1, i16, x3, x4);
                                 } else {
                                     MVNw_REG(x5, x5);
                                     emit_and16(dyn, ninst, x1, x5, x3, x4);
@@ -433,11 +434,11 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 STCLRLH(x5, wback);
                             }
                         } else {
-                            if(!i64) {MOV32w(x5, i32);}
+                            if(!i64) {MOV32w(x5, i16);}
                             MARKLOCK;
                             LDAXRH(x1, wback);
                             if(i64) {
-                                emit_and16c(dyn, ninst, x1, i32, x3, x4);
+                                emit_and16c(dyn, ninst, x1, i16, x3, x4);
                             } else {
                                 emit_and16(dyn, ninst, x1, x5, x3, x4);
                             }
@@ -451,16 +452,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(opcode==0x81) {INST_NAME("LOCK SUB Ew, Iw");} else {INST_NAME("LOCK SUB Ew, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOV32w(x5, i32);
+                        MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_sub16(dyn, ninst, x6, x5, x3, x4);
                         BFIx(ed, x6, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        MOV32w(x5, i32);
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        MOV32w(x5, i16);
                         if(!ALIGNED_ATOMICH) {
                             if(arm64_uscat) {
                                 ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
@@ -538,9 +539,9 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x6, (opcode==0x81)?2:1);
                     (void)wb1;
                     // No need to LOCK, this is readonly
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    if(i32) {
-                        MOV32w(x5, i32);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    if(i16) {
+                        MOV32w(x5, i16);
                         emit_cmp16(dyn, ninst, x6, x5, x3, x4, x6);
                     } else {
                         emit_cmp16_0(dyn, ninst, ed, x3, x4);
