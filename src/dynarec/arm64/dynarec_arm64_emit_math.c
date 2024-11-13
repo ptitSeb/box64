@@ -1356,7 +1356,7 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         ANDxw_REG(s4, s2, s4);    // s4 = ~op1 & op2
         ANDxw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRxw_REG(s3, s3, s4);   // s4 = (~op1 & op2) | ((~op1 | op2) & res)
-        UBFXw(s4, s3, 3, 1);
+        LSRw_IMM(s4, s3, 3);
         BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
