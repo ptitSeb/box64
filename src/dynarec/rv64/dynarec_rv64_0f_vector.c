@@ -491,7 +491,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(v1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
             VMV_V_V(d0, v0);
             VSLIDEUP_VI(d0, v1, 4, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -505,7 +504,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(q1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
             if (q0 == q1) {
                 VMV_V_V(d0, q0);
                 VSLIDEUP_VI(d0, q1, 4, VECTOR_UNMASKED); // splice q0 and q1 here!
@@ -525,7 +523,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(v1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 2); // double the vl for slideup.
             VMV_V_V(d0, v0);
             VSLIDEUP_VI(d0, v1, 2, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
