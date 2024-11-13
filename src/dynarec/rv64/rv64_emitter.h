@@ -561,6 +561,14 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SC_W(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
 
 #define AMOSWAP_W(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00001, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOADD_W(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00000, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOXOR_W(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00100, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOAND_W(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b01100, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOOR_W(rd, rs2, rs1, aq, rl)   EMIT(R_type(AQ_RL(0b01000, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOMIN_W(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b10000, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOMAX_W(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b10100, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOMINU_W(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b11000, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
+#define AMOMAXU_W(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b11100, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
 
 // RV64A
 #define LR_D(rd, rs1, aq, rl)      EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b011, rd, 0b0101111))
@@ -570,6 +578,24 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SCxw(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
 
 #define AMOSWAP_D(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00001, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOADD_D(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00000, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOXOR_D(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00100, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOAND_D(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b01100, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOOR_D(rd, rs2, rs1, aq, rl)   EMIT(R_type(AQ_RL(0b01000, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOMIN_D(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b10000, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOMAX_D(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b10100, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOMINU_D(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b11000, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+#define AMOMAXU_D(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b11100, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
+
+#define AMOSWAPxw(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00001, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOADDxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00000, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOXORxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b00100, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOANDxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b01100, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOORxw(rd, rs2, rs1, aq, rl)   EMIT(R_type(AQ_RL(0b01000, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOMINxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b10000, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOMAXxw(rd, rs2, rs1, aq, rl)  EMIT(R_type(AQ_RL(0b10100, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOMINUxw(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b11000, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define AMOMAXUxw(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b11100, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
 
 // RV32F
 // Read round mode

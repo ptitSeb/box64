@@ -561,7 +561,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_test16(dyn, ninst, x1, x2, x6, x4, x5);
             break;
         case 0x87:
-            INST_NAME("(LOCK)XCHG Ew, Gw");
+            INST_NAME("(LOCK) XCHG Ew, Gw");
             nextop = F8;
             if(MODREG) {
                 GETGD;

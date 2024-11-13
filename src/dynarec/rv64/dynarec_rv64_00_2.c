@@ -270,7 +270,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x87:
-            INST_NAME("(LOCK)XCHG Ed, Gd");
+            INST_NAME("(LOCK) XCHG Ed, Gd");
             nextop = F8;
             if(MODREG) {
                 GETGD;
@@ -282,14 +282,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 SMDMB();
-                ANDI(x3, ed, (1<<(2+rex.w))-1);
+                ANDI(x3, ed, (1 << (2 + rex.w)) - 1);
                 BNE_MARK(x3, xZR);
-                MARKLOCK;
-                LRxw(x1, ed, 1, 0);
-                SCxw(x3, gd, ed, 0, 1);
-                BNE_MARKLOCK(x3, xZR);
+                MV(x3, gd);
+                AMOSWAPxw(x1, x3, ed, 1, 1);
                 B_MARK2_nocond;
                 MARK;
+                // TODO: unaligned
                 LDxw(x1, ed, 0);
                 SDxw(gd, ed, 0);
                 MARK2;
