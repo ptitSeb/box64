@@ -822,7 +822,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED(4);
@@ -833,13 +833,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    IFX(X_PEND) {
-                        UFLAG_OP1(x3);
-                        UFLAG_RES(gd);
-                        UFLAG_DF(x1, d_imul64);
-                    } else {
-                        SET_DFNONE(x1);
-                    }
+                    SET_DFNONE(x1);
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -864,13 +858,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULL(gd, ed, x4);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
-                    IFX(X_PEND) {
-                        UFLAG_RES(gd);
-                        UFLAG_OP1(x3);
-                        UFLAG_DF(x1, d_imul32);
-                    } else {
-                        SET_DFNONE(x1);
-                    }
+                    SET_DFNONE(x1);
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -901,7 +889,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED(1);
@@ -912,13 +900,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    IFX(X_PEND) {
-                        UFLAG_OP1(x3);
-                        UFLAG_RES(gd);
-                        UFLAG_DF(x1, d_imul64);
-                    } else {
-                        SET_DFNONE(x1);
-                    }
+                    SET_DFNONE(x1);
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -943,13 +925,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULL(gd, ed, x4);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
-                    IFX(X_PEND) {
-                        UFLAG_RES(gd);
-                        UFLAG_OP1(x3);
-                        UFLAG_DF(x1, d_imul32);
-                    } else {
-                        SET_DFNONE(x1);
-                    }
+                    SET_DFNONE(x1);
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -3272,7 +3248,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EBBACK;
                     break;
                 case 4:
-                    INST_NAME("MUL AL, Ed");
+                    INST_NAME("MUL AL, Eb");
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1, 0);
                     UXTBw(x2, xRAX);
@@ -3363,7 +3339,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED(0);
                     if(rex.w) {
                         if(ed==xRDX) gd=x3; else gd=xRDX;
@@ -3375,13 +3351,29 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRAX, xRDX);
                         LSRx(xRDX, xRDX, 32);
                     }
-                    UFLAG_RES(xRAX);
-                    UFLAG_OP1(xRDX);
-                    UFLAG_DF(x2, rex.w?d_mul64:d_mul32);
+                    UFLAG_IF {
+                        SET_DFNONE(x4);
+                        IFX(X_CF|X_OF) {
+                            CMPSxw_U12(xRDX, 0);
+                            CSETw(x3, cNE);
+                            IFX(X_CF) {
+                                BFIw(xFlags, x3, F_CF, 1);
+                            }
+                            IFX(X_OF) {
+                                BFIw(xFlags, x3, F_OF, 1);
+                            }
+                        }
+                        IFX(X_AF | X_PF | X_ZF | X_SF)
+                            if(box64_dynarec_test) {
+                                // to avoid noise during test
+                                MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                                BICw(xFlags, xFlags, x3);
+                            }
+                    }
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED(0);
                     if(rex.w) {
                         if(ed==xRDX) gd=x3; else gd=xRDX;
@@ -3393,9 +3385,26 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRAX, xRDX);
                         LSRx(xRDX, xRDX, 32);
                     }
-                    UFLAG_RES(xRAX);
-                    UFLAG_OP1(xRDX);
-                    UFLAG_DF(x2, rex.w?d_imul64:d_imul32);
+                    UFLAG_IF {
+                        SET_DFNONE(x4);
+                        IFX(X_CF|X_OF) {
+                            ASRxw(x4, xRAX, rex.w?63:31);
+                            CMPSxw_REG(xRDX, x4);
+                            CSETw(x3, cNE);
+                            IFX(X_CF) {
+                                BFIw(xFlags, x3, F_CF, 1);
+                            }
+                            IFX(X_OF) {
+                                BFIw(xFlags, x3, F_OF, 1);
+                            }
+                        }
+                        IFX(X_AF | X_PF | X_ZF | X_SF)
+                            if(box64_dynarec_test) {
+                                // to avoid noise during test
+                                MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                                BICw(xFlags, xFlags, x3);
+                            }
+                    }
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
