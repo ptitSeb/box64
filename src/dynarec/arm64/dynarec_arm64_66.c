@@ -78,9 +78,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x05:
             INST_NAME("ADD AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            MOV32w(x2, i32);
+            MOV32w(x2, i16);
             emit_add16(dyn, ninst, x1, x2, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
@@ -117,9 +117,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x0D:
             INST_NAME("OR AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            emit_or16c(dyn, ninst, x1, i32, x3, x4);
+            emit_or16c(dyn, ninst, x1, i16, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
 
@@ -154,9 +154,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("ADC AX, Iw");
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            MOV32w(x2, i32);
+            MOV32w(x2, i16);
             emit_adc16(dyn, ninst, x1, x2, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
@@ -224,9 +224,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x25:
             INST_NAME("AND AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            emit_and16c(dyn, ninst, x1, i32, x3, x4);
+            emit_and16c(dyn, ninst, x1, i16, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
 
@@ -251,9 +251,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x2D:
             INST_NAME("SUB AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            MOV32w(x2, i32);
+            MOV32w(x2, i16);
             emit_sub16(dyn, ninst, x1, x2, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
@@ -279,9 +279,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x35:
             INST_NAME("XOR AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            emit_xor16c(dyn, ninst, x1, i32, x3, x4);
+            emit_xor16c(dyn, ninst, x1, i16, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
 
@@ -304,10 +304,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16;
+            i16 = F16;
             UXTHw(x1, xRAX);
-            if(i32) {
-                MOV32w(x2, i32);
+            if(i16) {
+                MOV32w(x2, i16);
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
             } else {
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);

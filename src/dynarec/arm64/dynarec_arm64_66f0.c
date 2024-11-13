@@ -31,7 +31,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t gd, ed, u8;
     uint8_t wback, wb1, wb2, gb1, gb2;
     int16_t i16;
-    int32_t i32;
     int64_t i64, j64;
     int64_t fixedaddress;
     int unscaled;
@@ -344,7 +343,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             }
                         } else {
                             i64 = convert_bitmask_w(i16);
-                            if(!i64) {MOV32w(x5, i32);}
+                            if(!i64) {MOV32w(x5, i16);}
                             MARKLOCK;
                             LDAXRH(x1, wback);
                             if(i64) {

@@ -248,7 +248,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
 
         case 0x8B:
-            INST_NAME("MOV Gd, FS:Ed");
+            INST_NAME("MOV Gw, FS:Ew");
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
