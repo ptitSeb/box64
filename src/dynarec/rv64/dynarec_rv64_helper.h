@@ -555,7 +555,7 @@
         a = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));                          \
     } else {                                                                                   \
         SMREAD();                                                                              \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D); \
+        addr = geted(dyn, addr, ninst, nextop, &ed, a, x3, &fixedaddress, rex, NULL, 1, D);    \
         a = fpu_get_scratch(dyn);                                                              \
         FLD(a, ed, fixedaddress);                                                              \
         VFMV_S_F(a, a);                                                                        \
