@@ -496,8 +496,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VSLL_VI(v0, v0, 8, VECTOR_UNMASKED);
-            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
-            VMV_V_V(q0, d0);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gm, Em");
@@ -512,8 +511,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             VSLL_VI(v0, v0, 16, VECTOR_UNMASKED);
-            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
-            VMV_V_V(q0, d0);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x62:
             INST_NAME("PUNPCKLDQ Gm, Em");
@@ -529,8 +527,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
-            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
-            VMV_V_V(q0, d0);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x63:
             INST_NAME("PACKSSWB Gm, Em");
@@ -580,8 +577,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VSLL_VI(v0, v0, 8, VECTOR_UNMASKED);
-            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
-            VMV_V_V(q0, d0);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gm, Em");
@@ -599,8 +595,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             VSLL_VI(v0, v0, 16, VECTOR_UNMASKED);
-            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
-            VMV_V_V(q0, d0);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x6A:
             INST_NAME("PUNPCKHDQ Gm, Em");
@@ -619,8 +614,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
-            VOR_VV(d0, d0, v0, VECTOR_UNMASKED);
-            VMV_V_V(q0, d0);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x6B:
             INST_NAME("PACKSSDW Gm, Em");
