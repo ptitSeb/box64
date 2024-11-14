@@ -1248,11 +1248,13 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETED32(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
-                    emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    WBACK;
+                    if(u8) {    //should create the geted32_ib utility function for that
+                        SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                        emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    }
                     break;
                 case 5:
                     INST_NAME("SHR Ed, Ib");
