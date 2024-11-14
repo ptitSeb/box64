@@ -17,7 +17,7 @@ Check out Box64 in action on YouTube:
 
 Box64 leverages native system libraries (libc, libm, SDL, OpenGL), offering ease of integration and surprising performance in many applications. For performance benchmarks, check [this analysis](https://box86.org/index.php/2021/06/game-performances/).
 
-With DynaRec for ARM64 and RV64 platforms, Box64 achieves a speed boost 5-10x faster than the interpreter alone. For a deeper look at DynaRec, see [Games performances](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
+With DynaRec for ARM64, RV64 and LA64 platforms, Box64 achieves a speed boost 5-10x faster than the interpreter alone. For a deeper look at DynaRec, see [Inner workings](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
 
 <img src="docs/img/Box64Icon.png" width="96" height="96" alt="Box64 Icon">
 
@@ -28,8 +28,6 @@ _Logo and icon by @grayduck - Thank you!_
 ## 📖 Usage
 
 Box64 offers environment variables to control its behavior. For details, see [Usage Documentation](docs/USAGE.md).
-
-**Debugging Note:** Box64's Dynarec uses Memory Protection and a SegFault signal handler for JIT code handling. If debugging with GDB, set `handle SIGSEGV nostop` to avoid constant interruptions. Set a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to track SegFaults.
 
 ---
 
@@ -50,7 +48,10 @@ See the [Changelog](docs/CHANGELOG.md) for version updates.
 
 Box64 requires 64-bit libraries on the host system, as it directly translates x86_64 function calls. For 32-bit binaries, use Box86.
 
-**Note:** Some installers may default to x86 on ARM64 OS, causing compatibility issues. Workaround: Use a fake `uname` that returns "x86_64" for `-m`.
+**Notes** 
+
+1. Box32 mode is in the making, which aims to support 32-bit binaries on Box64, stay tuned!
+2. Some installers may default to x86 on 64-bit host OSes, causing compatibility issues. Workaround: Use a fake `uname` that returns "x86_64" for `-m`.
 
 ---
 
@@ -65,23 +66,28 @@ Settings priority: `~/.box64rc` > `/etc/box64.box64rc` > Command line.
 ## 📄 Additional Platform-Specific Notes
 
 ### Unity Game Emulation
-- Many Unity games require OpenGL 3+, which may be challenging on ARM SBCs.
-- **Tip for Pi4 and Pi5 Users:** Set `MESA_GL_VERSION_OVERRIDE=3.2` with `BOX64_DYNAREC_STRONGMEM=1` to prevent freezes and enable strong memory mode.
-- **Using Panfrost:** For better compatibility on ARM, enable `PAN_MESA_DEBUG=gl3` to force higher OpenGL profiles. This can help if a game starts but quits unexpectedly before showing any content.
 
-Let me know if you’d like further adjustments!
+- Many Unity games require OpenGL 3+, which may be challenging on ARM/RISC-V SBCs.
+- **Tip for Pi4 and Pi5 Users**: Set `MESA_GL_VERSION_OVERRIDE=3.2` with `BOX64_DYNAREC_STRONGMEM=1` to prevent freezes and enable strong memory mode.
+- **Using Panfrost**: For better compatibility on ARM, enable `PAN_MESA_DEBUG=gl3` to force higher OpenGL profiles. This can help if a game starts but quits unexpectedly before showing any content.
 
 ### GTK Programs
-- Box64 now wraps GTK libraries, supporting both gtk2 and gtk3.
+
+Box64 wraps GTK libraries, supporting both gtk2 and gtk3.
 
 ### Steam
-- Steam requires Box86 due to its 32-bit client app, but uses 64-bit local server binaries. Systems with less than 6GB RAM may need a swap file for optimal performance.
+
+Steam requires Box86 due to its 32-bit client app, but uses 64-bit local server binaries. Systems with less than 6GB RAM may need a swap file for optimal performance.
 
 ### Wine
-- Box64 supports Wine64 and Proton. For 32-bit components, Box86 is required. Systems with both Box64 and Box86 can run 32- and 64-bit Windows programs.
+
+Box64 supports Wine64 and Proton. For 32-bit components, Box86 is required. Systems with both Box64 and Box86 can run 32- and 64-bit Windows programs.
+
+**Note**: You can use Wine WOW64 build to run x86 Windows programs in Box64-only environments, this is still experimental, but it works in most cases.
 
 ### Vulkan
-- Box64 wraps Vulkan libraries. Limited testing done with AMD RX550 and Freedreno drivers.
+
+Box64 wraps Vulkan libraries.
 
 ----
 Final word
