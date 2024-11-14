@@ -1674,8 +1674,6 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     NEGw_REG(s1, s1);
     IFX(X_ZF) {
         ANDSw_mask(s1, s1, 0, 15);  //mask=0xffff
-    } else {
-        ANDw_mask(s1, s1, 0, 15);   //mask=0xffff
     }
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
