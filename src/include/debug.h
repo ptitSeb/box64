@@ -27,6 +27,7 @@ extern uintptr_t box64_dynarec_test_start, box64_dynarec_test_end;
 extern int box64_dynarec_bigblock;
 extern int box64_dynarec_forward;
 extern int box64_dynarec_strongmem;
+extern int box64_dynarec_weakbarrier;
 extern int box64_dynarec_fastnan;
 extern int box64_dynarec_fastround;
 extern int box64_dynarec_x87double;

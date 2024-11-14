@@ -79,6 +79,7 @@ int box64_dynarec_forced = 0;
 int box64_dynarec_bigblock = 1;
 int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
+int box64_dynarec_weakbarrier = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_div0 = 0;
 int box64_dynarec_fastnan = 1;
@@ -784,6 +785,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_strongmem)
             printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":((box64_dynarec_strongmem>1)?" with more performance loss":""));
+    }
+    p = getenv("BOX64_DYNAREC_WEAKBARRIER");
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '1')
+                box64_dynarec_weakbarrier = p[0] - '0';
+        }
+        if (box64_dynarec_weakbarrier)
+            printf_log(LOG_INFO, "Dynarec will try to use weaker memory barriers to reduce the performance loss introduce by strong memory emulation\n");
     }
     p = getenv("BOX64_DYNAREC_X87DOUBLE");
     if(p) {

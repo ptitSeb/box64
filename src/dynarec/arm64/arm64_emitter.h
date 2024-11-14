@@ -489,12 +489,19 @@ int convert_bitmask(uint64_t bitmask);
 // Data Memory Barrier
 #define DMB_gen(CRm)                    (0b1101010100<<22 | 0b011<<16 | 0b0011<<12 | (CRm)<<8 | 1<<7 | 0b01<<5 | 0b11111)
 #define DMB_ISH()                       EMIT(DMB_gen(0b1011))
+#define DMB_ISHLD()                     EMIT(DMB_gen(0b1001))
+#define DMB_ISHST()                     EMIT(DMB_gen(0b1010))
+#define DMB_LD()                        EMIT(DMB_gen(0b1101))
+#define DMB_ST()                        EMIT(DMB_gen(0b1110))
 #define DMB_SY()                        EMIT(DMB_gen(0b1111))
 
 // Data Synchronization Barrier
 #define DSB_gen(CRm)                    (0b1101010100<<22 | 0b011<<16 | 0b0011<<12 | (CRm)<<8 | 1<<7 | 0b00<<5 | 0b11111)
 #define DSB_ISH()                       EMIT(DSB_gen(0b1011))
+#define DSB_ISHLD()                     EMIT(DSB_gen(0b1001))
 #define DSB_ISHST()                     EMIT(DSB_gen(0b1010))
+#define DSB_LD()                        EMIT(DSB_gen(0b1101))
+#define DSB_ST()                        EMIT(DSB_gen(0b1110))
 #define DSB_SY()                        EMIT(DSB_gen(0b1111))
 
 // Break
