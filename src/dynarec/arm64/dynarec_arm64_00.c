@@ -1690,8 +1690,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("TEST EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
-            MOV64xw(x2, i64);
-            emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
+            emit_test32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
             break;
         case 0xAA:
             WILLWRITE();
@@ -3335,8 +3334,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEDH(x1, 4);
                     i64 = F32S;
-                    MOV64xw(x2, i64);
-                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4, x5);
+                    emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
                     break;
                 case 2:
                     INST_NAME("NOT Ed");

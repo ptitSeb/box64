@@ -1275,8 +1275,11 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_cmp16_0    STEPNAME(emit_cmp16_0)
 #define emit_cmp32_0    STEPNAME(emit_cmp32_0)
 #define emit_test8      STEPNAME(emit_test8)
+#define emit_test8c     STEPNAME(emit_test8c)
 #define emit_test16     STEPNAME(emit_test16)
+#define emit_test16c    STEPNAME(emit_test16c)
 #define emit_test32     STEPNAME(emit_test32)
+#define emit_test32c    STEPNAME(emit_test32c)
 #define emit_add32      STEPNAME(emit_add32)
 #define emit_add32c     STEPNAME(emit_add32c)
 #define emit_add8       STEPNAME(emit_add8)
@@ -1440,8 +1443,11 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_test8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_test16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_test32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);

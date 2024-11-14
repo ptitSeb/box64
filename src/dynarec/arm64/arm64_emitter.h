@@ -598,6 +598,7 @@ int convert_bitmask(uint64_t bitmask);
 #define ANDSx_REG(Rd, Rn, Rm)          FEMIT(LOGIC_REG_gen(1, 0b11, 0b00, 0, Rm, 0, Rn, Rd))
 #define ANDSw_REG(Rd, Rn, Rm)          FEMIT(LOGIC_REG_gen(0, 0b11, 0b00, 0, Rm, 0, Rn, Rd))
 #define ANDSxw_REG(Rd, Rn, Rm)         FEMIT(LOGIC_REG_gen(rex.w, 0b11, 0b00, 0, Rm, 0, Rn, Rd))
+#define ANDSw_REG_LSL(Rd, Rn, Rm, lsl) FEMIT(LOGIC_REG_gen(0, 0b11, 0b00, 0, Rm, lsl, Rn, Rd))
 #define ORRx_REG(Rd, Rn, Rm)            EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 0, Rm, 0, Rn, Rd))
 #define ORRx_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(1, 0b01, 0b00, 0, Rm, lsl, Rn, Rd))
 #define ORRw_REG_LSL(Rd, Rn, Rm, lsl)   EMIT(LOGIC_REG_gen(0, 0b01, 0b00, 0, Rm, lsl, Rn, Rd))

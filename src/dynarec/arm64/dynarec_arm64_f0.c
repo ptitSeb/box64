@@ -1579,8 +1579,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMDMB();
                     GETEB(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+                    emit_test8c(dyn, ninst, x1, u8, x3, x4, x5);
                     break;
                 case 2:
                     INST_NAME("LOCK NOT Eb");

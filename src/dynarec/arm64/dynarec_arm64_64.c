@@ -1306,8 +1306,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEDO(x6, 4);
                     i64 = F32S;
-                    MOV64xw(x2, i64);
-                    emit_test32(dyn, ninst, rex, ed, x2, x3, x4, x5);
+                    emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
                     break;
                 case 2:
                     INST_NAME("NOT Ed");
