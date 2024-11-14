@@ -304,10 +304,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x3D:
             INST_NAME("CMP AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i16 = F16;
+            u16 = F16;
             UXTHw(x1, xRAX);
-            if(i16) {
-                MOV32w(x2, i16);
+            if(u16) {
+                MOV32w(x2, u16);
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
             } else {
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
@@ -820,7 +820,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
-                MAYSETFLAGS();
+                if(box64_dynarec_safeflags>1)
+                    MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -921,7 +922,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
-                MAYSETFLAGS();
+                if(box64_dynarec_safeflags>1)
+                    MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
                 UXTHw(x1, xRAX);
