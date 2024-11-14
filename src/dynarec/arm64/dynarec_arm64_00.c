@@ -616,7 +616,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
             gd = xRAX + (opcode&7);
             emit_inc32(dyn, ninst, rex, gd, x1, x2);
             break;
@@ -629,7 +629,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
             gd = xRAX + (opcode&7);
             emit_dec32(dyn, ninst, rex, gd, x1, x2);
             break;
@@ -3622,14 +3622,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEB(x1, 0);
                     emit_inc8(dyn, ninst, x1, x2, x4);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEB(x1, 0);
                     emit_dec8(dyn, ninst, x1, x2, x4);
                     EBBACK;
@@ -3643,14 +3643,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETED(0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETED(0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;

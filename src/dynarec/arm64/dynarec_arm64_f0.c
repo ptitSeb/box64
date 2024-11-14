@@ -1609,7 +1609,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             {
                 case 0: // INC Eb
                     INST_NAME("LOCK INC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     if(MODREG) {
                         GETEB(x1, 0);
                         emit_inc8(dyn, ninst, x1, x2, x4);
@@ -1636,7 +1636,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1: //DEC Eb
                     INST_NAME("LOCK DEC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     if(MODREG) {
                         GETEB(x1, 0);
                         emit_dec8(dyn, ninst, x1, x2, x4);
@@ -1671,7 +1671,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             {
                 case 0: // INC Ed
                     INST_NAME("LOCK INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         emit_inc32(dyn, ninst, rex, ed, x3, x4);
@@ -1719,7 +1719,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1: //DEC Ed
                     INST_NAME("LOCK DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         emit_dec32(dyn, ninst, rex, ed, x3, x4);

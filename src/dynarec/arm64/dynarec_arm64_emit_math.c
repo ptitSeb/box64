@@ -701,12 +701,7 @@ void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit INC32 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_inc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
-        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s4, rex.w?d_inc64:d_inc32);
-    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-        SET_DFNONE(s4);
-    }
+    SET_DFNONE(s4);
     IFX(X_AF) {
         if(rex.w) {
             ORRx_mask(s3, s1, 1, 0, 0);          // s3 = op1 | op2
@@ -720,9 +715,6 @@ void emit_inc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
         ADDSxw_U12(s1, s1, 1);
     } else {
         ADDxw_U12(s1, s1, 1);
-    }
-    IFX(X_PEND) {
-        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
         BICxw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
@@ -756,20 +748,12 @@ void emit_inc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 // emit INC8 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s3, d_inc8);
-    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-        SET_DFNONE(s3);
-    }
+    SET_DFNONE(s3);
     IFX(X_AF | X_OF) {
         ORRw_mask(s3, s1, 0, 0);     // s3 = op1 | op2
         ANDw_mask(s4, s1, 0, 0);        // s4 = op1 & op2
     }
     ADDw_U12(s1, s1, 1);
-    IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
-    }
     IFX(X_AF|X_OF) {
         BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
         ORRw_REG(s3, s3, s4);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
@@ -792,22 +776,13 @@ void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit INC16 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
-        STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s3, d_inc16);
-    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-        SET_DFNONE(s3);
-    }
+    SET_DFNONE(s3);
     IFX(X_AF | X_OF) {
-        MOVw_REG(s4, s1);
+        ORRw_mask(s3, s1, 0, 0);    // s3 = op1 | op2
+        ANDw_mask(s4, s1, 0, 0);    // s4 = op1 & op2
     }
     ADDw_U12(s1, s1, 1);
-    IFX(X_PEND) {
-        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
-    }
     IFX(X_AF|X_OF) {
-        ORRw_mask(s3, s4, 0, 0);    // s3 = op1 | op2
-        ANDw_mask(s4, s4, 0, 0);    // s4 = op1 & op2
         BICw_REG(s3, s3, s1);       // s3 = (op1 | op2) & ~ res
         ORRw_REG(s3, s3, s4);       // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
@@ -829,12 +804,7 @@ void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit DEC32 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
-        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s4, rex.w?d_dec64:d_dec32);
-    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-        SET_DFNONE(s4);
-    }
+    SET_DFNONE(s4);
     IFX(X_AF) {
         MVNxw_REG(s3, s1);
         if(rex.w) {
@@ -849,9 +819,6 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
         SUBSxw_U12(s1, s1, 1);
     } else {
         SUBxw_U12(s1, s1, 1);
-    }
-    IFX(X_PEND) {
-        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF) {
         ANDxw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
@@ -885,12 +852,7 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 // emit DEC8 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s3, d_dec8);
-    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-        SET_DFNONE(s3);
-    }
+    SET_DFNONE(s3);
     IFX(X_AF|X_OF) {
         MVNw_REG(s3, s1);
         ANDw_mask(s4, s3, 0, 0);        // s4 = ~op1 & op2
@@ -900,9 +862,6 @@ void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         SUBSw_U12(s1, s1, 1);
     } else {
         SUBw_U12(s1, s1, 1);
-    }
-    IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
         ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
@@ -918,8 +877,10 @@ void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         }
     }
     IFX(X_ZF) {
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s3, cEQ);
+            BFIw(xFlags, s3, F_ZF, 1);
+        }
     }
     IFX(X_SF) {
         LSRw(s3, s1, 7);
@@ -933,12 +894,7 @@ void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit DEC16 instruction, from s1, store result in s1 using s3 and s4 as scratch
 void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
-        STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s3, d_dec16);
-    } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
-        SET_DFNONE(s3);
-    }
+    SET_DFNONE(s3);
     IFX(X_AF|X_OF) {
         MVNw_REG(s4, s1);
     }
@@ -946,9 +902,6 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         SUBSw_U12(s1, s1, 1);
     } else {
         SUBw_U12(s1, s1, 1);
-    }
-    IFX(X_PEND) {
-        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF|X_OF) {
         ORRw_mask(s3, s4, 0, 0);    // s3 = ~op1 | op2
@@ -966,8 +919,10 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         }
     }
     IFX(X_ZF) {
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s3, cEQ);
+            BFIw(xFlags, s3, F_ZF, 1);
+        }
     }
     IFX(X_SF) {
         LSRw(s3, s1, 15);

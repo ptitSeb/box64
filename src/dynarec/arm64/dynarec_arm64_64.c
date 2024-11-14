@@ -1539,14 +1539,14 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEDO(x6, 0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4);
                     WBACKO(x6);
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEDO(x6, 0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4);
                     WBACKO(x6);

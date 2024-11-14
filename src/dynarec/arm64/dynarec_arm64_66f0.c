@@ -555,7 +555,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 {
                     case 0: // INC Ew
                         INST_NAME("LOCK INC Ew");
-                        SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
@@ -583,7 +583,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         break;
                     case 1: //DEC Ew
                         INST_NAME("LOCK DEC Ew");
-                        SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
