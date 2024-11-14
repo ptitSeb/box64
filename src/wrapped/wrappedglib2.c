@@ -1080,94 +1080,41 @@ EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_
     #else
       #if defined(__loongarch64) || defined(__riscv)
         va_list sysv_varargs;
-        uintptr_t* p = (uintptr_t*)(emu->scratch);
-        uint64_t   scratch[N_SCRATCH];
-        uintptr_t* p2 = (uintptr_t*)scratch;
-        int n = (X64_VA_MAX_REG - (*b)->gp_offset)/8;
-        int m = (X64_VA_MAX_XMM - (*b)->fp_offset)/8;
-        if(n) memcpy(&p[0], (*b)->reg_save_area+X64_VA_MAX_REG-n*8, n*8+m*16);
-        memcpy(&p[n+m], (*b)->overflow_arg_area, 20*8);
-        printf_log(LOG_DEBUG, "%s\n", __FUNCTION__);
-        for (int i = 0; i < n+m+20; i++) {
-          printf_log(LOG_DEBUG, "p%d: 0x%lx\n", i, p[i]);
-        }
-        int idx = 0;
-        int gr_offs = 0;    // offset in the reg_save_area
-        int fr_offs = 0;
-        int oa_gr_offs = 0; // offset in the overflow_arg_area
-        int oa_fr_offs = 0;
-        const char* pfmt = fmt;
-        while (*pfmt) {
-          switch (*pfmt) {
-          case 'd':
-            // double
-            if (fr_offs > m-2) {
-              p2[idx] = p[n+m+oa_fr_offs];
-              oa_gr_offs++;
-              oa_fr_offs++;
-            } else {
-              p2[idx] = p[n+fr_offs];
-              fr_offs+=2;
-            }
-            idx++;
-            break;
-          case 'b':
-          case 'y':
-          case 'n':
-          case 'q':
-          case 'i':
-          case 'h':
-          case 'u':
-          case 'x':
-          case 't':
-            if (gr_offs > n-1) {
-              p2[idx] = p[n+m+oa_gr_offs];
-              oa_gr_offs++;
-              oa_fr_offs++;
-            } else {
-              p2[idx] = p[gr_offs];
-              gr_offs++;
-            }
-            idx++;
-            break;
-          default:
-            break;
-          }
-          pfmt++;
-        }
-        sysv_varargs = (va_list)p2;
+        uint64_t scratch[N_SCRATCH];
+        myStackAlignGVariantNew(emu, fmt, scratch, b);
+        sysv_varargs = (va_list)scratch;
       #else
         CREATE_VALIST_FROM_VALIST(*b, emu->scratch);
       #endif
     #endif
-    {
-      printf_log(LOG_DEBUG, "fmt: %s\n", fmt);
-      const char* pfmt = fmt;
-      int i = 0;
-      while (*pfmt) {
-        switch (*pfmt) {
-        case 'b':
-        case 'y':
-        case 'n':
-        case 'q':
-        case 'i':
-        case 'h':
-        case 'u':
-            printf_log(LOG_DEBUG, "%2d: %d\n", i, va_arg(sysv_varargs, int));
-            break;
-        case 'x':
-        case 't':
-            printf_log(LOG_DEBUG, "%2d: %ld\n", i, va_arg(sysv_varargs, long));
-            break;
-        case 'd':
-            printf_log(LOG_DEBUG, "%2d: %f\n", i, va_arg(sysv_varargs, double));
-            break;
-        default:
-            break;
+    if (box64_log) {
+        printf_log(LOG_DEBUG, "fmt: %s\n", fmt);
+        const char* pfmt = fmt;
+        int i = 0;
+        while (*pfmt) {
+            switch (*pfmt) {
+            case 'b':
+            case 'y':
+            case 'n':
+            case 'q':
+            case 'i':
+            case 'h':
+            case 'u':
+                printf_log(LOG_DEBUG, "%2d: %d\n", i, va_arg(sysv_varargs, int));
+                break;
+            case 'x':
+            case 't':
+                printf_log(LOG_DEBUG, "%2d: %ld\n", i, va_arg(sysv_varargs, long));
+                break;
+            case 'd':
+                printf_log(LOG_DEBUG, "%2d: %f\n", i, va_arg(sysv_varargs, double));
+                break;
+            default:
+              break;
+            }
+            pfmt++;
+            i++;
         }
-        pfmt++;
-        i++;
-      }
     }
     va_list* aligned = &sysv_varargs;
     return my->g_variant_new_va(fmt, endptr, &aligned);
