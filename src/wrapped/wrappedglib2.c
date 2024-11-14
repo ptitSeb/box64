@@ -1087,7 +1087,7 @@ EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_
         CREATE_VALIST_FROM_VALIST(*b, emu->scratch);
       #endif
     #endif
-    if (box64_log) {
+    if (box64_log == LOG_DEBUG) {
         printf_log(LOG_DEBUG, "fmt: %s\n", fmt);
         const char* pfmt = fmt;
         int i = 0;

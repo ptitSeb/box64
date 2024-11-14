@@ -1147,7 +1147,7 @@ void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* scratch, 
     int m = (X64_VA_MAX_XMM - (*b)->fp_offset)/8;
     if(n) memcpy(&p[0], (*b)->reg_save_area+X64_VA_MAX_REG-n*8, n*8+m*16);
     memcpy(&p[n+m], (*b)->overflow_arg_area, 20*8);
-    if (box64_log) {
+    if (box64_log == LOG_DEBUG) {
         printf_log(LOG_DEBUG, "%s\n", __FUNCTION__);
         for (int i = 0; i < n+m+20; i++) {
             printf_log(LOG_DEBUG, "p%d: 0x%lx\n", i, p[i]);
