@@ -135,7 +135,7 @@ typdef struct {
 #define CREATE_SYSV_VALIST(A) \
   va_list sysv_varargs = (va_list)A
 // not creating CONVERT_VALIST(A) on purpose
-// this one will create a VA_LIST from x64_va_list using only GPRS and 100 stack element
+// this one will create a VA_LIST from x64_va_list using only GPRS (NOFLOAT) and 100 stack element
 #define CREATE_VALIST_FROM_VALIST(VA, SCRATCH)                          \
   va_list sysv_varargs;                                                 \
   {                                                                     \
@@ -179,6 +179,7 @@ void myStackAlignValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_v
 void myStackAlignWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
 void myStackAlignScanfValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
 void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
+void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* scratch, x64_va_list_t* b);
 #endif
 
 struct x64_stat64 {                   /* x86_64       arm64 */
