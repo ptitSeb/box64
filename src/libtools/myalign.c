@@ -1141,59 +1141,41 @@ void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack,
 
 void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* scratch, x64_va_list_t* b)
 {
-    uintptr_t* p = (uintptr_t*)(emu->scratch);
-    uintptr_t* p2 = (uintptr_t*)scratch;
-    int n = (X64_VA_MAX_REG - (*b)->gp_offset)/8;
-    int m = (X64_VA_MAX_XMM - (*b)->fp_offset)/8;
-    if(n) memcpy(&p[0], (*b)->reg_save_area+X64_VA_MAX_REG-n*8, n*8+m*16);
-    memcpy(&p[n+m], (*b)->overflow_arg_area, 20*8);
-    if (box64_log == LOG_DEBUG) {
-        printf_log(LOG_DEBUG, "%s\n", __FUNCTION__);
-        for (int i = 0; i < n+m+20; i++) {
-            printf_log(LOG_DEBUG, "p%d: 0x%lx\n", i, p[i]);
-        }
-    }
+    uint64_t* grp = (uint64_t*)((*b)->reg_save_area);
+    uint64_t* frp = (uint64_t*)((*b)->reg_save_area + X64_VA_MAX_REG);
+
     int idx = 0;
-    int gr_offs = 0;    // offset in the reg_save_area
-    int fr_offs = 0;
-    int oa_gr_offs = 0; // offset in the overflow_arg_area
-    int oa_fr_offs = 0;
+    int gr_offs = ((*b)->gp_offset) / 8;
+    int fr_offs = ((*b)->fp_offset - X64_VA_MAX_REG) / 8;
+
+    int oa_offs = 0;
     const char* pfmt = fmt;
     while (*pfmt) {
         switch (*pfmt) {
-        case 'd':
-            // double
-            if (fr_offs > m-2) {
-                p2[idx] = p[n+m+oa_fr_offs];
-                oa_gr_offs++;
-                oa_fr_offs++;
-            } else {
-                p2[idx] = p[n+fr_offs];
-                fr_offs+=2;
-            }
-            idx++;
-            break;
-        case 'b':
-        case 'y':
-        case 'n':
-        case 'q':
-        case 'i':
-        case 'h':
-        case 'u':
-        case 'x':
-        case 't':
-            if (gr_offs > n-1) {
-                p2[idx] = p[n+m+oa_gr_offs];
-                oa_gr_offs++;
-                oa_fr_offs++;
-            } else {
-                p2[idx] = p[gr_offs];
-                gr_offs++;
-            }
-            idx++;
-            break;
-        default:
-            break;
+            case 'd': // double
+                if (fr_offs >= ((X64_VA_MAX_XMM - X64_VA_MAX_REG) / 8)) {
+                    scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                } else {
+                    scratch[idx++] = frp[fr_offs];
+                    fr_offs += 2;
+                }
+                break;
+            case 'b':
+            case 'y':
+            case 'n':
+            case 'q':
+            case 'i':
+            case 'h':
+            case 'u':
+            case 'x':
+            case 't':
+                if (gr_offs >= (X64_VA_MAX_REG / 8))
+                    scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                else
+                    scratch[idx++] = grp[gr_offs++];
+                break;
+            default:
+                break;
         }
         pfmt++;
     }

@@ -1080,44 +1080,13 @@ EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_
     #else
       #if defined(__loongarch64) || defined(__riscv)
         va_list sysv_varargs;
-        uint64_t scratch[N_SCRATCH];
-        myStackAlignGVariantNew(emu, fmt, scratch, b);
-        sysv_varargs = (va_list)scratch;
+        myStackAlignGVariantNew(emu, fmt, emu->scratch, b);
+        sysv_varargs = (va_list)emu->scratch;
       #else
         CREATE_VALIST_FROM_VALIST(*b, emu->scratch);
       #endif
     #endif
-    if (box64_log == LOG_DEBUG) {
-        printf_log(LOG_DEBUG, "fmt: %s\n", fmt);
-        const char* pfmt = fmt;
-        int i = 0;
-        while (*pfmt) {
-            switch (*pfmt) {
-            case 'b':
-            case 'y':
-            case 'n':
-            case 'q':
-            case 'i':
-            case 'h':
-            case 'u':
-                printf_log(LOG_DEBUG, "%2d: %d\n", i, va_arg(sysv_varargs, int));
-                break;
-            case 'x':
-            case 't':
-                printf_log(LOG_DEBUG, "%2d: %ld\n", i, va_arg(sysv_varargs, long));
-                break;
-            case 'd':
-                printf_log(LOG_DEBUG, "%2d: %f\n", i, va_arg(sysv_varargs, double));
-                break;
-            default:
-              break;
-            }
-            pfmt++;
-            i++;
-        }
-    }
-    va_list* aligned = &sysv_varargs;
-    return my->g_variant_new_va(fmt, endptr, &aligned);
+    return my->g_variant_new_va(fmt, endptr, &sysv_varargs);
 }
 
 EXPORT void* my_g_variant_new(x64emu_t* emu, char* fmt, uint64_t* V)
