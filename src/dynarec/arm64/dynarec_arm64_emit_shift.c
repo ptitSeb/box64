@@ -893,7 +893,7 @@ void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
     }
     IFX(X_OF) {
         if(c==1) {
-            ADDxw_REG_LSR(s3, s1, s1, rex.w?63:31);
+            EORxw_REG_LSR(s3, s1, s1, rex.w?63:31);
             BFIw(xFlags, s3, F_OF, 1);
         }
     }
