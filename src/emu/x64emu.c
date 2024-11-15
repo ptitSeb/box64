@@ -253,12 +253,9 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
     memcpy(newemu->ymm, emu->ymm, sizeof(emu->ymm));
     newemu->df = emu->df;
-    newemu->df_sav = emu->df_sav;
     newemu->op1 = emu->op1;
     newemu->op2 = emu->op2;
     newemu->res = emu->res;
-    newemu->op1_sav = emu->op1_sav;
-    newemu->res_sav = emu->res_sav;
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
@@ -286,12 +283,9 @@ void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
     newemu->df = emu->df;
-    newemu->df_sav = emu->df_sav;
     newemu->op1 = emu->op1;
     newemu->op2 = emu->op2;
     newemu->res = emu->res;
-    newemu->op1_sav = emu->op1_sav;
-    newemu->res_sav = emu->res_sav;
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
@@ -609,9 +603,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_op1 = emu->op1;
     multiuint_t old_op2 = emu->op2;
     multiuint_t old_res = emu->res;
-    multiuint_t old_op1_sav= emu->op1_sav;
-    multiuint_t old_res_sav= emu->res_sav;
-    deferred_flags_t old_df_sav= emu->df_sav;
     // uc_link
     void* old_uc_link = emu->uc_link;
     emu->uc_link = NULL;
@@ -640,9 +631,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
         emu->op1 = old_op1;
         emu->op2 = old_op2;
         emu->res = old_res;
-        emu->op1_sav = old_op1_sav;
-        emu->res_sav = old_res_sav;
-        emu->df_sav = old_df_sav;
         // and the old registers
         emu->eflags = old_eflags;
         R_RBX = old_rbx;

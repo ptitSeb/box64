@@ -1189,9 +1189,8 @@ uint16_t sbb16(x64emu_t *emu, uint16_t d, uint16_t s)
 
 	if (ACCESS_FLAG(F_CF))
         res = d - s - 1;
-    else {
+    else
         res = d - s;
-	}
    	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
    	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
    	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -1212,9 +1211,8 @@ uint32_t sbb32(x64emu_t *emu, uint32_t d, uint32_t s)
 
 	if (ACCESS_FLAG(F_CF))
         res = d - s - 1;
-    else {
+    else
         res = d - s;
-	}
   	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
   	CONDITIONAL_SET_FLAG(!res, F_ZF);
   	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -1235,9 +1233,8 @@ uint64_t sbb64(x64emu_t *emu, uint64_t d, uint64_t s)
 
 	if (ACCESS_FLAG(F_CF))
         res = d - s - 1;
-    else {
+    else
         res = d - s;
-	}
   	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
   	CONDITIONAL_SET_FLAG(!res, F_ZF);
   	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -1256,32 +1253,32 @@ Implements the TEST instruction and side effects.
 ****************************************************************************/
 void test8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-    uint32_t res;   /* all operands in native machine order */
+    uint8_t res;   /* all operands in native machine order */
 	RESET_FLAGS(emu);
 
     res = d & s;
 
 	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
     CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
+	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
+	CONDITIONAL_SET_FLAG(!res, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 }
 
 void test16(x64emu_t *emu, uint16_t d, uint16_t s)
 {
-	uint32_t res;   /* all operands in native machine order */
+	uint16_t res;   /* all operands in native machine order */
 	RESET_FLAGS(emu);
 
 	res = d & s;
 
 	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
+	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
+	CONDITIONAL_SET_FLAG(!res, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 }
 
 void test32(x64emu_t *emu, uint32_t d, uint32_t s)
@@ -1292,11 +1289,11 @@ void test32(x64emu_t *emu, uint32_t d, uint32_t s)
 	res = d & s;
 
 	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
+	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+	CONDITIONAL_SET_FLAG(!res, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 }
 
 void test64(x64emu_t *emu, uint64_t d, uint64_t s)
@@ -1307,21 +1304,30 @@ void test64(x64emu_t *emu, uint64_t d, uint64_t s)
 	res = d & s;
 
 	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
+	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
+	CONDITIONAL_SET_FLAG(!res, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 }
 
 /****************************************************************************
 REMARKS:
 Implements the IDIV instruction and side effects.
 ****************************************************************************/
+extern int box64_dynarec_test;
 void idiv8(x64emu_t *emu, uint8_t s)
 {
     int32_t dvd, quot, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (int16_t)R_AX;
 	if (s == 0) {
@@ -1342,6 +1348,15 @@ void idiv8(x64emu_t *emu, uint8_t s)
 void idiv16(x64emu_t *emu, uint16_t s)
 {
 	int32_t dvd, quot, mod;
+	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (((int32_t)R_DX) << 16) | R_AX;
 	if (s == 0) {
@@ -1355,10 +1370,6 @@ void idiv16(x64emu_t *emu, uint16_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_SF);
-	CONDITIONAL_SET_FLAG(quot == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_AX = (uint16_t)quot;
 	R_DX = (uint16_t)mod;
@@ -1368,6 +1379,14 @@ void idiv32(x64emu_t *emu, uint32_t s)
 {
 	int64_t dvd, quot, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (((int64_t)R_EDX) << 32) | R_EAX;
 	if (s == 0) {
@@ -1381,11 +1400,6 @@ void idiv32(x64emu_t *emu, uint32_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CLEAR_FLAG(F_SF);
-	SET_FLAG(F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_RAX = (uint32_t)quot;
 	R_RDX = (uint32_t)mod;
@@ -1395,6 +1409,14 @@ void idiv64(x64emu_t *emu, uint64_t s)
 {
 	__int128 dvd, quot, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (((__int128)R_RDX) << 64) | R_RAX;
 	if (s == 0) {
@@ -1407,11 +1429,6 @@ void idiv64(x64emu_t *emu, uint64_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CLEAR_FLAG(F_SF);
-	SET_FLAG(F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_RAX = (uint64_t)quot;
 	R_RDX = (uint64_t)mod;
@@ -1425,6 +1442,14 @@ void div8(x64emu_t *emu, uint8_t s)
 {
 	uint32_t dvd, div, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = R_AX;
     if (s == 0) {
@@ -1445,6 +1470,14 @@ void div16(x64emu_t *emu, uint16_t s)
 {
 	uint32_t dvd, div, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (((uint32_t)R_DX) << 16) | R_AX;
 	if (s == 0) {
@@ -1457,10 +1490,6 @@ void div16(x64emu_t *emu, uint16_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_SF);
-	CONDITIONAL_SET_FLAG(div == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_AX = (uint16_t)div;
 	R_DX = (uint16_t)mod;
@@ -1470,6 +1499,14 @@ void div32(x64emu_t *emu, uint32_t s)
 {
 	uint64_t dvd, div, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (((uint64_t)R_EDX) << 32) | R_EAX;
 	if (s == 0) {
@@ -1482,11 +1519,6 @@ void div32(x64emu_t *emu, uint32_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CLEAR_FLAG(F_SF);
-	SET_FLAG(F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_RAX = (uint32_t)div;
 	R_RDX = (uint32_t)mod;
@@ -1496,6 +1528,14 @@ void div64(x64emu_t *emu, uint64_t s)
 {
 	__int128 dvd, div, mod;
 	RESET_FLAGS(emu);
+	if(box64_dynarec_test) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_PF);
+		CLEAR_FLAG(F_ZF);
+		CLEAR_FLAG(F_SF);
+		CLEAR_FLAG(F_OF);
+	}
 
 	dvd = (((__int128)R_RDX) << 64) | R_RAX;
 	if (s == 0) {
@@ -1508,11 +1548,6 @@ void div64(x64emu_t *emu, uint64_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CLEAR_FLAG(F_SF);
-	SET_FLAG(F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_RAX = (uint64_t)div;
 	R_RDX = (uint64_t)mod;

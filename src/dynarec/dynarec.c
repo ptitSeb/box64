@@ -106,9 +106,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_op1 = emu->op1;
     multiuint_t old_op2 = emu->op2;
     multiuint_t old_res = emu->res;
-    multiuint_t old_op1_sav= emu->op1_sav;
-    multiuint_t old_res_sav= emu->res_sav;
-    deferred_flags_t old_df_sav= emu->df_sav;
     // uc_link
     void* old_uc_link = emu->uc_link;
     emu->uc_link = NULL;
@@ -134,9 +131,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         emu->op1 = old_op1;
         emu->op2 = old_op2;
         emu->res = old_res;
-        emu->op1_sav = old_op1_sav;
-        emu->res_sav = old_res_sav;
-        emu->df_sav = old_df_sav;
         // and the old registers
         emu->eflags = old_eflags;
         R_RBX = old_rbx;
