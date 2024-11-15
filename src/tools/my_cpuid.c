@@ -249,6 +249,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EDX =   1         // fpu 
                     | 1<<2      // debugging extension
                     | 1<<4      // rdtsc
+                    | 1<<5      // msr
                     | 1<<8      // cmpxchg8
                     | 1<<11     // sep (sysenter & sysexit)
                     | 1<<15     // cmov

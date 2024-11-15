@@ -386,6 +386,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             R_RDX = tmp64u>>32;
             R_RAX = tmp64u&0xFFFFFFFF;
             break;
+        case 0x32:                   /* RDMSR */
+            // priviledge instruction
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            STEP;
+            #endif
+            break;
 
         case 0x34:                  /* SYSENTER */
             #ifndef TEST_INTERPRETER
