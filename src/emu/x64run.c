@@ -469,9 +469,22 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
-            is32bits = (emu->segs[_CS]==0x23);
-            if(is32bits)
-                running32bits = 1;
+            if(is32bits!=(emu->segs[_CS]==0x23)) {
+                is32bits = (emu->segs[_CS]==0x23);
+                if(is32bits) {
+                    // Zero upper part of the 32bits regs
+                    R_RAX = R_EAX;
+                    R_RBX = R_EBX;
+                    R_RCX = R_ECX;
+                    R_RDX = R_EDX;
+                    R_RSP = R_ESP;
+                    R_RBP = R_EBP;
+                    R_RSI = R_ESI;
+                    R_RDI = R_EDI;
+                }
+                if(is32bits)
+                    running32bits = 1;
+            }
             #endif
             break;
         case 0x65:                      /* GS: prefix */
@@ -487,9 +500,22 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
-            is32bits = (emu->segs[_CS]==0x23);
-            if(is32bits)
-                running32bits = 1;
+            if(is32bits!=(emu->segs[_CS]==0x23)) {
+                is32bits = (emu->segs[_CS]==0x23);
+                if(is32bits) {
+                    // Zero upper part of the 32bits regs
+                    R_RAX = R_EAX;
+                    R_RBX = R_EBX;
+                    R_RCX = R_ECX;
+                    R_RDX = R_EDX;
+                    R_RSP = R_ESP;
+                    R_RBP = R_EBP;
+                    R_RSI = R_ESI;
+                    R_RDI = R_EDI;
+                }
+                if(is32bits)
+                    running32bits = 1;
+            }
             #endif
             break;
         case 0x66:                      /* 16bits prefix */
@@ -1564,11 +1590,24 @@ x64emurun:
             RESET_FLAGS(emu);
             R_RIP = addr;
             STEP;
-            is32bits = (emu->segs[_CS]==0x23);
-            #ifndef TEST_INTERPRETER
-            if(is32bits)
-                running32bits = 1;
-            #endif
+            if(is32bits!=(emu->segs[_CS]==0x23)) {
+                is32bits = (emu->segs[_CS]==0x23);
+                if(is32bits) {
+                    // Zero upper part of the 32bits regs
+                    R_RAX = R_EAX;
+                    R_RBX = R_EBX;
+                    R_RCX = R_ECX;
+                    R_RDX = R_EDX;
+                    R_RSP = R_ESP;
+                    R_RBP = R_EBP;
+                    R_RSI = R_ESI;
+                    R_RDI = R_EDI;
+                }
+                #ifndef TEST_INTERPRETER
+                if(is32bits)
+                    running32bits = 1;
+                #endif
+            }
             break;
         case 0xD0:                      /* GRP2 Eb,1 */
         case 0xD2:                      /* GRP2 Eb,CL */
@@ -2104,11 +2143,24 @@ x64emurun:
                             R_CS = (ED+1)->word[0];
                         }
                         STEP2;
-                        is32bits = (emu->segs[_CS]==0x23);
-                        #ifndef TEST_INTERPRETER
-                        if(is32bits)
-                            running32bits = 1;
-                        #endif
+                        if(is32bits!=(emu->segs[_CS]==0x23)) {
+                            is32bits = (emu->segs[_CS]==0x23);
+                            if(is32bits) {
+                                // Zero upper part of the 32bits regs
+                                R_RAX = R_EAX;
+                                R_RBX = R_EBX;
+                                R_RCX = R_ECX;
+                                R_RDX = R_EDX;
+                                R_RSP = R_ESP;
+                                R_RBP = R_EBP;
+                                R_RSI = R_ESI;
+                                R_RDI = R_EDI;
+                            }
+                            #ifndef TEST_INTERPRETER
+                            if(is32bits)
+                                running32bits = 1;
+                            #endif
+                        }
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
@@ -2134,11 +2186,24 @@ x64emurun:
                             R_CS = (ED+1)->word[0];
                         }
                         STEP2;
-                        is32bits = (emu->segs[_CS]==0x23);
-                        #ifndef TEST_INTERPRETER
-                        if(is32bits)
-                            running32bits = 1;
-                        #endif
+                        if(is32bits!=(emu->segs[_CS]==0x23)) {
+                            is32bits = (emu->segs[_CS]==0x23);
+                            if(is32bits) {
+                                // Zero upper part of the 32bits regs
+                                R_RAX = R_EAX;
+                                R_RBX = R_EBX;
+                                R_RCX = R_ECX;
+                                R_RDX = R_EDX;
+                                R_RSP = R_ESP;
+                                R_RBP = R_EBP;
+                                R_RSI = R_ESI;
+                                R_RDI = R_EDI;
+                            }
+                            #ifndef TEST_INTERPRETER
+                            if(is32bits)
+                                running32bits = 1;
+                            #endif
+                        }
                     }
                     break;
                 case 6:                 /* Push Ed */
