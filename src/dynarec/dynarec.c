@@ -146,6 +146,7 @@ int my_setcontext(x64emu_t* emu, void* ucp);
 #ifdef BOX32
 int my32_setcontext(x64emu_t* emu, void* ucp);
 #endif
+extern int running32bits;
 void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
@@ -156,7 +157,7 @@ void DynaRun(x64emu_t* emu)
     uintptr_t old_savesp = emu->xSPSave;
     #endif
     emu->flags.jmpbuf_ready = 0;
-
+    int is32bits = (emu->segs[_CS]==0x23);
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
@@ -189,7 +190,22 @@ void DynaRun(x64emu_t* emu)
             Run(emu, 0);
 #ifdef DYNAREC
         else {
-            int is32bits = (emu->segs[_CS]==0x23);
+            int newis32bits = (emu->segs[_CS]==0x23);
+            if(newis32bits!=is32bits) {
+                is32bits = newis32bits;
+                if(is32bits) {
+                    // Zero upper part of the 32bits regs
+                    R_RAX = R_EAX;
+                    R_RBX = R_EBX;
+                    R_RCX = R_ECX;
+                    R_RDX = R_EDX;
+                    R_RSP = R_ESP;
+                    R_RBP = R_EBP;
+                    R_RSI = R_ESI;
+                    R_RDI = R_EDI;
+                    running32bits = 1;
+                }
+            }
             dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
             if(!block || !block->block || !block->done || ACCESS_FLAG(F_TF)) {
                 skip = 0;
@@ -203,9 +219,6 @@ void DynaRun(x64emu_t* emu)
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
-                extern int running32bits;
-                if(emu->segs[_CS]==0x23)
-                    running32bits = 1;
             }
             if(emu->fork) {
                 int forktype = emu->fork;
