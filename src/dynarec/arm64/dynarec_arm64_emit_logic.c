@@ -350,7 +350,7 @@ void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 }
 
 // emit OR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int8_t c, int s3, int s4)
+void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4)
 {
     int mask = convert_bitmask_w(c);
     if(!mask) {
@@ -401,7 +401,7 @@ void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 }
 
 // emit XOR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int8_t c, int s3, int s4)
+void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4)
 {
     int mask = convert_bitmask_w(c);
     if(!mask) {
@@ -469,7 +469,7 @@ void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 }
 
 // emit AND8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
-void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int8_t c, int s3, int s4)
+void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4)
 {
     int mask = convert_bitmask_w(c);
     if(!mask) {
@@ -539,9 +539,9 @@ void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit OR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_or16c(dynarec_arm_t* dyn, int ninst, int s1, int16_t c, int s3, int s4)
 {
-    int mask = convert_bitmask_w(c);
+    int mask = convert_bitmask_w((uint16_t)c);
     if(!mask) {
-        MOV32w(s3, c);
+        MOV32w(s3, (uint16_t)c);
         emit_or16(dyn, ninst, s1, s3, s3, s4);
         return;
     }
@@ -590,9 +590,9 @@ void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit XOR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_xor16c(dynarec_arm_t* dyn, int ninst, int s1, int16_t c, int s3, int s4)
 {
-    int mask = convert_bitmask_w(c);
+    int mask = convert_bitmask_w((uint16_t)c);
     if(!mask) {
-        MOV32w(s3, c);
+        MOV32w(s3, (uint16_t)c);
         emit_xor16(dyn, ninst, s1, s3, s3, s4);
         return;
     }
@@ -659,9 +659,9 @@ void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit AND16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_and16c(dynarec_arm_t* dyn, int ninst, int s1, int16_t c, int s3, int s4)
 {
-    int mask = convert_bitmask_w(c);
+    int mask = convert_bitmask_w((uint16_t)c);
     if(!mask) {
-        MOV32w(s3, c);
+        MOV32w(s3, (uint16_t)c);
         emit_and16(dyn, ninst, s1, s3, s3, s4);
         return;
     }

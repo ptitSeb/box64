@@ -345,7 +345,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 }
 
 // emit ADD8 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
-void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int8_t c, int s3, int s4)
+void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4)
 {
     IFX(X_PEND) {
         MOV32w(s4, c);
@@ -432,7 +432,7 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 }
 
 // emit SUB8 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
-void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int8_t c, int s3, int s4, int s5)
+void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4, int s5)
 {
     MAYUSE(s5);
     IFX(X_ALL|X_PEND) {
