@@ -513,7 +513,7 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
         return 0;
     if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
         return 0;
-    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone)
+    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone && !dyn->insts[jmp].df_notneeded)
         return 1;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: return 0;
@@ -647,4 +647,16 @@ void avx_mark_zero_reset(dynarec_native_t* dyn, int ninst)
 void avx_unmark_zero(dynarec_native_t* dyn, int ninst, int reg)
 {
     dyn->ymm_zero &= ~(1<<reg);
+}
+
+void propagate_nodf(dynarec_native_t* dyn, int ninst)
+{
+    while(ninst>=0) {
+        if(dyn->insts[ninst].df_notneeded)
+            return; // already flagged
+        if(dyn->insts[ninst].x64.gen_flags || dyn->insts[ninst].x64.use_flags)
+            return; // flags are use, so maybe it's needed
+        dyn->insts[ninst].df_notneeded = 1;
+        --ninst;       
+    }
 }

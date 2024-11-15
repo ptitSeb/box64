@@ -1092,7 +1092,9 @@
         }                   \
         dyn->f.dfnone=0;    \
     } else SET_DFNONE(S)
+#ifndef SET_NODF
 #define SET_NODF()          dyn->f.dfnone = 0
+#endif
 #define SET_DFOK()          dyn->f.dfnone = 1; dyn->f.dfnone_here=1
 
 #ifndef MAYSETFLAGS

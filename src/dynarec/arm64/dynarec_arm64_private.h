@@ -119,6 +119,7 @@ typedef struct instruction_arm64_s {
     unsigned            normal_carry:1;
     unsigned            normal_carry_before:1;
     unsigned            invert_carry:1; // this opcode force an inverted carry
+    unsigned            df_notneeded:1;
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

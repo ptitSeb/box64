@@ -2346,7 +2346,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     if(dyn->f.dfnone || (dyn->insts[jmp].f_exit.dfnone_here && !dyn->insts[jmp].x64.use_flags))  // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
+    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone && !dyn->insts[jmp].df_notneeded)?1:0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
         case SF_SET:

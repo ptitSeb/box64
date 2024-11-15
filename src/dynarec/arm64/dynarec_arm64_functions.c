@@ -662,7 +662,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
 {
     if(box64_dynarec_dump) {
         printf_x64_instruction(rex.is32bits?my_context->dec32:my_context->dec, &dyn->insts[ninst].x64, name);
-        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d/%d(%d:%d->%d:%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
             (box64_dynarec_dump>1)?"\e[32m":"",
             (void*)(dyn->native_start+dyn->insts[ninst].address),
             dyn->insts[ninst].size/4,
@@ -671,6 +671,10 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dyn->insts[ninst].x64.state_flags,
             dyn->f.pending,
             dyn->f.dfnone,
+            dyn->insts[ninst].f_entry.pending,
+            dyn->insts[ninst].f_entry.dfnone,
+            dyn->insts[ninst].f_exit.pending,
+            dyn->insts[ninst].f_exit.dfnone,
             dyn->insts[ninst].x64.may_set?"may":"set",
             dyn->insts[ninst].x64.set_flags,
             dyn->insts[ninst].x64.gen_flags,

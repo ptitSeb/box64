@@ -61,6 +61,8 @@ void native_div0(x64emu_t* emu);
 
 // Caches transformation (for loops) // Specific, need to be written par backend
 int CacheNeedsTransform(dynarec_native_t* dyn, int i1);
+// propagete defererd to unknow, as state is not needed
+void propagate_nodf(dynarec_native_t* dyn, int ninst);
 
 // predecessor access
 int isPred(dynarec_native_t* dyn, int ninst, int pred);
