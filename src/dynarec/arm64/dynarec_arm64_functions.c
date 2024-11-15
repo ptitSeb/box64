@@ -868,8 +868,13 @@ static uint8_t getNativeFlagsUsed(dynarec_arm_t* dyn, int start, uint8_t flags)
             used_flags|=dyn->insts[ninst].use_nat_flags_before&flags;
         // if the opcode generate flags, return
         if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH && (start!=ninst)) {
-            if(used_flags&~dyn->insts[ninst].set_nat_flags)    // check partial changes that would destroy flag state
+            if(used_flags&~dyn->insts[ninst].set_nat_flags) {
+                // check partial changes that would destroy flag state
+                if(dyn->insts[ninst].use_nat_flags_before&flags)
+                    return used_flags;
+                // but also check if there is before needed
                 return 0;
+            }
             return used_flags;
         }
         // check if there is a callret barrier

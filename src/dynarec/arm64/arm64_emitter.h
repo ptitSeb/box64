@@ -183,6 +183,7 @@ int convert_bitmask(uint64_t bitmask);
 #define ADDw_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(0, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSw_REG(Rd, Rn, Rm)              FEMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDw_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(0, 0, 0, 0b00, Rm, lsl, Rn, Rd))
+#define ADDSw_REG_LSL(Rd, Rn, Rm, lsl)     FEMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, lsl, Rn, Rd))
 #define ADDxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDz_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(rex.is32bits?0:1, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSxw_REG(Rd, Rn, Rm)             FEMIT(ADDSUB_REG_gen(rex.w, 0, 1, 0b00, Rm, 0, Rn, Rd))

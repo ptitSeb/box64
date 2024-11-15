@@ -42,7 +42,9 @@ typedef enum {
 typedef enum {
 	d_none = 0,
 	d_add8,
+	d_add8b,	// using 8bits res
 	d_add16,
+	d_add16b,	// using 16bits res
 	d_add32,	// using 64bits res
 	d_add32b,	// using 32bits res
 	d_add64,

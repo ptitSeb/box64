@@ -34,6 +34,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t eb1, eb2;
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
+    int mask;
     int v0, v1;
     int q0, q1;
     int d0, d1;
@@ -2328,19 +2329,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 LDH(x1, x3, fixedaddress);
                 ed = x1;
             }
-            ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
-            LSRw_REG(x1, ed, x2);
-            BFIw(xFlags, x1, F_CF, 1);
+            IFX(X_CF) {
+                ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
+                LSRw_REG(x1, ed, x2);
+                BFIw(xFlags, x1, F_CF, 1);
+            }
             break;
         case 0xA4:
             INST_NAME("SHLD Ew, Gw, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETEW(x1, 1);
-            GETGW(x2);
-            u8 = F8;
-            emit_shld16c(dyn, ninst, ed, gd, u8, x4, x5);
-            EWBACK;
+            u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+            if(u8) {
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETEW(x1, 1);
+                GETGW(x2);
+                u8 = F8;
+                emit_shld16c(dyn, ninst, ed, gd, u8, x4, x5);
+                EWBACK;
+            } else {
+                FAKEED;
+                F8;
+            }
             break;
         case 0xA5:
             nextop = F8;
@@ -2390,12 +2399,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            GETEW(x1, 1);
-            GETGW(x2);
-            u8 = F8;
-            emit_shrd16c(dyn, ninst, ed, gd, u8, x4, x5);
-            EWBACK;
+            u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+            if(u8) {
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETEW(x1, 1);
+                GETGW(x2);
+                u8 = F8;
+                emit_shrd16c(dyn, ninst, ed, gd, u8, x4, x5);
+                EWBACK;
+            } else {
+                FAKEED;
+                F8;
+            }
             break;
         case 0xAD:
             nextop = F8;
@@ -2516,8 +2531,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    MOV32w(x4, 1);
-                    BFIxw(ed, x4, u8, 1);
+                    mask = convert_bitmask_xw(1<<u8);
+                    ORRxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
                     break;
                 case 6:
@@ -2543,8 +2558,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    mask = convert_bitmask_xw(1<<u8);
+                    EORxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
                     break;
                 default:

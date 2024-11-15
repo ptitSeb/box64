@@ -39,6 +39,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int q0, q1;
     int d0, d1;
     int s0;
+    int mask;
     uint64_t tmp64u;
     int64_t j64;
     int64_t fixedaddress;
@@ -1643,13 +1644,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
-            if(rex.w) {
-                ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
-            } else {
-                ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
+            IFX(X_CF) {
+                if(rex.w) {
+                    ANDx_mask(x2, gd, 1, 0, 0b00101);  //mask=0x000000000000003f
+                } else {
+                    ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
+                }
+                LSRxw_REG(x4, ed, x2);
+                BFIw(xFlags, x4, F_CF, 1);
             }
-            LSRxw_REG(x4, ed, x2);
-            BFIw(xFlags, x4, F_CF, 1);
             break;
         case 0xA4:
             nextop = F8;
@@ -2044,8 +2047,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    MOV32w(x4, 1);
-                    ORRxw_REG_LSL(ed, ed, x4, u8);
+                    mask = convert_bitmask_xw(1LL<<u8);
+                    ORRxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
@@ -2093,8 +2096,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    MOV32w(x4, 1);
-                    EORxw_REG_LSL(ed, ed, x4, u8);
+                    mask = convert_bitmask_xw(1LL<<u8);
+                    EORxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();

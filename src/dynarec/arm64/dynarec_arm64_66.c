@@ -154,9 +154,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("ADC AX, Iw");
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i16 = F16;
+            u16 = F16;
             UXTHw(x1, xRAX);
-            MOV32w(x2, i16);
+            MOV32w(x2, u16);
             emit_adc16(dyn, ninst, x1, x2, x3, x4);
             BFIz(xRAX, x1, 0, 16);
             break;
@@ -500,7 +500,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    MOVZw(x5, i16);
+                    MOVZw(x5, (uint16_t)i16);
                     emit_adc16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
@@ -510,7 +510,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, (opcode==0x81)?2:1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    MOVZw(x5, i16);
+                    MOVZw(x5, (uint16_t)i16);
                     emit_sbb16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
@@ -705,8 +705,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x99:
             INST_NAME("CWD");
-            SXTHw(x1, xRAX);
-            BFXILx(xRDX, x1, 16, 16);
+            SXTHw(x1, xRAX);    // sign extend ax to x1
+            BFXILx(xRDX, x1, 16, 16);   // insert high 16bits of x1 as low DX
             break;
         case 0x9C:
             INST_NAME("PUSHF");
