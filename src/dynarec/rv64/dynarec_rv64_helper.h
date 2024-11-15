@@ -561,6 +561,14 @@
         VFMV_S_F(a, a);                                                                        \
     }
 
+// Put Back EM if it was a memory and not an mm register; requires SEW64
+#define PUTEM_vector(a)                                     \
+    if (!MODREG) {                                          \
+        VFMV_F_S(a, a);                                     \
+        FSD(a, ed, fixedaddress);                           \
+        SMWRITE2();                                         \
+    }
+
 #define GETGX_empty_vector(a)                   \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     a = sse_get_reg_empty_vector(dyn, ninst, x1, gd)

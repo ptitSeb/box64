@@ -542,6 +542,26 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
             break;
+        case 0x64 ... 0x66:
+            if (opcode == 0x64) {
+                INST_NAME("PCMPGTB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0x65) {
+                INST_NAME("PCMPGTW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PCMPGTD Gm, Em");
+                u8 = VECTOR_SEW32;
+            }
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VMSLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
+            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
+            break;
         case 0x67:
             INST_NAME("PACKUSWB Gm, Em");
             nextop = F8;
@@ -629,6 +649,19 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VNCLIP_WI(v0, d0, 0, VECTOR_UNMASKED);
             break;
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            GETGM_vector(v0);
+            GETED(0);
+            if (rex.w) {
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW64, 1);
+            } else {
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
+            }
+            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VMV_S_X(v0, ed);
+            break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
             nextop = F8;
@@ -644,6 +677,62 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x4, ed, fixedaddress);
                 VMV_S_X(v0, x4);
             }
+            break;
+        case 0x73:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLQ Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETEM_vector(q0, 0);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        } else {
+                            MOV64x(x4, u8);
+                            VSRL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        }
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETEM_vector(q0, 0);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        } else {
+                            MOV64x(x4, u8);
+                            VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        }
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                default: DEFAULT_VECTOR;
+            }
+            break;
+        case 0x74 ... 0x76:
+            if (opcode == 0x74) {
+                INST_NAME("PCMPEQB Gm, Em");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0x75) {
+                INST_NAME("PCMPEQW Gm, Em");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PCMPEQD Gm, Em");
+                u8 = VECTOR_SEW32;
+            }
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            VMSEQ_VV(VMASK, q1, q0, VECTOR_UNMASKED);
+            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
             break;
         case 0x7F:
             INST_NAME("MOVQ Em, Gm");
@@ -834,6 +923,28 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(v1, 0);
             VXOR_VI(v0, v0, 0x1F, VECTOR_UNMASKED);
             VAND_VV(v0, v0, v1, VECTOR_UNMASKED);
+            break;
+        case 0xE1:
+        case 0xE2:
+            if (opcode == 0xE1) {
+                INST_NAME("PSRAW Gm, Em");
+                u8 = VECTOR_SEW16;
+                i32 = 16;
+            } else {
+                INST_NAME("PSRAD Gm, Em");
+                u8 = VECTOR_SEW32;
+                i32 = 32;
+            }
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            MOV32w(x5, i32 - 1);
+            q0 = fpu_get_scratch(dyn);
+            VMINU_VX(q0, v1, x5, VECTOR_UNMASKED);
+            VMV_X_S(x4, q0);
+            VSRA_VX(v0, v0, x4, VECTOR_UNMASKED);
             break;
         case 0xE5:
             INST_NAME("PMULHW Gm, Em");
