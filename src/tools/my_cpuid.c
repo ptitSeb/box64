@@ -248,12 +248,17 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }*/
             R_EDX =   1         // fpu 
                     | 1<<2      // debugging extension
+                    | 1<<3      // pse
                     | 1<<4      // rdtsc
                     | 1<<5      // msr
+                    | 1<<6      // pae
                     | 1<<8      // cmpxchg8
                     | 1<<11     // sep (sysenter & sysexit)
+                    | 1<<12     // mtrr
                     | 1<<15     // cmov
+                    | 1<<16     // pat
                     | 1<<19     // clflush (seems to be with SSE2)
+                    | 1<<21     // DS, used with VMX, is that usefull?
                     | 1<<23     // mmx
                     | 1<<24     // fxsr (fxsave, fxrestore)
                     | 1<<25     // SSE
@@ -262,6 +267,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     ;
             R_ECX =   1<<0      // SSE3
                     | 1<<1      // PCLMULQDQ
+                    | 1<<5      // VMX  //is that usefull
                     | 1<<9      // SSSE3
                     | box64_avx2<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
@@ -437,6 +443,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 | (1<<8)    // cx8: cmpxchg8b opcode
                 | (1<<11)   // syscall
                 | (1<<15)   // cmov: FCMOV opcodes
+                | (1<<20)   // NX
                 | (1<<23)   // mmx: MMX available
                 | (1<<24)   // fxsave
                 | (1<<27)   // rdtscp
