@@ -1714,7 +1714,7 @@ GO(ERR_peek_error_line_data, LFpppp)
 GO(ERR_peek_last_error, LFv)
 GO(ERR_peek_last_error_line, LFpp)
 GO(ERR_peek_last_error_line_data, LFpppp)
-//GO(ERR_pop_to_mark, 
+GO(ERR_pop_to_mark, iFp)
 //GO(ERR_print_errors, 
 //GO(ERR_print_errors_cb, 
 //GO(ERR_print_errors_fp, 
@@ -1728,7 +1728,7 @@ GOM(ERR_set_error, vFEiipV)
 GOM(ERR_vset_error, vFEiipA)
 //GO(ERR_set_error_data, 
 //GO(ERR_set_implementation, 
-//GO(ERR_set_mark, 
+GO(ERR_set_mark, iFp)
 //GO(ERR_unload_strings, 
 //GO(ESS_CERT_ID_dup, 
 //GO(ESS_CERT_ID_free, 
