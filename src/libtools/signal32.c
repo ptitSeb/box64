@@ -564,6 +564,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
+    uint32_t mmapped = getMmapped((uintptr_t)info->si_addr);
     uint32_t real_prot = 0;
     if(prot&PROT_READ) real_prot|=PROT_READ;
     if(prot&PROT_WRITE) real_prot|=PROT_WRITE;
@@ -582,12 +583,12 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
                 info2->si_errno = 0;
             } else if (info->si_errno==0xecec) {
                 // no excute bit on segment
-                sigcontext->uc_mcontext.gregs[I386_ERR] = (real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 16;//(real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
                 info2->si_errno = 0;
             }else {
-                sigcontext->uc_mcontext.gregs[I386_ERR] = (real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
-                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (getMmapped((uintptr_t)info->si_addr))?14:13;
+                sigcontext->uc_mcontext.gregs[I386_ERR] = mmapped?16:1;//(real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (mmapped)?14:13;
                 //sigcontext->uc_mcontext.gregs[I386_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
             }
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
@@ -642,7 +643,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
         sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
     }
     //TODO: SIGABRT generate what?
-    printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]));
+    printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p, prot:%x, mmaped:%d\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]), prot, mmapped);
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu

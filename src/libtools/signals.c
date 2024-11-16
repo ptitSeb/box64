@@ -1164,11 +1164,11 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
                 info2->si_errno = 0;
             } else if (info->si_errno==0xecec) {
                 // no excute bit on segment
-                sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 16;//(real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
                 info2->si_errno = 0;
             }else {
-                sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
+                sigcontext->uc_mcontext.gregs[X64_ERR] = mmapped?16:1;//(real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
                 //sigcontext->uc_mcontext.gregs[X64_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
             }
