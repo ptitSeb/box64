@@ -1639,8 +1639,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
-                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
+                ADDz_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
@@ -1712,8 +1713,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
-                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
+                ADDz_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1951,8 +1953,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
-                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
+                ADDz_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -2119,8 +2122,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                ASRx(x1, gd, 5+rex.w); // r1 = (gd>>5)
-                ADDx_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
+                ASRxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
+                if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
+                ADDz_REG_LSL(x3, wback, x1, 2+rex.w); //(&ed)+=r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
