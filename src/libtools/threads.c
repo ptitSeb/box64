@@ -475,7 +475,7 @@ EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_att
 		}
 		void* stack = emu->init_stack;
 		size_t sz = emu->size_stack;
-printf_log(LOG_INFO, "pthread_getattr_np called for self, stack=%p, sz=%lx\n", stack, sz);
+//printf_log(LOG_INFO, "pthread_getattr_np called for self, stack=%p, sz=%lx\n", stack, sz);
 		if (!sz) {
 			// get default stack size
 			pthread_attr_t attr;
