@@ -121,7 +121,6 @@
 #() iFbp_ -> iFB
 #() iFBp_ -> iFB
 #() LErl_ -> LEB
-#() pErl_ -> pEB
 #() lFrll_ -> lFB
 #() iEBllll_ -> iEB
 #() vFbuuipWCCp_ -> vFB
@@ -344,6 +343,7 @@
 #() dEpBp_ -> dEpB
 #() LFpbp_ -> LFpB
 #() LFpbL_ -> LFpB
+#() pEErl_ -> pEEB
 #() pErl_p -> pEBp
 #() vFBll_l -> vFBl
 #() iEuBLL_ -> iEuB
@@ -1757,6 +1757,8 @@ wrappedlibc:
   - getmntent
 - iEbp_:
   - getifaddrs
+- pErl_:
+  - ctime
 - pEriiiiiiiiilt_:
   - asctime
 - vEip:

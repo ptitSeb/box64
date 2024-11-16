@@ -628,6 +628,8 @@ static void del_attr(void* attr)
 
 EXPORT int my32_pthread_attr_init(x64emu_t* emu, void* attr)
 {
+	my32_x86_attr_t* my32_attr = (my32_x86_attr_t*)attr;
+	my32_attr->sign = 0;	//force init
 	return pthread_attr_init(get_attr(attr));
 }
 

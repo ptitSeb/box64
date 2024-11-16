@@ -34,6 +34,7 @@ typedef void* (*pFp_t)(void*);
 typedef void* (*pEp_t)(void*);
 typedef void* (*pES_t)(void*);
 typedef int32_t (*iEbp__t)(struct_p_t*);
+typedef void* (*pErl__t)(struct_l_t*);
 typedef void* (*pEriiiiiiiiilt__t)(struct_iiiiiiiiilt_t*);
 typedef void (*vEip_t)(int32_t, void*);
 typedef void (*vEpi_t)(void*, int32_t);
@@ -145,6 +146,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(localtime, pEp_t) \
 	GO(getmntent, pES_t) \
 	GO(getifaddrs, iEbp__t) \
+	GO(ctime, pErl__t) \
 	GO(asctime, pEriiiiiiiiilt__t) \
 	GO(futimens, iEip_t) \
 	GO(futimes, iEip_t) \

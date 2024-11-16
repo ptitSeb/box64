@@ -331,7 +331,7 @@ static void* findgloberrFct(void* fct)
 static uintptr_t my32_filter_dir_fct_##A = 0;                       \
 static int my32_filter_dir_##A(const struct dirent64* a)            \
 {                                                                   \
-    struct i386_dirent d = {0};                                     \
+    static struct i386_dirent d = {0};                              \
     UnalignDirent_32(a, &d);                                        \
     return (int)RunFunctionFmt(my32_filter_dir_fct_##A, "p", &d);   \
 }
@@ -356,7 +356,7 @@ static void* findfilter_dirFct(void* fct)
 static uintptr_t my32_compare_dir_fct_##A = 0;                                      \
 static int my32_compare_dir_##A(const struct dirent* a, const struct dirent* b)     \
 {                                                                                   \
-    struct i386_dirent d1, d2;                                                      \
+    static struct i386_dirent d1, d2;                                               \
     UnalignDirent_32(a, &d1);                                                       \
     UnalignDirent_32(a, &d2);                                                       \
     return (int)RunFunctionFmt(my32_compare_dir_fct_##A, "pp", &d1, &d2);           \
@@ -2065,6 +2065,14 @@ EXPORT void* my32_asctime(void* t)
 {
     static char ret[200];
     char* r = asctime(t);
+    if(!r) return NULL;
+    strncpy(ret, r, sizeof(ret)-1);
+    return &ret;
+}
+EXPORT void* my32_ctime(void* t)
+{
+    static char ret[200];
+    char* r = ctime(t);
     if(!r) return NULL;
     strncpy(ret, r, sizeof(ret)-1);
     return &ret;
