@@ -59,7 +59,7 @@ void rbtree_delete(rbtree_t *tree) {
 
 // Make sure prev is either the rightmost node before start or the leftmost range after start
 static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uintptr_t end, uint32_t data) {
-// printf("Adding %lX-%lX:%hhX next to %p\n", start, end, data, prev);
+// printf("Adding %lx-%lx:%hhx next to %p\n", start, end, data, prev);
     rbnode *node = rbtreeMalloc(sizeof(*node));
     if (!node) return -1;
     node->start = start;
@@ -590,8 +590,8 @@ int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
 }
 
 int rb_set(rbtree_t *tree, uintptr_t start, uintptr_t end, uint32_t data) {
-// printf("rb_set( "); rbtree_print(tree); printf(" , 0x%lX, 0x%lX, %hhu);\n", start, end, data); fflush(stdout);
-dynarec_log(LOG_DEBUG, "set %s: 0x%lX, 0x%lX, 0x%x\n", tree->name, start, end, data);
+// printf("rb_set( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx, %hhu);\n", start, end, data); fflush(stdout);
+dynarec_log(LOG_DEBUG, "set %s: 0x%lx, 0x%lx, 0x%x\n", tree->name, start, end, data);
     if (!tree->root) {
         return add_range(tree, start, end, data);
     }
@@ -723,8 +723,8 @@ dynarec_log(LOG_DEBUG, "set %s: 0x%lX, 0x%lX, 0x%x\n", tree->name, start, end, d
 }
 
 int rb_unset(rbtree_t *tree, uintptr_t start, uintptr_t end) {
-// printf("rb_unset( "); rbtree_print(tree); printf(" , 0x%lX, 0x%lX);\n", start, end); fflush(stdout);
-dynarec_log(LOG_DEBUG, "unset: %s 0x%lX, 0x%lX);\n", tree->name, start, end);
+// printf("rb_unset( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx);\n", start, end); fflush(stdout);
+dynarec_log(LOG_DEBUG, "unset: %s 0x%lx, 0x%lx);\n", tree->name, start, end);
     if (!tree->root) return 0;
 
     rbnode *node = tree->root, *prev = NULL, *next = NULL;
@@ -825,7 +825,7 @@ static void print_rbnode(const rbnode *node, unsigned depth, uintptr_t minstart,
     } else {
         print_rbnode(node->left, depth + ((node->meta & IS_BLACK) ? 1 : 0), minstart, node->start, bdepth);
     }
-    printf(", (%c/%p) %lX-%lX: %hhu, ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
+    printf(", (%c/%p) %lx-%lx: %hhu, ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
     if (node->right && (node->right->meta & IS_LEFT)) {
         printf("<invalid meta>");
     } else if (node->right && (node->right->parent != node)) {
