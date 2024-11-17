@@ -1035,7 +1035,7 @@ EXPORT int my___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* 
 
 EXPORT int my___isoc99_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 {
-  myStackAlignScanf(emu, (const char*)fmt, b, emu->scratch, 2);
+  myStackAlignScanfW(emu, (const char*)fmt, b, emu->scratch, 2);
   PREPARE_VALIST;
 
   return vswscanf(stream, fmt, VARARGS);
