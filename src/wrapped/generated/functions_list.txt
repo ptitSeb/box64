@@ -3565,6 +3565,8 @@ wrappedexpat:
   - XML_SetUnparsedEntityDeclHandler
   - XML_SetXmlDeclHandler
 - vFppp:
+  - XML_SetCdataSectionHandler
+  - XML_SetDoctypeDeclHandler
   - XML_SetElementHandler
   - XML_SetNamespaceDeclHandler
   - XML_SetUnknownEncodingHandler

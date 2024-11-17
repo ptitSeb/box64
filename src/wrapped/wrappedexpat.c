@@ -688,4 +688,14 @@ EXPORT void my_XML_SetSkippedEntityHandler(x64emu_t* emu, void* p, void* f)
     my->XML_SetSkippedEntityHandler(p, find_SkippedEntity_Fct(f));
 }
 
+EXPORT void my_XML_SetCdataSectionHandler(x64emu_t* emu, void* p, void* s, void* e)
+{
+    my->XML_SetCdataSectionHandler(p, find_StartCdataSection_Fct(s), find_EndCdataSection_Fct(e));
+}
+
+EXPORT void my_XML_SetDoctypeDeclHandler(x64emu_t* emu, void* p, void* s, void* e)
+{
+    my->XML_SetDoctypeDeclHandler(p, find_StartDoctypeDecl_Fct(s), find_EndDoctypeDecl_Fct(e));
+}
+
 #include "wrappedlib_init.h"

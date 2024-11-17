@@ -37,6 +37,8 @@ typedef void (*vFppp_t)(void*, void*, void*);
 	GO(XML_SetStartNamespaceDeclHandler, vFpp_t) \
 	GO(XML_SetUnparsedEntityDeclHandler, vFpp_t) \
 	GO(XML_SetXmlDeclHandler, vFpp_t) \
+	GO(XML_SetCdataSectionHandler, vFppp_t) \
+	GO(XML_SetDoctypeDeclHandler, vFppp_t) \
 	GO(XML_SetElementHandler, vFppp_t) \
 	GO(XML_SetNamespaceDeclHandler, vFppp_t) \
 	GO(XML_SetUnknownEncodingHandler, vFppp_t)
