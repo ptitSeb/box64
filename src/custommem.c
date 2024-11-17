@@ -1008,7 +1008,15 @@ static uintptr_t getDBSize(uintptr_t addr, size_t maxsize, dynablock_t** db)
 void addDBFromAddressRange(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    // do nothing, dynablock are allowed based on memory protection flags
+    // mark existing blocks as unclean, to be sure...
+    uintptr_t start_addr = my_context?((addr<my_context->max_db_size)?0:(addr-my_context->max_db_size)):addr;
+    dynablock_t* db = NULL;
+    uintptr_t end = addr+size;
+    while (start_addr<end) {
+        start_addr = getDBSize(start_addr, end-start_addr, &db);
+        if(db)
+            MarkRangeDynablock(db, addr, size);
+    }
 }
 
 void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
@@ -1514,7 +1522,8 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(!(dyn&PROT_NEVERPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
-                mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                int ret = mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                dynarec_log(LOG_DEBUG, " mprotect %p:%p 0x%hhx => %d\n", (void*)cur, (void*)(bend-1), prot&~PROT_WRITE, ret);
             } else if(dyn && !(prot&PROT_WRITE)) {
                 dyn = PROT_DYNAREC_R;
             }
