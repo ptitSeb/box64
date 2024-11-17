@@ -271,6 +271,8 @@ GO("libsqlite3.so.0", libsqlite3)
 GO("libtiff.so.5", libtiff5)
 GO("libbrotlidec.so", brotlidec)
 GO("libbrotlidec.so.1", brotlidec)
+GO("libzstd.so.1", zstd)
+GO("libzstd.so", zstd)
 
 GO("libc.so", libc)
 GO("libm.so", libm)

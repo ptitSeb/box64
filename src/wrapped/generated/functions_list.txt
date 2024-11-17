@@ -114,6 +114,7 @@
 #() pFb
 #() SFv
 #() HFi
+#() HFu
 #() HFp
 #() HFH
 #() xFx
@@ -271,6 +272,7 @@
 #() UFUp
 #() UFpi
 #() UFpU
+#() UFpL
 #() UFpp
 #() fFEf
 #() fFEp
@@ -319,6 +321,7 @@
 #() LFLp
 #() LFpi
 #() LFpu
+#() LFpU
 #() LFpL
 #() LFpp
 #() pFEi
@@ -708,6 +711,7 @@
 #() LFpip
 #() LFpCi
 #() LFpWp
+#() LFpui
 #() LFpuL
 #() LFpup
 #() LFpLi
@@ -1274,6 +1278,7 @@
 #() LFppLL
 #() LFppLp
 #() LFpppi
+#() LFpppu
 #() LFpppL
 #() LFpppp
 #() pFEipp
@@ -1819,6 +1824,7 @@
 #() LFpLuuu
 #() LFpLLLp
 #() LFpLpuu
+#() LFpLpLi
 #() LFpLpLp
 #() LFpLppL
 #() LFpLppp
@@ -2306,7 +2312,9 @@
 #() LFpLippp
 #() LFpLLLLL
 #() LFppLLpL
+#() LFppLpLi
 #() LFppLpLL
+#() LFppLpLp
 #() LFSpLiip
 #() pFELpppV
 #() pFELpApp
@@ -2636,6 +2644,7 @@
 #() LFpLLuupp
 #() LFpLLppuu
 #() LFpLppuuu
+#() LFppLpLpL
 #() pFEpupppp
 #() pFEpLiiiI
 #() pFEpLiiil
@@ -2872,6 +2881,7 @@
 #() LFELpupupu
 #() LFEpuuuppp
 #() LFpLpuuLLu
+#() LFppLpLpLi
 #() pFEiplllpp
 #() pFEipLLLpp
 #() pFEpiuCppp
@@ -6111,3 +6121,4 @@ wrappedxslt:
   - xsltSetSecurityPrefs
 - iFpppp:
   - xsltRegisterExtFunction
+wrappedzstd:
