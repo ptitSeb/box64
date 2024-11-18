@@ -399,7 +399,7 @@ f28–31  ft8–11  FP temporaries                  Caller
     } while (0)
 
 #define FENCE_gen(pred, succ) (((pred) << 24) | ((succ) << 20) | 0b0001111)
-#define FENCE()               EMIT(FENCE_gen(3, 3))
+#define FENCE_RW_RW()         EMIT(FENCE_gen(3, 3))
 
 #define FENCE_I_gen() ((0b001 << 12) | 0b0001111)
 #define FENCE_I()     EMIT(FENCE_I_gen())

@@ -122,6 +122,9 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm0_out;   // the ymm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     int                 barrier_maybe;
+    uint8_t             will_write;
+    uint8_t             last_write;
+    uint8_t             lock;
     uint8_t             df_notneeded;
     flagcache_t         f_exit;     // flags status at end of instruction
     extcache_t          e;          // extcache at end of instruction (but before poping)

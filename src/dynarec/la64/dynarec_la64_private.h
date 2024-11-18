@@ -91,6 +91,7 @@ typedef struct instruction_la64_s {
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;
+    uint8_t             lock;
     uint8_t             df_notneeded;
     flagcache_t         f_exit;     // flags status at end of instruction
     lsxcache_t          lsx;        // lsxcache at end of instruction (but before poping)
