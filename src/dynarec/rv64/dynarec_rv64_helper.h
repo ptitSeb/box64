@@ -42,9 +42,8 @@
 // Opcode will read
 #define SMREAD() if((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN))) {SMDMB();}
-// Opcode might read (depend on nextop)
-#define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
+#define SMREADLOCK(lock) \
+    if ((lock) || ((dyn->smread == 0) && (box64_dynarec_strongmem > SMREAD_MIN))) { SMDMB(); }
 // Opcode has wrote
 #define SMWRITE()   dyn->smwrite=1
 // Opcode has wrote (strongmem>1 only)

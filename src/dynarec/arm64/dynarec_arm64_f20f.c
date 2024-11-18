@@ -71,7 +71,6 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 d0 = sse_get_reg(dyn, ninst, x1, ed, 1);
                 VMOVeD(d0, 0, v0, 0);
             } else {
-                WILLWRITE2();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                 VST64(v0, ed, fixedaddress);
                 SMWRITE2();

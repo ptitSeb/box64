@@ -116,6 +116,15 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             GOTEST(x1, x2);
         }
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
+        #if STEP > 1
+        #ifdef ARM64 // TODO: generalize to other archs
+        if (dyn->insts[ninst].lock) {
+            WILLWRITELOCK(dyn->insts[ninst].lock);
+        } else if (dyn->insts[ninst].will_write) {
+            WILLWRITE();
+        }
+        #endif
+        #endif
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }

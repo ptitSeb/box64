@@ -558,7 +558,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), 1);
             } else {
-                WILLWRITE2();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
                 unscaled = 0;
                 v1 = fpu_get_scratch(dyn, ninst);
@@ -603,7 +602,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), 1);
             } else {
-                WILLWRITE2();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
                 unscaled = 0;
                 v1 = fpu_get_scratch(dyn, ninst);

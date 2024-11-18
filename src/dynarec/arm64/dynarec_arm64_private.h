@@ -108,6 +108,7 @@ typedef struct instruction_arm64_s {
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;
+    uint8_t             lock;
     uint8_t             set_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags_before;  // 0 or combinaison of native flags define

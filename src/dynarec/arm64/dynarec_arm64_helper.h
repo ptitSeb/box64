@@ -36,64 +36,176 @@
 #define FEMIT(A)    EMIT(A)
 #endif
 
-// Strong mem emulation helpers
-#define SMREAD_VAL  4
-#define SMWRITE2_MIN 1
-#define SMFIRST_MIN 1
-#define SMSEQ_MIN 2
-#define SMSEQ_MAX 3
+/* Box64 Strong Memory Model Emulation
+ *
+ * Definition of a SEQ:
+ * A SEQ is a sequence of opcodes that writes to guest memory, terminated by JMP, RET, CALL, etc.
+ *
+ * Memory barriers are added in the following cases to emulate the strong memory model:
+ * 1. End of a SEQ:
+ *    - Scalar operations (a1)
+ *    - SIMD operations (a2)
+ * 2. Start of a SEQ:
+ *    - Scalar operations (b1)
+ *    - SIMD operations (b2)
+ * 3. Right before the last guest memory store in a SEQ:
+ *    - Scalar operations (c1)
+ *    - SIMD operations (c2)
+ * 4. After every third guest memory store in a SEQ (d)
+ *
+ * STRONGMEM levels:
+ * LEVEL1: Includes a1, b1
+ * LEVEL2: Includes LEVEL1, plus a2, b2, c1, c2
+ * LEVEL3: Includes LEVEL2, plus d
+ */
+
+#define STRONGMEM_SIMD_WRITE 2 // The level of SIMD memory writes will be tracked
+#define STRONGMEM_LAST_WRITE 2 // The level of a barrier before the last guest memory store will be put
+#define STRONGMEM_SEQ_WRITE  3 // The level of a barrier at every third memory store will be  put
+
 #if STEP == 1
-// pass 1 has the jump point available
-#define SMWRITE()   dyn->insts[ninst].will_write = 1; dyn->smwrite = 1
+
+#define SMWRITE()                                                \
+    do {                                                         \
+        /* Mark that current sequence writes to guest memory. */ \
+        /* This will be used in SMEND for last_write. */         \
+        dyn->smwrite = 1;                                        \
+        /* Mark that current opcode writes to guest memory. */   \
+        dyn->insts[ninst].will_write = 1;                        \
+    } while (0)
+
+#define SMWRITELOCK(lock)              \
+    do {                               \
+        dyn->insts[ninst].lock = lock; \
+        SMWRITE();                     \
+    } while (0)
+
+#define SMWRITE2()                                             \
+    do {                                                       \
+        if (box64_dynarec_strongmem >= STRONGMEM_SIMD_WRITE) { \
+            dyn->smwrite = 1;                                  \
+            dyn->insts[ninst].will_write = 2;                  \
+        }                                                      \
+    } while (0)
+
 #define SMREAD()
 #define SMREADLOCK(lock)
-#define SMMIGHTREAD()
-#define WILLWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {WILLWRITE();}
-#define SMWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {SMWRITE();}
-#define SMWRITELOCK(lock)   SMWRITE()
-#define WILLWRITELOCK(lock)
 #define WILLWRITE()
-#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
-#define SMSTART() dyn->smwrite = 0; dyn->smread = 0;
-#define SMEND() if(dyn->smwrite && (box64_dynarec_strongmem>SMFIRST_MIN)) {int i = ninst; while(i>=0 && !dyn->insts[i].will_write) --i; if(i>=0) {dyn->insts[i].last_write = 1;}} dyn->smwrite = 0
-#define SMDMB()
-#else
-// Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
-// Block will trigget at 1st and last if strongmem is >= SMFIRST_MIN
-// Read will contribute to trigger a DMB on "first" read if strongmem is >= SMREAD_MIN
-// Opcode will read
-#define SMREAD()    if(dyn->insts[ninst].will_write) {WILLWRITE();} else if(box64_dynarec_strongmem==SMREAD_VAL && !dyn->smread) {DSB_SY(); dyn->smread = 1;}
-// Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if((lock)) {SMWRITELOCK(lock);} else {SMREAD();}
-// Opcode might read (depend on nextop)
-#define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
-// Opcode has wrote
-#define SMWRITE()   if((box64_dynarec_strongmem>=SMFIRST_MIN) && dyn->smwrite==0 && (box64_dynarec_strongmem!=SMREAD_VAL)) {SMDMB();} if(box64_dynarec_strongmem>SMSEQ_MIN && (box64_dynarec_strongmem!=SMREAD_VAL)) {if(++dyn->smwrite>=SMSEQ_MAX) {SMDMB(); dyn->smwrite=1;}} else dyn->smwrite=1
-// Opcode has wrote (strongmem>1 only)
-#define WILLWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {WILLWRITE();}
-#define SMWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {SMWRITE();}
-// Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock)   if(lock) {SMDMB(); dyn->smwrite=1;} else {SMWRITE();}
-// Opcode has wrote with option forced lock
-#define WILLWRITELOCK(lock)   if(lock) {DMB_ISH();} else {WILLWRITE();}
-// Opcode might have wrote (depend on nextop)
-#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
-// Opcode will write (without reading)
-#define WILLWRITE() if((box64_dynarec_strongmem>=SMFIRST_MIN) && dyn->smwrite==0 && (box64_dynarec_strongmem!=SMREAD_VAL)) {SMDMB();} else if(box64_dynarec_strongmem>=SMFIRST_MIN && dyn->insts[ninst].last_write && (box64_dynarec_strongmem!=SMREAD_VAL)) {SMDMB();} dyn->smwrite=1
-// Start of sequence
-#define SMSTART()   SMEND()
-// End of sequence
-#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem && (box64_dynarec_strongmem!=SMREAD_VAL)) {DMB_ISH();} dyn->smwrite=0; dyn->smread=0
-// Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()                                                  \
-    if (box64_dynarec_strongmem && !box64_dynarec_weakbarrier) { \
-        DSB_ISH();                                               \
-    } else {                                                     \
-        DMB_ISH();                                               \
-    }                                                            \
-    dyn->smwrite = 0;                                            \
-    dyn->smread = 0
+#define WILLWRITELOCK(lock)
 
+#define SMSTART()                                                  \
+    do {                                                           \
+        /* Clear current state at the start of a potential SEQ. */ \
+        dyn->smwrite = 0;                                          \
+    } while (0)
+
+#define SMEND()                                                                                \
+    do {                                                                                       \
+        /* If there is any guest memory write, which is a SEQ, then compute the last_write. */ \
+        if (dyn->smwrite && (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE)) {               \
+            int i = ninst;                                                                     \
+            while (i >= 0 && !dyn->insts[i].will_write)                                        \
+                --i;                                                                           \
+            if (i >= 0) { dyn->insts[i].last_write = 1; }                                      \
+        }                                                                                      \
+        dyn->smwrite = 0;                                                                      \
+    } while (0)
+
+#define SMDMB()
+
+#else
+
+// An opcode writes guest memory, this need to be put after the STORE instruction manually.
+#define SMWRITE()                                                     \
+    do {                                                              \
+        /* Put a barrier at every third memory write. */              \
+        if (box64_dynarec_strongmem >= STRONGMEM_SEQ_WRITE) {         \
+            if (++dyn->smwrite >= 3 /* Every third memory write */) { \
+                DMB_ISH();                                            \
+                dyn->smwrite = 1;                                     \
+            }                                                         \
+        } else {                                                      \
+            /* Mark that current sequence writes to guest memory. */  \
+            dyn->smwrite = 1;                                         \
+        }                                                             \
+    } while (0)
+
+// Similar to SMWRITE, but checks lock.
+#define SMWRITELOCK(lock) \
+    do {                  \
+        if (lock) {       \
+            DMB_ISH();    \
+        } else {          \
+            SMWRITE();    \
+        }                 \
+    } while (0)
+
+// Similar to SMWRITE, but for SIMD instructions.
+#define SMWRITE2()                                           \
+    do {                                                     \
+        if (box64_dynarec_strongmem >= STRONGMEM_SIMD_WRITE) \
+            SMWRITE();                                       \
+    } while (0)
+
+// An opcode reads guest memory, this need to be put before the LOAD instruction manually.
+#define SMREAD()
+
+// Similar to SMREAD, but checks lock.
+#define SMREADLOCK(lock) \
+    do {                 \
+        if (lock) {      \
+            DMB_ISH();   \
+        } else {         \
+            SMREAD();    \
+        }                \
+    } while (0)
+
+// An opcode will write memory, this will be put before the STORE instruction automatically.
+#define WILLWRITE()                                                                                   \
+    do {                                                                                              \
+        if (box64_dynarec_strongmem >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {           \
+            /* Will write but never written, this is the start of a SEQ, put a barrier. */            \
+            DMB_ISH();                                                                                \
+        } else if (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE && dyn->insts[ninst].last_write) { \
+            /* Last write, put a barrier */                                                           \
+            DMB_ISH();                                                                                \
+        }                                                                                             \
+    } while (0)
+
+// Similar to WILLWRITE, but checks lock.
+#define WILLWRITELOCK(lock) \
+    do {                    \
+        if (lock) {         \
+            DMB_ISH();      \
+        } else {            \
+            WILLWRITE();    \
+        }                   \
+    } while (0)
+
+// Used to clear the state at the start of a SEQ
+#define SMSTART()         \
+    do {                  \
+        dyn->smwrite = 0; \
+    } while (0)
+
+// Will be put at the end of the SEQ
+#define SMEND()                                             \
+    do {                                                    \
+        if (box64_dynarec_strongmem) {                      \
+            /* Check if there is any guest memory write. */ \
+            int i = ninst;                                  \
+            while (i >= 0 && !dyn->insts[i].will_write)     \
+                --i;                                        \
+            if (i >= 0) {                                   \
+                /* It's a SEQ, put a barrier here. */       \
+                DMB_ISH();                                  \
+            }                                               \
+        }                                                   \
+        dyn->smwrite = 0;                                   \
+    } while (0)
+
+// The barrier.
+#define SMDMB() DMB_ISH()
 #endif
 
 //LOCK_* define
@@ -619,36 +731,35 @@
     vy = ymm_get_reg_empty(dyn, ninst, x1, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
 
 // Get EX as a quad, (x3 is used)
-#define GETEX_Y(a, w, D)                                                                                \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
-        unscaled = 0;                                                                                   \
-        a = fpu_get_scratch(dyn, ninst);                                                                \
-        VLDR128_U12(a, ed, fixedaddress);                                                               \
+#define GETEX_Y(a, w, D)                                                                                       \
+    if (MODREG) {                                                                                              \
+        a = sse_get_reg(dyn, ninst, x3, (nextop & 7) + (rex.b << 3), w);                                       \
+    } else {                                                                                                   \
+        SMREAD();                                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe << 4, 15, rex, NULL, 0, D); \
+        unscaled = 0;                                                                                          \
+        a = fpu_get_scratch(dyn, ninst);                                                                       \
+        VLDR128_U12(a, ed, fixedaddress);                                                                      \
     }
 // Get EX as a quad, (x3 is used)
 #define GETEX_empty_Y(a, D)                                                                             \
     if(MODREG) {                                                                                        \
         a = sse_get_reg_empty(dyn, ninst, x3, (nextop&7)+(rex.b<<3));                                   \
     } else {                                                                                            \
-        WILLWRITE2();                                                                                   \
         a = fpu_get_scratch(dyn, ninst);                                                                \
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
         unscaled = 0;                                                                                   \
     }
 
 // Get EX as a quad, (x1 is used)
-#define GETEX(a, w, D)                                                                                  \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, D);  \
-        a = fpu_get_scratch(dyn, ninst);                                                                \
-        VLD128(a, ed, fixedaddress);                                                                    \
+#define GETEX(a, w, D)                                                                                              \
+    if (MODREG) {                                                                                                   \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                                            \
+    } else {                                                                                                        \
+        SMREAD();                                                                                                   \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff << 4, 15, rex, NULL, 0, D); \
+        a = fpu_get_scratch(dyn, ninst);                                                                            \
+        VLD128(a, ed, fixedaddress);                                                                                \
     }
 
 // Put Back EX if it was a memory and not an emm register
@@ -660,42 +771,42 @@
 
 
 // Get Ex as a double, not a quad (warning, x1 get used)
-#define GETEXSD(a, w, D)                                                                                \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
-        a = fpu_get_scratch(dyn, ninst);                                                                \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D);   \
-        VLD64(a, ed, fixedaddress);                                                                     \
+#define GETEXSD(a, w, D)                                                                                           \
+    if (MODREG) {                                                                                                  \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                                           \
+    } else {                                                                                                       \
+        SMREAD();                                                                                                  \
+        a = fpu_get_scratch(dyn, ninst);                                                                           \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff << 3, 7, rex, NULL, 0, D); \
+        VLD64(a, ed, fixedaddress);                                                                                \
     }
 
 // Get Ex as 64bits, not a quad (warning, x1 get used)
 #define GETEX64(a, w, D)    GETEXSD(a, w, D)
 
 // Get Ex as a single, not a quad (warning, x1 get used)
-#define GETEXSS(a, w, D)                                                                                \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
-        a = fpu_get_scratch(dyn, ninst);                                                                \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D);   \
-        VLD32(a, ed, fixedaddress);                                                                     \
+#define GETEXSS(a, w, D)                                                                                           \
+    if (MODREG) {                                                                                                  \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                                           \
+    } else {                                                                                                       \
+        SMREAD();                                                                                                  \
+        a = fpu_get_scratch(dyn, ninst);                                                                           \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff << 2, 3, rex, NULL, 0, D); \
+        VLD32(a, ed, fixedaddress);                                                                                \
     }
 
 // Get Ex as 32bits, not a quad (warning, x1 get used)
 #define GETEX32(a, w, D)    GETEXSS(a, w, D)
 
 // Get Ex as 16bits, not a quad (warning, x1 get used)
-#define GETEX16(a, w, D)                                                                                \
-    if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
-    } else {                                                                                            \
-        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
-        a = fpu_get_scratch(dyn, ninst);                                                                \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, D);   \
-        VLD16(a, ed, fixedaddress);                                                                     \
+#define GETEX16(a, w, D)                                                                                           \
+    if (MODREG) {                                                                                                  \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                                           \
+    } else {                                                                                                       \
+        SMREAD();                                                                                                  \
+        a = fpu_get_scratch(dyn, ninst);                                                                           \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff << 1, 1, rex, NULL, 0, D); \
+        VLD16(a, ed, fixedaddress);                                                                                \
     }
 
 // Get GM, might use x1, x2 and x3
