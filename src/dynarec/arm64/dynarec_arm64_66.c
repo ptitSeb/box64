@@ -751,10 +751,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if (isLockAddress(u64))
-                lock = 1;
-            else
-                lock = 0;
+            lock = isLockAddress(u64);
             STRH_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
             break;
