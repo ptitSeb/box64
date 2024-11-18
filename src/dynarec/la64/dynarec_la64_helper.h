@@ -877,7 +877,11 @@
 #define TABLE64(A, V)
 #endif
 
-#define ARCH_INIT() dyn->smread = dyn->smwrite = 0;
+#define ARCH_INIT()                     \
+    do {                                \
+        dyn->smread = dyn->smwrite = 0; \
+    } while (0)
+
 #define ARCH_RESET()
 
 #if STEP < 2
