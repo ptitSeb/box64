@@ -11,8 +11,8 @@
 #define F64S    *(int64_t*)(addr+=8, addr-8)
 #define PK(a)   *(uint8_t*)(addr+a)
 #ifdef DYNAREC
-#define STEP  check_exec(emu, addr); if(step) return 0;
-#define STEP2 check_exec(emu, addr); if(step) {R_RIP = addr; return 0;}
+#define STEP  check_exec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) return 0;
+#define STEP2 check_exec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) {R_RIP = addr; return 0;}
 #define STEP3 check_exec(emu, addr); if(*step) (*step)++;
 #else
 #define STEP
@@ -110,6 +110,7 @@
 #define FAKEED32(D)         GetEd32O(emu, &addr, rex, nextop, D, 0)
 #define GETEA(D)            GetEA(emu, &addr, rex, nextop, D)
 #define GETEA32(D)          GetEA32(emu, &addr, rex, nextop, D)
+#define GETEA32_16(D)       GetEA32_16(emu, &addr, rex, nextop, D)
 #define _GETED(D)           oped=GetEd(emu, &addr, rex, nextop, D)
 #define _GETED_OFFS(D, O)   oped=GetEdO(emu, &addr, rex, nextop, D, O)
 #define _GETED32(D)         oped=GetEd32O(emu, &addr, rex, nextop, D, 0)

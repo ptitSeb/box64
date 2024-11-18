@@ -194,7 +194,7 @@ void native_int3(x64emu_t* emu)
 void native_div0(x64emu_t* emu)
 {
     emu->test.test = 0;
-    emit_div0(emu,  (void*)R_RIP, 0);
+    emit_div0(emu,  (void*)R_RIP, 1);
 }
 
 void native_fsave(x64emu_t* emu, uint8_t* ed)

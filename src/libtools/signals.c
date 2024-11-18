@@ -1161,14 +1161,16 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
                 //bad opcode
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
+                info2->si_code = 128;
                 info2->si_errno = 0;
+                info2->si_addr = NULL;
             } else if (info->si_errno==0xecec) {
                 // no excute bit on segment
-                sigcontext->uc_mcontext.gregs[X64_ERR] = 16;//(real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
+                sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
                 info2->si_errno = 0;
             }else {
-                sigcontext->uc_mcontext.gregs[X64_ERR] = mmapped?16:1;//(real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
+                sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
                 //sigcontext->uc_mcontext.gregs[X64_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
             }
@@ -1179,7 +1181,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 12; // stack overflow probably
             else
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
             //X64_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0001;    // read error?
         }
@@ -1191,7 +1193,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             // INT x
             uint8_t int_n = info->si_code;
             info2->si_errno = 0;
-            info2->si_code = info->si_code;
+            info2->si_code = 128;
             info2->si_addr = NULL;
             // some special cases...
             if(int_n==3) {
@@ -1205,9 +1207,11 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0x02|(int_n<<3);
             } else {
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0a|(int_n<<3);
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
             }
-        } else if(info->si_errno==0xcafe) {
+        } else if(info->si_errno==0xcafe) { // divide by 0
             info2->si_errno = 0;
+            sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 0;
             info2->si_signo = SIGFPE;
         }
@@ -1216,10 +1220,15 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 4;
         else
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
-    } else if(sig==SIGILL)
+    } else if(sig==SIGILL) {
+        info2->si_code = 2;
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
-    else if(sig==SIGTRAP) {
-        info2->si_code = 128;
+    } else if(sig==SIGTRAP) {
+        if(info->si_code==1) {  //single step
+            info2->si_code = 2;
+            info2->si_addr = (void*)sigcontext->uc_mcontext.gregs[X64_RIP];
+        } else
+            info2->si_code = 128;
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = info->si_code;
         sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
     }

@@ -1471,7 +1471,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV32w(x1, 0x202);
             ORRw_REG(xFlags, xFlags, x1);
             SET_DFNONE(x1);
-            if(box64_wine) {    // should this be done all the time?
+            if(box64_wine || 1) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
                 // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
                 jump_to_epilog(dyn, addr, 0, ninst);
@@ -2443,7 +2443,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-                GETIP(ip);  // priviledged instruction, IP not updated
+                if(rex.is32bits && u8==0x04) {
+                    GETIP(addr);
+                } else {
+                    GETIP(ip);  // priviledged instruction, IP not updated
+                }
                 STORE_XEMU_CALL(xRIP);
                 MOV32w(x1,u8);
                 CALL(native_int, -1);
@@ -2462,6 +2466,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 GETIP(addr);
                 TBZ_NEXT(wFlags, F_OF);
                 STORE_XEMU_CALL(xRIP);
+                MOV32w(x1,4);
                 CALL(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
             }

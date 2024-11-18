@@ -245,6 +245,8 @@ x64emurun:
             }
             emu->segs[_SS] = Pop32(emu);    // no check, no use....
             emu->segs_serial[_SS] = 0;
+            if(ACCESS_FLAG(F_TF))
+                tf_next = 1;
             break;
 
         case 0x1E:                      /* PUSH DS */
@@ -590,10 +592,8 @@ x64emurun:
 #ifndef TEST_INTERPRETER
             if(rex.is32bits && box64_ignoreint3)
             {
-                F8;
             } else {
-                F8;
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             }
             STEP;
             #endif
@@ -826,6 +826,8 @@ x64emurun:
             GETED(0);
             emu->segs[((nextop&0x38)>>3)] = ED->word[0];
             emu->segs_serial[((nextop&0x38)>>3)] = 0;
+            if(((nextop&0x38)>>3)==_SS && ACCESS_FLAG(F_TF))
+                tf_next = 1;
             break;
         case 0x8F:                      /* POP Ed */
             nextop = F8;
@@ -1544,6 +1546,8 @@ x64emurun:
                 emit_interruption(emu, 0x29, (void*)R_RIP);
             } else if (tmp8u==0x80) {
                 R_RIP = addr;
+                if(ACCESS_FLAG(F_TF))
+                    tf_next = 1;
                 // 32bits syscall
                 #ifndef TEST_INTERPRETER
                 x86Syscall(emu);
@@ -1556,6 +1560,9 @@ x64emurun:
                 STEP2;
                 #endif
             } else {
+                if(rex.is32bits && tmp8u==0x04) {
+                    R_RIP = addr;
+                }
                 #ifndef TEST_INTERPRETER
                 emit_interruption(emu, tmp8u, (void*)R_RIP);
                 STEP2;
@@ -1572,7 +1579,7 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             CHECK_FLAGS(emu);
             if(ACCESS_FLAG(F_OF))
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 128);
+                emit_interruption(emu, 4, (void*)R_RIP);
             STEP2;
             #endif
             break;
@@ -1954,12 +1961,12 @@ x64emurun:
                     break;
                 case 6:                 /* DIV Eb */
                     if(!EB->byte[0])
-                        emit_div0(emu, (void*)R_RIP, 0);
+                        emit_div0(emu, (void*)R_RIP, 1);
                     div8(emu, EB->byte[0]);
                     break;
                 case 7:                 /* IDIV Eb */
                     if(!EB->byte[0])
-                        emit_div0(emu, (void*)R_RIP, 0);
+                        emit_div0(emu, (void*)R_RIP, 1);
                     idiv8(emu, EB->byte[0]);
                     break;
             }
@@ -1989,12 +1996,12 @@ x64emurun:
                         break;
                     case 6:                 /* DIV Ed */
                         if(!ED->q[0])
-                            emit_div0(emu, (void*)R_RIP, 0);
+                            emit_div0(emu, (void*)R_RIP, 1);
                         div64(emu, ED->q[0]);
                         break;
                     case 7:                 /* IDIV Ed */
                         if(!ED->q[0])
-                            emit_div0(emu, (void*)R_RIP, 0);
+                            emit_div0(emu, (void*)R_RIP, 1);
                         idiv64(emu, ED->q[0]);
                         break;
                 }
@@ -2029,14 +2036,14 @@ x64emurun:
                         break;
                     case 6:                 /* DIV Ed */
                         if(!ED->dword[0])
-                            emit_div0(emu, (void*)R_RIP, 0);
+                            emit_div0(emu, (void*)R_RIP, 1);
                         div32(emu, ED->dword[0]);
                         //emu->regs[_AX].dword[1] = 0;  // already put high regs to 0
                         //emu->regs[_DX].dword[1] = 0;
                         break;
                     case 7:                 /* IDIV Ed */
                         if(!ED->dword[0])
-                            emit_div0(emu, (void*)R_RIP, 0);
+                            emit_div0(emu, (void*)R_RIP, 1);
                         idiv32(emu, ED->dword[0]);
                         //emu->regs[_AX].dword[1] = 0;
                         //emu->regs[_DX].dword[1] = 0;
@@ -2256,7 +2263,7 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
 #ifndef TEST_INTERPRETER
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);
     if(unimp) {
-        emu->quit = 1;
+        //emu->quit = 1;
         UnimpOpcode(emu, is32bits);
         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
     }

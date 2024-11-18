@@ -250,6 +250,61 @@ struct kernel_sigaction {
         unsigned long sa_mask;
         unsigned long sa_mask2;
 };
+
+typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
+{
+    int si_signo;
+    int si_errno;
+    int si_code;
+    union {
+	    int _pad[128/sizeof(int)-3];
+	struct {
+	    __pid_t __si_pid;
+	    __uid_t __si_uid;
+    } _kill;
+	struct {
+	    int si_tid;
+	    int __si_overrun;
+	    __sigval_t si_sigval;
+    } _timer;
+	struct {
+	    __pid_t __si_pid;
+	    __uid_t __si_uid;
+	    __sigval_t si_sigval;
+    } _rt;
+	struct {
+	    __pid_t __si_pid;
+	    __uid_t __si_uid;
+	    int __si_status;
+	    __clock_t __si_utime;
+	    __clock_t __si_stime;
+    } _sigchld;
+	struct {
+	    ptr_t __si_addr;
+	    __SI_SIGFAULT_ADDL
+	    short int __si_addr_lsb;
+	    union {
+            struct {
+                ptr_t _lower;
+                ptr_t _upper;
+            } _addr_bnd;
+            __uint32_t _pkey;
+        } _bounds;
+    } _sigfault;
+	struct
+	  {
+	    long int __si_band;
+	    int __si_fd;
+	  } _sigpoll;
+	struct
+	  {
+	    ptr_t _call_addr;
+	    int _syscall;
+	    unsigned int _arch;
+	  } _sigsys;
+    } _sifields;
+} my_siginfo32_t;
+
 #ifdef DYNAREC
 uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
 #endif
@@ -400,7 +455,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     int Locks = unlockMutex();
     int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
 
-    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
+    printf_log(LOG_INFO/*LOG_DEBUG*/, "Sigactionhanlder32 for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
 
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
@@ -462,9 +517,11 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     // setup stack frame
     frame -= 512+64+16*16;
     void* xstate = (void*)frame;
-    frame -= sizeof(siginfo_t);
-    siginfo_t* info2 = (siginfo_t*)frame;
-    memcpy(info2, info, sizeof(siginfo_t));
+    frame -= sizeof(my_siginfo32_t);
+    my_siginfo32_t* info2 = (my_siginfo32_t*)frame;
+    memcpy(info2, info, sizeof(my_siginfo32_t));
+    if(sig==SIGILL || sig==SIGFPE || sig==SIGSEGV || sig==SIGBUS)
+        info2->_sifields._sigfault.__si_addr = to_ptrv(info->si_addr);
     // try to fill some sigcontext....
     frame -= sizeof(i386_ucontext_t);
     i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;
@@ -580,7 +637,9 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
                 //bad opcode
                 sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 13;
+                info2->si_code = 128;
                 info2->si_errno = 0;
+                info2->_sifields._sigfault.__si_addr = 0;
             } else if (info->si_errno==0xecec) {
                 // no excute bit on segment
                 sigcontext->uc_mcontext.gregs[I386_ERR] = 16;//(real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
@@ -598,7 +657,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[I386_ESP])<16)
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 12; // stack overflow probably
             else
-                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (mmapped || ((uintptr_t)info->si_addr<0x10000))?14:13;
             //I386_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0001;    // read error?
         }
@@ -610,8 +669,8 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             // INT x
             uint8_t int_n = info->si_code;
             info2->si_errno = 0;
-            info2->si_code = info->si_code;
-            info2->si_addr = NULL;
+            info2->si_code = 128;
+            info2->_sifields._sigfault.__si_addr = 0;
             // some special cases...
             if(int_n==3) {
                 info2->si_signo = SIGTRAP;
@@ -624,9 +683,11 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
                 sigcontext->uc_mcontext.gregs[I386_ERR] = 0x02|(int_n<<3);
             } else {
                 sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0a|(int_n<<3);
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 13;
             }
-        } else if(info->si_errno==0xcafe) {
+        } else if(info->si_errno==0xcafe) { //divide by 0
             info2->si_errno = 0;
+            sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 0;
             info2->si_signo = SIGFPE;
         }
@@ -635,15 +696,20 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 4;
         else
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 19;
-    } else if(sig==SIGILL)
+    } else if(sig==SIGILL) {
+        info2->si_code = 2;
         sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 6;
-    else if(sig==SIGTRAP) {
-        info2->si_code = 128;
+    } else if(sig==SIGTRAP) {
+        if(info->si_code==1) {  //single step
+            info2->si_code = 2;
+            info2->_sifields._sigfault.__si_addr = sigcontext->uc_mcontext.gregs[I386_EIP];
+        } else
+            info2->si_code = 128;
         sigcontext->uc_mcontext.gregs[I386_TRAPNO] = info->si_code;
         sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
     }
     //TODO: SIGABRT generate what?
-    printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p, prot:%x, mmaped:%d\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]), prot, mmapped);
+    printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal32 %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p, prot:%x, mmaped:%d\n", sig, from_ptrv(info2->_sifields._sigfault.__si_addr), sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]), prot, mmapped);
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu
