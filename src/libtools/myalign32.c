@@ -843,6 +843,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
     const wchar_t* p = (const wchar_t*)fmt;
     int state = 0;
     double d;
+    long double ld;
     while(*p)
     {
         switch(state) {
