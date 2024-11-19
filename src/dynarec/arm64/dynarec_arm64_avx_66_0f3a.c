@@ -490,7 +490,6 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x3, (nextop&7)+(rex.b<<3));
             } else {
-                WILLWRITE2();
                 v1 = fpu_get_scratch(dyn, ninst);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<(3+vex.l), vex.l?15:7, rex, NULL, 0, 1);
             }

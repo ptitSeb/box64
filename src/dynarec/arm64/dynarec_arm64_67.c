@@ -780,7 +780,6 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                                 FMOVD(v1, v0);
                             } else {
-                                WILLWRITE2();
                                 addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                                 VST64(v0, ed, fixedaddress);
                                 SMWRITE2();
@@ -889,8 +888,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             BFIx(ed, gd, 0, 16);
                         }
                     } else {
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 0);
-                        WILLWRITELOCK(lock);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << 1, 1, rex, &lock, 0, 0);
                         STH(gd, ed, fixedaddress);
                         SMWRITELOCK(lock);
                     }
@@ -1102,7 +1100,6 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(eb1, gd, eb2*8, 8);
             } else {
                 addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 0);
-                WILLWRITELOCK(lock);
                 STB(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -1114,8 +1111,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg
                 MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), gd);
             } else {                    // mem <= reg
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
-                WILLWRITELOCK(lock);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, &lock, 0, 0);
                 STxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -1348,7 +1344,6 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x3;
                 } else
                     ed = xZR;
-                WILLWRITELOCK(lock);
                 STB(ed, wback, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -1364,7 +1359,6 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
                 i64 = F32S;
                 MOV64xw(x3, i64);
-                WILLWRITELOCK(lock);
                 STxw(x3, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }

@@ -88,7 +88,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(v1!=v2) VMOVeD(v1, 1, v2, 1);
                 YMM0((nextop&7)+(rex.b<<3));
             } else {
-                WILLWRITE2();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                 VST64(v0, ed, fixedaddress);
                 SMWRITE2();

@@ -711,7 +711,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
-            WILLWRITE();
             PUSH1_16(xFlags);
             SMWRITE();
             break;
@@ -752,8 +751,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
-            WILLWRITELOCK(lock);
+            lock = isLockAddress(u64);
             STRH_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
             break;
@@ -865,7 +863,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xAB:
-            WILLWRITE();
             if(rep) {
                 INST_NAME("REP STOSW");
                 CBZx_NEXT(xRCX);

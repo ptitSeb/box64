@@ -32,50 +32,177 @@
 #define PK64(a) *(uint64_t*)(addr + a)
 #define PKip(a) *(uint8_t*)(ip + a)
 
-// Strong mem emulation helpers
-#define SMREAD_MIN  2
-#define SMWRITE_MIN 1
-// Sequence of Read will trigger a DMB on "first" read if strongmem is >= SMREAD_MIN
-// Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
-// All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
-// Opcode will read
-#define SMREAD()                                                        \
-    if ((dyn->smread == 0) && (box64_dynarec_strongmem > SMREAD_MIN)) { \
-        SMDMB();                                                        \
-    } else                                                              \
-        dyn->smread = 1
-// Opcode will read with option forced lock
+/* Box64 Strong Memory Model Emulation
+ *
+ * Definition of a SEQ:
+ * A SEQ is a sequence of opcodes that writes to guest memory, terminated by JMP, RET, CALL, etc.
+ *
+ * Memory barriers are added in the following cases to emulate the strong memory model:
+ * 1. End of a SEQ:
+ *    - Scalar operations (a1)
+ *    - SIMD operations (a2)
+ * 2. Start of a SEQ:
+ *    - Scalar operations (b1)
+ *    - SIMD operations (b2)
+ * 3. Right before the last guest memory store in a SEQ:
+ *    - Scalar operations (c1)
+ *    - SIMD operations (c2)
+ * 4. After every third guest memory store in a SEQ (d)
+ *
+ * STRONGMEM levels:
+ * LEVEL1: Includes a1, b1
+ * LEVEL2: Includes LEVEL1, plus a2, b2, c1, c2
+ * LEVEL3: Includes LEVEL2, plus d
+ */
+
+#define STRONGMEM_SIMD_WRITE 2 // The level of SIMD memory writes will be tracked
+#define STRONGMEM_LAST_WRITE 2 // The level of a barrier before the last guest memory store will be put
+#define STRONGMEM_SEQ_WRITE  3 // The level of a barrier at every third memory store will be  put
+
+#if STEP == 1
+
+#define SMWRITE()                                                \
+    do {                                                         \
+        /* Mark that current sequence writes to guest memory. */ \
+        /* This will be used in SMEND for last_write. */         \
+        dyn->smwrite = 1;                                        \
+        /* Mark that current opcode writes to guest memory. */   \
+        dyn->insts[ninst].will_write = 1;                        \
+    } while (0)
+
+#define SMWRITELOCK(lock)              \
+    do {                               \
+        dyn->insts[ninst].lock = lock; \
+        SMWRITE();                     \
+    } while (0)
+
+#define SMWRITE2()                                             \
+    do {                                                       \
+        if (box64_dynarec_strongmem >= STRONGMEM_SIMD_WRITE) { \
+            dyn->smwrite = 1;                                  \
+            dyn->insts[ninst].will_write = 2;                  \
+        }                                                      \
+    } while (0)
+
+#define SMREAD()
+#define SMREADLOCK(lock)
+#define WILLWRITE()
+#define WILLWRITELOCK(lock)
+
+#define SMSTART()                                                  \
+    do {                                                           \
+        /* Clear current state at the start of a potential SEQ. */ \
+        dyn->smwrite = 0;                                          \
+    } while (0)
+
+#define SMEND()                                                                                \
+    do {                                                                                       \
+        /* If there is any guest memory write, which is a SEQ, then compute the last_write. */ \
+        if (dyn->smwrite && (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE)) {               \
+            int i = ninst;                                                                     \
+            while (i >= 0 && !dyn->insts[i].will_write)                                        \
+                --i;                                                                           \
+            if (i >= 0) { dyn->insts[i].last_write = 1; }                                      \
+        }                                                                                      \
+        dyn->smwrite = 0;                                                                      \
+    } while (0)
+
+#define SMDMB()
+
+#else
+
+// An opcode writes guest memory, this need to be put after the STORE instruction manually.
+#define SMWRITE()                                                     \
+    do {                                                              \
+        /* Put a barrier at every third memory write. */              \
+        if (box64_dynarec_strongmem >= STRONGMEM_SEQ_WRITE) {         \
+            if (++dyn->smwrite >= 3 /* Every third memory write */) { \
+                DBAR(0);                                              \
+                dyn->smwrite = 1;                                     \
+            }                                                         \
+        } else {                                                      \
+            /* Mark that current sequence writes to guest memory. */  \
+            dyn->smwrite = 1;                                         \
+        }                                                             \
+    } while (0)
+
+// Similar to SMWRITE, but checks lock.
+#define SMWRITELOCK(lock) \
+    do {                  \
+        if (lock) {       \
+            DBAR(0);      \
+        } else {          \
+            SMWRITE();    \
+        }                 \
+    } while (0)
+
+// Similar to SMWRITE, but for SIMD instructions.
+#define SMWRITE2()                                           \
+    do {                                                     \
+        if (box64_dynarec_strongmem >= STRONGMEM_SIMD_WRITE) \
+            SMWRITE();                                       \
+    } while (0)
+
+// An opcode reads guest memory, this need to be put before the LOAD instruction manually.
+#define SMREAD()
+
+// Similar to SMREAD, but checks lock.
 #define SMREADLOCK(lock) \
-    if ((lock) || ((dyn->smread == 0) && (box64_dynarec_strongmem > SMREAD_MIN))) { SMDMB(); }
-// Opcode might read (depend on nextop)
-#define SMMIGHTREAD() \
-    if (!MODREG) { SMREAD(); }
-// Opcode has wrote
-#define SMWRITE() dyn->smwrite = 1
-// Opcode has wrote (strongmem>1 only)
-#define SMWRITE2() \
-    if (box64_dynarec_strongmem > SMREAD_MIN) dyn->smwrite = 1
-// Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock)                                  \
-    if (lock || (box64_dynarec_strongmem > SMWRITE_MIN)) { \
-        SMDMB();                                           \
-    } else                                                 \
-        dyn->smwrite = 1
-// Opcode might have wrote (depend on nextop)
-#define SMMIGHTWRITE() \
-    if (!MODREG) { SMWRITE(); }
-// Start of sequence
-#define SMSTART() SMEND()
-// End of sequence
-#define SMEND()                                               \
-    if (dyn->smwrite && box64_dynarec_strongmem) { DBAR(0); } \
-    dyn->smwrite = 0;                                         \
-    dyn->smread = 0;
-// Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()       \
-    DBAR(0);          \
-    dyn->smwrite = 0; \
-    dyn->smread = 1
+    do {                 \
+        if (lock) {      \
+            DBAR(0);     \
+        } else {         \
+            SMREAD();    \
+        }                \
+    } while (0)
+
+// An opcode will write memory, this will be put before the STORE instruction automatically.
+#define WILLWRITE()                                                                                   \
+    do {                                                                                              \
+        if (box64_dynarec_strongmem >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {           \
+            /* Will write but never written, this is the start of a SEQ, put a barrier. */            \
+            DBAR(0);                                                                                  \
+        } else if (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE && dyn->insts[ninst].last_write) { \
+            /* Last write, put a barrier */                                                           \
+            DBAR(0);                                                                                  \
+        }                                                                                             \
+    } while (0)
+
+// Similar to WILLWRITE, but checks lock.
+#define WILLWRITELOCK(lock) \
+    do {                    \
+        if (lock) {         \
+            DBAR(0);        \
+        } else {            \
+            WILLWRITE();    \
+        }                   \
+    } while (0)
+
+// Used to clear the state at the start of a SEQ
+#define SMSTART()         \
+    do {                  \
+        dyn->smwrite = 0; \
+    } while (0)
+
+// Will be put at the end of the SEQ
+#define SMEND()                                             \
+    do {                                                    \
+        if (box64_dynarec_strongmem) {                      \
+            /* Check if there is any guest memory write. */ \
+            int i = ninst;                                  \
+            while (i >= 0 && !dyn->insts[i].will_write)     \
+                --i;                                        \
+            if (i >= 0) {                                   \
+                /* It's a SEQ, put a barrier here. */       \
+                DBAR(0);                                    \
+            }                                               \
+        }                                                   \
+        dyn->smwrite = 0;                                   \
+    } while (0)
+
+// The barrier.
+#define SMDMB() DBAR(0)
+#endif
 
 // LOCK_* define
 #define LOCK_LOCK (int*)1
@@ -750,7 +877,11 @@
 #define TABLE64(A, V)
 #endif
 
-#define ARCH_INIT()
+#define ARCH_INIT()                     \
+    do {                                \
+        dyn->smread = dyn->smwrite = 0; \
+    } while (0)
+
 #define ARCH_RESET()
 
 #if STEP < 2

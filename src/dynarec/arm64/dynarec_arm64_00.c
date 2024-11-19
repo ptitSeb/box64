@@ -646,7 +646,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SKIPTEST(x1);
                 dyn->doublepush = 0;
             } else {
-                WILLWRITE();
                 gd = xRAX+(opcode&0x07)+(rex.b<<3);
                 u32 = PK(0);
                 i32 = 1;
@@ -730,7 +729,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x60:
             if(rex.is32bits) {
                 INST_NAME("PUSHAD");
-                WILLWRITE();
                 MOVw_REG(x1, xRSP);
                 PUSH2_32(xRAX, xRCX);
                 PUSH2_32(xRDX, xRBX);
@@ -814,7 +812,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRSW_U12(x1, x3, 0);
                 PUSH1z(x1);
             } else {
-                WILLWRITE();
                 MOV64z(x3, i64);
                 PUSH1z(x3);
                 SMWRITE();
@@ -883,7 +880,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("PUSH Ib");
             i64 = F8S;
             MOV64z(x3, i64);
-            WILLWRITE();
             PUSH1z(x3);
             SMWRITE();
             break;
@@ -1292,7 +1288,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(eb1, gd, eb2*8, 8);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 0);
-                WILLWRITELOCK(lock);
                 STB(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -1304,8 +1299,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg
                 MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), gd);
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
-                WILLWRITELOCK(lock);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, &lock, 0, 0);
                 STxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -1521,8 +1515,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            lock=isLockAddress(u64);
-            WILLWRITELOCK(lock);
+            lock = isLockAddress(u64);
             STRB_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
             break;
@@ -1533,8 +1526,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            lock=isLockAddress(u64);
-            WILLWRITELOCK(lock);
+            lock = isLockAddress(u64);
             STRxw_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
             break;
@@ -1693,7 +1685,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_test32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
             break;
         case 0xAA:
-            WILLWRITE();
             if(rep) {
                 INST_NAME("REP STOSB");
                 CBZx_NEXT(xRCX);
@@ -1718,7 +1709,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SMWRITE();
             break;
         case 0xAB:
-            WILLWRITE();
             if(rep) {
                 INST_NAME("REP STOSD");
                 CBZx_NEXT(xRCX);
@@ -2248,7 +2238,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x3;
                 } else
                     ed = xZR;
-                WILLWRITELOCK(lock);
                 STB(ed, wback, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -2268,7 +2257,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x3;
                 } else
                     ed = xZR;
-                WILLWRITELOCK(lock);
                 STxw(ed, wback, fixedaddress);
                 SMWRITELOCK(lock);
             }
@@ -2363,7 +2351,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
                         addr+=8+8;
                     } else {
-                        WILLWRITE2();
                         GETIP(ip+1); // read the 0xCC
                         STORE_XEMU_CALL(xRIP);
                         ADDx_U12(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
@@ -3037,7 +3024,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         TABLE64(x2, addr);
                     }
-                    WILLWRITE2();
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", getBridgeName((void*)(dyn->insts[ninst].natcall-1))?:GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     SKIPTEST(x1);    // disable test as this hack dos 2 instructions for 1
