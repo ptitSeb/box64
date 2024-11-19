@@ -190,31 +190,6 @@ jobs:
                    -DCI=${{ matrix.platform != 'ANDROID' }}
           make -j$(nproc) VERBOSE=1
 
-      - name: "Get short Git commit"
-        id: git-info
-        run: echo "SHORT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      - name: "Packaging WCP file for Winlator"
-        if: matrix.platform == 'ANDROID_GLIBC'
-        run: |
-          cd build
-          cat <<EOF > profile.json
-          {
-            "type": "Box64",
-            "versionName": "latest-${SHORT_COMMIT}",
-            "versionCode": 1,
-            "description": "Box64-latest-${SHORT_COMMIT}. Built from [https://github.com/ptitSeb/box64].",
-            "files": [
-              {
-                "source": "box64",
-                "target": "\${localbin}/box64"
-              }
-            ]
-          }
-          EOF
-          patchelf --set-interpreter /data/data/com.winlator/files/imagefs/usr/lib/ld-linux-aarch64.so.1 ./box64
-          tar --zstd -cf box64-latest.wcp box64 profile.json
-
       - name: "Test Box64"
         run: |
           if [[ ${{ matrix.platform }} != 'X64' ]]; then
@@ -276,6 +251,31 @@ jobs:
           else
             ctest -j$(nproc)
           fi
+
+      - name: "Get short Git commit"
+        id: git-info
+        run: echo "SHORT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: "Packaging WCP file for Winlator"
+        if: matrix.platform == 'ANDROID_GLIBC'
+        run: |
+          cd build
+          cat <<EOF > profile.json
+          {
+            "type": "Box64",
+            "versionName": "latest-${SHORT_COMMIT}",
+            "versionCode": 1,
+            "description": "Box64-latest-${SHORT_COMMIT}. Built from [https://github.com/ptitSeb/box64].",
+            "files": [
+              {
+                "source": "box64",
+                "target": "\${localbin}/box64"
+              }
+            ]
+          }
+          EOF
+          patchelf --set-interpreter /data/data/com.winlator/files/imagefs/usr/lib/ld-linux-aarch64.so.1 ./box64
+          tar --zstd -cf box64-latest.wcp box64 profile.json
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4
