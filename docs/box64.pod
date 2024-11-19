@@ -296,8 +296,16 @@ Define Box64's Dynarec max allowed forward value when building Block.
 Enable/Disable simulation of Strong Memory model
 
     * 0 : Don't try anything special (Default.)
-    * 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
-    * 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
+    * 1 : Enable some memory barriers when writting to memory to simulate the Strong Memory Model in a limited way (Default when libmonobdwgc-2.0.so is loaded)
+    * 2 : All 1. plus memory barriers on SIMD instructions
+    * 3 : All 2. plus more memory barriers on a regular basis
+
+=item B<BOX64_DYNAREC_WEAKBARRIER>=I<0|1>
+
+Use weak memory barriers to reduce the performance impact by STRONGMEM
+
+    * 0 : Use regular safe barrier (Default.)
+    * 1 : Use weak barriers to have more performance boost
 
 =item B<BOX64_DYNAREC_X87DOUBLE>=I<0|1>
 

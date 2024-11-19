@@ -60,7 +60,7 @@
  */
 
 #define STRONGMEM_SIMD_WRITE 2 // The level of SIMD memory writes will be tracked
-#define STRONGMEM_LAST_WRITE 2 // The level of a barrier before the last guest memory store will be put
+#define STRONGMEM_LAST_WRITE 1 // The level of a barrier before the last guest memory store will be put
 #define STRONGMEM_SEQ_WRITE  3 // The level of a barrier at every third memory store will be  put
 
 #if STEP == 1
@@ -165,10 +165,16 @@
     do {                                                                                              \
         if (box64_dynarec_strongmem >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {           \
             /* Will write but never written, this is the start of a SEQ, put a barrier. */            \
-            DMB_ISH();                                                                                \
+            if (box64_dynarec_weakbarrier)                                                            \
+                DMB_ISHST();                                                                          \
+            else                                                                                      \
+                DMB_ISH();                                                                            \
         } else if (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE && dyn->insts[ninst].last_write) { \
             /* Last write, put a barrier */                                                           \
-            DMB_ISH();                                                                                \
+            if (box64_dynarec_weakbarrier)                                                            \
+                DMB_ISHST();                                                                          \
+            else                                                                                      \
+                DMB_ISH();                                                                            \
         }                                                                                             \
     } while (0)
 
@@ -198,7 +204,10 @@
                 --i;                                        \
             if (i >= 0) {                                   \
                 /* It's a SEQ, put a barrier here. */       \
-                DMB_ISH();                                  \
+                if (box64_dynarec_weakbarrier)              \
+                    DMB_ISHST();                            \
+                else                                        \
+                    DMB_ISH();                              \
             }                                               \
         }                                                   \
         dyn->smwrite = 0;                                   \
