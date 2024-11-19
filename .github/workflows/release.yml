@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64]
+        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC]
         type: [Release, Trace, StaticBuild, Box32]
         os: [ubuntu-latest]
         exclude:
@@ -51,7 +51,7 @@ jobs:
         run: |
           sudo apt-get update
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
-            sudo apt-get -y install git cmake make python3
+            sudo apt-get -y install git cmake make python3 patchelf
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
               unzip android-ndk-r26b-linux.zip
@@ -61,6 +61,10 @@ jobs:
               sudo cp -rf termux-docker/system/arm /system
               sudo chown -R $(whoami):$(whoami) /system
               sudo chmod 755 -R /system
+            elif [[ ${{ matrix.platform }} == 'ANDROID_GLIBC' ]]; then
+              sudo apt-get -y install git gcc-aarch64-linux-gnu
+              echo "BOX64_PLATFORM_MARCRO=-DARM64=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
@@ -248,8 +252,40 @@ jobs:
             ctest -j$(nproc)
           fi
 
+      - name: "Get short Git commit"
+        id: git-info
+        run: echo "SHORT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: "Packaging WCP file for Winlator"
+        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild'
+        run: |
+          cd build
+          cat <<EOF > profile.json
+          {
+            "type": "Box64",
+            "versionName": "latest-${SHORT_COMMIT}",
+            "versionCode": 1,
+            "description": "Box64-latest-${SHORT_COMMIT}. Built from [https://github.com/ptitSeb/box64].",
+            "files": [
+              {
+                "source": "box64",
+                "target": "\${localbin}/box64"
+              }
+            ]
+          }
+          EOF
+          patchelf --set-interpreter /data/data/com.winlator/files/imagefs/usr/lib/ld-linux-aarch64.so.1 ./box64
+          tar --zstd -cf box64-latest.wcp box64 profile.json
+
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: box64-${{ matrix.platform }}-${{ matrix.type }}
           path: build/box64
+
+      - name: "Upload WCP file"
+        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild'
+        uses: actions/upload-artifact@v4
+        with:
+          name: box64-latest-${{ matrix.type }}-wcp
+          path: build/box64-latest.wcp
