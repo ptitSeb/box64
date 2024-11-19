@@ -21,6 +21,7 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
     const char* p = fmt;
     int state = 0;
     double d;
+    long double ld;
     while(*p)
     {
         switch(state) {
@@ -109,7 +110,10 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 st+=3; mystack+=2;
                 #else
                 LD2D((void*)st, &d);
-                *(long double*)mystack = (long double)d;
+                ld = d;
+                if(((uintptr_t)mystack)&0xf)    // align the long double
+                    mystack++;
+                memcpy(mystack, &ld, 16);
                 st+=3; mystack+=2;
                 #endif
                 state = 0;
@@ -839,6 +843,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
     const wchar_t* p = (const wchar_t*)fmt;
     int state = 0;
     double d;
+    long double ld;
     while(*p)
     {
         switch(state) {
@@ -927,7 +932,10 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 st+=3; mystack+=2;
                 #else
                 LD2D((void*)st, &d);
-                *(long double*)mystack = (long double)d;
+                if(((uintptr_t)mystack)&0xf)    // align the long double
+                    mystack++;
+                ld = d;
+                memcpy(mystack, &ld, 16);
                 st+=3; mystack+=2;
                 #endif
                 state = 0;

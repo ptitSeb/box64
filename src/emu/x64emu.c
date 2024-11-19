@@ -578,15 +578,15 @@ void UnimpOpcode(x64emu_t* emu, int is32bits)
     R_RIP = emu->old_ip;
 
     int tid = syscall(SYS_gettid);
-    printf_log(LOG_NONE, "%04d|%p: Unimplemented %sOpcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", 
+    printf_log(LOG_INFO, "%04d|%p: Unimplemented %sOpcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", 
         tid, (void*)emu->old_ip, is32bits?"32bits ":"",
         Peek(emu, -4), Peek(emu, -3), Peek(emu, -2), Peek(emu, -1),
         Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
         Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7),
         Peek(emu, 8), Peek(emu, 9), Peek(emu,10), Peek(emu,11),
         Peek(emu,12), Peek(emu,13), Peek(emu,14));
-    emu->quit=1;
-    emu->error |= ERR_UNIMPL;
+    //emu->quit=1;
+    //emu->error |= ERR_UNIMPL;
 }
 
 void EmuCall(x64emu_t* emu, uintptr_t addr)
