@@ -257,7 +257,7 @@ jobs:
         run: echo "SHORT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: "Packaging WCP file for Winlator"
-        if: matrix.platform == 'ANDROID_GLIBC'
+        if: matrix.platform == 'ANDROID_GLIBC' && ${{ matrix.type }} != 'StaticBuild'
         run: |
           cd build
           cat <<EOF > profile.json
