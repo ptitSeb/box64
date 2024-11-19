@@ -51,7 +51,7 @@ jobs:
         run: |
           sudo apt-get update
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
-            sudo apt-get -y install git cmake make python3
+            sudo apt-get -y install git cmake make python3 patchelf
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
               unzip android-ndk-r26b-linux.zip
@@ -212,6 +212,7 @@ jobs:
             ]
           }
           EOF
+          patchelf --set-interpreter /data/data/com.winlator/files/imagefs/usr/lib/ld-linux-aarch64.so.1 ./box64
           tar --zstd -cf box64-latest.wcp box64 profile.json
 
       - name: "Test Box64"
