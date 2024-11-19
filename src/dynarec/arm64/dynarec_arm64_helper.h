@@ -161,21 +161,21 @@
     } while (0)
 
 // An opcode will write memory, this will be put before the STORE instruction automatically.
-#define WILLWRITE()                                                                                   \
-    do {                                                                                              \
-        if (box64_dynarec_strongmem >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {           \
-            /* Will write but never written, this is the start of a SEQ, put a barrier. */            \
-            if (box64_dynarec_weakbarrier)                                                            \
-                DMB_ISHST();                                                                          \
-            else                                                                                      \
-                DMB_ISH();                                                                            \
-        } else if (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE && dyn->insts[ninst].last_write) { \
-            /* Last write, put a barrier */                                                           \
-            if (box64_dynarec_weakbarrier)                                                            \
-                DMB_ISHST();                                                                          \
-            else                                                                                      \
-                DMB_ISH();                                                                            \
-        }                                                                                             \
+#define WILLWRITE()                                                                                                                     \
+    do {                                                                                                                                \
+        if (box64_dynarec_strongmem >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {                                             \
+            /* Will write but never written, this is the start of a SEQ, put a barrier. */                                              \
+            if (box64_dynarec_weakbarrier)                                                                                              \
+                DMB_ISHST();                                                                                                            \
+            else                                                                                                                        \
+                DMB_ISH();                                                                                                              \
+        } else if (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE && box64_dynarec_weakbarrier <= 1 && dyn->insts[ninst].last_write) { \
+            /* Last write, put a barrier */                                                                                             \
+            if (box64_dynarec_weakbarrier)                                                                                              \
+                DMB_ISHST();                                                                                                            \
+            else                                                                                                                        \
+                DMB_ISH();                                                                                                              \
+        }                                                                                                                               \
     } while (0)
 
 // Similar to WILLWRITE, but checks lock.

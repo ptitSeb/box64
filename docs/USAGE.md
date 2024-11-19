@@ -177,6 +177,7 @@ Enable/Disable simulation of Strong Memory model
 Use weak memory barriers to reduce the performance impact by STRONGMEM
 * 0 : Use regular safe barrier (Default.)
 * 1 : Use weak barriers to have more performance boost
+* 2 : Disable the last write barriers to have even more performance boost
 
 #### BOX64_DYNAREC_X87DOUBLE *
 Force the use of Double for x87 emulation

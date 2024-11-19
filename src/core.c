@@ -789,7 +789,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_WEAKBARRIER");
     if (p) {
         if (strlen(p) == 1) {
-            if (p[0] >= '0' && p[0] <= '1')
+            if (p[0] >= '0' && p[0] <= '2')
                 box64_dynarec_weakbarrier = p[0] - '0';
         }
         if (box64_dynarec_weakbarrier)
