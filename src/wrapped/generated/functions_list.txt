@@ -1617,6 +1617,7 @@
 #() iFEpLpA
 #() iFEppii
 #() iFEppip
+#() iFEppiV
 #() iFEppiA
 #() iFEppup
 #() iFEpplp
@@ -3502,7 +3503,7 @@ wrappeddbus:
   - dbus_message_set_data
   - dbus_pending_call_set_data
   - dbus_server_set_data
-- iFppip:
+- iFppiV:
   - dbus_message_get_args
 - iFppiA:
   - dbus_message_get_args_valist

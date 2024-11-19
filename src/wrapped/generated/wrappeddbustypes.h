@@ -16,7 +16,7 @@ typedef int32_t (*iFpiV_t)(void*, int32_t, ...);
 typedef int32_t (*iFpiA_t)(void*, int32_t, va_list);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
-typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
+typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFppiA_t)(void*, void*, int32_t, va_list);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
@@ -35,7 +35,7 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_message_set_data, iFpipp_t) \
 	GO(dbus_pending_call_set_data, iFpipp_t) \
 	GO(dbus_server_set_data, iFpipp_t) \
-	GO(dbus_message_get_args, iFppip_t) \
+	GO(dbus_message_get_args, iFppiV_t) \
 	GO(dbus_message_get_args_valist, iFppiA_t) \
 	GO(dbus_connection_add_filter, iFpppp_t) \
 	GO(dbus_connection_register_fallback, iFpppp_t) \
