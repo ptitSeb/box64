@@ -364,7 +364,7 @@ EXPORT int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, voi
 	int ret = 0;
 	if(!GetStackSize(emu, (uintptr_t)attr, addr, &size ))
 		ret = pthread_attr_getstack(PTHREAD_ATTR(attr), addr, &size);
-printf_log(LOG_INFO, "pthread_attr_getstackaddr gives %p\n", *addr);
+//printf_log(LOG_INFO, "pthread_attr_getstackaddr gives %p\n", *addr);
 	return ret;
 }
 EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
