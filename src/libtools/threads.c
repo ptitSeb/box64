@@ -287,7 +287,7 @@ EXPORT int my_pthread_attr_getstack(x64emu_t* emu, void* attr, void** stackaddr,
 	int ret = 0;
 	if(!GetStackSize(emu, (uintptr_t)attr, stackaddr, stacksize))
 		ret = pthread_attr_getstack(PTHREAD_ATTR(attr), stackaddr, stacksize);
-printf_log(LOG_INFO, "pthread_attr_getstack gives (%d) %p 0x%zx\n", ret, *stackaddr, *stacksize);
+//printf_log(LOG_INFO, "pthread_attr_getstack gives (%d) %p 0x%zx\n", ret, *stackaddr, *stacksize);
 	return ret;
 }
 
