@@ -39,7 +39,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                 if(is_usr) {
                     // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
                     char tmp[strlen(argv[nextarg])+150];
-                    strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/box64-i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
+                    strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/box86-i386-linux-gnu:/usr/lib/box64-i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
                     strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
                     char *p = strchr(tmp, '=');
                     *p ='\0'; ++p;
