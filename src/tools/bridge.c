@@ -225,6 +225,10 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
 
 const char* getBridgeName(void* addr)
 {
+    if(!getMmapped((uintptr_t)addr))
+        return NULL;
+    if(!(getProtection((uintptr_t)addr)&PROT_READ))
+        return NULL;
     onebridge_t* one = (onebridge_t*)(((uintptr_t)addr&~(sizeof(onebridge_t)-1)));   // align to start of bridge
     if(one->C3==0xC3 && one->S=='S' && one->C=='C') {
         if(one->w==NULL)
