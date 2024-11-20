@@ -106,9 +106,9 @@ typedef struct instruction_arm64_s {
     uint16_t            ymm0_out;   // the ymm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     uint8_t             barrier_maybe;
-    uint8_t             will_write;
-    uint8_t             last_write;
-    uint8_t             lock;
+    uint8_t             will_write:2; // [strongmem] will write to memory
+    uint8_t             last_write:1; // [strongmem] the last write in a SEQ
+    uint8_t             lock:1;       // [strongmem] lock semantic
     uint8_t             set_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags_before;  // 0 or combinaison of native flags define
@@ -159,7 +159,6 @@ typedef struct dynarec_arm_s {
     int                 forward_ninst;  // ninst at the forward point
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint8_t             smwrite;    // for strongmem model emulation
-    uint8_t             smread;
     uint8_t             doublepush;
     uint8_t             doublepop;
     uint8_t             always_test;
