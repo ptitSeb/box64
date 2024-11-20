@@ -364,7 +364,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         }
         if(libname && box64_dynarec_tbb && strstr(libname, "libtbb.so")) {
             printf_dump(LOG_INFO, "libtbb detected, enable Dynarec StrongMem\n");
-            box64_dynarec_strongmem = 3;
+            box64_dynarec_strongmem = 1;
         }
         #endif
         if(libname && box64_jvm && strstr(libname, "libjvm.so")) {
