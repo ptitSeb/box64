@@ -444,7 +444,7 @@ void fpu_xsave_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask)
     xsave64_t *p = (xsave64_t*)ed;
     xsaveheader_t *h = (xsaveheader_t*)(p+1);
     uint32_t rfbm = (0b111&mask);
-    h->xstate_bv =(h->xstate_bv&~0b111)|rfbm;
+    h->xstate_bv =(h->xstate_bv&~mask)|rfbm;
     h->xcomp_bv = 0;
     if(h->xstate_bv&0b001) {
         int top = emu->top&7;

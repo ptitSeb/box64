@@ -366,7 +366,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             case 0:
                 R_EAX = 0b111;          // x87 SSE AVX saved
                 R_EBX = 512+64+16*16;     // size of xsave/xrstor
-                R_ECX = 512+64+16*16;     // same
+                R_ECX = 512+64+16*16;     // maximum size of xsave area
                 R_EDX = 0;              // more bits
                 break;
             case 1:

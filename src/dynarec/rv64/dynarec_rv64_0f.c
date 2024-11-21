@@ -1904,7 +1904,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         if (ed != x1) { MV(x1, ed); }
-                        MOV32w(x2, rex.is32bits);
+                        MOV32w(x2, rex.w?0:1);
                         CALL((void*)fpu_xsave, -1);
                         break;
                     case 5:
@@ -1913,7 +1913,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         if (ed != x1) { MV(x1, ed); }
-                        MOV32w(x2, rex.is32bits);
+                        MOV32w(x2, rex.w?0:1);
                         CALL((void*)fpu_xrstor, -1);
                         break;
                     case 7:
