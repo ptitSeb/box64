@@ -67,7 +67,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETEW(0);
                     GETGW;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMCAS)
                     do {
                         tmp16u = native_lock_read_h(EW);
                         cmp16(emu, R_AX, tmp16u);
@@ -94,7 +94,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     nextop = F8;
                     GETEW(0);
                     GETGW;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMCAS)
                     if(((uintptr_t)ED)&1) {
                         do {
                             tmp16u = ED->word[0] & ~0xff;
@@ -123,7 +123,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             }
             break;
 
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMCAS)
         #define GO(B, OP)                                           \
         case B+1:                                                   \
             nextop = F8;                                            \
@@ -182,7 +182,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETEW((opcode==0x83)?1:2);
             tmp16s = (opcode==0x83)?(F8S):(F16S);
             tmp16u = (uint16_t)tmp16s;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMCAS)
             if(MODREG)
                 switch((nextop>>3)&7) {
                     case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
@@ -226,7 +226,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETEW(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMCAS)
                     if((uintptr_t)EW&1) { 
                         //meh.
                         do {
@@ -248,7 +248,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
                     break;
                 case 1:                 /* DEC Ed */
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMCAS)
                     do {
                         tmp16u = native_lock_read_h(EW);
                     } while(native_lock_write_h(EW, dec16(emu, tmp16u)));

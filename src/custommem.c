@@ -410,7 +410,7 @@ int isCustomAddr(void* p)
     return findBlock((uintptr_t)p)?1:0;
 }
 #endif
-#ifdef DYNAREC
+#if defined(DYNAREC) && !defined(LA64_NOT_USE_AMBH)
 #define GET_PROT_WAIT(A, B) \
         uint32_t A;         \
         do {                \

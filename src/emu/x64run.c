@@ -691,7 +691,7 @@ x64emurun:
             break;
         case 0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER) && !defined(LA64_NOT_USE_AMBH)
             GETEB(0);
             GETGB;
             if(MODREG) { // reg / reg: no lock
