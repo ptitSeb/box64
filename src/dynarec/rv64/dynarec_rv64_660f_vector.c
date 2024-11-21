@@ -1164,8 +1164,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
             VMSLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
             VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-            VMERGE_VIM(q0, q0, 1); // implies vmask and widened it
-            VRSUB_VX(q0, q0, xZR, VECTOR_UNMASKED);
+            VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
             break;
         case 0x67:
             INST_NAME("PACKUSWB Gx, Ex");
@@ -1562,8 +1561,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
             VMSEQ_VV(VMASK, q1, q0, VECTOR_UNMASKED);
             VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-            VMERGE_VIM(q0, q0, 1); // implies vmask and widened it
-            VRSUB_VX(q0, q0, xZR, VECTOR_UNMASKED);
+            VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
             break;
         case 0x7C:
             INST_NAME("HADDPD Gx, Ex");
