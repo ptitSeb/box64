@@ -22,7 +22,7 @@
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
-#include "dynarec_arm64_helper.h"
+#include "../dynarec_helper.h"
 
 int isSimpleWrapper(wrapper_t fun);
 int isRetX87Wrapper(wrapper_t fun);

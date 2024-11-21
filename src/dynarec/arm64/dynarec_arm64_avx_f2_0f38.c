@@ -22,7 +22,7 @@
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
-#include "dynarec_arm64_helper.h"
+#include "../dynarec_helper.h"
 
 uintptr_t dynarec64_AVX_F2_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {

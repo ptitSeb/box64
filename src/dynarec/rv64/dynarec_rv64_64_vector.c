@@ -19,7 +19,7 @@
 
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
-#include "dynarec_rv64_helper.h"
+#include "../dynarec_helper.h"
 #include "dynarec_rv64_functions.h"
 
 uintptr_t dynarec64_64_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog)

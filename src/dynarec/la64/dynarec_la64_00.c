@@ -23,7 +23,7 @@
 #include "la64_printer.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
-#include "dynarec_la64_helper.h"
+#include "../dynarec_helper.h"
 
 int isSimpleWrapper(wrapper_t fun);
 int isRetX87Wrapper(wrapper_t fun);

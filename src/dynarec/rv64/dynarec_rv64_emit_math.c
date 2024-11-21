@@ -19,7 +19,7 @@
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
-#include "dynarec_rv64_helper.h"
+#include "../dynarec_helper.h"
 
 // emit ADD32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)

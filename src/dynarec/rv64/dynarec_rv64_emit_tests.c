@@ -19,7 +19,7 @@
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
-#include "dynarec_rv64_helper.h"
+#include "../dynarec_helper.h"
 
 // emit CMP8 instruction, from cmp s1, s2, using s3, s4, s5 and s6 as scratch
 void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)

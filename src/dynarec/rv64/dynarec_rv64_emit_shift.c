@@ -19,7 +19,7 @@
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
-#include "dynarec_rv64_helper.h"
+#include "../dynarec_helper.h"
 
 // emit SHL8 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)

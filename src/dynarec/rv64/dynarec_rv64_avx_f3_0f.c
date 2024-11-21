@@ -22,7 +22,7 @@
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
-#include "dynarec_rv64_helper.h"
+#include "../dynarec_helper.h"
 
 uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {

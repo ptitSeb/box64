@@ -19,7 +19,7 @@
 #include "la64_printer.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
-#include "dynarec_la64_helper.h"
+#include "../dynarec_helper.h"
 
 
 // emit CMP8 instruction, from cmp s1, s2, using s3, s4, s5 and s6 as scratch

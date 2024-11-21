@@ -19,7 +19,7 @@
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
-#include "dynarec_arm64_helper.h"
+#include "../dynarec_helper.h"
 
 // emit SHL32 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch. s3 can be same as s2. s2 must be non-0
 void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)

@@ -23,7 +23,7 @@
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
-#include "dynarec_rv64_helper.h"
+#include "../dynarec_helper.h"
 
 int isSimpleWrapper(wrapper_t fun);
 
