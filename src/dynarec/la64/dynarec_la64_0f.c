@@ -110,6 +110,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0x0D:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 1:
+                    INST_NAME("PREFETCHW");
+                    FAKEED;
+                    break;
+                default: //???
+                    DEFAULT;
+            }
+            break;
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;
@@ -324,6 +335,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             IFX (X_ALL) {
                 SPILL_EFLAGS();
             }
+            break;
+        case 0x31:
+            INST_NAME("RDTSC");
+            NOTEST(x1);
+            // TODO: how to read the wall-clock real time on LoongArch?
+            CALL(ReadTSC, x3); // will return the u64 in x3
+            if (box64_rdtsc_shift) {
+                SRLI_D(x3, x3, box64_rdtsc_shift);
+            }
+            SRLI_D(xRDX, x3, 32);
+            ZEROUP2(xRDX, x3);
             break;
         case 0x38:
             // SSE3
@@ -771,6 +793,15 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             CALL(rex.is32bits ? ((void*)fpu_fxsave32) : ((void*)fpu_fxsave64), -1);
                         }
                         break;
+                    case 1:
+                        INST_NAME("FXRSTOR Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        SKIPTEST(x1);
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        CALL(rex.is32bits ? ((void*)fpu_fxrstor32) : ((void*)fpu_fxrstor64), -1);
+                        break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
@@ -784,6 +815,33 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         LD_WU(x4, xEmu, offsetof(x64emu_t, mxcsr));
                         ST_W(x4, wback, fixedaddress);
+                        break;
+                    case 4:
+                        INST_NAME("XSAVE Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        MOV32w(x2, rex.is32bits);
+                        CALL((void*)fpu_xsave, -1);
+                        break;
+                    case 5:
+                        INST_NAME("XRSTOR Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        MOV32w(x2, rex.is32bits);
+                        CALL((void*)fpu_xrstor, -1);
+                        break;
+                    case 7:
+                        INST_NAME("CLFLUSH Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization?\n");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        if (wback != A1) {
+                            MV(A1, wback);
+                        }
+                        CALL_(native_clflush, -1, 0);
                         break;
                     default:
                         DEFAULT;
@@ -954,6 +1012,28 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ZEROUP(ed);
                     }
                     MARK;
+                    break;
+                case 7:
+                    INST_NAME("BTC Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8 &= rex.w ? 0x3f : 0x1f;
+                    BSTRPICK_D(x3, ed, u8, u8);
+                    BSTRINS_D(xFlags, x3, 0, 0);
+                    if (u8 <= 10) {
+                        XORI(ed, ed, (1LL << u8));
+                    } else {
+                        MOV64xw(x3, (1LL << u8));
+                        XOR(ed, ed, x3);
+                    }
+                    if (wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE();
+                    } else if (!rex.w) {
+                        ZEROUP(ed);
+                    }
                     break;
                 default:
                     DEFAULT;

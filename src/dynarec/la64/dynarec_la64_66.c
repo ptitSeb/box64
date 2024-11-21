@@ -695,6 +695,30 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_neg16(dyn, ninst, ed, x2, x4);
                     EWBACK;
                     break;
+                case 6:
+                    INST_NAME("DIV Ew");
+                    SETFLAGS(X_ALL, SF_SET);
+                    SET_DFNONE();
+                    GETEW(x1, 0);
+                    BSTRPICK_D(x2, xRAX, 15, 0);
+                    SLLI_D(x7, xRDX, 48);
+                    SRLI_D(x7, x7, 32);
+                    OR(x2, x2, x7);
+                    if(box64_dynarec_div0) {
+                        BNE_MARK3(ed, xZR);
+                        GETIP_(ip);
+                        STORE_XEMU_CALL();
+                        CALL(native_div0, -1);
+                        CLEARIP();
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
+                    DIV_WU(x7, x2, ed);
+                    MOD_WU(x4, x2, ed);
+                    BSTRINSz(xRAX, x7, 15, 0);
+                    BSTRINSz(xRDX, x4, 15, 0);
+                    break;
                 case 7:
                     INST_NAME("IDIV Ew");
                     NOTEST(x1);
@@ -717,7 +741,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DIV_W(x3, x2, ed);
                     MOD_W(x4, x2, ed);
                     BSTRINSz(xRAX, x3, 15, 0);
-                    BSTRINSz(xRAX, x4, 15, 0);
+                    BSTRINSz(xRDX, x4, 15, 0);
                     break;
                 default:
                     DEFAULT;

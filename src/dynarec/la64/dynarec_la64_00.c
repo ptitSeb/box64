@@ -1053,6 +1053,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x8F:
+            INST_NAME("POP Ed");
+            nextop = F8;
+            if (MODREG) {
+                POP1z(xRAX + (nextop & 7) + (rex.b << 3));
+            } else {
+                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, &lock, 1, 0);
+                if (ed == xRSP) {
+                    SDz(x2, ed, fixedaddress);
+                } else {
+                    // complicated to just allow a segfault that can be recovered correctly
+                    ADDIz(xRSP, xRSP, rex.is32bits ? -4 : -8);
+                    SDz(x2, ed, fixedaddress);
+                    ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
+                }
+            }
+            break;
         case 0x90:
         case 0x91:
         case 0x92:
@@ -1376,6 +1394,59 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LD_BU(x2, xRDI, 0);
                     ADD_D(xRDI, xRDI, x3);
                     emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+            }
+            break;
+        case 0xAF:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) {
+                        INST_NAME("REPNZ SCASD");
+                    } else {
+                        INST_NAME("REPZ SCASD");
+                    }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    CBZ_NEXT(xRCX);
+                    if (rex.w) {
+                        MV(x1, xRAX);
+                    } else {
+                        ZEROUP2(x1, xRAX);
+                    }
+                    ANDI(x2, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x2);
+                    MARK; // Part with DF==0
+                    LDxw(x2, xRDI, 0);
+                    ADDI_D(xRDI, xRDI, rex.w ? 8 : 4);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNE_MARK(xRCX, xZR);
+                    B_MARK3_nocond;
+                    MARK2; // Part with DF==1
+                    LDxw(x2, xRDI, 0);
+                    ADDI_D(xRDI, xRDI, rex.w ? -8 : -4);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNE_MARK2(xRCX, xZR);
+                    MARK3; // end
+                    emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("SCASD");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETDIR(x3, x1, rex.w ? 8 : 4);
+                    LDxw(x2, xRDI, 0);
+                    ADD_D(xRDI, xRDI, x3);
+                    emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
                     break;
             }
             break;

@@ -107,6 +107,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_D(v0, v1, 0x10);
             break;
+        case 0x16:
+            INST_NAME("MOVHPD Gx, Eq");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            v1 = fpu_get_scratch(dyn);
+            FLD_D(v1, ed, fixedaddress);
+            VEXTRINS_D(v0, v1, 0x10);
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -1216,6 +1231,14 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             VMUH_H(v0, v0, v1);
+            break;
+        case 0xE6:
+            INST_NAME("CVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0, 0);
+            GETGX_empty(v0);
+            // TODO: fastround
+            VFTINTRZ_W_D(v0, v1, v1);
             break;
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");

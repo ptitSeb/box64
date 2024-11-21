@@ -99,6 +99,79 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             nextop = F8;
             switch (nextop) {
+                case 0xB0:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("LOCK CMPXCHG Eb, Gb");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            ANDI(x6, xRAX, 0xff); // AL
+                            SMDMB();
+                            if (MODREG) {
+                                if (rex.rex) {
+                                    wback = TO_LA64((nextop & 7) + (rex.b << 3));
+                                    wb2 = 0;
+                                } else {
+                                    wback = (nextop & 7);
+                                    wb2 = (wback >> 2) * 8;
+                                    wback = TO_LA64(wback & 3);
+                                }
+                                BSTRPICK_D(x2, wback, wb2 + 7, wb2);
+                                wb1 = 0;
+                                ed = x2;
+                                UFLAG_IF {
+                                    emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5, x1);
+                                }
+                                BNE_MARK2(x6, x2);
+                                BSTRPICK_D(wback, x2, wb2 + 7, wb2);
+                                GETGB(x1);
+                                MV(ed, gd);
+                                MARK2;
+                                BSTRINS_D(xRAX, x2, 7, 0);
+                                B_NEXT_nocond;
+                            } else {
+                                if (rex.rex) {
+                                    gb1 = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3));
+                                    gb2 = 0;
+                                } else {
+                                    gd = (nextop & 0x38) >> 3;
+                                    gb2 = ((gd & 4) >> 2) * 8;
+                                    gb1 = TO_LA64(gd & 3);
+                                }
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                ANDI(x5, wback, 0b11);
+                                SLLI_D(x5, x5, 3); // shamt
+                                MARKLOCK;
+                                ADDI_D(x7, xZR, ~0b11);
+                                AND(x7, wback, x7); // align to 32bit
+                                LD_WU(x1, x7, 0);
+                                LL_W(x4, x7, 0);
+                                SRL_D(x4, x4, x5);
+                                ANDI(x4, x4, 0xff);
+                                BNE_MARK(x6, x4); // compare AL with m8
+                                // AL == m8, r8 is loaded into m8
+                                ADDI_D(x2, xZR, 0xff);
+                                SLL_D(x2, x2, x5);
+                                NOR(x2, x2, xZR);
+                                AND(x2, x1, x2);
+                                BSTRPICK_D(x1, gb1, gb2 + 7, gb2);
+                                SLL_D(x1, x1, x5);
+                                OR(x1, x1, x2);
+                                SC_W(x1, x7, 0);
+                                BEQZ_MARKLOCK(x1);
+                                // done
+                                MARK;
+                                UFLAG_IF { emit_cmp8(dyn, ninst, x6, x4, x1, x2, x3, x5); }
+                                // load m8 into AL
+                                ANDI(xRAX, xRAX, ~0xff);
+                                OR(xRAX, xRAX, x4);
+                            }
+                            SMDMB();
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0xB1:
                     switch (rep) {
                         case 0:
