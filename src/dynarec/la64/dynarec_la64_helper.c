@@ -24,7 +24,7 @@
 #include "la64_printer.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
-#include "dynarec_la64_helper.h"
+#include "../dynarec_helper.h"
 
 #define SCRATCH 31
 

@@ -20,7 +20,7 @@
 #include "la64_printer.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
-#include "dynarec_la64_helper.h"
+#include "../dynarec_helper.h"
 
 // emit SHL16 instruction, from s1 , shift s2, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)

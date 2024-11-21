@@ -21,7 +21,7 @@
 #include "la64_printer.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
-#include "dynarec_la64_helper.h"
+#include "../dynarec_helper.h"
 
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {

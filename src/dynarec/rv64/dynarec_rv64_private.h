@@ -160,7 +160,6 @@ typedef struct dynarec_rv64_s {
     dynablock_t*        dynablock;
     instsize_t*         instsize;
     size_t              insts_size; // size of the instruction size array (calculated)
-    uint8_t             smread;    // for strongmem model emulation
     uint8_t             smwrite;    // for strongmem model emulation
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)

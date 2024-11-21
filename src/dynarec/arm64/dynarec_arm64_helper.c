@@ -23,7 +23,7 @@
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
-#include "dynarec_arm64_helper.h"
+#include "../dynarec_helper.h"
 
 static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, int* l, int s);
 

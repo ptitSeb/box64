@@ -18,7 +18,7 @@
 
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
-#include "dynarec_arm64_helper.h"
+#include "../dynarec_helper.h"
 #include "dynarec_arm64_functions.h"
 
 

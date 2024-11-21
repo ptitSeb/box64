@@ -18,7 +18,7 @@
 
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
-#include "dynarec_arm64_helper.h"
+#include "../dynarec_helper.h"
 #include "dynarec_arm64_functions.h"
 
 uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog)
