@@ -659,7 +659,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
             }
-            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            if (!rv64_xtheadvector) {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            }
             VMV_S_X(v0, ed);
             break;
         case 0x6F:
