@@ -93,7 +93,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
         return;
     }
     onebridge_t* bridge = (onebridge_t*)(*addr-1);
-    if(Peek8(*addr, 0)=='S' && Peek8(*addr, 1)=='C') // Signature for "Out of x86 door"
+    if(bridge->S=='S' && bridge->C=='C') // Signature for "Out of x86 door"
     {
         *addr += 2;
         uintptr_t a = F64(addr);
@@ -382,6 +382,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
             } else
                 w(emu, a);
         }
+        return;
+    }
+    if(Peek8(*addr, -1)!=0xCC) {
+        // why this happens?!
+        printf_log(LOG_DEBUG, "%04d|Warning, x64int3 with no CC opcode at %p?\n", GetTID(), (void*)R_RIP);
         return;
     }
     if(!box64_ignoreint3 && my_context->signals[SIGTRAP]) {
