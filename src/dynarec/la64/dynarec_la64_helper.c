@@ -888,6 +888,15 @@ static void sse_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
         }
 }
 
+// AVX Helpers
+void ymm_mark_zero(dynarec_la64_t* dyn, int ninst, int a)
+{
+#if STEP == 0
+    dyn->insts[ninst].ymm0_add |= (1 << a);
+#endif
+    avx_mark_zero(dyn, ninst, a);
+}
+
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07 ? 8 : 0;

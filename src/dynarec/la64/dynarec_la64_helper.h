@@ -357,6 +357,8 @@
         BSTRINS_D(wback, ed, wb2 + 7, wb2); \
     }
 
+#define YMM0(a) ymm_mark_zero(dyn, ninst, a);
+
 // Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
 // using s as scratch.
 // F_DF is not in LBT4.eflags, don't worry
@@ -776,6 +778,9 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F0   STEPNAME(dynarec64_F0)
 #define dynarec64_F20F STEPNAME(dynarec64_F20F)
 
+#define dynarec64_AVX       STEPNAME(dynarec64_AVX)
+#define dynarec64_AVX_66_0F     STEPNAME(dynarec64_AVX_66_0F)
+
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
 #define jump_to_epilog      STEPNAME(jump_to_epilog)
@@ -860,6 +865,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg    STEPNAME(sse_forget_reg)
 #define sse_reflect_reg   STEPNAME(sse_reflect_reg)
+#define ymm_mark_zero     STEPNAME(ymm_mark_zero)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -984,6 +990,10 @@ void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a);
 // Push current value to the cache
 void sse_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
 
+// avx helpers
+// mark an ymm upper part has zero (forgetting upper part if needed)
+void ymm_mark_zero(dynarec_la64_t* dyn, int ninst, int a);
+
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
 void la64_move64(dynarec_la64_t* dyn, int ninst, int reg, int64_t val);
@@ -1005,6 +1015,9 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+
+uintptr_t dynarec64_AVX(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 3
 #define PASS3(A)

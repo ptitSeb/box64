@@ -1840,6 +1840,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VEXT2XV_WU_HU(vd, vj)        EMIT(type_2R(0b0111011010011111001101, vj, vd))
 #define VEXT2XV_DU_HU(vd, vj)        EMIT(type_2R(0b0111011010011111001110, vj, vd))
 #define VEXT2XV_DU_WU(vd, vj)        EMIT(type_2R(0b0111011010011111001111, vj, vd))
+#define VINSGR2VR_W(vd, rj, ui2)     EMIT(type_2RI2(0b01110010111010111110, ui2, rj, vd))
 
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions
