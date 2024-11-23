@@ -580,7 +580,13 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         SD(x3, gback, gdoffset + i * 8);
                     }
                     break;
-
+                case 0x37:
+                    INST_NAME("PCMPGTQ Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0, 8);
+                    SSE_LOOP_Q(x3, x4, SLT(x4, x4, x3); NEG(x3, x4));
+                    break;
                 case 0x38:
                     INST_NAME("PMINSB Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
