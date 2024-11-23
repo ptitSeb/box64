@@ -1282,8 +1282,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         return;
     }
     IFX(X_CF) {
-        LSRxw(s3, s1, (rex.w?64:32)-c);
-        BFIxw(xFlags, s3, F_CF, 1);
+        BFXILx(xFlags, s1, (rex.w?64:32)-c, 1);
     }
     IFX(X_OF) {
         LSRxw(s3, s1, rex.w?63:31);
