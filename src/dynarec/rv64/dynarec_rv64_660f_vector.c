@@ -169,9 +169,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
             LD(x4, ed, fixedaddress);
             d0 = fpu_get_scratch(dyn);
-            VMV_X_S(x5, v0);
             VMV_S_X(d0, x4);
-            VSLIDE1UP_VX(v0, d0, x5, VECTOR_UNMASKED);
+            VSLIDEUP_VI(v0, d0, 1, VECTOR_UNMASKED);
             break;
         case 0x17:
             INST_NAME("MOVHPD Eq, Gx");
