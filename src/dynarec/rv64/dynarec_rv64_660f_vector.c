@@ -1778,25 +1778,23 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 i32 = 64;
             }
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             if (MODREG) {
                 q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                VMV_X_S(x4, q1);
             } else {
-                VECTOR_LOAD_VMASK(1, x1, 1);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
-                q1 = fpu_get_scratch(dyn);
-                VLE_V(q1, ed, VECTOR_SEW64, VECTOR_MASKED, VECTOR_NFIELD1);
+                LD(x4, wback, fixedaddress);
             }
-            VMV_X_S(x4, q1);
-            ADDI(x5, xZR, i32);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
-            BLTU_MARK(x4, x5);
-            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-            B_NEXT_nocond;
-            MARK;
+            v0 = fpu_get_scratch(dyn);
+            SLTIU(x3, x4, i32);
+            SUB(x3, xZR, x3);
+            NOT(x3, x3); // mask
             VSRL_VX(q0, q0, x4, VECTOR_UNMASKED);
+            VAND_VX(v0, q0, x3, VECTOR_UNMASKED);
+            VXOR_VV(q0, q0, v0, VECTOR_UNMASKED);
             break;
         case 0xD4:
             INST_NAME("PADDQ Gx, Ex");
@@ -2133,25 +2131,23 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 i32 = 64;
             }
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             if (MODREG) {
                 q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                VMV_X_S(x4, q1);
             } else {
-                VECTOR_LOAD_VMASK(1, x1, 1);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
-                q1 = fpu_get_scratch(dyn);
-                VLE_V(q1, ed, VECTOR_SEW64, VECTOR_MASKED, VECTOR_NFIELD1);
+                LD(x4, wback, fixedaddress);
             }
-            VMV_X_S(x4, q1);
-            ADDI(x5, xZR, i32);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
-            BLTU_MARK(x4, x5);
-            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-            B_NEXT_nocond;
-            MARK;
+            v0 = fpu_get_scratch(dyn);
+            SLTIU(x3, x4, i32);
+            SUB(x3, xZR, x3);
+            NOT(x3, x3); // mask
             VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
+            VAND_VX(v0, q0, x3, VECTOR_UNMASKED);
+            VXOR_VV(q0, q0, v0, VECTOR_UNMASKED);
             break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx, Ex");
