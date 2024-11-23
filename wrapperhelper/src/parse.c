@@ -1239,8 +1239,16 @@ static int eval_expression(loginfo_t *li, machine_t *target, expr_t *e, khash_t(
 	case ETY_CAST:
 		if (!eval_expression(li, target, e->val.cast.e, const_map, dest, fatal)) return 0;
 		
-		if (e->val.cast.typ->typ == TYPE_BUILTIN) {
-			switch (e->val.cast.typ->val.builtin) {
+		if ((e->val.cast.typ->typ == TYPE_BUILTIN) || (e->val.cast.typ->typ == TYPE_ENUM)) {
+			type_t *cast = e->val.cast.typ;
+			if (cast->typ == TYPE_ENUM) {
+				cast = cast->val.typ;
+				if (cast->typ != TYPE_BUILTIN) {
+					log_internal(li, "invalid cast to enum with non-builtin base type\n");
+					return 0;
+				}
+			}
+			switch (cast->val.builtin) {
 			case BTT_VOID:
 				if (fatal) log_error(li, "invalid cast to void\n");
 				return 0;
@@ -1411,7 +1419,7 @@ static int eval_expression(loginfo_t *li, machine_t *target, expr_t *e, khash_t(
 			case BTT_IFLOAT128:
 			case BTT_VA_LIST:
 			default:
-				if (fatal) log_TODO(li, "unsupported cast to builtin %s in constant expression\n", builtin2str[e->val.cast.typ->val.builtin]);
+				if (fatal) log_TODO(li, "unsupported cast to builtin %s in constant expression\n", builtin2str[cast->val.builtin]);
 				return 0;
 			}
 		} else {
