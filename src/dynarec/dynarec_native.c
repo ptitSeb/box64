@@ -121,6 +121,8 @@ int is_nops(dynarec_native_t *dyn, uintptr_t addr, int n)
         return is_nops(dyn, addr+1, n-1);
     if(n>1 && PK(0)==0x66)  // if opcode start with 0x66, and there is more after, than is *can* be a NOP
         return is_nops(dyn, addr+1, n-1);
+    if(n>1 && PK(0)==0xF3 && PK(1)==0x90)
+        return is_nops(dyn, addr+2, n-2);
     if(n>2 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x00)
         return is_nops(dyn, addr+3, n-3);
     if(n>2 && PK(0)==0x8d && PK(1)==0x76 && PK(2)==0x00)    // lea esi, [esi]
@@ -229,6 +231,14 @@ int next_instruction(dynarec_native_t *dyn, uintptr_t addr)
         case 0xBE:
         case 0xBF:
             return 5;
+        case 0xF3:
+            nextop = PK(1);
+            switch(nextop) {
+                case 0x90: 
+                    return 2;
+                default: break;
+            }
+            break;
         case 0xFF:
             nextop = PK(1);
             switch((nextop>>3)&7) {
@@ -642,6 +652,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             if(k!=-1) {
                 if(!helper.insts[i].barrier_maybe)
                     helper.insts[k].x64.barrier |= BARRIER_FULL;
+                // special case, loop on itself with some nop in between
+                if(k<i && !helper.insts[i].x64.has_next && is_nops(&helper, helper.insts[k].x64.addr, helper.insts[i].x64.addr-helper.insts[k].x64.addr)) {
+                    helper.always_test = 1;
+                    k = -1;
+                }
                 helper.insts[i].x64.jmp_insts = k;
             }
         }
