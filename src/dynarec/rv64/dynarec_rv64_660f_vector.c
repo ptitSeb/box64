@@ -1120,47 +1120,45 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x60:
             INST_NAME("PUNPCKLBW Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-            VECTOR_LOAD_VMASK(0b1010101010101010, x1, 1);
-            v0 = fpu_get_scratch(dyn);
-            VIOTA_M(v0, VMASK, VECTOR_UNMASKED); // v0 = 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0 0
             GETGX_vector(q0, 1, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            VRGATHER_VV(d0, q0, v0, VECTOR_UNMASKED);
-            VRGATHER_VV(d1, q1, v0, VECTOR_UNMASKED);
-            VMERGE_VVM(q0, d0, d1);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VWADDU_VX(d0, q0, xZR, VECTOR_UNMASKED);
+            VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VSLL_VI(v0, v0, 8, VECTOR_UNMASKED);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-            VECTOR_LOAD_VMASK(0b10101010, x1, 1);
-            v0 = fpu_get_scratch(dyn);
-            VIOTA_M(v0, VMASK, VECTOR_UNMASKED); // v0 = 3 3 2 2 1 1 0 0
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            VRGATHER_VV(d0, q0, v0, VECTOR_UNMASKED);
-            VRGATHER_VV(d1, q1, v0, VECTOR_UNMASKED);
-            VMERGE_VVM(q0, d0, d1);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VWADDU_VX(d0, q0, xZR, VECTOR_UNMASKED);
+            VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            VSLL_VI(v0, v0, 16, VECTOR_UNMASKED);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x62:
             INST_NAME("PUNPCKLDQ Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-            VECTOR_LOAD_VMASK(0b1010, x1, 1);
-            v0 = fpu_get_scratch(dyn);
-            VIOTA_M(v0, VMASK, VECTOR_UNMASKED); // v0 = 1 1 0 0
             GETGX_vector(q0, 1, VECTOR_SEW32);
             GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            VRGATHER_VV(d0, q0, v0, VECTOR_UNMASKED);
-            VRGATHER_VV(d1, q1, v0, VECTOR_UNMASKED);
-            VMERGE_VVM(q0, d0, d1);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            MOV32w(x2, 32);
+            VWADDU_VX(d0, q0, xZR, VECTOR_UNMASKED);
+            VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x63:
             INST_NAME("PACKSSWB Gx, Ex");
@@ -1228,36 +1226,39 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x68 ... 0x6A:
             if (opcode == 0x68) {
                 INST_NAME("PUNPCKHBW Gx, Ex");
-                nextop = F8;
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                VECTOR_LOAD_VMASK(0b1010101010101010, x1, 1);
-                v0 = fpu_get_scratch(dyn);
-                VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
-                VADD_VI(v0, v0, 8, VECTOR_UNMASKED); // v0 = 15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8
+                u8 = VECTOR_SEW8;
+                i32 = VECTOR_SEW16;
+                s8 = 8;
+                d2 = 8;
             } else if (opcode == 0x69) {
                 INST_NAME("PUNPCKHWD Gx, Ex");
-                nextop = F8;
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-                VECTOR_LOAD_VMASK(0b10101010, x1, 1);
-                v0 = fpu_get_scratch(dyn);
-                VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
-                VADD_VI(v0, v0, 4, VECTOR_UNMASKED); // v0 = 7 7 6 6 5 5 4 4
+                u8 = VECTOR_SEW16;
+                i32 = VECTOR_SEW32;
+                s8 = 4;
+                d2 = 16;
             } else {
                 INST_NAME("PUNPCKHDQ Gx, Ex");
-                nextop = F8;
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-                VECTOR_LOAD_VMASK(0b1010, x1, 1);
-                v0 = fpu_get_scratch(dyn);
-                VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
-                VADD_VI(v0, v0, 2, VECTOR_UNMASKED); // v0 = 3 3 2 2
+                u8 = VECTOR_SEW32;
+                i32 = VECTOR_SEW64;
+                s8 = 2;
+                d2 = 32;
+                MOV32w(x2, 32);
             }
+            nextop = F8;
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            VRGATHER_VV(d0, q0, v0, VECTOR_UNMASKED);
-            VRGATHER_VV(d1, q1, v0, VECTOR_UNMASKED);
-            VMERGE_VVM(q0, d0, d1);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VSLIDEDOWN_VI(v0, q0, s8, VECTOR_UNMASKED);
+            VSLIDEDOWN_VI(v1, q1, s8, VECTOR_UNMASKED);
+            VWADDU_VX(d0, v0, xZR, VECTOR_UNMASKED);
+            VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, i32, 1);
+            if (d2 < 32) VSLL_VI(v0, v0, d2, VECTOR_UNMASKED);
+            else VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
+            VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x6B:
             INST_NAME("PACKSSDW Gx, Ex");
