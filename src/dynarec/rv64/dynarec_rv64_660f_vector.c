@@ -173,6 +173,24 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMV_S_X(d0, x4);
             VSLIDE1UP_VX(v0, d0, x5, VECTOR_UNMASKED);
             break;
+        case 0x17:
+            INST_NAME("MOVHPD Eq, Gx");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW64);
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+            d0 = fpu_get_scratch(dyn);
+            VSLIDE1DOWN_VX(d0, v0, xZR, VECTOR_UNMASKED);
+            VMV_X_S(x5, d0);
+            SD(x5, ed, fixedaddress);
+            SMWRITE2();
+            break;
         case 0x1F:
             return 0;
         case 0x28:
