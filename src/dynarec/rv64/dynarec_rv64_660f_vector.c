@@ -325,12 +325,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
                     VWMULSU_VV(v0, q1, q0, VECTOR_UNMASKED);
-                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
-                    VECTOR_LOAD_VMASK(0b0101010101010101, x4, 2);
-                    VCOMPRESS_VM(d0, v0, VMASK);
-                    VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-                    VCOMPRESS_VM(d1, v0, VMASK);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
+                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
                     VSADD_VV(q0, d1, d0, VECTOR_UNMASKED);
                     break;
                 case 0x05:
