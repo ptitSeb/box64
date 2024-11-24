@@ -704,6 +704,31 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMDMB();
             }
             break;
+        case 0xF6:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("LOCK NOT Eb");
+                    if(MODREG) {
+                        GETEB(x1, 0);
+                        NOT(x1, x1);
+                        EBBACK(x5, 1);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SMDMB();
+                        ANDI(x3, wback, 3);
+                        ANDI(x5, wback, ~3);
+                        MOV32w(x4, 0xFF);
+                        SLLIW(x3, x3, 3);
+                        SLLW(x4, x4, x3); // mask
+                        AMOXOR_W(xZR, x4, x5, 1, 1);
+                        SMDMB();
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7)
