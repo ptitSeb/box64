@@ -110,8 +110,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     wback = xRAX+(wback&3);
                                 }
                                 if (wb2) {
-                                    MV(x2, wback);
-                                    SRLI(x2, x2, wb2);
+                                    SRLI(x2, wback, wb2);
                                     ANDI(x2, x2, 0xff);
                                 } else {
                                     ANDI(x2, wback, 0xff);
@@ -123,8 +122,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                                 BNE_MARK2(x6, x2);
                                 if (wb2) {
-                                    MV(wback, x2);
-                                    SRLI(wback, wback, wb2);
+                                    SRLI(wback, x2, wb2);
                                     ANDI(wback, wback, 0xff);
                                 } else {
                                     ANDI(wback, x2, 0xff);
@@ -136,9 +134,6 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 OR(xRAX, xRAX, x2);
                                 B_NEXT_nocond;
                             } else {
-                                // this one is tricky, and did some repetitive work.
-                                // mostly because we only got 6 scratch registers,
-                                // and has so much to do.
                                 if(rex.rex) {
                                     gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
                                     gb2 = 0;
@@ -163,8 +158,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 NOT(x2, x2);
                                 AND(x2, x1, x2);
                                 if (gb2) {
-                                    MV(x1, gb1);
-                                    SRLI(x1, x1, 8);
+                                    SRLI(x1, gb1, 8);
                                     ANDI(x1, x1, 0xff);
                                 } else {
                                     ANDI(x1, gb1, 0xff);
