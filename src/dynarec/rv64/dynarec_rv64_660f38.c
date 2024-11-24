@@ -326,6 +326,18 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         SW(x3, gback, gdoffset + i * 4);
                     }
                     break;
+                case 0x15:
+                    INST_NAME("PBLENDVPD Gx,Ex");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0, 8);
+                    for (int i = 0; i < 2; ++i) {
+                        LD(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 8);
+                        BGE(x3, xZR, 4 + 4 * 2);
+                        LD(x3, wback, fixedaddress + i * 8);
+                        SD(x3, gback, gdoffset + i * 8);
+                    }
+                    break;
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
@@ -580,7 +592,13 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         SD(x3, gback, gdoffset + i * 8);
                     }
                     break;
-
+                case 0x37:
+                    INST_NAME("PCMPGTQ Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0, 8);
+                    SSE_LOOP_Q(x3, x4, SLT(x4, x4, x3); NEG(x3, x4));
+                    break;
                 case 0x38:
                     INST_NAME("PMINSB Gx, Ex"); // SSE4 opcode!
                     nextop = F8;

@@ -659,7 +659,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
             }
-            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            if (!rv64_xtheadvector) {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            }
             VMV_S_X(v0, ed);
             break;
         case 0x6F:
@@ -850,15 +852,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
             GETGM_vector(v0);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             if (MODREG) {
                 v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 VMV_X_S(x4, v1);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, v1, x3, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, wback, fixedaddress);
             }
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             SLTIU(x3, x4, i32);
             SUB(x3, xZR, x3);
             NOT(x3, x3); // mask
@@ -1034,15 +1037,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
             GETGM_vector(v0);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             if (MODREG) {
                 v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 VMV_X_S(x4, v1);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, v1, x3, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, wback, fixedaddress);
             }
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             SLTIU(x3, x4, i32);
             SUB(x3, xZR, x3);
             NOT(x3, x3); // mask
