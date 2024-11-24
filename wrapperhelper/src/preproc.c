@@ -266,25 +266,39 @@ static int try_open_dir(preproc_t *src, string_t *filename) {
 		fn[1] = '/';
 	}
 	strcpy(fn + incl_len + 1, string_content(filename));
-	FILE *f = fopen(fn, "r");
-#ifdef LOG_OPEN
-	printf("Trying %s: %p\n", fn, f);
-#endif
-	int ret;
-	if (f) {
-		char *new_dirname = strchr(fn, '/') ? strndup(fn, (size_t)(strrchr(fn, '/') - fn)) : NULL;
-		ret = vector_push(ppsource, src->prep, PREPARE_NEW_FILE(f, fn, src->cur_file, src->dirname, src->is_sys, src->cur_pathno));
-		if (ret) {
-			src->is_sys = 0;
-			src->cur_file = fn;
-			src->dirname = new_dirname;
-			src->cur_pathno = 0;
+	int has_once = 0;
+	vector_for(ccharp, fname, src->pragma_once) {
+		if (!strcmp(*fname, fn)) {
+			has_once = 1;
+			break;
 		}
-	} else {
-		free(fn);
-		ret = 0;
 	}
-	return ret;
+	if (has_once) {
+#ifdef LOG_INCLUDE
+		printf("Skipping opening %s as cur header: '%s' in pragma_once\n", string_content(filename), fn);
+#endif
+		free(fn);
+		return 1;
+	} else {
+		FILE *f = fopen(fn, "r");
+#ifdef LOG_OPEN
+		printf("Trying %s: %p\n", fn, f);
+#endif
+		if (f) {
+			char *new_dirname = strchr(fn, '/') ? strndup(fn, (size_t)(strrchr(fn, '/') - fn)) : NULL;
+			int ret = vector_push(ppsource, src->prep, PREPARE_NEW_FILE(f, fn, src->cur_file, src->dirname, src->is_sys, src->cur_pathno));
+			if (ret) {
+				src->is_sys = 0;
+				src->cur_file = fn;
+				src->dirname = new_dirname;
+				src->cur_pathno = 0;
+			}
+			return ret;
+		} else {
+			free(fn);
+			return 0;
+		}
+	}
 }
 static int try_open_sys(preproc_t *src, string_t *filename, size_t array_off) {
 	size_t fnlen = string_len(filename);
@@ -295,22 +309,37 @@ static int try_open_sys(preproc_t *src, string_t *filename, size_t array_off) {
 		memcpy(fn, src->target->include_path[array_off], incl_len);
 		fn[incl_len] = '/';
 		strcpy(fn + incl_len + 1, string_content(filename));
-		FILE *f = fopen(fn, "r");
-#ifdef LOG_OPEN
-		printf("Trying %s: %p\n", fn, f);
-#endif
-		if (f) {
-			char *new_dirname = strchr(fn, '/') ? strndup(fn, (size_t)(strrchr(fn, '/') - fn)) : NULL;
-			int ret = vector_push(ppsource, src->prep, PREPARE_NEW_FILE(f, fn, src->cur_file, src->dirname, src->is_sys, src->cur_pathno));
-			if (ret) {
-				src->is_sys = 1;
-				src->cur_file = fn;
-				src->dirname = new_dirname;
-				src->cur_pathno = array_off + 1;
+		int has_once = 0;
+		vector_for(ccharp, fname, src->pragma_once) {
+			if (!strcmp(*fname, fn)) {
+				has_once = 1;
+				break;
 			}
-			return ret;
 		}
-		free(fn);
+		if (has_once) {
+#ifdef LOG_INCLUDE
+			printf("Skipping opening %s as system header: '%s' in pragma_once\n", string_content(filename), fn);
+#endif
+			free(fn);
+			return 1;
+		} else {
+			FILE *f = fopen(fn, "r");
+#ifdef LOG_OPEN
+			printf("Trying %s: %p\n", fn, f);
+#endif
+			if (f) {
+				char *new_dirname = strchr(fn, '/') ? strndup(fn, (size_t)(strrchr(fn, '/') - fn)) : NULL;
+				int ret = vector_push(ppsource, src->prep, PREPARE_NEW_FILE(f, fn, src->cur_file, src->dirname, src->is_sys, src->cur_pathno));
+				if (ret) {
+					src->is_sys = 1;
+					src->cur_file = fn;
+					src->dirname = new_dirname;
+					src->cur_pathno = array_off + 1;
+				}
+				return ret;
+			}
+			free(fn);
+		}
 	}
 	return 0;
 }
@@ -2425,32 +2454,18 @@ start_cur_token:
 					}
 				}
 				// cur_pathno == 0 if cur_file was from an #include "...", otherwise idx + 1
-				int has_once = 0;
-				vector_for(ccharp, fname, src->pragma_once) {
-					if (!strcmp(*fname, string_content(incl_file))) {
-						has_once = 1;
-						break;
-					}
-				}
-				if (has_once) {
 #ifdef LOG_INCLUDE
-					printf("Skipping opening %s as %s from system path %zu\n", string_content(incl_file),
-					       is_sys ? "system header" : "cur header", is_next ? src->cur_pathno : 0);
+				printf("Opening %s as %s from system path %zu\n", string_content(incl_file),
+				       is_sys ? "system header" : "cur header", is_next ? src->cur_pathno : 0);
 #endif
-				} else {
-#ifdef LOG_INCLUDE
-					printf("Opening %s as %s from system path %zu\n", string_content(incl_file),
-					       is_sys ? "system header" : "cur header", is_next ? src->cur_pathno : 0);
-#endif
-					if ((is_sys || !try_open_dir(src, incl_file)) && !try_open_sys(src, incl_file, is_next ? src->cur_pathno : 0)) {
-						log_error(&li, "failed to open %s\n", string_content(incl_file));
-						string_del(incl_file);
-						src->st = PPST_NONE;
-						ret.tokt = PTOK_INVALID;
-						ret.loginfo = li;
-						ret.tokv.c = is_sys ? '<' : '"';
-						return ret;
-					}
+				if ((is_sys || !try_open_dir(src, incl_file)) && !try_open_sys(src, incl_file, is_next ? src->cur_pathno : 0)) {
+					log_error(&li, "failed to open %s\n", string_content(incl_file));
+					string_del(incl_file);
+					src->st = PPST_NONE;
+					ret.tokt = PTOK_INVALID;
+					ret.loginfo = li;
+					ret.tokv.c = is_sys ? '<' : '"';
+					return ret;
 				}
 				string_del(incl_file);
 				if (tok.tokt == PPTOK_NEWLINE) goto check_next_token;
