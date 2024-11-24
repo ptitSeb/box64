@@ -124,6 +124,18 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "NOP");
         return buff;
     }
+    if(isMask(opcode, "11010101000000110010000001011111", &a)) {
+        snprintf(buff, sizeof(buff), "WFE");
+        return buff;
+    }
+    if(isMask(opcode, "11010101000000110010000001111111", &a)) {
+        snprintf(buff, sizeof(buff), "WFI");
+        return buff;
+    }
+    if(isMask(opcode, "11010101000000110010000000111111", &a)) {
+        snprintf(buff, sizeof(buff), "YIELD");
+        return buff;
+    }
     // --- LDR / STR
     if(isMask(opcode, "f010100011iiiiiii22222nnnnnttttt", &a)) {
         int offset = signExtend(imm, 7)<<(2+sf);
