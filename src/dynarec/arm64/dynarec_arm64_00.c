@@ -1416,13 +1416,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0x90:
-            if (rep == 2) {
-                INST_NAME("PAUSE");
-                WFE;
-            } else {
-                INST_NAME("NOP");
-            }
-            break;
         case 0x91:
         case 0x92:
         case 0x93:
@@ -1430,11 +1423,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x95:
         case 0x96:
         case 0x97:
-            INST_NAME("XCHG EAX, Reg");
-            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
-            MOVxw_REG(x2, xRAX);
-            MOVxw_REG(xRAX, gd);
-            MOVxw_REG(gd, x2);
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            if(gd==xRAX) {
+                if (rep == 2) {
+                    INST_NAME("PAUSE");
+                    WFE;
+                } else {
+                    INST_NAME("NOP");
+                }
+            } else {
+                INST_NAME("XCHG EAX, Reg");
+                MOVxw_REG(x2, xRAX);
+                MOVxw_REG(xRAX, gd);
+                MOVxw_REG(gd, x2);
+            }
             break;
 
         case 0x98:
