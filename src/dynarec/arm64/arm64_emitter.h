@@ -540,6 +540,7 @@ int convert_bitmask(uint64_t bitmask);
 #define BL(imm26)                       EMIT(BL_gen(((imm26)>>2)&0x3ffffff))
 
 #define NOP                             EMIT(0b11010101000000110010000000011111)
+#define WFE                             EMIT(0b11010101000000110010000001011111)
 
 #define CSINC_gen(sf, Rm, cond, Rn, Rd)     ((sf)<<31 | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | 1<<10 | (Rn)<<5 | (Rd))
 #define CSINCx(Rd, Rn, Rm, cond)            EMIT(CSINC_gen(1, Rm, cond, Rn, Rd))
