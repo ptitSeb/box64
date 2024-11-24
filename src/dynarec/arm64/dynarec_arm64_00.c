@@ -1427,7 +1427,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(gd==xRAX) {
                 if (rep == 2) {
                     INST_NAME("PAUSE");
-                    WFE;
+                    YIELD;
                 } else {
                     INST_NAME("NOP");
                 }
