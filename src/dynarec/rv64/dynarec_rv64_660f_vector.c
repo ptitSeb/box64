@@ -1779,16 +1779,17 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 i32 = 64;
             }
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             if (MODREG) {
                 q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 VMV_X_S(x4, q1);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 LD(x4, wback, fixedaddress);
             }
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             v0 = fpu_get_scratch(dyn);
             SLTIU(x3, x4, i32);
             SUB(x3, xZR, x3);
@@ -2133,8 +2134,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             nextop = F8;
             GETGX_vector(q0, 1, VECTOR_SEW64);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
                 VMV_X_S(x4, q1);
             } else {
@@ -2142,6 +2143,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 LD(x4, wback, fixedaddress);
             }
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             v0 = fpu_get_scratch(dyn);
             SLTIU(x3, x4, i32);
             SUB(x3, xZR, x3);
