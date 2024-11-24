@@ -737,6 +737,7 @@ GOM(vkDestroyCuModuleNVX, vFEpUp)
 
 // VK_NVX_image_view_handle
 GO(vkGetImageViewAddressNVX, iFpUp)
+GO(vkGetImageViewHandle64NVX, UFpp)
 GO(vkGetImageViewHandleNVX, uFpp)
 
 // VK_NV_device_generated_commands
@@ -991,3 +992,6 @@ GO(vkImportSemaphoreWin32HandleKHR, iFpp)
 // VK_KHR_win32_keyed_mutex
 GO(wine_vkAcquireKeyedMutex, iFpUUu)
 GO(wine_vkReleaseKeyedMutex, iFpUU)
+
+// VK_NV_cooperative_matrix2
+GO(vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV, iFppp)
