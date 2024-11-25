@@ -1429,14 +1429,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(gd==xRAX) {
                 if (rep == 2) {
                     INST_NAME("PAUSE");
-                    if (box64_dynarec_pause == 1)
-                        YIELD;
-                    else if (box64_dynarec_pause == 2)
-                        WFI;
-                    else if (box64_dynarec_pause == 3) {
-                        dyn->insts[ninst].wfe = 1;
-                        SEVL;
-                        WFE;
+                    switch (box64_dynarec_pause) {
+                        case 1: YIELD; break;
+                        case 2: WFI; break;
+                        case 3:
+                            dyn->insts[ninst].wfe = 1;
+                            SEVL;
+                            WFE;
+                            break;
                     }
                 } else {
                     INST_NAME("NOP");
