@@ -1360,6 +1360,7 @@ void pFpiiu(x64emu_t *emu, uintptr_t fnc);
 void pFpiip(x64emu_t *emu, uintptr_t fnc);
 void pFpiuu(x64emu_t *emu, uintptr_t fnc);
 void pFpiLi(x64emu_t *emu, uintptr_t fnc);
+void pFpiLu(x64emu_t *emu, uintptr_t fnc);
 void pFpiLL(x64emu_t *emu, uintptr_t fnc);
 void pFpipc(x64emu_t *emu, uintptr_t fnc);
 void pFpipi(x64emu_t *emu, uintptr_t fnc);
