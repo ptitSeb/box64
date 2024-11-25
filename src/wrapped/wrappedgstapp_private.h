@@ -1,45 +1,45 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
-//GO(gst_app_sink_get_buffer_list_support, 
-//GO(gst_app_sink_get_caps, 
-//GO(gst_app_sink_get_drop, 
-//GO(gst_app_sink_get_emit_signals, 
-//GO(gst_app_sink_get_max_buffers, 
+GO(gst_app_sink_get_buffer_list_support, iFp)
+GO(gst_app_sink_get_caps, pFp)
+GO(gst_app_sink_get_drop, iFp)
+GO(gst_app_sink_get_emit_signals, iFp)
+GO(gst_app_sink_get_max_buffers, uFp)
 GO(gst_app_sink_get_type, LFv)
-//GO(gst_app_sink_get_wait_on_eos, 
-//GO(gst_app_sink_is_eos, 
-//GO(gst_app_sink_pull_preroll, 
-//GO(gst_app_sink_pull_sample, 
-//GO(gst_app_sink_set_buffer_list_support, 
-//GO(gst_app_sink_set_callbacks, 
-//GO(gst_app_sink_set_caps, 
-//GO(gst_app_sink_set_drop, 
-//GO(gst_app_sink_set_emit_signals, 
-//GO(gst_app_sink_set_max_buffers, 
-//GO(gst_app_sink_set_wait_on_eos, 
-//GO(gst_app_sink_try_pull_preroll, 
-//GO(gst_app_sink_try_pull_sample, 
-//GO(gst_app_src_end_of_stream, 
-//GO(gst_app_src_get_caps, 
-//GO(gst_app_src_get_current_level_bytes, 
-//GO(gst_app_src_get_duration, 
-//GO(gst_app_src_get_emit_signals, 
-//GO(gst_app_src_get_latency, 
-//GO(gst_app_src_get_max_bytes, 
-//GO(gst_app_src_get_size, 
-//GO(gst_app_src_get_stream_type, 
-//GO(gst_app_src_get_type, 
-//GO(gst_app_src_push_buffer, 
-//GO(gst_app_src_push_buffer_list, 
-//GO(gst_app_src_push_sample, 
-//GO(gst_app_src_set_callbacks, 
-//GO(gst_app_src_set_caps, 
-//GO(gst_app_src_set_duration, 
-//GO(gst_app_src_set_emit_signals, 
-//GO(gst_app_src_set_latency, 
-//GO(gst_app_src_set_max_bytes, 
-//GO(gst_app_src_set_size, 
-//GO(gst_app_src_set_stream_type, 
-//GO(gst_app_stream_type_get_type, 
+GO(gst_app_sink_get_wait_on_eos, iFp)
+GO(gst_app_sink_is_eos, iFp)
+GO(gst_app_sink_pull_preroll, pFp)
+GO(gst_app_sink_pull_sample, pFp)
+GO(gst_app_sink_set_buffer_list_support, vFpi)
+//GOM(gst_app_sink_set_callbacks, vFEpppp)
+GO(gst_app_sink_set_caps, vFpp)
+GO(gst_app_sink_set_drop, vFpi)
+GO(gst_app_sink_set_emit_signals, vFpi)
+GO(gst_app_sink_set_max_buffers, vFpu)
+GO(gst_app_sink_set_wait_on_eos, vFpi)
+GO(gst_app_sink_try_pull_preroll, pFpL)
+GO(gst_app_sink_try_pull_sample, pFpL)
+GO(gst_app_src_end_of_stream, iFp)
+GO(gst_app_src_get_caps, pFp)
+GO(gst_app_src_get_current_level_bytes, LFp)
+GO(gst_app_src_get_duration, LFp)
+GO(gst_app_src_get_emit_signals, iFp)
+GO(gst_app_src_get_latency, vFppp)
+GO(gst_app_src_get_max_bytes, LFp)
+GO(gst_app_src_get_size, lFp)
+GO(gst_app_src_get_stream_type, uFp)
+GO(gst_app_src_get_type, LFv)
+GO(gst_app_src_push_buffer, iFpp)
+GO(gst_app_src_push_buffer_list, iFpp)
+GO(gst_app_src_push_sample, iFpp)
+//GOM(gst_app_src_set_callbacks, vFEpppp)
+GO(gst_app_src_set_caps, vFpp)
+GO(gst_app_src_set_duration, vFpL)
+GO(gst_app_src_set_emit_signals, vFpi)
+GO(gst_app_src_set_latency, vFpLL)
+GO(gst_app_src_set_max_bytes, vFpL)
+GO(gst_app_src_set_size, vFpl)
+GO(gst_app_src_set_stream_type, vFpu)
+GO(gst_app_stream_type_get_type, LFv)
