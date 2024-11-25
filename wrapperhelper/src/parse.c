@@ -1431,6 +1431,8 @@ static int eval_expression(loginfo_t *li, machine_t *target, expr_t *e, khash_t(
 	}
 }
 
+extern int is_gst; // If 1, mark structures _G*Class as simple
+
 // declaration-specifier with storage != NULL
 // specifier-qualifier-list + static_assert-declaration with storage == NULL
 static int parse_declaration_specifier(machine_t *target, khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
@@ -2047,6 +2049,13 @@ parse_cur_token_decl:
 			typ->val.st->nmembers = vector_size(st_members, members);
 			typ->val.st->members = vector_steal(st_members, members);
 			typ->val.st->is_defined = 1;
+			if (is_gst
+			       && typ->val.st->tag
+			       && (string_len(typ->val.st->tag) >= 7)
+			       && !strncmp(string_content(typ->val.st->tag), "_G", 2)
+			       && !strcmp(string_content(typ->val.st->tag) + string_len(typ->val.st->tag) - 5, "Class")) {
+				typ->val.st->is_simple = 1;
+			}
 			*tok = proc_next_token(prep);
 			goto parse_cur_token_decl;
 		} else {

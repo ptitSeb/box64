@@ -1176,7 +1176,8 @@ void type_print(type_t *typ) {
 void struct_print(const struct_t *st) {
 	printf("<" DISP_ADDR_FMT "n_uses=%zu> ", DISP_ADDR_ARG(st) st->nrefs);
 	if (st->is_simple) {
-		printf("<simple> ");
+		printf("<simple> %s %s <don't care>", st->is_struct ? "struct" : "union", st->tag ? string_content(st->tag) : "<no tag>");
+		return;
 	}
 	if (st->is_defined) {
 		printf(
