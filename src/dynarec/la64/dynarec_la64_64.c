@@ -118,6 +118,16 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
                     EBBACK();
                     break;
+                case 2: // ADC
+                    INST_NAME("ADC Eb, Ib");
+                    grab_segdata(dyn, addr, ninst, x1, seg);
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEBO(x1, 1);
+                    u8 = F8;
+                    emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
                 case 3: // SBB
                     INST_NAME("SBB Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);

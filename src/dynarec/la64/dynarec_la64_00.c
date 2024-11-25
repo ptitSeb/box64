@@ -167,6 +167,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x10:
+            INST_NAME("ADC Eb, Gb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_adc8(dyn, ninst, x1, x2, x4, x5, x6);
+            EBBACK();
+            break;
         case 0x11:
             INST_NAME("ADC Ed, Gd");
             READFLAGS(X_CF);
@@ -177,6 +187,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
             break;
+        case 0x12:
+            INST_NAME("ADC Gb, Eb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x2, 0);
+            GETGB(x1);
+            emit_adc8(dyn, ninst, x1, x2, x4, x6, x5);
+            GBBACK();
+            break;
         case 0x13:
             INST_NAME("ADC Gd, Ed");
             READFLAGS(X_CF);
@@ -185,6 +205,23 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             emit_adc32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
+            break;
+        case 0x14:
+            INST_NAME("ADC AL, Ib");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_adc8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
+            BSTRINS_D(xRAX, x1, 7, 0);
+            break;
+        case 0x15:
+            INST_NAME("ADC EAX, Id");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            MOV64xw(x1, i64);
+            emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
             break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
@@ -664,6 +701,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
+                    EBBACK();
+                    break;
+                case 2: // ADC
+                    INST_NAME("ADC Eb, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
                     EBBACK();
                     break;
                 case 3: // SBB
