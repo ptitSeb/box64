@@ -655,6 +655,75 @@ static void* findGstBufferForeachMetaFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBufferForeachMetaFunc callback\n");
     return NULL;
 }
+//GstMiniObjectCopyFunction
+#define GO(A)   \
+static uintptr_t my_GstMiniObjectCopyFunction_fct_##A = 0;                          \
+static void* my_GstMiniObjectCopyFunction_##A(void* a)                              \
+{                                                                                   \
+    return (void*)RunFunctionFmt(my_GstMiniObjectCopyFunction_fct_##A, "p", a);     \
+}
+SUPER()
+#undef GO
+static void* findGstMiniObjectCopyFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstMiniObjectCopyFunction_fct_##A == (uintptr_t)fct) return my_GstMiniObjectCopyFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstMiniObjectCopyFunction_fct_##A == 0) {my_GstMiniObjectCopyFunction_fct_##A = (uintptr_t)fct; return my_GstMiniObjectCopyFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstMiniObjectCopyFunction callback\n");
+    return NULL;
+}
+//GstMiniObjectDisposeFunction
+#define GO(A)   \
+static uintptr_t my_GstMiniObjectDisposeFunction_fct_##A = 0;                       \
+static int my_GstMiniObjectDisposeFunction_##A(void* a)                             \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_GstMiniObjectDisposeFunction_fct_##A, "p", a);    \
+}
+SUPER()
+#undef GO
+static void* findGstMiniObjectDisposeFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstMiniObjectDisposeFunction_fct_##A == (uintptr_t)fct) return my_GstMiniObjectDisposeFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstMiniObjectDisposeFunction_fct_##A == 0) {my_GstMiniObjectDisposeFunction_fct_##A = (uintptr_t)fct; return my_GstMiniObjectDisposeFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstMiniObjectDisposeFunction callback\n");
+    return NULL;
+}
+//GstMiniObjectFreeFunction
+#define GO(A)   \
+static uintptr_t my_GstMiniObjectFreeFunction_fct_##A = 0;          \
+static void my_GstMiniObjectFreeFunction_##A(void* a)               \
+{                                                                   \
+    RunFunctionFmt(my_GstMiniObjectFreeFunction_fct_##A, "p", a);   \
+}
+SUPER()
+#undef GO
+static void* findGstMiniObjectFreeFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstMiniObjectFreeFunction_fct_##A == (uintptr_t)fct) return my_GstMiniObjectFreeFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstMiniObjectFreeFunction_fct_##A == 0) {my_GstMiniObjectFreeFunction_fct_##A = (uintptr_t)fct; return my_GstMiniObjectFreeFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstMiniObjectFreeFunction callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -688,14 +757,14 @@ EXPORT void my_gst_structure_remove_fields_valist(x64emu_t* emu, void* structure
     my->gst_structure_remove_fields_valist(structure, field, VARARGS);
 }
 
-EXPORT void my_gst_debug_log(x64emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* b) {
+EXPORT void my_gst_debug_log(x64emu_t* emu, void* cat, uint32_t level, void* file, void* func, int line, void* obj, void* fmt, void* b) {
 
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 7);
     PREPARE_VALIST;
     my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS);
 }
 
-EXPORT void my_gst_debug_log_valist(x64emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, x64_va_list_t V) {
+EXPORT void my_gst_debug_log_valist(x64emu_t* emu, void* cat, uint32_t level, void* file, void* func, int line, void* obj, void* fmt, x64_va_list_t V) {
 
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
@@ -765,7 +834,7 @@ EXPORT void* my_gst_structure_new(x64emu_t* emu, void* name, void* first, uint64
     return my->gst_structure_new_valist(name, first, VARARGS);
 }
 
-EXPORT void my_gst_mini_object_set_qdata(x64emu_t* emu, void* object, void* quark, void* data, void* d)
+EXPORT void my_gst_mini_object_set_qdata(x64emu_t* emu, void* object, uint32_t quark, void* data, void* d)
 {
     my->gst_mini_object_set_qdata(object, quark, data, findDestroyFct(d));
 }
@@ -959,12 +1028,12 @@ EXPORT void my_gst_structure_set(x64emu_t* emu, void* st, void* fieldname, uintp
     my->gst_structure_set_valist(st, fieldname, VARARGS);
 }
 
-EXPORT int my_gst_iterator_fold(x64emu_t* emu, void* it, void* f, void* ret, void* data)
+EXPORT uint32_t my_gst_iterator_fold(x64emu_t* emu, void* it, void* f, void* ret, void* data)
 {
     return my->gst_iterator_fold(it, findGstIteratorFoldFunctionFct(f), ret, data);
 }
 
-EXPORT void* my_gst_util_array_binary_search(x64emu_t* emu, void* array, uint32_t num, size_t size, void* f, int mode, void* search, void* data)
+EXPORT void* my_gst_util_array_binary_search(x64emu_t* emu, void* array, uint32_t num, size_t size, void* f, uint32_t mode, void* search, void* data)
 {
     return my->gst_util_array_binary_search(array, num, size, findGCompareDataFuncFct(f), mode, search, data);
 }
@@ -997,7 +1066,7 @@ EXPORT void my_gst_tag_list_foreach(x64emu_t* emu, void* list, void* f, void* da
     my->gst_tag_list_foreach(list, findGstTagForeachFuncFct(f), data);
 }
 
-EXPORT void* my_gst_memory_new_wrapped(x64emu_t* emu, int flags, void* data, size_t maxsz, size_t offset, size_t size, void* user_data, void* d)
+EXPORT void* my_gst_memory_new_wrapped(x64emu_t* emu, uint32_t flags, void* data, size_t maxsz, size_t offset, size_t size, void* user_data, void* d)
 {
     return my->gst_memory_new_wrapped(flags, data, maxsz, offset, size, user_data, findDestroyFct(d));
 }
@@ -1017,6 +1086,23 @@ EXPORT void* my_gst_pad_create_stream_id_printf(x64emu_t* emu, void* pad, void* 
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
     return my->gst_pad_create_stream_id_printf_valist(pad, parent, id, VARARGS);
 }
+
+EXPORT void* my_gst_caps_features_new_id_valist(x64emu_t* emu, uint32_t id, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    return my->gst_caps_features_new_id_valist(id, VARARGS);
+}
+
+EXPORT void* my_gst_caps_features_new_id(x64emu_t* emu, uint32_t id, uintptr_t* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
+    return my->gst_caps_features_new_id_valist(id, VARARGS);
+}
+
 
 EXPORT void my_gst_pad_set_activate_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
 {
@@ -1071,7 +1157,7 @@ EXPORT void* my_gst_caps_features_new(x64emu_t* emu, void* feat1, uintptr_t* b)
     return my->gst_caps_features_new_valist(feat1, VARARGS);
 }
 
-EXPORT unsigned long my_gst_pad_add_probe(x64emu_t* emu, void* pad, int mask, void* f, void* data, void* d)
+EXPORT unsigned long my_gst_pad_add_probe(x64emu_t* emu, void* pad, uint32_t mask, void* f, void* data, void* d)
 {
     return my->gst_pad_add_probe(pad, mask, findGstPadProbeCallbackFct(f), data, findDestroyFct(d));
 }
@@ -1135,6 +1221,11 @@ EXPORT void my_gst_pad_sticky_events_foreach(x64emu_t* emu, void* pad, void* f, 
 EXPORT int my_gst_buffer_foreach_meta(x64emu_t* emu, void* buff, void* f, void* data)
 {
     return my->gst_buffer_foreach_meta(buff, findGstBufferForeachMetaFuncFct(f), data);
+}
+
+EXPORT void my_gst_mini_object_init(x64emu_t* emu, void* obj, uint32_t flags, size_t type, void* copy_f, void* disp_f, void* free_f)
+{
+    my->gst_mini_object_init(obj, flags, type, findGstMiniObjectCopyFunctionFct(copy_f), findGstMiniObjectDisposeFunctionFct(disp_f), findGstMiniObjectFreeFunctionFct(free_f));
 }
 
 #define PRE_INIT    \
