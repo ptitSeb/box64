@@ -1120,9 +1120,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x60:
             INST_NAME("PUNPCKLBW Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             GETGX_vector(q0, 1, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VWADDU_VX(d0, q0, xZR, VECTOR_UNMASKED);
@@ -1134,9 +1134,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x61:
             INST_NAME("PUNPCKLWD Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VWADDU_VX(d0, q0, xZR, VECTOR_UNMASKED);
@@ -1148,9 +1148,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x62:
             INST_NAME("PUNPCKLDQ Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETGX_vector(q0, 1, VECTOR_SEW32);
             GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             MOV32w(x2, 32);
@@ -1245,9 +1245,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 MOV32w(x2, 32);
             }
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
