@@ -986,11 +986,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     /* inside the block, cache transform */             \
                     CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
+                    SKIP_SEVL(i32);                                     \
                     B(i32);                                             \
                 }                                                       \
             } else {                                                    \
                 /* inside the block, no cache change */                 \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                SKIP_SEVL(i32);                                         \
                 Bcond(YES, i32);                                        \
             }
 
@@ -1431,8 +1433,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         YIELD;
                     else if (box64_dynarec_pause == 2)
                         WFI;
-                    else if (box64_dynarec_pause == 3)
+                    else if (box64_dynarec_pause == 3) {
+                        dyn->insts[ninst].wfe = 1;
+                        SEVL;
                         WFE;
+                    }
                 } else {
                     INST_NAME("NOP");
                 }
@@ -2955,11 +2960,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {                                                \
                     CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                    SKIP_SEVL(i32);                                     \
                     Bcond(c__, i32);                                    \
                 }                                                       \
             } else {                                                    \
                 /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                SKIP_SEVL(i32);                                         \
                 if(Z) {CBZz(xRCX, i32);} else {CBNZz(xRCX, i32);};      \
             }
         case 0xE0:
@@ -3166,6 +3173,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     // inside the block
                     CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
                     tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
+                    SKIP_SEVL(tmp);
                     if(tmp==4) {
                         NOP;
                     } else {

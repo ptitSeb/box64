@@ -1577,11 +1577,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {                                                \
                     CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                    SKIP_SEVL(i32);                                     \
                     B(i32);                                             \
                 }                                                       \
             } else {                                                    \
                 /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
+                SKIP_SEVL(i32);                                         \
                 Bcond(YES, i32);                                        \
             }
 

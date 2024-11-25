@@ -543,6 +543,7 @@ int convert_bitmask(uint64_t bitmask);
 #define WFE                             EMIT(0b11010101000000110010000001011111)
 #define WFI                             EMIT(0b11010101000000110010000001111111)
 #define YIELD                           EMIT(0b11010101000000110010000000111111)
+#define SEVL                            EMIT(0b11010101000000110010000010111111)
 
 #define CSINC_gen(sf, Rm, cond, Rn, Rd)     ((sf)<<31 | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | 1<<10 | (Rn)<<5 | (Rd))
 #define CSINCx(Rd, Rn, Rm, cond)            EMIT(CSINC_gen(1, Rm, cond, Rn, Rd))
