@@ -119,6 +119,36 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x11:
+            INST_NAME("ADC Ew, Gw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
+            EWBACK;
+            break;
+        case 0x13:
+            INST_NAME("ADC Gw, Ew");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
+            GWBACK;
+            break;
+        case 0x15:
+            INST_NAME("ADC AX, Iw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u64 = F16;
+            BSTRPICK_D(x1, xRAX, 15, 0);
+            MOV64x(x2, u64);
+            emit_adc16(dyn, ninst, x1, x2, x3, x4, x5);
+            BSTRINSz(xRAX, x1, 15, 0);
+            break;
         case 0x19:
             INST_NAME("SBB Ew, Gw");
             READFLAGS(X_CF);
@@ -293,6 +323,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i16 = F8S;
                     MOV64x(x5, i16);
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
+                    EWBACK;
+                    break;
+                case 2: // ADC
+                    if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode==0x81)?2:1);
+                    if(opcode==0x81) u64 = F16; else u64 = (uint16_t)(int16_t)F8S;
+                    MOV64x(x5, u64);
+                    emit_adc16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 4: // AND

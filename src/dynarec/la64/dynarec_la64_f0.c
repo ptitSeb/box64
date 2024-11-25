@@ -402,6 +402,31 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x11:
+            INST_NAME("LOCK ADC Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            SMDMB();
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LLxw(x1, wback, 0);
+                ADDxw(x3, x1, gd);
+                ANDI(x4, xFlags, 1 << F_CF);
+                ADDxw(x3, x3, x4);
+                SCxw(x3, wback, 0);
+                BEQZ_MARKLOCK(x3);
+                IFX(X_ALL|X_PEND) {
+                    emit_adc32(dyn, ninst, rex, x1, gd, x3, x4, x5, x6);
+                }
+            }
+            SMDMB();
+            break;
         case 0x29:
             INST_NAME("LOCK SUB Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
