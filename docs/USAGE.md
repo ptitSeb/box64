@@ -179,6 +179,13 @@ Tweaking the memory barriers to reduce the performance impact by STRONGMEM
 * 1 : Use weak barriers to have more performance boost
 * 2 : All 1. Plus disabled the last write barriers
 
+#### BOX64_DYNAREC_PAUSE *
+Enable/Disable x86 PAUSE emulation, which may help the performance of spinlocks
+* 0 : Ignore x86 PAUSE instruction (Default.)
+* 1 : Use YIELD to emulate x86 PAUSE instruction
+* 2 : Use WFI to emulate x86 PAUSE instruction
+* 3 : Use SEVL+WFE to emulate x86 PAUSE instruction
+
 #### BOX64_DYNAREC_X87DOUBLE *
 Force the use of Double for x87 emulation
 * 0 : Try to use float when possible for x87 emulation (default, faster)
