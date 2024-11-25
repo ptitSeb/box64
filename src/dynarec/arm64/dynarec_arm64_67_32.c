@@ -80,12 +80,14 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {                                                \
                     CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
+                    SKIP_SEVL(i32);                                     \
                     B(i32);                                             \
                 }                                                       \
-            } else {    \
-                /* inside the block */  \
+            } else {                                                    \
+                /* inside the block */                                  \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                Bcond(YES, i32);    \
+                SKIP_SEVL(i32);                                         \
+                Bcond(YES, i32);                                        \
             }
         case 0xE0:
             INST_NAME("LOOPNZ (16bits)");

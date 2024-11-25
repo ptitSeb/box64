@@ -291,7 +291,7 @@ Define Box64's Dynarec max allowed forward value when building Block.
     * 0 : No forward value. When current block end, don't try to go further even if there are previous forward jumps
     * XXX : Allow up to XXXX bytes of gap when building a Block after the block end to next forward jump (Default: 128)
  
-=item B<BOX64_DYNAREC_STRONGMEM>=I<0|1|2>
+=item B<BOX64_DYNAREC_STRONGMEM>=I<0|1|2|3>
 
 Enable/Disable simulation of Strong Memory model
 
@@ -300,13 +300,22 @@ Enable/Disable simulation of Strong Memory model
     * 2 : All 1. plus memory barriers on SIMD instructions
     * 3 : All 2. plus more memory barriers on a regular basis
 
-=item B<BOX64_DYNAREC_WEAKBARRIER>=I<0|1>
+=item B<BOX64_DYNAREC_WEAKBARRIER>=I<0|1|2>
 
 Tweaking the memory barriers to reduce the performance impact by STRONGMEM
 
     * 0 : Use regular safe barrier (Default.)
     * 1 : Use weak barriers to have more performance boost
     * 2 : All 1. Plus disabled the last write barriers
+
+=item B<BOX64_DYNAREC_PAUSE>=I<0|1|2|3>
+
+Enable/Disable x86 PAUSE emulation, which may help the performance of spinlocks
+
+    * 0 : Ignore x86 PAUSE instruction (Default.)
+    * 1 : Use YIELD to emulate x86 PAUSE instruction
+    * 2 : Use WFI to emulate x86 PAUSE instruction
+    * 3 : Use SEVL+WFE to emulate x86 PAUSE instruction
 
 =item B<BOX64_DYNAREC_X87DOUBLE>=I<0|1>
 

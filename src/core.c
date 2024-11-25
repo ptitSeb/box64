@@ -80,6 +80,7 @@ int box64_dynarec_bigblock = 1;
 int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_weakbarrier = 0;
+int box64_dynarec_pause = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_div0 = 0;
 int box64_dynarec_fastnan = 1;
@@ -787,6 +788,18 @@ void LoadLogEnv()
         if (box64_dynarec_weakbarrier)
             printf_log(LOG_INFO, "Dynarec will try to use weaker memory barriers to reduce the performance loss introduce by strong memory emulation\n");
     }
+#ifdef ARM64
+    p = getenv("BOX64_DYNAREC_PAUSE");
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '3')
+                box64_dynarec_pause = p[0] - '0';
+        }
+        if (box64_dynarec_pause)
+            printf_log(LOG_INFO, "Dynarec will use %s to emulate pause instruction\n",
+                box64_dynarec_pause == 1 ? "yield" : (box64_dynarec_pause == 2 ? "wfi" : "wfe"));
+    }
+#endif
     p = getenv("BOX64_DYNAREC_X87DOUBLE");
     if(p) {
         if(strlen(p)==1) {

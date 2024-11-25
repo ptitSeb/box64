@@ -1140,6 +1140,8 @@
 #endif
 #define CLEARIP()   dyn->last_ip=0
 
+#define SKIP_SEVL(val) if (dyn->insts[dyn->insts[ninst].x64.jmp_insts].wfe) val += 4;
+
 #if STEP < 2
 #define PASS2IF(A, B) if(A)
 #elif STEP == 2
