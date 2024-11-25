@@ -2182,6 +2182,7 @@
 #() iFpuuppp
 #() iFpuLuLu
 #() iFpuLLpp
+#() iFpupupi
 #() iFpupupp
 #() iFpupLpL
 #() iFpupLpp
@@ -2992,6 +2993,7 @@
 #() iFuiiupiiup
 #() iFuuppuuppu
 #() iFdddpppppp
+#() iFpiuippppi
 #() iFpiLiiipip
 #() iFpiLLLiiip
 #() iFpipippppi
