@@ -1,195 +1,195 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(gst_audio_visualizer_get_type, LFv)
 GO(gst_audio_visualizer_shader_get_type, LFv)
 GO(gst_codec_utils_aac_caps_set_level_and_profile, iFppu)
-//GO(gst_codec_utils_aac_get_channels, 
-//GO(gst_codec_utils_aac_get_index_from_sample_rate, 
-//GO(gst_codec_utils_aac_get_level, 
-//GO(gst_codec_utils_aac_get_profile, 
-//GO(gst_codec_utils_aac_get_sample_rate, 
-//GO(gst_codec_utils_aac_get_sample_rate_from_index, 
-//GO(gst_codec_utils_caps_from_mime_codec, 
-//GO(gst_codec_utils_caps_get_mime_codec, 
+GO(gst_codec_utils_aac_get_channels, uFpu)
+GO(gst_codec_utils_aac_get_index_from_sample_rate, iFu)
+GO(gst_codec_utils_aac_get_level, pFpu)
+GO(gst_codec_utils_aac_get_profile, pFpu)
+GO(gst_codec_utils_aac_get_sample_rate, uFpu)
+GO(gst_codec_utils_aac_get_sample_rate_from_index, uFu)
+GO(gst_codec_utils_caps_from_mime_codec, pFp)
+GO(gst_codec_utils_caps_get_mime_codec, pFp)
 GO(gst_codec_utils_h264_caps_set_level_and_profile, iFppu)
-//GO(gst_codec_utils_h264_get_level, 
-//GO(gst_codec_utils_h264_get_level_idc, 
-//GO(gst_codec_utils_h264_get_profile, 
-//GO(gst_codec_utils_h264_get_profile_flags_level, 
+GO(gst_codec_utils_h264_get_level, pFpu)
+GO(gst_codec_utils_h264_get_level_idc, CFp)
+GO(gst_codec_utils_h264_get_profile, pFpu)
+GO(gst_codec_utils_h264_get_profile_flags_level, iFpuppp)
 GO(gst_codec_utils_h265_caps_set_level_tier_and_profile, iFppu)
-//GO(gst_codec_utils_h265_get_level, 
-//GO(gst_codec_utils_h265_get_level_idc, 
-//GO(gst_codec_utils_h265_get_profile, 
-//GO(gst_codec_utils_h265_get_tier, 
+GO(gst_codec_utils_h265_get_level, pFpu)
+GO(gst_codec_utils_h265_get_level_idc, CFp)
+GO(gst_codec_utils_h265_get_profile, pFpu)
+GO(gst_codec_utils_h265_get_tier, pFpu)
 GO(gst_codec_utils_mpeg4video_caps_set_level_and_profile, iFppu)
-//GO(gst_codec_utils_mpeg4video_get_level, 
-//GO(gst_codec_utils_mpeg4video_get_profile, 
+GO(gst_codec_utils_mpeg4video_get_level, pFpu)
+GO(gst_codec_utils_mpeg4video_get_profile, pFpu)
 GO(gst_codec_utils_opus_create_caps, pFuCCCCp)
 GO(gst_codec_utils_opus_create_caps_from_header, pFpp)
 GO(gst_codec_utils_opus_create_header, pFuCCCCpWw)
 GO(gst_codec_utils_opus_parse_caps, iFppppppp)
-//GO(gst_codec_utils_opus_parse_header, 
-//GO(gst_discoverer_audio_info_get_bitrate, 
-//GO(gst_discoverer_audio_info_get_channel_mask, 
-//GO(gst_discoverer_audio_info_get_channels, 
-//GO(gst_discoverer_audio_info_get_depth, 
-//GO(gst_discoverer_audio_info_get_language, 
-//GO(gst_discoverer_audio_info_get_max_bitrate, 
-//GO(gst_discoverer_audio_info_get_sample_rate, 
+GO(gst_codec_utils_opus_parse_header, iFppppppppp)
+GO(gst_discoverer_audio_info_get_bitrate, uFp)
+GO(gst_discoverer_audio_info_get_channel_mask, LFp)
+GO(gst_discoverer_audio_info_get_channels, uFp)
+GO(gst_discoverer_audio_info_get_depth, uFp)
+GO(gst_discoverer_audio_info_get_language, pFp)
+GO(gst_discoverer_audio_info_get_max_bitrate, uFp)
+GO(gst_discoverer_audio_info_get_sample_rate, uFp)
 GO(gst_discoverer_audio_info_get_type, LFv)
-//GO(gst_discoverer_container_info_get_streams, 
-//GO(gst_discoverer_container_info_get_tags, 
+GO(gst_discoverer_container_info_get_streams, pFp)
+GO(gst_discoverer_container_info_get_tags, pFp)
 GO(gst_discoverer_container_info_get_type, LFv)
-//GO(gst_discoverer_discover_uri, 
-//GO(gst_discoverer_discover_uri_async, 
+GO(gst_discoverer_discover_uri, pFppp)
+GO(gst_discoverer_discover_uri_async, iFpp)
 GO(gst_discoverer_get_type, LFv)
-//GO(gst_discoverer_info_copy, 
-//GO(gst_discoverer_info_from_variant, 
-//GO(gst_discoverer_info_get_audio_streams, 
-//GO(gst_discoverer_info_get_container_streams, 
-//GO(gst_discoverer_info_get_duration, 
-//GO(gst_discoverer_info_get_live, 
-//GO(gst_discoverer_info_get_misc, 
-//GO(gst_discoverer_info_get_missing_elements_installer_details, 
-//GO(gst_discoverer_info_get_result, 
-//GO(gst_discoverer_info_get_seekable, 
-//GO(gst_discoverer_info_get_stream_info, 
-//GO(gst_discoverer_info_get_stream_list, 
-//GO(gst_discoverer_info_get_streams, 
-//GO(gst_discoverer_info_get_subtitle_streams, 
-//GO(gst_discoverer_info_get_tags, 
-//GO(gst_discoverer_info_get_toc, 
+GO(gst_discoverer_info_copy, pFp)
+GO(gst_discoverer_info_from_variant, pFp)
+GO(gst_discoverer_info_get_audio_streams, pFp)
+GO(gst_discoverer_info_get_container_streams, pFp)
+GO(gst_discoverer_info_get_duration, LFp)
+GO(gst_discoverer_info_get_live, iFp)
+GO(gst_discoverer_info_get_misc, pFp)
+GO(gst_discoverer_info_get_missing_elements_installer_details, pFp)
+GO(gst_discoverer_info_get_result, uFp)
+GO(gst_discoverer_info_get_seekable, iFp)
+GO(gst_discoverer_info_get_stream_info, pFp)
+GO(gst_discoverer_info_get_stream_list, pFp)
+GO(gst_discoverer_info_get_streams, pFpL)
+GO(gst_discoverer_info_get_subtitle_streams, pFp)
+GO(gst_discoverer_info_get_tags, pFp)
+GO(gst_discoverer_info_get_toc, pFp)
 GO(gst_discoverer_info_get_type, LFv)
-//GO(gst_discoverer_info_get_uri, 
-//GO(gst_discoverer_info_get_video_streams, 
-//GO(gst_discoverer_info_to_variant, 
-//GO(gst_discoverer_new, 
+GO(gst_discoverer_info_get_uri, pFp)
+GO(gst_discoverer_info_get_video_streams, pFp)
+GO(gst_discoverer_info_to_variant, pFpu)
+GO(gst_discoverer_new, pFLp)
 GO(gst_discoverer_result_get_type, LFv)
 GO(gst_discoverer_serialize_flags_get_type, LFv)
-//GO(gst_discoverer_start, 
-//GO(gst_discoverer_stop, 
-//GO(gst_discoverer_stream_info_get_caps, 
-//GO(gst_discoverer_stream_info_get_misc, 
-//GO(gst_discoverer_stream_info_get_next, 
-//GO(gst_discoverer_stream_info_get_previous, 
-//GO(gst_discoverer_stream_info_get_stream_id, 
-//GO(gst_discoverer_stream_info_get_stream_number, 
-//GO(gst_discoverer_stream_info_get_stream_type_nick, 
-//GO(gst_discoverer_stream_info_get_tags, 
-//GO(gst_discoverer_stream_info_get_toc, 
+GO(gst_discoverer_start, vFp)
+GO(gst_discoverer_stop, vFp)
+GO(gst_discoverer_stream_info_get_caps, pFp)
+GO(gst_discoverer_stream_info_get_misc, pFp)
+GO(gst_discoverer_stream_info_get_next, pFp)
+GO(gst_discoverer_stream_info_get_previous, pFp)
+GO(gst_discoverer_stream_info_get_stream_id, pFp)
+GO(gst_discoverer_stream_info_get_stream_number, iFp)
+GO(gst_discoverer_stream_info_get_stream_type_nick, pFp)
+GO(gst_discoverer_stream_info_get_tags, pFp)
+GO(gst_discoverer_stream_info_get_toc, pFp)
 GO(gst_discoverer_stream_info_get_type, LFv)
-//GO(gst_discoverer_stream_info_list_free, 
-//GO(gst_discoverer_subtitle_info_get_language, 
+GO(gst_discoverer_stream_info_list_free, vFp)
+GO(gst_discoverer_subtitle_info_get_language, pFp)
 GO(gst_discoverer_subtitle_info_get_type, LFv)
-//GO(gst_discoverer_video_info_get_bitrate, 
-//GO(gst_discoverer_video_info_get_depth, 
-//GO(gst_discoverer_video_info_get_framerate_denom, 
-//GO(gst_discoverer_video_info_get_framerate_num, 
-//GO(gst_discoverer_video_info_get_height, 
-//GO(gst_discoverer_video_info_get_max_bitrate, 
-//GO(gst_discoverer_video_info_get_par_denom, 
-//GO(gst_discoverer_video_info_get_par_num, 
+GO(gst_discoverer_video_info_get_bitrate, uFp)
+GO(gst_discoverer_video_info_get_depth, uFp)
+GO(gst_discoverer_video_info_get_framerate_denom, uFp)
+GO(gst_discoverer_video_info_get_framerate_num, uFp)
+GO(gst_discoverer_video_info_get_height, uFp)
+GO(gst_discoverer_video_info_get_max_bitrate, uFp)
+GO(gst_discoverer_video_info_get_par_denom, uFp)
+GO(gst_discoverer_video_info_get_par_num, uFp)
 GO(gst_discoverer_video_info_get_type, LFv)
-//GO(gst_discoverer_video_info_get_width, 
-//GO(gst_discoverer_video_info_is_image, 
-//GO(gst_discoverer_video_info_is_interlaced, 
+GO(gst_discoverer_video_info_get_width, uFp)
+GO(gst_discoverer_video_info_is_image, iFp)
+GO(gst_discoverer_video_info_is_interlaced, iFp)
 GO(gst_encoding_audio_profile_get_type, LFv)
-//GO(gst_encoding_audio_profile_new, 
-//GO(gst_encoding_container_profile_add_profile, 
-//GO(gst_encoding_container_profile_contains_profile, 
-//GO(gst_encoding_container_profile_get_profiles, 
+GO(gst_encoding_audio_profile_new, pFpppu)
+GO(gst_encoding_container_profile_add_profile, iFpp)
+GO(gst_encoding_container_profile_contains_profile, iFpp)
+GO(gst_encoding_container_profile_get_profiles, pFp)
 GO(gst_encoding_container_profile_get_type, LFv)
-//GO(gst_encoding_container_profile_new, 
-//GO(gst_encoding_list_all_targets, 
-//GO(gst_encoding_list_available_categories, 
-//GO(gst_encoding_profile_copy, 
-//GO(gst_encoding_profile_find, 
-//GO(gst_encoding_profile_from_discoverer, 
-//GO(gst_encoding_profile_get_allow_dynamic_output, 
-//GO(gst_encoding_profile_get_description, 
-//GO(gst_encoding_profile_get_element_properties, 
-//GO(gst_encoding_profile_get_file_extension, 
-//GO(gst_encoding_profile_get_format, 
-//GO(gst_encoding_profile_get_input_caps, 
-//GO(gst_encoding_profile_get_name, 
-//GO(gst_encoding_profile_get_presence, 
-//GO(gst_encoding_profile_get_preset, 
-//GO(gst_encoding_profile_get_preset_name, 
-//GO(gst_encoding_profile_get_restriction, 
-//GO(gst_encoding_profile_get_single_segment, 
+GO(gst_encoding_container_profile_new, pFpppp)
+GO(gst_encoding_list_all_targets, pFp)
+GO(gst_encoding_list_available_categories, pFv)
+GO(gst_encoding_profile_copy, pFp)
+GO(gst_encoding_profile_find, pFppp)
+GO(gst_encoding_profile_from_discoverer, pFp)
+GO(gst_encoding_profile_get_allow_dynamic_output, iFp)
+GO(gst_encoding_profile_get_description, pFp)
+GO(gst_encoding_profile_get_element_properties, pFp)
+GO(gst_encoding_profile_get_file_extension, pFp)
+GO(gst_encoding_profile_get_format, pFp)
+GO(gst_encoding_profile_get_input_caps, pFp)
+GO(gst_encoding_profile_get_name, pFp)
+GO(gst_encoding_profile_get_presence, uFp)
+GO(gst_encoding_profile_get_preset, pFp)
+GO(gst_encoding_profile_get_preset_name, pFp)
+GO(gst_encoding_profile_get_restriction, pFp)
+GO(gst_encoding_profile_get_single_segment, iFp)
 GO(gst_encoding_profile_get_type, LFv)
-//GO(gst_encoding_profile_get_type_nick, 
-//GO(gst_encoding_profile_is_enabled, 
-//GO(gst_encoding_profile_is_equal, 
-//GO(gst_encoding_profile_set_allow_dynamic_output, 
-//GO(gst_encoding_profile_set_description, 
-//GO(gst_encoding_profile_set_element_properties, 
-//GO(gst_encoding_profile_set_enabled, 
-//GO(gst_encoding_profile_set_format, 
-//GO(gst_encoding_profile_set_name, 
-//GO(gst_encoding_profile_set_presence, 
-//GO(gst_encoding_profile_set_preset, 
-//GO(gst_encoding_profile_set_preset_name, 
-//GO(gst_encoding_profile_set_restriction, 
-//GO(gst_encoding_profile_set_single_segment, 
-//GO(gst_encoding_target_add_profile, 
-//GO(gst_encoding_target_get_category, 
-//GO(gst_encoding_target_get_description, 
-//GO(gst_encoding_target_get_name, 
-//GO(gst_encoding_target_get_path, 
-//GO(gst_encoding_target_get_profile, 
-//GO(gst_encoding_target_get_profiles, 
+GO(gst_encoding_profile_get_type_nick, pFp)
+GO(gst_encoding_profile_is_enabled, iFp)
+GO(gst_encoding_profile_is_equal, iFpp)
+GO(gst_encoding_profile_set_allow_dynamic_output, vFpi)
+GO(gst_encoding_profile_set_description, vFpp)
+GO(gst_encoding_profile_set_element_properties, vFpp)
+GO(gst_encoding_profile_set_enabled, vFpi)
+GO(gst_encoding_profile_set_format, vFpp)
+GO(gst_encoding_profile_set_name, vFpp)
+GO(gst_encoding_profile_set_presence, vFpu)
+GO(gst_encoding_profile_set_preset, vFpp)
+GO(gst_encoding_profile_set_preset_name, vFpp)
+GO(gst_encoding_profile_set_restriction, vFpp)
+GO(gst_encoding_profile_set_single_segment, vFpi)
+GO(gst_encoding_target_add_profile, iFpp)
+GO(gst_encoding_target_get_category, pFp)
+GO(gst_encoding_target_get_description, pFp)
+GO(gst_encoding_target_get_name, pFp)
+GO(gst_encoding_target_get_path, pFp)
+GO(gst_encoding_target_get_profile, pFpp)
+GO(gst_encoding_target_get_profiles, pFp)
 GO(gst_encoding_target_get_type, LFv)
-//GO(gst_encoding_target_load, 
-//GO(gst_encoding_target_load_from_file, 
-//GO(gst_encoding_target_new, 
-//GO(gst_encoding_target_save, 
-//GO(gst_encoding_target_save_to_file, 
-//GO(gst_encoding_video_profile_get_pass, 
+GO(gst_encoding_target_load, pFppp)
+GO(gst_encoding_target_load_from_file, pFpp)
+GO(gst_encoding_target_new, pFpppp)
+GO(gst_encoding_target_save, iFpp)
+GO(gst_encoding_target_save_to_file, iFppp)
+GO(gst_encoding_video_profile_get_pass, uFp)
 GO(gst_encoding_video_profile_get_type, LFv)
-//GO(gst_encoding_video_profile_get_variableframerate, 
-//GO(gst_encoding_video_profile_new, 
-//GO(gst_encoding_video_profile_set_pass, 
-//GO(gst_encoding_video_profile_set_variableframerate, 
-//GO(gst_install_plugins_async, 
-//GO(gst_install_plugins_context_copy, 
-//GO(gst_install_plugins_context_free, 
+GO(gst_encoding_video_profile_get_variableframerate, iFp)
+GO(gst_encoding_video_profile_new, pFpppu)
+GO(gst_encoding_video_profile_set_pass, vFpu)
+GO(gst_encoding_video_profile_set_variableframerate, vFpi)
+//GOM(gst_install_plugins_async, uFEpppp)
+GO(gst_install_plugins_context_copy, pFp)
+GO(gst_install_plugins_context_free, vFp)
 GO(gst_install_plugins_context_get_type, LFv)
-//GO(gst_install_plugins_context_new, 
-//GO(gst_install_plugins_context_set_confirm_search, 
-//GO(gst_install_plugins_context_set_desktop_id, 
-//GO(gst_install_plugins_context_set_startup_notification_id, 
-//GO(gst_install_plugins_context_set_xid, 
-//GO(gst_install_plugins_installation_in_progress, 
-//GO(gst_install_plugins_return_get_name, 
+GO(gst_install_plugins_context_new, pFv)
+GO(gst_install_plugins_context_set_confirm_search, vFpi)
+GO(gst_install_plugins_context_set_desktop_id, vFpp)
+GO(gst_install_plugins_context_set_startup_notification_id, vFpp)
+GO(gst_install_plugins_context_set_xid, vFpu)
+GO(gst_install_plugins_installation_in_progress, iFv)
+GO(gst_install_plugins_return_get_name, pFu)
 GO(gst_install_plugins_return_get_type, LFv)
-//GO(gst_install_plugins_supported, 
-//GO(gst_install_plugins_sync, 
-//GO(gst_is_missing_plugin_message, 
-//GO(gst_missing_decoder_installer_detail_new, 
-//GO(gst_missing_decoder_message_new, 
-//GO(gst_missing_element_installer_detail_new, 
-//GO(gst_missing_element_message_new, 
-//GO(gst_missing_encoder_installer_detail_new, 
-//GO(gst_missing_encoder_message_new, 
-//GO(gst_missing_plugin_message_get_description, 
-//GO(gst_missing_plugin_message_get_installer_detail, 
-//GO(gst_missing_uri_sink_installer_detail_new, 
-//GO(gst_missing_uri_sink_message_new, 
-//GO(gst_missing_uri_source_installer_detail_new, 
-//GO(gst_missing_uri_source_message_new, 
+GO(gst_install_plugins_supported, iFv)
+GO(gst_install_plugins_sync, uFpp)
+GO(gst_is_missing_plugin_message, iFp)
+GO(gst_missing_decoder_installer_detail_new, pFp)
+GO(gst_missing_decoder_message_new, pFpp)
+GO(gst_missing_element_installer_detail_new, pFp)
+GO(gst_missing_element_message_new, pFpp)
+GO(gst_missing_encoder_installer_detail_new, pFp)
+GO(gst_missing_encoder_message_new, pFpp)
+GO(gst_missing_plugin_message_get_description, pFp)
+GO(gst_missing_plugin_message_get_installer_detail, pFp)
+GO(gst_missing_uri_sink_installer_detail_new, pFp)
+GO(gst_missing_uri_sink_message_new, pFpp)
+GO(gst_missing_uri_source_installer_detail_new, pFp)
+GO(gst_missing_uri_source_message_new, pFpp)
 GO(gst_pb_utils_add_codec_description_to_tag_list, iFppp)
 GO(gst_pb_utils_caps_description_flags_get_type, LFv)
-//GO(gst_pb_utils_get_caps_description_flags, 
+GO(gst_pb_utils_get_caps_description_flags, uFp)
 GO(gst_pb_utils_get_codec_description, pFp)
-//GO(gst_pb_utils_get_decoder_description, 
-//GO(gst_pb_utils_get_element_description, 
-//GO(gst_pb_utils_get_encoder_description, 
-//GO(gst_pb_utils_get_file_extension_from_caps, 
-//GO(gst_pb_utils_get_sink_description, 
-//GO(gst_pb_utils_get_source_description, 
+GO(gst_pb_utils_get_decoder_description, pFp)
+GO(gst_pb_utils_get_element_description, pFp)
+GO(gst_pb_utils_get_encoder_description, pFp)
+GO(gst_pb_utils_get_file_extension_from_caps, pFp)
+GO(gst_pb_utils_get_sink_description, pFp)
+GO(gst_pb_utils_get_source_description, pFp)
 GO(gst_pb_utils_init, vFv)
-//GO(gst_plugins_base_version, 
-//GO(gst_plugins_base_version_string, 
+GO(gst_plugins_base_version, vFpppp)
+GO(gst_plugins_base_version_string, pFv)
