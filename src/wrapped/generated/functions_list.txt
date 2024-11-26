@@ -335,6 +335,7 @@
 #() pFui
 #() pFuu
 #() pFul
+#() pFuL
 #() pFup
 #() pFdu
 #() pFdd
@@ -1354,6 +1355,7 @@
 #() pFplpp
 #() pFpLii
 #() pFpLip
+#() pFpLuu
 #() pFpLup
 #() pFpLLp
 #() pFpLpi
@@ -1683,6 +1685,7 @@
 #() iFpCCCC
 #() iFpCupp
 #() iFpCpip
+#() iFpuiip
 #() iFpuill
 #() iFpuipu
 #() iFpuipp
@@ -1881,6 +1884,7 @@
 #() pFpiupp
 #() pFpiLip
 #() pFpipii
+#() pFpipiL
 #() pFpipip
 #() pFpipup
 #() pFpippi
@@ -1904,6 +1908,7 @@
 #() pFpLLLp
 #() pFpLpii
 #() pFpLpip
+#() pFpLpuu
 #() pFpLpup
 #() pFppiii
 #() pFppiiu
@@ -2180,6 +2185,7 @@
 #() iFpuiCpp
 #() iFpuiLpp
 #() iFpuippp
+#() iFpuuuii
 #() iFpuuuuu
 #() iFpuuuup
 #() iFpuuupu
@@ -2361,7 +2367,7 @@
 #() pFpipuii
 #() pFpippip
 #() pFpipppp
-#() pFpuiiip
+#() pFpuuiip
 #() pFpuuuuu
 #() pFpuuupu
 #() pFpupuui
@@ -2703,7 +2709,7 @@
 #() pFpppCCCi
 #() pFpppuipp
 #() pFpppuuui
-#() pFpppupii
+#() pFpppupuu
 #() pFpppupup
 #() pFpppuppp
 #() pFpppfffi
@@ -2828,6 +2834,7 @@
 #() iFpuippLpp
 #() iFpuuiiuuu
 #() iFpuuipppp
+#() iFpuuuiiii
 #() iFpuuupupu
 #() iFpuupuupp
 #() iFpuuppiip
