@@ -1094,6 +1094,8 @@
 #() iFpipp
 #() iFpipV
 #() iFpCCC
+#() iFpCCp
+#() iFpCuu
 #() iFpCpi
 #() iFpCpu
 #() iFpCpp
@@ -1104,6 +1106,7 @@
 #() iFpuii
 #() iFpuiL
 #() iFpuip
+#() iFpuWp
 #() iFpuui
 #() iFpuuu
 #() iFpuul
@@ -1699,6 +1702,7 @@
 #() iFpCCpu
 #() iFpCupp
 #() iFpCpip
+#() iFpCpCp
 #() iFpuiip
 #() iFpuill
 #() iFpuipu
@@ -2593,6 +2597,7 @@
 #() iFpippppW
 #() iFpippppp
 #() iFpIIpppp
+#() iFpCiiuuu
 #() iFpWCiWCi
 #() iFpWppppW
 #() iFpWppppp
