@@ -62,6 +62,43 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     }
 
     switch(opcode) {
+        case 0x19:
+            INST_NAME("SBB Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED32(0);
+            emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
+        case 0x1A:
+            INST_NAME("SBB Gb, Eb");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB32(x2, 0);
+            GETGB(x1);
+            emit_sbb8(dyn, ninst, x1, x2, x3, x4, x5);
+            GBBACK();
+            break;
+        case 0x1B:
+            INST_NAME("SBB Gd, Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED32(0);
+            emit_sbb32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+        case 0x1D:
+            INST_NAME("SBB EAX, Id");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            MOV64xw(x2, i64);
+            emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
+            break;
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
