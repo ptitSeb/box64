@@ -652,7 +652,11 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
+    #ifdef HAVE_TRACE
+    BLR(x2);
+    #else
     BR(x2);
+    #endif
     CLEARIP();
 }
 
@@ -695,7 +699,11 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
+    #ifdef HAVE_TRACE
+    BLR(x2);
+    #else
     BR(x2);
+    #endif
     CLEARIP();
 }
 
