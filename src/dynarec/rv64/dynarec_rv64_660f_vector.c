@@ -1779,10 +1779,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 i32 = 64;
             }
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             if (MODREG) {
                 q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 VMV_X_S(x4, q1);
             } else {
                 SMREAD();
@@ -2133,9 +2133,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 i32 = 64;
             }
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 q1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
                 VMV_X_S(x4, q1);
             } else {
