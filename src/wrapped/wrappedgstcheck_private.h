@@ -1,203 +1,203 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
-//DATAB(buffers, 
-//DATAB(check_cond, 
-//DATAB(check_debug, 
-//GO(check_fork, 
-//DATAB(check_major_version, 
-//DATA(check_micro_version, 
-//DATA(check_minor_version, 
-//DATAB(check_mutex, 
-//GO(check_waitpid_and_exit, 
-//GO(_ck_assert_failed, 
+//DATAB(buffers, 8)
+//DATAB(check_cond, 16)
+//DATAB(check_debug, 8)
+GO(check_fork, iFv)
+//DATAB(check_major_version, 4)
+//DATA(check_micro_version, 4)
+//DATA(check_minor_version, 4)
+//DATAB(check_mutex, 8)
+GO(check_waitpid_and_exit, vFi)
+//GOM(_ck_assert_failed, vFEpipV)
 //GO(_fail_unless, 
-//GO(gst_buffer_straw_get_buffer, 
-//GO(gst_buffer_straw_start_pipeline, 
-//GO(gst_buffer_straw_stop_pipeline, 
-//GO(gst_check_abi_list, 
-//GO(gst_check_add_log_filter, 
-//GO(gst_check_buffer_data, 
-//GO(gst_check_caps_equal, 
-//GO(gst_check_chain_func, 
-//GO(gst_check_clear_log_filter, 
-//GO(gst_check_drop_buffers, 
-//GO(gst_check_element_push_buffer, 
-//GO(gst_check_element_push_buffer_list, 
-//DATAB(_gst_check_expecting_log, 
-//GO(gst_check_init, 
-//DATAB(_gst_check_list_tests, 
-//GO(gst_check_message_error, 
-//GO(gst_check_object_destroyed_on_unref, 
-//GO(gst_check_objects_destroyed_on_unref, 
-//DATAB(_gst_check_raised_critical, 
-//DATAB(_gst_check_raised_warning, 
-//GO(gst_check_remove_log_filter, 
-//GO(gst_check_run_suite, 
-//GO(_gst_check_run_test_func, 
-//GO(gst_check_setup_element, 
-//GO(gst_check_setup_events, 
-//GO(gst_check_setup_events_with_stream_id, 
-//GO(gst_check_setup_sink_pad, 
-//GO(gst_check_setup_sink_pad_by_name, 
-//GO(gst_check_setup_sink_pad_by_name_from_template, 
-//GO(gst_check_setup_sink_pad_from_template, 
-//GO(gst_check_setup_src_pad, 
-//GO(gst_check_setup_src_pad_by_name, 
-//GO(gst_check_setup_src_pad_by_name_from_template, 
-//GO(gst_check_setup_src_pad_from_template, 
-//GO(gst_check_teardown_element, 
-//GO(gst_check_teardown_pad_by_name, 
-//GO(gst_check_teardown_sink_pad, 
-//GO(gst_check_teardown_src_pad, 
-//DATAB(_gst_check_threads_running, 
-//GO(gst_consistency_checker_add_pad, 
-//GO(gst_consistency_checker_free, 
-//GO(gst_consistency_checker_new, 
-//GO(gst_consistency_checker_reset, 
-//GO(gst_harness_add_element_full, 
-//GO(gst_harness_add_element_sink_pad, 
-//GO(gst_harness_add_element_src_pad, 
-//GO(gst_harness_add_parse, 
-//GO(gst_harness_add_probe, 
-//GO(gst_harness_add_propose_allocation_meta, 
-//GO(gst_harness_add_sink, 
-//GO(gst_harness_add_sink_harness, 
-//GO(gst_harness_add_sink_parse, 
-//GO(gst_harness_add_src, 
-//GO(gst_harness_add_src_harness, 
-//GO(gst_harness_add_src_parse, 
-//GO(gst_harness_buffers_in_queue, 
-//GO(gst_harness_buffers_received, 
-//GO(gst_harness_crank_multiple_clock_waits, 
-//GO(gst_harness_crank_single_clock_wait, 
-//GO(gst_harness_create_buffer, 
-//GO(gst_harness_dump_to_file, 
-//GO(gst_harness_events_in_queue, 
-//GO(gst_harness_events_received, 
-//GO(gst_harness_find_element, 
-//GO(gst_harness_get, 
-//GO(gst_harness_get_allocator, 
-//GO(gst_harness_get_last_pushed_timestamp, 
-//GO(gst_harness_get_testclock, 
-//GO(gst_harness_new, 
-//GO(gst_harness_new_empty, 
-//GO(gst_harness_new_full, 
-//GO(gst_harness_new_parse, 
-//GO(gst_harness_new_with_element, 
-//GO(gst_harness_new_with_padnames, 
-//GO(gst_harness_new_with_templates, 
-//GO(gst_harness_play, 
-//GO(gst_harness_pull, 
-//GO(gst_harness_pull_event, 
-//GO(gst_harness_pull_until_eos, 
-//GO(gst_harness_pull_upstream_event, 
-//GO(gst_harness_push, 
-//GO(gst_harness_push_and_pull, 
-//GO(gst_harness_push_event, 
-//GO(gst_harness_push_from_src, 
-//GO(gst_harness_push_to_sink, 
-//GO(gst_harness_push_upstream_event, 
-//GO(gst_harness_query_latency, 
-//GO(gst_harness_set, 
-//GO(gst_harness_set_blocking_push_mode, 
-//GO(gst_harness_set_caps, 
-//GO(gst_harness_set_caps_str, 
-//GO(gst_harness_set_drop_buffers, 
-//GO(gst_harness_set_forwarding, 
-//GO(gst_harness_set_live, 
-//GO(gst_harness_set_propose_allocator, 
-//GO(gst_harness_set_sink_caps, 
-//GO(gst_harness_set_sink_caps_str, 
-//GO(gst_harness_set_src_caps, 
-//GO(gst_harness_set_src_caps_str, 
-//GO(gst_harness_set_time, 
-//GO(gst_harness_set_upstream_latency, 
-//GO(gst_harness_sink_push_many, 
-//GO(gst_harness_src_crank_and_push_many, 
-//GO(gst_harness_src_push_event, 
-//GO(gst_harness_stress_custom_start, 
-//GO(gst_harness_stress_property_start_full, 
-//GO(gst_harness_stress_push_buffer_start_full, 
-//GO(gst_harness_stress_push_buffer_with_cb_start_full, 
-//GO(gst_harness_stress_push_event_start_full, 
-//GO(gst_harness_stress_push_event_with_cb_start_full, 
-//GO(gst_harness_stress_push_upstream_event_start_full, 
-//GO(gst_harness_stress_push_upstream_event_with_cb_start_full, 
-//GO(gst_harness_stress_requestpad_start_full, 
-//GO(gst_harness_stress_statechange_start_full, 
-//GO(gst_harness_stress_thread_stop, 
-//GO(gst_harness_take_all_data, 
-//GO(gst_harness_take_all_data_as_buffer, 
-//GO(gst_harness_take_all_data_as_bytes, 
-//GO(gst_harness_teardown, 
-//GO(gst_harness_try_pull, 
-//GO(gst_harness_try_pull_event, 
-//GO(gst_harness_try_pull_upstream_event, 
-//GO(gst_harness_upstream_events_in_queue, 
-//GO(gst_harness_upstream_events_received, 
-//GO(gst_harness_use_systemclock, 
-//GO(gst_harness_use_testclock, 
-//GO(gst_harness_wait_for_clock_id_waits, 
-//GO(gst_test_clock_advance_time, 
-//GO(gst_test_clock_crank, 
-//GO(gst_test_clock_get_next_entry_time, 
+GO(gst_buffer_straw_get_buffer, pFpp)
+GO(gst_buffer_straw_start_pipeline, vFpp)
+GO(gst_buffer_straw_stop_pipeline, vFpp)
+GO(gst_check_abi_list, vFpi)
+//GOM(gst_check_add_log_filter, pFEpipppp)
+GO(gst_check_buffer_data, vFppL)
+GO(gst_check_caps_equal, vFpp)
+GO(gst_check_chain_func, iFppp)
+GO(gst_check_clear_log_filter, vFv)
+GO(gst_check_drop_buffers, vFv)
+GO(gst_check_element_push_buffer, vFppppp)
+GO(gst_check_element_push_buffer_list, vFpppppi)
+//DATAB(_gst_check_expecting_log, 4)
+GO(gst_check_init, vFpp)
+//DATAB(_gst_check_list_tests, 4)
+GO(gst_check_message_error, vFpiui)
+GO(gst_check_object_destroyed_on_unref, vFp)
+//GOM(gst_check_objects_destroyed_on_unref, vFEppV)
+//DATAB(_gst_check_raised_critical, 4)
+//DATAB(_gst_check_raised_warning, 4)
+GO(gst_check_remove_log_filter, vFp)
+GO(gst_check_run_suite, iFppp)
+GO(_gst_check_run_test_func, iFp)
+GO(gst_check_setup_element, pFp)
+GO(gst_check_setup_events, vFpppu)
+GO(gst_check_setup_events_with_stream_id, vFpppup)
+GO(gst_check_setup_sink_pad, pFpp)
+GO(gst_check_setup_sink_pad_by_name, pFppp)
+GO(gst_check_setup_sink_pad_by_name_from_template, pFppp)
+GO(gst_check_setup_sink_pad_from_template, pFpp)
+GO(gst_check_setup_src_pad, pFpp)
+GO(gst_check_setup_src_pad_by_name, pFppp)
+GO(gst_check_setup_src_pad_by_name_from_template, pFppp)
+GO(gst_check_setup_src_pad_from_template, pFpp)
+GO(gst_check_teardown_element, vFp)
+GO(gst_check_teardown_pad_by_name, vFpp)
+GO(gst_check_teardown_sink_pad, vFp)
+GO(gst_check_teardown_src_pad, vFp)
+//DATAB(_gst_check_threads_running, 4)
+GO(gst_consistency_checker_add_pad, iFpp)
+GO(gst_consistency_checker_free, vFp)
+GO(gst_consistency_checker_new, pFp)
+GO(gst_consistency_checker_reset, vFp)
+GO(gst_harness_add_element_full, vFpppppp)
+GO(gst_harness_add_element_sink_pad, vFpp)
+GO(gst_harness_add_element_src_pad, vFpp)
+GO(gst_harness_add_parse, vFpp)
+//GOM(gst_harness_add_probe, vFEpppuppp)
+GO(gst_harness_add_propose_allocation_meta, vFpLp)
+GO(gst_harness_add_sink, vFpp)
+GO(gst_harness_add_sink_harness, vFpp)
+GO(gst_harness_add_sink_parse, vFpp)
+GO(gst_harness_add_src, vFppi)
+GO(gst_harness_add_src_harness, vFppi)
+GO(gst_harness_add_src_parse, vFppi)
+GO(gst_harness_buffers_in_queue, uFp)
+GO(gst_harness_buffers_received, uFp)
+GO(gst_harness_crank_multiple_clock_waits, iFpu)
+GO(gst_harness_crank_single_clock_wait, iFp)
+GO(gst_harness_create_buffer, pFpL)
+GO(gst_harness_dump_to_file, vFpp)
+GO(gst_harness_events_in_queue, uFp)
+GO(gst_harness_events_received, uFp)
+GO(gst_harness_find_element, pFpp)
+//GOM(gst_harness_get, vFEpppV)
+GO(gst_harness_get_allocator, vFppp)
+GO(gst_harness_get_last_pushed_timestamp, LFp)
+GO(gst_harness_get_testclock, pFp)
+GO(gst_harness_new, pFp)
+GO(gst_harness_new_empty, pFv)
+GO(gst_harness_new_full, pFppppp)
+GO(gst_harness_new_parse, pFp)
+GO(gst_harness_new_with_element, pFppp)
+GO(gst_harness_new_with_padnames, pFppp)
+GO(gst_harness_new_with_templates, pFppp)
+GO(gst_harness_play, vFp)
+GO(gst_harness_pull, pFp)
+GO(gst_harness_pull_event, pFp)
+GO(gst_harness_pull_until_eos, iFpp)
+GO(gst_harness_pull_upstream_event, pFp)
+GO(gst_harness_push, iFpp)
+GO(gst_harness_push_and_pull, pFpp)
+GO(gst_harness_push_event, iFpp)
+GO(gst_harness_push_from_src, iFp)
+GO(gst_harness_push_to_sink, iFp)
+GO(gst_harness_push_upstream_event, iFpp)
+GO(gst_harness_query_latency, LFp)
+//GOM(gst_harness_set, vFEpppV)
+GO(gst_harness_set_blocking_push_mode, vFp)
+GO(gst_harness_set_caps, vFppp)
+GO(gst_harness_set_caps_str, vFppp)
+GO(gst_harness_set_drop_buffers, vFpi)
+GO(gst_harness_set_forwarding, vFpi)
+GO(gst_harness_set_live, vFpi)
+GO(gst_harness_set_propose_allocator, vFppp)
+GO(gst_harness_set_sink_caps, vFpp)
+GO(gst_harness_set_sink_caps_str, vFpp)
+GO(gst_harness_set_src_caps, vFpp)
+GO(gst_harness_set_src_caps_str, vFpp)
+GO(gst_harness_set_time, iFpL)
+GO(gst_harness_set_upstream_latency, vFpL)
+GO(gst_harness_sink_push_many, iFpi)
+GO(gst_harness_src_crank_and_push_many, iFpii)
+GO(gst_harness_src_push_event, iFp)
+//GOM(gst_harness_stress_custom_start, pFEppppL)
+GO(gst_harness_stress_property_start_full, pFpppL)
+GO(gst_harness_stress_push_buffer_start_full, pFppppL)
+//GOM(gst_harness_stress_push_buffer_with_cb_start_full, pFEppppppL)
+GO(gst_harness_stress_push_event_start_full, pFppL)
+//GOM(gst_harness_stress_push_event_with_cb_start_full, pFEppppL)
+GO(gst_harness_stress_push_upstream_event_start_full, pFppL)
+//GOM(gst_harness_stress_push_upstream_event_with_cb_start_full, pFEppppL)
+GO(gst_harness_stress_requestpad_start_full, pFppppiL)
+GO(gst_harness_stress_statechange_start_full, pFpL)
+GO(gst_harness_stress_thread_stop, uFp)
+GO(gst_harness_take_all_data, pFpp)
+GO(gst_harness_take_all_data_as_buffer, pFp)
+GO(gst_harness_take_all_data_as_bytes, pFp)
+GO(gst_harness_teardown, vFp)
+GO(gst_harness_try_pull, pFp)
+GO(gst_harness_try_pull_event, pFp)
+GO(gst_harness_try_pull_upstream_event, pFp)
+GO(gst_harness_upstream_events_in_queue, uFp)
+GO(gst_harness_upstream_events_received, uFp)
+GO(gst_harness_use_systemclock, vFp)
+GO(gst_harness_use_testclock, vFp)
+GO(gst_harness_wait_for_clock_id_waits, iFpuu)
+GO(gst_test_clock_advance_time, vFpl)
+GO(gst_test_clock_crank, iFp)
+GO(gst_test_clock_get_next_entry_time, LFp)
 GO(gst_test_clock_get_type, LFv)
-//GO(gst_test_clock_has_id, 
-//GO(gst_test_clock_id_list_get_latest_time, 
-//GO(gst_test_clock_new, 
-//GO(gst_test_clock_new_with_start_time, 
-//GO(gst_test_clock_peek_id_count, 
-//GO(gst_test_clock_peek_next_pending_id, 
-//GO(gst_test_clock_process_id, 
-//GO(gst_test_clock_process_id_list, 
-//GO(gst_test_clock_process_next_clock_id, 
-//GO(gst_test_clock_set_time, 
-//GO(gst_test_clock_timed_wait_for_multiple_pending_ids, 
-//GO(gst_test_clock_wait_for_multiple_pending_ids, 
-//GO(gst_test_clock_wait_for_next_pending_id, 
-//GO(gst_test_clock_wait_for_pending_id_count, 
-//GO(_mark_point, 
-//DATAB(mutex, 
-//GO(srunner_add_suite, 
-//GO(srunner_create, 
-//GO(srunner_failures, 
-//GO(srunner_fork_status, 
-//GO(srunner_free, 
-//GO(srunner_has_log, 
-//GO(srunner_has_tap, 
-//GO(srunner_has_xml, 
-//GO(srunner_log_fname, 
-//GO(srunner_ntests_failed, 
-//GO(srunner_ntests_run, 
-//GO(srunner_print, 
-//GO(srunner_results, 
-//GO(srunner_run, 
-//GO(srunner_run_all, 
-//GO(srunner_run_tagged, 
-//GO(srunner_set_fork_status, 
-//GO(srunner_set_log, 
-//GO(srunner_set_tap, 
-//GO(srunner_set_xml, 
-//GO(srunner_tap_fname, 
-//GO(srunner_xml_fname, 
-//DATAB(start_cond, 
-//GO(suite_add_tcase, 
-//GO(suite_create, 
-//GO(suite_tcase, 
-//DATAB(sync_cond, 
-//GO(tcase_add_checked_fixture, 
-//GO(_tcase_add_test, 
-//GO(tcase_add_unchecked_fixture, 
-//GO(tcase_create, 
-//GO(tcase_fn_start, 
-//GO(tcase_set_tags, 
-//GO(tcase_set_timeout, 
-//DATAB(thread_list, 
-//GO(tr_ctx, 
-//GO(tr_lfile, 
-//GO(tr_lno, 
-//GO(tr_msg, 
-//GO(tr_rtype, 
-//GO(tr_tcname, 
+GO(gst_test_clock_has_id, iFpp)
+GO(gst_test_clock_id_list_get_latest_time, LFp)
+GO(gst_test_clock_new, pFv)
+GO(gst_test_clock_new_with_start_time, pFL)
+GO(gst_test_clock_peek_id_count, uFp)
+GO(gst_test_clock_peek_next_pending_id, iFpp)
+GO(gst_test_clock_process_id, iFpp)
+GO(gst_test_clock_process_id_list, uFpp)
+GO(gst_test_clock_process_next_clock_id, pFp)
+GO(gst_test_clock_set_time, vFpL)
+GO(gst_test_clock_timed_wait_for_multiple_pending_ids, iFpuup)
+GO(gst_test_clock_wait_for_multiple_pending_ids, vFpup)
+GO(gst_test_clock_wait_for_next_pending_id, vFpp)
+GO(gst_test_clock_wait_for_pending_id_count, vFpu)
+GO(_mark_point, vFpi)
+//DATAB(mutex, 8)
+GO(srunner_add_suite, vFpp)
+GO(srunner_create, pFp)
+GO(srunner_failures, pFp)
+GO(srunner_fork_status, uFp)
+GO(srunner_free, vFp)
+GO(srunner_has_log, iFp)
+GO(srunner_has_tap, iFp)
+GO(srunner_has_xml, iFp)
+GO(srunner_log_fname, pFp)
+GO(srunner_ntests_failed, iFp)
+GO(srunner_ntests_run, iFp)
+GO(srunner_print, vFpu)
+GO(srunner_results, pFp)
+GO(srunner_run, vFpppu)
+GO(srunner_run_all, vFpu)
+GO(srunner_run_tagged, vFpppppu)
+GO(srunner_set_fork_status, vFpu)
+GO(srunner_set_log, vFpp)
+GO(srunner_set_tap, vFpp)
+GO(srunner_set_xml, vFpp)
+GO(srunner_tap_fname, pFp)
+GO(srunner_xml_fname, pFp)
+//DATAB(start_cond, 16)
+GO(suite_add_tcase, vFpp)
+GO(suite_create, pFp)
+GO(suite_tcase, iFpp)
+//DATAB(sync_cond, 16)
+//GOM(tcase_add_checked_fixture, vFEppp)
+//GOM(_tcase_add_test, vFEpppiiii)
+//GOM(tcase_add_unchecked_fixture, vFEppp)
+GO(tcase_create, pFp)
+GO(tcase_fn_start, vFppi)
+GO(tcase_set_tags, vFpp)
+GO(tcase_set_timeout, vFpd)
+//DATAB(thread_list, 8)
+GO(tr_ctx, uFp)
+GO(tr_lfile, pFp)
+GO(tr_lno, iFp)
+GO(tr_msg, pFp)
+GO(tr_rtype, iFp)
+GO(tr_tcname, pFp)
