@@ -2969,7 +2969,6 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 						if (!type_t_equal(typ, kh_val(dest->f->type_map, it))) {
 							log_error(&tok->loginfo, "'%s' is already in the type map with a different type\n", cident);
 							free(cident);
-							type_del(typ);
 							// Empty destructor
 							goto failed;
 						}
@@ -3008,7 +3007,6 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 								log_error(&tok->loginfo, "'%s' is already in the declaration map\n", cident);
 								free(cident);
 								free(decl);
-								type_del(typ);
 								// Empty destructor
 								goto failed;
 							} else {
@@ -3029,6 +3027,7 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 									typ = type_new();
 									if (!typ) {
 										log_memory("failed to allocate new type\n");
+										type_del(base_type);
 										// Empty destructor
 										goto failed;
 									}
@@ -3063,6 +3062,7 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 						goto failed;
 					}
 				}
+				typ = base_type; ++typ->nrefs;
 				if ((tok->tokt == PTOK_SYM) && (tok->tokv.sym == SYM_EQ)) {
 					// Initialization
 					if (!is_init) {
@@ -3094,6 +3094,7 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 							proc_token_del(tok);
 							goto failed;
 						}
+						*tok = proc_next_token(prep);
 					} else {
 						expr_t *e = parse_expression(target, PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS,
 						                             PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, 15);
@@ -3110,10 +3111,11 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 					}
 					validation = (tok->tokv.sym == SYM_SEMICOLON) ? VALIDATION_LAST_DECL : VALIDATION_DECL;
 				}
-				if (validation == VALIDATION_LAST_DECL) goto success;
-				else {
+				if (validation == VALIDATION_LAST_DECL) {
+					--typ->nrefs;
+					goto success;
+				} else {
 					cur_ident = NULL; has_ident = 0;
-					typ = base_type; ++typ->nrefs;
 					cur_bottom = NULL;
 					vector_last(size_t, nptr_stack) = 0;
 					*tok = proc_next_token(prep);
