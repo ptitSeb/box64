@@ -210,6 +210,7 @@
 #() iFLu
 #() iFLL
 #() iFLp
+#() iFpc
 #() iFpw
 #() iFpi
 #() iFpI
@@ -554,7 +555,9 @@
 #() iFpil
 #() iFpiL
 #() iFpip
+#() iFpCu
 #() iFpCp
+#() iFpWu
 #() iFpWp
 #() iFpui
 #() iFpuC
@@ -935,6 +938,7 @@
 #() vFpuup
 #() vFpufi
 #() vFpudd
+#() vFpuli
 #() vFpuLL
 #() vFpupu
 #() vFpupp
@@ -949,6 +953,7 @@
 #() vFpdup
 #() vFpddu
 #() vFpddd
+#() vFpdlL
 #() vFpldi
 #() vFplll
 #() vFpllL
@@ -1115,6 +1120,7 @@
 #() iFpdip
 #() iFplii
 #() iFplip
+#() iFplll
 #() iFpllp
 #() iFplpi
 #() iFplpp
@@ -1555,6 +1561,7 @@
 #() vFpLiii
 #() vFpLiiL
 #() vFpLLLL
+#() vFpLLLp
 #() vFpLLpp
 #() vFpLpiL
 #() vFpLppi
