@@ -340,7 +340,12 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             VECTOR_LOAD_VMASK(0b0001, x4, 1);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            if (v1 & 1 || v0 == v1) {
+            // as per section 5.2 Vector Operands of V-spec v1.0,
+            // > A destination vector register group can overlap a source vector register group only if one of the following holds:
+            // > - ...
+            // > - The destination EEW is smaller than the source EEW and the overlap is in the lowest-numbered part of the source register group
+            // > - ...
+            if (v1 & 1 || v0 == v1 + 1) {
                 d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                 VMV_V_V(d1, v1);
                 if (rv64_xtheadvector) {
