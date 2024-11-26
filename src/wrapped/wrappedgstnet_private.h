@@ -1,33 +1,33 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
-//GO(gst_buffer_add_net_address_meta, 
-//GO(gst_buffer_add_net_control_message_meta, 
-//GO(gst_buffer_get_net_address_meta, 
+GO(gst_buffer_add_net_address_meta, pFpp)
+GO(gst_buffer_add_net_control_message_meta, pFpp)
+GO(gst_buffer_get_net_address_meta, pFp)
 GO(gst_net_address_meta_api_get_type, LFv)
-//GO(gst_net_address_meta_get_info, 
+GO(gst_net_address_meta_get_info, pFv)
 GO(gst_net_client_clock_get_type, LFv)
-//GO(gst_net_client_clock_new, 
+GO(gst_net_client_clock_new, pFppiL)
 GO(gst_net_control_message_meta_api_get_type, LFv)
-//GO(gst_net_control_message_meta_get_info, 
-//GO(gst_net_time_packet_copy, 
-//GO(gst_net_time_packet_free, 
+GO(gst_net_control_message_meta_get_info, pFv)
+GO(gst_net_time_packet_copy, pFp)
+GO(gst_net_time_packet_free, vFp)
 GO(gst_net_time_packet_get_type, LFv)
-//GO(gst_net_time_packet_new, 
-//GO(gst_net_time_packet_receive, 
-//GO(gst_net_time_packet_send, 
-//GO(gst_net_time_packet_serialize, 
+GO(gst_net_time_packet_new, pFp)
+GO(gst_net_time_packet_receive, pFppp)
+GO(gst_net_time_packet_send, iFpppp)
+GO(gst_net_time_packet_serialize, pFp)
 GO(gst_net_time_provider_get_type, LFv)
-//GO(gst_net_time_provider_new, 
-//GO(gst_net_utils_set_socket_tos, 
+GO(gst_net_time_provider_new, pFppi)
+GO(gst_net_utils_set_socket_tos, iFpi)
 GO(gst_ntp_clock_get_type, LFv)
-//GO(gst_ntp_clock_new, 
+GO(gst_ntp_clock_new, pFppiL)
 GO(gst_ptp_clock_get_type, LFv)
-//GO(gst_ptp_clock_new, 
-//GO(gst_ptp_deinit, 
-//GO(gst_ptp_init, 
-//GO(gst_ptp_is_initialized, 
-//GO(gst_ptp_is_supported, 
-//GO(gst_ptp_statistics_callback_add, 
-//GO(gst_ptp_statistics_callback_remove, 
+GO(gst_ptp_clock_new, pFpu)
+GO(gst_ptp_deinit, vFv)
+GO(gst_ptp_init, iFLp)
+GO(gst_ptp_is_initialized, iFv)
+GO(gst_ptp_is_supported, iFv)
+//GOM(gst_ptp_statistics_callback_add, LFEppp)
+GO(gst_ptp_statistics_callback_remove, vFL)
