@@ -589,7 +589,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(q1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VSLIDEDOWN_VI(v0, q0, 4, VECTOR_UNMASKED);
             VSLIDEDOWN_VI(v1, q1, 4, VECTOR_UNMASKED);
@@ -607,7 +607,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(q1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VSLIDEDOWN_VI(v0, q0, 2, VECTOR_UNMASKED);
             VSLIDEDOWN_VI(v1, q1, 2, VECTOR_UNMASKED);
@@ -626,7 +626,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             MOV32w(x2, 32);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VSLIDEDOWN_VI(v0, q0, 1, VECTOR_UNMASKED);
             VSLIDEDOWN_VI(v1, q1, 1, VECTOR_UNMASKED);
@@ -1060,7 +1060,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGM_vector(v0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
-            q1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
+            q1 = fpu_get_scratch(dyn);
             q0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             ADDI(x3, xZR, 32);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
