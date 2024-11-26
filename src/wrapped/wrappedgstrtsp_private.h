@@ -1,170 +1,170 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(gst_rtsp_auth_credential_get_type, LFv)
-//GO(gst_rtsp_auth_credentials_free, 
+GO(gst_rtsp_auth_credentials_free, vFp)
 GO(gst_rtsp_auth_method_get_type, LFv)
-//GO(gst_rtsp_auth_param_copy, 
-//GO(gst_rtsp_auth_param_free, 
+GO(gst_rtsp_auth_param_copy, pFp)
+GO(gst_rtsp_auth_param_free, vFp)
 GO(gst_rtsp_auth_param_get_type, LFv)
-//GO(gst_rtsp_connection_accept, 
-//GO(gst_rtsp_connection_clear_auth_params, 
-//GO(gst_rtsp_connection_close, 
-//GO(gst_rtsp_connection_connect, 
-//GO(gst_rtsp_connection_connect_usec, 
-//GO(gst_rtsp_connection_connect_with_response, 
-//GO(gst_rtsp_connection_connect_with_response_usec, 
-//GO(gst_rtsp_connection_create, 
-//GO(gst_rtsp_connection_create_from_socket, 
-//GO(gst_rtsp_connection_do_tunnel, 
-//GO(gst_rtsp_connection_flush, 
-//GO(gst_rtsp_connection_free, 
-//GO(gst_rtsp_connection_get_ignore_x_server_reply, 
-//GO(gst_rtsp_connection_get_ip, 
-//GO(gst_rtsp_connection_get_read_socket, 
-//GO(gst_rtsp_connection_get_remember_session_id, 
-//GO(gst_rtsp_connection_get_tls, 
-//GO(gst_rtsp_connection_get_tls_database, 
-//GO(gst_rtsp_connection_get_tls_interaction, 
-//GO(gst_rtsp_connection_get_tls_validation_flags, 
-//GO(gst_rtsp_connection_get_tunnelid, 
-//GO(gst_rtsp_connection_get_url, 
-//GO(gst_rtsp_connection_get_write_socket, 
-//GO(gst_rtsp_connection_is_tunneled, 
-//GO(gst_rtsp_connection_next_timeout, 
-//GO(gst_rtsp_connection_next_timeout_usec, 
-//GO(gst_rtsp_connection_poll, 
-//GO(gst_rtsp_connection_poll_usec, 
-//GO(gst_rtsp_connection_read, 
-//GO(gst_rtsp_connection_read_usec, 
-//GO(gst_rtsp_connection_receive, 
-//GO(gst_rtsp_connection_receive_usec, 
-//GO(gst_rtsp_connection_reset_timeout, 
-//GO(gst_rtsp_connection_send, 
-//GO(gst_rtsp_connection_send_messages, 
-//GO(gst_rtsp_connection_send_messages_usec, 
-//GO(gst_rtsp_connection_send_usec, 
-//GO(gst_rtsp_connection_set_accept_certificate_func, 
-//GO(gst_rtsp_connection_set_auth, 
-//GO(gst_rtsp_connection_set_auth_param, 
-//GO(gst_rtsp_connection_set_content_length_limit, 
-//GO(gst_rtsp_connection_set_http_mode, 
-//GO(gst_rtsp_connection_set_ignore_x_server_reply, 
-//GO(gst_rtsp_connection_set_ip, 
-//GO(gst_rtsp_connection_set_proxy, 
-//GO(gst_rtsp_connection_set_qos_dscp, 
-//GO(gst_rtsp_connection_set_remember_session_id, 
-//GO(gst_rtsp_connection_set_tls_database, 
-//GO(gst_rtsp_connection_set_tls_interaction, 
-//GO(gst_rtsp_connection_set_tls_validation_flags, 
-//GO(gst_rtsp_connection_set_tunneled, 
-//GO(gst_rtsp_connection_write, 
-//GO(gst_rtsp_connection_write_usec, 
+GO(gst_rtsp_connection_accept, iFppp)
+GO(gst_rtsp_connection_clear_auth_params, vFp)
+GO(gst_rtsp_connection_close, iFp)
+GO(gst_rtsp_connection_connect, iFpp)
+GO(gst_rtsp_connection_connect_usec, iFpl)
+GO(gst_rtsp_connection_connect_with_response, iFppp)
+GO(gst_rtsp_connection_connect_with_response_usec, iFplp)
+GO(gst_rtsp_connection_create, iFpp)
+GO(gst_rtsp_connection_create_from_socket, iFppWpp)
+GO(gst_rtsp_connection_do_tunnel, iFpp)
+GO(gst_rtsp_connection_flush, iFpi)
+GO(gst_rtsp_connection_free, iFp)
+GO(gst_rtsp_connection_get_ignore_x_server_reply, iFp)
+GO(gst_rtsp_connection_get_ip, pFp)
+GO(gst_rtsp_connection_get_read_socket, pFp)
+GO(gst_rtsp_connection_get_remember_session_id, iFp)
+GO(gst_rtsp_connection_get_tls, pFpp)
+GO(gst_rtsp_connection_get_tls_database, pFp)
+GO(gst_rtsp_connection_get_tls_interaction, pFp)
+GO(gst_rtsp_connection_get_tls_validation_flags, uFp)
+GO(gst_rtsp_connection_get_tunnelid, pFp)
+GO(gst_rtsp_connection_get_url, pFp)
+GO(gst_rtsp_connection_get_write_socket, pFp)
+GO(gst_rtsp_connection_is_tunneled, iFp)
+GO(gst_rtsp_connection_next_timeout, iFpp)
+GO(gst_rtsp_connection_next_timeout_usec, lFp)
+GO(gst_rtsp_connection_poll, iFpupp)
+GO(gst_rtsp_connection_poll_usec, iFpupl)
+GO(gst_rtsp_connection_read, iFppup)
+GO(gst_rtsp_connection_read_usec, iFppul)
+GO(gst_rtsp_connection_receive, iFppp)
+GO(gst_rtsp_connection_receive_usec, iFppl)
+GO(gst_rtsp_connection_reset_timeout, iFp)
+GO(gst_rtsp_connection_send, iFppp)
+GO(gst_rtsp_connection_send_messages, iFppup)
+GO(gst_rtsp_connection_send_messages_usec, iFppul)
+GO(gst_rtsp_connection_send_usec, iFppl)
+//GOM(gst_rtsp_connection_set_accept_certificate_func, vFEpppp)
+GO(gst_rtsp_connection_set_auth, iFpupp)
+GO(gst_rtsp_connection_set_auth_param, vFppp)
+GO(gst_rtsp_connection_set_content_length_limit, vFpu)
+GO(gst_rtsp_connection_set_http_mode, vFpi)
+GO(gst_rtsp_connection_set_ignore_x_server_reply, vFpi)
+GO(gst_rtsp_connection_set_ip, vFpp)
+GO(gst_rtsp_connection_set_proxy, iFppu)
+GO(gst_rtsp_connection_set_qos_dscp, iFpu)
+GO(gst_rtsp_connection_set_remember_session_id, vFpi)
+GO(gst_rtsp_connection_set_tls_database, vFpp)
+GO(gst_rtsp_connection_set_tls_interaction, vFpp)
+GO(gst_rtsp_connection_set_tls_validation_flags, iFpu)
+GO(gst_rtsp_connection_set_tunneled, vFpi)
+GO(gst_rtsp_connection_write, iFppup)
+GO(gst_rtsp_connection_write_usec, iFppul)
 GO(gst_rtsp_event_get_type, LFv)
-//GO(gst_rtsp_extension_after_send, 
-//GO(gst_rtsp_extension_before_send, 
-//GO(gst_rtsp_extension_configure_stream, 
-//GO(gst_rtsp_extension_detect_server, 
-//GO(gst_rtsp_extension_get_transports, 
+GO(gst_rtsp_extension_after_send, iFppp)
+GO(gst_rtsp_extension_before_send, iFpp)
+GO(gst_rtsp_extension_configure_stream, iFpp)
+GO(gst_rtsp_extension_detect_server, iFpp)
+GO(gst_rtsp_extension_get_transports, iFpup)
 GO(gst_rtsp_extension_get_type, LFv)
-//GO(gst_rtsp_extension_parse_sdp, 
-//GO(gst_rtsp_extension_receive_request, 
-//GO(gst_rtsp_extension_send, 
-//GO(gst_rtsp_extension_setup_media, 
-//GO(gst_rtsp_extension_stream_select, 
+GO(gst_rtsp_extension_parse_sdp, iFppp)
+GO(gst_rtsp_extension_receive_request, iFpp)
+GO(gst_rtsp_extension_send, iFppp)
+GO(gst_rtsp_extension_setup_media, iFpp)
+GO(gst_rtsp_extension_stream_select, iFpp)
 GO(gst_rtsp_family_get_type, LFv)
-//GO(gst_rtsp_find_header_field, 
-//GO(gst_rtsp_find_method, 
-//GO(gst_rtsp_generate_digest_auth_response, 
-//GO(gst_rtsp_generate_digest_auth_response_from_md5, 
-//GO(gst_rtsp_header_allow_multiple, 
-//GO(gst_rtsp_header_as_text, 
+GO(gst_rtsp_find_header_field, uFp)
+GO(gst_rtsp_find_method, uFp)
+GO(gst_rtsp_generate_digest_auth_response, pFppppppp)
+GO(gst_rtsp_generate_digest_auth_response_from_md5, pFppppp)
+GO(gst_rtsp_header_allow_multiple, iFu)
+GO(gst_rtsp_header_as_text, pFu)
 GO(gst_rtsp_header_field_get_type, LFv)
 GO(gst_rtsp_lower_trans_get_type, LFv)
-//GO(gst_rtsp_message_add_header, 
-//GO(gst_rtsp_message_add_header_by_name, 
-//GO(gst_rtsp_message_append_headers, 
-//GO(gst_rtsp_message_copy, 
-//GO(gst_rtsp_message_dump, 
-//GO(gst_rtsp_message_free, 
-//GO(gst_rtsp_message_get_body, 
-//GO(gst_rtsp_message_get_body_buffer, 
-//GO(gst_rtsp_message_get_header, 
-//GO(gst_rtsp_message_get_header_by_name, 
-GO(gst_rtsp_message_get_type, LFv)
-//GO(gst_rtsp_message_has_body_buffer, 
-//GO(gst_rtsp_message_init, 
-//GO(gst_rtsp_message_init_data, 
-//GO(gst_rtsp_message_init_request, 
-//GO(gst_rtsp_message_init_response, 
-//GO(gst_rtsp_message_new, 
-//GO(gst_rtsp_message_new_data, 
-//GO(gst_rtsp_message_new_request, 
-//GO(gst_rtsp_message_new_response, 
-//GO(gst_rtsp_message_parse_auth_credentials, 
-//GO(gst_rtsp_message_parse_data, 
-//GO(gst_rtsp_message_parse_request, 
-//GO(gst_rtsp_message_parse_response, 
-//GO(gst_rtsp_message_remove_header, 
-//GO(gst_rtsp_message_remove_header_by_name, 
-//GO(gst_rtsp_message_set_body, 
-//GO(gst_rtsp_message_set_body_buffer, 
-//GO(gst_rtsp_message_steal_body, 
-//GO(gst_rtsp_message_steal_body_buffer, 
-//GO(gst_rtsp_message_take_body, 
-//GO(gst_rtsp_message_take_body_buffer, 
-//GO(gst_rtsp_message_take_header, 
-//GO(gst_rtsp_message_take_header_by_name, 
-//GO(gst_rtsp_message_unset, 
-//GO(gst_rtsp_method_as_text, 
+GO(gst_rtsp_message_add_header, iFpup)
+GO(gst_rtsp_message_add_header_by_name, iFppp)
+GO(gst_rtsp_message_append_headers, iFpp)
+GO(gst_rtsp_message_copy, iFpp)
+GO(gst_rtsp_message_dump, iFp)
+GO(gst_rtsp_message_free, iFp)
+GO(gst_rtsp_message_get_body, iFppp)
+GO(gst_rtsp_message_get_body_buffer, iFpp)
+GO(gst_rtsp_message_get_header, iFpupi)
+GO(gst_rtsp_message_get_header_by_name, iFpppi)
+GO(gst_rtsp_message_get_type, uFp)
+GO(gst_rtsp_message_has_body_buffer, iFp)
+GO(gst_rtsp_message_init, iFp)
+GO(gst_rtsp_message_init_data, iFpC)
+GO(gst_rtsp_message_init_request, iFpup)
+GO(gst_rtsp_message_init_response, iFpupp)
+GO(gst_rtsp_message_new, iFp)
+GO(gst_rtsp_message_new_data, iFpC)
+GO(gst_rtsp_message_new_request, iFpup)
+GO(gst_rtsp_message_new_response, iFpupp)
+GO(gst_rtsp_message_parse_auth_credentials, pFpu)
+GO(gst_rtsp_message_parse_data, iFpp)
+GO(gst_rtsp_message_parse_request, iFpppp)
+GO(gst_rtsp_message_parse_response, iFpppp)
+GO(gst_rtsp_message_remove_header, iFpui)
+GO(gst_rtsp_message_remove_header_by_name, iFppi)
+GO(gst_rtsp_message_set_body, iFppu)
+GO(gst_rtsp_message_set_body_buffer, iFpp)
+GO(gst_rtsp_message_steal_body, iFppp)
+GO(gst_rtsp_message_steal_body_buffer, iFpp)
+GO(gst_rtsp_message_take_body, iFppu)
+GO(gst_rtsp_message_take_body_buffer, iFpp)
+GO(gst_rtsp_message_take_header, iFpup)
+GO(gst_rtsp_message_take_header_by_name, iFppp)
+GO(gst_rtsp_message_unset, iFp)
+GO(gst_rtsp_method_as_text, pFu)
 GO(gst_rtsp_method_get_type, LFv)
 GO(gst_rtsp_msg_get_type, LFv)
 GO(gst_rtsp_msg_type_get_type, LFv)
-//GO(gst_rtsp_options_as_text, 
-//GO(gst_rtsp_options_from_text, 
+GO(gst_rtsp_options_as_text, pFu)
+GO(gst_rtsp_options_from_text, uFp)
 GO(gst_rtsp_profile_get_type, LFv)
-//GO(gst_rtsp_range_convert_units, 
-//GO(gst_rtsp_range_free, 
-//GO(gst_rtsp_range_get_times, 
-//GO(gst_rtsp_range_parse, 
-//GO(gst_rtsp_range_to_string, 
+GO(gst_rtsp_range_convert_units, iFpu)
+GO(gst_rtsp_range_free, vFp)
+GO(gst_rtsp_range_get_times, iFppp)
+GO(gst_rtsp_range_parse, iFpp)
+GO(gst_rtsp_range_to_string, pFp)
 GO(gst_rtsp_range_unit_get_type, LFv)
 GO(gst_rtsp_result_get_type, LFv)
 GO(gst_rtsp_state_get_type, LFv)
-//GO(gst_rtsp_status_as_text, 
+GO(gst_rtsp_status_as_text, pFu)
 GO(gst_rtsp_status_code_get_type, LFv)
-//GO(gst_rtsp_strresult, 
+GO(gst_rtsp_strresult, pFi)
 GO(gst_rtsp_time_type_get_type, LFv)
 GO(gst_rtsp_trans_mode_get_type, LFv)
-//GO(gst_rtsp_transport_as_text, 
-//GO(gst_rtsp_transport_free, 
-//GO(gst_rtsp_transport_get_manager, 
-//GO(gst_rtsp_transport_get_media_type, 
-//GO(gst_rtsp_transport_get_mime, 
-//GO(gst_rtsp_transport_init, 
-//GO(gst_rtsp_transport_new, 
-//GO(gst_rtsp_transport_parse, 
-//GO(gst_rtsp_url_copy, 
-//GO(gst_rtsp_url_decode_path_components, 
-//GO(gst_rtsp_url_free, 
-//GO(gst_rtsp_url_get_port, 
-//GO(gst_rtsp_url_get_request_uri, 
-//GO(gst_rtsp_url_get_request_uri_with_control, 
+GO(gst_rtsp_transport_as_text, pFp)
+GO(gst_rtsp_transport_free, iFp)
+GO(gst_rtsp_transport_get_manager, iFupu)
+GO(gst_rtsp_transport_get_media_type, iFpp)
+GO(gst_rtsp_transport_get_mime, iFup)
+GO(gst_rtsp_transport_init, iFp)
+GO(gst_rtsp_transport_new, iFp)
+GO(gst_rtsp_transport_parse, iFpp)
+GO(gst_rtsp_url_copy, pFp)
+GO(gst_rtsp_url_decode_path_components, pFp)
+GO(gst_rtsp_url_free, vFp)
+GO(gst_rtsp_url_get_port, iFpp)
+GO(gst_rtsp_url_get_request_uri, pFp)
+GO(gst_rtsp_url_get_request_uri_with_control, pFpp)
 GO(gst_rtsp_url_get_type, LFv)
-//GO(gst_rtsp_url_parse, 
-//GO(gst_rtsp_url_set_port, 
-//GO(gst_rtsp_version_as_text, 
+GO(gst_rtsp_url_parse, iFpp)
+GO(gst_rtsp_url_set_port, iFpW)
+GO(gst_rtsp_version_as_text, pFu)
 GO(gst_rtsp_version_get_type, LFv)
-//GO(gst_rtsp_watch_attach, 
-//GO(gst_rtsp_watch_get_send_backlog, 
-//GO(gst_rtsp_watch_new, 
-//GO(gst_rtsp_watch_reset, 
-//GO(gst_rtsp_watch_send_message, 
-//GO(gst_rtsp_watch_send_messages, 
-//GO(gst_rtsp_watch_set_flushing, 
-//GO(gst_rtsp_watch_set_send_backlog, 
-//GO(gst_rtsp_watch_unref, 
-//GO(gst_rtsp_watch_wait_backlog, 
-//GO(gst_rtsp_watch_wait_backlog_usec, 
-//GO(gst_rtsp_watch_write_data, 
+GO(gst_rtsp_watch_attach, uFpp)
+GO(gst_rtsp_watch_get_send_backlog, vFppp)
+//GOM(gst_rtsp_watch_new, pFEpppp)
+GO(gst_rtsp_watch_reset, vFp)
+GO(gst_rtsp_watch_send_message, iFppp)
+GO(gst_rtsp_watch_send_messages, iFppup)
+GO(gst_rtsp_watch_set_flushing, vFpi)
+GO(gst_rtsp_watch_set_send_backlog, vFpLu)
+GO(gst_rtsp_watch_unref, vFp)
+GO(gst_rtsp_watch_wait_backlog, iFpp)
+GO(gst_rtsp_watch_wait_backlog_usec, iFpl)
+GO(gst_rtsp_watch_write_data, iFppup)

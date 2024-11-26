@@ -1,215 +1,215 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
-//GO(gst_buffer_add_rtp_source_meta, 
-//GO(gst_buffer_get_rtp_source_meta, 
-//GO(gst_rtcp_buffer_add_packet, 
-//GO(gst_rtcp_buffer_get_first_packet, 
-//GO(gst_rtcp_buffer_get_packet_count, 
-//GO(gst_rtcp_buffer_map, 
-//GO(gst_rtcp_buffer_new, 
-//GO(gst_rtcp_buffer_new_copy_data, 
-//GO(gst_rtcp_buffer_new_take_data, 
-//GO(gst_rtcp_buffer_unmap, 
-//GO(gst_rtcp_buffer_validate, 
-//GO(gst_rtcp_buffer_validate_data, 
-//GO(gst_rtcp_buffer_validate_data_reduced, 
-//GO(gst_rtcp_buffer_validate_reduced, 
+GO(gst_buffer_add_rtp_source_meta, pFpppu)
+GO(gst_buffer_get_rtp_source_meta, pFp)
+GO(gst_rtcp_buffer_add_packet, iFpup)
+GO(gst_rtcp_buffer_get_first_packet, iFpp)
+GO(gst_rtcp_buffer_get_packet_count, uFp)
+GO(gst_rtcp_buffer_map, iFpup)
+GO(gst_rtcp_buffer_new, pFu)
+GO(gst_rtcp_buffer_new_copy_data, pFpu)
+GO(gst_rtcp_buffer_new_take_data, pFpu)
+GO(gst_rtcp_buffer_unmap, iFp)
+GO(gst_rtcp_buffer_validate, iFp)
+GO(gst_rtcp_buffer_validate_data, iFpu)
+GO(gst_rtcp_buffer_validate_data_reduced, iFpu)
+GO(gst_rtcp_buffer_validate_reduced, iFp)
 GO(gst_rtcpfb_type_get_type, LFv)
-//GO(gst_rtcp_ntp_to_unix, 
-//GO(gst_rtcp_packet_add_profile_specific_ext, 
-//GO(gst_rtcp_packet_add_rb, 
-//GO(gst_rtcp_packet_app_get_data, 
-//GO(gst_rtcp_packet_app_get_data_length, 
-//GO(gst_rtcp_packet_app_get_name, 
-//GO(gst_rtcp_packet_app_get_ssrc, 
-//GO(gst_rtcp_packet_app_get_subtype, 
-//GO(gst_rtcp_packet_app_set_data_length, 
-//GO(gst_rtcp_packet_app_set_name, 
-//GO(gst_rtcp_packet_app_set_ssrc, 
-//GO(gst_rtcp_packet_app_set_subtype, 
-//GO(gst_rtcp_packet_bye_add_ssrc, 
-//GO(gst_rtcp_packet_bye_add_ssrcs, 
-//GO(gst_rtcp_packet_bye_get_nth_ssrc, 
-//GO(gst_rtcp_packet_bye_get_reason, 
-//GO(gst_rtcp_packet_bye_get_reason_len, 
-//GO(gst_rtcp_packet_bye_get_ssrc_count, 
-//GO(gst_rtcp_packet_bye_set_reason, 
-//GO(gst_rtcp_packet_copy_profile_specific_ext, 
-//GO(gst_rtcp_packet_fb_get_fci, 
-//GO(gst_rtcp_packet_fb_get_fci_length, 
-//GO(gst_rtcp_packet_fb_get_media_ssrc, 
-//GO(gst_rtcp_packet_fb_get_sender_ssrc, 
-GO(gst_rtcp_packet_fb_get_type, LFv)
-//GO(gst_rtcp_packet_fb_set_fci_length, 
-//GO(gst_rtcp_packet_fb_set_media_ssrc, 
-//GO(gst_rtcp_packet_fb_set_sender_ssrc, 
-//GO(gst_rtcp_packet_fb_set_type, 
-//GO(gst_rtcp_packet_get_count, 
-//GO(gst_rtcp_packet_get_length, 
-//GO(gst_rtcp_packet_get_padding, 
-//GO(gst_rtcp_packet_get_profile_specific_ext, 
-//GO(gst_rtcp_packet_get_profile_specific_ext_length, 
-//GO(gst_rtcp_packet_get_rb, 
-//GO(gst_rtcp_packet_get_rb_count, 
-GO(gst_rtcp_packet_get_type, LFv)
-//GO(gst_rtcp_packet_move_to_next, 
-//GO(gst_rtcp_packet_remove, 
-//GO(gst_rtcp_packet_rr_get_ssrc, 
-//GO(gst_rtcp_packet_rr_set_ssrc, 
-//GO(gst_rtcp_packet_sdes_add_entry, 
-//GO(gst_rtcp_packet_sdes_add_item, 
-//GO(gst_rtcp_packet_sdes_copy_entry, 
-//GO(gst_rtcp_packet_sdes_first_entry, 
-//GO(gst_rtcp_packet_sdes_first_item, 
-//GO(gst_rtcp_packet_sdes_get_entry, 
-//GO(gst_rtcp_packet_sdes_get_item_count, 
-//GO(gst_rtcp_packet_sdes_get_ssrc, 
-//GO(gst_rtcp_packet_sdes_next_entry, 
-//GO(gst_rtcp_packet_sdes_next_item, 
-//GO(gst_rtcp_packet_set_rb, 
-//GO(gst_rtcp_packet_sr_get_sender_info, 
-//GO(gst_rtcp_packet_sr_set_sender_info, 
-//GO(gst_rtcp_packet_xr_first_rb, 
-//GO(gst_rtcp_packet_xr_get_block_length, 
-//GO(gst_rtcp_packet_xr_get_block_type, 
-//GO(gst_rtcp_packet_xr_get_dlrr_block, 
-//GO(gst_rtcp_packet_xr_get_prt_by_seq, 
-//GO(gst_rtcp_packet_xr_get_prt_info, 
-//GO(gst_rtcp_packet_xr_get_rle_info, 
-//GO(gst_rtcp_packet_xr_get_rle_nth_chunk, 
-//GO(gst_rtcp_packet_xr_get_rrt, 
-//GO(gst_rtcp_packet_xr_get_ssrc, 
-//GO(gst_rtcp_packet_xr_get_summary_info, 
-//GO(gst_rtcp_packet_xr_get_summary_jitter, 
-//GO(gst_rtcp_packet_xr_get_summary_pkt, 
-//GO(gst_rtcp_packet_xr_get_summary_ttl, 
-//GO(gst_rtcp_packet_xr_get_voip_burst_metrics, 
-//GO(gst_rtcp_packet_xr_get_voip_configuration_params, 
-//GO(gst_rtcp_packet_xr_get_voip_delay_metrics, 
-//GO(gst_rtcp_packet_xr_get_voip_jitter_buffer_params, 
-//GO(gst_rtcp_packet_xr_get_voip_metrics_ssrc, 
-//GO(gst_rtcp_packet_xr_get_voip_packet_metrics, 
-//GO(gst_rtcp_packet_xr_get_voip_quality_metrics, 
-//GO(gst_rtcp_packet_xr_get_voip_signal_metrics, 
-//GO(gst_rtcp_packet_xr_next_rb, 
-//GO(gst_rtcp_sdes_name_to_type, 
+GO(gst_rtcp_ntp_to_unix, LFL)
+GO(gst_rtcp_packet_add_profile_specific_ext, iFppu)
+GO(gst_rtcp_packet_add_rb, iFpuCiuuuu)
+GO(gst_rtcp_packet_app_get_data, pFp)
+GO(gst_rtcp_packet_app_get_data_length, WFp)
+GO(gst_rtcp_packet_app_get_name, pFp)
+GO(gst_rtcp_packet_app_get_ssrc, uFp)
+GO(gst_rtcp_packet_app_get_subtype, CFp)
+GO(gst_rtcp_packet_app_set_data_length, iFpW)
+GO(gst_rtcp_packet_app_set_name, vFpp)
+GO(gst_rtcp_packet_app_set_ssrc, vFpu)
+GO(gst_rtcp_packet_app_set_subtype, vFpC)
+GO(gst_rtcp_packet_bye_add_ssrc, iFpu)
+GO(gst_rtcp_packet_bye_add_ssrcs, iFppu)
+GO(gst_rtcp_packet_bye_get_nth_ssrc, uFpu)
+GO(gst_rtcp_packet_bye_get_reason, pFp)
+GO(gst_rtcp_packet_bye_get_reason_len, CFp)
+GO(gst_rtcp_packet_bye_get_ssrc_count, uFp)
+GO(gst_rtcp_packet_bye_set_reason, iFpp)
+GO(gst_rtcp_packet_copy_profile_specific_ext, iFppp)
+GO(gst_rtcp_packet_fb_get_fci, pFp)
+GO(gst_rtcp_packet_fb_get_fci_length, WFp)
+GO(gst_rtcp_packet_fb_get_media_ssrc, uFp)
+GO(gst_rtcp_packet_fb_get_sender_ssrc, uFp)
+GO(gst_rtcp_packet_fb_get_type, uFp)
+GO(gst_rtcp_packet_fb_set_fci_length, iFpW)
+GO(gst_rtcp_packet_fb_set_media_ssrc, vFpu)
+GO(gst_rtcp_packet_fb_set_sender_ssrc, vFpu)
+GO(gst_rtcp_packet_fb_set_type, vFpu)
+GO(gst_rtcp_packet_get_count, CFp)
+GO(gst_rtcp_packet_get_length, WFp)
+GO(gst_rtcp_packet_get_padding, iFp)
+GO(gst_rtcp_packet_get_profile_specific_ext, iFppp)
+GO(gst_rtcp_packet_get_profile_specific_ext_length, WFp)
+GO(gst_rtcp_packet_get_rb, vFpuppppppp)
+GO(gst_rtcp_packet_get_rb_count, uFp)
+GO(gst_rtcp_packet_get_type, uFp)
+GO(gst_rtcp_packet_move_to_next, iFp)
+GO(gst_rtcp_packet_remove, iFp)
+GO(gst_rtcp_packet_rr_get_ssrc, uFp)
+GO(gst_rtcp_packet_rr_set_ssrc, vFpu)
+GO(gst_rtcp_packet_sdes_add_entry, iFpiCp)
+GO(gst_rtcp_packet_sdes_add_item, iFpu)
+GO(gst_rtcp_packet_sdes_copy_entry, iFpppp)
+GO(gst_rtcp_packet_sdes_first_entry, iFp)
+GO(gst_rtcp_packet_sdes_first_item, iFp)
+GO(gst_rtcp_packet_sdes_get_entry, iFpppp)
+GO(gst_rtcp_packet_sdes_get_item_count, uFp)
+GO(gst_rtcp_packet_sdes_get_ssrc, uFp)
+GO(gst_rtcp_packet_sdes_next_entry, iFp)
+GO(gst_rtcp_packet_sdes_next_item, iFp)
+GO(gst_rtcp_packet_set_rb, vFpuuCiuuuu)
+GO(gst_rtcp_packet_sr_get_sender_info, vFpppppp)
+GO(gst_rtcp_packet_sr_set_sender_info, vFpuLuuu)
+GO(gst_rtcp_packet_xr_first_rb, iFp)
+GO(gst_rtcp_packet_xr_get_block_length, WFp)
+GO(gst_rtcp_packet_xr_get_block_type, iFp)
+GO(gst_rtcp_packet_xr_get_dlrr_block, iFpuppp)
+GO(gst_rtcp_packet_xr_get_prt_by_seq, iFpWp)
+GO(gst_rtcp_packet_xr_get_prt_info, iFppppp)
+GO(gst_rtcp_packet_xr_get_rle_info, iFpppppp)
+GO(gst_rtcp_packet_xr_get_rle_nth_chunk, iFpup)
+GO(gst_rtcp_packet_xr_get_rrt, iFpp)
+GO(gst_rtcp_packet_xr_get_ssrc, uFp)
+GO(gst_rtcp_packet_xr_get_summary_info, iFpppp)
+GO(gst_rtcp_packet_xr_get_summary_jitter, iFppppp)
+GO(gst_rtcp_packet_xr_get_summary_pkt, iFppp)
+GO(gst_rtcp_packet_xr_get_summary_ttl, iFpppppp)
+GO(gst_rtcp_packet_xr_get_voip_burst_metrics, iFppppp)
+GO(gst_rtcp_packet_xr_get_voip_configuration_params, iFppp)
+GO(gst_rtcp_packet_xr_get_voip_delay_metrics, iFppp)
+GO(gst_rtcp_packet_xr_get_voip_jitter_buffer_params, iFpppp)
+GO(gst_rtcp_packet_xr_get_voip_metrics_ssrc, iFpp)
+GO(gst_rtcp_packet_xr_get_voip_packet_metrics, iFppp)
+GO(gst_rtcp_packet_xr_get_voip_quality_metrics, iFppppp)
+GO(gst_rtcp_packet_xr_get_voip_signal_metrics, iFppppp)
+GO(gst_rtcp_packet_xr_next_rb, iFp)
+GO(gst_rtcp_sdes_name_to_type, iFp)
 GO(gst_rtcpsdes_type_get_type, LFv)
-//GO(gst_rtcp_sdes_type_to_name, 
+GO(gst_rtcp_sdes_type_to_name, pFi)
 GO(gst_rtcp_type_get_type, LFv)
-//GO(gst_rtcp_unix_to_ntp, 
+GO(gst_rtcp_unix_to_ntp, LFL)
 GO(gst_rtcpxr_type_get_type, LFv)
-//GO(gst_rtp_base_audio_payload_flush, 
-//GO(gst_rtp_base_audio_payload_get_adapter, 
+GO(gst_rtp_base_audio_payload_flush, iFpuL)
+GO(gst_rtp_base_audio_payload_get_adapter, pFp)
 GO(gst_rtp_base_audio_payload_get_type, LFv)
-//GO(gst_rtp_base_audio_payload_push, 
-//GO(gst_rtp_base_audio_payload_set_frame_based, 
-//GO(gst_rtp_base_audio_payload_set_frame_options, 
-//GO(gst_rtp_base_audio_payload_set_sample_based, 
-//GO(gst_rtp_base_audio_payload_set_samplebits_options, 
-//GO(gst_rtp_base_audio_payload_set_sample_options, 
+GO(gst_rtp_base_audio_payload_push, iFppuL)
+GO(gst_rtp_base_audio_payload_set_frame_based, vFp)
+GO(gst_rtp_base_audio_payload_set_frame_options, vFpii)
+GO(gst_rtp_base_audio_payload_set_sample_based, vFp)
+GO(gst_rtp_base_audio_payload_set_samplebits_options, vFpi)
+GO(gst_rtp_base_audio_payload_set_sample_options, vFpi)
 GO(gst_rtp_base_depayload_get_type, LFv)
-//GO(gst_rtp_base_depayload_is_source_info_enabled, 
-//GO(gst_rtp_base_depayload_push, 
-//GO(gst_rtp_base_depayload_push_list, 
-//GO(gst_rtp_base_depayload_set_source_info_enabled, 
-//GO(gst_rtp_base_payload_allocate_output_buffer, 
-//GO(gst_rtp_base_payload_get_source_count, 
+GO(gst_rtp_base_depayload_is_source_info_enabled, iFp)
+GO(gst_rtp_base_depayload_push, iFpp)
+GO(gst_rtp_base_depayload_push_list, iFpp)
+GO(gst_rtp_base_depayload_set_source_info_enabled, vFpi)
+GO(gst_rtp_base_payload_allocate_output_buffer, pFpuCC)
+GO(gst_rtp_base_payload_get_source_count, uFpp)
 GO(gst_rtp_base_payload_get_type, LFv)
-//GO(gst_rtp_base_payload_is_filled, 
-//GO(gst_rtp_base_payload_is_source_info_enabled, 
-//GO(gst_rtp_base_payload_push, 
-//GO(gst_rtp_base_payload_push_list, 
-//GO(gst_rtp_base_payload_set_options, 
-//GO(gst_rtp_base_payload_set_outcaps, 
-//GO(gst_rtp_base_payload_set_outcaps_structure, 
-//GO(gst_rtp_base_payload_set_source_info_enabled, 
-//GO(gst_rtp_buffer_add_extension_onebyte_header, 
-//GO(gst_rtp_buffer_add_extension_twobytes_header, 
-//GO(gst_rtp_buffer_allocate_data, 
-//GO(gst_rtp_buffer_calc_header_len, 
-//GO(gst_rtp_buffer_calc_packet_len, 
-//GO(gst_rtp_buffer_calc_payload_len, 
-//GO(gst_rtp_buffer_compare_seqnum, 
-//GO(gst_rtp_buffer_default_clock_rate, 
-//GO(gst_rtp_buffer_ext_timestamp, 
+GO(gst_rtp_base_payload_is_filled, iFpuL)
+GO(gst_rtp_base_payload_is_source_info_enabled, iFp)
+GO(gst_rtp_base_payload_push, iFpp)
+GO(gst_rtp_base_payload_push_list, iFpp)
+GO(gst_rtp_base_payload_set_options, vFppipu)
+//GOM(gst_rtp_base_payload_set_outcaps, iFEppV)
+GO(gst_rtp_base_payload_set_outcaps_structure, iFpp)
+GO(gst_rtp_base_payload_set_source_info_enabled, vFpi)
+GO(gst_rtp_buffer_add_extension_onebyte_header, iFpCpu)
+GO(gst_rtp_buffer_add_extension_twobytes_header, iFpCCpu)
+GO(gst_rtp_buffer_allocate_data, vFpuCC)
+GO(gst_rtp_buffer_calc_header_len, uFC)
+GO(gst_rtp_buffer_calc_packet_len, uFuCC)
+GO(gst_rtp_buffer_calc_payload_len, uFuCC)
+GO(gst_rtp_buffer_compare_seqnum, iFWW)
+GO(gst_rtp_buffer_default_clock_rate, uFC)
+GO(gst_rtp_buffer_ext_timestamp, LFpu)
 GO(gst_rtp_buffer_flags_get_type, LFv)
-//GO(gst_rtp_buffer_get_csrc, 
-//GO(gst_rtp_buffer_get_csrc_count, 
-//GO(gst_rtp_buffer_get_extension, 
-//GO(gst_rtp_buffer_get_extension_bytes, 
-//GO(gst_rtp_buffer_get_extension_data, 
-//GO(gst_rtp_buffer_get_extension_onebyte_header, 
-//GO(gst_rtp_buffer_get_extension_onebyte_header_from_bytes, 
-//GO(gst_rtp_buffer_get_extension_twobytes_header, 
-//GO(gst_rtp_buffer_get_header_len, 
-//GO(gst_rtp_buffer_get_marker, 
-//GO(gst_rtp_buffer_get_packet_len, 
-//GO(gst_rtp_buffer_get_padding, 
-//GO(gst_rtp_buffer_get_payload, 
-//GO(gst_rtp_buffer_get_payload_buffer, 
-//GO(gst_rtp_buffer_get_payload_bytes, 
-//GO(gst_rtp_buffer_get_payload_len, 
-//GO(gst_rtp_buffer_get_payload_subbuffer, 
-//GO(gst_rtp_buffer_get_payload_type, 
-//GO(gst_rtp_buffer_get_seq, 
-//GO(gst_rtp_buffer_get_ssrc, 
-//GO(gst_rtp_buffer_get_timestamp, 
-//GO(gst_rtp_buffer_get_version, 
-//GO(gst_rtp_buffer_map, 
+GO(gst_rtp_buffer_get_csrc, uFpC)
+GO(gst_rtp_buffer_get_csrc_count, CFp)
+GO(gst_rtp_buffer_get_extension, iFp)
+GO(gst_rtp_buffer_get_extension_bytes, pFpp)
+GO(gst_rtp_buffer_get_extension_data, iFpppp)
+GO(gst_rtp_buffer_get_extension_onebyte_header, iFpCupp)
+GO(gst_rtp_buffer_get_extension_onebyte_header_from_bytes, iFpWCupp)
+GO(gst_rtp_buffer_get_extension_twobytes_header, iFppCupp)
+GO(gst_rtp_buffer_get_header_len, uFp)
+GO(gst_rtp_buffer_get_marker, iFp)
+GO(gst_rtp_buffer_get_packet_len, uFp)
+GO(gst_rtp_buffer_get_padding, iFp)
+GO(gst_rtp_buffer_get_payload, pFp)
+GO(gst_rtp_buffer_get_payload_buffer, pFp)
+GO(gst_rtp_buffer_get_payload_bytes, pFp)
+GO(gst_rtp_buffer_get_payload_len, uFp)
+GO(gst_rtp_buffer_get_payload_subbuffer, pFpuu)
+GO(gst_rtp_buffer_get_payload_type, CFp)
+GO(gst_rtp_buffer_get_seq, WFp)
+GO(gst_rtp_buffer_get_ssrc, uFp)
+GO(gst_rtp_buffer_get_timestamp, uFp)
+GO(gst_rtp_buffer_get_version, CFp)
+GO(gst_rtp_buffer_map, iFpup)
 GO(gst_rtp_buffer_map_flags_get_type, LFv)
-//GO(gst_rtp_buffer_new_allocate, 
-//GO(gst_rtp_buffer_new_allocate_len, 
-//GO(gst_rtp_buffer_new_copy_data, 
-//GO(gst_rtp_buffer_new_take_data, 
-//GO(gst_rtp_buffer_pad_to, 
-//GO(gst_rtp_buffer_remove_extension_data, 
-//GO(gst_rtp_buffer_set_csrc, 
-//GO(gst_rtp_buffer_set_extension, 
-//GO(gst_rtp_buffer_set_extension_data, 
-//GO(gst_rtp_buffer_set_marker, 
-//GO(gst_rtp_buffer_set_packet_len, 
-//GO(gst_rtp_buffer_set_padding, 
-//GO(gst_rtp_buffer_set_payload_type, 
-//GO(gst_rtp_buffer_set_seq, 
-//GO(gst_rtp_buffer_set_ssrc, 
-//GO(gst_rtp_buffer_set_timestamp, 
-//GO(gst_rtp_buffer_set_version, 
-//GO(gst_rtp_buffer_unmap, 
-//GO(gst_rtp_get_header_extension_list, 
-//GO(gst_rtp_hdrext_get_ntp_56, 
-//GO(gst_rtp_hdrext_get_ntp_64, 
-//GO(gst_rtp_hdrext_set_ntp_56, 
-//GO(gst_rtp_hdrext_set_ntp_64, 
-//GO(gst_rtp_header_extension_class_set_uri, 
-//GO(gst_rtp_header_extension_create_from_uri, 
+GO(gst_rtp_buffer_new_allocate, pFuCC)
+GO(gst_rtp_buffer_new_allocate_len, pFuCC)
+GO(gst_rtp_buffer_new_copy_data, pFpL)
+GO(gst_rtp_buffer_new_take_data, pFpL)
+GO(gst_rtp_buffer_pad_to, vFpu)
+GO(gst_rtp_buffer_remove_extension_data, vFp)
+GO(gst_rtp_buffer_set_csrc, vFpCu)
+GO(gst_rtp_buffer_set_extension, vFpi)
+GO(gst_rtp_buffer_set_extension_data, iFpWW)
+GO(gst_rtp_buffer_set_marker, vFpi)
+GO(gst_rtp_buffer_set_packet_len, vFpu)
+GO(gst_rtp_buffer_set_padding, vFpi)
+GO(gst_rtp_buffer_set_payload_type, vFpC)
+GO(gst_rtp_buffer_set_seq, vFpW)
+GO(gst_rtp_buffer_set_ssrc, vFpu)
+GO(gst_rtp_buffer_set_timestamp, vFpu)
+GO(gst_rtp_buffer_set_version, vFpC)
+GO(gst_rtp_buffer_unmap, vFp)
+GO(gst_rtp_get_header_extension_list, pFv)
+GO(gst_rtp_hdrext_get_ntp_56, iFpup)
+GO(gst_rtp_hdrext_get_ntp_64, iFpup)
+GO(gst_rtp_hdrext_set_ntp_56, iFpuL)
+GO(gst_rtp_hdrext_set_ntp_64, iFpuL)
+GO(gst_rtp_header_extension_class_set_uri, vFpp)
+GO(gst_rtp_header_extension_create_from_uri, pFp)
 GO(gst_rtp_header_extension_direction_get_type, LFv)
 GO(gst_rtp_header_extension_flags_get_type, LFv)
-//GO(gst_rtp_header_extension_get_direction, 
-//GO(gst_rtp_header_extension_get_id, 
-//GO(gst_rtp_header_extension_get_max_size, 
-//GO(gst_rtp_header_extension_get_sdp_caps_field_name, 
-//GO(gst_rtp_header_extension_get_supported_flags, 
+GO(gst_rtp_header_extension_get_direction, uFp)
+GO(gst_rtp_header_extension_get_id, uFp)
+GO(gst_rtp_header_extension_get_max_size, LFpp)
+GO(gst_rtp_header_extension_get_sdp_caps_field_name, pFp)
+GO(gst_rtp_header_extension_get_supported_flags, uFp)
 GO(gst_rtp_header_extension_get_type, LFv)
-//GO(gst_rtp_header_extension_get_uri, 
-//GO(gst_rtp_header_extension_read, 
-//GO(gst_rtp_header_extension_set_attributes_from_caps, 
-//GO(gst_rtp_header_extension_set_caps_from_attributes, 
-//GO(gst_rtp_header_extension_set_caps_from_attributes_helper, 
-//GO(gst_rtp_header_extension_set_direction, 
-//GO(gst_rtp_header_extension_set_id, 
-//GO(gst_rtp_header_extension_set_non_rtp_sink_caps, 
-//GO(gst_rtp_header_extension_set_wants_update_non_rtp_src_caps, 
-//GO(gst_rtp_header_extension_update_non_rtp_src_caps, 
-//GO(gst_rtp_header_extension_wants_update_non_rtp_src_caps, 
-//GO(gst_rtp_header_extension_write, 
+GO(gst_rtp_header_extension_get_uri, pFp)
+GO(gst_rtp_header_extension_read, iFpupLp)
+GO(gst_rtp_header_extension_set_attributes_from_caps, iFpp)
+GO(gst_rtp_header_extension_set_caps_from_attributes, iFpp)
+GO(gst_rtp_header_extension_set_caps_from_attributes_helper, iFppp)
+GO(gst_rtp_header_extension_set_direction, vFpu)
+GO(gst_rtp_header_extension_set_id, vFpu)
+GO(gst_rtp_header_extension_set_non_rtp_sink_caps, iFpp)
+GO(gst_rtp_header_extension_set_wants_update_non_rtp_src_caps, vFpi)
+GO(gst_rtp_header_extension_update_non_rtp_src_caps, iFpp)
+GO(gst_rtp_header_extension_wants_update_non_rtp_src_caps, iFp)
+GO(gst_rtp_header_extension_write, lFppuppL)
 GO(gst_rtp_payload_get_type, LFv)
-//GO(gst_rtp_payload_info_for_name, 
-//GO(gst_rtp_payload_info_for_pt, 
+GO(gst_rtp_payload_info_for_name, pFpp)
+GO(gst_rtp_payload_info_for_pt, pFC)
 GO(gst_rtp_profile_get_type, LFv)
 GO(gst_rtp_source_meta_api_get_type, LFv)
-//GO(gst_rtp_source_meta_append_csrc, 
-//GO(gst_rtp_source_meta_get_info, 
-//GO(gst_rtp_source_meta_get_source_count, 
-//GO(gst_rtp_source_meta_set_ssrc, 
+GO(gst_rtp_source_meta_append_csrc, iFppu)
+GO(gst_rtp_source_meta_get_info, pFv)
+GO(gst_rtp_source_meta_get_source_count, uFp)
+GO(gst_rtp_source_meta_set_ssrc, iFpp)
