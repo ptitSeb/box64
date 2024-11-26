@@ -363,7 +363,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     EWBACK;
                     break;
                 case 3: // SBB
-                    if (opcode==0x81) {
+                    if (opcode == 0x81) {
                         INST_NAME("SBB Ew, Iw");
                     } else {
                         INST_NAME("SBB Ew, Ib");
@@ -371,7 +371,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEW(x1, (opcode == 0x81) ? 2 : 1);
-                    if (opcode==0x81)
+                    if (opcode == 0x81)
                         u64 = F16;
                     else
                         u64 = (uint16_t)(int16_t)F8S;
