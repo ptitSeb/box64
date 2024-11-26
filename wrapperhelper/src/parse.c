@@ -3404,6 +3404,8 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 		proc_token_t tok = proc_next_token(prep);
 		if (tok.tokt == PTOK_EOF) {
 			goto success;
+		} else if ((tok.tokt == PTOK_SYM) && (tok.tokv.sym == SYM_SEMICOLON)) {
+			// Empty destructor
 		} else if (tok.tokt == PTOK_PRAGMA) {
 			switch (tok.tokv.pragma.typ) {
 			case PRAGMA_ALLOW_INTS: {
