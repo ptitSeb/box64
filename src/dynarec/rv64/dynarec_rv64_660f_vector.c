@@ -1786,7 +1786,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_X_S(x4, q1);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 LD(x4, wback, fixedaddress);
             }
             SET_ELEMENT_WIDTH(x1, u8, 1);
@@ -2140,7 +2140,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_X_S(x4, q1);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 LD(x4, wback, fixedaddress);
             }
             SET_ELEMENT_WIDTH(x1, u8, 1);
