@@ -272,6 +272,11 @@ void addAlternate(void* addr, void* alt) {
     kh_value(my_alternates, k) = alt;
 }
 
+void addCheckAlternate(void* addr, void* alt) {
+    if(!hasAlternate(addr))
+        addAlternate(addr, alt);
+}
+
 void cleanAlternate() {
     if(my_alternates) {
         kh_destroy(alternate, my_alternates);

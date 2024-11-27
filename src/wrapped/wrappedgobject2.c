@@ -219,6 +219,8 @@ EXPORT uintptr_t my_g_signal_connect_data(x64emu_t* emu, void* instance, void* d
     else GO("insert_text", 5)
     else GO("move-cursor", 5)   // GtkEntry
     else GO("move_cursor", 5)
+    else GO("autoplug-select", 5)
+    else GO("autoplug-sort", 5)
     else
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
     #undef GO
@@ -887,7 +889,9 @@ EXPORT void my_g_object_set_qdata_full(x64emu_t* emu, void* o, uint32_t q, void*
 
 EXPORT void my_g_object_class_install_properties(x64emu_t* emu, void* klass, uint32_t n, void* specs)
 {
-    my->g_object_class_install_properties(unwrapCopyGTKClass(klass, my->g_object_get_type()), n, specs);
+    unwrapGTKClass(klass, my->g_object_get_type());
+    my->g_object_class_install_properties(klass, n, specs);
+    wrapGTKClass(klass, my->g_object_get_type());
 }
 
 EXPORT void my_g_object_weak_ref(x64emu_t* emu, void* object, void* notify, void* data)

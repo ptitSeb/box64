@@ -2313,6 +2313,8 @@ void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*));
 
 void* wrapCopyGTKClass(void* cl, size_t type);
 void* unwrapCopyGTKClass(void* klass, size_t type);
+void wrapGTKClass(void* cl, size_t type);
+void unwrapGTKClass(void* klass, size_t type);
 
 void unwrapGTKInterface(void* cl, size_t type);
 void* wrapCopyGTKInterface(void* cl, size_t type);
