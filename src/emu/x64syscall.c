@@ -268,6 +268,7 @@ static const scwrap_t syscallwrap[] = {
     [272] = {__NR_unshare, 1},
     [273] = {__NR_set_robust_list, 2},
     [274] = {__NR_get_robust_list, 3},
+    [280] = {__NR_utimensat, 4},
     #ifdef NOALIGN
     [281] = {__NR_epoll_pwait, 6},
     #endif
