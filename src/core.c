@@ -522,7 +522,7 @@ HWCAP2_AFP
             return;
         }
 
-        if ((la64_lbt = (cpucfg2 >> 18) & 0b1))
+        if (la64_lbt = (((cpucfg2 >> 18) & 0b1) && box64_dynarec_nativeflags))
             printf_log(LOG_INFO, " LBT_X86");
         if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
             printf_log(LOG_INFO, " LAM_BH");
