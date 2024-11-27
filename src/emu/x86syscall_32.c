@@ -47,7 +47,9 @@ typedef struct scwrap_s {
 } scwrap_t;
 
 static const scwrap_t syscallwrap[] = {
-    //{ 2, __NR_fork, 1 },  
+    #ifdef __NR_fork
+    { 2, __NR_fork, 1 },  
+    #endif
     //{ 3, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
     //{ 4, __NR_write, 3 }, // same
     //{ 5, __NR_open, 3 },  // flags need transformation
@@ -290,6 +292,13 @@ void EXPORT x86Syscall(x64emu_t *emu)
             //R_EAX = syscall(__NR_exit, R_EBX);  // the syscall should exit only current thread
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the thread now
             break;
+        #ifndef __NR_fork
+        case 2:
+            S_EAX = fork();
+            if(S_EAX==-1)
+                S_EAX = -errno;
+            break;
+        #endif
         case 3:  // sys_read
             S_EAX = to_long(my32_read((int)R_EBX, from_ptrv(R_ECX), from_ulong(R_EDX)));
             break;
@@ -443,6 +452,10 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
         case 1: // __NR_exit
             emu->quit = 1;
             return u32(4); // faking the syscall here, we don't want to really terminate the program now
+        #ifndef __NR_fork
+        case 2:
+            return fork();
+        #endif
         case 3:  // sys_read
             return (uint32_t)to_long(my32_read(i32(4), p(8), u32(12)));
         case 4:  // sys_write
