@@ -1858,6 +1858,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL();
                     MARK;
+                    BRK(0x5);
                     jump_to_epilog(dyn, addr, 0, ninst);
                     *need_epilog = 0;
                     *ok = 0;

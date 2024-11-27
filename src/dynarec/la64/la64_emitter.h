@@ -274,6 +274,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define DMB_ISHLD() DBAR_R_RW()
 #define DMB_ISHST() DBAR_W_RW()
 
+#define BRK(hint) EMIT(type_hint(0b00000000001010100, hint))
+
 // GR[rd] = GR[rj] & GR[rk]
 #define AND(rd, rj, rk) EMIT(type_3R(0b00000000000101001, rk, rj, rd))
 // GR[rd] = GR[rj] | GR[rk]
