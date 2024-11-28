@@ -559,6 +559,7 @@
 #() iFpil
 #() iFpiL
 #() iFpip
+#() iFpIp
 #() iFpCu
 #() iFpCp
 #() iFpWW
@@ -1096,6 +1097,7 @@
 #() iFpipL
 #() iFpipp
 #() iFpipV
+#() iFpIip
 #() iFpCCC
 #() iFpCCp
 #() iFpCuu
@@ -1159,6 +1161,7 @@
 #() iFpLpL
 #() iFpLpp
 #() iFppii
+#() iFppiI
 #() iFppiu
 #() iFppiU
 #() iFppiL
@@ -5151,6 +5154,12 @@ wrappedlibsndfile:
 - pFpipp:
   - sf_open_virtual
 wrappedlibsqlite3:
+- pFp:
+  - sqlite3_database_file_object
+- pFpV:
+  - sqlite3_mprintf
+- pFpA:
+  - sqlite3_vmprintf
 - iFppppp:
   - sqlite3_exec
 wrappedlibssh2:
