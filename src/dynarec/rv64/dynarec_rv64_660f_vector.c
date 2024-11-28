@@ -457,7 +457,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         VMV_X_S(x4, VMASK);
                         if (!rv64_xtheadvector) ANDI(x4, x4, 0b11);
                         BNEZ(x4, 8);
-                        ORI(xFlags, xFlags, 1 << F_ZF);
+                        ORI(xFlags, xFlags, 1 << F_CF);
                     }
                     break;
                 case 0x1C ... 0x1E:
