@@ -215,20 +215,26 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         if((isinf(GX->d[0]) && isinf(EX->d[0]) && (EX->q[0]&0x8000000000000000LL)!=(GX->q[0]&0x8000000000000000LL)))
             GX->d[0] = -NAN;
         else
-        #endif
-        GX->d[0] += EX->d[0];
+#endif
+        {
+            NAN_PROPAGATION(GX->d[0], EX->d[0], break);
+            GX->d[0] += EX->d[0];
+        }
         break;
     case 0x59:  /* MULSD Gx, Ex */
         nextop = F8;
         _GETEX(0);
         GETGX;
         #ifndef NOALIGN
-            // mul generate a -NAN only if doing (+/-)inf * (+/-)0
-            if((isinf(GX->d[0]) && EX->d[0]==0.0) || (isinf(EX->d[0]) && GX->d[0]==0.0))
-                GX->d[0] = -NAN;
-            else
-        #endif
-        GX->d[0] *= EX->d[0];
+        // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+        if ((isinf(GX->d[0]) && EX->d[0] == 0.0) || (isinf(EX->d[0]) && GX->d[0] == 0.0))
+            GX->d[0] = -NAN;
+        else
+#endif
+        {
+            NAN_PROPAGATION(GX->d[0], EX->d[0], break);
+            GX->d[0] *= EX->d[0];
+        }
         break;
     case 0x5A:  /* CVTSD2SS Gx, Ex */
         nextop = F8;
@@ -242,12 +248,15 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         _GETEX(0);
         GETGX;
         #ifndef NOALIGN
-            // sub generate a -NAN only if doing inf - inf
-            if((isinf(GX->d[0]) && isinf(EX->d[0]) && (EX->q[0]&0x8000000000000000LL)==(GX->q[0]&0x8000000000000000LL)))
-                GX->d[0] = -NAN;
-            else
-        #endif
-        GX->d[0] -= EX->d[0];
+        // sub generate a -NAN only if doing inf - inf
+        if ((isinf(GX->d[0]) && isinf(EX->d[0]) && (EX->q[0] & 0x8000000000000000LL) == (GX->q[0] & 0x8000000000000000LL)))
+            GX->d[0] = -NAN;
+        else
+#endif
+        {
+            NAN_PROPAGATION(GX->d[0], EX->d[0], break);
+            GX->d[0] -= EX->d[0];
+        }
         break;
     case 0x5D:  /* MINSD Gx, Ex */
         nextop = F8;

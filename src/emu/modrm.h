@@ -119,6 +119,18 @@
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 
+#if defined(__riscv)
+#define NAN_PROPAGATION(dest, src, break_or_continue) \
+    if (isnan(dest)) {                                \
+        break_or_continue;                            \
+    } else if (isnan(src)) {                          \
+        (dest) = (src);                               \
+        break_or_continue;                            \
+    }
+#else
+#define NAN_PROPAGATION(dest, src, break_or_continue)
+#endif
+
 #define GOCOND(BASE, PREFIX, COND, NOTCOND, POST)\
     case BASE+0x0:                              \
         PREFIX                                  \

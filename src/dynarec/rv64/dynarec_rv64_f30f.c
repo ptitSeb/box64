@@ -209,7 +209,18 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
+            if (!box64_dynarec_fastnan) {
+                FEQS(x3, v0, v0);
+                FEQS(x4, d0, d0);
+            }
             FADDS(v0, v0, d0);
+            if (!box64_dynarec_fastnan) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVS(v0, d0);
+                MARK;
+            }
             break;
         case 0x59:
             INST_NAME("MULSS Gx, Ex");
@@ -223,7 +234,11 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMULS(v0, v0, d0);
             if (!box64_dynarec_fastnan) {
                 AND(x3, x3, x4);
-                CBZ_NEXT(x3);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVS(v0, d0);
+                B_NEXT_nocond;
+                MARK;
                 FEQS(x3, v0, v0);
                 CBNZ_NEXT(x3);
                 FNEGS(v0, v0);
@@ -268,7 +283,18 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
+            if (!box64_dynarec_fastnan) {
+                FEQS(x3, v0, v0);
+                FEQS(x4, d0, d0);
+            }
             FSUBS(v0, v0, d0);
+            if (!box64_dynarec_fastnan) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVS(v0, d0);
+                MARK;
+            }
             break;
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
@@ -290,7 +316,18 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
+            if (!box64_dynarec_fastnan) {
+                FEQS(x3, v0, v0);
+                FEQS(x4, d0, d0);
+            }
             FDIVS(v0, v0, d0);
+            if (!box64_dynarec_fastnan) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVS(v0, d0);
+                MARK;
+            }
             break;
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");

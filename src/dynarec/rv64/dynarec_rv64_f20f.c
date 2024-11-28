@@ -211,7 +211,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FADDD(v0, v0, v1);
             if(!box64_dynarec_fastnan) {
                 AND(x3, x3, x4);
-                CBZ_NEXT(x3);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVD(v0, v1);
+                B_NEXT_nocond;
+                MARK;
                 FEQD(x3, v0, v0);
                 CBNZ_NEXT(x3);
                 FNEGD(v0, v0);
@@ -229,7 +233,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMULD(v0, v0, v1);
             if(!box64_dynarec_fastnan) {
                 AND(x3, x3, x4);
-                CBZ_NEXT(x3);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVD(v0, v1);
+                B_NEXT_nocond;
+                MARK;
                 FEQD(x3, v0, v0);
                 CBNZ_NEXT(x3);
                 FNEGD(v0, v0);
@@ -260,7 +268,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FSUBD(v0, v0, v1);
             if(!box64_dynarec_fastnan) {
                 AND(x3, x3, x4);
-                CBZ_NEXT(x3);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVD(v0, v1);
+                B_NEXT_nocond;
+                MARK;
                 FEQD(x3, v0, v0);
                 CBNZ_NEXT(x3);
                 FNEGD(v0, v0);
@@ -293,7 +305,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FDIVD(v0, v0, v1);
             if(!box64_dynarec_fastnan) {
                 AND(x3, x3, x4);
-                CBZ_NEXT(x3);
+                BNEZ_MARK(x3);
+                CBNZ_NEXT(x4);
+                FMVD(v0, v1);
+                B_NEXT_nocond;
+                MARK;
                 FEQD(x3, v0, v0);
                 CBNZ_NEXT(x3);
                 FNEGD(v0, v0);
