@@ -1103,7 +1103,7 @@ int solve_request_simple(request_t *req, type_t *emu_typ, type_t *target_typ, kh
 		int needs_D = 0, needs_my = req->def.dat.has_size && (req->def.rty == RQT_DATAM);
 		if (is_simple_type_simple(emu_typ, &needs_D, &needs_my, conv_map)) {
 			// TODO: Hmm...
-			req->val.rty = needs_my ? RQT_DATAM : req->def.rty;
+			req->val.rty = needs_my ? RQT_DATAM : (IS_RQT_FUNCTION(req->def.rty) ? RQT_DATA : req->def.rty);
 			req->val.dat.has_size = 1;
 			req->val.dat.sz = emu_typ->szinfo.size;
 			req->has_val = 1;
@@ -1774,7 +1774,7 @@ int solve_request(request_t *req, type_t *emu_typ, type_t *target_typ, khash_t(c
 			needs_my = 1;
 			/* FALLTHROUGH */
 		case SAFE_OK:
-			req->val.rty = needs_my ? RQT_DATAM : req->def.rty;
+			req->val.rty = needs_my ? RQT_DATAM : (IS_RQT_FUNCTION(req->def.rty) ? RQT_DATA : req->def.rty);
 			req->val.dat.has_size = 1;
 			req->val.dat.sz = emu_typ->szinfo.size;
 			req->has_val = 1;
