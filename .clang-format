@@ -14,4 +14,5 @@ AlignConsecutiveMacros: true
 WhitespaceSensitiveMacros: ['QUOTE']
 IfMacros: ['IFX', 'IFX2', 'IFXA', 'IFX_PENDOR0', 'IFXX', 'IFX2X', 'IFXN', 'UFLAG_IF', 'PASS2IF']
 UseTab: Never
+IndentPPDirectives: None
 ---

@@ -211,18 +211,21 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] = sqrtf(EX->f[0]);
         break;
     case 0x52:  /* RSQRTSS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] = 1.0f/sqrtf(EX->f[0]);
         break;
     case 0x53:  /* RCPSS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] = 1.0f/EX->f[0];
         break;
 
@@ -230,12 +233,14 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] += EX->f[0];
         break;
     case 0x59:  /* MULSS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] *= EX->f[0];
         break;
     case 0x5A:  /* CVTSS2SD Gx, Ex */
@@ -264,6 +269,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] -= EX->f[0];
         break;
     case 0x5D:  /* MINSS Gx, Ex */
@@ -277,6 +283,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
+        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] /= EX->f[0];
         break;
     case 0x5F:  /* MAXSS Gx, Ex */

@@ -277,6 +277,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFRDIV_VF(v0, v1, v1, VECTOR_MASKED);
             break;
         case 0x58:
+            if (!box64_dynarec_fastnan) return 0;
             INST_NAME("ADDSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -295,6 +296,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFADD_VV(v0, v0, v1, VECTOR_MASKED);
             break;
         case 0x59:
+            if (!box64_dynarec_fastnan) return 0;
             INST_NAME("MULSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -309,30 +311,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            if (box64_dynarec_fastnan) {
-                VECTOR_LOAD_VMASK(0b0001, x4, 1);
-                VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
-            } else {
-                VFMV_F_S(v0, v0);
-                VFMV_F_S(v1, v1);
-                FEQS(x3, v0, v0);
-                FEQS(x4, v1, v1);
-                FMULS(v0, v0, v1);
-                AND(x3, x3, x4);
-                BEQZ_MARK(x3);
-                FEQS(x3, v0, v0);
-                BNEZ_MARK(x3);
-                FNEGS(v0, v0);
-                MARK;
-                if (rv64_xtheadvector) {
-                    d0 = fpu_get_scratch(dyn);
-                    VFMV_S_F(d0, v0);
-                    VECTOR_LOAD_VMASK(0b0001, x4, 1);
-                    VMERGE_VVM(v0, v0, d0); // implies VMASK
-                } else {
-                    VFMV_S_F(v0, v0);
-                }
-            }
+            VECTOR_LOAD_VMASK(0b0001, x4, 1);
+            VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
             break;
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
@@ -377,6 +357,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x5C:
+            if (!box64_dynarec_fastnan) return 0;
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -436,6 +417,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x5E:
+            if (!box64_dynarec_fastnan) return 0;
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);

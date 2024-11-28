@@ -210,6 +210,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
+                            NAN_PROPAGATION(GX->f[0], EX->f[0], break);
                             GX->f[0] += EX->f[0];
                             break;
 
@@ -223,6 +224,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
+                            NAN_PROPAGATION(GX->f[0], EX->f[0], break);
                             GX->f[0] *= EX->f[0];
                             break;
 
