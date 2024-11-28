@@ -238,6 +238,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 CBNZ_NEXT(x4);
                 FMVS(v0, d0);
                 B_NEXT_nocond;
+                MARK;
                 FEQS(x3, v0, v0);
                 CBNZ_NEXT(x3);
                 FNEGS(v0, v0);
