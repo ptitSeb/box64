@@ -1117,6 +1117,7 @@
 #() iEipppp -> iEipppp
 #() iFuiuup -> iFuiuup
 #() iFpiiuu -> iFpiiuu
+#() iEpiipi -> iEpiipi
 #() iFpippp -> iFpippp
 #() iFpCCCC -> iFpCCCC
 #() iFpuipp -> iFpuipp
@@ -2152,6 +2153,9 @@ wrappedlibpthread:
   - pthread_cond_timedwait@GLIBC_2.0
 - iEBh_ppp:
   - pthread_create
+wrappedlibresolv:
+- iEpiipi:
+  - __res_query
 wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime

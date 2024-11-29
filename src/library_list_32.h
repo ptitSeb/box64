@@ -4,7 +4,6 @@
 
 GO("libpthread.so.0", libpthread)
 GO("librt.so.1", librt)
-
 #ifdef ANDROID
 GO("libc.so", libc)
 GO("libm.so", libm)
@@ -14,6 +13,8 @@ GO("libc.so.6", libc)
 GO("libm.so.6", libm)
 GO("libdl.so.2", libdl)
 #endif
+GO("libresolv.so.2", libresolv)
+GO("libresolv.so", libresolv)
 
 GO("ld-linux.so.2", ldlinux)
 

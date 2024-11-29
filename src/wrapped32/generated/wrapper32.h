@@ -1158,6 +1158,7 @@ void iEipppi_32(x64emu_t *emu, uintptr_t fnc);
 void iEipppp_32(x64emu_t *emu, uintptr_t fnc);
 void iFuiuup_32(x64emu_t *emu, uintptr_t fnc);
 void iFpiiuu_32(x64emu_t *emu, uintptr_t fnc);
+void iEpiipi_32(x64emu_t *emu, uintptr_t fnc);
 void iFpippp_32(x64emu_t *emu, uintptr_t fnc);
 void iFpCCCC_32(x64emu_t *emu, uintptr_t fnc);
 void iFpuipp_32(x64emu_t *emu, uintptr_t fnc);

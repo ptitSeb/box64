@@ -1403,7 +1403,7 @@ GO(__res_init, iEv)
 //GO(__res_ninit, iEp)
 //DATA(__resp, 4)
 // __res_randomid
-//GO(__res_state, pEv)
+GO(__res_state, pEv)    // the returned struture certainly needs wrapping
 //DATA(re_syntax_options, 4)    // type B
 // revoke
 GO(rewind, vES)
