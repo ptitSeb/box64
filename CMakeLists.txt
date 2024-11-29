@@ -799,6 +799,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibresolv.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibgl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibglu.c"
