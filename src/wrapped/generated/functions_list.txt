@@ -4398,6 +4398,7 @@ wrappedlibc:
   - exit
 - vFp:
   - _ITM_deregisterTMCloneTable
+  - _ZGTtdlPv
   - __cxa_finalize
 - iFv:
   - fork
@@ -4414,6 +4415,12 @@ wrappedlibc:
   - setjmp
   - stime
   - uname
+- CFp:
+  - _ITM_RU1
+- uFp:
+  - _ITM_RU4
+- UFp:
+  - _ITM_RU8
 - lFv:
   - syscall
 - lFi:
@@ -4421,6 +4428,9 @@ wrappedlibc:
   - sysconf
 - LFL:
   - getauxval
+- pFL:
+  - _ZGTtnaX
+  - _ZGTtnam
 - pFp:
   - __deregister_frame_info
   - mallinfo
@@ -4511,6 +4521,9 @@ wrappedlibc:
   - backtrace_symbols_fd
 - vFpup:
   - _ITM_addUserCommitAction
+- vFppL:
+  - _ITM_memcpyRnWt
+  - _ITM_memcpyRtWn
 - iFiip:
   - __fxstat
   - __fxstat64

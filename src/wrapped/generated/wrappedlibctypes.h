@@ -17,9 +17,13 @@ typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
 typedef int32_t (*iFp_t)(void*);
+typedef uint8_t (*CFp_t)(void*);
+typedef uint32_t (*uFp_t)(void*);
+typedef uint64_t (*UFp_t)(void*);
 typedef intptr_t (*lFv_t)(void);
 typedef intptr_t (*lFi_t)(int32_t);
 typedef uintptr_t (*LFL_t)(uintptr_t);
+typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
@@ -42,6 +46,7 @@ typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef void (*vFipA_t)(int32_t, void*, va_list);
 typedef void (*vFpii_t)(void*, int32_t, int32_t);
 typedef void (*vFpup_t)(void*, uint32_t, void*);
+typedef void (*vFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
@@ -111,6 +116,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__stack_chk_fail, vFv_t) \
 	GO(exit, vFi_t) \
 	GO(_ITM_deregisterTMCloneTable, vFp_t) \
+	GO(_ZGTtdlPv, vFp_t) \
 	GO(__cxa_finalize, vFp_t) \
 	GO(fork, iFv_t) \
 	GO(vfork, iFv_t) \
@@ -124,10 +130,15 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(setjmp, iFp_t) \
 	GO(stime, iFp_t) \
 	GO(uname, iFp_t) \
+	GO(_ITM_RU1, CFp_t) \
+	GO(_ITM_RU4, uFp_t) \
+	GO(_ITM_RU8, UFp_t) \
 	GO(syscall, lFv_t) \
 	GO(__sysconf, lFi_t) \
 	GO(sysconf, lFi_t) \
 	GO(getauxval, LFL_t) \
+	GO(_ZGTtnaX, pFL_t) \
+	GO(_ZGTtnam, pFL_t) \
 	GO(__deregister_frame_info, pFp_t) \
 	GO(mallinfo, pFp_t) \
 	GO(__longjmp_chk, vFpi_t) \
@@ -196,6 +207,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vsyslog, vFipA_t) \
 	GO(backtrace_symbols_fd, vFpii_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
+	GO(_ITM_memcpyRnWt, vFppL_t) \
+	GO(_ITM_memcpyRtWn, vFppL_t) \
 	GO(__fxstat, iFiip_t) \
 	GO(__fxstat64, iFiip_t) \
 	GO(__fcntl, iFiiN_t) \

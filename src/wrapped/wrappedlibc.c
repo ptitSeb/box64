@@ -662,6 +662,7 @@ int of_unconvert(int a)
 #undef SUPER
 
 EXPORT void* my__ZGTtnaX (size_t a) { (void)a; printf("warning _ZGTtnaX called\n"); return NULL; }
+EXPORT void* my__ZGTtnam (size_t a) { (void)a; printf("warning _ZGTtnam called\n"); return NULL; }
 EXPORT void my__ZGTtdlPv (void* a) { (void)a; printf("warning _ZGTtdlPv called\n"); }
 EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { (void)a; printf("warning _ITM_RU1 called\n"); return 0; }
 EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { (void)a; printf("warning _ITM_RU4 called\n"); return 0; }

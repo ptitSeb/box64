@@ -2646,6 +2646,15 @@ GO(iconvctl, iFlip)
 #endif
 GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
 
+GOWM(_ZGTtnaX, pFL) //%noE
+GOWM(_ZGTtdlPv, vFp)    //%noE
+GOWM(_ZGTtnam, pFL) //%noE
+GOWM(_ITM_RU1, CFp) //%noE
+GOWM(_ITM_RU4, uFp) //%noE
+GOWM(_ITM_RU8, UFp) //%noE
+GOWM(_ITM_memcpyRtWn, vFppL)  //%noE
+GOWM(_ITM_memcpyRnWt, vFppL)  //%noE
+
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GO(__errno, pFv)
