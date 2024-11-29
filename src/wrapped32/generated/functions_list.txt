@@ -1764,6 +1764,7 @@ wrappedlibc:
   - asctime
 - vEip:
 - vEpi:
+  - _obstack_newchunk
 - vEpu:
 - vEpp:
 - iEip:

@@ -1194,7 +1194,7 @@ GOW(ntohs, WEW)
 //GOM(_obstack_free, vEpp)     //%%,noE
 //GOM(obstack_free, vEpp)      //%%,noE
 // _obstack_memory_used
-//GOM(_obstack_newchunk, vEpi) //%%,noE
+GOM(_obstack_newchunk, vEEpi)
 // obstack_printf   // Weak
 // __obstack_printf_chk
 GOWM(obstack_vprintf, iEEpppp)  //%%

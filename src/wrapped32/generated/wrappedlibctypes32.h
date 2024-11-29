@@ -148,6 +148,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(getifaddrs, iEbp__t) \
 	GO(ctime, pErl__t) \
 	GO(asctime, pEriiiiiiiiilt__t) \
+	GO(_obstack_newchunk, vEpi_t) \
 	GO(futimens, iEip_t) \
 	GO(futimes, iEip_t) \
 	GO(getrlimit, iEup_t) \

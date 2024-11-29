@@ -221,6 +221,12 @@ EXPORT void my__obstack_newchunk(x64emu_t* emu, struct obstack* obstack, int s)
 {
     _obstack_newchunk(obstack, s);
 }
+#ifdef BOX32
+EXPORT void my32__obstack_newchunk(x64emu_t* emu, struct obstack* obstack, int s)
+{
+    _obstack_newchunk(obstack, s);
+}
+#endif
 
 EXPORT int32_t my_obstack_vprintf(x64emu_t* emu, struct obstack* obstack, void* fmt, x64_va_list_t V)
 {
