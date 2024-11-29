@@ -511,6 +511,28 @@ static void* findGtkListBoxUpdateHeaderFunc(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkListBoxUpdateHeaderFunc callback\n");
     return NULL;
 }
+// TranslateEvent
+#define GO(A)   \
+static uintptr_t my_TranslateEvent_fct_##A = 0;             \
+static void my_TranslateEvent_##A(void* a, void* b)         \
+{                                                           \
+    RunFunctionFmt(my_TranslateEvent_fct_##A, "pp", a, b);  \
+}
+SUPER()
+#undef GO
+static void* findTranslateEvent(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_TranslateEvent_fct_##A == (uintptr_t)fct) return my_TranslateEvent_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_TranslateEvent_fct_##A == 0) {my_TranslateEvent_fct_##A = (uintptr_t)fct; return my_TranslateEvent_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 TranslateEvent callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -597,15 +619,9 @@ EXPORT int my3_gtk_clipboard_set_with_owner(x64emu_t* emu, void* clipboard, void
     return my->gtk_clipboard_set_with_owner(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
 
-static void* my_translate_func(void* path, my_signal_t* sig)
-{
-    return (void*)RunFunctionFmt(sig->c_handler, "pp", path, sig->data)       ;
-}
-
 EXPORT void my3_gtk_stock_set_translate_func(x64emu_t* emu, void* domain, void* f, void* data, void* notify)
 {
-    my_signal_t *sig = new_mysignal(f, data, notify);
-    my->gtk_stock_set_translate_func(domain, my_translate_func, sig, my_signal_delete);
+    my->gtk_stock_set_translate_func(domain, findTranslateEvent(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my3_gtk_container_forall(x64emu_t* emu, void* container, void* f, void* data)

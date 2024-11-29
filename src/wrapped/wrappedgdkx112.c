@@ -103,45 +103,67 @@ static void* findGDestroyNotifyFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gdk2 GDestroyNotify callback\n");
     return NULL;
 }
+// EventHandler
+#define GO(A)   \
+static uintptr_t my_EventHandler_fct_##A = 0;               \
+static void my_EventHandler_##A(void* a, void* b)           \
+{                                                           \
+    RunFunctionFmt(my_EventHandler_fct_##A, "pp", a, b);    \
+}
+SUPER()
+#undef GO
+static void* findEventHandlerFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_EventHandler_fct_##A == (uintptr_t)fct) return my_EventHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_EventHandler_fct_##A == 0) {my_EventHandler_fct_##A = (uintptr_t)fct; return my_EventHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gdk2 EventHandler callback\n");
+    return NULL;
+}
+// InputEvent
+#define GO(A)   \
+static uintptr_t my_InputEvent_fct_##A = 0;                 \
+static void my_InputEvent_##A(void* a, int b, int c)        \
+{                                                           \
+    RunFunctionFmt(my_InputEvent_fct_##A, "pii", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findInputEventFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_InputEvent_fct_##A == (uintptr_t)fct) return my_InputEvent_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_InputEvent_fct_##A == 0) {my_InputEvent_fct_##A = (uintptr_t)fct; return my_InputEvent_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gdk2 InputEvent callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
-static void my_event_handler(void* event, my_signal_t* sig)
-{
-    RunFunctionFmt(sig->c_handler, "pp", event, sig->data);
-}
-
 EXPORT void my_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, void* notify)
 {
-    if(!func)
-        return my->gdk_event_handler_set(func, data, notify);
-
-    my_signal_t* sig = new_mysignal(func, data, notify);
-    my->gdk_event_handler_set(my_event_handler, sig, my_signal_delete);
+    return my->gdk_event_handler_set(findEventHandlerFct(func), data, findGDestroyNotifyFct(notify));
 }
 
-
-static void my_input_function(my_signal_t* sig, int source, int condition)
-{
-    RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition);
-}
 
 EXPORT int my_gdk_input_add(x64emu_t* emu, int source, int condition, void* f, void* data)
 {
-    if(!f)
-        return my->gdk_input_add_full(source, condition, f, data, NULL);
-
-    my_signal_t* sig = new_mysignal(f, data, NULL);
-    return my->gdk_input_add_full(source, condition, my_input_function, sig, my_signal_delete);
+    return my->gdk_input_add(source, condition, findInputEventFct(f), data);
 }
 
 EXPORT int my_gdk_input_add_full(x64emu_t* emu, int source, int condition, void* f, void* data, void* notify)
 {
-    if(!f)
-        return my->gdk_input_add_full(source, condition, f, data, notify);
-
-    my_signal_t* sig = new_mysignal(f, data, notify);
-    return my->gdk_input_add_full(source, condition, my_input_function, sig, my_signal_delete);
+    return my->gdk_input_add_full(source, condition, findInputEventFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my_gdk_init(x64emu_t* emu, void* argc, void* argv)

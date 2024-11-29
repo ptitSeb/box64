@@ -123,29 +123,37 @@ static void* findGCallbackFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gdk3 generic GCallback\n");
     return NULL;
 }
+// EventHandler
+#define GO(A)   \
+static uintptr_t my_EventHandler_fct_##A = 0;                                       \
+static void* my_EventHandler_##A(void* a, void* b, void* c, void* d, void* e)       \
+{                                                                                   \
+    return (void*)RunFunctionFmt(my_EventHandler_fct_##A, "ppppp", a, b, c, d, e);  \
+}
+SUPER()
+#undef GO
+static void* findEventHandlerFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_EventHandler_fct_##A == (uintptr_t)fct) return my_EventHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_EventHandler_fct_##A == 0) {my_EventHandler_fct_##A = (uintptr_t)fct; return my_EventHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gdk3 generic EventHandler\n");
+    return NULL;
+}
 
 #undef SUPER
 
 
-static void my3_event_handler(void* event, my_signal_t* sig)
-{
-    RunFunctionFmt(sig->c_handler, "pp", event, sig->data)        ;
-}
-
 EXPORT void my3_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, void* notify)
 {
-    if(!func)
-        return my->gdk_event_handler_set(func, data, notify);
-
-    my_signal_t* sig = new_mysignal(func, data, notify);
-    my->gdk_event_handler_set(my3_event_handler, sig, my_signal_delete);
+    return my->gdk_event_handler_set(findEventHandlerFct(func), data, findGDestroyNotifyFct(notify));
 }
 
-
-static void my3_input_function(my_signal_t* sig, int source, int condition)
-{
-    RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition)       ;
-}
 
 EXPORT void my3_gdk_init(x64emu_t* emu, void* argc, void* argv)
 {

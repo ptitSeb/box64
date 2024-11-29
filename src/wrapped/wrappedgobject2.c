@@ -46,94 +46,6 @@ static void addGObject2Alternate(library_t* lib);
 
 #include "wrappercallback.h"
 
-static int signal_cb(void* a, void* b, void* c, void* d, void* e)
-{
-    // signal can have many signature... so first job is to find the data!
-    // hopefully, no callback have more than 4 arguments...
-    my_signal_t* sig = NULL;
-    int i = 0;
-    if(my_signal_is_valid(a)) {
-        sig = (my_signal_t*)a;
-        i = 1;
-    }
-    if(!sig && my_signal_is_valid(b)) {
-        sig = (my_signal_t*)b;
-        i = 2;
-    }
-    if(!sig && my_signal_is_valid(c))  {
-        sig = (my_signal_t*)c;
-        i = 3;
-    }
-    if(!sig && my_signal_is_valid(d)) {
-        sig = (my_signal_t*)d;
-        i = 4;
-    }
-    if(!sig && my_signal_is_valid(e)) {
-        sig = (my_signal_t*)e;
-        i = 5;
-        printf_log(LOG_DEBUG, "Warning, GObject2 signal callback with 5 args found, sig=%p!\n", sig);
-    }
-    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, sig?(void*)sig->c_handler:NULL, i);
-    switch(i) {
-        case 1: return (int)RunFunctionFmt(sig->c_handler, "p", sig->data);
-        case 2: return (int)RunFunctionFmt(sig->c_handler, "pp", a, sig->data);
-        case 3: return (int)RunFunctionFmt(sig->c_handler, "ppp", a, b, sig->data);
-        case 4: return (int)RunFunctionFmt(sig->c_handler, "pppp", a, b, c, sig->data);
-        case 5: return (int)RunFunctionFmt(sig->c_handler, "ppppp", a, b, c, d, sig->data);
-    }
-    printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!\n");
-    return 0;
-}
-static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
-{
-    // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped4 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "pppp", sig->data, b, c, d);
-}
-static int signal_cb_5(void* a, void* b, void* c, void* d, my_signal_t* sig)
-{
-    printf_log(LOG_DEBUG, "gobject2 5 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "ppppp", a, b, c, d, sig->data);
-}
-static int signal_cb_swapped_5(my_signal_t* sig, void* b, void* c, void* d, void* e)
-{
-    // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped5 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "ppppp", sig->data, b, c, d, e);
-}
-static int signal_cb_6(void* a, void* b, void* c, void* d, void* e, my_signal_t* sig)
-{
-    printf_log(LOG_DEBUG, "gobject2 6 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "pppppp", a, b, c, d, e, sig->data);
-}
-static int signal_cb_swapped_6(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f)
-{
-    // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped6 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "pppppp", sig->data, b, c, d, e, f);
-}
-static int signal_cb_8(void* a, void* b, void* c, void* d, void* e, void* f, void* g, my_signal_t* sig)
-{
-    printf_log(LOG_DEBUG, "gobject2 8 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "pppppppp", a, b, c, d, e, f, g, sig->data);
-}
-static int signal_cb_swapped_8(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f, void* g, void* h)
-{
-    // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped8 Signal called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "pppppppp", sig->data, b, c, d, e, f, g, h);
-}
-
-static void signal_delete(my_signal_t* sig, void* b)
-{
-    uintptr_t d = sig->destroy;
-    if(d) {
-        RunFunctionFmt(d, "pp", sig->data, b);
-    }
-    printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, (void*)d);
-    free(sig);
-}
-
 static void addGObject2Alternate(library_t* lib)
 {
     #define GO(A, W) AddAutomaticBridge(lib->w.bridge, W, dlsym(lib->w.lib, #A), 0, #A)
@@ -182,84 +94,7 @@ static void addGObject2Alternate(library_t* lib)
     GO(g_cclosure_marshal_BOOLEAN__FLAGSv,          vFpppppip);
     GO(g_cclosure_marshal_BOOLEAN__BOXED_BOXEDv,    vFpppppip);
     #undef GO
-    #define GO(A, W) AddAutomaticBridge(lib->w.bridge, W, A, 0, #A)
-    GO(signal_cb, iFpppp);
-    GO(signal_cb_swapped, iFpppp);
-    GO(signal_cb_5, iFppppp);
-    GO(signal_cb_swapped_5, iFppppp);
-    GO(signal_cb_6, iFpppppp);
-    GO(signal_cb_swapped_6, iFpppppp);
-    GO(signal_cb_8, iFpppppppp);
-    GO(signal_cb_swapped_8, iFpppppppp);
-    GO(signal_delete, vFpp);
-    #undef GO
 }
-
-EXPORT uintptr_t my_g_signal_connect_data(x64emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
-{
-    //TODO: get the type of instance to be more precise below
-
-    my_signal_t *sig = new_mysignal(c_handler, data, closure);
-    uintptr_t ret = 0;
-    #define GO(A, B) if(strcmp((const char*)detailed, A)==0) ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_##B):((void*)signal_cb_##B), sig, signal_delete, flags);
-    GO("query-tooltip", 6)  // GtkWidget
-    else GO("query_tooltip", 6)
-    else GO("selection-get", 5) //GtkWidget
-    else GO("selection_get", 5)
-    else GO("drag-data-get", 5) //GtkWidget
-    else GO("drag-data-received", 8)    //GtkWidget
-    else GO("drag_data_received", 8)
-    else GO("drag-drop", 6) //GtkWidget
-    else GO("drag_drop", 6)
-    else GO("drag-motion", 6)   //GtkWidget
-    else GO("drag_motion", 6)
-    else GO("expand-collapse-cursor-row", 5)    //GtkTreeView
-    else GO("expand_collapse_cursor_row", 5)
-    else GO("insert-text", 5)   // GtkEditable
-    else GO("insert_text", 5)
-    else GO("move-cursor", 5)   // GtkEntry
-    else GO("move_cursor", 5)
-    else GO("autoplug-select", 5)
-    else GO("autoplug-sort", 5)
-    else
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
-    #undef GO
-    printf_log(LOG_DEBUG, "Connecting gobject2 %p signal \"%s\" with sig=%p to %p, flags=%d\n", instance, (char*)detailed, sig, c_handler, flags);
-    return ret;
-}
-
-
-EXPORT void* my_g_object_connect(x64emu_t* emu, void* object, void* signal_spec, void** b)
-{
-        //gobject2_my_t *my = (gobject2_my_t*)my_lib->w.p2;
-
-    char* spec = (char*)signal_spec;
-    while(spec) {
-        // loop on each triplet...
-        if(strstr(spec, "signal::")==spec) {
-            my_g_signal_connect_data(emu, object, spec+strlen("signal::"), b[0], b[1], NULL, 0);
-            b+=2;
-            spec = (char*)*(b++);
-        } else if(strstr(spec, "swapped_signal::")==spec || strstr(spec, "swapped-signal::")==spec) {
-            my_g_signal_connect_data(emu, object, spec+strlen("swapped_signal::"), b[0], b[1], NULL, 2);
-            b+=2;
-            spec = (char*)*(b++);
-        } else if(strstr(spec, "signal_after::")==spec || strstr(spec, "signal-after::")==spec) {
-            my_g_signal_connect_data(emu, object, spec+strlen("signal_after::"), b[0], b[1], NULL, 1);
-            b+=2;
-            spec = (char*)*(b++);
-        } else if(strstr(spec, "swapped_signal_after::")==spec || strstr(spec, "swapped-signal-after::")==spec) {
-            my_g_signal_connect_data(emu, object, spec+strlen("swapped_signal_after::"), b[0], b[1], NULL, 1|2);
-            b+=2;
-            spec = (char*)*(b++);
-        } else {
-            printf_log(LOG_NONE, "Warning, don't know how to handle signal spec \"%s\" in g_object_connect\n", spec);
-            spec = NULL;
-        }
-    }
-    return object;
-}
-
 
 #define SUPER() \
 GO(0)   \
@@ -623,8 +458,88 @@ static void* findGCallbackFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject generic GCallback\n");
     return NULL;
 }
-
+// EmissionHook
+#define GO(A)   \
+static uintptr_t my_EmissionHook_fct_##A = 0;                           \
+static void my_EmissionHook_##A(void* a, uint32_t b, void* c, void* d)  \
+{                                                                       \
+    RunFunctionFmt(my_EmissionHook_fct_##A, "pupp", a, b, c, d);        \
+}
+SUPER()
+#undef GO
+static void* findEmissionHookFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_EmissionHook_fct_##A == (uintptr_t)fct) return my_EmissionHook_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_EmissionHook_fct_##A == 0) {my_EmissionHook_fct_##A = (uintptr_t)fct; return my_EmissionHook_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject2 generic EmissionHook callback\n");
+    return NULL;
+}
+// Event
+#define GO(A)   \
+static uintptr_t my_Event_fct_##A = 0;                                                                              \
+static void my_Event_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j)  \
+{                                                                                                                   \
+    RunFunctionFmt(my_Event_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j);                                   \
+}
+SUPER()
+#undef GO
+static void* findEventFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_Event_fct_##A == (uintptr_t)fct) return my_Event_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_Event_fct_##A == 0) {my_Event_fct_##A = (uintptr_t)fct; return my_Event_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject2 generic Event callback\n");
+    return NULL;
+}
 #undef SUPER
+
+EXPORT uintptr_t my_g_signal_connect_data(x64emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
+{
+    return my->g_signal_connect_data(instance, detailed, findEventFct(c_handler), data, findGClosureNotify_Fct(closure), flags);
+}
+
+
+EXPORT void* my_g_object_connect(x64emu_t* emu, void* object, void* signal_spec, void** b)
+{
+        //gobject2_my_t *my = (gobject2_my_t*)my_lib->w.p2;
+
+    char* spec = (char*)signal_spec;
+    while(spec) {
+        // loop on each triplet...
+        if(strstr(spec, "signal::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("signal::"), b[0], b[1], NULL, 0);
+            b+=2;
+            spec = (char*)*(b++);
+        } else if(strstr(spec, "swapped_signal::")==spec || strstr(spec, "swapped-signal::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("swapped_signal::"), b[0], b[1], NULL, 2);
+            b+=2;
+            spec = (char*)*(b++);
+        } else if(strstr(spec, "signal_after::")==spec || strstr(spec, "signal-after::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("signal_after::"), b[0], b[1], NULL, 1);
+            b+=2;
+            spec = (char*)*(b++);
+        } else if(strstr(spec, "swapped_signal_after::")==spec || strstr(spec, "swapped-signal-after::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("swapped_signal_after::"), b[0], b[1], NULL, 1|2);
+            b+=2;
+            spec = (char*)*(b++);
+        } else {
+            printf_log(LOG_NONE, "Warning, don't know how to handle signal spec \"%s\" in g_object_connect\n", spec);
+            spec = NULL;
+        }
+    }
+    return object;
+}
 
 EXPORT uintptr_t my_g_signal_connect_object(x64emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags)
 {
@@ -751,20 +666,9 @@ EXPORT void my_g_value_register_transform_func(x64emu_t* emu, size_t src, size_t
     my->g_value_register_transform_func(src, dst, findValueTransformFct(f));
 }
 
-static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, my_signal_t* sig)
-{
-    printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook called, sig=%p\n", sig);
-    return (int)RunFunctionFmt(sig->c_handler, "pupp", ihint, n, values, sig->data);
-}
 EXPORT unsigned long my_g_signal_add_emission_hook(x64emu_t* emu, uint32_t signal, uint32_t detail, void* f, void* data, void* notify)
 {
-    // there can be many signals connected, so something "light" is needed here
-
-    if(!f)
-        return my->g_signal_add_emission_hook(signal, detail, f, data, notify);
-    my_signal_t* sig = new_mysignal(f, data, notify);
-    printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook for signal %d created for %p, sig=%p\n", signal, f, sig);
-    return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, sig, my_signal_delete);
+    return my->g_signal_add_emission_hook(signal, detail, findEmissionHookFct(f), data, findDestroyFct(notify));
 }
 
 EXPORT size_t my_g_type_register_static_simple(x64emu_t* emu, size_t parent, void* name, uint32_t class_size, void* class_init, uint32_t instance_size, void* instance_init, uint32_t flags)

@@ -48,34 +48,6 @@ typedef void (*vFppippDpDC_t)(void*, void*, int32_t, void*, void*, double, void*
 
 #include "wrappercallback.h"
 
-EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
-    // need to align on arm
-    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
-    PREPARE_VALIST;
-    return my->g_markup_vprintf_escaped(fmt, VARARGS);
-}
-
-EXPORT void* my_g_build_filename(x64emu_t* emu, void* first, uintptr_t* b)
-{
-    int n = 0;
-    while (getVArgs(emu, 1, b, n++));
-    void* array[n+1];   // +1 for 1st (NULL terminal already included)
-    array[0] = first;
-    for(int i=0; i<n; ++i)
-        array[i+1] = (void*)getVArgs(emu, 1, b, i);
-    void* ret = my->g_build_filenamev(array);
-    return ret;
-}
-
-static int my_timeout_cb(my_signal_t* sig)
-{
-    return (int)RunFunctionFmt(sig->c_handler, "p", sig->data);
-}
-EXPORT uint32_t my_g_timeout_add(x64emu_t* emu, uint32_t interval, void* func, void* data)
-{
-    my_signal_t *sig = new_mysignal(func, data, NULL);
-    return my->g_timeout_add_full(0, interval, my_timeout_cb, sig, my_signal_delete);
-}
 typedef int (*GSourceFunc) (void* user_data);
 
 typedef struct my_GSourceFuncs_s {
@@ -739,8 +711,54 @@ static void* findGThreadFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GThreadFunc callback\n");
     return NULL;
 }
+// TimeOut
+#define GO(A)   \
+static uintptr_t my_TimeOut_fct_##A = 0;            \
+static void my_TimeOut_##A(void* a)                 \
+{                                                   \
+    RunFunctionFmt(my_TimeOut_fct_##A, "p", a);     \
+}
+SUPER()
+#undef GO
+static void* findTimeOutFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_TimeOut_fct_##A == (uintptr_t)fct) return my_TimeOut_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_TimeOut_fct_##A == 0) {my_TimeOut_fct_##A = (uintptr_t)fct; return my_TimeOut_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 TimeOut callback\n");
+    return NULL;
+}
 
 #undef SUPER
+
+EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
+    // need to align on arm
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    return my->g_markup_vprintf_escaped(fmt, VARARGS);
+}
+
+EXPORT void* my_g_build_filename(x64emu_t* emu, void* first, uintptr_t* b)
+{
+    int n = 0;
+    while (getVArgs(emu, 1, b, n++));
+    void* array[n+1];   // +1 for 1st (NULL terminal already included)
+    array[0] = first;
+    for(int i=0; i<n; ++i)
+        array[i+1] = (void*)getVArgs(emu, 1, b, i);
+    void* ret = my->g_build_filenamev(array);
+    return ret;
+}
+
+EXPORT uint32_t my_g_timeout_add(x64emu_t* emu, uint32_t interval, void* func, void* data)
+{
+    return my->g_timeout_add(interval, findTimeOutFct(func), data);
+}
 
 EXPORT void my_g_list_free_full(x64emu_t* emu, void* list, void* free_func)
 {
@@ -902,12 +920,7 @@ EXPORT void my_g_main_context_set_poll_func(x64emu_t* emu, void* context, void* 
 
 EXPORT uint32_t my_g_idle_add_full(x64emu_t* emu, int priority, void* f, void* data, void* notify)
 {
-    if(!f)
-        return my->g_idle_add_full(priority, f, data, notify);
-
-    my_signal_t *sig = new_mysignal(f, data, notify);
-    printf_log(LOG_DEBUG, "glib2 Idle CB with priority %d created for %p, sig=%p\n", priority, f, sig);
-    return my->g_idle_add_full(priority, my_timeout_cb, sig, my_signal_delete);
+    return my->g_idle_add_full(priority, findTimeOutFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void* my_g_hash_table_new(x64emu_t* emu, void* hash, void* equal)
