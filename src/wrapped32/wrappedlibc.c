@@ -673,13 +673,15 @@ int of_unconvert32(int a)
 }
 #undef SUPER
 
-EXPORT void* my32__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
-EXPORT void my32__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
-EXPORT uint8_t my32__ITM_RU1(const uint8_t * a) { printf("warning _ITM_RU1 called\n"); return 0; }
-EXPORT uint32_t my32__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 called\n"); return 0; }
-EXPORT uint64_t my32__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
-EXPORT void my32__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
-EXPORT void my32__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
+EXPORT void* my32__ZGTtnaX (size_t a) { printf("warning 32bits _ZGTtnaX called\n"); return NULL; }
+EXPORT void* my32__ZGTtnam (size_t a) { (void)a; printf("warning 32bits _ZGTtnam called\n"); return NULL; }
+EXPORT void* my32__ZGTtnaj (uint32_t a) { printf("warning 32bits _ZGTtnaj called\n"); return NULL; }
+EXPORT void my32__ZGTtdlPv (void* a) { printf("warning 32bits _ZGTtdlPv called\n"); }
+EXPORT uint8_t my32__ITM_RU1(const uint8_t * a) { printf("warning 32bits _ITM_RU1 called\n"); return 0; }
+EXPORT uint32_t my32__ITM_RU4(const uint32_t * a) { printf("warning 32bits _ITM_RU4 called\n"); return 0; }
+EXPORT uint64_t my32__ITM_RU8(const uint64_t * a) { printf("warning 32bits _ITM_RU8 called\n"); return 0; }
+EXPORT void my32__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning 32bits _ITM_memcpyRtWn called\n");  }
+EXPORT void my32__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning 32bits _ITM_memcpyRtWn called\n"); }
 
 EXPORT void my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my32__longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my32_longjmp")));

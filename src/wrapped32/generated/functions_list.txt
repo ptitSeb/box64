@@ -99,8 +99,8 @@
 #() pFv -> pFv
 #() pEi -> pEi
 #() pFi -> pFi
-#() pEu -> pEu
 #() pFu -> pFu
+#() pEu -> pEu
 #() pEl -> pEl
 #() pFl -> pFl
 #() pEL -> pEL
@@ -257,18 +257,19 @@
 #() UEUU -> UEUU
 #() UEss -> UEss
 #() fEif -> fEif
-#() fEfi -> fEfi
 #() fFfi -> fFfi
+#() fEfi -> fEfi
 #() fEff -> fEff
 #() fFff -> fFff
 #() fEfD -> fEfD
 #() fEfp -> fEfp
 #() dEid -> dEid
-#() dEdi -> dEdi
 #() dFdi -> dFdi
+#() dEdi -> dEdi
 #() dEdd -> dEdd
 #() dFdd -> dFdd
 #() dEdD -> dEdD
+#() dFdp -> dFdp
 #() dEdp -> dEdp
 #() dEll -> dEll
 #() dFpp -> dFpp
@@ -302,6 +303,7 @@
 #() pFii -> pFii
 #() pFiu -> pFiu
 #() pFip -> pFip
+#() pEia -> pEia
 #() pFuu -> pFuu
 #() pFup -> pFup
 #() pELL -> pELL
@@ -358,6 +360,7 @@
 #() iFXbiip_ -> iFXB
 #() iErLL_BLL_ -> iEBB
 #() LFXrLiiuL_ -> LFXB
+#() pErppppii_p -> pEBp
 #() vFbll_rllll_ -> vFBB
 #() iFXbiiuuLip_ -> iFXB
 #() iFpruuipWCCp_ -> iFpB
@@ -559,6 +562,7 @@
 #() uEpup -> uEpup
 #() uFpup -> uFpup
 #() uFppu -> uFppu
+#() uEppL -> uEppL
 #() uFppp -> uFppp
 #() uFXuu -> uFXuu
 #() fFuii -> fFuii
@@ -694,6 +698,7 @@
 #() vEEipp -> vEEipp
 #() vFEipp -> vFEipp
 #() vEEipV -> vEEipV
+#() vEEpuu -> vEEpuu
 #() vEEpup -> vEEpup
 #() vFEpup -> vFEpup
 #() vFEpll -> vFEpll
@@ -967,6 +972,7 @@
 #() iEpurLL_p -> iEpuBp
 #() iFppbL_bL_ -> iFppBB
 #() iFrpuu_Lui -> iFBLui
+#() iEbp_bL_iS -> iEBBiS
 #() iFbp_bp_pi -> iFBBpi
 #() iFXbL_ibp_ -> iFXBiB
 #() vFbp_ppbup_ -> vFBppB
@@ -976,6 +982,7 @@
 #() iEuirLL_BLL_ -> iEuiBB
 #() iFXLpbLWWWcc_ -> iFXLpB
 #() iFXLbLWWWcc_i -> iFXLBi
+#() pESBppppii_pi -> pESBpi
 #() iFXLuriiiiiLi_ -> iFXLuB
 #() vFXLbLLLLLLLLLL_L -> vFXLBL
 #() iFXLbLLLLLLLLLL_L -> iFXLBL
@@ -1605,11 +1612,15 @@
 #() vFXpuiiiiipuiiiiiiii -> vFXpuiiiiipuiiiiiiii
 #() uFippuuuuiiiiuuiiiiiiiipp -> uFippuuuuiiiiuuiiiiiiiipp
 #defined(HAVE_LD80BITS) DED -> DED
+#defined(HAVE_LD80BITS) DFDi -> DFDi
 #defined(HAVE_LD80BITS) DEDD -> DEDD
+#defined(HAVE_LD80BITS) DFDp -> DFDp
 #defined(HAVE_LD80BITS) DEDp -> DEDp
 #defined(HAVE_LD80BITS) DEpBp_a -> DEpBa
 #!defined(HAVE_LD80BITS) KEK -> KEK
+#!defined(HAVE_LD80BITS) KFKi -> KFKi
 #!defined(HAVE_LD80BITS) KEKK -> KEKK
+#!defined(HAVE_LD80BITS) KFKp -> KFKp
 #!defined(HAVE_LD80BITS) KEKp -> KEKp
 #!defined(HAVE_LD80BITS) KEpBp_a -> KEpBa
 #() iEEvpp -> iEEpp
@@ -1714,6 +1725,8 @@ wrappedlibc:
 - vEp:
   - freeaddrinfo
   - regfree
+- vFp:
+  - _ZGTtdlPv
 - iEv:
 - iEi:
   - __close_nocancel
@@ -1746,7 +1759,12 @@ wrappedlibc:
   - __h_errno_location
 - pEu:
   - getpwuid
+- pFu:
+  - _ZGTtnaj
 - pEL:
+- pFL:
+  - _ZGTtnaX
+  - _ZGTtnam
 - pFp:
   - gethostbyname
 - pEp:
@@ -1788,6 +1806,10 @@ wrappedlibc:
   - execlp
 - IEII:
 - UEUU:
+- KFKi:
+  - ldexpl
+- KFKp:
+  - frexpl
 - pEip:
   - signal
 - pELL:
@@ -1804,6 +1826,7 @@ wrappedlibc:
 - vEipp:
   - vsyslog
 - vEipV:
+- vEpuu:
 - vEpup:
   - _ITM_addUserCommitAction
 - vEppu:

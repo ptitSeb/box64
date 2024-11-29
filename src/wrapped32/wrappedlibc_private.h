@@ -298,7 +298,7 @@ GOWM(execvpe, iEEppp)
 GO(exit, vEi)
 GO(_exit, vEi)
 GOW(_Exit, vEi)
-//GOM(__explicit_bzero_chk, vEEpuu)    //%% not always defined
+GOM(__explicit_bzero_chk, vEEpuu)    //%% not always defined
 GO(faccessat, iEipii)
 // fattach
 //GO(__fbufsize, uEp)
@@ -402,9 +402,13 @@ GO(__freelocale, vEA)
 GO(fremovexattr, iEip)
 GO(freopen, SEppS)
 GO(freopen64, SEppS)
-// frexp    // Weak
+GOW(frexp, dFdp)
 // frexpf   // Weak
-// frexpl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(frexpl, DFDp)
+#else
+GOW2(frexpl, KFKp, frexp)
+#endif
 GOM(fscanf, iEESpV)
 GO(fseek, iESli)
 GO(fseeko, iESli)
@@ -472,8 +476,8 @@ GOW(getcwd, tEpL)
 //GO(getdate, pEp)
 // getdate_err  // type B
 // getdate_r    // Weak
-//GOW(getdelim, iEppip)
-//GOW(__getdelim, iEppip)
+//GOW(getdelim, iEbp_bL_iS)
+GOW(__getdelim, iEbp_bL_iS)
 // getdirentries
 // getdirentries64
 //GO(getdomainname, iEpu)
@@ -517,7 +521,7 @@ GO(getlogin_r, iEpL)
 // __getlogin_r_chk
 GOM(getmntent, pEES)
 // __getmntent_r
-//GOW(getmntent_r, pEpppi)
+GOW(getmntent_r, pESBppppii_pi)
 // getmsg
 // get_myaddress
 GO(getnameinfo, iEpupupui)
@@ -639,7 +643,7 @@ GO(grantpt, iEi)
 // group_member // Weak
 // gsignal  // Weak
 // gtty
-//GOW(hasmntopt, pEpp)
+GOW(hasmntopt, pErppppii_p)
 // hcreate
 // hcreate_r
 // hdestroy // Weak
@@ -982,9 +986,13 @@ GOW(lchown, iEpuu)
 // lckpwdf  // Weak
 // lcong48
 // lcong48_r    // Weak
-// ldexp    // Weak
-// ldexpf   // Weak
-// ldexpl   // Weak
+GOW(ldexp, dFdi)
+GOW(ldexpf, fFfi)
+#ifdef HAVE_LD80BITS
+GOW(ldexpl, DFDi)
+#else
+GOW2(ldexpl, KFKi, ldexp)
+#endif
 //GOS(ldiv, pEEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
 //GOM(lfind, pEEpppLp)            //%%
 //GO(lgetxattr, iEpppu)
@@ -1073,7 +1081,7 @@ GOW(mallopt, iEii)  // Weak
 //GO(__mbrlen, LEpLp)
 GOW(mbrtowc, LEppLp)
 GO(__mbrtowc, LEppLp)
-//GOW(mbsinit, iEp)
+GOW(mbsinit, iEp)
 GOW(mbsnrtowcs, LEpbp_LLp)
 // __mbsnrtowcs_chk
 GOW(mbsrtowcs, LEpbp_Lp)
@@ -1112,7 +1120,7 @@ GO(mkdirat, iEipu)
 GO(mkdtemp, pEp)
 GO(mkfifo, iEpu)
 //GO(mkfifoat, iEipu)
-//GO(mkostemp, iEpi)
+GO(mkostemp, iEpi)
 GO(mkostemp64, iEpi)
 GO(mkstemp, iEp)
 GO(mkstemp64, iEp)
@@ -1616,7 +1624,7 @@ GO(stpcpy, pEpp)
 // __stpcpy
 GO(__stpcpy_chk, pEppL)
 // __stpcpy_small
-//GOW(stpncpy, pEppL)
+GOW(stpncpy, pEppL)
 //GO(__stpncpy, pEppL)
 //GO(__stpncpy_chk, pEppLL)
 GOW(strcasecmp, iEpp)
@@ -1643,7 +1651,7 @@ GO(strcspn, LEpp)
 GOW(strdup, pEp)
 GO(__strdup, pEp)
 GO(strerror, tEi)
-//GO(strerror_l, pEip)
+GO(strerror_l, pEia)
 GO(__strerror_r, pEipL)
 GOW(strerror_r, pEipL)
 //GO(strfmon, lEpLpppppppppp) //vaarg, probably needs align, there are just double...
@@ -1725,9 +1733,9 @@ GO(__strtoull_internal, UEpBp_ii)
 //GOW(strtoull_l, UEppip)
 //GO(strtoumax, UEppi)
 //GOW(strtouq, UEppi) // ok?
-//GOW(strverscmp, iEpp)
+GOW(strverscmp, iEpp)
 // __strverscmp
-//GO(strxfrm, uEppu)
+GO(strxfrm, uEppL)
 GO(__strxfrm_l, LEppLa)
 //GO(strxfrm_l, uEppup)
 // stty
@@ -1851,7 +1859,7 @@ GO(truncate64, iESU)
 //DATA(__tzname, 4)
 GOWM(tzset, vEv)    //%%,noE
 // ualarm
-//GO(__uflow, iEp)
+GO(__uflow, iES)
 // ulckpwdf // Weak
 // ulimit   // Weak
 GOW(umask, uEu)
@@ -2022,7 +2030,7 @@ GO(wctob, iEu)
 //GOW(wctype, uEp)
 GO(__wctype_l, hEpa)
 GOW(wctype_l, hEpa)
-//GO(wcwidth, iEu)
+GO(wcwidth, iEu)
 GOW(wmemchr, pEpiL)
 GO(wmemcmp, iEppL)
 GOW(wmemcpy, pEppL)
@@ -2147,14 +2155,18 @@ GO2(__close_nocancel, iEi, close)
 
 // not found (libitm???), but it seems OK to declare dummies:
 
-GOM(_ITM_RU1, uEp)          //%%,noE
-GOM(_ITM_RU4, uEp)          //%%,noE
-GOM(_ITM_RU8, UEp)          //%%,noE
-GOM(_ITM_memcpyRtWn, vEppu) //%%,noE register(2)
-GOM(_ITM_memcpyRnWt, vEppu) //%%,noE register(2)
-GOM(_ITM_addUserCommitAction, vEEpup)
-GOM(_ITM_registerTMCloneTable, vEEpu)  //%%
-GOM(_ITM_deregisterTMCloneTable, vEEp) //%%
+GOWM(_ZGTtdlPv, vFp)    //%noE
+GOWM(_ZGTtnaX, pFL) //%noE
+GOWM(_ZGTtnam, pFL) //%noE
+GOWM(_ZGTtnaj, pFu) //%noE
+GOWM(_ITM_RU1, uEp)          //%%,noE
+GOWM(_ITM_RU4, uEp)          //%%,noE
+GOWM(_ITM_RU8, UEp)          //%%,noE
+GOWM(_ITM_memcpyRtWn, vEppu) //%%,noE register(2)
+GOWM(_ITM_memcpyRnWt, vEppu) //%%,noE register(2)
+GOWM(_ITM_addUserCommitAction, vEEpup)
+GOWM(_ITM_registerTMCloneTable, vEEpu)  //%%
+GOWM(_ITM_deregisterTMCloneTable, vEEp) //%%
 
 GOM(__umoddi3, UEUU)        //%%,noE
 GOM(__udivdi3, UEUU)        //%%,noE

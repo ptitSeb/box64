@@ -106,6 +106,16 @@ typedef struct struct_H_s {
 } struct_H_t;
 void from_struct_H(struct_H_t *dest, ptr_t src);
 void to_struct_H(ptr_t dest, const struct_H_t *src);
+typedef struct struct_ppppii_s {
+	void* p0;
+	void* p1;
+	void* p2;
+	void* p3;
+	int i4;
+	int i5;
+} struct_ppppii_t;
+void from_struct_ppppii(struct_ppppii_t *dest, ptr_t src);
+void to_struct_ppppii(ptr_t dest, const struct_ppppii_t *src);
 typedef struct struct_ppppp_s {
 	void* p0;
 	void* p1;

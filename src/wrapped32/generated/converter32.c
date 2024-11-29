@@ -214,6 +214,26 @@ void to_struct_H(ptr_t d, const struct_H_t *src) {
 	*(ulong_t*)dest = to_hash_d(src->H0); dest += 4;
 }
 
+void from_struct_ppppii(struct_ppppii_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->i4 = *(int*)src; src += 4;
+	dest->i5 = *(int*)src; src += 4;
+}
+void to_struct_ppppii(ptr_t d, const struct_ppppii_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
+	*(int*)dest = src->i4; dest += 4;
+	*(int*)dest = src->i5; dest += 4;
+}
+
 void from_struct_ppppp(struct_ppppp_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
