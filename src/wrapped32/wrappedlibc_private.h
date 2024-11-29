@@ -1197,7 +1197,7 @@ GOW(ntohs, WEW)
 //GOM(_obstack_newchunk, vEpi) //%%,noE
 // obstack_printf   // Weak
 // __obstack_printf_chk
-//GOWM(obstack_vprintf, iEEpppp)  //%%
+GOWM(obstack_vprintf, iEEpppp)  //%%
 // __obstack_vprintf_chk
 //GOWM(on_exit, iEEpp)  //%%
 //GO2(__on_exit, iEEpp, my_on_exit)   //%%
