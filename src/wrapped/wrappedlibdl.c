@@ -32,6 +32,7 @@ typedef struct dlprivate_s {
     size_t      lib_sz;
     size_t      lib_cap;
     char*       last_error;
+    char        error_msg[100];
 } dlprivate_t;
 
 dlprivate_t *NewDLPrivate() {
@@ -45,6 +46,7 @@ void FreeDLPrivate(dlprivate_t **lib) {
 
 // dead_cells consider the "2" value to be some king of issue?
 #define MIN_NLIB 3
+int GetTID();
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag) EXPORT;
 void* my_dlmopen(x64emu_t* emu, void* mlid, void *filename, int flag) EXPORT;
@@ -144,7 +146,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             if(sys)
                 return sys;
         }
-        printf_dlsym(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        printf_dlsym(LOG_DEBUG, "%04d|Call to dlopen(\"%s\"/%p, %X)\n", GetTID(), rfilename, filename, flag);
         // Transform any ${...} that maight be present
         while(strstr(rfilename, "${ORIGIN}")) {
             char* origin = box_strdup(my_context->fullpath);
@@ -292,7 +294,13 @@ void* my_dlmopen(x64emu_t* emu, void* lmid, void *filename, int flag)
 char* my_dlerror(x64emu_t* emu)
 {
     dlprivate_t *dl = my_context->dlprivate;
-    return dl->last_error;
+    //printf_dlsym(LOG_INFO, "call to dlerror(): \"%s\"\n", dl->last_error?dl->last_error:"(nil)"); //too chatty
+    if(!dl->last_error)
+        return NULL;
+    strncpy(dl->error_msg, dl->last_error, sizeof(dl->error_msg)-1);
+    box_free(dl->last_error);
+    dl->last_error = NULL;
+    return dl->error_msg;
 }
 
 KHASH_SET_INIT_INT(libs);
@@ -334,7 +342,7 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
 
     return ret;
 }
-int GetTID();
+
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
 {
     (void)emu;
