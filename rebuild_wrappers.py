@@ -1095,7 +1095,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 				+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
 		if any_depends_on_ld:
-			file.write("\n#ifdef HAVE_LD80BITS\n")
+			file.write("\n#if defined(HAVE_LD80BITS) || defined(ANDROID)\n")
 			for v in arr:
 				if all(c not in v for c in depends_on_ld):
 					continue
@@ -1103,7 +1103,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				v = v[:-1] if v.endswith('NN') else v # FIXME
 				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 					+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
-			file.write("#else // HAVE_LD80BITS\n")
+			file.write("#else // !HAVE_LD80BITS && !ANDROID\n")
 			for k in td_types_nold:
 				for t in td_types_nold[k]:
 					td_types[k][conventions[k].values.index(t)] = td_types_nold[k][t]

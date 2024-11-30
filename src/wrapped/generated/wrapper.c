@@ -3392,7 +3392,7 @@ typedef void (*vFpppppppppppppppppppppppp_t)(void*, void*, void*, void*, void*, 
 typedef void* (*pFpupuupppppppppppppppppppp_t)(void*, uint32_t, void*, uint32_t, uint32_t, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppppppppppppppppppppppppppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
-#ifdef HAVE_LD80BITS
+#if defined(HAVE_LD80BITS) || defined(ANDROID)
 typedef int32_t (*iFD_t)(long double);
 typedef long double (*DFD_t)(long double);
 typedef long double (*DFY_t)(complexl_t);
@@ -3417,7 +3417,7 @@ typedef int32_t (*iFpLpD_t)(void*, uintptr_t, void*, long double);
 typedef void* (*pFDipp_t)(long double, int32_t, void*, void*);
 typedef int32_t (*iFDipppL_t)(long double, int32_t, void*, void*, void*, uintptr_t);
 typedef void (*vFppippDpDc_t)(void*, void*, int32_t, void*, void*, long double, void*, long double, int8_t);
-#else // HAVE_LD80BITS
+#else // !HAVE_LD80BITS && !ANDROID
 typedef int32_t (*iFD_t)(double);
 typedef double (*DFD_t)(double);
 typedef double (*DFY_t)(complex_t);
