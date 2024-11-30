@@ -687,12 +687,14 @@
 #() iFbp_bp_p -> iFBBp
 #() iFXbiip_i -> iFXBi
 #() iFXbLip_L -> iFXBL
+#() vFpuBLLLL_ -> vFpuB
 #() vFXLbpLiL_ -> vFXLB
 #() vFXLrpLiL_ -> vFXLB
 #() iFXLbpLiL_ -> iFXLB
 #() iFXLbLLii_ -> iFXLB
 #() pFXrLiiuL_p -> pFXBp
 #() iFXLbLWWWcc_ -> iFXLB
+#() iFprllll_rll_ -> iFpBB
 #() iEirLLLL_BLLLL_ -> iEiBB
 #() pEppriiiiiiiiilt_ -> pEppB
 #() vEEipp -> vEEipp
@@ -811,6 +813,7 @@
 #() iFEpui -> iFEpui
 #() iFEpuu -> iFEpuu
 #() iEEpup -> iEEpup
+#() iFEpll -> iFEpll
 #() iEEpLi -> iEEpLi
 #() iFEpLi -> iFEpLi
 #() iEEppi -> iEEppi
@@ -1099,6 +1102,7 @@
 #() iEEippL -> iEEippL
 #() iEEpipp -> iEEpipp
 #() iEEpipV -> iEEpipV
+#() iFEpuip -> iFEpuip
 #() iFEpupu -> iFEpupu
 #() iEEpLpp -> iEEpLpp
 #() iFEpLpp -> iFEpLpp
@@ -1647,7 +1651,9 @@ wrappedfontconfig:
   - FcPatternAdd
 wrappedfreetype:
 - iFp:
+  - FT_Activate_Size
   - FT_Done_Face
+  - FT_Done_Size
   - FT_Has_PS_Glyph_Names
 - uFp:
   - FT_Get_Sfnt_Name_Count
@@ -1666,8 +1672,12 @@ wrappedfreetype:
 - iFpl:
   - FT_Outline_Embolden
 - iFpp:
+  - FT_Get_Glyph
   - FT_Get_PS_Font_Info
   - FT_Get_WinFNT_Header
+  - FT_New_Size
+  - FT_Outline_Copy
+  - FT_Outline_Done
   - FT_Request_Size
   - FT_Set_Charmap
 - uFpL:
@@ -1686,13 +1696,18 @@ wrappedfreetype:
   - FT_Load_Glyph
 - iFpuu:
   - FT_Set_Pixel_Sizes
+- iFpll:
+  - FT_Outline_EmboldenXY
 - iFpLi:
   - FT_Load_Char
 - iFppp:
   - FT_Get_BDF_Property
+  - FT_Outline_Decompose
   - FT_Outline_Get_Bitmap
 - LFpLp:
   - FT_Get_Next_Char
+- iFpuip:
+  - FT_Outline_New
 - iFpupu:
   - FT_Get_Glyph_Name
 - iFpplp:

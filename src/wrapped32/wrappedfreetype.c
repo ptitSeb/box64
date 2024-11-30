@@ -1537,20 +1537,6 @@ typedef struct  my_FT_Outline_Funcs_s
     signed long delta;
 } my_FT_Outline_Funcs_t;
 
-//EXPORT int my32_FT_Outline_Decompose(x64emu_t* emu, void* outline, my_FT_Outline_Funcs_t* tbl, void* data)
-//{
-//    my_FT_Outline_Funcs_t f = {0};
-//    if(tbl) {
-//        f.move_to = find_FT_Outline_MoveToFunc_Fct(tbl->move_to);
-//        f.line_to = find_FT_Outline_LineToFunc_Fct(tbl->line_to);
-//        f.conic_to = find_FT_Outline_ConicToFunc_Fct(tbl->conic_to);
-//        f.cubic_to = find_FT_Outline_CubicToFunc_Fct(tbl->cubic_to);
-//        f.shift = tbl->shift;
-//        f.delta = tbl->delta;
-//    }
-//    return my->FT_Outline_Decompose(outline, tbl?(&f):tbl, data);
-//}
-
 EXPORT int my32_FT_New_Face(x64emu_t* emu, void* lib, void* name, long index, ptr_t* face)
 {
     FT_FaceRec_t* res = NULL;
@@ -1808,6 +1794,40 @@ EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT
     bbox->yMax = to_long(res.yMax);
 }
 
+EXPORT int my32_FT_Outline_Copy(x64emu_t* emu, FT_Outline_32_t* source, FT_Outline_32_t* target)
+{
+    // convert outline to 64
+    int n = source->n_points;
+    FT_Outline_t source_l, target_l;
+    FT_Vector_t vector[n];
+    source_l.n_contours = source->n_contours;
+    source_l.n_points = source->n_points;
+    source_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(source->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    source_l.tags = from_ptrv(source->tags);
+    source_l.contours = from_ptrv(source->contours);
+    source_l.flags = source->flags;
+    int ret = my->FT_Outline_Copy(&source_l, &target_l);
+    // inplace outline shrink
+    target->flags = target_l.flags;    
+    target->contours = to_ptrv(target_l.contours);
+    target->tags = to_ptrv(target_l.tags);
+    target->points = to_ptrv(target_l.points);
+    target->n_points = target_l.n_points;
+    target->n_contours = target_l.n_contours;
+    n = target->n_points;
+    for(int i=n-1; i>=0; --i) {
+        vector[i].x = to_long(vec[i].x);
+        vector[i].y = to_long(vec[i].y);
+    }
+    ///
+    return ret;
+}
+
 EXPORT int my32_FT_Render_Glyph(x64emu_t* emu, FT_GlyphSlotRec_32_t* glyph, uint32_t mode)
 {
     #if 1
@@ -1963,6 +1983,151 @@ EXPORT void my32_FT_Outline_Embolden(x64emu_t* emu, FT_Outline_32_t* outline, lo
     outline->tags = to_ptrv(outline_l.tags);
     outline->contours = to_ptrv(outline_l.contours);
     outline->flags = outline_l.flags;
+}
+
+EXPORT void my32_FT_Outline_EmboldenXY(x64emu_t* emu, FT_Outline_32_t* outline, long xstrength, long ystrength)
+{
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(outline->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    //
+    my->FT_Outline_EmboldenXY(&outline_l, xstrength, ystrength);
+    // convert outline to 32
+    outline->n_contours = outline_l.n_contours;
+    outline->n_points = outline_l.n_points;
+    for(int i=0; i<n; ++i) {
+        vec[i].x = to_long(vector[i].x);
+        vec[i].y = to_long(vector[i].y);
+    }
+    outline->tags = to_ptrv(outline_l.tags);
+    outline->contours = to_ptrv(outline_l.contours);
+    outline->flags = outline_l.flags;
+}
+
+EXPORT int my32_FT_Outline_Decompose(x64emu_t* emu, FT_Outline_32_t* outline, my_FT_Outline_Funcs_t* tbl, void* data)
+{
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(outline->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    //
+    my_FT_Outline_Funcs_t f = {0};
+    if(tbl) {
+        f.move_to = find_FT_Outline_MoveToFunc_Fct(tbl->move_to);
+        f.line_to = find_FT_Outline_LineToFunc_Fct(tbl->line_to);
+        f.conic_to = find_FT_Outline_ConicToFunc_Fct(tbl->conic_to);
+        f.cubic_to = find_FT_Outline_CubicToFunc_Fct(tbl->cubic_to);
+        f.shift = tbl->shift;
+        f.delta = tbl->delta;
+    }
+    int ret = my->FT_Outline_Decompose(outline, tbl?(&f):tbl, data);
+    // convert outline to 32
+    outline->n_contours = outline_l.n_contours;
+    outline->n_points = outline_l.n_points;
+    for(int i=0; i<n; ++i) {
+        vec[i].x = to_long(vector[i].x);
+        vec[i].y = to_long(vector[i].y);
+    }
+    outline->tags = to_ptrv(outline_l.tags);
+    outline->contours = to_ptrv(outline_l.contours);
+    outline->flags = outline_l.flags;
+    return ret;
+}
+
+EXPORT int my32_FT_Outline_Done(x64emu_t* emu, void* library, FT_Outline_32_t* outline)
+{
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = from_ptrv(outline->points);
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    int ret = my->FT_Outline_Done(library, outline);
+    return ret;
+}
+
+EXPORT int my32_FT_Outline_New(x64emu_t* emu, void* library, uint32_t numPoints, int numContours, FT_Outline_32_t* outline)
+{
+    FT_Outline_t outline_l = {0};
+    int ret = my->FT_Outline_New(library, numPoints, numContours, &outline_l);
+    // convert outline to 32
+    outline->n_contours = outline_l.n_contours;
+    outline->n_points = outline_l.n_points;
+    outline->points = to_ptrv(outline_l.points);
+    outline->tags = to_ptrv(outline_l.tags);
+    outline->contours = to_ptrv(outline_l.contours);
+    outline->flags = outline_l.flags;
+    return ret;
+}
+
+
+EXPORT int my32_FT_Activate_Size(x64emu_t* emu, FT_SizeRec_32_t* size)
+{
+    //FT_SizeRec_t size_l = {0};
+    //convert_FT_SizeRec_to_64(&size_l, size);
+    FT_FaceRec_t* face = from_ptrv(size->face);
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Activate_Size(size);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+EXPORT int my32_FT_Done_Size(x64emu_t* emu, FT_SizeRec_32_t* size)
+{
+    //FT_SizeRec_t size_l = {0};
+    //convert_FT_SizeRec_to_64(&size_l, size);
+    FT_FaceRec_t* face = from_ptrv(size->face);
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Done_Size(size);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_New_Size(x64emu_t* emu, FT_FaceRec_32_t* face, ptr_t* size)
+{
+    void* size_l = NULL;
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_New_Size(face, &size_l);
+    *size = to_ptrv(size_l);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_Glyph(x64emu_t* emu, FT_GlyphSlotRec_32_t* slot, ptr_t* glyph)
+{
+    FT_GlyphSlotRec_t slot_l = {0};
+    convert_FT_GlyphSlot_to_64(&slot_l, slot);
+    void* glyph_l;
+    int ret = my->FT_Get_Glyph(&slot_l, &glyph_l);
+    *glyph = to_ptrv(glyph_l);
+    convert_FT_GlyphSlot_to_32(slot, &slot_l);
+    return ret;
 }
 
 #include "wrappedlib_init32.h"
