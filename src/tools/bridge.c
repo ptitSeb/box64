@@ -225,7 +225,7 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
 
 const char* getBridgeName(void* addr)
 {
-    if(!getMmapped((uintptr_t)addr))
+    if(!memExist((uintptr_t)addr))
         return NULL;
     if(!(getProtection((uintptr_t)addr)&PROT_READ))
         return NULL;

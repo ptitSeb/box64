@@ -904,6 +904,7 @@ uintptr_t AllocDynarecMap(size_t size)
             dynarec_allocated += allocsize;
 #endif
             setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
+
             list->chunks[i].block = p;
             list->chunks[i].first = p;
             list->chunks[i].size = allocsize;
@@ -1664,6 +1665,11 @@ uint32_t getProtection_fast(uintptr_t addr)
 int getMmapped(uintptr_t addr)
 {
     return rb_get(mmapmem, addr);
+}
+
+int memExist(uintptr_t addr)
+{
+    return rb_get(mapallmem, addr);
 }
 
 #define LOWEST (void*)0x10000

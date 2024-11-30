@@ -1145,7 +1145,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
-    uint32_t mmapped = getMmapped((uintptr_t)info->si_addr);
+    uint32_t mmapped = memExist((uintptr_t)info->si_addr);
     uint32_t real_prot = 0;
     if(prot&PROT_READ) real_prot|=PROT_READ;
     if(prot&PROT_WRITE) real_prot|=PROT_WRITE;
@@ -1620,7 +1620,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     static int old_tid = 0;
     static uint32_t old_prot = 0;
     int tid = GetTID();
-    int mapped = getMmapped((uintptr_t)addr);
+    int mapped = memExist((uintptr_t)addr);
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
     if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==tid && old_prot==prot) {
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, old_addr, prot);

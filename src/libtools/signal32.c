@@ -621,7 +621,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
-    uint32_t mmapped = getMmapped((uintptr_t)info->si_addr);
+    uint32_t mmapped = memExist((uintptr_t)info->si_addr);
     uint32_t real_prot = 0;
     if(prot&PROT_READ) real_prot|=PROT_READ;
     if(prot&PROT_WRITE) real_prot|=PROT_WRITE;
