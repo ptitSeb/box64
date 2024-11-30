@@ -274,7 +274,6 @@
 #() dEll -> dEll
 #() dFpp -> dFpp
 #() lEEi -> lEEi
-#() lEEV -> lEEV
 #() lEES -> lEES
 #() lEii -> lEii
 #() lFiL -> lFiL
@@ -570,6 +569,7 @@
 #() fEffp -> fEffp
 #() dEddd -> dEddd
 #() dEddp -> dEddp
+#() lEEuV -> lEEuV
 #() lEili -> lEili
 #() lEipL -> lEipL
 #() lFlll -> lFlll
@@ -1743,7 +1743,6 @@ wrappedlibc:
   - sysconf
 - lEp:
   - atol
-- lEV:
 - lES:
   - ftell
 - LEL:
@@ -1808,6 +1807,7 @@ wrappedlibc:
   - ldexpl
 - KFKp:
   - frexpl
+- lEuV:
 - pEip:
   - signal
 - pELL:

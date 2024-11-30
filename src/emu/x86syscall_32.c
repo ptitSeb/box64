@@ -420,11 +420,10 @@ void EXPORT x86Syscall(x64emu_t *emu)
 #define u32(n)  (uint32_t)stack(n)
 #define p(n)    from_ptrv(stack(n))
 
-uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
+uint32_t EXPORT my32_syscall(x64emu_t *emu, uint32_t s, ptr_t* b)
 {
     static uint64_t warned[10] = {0};
-    uint32_t s = u32(0);
-    printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", from_ptrv(R_EIP), s, s, from_ptrv(u32(4)), from_ptrv(u32(8)), from_ptrv(u32(12)), from_ptrv(u32(16)), from_ptrv(u32(20))); 
+    printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", from_ptrv(R_EIP), s, s, from_ptrv(u32(0)), from_ptrv(u32(4)), from_ptrv(u32(8)), from_ptrv(u32(12)), from_ptrv(u32(16))); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     size_t tmps;
@@ -435,12 +434,12 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
             int sc = syscallwrap[i].nats;
             switch(syscallwrap[i].nbpars) {
                 case 0: return syscall(sc);
-                case 1: return syscall(sc, u32(4));
-                case 2: return syscall(sc, u32(4), u32(8));
-                case 3: return syscall(sc, u32(4), u32(8), u32(12));
-                case 4: return syscall(sc, u32(4), u32(8), u32(12), u32(16));
-                case 5: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20));
-                case 6: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20), u32(24));
+                case 1: return syscall(sc, u32(0));
+                case 2: return syscall(sc, u32(0), u32(4));
+                case 3: return syscall(sc, u32(0), u32(4), u32(8));
+                case 4: return syscall(sc, u32(0), u32(4), u32(8), u32(12));
+                case 5: return syscall(sc, u32(0), u32(4), u32(8), u32(12), u32(16));
+                case 6: return syscall(sc, u32(0), u32(4), u32(8), u32(12), u32(16), u32(20));
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
@@ -451,30 +450,30 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
     switch (s) {
         case 1: // __NR_exit
             emu->quit = 1;
-            return u32(4); // faking the syscall here, we don't want to really terminate the program now
+            return u32(0); // faking the syscall here, we don't want to really terminate the program now
         #ifndef __NR_fork
         case 2:
             return fork();
         #endif
         case 3:  // sys_read
-            return (uint32_t)to_long(my32_read(i32(4), p(8), u32(12)));
+            return (uint32_t)to_long(my32_read(i32(0), p(4), u32(8)));
         case 4:  // sys_write
-            return (uint32_t)to_long(write(i32(4), p(8), u32(12)));
+            return (uint32_t)to_long(write(i32(0), p(4), u32(8)));
         case 5: // sys_open
-            return my_open(emu, p(4), of_convert32(u32(8)), u32(12));
+            return my_open(emu, p(0), of_convert32(u32(4)), u32(8));
         case 6:  // sys_close
-            return (uint32_t)close(i32(4));
+            return (uint32_t)close(i32(0));
         case 11: // execve
-            return (uint32_t)my32_execve(emu, p(4), p(8), p(12));
+            return (uint32_t)my32_execve(emu, p(0), p(4), p(8));
         case 91:   // munmap
-            return (uint32_t)my32_munmap(emu, p(4), u32(8));
+            return (uint32_t)my32_munmap(emu, p(0), u32(4));
 #if 0
         case 120:   // clone
             // x86 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, unsigned long tls, int *child_tid);
-            // so flags=u(4), stack=p(8), parent_tid=p(12), tls=p(16), child_tid=p(20)
-            if(p(8))
+            // so flags=u(0), stack=p(4), parent_tid=p(8), tls=p(12), child_tid=p(16)
+            if(p(4))
             {
-                void* stack_base = p(8);
+                void* stack_base = p(4);
                 int stack_size = 0;
                 if(!stack_base) {
                     // allocate a new stack...
@@ -491,7 +490,7 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                         memcpy(stack_base+stack_size-size_to_copy, (void*)R_ESP, size_to_copy);
                     }
                 }
-                x64emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, (p(8))?0:1);
+                x64emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, (p(4))?0:1);
                 SetupX86Emu(newemu);
                 CloneEmu(newemu, emu);
                 Push32(newemu, 0);
@@ -506,28 +505,28 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                     my32_context->stack_clone_used = 1;
                 }
                 // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
-                long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), u32(4), newemu, p(12), p(16), p(20));
+                long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), u32(0), newemu, p(8), p(12), p(16));
                 return (uint32_t)ret;
             }
             else
-                return (uint32_t)syscall(__NR_clone, u32(4), p(8), p(12), p(16), p(20));
+                return (uint32_t)syscall(__NR_clone, u32(0), p(4), p(8), p(12), p(16));
             break;
         case 123:   // SYS_modify_ldt
-            return my32_modify_ldt(emu, i32(4), (thread_area_t*)p(8), i32(12));
+            return my32_modify_ldt(emu, i32(0), (thread_area_t*)p(4), i32(8));
         case 125:   // mprotect
-            return (uint32_t)my32_mprotect(emu, p(4), u32(8), i32(12));
+            return (uint32_t)my32_mprotect(emu, p(0), u32(4), i32(8));
         case 174:   // sys_rt_sigaction
-            return (uint32_t)my32_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
+            return (uint32_t)my32_sigaction(emu, i32(0), (x86_sigaction_t*)p(4), (x86_sigaction_t*)p(8));
 #endif
         case 186:   // sigaltstack
-            return my32_sigaltstack(emu, p(4), p(8));
+            return my32_sigaltstack(emu, p(0), p(4));
         case 192:   // mmap2
-            return to_ptrv(my32_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24)));
+            return to_ptrv(my32_mmap64(emu, p(0), u32(4), i32(8), i32(12), i32(16), u32(20)));
         case 240: // futex
             {
                 struct_LL_t tspec;
                 int need_tspec = 1;
-                switch(u32(8)&FUTEX_CMD_MASK) {
+                switch(u32(4)&FUTEX_CMD_MASK) {
                     case FUTEX_WAIT:
                     case FUTEX_WAIT_BITSET:
                     case FUTEX_LOCK_PI:
@@ -546,30 +545,30 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                     case FUTEX_WAKE:
                     default: need_tspec = 0;
                 }
-                if(need_tspec && u32(16))
-                    from_struct_LL(&tspec, u32(16));
+                if(need_tspec && u32(12))
+                    from_struct_LL(&tspec, u32(12));
                 else
                     need_tspec = 0;
-                return syscall(__NR_futex,  p(4), i32(8), u32(12), need_tspec?(&tspec):p(16), p(20), u32(24));
+                return syscall(__NR_futex,  p(0), i32(4), u32(8), need_tspec?(&tspec):p(12), p(16), u32(20));
             }
             break;
         case 243: // set_thread_area
-            return my_set_thread_area_32(emu, (thread_area_32_t*)p(4));
+            return my_set_thread_area_32(emu, (thread_area_32_t*)p(0));
 #if 0
         case 254: // epoll_create
-            return my32_epoll_create(emu, i32(4));
+            return my32_epoll_create(emu, i32(0));
         case 255: // epoll_ctl
-            return my32_epoll_ctl(emu, i32(4), i32(8), i32(12), p(16));
+            return my32_epoll_ctl(emu, i32(0), i32(4), i32(8), p(12));
         case 256: // epoll_wait
-            return my32_epoll_wait(emu, i32(4), p(8), i32(12), i32(16));
+            return my32_epoll_wait(emu, i32(0), p(4), i32(8), i32(12));
         case 270: //_NR_tgkill
-            /*if(!u32(12))*/ {
-                //printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
-                uint32_t ret = (uint32_t)syscall(__NR_tgkill, u32(4), u32(8), u32(12));
+            /*if(!u32(8))*/ {
+                //printf("tgkill(%u, %u, %u) => ", u32(0), u32(4), u32(8));
+                uint32_t ret = (uint32_t)syscall(__NR_tgkill, u32(0), u32(4), u32(8));
                 //printf("%u (errno=%d)\n", ret, (ret==(uint32_t)-1)?errno:0);
                 return ret;
             }/* else {
-                printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(4), u32(8), u32(12));
+                printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(0), u32(4), u32(8));
             }*/
             return 0;
 #endif
@@ -578,11 +577,11 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                 // will wrap only head for now
                 static uint8_t i386_nothing[0x14] = {0};  // for faking steamcmd use of get_robust_list
                 static struct i386_robust_list_head h;
-                ulong_t *arg2 = p(12);
-                ptr_t* arg1 = p(8);
+                ulong_t *arg2 = p(8);
+                ptr_t* arg1 = p(4);
                 tmp = arg1?(from_ptrv(*arg1)):NULL;
                 tmps = arg2?(from_ulong(*arg2)):0;
-                ret = syscall(__NR_get_robust_list, u32(4), arg1?(&tmp):NULL, arg2?(&tmps):NULL);
+                ret = syscall(__NR_get_robust_list, u32(0), arg1?(&tmp):NULL, arg2?(&tmps):NULL);
                 if(!ret) {
                     if(box64_steamcmd || 1) {
                         h.list.next = to_ptrv(&h);
@@ -605,21 +604,21 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
 #if 0
 #ifndef NOALIGN
         case 329:   // epoll_create1
-            return my32_epoll_create1(emu, of_convert32(i32(4)));
+            return my32_epoll_create1(emu, of_convert32(i32(0)));
 #endif
 #ifndef __NR_getrandom
         case 355:  // getrandom
-            return (uint32_t)my32_getrandom(emu, p(4), u32(8), u32(12));
+            return (uint32_t)my32_getrandom(emu, p(0), u32(4), u32(8));
 #endif
 #ifndef __NR_memfd_create
         case 356:  // memfd_create
-            return (uint32_t)my32_memfd_create(emu, p(4), u32(8));
+            return (uint32_t)my32_memfd_create(emu, p(0), u32(4));
 #endif
 #endif
         case 449:
             #ifdef __NR_futex_waitv
             if(box64_futex_waitv)
-                return syscall(__NR_futex_waitv, u32(4), u32(8), u32(12), u32(16), u32(20));
+                return syscall(__NR_futex_waitv, u32(0), u32(4), u32(8), u32(12), u32(16));
             else
             #endif
                 {

@@ -1781,7 +1781,7 @@ GO(symlinkat, iEpip)
 GO(sync, vEv)
 GO(syncfs, iEi)
 // sync_file_range
-GOM(syscall, lEEV) //%%
+GOM(syscall, lEEuV) //%%
 GOW2(sysconf, lEEi, my_sysconf)
 GO2(__sysconf, lEEi, my_sysconf)
 // sysctl   // Weak
