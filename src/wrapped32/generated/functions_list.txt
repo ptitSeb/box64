@@ -967,6 +967,7 @@
 #() uFppibp_ -> uFppiB
 #() UEpBp_ii -> UEpBii
 #() lEiibl_L -> lEiiBL
+#() LEpBp_ii -> LEpBii
 #() LEpbp_Lp -> LEpBLp
 #() iEEpprLL_ -> iEEppB
 #() iEpurLL_p -> iEpuBp
@@ -1093,6 +1094,7 @@
 #() vFXLppi -> vFXLppi
 #() vFXpiiL -> vFXpiiL
 #() iEEiiip -> iEEiiip
+#() iEEiipV -> iEEiipV
 #() iEEipii -> iEEipii
 #() iEEippL -> iEEippL
 #() iEEpipp -> iEEpipp
@@ -1106,6 +1108,8 @@
 #() iEEpppi -> iEEpppi
 #() iEEpppp -> iEEpppp
 #() iFEpppp -> iFEpppp
+#() iEESipp -> iEESipp
+#() iEESipV -> iEESipV
 #() iFEXipp -> iFEXipp
 #() iFEXLip -> iFEXLip
 #() iFEXLlp -> iFEXLlp
@@ -1269,7 +1273,9 @@
 #() vFXLiipi -> vFXLiipi
 #() vFXLpppi -> vFXLpppi
 #() iEEiippi -> iEEiippi
+#() iEEipiup -> iEEipiup
 #() iEEuppLp -> iEEuppLp
+#() iEEpiipV -> iEEpiipV
 #() iFEpiuuu -> iFEpiuuu
 #() iEEpiLpp -> iEEpiLpp
 #() iEEpipOi -> iEEpipOi
@@ -1390,6 +1396,7 @@
 #() vFXLppipi -> vFXLppipi
 #() vFXpiipii -> vFXpiipii
 #() vFXppiiii -> vFXppiiii
+#() iEEpLiipp -> iEEpLiipp
 #() iEEpLiipV -> iEEpLiipV
 #() iEEpLiLpV -> iEEpLiLpV
 #() iFEpppipp -> iFEpppipp
@@ -1623,16 +1630,7 @@
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
 #!defined(HAVE_LD80BITS) KEKp -> KEKp
 #!defined(HAVE_LD80BITS) KEpBp_a -> KEpBa
-#() iEEvpp -> iEEpp
-#() iEEvpV -> iEEpV
 #() UEsvvs -> UEss
-#() pEEppv -> pEEpp
-#() LEpBp_iv -> LEpBp_i
-#() iEEivpV -> iEEipV
-#() iEESvpp -> iEESpp
-#() iEESvpV -> iEESpV
-#() iEEpvvpV -> iEEppV
-#() iEEpLvvpp -> iEEpLpp
 wrappedcrashhandler:
 wrappedexpat:
 - vFpp:
@@ -1830,11 +1828,10 @@ wrappedlibc:
 - vEpup:
   - _ITM_addUserCommitAction
 - vEppu:
-- iEvpp:
-- iEvpV:
 - iEiip:
 - iEiiN:
 - iEipp:
+- iEipV:
 - iEpii:
   - posix_spawn_file_actions_adddup2
 - iEpLi:
@@ -1860,7 +1857,7 @@ wrappedlibc:
 - pEpii:
 - pEpII:
 - pEpLL:
-- pEppv:
+- pEppi:
   - __realpath_chk
 - KEpBp_a:
   - __strtold_l
@@ -1875,8 +1872,8 @@ wrappedlibc:
   - __syslog_chk
 - vEpLLp:
 - vEppiV:
-- iEivpV:
 - iEiiip:
+- iEiipV:
 - iEipii:
 - iEippi:
   - utimensat
@@ -1888,18 +1885,20 @@ wrappedlibc:
 - iEpLpV:
 - iEpppp:
   - getaddrinfo
-- iESvpp:
-- iESvpV:
+- iESipp:
+- iESipV:
 - uEippu:
   - regerror
-- LEpBp_iv:
+- LEpBp_ii:
 - iEiippi:
+- iEipiup:
+  - statx
 - iEipppp:
   - getopt_long
 - iEuppLp:
   - getgrgid_r
   - getpwuid_r
-- iEpvvpV:
+- iEpiipV:
 - iEpiLpp:
 - iEpipOi:
   - posix_spawn_file_actions_addopen
@@ -1910,7 +1909,7 @@ wrappedlibc:
   - getpwnam_r
 - pEpLLiN:
 - pEppLLp:
-- iEpLvvpp:
+- iEpLiipp:
 - iEpLiipV:
 - iEpLiLpV:
 - iFpppupp:

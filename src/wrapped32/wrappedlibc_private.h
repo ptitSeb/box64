@@ -221,7 +221,7 @@ GOW2(dl_iterate_phdr, iEEpp, my_dl_iterate_phdr) //%%
 // _dl_vsym
 //GOW(dngettext, pEpppu)
 //GOM(dprintf, iEEipV)
-GOM(__dprintf_chk, iEEivpV)	//%%
+GOM(__dprintf_chk, iEEiipV)	//%%
 GO(drand48, dEv)
 // drand48_r
 GOW(dup, iEi)
@@ -376,7 +376,7 @@ GOM(__fork, iEEv)           //%%
 GOW(fpathconf, lEii)
 //GO(__fpending, uEp)
 GOM(fprintf, iEESpV) //%%
-GOM(__fprintf_chk, iEESvpV) //%%
+GOM(__fprintf_chk, iEESipV) //%%
 // __fpu_control    // type B
 //GO(__fpurge, vEp)
 GOW(fputc, iEiS)
@@ -599,6 +599,7 @@ GOW(getsockopt, iEiiipp)
 // getspnam_r
 // getsubopt
 GOW(gettext, pEp)
+GOW(gettid, iEv)
 GOW(gettimeofday, iEBll_p)
 //GO(__gettimeofday, iEpp)
 // getttyent
@@ -1289,7 +1290,7 @@ GOW(pread64, lEipLI)
 //GOM(preadv64, lEEipiI)  //%% not always present
 // __pread_chk
 GOM(printf, iEEpV) //%%
-GOM(__printf_chk, iEEvpV) //%%
+GOM(__printf_chk, iEEipV) //%%
 //GO(__printf_fp, iEppp)  // does this needs aligment?
 // printf_size
 // printf_size_info
@@ -1370,7 +1371,7 @@ GOM(readv, lEEipi)
 GO(realloc, pEpL)
 //DATAV(__realloc_hook, 4)
 GOM(realpath, pEEpp) //%%
-GO2(__realpath_chk, pEEppv, my32_realpath)
+GO2(__realpath_chk, pEEppi, my32_realpath)
 // reboot
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
@@ -1597,7 +1598,7 @@ GOW(socket, iEiii)
 GOW(socketpair, iEiiip)
 //GO(splice, iEipipuu)
 GOM(sprintf, iEEppV) //%%
-GOM(__sprintf_chk, iEEpvvpV) //%%
+GOM(__sprintf_chk, iEEpiipV) //%%
 // sprofil  // Weak
 GOW(srand, vEu)
 GO(srand48, vEl)
@@ -1615,6 +1616,7 @@ GOWM(statfs, iEpp)  //%%,noE
 GOWM(statfs64, iEpp)     //%%,noE
 GOM(statvfs, iEEpp)
 GOWM(statvfs64, iEEpp)
+GOM(statx, iEEipiup)
 DATAM(stderr, 4)
 DATAM(stdin, 4)
 DATAM(stdout, 4)
@@ -1724,7 +1726,7 @@ GO(__strtoll_internal, IEpBp_ii)
 //GOW(strtoll_l, IEppip)
 //GOW(strtoq, IEppi)  // is that ok?
 GOM(strtoul, LEpBp_i)   //%%,noE
-GO2(__strtoul_internal, LEpBp_iv, my32_strtoul) //%%,noE
+GO2(__strtoul_internal, LEpBp_ii, my32_strtoul) //%%,noE
 GO(strtoull, UEpBp_i)
 //GO(__strtoul_l, uEppip)
 //GOW(strtoul_l, LEppip)
@@ -1899,7 +1901,7 @@ GOM(__vasprintf_chk, iEEpipp) //%%
 GOWM(vfork, iEEv) //%%
 // __vfork
 GOM(vfprintf, iEESpp) //%%
-GOM(__vfprintf_chk, iEESvpp) //%%
+GOM(__vfprintf_chk, iEESipp) //%%
 //GOWM(vfscanf, iEEppp)  //%%
 // __vfscanf
 //GOWM(vfwprintf, iEEppp)    //%%
@@ -1909,11 +1911,11 @@ GOM(__vfprintf_chk, iEESvpp) //%%
 // vlimit
 // vmsplice
 GOM(vprintf, iEEpp)               //%%
-GOM(__vprintf_chk, iEEvpp)        //%%
+GOM(__vprintf_chk, iEEipp)        //%%
 // vscanf   // Weak
 GOWM(vsnprintf, iEEpLpp)         //%%
 GOWM(__vsnprintf, iEEpLpp)       //%%
-GOM(__vsnprintf_chk, iEEpLvvpp)  //%%
+GOM(__vsnprintf_chk, iEEpLiipp)  //%%
 GOWM(vsprintf, iEEppp)            //%%
 GOM(__vsprintf_chk, iEEpiLpp)     //%% 
 //GOM(vsscanf, iEEppp) //%%
