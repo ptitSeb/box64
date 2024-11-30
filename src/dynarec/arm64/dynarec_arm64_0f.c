@@ -501,7 +501,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             FCMPS(v0, s0);
             FCOMI(x1, x2);
             break;
-
+        case 0x30:
+            INST_NAME("WRMSR");
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0x31:
             INST_NAME("RDTSC");
             NOTEST(x1);

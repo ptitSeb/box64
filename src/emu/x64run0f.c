@@ -378,7 +378,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             break;
-
+        case 0x30:                      /* WRMSR */
+            // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            #endif
+            break;
         case 0x31:                   /* RDTSC */
             tmp64u = ReadTSC(emu);
             if(box64_rdtsc_shift)
