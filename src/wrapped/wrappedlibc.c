@@ -105,15 +105,8 @@ typedef void* (*pFp_t)(void*);
 typedef void* (*pFpip_t)(void*, int, void*);
 
 #define ADDED_FUNCTIONS() \
-    GO(_ITM_addUserCommitAction, iFpup_t)   \
-    GO(_IO_file_stat, iFpp_t)               \
-    GO(fts64_open, pFpip_t)                 \
-    GO(register_printf_specifier, iFipp_t)  \
-    GO(register_printf_type, iFp_t)         \
-    GO(statx, iFipiup_t)
 
-
-#include "generated/wrappedlibcupstypes.h"
+#include "generated/wrappedlibctypes.h"
 
 #include "wrappercallback.h"
 
