@@ -71,6 +71,7 @@ extern int rv64_xtheadmempair;
 extern int rv64_xtheadfmemidx;
 extern int rv64_xtheadmac;
 extern int rv64_xtheadfmv;
+extern uintptr_t my_global_pointer;
 #elif defined(LA64)
 extern int la64_lbt;
 extern int la64_lam_bh;

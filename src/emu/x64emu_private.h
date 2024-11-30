@@ -126,6 +126,7 @@ typedef struct x64emu_s {
     JUMPBUFF*   jmpbuf;
     #ifdef RV64
     uintptr_t   old_savedsp;
+    uintptr_t   old_gp;
     #endif
 
     void*       uc_link; // to handle setcontext (can be x64_ucontext_t or a i386_ucontext_t)

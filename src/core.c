@@ -128,6 +128,7 @@ int rv64_xtheadmempair = 0;
 int rv64_xtheadfmemidx = 0;
 int rv64_xtheadmac = 0;
 int rv64_xtheadfmv = 0;
+uintptr_t my_global_pointer = 0;
 #elif defined(LA64)
 int la64_lbt = 0;
 int la64_lam_bh = 0;
@@ -1871,6 +1872,9 @@ extern char** environ;
 
 int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec)
 {
+    #if defined(RV64)
+    asm volatile("mv %0, gp" : "=r"(my_global_pointer));
+    #endif
     #ifndef STATICBUILD
     init_malloc_hook();
     #endif

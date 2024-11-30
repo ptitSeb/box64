@@ -1321,6 +1321,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             #endif
             #ifdef RV64
             emu->xSPSave = emu->old_savedsp;
+            asm volatile ("mv gp, %0" : : "r"(emu->old_gp) : "memory");
             #endif
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, 1);
@@ -1395,6 +1396,11 @@ extern int box64_exit_code;
 
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
+#if defined(RV64)
+    uintptr_t old_gp = 0;
+    asm volatile("mv %0, gp" : "=r"(old_gp));
+    asm volatile("la gp, my_global_pointer" ::: "memory");
+#endif
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
     int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
     if(signal_jmpbuf_active) {
@@ -1888,6 +1894,9 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     }
     relockMutex(Locks);
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
+        #if defined(RV64)
+        emu->old_gp = old_gp;
+        #endif
         my_sigactionhandler_oldcode(emu, sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db);
         return;
     }

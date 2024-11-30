@@ -89,6 +89,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // RV64 RA
 #define xRA 1
 #define xSP 2
+#define xGP 3 // used for nativeflags
 // RV64 args
 #define A0 10
 #define A1 11

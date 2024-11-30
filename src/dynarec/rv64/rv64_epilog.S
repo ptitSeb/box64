@@ -6,6 +6,8 @@
 .text
 .align 4
 
+.extern my_global_pointer
+
 .global rv64_epilog
 .global rv64_epilog_fast
 
@@ -40,6 +42,12 @@ rv64_epilog_fast:
     ld      sp, 808(a0) // restore saved sp from emu->xSPSave, see rv64_prolog
     ld      x9, -8(sp)
     sd      x9, 808(a0) // put back old value
+#ifdef STATICBUILD
+    lui     gp, %hi(my_global_pointer)
+    ld      gp, %lo(my_global_pointer)(gp)
+#else
+    la      gp, my_global_pointer
+#endif
     ld      ra, (sp)  // save ra
     ld      x8, 8(sp) // save fp
     ld      x18, (2*8)(sp)

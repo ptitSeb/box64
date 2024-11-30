@@ -782,6 +782,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             #endif
             #ifdef RV64
             emu->xSPSave = emu->old_savedsp;
+            asm volatile ("mv gp, %0" : : "r"(emu->old_gp) : "memory");
             #endif
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, 1);

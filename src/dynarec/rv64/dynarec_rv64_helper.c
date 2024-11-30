@@ -759,6 +759,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         STORE_REG(R15);
         SD(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
+    TABLE64(xGP, (uintptr_t)my_global_pointer);
     TABLE64(reg, (uintptr_t)fnc);
     JALR(xRA, reg);
     if(ret>=0) {
@@ -832,6 +833,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     MV(A3, xRCX);
     MV(A4, xR8);
     MV(A5, xR9);
+    TABLE64(xGP, (uintptr_t)my_global_pointer);
     // native call
     TABLE64(xRAX, (uintptr_t)fnc);    // using xRAX as scratch regs for call address
     JALR(xRA, xRAX);
