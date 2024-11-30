@@ -158,7 +158,7 @@ GO(gcry_mpi_snew, pFu)
 //GO(gcry_pk_algo_info, 
 //GO(gcry_pk_algo_name, 
 //GO(gcry_pk_ctl, 
-//GO(gcry_pk_decrypt, 
+GO(gcry_pk_decrypt, uFppp)
 GO(gcry_pk_encrypt, uFppp)
 //GO(gcry_pk_genkey, 
 //GO(gcry_pk_get_curve, 
