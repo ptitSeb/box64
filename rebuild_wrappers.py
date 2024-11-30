@@ -1095,7 +1095,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 				+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
 		if any_depends_on_ld:
-			file.write("\n#ifdef HAVE_LD80BITS\n")
+			file.write("\n#if defined(HAVE_LD80BITS) || defined(ANDROID)\n")
 			for v in arr:
 				if all(c not in v for c in depends_on_ld):
 					continue
@@ -1103,7 +1103,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				v = v[:-1] if v.endswith('NN') else v # FIXME
 				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 					+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
-			file.write("#else // HAVE_LD80BITS\n")
+			file.write("#else // !HAVE_LD80BITS && !ANDROID\n")
 			for k in td_types_nold:
 				for t in td_types_nold[k]:
 					td_types[k][conventions[k].values.index(t)] = td_types_nold[k][t]
@@ -1194,6 +1194,13 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			conventions['F']: {
 				'D': "double db=fn({0}); fpu_do_push(emu); ST0val = db;",
 				'Y': "from_complexk(emu, fn({0}));",
+			},
+			conventions['W']: {}
+		}
+		vals_android = {
+			conventions['F']: {
+				"D": "long double ld=fn({0}); emu->xmm[0].u128=*(__uint128_t*)&ld;",
+				"Y": "from_complexl(emu, fn({0}));",
 			},
 			conventions['W']: {}
 		}
@@ -1333,8 +1340,23 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			'D': "FromLD((void*)(R_RSP + {p})), ",      # K
 			'Y': "to_complexk(emu, R_RSP + {p}), ",     # y
 		}
+		arg_s_android = {
+			'D': "*(long double*)(R_RSP + {p})], ",
+			'Y': "to_complexl(emu, R_RSP + {p}), ",
+		}
 		arg_s_ld = {
 			t: arg_s[conventions['F'].values.index(t)] for t in arg_s_nold
+		}
+		vxmm_noandroid = vxmm[:]
+		vxmm_android = vxmm[:]
+		vxmm_android[conventions['F'].values.index('D')] = 1
+		vxmm_android[conventions['F'].values.index('Y')] = 1
+		arg_x_android = {
+			'D': "*(long double*)&emu->xmm[{p}], ",
+			'Y': "to_complexl(emu, (uintptr_t)&emu->xmm[{p}]), ",
+		}
+		arg_x_ld = {
+			t: arg_x[conventions['F'].values.index(t)] for t in arg_x_android
 		}
 		
 		# Asserts
@@ -1539,7 +1561,15 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				else:
 					function_writer(file, v, v + "_t")
 			if any_depends_on_ld:
-				file.write("\n#ifdef HAVE_LD80BITS\n")
+				file.write("\n#if defined(ANDROID)\n")
+				for c in vals_android:
+					for t in vals_android[c]:
+						vals[c][c.values.index(t)] = vals_android[c][t]
+				for t in arg_s_android:
+					arg_s[conventions['F'].values.index(t)] = arg_s_android[t]
+				for t in arg_x_android:
+					arg_x[conventions['F'].values.index(t)] = arg_x_android[t]
+				vxmm = vxmm_android
 				for v in gbls[k]:
 					if all(c not in v for c in depends_on_ld):
 						continue
@@ -1548,12 +1578,20 @@ def main(root: str, files: Iterable[Filename], ver: str):
 						file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
 					else:
 						function_writer(file, v, v + "_t")
-				file.write("#else // HAVE_LD80BITS\n")
+				file.write("#elif !defined(HAVE_LD80BITS)\n")
+				for c in vals_android:
+					for t in vals_ld[c]:
+						vals[c][c.values.index(t)] = vals_ld[c][t]
 				for c in vals_nold:
 					for t in vals_nold[c]:
 						vals[c][c.values.index(t)] = vals_nold[c][t]
+				for t in arg_s_android:
+					arg_s[conventions['F'].values.index(t)] = arg_s_ld[t]
 				for t in arg_s_nold:
 					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+				for t in arg_x_android:
+					arg_x[conventions['F'].values.index(t)] = arg_x_ld[t]
+				vxmm = vxmm_noandroid
 				for v in gbls[k]:
 					if all(c not in v for c in depends_on_ld):
 						continue
@@ -1563,10 +1601,19 @@ def main(root: str, files: Iterable[Filename], ver: str):
 					else:
 						function_writer(file, v, v + "_t")
 				for c in vals_nold:
-					for t in vals_ld[c]:
+					for t in vals_nold[c]:
 						vals[c][c.values.index(t)] = vals_ld[c][t]
 				for t in arg_s_nold:
-					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+					arg_s[conventions['F'].values.index(t)] = arg_s_ld[t]
+				file.write("#else // defined(HAVE_LD80BITS) && !defined(ANDROID)\n")
+				for v in gbls[k]:
+					if all(c not in v for c in depends_on_ld):
+						continue
+					if v == FunctionType("vFv"):
+						# Suppress all warnings...
+						file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
+					else:
+						function_writer(file, v, v + "_t")
 				file.write("#endif\n")
 			if k != str(Clauses()):
 				file.write("#endif\n")
@@ -1581,26 +1628,47 @@ def main(root: str, files: Iterable[Filename], ver: str):
 					continue
 				function_writer(file, vr, vf + "_t")
 			if any_depends_on_ld:
-				file.write("\n#ifdef HAVE_LD80BITS\n")
+				file.write("\n#if defined(ANDROID)\n")
+				for c in vals_android:
+					for t in vals_android[c]:
+						vals[c][c.values.index(t)] = vals_android[c][t]
+				for t in arg_s_android:
+					arg_s[conventions['F'].values.index(t)] = arg_s_android[t]
+				for t in arg_x_android:
+					arg_x[conventions['F'].values.index(t)] = arg_x_android[t]
+				vxmm = vxmm_android
 				for vr, vf in redirects[k]:
 					if all(c not in vr for c in depends_on_ld):
 						continue
 					function_writer(file, vr, vf + "_t")
-				file.write("#else // HAVE_LD80BITS\n")
+				file.write("#elif !defined(HAVE_LD80BITS)\n")
+				for c in vals_android:
+					for t in vals_ld[c]:
+						vals[c][c.values.index(t)] = vals_ld[c][t]
 				for c in vals_nold:
 					for t in vals_nold[c]:
 						vals[c][c.values.index(t)] = vals_nold[c][t]
+				for t in arg_s_android:
+					arg_s[conventions['F'].values.index(t)] = arg_s_ld[t]
 				for t in arg_s_nold:
 					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+				for t in arg_x_android:
+					arg_x[conventions['F'].values.index(t)] = arg_x_ld[t]
+				vxmm = vxmm_noandroid
 				for vr, vf in redirects[k]:
 					if all(c not in vr for c in depends_on_ld):
 						continue
 					function_writer(file, vr, vf + "_t")
 				for c in vals_nold:
-					for t in vals_ld[c]:
+					for t in vals_nold[c]:
 						vals[c][c.values.index(t)] = vals_ld[c][t]
 				for t in arg_s_nold:
-					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+					arg_s[conventions['F'].values.index(t)] = arg_s_ld[t]
+				file.write("#else // defined(HAVE_LD80BITS) && !defined(ANDROID)\n")
+				for vr, vf in redirects[k]:
+					if all(c not in vr for c in depends_on_ld):
+						continue
+					function_writer(file, vr, vf + "_t")
 				file.write("#endif\n")
 			if k != str(Clauses()):
 				file.write("#endif\n")
