@@ -1353,7 +1353,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		vxmm_android[conventions['F'].values.index('Y')] = 1
 		arg_x_android = {
 			'D': "*(long double*)&emu->xmm[{p}], ",
-			'Y': "to_complexl(emu, &emu->xmm[{p}]), ",
+			'Y': "to_complexl(emu, (uintptr_t)&emu->xmm[{p}]), ",
 		}
 		arg_x_ld = {
 			t: arg_x[conventions['F'].values.index(t)] for t in arg_x_android
