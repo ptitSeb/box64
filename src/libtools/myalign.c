@@ -123,6 +123,21 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                     mystack++;
                 memcpy(mystack, st, 16);
                 st+=2; mystack+=2;
+                #elif defined(ANDROID)
+                // there is 128bits long double on native and x64 side
+                // need to align stacks to 128bits boundaries
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
+                if(xmm) {
+                    memcpy(mystack, &emu->xmm[x++], 16);
+                    st+=2; mystack+=2;
+                    --xmm;
+                } else {
+                    if((((uintptr_t)st)&0xf)!=0)
+                        st++;
+                    memcpy(mystack, st, 16);
+                    st+=2; mystack+=2;
+                }
                 #else
                 // there is 128bits long double on ARM64, but they need 128bit alignment
                 if((((uintptr_t)mystack)&0xf)!=0)
@@ -366,6 +381,21 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
                     mystack++;
                 memcpy(mystack, st, 16);
                 st+=2; mystack+=2;
+                #elif defined(ANDROID)
+                // there is 128bits long double on native and x64 side
+                // need to align stacks to 128bits boundaries
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
+                if(xmm) {
+                    memcpy(mystack, &emu->xmm[x++], 16);
+                    st+=2; mystack+=2;
+                    --xmm;
+                } else {
+                    if((((uintptr_t)st)&0xf)!=0)
+                        st++;
+                    memcpy(mystack, st, 16);
+                    st+=2; mystack+=2;
+                }
                 #else
                 // there is 128bits long double on ARM64, but they need 128bit alignment
                 if((((uintptr_t)mystack)&0xf)!=0)
@@ -743,6 +773,20 @@ void myStackAlignValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_v
                     mystack++;
                 memcpy(mystack, st, 16);
                 st+=2; mystack+=2;
+                #elif defined(ANDROID)
+                // there is 128bits long double on native and x64 side
+                // need to align stacks to 128bits boundaries
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
+                if(fprs<X64_VA_MAX_XMM) {
+                    memcpy(mystack, &area[fprs/8], 16);
+                    fprs+=16; mystack+=2;
+                } else {
+                    if((((uintptr_t)st)&0xf)!=0)
+                        st++;
+                    memcpy(mystack, st, 16);
+                    st+=2; mystack+=2;
+                }
                 #else
                 // there is 128bits long double on ARM64, but they need 128bit alignment
                 if((((uintptr_t)mystack)&0xf)!=0)
@@ -888,6 +932,20 @@ void myStackAlignWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_
                     mystack++;
                 memcpy(mystack, st, 16);
                 st+=2; mystack+=2;
+                #elif defined(ANDROID)
+                // there is 128bits long double on native and x64 side
+                // need to align stacks to 128bits boundaries
+                if((((uintptr_t)mystack)&0xf)!=0)
+                    mystack++;
+                if(fprs<X64_VA_MAX_XMM) {
+                    memcpy(mystack, &area[fprs/8], 16);
+                    fprs+=16; mystack+=2;
+                } else {
+                    if((((uintptr_t)st)&0xf)!=0)
+                        st++;
+                    memcpy(mystack, st, 16);
+                    st+=2; mystack+=2;
+                }
                 #else
                 // there is 128bits long double on ARM64, but they need 128bit alignment
                 if((((uintptr_t)mystack)&0xf)!=0)
