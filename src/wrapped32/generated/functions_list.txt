@@ -643,6 +643,7 @@
 #() vFbp_pp -> vFBpp
 #() vFXLbL_ -> vFXLB
 #() vFXbL_i -> vFXBi
+#() iFEpBp_ -> iFEpB
 #() iFpibl_ -> iFpiB
 #() iFplbl_ -> iFplB
 #() iEppBp_ -> iEppB
@@ -687,14 +688,12 @@
 #() iFbp_bp_p -> iFBBp
 #() iFXbiip_i -> iFXBi
 #() iFXbLip_L -> iFXBL
-#() vFpuBLLLL_ -> vFpuB
 #() vFXLbpLiL_ -> vFXLB
 #() vFXLrpLiL_ -> vFXLB
 #() iFXLbpLiL_ -> iFXLB
 #() iFXLbLLii_ -> iFXLB
 #() pFXrLiiuL_p -> pFXBp
 #() iFXLbLWWWcc_ -> iFXLB
-#() iFprllll_rll_ -> iFpBB
 #() iEirLLLL_BLLLL_ -> iEiBB
 #() pEppriiiiiiiiilt_ -> pEppB
 #() vEEipp -> vEEipp
@@ -979,6 +978,7 @@
 #() iEbp_bL_iS -> iEBBiS
 #() iFbp_bp_pi -> iFBBpi
 #() iFXbL_ibp_ -> iFXBiB
+#() vFEpuBLLLL_ -> vFEpuB
 #() vFbp_ppbup_ -> vFBppB
 #() vFXLbpLiL_L -> vFXLBL
 #() iFXLbpLiL_L -> iFXLBL
@@ -987,6 +987,7 @@
 #() iFXLpbLWWWcc_ -> iFXLpB
 #() iFXLbLWWWcc_i -> iFXLBi
 #() pESBppppii_pi -> pESBpi
+#() iFEprllll_rll_ -> iFEpBB
 #() iFXLuriiiiiLi_ -> iFXLuB
 #() vFXLbLLLLLLLLLL_L -> vFXLBL
 #() iFXLbLLLLLLLLLL_L -> iFXLBL
@@ -1650,6 +1651,8 @@ wrappedfontconfig:
 - iFppiUi:
   - FcPatternAdd
 wrappedfreetype:
+- vFp:
+  - FT_Done_Glyph
 - iFp:
   - FT_Activate_Size
   - FT_Done_Face
@@ -1686,6 +1689,8 @@ wrappedfreetype:
   - FT_Get_First_Char
 - pFpi:
   - FT_Get_Sfnt_Table
+- iFpBp_:
+  - FT_Glyph_Copy
 - vFpll:
   - FT_Outline_Translate
 - vFppp:
@@ -1706,6 +1711,10 @@ wrappedfreetype:
   - FT_Outline_Get_Bitmap
 - LFpLp:
   - FT_Get_Next_Char
+- vFpuBLLLL_:
+  - FT_Glyph_Get_CBox
+- iFprllll_rll_:
+  - FT_Glyph_Transform
 - iFpuip:
   - FT_Outline_New
 - iFpupu:

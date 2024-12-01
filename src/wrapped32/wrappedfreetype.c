@@ -17,6 +17,7 @@
 #include "box32context.h"
 #include "emu/x64emu_private.h"
 #include "myalign32.h"
+#include "converter32.h"
 
 static const char* freetypeName = 
 #ifdef ANDROID
@@ -29,6 +30,8 @@ static const char* freetypeName =
 
 typedef void  (*vFp_t)(void*);
 
+#define FT_GLYPH_FORMAT_OUTLINE (('o'<<24)|('u'<<16)|('t'<<8)|'l')
+#define FT_GLYPH_FORMAT_BITMAP  (('b'<<24)|('i'<<16)|('t'<<8)|'s')
 
 // 64bits FreeType structures
 typedef union  FT_StreamDesc_s
@@ -327,6 +330,173 @@ typedef struct  FT_Matrix_s
     long    yx, yy;
 } FT_Matrix_t;
 
+typedef struct  FT_GlyphRec_s
+{
+    void*           library;  //FT_Library
+    void*           clazz;  //const FT_Glyph_Class*
+    uint32_t        format;
+    FT_Vector_t     advance;
+} FT_GlyphRec_t;
+
+typedef struct  FT_BitmapGlyphRec_s
+{
+    FT_GlyphRec_t   root;
+    int             left;
+    int             top;
+    FT_Bitmap_t     bitmap;
+} FT_BitmapGlyphRec_t;
+
+typedef struct  TT_Header_s
+{
+    signed long     Table_Version;
+    signed long     Font_Revision;
+    long            CheckSum_Adjust;
+    long            Magic_Number;
+    uint16_t        Flags;
+    uint16_t        Units_Per_EM;
+    unsigned long   Created [2];
+    unsigned long   Modified[2];
+    int16_t         xMin;
+    int16_t         yMin;
+    int16_t         xMax;
+    int16_t         yMax;
+    uint16_t        Mac_Style;
+    uint16_t        Lowest_Rec_PPEM;
+    int16_t         Font_Direction;
+    int16_t         Index_To_Loc_Format;
+    int16_t         Glyph_Data_Format;
+} TT_Header_t;
+typedef struct  TT_MaxProfile_s
+{
+    signed long version;
+    uint16_t    numGlyphs;
+    uint16_t    maxPoints;
+    uint16_t    maxContours;
+    uint16_t    maxCompositePoints;
+    uint16_t    maxCompositeContours;
+    uint16_t    maxZones;
+    uint16_t    maxTwilightPoints;
+    uint16_t    maxStorage;
+    uint16_t    maxFunctionDefs;
+    uint16_t    maxInstructionDefs;
+    uint16_t    maxStackElements;
+    uint16_t    maxSizeOfInstructions;
+    uint16_t    maxComponentElements;
+    uint16_t    maxComponentDepth;
+} TT_MaxProfile_t;
+typedef struct  TT_OS2_s
+{
+    uint16_t        version;
+    int16_t         xAvgCharWidth;
+    uint16_t        usWeightClass;
+    uint16_t        usWidthClass;
+    uint16_t        fsType;
+    int16_t         ySubscriptXSize;
+    int16_t         ySubscriptYSize;
+    int16_t         ySubscriptXOffset;
+    int16_t         ySubscriptYOffset;
+    int16_t         ySuperscriptXSize;
+    int16_t         ySuperscriptYSize;
+    int16_t         ySuperscriptXOffset;
+    int16_t         ySuperscriptYOffset;
+    int16_t         yStrikeoutSize;
+    int16_t         yStrikeoutPosition;
+    int16_t         sFamilyClass;
+    uint8_t         panose[10];
+    unsigned long   ulUnicodeRange1;
+    unsigned long   ulUnicodeRange2;
+    unsigned long   ulUnicodeRange3;
+    unsigned long   ulUnicodeRange4;
+    signed char     achVendID[4];
+    uint16_t        fsSelection;
+    uint16_t        usFirstCharIndex;
+    uint16_t        usLastCharIndex;
+    int16_t         sTypoAscender;
+    int16_t         sTypoDescender;
+    int16_t         sTypoLineGap;
+    uint16_t        usWinAscent;
+    uint16_t        usWinDescent;
+    /* only version 1 and higher: */
+    unsigned long   ulCodePageRange1;
+    unsigned long   ulCodePageRange2;
+    /* only version 2 and higher: */
+    int16_t         sxHeight;
+    int16_t         sCapHeight;
+    uint16_t        usDefaultChar;
+    uint16_t        usBreakChar;
+    uint16_t        usMaxContext;
+    /* only version 5 and higher: */
+    uint16_t        usLowerOpticalPointSize;
+    uint16_t        usUpperOpticalPointSize;
+} TT_OS2_t;
+typedef struct  TT_HoriHeader_s
+{
+    signed long Version;
+    int16_t     Ascender;
+    int16_t     Descender;
+    int16_t     Line_Gap;
+    uint16_t    advance_Width_Max;
+    int16_t     min_Left_Side_Bearing;
+    int16_t     min_Right_Side_Bearing;
+    int16_t     xMax_Extent;
+    int16_t     caret_Slope_Rise;
+    int16_t     caret_Slope_Run;
+    int16_t     caret_Offset;
+    int16_t     Reserved[4];
+    int16_t     metric_Data_Format;
+    uint16_t    number_Of_HMetrics;
+    void*       long_metrics;
+    void*       short_metrics;
+} TT_HoriHeader_t;
+typedef struct  TT_VertHeader_s
+{
+    signed long Version;
+    int16_t     Ascender;
+    int16_t     Descender;
+    int16_t     Line_Gap;
+    uint16_t    advance_Height_Max;
+    int16_t     min_Top_Side_Bearing;
+    int16_t     min_Bottom_Side_Bearing;
+    int16_t     yMax_Extent;
+    int16_t     caret_Slope_Rise;
+    int16_t     caret_Slope_Run;
+    int16_t     caret_Offset;
+    int16_t     Reserved[4];
+    int16_t     metric_Data_Format;
+    uint16_t    number_Of_VMetrics;
+    void*       long_metrics;
+    void*       short_metrics;
+} TT_VertHeader_t;
+typedef struct  TT_Postscript_s
+{
+    signed long     FormatType;
+    signed long     italicAngle;
+    int16_t         underlinePosition;
+    int16_t         underlineThickness;
+    unsigned long   isFixedPitch;
+    unsigned long   minMemType42;
+    unsigned long   maxMemType42;
+    unsigned long   minMemType1;
+    unsigned long   maxMemType1;
+} TT_Postscript_t;
+typedef struct  TT_PCLT_s
+{
+    signed long     Version;
+    unsigned long   FontNumber;
+    uint16_t        Pitch;
+    uint16_t        xHeight;
+    uint16_t        Style;
+    uint16_t        TypeFamily;
+    uint16_t        CapHeight;
+    uint16_t        SymbolSet;
+    signed char     TypeFace[16];
+    signed char     CharacterComplement[8];
+    signed char     FileName[6];
+    signed char     StrokeWeight;
+    signed char     WidthType;
+    uint8_t         SerifStyle;
+    uint8_t         Reserved;
+} TT_PCLT_t;
 // ===============================================
 // 32bits FreeType structures
 // ===============================================
@@ -629,6 +799,173 @@ typedef struct __attribute__((packed, aligned(4))) FT_Matrix_32_s
     long_t  xx, xy;
     long_t  yx, yy;
 } FT_Matrix_32_t;
+
+typedef struct  __attribute__((packed, aligned(4))) FT_GlyphRec_32_s
+{
+    ptr_t           library;  //FT_Library
+    ptr_t           clazz;  //const FT_Glyph_Class*
+    uint32_t        format;
+    FT_Vector_32_t  advance;
+} FT_GlyphRec_32_t;
+
+typedef struct  FT_BitmapGlyphRec_32_s
+{
+    FT_GlyphRec_32_t    root;
+    int                 left;
+    int                 top;
+    FT_Bitmap_32_t      bitmap;
+} FT_BitmapGlyphRec_32_t;
+typedef struct  TT_Header_32_s  //no align
+{
+    long_t          Table_Version;
+    long_t          Font_Revision;
+    long_t          CheckSum_Adjust;
+    long_t          Magic_Number;
+    uint16_t        Flags;
+    uint16_t        Units_Per_EM;
+    ulong_t         Created [2];
+    ulong_t         Modified[2];
+    int16_t         xMin;
+    int16_t         yMin;
+    int16_t         xMax;
+    int16_t         yMax;
+    uint16_t        Mac_Style;
+    uint16_t        Lowest_Rec_PPEM;
+    int16_t         Font_Direction;
+    int16_t         Index_To_Loc_Format;
+    int16_t         Glyph_Data_Format;
+} TT_Header_32_t;
+typedef struct  TT_MaxProfile_32_s  //no align
+{
+    long_t      version;
+    uint16_t    numGlyphs;
+    uint16_t    maxPoints;
+    uint16_t    maxContours;
+    uint16_t    maxCompositePoints;
+    uint16_t    maxCompositeContours;
+    uint16_t    maxZones;
+    uint16_t    maxTwilightPoints;
+    uint16_t    maxStorage;
+    uint16_t    maxFunctionDefs;
+    uint16_t    maxInstructionDefs;
+    uint16_t    maxStackElements;
+    uint16_t    maxSizeOfInstructions;
+    uint16_t    maxComponentElements;
+    uint16_t    maxComponentDepth;
+} TT_MaxProfile_32_t;
+typedef struct TT_OS2_32_s  //no align
+{
+    uint16_t        version;
+    int16_t         xAvgCharWidth;
+    uint16_t        usWeightClass;
+    uint16_t        usWidthClass;
+    uint16_t        fsType;
+    int16_t         ySubscriptXSize;
+    int16_t         ySubscriptYSize;
+    int16_t         ySubscriptXOffset;
+    int16_t         ySubscriptYOffset;
+    int16_t         ySuperscriptXSize;
+    int16_t         ySuperscriptYSize;
+    int16_t         ySuperscriptXOffset;
+    int16_t         ySuperscriptYOffset;
+    int16_t         yStrikeoutSize;
+    int16_t         yStrikeoutPosition;
+    int16_t         sFamilyClass;
+    uint8_t         panose[10];
+    ulong_t         ulUnicodeRange1;
+    ulong_t         ulUnicodeRange2;
+    ulong_t         ulUnicodeRange3;
+    ulong_t         ulUnicodeRange4;
+    signed char     achVendID[4];
+    uint16_t        fsSelection;
+    uint16_t        usFirstCharIndex;
+    uint16_t        usLastCharIndex;
+    int16_t         sTypoAscender;
+    int16_t         sTypoDescender;
+    int16_t         sTypoLineGap;
+    uint16_t        usWinAscent;
+    uint16_t        usWinDescent;
+    /* only version 1 and higher: */
+    ulong_t         ulCodePageRange1;
+    ulong_t         ulCodePageRange2;
+    /* only version 2 and higher: */
+    int16_t         sxHeight;
+    int16_t         sCapHeight;
+    uint16_t        usDefaultChar;
+    uint16_t        usBreakChar;
+    uint16_t        usMaxContext;
+    /* only version 5 and higher: */
+    uint16_t        usLowerOpticalPointSize;
+    uint16_t        usUpperOpticalPointSize;
+} TT_OS2_32_t;
+typedef struct TT_HoriHeader_32_s   //no align
+{
+    long_t      Version;
+    int16_t     Ascender;
+    int16_t     Descender;
+    int16_t     Line_Gap;
+    uint16_t    advance_Width_Max;
+    int16_t     min_Left_Side_Bearing;
+    int16_t     min_Right_Side_Bearing;
+    int16_t     xMax_Extent;
+    int16_t     caret_Slope_Rise;
+    int16_t     caret_Slope_Run;
+    int16_t     caret_Offset;
+    int16_t     Reserved[4];
+    int16_t     metric_Data_Format;
+    uint16_t    number_Of_HMetrics;
+    ptr_t       long_metrics;
+    ptr_t       short_metrics;
+} TT_HoriHeader_32_t;
+typedef struct  TT_VertHeader_32_s  //no align
+{
+    long_t      Version;
+    int16_t     Ascender;
+    int16_t     Descender;
+    int16_t     Line_Gap;
+    uint16_t    advance_Height_Max;
+    int16_t     min_Top_Side_Bearing;
+    int16_t     min_Bottom_Side_Bearing;
+    int16_t     yMax_Extent;
+    int16_t     caret_Slope_Rise;
+    int16_t     caret_Slope_Run;
+    int16_t     caret_Offset;
+    int16_t     Reserved[4];
+    int16_t     metric_Data_Format;
+    uint16_t    number_Of_VMetrics;
+    ptr_t       long_metrics;
+    ptr_t       short_metrics;
+} TT_VertHeader_32_t;
+typedef struct  TT_Postscript_32_s  //no align
+{
+    long_t          FormatType;
+    long_t          italicAngle;
+    int16_t         underlinePosition;
+    int16_t         underlineThickness;
+    ulong_t         isFixedPitch;
+    ulong_t         minMemType42;
+    ulong_t         maxMemType42;
+    ulong_t         minMemType1;
+    ulong_t         maxMemType1;
+} TT_Postscript_32_t;
+typedef struct  TT_PCLT_32_s    //no align
+{
+    long_t          Version;
+    ulong_t         FontNumber;
+    uint16_t        Pitch;
+    uint16_t        xHeight;
+    uint16_t        Style;
+    uint16_t        TypeFamily;
+    uint16_t        CapHeight;
+    uint16_t        SymbolSet;
+    signed char     TypeFace[16];
+    signed char     CharacterComplement[8];
+    signed char     FileName[6];
+    signed char     StrokeWeight;
+    signed char     WidthType;
+    uint8_t         SerifStyle;
+    uint8_t         Reserved;
+} TT_PCLT_32_t;
 
 // ==================================
 // Convertions
@@ -1175,6 +1512,294 @@ void convert_FT_Bitmap_to_64(void* d, void* s)
     dst->rows = src->rows;
 }
 
+void convert_FT_Outline_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    FT_Outline_t* src = s;
+    FT_Outline_32_t* dst = d;
+
+    dst->n_contours = src->n_contours;
+    dst->n_points = src->n_points;
+    dst->points = to_ptrv(src->points);
+    dst->tags = to_ptrv(src->tags);
+    dst->contours = to_ptrv(src->contours);
+    dst->flags = src->flags;
+    int n = dst->n_points;
+    FT_Vector_32_t* vec = from_ptrv(dst->points);
+    for(int i=0; i<n; ++i) {
+        vec[i].x = to_long(src->points[i].x);
+        vec[i].y = to_long(src->points[i].y);
+    }
+}
+
+void convert_FT_Outline_to_64(void* d, void* s)
+{
+    if(!s || !d) return;
+    FT_Outline_32_t* src = s;
+    FT_Outline_t* dst = d;
+
+    dst->flags = src->flags;
+    dst->contours = from_ptrv(src->contours);
+    dst->tags = from_ptrv(src->tags);
+    dst->points = from_ptrv(src->points);
+    dst->n_points = src->n_points;
+    dst->n_contours = src->n_contours;
+    int n = dst->n_points;
+    FT_Vector_32_t* vec = (FT_Vector_32_t*)dst->points;
+    for(int i=n-1; i>=0; --i) {
+        dst->points[i].x = from_long(vec[i].x);
+        dst->points[i].y = from_long(vec[i].y);
+    }
+}
+
+void inplace_FT_Glyph_shrink(void* a)
+{
+    if(!a)
+        return;
+    
+    FT_GlyphRec_t* src = a;
+    FT_GlyphRec_32_t* dst = a;
+
+    dst->library = to_ptrv(src->library);
+    dst->clazz = to_ptrv(src->clazz);
+    dst->format = src->format;
+    dst->advance.x = to_long(src->advance.x);
+    dst->advance.y = to_long(src->advance.y);
+
+    if(dst->format == FT_GLYPH_FORMAT_OUTLINE) {
+        FT_Outline_t* src_o = (FT_Outline_t*)(src+1);
+        FT_Outline_32_t* dst_o = (FT_Outline_32_t*)(dst+1);
+        
+        convert_FT_Outline_to_32(dst_o, src_o);
+    } else if(dst->format == FT_GLYPH_FORMAT_BITMAP) {
+        FT_BitmapGlyphRec_t* src_b = a;
+        FT_BitmapGlyphRec_32_t* dst_b = a;
+
+        dst_b->left = src_b->left;
+        dst_b->top = src_b->top;
+        convert_FT_Bitmap_to_32(&dst_b->bitmap, &src_b->bitmap);
+    } else {
+        printf_log(LOG_NONE, "BOX32: Warning, unsupported glyph format 0x%x (%c%c%c%c)\n", dst->format, dst->format>>24, (dst->format>>16)&0xff, (dst->format>>8)&0xff, dst->format&0xff);
+    }
+}
+
+void inplace_FT_Glyph_enlarge(void* a)
+{
+    if(!a)
+        return;
+    
+    FT_GlyphRec_32_t* src = a;
+    FT_GlyphRec_t* dst = a;
+
+    dst->advance.y = from_long(src->advance.y);
+    dst->advance.x = from_long(src->advance.x);
+    dst->format = src->format;
+    dst->clazz = from_ptrv(src->clazz);
+    dst->library = from_ptrv(src->library);
+
+    if(dst->format == FT_GLYPH_FORMAT_OUTLINE) {
+        FT_Outline_t* dst_o = (FT_Outline_t*)(dst+1);
+        FT_Outline_32_t* src_o = (FT_Outline_32_t*)(src+1);
+
+        convert_FT_Outline_to_64(dst_o, src_o);
+    } else if(dst->format == FT_GLYPH_FORMAT_BITMAP) {
+        FT_BitmapGlyphRec_32_t* src_b = a;
+        FT_BitmapGlyphRec_t* dst_b = a;
+
+        convert_FT_Bitmap_to_64(&dst_b->bitmap, &src_b->bitmap);
+        dst_b->top = src_b->top;
+        dst_b->left = src_b->left;
+    }
+}
+
+void convert_TT_Header_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_Header_t* src = s;
+    TT_Header_32_t* dst = d;
+
+    dst->Table_Version = to_long(src->Table_Version);
+    dst->Font_Revision = to_long(src->Font_Revision);
+    dst->CheckSum_Adjust = to_long(src->CheckSum_Adjust);
+    dst->Magic_Number = to_long(src->Magic_Number);
+    dst->Flags = src->Flags;
+    dst->Units_Per_EM = src->Units_Per_EM;
+    dst->Created [0] = to_ulong(src->Created[0]);
+    dst->Created [1] = to_ulong(src->Created[1]);
+    dst->Modified[0] = to_ulong(src->Modified[0]);
+    dst->Modified[1] = to_ulong(src->Modified[1]);
+    dst->xMin = src->xMin;
+    dst->yMin = src->yMin;
+    dst->xMax = src->xMax;
+    dst->yMax = src->yMax;
+    dst->Mac_Style = src->Mac_Style;
+    dst->Lowest_Rec_PPEM = src->Lowest_Rec_PPEM;
+    dst->Font_Direction = src->Font_Direction;
+    dst->Index_To_Loc_Format = src->Index_To_Loc_Format;
+    dst->Glyph_Data_Format = src->Glyph_Data_Format;
+}
+void convert_TT_MaxProfile_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_MaxProfile_t* src = s;
+    TT_MaxProfile_32_t* dst = d;
+
+    dst->version = to_long(src->version);
+    dst->numGlyphs = src->numGlyphs;
+    dst->maxPoints = src->maxPoints;
+    dst->maxContours = src->maxContours;
+    dst->maxCompositePoints = src->maxCompositePoints;
+    dst->maxCompositeContours = src->maxCompositeContours;
+    dst->maxZones = src->maxZones;
+    dst->maxTwilightPoints = src->maxTwilightPoints;
+    dst->maxStorage = src->maxStorage;
+    dst->maxFunctionDefs = src->maxFunctionDefs;
+    dst->maxInstructionDefs = src->maxInstructionDefs;
+    dst->maxStackElements = src->maxStackElements;
+    dst->maxSizeOfInstructions = src->maxSizeOfInstructions;
+    dst->maxComponentElements = src->maxComponentElements;
+    dst->maxComponentDepth = src->maxComponentDepth;
+}
+void convert_TT_OS2_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_OS2_t* src = s;
+    TT_OS2_32_t* dst = d;
+
+    dst->version = src->version;
+    dst->xAvgCharWidth = src->xAvgCharWidth;
+    dst->usWeightClass = src->usWeightClass;
+    dst->usWidthClass = src->usWidthClass;
+    dst->fsType = src->fsType;
+    dst->ySubscriptXSize = src->ySubscriptXSize;
+    dst->ySubscriptYSize = src->ySubscriptYSize;
+    dst->ySubscriptXOffset = src->ySubscriptXOffset;
+    dst->ySubscriptYOffset = src->ySubscriptYOffset;
+    dst->ySuperscriptXSize = src->ySuperscriptXSize;
+    dst->ySuperscriptYSize = src->ySuperscriptYSize;
+    dst->ySuperscriptXOffset = src->ySuperscriptXOffset;
+    dst->ySuperscriptYOffset = src->ySuperscriptYOffset;
+    dst->yStrikeoutSize = src->yStrikeoutSize;
+    dst->yStrikeoutPosition = src->yStrikeoutPosition;
+    dst->sFamilyClass = src->sFamilyClass;
+    for(int i=0; i<10; ++i)
+        dst->panose[i] = src->panose[i];
+    dst->ulUnicodeRange1 = src->ulUnicodeRange1;
+    dst->ulUnicodeRange2 = src->ulUnicodeRange2;
+    dst->ulUnicodeRange3 = src->ulUnicodeRange3;
+    dst->ulUnicodeRange4 = src->ulUnicodeRange4;
+    for(int i=0; i<4; ++i)
+        dst->achVendID[i] = src->achVendID[i];
+    dst->fsSelection = src->fsSelection;
+    dst->usFirstCharIndex = src->usFirstCharIndex;
+    dst->usLastCharIndex = src->usLastCharIndex;
+    dst->sTypoAscender = src->sTypoAscender;
+    dst->sTypoDescender = src->sTypoDescender;
+    dst->sTypoLineGap = src->sTypoLineGap;
+    dst->usWinAscent = src->usWinAscent;
+    dst->usWinDescent = src->usWinDescent;
+    if(dst->version<1) return;
+    dst->ulCodePageRange1 = to_ulong(src->ulCodePageRange1);
+    dst->ulCodePageRange2 = to_ulong(src->ulCodePageRange2);
+    if(dst->version<2) return;
+    dst->sxHeight = src->sxHeight;
+    dst->sCapHeight = src->sCapHeight;
+    dst->usDefaultChar = src->usDefaultChar;
+    dst->usBreakChar = src->usBreakChar;
+    dst->usMaxContext = src->usMaxContext;
+    if(dst->version<5) return;
+    dst->usLowerOpticalPointSize = src->usLowerOpticalPointSize;
+    dst->usUpperOpticalPointSize = src->usUpperOpticalPointSize;
+}
+void convert_TT_HoriHeader_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_HoriHeader_t* src = s;
+    TT_HoriHeader_32_t* dst = d;
+
+    dst->Version = to_long(src->Version);
+    dst->Ascender = src->Ascender;
+    dst->Descender = src->Descender;
+    dst->Line_Gap = src->Line_Gap;
+    dst->advance_Width_Max = src->advance_Width_Max;
+    dst->min_Left_Side_Bearing = src->min_Left_Side_Bearing;
+    dst->min_Right_Side_Bearing = src->min_Right_Side_Bearing;
+    dst->xMax_Extent = src->xMax_Extent;
+    dst->caret_Slope_Rise = src->caret_Slope_Rise;
+    dst->caret_Slope_Run = src->caret_Slope_Run;
+    dst->caret_Offset = src->caret_Offset;
+    for(int i=0; i<4; ++i)
+        dst->Reserved[i] = src->Reserved[i];
+    dst->metric_Data_Format = src->metric_Data_Format;
+    dst->number_Of_HMetrics = src->number_Of_HMetrics;
+    dst->long_metrics = to_ptrv(src->long_metrics);
+    dst->short_metrics = to_ptrv(src->short_metrics);
+}
+void convert_TT_VertHeader_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_VertHeader_t* src = s;
+    TT_VertHeader_32_t* dst = d;
+
+    dst->Version = to_long(src->Version);
+    dst->Ascender = src->Ascender;
+    dst->Descender = src->Descender;
+    dst->Line_Gap = src->Line_Gap;
+    dst->advance_Height_Max = src->advance_Height_Max;
+    dst->min_Top_Side_Bearing = src->min_Top_Side_Bearing;
+    dst->min_Bottom_Side_Bearing = src->min_Bottom_Side_Bearing;
+    dst->yMax_Extent = src->yMax_Extent;
+    dst->caret_Slope_Rise = src->caret_Slope_Rise;
+    dst->caret_Slope_Run = src->caret_Slope_Run;
+    dst->caret_Offset = src->caret_Offset;
+    for(int i=0; i<4; ++i)
+        dst->Reserved[i] = src->Reserved[i];
+    dst->metric_Data_Format = src->metric_Data_Format;
+    dst->number_Of_VMetrics = src->number_Of_VMetrics;
+    dst->long_metrics = to_ptrv(src->long_metrics);
+    dst->short_metrics = to_ptrv(src->short_metrics);
+}
+void convert_TT_Postscript_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_Postscript_t* src = s;
+    TT_Postscript_32_t* dst = d;
+
+    dst->FormatType = to_long(src->FormatType);
+    dst->italicAngle = to_long(src->italicAngle);
+    dst->underlinePosition = src->underlinePosition;
+    dst->underlineThickness = src->underlineThickness;
+    dst->isFixedPitch = to_ulong(src->isFixedPitch);
+    dst->minMemType42 = to_ulong(src->minMemType42);
+    dst->maxMemType42 = to_ulong(src->maxMemType42);
+    dst->minMemType1 = to_ulong(src->minMemType1);
+    dst->maxMemType1 = to_ulong(src->maxMemType1);
+}
+void convert_TT_PCLT_to_32(void* d, void* s)
+{
+    if(!s || !d) return;
+    TT_PCLT_t* src = s;
+    TT_PCLT_32_t* dst = d;
+
+    dst->Version = to_long(src->Version);
+    dst->FontNumber = to_ulong(src->FontNumber);
+    dst->Pitch = src->Pitch;
+    dst->xHeight = src->xHeight;
+    dst->Style = src->Style;
+    dst->TypeFamily = src->TypeFamily;
+    dst->CapHeight = src->CapHeight;
+    dst->SymbolSet = src->SymbolSet;
+    for(int i=0; i<16; ++i)
+        dst->TypeFace[i] = src->TypeFace[i];
+    for(int i=0; i<8; ++i)
+        dst->CharacterComplement[i] = src->CharacterComplement[i];
+    for(int i=0; i<6; ++i)
+        dst->FileName[i] = src->FileName[i];
+    dst->StrokeWeight = src->StrokeWeight;
+    dst->WidthType = src->WidthType;
+    dst->SerifStyle = src->SerifStyle;
+    dst->Reserved = src->Reserved;
+}
 // ==================================
 // Wrapping
 // ==================================
@@ -1639,6 +2264,24 @@ EXPORT void* my32_FT_Get_Sfnt_Table(x64emu_t* emu, void* face, int tag)
     inplace_FT_FaceRec_enlarge(face);
     void* ret = my->FT_Get_Sfnt_Table(face, tag);
     inplace_FT_FaceRec_shrink(face);
+    if(!ret) return ret;
+    static TT_Header_32_t tt_head = {0};
+    static TT_MaxProfile_32_t tt_max = {0};
+    static TT_OS2_32_t tt_os2 = {0};
+    static TT_HoriHeader_32_t tt_hori = {0};
+    static TT_VertHeader_32_t tt_vert = {0};
+    static TT_Postscript_32_t tt_post = {0};
+    static TT_PCLT_32_t tt_pclt = {0};
+    switch(tag) {
+        case 0: convert_TT_Header_to_32(&tt_head, ret); return &tt_head;
+        case 1: convert_TT_MaxProfile_to_32(&tt_max, ret); return &tt_max;
+        case 2: convert_TT_OS2_to_32(&tt_os2, ret); return &tt_os2;
+        case 3: convert_TT_HoriHeader_to_32(&tt_hori, ret); return &tt_hori;
+        case 4: convert_TT_VertHeader_to_32(&tt_vert, ret); return &tt_vert;
+        case 5: convert_TT_Postscript_to_32(&tt_post, ret); return &tt_post;
+        case 6: convert_TT_PCLT_to_32(&tt_pclt, ret); return &tt_pclt;
+    }
+    printf_log(LOG_NONE, "BOX32: Warning, unsupported type %d for FT_Get_Sfnt_Table\n", tag);
     return ret;
 }
 
@@ -1770,23 +2413,9 @@ EXPORT int my32_FT_Set_Charmap(x64emu_t* emu, void* face, void* charmap)
 
 EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT_BBox_32_t* bbox)
 {
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    //
+    FT_Outline_t outline_l = {0};
     FT_BBox_t res = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     my->FT_Outline_Get_CBox(&outline_l, &res);
     bbox->xMin = to_long(res.xMin);
     bbox->yMin = to_long(res.yMin);
@@ -1796,35 +2425,11 @@ EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT
 
 EXPORT int my32_FT_Outline_Copy(x64emu_t* emu, FT_Outline_32_t* source, FT_Outline_32_t* target)
 {
-    // convert outline to 64
-    int n = source->n_points;
-    FT_Outline_t source_l, target_l;
-    FT_Vector_t vector[n];
-    source_l.n_contours = source->n_contours;
-    source_l.n_points = source->n_points;
-    source_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(source->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    source_l.tags = from_ptrv(source->tags);
-    source_l.contours = from_ptrv(source->contours);
-    source_l.flags = source->flags;
-    int ret = my->FT_Outline_Copy(&source_l, &target_l);
-    // inplace outline shrink
-    target->flags = target_l.flags;    
-    target->contours = to_ptrv(target_l.contours);
-    target->tags = to_ptrv(target_l.tags);
-    target->points = to_ptrv(target_l.points);
-    target->n_points = target_l.n_points;
-    target->n_contours = target_l.n_contours;
-    n = target->n_points;
-    for(int i=n-1; i>=0; --i) {
-        vector[i].x = to_long(vec[i].x);
-        vector[i].y = to_long(vec[i].y);
-    }
-    ///
+    FT_Outline_t source_l = {0}, target_l = {0};
+    convert_FT_Outline_to_64(&source_l, source);
+    convert_FT_Outline_to_64(&target_l, target);
+    int ret = my->FT_Outline_Copy(source, target);
+    convert_FT_Outline_to_32(target, &target_l);
     return ret;
 }
 
@@ -1866,173 +2471,54 @@ EXPORT void my32_FT_Matrix_Multiply(x64emu_t* emu, FT_Matrix_32_t* a, FT_Matrix_
 
 EXPORT int my32_FT_Outline_Get_Bitmap(x64emu_t* emu, void* lib, FT_Outline_32_t* outline, FT_Bitmap_32_t* bitmap)
 {
-    FT_Bitmap_t bitmap_l;
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    //
+    FT_Bitmap_t bitmap_l = {0};
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     convert_FT_Bitmap_to_64(&bitmap_l, bitmap);
-    
     int ret = my->FT_Outline_Get_Bitmap(lib, &outline_l, &bitmap_l);
     convert_FT_Bitmap_to_32(bitmap, &bitmap_l);
+    convert_FT_Outline_to_32(outline, &outline_l);  //usefull?
     return ret;
 }
 
 EXPORT void my32_FT_Outline_Transform(x64emu_t* emu, FT_Outline_32_t* outline, FT_Matrix_32_t* matrix)
 {
-    FT_Matrix_t matrix_l;
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    //
+    FT_Matrix_t matrix_l = {0};
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     convert_FT_Matrix_to_64(&matrix_l, matrix);
     my->FT_Outline_Transform(&outline_l, &matrix_l);
-    // convert outline to 32
-    outline->n_contours = outline_l.n_contours;
-    outline->n_points = outline_l.n_points;
-    for(int i=0; i<n; ++i) {
-        vec[i].x = to_long(vector[i].x);
-        vec[i].y = to_long(vector[i].y);
-    }
-    outline->tags = to_ptrv(outline_l.tags);
-    outline->contours = to_ptrv(outline_l.contours);
-    outline->flags = outline_l.flags;
+    convert_FT_Outline_to_32(outline, &outline_l);
 }
 
 EXPORT void my32_FT_Outline_Translate(x64emu_t* emu, FT_Outline_32_t* outline, long x, long y)
 {
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    //
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     my->FT_Outline_Translate(&outline_l, x, y);
-    // convert outline to 32
-    outline->n_contours = outline_l.n_contours;
-    outline->n_points = outline_l.n_points;
-    for(int i=0; i<n; ++i) {
-        vec[i].x = to_long(vector[i].x);
-        vec[i].y = to_long(vector[i].y);
-    }
-    outline->tags = to_ptrv(outline_l.tags);
-    outline->contours = to_ptrv(outline_l.contours);
-    outline->flags = outline_l.flags;
+    convert_FT_Outline_to_32(outline, &outline_l);
 }
 
 EXPORT void my32_FT_Outline_Embolden(x64emu_t* emu, FT_Outline_32_t* outline, long strength)
 {
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    //
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     my->FT_Outline_Embolden(&outline_l, strength);
-    // convert outline to 32
-    outline->n_contours = outline_l.n_contours;
-    outline->n_points = outline_l.n_points;
-    for(int i=0; i<n; ++i) {
-        vec[i].x = to_long(vector[i].x);
-        vec[i].y = to_long(vector[i].y);
-    }
-    outline->tags = to_ptrv(outline_l.tags);
-    outline->contours = to_ptrv(outline_l.contours);
-    outline->flags = outline_l.flags;
+    convert_FT_Outline_to_32(outline, &outline_l);
 }
 
 EXPORT void my32_FT_Outline_EmboldenXY(x64emu_t* emu, FT_Outline_32_t* outline, long xstrength, long ystrength)
 {
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    //
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     my->FT_Outline_EmboldenXY(&outline_l, xstrength, ystrength);
-    // convert outline to 32
-    outline->n_contours = outline_l.n_contours;
-    outline->n_points = outline_l.n_points;
-    for(int i=0; i<n; ++i) {
-        vec[i].x = to_long(vector[i].x);
-        vec[i].y = to_long(vector[i].y);
-    }
-    outline->tags = to_ptrv(outline_l.tags);
-    outline->contours = to_ptrv(outline_l.contours);
-    outline->flags = outline_l.flags;
+    convert_FT_Outline_to_32(outline, &outline_l);
 }
 
 EXPORT int my32_FT_Outline_Decompose(x64emu_t* emu, FT_Outline_32_t* outline, my_FT_Outline_Funcs_t* tbl, void* data)
 {
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = vector;
-    FT_Vector_32_t* vec = from_ptrv(outline->points);
-    for(int i=0; i<n; ++i) {
-        vector[i].x = from_long(vec[i].x);
-        vector[i].y = from_long(vec[i].y);
-    }
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
     //
     my_FT_Outline_Funcs_t f = {0};
     if(tbl) {
@@ -2043,33 +2529,16 @@ EXPORT int my32_FT_Outline_Decompose(x64emu_t* emu, FT_Outline_32_t* outline, my
         f.shift = tbl->shift;
         f.delta = tbl->delta;
     }
-    int ret = my->FT_Outline_Decompose(outline, tbl?(&f):tbl, data);
-    // convert outline to 32
-    outline->n_contours = outline_l.n_contours;
-    outline->n_points = outline_l.n_points;
-    for(int i=0; i<n; ++i) {
-        vec[i].x = to_long(vector[i].x);
-        vec[i].y = to_long(vector[i].y);
-    }
-    outline->tags = to_ptrv(outline_l.tags);
-    outline->contours = to_ptrv(outline_l.contours);
-    outline->flags = outline_l.flags;
+    int ret = my->FT_Outline_Decompose(&outline_l, tbl?(&f):tbl, data);
+    convert_FT_Outline_to_32(outline, &outline_l);
     return ret;
 }
 
 EXPORT int my32_FT_Outline_Done(x64emu_t* emu, void* library, FT_Outline_32_t* outline)
 {
-    // convert outline to 64
-    int n = outline->n_points;
-    FT_Outline_t outline_l;
-    FT_Vector_t vector[n];
-    outline_l.n_contours = outline->n_contours;
-    outline_l.n_points = outline->n_points;
-    outline_l.points = from_ptrv(outline->points);
-    outline_l.tags = from_ptrv(outline->tags);
-    outline_l.contours = from_ptrv(outline->contours);
-    outline_l.flags = outline->flags;
-    int ret = my->FT_Outline_Done(library, outline);
+    FT_Outline_t outline_l = {0};
+    convert_FT_Outline_to_64(&outline_l, outline);
+    int ret = my->FT_Outline_Done(library, &outline_l);
     return ret;
 }
 
@@ -2077,13 +2546,7 @@ EXPORT int my32_FT_Outline_New(x64emu_t* emu, void* library, uint32_t numPoints,
 {
     FT_Outline_t outline_l = {0};
     int ret = my->FT_Outline_New(library, numPoints, numContours, &outline_l);
-    // convert outline to 32
-    outline->n_contours = outline_l.n_contours;
-    outline->n_points = outline_l.n_points;
-    outline->points = to_ptrv(outline_l.points);
-    outline->tags = to_ptrv(outline_l.tags);
-    outline->contours = to_ptrv(outline_l.contours);
-    outline->flags = outline_l.flags;
+    convert_FT_Outline_to_32(outline, &outline_l);
     return ret;
 }
 
@@ -2127,7 +2590,38 @@ EXPORT int my32_FT_Get_Glyph(x64emu_t* emu, FT_GlyphSlotRec_32_t* slot, ptr_t* g
     int ret = my->FT_Get_Glyph(&slot_l, &glyph_l);
     *glyph = to_ptrv(glyph_l);
     convert_FT_GlyphSlot_to_32(slot, &slot_l);
+    inplace_FT_Glyph_shrink(glyph_l);
     return ret;
+}
+
+EXPORT int my32_FT_Glyph_Copy(x64emu_t* emu, void* src, void** dst)
+{
+    inplace_FT_Glyph_enlarge(src);
+    int ret = my->FT_Glyph_Copy(src, (void*)dst);
+    inplace_FT_Glyph_shrink(src);
+    inplace_FT_Glyph_shrink(*dst);
+    return ret;
+}
+
+EXPORT void my32_FT_Glyph_Get_CBox(x64emu_t* emu, void* glyph, uint32_t mode, void* bbox)
+{
+    inplace_FT_Glyph_enlarge(glyph);
+    my->FT_Glyph_Get_CBox(glyph, mode, bbox);
+    inplace_FT_Glyph_shrink(glyph);
+}
+
+EXPORT int my32_FT_Glyph_Transform(x64emu_t* emu, void* glyph, void* mat, void* vec)
+{
+    inplace_FT_Glyph_enlarge(glyph);
+    int ret = my->FT_Glyph_Transform(glyph, mat, vec);
+    inplace_FT_Glyph_shrink(glyph);
+    return ret;
+}
+
+EXPORT void my32_FT_Done_Glyph(x64emu_t* emu, void* glyph)
+{
+    inplace_FT_FaceRec_enlarge(glyph);
+    my->FT_Done_Glyph(glyph);
 }
 
 #include "wrappedlib_init32.h"
