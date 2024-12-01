@@ -2393,7 +2393,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             LSLw_REG(x1, x1, x2);
             ORRx_REG(ed, ed, x1);
             if(wback) {
-                STRH_U12(ed, wback, fixedaddress);
+                STH(ed, wback, fixedaddress);
             }
             break;
         case 0xAC:
@@ -2593,7 +2593,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             LSLxw_REG(x1, x1, x2);
             EORx_REG(ed, ed, x1);
             if(wback) {
-                STRH_U12(ed, wback, fixedaddress);
+                STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
             break;

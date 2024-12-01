@@ -1744,7 +1744,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LSLxw_REG(x4, x4, x2);
             ORRxw_REG(ed, ed, x4);
             if(wback) {
-                STRxw_U12(ed, wback, fixedaddress);
+                STxw(ed, wback, fixedaddress);
                 SMWRITE();
             }
             break;
@@ -1984,7 +1984,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LSLxw_REG(x4, x4, x2);
             BICxw_REG(ed, ed, x4);
             if(wback) {
-                STRxw_U12(ed, wback, fixedaddress);
+                STxw(ed, wback, fixedaddress);
                 SMWRITE();
             }
             break;
