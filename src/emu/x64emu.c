@@ -204,6 +204,11 @@ static void internalFreeX64(x64emu_t* emu)
 {
     if(emu && emu->stack2free)
         !munmap(emu->stack2free, emu->size_stack);
+    #ifdef BOX32
+    if(emu->res_state_32)
+        actual_free(emu->res_state_32);
+    emu->res_state_32 = NULL;
+    #endif
 }
 
 EXPORTDYN

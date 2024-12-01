@@ -1132,7 +1132,6 @@
 #() iEipppp -> iEipppp
 #() iFuiuup -> iFuiuup
 #() iFpiiuu -> iFpiiuu
-#() iEpiipi -> iEpiipi
 #() iFpippp -> iFpippp
 #() iFpCCCC -> iFpCCCC
 #() iFpuipp -> iFpuipp
@@ -1279,6 +1278,7 @@
 #() iEEiippi -> iEEiippi
 #() iEEipiup -> iEEipiup
 #() iEEuppLp -> iEEuppLp
+#() iEEpiipi -> iEEpiipi
 #() iEEpiipV -> iEEpiipV
 #() iFEpiuuu -> iFEpiuuu
 #() iEEpiLpp -> iEEpiLpp
@@ -1766,6 +1766,7 @@ wrappedlibc:
   - __ctype_tolower_loc
   - __ctype_toupper_loc
   - __errno_location
+  - __res_state
   - localeconv
 - pFv:
   - __h_errno_location
@@ -2194,6 +2195,7 @@ wrappedlibpthread:
 wrappedlibresolv:
 - iEpiipi:
   - __res_query
+  - res_query
 wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime

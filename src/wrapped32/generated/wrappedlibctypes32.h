@@ -143,6 +143,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__ctype_tolower_loc, pEv_t) \
 	GO(__ctype_toupper_loc, pEv_t) \
 	GO(__errno_location, pEv_t) \
+	GO(__res_state, pEv_t) \
 	GO(localeconv, pEv_t) \
 	GO(__h_errno_location, pFv_t) \
 	GO(getpwuid, pEu_t) \

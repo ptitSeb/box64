@@ -143,6 +143,8 @@ typedef struct x64emu_s {
     int         libctoupper[384];   // copy from __ctype_b_toupper address might be too high
     const int*  ref_toupper;
     const int*  toupper;
+    void*       res_state_32;  //32bits version of res_state
+    void*       res_state_64;
     #endif
 } x64emu_t;
 

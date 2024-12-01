@@ -20,6 +20,7 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include <net/if.h>
+#include <resolv.h>
 
 #include "box64stack.h"
 #include "x64emu.h"
@@ -35,6 +36,7 @@
 #include "globalsymbols.h"
 #include "box32.h"
 #include "converter32.h"
+#include "custommem.h"
 
 EXPORT ssize_t my32_recvmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, int flags)
 {
@@ -177,6 +179,7 @@ EXPORT int my32_gethostbyname_r(x64emu_t* emu, void* name, struct i386_hostent* 
             }
             strings[idx++] = 0;
         }
+        idx = 0;
         ret->h_addr_list = to_ptrv(result_l->h_addr_list);
         if(result_l->h_addr_list) {
             char** p = result_l->h_addr_list;
@@ -217,6 +220,7 @@ EXPORT int my32_gethostbyaddr_r(x64emu_t* emu, void* addr, uint32_t len, int typ
             strings[idx++] = 0;
         }
         ret->h_addr_list = to_ptrv(result_l->h_addr_list);
+        idx = 0;
         if(result_l->h_addr_list) {
             char** p = result_l->h_addr_list;
             ptr_t* strings = from_ptrv(ret->h_addr_list);
@@ -299,3 +303,130 @@ EXPORT void* my32_getprotobyname(x64emu_t* emu, void* name)
 
     return &my_protoent;
 }
+
+typedef struct my_res_state_32_s {
+	int	retrans;
+	int	retry;
+	ulong_t options;
+	int	nscount;
+	struct sockaddr_in
+		nsaddr_list[3];
+	unsigned short id;
+	/* 2 byte hole here.  */
+	ptr_t   dnsrch[7];  //char*
+	char	defdname[256];
+	ulong_t pfcode;
+	unsigned ndots:4;
+	unsigned nsort:4;
+	unsigned ipv6_unavail:1;
+	unsigned unused:23;
+	struct {
+		struct in_addr	addr;
+		uint32_t	mask;
+	} sort_list[10];
+	/* 4 byte hole here on 64-bit architectures.  */
+	ptr_t __glibc_unused_qhook; //void*
+	ptr_t __glibc_unused_rhook; //void*
+	int	res_h_errno;
+	int	_vcsock;
+	unsigned int _flags;
+	/* 4 byte hole here on 64-bit architectures.  */
+	union {
+		char	pad[52];	/* On an i386 this means 512b total. */
+		struct {
+			uint16_t		nscount;
+			uint16_t		nsmap[3];
+			int			    nssocks[3];
+			uint16_t		nscount6;
+			uint16_t		nsinit;
+			ptr_t           nsaddrs[3]; //struct sockaddr_in6*
+			unsigned int		__glibc_reserved[2];
+		} _ext;
+	} _u;
+} my_res_state_32_t;
+
+void* convert_res_state_to_32(void* d, void* s)
+{
+    if(!d || !s) return NULL;
+    struct __res_state* src = s;
+    my_res_state_32_t* dst = d;
+
+    dst->retrans = src->retrans;
+    dst->retry = src->retry;
+    dst->options = to_ulong(src->options);
+    memmove(dst->nsaddr_list, src->nsaddr_list, sizeof(dst->nsaddr_list));
+    dst->id = src->id;
+    for(int i=0; i<7; ++i)
+        dst->dnsrch[i] = to_ptrv(src->dnsrch[i]);
+    memmove(dst->defdname, src->defdname, sizeof(dst->defdname));
+    dst->pfcode = to_ulong(src->pfcode);
+    dst->ndots = src->ndots;
+    dst->nsort = src->nsort;
+    dst->ipv6_unavail = src->ipv6_unavail;
+    dst->unused = src->unused;
+    memmove(dst->sort_list, src->sort_list, sizeof(dst->sort_list));
+    dst->__glibc_unused_qhook = to_ptrv(src->__glibc_unused_qhook);
+    dst->__glibc_unused_rhook = to_ptrv(src->__glibc_unused_rhook);
+    dst->res_h_errno = src->res_h_errno;
+    dst->_vcsock = src->_vcsock;
+    dst->_flags = src->_flags;
+    memmove(dst->_u.pad, src->_u.pad, sizeof(dst->_u.pad));
+
+    return dst;
+}
+
+void* convert_res_state_to_64(void* d, void* s)
+{
+    if(!d || !s) return NULL;
+    my_res_state_32_t* src = s;
+    struct __res_state* dst = d;
+
+    memmove(dst->_u.pad, src->_u.pad, sizeof(dst->_u.pad));
+    dst->_flags = src->_flags;
+    dst->_vcsock = src->_vcsock;
+    dst->res_h_errno = src->res_h_errno;
+    dst->__glibc_unused_rhook = from_ptrv(src->__glibc_unused_rhook);
+    dst->__glibc_unused_qhook = from_ptrv(src->__glibc_unused_qhook);
+    memmove(dst->sort_list, src->sort_list, sizeof(dst->sort_list));
+    dst->unused = src->unused;
+    dst->ipv6_unavail = src->ipv6_unavail;
+    dst->nsort = src->nsort;
+    dst->ndots = src->ndots;
+    dst->pfcode = from_ulong(src->pfcode);
+    memmove(dst->defdname, src->defdname, sizeof(dst->defdname));
+    for(int i=6; i>=0; --i)
+        dst->dnsrch[i] = from_ptrv(src->dnsrch[i]);
+    dst->id = src->id;
+    memmove(dst->nsaddr_list, src->nsaddr_list, sizeof(dst->nsaddr_list));
+    dst->options = from_ulong(src->options);
+    dst->retry = src->retry;
+    dst->retrans = src->retrans;
+
+    return dst;
+}
+
+EXPORT void* my32___res_state(x64emu_t* emu)
+{
+    if(emu->res_state_64)   // update res?
+        convert_res_state_to_64(emu->res_state_64, emu->res_state_32);
+    void* ret = __res_state();
+    if(!ret)
+        return ret;
+    if(emu->res_state_64!=ret) {
+        if(!emu->res_state_32)
+            emu->res_state_32 = actual_calloc(1, sizeof(my_res_state_32_t));
+        emu->res_state_64 = ret;
+    }
+    convert_res_state_to_32(emu->res_state_32, emu->res_state_64);
+    return emu->res_state_32;
+}
+
+/*EXPORT void my32___res_iclose(x64emu_t* emu, void* s, int f)
+{
+    if(emu->res_state_64==s) {
+        emu->res_state_64 = NULL;
+        actual_free(emu->res_state_32);
+        emu->res_state_32 = NULL;
+    }
+    __res_iclose(s, f);
+}*/
