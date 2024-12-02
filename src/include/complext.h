@@ -45,12 +45,18 @@ static inline void from_complex(x64emu_t* emu, complex_t v) {
     emu->xmm[0].d[0]=v.r; 
     emu->xmm[1].d[0]=v.i;
 }
+#ifdef ANDROID
+static inline void from_complexl(x64emu_t* emu, complexl_t v) {
+    memcpy(&emu->xmm[0], &v, 16*2); // what if AVX is present?
+}
+#else
 static inline void from_complexl(x64emu_t* emu, complexl_t v) {
     fpu_do_push(emu);
     fpu_do_push(emu);
     ST0.d=FromLD(&v.r); 
     ST(1).d=FromLD(&v.i);
 }
+#endif
 static inline void from_complexk(x64emu_t* emu, complex_t v) {
     fpu_do_push(emu);
     fpu_do_push(emu);
