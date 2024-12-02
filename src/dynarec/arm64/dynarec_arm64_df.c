@@ -109,7 +109,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FCMPD(v1, v2);
             }
-            FCOMI(x1, x2);
+            FCOMI(x1, x2, x4, v1, v2, ST_IS_F(0));
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xF0:
@@ -130,7 +130,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FCMPD(v1, v2);
             }
-            FCOMI(x1, x2);
+            FCOMI(x1, x2, x4, v1, v2, ST_IS_F(0));
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 

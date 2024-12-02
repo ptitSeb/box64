@@ -68,7 +68,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             VLDR64_REG(v1, ed, x4);
                     }
                     FCMPD(v0, v1);
-                    FCOMI(x1, x2);
+                    FCOMI(x1, x2, 0, v0, v1, 0);    //disable precise cmp
                     break;
 
                 case 0x6F:

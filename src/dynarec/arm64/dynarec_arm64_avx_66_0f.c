@@ -273,7 +273,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETGX(v0, 0);
             GETEXSD(q0, 0, 0);
             FCMPD(v0, q0);
-            FCOMI(x1, x2);
+            FCOMI(x1, x2, 0, v0, q0, 0);    //disable precise cmp
             break;
 
         case 0x50:

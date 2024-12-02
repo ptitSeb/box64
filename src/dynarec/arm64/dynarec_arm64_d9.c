@@ -128,7 +128,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FCMPD_0(v1);
             }
-            FCOM(x1, x2, x3);   // same flags...
+            FCOM(x1, x2, x3, x4, 0, 0, ST_IS_F(0));   // same flags...
             break;
         case 0xE5:
             INST_NAME("FXAM");
@@ -161,21 +161,21 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else {
                             ADDw_U12(x5, x5, i2);
                         }
-                        ANDw_mask(x5, x5, 0, 3);    // (emu->top + i)&7
+                        ANDw_mask(x5, x5, 0, 2);    // (emu->top + i)&7
                     }
-                    // load tag
-                    LDRH_U12(x3, xEmu, offsetof(x64emu_t, fpu_tags));
-                    if(i2<0) {
-                        LSLw_IMM(x3, x3, -i2*2);
-                    } else if(i2>0) {
-                        ORRw_mask(x3, x3, 0b010000, 0b001111);  // 0xffff0000
-                        LSRw_IMM(x3, x3, i2*2);
-                    }
-                    TSTw_mask(x3, 0, 1);    // 0b11
-                    B_MARK3(cNE);   // empty: C3,C2,C0 = 101
                     // load x2 with ST0 anyway, for sign extraction
                     ADDx_REG_LSL(x1, xEmu, x5, 3);
                     LDRx_U12(x2, x1, offsetof(x64emu_t, x87));
+                    // load tag
+                    if(i2>=0) {
+                        LDRH_U12(x3, xEmu, offsetof(x64emu_t, fpu_tags));
+                        if(i2>0) {
+                            ORRw_mask(x3, x3, 0b010000, 0b001111);  // 0xffff0000
+                            LSRw_IMM(x3, x3, i2*2);
+                        }
+                        TSTw_mask(x3, 0, 1);    // 0b11
+                        B_MARK3(cNE);   // empty: C3,C2,C0 = 101
+                    }
                 }
             } else {
                 // simply move from cache reg to x2

@@ -215,7 +215,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 VLD32(s0, ed, fixedaddress);
                             }
                             FCMPS(v0, s0);
-                            FCOMI(x1, x2);
+                            FCOMI(x1, x2, 0, v0, s0, 1);    //disabled precise cmp
                             break;
                         default:
                             DEFAULT;
