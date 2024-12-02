@@ -104,6 +104,19 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit ADD32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
 {
+    if (s1 == xRSP && (!dyn->insts || dyn->insts[ninst].x64.gen_flags == X_PEND)) {
+        // special case when doing math on ESP and only PEND is needed: ignoring it!
+        if (c >= -2048 && c < 2048) {
+            ADDI(s1, s1, c);
+        } else {
+            MOV64x(s2, c);
+            ADD(s1, s1, s2);
+        }
+        if (!rex.w) {
+            ZEROUP(s1);
+        }
+        return;
+    }
     CLEAR_FLAGS();
     IFX(X_PEND | X_AF | X_CF | X_OF) {
         MOV64xw(s2, c);
@@ -500,6 +513,19 @@ void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SUB32 instruction, from s1, constant c, store result in s1 using s2, s3, s4 and s5 as scratch
 void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
 {
+    if (s1 == xRSP && (!dyn->insts || dyn->insts[ninst].x64.gen_flags == X_PEND)) {
+        // special case when doing math on RSP and only PEND is needed: ignoring it!
+        if (c > -2048 && c <= 2048) {
+            SUBI(s1, s1, c);
+        } else {
+            MOV64xw(s2, c);
+            SUBxw(s1, s1, s2);
+        }
+        if (!rex.w) {
+            ZEROUP(s1);
+        }
+        return;
+    }
     CLEAR_FLAGS();
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));

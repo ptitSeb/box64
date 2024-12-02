@@ -59,8 +59,8 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 
-    dyn->insts[ninst].nat_flags_carry = 1;
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s1, 56);
@@ -97,8 +97,8 @@ void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
-    dyn->insts[ninst].nat_flags_carry = 1;
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s1, 56);
@@ -148,8 +148,8 @@ void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 
-    dyn->insts[ninst].nat_flags_carry = 1;
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s1, 48);
@@ -185,8 +185,9 @@ void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
-    dyn->insts[ninst].nat_flags_carry = 1;
-    dyn->insts[ninst].nat_flags_sign = 1;
+
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s1, 48);
@@ -235,8 +236,8 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
-    dyn->insts[ninst].nat_flags_carry = 1;
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (rex.w)
             NAT_FLAGS_OPS(s1, s2);
@@ -280,8 +281,8 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
-    dyn->insts[ninst].nat_flags_carry = 1;
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (rex.w)
             NAT_FLAGS_OPS(s1, xZR);
@@ -325,7 +326,7 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
         SLLI(s3, s3, 56);
         SRAI(s3, s3, 56);
@@ -361,7 +362,7 @@ void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
         SLLI(s3, s3, 48);
         SRAI(s3, s3, 48);
@@ -403,7 +404,7 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
         if (!rex.w) {
             SLLI(s3, s3, 32);
@@ -449,7 +450,7 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
-    dyn->insts[ninst].nat_flags_sign = 1;
+    NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
         if (!rex.w) {
             SLLI(s3, s3, 32);

@@ -55,7 +55,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     switch(opcode) {
         case 0x01:
             INST_NAME("LOCK ADD Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             SMDMB();
@@ -73,7 +73,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x09:
             INST_NAME("LOCK OR Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             SMDMB();
@@ -96,8 +96,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     switch(rep) {
                         case 0:
                             INST_NAME("LOCK CMPXCHG Eb, Gb");
-                            SETFLAGS(X_ALL, SF_SET_PENDING);
-                            NAT_FLAGS_NOFUSION();
+                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                             nextop = F8;
                             ANDI(x6, xRAX, 0xff); // AL
                             SMDMB();
@@ -186,8 +185,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     switch (rep) {
                         case 0:
                             INST_NAME("LOCK CMPXCHG Ed, Gd");
-                            SETFLAGS(X_ALL, SF_SET_PENDING);
-                            NAT_FLAGS_NOFUSION();
+                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                             nextop = F8;
                             GETGD;
                             if (MODREG) {
@@ -240,7 +238,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     switch(rep) {
                         case 0:
                             INST_NAME("LOCK XADD Gd, Ed");
-                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                             nextop = F8;
                             GETGD;
                             SMDMB();
@@ -277,8 +275,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 INST_NAME("LOCK CMPXCHG8B Gq, Eq");
                             }
-                            SETFLAGS(X_ZF, SF_SUBSET);
-                            NAT_FLAGS_NOFUSION();
+                            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                             nextop = F8;
                             addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                             ANDI(xFlags, xFlags, ~(1<<F_ZF));
@@ -345,7 +342,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x10:
             INST_NAME("LOCK ADC Eb, Gb");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGB(x2);
             SMDMB();
@@ -415,7 +412,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x11:
             INST_NAME("LOCK ADC Ed, Gd");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             SMDMB();
@@ -439,7 +436,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x21:
             INST_NAME("LOCK AND Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             SMDMB();
@@ -456,7 +453,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x29:
             INST_NAME("LOCK SUB Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             SMDMB();
@@ -481,7 +478,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch((nextop>>3)&7) {
                 case 1: // OR
                     INST_NAME("LOCK OR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if(MODREG) {
                         GETEB(x1, 1);
                         u8 = F8;
@@ -519,7 +516,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("LOCK ADD Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -559,7 +556,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("LOCK OR Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -582,7 +579,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("LOCK AND Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -605,7 +602,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("LOCK SUB Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if(MODREG) {
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -645,7 +642,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("LOCK XOR Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (MODREG) {
                         if (opcode == 0x81)
                             i64 = F32S;
@@ -732,7 +729,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             {
                 case 0: // INC Ed
                     INST_NAME("LOCK INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     SMDMB();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -750,7 +747,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1: // DEC Ed
                     INST_NAME("LOCK DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     SMDMB();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);

@@ -61,7 +61,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         INST_NAME("LOCK ADD Ew, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if(MODREG) {
                         if(opcode==0x81) u64 = F16; else u64 = (uint16_t)(int16_t)F8S;
                         ed = xRAX+(nextop&7)+(rex.b<<3);

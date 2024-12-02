@@ -1017,25 +1017,32 @@
 #define READFLAGS_FUSION(A, checkbarrier) READFLAGS(A)
 #endif
 
-#define NAT_FLAGS_NOFUSION() dyn->insts[ninst].nat_flags_nofusion = 1
-
 #define NAT_FLAGS_OPS(op1, op2)                    \
     do {                                           \
         dyn->insts[ninst + 1].nat_flags_op1 = op1; \
         dyn->insts[ninst + 1].nat_flags_op2 = op2; \
     } while (0)
 
+#define NAT_FLAGS_ENABLE_CARRY() dyn->insts[ninst].nat_flags_carry = 1
+#define NAT_FLAGS_ENABLE_SIGN()  dyn->insts[ninst].nat_flags_sign = 1
+
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)                                                                                              \
+#define SETFLAGS(A, B, FUSION)                                                                                      \
     if (dyn->f.pending != SF_SET                                                                                    \
-        && ((B)&SF_SUB)                                                                                             \
+        && ((B) & SF_SUB)                                                                                           \
         && (dyn->insts[ninst].x64.gen_flags & (~(A))))                                                              \
         READFLAGS(((dyn->insts[ninst].x64.gen_flags & X_PEND) ? X_ALL : dyn->insts[ninst].x64.gen_flags) & (~(A))); \
     if (dyn->insts[ninst].x64.gen_flags) switch (B) {                                                               \
             case SF_SUBSET:                                                                                         \
             case SF_SET: dyn->f.pending = SF_SET; break;                                                            \
-            case SF_SET_DF: dyn->f.pending = SF_SET; dyn->f.dfnone = 1; break;                                      \
-            case SF_SET_NODF: dyn->f.pending = SF_SET; dyn->f.dfnone = 0; break;                                    \
+            case SF_SET_DF:                                                                                         \
+                dyn->f.pending = SF_SET;                                                                            \
+                dyn->f.dfnone = 1;                                                                                  \
+                break;                                                                                              \
+            case SF_SET_NODF:                                                                                       \
+                dyn->f.pending = SF_SET;                                                                            \
+                dyn->f.dfnone = 0;                                                                                  \
+                break;                                                                                              \
             case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                                    \
             case SF_SUBSET_PENDING:                                                                                 \
             case SF_SET_PENDING:                                                                                    \
@@ -1043,7 +1050,8 @@
                 break;                                                                                              \
         }                                                                                                           \
     else                                                                                                            \
-        dyn->f.pending = SF_SET
+        dyn->f.pending = SF_SET;                                                                                    \
+    dyn->insts[ninst].nat_flags_nofusion = (FUSION)
 #endif
 #ifndef JUMP
 #define JUMP(A, C)

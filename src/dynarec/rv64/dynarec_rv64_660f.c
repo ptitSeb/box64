@@ -238,8 +238,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 INST_NAME("UCOMISD Gx, Ex");
             }
-            SETFLAGS(X_ALL, SF_SET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETGXSD(d0);
@@ -1161,8 +1160,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xA3:
             INST_NAME("BT Ew, Gw");
-            SETFLAGS(X_CF, SF_SUBSET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETEW(x1, 0);
@@ -1175,7 +1173,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xA4:
             nextop = F8;
             INST_NAME("SHLD Ew, Gw, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             GETEW(x1, 0);
             GETGW(x2);
             u8 = F8;
@@ -1184,8 +1182,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
-            SETFLAGS(X_CF, SF_SUBSET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETEW(x1, 0);
@@ -1202,7 +1199,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             GETEW(x1, 0);
             GETGW(x2);
             u8 = F8;
@@ -1211,8 +1208,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
-            SETFLAGS(X_ALL, SF_PENDING);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETSEW(x1, 0);
             GETSGW(x2);
@@ -1224,8 +1220,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
-            SETFLAGS(X_CF, SF_SUBSET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETEW(x1, 0);
@@ -1272,8 +1267,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             switch ((nextop >> 3) & 7) {
                 case 4:
                     INST_NAME("BT Ew, Ib");
-                    SETFLAGS(X_CF, SF_SUBSET);
-                    NAT_FLAGS_NOFUSION();
+                    SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     SET_DFNONE();
                     GETED(1);
                     u8 = F8;
@@ -1284,8 +1278,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 5:
                     INST_NAME("BTS Ew, Ib");
-                    SETFLAGS(X_CF, SF_SUBSET);
-                    NAT_FLAGS_NOFUSION();
+                    SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     SET_DFNONE();
                     GETEW(x1, 1);
                     u8 = F8;
@@ -1309,8 +1302,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
-                    SETFLAGS(X_CF, SF_SUBSET);
-                    NAT_FLAGS_NOFUSION();
+                    SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     SET_DFNONE();
                     GETEW(x1, 1);
                     u8 = F8;
@@ -1334,8 +1326,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 7:
                     INST_NAME("BTC Ew, Ib");
-                    SETFLAGS(X_CF, SF_SUBSET);
-                    NAT_FLAGS_NOFUSION();
+                    SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     SET_DFNONE();
                     GETEW(x1, 1);
                     u8 = F8;
@@ -1357,8 +1348,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
-            SETFLAGS(X_CF, SF_SUBSET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETGD;
@@ -1399,8 +1389,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xBC:
             INST_NAME("BSF Gw, Ew");
-            SETFLAGS(X_ZF, SF_SUBSET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETEW(x5, 0);
@@ -1416,8 +1405,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xBD:
             INST_NAME("BSR Gw, Ew");
-            SETFLAGS(X_ZF, SF_SUBSET);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETEW(x5, 0);
@@ -1461,7 +1449,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xC1:
             INST_NAME("XADD Ew, Gw");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);

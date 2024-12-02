@@ -62,7 +62,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
             gd = xRAX + (opcode&7);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
@@ -75,7 +75,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
             gd = xRAX + (opcode&7);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
@@ -209,8 +209,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
-            SETFLAGS(X_ALL, SF_PENDING);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(4);
@@ -250,8 +249,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(1);
@@ -287,8 +285,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_priv, -1);
@@ -300,8 +297,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
-            NAT_FLAGS_NOFUSION();
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_priv, -1);
