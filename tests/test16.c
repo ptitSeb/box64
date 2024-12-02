@@ -97,72 +97,32 @@ uint64_t _ucomisd_(double a, double b)
 
 void test_ucomiss()
 {
+ float values[] = {1.0f, 2.0f, 0.0f, -0.0f, -1.0f, INFINITY, -INFINITY, NAN};
  float a, b;
  uint64_t flags;
- a = 1.0f; b = 2.0f;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomiss_(b, a);
- printf("ucomiss %f, %f => 0x%lx\n", b, a, flags);
- b = INFINITY;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomiss_(b, a);
- printf("ucomiss %f, %f => 0x%lx\n", b, a, flags);
- b = -INFINITY;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomiss_(b, a);
- printf("ucomiss %f, %f => 0x%lx\n", b, a, flags);
- b = NAN;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomiss_(b, a);
- printf("ucomiss %f, %f => 0x%lx\n", b, a, flags);
- b = a;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
- a = b = INFINITY;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
- a = b = NAN;
- flags = _ucomiss_(a, b);
- printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
+ int n = sizeof(values)/sizeof(values[0]);
+ for(int i=0; i<n; ++i)
+    for(int j=0; j<n; ++j) {
+        a = values[i];
+        b = values[j];
+        flags = _ucomiss_(a, b);
+        printf("ucomiss %f, %f => 0x%lx\n", a, b, flags);
+    }
 }
 
 void test_ucomisd()
 {
+ double values[] = {1.0, 2.0, 0.0, -0.0, -1.0, INFINITY, -INFINITY, NAN};
  double a, b;
  uint64_t flags;
- a = 1.0; b = 2.0;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomisd_(b, a);
- printf("ucomisd %f, %f => 0x%lx\n", b, a, flags);
- b = INFINITY;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomisd_(b, a);
- printf("ucomisd %f, %f => 0x%lx\n", b, a, flags);
- b = -INFINITY;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomisd_(b, a);
- printf("ucomisd %f, %f => 0x%lx\n", b, a, flags);
- b = NAN;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
- flags = _ucomisd_(b, a);
- printf("ucomisd %f, %f => 0x%lx\n", b, a, flags);
- b = a;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
- a = b = INFINITY;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
- a = b = NAN;
- flags = _ucomisd_(a, b);
- printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
+ int n = sizeof(values)/sizeof(values[0]);
+ for(int i=0; i<n; ++i)
+    for(int j=0; j<n; ++j) {
+        a = values[i];
+        b = values[j];
+        flags = _ucomisd_(a, b);
+        printf("ucomisd %f, %f => 0x%lx\n", a, b, flags);
+    }
 }
 #if defined(__x86_64__)
 #define GO(n) \
