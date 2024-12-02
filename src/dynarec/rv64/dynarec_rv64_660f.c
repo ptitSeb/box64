@@ -279,10 +279,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                              \
-    READFLAGS_FUSION(F, 0);                                                                  \
-    if (!dyn->insts[ninst].nat_flags_fusion) {                                               \
-        GETFLAGS;                                                                            \
-    }                                                                                        \
+    READFLAGS(F);                                                                            \
+    GETFLAGS;                                                                                \
     nextop = F8;                                                                             \
     GETGD;                                                                                   \
     if (MODREG) {                                                                            \
@@ -295,11 +293,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         LHU(x4, ed, fixedaddress);                                                           \
         ed = x4;                                                                             \
     }                                                                                        \
-    if (dyn->insts[ninst].nat_flags_fusion) {                                                \
-        NATIVEJUMP(NATNO, 4 + 3 * 4);                                                        \
-    } else {                                                                                 \
-        B##NO(x1, 4 + 3 * 4);                                                                \
-    }                                                                                        \
+    B##NO(x1, 4 + 3 * 4);                                                                    \
     LUI(x3, 0xffff0);                                                                        \
     AND(gd, gd, x3);                                                                         \
     OR(gd, gd, ed);
