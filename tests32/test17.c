@@ -168,81 +168,26 @@ int main(int argc, const char** argv)
  uint32_t maxf = 0x7f7fffff;
  uint32_t minf = 0xff7fffff;
  uint32_t r;
+ float values[] = {1.0f, 2.0f, 0.0f, -0.0f, -1.0f, *(float*)&maxf, *(float*)&minf, INFINITY, -INFINITY, NAN};
+ int n_f = sizeof(values)/sizeof(values[0]);
 
-#define GO1(A, N)                                   \
-a = 1.0f; b = 2.0f;                                 \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
-b = INFINITY;                                       \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
-b = -INFINITY;                                      \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
-b = NAN;                                            \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
-b = a;                                              \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
-a = b = INFINITY;                                   \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-a = -INFINITY;                                      \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
-flags = A(b, a);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", b, a, flags);  \
-a = b = NAN;                                        \
-flags = A(a, b);                                    \
-printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);
+#define GO1(A, N)                                           \
+for(int i=0; i<n_f; ++i)                                    \
+    for(int j=0; j<n_f; ++j) {                              \
+        a = values[i];                                      \
+        b = values[j];                                      \
+        flags = A(a, b);                                    \
+        printf(N " %f, %f => 0x%"PRIx32"\n", a, b, flags);  \
+    }
 
-#define GO2(A, N)                               \
-a = 1.0f; b = 2.0f;                             \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
-a = -INFINITY;                                  \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
-a = +INFINITY;                                  \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
-a = NAN;                                        \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
-b = *(float*)&maxf;                             \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
-a = -INFINITY;                                  \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
-a = +INFINITY;                                  \
-r = A(a, b);                                    \
-printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
-r = A(b, a);                                    \
-printf(N " %g, %g => %g\n", b, a, *(float*)&r);
+#define GO2(A, N)                                           \
+for(int i=0; i<n_f; ++i)                                    \
+    for(int j=0; j<n_f; ++j) {                              \
+        a = values[i];                                      \
+        b = values[j];                                      \
+        r = A(a, b);                                        \
+        printf(N " %g, %g => %g\n", a, b, *(float*)&r);     \
+    }
 
  GO1(_ucomiss_, "ucomiss")
  GO2(_minss_, "minss")
