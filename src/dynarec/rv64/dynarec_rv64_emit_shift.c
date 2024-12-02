@@ -33,7 +33,7 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         SB(s3, xEmu, offsetof(x64emu_t, op2));
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shl8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -51,6 +51,7 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             SET_FLAGS_LTZ(s1, F_SF, s3, s4);
         }
         SRLI(s1, s1, 56);
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
         IFX(X_PEND) {
             SB(s1, xEmu, offsetof(x64emu_t, res));
@@ -78,6 +79,8 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             }
         }
         MV(s1, xZR);
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(xZR, xZR);
+
         IFX(X_PEND) {
             SB(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -106,7 +109,7 @@ void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         SB(s3, xEmu, offsetof(x64emu_t, op2));
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shr8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -132,6 +135,8 @@ void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     SRLI(s1, s1, c);
     ANDI(s1, s1, 0xff);
 
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     // SF should be unset
     IFX(X_PEND) {
         SB(s1, xEmu, offsetof(x64emu_t, res));
@@ -155,7 +160,7 @@ void emit_sar8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         SB(s3, xEmu, offsetof(x64emu_t, op2));
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_sar8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -178,6 +183,8 @@ void emit_sar8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     SRLI(s1, s1, c);
     ANDI(s1, s1, 0xff);
 
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SB(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -198,7 +205,7 @@ void emit_shl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SB(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, d_shl8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -217,6 +224,8 @@ void emit_shl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
     SRLI(s1, s1, 56);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SB(s1, xEmu, offsetof(x64emu_t, res));
@@ -249,7 +258,7 @@ void emit_shr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SB(s2, xEmu, offsetof(x64emu_t, op2));
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shr8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -271,6 +280,8 @@ void emit_shr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     SRL(s1, s1, s2);
     ANDI(s1, s1, 0xff);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     // SF should be unset
     IFX(X_PEND) {
@@ -295,7 +306,7 @@ void emit_sar8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SB(s2, xEmu, offsetof(x64emu_t, op2));
         SB(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_sar8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -313,6 +324,8 @@ void emit_sar8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     SRL(s1, s1, s2);
     ANDI(s1, s1, 0xff);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SB(s1, xEmu, offsetof(x64emu_t, res));
@@ -337,7 +350,7 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         SH(s3, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shl16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -355,6 +368,8 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             SET_FLAGS_LTZ(s1, F_SF, s3, s4);
         }
         SRLI(s1, s1, 48);
+
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
         IFX(X_PEND) {
             SH(s1, xEmu, offsetof(x64emu_t, res));
@@ -382,6 +397,8 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             }
         }
         MV(s1, xZR);
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(xZR, xZR);
+
         IFX(X_PEND) {
             SH(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -410,7 +427,7 @@ void emit_shr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         SH(s3, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shr16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -434,6 +451,9 @@ void emit_shr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
 
     SRLI(s1, s1, c);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     // SF should be unset
 
     IFX(X_PEND) {
@@ -458,7 +478,7 @@ void emit_sar16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         SH(s3, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_sar16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -481,6 +501,8 @@ void emit_sar16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     SRLI(s1, s1, c);
     ZEXTH(s1, s1);
 
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -502,7 +524,7 @@ void emit_shl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SH(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, d_shl16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -521,6 +543,8 @@ void emit_shl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
     SRLI(s1, s1, 48);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
@@ -553,7 +577,7 @@ void emit_shr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SH(s2, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shr16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -575,6 +599,8 @@ void emit_shr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     SRL(s1, s1, s2);
     ZEXTH(s1, s1);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     // SF should be unset
     IFX(X_PEND) {
@@ -599,7 +625,7 @@ void emit_sar16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SH(s2, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_sar16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -617,6 +643,8 @@ void emit_sar16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     SRL(s1, s1, s2);
     ZEXTH(s1, s1);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
@@ -638,7 +666,7 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -657,6 +685,8 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     } else {
         SLLW(s1, s1, s2);
     }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
@@ -697,7 +727,7 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SDxw(s3, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -714,6 +744,8 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     } else {
         SLLIW(s1, s1, c);
     }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
@@ -752,7 +784,7 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shr64:d_shr32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -773,6 +805,8 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     SRL(s1, s1, s2);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
@@ -808,7 +842,7 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         } else SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shr64:d_shr32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -836,6 +870,8 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     } else {
         SRLIW(s1, s1, c);
     }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
@@ -871,7 +907,7 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         } else SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_sar64:d_sar32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -892,6 +928,8 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     } else {
         SRAIW(s1, s1, c);
     }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     // SRAIW sign-extends, so test sign bit before clearing upper bits
     IFX(X_SF) {
@@ -923,7 +961,7 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_PEND) {
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_rol64:d_rol32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -941,6 +979,8 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SRLxw(s1, s1, s4);
         OR(s1, s3, s1);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -975,7 +1015,7 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_PEND) {
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_ror64:d_ror32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -993,6 +1033,8 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SLLxw(s1, s1, s4);
         OR(s1, s3, s1);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1033,7 +1075,7 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         MOV32w(s3, c);
         SDxw(s3, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_rol64:d_rol32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     if(rv64_zbb) {
@@ -1047,6 +1089,8 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     if (!rex.w) ZEROUP(s1);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -1082,7 +1126,7 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         MOV32w(s3, c);
         SDxw(s3, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_ror64:d_ror32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     if(rv64_zbb) {
@@ -1096,6 +1140,8 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     if (!rex.w) ZEROUP(s1);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -1130,7 +1176,7 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         } else SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shrd64:d_shrd32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     if(!c) {
@@ -1157,6 +1203,8 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     SRLIxw(s3, s1, c);
     SLLIxw(s1, s2, (rex.w?64:32)-c);
     OR(s1, s1, s3);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     if (!rex.w) {
         ZEROUP(s1);
@@ -1197,7 +1245,7 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         } else SH(xZR, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shrd16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     if(!c) {
@@ -1234,6 +1282,8 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         OR(s1, s1, s5);
     }
     ZEXTH(s1, s1);
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1270,7 +1320,7 @@ void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         } else SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shld64:d_shld32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -1302,6 +1352,8 @@ void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     if (!rex.w) {
         ZEROUP(s1);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1335,7 +1387,7 @@ void emit_shrd32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s5, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w ? d_shrd64 : d_shrd32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX(X_CF) {
@@ -1353,6 +1405,8 @@ void emit_shrd32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     SRLxw(s3, s1, s5);
     SLLxw(s4, s2, s4);
     OR(s1, s4, s3);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -1389,7 +1443,7 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s5, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_shld64:d_shld32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -1414,6 +1468,8 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     if (!rex.w) {
         ZEROUP(s1);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_OF) {
         ADDI(s5, s5, -1);
         BNEZ_MARK(s5);
@@ -1446,7 +1502,7 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         } else SH(xZR, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shld16);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -1483,6 +1539,8 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         OR(s1, s1, s3);
     }
     ZEXTH(s1, s1);
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX(X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
     }

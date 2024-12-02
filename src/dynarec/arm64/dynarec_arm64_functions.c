@@ -976,7 +976,7 @@ static void propagateNativeFlags(dynarec_arm_t* dyn, int start)
     }
 }
 
-void updateNatveFlags(dynarec_native_t* dyn)
+void updateNativeFlags(dynarec_native_t* dyn)
 {
     if(!box64_dynarec_nativeflags)
         return;

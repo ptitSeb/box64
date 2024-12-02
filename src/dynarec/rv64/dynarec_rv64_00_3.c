@@ -60,6 +60,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("ROL Eb, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -70,6 +71,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("ROR Eb, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -81,6 +83,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -92,6 +95,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -193,6 +197,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     MOV32w(x2, u8);
                     GETEDW(x4, x1, 0);
@@ -205,6 +210,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     MOV32w(x2, u8);
                     GETEDW(x4, x1, 0);
@@ -219,6 +225,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
                         SETFLAGS(X_ALL, SF_SET_PENDING);
+                        NAT_FLAGS_NOFUSION();
                         GETED(1);
                         F8;
                         emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
@@ -239,6 +246,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
                         SETFLAGS(X_ALL, SF_SET_PENDING);
+                        NAT_FLAGS_NOFUSION();
                         GETED(1);
                         F8;
                         emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -259,6 +267,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
                         SETFLAGS(X_ALL, SF_SET_PENDING);
+                        NAT_FLAGS_NOFUSION();
                         GETED(1);
                         F8;
                         emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -412,6 +421,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
+            NAT_FLAGS_NOFUSION();
             SKIPTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
@@ -508,6 +518,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else if (u8==0x03) {
                 INST_NAME("INT 3");
                 SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+                NAT_FLAGS_NOFUSION();
                 GETIP(addr);
                 STORE_XEMU_CALL(x3);
                 CALL(native_int3, -1);
@@ -518,6 +529,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+                NAT_FLAGS_NOFUSION();
                 GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(x3);
                 CALL(native_priv, -1);
@@ -530,6 +542,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET_NODF);    // Not a hack, EFLAGS are restored
+            NAT_FLAGS_NOFUSION();
             BARRIER(BARRIER_FLOAT);
             iret_to_epilog(dyn, ninst, rex.w);
             *need_epilog = 0;
@@ -551,6 +564,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     CALL_(rol8, ed, x3);
                     EBBACK(x5, 0);
                     break;
@@ -566,6 +580,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     CALL_(ror8, ed, x3);
                     EBBACK(x5, 0);
                     break;
@@ -582,6 +597,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     CALL_(rcl8, ed, x3);
                     EBBACK(x5, 0);
                     break;
@@ -598,6 +614,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     CALL_(rcr8, ed, x3);
                     EBBACK(x5, 0);
                     break;
@@ -681,6 +698,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     MOV32w(x2, 1);
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w ? ((void*)rcl64) : ((void*)rcl32), ed, x4);
@@ -751,6 +769,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     ANDI(x2, xRCX, rex.w?0x3f:0x1f);
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w ? ((void*)rcl64) : ((void*)rcl32), ed, x4);
@@ -762,6 +781,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     ANDI(x2, xRCX, rex.w?0x3f:0x1f);
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
@@ -792,6 +812,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 7:
                     INST_NAME("SAR Ed, CL");
                     SETFLAGS(X_ALL, SF_PENDING);
+                    NAT_FLAGS_NOFUSION();
                     ANDI(x3, xRCX, rex.w?0x3f:0x1f);
                     GETED(0);
                     if(!rex.w && MODREG) {ZEROUP(ed);}
@@ -910,6 +931,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             switch(tmp) {
                 case 3:
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
+                    NAT_FLAGS_NOFUSION();
                     SKIPTEST(x1);
                     BARRIER(BARRIER_FULL);
                     if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
@@ -968,6 +990,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
+                        NAT_FLAGS_NOFUSION();
                     }
                     // regular call
                     /*if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
@@ -1066,6 +1089,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             else
                 INST_NAME("OUT DX, EAX");
             SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+            NAT_FLAGS_NOFUSION();
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);
@@ -1081,6 +1105,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CMC");
             READFLAGS(X_CF);
             SETFLAGS(X_CF, SF_SUBSET);
+            NAT_FLAGS_NOFUSION();
             XORI(xFlags, xFlags, 1<<F_CF);
             break;
         case 0xF6:
@@ -1111,6 +1136,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 4:
                     INST_NAME("MUL AL, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
                     MULW(x1, x2, x1);
@@ -1124,6 +1150,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 5:
                     INST_NAME("IMUL AL, Eb");
                     SETFLAGS(X_ALL, SF_PENDING);
+                    NAT_FLAGS_NOFUSION();
                     GETSEB(x1, 0);
                     SLLI(x2, xRAX, 56);
                     SRAI(x2, x2, 56);
@@ -1139,6 +1166,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("DIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 0);
                     CALL(div8, -1);
                     break;
@@ -1147,6 +1175,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SKIPTEST(x1);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET_DF);
+                    NAT_FLAGS_NOFUSION();
                     GETEB(x1, 0);
                     CALL(idiv8, -1);
                     break;
@@ -1181,6 +1210,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 4:
                     INST_NAME("MUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_SET);
+                    NAT_FLAGS_NOFUSION();
                     CLEAR_FLAGS();
                     SET_DFNONE();
                     GETED(0);
@@ -1214,6 +1244,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_SET);
+                    NAT_FLAGS_NOFUSION();
                     CLEAR_FLAGS();
                     SET_DFNONE();
                     GETSED(0);
@@ -1245,6 +1276,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
+                    NAT_FLAGS_NOFUSION();
                     SET_DFNONE();
                     if(!rex.w) {
                         GETED(0);
@@ -1327,6 +1359,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("IDIV Ed");
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
+                    NAT_FLAGS_NOFUSION();
                     SET_DFNONE()
                     if(!rex.w) {
                         GETSED(0);
@@ -1405,12 +1438,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xF8:
             INST_NAME("CLC");
             SETFLAGS(X_CF, SF_SUBSET);
+            NAT_FLAGS_NOFUSION();
             SET_DFNONE();
             ANDI(xFlags, xFlags, ~(1 << F_CF));
             break;
         case 0xF9:
             INST_NAME("STC");
             SETFLAGS(X_CF, SF_SUBSET);
+            NAT_FLAGS_NOFUSION();
             SET_DFNONE();
             ORI(xFlags, xFlags, 1 << F_CF);
             break;
@@ -1469,6 +1504,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
+                        NAT_FLAGS_NOFUSION();
                     }
                     GETEDz(0);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {

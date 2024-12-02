@@ -20,7 +20,8 @@
 #define MAXBLOCK_SIZE ((1<<19)-200)
 
 #define RAZ_SPECIFIC(A, N)      rasNativeState(A, N)
-#define UPDATE_SPECIFICS(A)     updateNatveFlags(A)
+#define UPDATE_SPECIFICS(A)     updateNativeFlags(A)
+#define PREUPDATE_SPECIFICS(A)
 
 #elif defined(LA64)
 
@@ -41,6 +42,7 @@
 
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
+#define PREUPDATE_SPECIFICS(A)
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -62,6 +64,7 @@
 
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
+#define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 #else
 #error Unsupported platform
 #endif

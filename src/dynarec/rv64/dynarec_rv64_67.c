@@ -142,6 +142,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         case 0:
                             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
                             SETFLAGS(X_ALL, SF_SET);
+                            NAT_FLAGS_NOFUSION();
                             nextop = F8;
                             GETGXSS(s0);
                             if(MODREG) {
@@ -731,6 +732,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xE0:
             INST_NAME("LOOPNZ (32bits)");
             READFLAGS(X_ZF);
+            
             i8 = F8S;
             SUBI(xRCX, xRCX, 1);
             ANDI(x1, xFlags, 1 << F_ZF);
@@ -772,6 +774,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4:
                     INST_NAME("MUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
+                    NAT_FLAGS_NOFUSION();
                     GETED32(0);
                     if (rex.w) {
                         if (ed == xRDX)

@@ -66,4 +66,6 @@ void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
 
 // is st freed
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
+
+void updateNativeFlags(dynarec_rv64_t* dyn);
 #endif //__DYNAREC_RV64_FUNCTIONS_H__

@@ -962,6 +962,9 @@ void LoadLogEnv()
             box64_dynarec_x87double = 1;
             box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
+            #ifdef RV64
+            box64_dynarec_nativeflags = 0;
+            #endif
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }

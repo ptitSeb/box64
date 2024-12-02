@@ -516,6 +516,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
+            NAT_FLAGS_NOFUSION();
             POP1z(xFlags);
             FLAGS_ADJUST_FROM11(xFlags, xFlags, x2);
             MOV32w(x1, 0x3F7FD7);
@@ -532,6 +533,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x9E:
             INST_NAME("SAHF");
             SETFLAGS(X_CF | X_PF | X_AF | X_ZF | X_SF, SF_SUBSET);
+            NAT_FLAGS_NOFUSION();
             ADDI(x1, xZR, ~0b11010101);
             AND(xFlags, xFlags, x1);
             NOT(x1, x1);
@@ -646,6 +648,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
                 MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                NAT_FLAGS_NOFUSION();
                 CBZ_NEXT(xRCX);
                 ANDI(x1, xFlags, 1<<F_DF);
                 BNEZ_MARK2(x1);
@@ -688,6 +691,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (rep == 1) { INST_NAME("REPNZ CMPSD"); } else { INST_NAME("REPZ CMPSD"); }
                     MAYSETFLAGS();
                     SETFLAGS(X_ALL, SF_SET_PENDING);
+                    NAT_FLAGS_NOFUSION();
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
@@ -714,6 +718,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 default:
                     INST_NAME("CMPSD");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
+                    NAT_FLAGS_NOFUSION();
                     GETDIR(x3, x1, rex.w ? 8 : 4);
                     LDxw(x1, xRSI, 0);
                     LDxw(x2, xRDI, 0);
@@ -817,6 +822,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if (rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
                 MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                NAT_FLAGS_NOFUSION();
                 CBZ_NEXT(xRCX);
                 ANDI(x1, xRAX, 0xff);
                 ANDI(x2, xFlags, 1<<F_DF);
@@ -840,6 +846,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             default:
                 INST_NAME("SCASB");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                NAT_FLAGS_NOFUSION();
                 GETDIR(x3, x1, 1);
                 ANDI(x1, xRAX, 0xff);
                 LBU(x2, xRDI, 0);
@@ -855,6 +862,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if (rep==1) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
                 MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                NAT_FLAGS_NOFUSION();
                 CBZ_NEXT(xRCX);
                 if (rex.w) {MV(x1, xRAX);} else {AND(x1, xRAX, xMASK);}
                 ANDI(x2, xFlags, 1<<F_DF);
@@ -878,6 +886,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             default:
                 INST_NAME("SCASD");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                NAT_FLAGS_NOFUSION();
                 GETDIR(x3, x1, rex.w?8:4);
                 LDxw(x2, xRDI, 0);
                 ADD(xRDI, xRDI, x3);

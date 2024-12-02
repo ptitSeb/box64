@@ -637,7 +637,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     };
     if(box64_dynarec_dump) {
         printf_x64_instruction(rex.is32bits?my_context->dec32:my_context->dec, &dyn->insts[ninst].x64, name);
-        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
             (box64_dynarec_dump > 1) ? "\e[32m" : "",
             (void*)(dyn->native_start + dyn->insts[ninst].address),
             dyn->insts[ninst].size / 4,
@@ -652,6 +652,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dyn->insts[ninst].x64.use_flags,
             dyn->insts[ninst].x64.need_before,
             dyn->insts[ninst].x64.need_after,
+            dyn->insts[ninst].nat_flags_fusion,
             dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write,
             dyn->insts[ninst].vector_sew_entry, dyn->insts[ninst].vector_sew_exit);
         if(dyn->insts[ninst].pred_sz) {
@@ -763,4 +764,22 @@ void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
 int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)
 {
     return (dyn->e.tags&(0b11<<(st*2)))?1:0;
+}
+
+void updateNativeFlags(dynarec_rv64_t* dyn)
+{
+    if (!box64_dynarec_nativeflags)
+        return;
+    for (int i = 1; i < dyn->size; ++i)
+        if (dyn->insts[i].nat_flags_fusion) {
+            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == i - 1
+                && (dyn->insts[i].x64.use_flags & dyn->insts[i - 1].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                dyn->insts[i - 1].nat_flags_fusion = 1;
+                if (dyn->insts[i].x64.use_flags & X_SF) {
+                    dyn->insts[i - 1].nat_flags_needsign = 1;
+                }
+                dyn->insts[i].x64.use_flags = 0;
+            } else
+                dyn->insts[i].nat_flags_fusion = 0;
+        }
 }
