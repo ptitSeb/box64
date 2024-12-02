@@ -99,39 +99,31 @@ void LD2D(void* ld, void* d)
     val.f.ud[1] = *(uint32_t*)(char*)(ld+4);
     val.b  = *(int16_t*)((char*)ld+8);
     #endif
-    int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
-    int32_t exp64final = exp64&0x7ff;
     // do specific value first (0, infinite...)
     // bit 63 is "integer part"
-    // bit 62 is sign
     if((uint32_t)(val.b&0x7fff)==0x7fff) {
         // infinity and nans
-        int t = 0; //nan
-        switch((val.f.ud[1]>>30)) {
-            case 0: if((val.f.ud[1]&(1<<29))==0) t = 1;
-                    break;
-            case 2: if((val.f.ud[1]&(1<<29))==0) t = 1;
-                    break;
-        }
+        int t = (val.f.q&0x7fffffffffffffffLL)?0:1;
         if(t) {    // infinite
-            result.d = HUGE_VAL;
-        } else {      // NaN
-            result.ud[1] = 0x7ff << 20;
+            result.ud[1] = (val.b>>4) << 20;
             result.ud[0] = 0;
+        } else {      // NaN
+            result.ud[1] = (val.b>>4) << 20 | ((val.f.q>>(63-20))&0x000fffff);
+            result.ud[0] = (val.f.q>>(63-56))&0xffffffff;
+            if(!(result.q&0x000fffffffffffffLL))
+                result.q |= 1;
         }
-        if(val.b&0x8000)
-            result.ud[1] |= 0x80000000;
         *(uint64_t*)d = result.q;
         return;
     }
+    int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
+    int32_t exp64final = exp64&0x7ff;
     if(((uint32_t)(val.b&0x7fff)==0) || (exp64<-1074)) {
         //if(val.f.q==0)
         // zero
         //if(val.f.q!=0)
         // denormal, but that's to small value for double 
-        uint64_t r = 0;
-        if(val.b&0x8000)
-            r |= 0x8000000000000000L;
+        uint64_t r = (val.b&0x8000)?0x8000000000000000LL:0LL;
         *(uint64_t*)d = r;
         return;
     }
@@ -184,10 +176,7 @@ void D2LD(void* d, void* ld)
     if((s.q&0x7fffffffffffffffL)==0) {
         // zero...
         val.f.q = 0;
-        if(s.ud[1]&0x8000)
-            val.b = 0x8000;
-        else
-            val.b = 0;
+        val.b = (s.ud[1]&0x80000000)?0x8000:0;
         memcpy(ld, &val, 10);
         return;
     }
@@ -203,7 +192,7 @@ void D2LD(void* d, void* ld)
         if(mant80==0x0)
             mant80final = 0x8000000000000000L; //infinity
         else
-            mant80final = 0xc000000000000000L; //(quiet)NaN
+            mant80final |= 0x8000000000000000L; //(quiet)NaN
     } else {
         if(exp80!=0){ 
             mant80final |= 0x8000000000000000L;

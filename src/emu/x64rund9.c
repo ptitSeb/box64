@@ -140,9 +140,20 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs)
             fpu_do_pop(emu);
             break;
         case 0xF4:  /* FXTRACT */
-            ST0.d = frexp(ST0.d, &tmp32s);
             fpu_do_push(emu);
-            ST0.d = tmp32s;
+            if(isnan(ST1.d)) {
+                ST0.d = ST1.d;
+            } else if(isinf(ST1.d)) {
+                ST0.d = ST1.d;
+                ST1.d = INFINITY;
+            } else if(ST1.d==0.0) {
+                ST0.d = ST1.d;
+                ST1.d = -INFINITY;
+            } else {
+                // LD80bits doesn't have implicit "1" bit, so need to adjust for that
+                ST0.d = frexp(ST1.d, &tmp32s)*2;
+                ST1.d = tmp32s-1;
+            }
             break;
 
         case 0xF8:  /* FPREM */

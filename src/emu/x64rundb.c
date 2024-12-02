@@ -172,10 +172,10 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 7: /* FSTP tbyte */
                 GETET(0);
-                if(ST0.q!=STld(0).uref)
-                    D2LD(&ST0.d, ED);
-                else
+                if(STld(0).uref && (ST0.q==STld(0).uref))
                     memcpy(ED, &STld(0).ld, 10);
+                else
+                    D2LD(&ST0.d, ED);
                 fpu_do_pop(emu);
                 break;
             default:

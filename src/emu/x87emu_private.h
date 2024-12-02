@@ -73,6 +73,10 @@ static inline void fpu_fcom(x64emu_t* emu, double b)
         emu->sw.f.F87_C0 = 1;
         emu->sw.f.F87_C2 = 1;
         emu->sw.f.F87_C3 = 1;
+    } else if ((b==-INFINITY) || (ST0.d==INFINITY)) {
+        emu->sw.f.F87_C0 = 0;
+        emu->sw.f.F87_C2 = 0;
+        emu->sw.f.F87_C3 = 0;
     } else if (isgreater(ST0.d, b)) {
         emu->sw.f.F87_C0 = 0;
         emu->sw.f.F87_C2 = 0;
@@ -100,6 +104,10 @@ static inline void fpu_fcomi(x64emu_t* emu, double b)
         SET_FLAG(F_CF);
         SET_FLAG(F_PF);
         SET_FLAG(F_ZF);
+    } else if ((b==-INFINITY) || (ST0.d==INFINITY)) {
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CLEAR_FLAG(F_ZF);
     } else if (isgreater(ST0.d, b)) {
         CLEAR_FLAG(F_CF);
         CLEAR_FLAG(F_PF);
