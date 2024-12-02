@@ -1078,6 +1078,10 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
         if(tag==DT_SONAME)
             h->soname = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
     }
+    #ifndef ANDROID
+    if(box64_is32bits && strstr(h->name, "lsteamclient.dll.so"))
+        ++cnt;
+    #endif
     h->needed = new_neededlib(cnt);
     if(h == my_context->elfs[0])
         my_context->neededlibs = h->needed;
@@ -1085,6 +1089,10 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
     for (size_t i=0; i<h->numDynamic; ++i)
         if((box64_is32bits?h->Dynamic._32[i].d_tag:h->Dynamic._64[i].d_tag)==DT_NEEDED)
             h->needed->names[j++] = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
+    #ifndef ANDROID
+    if(box64_is32bits && strstr(h->name, "lsteamclient.dll.so"))
+        h->needed->names[j++] = "libgcc_s.so";
+    #endif
     if(h==my_context->elfs[0] && box64_addlibs.size) {
         for(int i=0; i<box64_addlibs.size; ++i) {
             printf_log(LOG_INFO, "BOX64, Adding %s to needed libs of %s\n", box64_addlibs.paths[i], h->name);

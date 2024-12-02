@@ -45,7 +45,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                     *p ='\0'; ++p;
                     setenv(tmp, p, 1);
                     printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-                    strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/box64-x86_64-linux-gnu:");
+                    strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/box64-x86_64-linux-gnu:/usr/lib/box64-i386-linux-gnu:");
                     strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
                     p = strchr(tmp, '=');
                     *p ='\0'; ++p;
