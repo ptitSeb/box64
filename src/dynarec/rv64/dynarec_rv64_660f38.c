@@ -341,7 +341,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETGX();
                     GETEX(x2, 0, 8);
                     CLEAR_FLAGS();
@@ -733,7 +733,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     break;
                 case 0x61:
                     INST_NAME("PCMPESTRI Gx, Ex, Ib");
-                    SETFLAGS(X_ALL, SF_SET_DF);
+                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     nextop = F8;
                     GETG;
                     sse_reflect_reg(dyn, ninst, x6, gd);
@@ -1222,7 +1222,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     break;
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
-                    SETFLAGS(X_ALL, SF_SET_DF);
+                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     nextop = F8;
                     GETG;
                     sse_reflect_reg(dyn, ninst, x6, gd);

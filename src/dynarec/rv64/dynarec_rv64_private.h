@@ -126,6 +126,13 @@ typedef struct instruction_rv64_s {
     uint8_t             last_write;
     uint8_t             lock;
     uint8_t             df_notneeded;
+    uint8_t             nat_flags_fusion:1;
+    uint8_t             nat_flags_nofusion:1;
+    uint8_t             nat_flags_carry:1;
+    uint8_t             nat_flags_sign:1;
+    uint8_t             nat_flags_needsign:1;
+    uint8_t             nat_flags_op1;
+    uint8_t             nat_flags_op2;
     flagcache_t         f_exit;     // flags status at end of instruction
     extcache_t          e;          // extcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

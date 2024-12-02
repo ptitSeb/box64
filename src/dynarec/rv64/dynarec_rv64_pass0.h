@@ -10,11 +10,26 @@
 #define READFLAGS(A)    \
         dyn->insts[ninst].x64.use_flags = A; dyn->f.dfnone = 1;\
         dyn->f.pending=SF_SET
-#define SETFLAGS(A,B)   \
-        dyn->insts[ninst].x64.set_flags = A;    \
-        dyn->insts[ninst].x64.state_flags = (B)&~SF_DF; \
-        dyn->f.pending=(B)&SF_SET_PENDING;      \
-        dyn->f.dfnone=((B)&SF_SET)?(((B)==SF_SET_NODF)?0:1):0;
+
+#define READFLAGS_FUSION(A, checkbarrier)                                                                       \
+    if (box64_dynarec_nativeflags && ninst > 0 && !dyn->insts[ninst - 1].nat_flags_nofusion) {                  \
+        if ((A) == (X_ZF))                                                                                      \
+            dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
+        else if (dyn->insts[ninst - 1].nat_flags_carry && ((A) == (X_CF) || (A) == (X_CF | X_ZF)))              \
+            dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
+        else if (dyn->insts[ninst - 1].nat_flags_sign && ((A) == (X_SF | X_OF) || (A) == (X_SF | X_OF | X_ZF))) \
+            dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
+        if (checkbarrier && fpu_needpurgecache(dyn, ninst)) dyn->insts[ninst].nat_flags_fusion = 0;             \
+    }                                                                                                           \
+    READFLAGS(A);
+
+#define SETFLAGS(A, B, FUSION)                                           \
+    dyn->insts[ninst].x64.set_flags = A;                                 \
+    dyn->insts[ninst].x64.state_flags = (B) & ~SF_DF;                    \
+    dyn->f.pending = (B) & SF_SET_PENDING;                               \
+    dyn->f.dfnone = ((B) & SF_SET) ? (((B) == SF_SET_NODF) ? 0 : 1) : 0; \
+    dyn->insts[ninst].nat_flags_nofusion = (FUSION)
+
 #define EMIT(A)         dyn->native_size+=4
 #define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C; dyn->insts[ninst].x64.jmp_insts = 0
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1

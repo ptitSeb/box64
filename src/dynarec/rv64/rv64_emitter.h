@@ -265,7 +265,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define BLTU(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b110, 0b1100011))
 #define BGEU(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b111, 0b1100011))
 
-// TODO: Find a better way to have conditionnal jumps? Imm is a relative jump address, so the the 2nd jump needs to be adapted
+#define BGT(rs1, rs2, imm13)  BLT(rs2, rs1, imm13)
+#define BLE(rs1, rs2, imm13)  BGE(rs2, rs1, imm13)
+#define BGTU(rs1, rs2, imm13) BLTU(rs2, rs1, imm13)
+#define BLEU(rs1, rs2, imm13) BGEU(rs2, rs1, imm13)
+
 #define BEQ_safe(rs1, rs2, imm)              \
     if ((imm) > -0x1000 && (imm) < 0x1000) { \
         BEQ(rs1, rs2, imm);                  \
@@ -287,7 +291,7 @@ f28–31  ft8–11  FP temporaries                  Caller
         BLT(rs1, rs2, imm);                  \
         NOP();                               \
     } else {                                 \
-        BGE(rs2, rs1, 8);                    \
+        BGE(rs1, rs2, 8);                    \
         B(imm - 4);                          \
     }
 #define BGE_safe(rs1, rs2, imm)              \
@@ -295,7 +299,7 @@ f28–31  ft8–11  FP temporaries                  Caller
         BGE(rs1, rs2, imm);                  \
         NOP();                               \
     } else {                                 \
-        BLT(rs2, rs1, 8);                    \
+        BLT(rs1, rs2, 8);                    \
         B(imm - 4);                          \
     }
 #define BLTU_safe(rs1, rs2, imm)             \
@@ -303,7 +307,7 @@ f28–31  ft8–11  FP temporaries                  Caller
         BLTU(rs1, rs2, imm);                 \
         NOP();                               \
     } else {                                 \
-        BGEU(rs2, rs1, 8);                   \
+        BGEU(rs1, rs2, 8);                   \
         B(imm - 4);                          \
     }
 #define BGEU_safe(rs1, rs2, imm)             \
@@ -311,7 +315,39 @@ f28–31  ft8–11  FP temporaries                  Caller
         BGEU(rs1, rs2, imm);                 \
         NOP();                               \
     } else {                                 \
-        BLTU(rs2, rs1, 8);                   \
+        BLTU(rs1, rs2, 8);                   \
+        B(imm - 4);                          \
+    }
+#define BGT_safe(rs1, rs2, imm)              \
+    if ((imm) > -0x1000 && (imm) < 0x1000) { \
+        BGT(rs1, rs2, imm);                  \
+        NOP();                               \
+    } else {                                 \
+        BLE(rs1, rs2, 8);                    \
+        B(imm - 4);                          \
+    }
+#define BLE_safe(rs1, rs2, imm)              \
+    if ((imm) > -0x1000 && (imm) < 0x1000) { \
+        BLE(rs1, rs2, imm);                  \
+        NOP();                               \
+    } else {                                 \
+        BGT(rs1, rs2, 8);                    \
+        B(imm - 4);                          \
+    }
+#define BGTU_safe(rs1, rs2, imm)             \
+    if ((imm) > -0x1000 && (imm) < 0x1000) { \
+        BGTU(rs1, rs2, imm);                 \
+        NOP();                               \
+    } else {                                 \
+        BLEU(rs1, rs2, 8);                   \
+        B(imm - 4);                          \
+    }
+#define BLEU_safe(rs1, rs2, imm)             \
+    if ((imm) > -0x1000 && (imm) < 0x1000) { \
+        BLEU(rs1, rs2, imm);                 \
+        NOP();                               \
+    } else {                                 \
+        BGTU(rs1, rs2, 8);                   \
         B(imm - 4);                          \
     }
 

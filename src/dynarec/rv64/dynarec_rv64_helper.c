@@ -2213,6 +2213,24 @@ void fpu_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         fpu_reset_reg(dyn);
 }
 
+int fpu_needpurgecache(dynarec_rv64_t* dyn, int ninst)
+{
+    // x87
+    for (int i = 0; i < 8; ++i)
+        if (dyn->e.x87cache[i] != -1)
+            return 1;
+    // mmx
+    if (dyn->e.mmxcount) return 1;
+    // sse
+    for (int i = 0; i < 16; ++i)
+        if (dyn->e.ssecache[i].v != -1) return 1;
+    // avx
+    if (dyn->ymm_zero)
+        for (int i = 0; i < 16; ++i)
+            if (is_avx_zero(dyn, ninst, i)) return 1;
+    return 0;
+}
+
 static int findCacheSlot(dynarec_rv64_t* dyn, int ninst, int t, int n, extcache_t* cache)
 {
     ext_cache_t f;
