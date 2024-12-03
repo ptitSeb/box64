@@ -199,7 +199,7 @@ jobs:
           fi
 
           cd build
-          export CTEST_OPTIONS="-j$(nproc) --timeout 60 --output-on-failure --repeat until-pass:20"
+          export CTEST_OPTIONS="-j$(nproc) --timeout 120 --output-on-failure --repeat until-pass:20"
           if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
             export INTERPRETER=qemu-riscv64-static
             export QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/
