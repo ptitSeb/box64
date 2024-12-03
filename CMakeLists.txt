@@ -39,8 +39,8 @@ option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info o
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
 option(CI "Set to ON if running in CI" ${CI})
 option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
-option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BO64})
-option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BO64_BINFMT})
+option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BOX32})
+option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
