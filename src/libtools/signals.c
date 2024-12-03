@@ -466,12 +466,13 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
     return 0;
 }
 
-
 #ifdef DYNAREC
-uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
+uintptr_t getX64Address(dynablock_t* db, uintptr_t native_addr)
 {
     uintptr_t x64addr = (uintptr_t)db->x64_addr;
     uintptr_t armaddr = (uintptr_t)db->block;
+    if(native_addr<(uintptr_t)db->block || native_addr>(uintptr_t)db->block+db->size)
+        return 0;
     int i = 0;
     do {
         int x64sz = 0;
@@ -482,7 +483,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr)
             ++i;
         } while((db->instsize[i-1].x64==15) || (db->instsize[i-1].nat==15));
         // if the opcode is a NOP on ARM side (so armsz==0), it cannot be an address to find
-        if((arm_addr>=armaddr) && (arm_addr<(armaddr+armsz)))
+        if((native_addr>=armaddr) && (native_addr<(armaddr+armsz)))
             return x64addr;
         armaddr+=armsz;
         x64addr+=x64sz;
@@ -509,7 +510,7 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
     return emu;
 }
 #endif
-
+int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 void adjustregs(x64emu_t* emu) {
 // tests some special cases
     uint8_t* mem = (uint8_t*)R_RIP;
@@ -1146,6 +1147,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
     uint32_t mmapped = memExist((uintptr_t)info->si_addr);
+    uint32_t sysmapped = (info->si_addr<(void*)box64_pagesize)?1:mmapped;
     uint32_t real_prot = 0;
     if(prot&PROT_READ) real_prot|=PROT_READ;
     if(prot&PROT_WRITE) real_prot|=PROT_WRITE;
@@ -1166,28 +1168,24 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
                 info2->si_addr = NULL;
             } else if (info->si_errno==0xecec) {
                 // no excute bit on segment
-                sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0x14|((sysmapped && !(real_prot&PROT_READ))?0:1);
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
+                if(!mmapped) info2->si_code = 1;
                 info2->si_errno = 0;
             }else {
-                sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
-                //sigcontext->uc_mcontext.gregs[X64_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0x14|((sysmapped && !(real_prot&PROT_READ))?0:1);
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
             }
-        } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
-            sigcontext->uc_mcontext.gregs[X64_ERR] = (real_prot&PROT_READ)?2:1;//0x0002;    // write flag issue
-            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
         } else {
-            if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 12; // stack overflow probably
-            else
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = mmapped?14:13;
-            //X64_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
-            sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0001;    // read error?
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
+            sigcontext->uc_mcontext.gregs[X64_ERR] = 4|((sysmapped && !(real_prot&PROT_READ))?0:1);
+            if(write_opcode(sigcontext->uc_mcontext.gregs[X64_RIP], (uintptr_t)pc, (R_CS==0x23)))
+                sigcontext->uc_mcontext.gregs[X64_ERR] |= 2;
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
         if(info->si_errno==0x1234) {
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
             info2->si_errno = 0;
         } else if(info->si_errno==0xdead) {
             // INT x
@@ -1195,6 +1193,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             info2->si_errno = 0;
             info2->si_code = 128;
             info2->si_addr = NULL;
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
             // some special cases...
             if(int_n==3) {
                 info2->si_signo = SIGTRAP;
@@ -1461,7 +1460,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #ifdef BAD_SIGNAL
     // try to see if the si_code makes sense
     // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
-    if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {
+    if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && getMmapped((uintptr_t)addr)) {
         printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%hhx\n", addr, prot);
         info->si_code = 2;
     }

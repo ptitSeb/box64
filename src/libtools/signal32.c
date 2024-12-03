@@ -447,7 +447,7 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
 
     return ret;
 }
-
+int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 #define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
 void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
@@ -622,6 +622,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
     uint32_t mmapped = memExist((uintptr_t)info->si_addr);
+    uint32_t sysmapped = (info->si_addr<(void*)box64_pagesize)?1:mmapped;
     uint32_t real_prot = 0;
     if(prot&PROT_READ) real_prot|=PROT_READ;
     if(prot&PROT_WRITE) real_prot|=PROT_WRITE;
@@ -642,28 +643,24 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
                 info2->_sifields._sigfault.__si_addr = 0;
             } else if (info->si_errno==0xecec) {
                 // no excute bit on segment
-                sigcontext->uc_mcontext.gregs[I386_ERR] = 16;//(real_prot&PROT_READ)?16:1; // EXECUTE_FAULT & READ_FAULT
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0x14|((sysmapped && !(real_prot&PROT_READ))?0:1);
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
+                if(!mmapped) info2->si_code = 1;
                 info2->si_errno = 0;
             }else {
-                sigcontext->uc_mcontext.gregs[I386_ERR] = mmapped?16:1;//(real_prot&PROT_READ)?16:1;//(info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
-                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (mmapped)?14:13;
-                //sigcontext->uc_mcontext.gregs[I386_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0x14|((sysmapped && !(real_prot&PROT_READ))?0:1);
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
             }
-        } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
-            sigcontext->uc_mcontext.gregs[I386_ERR] = (real_prot&PROT_READ)?2:1;//0x0002;    // write flag issue
-            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
         } else {
-            if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[I386_ESP])<16)
-                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 12; // stack overflow probably
-            else
-                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (mmapped || ((uintptr_t)info->si_addr<0x10000))?14:13;
-            //I386_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
-            sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0001;    // read error?
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
+            sigcontext->uc_mcontext.gregs[I386_ERR] = 4|((sysmapped && !(real_prot&PROT_READ))?0:1);
+            if(write_opcode(sigcontext->uc_mcontext.gregs[I386_EIP], (uintptr_t)pc, 1))
+                sigcontext->uc_mcontext.gregs[I386_ERR] |= 2;
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
         if(info->si_errno==0x1234) {
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 13;
             info2->si_errno = 0;
         } else if(info->si_errno==0xdead) {
             // INT x
@@ -671,6 +668,8 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             info2->si_errno = 0;
             info2->si_code = 128;
             info2->_sifields._sigfault.__si_addr = 0;
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 13;
+
             // some special cases...
             if(int_n==3) {
                 info2->si_signo = SIGTRAP;

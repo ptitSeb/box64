@@ -374,6 +374,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
     "${BOX64_ROOT}/src/libtools/signals.c"
+    "${BOX64_ROOT}/src/libtools/decopcode.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
