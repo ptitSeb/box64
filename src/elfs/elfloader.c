@@ -1091,7 +1091,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
             h->needed->names[j++] = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
     #ifndef ANDROID
     if(box64_is32bits && strstr(h->name, "lsteamclient.dll.so"))
-        h->needed->names[j++] = "libgcc_s.so";
+        h->needed->names[j++] = "libgcc_s.so.1";
     #endif
     if(h==my_context->elfs[0] && box64_addlibs.size) {
         for(int i=0; i<box64_addlibs.size; ++i) {
