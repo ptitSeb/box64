@@ -494,6 +494,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
 #endif
 #else
     (void)ucntx; (void)cur_db;
+    void* pc = NULL;
 #endif
     // setup libc context stack frame, on caller stack
     frame = frame&~15;
