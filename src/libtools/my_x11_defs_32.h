@@ -1172,6 +1172,23 @@ typedef struct my_XcursorCursors_32_s {
     ptr_t      cursors; //Cursor*
 } my_XcursorCursors_32_t;
 
+typedef struct my_XcursorImage_32_s {
+    uint32_t        version;
+    uint32_t        size;
+    uint32_t        width;
+    uint32_t        height;
+    uint32_t        xhot;
+    uint32_t        yhot;
+    uint32_t        delay;
+    ptr_t           pixels; //XcursorPixel*
+} my_XcursorImage_32_t;
+
+typedef struct my_XcursorImages_32_s {
+    int             nimage;
+    ptr_t           images; //my_XcursorImage_t**
+    ptr_t           name; //char*
+} my_XcursorImages_32_t;
+
 typedef struct my_XExtCodes_32_s {
     int extension;
     int major_opcode;

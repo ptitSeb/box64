@@ -64,6 +64,67 @@ void inplace_XcursorCursors_enlarge(void* a)
 	dst->dpy = FindDisplay(from_ptrv(src->dpy));
 }
 
+void inplace_XcursorImage_shrink(void* a)
+{
+	if(!a) return;
+	my_XcursorImage_t* src = a;
+	my_XcursorImage_32_t* dst = a;
+
+	dst->version = src->version;
+	dst->size = src->size;
+	dst->width = src->width;
+	dst->height = src->height;
+	dst->xhot = src->xhot;
+	dst->yhot = src->yhot;
+	dst->delay = src->delay;
+	dst->pixels = to_ptrv(src->pixels);
+}
+void inplace_XcursorImage_enlarge(void* a)
+{
+	if(!a) return;
+	my_XcursorImage_32_t* src = a;
+	my_XcursorImage_t* dst = a;
+
+	dst->pixels = from_ptrv(src->pixels);
+	dst->delay = src->delay;
+	dst->yhot = src->yhot;
+	dst->xhot = src->xhot;
+	dst->height = src->height;
+	dst->width = src->width;
+	dst->size = src->size;
+	dst->version = src->version;
+}
+
+void inplace_XcursorImages_shrink(void* a)
+{
+	if(!a) return;
+	my_XcursorImages_t* src = a;
+	my_XcursorImages_32_t* dst = a;
+
+	for(int i=0; i<src->nimage; ++i)
+		inplace_XcursorCursors_shrink(src->images[i]);
+	for(int i=0; i<src->nimage; ++i)
+		((ptr_t*)src->images)[i] = to_ptrv(src->images[i]);
+	dst->nimage = src->nimage;
+	dst->images = to_ptrv(src->images);
+	dst->name = to_ptrv(src->name);
+}
+
+void inplace_XcursorImages_enlarge(void* a)
+{
+	if(!a) return;
+	my_XcursorImages_32_t* src = a;
+	my_XcursorImages_t* dst = a;
+
+	dst->name = from_ptrv(src->name);
+	dst->images = from_ptrv(src->images);
+	dst->nimage = src->nimage;
+	for(int i=dst->nimage-1; i>=0; --i)
+		dst->images[i] = from_ptrv(((ptr_t*)dst->images)[i]);
+	for(int i=dst->nimage-1; i>=0; --i)
+		inplace_XcursorCursors_enlarge(dst->images[i]);
+}
+
 EXPORT void* my32_XcursorCursorsCreate(x64emu_t* emu, void* dpy, int n)
 {
 	void* ret = my->XcursorCursorsCreate(dpy, n);
@@ -75,6 +136,56 @@ EXPORT void my32_XcursorCursorsDestroy(x64emu_t* emu, void* a)
 {
 	inplace_XcursorCursors_enlarge(a);
 	my->XcursorCursorsDestroy(a);
+}
+
+EXPORT void* my32_XcursorImageCreate(x64emu_t* emu, int w, int h)
+{
+	void* ret = my->XcursorImageCreate(w, h);
+	inplace_XcursorImage_shrink(ret);
+	return ret;
+}
+
+EXPORT void my32_XcursorImageDestroy(x64emu_t* emu, void* image)
+{
+	inplace_XcursorImage_enlarge(image);
+	my->XcursorImageDestroy(image);
+}
+
+EXPORT unsigned long my32_XcursorImageLoadCursor(x64emu_t*, void* dpy, void* image)
+{
+	inplace_XcursorImage_enlarge(image);
+	unsigned long ret = my->XcursorImageLoadCursor(dpy, image);
+	inplace_XcursorImage_shrink(image);
+}
+
+EXPORT void* my_XcursorImagesCreate(x64emu_t* emu, int n)
+{
+	void* ret = my->XcursorImagesCreate(n);
+	inplace_XcursorImages_shrink(ret);
+	return ret;
+}
+
+EXPORT void my_XcursorImagesDestroy(x64emu_t* emu, void* images)
+{
+	inplace_XcursorCursors_enlarge(images);
+	my->XcursorImagesDestroy(images);
+}
+
+EXPORT unsigned long my_XcursorImagesLoadCursors(x64emu_t* emu, void* dpy, void* images)
+{
+	inplace_XcursorImages_enlarge(images);
+	unsigned long ret = my->XcursorImagesLoadCursor(dpy, images);
+	inplace_XcursorImages_shrink(images);
+	return ret;
+}
+
+EXPORT void* my_XcursorImagesLoadCursor(x64emu_t* emu, void* dpy, void* images)
+{
+	inplace_XcursorImages_enlarge(images);
+	void* ret = my->XcursorImagesLoadCursors(dpy, images);
+	inplace_XcursorImages_shrink(images);
+	inplace_XcursorCursors_shrink(ret);
+	return ret;
 }
 
 #include "wrappedlib_init32.h"

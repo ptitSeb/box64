@@ -294,6 +294,7 @@
 #() LFXp -> LFXp
 #() pFEv -> pFEv
 #() pEEv -> pEEv
+#() pFEi -> pFEi
 #() pEEu -> pEEu
 #() pFEp -> pFEp
 #() pEEp -> pEEp
@@ -579,6 +580,7 @@
 #() lFppL -> lFppL
 #() LFEpi -> LFEpi
 #() LFEpp -> LFEpp
+#() LFEXp -> LFEXp
 #() LFpii -> LFpii
 #() LEpip -> LEpip
 #() LFppi -> LFppi
@@ -590,6 +592,7 @@
 #() LFXLC -> LFXLC
 #() LFXpi -> LFXpi
 #() LFXpp -> LFXpp
+#() pFEii -> pFEii
 #() pEEip -> pEEip
 #() pFEiV -> pFEiV
 #() pEEpi -> pEEpi
@@ -2345,8 +2348,19 @@ wrappedlibxcomposite:
 wrappedlibxcursor:
 - vFp:
   - XcursorCursorsDestroy
+  - XcursorImageDestroy
+  - XcursorImagesDestroy
+- pFi:
+  - XcursorImagesCreate
+- LFXp:
+  - XcursorImageLoadCursor
+  - XcursorImagesLoadCursor
+- pFii:
+  - XcursorImageCreate
 - pFXi:
   - XcursorCursorsCreate
+- pFXp:
+  - XcursorImagesLoadCursors
 wrappedlibxext:
 - vFp:
   - XdbeFreeVisualInfo

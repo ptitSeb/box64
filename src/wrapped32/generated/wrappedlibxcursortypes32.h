@@ -12,10 +12,21 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef void* (*pFi_t)(int32_t);
+typedef uintptr_t (*LFXp_t)(void*, void*);
+typedef void* (*pFii_t)(int32_t, int32_t);
 typedef void* (*pFXi_t)(void*, int32_t);
+typedef void* (*pFXp_t)(void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XcursorCursorsDestroy, vFp_t) \
-	GO(XcursorCursorsCreate, pFXi_t)
+	GO(XcursorImageDestroy, vFp_t) \
+	GO(XcursorImagesDestroy, vFp_t) \
+	GO(XcursorImagesCreate, pFi_t) \
+	GO(XcursorImageLoadCursor, LFXp_t) \
+	GO(XcursorImagesLoadCursor, LFXp_t) \
+	GO(XcursorImageCreate, pFii_t) \
+	GO(XcursorCursorsCreate, pFXi_t) \
+	GO(XcursorImagesLoadCursors, pFXp_t)
 
 #endif // __wrappedlibxcursorTYPES32_H_
