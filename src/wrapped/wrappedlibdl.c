@@ -422,9 +422,16 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             return NULL;
         }
     } else {
-        // still usefull?
+        // for "self" dlopen
         //  => look globably
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) {
+        //look in main elf first
+        int found = 0;
+        if(ElfGetSymTabStartEnd(my_context->elfs[0], &start, &end, rsymbol))
+            found = 1;
+        if(!found && GetSymTabStartEnd(my_context->maplib, rsymbol, &start, &end))
+        //if(!found && GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) 
+            found = 1;
+        if(found) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             pthread_mutex_unlock(&mutex);
             return (void*)start;
