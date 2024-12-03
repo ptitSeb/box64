@@ -1,0 +1,50 @@
+sig = 11
+got bad_ptr
+sig = 5
+si_addr: 0, si_code: 128, si_errno: 0, RIP offset: 1, TRAPERR=0x0 TRAPNO=3
+sig = 5
+si_addr: 0, si_code: 128, si_errno: 0, RIP offset: 2, TRAPERR=0x0 TRAPNO=3
+sig = 11
+si_addr: 0, si_code: 128, si_errno: 0, RIP offset: 0, TRAPERR=0x16a TRAPNO=13
+from non-existant memory
+sig = 11
+si_addr: ffffffffdeadbeef, si_code: 1, si_errno: 0, TRAPERR=0x7 TRAPNO=14
+segfault, good
+sig = 11
+si_addr: ffffffffdeadbeef, si_code: 1, si_errno: 0, TRAPERR=0x5 TRAPNO=14
+segfault, good
+sig = 11
+si_addr: ffffffffdeadbeef, si_code: 1, si_errno: 0, TRAPERR=0x15 TRAPNO=14
+segfault, good
+from NULL memory
+sig = 11
+si_addr: 0, si_code: 1, si_errno: 0, TRAPERR=0x6 TRAPNO=14
+segfault, good
+sig = 11
+si_addr: 0, si_code: 1, si_errno: 0, TRAPERR=0x4 TRAPNO=14
+segfault, good
+sig = 11
+si_addr: 0, si_code: 1, si_errno: 0, TRAPERR=0x14 TRAPNO=14
+segfault, good
+from existant memory
+exec_p prot = 0
+sig = 11
+si_addr: exec_p+0, si_code: 2, si_errno: 0, TRAPERR=0x6 TRAPNO=14
+segfault, good
+sig = 11
+si_addr: exec_p+0, si_code: 2, si_errno: 0, TRAPERR=0x4 TRAPNO=14
+segfault, good
+exec_p prot = PROT_READ
+sig = 11
+si_addr: exec_p+0, si_code: 2, si_errno: 0, TRAPERR=0x7 TRAPNO=14
+segfault, good
+exec_p prot = PROT_READ|PROT_WRITE
+sig = 11
+si_addr: exec_p+0, si_code: 2, si_errno: 0, RIP offset: 0, TRAPERR=0x15 TRAPNO=14
+Cannot run, good
+exec_p prot = PROT_READ|PROT_WRITE|PROT_EXEC
+exec_p prot = PROT_READ|PROT_WRITE
+sig = 11
+si_addr: exec_p+0, si_code: 2, si_errno: 0, RIP offset: 0, TRAPERR=0x15 TRAPNO=14
+Cannot run, good!
+exec_p prot = PROT_READ|PROT_WRITE|PROT_EXEC
