@@ -1871,6 +1871,7 @@
 #() LFpppii
 #() LFppppi
 #() LFppppp
+#() pFEiLpp
 #() pFEuipV
 #() pFEuipA
 #() pFEpiii
@@ -2597,6 +2598,7 @@
 #() iFpiiiiii
 #() iFpiiiuwp
 #() iFpiiiuup
+#() iFpiipiii
 #() iFpiipppp
 #() iFpiuiipp
 #() iFpiuuuiu
@@ -3499,6 +3501,8 @@ wrappedcrypto3:
   - ERR_set_error
 - vFiipA:
   - ERR_vset_error
+- pFiLpp:
+  - RSA_generate_key
 - pFpppp:
   - ASN1_d2i_bio
   - PEM_read_DHparams
@@ -3511,6 +3515,7 @@ wrappedcrypto3:
   - PEM_read_bio_PUBKEY
   - PEM_read_bio_PrivateKey
   - PEM_read_bio_RSAPrivateKey
+  - PEM_read_bio_RSAPublicKey
   - PEM_read_bio_RSA_PUBKEY
   - PEM_read_bio_X509
   - PEM_read_bio_X509_AUX

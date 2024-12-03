@@ -198,6 +198,30 @@ static void* find_passphrase_Fct(void* fct)
     return NULL;
 }
 
+// rsakeygen
+#define GO(A)                                              \
+static uintptr_t my3_rsakeygen_fct_##A = 0;                \
+static void my3_rsakeygen_##A(int a, int b, void* c)       \
+{                                                          \
+    RunFunctionFmt(my3_rsakeygen_fct_##A, "iip", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_rsakeygen_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_rsakeygen_fct_##A == (uintptr_t)fct) return my3_rsakeygen_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_rsakeygen_fct_##A == 0) {my3_rsakeygen_fct_##A = (uintptr_t)fct; return my3_rsakeygen_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto rsakeygen callback\n");
+    return NULL;
+}
+
 // xnew
 #define GO(A)   \
 static uintptr_t my3_xnew_fct_##A = 0;                           \
@@ -392,6 +416,12 @@ EXPORT void my3_PEM_read_bio_RSA_PUBKEY(x64emu_t* emu, void* bp, void* x, void* 
     my->PEM_read_bio_RSA_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
 }
 
+EXPORT void my3_PEM_read_bio_RSAPublicKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    (void)emu;
+    my->PEM_read_bio_RSAPublicKey(bp, x, find_passphrase_Fct(cb), u);
+}
+
 EXPORT void my3_PEM_read_bio_ECPrivateKey(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     (void)emu;
@@ -549,6 +579,11 @@ EXPORT void* my3_PEM_read_bio_PUBKEY(x64emu_t* emu, void* bp, void* x, void* cb,
 EXPORT void* my3_PEM_read_bio_DHparams(x64emu_t* emu, void* bp, void* x, void* cb, void* u)
 {
     return my->PEM_read_bio_DHparams(bp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void* my3_RSA_generate_key(x64emu_t* emu, int bits, unsigned long e, void* cb, void* cb_arg)
+{
+    return my->RSA_generate_key(bits, e, find_rsakeygen_Fct(cb), cb_arg);
 }
 
 typedef struct my_v3_ext_method_s {

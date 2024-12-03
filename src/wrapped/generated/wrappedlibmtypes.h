@@ -22,10 +22,10 @@ typedef double (*dFd_t)(double);
 typedef float (*fFff_t)(float, float);
 typedef double (*dFdd_t)(double, double);
 
-#ifdef HAVE_LD80BITS
+#if defined(HAVE_LD80BITS) || defined(ANDROID)
 typedef int64_t (*IFD_t)(long double);
 typedef long double (*DFD_t)(long double);
-#else // HAVE_LD80BITS
+#else // !HAVE_LD80BITS && !ANDROID
 typedef int64_t (*IFD_t)(double);
 typedef double (*DFD_t)(double);
 #endif
