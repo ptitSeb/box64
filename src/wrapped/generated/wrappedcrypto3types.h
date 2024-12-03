@@ -19,6 +19,7 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFiipA_t)(int32_t, int32_t, void*, va_list);
+typedef void* (*pFiLpp_t)(int32_t, uintptr_t, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
 typedef int32_t (*iFpplppi_t)(void*, void*, intptr_t, void*, void*, int32_t);
@@ -37,6 +38,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(BIO_printf, iFppV_t) \
 	GO(ERR_set_error, vFiipV_t) \
 	GO(ERR_vset_error, vFiipA_t) \
+	GO(RSA_generate_key, pFiLpp_t) \
 	GO(ASN1_d2i_bio, pFpppp_t) \
 	GO(PEM_read_DHparams, pFpppp_t) \
 	GO(PEM_read_bio_DHparams, pFpppp_t) \
@@ -48,6 +50,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(PEM_read_bio_PUBKEY, pFpppp_t) \
 	GO(PEM_read_bio_PrivateKey, pFpppp_t) \
 	GO(PEM_read_bio_RSAPrivateKey, pFpppp_t) \
+	GO(PEM_read_bio_RSAPublicKey, pFpppp_t) \
 	GO(PEM_read_bio_RSA_PUBKEY, pFpppp_t) \
 	GO(PEM_read_bio_X509, pFpppp_t) \
 	GO(PEM_read_bio_X509_AUX, pFpppp_t) \

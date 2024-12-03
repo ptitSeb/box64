@@ -1898,6 +1898,7 @@ GO(EVP_DigestSignFinal, iFppp)
 GO(EVP_DigestSignInit, iFppppp)
 GO(EVP_DigestUpdate, iFppL)
 GO(EVP_DigestVerify, iFppLpL)
+GO(EVP_DigestVerifyUpdate, iFppL)
 GO(EVP_DigestVerifyFinal, iFppL)
 GO(EVP_DigestVerifyInit, iFppppp)
 //GO(EVP_dss, 
@@ -2792,7 +2793,7 @@ GOM(PEM_read_bio_PrivateKey, pFEpppp)
 GOM(PEM_read_bio_PUBKEY, pFEpppp)
 GOM(PEM_read_bio_RSAPrivateKey, pFEpppp)
 GOM(PEM_read_bio_RSA_PUBKEY, pFEpppp)
-//GO(PEM_read_bio_RSAPublicKey, 
+GOM(PEM_read_bio_RSAPublicKey, pFEpppp)
 GOM(PEM_read_bio_X509, pFEpppp)
 GOM(PEM_read_bio_X509_AUX, pFEpppp)
 GOM(PEM_read_bio_X509_CERT_PAIR, pFEpppp)
@@ -3105,7 +3106,7 @@ GO(RSA_bits, iFp)
 GO(RSA_check_key, iFp)
 //GO(RSA_flags, 
 GO(RSA_free, vFp)
-//GO(RSA_generate_key, 
+GOM(RSA_generate_key, pFEiLpp)
 GO(RSA_generate_key_ex, iFpipp)
 GO(RSA_get0_crt_params, vFpppp)
 GO(RSA_get0_factors, vFppp)
@@ -3628,11 +3629,11 @@ GO(X509_load_crl_file, iFppi)
 GO(X509_LOOKUP_file, pFv)
 //GO(X509_LOOKUP_free, 
 GO(X509_LOOKUP_hash_dir, pFv)
-//GO(X509_LOOKUP_init, 
-//GO(X509_LOOKUP_new, 
-//GO(X509_LOOKUP_shutdown, 
-//GO(X509_NAME_add_entry, 
-//GO(X509_NAME_add_entry_by_NID, 
+// GO(X509_LOOKUP_init,
+// GO(X509_LOOKUP_new,
+// GO(X509_LOOKUP_shutdown,
+// GO(X509_NAME_add_entry,
+GO(X509_NAME_add_entry_by_NID, iFpiipiii)
 //GO(X509_NAME_add_entry_by_OBJ, 
 GO(X509_NAME_add_entry_by_txt, iFppipiii)
 //GO(X509_NAME_cmp, 
@@ -3723,20 +3724,21 @@ GO(X509_PUBKEY_get0_param, iFppppp)
 //GO(X509_REQ_digest, 
 //GO(X509_REQ_dup, 
 //GO(X509_REQ_extension_nid, 
-//GO(X509_REQ_free, 
+GO(X509_REQ_free, vFp)
 //GO(X509_REQ_get1_email, 
 //GO(X509_REQ_get_attr, 
 //GO(X509_REQ_get_attr_by_NID, 
 //GO(X509_REQ_get_attr_by_OBJ, 
 //GO(X509_REQ_get_attr_count, 
 //GO(X509_REQ_get_extension_nids, 
-//GO(X509_REQ_get_extensions, 
+//GO(X509_REQ_get_extensions,
 GO(X509_REQ_get_pubkey, pFp)
+GO(X509_REQ_get_subject_name, pFp)
 GO(X509_REQ_get_X509_PUBKEY, pFp)
 GO(X509_REQ_get0_pubkey, pFp)
 //GO(X509_REQ_INFO_free, 
 //GO(X509_REQ_INFO_new, 
-//GO(X509_REQ_new, 
+GO(X509_REQ_new, pFv)
 //GO(X509_REQ_print, 
 //GO(X509_REQ_print_ex, 
 //GO(X509_REQ_print_fp, 
@@ -3744,7 +3746,7 @@ GO(X509_REQ_get0_pubkey, pFp)
 GO(X509_REQ_set_pubkey, iFpp)
 GO(X509_REQ_set_subject_name, iFpp)
 //GO(X509_REQ_set_version, 
-//GO(X509_REQ_sign, 
+GO(X509_REQ_sign, iFppp)
 //GO(X509_REQ_sign_ctx, 
 //GO(X509_REQ_to_X509, 
 //GO(X509_REQ_verify, 
