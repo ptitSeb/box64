@@ -819,6 +819,7 @@
 #() iEEpLi -> iEEpLi
 #() iFEpLi -> iFEpLi
 #() iEEppi -> iEEppi
+#() iFEppi -> iFEppi
 #() iFEppu -> iFEppu
 #() iEEppL -> iEEppL
 #() iEEppp -> iEEppp
@@ -1170,6 +1171,7 @@
 #() pFEppip -> pFEppip
 #() pFEXipp -> pFEXipp
 #() pFEXlpp -> pFEXlpp
+#() pFEXpip -> pFEXpip
 #() pFEXppi -> pFEXppi
 #() pFuiupp -> pFuiupp
 #() pFpiiuu -> pFpiiuu
@@ -2220,6 +2222,7 @@ wrappedlibx11:
 - iFp:
   - XDestroyImage
   - XFreeExtensionList
+  - XFreeFontNames
   - XFreeModifiermap
   - XInitImage
   - XRefreshKeyboardMapping
@@ -2258,6 +2261,7 @@ wrappedlibx11:
   - XSynchronize
 - pFXL:
   - XGetWMHints
+  - XQueryFont
 - pFXp:
   - XListExtensions
   - XLoadQueryFont
@@ -2265,6 +2269,9 @@ wrappedlibx11:
   - XSetWMNormalHints
 - iFpip:
   - XStringListToTextProperty
+- iFppi:
+  - XFreeFontInfo
+  - XTextWidth16
 - iFXip:
   - XCheckTypedEvent
 - iFXlp:
@@ -2298,6 +2305,8 @@ wrappedlibx11:
   - XCreateColormap
 - pFXlpp:
   - XGetVisualInfo
+- pFXpip:
+  - XListFonts
 - iFXbpLiL_pp:
   - XmbTextPropertyToTextList
 - iFppipp:

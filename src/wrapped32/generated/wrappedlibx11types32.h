@@ -30,6 +30,7 @@ typedef void* (*pFXL_t)(void*, uintptr_t);
 typedef void* (*pFXp_t)(void*, void*);
 typedef void (*vFXLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXlp_t)(void*, intptr_t, void*);
 typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
@@ -43,6 +44,7 @@ typedef int32_t (*iFXLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
+typedef void* (*pFXpip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFXbpLiL_pp_t)(void*, struct_pLiL_t*, void*, void*);
 typedef int32_t (*iFppipp_t)(void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFXLilp_t)(void*, uintptr_t, int32_t, intptr_t, void*);
@@ -70,6 +72,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XLockDisplay, vFX_t) \
 	GO(XDestroyImage, iFp_t) \
 	GO(XFreeExtensionList, iFp_t) \
+	GO(XFreeFontNames, iFp_t) \
 	GO(XFreeModifiermap, iFp_t) \
 	GO(XInitImage, iFp_t) \
 	GO(XRefreshKeyboardMapping, iFp_t) \
@@ -95,10 +98,13 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSetIMValues, pFpV_t) \
 	GO(XSynchronize, pFXi_t) \
 	GO(XGetWMHints, pFXL_t) \
+	GO(XQueryFont, pFXL_t) \
 	GO(XListExtensions, pFXp_t) \
 	GO(XLoadQueryFont, pFXp_t) \
 	GO(XSetWMNormalHints, vFXLp_t) \
 	GO(XStringListToTextProperty, iFpip_t) \
+	GO(XFreeFontInfo, iFppi_t) \
+	GO(XTextWidth16, iFppi_t) \
 	GO(XCheckTypedEvent, iFXip_t) \
 	GO(XMaskEvent, iFXlp_t) \
 	GO(XGetWindowAttributes, iFXLp_t) \
@@ -119,6 +125,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XIfEvent, iFXppp_t) \
 	GO(XCreateColormap, LFXLpi_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
+	GO(XListFonts, pFXpip_t) \
 	GO(XmbTextPropertyToTextList, iFXbpLiL_pp_t) \
 	GO(XLookupString, iFppipp_t) \
 	GO(XSendEvent, iFXLilp_t) \
