@@ -994,7 +994,7 @@ GOW(ldexpl, DFDi)
 #else
 GOW2(ldexpl, KFKi, ldexp)
 #endif
-//GOS(ldiv, pEEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
+GOS(ldiv, pEEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
 //GOM(lfind, pEEpppLp)            //%%
 //GO(lgetxattr, iEpppu)
 GOM(__libc_alloca_cutoff, iEEL) //%%
