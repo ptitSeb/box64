@@ -1563,13 +1563,14 @@ EXPORT int32_t my32_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
 
     return f(pathname, findnftwFct(B), nopenfd, flags);
 }
+#endif
 
 EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
 {
-    *((ldiv_t*)p) = ldiv(num, den);
+    *((div_t*)p) = div(num, den);
     return p;
 }
-#endif
+
 EXPORT int my32_epoll_create(x64emu_t* emu, int size)
 {
     return epoll_create(size);

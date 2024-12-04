@@ -2154,12 +2154,6 @@ EXPORT int32_t my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, 
 }
 #endif
 
-EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
-{
-    *((div_t*)p) = div(num, den);
-    return p;
-}
-
 #ifndef NOALIGN
 EXPORT int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
 {
