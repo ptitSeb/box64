@@ -457,7 +457,7 @@ EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
     int ret = statvfs(f, &s);
-    if(r)
+    if(r>=0)
         UnalignStatVFS64_32(&s, r);
     return ret;
 }
@@ -466,7 +466,25 @@ EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
     int ret = statvfs(f, &s);
-    if(r)
+    if(r>=0)
+        UnalignStatVFS_32(&s, r);
+    return ret;
+}
+
+EXPORT int my32_fstatvfs64(x64emu_t* emu, int fd, void* r)
+{
+    struct statvfs s = {0};
+    int ret = fstatvfs(fd, &s);
+    if(r>=0)
+        UnalignStatVFS64_32(&s, r);
+    return ret;
+}
+
+EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
+{
+    struct statvfs s = {0};
+    int ret = fstatvfs(fd, &s);
+    if(r>=0)
         UnalignStatVFS_32(&s, r);
     return ret;
 }

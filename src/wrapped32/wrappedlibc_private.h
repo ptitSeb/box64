@@ -419,8 +419,8 @@ GO(__fsetlocking, iESi)
 GO(fsetxattr, iEippLi)
 GOWM(fstatfs, iEip) //%%,noE
 GOWM(fstatfs64, iEip)    //%%,noE
-//GO(fstatvfs, iEip)
-GOW(fstatvfs64, iEip)   // alignment?
+GOM(fstatvfs, iEEip)
+GOWM(fstatvfs64, iEEip)
 GOW(fsync, iEi)
 GOWM(ftell, lEES)
 GO(ftello, lES)

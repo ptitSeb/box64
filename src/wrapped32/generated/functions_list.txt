@@ -1814,6 +1814,8 @@ wrappedlibc:
 - vEpu:
 - vEpp:
 - iEip:
+  - fstatvfs
+  - fstatvfs64
   - futimens
   - futimes
 - iEup:

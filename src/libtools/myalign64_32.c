@@ -43,18 +43,18 @@ struct native_fsid {
 };
 
 struct native_statfs64 {
-  uint32_t    f_type;
-  uint32_t    f_bsize;
+  long        f_type;
+  long        f_bsize;
   uint64_t    f_blocks;
   uint64_t    f_bfree;
   uint64_t    f_bavail;
   uint64_t    f_files;
   uint64_t    f_ffree;
   struct native_fsid f_fsid;
-  uint32_t    f_namelen;
-  uint32_t    f_frsize;
-  uint32_t    f_flags;
-  uint32_t    f_spare[4];
+  long        f_namelen;
+  long        f_frsize;
+  long        f_flags;
+  long        f_spare[4];
 };  // f_flags is not always defined, but then f_spare is [5] in that case
 
 void UnalignStatFS64_32(const void* source, void* dest)
@@ -62,21 +62,21 @@ void UnalignStatFS64_32(const void* source, void* dest)
     struct i386_statfs64 *i386st = (struct i386_statfs64*)dest;
     struct native_statfs64 *st = (struct native_statfs64*) source;
 
-    i386st->f_type      = st->f_type;
-    i386st->f_bsize     = st->f_bsize;
+    i386st->f_type      = to_long(st->f_type);
+    i386st->f_bsize     = to_long(st->f_bsize);
     i386st->f_blocks    = st->f_blocks;
     i386st->f_bfree     = st->f_bfree;
     i386st->f_bavail    = st->f_bavail;
     i386st->f_files     = st->f_files;
     i386st->f_ffree     = st->f_ffree;
     memcpy(&i386st->f_fsid, &st->f_fsid, sizeof(i386st->f_fsid));
-    i386st->f_namelen   = st->f_namelen;
-    i386st->f_frsize    = st->f_frsize;
-    i386st->f_flags     = st->f_flags;
-    i386st->f_spare[0]  = st->f_spare[0];
-    i386st->f_spare[1]  = st->f_spare[1];
-    i386st->f_spare[2]  = st->f_spare[2];
-    i386st->f_spare[3]  = st->f_spare[3];
+    i386st->f_namelen   = to_long(st->f_namelen);
+    i386st->f_frsize    = to_long(st->f_frsize);
+    i386st->f_flags     = to_long(st->f_flags);
+    i386st->f_spare[0]  = to_long(st->f_spare[0]);
+    i386st->f_spare[1]  = to_long(st->f_spare[1]);
+    i386st->f_spare[2]  = to_long(st->f_spare[2]);
+    i386st->f_spare[3]  = to_long(st->f_spare[3]);
 }
 
 void UnalignStatFS_32(const void* source, void* dest)
