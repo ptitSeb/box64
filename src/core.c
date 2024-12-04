@@ -1620,6 +1620,10 @@ void LoadLDPath(box64context_t *context)
             AddPath("/usr/lib/box64-i386-linux-gnu", &context->box64_ld_lib, 1);
         if(FileExist("/data/data/com.termux/files/usr/glibc/lib/i386-linux-gnu", 0))
             AddPath("/data/data/com.termux/files/usr/glibc/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/glibc/lib/box64-i386-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/glibc/lib/box64-i386-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/lib/box64-i386-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/lib/box64-i386-linux-gnu", &context->box64_ld_lib, 1);
         #endif
     } else {
         if(FileExist("/lib/x86_64-linux-gnu", 0))
@@ -1632,6 +1636,10 @@ void LoadLDPath(box64context_t *context)
             AddPath("/usr/lib/box64-x86_64-linux-gnu", &context->box64_ld_lib, 1);
         if(FileExist("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", 0))
             AddPath("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/glibc/lib/box64-x86_64-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/glibc/lib/box64-x86_64-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/lib/box64-x86_64-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/lib/box64-x86_64-linux-gnu", &context->box64_ld_lib, 1);
     }
     #else
     //TODO: Add Termux Library Path - Lily
