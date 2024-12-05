@@ -2219,14 +2219,15 @@ EXPORT int my32_XChangeWindowAttributes(x64emu_t* emu, void* dpy, XID window, un
     return my->XChangeWindowAttributes(dpy, window, mask, attrs_l);
 }
 
-EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID prop, long offset, long length, int delete, XID req, XID* type_return, int* fmt_return, ulong_t* nitems_return, ulong_t* bytes, ptr_t*prop_return)
+EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID prop, long offset, long length, int delete, XID req, XID_32* type_return, int* fmt_return, ulong_t* nitems_return, ulong_t* bytes, ptr_t*prop_return)
 {
-    unsigned long nitems_l = 0, bytes_l = 0;
+    unsigned long nitems_l = 0, bytes_l = 0, type_return_l = 0;
     void* prop_l = NULL;
-    int ret = my->XGetWindowProperty(dpy, window, prop, offset, length, delete, req, type_return, fmt_return, &nitems_l, &bytes_l, &prop_l);
+    int ret = my->XGetWindowProperty(dpy, window, prop, offset, length, delete, req, &type_return_l, fmt_return, &nitems_l, &bytes_l, &prop_l);
     *nitems_return = to_ulong(nitems_l);
     *bytes = to_ulong(bytes_l);
     *prop_return = to_ptrv(prop_l);
+    *type_return = to_ulong(type_return_l);
     if(!ret && *fmt_return==32) {
         // inplace shrink
         unsigned long *src = prop_l;
