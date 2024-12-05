@@ -52,26 +52,10 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define xFlags   31
 #define xRIP     20
 #define xSavedSP 22
-// function to move from x86 regs number to LA64 reg number
-#define TO_LA64(A) (((A) > 7) ? ((A) + 15) : ((A) + 12))
-// 32bits version
-#define wEAX   xRAX
-#define wECX   xRCX
-#define wEDX   xRDX
-#define wEBX   xRBX
-#define wESP   xRSP
-#define wEBP   xRBP
-#define wESI   xRSI
-#define wEDI   xRDI
-#define wR8    xR8
-#define wR9    xR9
-#define wR10   xR10
-#define wR11   xR11
-#define wR12   xR12
-#define wR13   xR13
-#define wR14   xR14
-#define wR15   xR15
-#define wFlags xFlags
+
+// convert a x86 register to native according to the register mapping
+#define TO_NAT(A) (xRAX + (A) + (((A) > 7) ? 3 : 0))
+
 // scratch registers
 #define x1 5
 #define x2 6
@@ -80,13 +64,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define x5 9
 #define x6 10
 #define x7 11
-// 32bits version of scratch
-#define w1 x1
-#define w2 x2
-#define w3 x3
-#define w4 x4
-#define w5 x5
-#define w6 x6
+
 // emu is r0
 #define xEmu 4
 // LA64 RA

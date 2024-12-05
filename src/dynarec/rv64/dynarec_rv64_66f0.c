@@ -25,7 +25,9 @@
 
 uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip;
+    (void)rep;
+    (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop;
@@ -42,8 +44,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(wb2);
     MAYUSE(j64);
 
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
+    while ((opcode == 0xF2) || (opcode == 0xF3)) {
+        rep = opcode - 0xF1;
         opcode = F8;
     }
 
@@ -54,17 +56,20 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x83:
             nextop = F8;
             SMDMB();
-            switch((nextop>>3)&7) {
-                case 0: //ADD
-                    if(opcode==0x81) {
+            switch ((nextop >> 3) & 7) {
+                case 0: // ADD
+                    if (opcode == 0x81) {
                         INST_NAME("LOCK ADD Ew, Iw");
                     } else {
                         INST_NAME("LOCK ADD Ew, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                    if(MODREG) {
-                        if(opcode==0x81) u64 = F16; else u64 = (uint16_t)(int16_t)F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                    if (MODREG) {
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         MOV64x(x5, u64);
                         ZEXTH(x6, ed);
                         emit_add16(dyn, ninst, x6, x5, x3, x4, x2);
@@ -72,8 +77,11 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SLLI(ed, ed, 16);
                         OR(ed, ed, x6);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) u64 = F16; else u64 = (uint16_t)(int16_t)F8S;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
                         MOV64x(x5, u64);
 
                         ANDI(x3, wback, 0b10);

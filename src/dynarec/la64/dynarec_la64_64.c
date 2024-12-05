@@ -327,7 +327,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                MVxw(TO_LA64((nextop & 7) + (rex.b << 3)), gd);
+                MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 if (rex.is32bits) {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -346,7 +346,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                MVxw(gd, TO_LA64((nextop & 7) + (rex.b << 3)));
+                MVxw(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else { // mem <= reg
                 SMREAD();
                 if (rex.is32bits) {
@@ -381,10 +381,10 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
-                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed & 4) >> 2;   // L or H
                 } else {
-                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
+                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
                 }
                 MOV32w(x3, u8);
@@ -412,7 +412,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             if (MODREG) { // reg <= i32
                 i64 = F32S;
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
             } else { // mem <= i32
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 4);

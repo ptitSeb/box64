@@ -462,7 +462,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
                     BSTRINSz(ed, gd, 15, 0);
                 }
@@ -477,7 +477,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
                     BSTRINSz(gd, ed, 15, 0);
                 }
@@ -496,7 +496,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x95:
         case 0x96:
         case 0x97:
-            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             if (gd == xRAX) {
                 INST_NAME("NOP");
             } else {
@@ -612,7 +612,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Reg16, Iw");
             u16 = F16;
             MOV32w(x1, u16);
-            gd = TO_LA64((opcode & 7) + (rex.b << 3));
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
             BSTRINSz(gd, x1, 15, 0);
             break;
         case 0xC1:
@@ -692,7 +692,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 u16 = F16;
                 MOV32w(x1, u16);
                 BSTRINSz(ed, x1, 15, 0);

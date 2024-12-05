@@ -93,8 +93,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LOAD_XEMU_CALL();
             TABLE64(x3, addr); // expected return address
             BNE_MARK(xRIP, x3);
-            LD_W(w1, xEmu, offsetof(x64emu_t, quit));
-            CBZ_NEXT(w1);
+            LD_W(x1, xEmu, offsetof(x64emu_t, quit));
+            CBZ_NEXT(x1);
             MARK;
             LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -415,31 +415,31 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
-            READFLAGS(F);                                                                            \
-            if (la64_lbt) {                                                                          \
-                X64_SETJ(x1, I);                                                                     \
-            } else {                                                                                 \
-                GETFLAGS;                                                                            \
-            }                                                                                        \
-            nextop = F8;                                                                             \
-            GETGD;                                                                                   \
-            if (MODREG) {                                                                            \
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
-                if (la64_lbt)                                                                        \
-                    BEQZ(x1, 8);                                                                     \
-                else                                                                                 \
-                    B##NO(x1, 8);                                                                    \
-                MV(gd, ed);                                                                          \
-            } else {                                                                                 \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
-                if (la64_lbt)                                                                        \
-                    BEQZ(x1, 8);                                                                     \
-                else                                                                                 \
-                    B##NO(x1, 8);                                                                    \
-                LDxw(gd, ed, fixedaddress);                                                          \
-            }                                                                                        \
-            if (!rex.w) ZEROUP(gd);
+#define GO(GETFLAGS, NO, YES, F, I)                                                          \
+    READFLAGS(F);                                                                            \
+    if (la64_lbt) {                                                                          \
+        X64_SETJ(x1, I);                                                                     \
+    } else {                                                                                 \
+        GETFLAGS;                                                                            \
+    }                                                                                        \
+    nextop = F8;                                                                             \
+    GETGD;                                                                                   \
+    if (MODREG) {                                                                            \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                            \
+        if (la64_lbt)                                                                        \
+            BEQZ(x1, 8);                                                                     \
+        else                                                                                 \
+            B##NO(x1, 8);                                                                    \
+        MV(gd, ed);                                                                          \
+    } else {                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
+        if (la64_lbt)                                                                        \
+            BEQZ(x1, 8);                                                                     \
+        else                                                                                 \
+            B##NO(x1, 8);                                                                    \
+        LDxw(gd, ed, fixedaddress);                                                          \
+    }                                                                                        \
+    if (!rex.w) ZEROUP(gd);
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
 
@@ -631,30 +631,30 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         #undef GO
 
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
-            READFLAGS(F);                                                                            \
-            if (la64_lbt) {                                                                          \
-                X64_SETJ(x3, I);                                                                     \
-            } else {                                                                                 \
-                GETFLAGS;                                                                            \
-                S##YES(x3, x1);                                                                      \
-            }                                                                                        \
-            nextop = F8;                                                                             \
-            if (MODREG) {                                                                            \
-                if (rex.rex) {                                                                       \
-                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));                                      \
-                    eb2 = 0;                                                                         \
-                } else {                                                                             \
-                    ed = (nextop & 7);                                                               \
-                    eb2 = (ed >> 2) * 8;                                                             \
-                    eb1 = TO_LA64(ed & 3);                                                           \
-                }                                                                                    \
-                BSTRINS_D(eb1, x3, eb2 + 7, eb2);                                                    \
-            } else {                                                                                 \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
-                ST_B(x3, ed, fixedaddress);                                                          \
-                SMWRITE();                                                                           \
-            }
+#define GO(GETFLAGS, NO, YES, F, I)                                                          \
+    READFLAGS(F);                                                                            \
+    if (la64_lbt) {                                                                          \
+        X64_SETJ(x3, I);                                                                     \
+    } else {                                                                                 \
+        GETFLAGS;                                                                            \
+        S##YES(x3, x1);                                                                      \
+    }                                                                                        \
+    nextop = F8;                                                                             \
+    if (MODREG) {                                                                            \
+        if (rex.rex) {                                                                       \
+            eb1 = TO_NAT((nextop & 7) + (rex.b << 3));                                       \
+            eb2 = 0;                                                                         \
+        } else {                                                                             \
+            ed = (nextop & 7);                                                               \
+            eb2 = (ed >> 2) * 8;                                                             \
+            eb1 = TO_NAT(ed & 3);                                                            \
+        }                                                                                    \
+        BSTRINS_D(eb1, x3, eb2 + 7, eb2);                                                    \
+    } else {                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
+        ST_B(x3, ed, fixedaddress);                                                          \
+        SMWRITE();                                                                           \
+    }
 
             GOCOND(0x90, "SET", "Eb");
         #undef GO
@@ -675,7 +675,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -713,7 +713,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 wback = 0;
             } else {
                 SMREAD();
@@ -927,11 +927,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             if (MODREG) {
                 if (rex.rex) {
-                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
+                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
                 } else {
                     ed = (nextop & 7);
-                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed & 4) >> 2;   // L or H
                 }
                 BSTRPICK_D(gd, eb1, eb2 * 8 + 7, eb2 * 8);
@@ -946,7 +946,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 BSTRPICK_D(gd, ed, 15, 0);
             } else {
                 SMREAD();
@@ -1110,12 +1110,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             if (MODREG) {
                 if (rex.rex) {
-                    wback = TO_LA64((nextop & 7) + (rex.b << 3));
+                    wback = TO_NAT((nextop & 7) + (rex.b << 3));
                     wb2 = 0;
                 } else {
                     wback = (nextop & 7);
                     wb2 = (wback >> 2) * 8;
-                    wback = TO_LA64(wback & 3);
+                    wback = TO_NAT(wback & 3);
                 }
                 BSTRPICK_D(gd, wback, wb2 + 7, wb2);
                 EXT_W_B(gd, gd);
@@ -1131,7 +1131,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 EXT_W_H(gd, ed);
             } else {
                 SMREAD();
@@ -1181,7 +1181,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCE:
         case 0xCF:
             INST_NAME("BSWAP Reg");
-            gd = TO_LA64((opcode & 7) + (rex.b << 3));
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
             REVBxw(gd, gd);
             break;
         default:

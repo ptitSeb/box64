@@ -40,37 +40,40 @@
 #define LOCK_LOCK   (int*)1
 
 // GETGD    get x64 register in gd
-#define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
+#define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))
 // GETVD    get x64 register in vd
-#define GETVD   vd = xRAX+vex.v
+#define GETVD vd = TO_NAT(vex.v)
 //GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETED(D)  if(MODREG) {                          \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDxw(x1, wback, fixedaddress);      \
-                    ed = x1;                            \
-                }
-#define GETEDx(D)  if(MODREG) {                         \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D); \
-                    LDx(x1, wback, fixedaddress);       \
-                    ed = x1;                            \
-                }
-#define GETEDz(D)  if(MODREG) {                         \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(3-rex.is32bits), rex.is32bits?3:7, rex, NULL, 0, D); \
-                    LDz(x1, wback, fixedaddress);       \
-                    ed = x1;                            \
-                }
+#define GETED(D)                                                                                                                                     \
+    if (MODREG) {                                                                                                                                    \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                    \
+        wback = 0;                                                                                                                                   \
+    } else {                                                                                                                                         \
+        SMREAD();                                                                                                                                    \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, D); \
+        LDxw(x1, wback, fixedaddress);                                                                                                               \
+        ed = x1;                                                                                                                                     \
+    }
+#define GETEDx(D)                                                                                                     \
+    if (MODREG) {                                                                                                     \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                     \
+        wback = 0;                                                                                                    \
+    } else {                                                                                                          \
+        SMREAD();                                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << 3, 7, rex, NULL, 0, D); \
+        LDx(x1, wback, fixedaddress);                                                                                 \
+        ed = x1;                                                                                                      \
+    }
+#define GETEDz(D)                                                                                                                                         \
+    if (MODREG) {                                                                                                                                         \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                         \
+        wback = 0;                                                                                                                                        \
+    } else {                                                                                                                                              \
+        SMREAD();                                                                                                                                         \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << (3 - rex.is32bits), rex.is32bits ? 3 : 7, rex, NULL, 0, D); \
+        LDz(x1, wback, fixedaddress);                                                                                                                     \
+        ed = x1;                                                                                                                                          \
+    }
 #define GETEDw(D)  if((nextop&0xC0)==0xC0) {            \
                     ed = xEAX+(nextop&7)+(rex.b<<3);    \
                     wback = 0;                          \
@@ -80,77 +83,84 @@
                     LDW(x1, wback, fixedaddress);       \
                     ed = x1;                            \
                 }
-#define GETSEDw(D)  if((nextop&0xC0)==0xC0) {           \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    SXTWx(x1, ed);                      \
-                    wb = x1;                            \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D); \
-                    LDSW(x1, wback, fixedaddress);      \
-                    wb = ed = x1;                       \
-                }
-#define GETED32(D)  if(MODREG) {                        \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDxw(x1, wback, fixedaddress);      \
-                    ed = x1;                            \
-                }
-#define GETSED32w(D)  if((nextop&0xC0)==0xC0) {         \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    SXTWx(x1, ed);                      \
-                    wb = x1;                            \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D); \
-                    LDSW(x1, wback, fixedaddress);      \
-                    wb = ed = x1;                       \
-                }
+#define GETSEDw(D)                                                                                                    \
+    if ((nextop & 0xC0) == 0xC0) {                                                                                    \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                     \
+        SXTWx(x1, ed);                                                                                                \
+        wb = x1;                                                                                                      \
+        wback = 0;                                                                                                    \
+    } else {                                                                                                          \
+        SMREAD();                                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << 2, 3, rex, NULL, 0, D); \
+        LDSW(x1, wback, fixedaddress);                                                                                \
+        wb = ed = x1;                                                                                                 \
+    }
+#define GETED32(D)                                                                                                                                     \
+    if (MODREG) {                                                                                                                                      \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                      \
+        wback = 0;                                                                                                                                     \
+    } else {                                                                                                                                           \
+        SMREAD();                                                                                                                                      \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, D); \
+        LDxw(x1, wback, fixedaddress);                                                                                                                 \
+        ed = x1;                                                                                                                                       \
+    }
+#define GETSED32w(D)                                                                                                    \
+    if ((nextop & 0xC0) == 0xC0) {                                                                                      \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                       \
+        SXTWx(x1, ed);                                                                                                  \
+        wb = x1;                                                                                                        \
+        wback = 0;                                                                                                      \
+    } else {                                                                                                            \
+        SMREAD();                                                                                                       \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << 2, 3, rex, NULL, 0, D); \
+        LDSW(x1, wback, fixedaddress);                                                                                  \
+        wb = ed = x1;                                                                                                   \
+    }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
-#define GETEDH(hint, D) if(MODREG) {                    \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDxw(hint, wback, fixedaddress);    \
-                    ed = hint;                          \
-                }
-#define GETED32H(hint, D) if(MODREG) {                  \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    LDxw(hint, wback, fixedaddress);    \
-                    ed = hint;                          \
-                }
+#define GETEDH(hint, D)                                                                                                                                                  \
+    if (MODREG) {                                                                                                                                                        \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                                        \
+        wback = 0;                                                                                                                                                       \
+    } else {                                                                                                                                                             \
+        SMREAD();                                                                                                                                                        \
+        addr = geted(dyn, addr, ninst, nextop, &wback, (hint == x2) ? x1 : x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, D); \
+        LDxw(hint, wback, fixedaddress);                                                                                                                                 \
+        ed = hint;                                                                                                                                                       \
+    }
+#define GETED32H(hint, D)                                                                                                                                                  \
+    if (MODREG) {                                                                                                                                                          \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                                          \
+        wback = 0;                                                                                                                                                         \
+    } else {                                                                                                                                                               \
+        SMREAD();                                                                                                                                                          \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, (hint == x2) ? x1 : x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, D); \
+        LDxw(hint, wback, fixedaddress);                                                                                                                                   \
+        ed = hint;                                                                                                                                                         \
+    }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
-#define GETEDW(hint, ret, D)   if(MODREG) {             \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    MOVxw_REG(ret, ed);                 \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    ed = ret;                           \
-                    LDxw(ed, wback, fixedaddress);      \
-                }
-#define GETED32W(hint, ret, D)   if(MODREG) {           \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    MOVxw_REG(ret, ed);                 \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, D); \
-                    ed = ret;                           \
-                    LDxw(ed, wback, fixedaddress);      \
-                }
+#define GETEDW(hint, ret, D)                                                                                                                           \
+    if (MODREG) {                                                                                                                                      \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                      \
+        MOVxw_REG(ret, ed);                                                                                                                            \
+        wback = 0;                                                                                                                                     \
+    } else {                                                                                                                                           \
+        SMREAD();                                                                                                                                      \
+        addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, D); \
+        ed = ret;                                                                                                                                      \
+        LDxw(ed, wback, fixedaddress);                                                                                                                 \
+    }
+#define GETED32W(hint, ret, D)                                                                                                                           \
+    if (MODREG) {                                                                                                                                        \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                        \
+        MOVxw_REG(ret, ed);                                                                                                                              \
+        wback = 0;                                                                                                                                       \
+    } else {                                                                                                                                             \
+        SMREAD();                                                                                                                                        \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, D); \
+        ed = ret;                                                                                                                                        \
+        LDxw(ed, wback, fixedaddress);                                                                                                                   \
+    }
 // Write back ed in wback (if wback not 0)
 #define WBACK       if(wback) {STxw(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0)
@@ -158,246 +168,271 @@
 // Write back ed in wback (if wback not 0)
 #define WBACKw      if(wback) {STW(ed, wback, fixedaddress); SMWRITE();}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDO(O, D)   if(MODREG) {                     \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    if(rex.is32bits)                    \
-                        LDRxw_REG_SXTW(x1, O, wback);   \
-                    else                                \
-                        LDRxw_REG(x1, wback, O);        \
-                    ed = x1;                            \
-                }
+#define GETEDO(O, D)                                                                                    \
+    if (MODREG) {                                                                                       \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                       \
+        wback = 0;                                                                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
+        if (rex.is32bits)                                                                               \
+            LDRxw_REG_SXTW(x1, O, wback);                                                               \
+        else                                                                                            \
+            LDRxw_REG(x1, wback, O);                                                                    \
+        ed = x1;                                                                                        \
+    }
 #define WBACKO(O)   if(wback) {if(rex.is32bits) STRxw_REG_SXTW(ed, O, wback); else STRxw_REG(ed, wback, O); SMWRITE2();}
 //GETEDOx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDOx(O, D)  if(MODREG) {                     \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    if(rex.is32bits)                    \
-                        LDRx_REG_SXTW(x1, O, wback);    \
-                    else                                \
-                        LDRx_REG(x1, wback, O);         \
-                    ed = x1;                            \
-                }
+#define GETEDOx(O, D)                                                                                   \
+    if (MODREG) {                                                                                       \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                       \
+        wback = 0;                                                                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
+        if (rex.is32bits)                                                                               \
+            LDRx_REG_SXTW(x1, O, wback);                                                                \
+        else                                                                                            \
+            LDRx_REG(x1, wback, O);                                                                     \
+        ed = x1;                                                                                        \
+    }
 //GETEDOz can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDOz(O, D)  if(MODREG) {                     \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    if(rex.is32bits)                    \
-                        LDRz_REG_SXTW(x1, O, wback);    \
-                    else                                \
-                        LDRz_REG(x1, wback, O);         \
-                    ed = x1;                            \
-                }
-#define GETSEDOw(O, D)  if((nextop&0xC0)==0xC0) {       \
-                    ed = xRAX+(nextop&7)+(rex.b<<3);    \
-                    SXTWx(x1, ed);                      \
-                    wb = x1;                            \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    if(rex.is32bits)                    \
-                        LDRSW_REG_SXTW(x1, O, wback);   \
-                    else                                \
-                        LDRSW_REG(x1, wback, O);        \
-                    wb = ed = x1;                       \
-                }
+#define GETEDOz(O, D)                                                                                   \
+    if (MODREG) {                                                                                       \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                       \
+        wback = 0;                                                                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
+        if (rex.is32bits)                                                                               \
+            LDRz_REG_SXTW(x1, O, wback);                                                                \
+        else                                                                                            \
+            LDRz_REG(x1, wback, O);                                                                     \
+        ed = x1;                                                                                        \
+    }
+#define GETSEDOw(O, D)                                                                                  \
+    if ((nextop & 0xC0) == 0xC0) {                                                                      \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                       \
+        SXTWx(x1, ed);                                                                                  \
+        wb = x1;                                                                                        \
+        wback = 0;                                                                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
+        if (rex.is32bits)                                                                               \
+            LDRSW_REG_SXTW(x1, O, wback);                                                               \
+        else                                                                                            \
+            LDRSW_REG(x1, wback, O);                                                                    \
+        wb = ed = x1;                                                                                   \
+    }
 //FAKEELike GETED, but doesn't get anything
-#define FAKEED  if(!MODREG) {   \
-                    addr = fakeed(dyn, addr, ninst, nextop); \
-                }
+#define FAKEED                                   \
+    if (!MODREG) {                               \
+        addr = fakeed(dyn, addr, ninst, nextop); \
+    }
+
 // GETGW extract x64 register in gd, that is i
-#define GETGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); UXTHw(i, gd); gd = i;
+#define GETGW(i)                                        \
+    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    UXTHw(i, gd);                                       \
+    gd = i;
+
 // GETGW extract x64 register in gd, that is i, Signed extented
-#define GETSGW(i) gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3); SXTHw(i, gd); gd = i;
+#define GETSGW(i)                                       \
+    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    SXTHw(i, gd);                                       \
+    gd = i;
+
 //GETEWW will use i for ed, and can use w for wback.
-#define GETEWW(w, i, D) if(MODREG) {        \
-                    wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    UXTHw(i, wback);        \
-                    ed = i;                 \
-                    wb1 = 0;                \
-                } else {                    \
-                    SMREAD();               \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDH(i, wback, fixedaddress);\
-                    ed = i;                 \
-                    wb1 = 1;                \
-                }
+#define GETEWW(w, i, D)                                                                                                         \
+    if (MODREG) {                                                                                                               \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                            \
+        UXTHw(i, wback);                                                                                                        \
+        ed = i;                                                                                                                 \
+        wb1 = 0;                                                                                                                \
+    } else {                                                                                                                    \
+        SMREAD();                                                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, &unscaled, 0xfff << 1, (1 << 1) - 1, rex, NULL, 0, D); \
+        LDH(i, wback, fixedaddress);                                                                                            \
+        ed = i;                                                                                                                 \
+        wb1 = 1;                                                                                                                \
+    }
 //GETEW will use i for ed, and can use r3 for wback.
-#define GETEW(i, D) if(MODREG) {            \
-                    wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    UXTHw(i, wback);        \
-                    ed = i;                 \
-                    wb1 = 0;                \
-                } else {                    \
-                    SMREAD();               \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDH(i, wback, fixedaddress);   \
-                    ed = i;                 \
-                    wb1 = 1;                \
-                }
+#define GETEW(i, D)                                                                                                              \
+    if (MODREG) {                                                                                                                \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                             \
+        UXTHw(i, wback);                                                                                                         \
+        ed = i;                                                                                                                  \
+        wb1 = 0;                                                                                                                 \
+    } else {                                                                                                                     \
+        SMREAD();                                                                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff << 1, (1 << 1) - 1, rex, NULL, 0, D); \
+        LDH(i, wback, fixedaddress);                                                                                             \
+        ed = i;                                                                                                                  \
+        wb1 = 1;                                                                                                                 \
+    }
 //GETEW will use i for ed, and can use r3 for wback.
-#define GETEW32(i, D) if(MODREG) {          \
-                    wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    UXTHw(i, wback);        \
-                    ed = i;                 \
-                    wb1 = 0;                \
-                } else {                    \
-                    SMREAD();               \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDH(i, wback, fixedaddress);   \
-                    ed = i;                 \
-                    wb1 = 1;                \
-                }
+#define GETEW32(i, D)                                                                                                              \
+    if (MODREG) {                                                                                                                  \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                               \
+        UXTHw(i, wback);                                                                                                           \
+        ed = i;                                                                                                                    \
+        wb1 = 0;                                                                                                                   \
+    } else {                                                                                                                       \
+        SMREAD();                                                                                                                  \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff << 1, (1 << 1) - 1, rex, NULL, 0, D); \
+        LDH(i, wback, fixedaddress);                                                                                               \
+        ed = i;                                                                                                                    \
+        wb1 = 1;                                                                                                                   \
+    }
 //GETEWO will use i for ed, i is also Offset, and can use r3 for wback.
-#define GETEWO(i, D) if(MODREG) {               \
-                    wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    UXTHw(i, wback);            \
-                    ed = i;                     \
-                    wb1 = 0;                    \
-                } else {                        \
-                    SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    ADDz_REG(x3, wback, i);     \
-                    if(wback!=x3) wback = x3;   \
-                    LDH(i, wback, fixedaddress);\
-                    wb1 = 1;                    \
-                    ed = i;                     \
-                }
+#define GETEWO(i, D)                                                                                                             \
+    if (MODREG) {                                                                                                                \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                             \
+        UXTHw(i, wback);                                                                                                         \
+        ed = i;                                                                                                                  \
+        wb1 = 0;                                                                                                                 \
+    } else {                                                                                                                     \
+        SMREAD();                                                                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff << 1, (1 << 1) - 1, rex, NULL, 0, D); \
+        ADDz_REG(x3, wback, i);                                                                                                  \
+        if (wback != x3) wback = x3;                                                                                             \
+        LDH(i, wback, fixedaddress);                                                                                             \
+        wb1 = 1;                                                                                                                 \
+        ed = i;                                                                                                                  \
+    }
 //GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
-#define GETSEW(i, D) if(MODREG) {           \
-                    wback = xRAX+(nextop&7)+(rex.b<<3);\
-                    SXTHw(i, wback);        \
-                    ed = i;                 \
-                    wb1 = 0;                \
-                } else {                    \
-                    SMREAD();               \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    LDSHw(i, wback, fixedaddress); \
-                    ed = i;                 \
-                    wb1 = 1;                \
-                }
+#define GETSEW(i, D)                                                                                                             \
+    if (MODREG) {                                                                                                                \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                             \
+        SXTHw(i, wback);                                                                                                         \
+        ed = i;                                                                                                                  \
+        wb1 = 0;                                                                                                                 \
+    } else {                                                                                                                     \
+        SMREAD();                                                                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff << 1, (1 << 1) - 1, rex, NULL, 0, D); \
+        LDSHw(i, wback, fixedaddress);                                                                                           \
+        ed = i;                                                                                                                  \
+        wb1 = 1;                                                                                                                 \
+    }
 // Write ed back to original register / memory
 #define EWBACK       EWBACKW(ed)
 // Write w back to original register / memory
 #define EWBACKW(w)   if(wb1) {STH(w, wback, fixedaddress); SMWRITE();} else {BFIx(wback, w, 0, 16);}
 // Write back gd in correct register
-#define GWBACK       BFIx((xRAX+((nextop&0x38)>>3)+(rex.r<<3)), gd, 0, 16);
+#define GWBACK BFIx(TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
-#define GETEB(i, D) if(MODREG) {                \
-                    if(rex.rex) {               \
-                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
-                        wb2 = 0;                \
-                    } else {                    \
-                        wback = (nextop&7);     \
-                        wb2 = (wback>>2)*8;     \
-                        wback = xRAX+(wback&3); \
-                    }                           \
-                    UBFXx(i, wback, wb2, 8);    \
-                    wb1 = 0;                    \
-                    ed = i;                     \
-                } else {                        \
-                    SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
-                    LDB(i, wback, fixedaddress);\
-                    wb1 = 1;                    \
-                    ed = i;                     \
-                }
+#define GETEB(i, D)                                                                                              \
+    if (MODREG) {                                                                                                \
+        if (rex.rex) {                                                                                           \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                         \
+            wb2 = 0;                                                                                             \
+        } else {                                                                                                 \
+            wback = (nextop & 7);                                                                                \
+            wb2 = (wback >> 2) * 8;                                                                              \
+            wback = TO_NAT(wback & 3);                                                                           \
+        }                                                                                                        \
+        UBFXx(i, wback, wb2, 8);                                                                                 \
+        wb1 = 0;                                                                                                 \
+        ed = i;                                                                                                  \
+    } else {                                                                                                     \
+        SMREAD();                                                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+        LDB(i, wback, fixedaddress);                                                                             \
+        wb1 = 1;                                                                                                 \
+        ed = i;                                                                                                  \
+    }
 //GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
-#define GETEBO(i, D) if(MODREG) {               \
-                    if(rex.rex) {               \
-                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
-                        wb2 = 0;                \
-                    } else {                    \
-                        wback = (nextop&7);     \
-                        wb2 = (wback>>2)*8;     \
-                        wback = xRAX+(wback&3); \
-                    }                           \
-                    UBFXx(i, wback, wb2, 8);    \
-                    wb1 = 0;                    \
-                    ed = i;                     \
-                } else {                        \
-                    SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
-                    ADDz_REG(x3, wback, i);     \
-                    if(wback!=x3) wback = x3;   \
-                    LDB(i, wback, fixedaddress);\
-                    wb1 = 1;                    \
-                    ed = i;                     \
-                }
+#define GETEBO(i, D)                                                                                             \
+    if (MODREG) {                                                                                                \
+        if (rex.rex) {                                                                                           \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                         \
+            wb2 = 0;                                                                                             \
+        } else {                                                                                                 \
+            wback = (nextop & 7);                                                                                \
+            wb2 = (wback >> 2) * 8;                                                                              \
+            wback = TO_NAT(wback & 3);                                                                           \
+        }                                                                                                        \
+        UBFXx(i, wback, wb2, 8);                                                                                 \
+        wb1 = 0;                                                                                                 \
+        ed = i;                                                                                                  \
+    } else {                                                                                                     \
+        SMREAD();                                                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+        ADDz_REG(x3, wback, i);                                                                                  \
+        if (wback != x3) wback = x3;                                                                             \
+        LDB(i, wback, fixedaddress);                                                                             \
+        wb1 = 1;                                                                                                 \
+        ed = i;                                                                                                  \
+    }
 //GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
-#define GETSEB(i, D) if(MODREG) {                \
-                    if(rex.rex) {               \
-                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
-                        wb2 = 0;                \
-                    } else {                    \
-                        wback = (nextop&7);     \
-                        wb2 = (wback>>2)*8;     \
-                        wback = xRAX+(wback&3); \
-                    }                           \
-                    SBFXx(i, wback, wb2, 8);    \
-                    wb1 = 0;                    \
-                    ed = i;                     \
-                } else {                        \
-                    SMREAD();                   \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
-                    LDSBx(i, wback, fixedaddress); \
-                    wb1 = 1;                    \
-                    ed = i;                     \
-                }
+#define GETSEB(i, D)                                                                                             \
+    if (MODREG) {                                                                                                \
+        if (rex.rex) {                                                                                           \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                         \
+            wb2 = 0;                                                                                             \
+        } else {                                                                                                 \
+            wback = (nextop & 7);                                                                                \
+            wb2 = (wback >> 2) * 8;                                                                              \
+            wback = TO_NAT(wback & 3);                                                                           \
+        }                                                                                                        \
+        SBFXx(i, wback, wb2, 8);                                                                                 \
+        wb1 = 0;                                                                                                 \
+        ed = i;                                                                                                  \
+    } else {                                                                                                     \
+        SMREAD();                                                                                                \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+        LDSBx(i, wback, fixedaddress);                                                                           \
+        wb1 = 1;                                                                                                 \
+        ed = i;                                                                                                  \
+    }
 //GETEB will use i for ed, and can use r3 for wback.
-#define GETEB32(i, D) if(MODREG) {              \
-                    if(rex.rex) {               \
-                        wback = xRAX+(nextop&7)+(rex.b<<3);     \
-                        wb2 = 0;                \
-                    } else {                    \
-                        wback = (nextop&7);     \
-                        wb2 = (wback>>2)*8;     \
-                        wback = xRAX+(wback&3); \
-                    }                           \
-                    UBFXx(i, wback, wb2, 8);    \
-                    wb1 = 0;                    \
-                    ed = i;                     \
-                } else {                        \
-                    SMREAD();                   \
-                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
-                    LDB(i, wback, fixedaddress);\
-                    wb1 = 1;                    \
-                    ed = i;                     \
-                }
+#define GETEB32(i, D)                                                                                              \
+    if (MODREG) {                                                                                                  \
+        if (rex.rex) {                                                                                             \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                           \
+            wb2 = 0;                                                                                               \
+        } else {                                                                                                   \
+            wback = (nextop & 7);                                                                                  \
+            wb2 = (wback >> 2) * 8;                                                                                \
+            wback = TO_NAT(wback & 3);                                                                             \
+        }                                                                                                          \
+        UBFXx(i, wback, wb2, 8);                                                                                   \
+        wb1 = 0;                                                                                                   \
+        ed = i;                                                                                                    \
+    } else {                                                                                                       \
+        SMREAD();                                                                                                  \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
+        LDB(i, wback, fixedaddress);                                                                               \
+        wb1 = 1;                                                                                                   \
+        ed = i;                                                                                                    \
+    }
 // Write eb (ed) back to original register / memory
 #define EBBACK   if(wb1) {STB(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, wb2, 8);}
 //GETGB will use i for gd
-#define GETGB(i)    if(rex.rex) {               \
-                        gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
-                        gb2 = 0;                \
-                    } else {                    \
-                        gd = (nextop&0x38)>>3;  \
-                        gb2 = ((gd&4)<<1);      \
-                        gb1 = xRAX+(gd&3);      \
-                    }                           \
-                    gd = i;                     \
-                    UBFXx(gd, gb1, gb2, 8);
+#define GETGB(i)                                             \
+    if (rex.rex) {                                           \
+        gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gb2 = 0;                                             \
+    } else {                                                 \
+        gd = (nextop & 0x38) >> 3;                           \
+        gb2 = ((gd & 4) << 1);                               \
+        gb1 = TO_NAT(gd & 3);                                \
+    }                                                        \
+    gd = i;                                                  \
+    UBFXx(gd, gb1, gb2, 8);
 //GETSGB sign extend GB, will use i for gd
-#define GETSGB(i)   if(rex.rex) {               \
-                        gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);     \
-                        gb2 = 0;                \
-                    } else {                    \
-                        gd = (nextop&0x38)>>3;  \
-                        gb2 = ((gd&4)<<1);      \
-                        gb1 = xRAX+(gd&3);      \
-                    }                           \
-                    gd = i;                     \
-                    SBFXx(gd, gb1, gb2, 8);
+#define GETSGB(i)                                            \
+    if (rex.rex) {                                           \
+        gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gb2 = 0;                                             \
+    } else {                                                 \
+        gd = (nextop & 0x38) >> 3;                           \
+        gb2 = ((gd & 4) << 1);                               \
+        gb1 = TO_NAT(gd & 3);                                \
+    }                                                        \
+    gd = i;                                                  \
+    SBFXx(gd, gb1, gb2, 8);
 // Write gb (gd) back to original register / memory
 #define GBBACK   BFIx(gb1, gd, gb2, 8);
 
@@ -591,10 +626,10 @@
     }
 
 // Put Back EX if it was a memory and not an emm register
-#define PUTEX(a)                                    \
-    if(!MODREG) {                                   \
-        VST128(a, ed, fixedaddress);                \
-        SMWRITE2();                                 \
+#define PUTEX(a)                     \
+    if (!MODREG) {                   \
+        VST128(a, ed, fixedaddress); \
+        SMWRITE2();                  \
     }
 
 
@@ -610,7 +645,7 @@
     }
 
 // Get Ex as 64bits, not a quad (warning, x1 get used)
-#define GETEX64(a, w, D)    GETEXSD(a, w, D)
+#define GETEX64(a, w, D) GETEXSD(a, w, D)
 
 // Get Ex as a single, not a quad (warning, x1 get used)
 #define GETEXSS(a, w, D)                                                                                           \
@@ -638,8 +673,8 @@
     }
 
 // Get GM, might use x1, x2 and x3
-#define GETGM(a)                        \
-    gd = ((nextop&0x38)>>3);            \
+#define GETGM(a)                 \
+    gd = ((nextop & 0x38) >> 3); \
     a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
 
 // Get EM, might use x1, x2 and x3
@@ -654,10 +689,10 @@
     }
 
 // Put Back EM if it was a memory and not an emm register
-#define PUTEM(a)                            \
-    if(!MODREG) {                           \
-        VST64(a, ed, fixedaddress);         \
-        SMWRITE2();                         \
+#define PUTEM(a)                    \
+    if (!MODREG) {                  \
+        VST64(a, ed, fixedaddress); \
+        SMWRITE2();                 \
     }
 
 #define YMM0(a) ymm_mark_zero(dyn, ninst, a);
