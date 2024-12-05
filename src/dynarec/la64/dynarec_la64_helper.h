@@ -36,18 +36,18 @@
 #define LOCK_LOCK (int*)1
 
 // GETGD    get x64 register in gd
-#define GETGD gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3));
+#define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
 
 // GETGW extract x64 register in gd, that is i
-#define GETGW(i)                                         \
-    gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3)); \
-    BSTRPICK_D(i, gd, 15, 0);                            \
+#define GETGW(i)                                        \
+    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    BSTRPICK_D(i, gd, 15, 0);                           \
     gd = i;
 
 // GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)                                                                                \
     if (MODREG) {                                                                               \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \
@@ -58,7 +58,7 @@
 
 #define GETEDz(D)                                                                               \
     if (MODREG) {                                                                               \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \
@@ -69,7 +69,7 @@
 // GETED32 can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED32(D)                                                                                \
     if (MODREG) {                                                                                 \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                 \
         wback = 0;                                                                                \
     } else {                                                                                      \
         SMREAD();                                                                                 \
@@ -80,7 +80,7 @@
 // GETEDH can use hint for ed, and x1 or x2 for wback (depending on hint), might also use x3. wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D)                                                                                                                 \
     if (MODREG) {                                                                                                                       \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                                                      \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                       \
         wback = 0;                                                                                                                      \
     } else {                                                                                                                            \
         SMREAD();                                                                                                                       \
@@ -91,7 +91,7 @@
 // GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D)                                                                       \
     if (MODREG) {                                                                             \
-        wback = TO_LA64((nextop & 7) + (rex.b << 3));                                         \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                          \
         BSTRPICK_D(i, wback, 15, 0);                                                          \
         ed = i;                                                                               \
         wb1 = 0;                                                                              \
@@ -108,7 +108,7 @@
 // GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O, D)                                                                                \
     if (MODREG) {                                                                                   \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                  \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                   \
         wback = 0;                                                                                  \
     } else {                                                                                        \
         SMREAD();                                                                                   \
@@ -126,7 +126,7 @@
 // GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
 #define GETSED(D)                                                                               \
     if (MODREG) {                                                                               \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
         wback = 0;                                                                              \
         if (!rex.w) {                                                                           \
             ADD_W(x1, ed, xZR);                                                                 \
@@ -149,9 +149,9 @@
     }
 
 // GETGW extract x64 register in gd, that is i, Signed extented
-#define GETSGW(i)                                        \
-    gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3)); \
-    EXT_W_H(i, gd);                                      \
+#define GETSGW(i)                                       \
+    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    EXT_W_H(i, gd);                                     \
     gd = i;
 
 // Write back ed in wback (if wback not 0)
@@ -178,7 +178,7 @@
 // GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
 #define GETSEW(i, D)                                                                           \
     if (MODREG) {                                                                              \
-        wback = TO_LA64((nextop & 7) + (rex.b << 3));                                          \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                           \
         EXT_W_H(i, wback);                                                                     \
         ed = i;                                                                                \
         wb1 = 0;                                                                               \
@@ -201,18 +201,18 @@
 #define EWBACK EWBACKW(ed)
 
 // Write back gd in correct register
-#define GWBACK BSTRINS_D((TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3))), gd, 15, 0);
+#define GWBACK BSTRINS_D((TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))), gd, 15, 0);
 
 // GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D)                                                                             \
     if (MODREG) {                                                                               \
         if (rex.rex) {                                                                          \
-            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                       \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                        \
             wb2 = 0;                                                                            \
         } else {                                                                                \
             wback = (nextop & 7);                                                               \
             wb2 = (wback >> 2) * 8;                                                             \
-            wback = TO_LA64((wback & 3));                                                       \
+            wback = TO_NAT((wback & 3));                                                        \
         }                                                                                       \
         BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                     \
         wb1 = 0;                                                                                \
@@ -228,12 +228,12 @@
 #define GETSEB(i, D)                                                                            \
     if (MODREG) {                                                                               \
         if (rex.rex) {                                                                          \
-            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                       \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                        \
             wb2 = 0;                                                                            \
         } else {                                                                                \
             wback = (nextop & 7);                                                               \
             wb2 = (wback >> 2) * 8;                                                             \
-            wback = TO_LA64(wback & 3);                                                         \
+            wback = TO_NAT(wback & 3);                                                          \
         }                                                                                       \
         if (wb2) {                                                                              \
             SRLI_D(i, wback, wb2);                                                              \
@@ -254,12 +254,12 @@
 #define GETEB32(i, D)                                                                             \
     if (MODREG) {                                                                                 \
         if (rex.rex) {                                                                            \
-            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                         \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                          \
             wb2 = 0;                                                                              \
         } else {                                                                                  \
             wback = (nextop & 7);                                                                 \
             wb2 = (wback >> 2) * 8;                                                               \
-            wback = TO_LA64(wback & 3);                                                           \
+            wback = TO_NAT(wback & 3);                                                            \
         }                                                                                         \
         BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                       \
         wb1 = 0;                                                                                  \
@@ -273,28 +273,28 @@
     }
 
 // GETGB will use i for gd
-#define GETGB(i)                                              \
-    if (rex.rex) {                                            \
-        gb1 = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3)); \
-        gb2 = 0;                                              \
-    } else {                                                  \
-        gd = (nextop & 0x38) >> 3;                            \
-        gb2 = ((gd & 4) << 1);                                \
-        gb1 = TO_LA64((gd & 3));                              \
-    }                                                         \
-    gd = i;                                                   \
+#define GETGB(i)                                             \
+    if (rex.rex) {                                           \
+        gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gb2 = 0;                                             \
+    } else {                                                 \
+        gd = (nextop & 0x38) >> 3;                           \
+        gb2 = ((gd & 4) << 1);                               \
+        gb1 = TO_NAT((gd & 3));                              \
+    }                                                        \
+    gd = i;                                                  \
     BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
 
 // GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
 #define GETEBO(i, D)                                                                                \
     if (MODREG) {                                                                                   \
         if (rex.rex) {                                                                              \
-            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                            \
             wb2 = 0;                                                                                \
         } else {                                                                                    \
             wback = (nextop & 7);                                                                   \
             wb2 = (wback >> 2) * 8;                                                                 \
-            wback = TO_LA64(wback & 3);                                                             \
+            wback = TO_NAT(wback & 3);                                                              \
         }                                                                                           \
         BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                         \
         wb1 = 0;                                                                                    \

@@ -324,7 +324,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x47:
             INST_NAME("INC Reg16 (32bits)");
             SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
-            gd = xRAX + (opcode&7);
+            gd = TO_NAT (opcode&7);
             UXTHw(x1, gd);
             emit_inc16(dyn, ninst, x1, x2, x3);
             BFIz(gd, x1, 0, 16);
@@ -339,7 +339,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x4F:
             INST_NAME("DEC Reg16 (32bits)");
             SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
-            gd = xRAX + (opcode&7);
+            gd = TO_NAT (opcode&7);
             UXTHw(x1, gd);
             emit_dec16(dyn, ninst, x1, x2, x3);
             BFIz(gd, x1, 0, 16);
@@ -353,7 +353,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             if (gd==xRSP) {
                 MOVw_REG(x1, xRSP);
                 PUSH1_16(x1);
@@ -370,7 +370,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1_16(x1);
             BFIz(gd, x1, 0, 16);
             break;
@@ -612,7 +612,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGD;  // don't need GETGW here
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if(ed!=gd) {
                     BFIz(ed, gd, 0, 16);
                 }
@@ -627,7 +627,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGD;  // don't need GETGW neither
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if(ed!=gd) {
                     BFIz(gd, ed, 0, 16);
                 }
@@ -644,7 +644,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u8 = (nextop&0x38)>>3;
             LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
             if((nextop&0xC0)==0xC0) {   // reg <= seg
-                BFIz(xRAX+(nextop&7)+(rex.b<<3), x3, 0, 16);
+                BFIz(TO_NAT((nextop & 7) + (rex.b << 3)), x3, 0, 16);
             } else {                    // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 STH(x3, wback, fixedaddress);
@@ -657,7 +657,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             u8 = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
@@ -672,7 +672,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             POP1_16(x1);
             if((nextop&0xC0)==0xC0) {
-                wback = xRAX+(nextop&7)+(rex.b<<3);
+                wback = TO_NAT((nextop & 7) + (rex.b << 3));
                 BFIz(wback, x1, 0, 16);
             } else {
                 SMREAD();
@@ -688,7 +688,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x95:
         case 0x96:
         case 0x97:
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             if(gd==xRAX) {
                 INST_NAME("NOP");
             } else {
@@ -963,7 +963,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOV Reg16, Iw");
             u16 = F16;
             MOV32w(x1, u16);
-            gd = xRAX+(opcode&7)+(rex.b<<3);
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
             BFIz(gd, x1, 0, 16);
             break;
 
@@ -1072,7 +1072,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 u16 = F16;
                 MOV32w(x1, u16);
                 BFIz(ed, x1, 0, 16);

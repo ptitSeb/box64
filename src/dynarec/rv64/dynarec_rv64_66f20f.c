@@ -51,24 +51,24 @@ uintptr_t dynarec64_66F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
     static const int8_t round_round[] = { RD_RNE, RD_RDN, RD_RUP, RD_RTZ };
 
     switch (opcode) {
-        case 0x38:  // these are some more SSSE4.2+ opcodes
+        case 0x38: // these are some more SSSE4.2+ opcodes
             opcode = F8;
-            switch(opcode) {
-                case 0xF1:  // CRC32 Gd, Ew
+            switch (opcode) {
+                case 0xF1: // CRC32 Gd, Ew
                     INST_NAME("CRC32 Gd, Ew");
                     nextop = F8;
                     GETGD;
                     GETEW(x1, 0);
                     MOV32w(x2, 0x82f63b78);
-                    for(int j=0; j<2; ++j) {
-                        SRLI(x5, ed, 8*j);
+                    for (int j = 0; j < 2; ++j) {
+                        SRLI(x5, ed, 8 * j);
                         ANDI(x6, x5, 0xFF);
                         XOR(gd, gd, x6);
                         for (int i = 0; i < 8; i++) {
-                            SRLI((i&1)?gd:x4, (i&1)?x4:gd, 1);
-                            ANDI(x6, (i&1)?x4:gd, 1);
-                            BEQZ(x6, 4+4);
-                            XOR((i&1)?gd:x4, (i&1)?gd:x4, x2);
+                            SRLI((i & 1) ? gd : x4, (i & 1) ? x4 : gd, 1);
+                            ANDI(x6, (i & 1) ? x4 : gd, 1);
+                            BEQZ(x6, 4 + 4);
+                            XOR((i & 1) ? gd : x4, (i & 1) ? gd : x4, x2);
                         }
                     }
                     break;

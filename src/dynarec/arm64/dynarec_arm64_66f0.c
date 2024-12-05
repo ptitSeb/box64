@@ -55,7 +55,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGW(x5);
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 UXTHw(x6, ed);
                 emit_add16(dyn, ninst, x6, x5, x3, x4);
                 BFIx(ed, x6, 0, 16);
@@ -85,7 +85,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGW(x5);
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 UXTHw(x6, ed);
                 emit_or16(dyn, ninst, x6, x5, x3, x4);
                 BFIx(ed, x6, 0, 16);
@@ -120,7 +120,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGD;
                     UXTHw(x6, xRAX);
                     if(MODREG) {
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         wback = 0;
                         UXTHw(x1, ed);
                         CMPSxw_REG(x6, x1);
@@ -177,10 +177,10 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("LOCK XADD Gw, Ew");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
-                    gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
                     UXTHx(x5, gd);
                     if(MODREG) {
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         BFIx(gd, ed, 0, 16);
                         emit_add16(dyn, ninst, x5, gd, x3, x4);
                         BFIx(ed, x5, 0, 16);
@@ -216,7 +216,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGW(x5);
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 UXTHw(x6, ed);
                 emit_adc16(dyn, ninst, x6, x5, x3, x4);
                 BFIx(ed, x6, 0, 16);
@@ -237,7 +237,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGW(x5);
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 UXTHw(x6, ed);
                 emit_and16(dyn, ninst, x6, gd, x3, x4);
                 BFIx(ed, x6, 0, 16);
@@ -275,7 +275,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_add16(dyn, ninst, x6, x5, x3, x4);
@@ -326,7 +326,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         UXTHw(x6, ed);
                         emit_or16c(dyn, ninst, x6, i16, x3, x4);
                         BFIx(ed, x6, 0, 16);
@@ -363,7 +363,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_adc16(dyn, ninst, x6, x5, x3, x4);
@@ -386,7 +386,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_sbb16(dyn, ninst, x6, x5, x3, x4);
@@ -408,7 +408,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         UXTHw(x6, ed);
                         emit_and16c(dyn, ninst, x6, i16, x3, x4);
                         BFIx(ed, x6, 0, 16);
@@ -449,7 +449,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         MOV32w(x5, i16);
                         UXTHw(x6, ed);
                         emit_sub16(dyn, ninst, x6, x5, x3, x4);
@@ -503,7 +503,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         UXTHw(x6, ed);
                         emit_xor16c(dyn, ninst, x6, i16, x3, x4);
                         BFIx(ed, x6, 0, 16);
@@ -557,7 +557,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         INST_NAME("LOCK INC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                         if(MODREG) {
-                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            ed = TO_NAT((nextop & 7) + (rex.b << 3));
                             UXTHw(x6, ed);
                             emit_inc16(dyn, ninst, x6, x5, x3);
                             BFIx(ed, x6, 0, 16);
@@ -585,7 +585,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         INST_NAME("LOCK DEC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                         if(MODREG) {
-                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            ed = TO_NAT((nextop & 7) + (rex.b << 3));
                             UXTHw(x6, ed);
                             emit_dec16(dyn, ninst, x6, x5, x3);
                             BFIx(ed, x6, 0, 16);

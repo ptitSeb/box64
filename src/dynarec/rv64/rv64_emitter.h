@@ -49,24 +49,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define xFlags 8
 #define xRIP   7
 
-// 32bits version
-#define wEAX   xRAX
-#define wECX   xRCX
-#define wEDX   xRDX
-#define wEBX   xRBX
-#define wESP   xRSP
-#define wEBP   xRBP
-#define wESI   xRSI
-#define wEDI   xRDI
-#define wR8    xR8
-#define wR9    xR9
-#define wR10   xR10
-#define wR11   xR11
-#define wR12   xR12
-#define wR13   xR13
-#define wR14   xR14
-#define wR15   xR15
-#define wFlags xFlags
+// convert a x86 register to native according to the register mapping
+#define TO_NAT(A) (xRAX + (A))
+
 // scratch registers
 #define x1 11
 #define x2 12
@@ -77,13 +62,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define x9 9
 // used to clear the upper 32bits
 #define xMASK 5
-// 32bits version of scratch
-#define w1 x1
-#define w2 x2
-#define w3 x3
-#define w4 x4
-#define w5 x5
-#define w6 x6
+
 // emu is r10
 #define xEmu 10
 // RV64 RA
@@ -112,18 +91,22 @@ f28–31  ft8–11  FP temporaries                  Caller
 // MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B) rv64_move64(dyn, ninst, A, B)
 #define MOV32w(A, B) rv64_move32(dyn, ninst, A, B, 1)
-#define MOV64xw(A, B) do { \
-    if (rex.w) {      \
-        MOV64x(A, B); \
-    } else {          \
-        MOV32w(A, B); \
-    } } while (0)
-#define MOV64z(A, B) do { \
-    if (rex.is32bits) { \
-        MOV32w(A, B);   \
-    } else {            \
-        MOV64x(A, B);   \
-    } } while (0)
+#define MOV64xw(A, B)     \
+    do {                  \
+        if (rex.w) {      \
+            MOV64x(A, B); \
+        } else {          \
+            MOV32w(A, B); \
+        }                 \
+    } while (0)
+#define MOV64z(A, B)        \
+    do {                    \
+        if (rex.is32bits) { \
+            MOV32w(A, B);   \
+        } else {            \
+            MOV64x(A, B);   \
+        }                   \
+    } while (0)
 
 // ZERO the upper part
 #define ZEROUP(r) AND(r, r, xMASK)
@@ -233,19 +216,23 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1) ADDI(rd, rs1, 0)
 // rd = rs1 (pseudo instruction)
-#define MVxw(rd, rs1) do {   \
-    if (rex.w) {             \
-        MV(rd, rs1);         \
-    } else {                 \
-        AND(rd, rs1, xMASK); \
-    } } while (0)
+#define MVxw(rd, rs1)            \
+    do {                         \
+        if (rex.w) {             \
+            MV(rd, rs1);         \
+        } else {                 \
+            AND(rd, rs1, xMASK); \
+        }                        \
+    } while (0)
 // rd = rs1 (pseudo instruction)
-#define MVz(rd, rs1) do {    \
-    if (rex.is32bits) {      \
-        AND(rd, rs1, xMASK); \
-    } else {                 \
-        MV(rd, rs1);         \
-    } } while (0)
+#define MVz(rd, rs1)             \
+    do {                         \
+        if (rex.is32bits) {      \
+            AND(rd, rs1, xMASK); \
+        } else {                 \
+            MV(rd, rs1);         \
+        }                        \
+    } while (0)
 // rd = !rs1
 #define NOT(rd, rs1) XORI(rd, rs1, -1)
 // rd = -rs1
@@ -502,60 +489,72 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1>>rs2 arithmetic
 #define SRAW(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
 
-#define SLLxw(rd, rs1, rs2) do { \
-    if (rex.w) {                 \
-        SLL(rd, rs1, rs2);       \
-    } else {                     \
-        SLLW(rd, rs1, rs2);      \
-        ZEROUP(rd);              \
-    } } while (0)
+#define SLLxw(rd, rs1, rs2)     \
+    do {                        \
+        if (rex.w) {            \
+            SLL(rd, rs1, rs2);  \
+        } else {                \
+            SLLW(rd, rs1, rs2); \
+            ZEROUP(rd);         \
+        }                       \
+    } while (0)
 
-#define SRLxw(rd, rs1, rs2) do { \
-    if (rex.w) {                 \
-        SRL(rd, rs1, rs2);       \
-    } else {                     \
-        SRLW(rd, rs1, rs2);      \
-        ZEROUP(rd);              \
-    } } while (0)
+#define SRLxw(rd, rs1, rs2)     \
+    do {                        \
+        if (rex.w) {            \
+            SRL(rd, rs1, rs2);  \
+        } else {                \
+            SRLW(rd, rs1, rs2); \
+            ZEROUP(rd);         \
+        }                       \
+    } while (0)
 
-#define SRAxw(rd, rs1, rs2) do { \
-    if (rex.w) {                 \
-        SRA(rd, rs1, rs2);       \
-    } else {                     \
-        SRAW(rd, rs1, rs2);      \
-        ZEROUP(rd);              \
-    } } while (0)
+#define SRAxw(rd, rs1, rs2)     \
+    do {                        \
+        if (rex.w) {            \
+            SRA(rd, rs1, rs2);  \
+        } else {                \
+            SRAW(rd, rs1, rs2); \
+            ZEROUP(rd);         \
+        }                       \
+    } while (0)
 
 // Shift Left Immediate, 32-bit, sign-extended
 #define SLLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b001, rd, 0b0011011))
 // Shift Left Immediate
-#define SLLIxw(rd, rs1, imm) do { \
-    if (rex.w) {                  \
-        SLLI(rd, rs1, imm);       \
-    } else {                      \
-        SLLIW(rd, rs1, imm);      \
-        ZEROUP(rd);               \
-    } } while (0)
+#define SLLIxw(rd, rs1, imm)     \
+    do {                         \
+        if (rex.w) {             \
+            SLLI(rd, rs1, imm);  \
+        } else {                 \
+            SLLIW(rd, rs1, imm); \
+            ZEROUP(rd);          \
+        }                        \
+    } while (0)
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm) do {   \
-    if (rex.w) {                    \
-        SRLI(rd, rs1, imm);         \
-    } else {                        \
-        SRLIW(rd, rs1, imm);        \
-        if ((imm) == 0) ZEROUP(rd); \
-    } } while (0)
+#define SRLIxw(rd, rs1, imm)            \
+    do {                                \
+        if (rex.w) {                    \
+            SRLI(rd, rs1, imm);         \
+        } else {                        \
+            SRLIW(rd, rs1, imm);        \
+            if ((imm) == 0) ZEROUP(rd); \
+        }                               \
+    } while (0)
 // Shift Right Arithmetic Immediate, 32-bit, sign-extended
 #define SRAIW(rd, rs1, imm5) EMIT(I_type((imm5) | (0b0100000 << 5), rs1, 0b101, rd, 0b0011011))
 // Shift Right Arithmetic Immediate
-#define SRAIxw(rd, rs1, imm) do { \
-    if (rex.w) {                  \
-        SRAI(rd, rs1, imm);       \
-    } else {                      \
-        SRAIW(rd, rs1, imm);      \
-        ZEROUP(rd);               \
-    } } while (0)
+#define SRAIxw(rd, rs1, imm)     \
+    do {                         \
+        if (rex.w) {             \
+            SRAI(rd, rs1, imm);  \
+        } else {                 \
+            SRAIW(rd, rs1, imm); \
+            ZEROUP(rd);          \
+        }                        \
+    } while (0)
 
 #define CSRRW(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))
 #define CSRRS(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b010, rd, 0b1110011))
@@ -1312,10 +1311,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 
  */
 
-#define VECTOR_SEW8  0b000
-#define VECTOR_SEW16 0b001
-#define VECTOR_SEW32 0b010
-#define VECTOR_SEW64 0b011
+#define VECTOR_SEW8   0b000
+#define VECTOR_SEW16  0b001
+#define VECTOR_SEW32  0b010
+#define VECTOR_SEW64  0b011
 #define VECTOR_SEWNA  0b111  // N/A
 #define VECTOR_SEWANY 0b1000 // any sew would be ok, but not N/A.
 
@@ -1447,7 +1446,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VFSLIDE1DOWN_VF(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001111...........101.....1010111
 
 #define VFMV_S_F(vd, rs1) EMIT(I_type((rv64_xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
-#define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111)) // 010111100000.....101.....1010111
+#define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111))                                        // 010111100000.....101.....1010111
 
 #define VFMERGE_VFM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b101, vd, 0b1010111)) // 0101110..........101.....1010111
 
@@ -1533,8 +1532,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VFSQRT_V(vd, vs2, vm)          EMIT(R_type((rv64_xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010011......00000001.....1010111
 #define VFCLASS_V(vd, vs2, vm)         EMIT(R_type((rv64_xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010011......10000001.....1010111
 
-#define VFRSQRT7_V(vd, vs2, vm)        EMIT(R_type(0b0100110 | (vm), vs2, 0b00100, 0b001, vd, 0b1010111)) // 010011......00100001.....1010111
-#define VFREC7_V(vd, vs2, vm)          EMIT(R_type(0b0100110 | (vm), vs2, 0b00101, 0b001, vd, 0b1010111)) // 010011......00101001.....1010111
+#define VFRSQRT7_V(vd, vs2, vm) EMIT(R_type(0b0100110 | (vm), vs2, 0b00100, 0b001, vd, 0b1010111)) // 010011......00100001.....1010111
+#define VFREC7_V(vd, vs2, vm)   EMIT(R_type(0b0100110 | (vm), vs2, 0b00101, 0b001, vd, 0b1010111)) // 010011......00101001.....1010111
 
 #define VFWADD_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110000...........001.....1010111
 #define VFWREDUSUM_VS(vd, vs2, vs1, vm) EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110001...........001.....1010111
@@ -1564,12 +1563,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VSLIDEDOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001111...........100.....1010111
 
 #define VADC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
-#define VMADC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111)) // 0100010..........100.....1010111
-#define VMADC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111)) // 0100011..........100.....1010111
+#define VMADC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100010..........100.....1010111
+#define VMADC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100011..........100.....1010111
 #define VSBC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100100 | rv64_xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
-#define VMSBC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111)) // 0100110..........100.....1010111
-#define VMSBC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111)) // 0100111..........100.....1010111
-#define VMERGE_VXM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111)) // 0101110..........100.....1010111
+#define VMSBC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100110..........100.....1010111
+#define VMSBC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100111..........100.....1010111
+#define VMERGE_VXM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111))                       // 0101110..........100.....1010111
 
 #define VMV_V_X(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b100, vd, 0b1010111)) // 010111100000.....100.....1010111
 
@@ -1610,12 +1609,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VRGATHEREI16_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001110...........000.....1010111
 
 #define VADC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
-#define VMADC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111)) // 0100010..........000.....1010111
-#define VMADC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111)) // 0100011..........000.....1010111
+#define VMADC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100010..........000.....1010111
+#define VMADC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100011..........000.....1010111
 #define VSBC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100100 | rv64_xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
-#define VMSBC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111)) // 0100110..........000.....1010111
-#define VMSBC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111)) // 0100111..........000.....1010111
-#define VMERGE_VVM(vd, vs2, vs1) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111)) // 0101110..........000.....1010111
+#define VMSBC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100110..........000.....1010111
+#define VMSBC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100111..........000.....1010111
+#define VMERGE_VVM(vd, vs2, vs1) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111))                       // 0101110..........000.....1010111
 
 #define VMV_V_V(vd, vs1) EMIT(I_type(0b010111100000, vs1, 0b000, vd, 0b1010111)) // 010111100000.....000.....1010111
 
@@ -1653,9 +1652,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VSLIDEDOWN_VI(vd, vs2, simm5, vm) EMIT(R_type(0b0011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001111...........011.....1010111
 
 #define VADC_VIM(vd, vs2, simm5)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
-#define VMADC_VIM(vd, vs2, simm5)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111)) // 0100010..........011.....1010111
-#define VMADC_VI(vd, vs2, simm5)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111)) // 0100011..........011.....1010111
-#define VMERGE_VIM(vd, vs2, simm5) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111)) // 0101110..........011.....1010111
+#define VMADC_VIM(vd, vs2, simm5)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111))                       // 0100010..........011.....1010111
+#define VMADC_VI(vd, vs2, simm5)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111))                       // 0100011..........011.....1010111
+#define VMERGE_VIM(vd, vs2, simm5) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111))                       // 0101110..........011.....1010111
 
 #define VMV_V_I(vd, simm5) EMIT(I_type(0b010111100000, simm5, 0b011, vd, 0b1010111)) // 010111100000.....011.....1010111
 
@@ -1695,8 +1694,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VAADD_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001001...........010.....1010111
 #define VASUB_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001011...........010.....1010111
 // Warning, no unsigned edition in Xtheadvector
-#define VAADDU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
-#define VASUBU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
+#define VAADDU_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
+#define VASUBU_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
 
 // Warning: zero-extended on xtheadvector!
 #define VMV_X_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111

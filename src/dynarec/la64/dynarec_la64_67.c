@@ -105,10 +105,10 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
                 gb2 = 0;
-                gb1 = TO_LA64(gd);
+                gb1 = TO_NAT(gd);
             } else {
                 gb2 = ((gd & 4) << 1);
-                gb1 = TO_LA64(gd & 3);
+                gb1 = TO_NAT(gd & 3);
             }
             if (gb2) {
                 gd = x4;
@@ -119,10 +119,10 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 if (rex.rex) {
-                    eb1 = TO_LA64(ed);
+                    eb1 = TO_NAT(ed);
                     eb2 = 0;
                 } else {
-                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
                     eb2 = ((ed & 4) >> 2); // L or H
                 }
                 BSTRINS_D(eb1, gd, eb2 * 8 + 7, eb2 * 8);
@@ -137,7 +137,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                MVxw(TO_LA64((nextop & 7) + (rex.b << 3)), gd);
+                MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SDxw(gd, ed, fixedaddress);

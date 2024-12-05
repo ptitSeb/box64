@@ -1159,7 +1159,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETGX(v0, 0);
             if(rex.w) {
                 if(MODREG) {
-                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    ed = TO_NAT((nextop & 0x07) + (rex.b << 3));
                     VMOVQDto(ed, v0, 0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
@@ -1168,7 +1168,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 }
             } else {
                 if(MODREG) {
-                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    ed = TO_NAT((nextop & 0x07) + (rex.b << 3));
                     VMOVSto(ed, v0, 0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
@@ -1239,7 +1239,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(v0!=v2) VMOVQ(v0, v2);
             if(MODREG) {
                 u8 = (F8)&7;
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 VMOVQHfrom(v0, u8, ed);
             } else {
                 SMREAD();

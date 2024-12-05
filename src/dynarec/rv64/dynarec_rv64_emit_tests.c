@@ -33,7 +33,7 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE();
     }
 
-    IFX(X_AF | X_CF | X_OF) {
+    IFX (X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOT(s5, s1);
     }
@@ -46,16 +46,16 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
     IFX (X_ALL) ANDI(s6, s6, 0xff);
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s3, s6, 7);
         SET_FLAGS_NEZ(s3, F_SF, s4);
     }
 
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 8);
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s6, F_ZF, s4);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 
@@ -87,14 +87,14 @@ void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
         SET_DFNONE();
     }
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s3, s1, 7);
         SET_FLAGS_NEZ(s3, F_SF, s4);
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s4);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
     NAT_FLAGS_ENABLE_CARRY();
@@ -122,7 +122,7 @@ void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
 
-    IFX(X_AF | X_CF | X_OF) {
+    IFX (X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOT(s5, s1);
     }
@@ -135,16 +135,16 @@ void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
     IFX (X_ALL) ZEXTH(s6, s6);
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s3, s6, 15);
         SET_FLAGS_NEZ(s3, F_SF, s4);
     }
 
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 16);
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s6, F_ZF, s4);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 
@@ -175,14 +175,14 @@ void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
     } else {
         SET_DFNONE();
     }
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s3, s1, 15);
         SET_FLAGS_NEZ(s3, F_SF, s4);
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s4);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 
@@ -206,12 +206,12 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX_PENDOR0 {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
-        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+        SET_DF(s4, rex.w ? d_cmp64 : d_cmp32);
     } else {
         SET_DFNONE();
     }
 
-    IFX(X_AF | X_CF | X_OF) {
+    IFX (X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOT(s5, s1);
     }
@@ -223,17 +223,17 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SUBxw(s6, s1, s2);
     }
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SET_FLAGS_LTZ(s6, F_SF, s3, s4);
     }
     IFX (X_AF | X_CF | X_OF | X_ZF | X_PF) {
         if (!rex.w) ZEROUP(s6);
     }
-    CALC_SUB_FLAGS(s5, s2, s6, s3, s4, rex.w?64:32);
-    IFX(X_ZF) {
+    CALC_SUB_FLAGS(s5, s2, s6, s3, s4, rex.w ? 64 : 32);
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s6, F_ZF, s4);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
     NAT_FLAGS_ENABLE_CARRY();
@@ -262,12 +262,12 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
         SD(s1, xEmu, offsetof(x64emu_t, op1));
         SD(xZR, xEmu, offsetof(x64emu_t, op2));
         SD(s1, xEmu, offsetof(x64emu_t, res));
-        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+        SET_DF(s4, rex.w ? d_cmp64 : d_cmp32);
     } else {
         SET_DFNONE();
     }
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         if (rex.w) {
             SET_FLAGS_LTZ(s1, F_SF, s3, s4);
         } else {
@@ -275,10 +275,10 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
             SET_FLAGS_NEZ(s3, F_SF, s4);
         }
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s3);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
     NAT_FLAGS_ENABLE_CARRY();
@@ -315,14 +315,14 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s4, s3, 7);
         SET_FLAGS_NEZ(s4, F_SF, s5);
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s3, F_ZF, s5);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
@@ -351,14 +351,14 @@ void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s4, s3, 15);
         SET_FLAGS_NEZ(s4, F_SF, s5);
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s3, F_ZF, s5);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
@@ -374,7 +374,7 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 {
     CLEAR_FLAGS();
     IFX_PENDOR0 {
-        SET_DF(s3, rex.w?d_tst64:d_tst32);
+        SET_DF(s3, rex.w ? d_tst64 : d_tst32);
     } else {
         SET_DFNONE();
     }
@@ -393,14 +393,14 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s4, s3, rex.w ? 63 : 31);
         SET_FLAGS_NEZ(s4, F_SF, s5);
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s3, F_ZF, s5);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 
@@ -418,7 +418,7 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 {
     CLEAR_FLAGS();
     IFX_PENDOR0 {
-        SET_DF(s3, rex.w?d_tst64:d_tst32);
+        SET_DF(s3, rex.w ? d_tst64 : d_tst32);
     } else {
         SET_DFNONE();
     }
@@ -439,14 +439,14 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
 
-    IFX(X_SF) {
+    IFX (X_SF) {
         SRLI(s4, s3, rex.w ? 63 : 31);
         SET_FLAGS_NEZ(s4, F_SF, s5);
     }
-    IFX(X_ZF) {
+    IFX (X_ZF) {
         SET_FLAGS_EQZ(s3, F_ZF, s5);
     }
-    IFX(X_PF) {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 

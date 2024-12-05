@@ -492,7 +492,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x47:
             INST_NAME("INC Reg (32bits)");
             SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
-            gd = TO_LA64(opcode & 7);
+            gd = TO_NAT(opcode & 7);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
         case 0x48:
@@ -505,7 +505,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
             SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
-            gd = TO_LA64(opcode & 7);
+            gd = TO_NAT(opcode & 7);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
         case 0x50:
@@ -517,7 +517,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             PUSH1z(gd);
             break;
         case 0x58:
@@ -529,7 +529,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
             break;
@@ -543,7 +543,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETGD;
                 if (rex.w) {
                     if (MODREG) { // reg <= reg
-                        ADDI_W(gd, TO_LA64((nextop & 7) + (rex.b << 3)), 0);
+                        ADDI_W(gd, TO_NAT((nextop & 7) + (rex.b << 3)), 0);
                     } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -551,7 +551,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                 } else {
                     if (MODREG) { // reg <= reg
-                        ZEROUP2(gd, TO_LA64((nextop & 7) + (rex.b << 3)));
+                        ZEROUP2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
                     } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -1038,10 +1038,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
                 gb2 = 0;
-                gb1 = TO_LA64(gd);
+                gb1 = TO_NAT(gd);
             } else {
                 gb2 = ((gd & 4) << 1);
-                gb1 = TO_LA64(gd & 3);
+                gb1 = TO_NAT(gd & 3);
             }
             if (gb2) {
                 gd = x4;
@@ -1052,10 +1052,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 if (rex.rex) {
-                    eb1 = TO_LA64(ed);
+                    eb1 = TO_NAT(ed);
                     eb2 = 0;
                 } else {
-                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
                     eb2 = ((ed & 4) >> 2); // L or H
                 }
                 BSTRINS_D(eb1, gd, eb2 * 8 + 7, eb2 * 8);
@@ -1070,7 +1070,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                MVxw(TO_LA64((nextop & 7) + (rex.b << 3)), gd);
+                MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 if (rex.w) {
@@ -1085,21 +1085,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Gb, Eb");
             nextop = F8;
             if (rex.rex) {
-                gb1 = gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3));
+                gb1 = gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
                 gb2 = 0;
             } else {
                 gd = (nextop & 0x38) >> 3;
-                gb1 = TO_LA64(gd & 3);
+                gb1 = TO_NAT(gd & 3);
                 gb2 = ((gd & 4) << 1);
             }
             if (MODREG) {
                 if (rex.rex) {
-                    wback = TO_LA64((nextop & 7) + (rex.b << 3));
+                    wback = TO_NAT((nextop & 7) + (rex.b << 3));
                     wb2 = 0;
                 } else {
                     wback = (nextop & 7);
                     wb2 = (wback >> 2);
-                    wback = TO_LA64(wback & 3);
+                    wback = TO_NAT(wback & 3);
                 }
                 if (wb2) {
                     BSTRPICK_D(x4, wback, 7 + wb2 * 8, wb2 * 8);
@@ -1120,7 +1120,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                MVxw(gd, TO_LA64((nextop & 7) + (rex.b << 3)));
+                MVxw(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);
@@ -1167,7 +1167,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x95:
         case 0x96:
         case 0x97:
-            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             if (gd == xRAX) {
                 INST_NAME("NOP");
             } else {
@@ -1546,9 +1546,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             MOV32w(x1, u8);
             if (rex.rex)
-                gb1 = TO_LA64((opcode & 7) + (rex.b << 3));
+                gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
             else
-                gb1 = TO_LA64(opcode & 3);
+                gb1 = TO_NAT(opcode & 3);
             BSTRINS_D(gb1, x1, 7, 0);
             break;
         case 0xB4:
@@ -1559,10 +1559,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             MOV32w(x1, u8);
             if (rex.rex) {
-                gb1 = TO_LA64((opcode & 7) + (rex.b << 3));
+                gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
                 BSTRINS_D(gb1, x1, 7, 0);
             } else {
-                gb1 = TO_LA64(opcode & 3);
+                gb1 = TO_NAT(opcode & 3);
                 BSTRINS_D(gb1, x1, 15, 8);
             }
             break;
@@ -1575,7 +1575,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xBE:
         case 0xBF:
             INST_NAME("MOV Reg, Id");
-            gd = TO_LA64((opcode & 7) + (rex.b << 3));
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
             if (rex.w) {
                 u64 = F64;
                 MOV64x(gd, u64);
@@ -1791,10 +1791,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
-                    eb1 = TO_LA64((ed & 3)); // Ax, Cx, Dx or Bx
+                    eb1 = TO_NAT((ed & 3));  // Ax, Cx, Dx or Bx
                     eb2 = (ed & 4) >> 2;     // L or H
                 } else {
-                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
+                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
                 }
                 MOV32w(x3, u8);
@@ -1816,7 +1816,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             if (MODREG) { // reg <= i32
                 i64 = F32S;
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
             } else { // mem <= i32
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
@@ -1864,8 +1864,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr += 8 + 8;
                     TABLE64(x3, addr); // expected return address
                     BNE_MARK(xRIP, x3);
-                    LD_W(w1, xEmu, offsetof(x64emu_t, quit));
-                    CBZ_NEXT(w1);
+                    LD_W(x1, xEmu, offsetof(x64emu_t, quit));
+                    CBZ_NEXT(x1);
                     MARK;
                     jump_to_epilog_fast(dyn, 0, xRIP, ninst);
                 }
@@ -2150,8 +2150,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         TABLE64(x3, addr);
                         BNE_MARK(xRIP, x3); // Not the expected address again
-                        LD_W(w1, xEmu, offsetof(x64emu_t, quit));
-                        CBZ_NEXT(w1);
+                        LD_W(x1, xEmu, offsetof(x64emu_t, quit));
+                        CBZ_NEXT(x1);
                         MARK;
                         jump_to_epilog_fast(dyn, 0, xRIP, ninst);
                         dyn->last_ip = addr;

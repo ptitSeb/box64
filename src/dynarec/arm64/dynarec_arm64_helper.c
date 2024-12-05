@@ -59,12 +59,12 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 if (sib_reg!=4) {
                     if(tmp && ((!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256)))) {
                         MOV64x(scratch, tmp);
-                        ADDx_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                        ADDx_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib>>6));
                     } else {
                         if(sib>>6) {
-                            LSLx(ret, xRAX+sib_reg, (sib>>6));
+                            LSLx(ret, TO_NAT(sib_reg), (sib>>6));
                         } else
-                            ret = xRAX+sib_reg;
+                            ret = TO_NAT(sib_reg);
                         if(unscaled && (tmp>-256) && (tmp<256))
                             *unscaled = 1;
                         *fixaddress = tmp;
@@ -78,9 +78,9 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 }
             } else {
                 if (sib_reg!=4) {
-                    ADDx_REG_LSL(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                    ADDx_REG_LSL(ret, TO_NAT((sib&0x7)+(rex.b<<3)), TO_NAT(sib_reg), (sib>>6));
                 } else {
-                    ret = xRAX+(sib&0x7)+(rex.b<<3);
+                    ret = TO_NAT((sib&0x7)+(rex.b<<3));
                 }
             }
         } else if((nextop&7)==5) {
@@ -112,7 +112,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
             }
         } else {
-            ret = xRAX+(nextop&7)+(rex.b<<3);
+            ret = TO_NAT((nextop & 7) + (rex.b << 3));
         }
     } else {
         int64_t i64;
@@ -132,24 +132,24 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    ADDx_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                    ADDx_REG_LSL(ret, TO_NAT((sib&0x07)+(rex.b<<3)), TO_NAT(sib_reg), (sib>>6));
                 } else {
-                    ret = xRAX+(sib&0x07)+(rex.b<<3);
+                    ret = TO_NAT((sib&0x07)+(rex.b<<3));
                 }
             } else
-                ret = xRAX+(nextop&0x07)+(rex.b<<3);
+                ret = TO_NAT((nextop & 0x07) + (rex.b << 3));
         } else {
             int64_t sub = (i64<0)?1:0;
             if(sub) i64 = -i64;
             if(i64<0x1000) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADDx_REG_LSL(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                        ADDx_REG_LSL(scratch, TO_NAT((sib&0x07)+(rex.b<<3)), TO_NAT(sib_reg), (sib>>6));
                     } else {
-                        scratch = xRAX+(sib&0x07)+(rex.b<<3);
+                        scratch = TO_NAT((sib&0x07)+(rex.b<<3));
                     }
                 } else
-                    scratch = xRAX+(nextop&0x07)+(rex.b<<3);
+                    scratch = TO_NAT((nextop & 0x07) + (rex.b << 3));
                 if(sub) {
                     SUBx_U12(ret, scratch, i64);
                 } else {
@@ -160,13 +160,13 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sub) {
-                            SUBx_REG(scratch, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                            SUBx_REG(scratch, TO_NAT((sib&0x07)+(rex.b<<3)), scratch);
                         } else {
-                            ADDx_REG(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
+                            ADDx_REG(scratch, scratch, TO_NAT((sib&0x07)+(rex.b<<3)));
                         }
-                        ADDx_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                        ADDx_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib>>6));
                     } else {
-                        PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
+                        PASS3(int tmp = TO_NAT(sib & 0x07) + (rex.b << 3));
                         if(sub) {
                             SUBx_REG(ret, tmp, scratch);
                         } else {
@@ -174,7 +174,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         }
                     }
                 } else {
-                    PASS3(int tmp = xRAX+(nextop&0x07)+(rex.b<<3));
+                    PASS3(int tmp = TO_NAT((nextop & 0x07) + (rex.b << 3)));
                     if(sub) {
                         SUBx_REG(ret, tmp, scratch);
                     } else {
@@ -214,9 +214,9 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                 if (sib_reg!=4) {
                     if(tmp && ((!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256)))) {
                         MOV32w(scratch, tmp);
-                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                        ADDw_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib >> 6));
                     } else {
-                        LSLw(ret, xRAX+sib_reg, (sib>>6));
+                        LSLw(ret, TO_NAT(sib_reg), (sib >> 6));
                         *fixaddress = tmp;
                         if(unscaled && (tmp>-256) && (tmp<256))
                             *unscaled = 1;
@@ -230,9 +230,9 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                 }
             } else {
                 if (sib_reg!=4) {
-                    ADDw_REG_LSL(ret, xRAX+(sib&0x7), xRAX+sib_reg, (sib>>6));
+                    ADDw_REG_LSL(ret, TO_NAT(sib & 0x7), TO_NAT(sib_reg), (sib >> 6));
                 } else {
-                    ret = xRAX+(sib&0x7);
+                    ret = TO_NAT(sib & 0x7);
                 }
             }
         } else if((nextop&7)==5) {
@@ -243,7 +243,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                 case 2: if(isLockAddress(tmp)) *l=1; break;
             }
         } else {
-            ret = xRAX+(nextop&7);
+            ret = TO_NAT(nextop & 7);
             if(ret==hint) {
                 MOVw_REG(hint, ret);    //to clear upper part
             }
@@ -266,12 +266,12 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    ADDw_REG_LSL(ret, xRAX+(sib&0x07), xRAX+sib_reg, (sib>>6));
+                    ADDw_REG_LSL(ret, TO_NAT(sib & 0x07), TO_NAT(sib_reg), (sib >> 6));
                 } else {
-                    ret = xRAX+(sib&0x07);
+                    ret = TO_NAT(sib & 0x07);
                 }
             } else {
-                ret = xRAX+(nextop&0x07);
+                ret = TO_NAT(nextop & 0x07);
             }
         } else {
             int64_t sub = (i32<0)?1:0;
@@ -279,12 +279,12 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
             if(i32<0x1000) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADDw_REG_LSL(scratch, xRAX+(sib&0x07), xRAX+sib_reg, (sib>>6));
+                        ADDw_REG_LSL(scratch, TO_NAT(sib & 0x07), TO_NAT(sib_reg), (sib >> 6));
                     } else {
-                        scratch = xRAX+(sib&0x07);
+                        scratch = TO_NAT(sib & 0x07);
                     }
                 } else
-                    scratch = xRAX+(nextop&0x07);
+                    scratch = TO_NAT(nextop & 0x07);
                 if(sub) {
                     SUBw_U12(ret, scratch, i32);
                 } else {
@@ -295,13 +295,13 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sub) {
-                            SUBw_REG(scratch, xRAX+(sib&0x07), scratch);
+                            SUBw_REG(scratch, TO_NAT(sib & 0x07), scratch);
                         } else {
-                            ADDw_REG(scratch, scratch, xRAX+(sib&0x07));
+                            ADDw_REG(scratch, scratch, TO_NAT(sib & 0x07));
                         }
-                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                        ADDw_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib >> 6));
                     } else {
-                        PASS3(int tmp = xRAX+(sib&0x07));
+                        PASS3(int tmp = TO_NAT(sib & 0x07));
                         if(sub) {
                             SUBw_REG(ret, tmp, scratch);
                         } else {
@@ -309,7 +309,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                         }
                     }
                 } else {
-                    PASS3(int tmp = xRAX+(nextop&0x07));
+                    PASS3(int tmp = TO_NAT(nextop & 0x07));
                     if(sub) {
                         SUBw_REG(ret, tmp, scratch);
                     } else {
@@ -350,9 +350,9 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 if (sib_reg!=4) {
                     if(tmp && ((!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256)))) {
                         MOV64x(scratch, tmp);
-                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                        ADDw_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib >> 6));
                     } else {
-                        LSLw(ret, xRAX+sib_reg, (sib>>6));
+                        LSLw(ret, TO_NAT(sib_reg), (sib >> 6));
                         *fixaddress = tmp;
                         if(unscaled && (tmp>-256) && (tmp<256))
                             *unscaled = 1;
@@ -366,9 +366,9 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 }
             } else {
                 if (sib_reg!=4) {
-                    ADDw_REG_LSL(ret, xRAX+(sib&0x7)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                    ADDw_REG_LSL(ret, TO_NAT((sib & 0x7) + (rex.b << 3)), TO_NAT(sib_reg), (sib >> 6));
                 } else {
-                    ret = xRAX+(sib&0x7)+(rex.b<<3);
+                    ret = TO_NAT((sib & 0x7)) + (rex.b << 3);
                 }
             }
         } else if((nextop&7)==5) {
@@ -381,7 +381,7 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
             }
         } else {
-            ret = xRAX+(nextop&7)+(rex.b<<3);
+            ret = TO_NAT((nextop & 7) + (rex.b << 3));
             if(ret==hint) {
                 MOVw_REG(hint, ret);    //to clear upper part
             }
@@ -404,12 +404,12 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    ADDw_REG_LSL(ret, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                    ADDw_REG_LSL(ret, TO_NAT((sib & 0x07) + (rex.b << 3)), TO_NAT(sib_reg), (sib >> 6));
                 } else {
-                    ret = xRAX+(sib&0x07)+(rex.b<<3);
+                    ret = TO_NAT((sib & 0x07) + (rex.b << 3));
                 }
             } else {
-                ret = xRAX+(nextop&0x07)+(rex.b<<3);
+                ret = TO_NAT((nextop & 0x07) + (rex.b << 3));
             }
         } else {
             int64_t sub = (i64<0)?1:0;
@@ -417,12 +417,12 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             if(i64<0x1000) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADDw_REG_LSL(scratch, xRAX+(sib&0x07)+(rex.b<<3), xRAX+sib_reg, (sib>>6));
+                        ADDw_REG_LSL(scratch, TO_NAT((sib & 0x07) + (rex.b << 3)), TO_NAT(sib_reg), (sib >> 6));
                     } else {
-                        scratch = xRAX+(sib&0x07)+(rex.b<<3);
+                        scratch = TO_NAT((sib & 0x07) + (rex.b << 3));
                     }
                 } else
-                    scratch = xRAX+(nextop&0x07)+(rex.b<<3);
+                    scratch = TO_NAT((nextop & 0x07) + (rex.b << 3));
                 if(sub) {
                     SUBw_U12(ret, scratch, i64);
                 } else {
@@ -433,13 +433,13 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sub) {
-                            SUBw_REG(scratch, xRAX+(sib&0x07)+(rex.b<<3), scratch);
+                            SUBw_REG(scratch, TO_NAT((sib & 0x07) + (rex.b << 3)), scratch);
                         } else {
-                            ADDw_REG(scratch, scratch, xRAX+(sib&0x07)+(rex.b<<3));
+                            ADDw_REG(scratch, scratch, TO_NAT((sib & 0x07) + (rex.b << 3)));
                         }
-                        ADDw_REG_LSL(ret, scratch, xRAX+sib_reg, (sib>>6));
+                        ADDw_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib >> 6));
                     } else {
-                        PASS3(int tmp = xRAX+(sib&0x07)+(rex.b<<3));
+                        PASS3(int tmp = TO_NAT((sib & 0x07) + (rex.b << 3)));
                         if(sub) {
                             SUBw_REG(ret, tmp, scratch);
                         } else {
@@ -447,7 +447,7 @@ uintptr_t geted32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                         }
                     }
                 } else {
-                    PASS3(int tmp = xRAX+(nextop&0x07)+(rex.b<<3));
+                    PASS3(int tmp = TO_NAT((nextop & 0x07) + (rex.b << 3)));
                     if(sub) {
                         SUBw_REG(ret, tmp, scratch);
                     } else {
