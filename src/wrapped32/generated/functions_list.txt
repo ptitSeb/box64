@@ -861,6 +861,7 @@
 #() iFpipp -> iFpipp
 #() iFpCCC -> iFpCCC
 #() iFpWWu -> iFpWWu
+#() iEpuiL -> iEpuiL
 #() iFpuLp -> iFpuLp
 #() iFpupi -> iFpupi
 #() iFpupp -> iFpupp
@@ -1914,6 +1915,7 @@ wrappedlibc:
   - readlinkat
 - iEpipp:
 - iEpipV:
+- iEpuiL:
 - iEpLpp:
 - iEpLpV:
 - iEpppp:

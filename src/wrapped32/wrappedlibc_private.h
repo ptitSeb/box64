@@ -184,7 +184,7 @@ GOM(__ctype_tolower_loc, pEEv)
 DATAM(__ctype_toupper, 4)
 GOM(__ctype_toupper_loc, pEEv)
 // __curbrk // type B
-//GO(cuserid, pEp)
+GO(cuserid, tEp)
 GOM(__cxa_atexit, iEEppp) //%%
 GOM(atexit, iEEp)           //%% just in case
 GOM(__cxa_finalize, vEEp) //%%
@@ -2173,7 +2173,7 @@ GOWM(_ITM_deregisterTMCloneTable, vEEp) //%%
 GOM(__umoddi3, UEUU)        //%%,noE
 GOM(__udivdi3, UEUU)        //%%,noE
 GOM(__divdi3, IEII)         //%%,noE
-//GOM(__poll_chk, iEpuii)     //%%,noE
+GOM(__poll_chk, iEpuiL)     //%%,noE
 
 GO(fallocate64, iEiiII)
 

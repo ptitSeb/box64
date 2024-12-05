@@ -97,6 +97,7 @@ typedef int32_t (*iEippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iEippL_t)(int32_t, void*, void*, uintptr_t);
 typedef int32_t (*iEpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iEpipV_t)(void*, int32_t, void*, ...);
+typedef int32_t (*iEpuiL_t)(void*, uint32_t, int32_t, uintptr_t);
 typedef int32_t (*iEpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iEpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int32_t (*iEpppp_t)(void*, void*, void*, void*);
