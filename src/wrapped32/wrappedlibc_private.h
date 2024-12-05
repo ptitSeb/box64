@@ -1977,7 +1977,7 @@ GO(__wcsncpy_chk, pEppLL)
 GOW(wcsnlen, LEpL)
 GOW(wcsnrtombs, LEpBp_LLp)
 // __wcsnrtombs_chk
-//GO(wcspbrk, pEpp)
+GO(wcspbrk, pEpp)
 GO(wcsrchr, pEpi)
 //GOW(wcsrtombs, uEppup)
 // __wcsrtombs_chk
