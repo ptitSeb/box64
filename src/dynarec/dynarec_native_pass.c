@@ -182,7 +182,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 else { tmp1=x1; tmp2=x2; tmp3=x3; }
                 fpu_purgecache(dyn, ninst, 0, tmp1, tmp2, tmp3);
                 #else
-                fpu_purgecache(dyn, next, 0, x1, x2, x3);
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 #endif
             }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
