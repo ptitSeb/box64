@@ -97,7 +97,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETED(0);
             d1 = fpu_get_scratch(dyn);
             if (rex.w) {
@@ -173,7 +173,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
-            GETGX_empty(v0);
+            GETGX_empty_vector(v0);
             d1 = fpu_get_scratch(dyn);
             GETEXSD(d0, 0, 0);
             FSQRT_D(d1, d0);
@@ -189,7 +189,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FADD_D(d0, v0, v1);
@@ -206,7 +206,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FMUL_D(d0, v0, v1);
@@ -223,7 +223,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5A:
             INST_NAME("CVTSD2SS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = fpu_get_scratch(dyn);
             FCVT_S_D(d1, d0);
@@ -232,7 +232,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FSUB_D(d0, v0, v1);
@@ -249,7 +249,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5D:
             INST_NAME("MINSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 0);
             FCMP_D(fcc0, v0, v1, cUN);
             BCNEZ_MARK(fcc0);
@@ -262,7 +262,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FDIV_D(d0, v0, v1);
@@ -279,7 +279,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5F:
             INST_NAME("MAXSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 0);
             FCMP_D(fcc0, v0, v1, cUN);
             BCNEZ_MARK(fcc0);
@@ -292,8 +292,8 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x70:
             INST_NAME("PSHUFLW Gx, Ex, Ib");
             nextop = F8;
-            GETEX(v1, 0, 1);
-            GETGX(v0, 1);
+            GETEX_vector(v1, 0, 1);
+            GETGX_vector(v0, 1);
             u8 = F8;
             if (v0 != v1) {
                 VSHUF4I_H(v0, v1, u8);
@@ -307,7 +307,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX_vector(v0, 1);
             GETEXSD(v1, 0, 1);
             u8 = F8;
             switch (u8 & 7) {

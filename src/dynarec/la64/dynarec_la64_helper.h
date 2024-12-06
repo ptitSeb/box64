@@ -315,17 +315,17 @@
     }
 
 // Get GX as a quad (might use x1)
-#define GETGX(a, w)                             \
+#define GETGX_vector(a, w)                             \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     a = sse_get_reg(dyn, ninst, x1, gd, w)
 
 
-#define GETGX_empty(a)                          \
+#define GETGX_empty_vector(a)                          \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
 // Get EX as a quad, (x1 is used)
-#define GETEX(a, w, D)                                                                       \
+#define GETEX_vector(a, w, D)                                                                \
     if (MODREG) {                                                                            \
         a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
     } else {                                                                                 \
