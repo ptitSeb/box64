@@ -30,7 +30,7 @@ int isSimpleWrapper(wrapper_t fun);
 uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
-    uint8_t gd, ed;
+    uint8_t gd, ed, tmp1, tmp2, tmp3;
     int8_t i8;
     int32_t i32, tmp;
     int64_t i64, j64;
@@ -308,7 +308,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                             \
-    READFLAGS_FUSION(F, 1);                                                                 \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
     i8 = F8S;                                                                               \
     BARRIER(BARRIER_MAYBE);                                                                 \
     JUMP(addr + i8, 1);                                                                     \
@@ -321,14 +321,14 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         if (dyn->insts[ninst].nat_flags_fusion) {                                           \
             NATIVEJUMP_safe(NATNO, i32);                                                    \
         } else {                                                                            \
-            B##NO##_safe(x1, i32);                                                          \
+            B##NO##_safe(tmp1, i32);                                                        \
         }                                                                                   \
         if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
             if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+                fpu_purgecache(dyn, ninst, 1, tmp1, tmp2, tmp3);                            \
             jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
         } else {                                                                            \
-            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+            CacheTransform(dyn, ninst, cacheupd, tmp1, tmp2, tmp3);                         \
             i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
             B(i32);                                                                         \
         }                                                                                   \
@@ -338,7 +338,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         if (dyn->insts[ninst].nat_flags_fusion) {                                           \
             NATIVEJUMP_safe(NATYES, i32);                                                   \
         } else {                                                                            \
-            B##YES##_safe(x1, i32);                                                         \
+            B##YES##_safe(tmp1, i32);                                                       \
         }                                                                                   \
     }
             GOCOND(0x70, "J", "ib");

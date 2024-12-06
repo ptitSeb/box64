@@ -14,7 +14,7 @@
     dyn->f.dfnone = 1;                   \
     dyn->f.pending = SF_SET
 
-#define READFLAGS_FUSION(A, checkbarrier)                                                                       \
+#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                 \
     if (box64_dynarec_nativeflags && ninst > 0 && !dyn->insts[ninst - 1].nat_flags_nofusion) {                  \
         if ((A) == (X_ZF))                                                                                      \
             dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
@@ -22,7 +22,6 @@
             dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
         else if (dyn->insts[ninst - 1].nat_flags_sign && ((A) == (X_SF | X_OF) || (A) == (X_SF | X_OF | X_ZF))) \
             dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
-        if (checkbarrier && fpu_needpurgecache(dyn, ninst)) dyn->insts[ninst].nat_flags_fusion = 0;             \
     }                                                                                                           \
     READFLAGS(A);
 

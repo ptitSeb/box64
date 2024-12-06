@@ -812,3 +812,21 @@ void updateNativeFlags(dynarec_rv64_t* dyn)
                 dyn->insts[i].nat_flags_fusion = 0;
         }
 }
+
+void get_free_scratch(dynarec_rv64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5)
+{
+    uint8_t n1 = dyn->insts[ninst].nat_flags_op1;
+    uint8_t n2 = dyn->insts[ninst].nat_flags_op2;
+    uint8_t tmp[5] = {0};
+    int idx = 0;
+    #define GO(s) if((s!=n1) && (s!=n2)) tmp[idx++] = s
+    GO(s1);
+    GO(s2);
+    GO(s3);
+    GO(s4);
+    GO(s5);
+    #undef GO
+    *tmp1 = tmp[0];
+    *tmp2 = tmp[1];
+    *tmp3 = tmp[2];
+}

@@ -1021,7 +1021,10 @@
 #endif
 
 #ifndef READFLAGS_FUSION
-#define READFLAGS_FUSION(A, checkbarrier) READFLAGS(A)
+#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                     \
+    if(dyn->insts[ninst].nat_flags_fusion) get_free_scratch(dyn, ninst, &tmp1, &tmp2, &tmp3, s1, s2, s3, s4, s5);   \
+    else { tmp1=s1; tmp2=s2; tmp3=s3; }                                                                             \
+    READFLAGS(A)
 #endif
 
 #define NAT_FLAGS_OPS(op1, op2)                    \
