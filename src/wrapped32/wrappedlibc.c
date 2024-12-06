@@ -2316,7 +2316,7 @@ EXPORT int64_t my32___divdi3(int64_t a, int64_t b)
     return a/b;
 }
 
-EXPORT int32_t my32___poll_chk(void* a, uint32_t b, int c, int l)
+EXPORT int32_t my32___poll_chk(void* a, uint32_t b, int c, size_t l)
 {
     return poll(a, b, c);   // no check...
 }
