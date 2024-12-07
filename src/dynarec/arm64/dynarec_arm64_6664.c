@@ -224,7 +224,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;  // don't need GETGW here
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if(rex.w) {
                     MOVx_REG(ed, gd);
                 } else {
@@ -252,7 +252,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if(rex.w) {
                     MOVx_REG(gd, ed);
                 } else {

@@ -44,7 +44,7 @@ uintptr_t dynarec64_6664(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if (rex.w) {
                     MV(gd, ed);
                 } else {

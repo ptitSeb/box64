@@ -1,3 +1,34 @@
+v0.3.2
+======
+* Introduced Box32 to run 32bits apps on 64bits OS
+    => Box32 is a build option for Box64, and is disabled by default
+    => Optionnal binfmt integration available for Box32
+    => Wrapped some basics libs, including graphics and sounds so a few games already works
+    => Work In Progress, many issues remain to be fixed, but some Linux games are playable
+* Introduced Native Flags. Can be controled with BOX64_DYNAREC_NATIVEFLAGS, but enabled by default
+    => Available on the 3 Dynarec backend, with different implementations
+    => ARM64 Dynarec build have all AVX/AVX2 extensions enabled by default
+    +> Can lead to large speedup on certain cases
+* Improved Strong Memory Model emulation, with better default options and a more efficiant emulation
+* Dynarec: RV64: using RVV (and XThreadVector) to implement SSEx opcodes, with some massive speedup when used!
+* Some bugfix and improvment in the Signal handler and internal memory tracking
+* Improvment to TRAP signal generation and Handling
+* Improved CPUID opcodes again, and the various virtual file in /proc that represent those data
+* Improved some x87 operations, like long double handling and infinity comparisons...
+* Dynarec: ARM64 fixes to a few opcodes
+* Dynarec: RV64 fixes to many opcodes
+* Dynarec: LA64 fixes to a few opcodes
+* Dynarec: RV64 fixes and improvments on LOCK prefixes opcodes
+* Dynarec: Many optimisation on some individual opcodes, an all 3 backends
+* WRAPPING: More libs and functions wrapped. Some wrapping fixes too
+* WREPPING: New wrapperhelper to help coding new wrapping & fixing/enhancing existing one
+* ElfLoader: Improved object fetching
+* New build profile for SD865 and ORYON
+* Changed the installation folder of x86 libs to avoid conflict with linux distro
+* Added a few syscalls
+* Some more Vulkan extensions wrapped
+* More work on build system, and github CI (generating WCP archive), with some fixes on the Android version (still not 100% operational)
+
 v0.3.0
 ======
 * AVX and AVX2 implemented, along with BMI1, BMI2, ADX, FMA, F16C and RDANDR extension!

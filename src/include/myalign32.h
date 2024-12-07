@@ -153,18 +153,18 @@ struct i386_statfs {
 };
 
 struct i386_statfs64 {
-  uint32_t    f_type;
-  uint32_t    f_bsize;
+  long_t      f_type;
+  long_t      f_bsize;
   uint64_t    f_blocks;
   uint64_t    f_bfree;
   uint64_t    f_bavail;
   uint64_t    f_files;
   uint64_t    f_ffree;
   struct i386_fsid f_fsid;
-  uint32_t    f_namelen;
-  uint32_t    f_frsize;
-  uint32_t    f_flags;
-  uint32_t    f_spare[4];
+  long_t      f_namelen;
+  long_t      f_frsize;
+  long_t      f_flags;
+  long_t      f_spare[4];
 };
 
 struct i386_statvfs64 {

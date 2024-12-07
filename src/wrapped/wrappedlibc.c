@@ -2152,12 +2152,6 @@ EXPORT int32_t my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, 
 
     return f(pathname, findnftwFct(B), nopenfd, flags);
 }
-
-EXPORT void* my_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
-{
-    *((ldiv_t*)p) = ldiv(num, den);
-    return p;
-}
 #endif
 
 #ifndef NOALIGN

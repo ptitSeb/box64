@@ -184,7 +184,7 @@ GOM(__ctype_tolower_loc, pEEv)
 DATAM(__ctype_toupper, 4)
 GOM(__ctype_toupper_loc, pEEv)
 // __curbrk // type B
-//GO(cuserid, pEp)
+GO(cuserid, tEp)
 GOM(__cxa_atexit, iEEppp) //%%
 GOM(atexit, iEEp)           //%% just in case
 GOM(__cxa_finalize, vEEp) //%%
@@ -419,8 +419,8 @@ GO(__fsetlocking, iESi)
 GO(fsetxattr, iEippLi)
 GOWM(fstatfs, iEip) //%%,noE
 GOWM(fstatfs64, iEip)    //%%,noE
-//GO(fstatvfs, iEip)
-GOW(fstatvfs64, iEip)   // alignment?
+GOM(fstatvfs, iEEip)
+GOWM(fstatvfs64, iEEip)
 GOW(fsync, iEi)
 GOWM(ftell, lEES)
 GO(ftello, lES)
@@ -994,7 +994,7 @@ GOW(ldexpl, DFDi)
 #else
 GOW2(ldexpl, KFKi, ldexp)
 #endif
-//GOS(ldiv, pEEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
+GOS(ldiv, pEEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
 //GOM(lfind, pEEpppLp)            //%%
 //GO(lgetxattr, iEpppu)
 GOM(__libc_alloca_cutoff, iEEL) //%%
@@ -1977,7 +1977,7 @@ GO(__wcsncpy_chk, pEppLL)
 GOW(wcsnlen, LEpL)
 GOW(wcsnrtombs, LEpBp_LLp)
 // __wcsnrtombs_chk
-//GO(wcspbrk, pEpp)
+GO(wcspbrk, pEpp)
 GO(wcsrchr, pEpi)
 //GOW(wcsrtombs, uEppup)
 // __wcsrtombs_chk
@@ -2173,7 +2173,7 @@ GOWM(_ITM_deregisterTMCloneTable, vEEp) //%%
 GOM(__umoddi3, UEUU)        //%%,noE
 GOM(__udivdi3, UEUU)        //%%,noE
 GOM(__divdi3, IEII)         //%%,noE
-//GOM(__poll_chk, iEpuii)     //%%,noE
+GOM(__poll_chk, iEpuiL)     //%%,noE
 
 GO(fallocate64, iEiiII)
 

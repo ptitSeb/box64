@@ -42,7 +42,7 @@ int extcache_get_current_st_f_i64(dynarec_rv64_t* dyn, int a);
 // Back-propagate a change float->double
 void extcache_promote_double(dynarec_rv64_t* dyn, int ninst, int a);
 // Combine and propagate if needed (pass 1 only)
-int extcache_combine_st(dynarec_rv64_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
+int extcache_combine_st(dynarec_rv64_t* dyn, int ninst, int a, int b); // with stack current dyn->n_stack*
 // Do not allow i64 type
 int extcache_no_i64(dynarec_rv64_t* dyn, int ninst, int st, int a);
 
@@ -68,4 +68,5 @@ void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 
 void updateNativeFlags(dynarec_rv64_t* dyn);
+void get_free_scratch(dynarec_rv64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5);
 #endif //__DYNAREC_RV64_FUNCTIONS_H__

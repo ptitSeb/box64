@@ -2092,6 +2092,31 @@ EXPORT void my32_XFreeStringList(x64emu_t* emu, ptr_t* list)
     my->XFreeStringList(list);
 }
 
+EXPORT void* my32_XListFonts(x64emu_t* emu, void* dpy, void* pat, int maxnames, int* count)
+{
+    void** ret = my->XListFonts(dpy, pat, maxnames, count);
+    if(ret && *count) {
+        for(int i=0; i<*count; ++i)
+            ((ptr_t*)ret)[i] = to_ptrv(ret[i]);
+    }
+    // put end marker, for expansion
+    if(ret)
+        ((ptr_t*)ret)[*count] = 0;
+    return ret;
+}
+
+EXPORT void my32_XFreeFontNames(x64emu_t* emu, ptr_t* list)
+{
+    // need to find size of list
+    int n = 0;
+    while(list[n]) ++n;
+    // inplace string list expand
+    for(int i=n-1; i>=0; --i)
+        ((void**)list)[i] = from_ptrv(list[i]);
+
+    my->XFreeFontNames(list);
+}
+
 EXPORT int my32_XFreeColors(x64emu_t* emu, void* dpy, XID map, ulong_t* pixels, int npixels, unsigned long planes)
 {
     unsigned long pixels_l[npixels];
@@ -2194,14 +2219,15 @@ EXPORT int my32_XChangeWindowAttributes(x64emu_t* emu, void* dpy, XID window, un
     return my->XChangeWindowAttributes(dpy, window, mask, attrs_l);
 }
 
-EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID prop, long offset, long length, int delete, XID req, XID* type_return, int* fmt_return, ulong_t* nitems_return, ulong_t* bytes, ptr_t*prop_return)
+EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID prop, long offset, long length, int delete, XID req, XID_32* type_return, int* fmt_return, ulong_t* nitems_return, ulong_t* bytes, ptr_t*prop_return)
 {
-    unsigned long nitems_l = 0, bytes_l = 0;
+    unsigned long nitems_l = 0, bytes_l = 0, type_return_l = 0;
     void* prop_l = NULL;
-    int ret = my->XGetWindowProperty(dpy, window, prop, offset, length, delete, req, type_return, fmt_return, &nitems_l, &bytes_l, &prop_l);
+    int ret = my->XGetWindowProperty(dpy, window, prop, offset, length, delete, req, &type_return_l, fmt_return, &nitems_l, &bytes_l, &prop_l);
     *nitems_return = to_ulong(nitems_l);
     *bytes = to_ulong(bytes_l);
     *prop_return = to_ptrv(prop_l);
+    *type_return = to_ulong(type_return_l);
     if(!ret && *fmt_return==32) {
         // inplace shrink
         unsigned long *src = prop_l;
@@ -2225,6 +2251,32 @@ EXPORT void* my32_XLoadQueryFont(x64emu_t* emu, void* dpy, void* name)
 {
     void* ret = my->XLoadQueryFont(dpy, name);
     inplace_XFontStruct_shrink(ret);
+    return ret;
+}
+
+EXPORT void* my32_XQueryFont(x64emu_t* emu, void* dpy, size_t id)
+{
+    void* ret = my->XQueryFont(dpy, id);
+    inplace_XFontStruct_shrink(ret);
+    return ret;
+}
+
+EXPORT int my32_XFreeFontInfo(x64emu_t* emu, ptr_t* names, void* free_info, int count)
+{
+    inplace_XFontStruct_enlarge(free_info);
+    void** names_l = (void**)names;
+    if(names) {
+        for(int i=count-1; i>=0; --i)
+            ((void**)names)[i] = from_ptrv(names[i]);
+    }
+    return my->XFreeFontInfo(names_l, free_info, count);
+}
+
+EXPORT int my32_XTextWidth16(x64emu_t* emu, void* font, void* string, int count)
+{
+    inplace_XFontStruct_enlarge(font);
+    int ret = my->XTextWidth16(font, string, count);
+    inplace_XFontProp_shrink(font);
     return ret;
 }
 

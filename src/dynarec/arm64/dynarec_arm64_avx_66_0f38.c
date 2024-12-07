@@ -1104,7 +1104,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 MOV64x(x5, F32S64);
                 eb1 = x5;
             } else
-                eb1 = xRAX + (u8&0x7)+(rex.b<<3); // base
+                eb1 = TO_NAT((u8 & 0x7) + (rex.b << 3)); // base
             eb2 = ((u8>>3)&7)+(rex.x<<3); // index
             if(nextop&0x40)
                 i32 = F8S;
@@ -1163,7 +1163,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 MOV64x(x5, F32S64);
                 eb1 = x5;
             } else
-                eb1 = xRAX + (u8&0x7)+(rex.b<<3); // base
+                eb1 = TO_NAT((u8 & 0x7) + (rex.b << 3)); // base
             eb2 = ((u8>>3)&7)+(rex.x<<3); // index
             if(nextop&0x40)
                 i32 = F8S;

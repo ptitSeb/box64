@@ -50,7 +50,7 @@ Box64 requires 64-bit libraries on the host system, as it directly translates x8
 
 **Notes** 
 
-1. Box32 mode is in the making, which aims to support 32-bit binaries on Box64, stay tuned!
+1. Box32 mode is in the making, which aims to support 32-bit binaries on Box64, you can enable it at build time, but do not expect everything to work. There is actually a few things that works, many that don't. It's a known issue, no need to create tickets about it for now.
 2. Some installers may default to x86 on 64-bit host OSes, causing compatibility issues. Workaround: Use a fake `uname` that returns "x86_64" for `-m`.
 
 ---

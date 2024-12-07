@@ -66,7 +66,7 @@ uintptr_t dynarec64_6764_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, in
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
-                MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), gd);
+                MOVxw_REG(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else {                    // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, 0);
@@ -79,7 +79,7 @@ uintptr_t dynarec64_6764_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, in
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg => reg
-                MOVxw_REG(gd, xRAX+(nextop&7)+(rex.b<<3));
+                MOVxw_REG(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {                    // mem => reg
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, 0);
@@ -92,7 +92,7 @@ uintptr_t dynarec64_6764_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, in
             nextop=F8;
             if(MODREG) {   // reg <= reg
                 POP1_32(x1);
-                MOVxw_REG(xRAX+(nextop&7)+(rex.b<<3), x1);
+                MOVxw_REG(TO_NAT((nextop & 7) + (rex.b << 3)), x1);
             } else {                    // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 POP1_32(x1);

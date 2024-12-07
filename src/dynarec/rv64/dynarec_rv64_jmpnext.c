@@ -12,12 +12,12 @@ void CreateJmpNext(void* addr, void* next)
     uint32_t* block = (uint32_t*)addr;
     uintptr_t diff = (intptr_t)next - (intptr_t)addr;
     AUIPC(x2, SPLIT20(diff));
-    #if 1
+#if 1
     LD(x2, x2, SPLIT12(diff));
-    #else
+#else
     // Probably not usefull, but keeping the code, just in case
     ADDI(x2, x2, SPLIT12(diff));
     LR_D(x2, x2, 1, 1);
-    #endif
+#endif
     BR(x2);
 }

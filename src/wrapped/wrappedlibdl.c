@@ -428,8 +428,9 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         int found = 0;
         if(ElfGetSymTabStartEnd(my_context->elfs[0], &start, &end, rsymbol))
             found = 1;
+        if(!found && GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) 
+            found = 1;
         if(!found && GetSymTabStartEnd(my_context->maplib, rsymbol, &start, &end))
-        //if(!found && GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) 
             found = 1;
         if(found) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);

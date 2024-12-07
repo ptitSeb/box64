@@ -19,7 +19,7 @@ typedef struct Visuals_s {
 } Visuals_t;
 KHASH_MAP_INIT_INT(visuals, Visuals_t);
 
-#define N_DISPLAY 4
+#define N_DISPLAY 16
 my_XDisplay_t* my32_Displays_64[N_DISPLAY] = {0};
 struct my_XFreeFuncs_32 my32_free_funcs_32[N_DISPLAY] = {0};
 struct my_XLockPtrs_32 my32_lock_fns_32[N_DISPLAY] = {0};

@@ -60,7 +60,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             SMDMB();
             if ((nextop & 0xC0) == 0xC0) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -82,7 +82,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             SMDMB();
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -109,12 +109,12 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SMDMB();
                             if (MODREG) {
                                 if (rex.rex) {
-                                    wback = TO_LA64((nextop & 7) + (rex.b << 3));
+                                    wback = TO_NAT((nextop & 7) + (rex.b << 3));
                                     wb2 = 0;
                                 } else {
                                     wback = (nextop & 7);
                                     wb2 = (wback >> 2) * 8;
-                                    wback = TO_LA64(wback & 3);
+                                    wback = TO_NAT(wback & 3);
                                 }
                                 BSTRPICK_D(x2, wback, wb2 + 7, wb2);
                                 wb1 = 0;
@@ -131,12 +131,12 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 B_NEXT_nocond;
                             } else {
                                 if (rex.rex) {
-                                    gb1 = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3));
+                                    gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
                                     gb2 = 0;
                                 } else {
                                     gd = (nextop & 0x38) >> 3;
                                     gb2 = ((gd & 4) >> 2) * 8;
-                                    gb1 = TO_LA64(gd & 3);
+                                    gb1 = TO_NAT(gd & 3);
                                 }
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 ANDI(x5, wback, 0b11);
@@ -180,7 +180,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             nextop = F8;
                             GETGD;
                             if (MODREG) {
-                                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                                 wback = 0;
                                 UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5, x6); }
                                 MV(x1, ed); // save value
@@ -236,7 +236,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             GETGD;
                             SMDMB();
                             if (MODREG) {
-                                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                                 MVxw(x1, ed);
                                 MVxw(ed, gd);
                                 MVxw(gd, x1);
@@ -410,7 +410,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             SMDMB();
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -434,7 +434,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             SMDMB();
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_sub32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -465,7 +465,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
@@ -503,7 +503,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
@@ -541,7 +541,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
@@ -600,7 +600,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
                     SMDMB();
                     if (MODREG) {
-                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -618,7 +618,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
                     SMDMB();
                     if (MODREG) {
-                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);

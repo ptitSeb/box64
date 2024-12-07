@@ -1887,7 +1887,7 @@ static proc_token_t proc_next_token_aux(preproc_t *src) {
 	}
 	if (vector_last(ppsource, src->prep).srct == PPSRC_PTOKEN) {
 		proc_token_t ret = vector_last(ppsource, src->prep).srcv.ptok;
-		vector_pop(ppsource, src->prep);
+		vector_pop_nodel(ppsource, src->prep);
 		return ret;
 	}
 check_if_depth:

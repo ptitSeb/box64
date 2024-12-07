@@ -24,7 +24,9 @@
 
 uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip;
+    (void)rep;
+    (void)need_epilog;
 
     uint8_t nextop = F8;
     uint8_t ed, wback, u8;
@@ -38,7 +40,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(v1);
     MAYUSE(j64);
 
-    switch(nextop) {
+    switch (nextop) {
         case 0xC0 ... 0xC7:
             INST_NAME("FFREEP STx");
             // not handling Tag...
@@ -70,25 +72,25 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
             CLEAR_FLAGS();
-            IFX(X_ZF | X_PF | X_CF) {
-                if(ST_IS_F(0)) {
+            IFX (X_ZF | X_PF | X_CF) {
+                if (ST_IS_F(0)) {
                     FEQS(x5, v1, v1);
                     FEQS(x4, v2, v2);
                     AND(x5, x5, x4);
                     BEQZ(x5, 24); // undefined/NaN
                     FEQS(x5, v1, v2);
-                    BNEZ(x5, 24); // equal
-                    FLTS(x3, v1, v2); // x3 = (v1<v2)?1:0
+                    BNEZ(x5, 24);           // equal
+                    FLTS(x3, v1, v2);       // x3 = (v1<v2)?1:0
                     OR(xFlags, xFlags, x3); // CF is the least significant bit
-                    J(16); // end
+                    J(16);                  // end
                     // NaN
-                    ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                    ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
                     J(8); // end
                     // equal
-                    ORI(xFlags, xFlags, 1<<F_ZF);
+                    ORI(xFlags, xFlags, 1 << F_ZF);
                     // end
                 } else {
                     FEQD(x5, v1, v1);
@@ -96,15 +98,15 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     AND(x5, x5, x4);
                     BEQZ(x5, 24); // undefined/NaN
                     FEQD(x5, v1, v2);
-                    BNEZ(x5, 24); // equal
-                    FLTD(x3, v1, v2); // x3 = (v1<v2)?1:0
+                    BNEZ(x5, 24);           // equal
+                    FLTD(x3, v1, v2);       // x3 = (v1<v2)?1:0
                     OR(xFlags, xFlags, x3); // CF is the least significant bit
-                    J(16); // end
+                    J(16);                  // end
                     // NaN
-                    ORI(xFlags, xFlags, (1<<F_ZF) | (1<<F_PF) | (1<<F_CF));
+                    ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
                     J(8); // end
                     // equal
-                    ORI(xFlags, xFlags, 1<<F_ZF);
+                    ORI(xFlags, xFlags, 1 << F_ZF);
                     // end
                 }
             }
@@ -117,13 +119,13 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
         default:
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("FILD ST0, Ew");
                     X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
                     LH(x1, wback, fixedaddress);
-                    if(ST_IS_F(0)) {
+                    if (ST_IS_F(0)) {
                         FCVTSL(v1, x1, RD_RNE);
                     } else {
                         FCVTDL(v1, x1, RD_RNE);
@@ -133,7 +135,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
-                    if(!box64_dynarec_fastround) {
+                    if (!box64_dynarec_fastround) {
                         FSFLAGSI(0); // reset all bits
                     }
                     if (ST_IS_F(0)) {
@@ -141,9 +143,9 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         FCVTWD(x4, v1, RD_RTZ);
                     }
-                    if(!box64_dynarec_fastround) {
-                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                        ANDI(x5, x5, 1<<FR_NV);
+                    if (!box64_dynarec_fastround) {
+                        FRFLAGS(x5); // get back FPSR to check the IOC bit
+                        ANDI(x5, x5, 1 << FR_NV);
                         BNEZ_MARK(x5);
                         SLLIW(x5, x4, 16);
                         SRAIW(x5, x5, 16);
@@ -160,7 +162,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                    if(!box64_dynarec_fastround) {
+                    if (!box64_dynarec_fastround) {
                         FSFLAGSI(0); // reset all bits
                     }
                     if (ST_IS_F(0)) {
@@ -169,9 +171,9 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FCVTWD(x4, v1, RD_DYN);
                     }
                     x87_restoreround(dyn, ninst, u8);
-                    if(!box64_dynarec_fastround) {
-                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                        ANDI(x5, x5, 1<<FR_NV);
+                    if (!box64_dynarec_fastround) {
+                        FRFLAGS(x5); // get back FPSR to check the IOC bit
+                        ANDI(x5, x5, 1 << FR_NV);
                         BNEZ_MARK(x5);
                         SLLIW(x5, x4, 16);
                         SRAIW(x5, x5, 16);
@@ -187,7 +189,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                    if(!box64_dynarec_fastround) {
+                    if (!box64_dynarec_fastround) {
                         FSFLAGSI(0); // reset all bits
                     }
                     if (ST_IS_F(0)) {
@@ -196,9 +198,9 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FCVTWD(x4, v1, RD_DYN);
                     }
                     x87_restoreround(dyn, ninst, u8);
-                    if(!box64_dynarec_fastround) {
-                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                        ANDI(x5, x5, 1<<FR_NV);
+                    if (!box64_dynarec_fastround) {
+                        FRFLAGS(x5); // get back FPSR to check the IOC bit
+                        ANDI(x5, x5, 1 << FR_NV);
                         BNEZ_MARK(x5);
                         SLLIW(x5, x4, 16);
                         SRAIW(x5, x5, 16);
@@ -214,7 +216,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("FBLD ST0, tbytes");
                     X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                    if(ed != x1) { MV(x1, ed); }
+                    if (ed != x1) { MV(x1, ed); }
                     s0 = x87_stackcount(dyn, ninst, x3);
                     CALL(fpu_fbld, -1);
                     x87_unstackcount(dyn, ninst, x3, s0);

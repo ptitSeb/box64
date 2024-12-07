@@ -316,6 +316,82 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q1, 0, 0);
                     VSIGNCOV_W(q0, q1, q0);
                     break;
+                case 0xDB:
+                    INST_NAME("AESIMC Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX_empty(q0);
+                    if (q0 != q1) {
+                        VOR_V(q0, q1, q1);
+                    }
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesimc, -1);
+                    break;
+                case 0xDC:
+                    INST_NAME("AESENC Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aese, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
+                case 0xDD:
+                    INST_NAME("AESENCLAST Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aeselast, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
+                case 0xDE:
+                    INST_NAME("AESDEC Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesd, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
+                case 0xDF:
+                    INST_NAME("AESDECLAST Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesdlast, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
                 default:
                     DEFAULT;
             }
@@ -352,7 +428,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q0, 0);
                     d0 = fpu_get_scratch(dyn);
                     if (MODREG) {
-                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         u8 = F8;
                         if (rex.w) {
                             VBSRL_V(d0, q0, (u8 & 1) * 8);
@@ -439,27 +515,27 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
-            READFLAGS(F);                                                                            \
-            if (la64_lbt) {                                                                          \
-                X64_SETJ(x1, I);                                                                     \
-            } else {                                                                                 \
-                GETFLAGS;                                                                            \
-            }                                                                                        \
-            nextop = F8;                                                                             \
-            GETGD;                                                                                   \
-            if (MODREG) {                                                                            \
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
-            } else {                                                                                 \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
-                LD_HU(x4, ed, fixedaddress);                                                         \
-                ed = x4;                                                                             \
-            }                                                                                        \
-            if (la64_lbt)                                                                            \
-                BEQZ(x1, 4 + 4);                                                                     \
-            else                                                                                     \
-                B##NO(x1, 4 + 4);                                                                    \
-            BSTRINS_D(gd, ed, 15, 0);
+#define GO(GETFLAGS, NO, YES, F, I)                                                          \
+    READFLAGS(F);                                                                            \
+    if (la64_lbt) {                                                                          \
+        X64_SETJ(x1, I);                                                                     \
+    } else {                                                                                 \
+        GETFLAGS;                                                                            \
+    }                                                                                        \
+    nextop = F8;                                                                             \
+    GETGD;                                                                                   \
+    if (MODREG) {                                                                            \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                            \
+    } else {                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
+        LD_HU(x4, ed, fixedaddress);                                                         \
+        ed = x4;                                                                             \
+    }                                                                                        \
+    if (la64_lbt)                                                                            \
+        BEQZ(x1, 4 + 4);                                                                     \
+    else                                                                                     \
+        B##NO(x1, 4 + 4);                                                                    \
+    BSTRINS_D(gd, ed, 15, 0);
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
@@ -762,7 +838,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX_empty(v0);
             v1 = fpu_get_scratch(dyn);
             if (MODREG) {
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if (rex.w) {
                     MOVGR2FR_D(v1, ed);
                 } else {
@@ -975,7 +1051,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 0);
             if (rex.w) {
                 if (MODREG) {
-                    ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
                     MOVFR2GR_D(ed, v0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
@@ -984,7 +1060,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             } else {
                 if (MODREG) {
-                    ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
                     MOVFR2GR_S(ed, v0);
                     ZEROUP(ed);
                 } else {
@@ -1025,12 +1101,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             if (MODREG) {
                 if (rex.rex) {
-                    ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb1 = ed;
                     eb2 = 0;
                 } else {
                     ed = (nextop & 7);
-                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed & 4) >> 2;   // L or H
                 }
                 if (eb2) {
@@ -1052,7 +1128,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             if (MODREG) {
                 u8 = (F8) & 7;
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);

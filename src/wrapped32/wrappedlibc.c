@@ -457,7 +457,7 @@ EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
     int ret = statvfs(f, &s);
-    if(r)
+    if(r>=0)
         UnalignStatVFS64_32(&s, r);
     return ret;
 }
@@ -466,7 +466,25 @@ EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
     int ret = statvfs(f, &s);
-    if(r)
+    if(r>=0)
+        UnalignStatVFS_32(&s, r);
+    return ret;
+}
+
+EXPORT int my32_fstatvfs64(x64emu_t* emu, int fd, void* r)
+{
+    struct statvfs s = {0};
+    int ret = fstatvfs(fd, &s);
+    if(r>=0)
+        UnalignStatVFS64_32(&s, r);
+    return ret;
+}
+
+EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
+{
+    struct statvfs s = {0};
+    int ret = fstatvfs(fd, &s);
+    if(r>=0)
         UnalignStatVFS_32(&s, r);
     return ret;
 }
@@ -1563,13 +1581,14 @@ EXPORT int32_t my32_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
 
     return f(pathname, findnftwFct(B), nopenfd, flags);
 }
+#endif
 
 EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
 {
-    *((ldiv_t*)p) = ldiv(num, den);
+    *((div_t*)p) = div(num, den);
     return p;
 }
-#endif
+
 EXPORT int my32_epoll_create(x64emu_t* emu, int size)
 {
     return epoll_create(size);
@@ -2297,7 +2316,7 @@ EXPORT int64_t my32___divdi3(int64_t a, int64_t b)
     return a/b;
 }
 
-EXPORT int32_t my32___poll_chk(void* a, uint32_t b, int c, int l)
+EXPORT int32_t my32___poll_chk(void* a, uint32_t b, int c, size_t l)
 {
     return poll(a, b, c);   // no check...
 }

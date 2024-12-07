@@ -810,7 +810,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
                     GETGX_vector(q0, 1, dyn->vector_eew);
                     if (MODREG) {
-                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         u8 = F8;
                         if (u8 & (rex.w ? 1 : 3)) {
                             if (rv64_xtheadvector) {
@@ -852,7 +852,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, dyn->vector_eew);
                     if (MODREG) {
                         u8 = (F8) & (rex.w ? 1 : 3);
-                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 1);
@@ -1256,8 +1256,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VWADDU_VX(d0, v0, xZR, VECTOR_UNMASKED);
             VWADDU_VX(v0, v1, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, i32, 1);
-            if (d2 < 32) VSLL_VI(v0, v0, d2, VECTOR_UNMASKED);
-            else VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
+            if (d2 < 32)
+                VSLL_VI(v0, v0, d2, VECTOR_UNMASKED);
+            else
+                VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
             VOR_VV(q0, d0, v0, VECTOR_UNMASKED);
             break;
         case 0x6B:
@@ -1700,7 +1702,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 1, VECTOR_SEW16);
             if (MODREG) {
                 u8 = (F8) & 7;
-                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 1);

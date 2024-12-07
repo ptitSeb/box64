@@ -199,9 +199,10 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
 {
     if(hasAlternate((void*)addr))
         return NULL;
+    const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
     dynablock_t* block = getDB(addr);
     if(block || !create) {
-        if(block && getNeedTest(addr) && (getProtection(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ))
+        if(block && getNeedTest(addr) && (getProtection(addr)&req_prot)!=req_prot)
             block = NULL;
         return block;
     }
@@ -215,14 +216,13 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         }
         block = getDB(addr);    // just in case
         if(block) {
-            if(block && getNeedTest(addr) && (getProtection_fast(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ))
+            if(block && getNeedTest(addr) && (getProtection_fast(addr)&req_prot)!=req_prot)
                 block = NULL;
             mutex_unlock(&my_context->mutex_dyndump);
             return block;
         }
     }
-
-    if((getProtection_fast(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ)) {// cannot be run, get out of the Dynarec
+    if((getProtection_fast(addr)&req_prot)!=req_prot) {// cannot be run, get out of the Dynarec
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
         return NULL;

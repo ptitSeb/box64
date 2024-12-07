@@ -25,7 +25,9 @@
 
 uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip;
+    (void)rep;
+    (void)need_epilog;
 
     uint8_t nextop = F8;
     uint8_t wback;
@@ -35,7 +37,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(v2);
     MAYUSE(v1);
 
-    switch(nextop) {
+    switch (nextop) {
         case 0xC0:
         case 0xC1:
         case 0xC2:
@@ -45,9 +47,9 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC6:
         case 0xC7:
             INST_NAME("FADDP STx, ST0");
-            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            if(ST_IS_F(0)) {
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
                 FADDS(v1, v1, v2);
             } else {
                 FADDD(v1, v1, v2);
@@ -63,9 +65,9 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCE:
         case 0xCF:
             INST_NAME("FMULP STx, ST0");
-            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            if(ST_IS_F(0)) {
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
                 FMULS(v1, v1, v2);
             } else {
                 FMULD(v1, v1, v2);
@@ -111,9 +113,9 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xE6:
         case 0xE7:
             INST_NAME("FSUBRP STx, ST0");
-            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            if(ST_IS_F(0)) {
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
                 FSUBS(v1, v2, v1);
             } else {
                 FSUBD(v1, v2, v1);
@@ -129,9 +131,9 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xEE:
         case 0xEF:
             INST_NAME("FSUBP STx, ST0");
-            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            if(ST_IS_F(0)) {
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
                 FSUBS(v1, v1, v2);
             } else {
                 FSUBD(v1, v1, v2);
@@ -147,9 +149,9 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xF6:
         case 0xF7:
             INST_NAME("FDIVRP STx, ST0");
-            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            if(ST_IS_F(0)) {
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
                 FDIVS(v1, v2, v1);
             } else {
                 FDIVD(v1, v2, v1);
@@ -165,9 +167,9 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xFE:
         case 0xFF:
             INST_NAME("FDIVP STx, ST0");
-            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            if(ST_IS_F(0)) {
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
                 FDIVS(v1, v1, v2);
             } else {
                 FDIVD(v1, v1, v2);
@@ -184,7 +186,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             DEFAULT;
             break;
         default:
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 default:
                     DEFAULT;
             }

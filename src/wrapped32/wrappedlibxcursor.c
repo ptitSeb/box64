@@ -167,7 +167,7 @@ EXPORT void* my32_XcursorImagesCreate(x64emu_t* emu, int n)
 
 EXPORT void my32_XcursorImagesDestroy(x64emu_t* emu, void* images)
 {
-	inplace_XcursorCursors_enlarge(images);
+	inplace_XcursorImages_enlarge(images);
 	my->XcursorImagesDestroy(images);
 }
 

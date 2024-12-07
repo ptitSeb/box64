@@ -176,7 +176,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP > 0
         if(dyn->insts[ninst].x64.has_next && dyn->insts[next].x64.barrier) {
             if(dyn->insts[next].x64.barrier&BARRIER_FLOAT) {
+                #ifdef RV64
+                uint8_t tmp1, tmp2, tmp3;
+                if(dyn->insts[next].nat_flags_fusion) get_free_scratch(dyn, next, &tmp1, &tmp2, &tmp3, x1, x2, x3, x4, x5);
+                else { tmp1=x1; tmp2=x2; tmp3=x3; }
+                fpu_purgecache(dyn, ninst, 0, tmp1, tmp2, tmp3);
+                #else
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                #endif
             }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
                 dyn->f.pending = 0;

@@ -60,6 +60,10 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define xFlags  26
 #define xRIP    27
 #define xSavedSP 28
+
+// convert a x86 register to native according to the register mapping
+#define TO_NAT(A) (xRAX + (A))
+
 // 32bits version
 #define wEAX    xRAX
 #define wECX    xRCX
