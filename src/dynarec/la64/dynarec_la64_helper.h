@@ -324,13 +324,6 @@
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
-// Will get pointer to GX in general register a, will purge SS or SD if loaded. can use gback as load address
-#define GETGX_()                                \
-    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
-    sse_forget_reg(dyn, ninst, gd);             \
-    gback = xEmu;                               \
-    gdoffset = offsetof(x64emu_t, xmm[gd])
-
 // Get EX as a quad, (x1 is used)
 #define GETEX(a, w, D)                                                                       \
     if (MODREG) {                                                                            \
@@ -340,19 +333,6 @@
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, D); \
         a = fpu_get_scratch(dyn);                                                            \
         VLD(a, ed, fixedaddress);                                                            \
-    }
-
-// Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
-#define GETEX_(a, D, I12)                                                                        \
-    if (MODREG) {                                                                                \
-        ed = (nextop & 7) + (rex.b << 3);                                                        \
-        sse_forget_reg(dyn, ninst, ed);                                                          \
-        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                              \
-        wback = xEmu;                                                                            \
-    } else {                                                                                     \
-        SMREAD();                                                                                \
-        ed = 16;                                                                                 \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
 
 // Put Back EX if it was a memory and not an emm register
@@ -407,26 +387,6 @@
     ANDI(s, xFlags, 1 << F_DF);    \
     BEQZ(s, 4 + 4);                \
     SUB_D(r, xZR, r);
-
-#define SSE_LOOP_MV_Q_ITEM(s, i)          \
-    LD_D(s, wback, fixedaddress + i * 8); \
-    ST_D(s, gback, gdoffset + i * 8);
-
-// Loop for SSE opcode that moves 64bits value from wback to gback, use s as scratch.
-#define SSE_LOOP_MV_Q(s)     \
-    SSE_LOOP_MV_Q_ITEM(s, 0) \
-    SSE_LOOP_MV_Q_ITEM(s, 1)
-
-#define SSE_LOOP_Q_ITEM(GX1, EX1, F, i)     \
-    LD_D(GX1, gback, gdoffset + i * 8);     \
-    LD_D(EX1, wback, fixedaddress + i * 8); \
-    F;                                      \
-    ST_D(GX1, gback, gdoffset + i * 8);
-
-// Loop for SSE opcode that use 64bits value and write to GX.
-#define SSE_LOOP_Q(GX1, EX1, F)     \
-    SSE_LOOP_Q_ITEM(GX1, EX1, F, 0) \
-    SSE_LOOP_Q_ITEM(GX1, EX1, F, 1)
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
