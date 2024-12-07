@@ -316,6 +316,82 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q1, 0, 0);
                     VSIGNCOV_W(q0, q1, q0);
                     break;
+                case 0xDB:
+                    INST_NAME("AESIMC Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX_empty(q0);
+                    if (q0 != q1) {
+                        VOR_V(q0, q1, q1);
+                    }
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesimc, -1);
+                    break;
+                case 0xDC:
+                    INST_NAME("AESENC Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aese, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
+                case 0xDD:
+                    INST_NAME("AESENCLAST Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aeselast, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
+                case 0xDE:
+                    INST_NAME("AESDEC Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesd, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
+                case 0xDF:
+                    INST_NAME("AESDECLAST Gx, Ex"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    GETEX(q1, 0, 0);
+                    if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q1, q1);
+                    } else
+                        d0 = -1;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd);
+                    CALL(native_aesdlast, -1);
+                    GETGX(q0, 1);
+                    VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+                    break;
                 default:
                     DEFAULT;
             }
