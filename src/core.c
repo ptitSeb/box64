@@ -592,10 +592,10 @@ void computeRDTSC()
     box64_rdtsc_shift = 0;
     #if defined(ARM64) || defined(RV64)
     hardware = 1;
-    box64_rdtsc = 0;    // allow hardxare counter
+    box64_rdtsc = 0;    // allow hardware counter
     #else
     box64_rdtsc = 1;
-    printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
+    printf_log(LOG_INFO, "Will use time-based emulation for RDTSC, even if hardware counters are available\n");
     #endif
     uint64_t freq = ReadTSCFrequency(NULL);
     if(freq<((box64_rdtsc_1ghz)?1000000000LL:1000000)) {
@@ -605,11 +605,11 @@ void computeRDTSC()
         freq = ReadTSCFrequency(NULL);
     }
     uint64_t efreq = freq;
-    while(efreq<2000000000 && box64_rdtsc_shift<31) {    // minium 2GHz, but not too much shift
+    while(efreq<2000000000 && box64_rdtsc_shift<31) {    // minimum 2GHz, but not too much shift
         ++box64_rdtsc_shift;
         efreq = freq<<box64_rdtsc_shift;
     }
-    printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"Software":"Hardware");
+    printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"software":"hardware");
     int ghz = freq>=1000000000LL;
     if(ghz) freq/=100000000LL; else freq/=100000;
     if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
@@ -1300,7 +1300,7 @@ void LoadLogEnv()
     // grab cpu name
     int ncpu = getNCpu();
     const char* cpuname = getCpuName();
-    printf_log(LOG_INFO, " PageSize:%zd Running on %s with %d Cores\n", box64_pagesize, cpuname, ncpu);
+    printf_log(LOG_INFO, " PageSize:%zd Running on %s with %d core%s\n", box64_pagesize, cpuname, ncpu, ncpu > 1 ? "s" : "");
     // grab and calibrate hardware counter
     computeRDTSC();
 }
@@ -1503,7 +1503,7 @@ void LoadEnvVars(box64context_t *context)
             printf_log(LOG_INFO, "\n");
         }
     }
-    // add libssl and libcrypto (and a few other) to prefer emulated version because of multiple version exist
+    // Add libssl and libcrypto (and a few others) to prefer the emulated version because multiple versions exist
     AddPath("libssl.so.1", &context->box64_emulated_libs, 0);
     AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
