@@ -171,7 +171,7 @@ EXPORT void my32_XcursorImagesDestroy(x64emu_t* emu, void* images)
 	my->XcursorImagesDestroy(images);
 }
 
-EXPORT unsigned long my32_XcursorImagesLoadCursors(x64emu_t* emu, void* dpy, void* images)
+EXPORT unsigned long my32_XcursorImagesLoadCursor(x64emu_t* emu, void* dpy, void* images)
 {
 	inplace_XcursorImages_enlarge(images);
 	unsigned long ret = my->XcursorImagesLoadCursor(dpy, images);
@@ -179,7 +179,7 @@ EXPORT unsigned long my32_XcursorImagesLoadCursors(x64emu_t* emu, void* dpy, voi
 	return ret;
 }
 
-EXPORT void* my32_XcursorImagesLoadCursor(x64emu_t* emu, void* dpy, void* images)
+EXPORT void* my32_XcursorImagesLoadCursors(x64emu_t* emu, void* dpy, void* images)
 {
 	inplace_XcursorImages_enlarge(images);
 	void* ret = my->XcursorImagesLoadCursors(dpy, images);
