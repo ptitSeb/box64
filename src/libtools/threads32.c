@@ -828,7 +828,7 @@ typedef struct fake_pthread_mutext_s {
 	int __kind;
 	ptr_t real_mutex;
 } fakse_phtread_mutex_t;
-#define KIND_SIGN	0xbad000
+#define KIND_SIGN	0xbad001
 pthread_mutex_t* createNewMutex()
 {
 	pthread_mutex_t* ret = (pthread_mutex_t*)box_calloc(1, sizeof(pthread_mutex_t));
@@ -839,14 +839,29 @@ pthread_mutex_t* createNewMutex()
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 {
 	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
-	if(fake->__kind==0) {
+	if(!fake->__lock && !fake->__count && !fake->__owner && !fake->__kind && !fake->i386__kind && !fake->real_mutex) {
+		fake->real_mutex = KIND_SIGN;
+	}
+	if(!fake->__lock && !fake->__count && !fake->__owner && !fake->__kind && fake->i386__kind==1 && !fake->real_mutex) {
+		// recusrive mutex should also work
+		fake->real_mutex = KIND_SIGN;
+		fake->__kind = 1;
+		fake->i386__kind = 0;
+	}
+	if(fake->real_mutex==KIND_SIGN) {
 		return m;	// type 0 can fit...
 	}
 	if(fake->__kind==KIND_SIGN)
 		return from_ptrv(fake->real_mutex);
 	// this should not appens!
-	printf_log(LOG_NONE, "BOX32: Warning, fallback on alligned mutex %p\n", m);
+	printf_log(LOG_INFO, "BOX32: Warning, fallback on aligned mutex %p\n", m);
 	fake->real_mutex = to_ptrv(createNewMutex());
+	pthread_mutexattr_t attr = {0};
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, fake->i386__kind);
+	pthread_mutex_init(from_ptrv(fake->real_mutex), &attr);
+	pthread_mutexattr_destroy(&attr);
+	fake->__kind==KIND_SIGN;
 	return from_ptrv(fake->real_mutex);
 }
 EXPORT int my32_pthread_mutex_destroy(pthread_mutex_t *m)
