@@ -40,6 +40,8 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <regex.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #include "wrappedlibs.h"
 
@@ -3136,6 +3138,31 @@ EXPORT void my32_regfree(x64emu_t* emu, void* p)
     regex_t p_l;
     convert_regext_to_64(&p_l, p);
     regfree(&p_l);
+}
+
+EXPORT void* my32_shmat(x64emu_t*emu, int shmid, void* shmaddr, int flags)
+{
+    size_t sz = 0;
+    {
+        // get the size of the shmmemory
+        struct shmid_ds ds = {0};
+        if(shmctl(shmid, IPC_STAT, &ds)>=0)
+            sz = ds.shm_segsz;
+    }
+    if(!shmaddr) {
+        shmaddr = find31bitBlockNearHint(shmaddr, sz, 0);
+    }
+    void* ret = shmat(shmid, shmaddr, flags);
+    /*if(ret!=MAP_FAILED) {
+        would need to keep size somewhere, there is no way to get it back when doing shmdt
+        setProtection_mmap(ret, sz, (flags&SHM_RDONLY)?PROT_READ:(PROT_READ|PROT_WRITE));
+    }*/
+    return ret;
+}
+
+EXPORT int my32_shmdt(x64emu_t* emu, void* addr)
+{
+    return shmdt(addr);
 }
 
 #if 0

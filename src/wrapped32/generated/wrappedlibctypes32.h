@@ -79,6 +79,7 @@ typedef int32_t (*iESpV_t)(void*, void*, ...);
 typedef intptr_t (*lEipi_t)(int32_t, void*, int32_t);
 typedef intptr_t (*lEipL_t)(int32_t, void*, uintptr_t);
 typedef intptr_t (*lEppL_t)(void*, void*, uintptr_t);
+typedef void* (*pEipi_t)(int32_t, void*, int32_t);
 typedef void* (*pEpii_t)(void*, int32_t, int32_t);
 typedef void* (*pEpII_t)(void*, int64_t, int64_t);
 typedef void* (*pEpLL_t)(void*, uintptr_t, uintptr_t);
@@ -134,6 +135,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__close_nocancel, iEi_t) \
 	GO(posix_spawn_file_actions_destroy, iEp_t) \
 	GO(posix_spawn_file_actions_init, iEp_t) \
+	GO(shmdt, iEp_t) \
 	GO(sysinfo, iEp_t) \
 	GO(getwc, uES_t) \
 	GO(__sysconf, lEi_t) \
@@ -198,6 +200,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(recvmsg, lEipi_t) \
 	GO(sendmsg, lEipi_t) \
 	GO(writev, lEipi_t) \
+	GO(shmat, pEipi_t) \
 	GO(__realpath_chk, pEppi_t) \
 	GO(__strtold_l, KEpBp_a_t) \
 	GO(strtold_l, KEpBp_a_t) \

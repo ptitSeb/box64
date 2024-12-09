@@ -604,7 +604,6 @@
 #() pFEXi -> pFEXi
 #() pFEXL -> pFEXL
 #() pFEXp -> pFEXp
-#() pEipi -> pEipi
 #() pEipL -> pEipL
 #() pFipp -> pFipp
 #() pFulu -> pFulu
@@ -927,6 +926,7 @@
 #() LFXCii -> LFXCii
 #() LFXLuu -> LFXLuu
 #() LFXpLp -> LFXpLp
+#() pEEipi -> pEEipi
 #() pFEupp -> pFEupp
 #() pEEpii -> pEEpii
 #() pFEpip -> pFEpip
@@ -1765,6 +1765,7 @@ wrappedlibc:
 - iEp:
   - posix_spawn_file_actions_destroy
   - posix_spawn_file_actions_init
+  - shmdt
   - sysinfo
 - iEO:
 - uEp:
@@ -1890,6 +1891,8 @@ wrappedlibc:
   - writev
 - lEipL:
 - lEppL:
+- pEipi:
+  - shmat
 - pEpii:
 - pEpII:
 - pEpLL:

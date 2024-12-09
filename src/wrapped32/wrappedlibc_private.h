@@ -1543,9 +1543,9 @@ GOW(setvbuf, iESpiL)
 //GO(setxattr, iEpppui)
 // sgetspent
 // sgetspent_r  // Weak
-GOW(shmat, pEipi)
+GOWM(shmat, pEEipi)
 GOW(shmctl, iEiip)
-GOW(shmdt, iEp)
+GOWM(shmdt, iEEp)
 GOW(shmget, iEiLi)
 GOW(shutdown, iEii)
 GOWM(sigaction, iEEipp)    //%%
