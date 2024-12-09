@@ -314,6 +314,8 @@
         ed = i;                                                                                     \
     }
 
+#define VEXTRINS_IMM_4_0(n, m) ((n & 0xf) << 4 | (m & 0xf))
+
 // Get GX as a quad (might use x1)
 #define GETGX(a, w)                             \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
