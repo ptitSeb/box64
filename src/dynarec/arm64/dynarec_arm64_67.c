@@ -38,6 +38,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int32_t i32;
     int64_t j64, i64;
     int16_t i16;
+    uint64_t u64;
     int cacheupd = 0;
     int lock;
     int v0, v1, s0;
@@ -1194,6 +1195,15 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(xRAX, gd);
                 MOVxw_REG(gd, x2);
             }
+            break;
+
+        case 0xA1:
+            INST_NAME("MOV EAX,Od");
+            u64 = F32;
+            MOV64z(x1, u64);
+            lock=isLockAddress(u64);
+            SMREADLOCK(lock);
+            LDRxw_U12(xRAX, x1, 0);
             break;
 
         case 0xA9:
