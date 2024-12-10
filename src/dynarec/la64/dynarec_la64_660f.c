@@ -323,15 +323,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    VMULWEV_W_H(v0, q0, q1);
-                    VMULWOD_W_H(v1, q0, q1);
-                    VSRAI_W(v0, v0, 14);
-                    VSRAI_W(v1, v1, 14);
-                    VADDI_WU(v0, v0, 1);
-                    VADDI_WU(v1, v1, 1);
-                    VSRANI_H_W(v1, v0, 1);
-                    VSHUF4I_W(v1, v1, 0xd8);
-                    VSHUF4I_H(q0, v1, 0xd8);
+                    VEXT2XV_W_H(v0, q0);
+                    VEXT2XV_W_H(v1, q1);
+                    XVMUL_W(v0, v0, v1);
+                    XVSRLI_W(v0, v0, 14);
+                    XVADDI_WU(v0, v0, 1);
+                    XVSRLNI_H_W(v0, v0, 1);
+                    XVPERMI_D(q0, v0, 0b1000);
                     break;
                 case 0x1C:
                     INST_NAME("PABSB Gx,Ex");
