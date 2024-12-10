@@ -339,7 +339,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q1, 0, 0);
                     GETGX_empty(q0);
                     v0 = fpu_get_scratch(dyn);
-                    VREPLGR2VR_D(v0, xZR);
+                    VXOR_V(v0, v0, v0);
                     VABSD_B(q0, q1, v0);
                     break;
                 case 0x1D:
@@ -348,7 +348,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q1, 0, 0);
                     GETGX_empty(q0);
                     v0 = fpu_get_scratch(dyn);
-                    VREPLGR2VR_D(v0, xZR);
+                    VXOR_V(v0, v0, v0);
                     VABSD_H(q0, q1, v0);
                     break;
                 case 0x2B:
