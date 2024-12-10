@@ -2259,6 +2259,7 @@ wrappedlibx11:
   - XGetEventData
   - XNextEvent
   - XPeekEvent
+  - XPutBackEvent
 - LFpi:
   - XLookupKeysym
 - pFiV:

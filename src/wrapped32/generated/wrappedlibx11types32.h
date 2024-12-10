@@ -90,6 +90,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetEventData, iFXp_t) \
 	GO(XNextEvent, iFXp_t) \
 	GO(XPeekEvent, iFXp_t) \
+	GO(XPutBackEvent, iFXp_t) \
 	GO(XLookupKeysym, LFpi_t) \
 	GO(XVaCreateNestedList, pFiV_t) \
 	GO(XCreateIC, pFpV_t) \

@@ -1451,6 +1451,13 @@ EXPORT int my32_XFilterEvent(x64emu_t* emu, my_XEvent_32_t* evt, XID window)
     return my->XFilterEvent(&event, window);
 }
 
+EXPORT int my32_XPutBackEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    unconvertXEvent(&event, evt);
+    return my->XPutBackEvent(dpy, &event);
+}
+
 void WrapXImage(void* d, void* s)
 {
     XImage *src = s;
