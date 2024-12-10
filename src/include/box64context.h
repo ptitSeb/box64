@@ -52,7 +52,11 @@ typedef struct kh_dynablocks_s  kh_dynablocks_t;
 typedef void* (*procaddress_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
+#ifdef __loongarch64
+#define MAX_SIGNAL 127
+#else
 #define MAX_SIGNAL 64
+#endif
 
 typedef struct tlsdatasize_s {
     int         tlssize;
