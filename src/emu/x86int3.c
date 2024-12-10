@@ -254,6 +254,10 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
+                } else  if(strstr(s, "__vsnprintf_chk")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %d, %d, %08X...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(uint32_t*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16),from_ptrv(*(ptr_t*)from_ptr(R_ESP+20)));
+                    pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
+                    post = pu32?3:0;
                 } else  if(strstr(s, "vsprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\", %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
@@ -336,6 +340,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "XRRSetScreenSize")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %u, %d, %d, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16), from_ptri(int, R_ESP+20), from_ptri(int, R_ESP+24));
+                } else if(strstr(s, "pthread_mutex_init")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "pthread_mutex_lock")==s || strstr(s, "pthread_mutex_unlock")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                 } else if(strstr(s, "pthread_setname_np")==s) {
@@ -379,6 +385,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else  if(!strcmp(s, "snd_device_name_get_hint")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(from_ptri(ptr_t, R_ESP+4)), from_ptrv(from_ptri(ptr_t, R_ESP+8)));
                     post = 2;
+                } else  if(!strcmp(s, "getaddrinfo")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %p, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(from_ptri(ptr_t, R_ESP+4)), from_ptrv(from_ptri(ptr_t, R_ESP+8)), from_ptrv(from_ptri(ptr_t, R_ESP+12)), from_ptrv(from_ptri(ptr_t, R_ESP+16)));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                 }
