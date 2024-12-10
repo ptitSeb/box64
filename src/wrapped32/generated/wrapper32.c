@@ -211,7 +211,7 @@ typedef void* (*XFp_t)(void*);
 typedef void (*vFbp__t)(struct_p_t*);
 typedef int32_t (*iFbp__t)(struct_p_t*);
 typedef int32_t (*iFBp__t)(struct_p_t*);
-typedef uintptr_t (*LErl__t)(struct_l_t*);
+typedef uintptr_t (*LEBL__t)(struct_L_t*);
 typedef intptr_t (*lFrll__t)(struct_ll_t*);
 typedef int32_t (*iEBllll__t)(struct_llll_t*);
 typedef void (*vFbuuipWCCp__t)(struct_uuipWCCp_t*);
@@ -569,6 +569,7 @@ typedef int32_t (*iEiuu_t)(int32_t, uint32_t, uint32_t);
 typedef int32_t (*iEiup_t)(int32_t, uint32_t, void*);
 typedef int32_t (*iEill_t)(int32_t, intptr_t, intptr_t);
 typedef int32_t (*iEiLi_t)(int32_t, uintptr_t, int32_t);
+typedef int32_t (*iEiLp_t)(int32_t, uintptr_t, void*);
 typedef int32_t (*iFipi_t)(int32_t, void*, int32_t);
 typedef int32_t (*iEipi_t)(int32_t, void*, int32_t);
 typedef int32_t (*iEipu_t)(int32_t, void*, uint32_t);
@@ -1864,7 +1865,7 @@ void XFp_32(x64emu_t *emu, uintptr_t fcn) { XFp_t fn = (XFp_t)fcn; R_EAX = to_pt
 void vFbp__32(x64emu_t *emu, uintptr_t fcn) { vFbp__t fn = (vFbp__t)fcn; struct_p_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_p(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_p(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
 void iFbp__32(x64emu_t *emu, uintptr_t fcn) { iFbp__t fn = (iFbp__t)fcn; struct_p_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_p(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); R_EAX = fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_p(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
 void iFBp__32(x64emu_t *emu, uintptr_t fcn) { iFBp__t fn = (iFBp__t)fcn; struct_p_t arg_4={0}; R_EAX = fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_p(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
-void LErl__32(x64emu_t *emu, uintptr_t fcn) { LErl__t fn = (LErl__t)fcn; errno = emu->libc_err; struct_l_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_l(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); R_EAX = to_ulong(fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL)); emu->libc_err = errno; }
+void LEBL__32(x64emu_t *emu, uintptr_t fcn) { LEBL__t fn = (LEBL__t)fcn; errno = emu->libc_err; struct_L_t arg_4={0}; R_EAX = to_ulong(fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL)); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_L(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); emu->libc_err = errno; }
 void lFrll__32(x64emu_t *emu, uintptr_t fcn) { lFrll__t fn = (lFrll__t)fcn; struct_ll_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_ll(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); R_EAX = to_long(fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL)); }
 void iEBllll__32(x64emu_t *emu, uintptr_t fcn) { iEBllll__t fn = (iEBllll__t)fcn; errno = emu->libc_err; struct_llll_t arg_4={0}; R_EAX = fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_llll(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); emu->libc_err = errno; }
 void vFbuuipWCCp__32(x64emu_t *emu, uintptr_t fcn) { vFbuuipWCCp__t fn = (vFbuuipWCCp__t)fcn; struct_uuipWCCp_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_uuipWCCp(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_uuipWCCp(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
@@ -2222,6 +2223,7 @@ void iEiuu_32(x64emu_t *emu, uintptr_t fcn) { iEiuu_t fn = (iEiuu_t)fcn; errno =
 void iEiup_32(x64emu_t *emu, uintptr_t fcn) { iEiup_t fn = (iEiup_t)fcn; errno = emu->libc_err; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_ptri(uint32_t, R_ESP + 8), from_ptriv(R_ESP + 12)); emu->libc_err = errno; }
 void iEill_32(x64emu_t *emu, uintptr_t fcn) { iEill_t fn = (iEill_t)fcn; errno = emu->libc_err; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_long(from_ptri(long_t, R_ESP + 8)), from_long(from_ptri(long_t, R_ESP + 12))); emu->libc_err = errno; }
 void iEiLi_32(x64emu_t *emu, uintptr_t fcn) { iEiLi_t fn = (iEiLi_t)fcn; errno = emu->libc_err; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_ulong(from_ptri(ulong_t, R_ESP + 8)), from_ptri(int32_t, R_ESP + 12)); emu->libc_err = errno; }
+void iEiLp_32(x64emu_t *emu, uintptr_t fcn) { iEiLp_t fn = (iEiLp_t)fcn; errno = emu->libc_err; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_ulong(from_ptri(ulong_t, R_ESP + 8)), from_ptriv(R_ESP + 12)); emu->libc_err = errno; }
 void iFipi_32(x64emu_t *emu, uintptr_t fcn) { iFipi_t fn = (iFipi_t)fcn; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12)); }
 void iEipi_32(x64emu_t *emu, uintptr_t fcn) { iEipi_t fn = (iEipi_t)fcn; errno = emu->libc_err; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12)); emu->libc_err = errno; }
 void iEipu_32(x64emu_t *emu, uintptr_t fcn) { iEipu_t fn = (iEipu_t)fcn; errno = emu->libc_err; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(uint32_t, R_ESP + 12)); emu->libc_err = errno; }

@@ -724,7 +724,7 @@ GO(inotify_rm_watch, iEii)
 //DATA(_IO_2_1_stdout_, 152)
 //GO(_IO_adjust_column, uEupi)
 // _IO_adjust_wcolumn
-GO(ioctl, iEiip)   //the vararg is just to have optional arg of various type, but only 1 arg
+GO(ioctl, iEiLp)   //the vararg is just to have optional arg of various type, but only 1 arg
 //GO(_IO_default_doallocate, iES)
 //GO(_IO_default_finish, vESi)
 //GO(_IO_default_pbackfail, iESi)
@@ -1815,7 +1815,7 @@ GO(tcsetpgrp, iEii)
 GO(tempnam, pEpp)
 //GOW(textdomain, pEp)
 // tfind    // Weak
-GO(time, LErl_)
+GO(time, LEBL_)
 GO(timegm, LEriiiiiiiiilt_)
 // timelocal    // Weak
 GO(timerfd_create, iEii)
