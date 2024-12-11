@@ -53,7 +53,7 @@ typedef void* (*procaddress_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
 #ifdef LA64_ABI_1
-#define MAX_SIGNAL 127
+#define MAX_SIGNAL 128
 #else
 #define MAX_SIGNAL 64
 #endif
