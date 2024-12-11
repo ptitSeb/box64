@@ -170,8 +170,8 @@ GOW(__connect, iEipu)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
-//GOW(creat, iEpu)
-//GO(creat64, iEpu)
+GOW(creat, iEpu)
+GO(creat64, iEpu)
 // create_module    // Weak
 GO(ctermid, tEp)
 GOM(ctime, pEErl_)
@@ -195,9 +195,9 @@ GOM(__cxa_thread_atexit_impl, iEEppp) //%%
 // daemon
 DATAV(daylight, 4)
 // __daylight   // type B
-GOW(dcgettext, pEppi)
-GO(__dcgettext, pEppi)
-//GOW(dcngettext, pEpppui)
+GOW(dcgettext, tEppi)
+GO(__dcgettext, tEppi)
+GOW(dcngettext, tEpppLi)
 // __default_morecore
 // __default_rt_sa_restorer_v1
 // __default_rt_sa_restorer_v2
@@ -2020,7 +2020,7 @@ GO(wcstoull, UEpBp_i)
 // wcstouq  // Weak
 // wcswcs   // Weak
 //GO(wcswidth, iEpu)
-//GO(wcsxfrm, uEppu)
+GO(wcsxfrm, LEppL)
 //GOW(wcsxfrm_l, uEppup)
 GO(__wcsxfrm_l, LEppLa)
 GO(wctob, iEu)
