@@ -231,10 +231,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #else
         // check if block need to be stopped, because it's a 00 00 opcode (unreadeable is already checked earlier)
-        if((ok>0) && !dyn->forward && !(*(uint8_t*)addr) && !(*(uint8_t*)(addr+1))) {
-            if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, "Next opcode is 00 00");
+        if((ok>0) && !dyn->forward && !(*(uint32_t*)addr)) {
+            if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, "Next opcode is 00 00 00 00");
             ok = 0;
             need_epilog = 1;
+            dyn->insts[ninst].x64.need_after |= X_PEND;
         }
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
@@ -344,8 +345,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->forward_ninst = 0;
             }
             #endif
-            int j32;
-            MAYUSE(j32);
             MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size);
             if(!box64_dynarec_dump && addr>=box64_nodynarec_start && addr<box64_nodynarec_end)
                 dynarec_log(LOG_INFO, "Stopping block in no-dynarec zone\n");

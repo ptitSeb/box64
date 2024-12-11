@@ -671,7 +671,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
 
     PREUPDATE_SPECIFICS(&helper);
 
-    int pos = helper.size;
+    int pos = helper.size-1;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
     // remove fpu stuff on non-executed code
