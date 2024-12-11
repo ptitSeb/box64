@@ -853,6 +853,6 @@ EXPORT void my3_gtk_list_box_set_header_func(x64emu_t* emu, void* box, void* f, 
     SetGtkGestureLongPressID(my->gtk_gesture_long_press_get_type());\
     SetGtkActionID(my->gtk_action_get_type());
 
-#define NEEDED_LIBS "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0"
+#define NEEDED_LIBS "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0", "libcairo.so.2"
 
 #include "wrappedlib_init.h"
