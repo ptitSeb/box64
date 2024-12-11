@@ -596,7 +596,11 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            if(box64_dynarec_safeflags>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);
@@ -608,7 +612,11 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            if(box64_dynarec_safeflags>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);

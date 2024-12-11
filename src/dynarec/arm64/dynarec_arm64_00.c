@@ -945,7 +945,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            if(box64_dynarec_safeflags>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);
@@ -957,7 +961,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            if(box64_dynarec_safeflags>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);
@@ -2434,7 +2442,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 jump_to_epilog(dyn, 0, xRIP, ninst);
             } else if(u8==0x03) {
                 INST_NAME("INT 3");
-                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                if(box64_dynarec_safeflags>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
                 GETIP(addr);
                 STORE_XEMU_CALL(xRIP);
                 CALL(native_int3, -1);
@@ -2444,7 +2456,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 *ok = 0;
             } else {
                 INST_NAME("INT n");
-                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                if(box64_dynarec_safeflags>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
                 if(rex.is32bits && u8==0x04) {
                     GETIP(addr);
                 } else {
@@ -3006,7 +3022,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             { 
                 F8;
             } else {
-                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                if(box64_dynarec_safeflags>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
                 u8 = F8;
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
@@ -3192,7 +3212,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, EAX")));
             if(rex.is32bits && box64_ignoreint3)
             {} else {
-                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                if(box64_dynarec_safeflags>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
                 CALL(native_priv, -1);
@@ -3208,7 +3232,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF1:
             INST_NAME("INT1");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            if(box64_dynarec_safeflags>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);  // is that a privileged opcodes or an int 1??
@@ -3220,7 +3248,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xF4:
             INST_NAME("HLT");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            if(box64_dynarec_safeflags>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1);
@@ -3610,7 +3642,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME(opcode==0xFA?"CLI":"STI");
             if(rex.is32bits && box64_ignoreint3)
             {} else {
-                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                if(box64_dynarec_safeflags>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
                 CALL(native_priv, -1);
