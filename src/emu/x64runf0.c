@@ -290,6 +290,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
+                if(box64_dynarec_test) {
+                    CLEAR_FLAG(F_OF);
+                    CLEAR_FLAG(F_SF);
+                    CLEAR_FLAG(F_AF);
+                    CLEAR_FLAG(F_PF);
+                }
                 break;
 
                 case 0xB0:                      /* CMPXCHG Eb,Gb */
@@ -472,6 +478,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     }
                     pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
+                    if(box64_dynarec_test) {
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_AF);
+                        CLEAR_FLAG(F_PF);
+                    }
                     break;
 
                     case 0xBA:                      
@@ -493,6 +505,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         SET_FLAG(F_CF);
                                     else
                                         CLEAR_FLAG(F_CF);
+                                }
+                                if(box64_dynarec_test) {
+                                    CLEAR_FLAG(F_OF);
+                                    CLEAR_FLAG(F_SF);
+                                    CLEAR_FLAG(F_AF);
+                                    CLEAR_FLAG(F_PF);
                                 }
                                 break;
                             case 5:             /* BTS Ed, Ib */
@@ -562,6 +580,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
+                                if(box64_dynarec_test) {
+                                    CLEAR_FLAG(F_OF);
+                                    CLEAR_FLAG(F_SF);
+                                    CLEAR_FLAG(F_AF);
+                                    CLEAR_FLAG(F_PF);
+                                }
                                 break;
                             case 6:             /* BTR Ed, Ib */
                                 CHECK_FLAGS(emu);
@@ -614,6 +638,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
+                                if(box64_dynarec_test) {
+                                    CLEAR_FLAG(F_OF);
+                                    CLEAR_FLAG(F_SF);
+                                    CLEAR_FLAG(F_AF);
+                                    CLEAR_FLAG(F_PF);
+                                }
                                 break;
                             case 7:             /* BTC Ed, Ib */
                                 CHECK_FLAGS(emu);
@@ -662,6 +692,12 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
+                                if(box64_dynarec_test) {
+                                    CLEAR_FLAG(F_OF);
+                                    CLEAR_FLAG(F_SF);
+                                    CLEAR_FLAG(F_AF);
+                                    CLEAR_FLAG(F_PF);
+                                }
                                 break;
 
                             default:
