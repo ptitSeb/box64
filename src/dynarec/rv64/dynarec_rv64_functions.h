@@ -53,6 +53,8 @@ int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst);
 
 // Undo the changes of a extcache to get the status before the instruction
 void extcacheUnwind(extcache_t* cache);
+void fpu_save_and_unwind(dynarec_rv64_t* dyn, int ninst, extcache_t* cache);
+void fpu_unwind_restore(dynarec_rv64_t* dyn, int ninst, extcache_t* cache);
 
 const char* getCacheName(int t, int n);
 

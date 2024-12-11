@@ -24,6 +24,8 @@ int fpuCacheNeedsTransform(dynarec_la64_t* dyn, int ninst);
 
 // Undo the changes of a lsxcache to get the status before the instruction
 void lsxcacheUnwind(lsxcache_t* cache);
+void fpu_save_and_unwind(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache);
+void fpu_unwind_restore(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache);
 
 const char* getCacheName(int t, int n);
 

@@ -1020,3 +1020,13 @@ int nativeFlagsNeedsTransform(dynarec_arm_t* dyn, int ninst)
         return 1;
     return 0;
 }
+
+void fpu_save_and_unwind(dynarec_arm_t* dyn, int ninst, neoncache_t* cache)
+{
+    memcpy(cache, &dyn->insts[ninst].n, sizeof(neoncache_t));
+    neoncacheUnwind(&dyn->insts[ninst].n);
+}
+void fpu_unwind_restore(dynarec_arm_t* dyn, int ninst, neoncache_t* cache)
+{
+    memcpy(&dyn->insts[ninst].n, cache, sizeof(neoncache_t));
+}

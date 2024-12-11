@@ -128,9 +128,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         if(box64_dynarec_test && (!box64_dynarec_test_end || (ip>=box64_dynarec_test_start && ip<box64_dynarec_test_end) )) {
             MESSAGE(LOG_DUMP, "TEST STEP ----\n");
+            extcache_native_t save;
+            fpu_save_and_unwind(dyn, ninst, &save);
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
             GO_TRACE(x64test_step, 1, x5);
             fpu_unreflectcache(dyn, ninst, x1, x2, x3);
+            fpu_unwind_restore(dyn, ninst, &save);
             MESSAGE(LOG_DUMP, "----------\n");
         }
 #ifdef HAVE_TRACE

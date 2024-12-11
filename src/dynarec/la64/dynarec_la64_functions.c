@@ -385,3 +385,13 @@ void fpu_reset_ninst(dynarec_la64_t* dyn, int ninst)
     sse_reset(&dyn->insts[ninst].lsx);
     fpu_reset_reg_lsxcache(&dyn->insts[ninst].lsx);
 }
+
+void fpu_save_and_unwind(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
+{
+    memcpy(cache, &dyn->insts[ninst].lsx, sizeof(lsxcache_t));
+    lsxcacheUnwind(&dyn->insts[ninst].lsx);
+}
+void fpu_unwind_restore(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
+{
+    memcpy(&dyn->insts[ninst].lsx, cache, sizeof(lsxcache_t));
+}

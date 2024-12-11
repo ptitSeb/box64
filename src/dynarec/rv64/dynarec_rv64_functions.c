@@ -830,3 +830,13 @@ void get_free_scratch(dynarec_rv64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tm
     *tmp2 = tmp[1];
     *tmp3 = tmp[2];
 }
+
+void fpu_save_and_unwind(dynarec_rv64_t* dyn, int ninst, extcache_t* cache)
+{
+    memcpy(cache, &dyn->insts[ninst].e, sizeof(extcache_t));
+    extcacheUnwind(&dyn->insts[ninst].e);
+}
+void fpu_unwind_restore(dynarec_rv64_t* dyn, int ninst, extcache_t* cache)
+{
+    memcpy(&dyn->insts[ninst].e, cache, sizeof(extcache_t));
+}
