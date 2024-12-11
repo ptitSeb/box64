@@ -255,6 +255,10 @@ void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags,
 int my32_munmap(x64emu_t* emu, void* addr, unsigned long length);
 int my32_sigaltstack(x64emu_t* emu, const i386_stack_t* ss, i386_stack_t* oss);
 
+#ifndef FUTEX_LOCK_PI2
+#define FUTEX_LOCK_PI2 13
+#endif
+
 void EXPORT x86Syscall(x64emu_t *emu)
 {
     uint32_t s = R_EAX;
