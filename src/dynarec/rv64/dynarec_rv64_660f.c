@@ -1451,10 +1451,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGW(x1);
             GETEW(x2, 0);
             if (!(MODREG && wback == TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))))
-                MV(x9, ed);
+                MV(x7, ed);
             emit_add16(dyn, ninst, ed, gd, x4, x5, x6);
             if (!(MODREG && wback == TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))))
-                MV(gd, x9);
+                MV(gd, x7);
             EWBACK;
             if (!(MODREG && wback == TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))))
                 GWBACK;

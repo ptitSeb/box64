@@ -501,8 +501,8 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
             emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
         }
 #elif defined(RV64)
-        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
+        if(db && p->uc_mcontext.__gregs[25]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
         }
 #else
 #error Unsupported Architecture
@@ -604,23 +604,23 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
         emu->eflags.x64 = p->uc_mcontext.__gregs[31];
 #elif defined(RV64)
         emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[16];
-        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[17];
-        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[18];
-        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[19];
-        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[20];
-        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[21];
-        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[22];
-        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[23];
-        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[24];
-        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[25];
+        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
+        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[12];
+        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[24];
+        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[9];
+        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[8];
+        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[11];
+        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[10];
+        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[14];
+        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[15];
         emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[26];
         emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[27];
-        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[28];
-        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[29];
-        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[30];
-        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[31];
-        emu->ip.q[0] = ip;
-        emu->eflags.x64 = p->uc_mcontext.__gregs[8];
+        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[18];
+        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[19];
+        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[20];
+        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[21];
+    emu->ip.q[0] = ip;
+    emu->eflags.x64 = p->uc_mcontext.__gregs[23];
 #else
 #error  Unsupported architecture
 #endif
@@ -972,7 +972,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     if(p) {
         pc = (void*)p->uc_mcontext.__gregs[0];
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.__gregs[16+_SP];
+            frame = (uintptr_t)p->uc_mcontext.__gregs[9];
     }
 #else
 #error Unsupported architecture
@@ -1075,21 +1075,21 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
 #elif defined(RV64)
     if(db && p) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[20];
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[21];
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[22];
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[23];
-        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[24];
-        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[25];
+        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
+        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[12];
+        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[24];
+        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[9];
+        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[8];
+        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[11];
+        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[10];
+        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[14];
+        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[15];
         sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.__gregs[26];
         sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.__gregs[27];
-        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[28];
-        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[29];
-        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[30];
-        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[31];
+        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[18];
+        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[19];
+        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[20];
+        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[21];
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #else
@@ -1676,12 +1676,12 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             rsp = (void*)p->uc_mcontext.__gregs[12+_SP];
         }
 #elif defined(RV64)
-        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
+        if(db && p->uc_mcontext.__gregs[25]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
         }
         if(db) {
             x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.__gregs[16+_SP];
+            rsp = (void*)p->uc_mcontext.__gregs[9];
         }
 #else
 #error Unsupported Architecture
@@ -1837,7 +1837,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
                     if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
+                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[(((uint8_t[]) { 16, 13, 12, 24, 9, 8, 11, 10, 14, 15, 26, 27, 18, 19, 20, 21 })[i])]);
                 }
                 printf_log(log_minimum, "\n");
                 for (int i=0; i<6; ++i)

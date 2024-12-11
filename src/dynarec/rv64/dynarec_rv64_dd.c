@@ -55,7 +55,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_purgecache(dyn, ninst, 0, x1, x2, x3);
             MOV32w(x1, nextop & 7);
-            CALL(fpu_do_free, -1);
+            CALL(fpu_do_free, -1, x1, 0);
             break;
         case 0xD0:
         case 0xD1:
@@ -202,8 +202,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
-                    if (ed != x1) { MV(x1, ed); }
-                    CALL(native_fsave, -1);
+                    CALL(native_fsave, -1, ed, 0);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");

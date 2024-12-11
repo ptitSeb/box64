@@ -91,7 +91,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("RDTSCP");
                         NOTEST(x1);
                         if (box64_rdtsc) {
-                            CALL(ReadTSC, x3); // will return the u64 in x3
+                            CALL(ReadTSC, x3, 0, 0); // will return the u64 in x3
                         } else {
                             CSRRS(x3, xZR, 0xC01); // RDTIME
                         }
@@ -118,7 +118,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL(x3);
-            CALL_S(x64Syscall, -1);
+            CALL_S(x64Syscall, -1, 0);
             LOAD_XEMU_CALL();
             TABLE64(x3, addr); // expected return address
             BNE_MARK(xRIP, x3);
@@ -134,7 +134,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(x3);
-            CALL(native_ud, -1);
+            CALL(native_ud, -1, 0, 0);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -146,7 +146,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(x3);
-            CALL(native_ud, -1);
+            CALL(native_ud, -1, 0, 0);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -416,7 +416,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("RDTSC");
             NOTEST(x1);
             if (box64_rdtsc) {
-                CALL(ReadTSC, x3); // will return the u64 in x3
+                CALL(ReadTSC, x3, 0, 0); // will return the u64 in x3
             } else {
                 CSRRS(x3, xZR, 0xC01); // RDTIME
             }
@@ -554,11 +554,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     for (int i = 0; i < 4; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
-                        MUL(x9, x3, x4);
+                        MUL(x7, x3, x4);
                         LBU(x3, gback, gdoffset + i * 2 + 1);
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
-                        ADD(x3, x3, x9);
+                        ADD(x3, x3, x7);
                         if (rv64_zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
@@ -804,22 +804,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     sse_reflect_reg(dyn, ninst, x6, 0);
                     switch (u8) {
                         case 0xC8:
-                            CALL(sha1nexte, -1);
+                            CALL(sha1nexte, -1, x1, x2);
                             break;
                         case 0xC9:
-                            CALL(sha1msg1, -1);
+                            CALL(sha1msg1, -1, x1, x2);
                             break;
                         case 0xCA:
-                            CALL(sha1msg2, -1);
+                            CALL(sha1msg2, -1, x1, x2);
                             break;
                         case 0xCB:
-                            CALL(sha256rnds2, -1);
+                            CALL(sha256rnds2, -1, x1, x2);
                             break;
                         case 0xCC:
-                            CALL(sha256msg1, -1);
+                            CALL(sha256msg1, -1, x1, x2);
                             break;
                         case 0xCD:
-                            CALL(sha256msg2, -1);
+                            CALL(sha256msg2, -1, x1, x2);
                             break;
                     }
                     break;
@@ -893,7 +893,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     sse_forget_reg(dyn, ninst, x6, gd);
                     ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
                     MOV32w(x3, u8);
-                    CALL(sha1rnds4, -1);
+                    CALL4(sha1rnds4, -1, x1, x2, x3, 0);
                     break;
                 default:
                     DEFAULT;
@@ -1746,8 +1746,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xA2:
             INST_NAME("CPUID");
             NOTEST(x1);
-            MV(A1, xRAX);
-            CALL_(my_cpuid, -1, 0);
+            CALL_(my_cpuid, -1, 0, xRAX, 0);
             // BX and DX are not synchronized during the call, so need to force the update
             LD(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
@@ -1890,8 +1889,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SKIPTEST(x1);
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
-                        if (ed != x1) { MV(x1, ed); }
-                        CALL(rex.is32bits ? ((void*)fpu_fxsave32) : ((void*)fpu_fxsave64), -1);
+                        CALL(rex.is32bits ? ((void*)fpu_fxsave32) : ((void*)fpu_fxsave64), -1, ed, 0);
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
@@ -1899,8 +1897,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SKIPTEST(x1);
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
-                        if (ed != x1) { MV(x1, ed); }
-                        CALL(rex.is32bits ? ((void*)fpu_fxrstor32) : ((void*)fpu_fxrstor64), -1);
+                        CALL(rex.is32bits ? ((void*)fpu_fxrstor32) : ((void*)fpu_fxrstor64), -1, ed, 0);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
@@ -1921,27 +1918,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                        if (ed != x1) { MV(x1, ed); }
                         MOV32w(x2, rex.w ? 0 : 1);
-                        CALL((void*)fpu_xsave, -1);
+                        CALL((void*)fpu_xsave, -1, ed, x2);
                         break;
                     case 5:
                         INST_NAME("XRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                        if (ed != x1) { MV(x1, ed); }
                         MOV32w(x2, rex.w ? 0 : 1);
-                        CALL((void*)fpu_xrstor, -1);
+                        CALL((void*)fpu_xrstor, -1, x1, x2);
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization?\n");
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                        if (wback != A1) {
-                            MV(A1, wback);
-                        }
-                        CALL_(native_clflush, -1, 0);
+                        CALL_(native_clflush, -1, 0, wback, 0);
                         break;
                     default:
                         DEFAULT;
@@ -2268,10 +2260,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             if (!(MODREG && wback == gb1 && !!(wb2) == !!(gb2)))
-                MV(x9, ed);
+                MV(x7, ed);
             emit_add8(dyn, ninst, ed, gd, x4, x5, x6);
             if (!(MODREG && wback == gb1 && !!(wb2) == !!(gb2)))
-                MV(gd, x9);
+                MV(gd, x7);
             EBBACK(x5, 0);
             if (!(MODREG && wback == gb1 && !!(wb2) == !!(gb2)))
                 GBBACK(x5);
@@ -2283,10 +2275,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             if (ed != gd)
-                MV(x9, ed);
+                MV(x7, ed);
             emit_add32(dyn, ninst, rex, ed, gd, x4, x5, x6);
             if (ed != gd)
-                MVxw(gd, x9);
+                MVxw(gd, x7);
             WBACK;
             break;
         case 0xC2:

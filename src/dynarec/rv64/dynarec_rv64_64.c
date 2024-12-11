@@ -260,7 +260,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i64 = F32S;
                     else
                         i64 = F8S;
-                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x9);
+                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x7);
                     WBACKO(x6);
                     break;
                 case 1: // OR
@@ -293,7 +293,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i64 = F8S;
                     MOV64xw(x5, i64);
                     SD(x6, xEmu, offsetof(x64emu_t, scratch));
-                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x9);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x7);
                     LD(x6, xEmu, offsetof(x64emu_t, scratch));
                     WBACKO(x6);
                     break;
@@ -311,7 +311,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         i64 = F8S;
                     MOV64xw(x5, i64);
-                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x9);
+                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x7);
                     WBACKO(x6);
                     break;
                 case 4: // AND
@@ -341,7 +341,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i64 = F32S;
                     else
                         i64 = F8S;
-                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x9);
+                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x7);
                     WBACKO(x6);
                     break;
                 case 6: // XOR

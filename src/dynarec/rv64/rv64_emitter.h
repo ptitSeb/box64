@@ -1,85 +1,9 @@
 #ifndef __RV64_EMITTER_H__
 #define __RV64_EMITTER_H__
-/*
-    RV64 Emitter
 
-*/
+#include "rv64_mapping.h"
 
-// RV64 ABI
-/*
-reg     name    description                     saver
-------------------------------------------------------
-x0      zero    Hard-wired zero                 —
-x1      ra      Return address                  Caller
-x2      sp      Stack pointer                   Callee
-x3      gp      Global pointer                  —
-x4      tp      Thread pointer                  —
-x5–7    t0–2    Temporaries                     Caller
-x8      s0/fp   Saved register/frame pointer    Callee
-x9      s1      Saved register                  Callee
-x10–11  a0–1    Function arguments/return val.  Caller
-x12–17  a2–7    Function arguments              Caller
-x18–27  s2–11   Saved registers                 Callee
-x28–31  t3–6    Temporaries                     Caller
--------------------------------------------------------
-f0–7    ft0–7   FP temporaries                  Caller
-f8–9    fs0–1   FP saved registers              Callee
-f10–11  fa0–1   FP arguments/return values      Caller
-f12–17  fa2–7   FP arguments                    Caller
-f18–27  fs2–11  FP saved registers              Callee
-f28–31  ft8–11  FP temporaries                  Caller
-*/
-// x86 Register mapping
-#define xRAX   16
-#define xRCX   17
-#define xRDX   18
-#define xRBX   19
-#define xRSP   20
-#define xRBP   21
-#define xRSI   22
-#define xRDI   23
-#define xR8    24
-#define xR9    25
-#define xR10   26
-#define xR11   27
-#define xR12   28
-#define xR13   29
-#define xR14   30
-#define xR15   31
-#define xFlags 8
-#define xRIP   7
-
-// convert a x86 register to native according to the register mapping
-#define TO_NAT(A) (xRAX + (A))
-
-// scratch registers
-#define x1 11
-#define x2 12
-#define x3 13
-#define x4 14
-#define x5 15
-#define x6 6
-#define x9 9
-// used to clear the upper 32bits
-#define xMASK 5
-
-// emu is r10
-#define xEmu 10
-// RV64 RA
-#define xRA 1
-#define xSP 2
-// RV64 args
-#define A0 10
-#define A1 11
-#define A2 12
-#define A3 13
-#define A4 14
-#define A5 15
-#define A6 16
-#define A7 17
-// xZR reg is 0
-#define xZR 0
-#define wZR xZR
+// RV64 Emitter
 
 // replacement for F_OF internaly, using a reserved bit. Need to use F_OF2 internaly, never F_OF directly!
 #define F_OF2 F_res3
