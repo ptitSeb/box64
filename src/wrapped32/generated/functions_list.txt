@@ -1013,6 +1013,7 @@
 #() vFEuipp -> vFEuipp
 #() vEEpLLp -> vEEpLLp
 #() vEEppiV -> vEEppiV
+#() vFEXLpL -> vFEXLpL
 #() vFiiiii -> vFiiiii
 #() vFiiiiu -> vFiiiiu
 #() vFiiuii -> vFiiuii
@@ -2298,6 +2299,8 @@ wrappedlibx11:
   - XESetCloseDisplay
   - XESetEventToWire
   - XESetWireToEvent
+- vFXLpL:
+  - XSetWMSizeHints
 - iFXLip:
   - XCheckTypedWindowEvent
 - iFXLlp:

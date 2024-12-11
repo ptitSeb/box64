@@ -1054,6 +1054,7 @@ void vFEuipu_32(x64emu_t *emu, uintptr_t fnc);
 void vFEuipp_32(x64emu_t *emu, uintptr_t fnc);
 void vEEpLLp_32(x64emu_t *emu, uintptr_t fnc);
 void vEEppiV_32(x64emu_t *emu, uintptr_t fnc);
+void vFEXLpL_32(x64emu_t *emu, uintptr_t fnc);
 void vFiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFiiiiu_32(x64emu_t *emu, uintptr_t fnc);
 void vFiiuii_32(x64emu_t *emu, uintptr_t fnc);
