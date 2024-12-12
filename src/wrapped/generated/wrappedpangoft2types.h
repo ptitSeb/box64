@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFp_t)(void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(pango_fc_font_lock_face, pFp_t)
 
 #endif // __wrappedpangoft2TYPES_H_

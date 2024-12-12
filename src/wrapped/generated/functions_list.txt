@@ -5487,6 +5487,8 @@ wrappedpango:
   - pango_attribute_init
 wrappedpangocairo:
 wrappedpangoft2:
+- pFp:
+  - pango_fc_font_lock_face
 wrappedplc4:
 wrappedplds4:
 wrappedpng16:
