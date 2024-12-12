@@ -232,15 +232,15 @@ static void* findftwFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc ftw callback\n");
     return NULL;
 }
-
+#endif
 // ftw64
 #define GO(A)   \
-static uintptr_t my32_ftw64_fct_##A = 0;                      \
-static int my32_ftw64_##A(void* fpath, void* sb, int flag)    \
-{                                                           \
-    struct i386_stat64 i386st;                              \
-    UnalignStat64(sb, &i386st);                             \
-    return (int)RunFunction(my_context, my32_ftw64_fct_##A, 3, fpath, &i386st, flag);  \
+static uintptr_t my32_ftw64_fct_##A = 0;                                            \
+static int my32_ftw64_##A(void* fpath, void* sb, int flag)                          \
+{                                                                                   \
+    struct i386_stat64 i386st;                                                      \
+    UnalignStat64_32(sb, &i386st);                                                  \
+    return (int)RunFunctionFmt(my32_ftw64_fct_##A, "ppi", fpath, &i386st, flag);    \
 }
 SUPER()
 #undef GO
@@ -256,7 +256,7 @@ static void* findftw64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc ftw64 callback\n");
     return NULL;
 }
-
+#if 0
 // nftw
 #define GO(A)   \
 static uintptr_t my32_nftw_fct_##A = 0;                                   \
@@ -280,15 +280,15 @@ static void* findnftwFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw callback\n");
     return NULL;
 }
-
+#endif
 // nftw64
 #define GO(A)   \
-static uintptr_t my32_nftw64_fct_##A = 0;                                     \
-static int my32_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)    \
-{                                                                           \
-    struct i386_stat64 i386st;                                              \
-    UnalignStat64(sb, &i386st);                                             \
-    return (int)RunFunction(my_context, my32_nftw64_fct_##A, 4, fpath, &i386st, flag, ftwbuff);   \
+static uintptr_t my32_nftw64_fct_##A = 0;                                                   \
+static int my32_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)                  \
+{                                                                                           \
+    struct i386_stat64 i386st;                                                              \
+    UnalignStat64_32(sb, &i386st);                                                          \
+    return (int)RunFunctionFmt(my32_nftw64_fct_##A, "ppip", fpath, &i386st, flag, ftwbuff); \
 }
 SUPER()
 #undef GO
@@ -304,7 +304,7 @@ static void* findnftw64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw64 callback\n");
     return NULL;
 }
-
+#if 0
 // globerr
 #define GO(A)   \
 static uintptr_t my32_globerr_fct_##A = 0;                                        \
@@ -1700,8 +1700,6 @@ EXPORT long my32_readv(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
     return readv(fd, vec, niov);
 }
 
-#if 0
-
 EXPORT int my32_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
     return ftw64(filename, findftw64Fct(func), descriptors);
@@ -1711,7 +1709,7 @@ EXPORT int32_t my32_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopen
 {
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
-#endif
+
 EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
 {
     int self = isProcSelf(path, "exe");
@@ -2228,6 +2226,23 @@ EXPORT int my32_getpwuid_r(x64emu_t* emu, uint32_t uid, struct i386_passwd* pwd,
     res->pw_dir = to_ptrv(r->pw_dir);
     res->pw_shell = to_ptrv(r->pw_shell);
     return ret;
+}
+
+EXPORT void* my32_getpwent(x64emu_t* emu)
+{
+    static struct i386_passwd ret;
+    struct passwd* p = getpwent();
+    if(p) {
+        ret.pw_name = to_cstring(p->pw_name);
+        ret.pw_passwd = to_cstring(p->pw_passwd);
+        ret.pw_uid = p->pw_uid;
+        ret.pw_gid = p->pw_gid;
+        ret.pw_gecos = to_cstring(p->pw_gecos);
+        ret.pw_dir = to_cstring(p->pw_dir);
+        ret.pw_shell = to_cstring(p->pw_shell);
+        return &ret;
+    }
+    return NULL;
 }
 
 EXPORT int my32_getgrnam_r(x64emu_t* emu, const char* name, struct i386_group *grp, char *buf, size_t buflen, ptr_t* result)

@@ -436,7 +436,7 @@ GOW(ftruncate64, iEiI)
 //GOM(fts_read, pEEp)      //%%
 // fts_set
 //GOM(ftw, iEEppi)         //%%
-//GOM(ftw64, iEEppi)       //%%
+GOM(ftw64, iEEppi)       //%%
 GOW(funlockfile, vFS)
 GOM(futimens, iEEip)
 GOWM(futimes, iEEip)
@@ -562,7 +562,7 @@ GOM(getprotobyname, pEEp)
 GOW(getpt, iEv)
 // getpublickey
 // getpw    // Weak
-//GO(getpwent, pEv)
+GOM(getpwent, pEEv)
 // getpwent_r
 GOM(getpwnam, pEEp)
 GOM(getpwnam_r, iEEpppLp)
@@ -1162,7 +1162,7 @@ GOW(newlocale, aEipa)
 GO(__newlocale, aEipa)
 // nfsservctl
 //GOM(nftw, iEEppii)       //%%
-//GOM(nftw64, iEEppii)     //%%
+GOM(nftw64, iEEppii)     //%%
 //GOW(ngettext, pEppu)
 GO(nice, iEi)
 // _nl_default_dirname   // type R

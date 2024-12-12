@@ -1141,6 +1141,7 @@
 #() iFEpLpp -> iFEpLpp
 #() iEEpLpV -> iEEpLpV
 #() iFEpLpV -> iFEpLpV
+#() iEEppii -> iEEppii
 #() iFEpplp -> iFEpplp
 #() iEEpppi -> iEEpppi
 #() iEEpppp -> iEEpppp
@@ -1853,6 +1854,7 @@ wrappedlibc:
   - __ctype_toupper_loc
   - __errno_location
   - __res_state
+  - getpwent
   - localeconv
 - pFv:
   - __h_errno_location
@@ -1993,6 +1995,7 @@ wrappedlibc:
 - iEpuiL:
 - iEpLpp:
 - iEpLpV:
+- iEppii:
 - iEpppp:
   - getaddrinfo
 - iESipp:

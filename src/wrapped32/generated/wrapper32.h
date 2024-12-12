@@ -1182,6 +1182,7 @@ void iEEpLpp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpLpp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEpLpV_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpLpV_32(x64emu_t *emu, uintptr_t fnc);
+void iEEppii_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpplp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEpppi_32(x64emu_t *emu, uintptr_t fnc);
 void iEEpppp_32(x64emu_t *emu, uintptr_t fnc);
