@@ -60,6 +60,50 @@ EXPORT ssize_t my32_sendmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, 
     return ret;
 }
 
+EXPORT int my32_recvmmsg(x64emu_t* emu, int socket, struct i386_mmsghdr* msgs, uint32_t vlen, uint32_t flags, void* timeout)
+{
+    struct mmsghdr m[vlen];
+    uint32_t iovlen = 0;
+    size_t ctrlen = 0;
+    for(uint32_t i=0; i<vlen; ++i) {
+        if(msgs[i].msg_hdr.msg_iovlen>iovlen) iovlen = msgs[i].msg_hdr.msg_iovlen;
+        if(msgs[i].msg_hdr.msg_controllen>ctrlen) ctrlen = msgs[i].msg_hdr.msg_controllen;
+        m[i].msg_len = msgs[i].msg_len;
+    }
+    struct iovec iov[vlen][iovlen];
+    uint8_t buff[vlen][ctrlen+256];
+    for(uint32_t i=0; i<vlen; ++i)
+        AlignMsgHdr_32(&m[i].msg_hdr, iov[i], buff[i], &msgs[i].msg_hdr, 1);
+    int ret = recvmmsg(socket, m, vlen, flags, timeout);
+    for(uint32_t i=0; i<vlen; ++i) {
+        UnalignMsgHdr_32(&msgs[i].msg_hdr, &m[i].msg_hdr);
+        msgs[i].msg_len = m[i].msg_len;
+    }
+    return ret;
+}
+
+EXPORT int my32_sendmmsg(x64emu_t* emu, int socket, struct i386_mmsghdr* msgs, uint32_t vlen, uint32_t flags)
+{
+    struct mmsghdr m[vlen];
+    uint32_t iovlen = 0;
+    size_t ctrlen = 0;
+    for(uint32_t i=0; i<vlen; ++i) {
+        if(msgs[i].msg_hdr.msg_iovlen>iovlen) iovlen = msgs[i].msg_hdr.msg_iovlen;
+        if(msgs[i].msg_hdr.msg_controllen>ctrlen) ctrlen = msgs[i].msg_hdr.msg_controllen;
+        m[i].msg_len = msgs[i].msg_len;
+    }
+    struct iovec iov[vlen][iovlen];
+    uint8_t buff[vlen][ctrlen+256];
+    for(uint32_t i=0; i<vlen; ++i)
+        AlignMsgHdr_32(&m[i].msg_hdr, iov[i], buff[i], &msgs[i].msg_hdr, 1);
+    int ret = sendmmsg(socket, m, vlen, flags);
+    for(uint32_t i=0; i<vlen; ++i) {
+        UnalignMsgHdr_32(&msgs[i].msg_hdr, &m[i].msg_hdr);
+        msgs[i].msg_len = m[i].msg_len;
+    }
+    return ret;
+}
+
 EXPORT void* my32___cmsg_nxthdr(struct i386_msghdr* mhdr, struct i386_cmsghdr* cmsg)
 {
     // simpler to redo, also, will be used internaly
@@ -232,6 +276,32 @@ EXPORT int my32_gethostbyaddr_r(x64emu_t* emu, void* addr, uint32_t len, int typ
         }
     }
     return r;
+}
+
+EXPORT void* my32_getservbyname(x64emu_t* emu, void* name, void* proto)
+{
+    static struct i386_servent ret = {0};
+    static ptr_t strings[128] = {0};
+    struct servent* s = getservbyname(name, proto);
+    if(!s) return NULL;
+    // convert...
+    ret.s_name = to_cstring(s->s_name);
+    ret.s_port = s->s_port;
+    ret.s_proto = to_cstring(s->s_proto);
+    ptr_t strs = to_ptrv(&strings);
+    int idx = 0;
+    ret.s_aliases = s->s_aliases?strs:0;
+    if(s->s_aliases) {
+        char** p = s->s_aliases;
+        while(*p) {
+            strings[idx++] = to_cstring(*p);
+            ++p;
+        }
+        strings[idx++] = 0;
+    }
+    // done
+    emu->libc_herr = h_errno;
+    return &ret;
 }
 
 struct i386_ifaddrs

@@ -493,6 +493,13 @@ struct i386_hostent {
     ptr_t  h_addr_list;// char **
 };
 
+struct i386_servent {
+    ptr_t  s_name;     // char  *
+    ptr_t  s_aliases;  // char **
+    int    s_port;
+    ptr_t  s_proto;     // char *
+};
+
 struct i386_iovec
 {
   ptr_t     iov_base; // void *
@@ -509,6 +516,11 @@ struct i386_msghdr
   ulong_t   msg_controllen;
   int msg_flags;
 } __attribute__((packed, aligned(4)));
+
+struct i386_mmsghdr {
+    struct i386_msghdr msg_hdr;
+    unsigned int       msg_len;
+};
 
 struct i386_cmsghdr
 {

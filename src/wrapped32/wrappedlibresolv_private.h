@@ -6,7 +6,7 @@
 //GO(__b64_pton, iFppL)
 //GO(__dn_comp, iFppipp)
 //GO(__dn_count_labels, iFp)
-//GO(__dn_expand, iFppppi)
+GO(__dn_expand, iFppppi)
 //GOW(dn_expand, iFppppi)
 //GO(__dn_skipname, iFpp)
 //GO(__fp_nquery, vFpiS)
@@ -85,7 +85,7 @@
 //GOW(res_mkquery, iFipiipippi)
 //GO(__res_nameinquery, iFpiipp)
 //GO(__res_nmkquery, 
-//GO(__res_nquery, iFppiipi)
+GO(__res_nquery, iFppiipi)
 //GO(__res_nquerydomain, 
 //GO(__res_nsearch, iFppiipi)
 //GO(__res_nsend, 

@@ -1110,6 +1110,7 @@
 #() iEEiiip -> iEEiiip
 #() iEEiipV -> iEEiipV
 #() iEEipii -> iEEipii
+#() iEEipuu -> iEEipuu
 #() iEEippL -> iEEippL
 #() iEEpipp -> iEEpipp
 #() iEEpipV -> iEEpipV
@@ -1149,7 +1150,9 @@
 #() iFppiUi -> iFppiUi
 #() iFppipp -> iFppipp
 #() iFpppip -> iFpppip
+#() iEpppLi -> iEpppLi
 #() iEpppLp -> iEpppLp
+#() iFppppi -> iFppppi
 #() iFppppp -> iFppppp
 #() iFXiiii -> iFXiiii
 #() iFXiiip -> iFXiiip
@@ -1308,9 +1311,11 @@
 #() iFEXpiip -> iFEXpiip
 #() iFEXpiup -> iFEXpiup
 #() iFEXpppp -> iFEXpppp
+#() iEipipLu -> iEipipLu
 #() iFuiiuup -> iFuiiuup
 #() iFpiippp -> iFpiippp
 #() iFppiiii -> iFppiiii
+#() iFppiipi -> iFppiipi
 #() iFppuIII -> iFppuIII
 #() iFppulll -> iFppulll
 #() iFpppppp -> iFpppppp
@@ -1349,6 +1354,8 @@
 #() iFXLLLLbL_ -> iFXLLLLB
 #() iFXLbL_ipi -> iFXLBipi
 #() iFXbL_upip -> iFXBupip
+#() pEEppbL_Lp -> pEEppBLp
+#() iEEipuurLL_ -> iEEipuuB
 #() iFppbL_pbL_p -> iFppBpBp
 #() iFrpuu_Lrpuu_Lui -> iFBLBLui
 #() iFXbLip_uubLip_L -> iFXBuuBL
@@ -1857,6 +1864,7 @@ wrappedlibc:
 - pEpp:
   - __cmsg_nxthdr
   - __gmtime_r
+  - getservbyname
   - gmtime_r
   - localtime_r
 - SEpp:
@@ -1917,6 +1925,8 @@ wrappedlibc:
 - iEiiip:
 - iEiipV:
 - iEipii:
+- iEipuu:
+  - sendmmsg
 - iEippi:
   - utimensat
 - iEippL:
@@ -1952,6 +1962,9 @@ wrappedlibc:
   - getpwnam_r
 - pEpLLiN:
 - pEppLLp:
+- pEppbL_Lp:
+- iEipuurLL_:
+  - recvmmsg
 - iEpLiipp:
 - iEpLiipV:
 - iEpLiLpV:
