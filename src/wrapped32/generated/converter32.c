@@ -292,6 +292,32 @@ void to_struct_up(ptr_t d, const struct_up_t *src) {
 	*(uint32_t*)dest = src->u0; dest += 4;
 	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
 }
+void from_struct_upi(struct_upi_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->p1 = *(void**)src; src += 4;
+	dest->i2 = *(int*)src; src += 4;
+}
+void to_struct_upi(ptr_t d, const struct_upi_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+}
+void from_struct_Ldd(struct_Ldd_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->d1 = *(double*)src; src += 8;
+	dest->d2 = *(double*)src; src += 8;
+}
+void to_struct_Ldd(ptr_t d, const struct_Ldd_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(double*)dest = src->d1; dest += 8;
+	*(double*)dest = src->d2; dest += 8;
+}
 void from_struct_LWWWcc(struct_LWWWcc_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->L0 = from_ulong(*(uint32_t*)src); src += 4;

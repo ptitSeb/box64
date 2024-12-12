@@ -146,6 +146,20 @@ typedef struct struct_up_s {
 } struct_up_t;
 void from_struct_up(struct_up_t *dest, ptr_t src);
 void to_struct_up(ptr_t dest, const struct_up_t *src);
+typedef struct struct_upi_s {
+	uint32_t u0;
+	void* p1;
+	int i2;
+} struct_upi_t;
+void from_struct_upi(struct_upi_t *dest, ptr_t src);
+void to_struct_upi(ptr_t dest, const struct_upi_t *src);
+typedef struct struct_Ldd_s {
+	unsigned long L0;
+	double d1;
+	double d2;
+} struct_Ldd_t;
+void from_struct_Ldd(struct_Ldd_t *dest, ptr_t src);
+void to_struct_Ldd(ptr_t dest, const struct_Ldd_t *src);
 typedef struct struct_LWWWcc_s {
 	unsigned long L0;
 	unsigned short W1;

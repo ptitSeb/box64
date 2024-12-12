@@ -84,6 +84,9 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
 void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem, int n);
 void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack);
 
+void* add_xcb_connection32(void* src);
+void del_xcb_connection32(void* src);
+
 void UnalignStat64_32(const void* source, void* dest);
 
 void UnalignStatFS_32(const void* source, void* dest);

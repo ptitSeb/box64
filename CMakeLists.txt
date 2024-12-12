@@ -836,6 +836,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedudev1.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibuuid.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedtcmallocminimal.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedcairo.c"
     )
     endif()
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})

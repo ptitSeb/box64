@@ -233,22 +233,11 @@ EXPORT uint32_t my32_FcFreeTypeCharIndex(x64emu_t* emu, void* face, uint32_t u)
     return ret;
 }
 
-typedef struct my_FcFontSet_s {
-    int         nfont;
-    int         sfont;
-    void**      fonts;  //FcPattern
-} my_FcFontSet_t;
-typedef struct my_FcFontSet_32_s {
-    int         nfont;
-    int         sfont;
-    ptr_t       fonts;  //FcPattern**
-} my_FcFontSet_32_t;
-
 void* inplace_FcFontSet_shrink(void* set)
 {
     if(!set) return set;
-    my_FcFontSet_t* src = set;
-    my_FcFontSet_32_t* dst = set;
+    FcFontSet_t* src = set;
+    FcFontSet_32_t* dst = set;
 
     for(int i=0; i<src->nfont; ++i) {
         ((ptr_t*)src->fonts)[i] = to_ptrv(src->fonts[i]);
@@ -261,8 +250,8 @@ void* inplace_FcFontSet_shrink(void* set)
 }
 void* inplace_FcFontSet_enlarge(void* set)
 {
-    my_FcFontSet_32_t* src = set;
-    my_FcFontSet_t* dst = set;
+    FcFontSet_32_t* src = set;
+    FcFontSet_t* dst = set;
 
     dst->fonts = from_ptrv(src->fonts);
     dst->sfont = src->sfont;
