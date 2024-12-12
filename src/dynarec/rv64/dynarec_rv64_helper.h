@@ -679,13 +679,15 @@
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
+#define CALL(F, ret, arg1, arg2)                          call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, 0, 0, 0, 0)
+#define CALL4(F, ret, arg1, arg2, arg3, arg4)             call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, arg3, arg4, 0, 0)
+#define CALL6(F, ret, arg1, arg2, arg3, arg4, arg5, arg6) call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, arg3, arg4, arg5, arg6)
 // CALL_ will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x6, ret, 1, reg)
+#define CALL_(F, ret, reg, arg1, arg2) call_c(dyn, ninst, F, x6, ret, 1, reg, arg1, arg2, 0, 0, 0, 0)
 // CALL_S will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
-#define CALL_S(F, ret) call_c(dyn, ninst, F, x6, ret, 0, 0)
+#define CALL_S(F, ret, arg1) call_c(dyn, ninst, F, x6, ret, 0, 0, arg1, 0, 0, 0, 0, 0)
 
 #define MARKi(i)    dyn->insts[ninst].mark[i] = dyn->native_size
 #define GETMARKi(i) dyn->insts[ninst].mark[i]
@@ -810,49 +812,29 @@
 #define LOAD_REG(A)  LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
 // Need to also store current value of some register, as they may be used by functions like setjmp
-#define STORE_XEMU_CALL(s0)                             \
-    if (rv64_xtheadmempair) {                           \
-        ADDI(s0, xEmu, offsetof(x64emu_t, regs[_RSP])); \
-        TH_SDD(xRDX, xRBX, xEmu, 1);                    \
-        TH_SDD(xRSP, xRBP, s0, 0);                      \
-        TH_SDD(xRSI, xRDI, s0, 1);                      \
-        TH_SDD(xR8, xR9, s0, 2);                        \
-        TH_SDD(xR10, xR11, s0, 3);                      \
-    } else {                                            \
-        STORE_REG(RBX);                                 \
-        STORE_REG(RDX);                                 \
-        STORE_REG(RSP);                                 \
-        STORE_REG(RBP);                                 \
-        STORE_REG(RDI);                                 \
-        STORE_REG(RSI);                                 \
-        STORE_REG(R8);                                  \
-        STORE_REG(R9);                                  \
-        STORE_REG(R10);                                 \
-        STORE_REG(R11);                                 \
-    }
+#define STORE_XEMU_CALL(s0) \
+    STORE_REG(RBX);         \
+    STORE_REG(RSP);         \
+    STORE_REG(RBP);         \
+    STORE_REG(R10);         \
+    STORE_REG(R11);         \
+    STORE_REG(R12);         \
+    STORE_REG(R13);         \
+    STORE_REG(R14);         \
+    STORE_REG(R15);
 
 #define LOAD_XEMU_CALL()
 
-#define LOAD_XEMU_REM(s0)                               \
-    if (rv64_xtheadmempair) {                           \
-        ADDI(s0, xEmu, offsetof(x64emu_t, regs[_RSP])); \
-        TH_LDD(xRDX, xRBX, xEmu, 1);                    \
-        TH_LDD(xRSP, xRBP, s0, 0);                      \
-        TH_LDD(xRSI, xRDI, s0, 1);                      \
-        TH_LDD(xR8, xR9, s0, 2);                        \
-        TH_LDD(xR10, xR11, s0, 3);                      \
-    } else {                                            \
-        LOAD_REG(RBX);                                  \
-        LOAD_REG(RDX);                                  \
-        LOAD_REG(RSP);                                  \
-        LOAD_REG(RBP);                                  \
-        LOAD_REG(RDI);                                  \
-        LOAD_REG(RSI);                                  \
-        LOAD_REG(R8);                                   \
-        LOAD_REG(R9);                                   \
-        LOAD_REG(R10);                                  \
-        LOAD_REG(R11);                                  \
-    }
+#define LOAD_XEMU_REM(s0) \
+    LOAD_REG(RBX);        \
+    LOAD_REG(RSP);        \
+    LOAD_REG(RBP);        \
+    LOAD_REG(R10);        \
+    LOAD_REG(R11);        \
+    LOAD_REG(R12);        \
+    LOAD_REG(R13);        \
+    LOAD_REG(R14);        \
+    LOAD_REG(R15);
 
 
 #define SET_DFNONE()                               \
@@ -869,7 +851,7 @@
         MOV_U12(S, (N));                                                                                                        \
         SW(S, xEmu, offsetof(x64emu_t, df));                                                                                    \
         if (dyn->f.pending == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_(UpdateFlags, -1, 0);                                                                                          \
+            CALL_(UpdateFlags, -1, 0, 0, 0);                                                                                    \
             dyn->f.pending = SF_SET;                                                                                            \
             SET_NODF();                                                                                                         \
         }                                                                                                                       \
@@ -1013,7 +995,7 @@
             j64 = (GETMARKF) - (dyn->native_size);  \
             BEQ(x3, xZR, j64);                      \
         }                                           \
-        CALL_(UpdateFlags, -1, 0);                  \
+        CALL_(UpdateFlags, -1, 0, 0, 0);            \
         MARKF;                                      \
         dyn->f.pending = SF_SET;                    \
         SET_DFOK();                                 \
@@ -1169,7 +1151,7 @@
 
 void rv64_epilog(void);
 void rv64_epilog_fast(void);
-void* rv64_next(x64emu_t* emu, uintptr_t addr);
+void* rv64_next(void);
 
 #ifndef STEPNAME
 #define STEPNAME3(N, M) N##M
@@ -1394,7 +1376,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);
-void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
 void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);

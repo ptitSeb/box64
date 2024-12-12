@@ -168,8 +168,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SLL(x1, x1, x5);
                                 OR(x1, x1, x2);
                                 ANDI(x2, wback, ~0b11); // align to 32bit again
-                                SC_W(x9, x1, x2, 1, 1);
-                                BNEZ_MARKLOCK(x9);
+                                SC_W(x7, x1, x2, 1, 1);
+                                BNEZ_MARKLOCK(x7);
                                 // done
                                 MARK;
                                 UFLAG_IF { emit_cmp8(dyn, ninst, x6, x4, x1, x2, x3, x5); }
@@ -283,11 +283,11 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ANDI(xFlags, xFlags, ~(1 << F_ZF));
                             if (rex.w) {
                                 // there is no atomic move on 16bytes, so implement it with mutex
-                                LD(x9, xEmu, offsetof(x64emu_t, context));
-                                ADDI(x9, x9, offsetof(box64context_t, mutex_16b));
+                                LD(x7, xEmu, offsetof(x64emu_t, context));
+                                ADDI(x7, x7, offsetof(box64context_t, mutex_16b));
                                 ADDI(x4, xZR, 1);
                                 MARK2;
-                                AMOSWAP_W(x4, x4, x9, 1, 1);
+                                AMOSWAP_W(x4, x4, x7, 1, 1);
                                 // x4 == 1 if locked
                                 BNEZ_MARK2(x4);
 
@@ -309,7 +309,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SMDMB();
 
                                 // unlock
-                                AMOSWAP_W(xZR, xZR, x9, 1, 1);
+                                AMOSWAP_W(xZR, xZR, x7, 1, 1);
                             } else {
                                 SMDMB();
                                 AND(x3, xRAX, xMASK);
@@ -375,12 +375,12 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ANDI(x4, x5, 0xff);  // x4 = Ed.b[0]
                 ANDI(x5, x5, ~0xff); // x5 = clear Ed.b[0]
                 ADDW(x6, x4, x2);
-                ANDI(x9, xFlags, 1 << F_CF);
-                ADDW(x6, x6, x9); // x6 = adc
+                ANDI(x7, xFlags, 1 << F_CF);
+                ADDW(x6, x6, x7); // x6 = adc
                 ANDI(x6, x6, 0xff);
                 OR(x5, x5, x6);
-                SC_W(x9, x5, wback, 1, 1);
-                BNEZ_MARKLOCK(x9);
+                SC_W(x7, x5, wback, 1, 1);
+                BNEZ_MARKLOCK(x7);
                 B_MARK3_nocond;
                 MARK;
                 SLLI(x3, x3, 3);
@@ -391,9 +391,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SLL(x2, x2, x3);        // x2 = extented Gb
                 MARK2;
                 LR_W(x6, wback, 1, 1); // x6 = Ed
-                AND(x9, x6, x4);       // x9 = extended Ed.b[dest]
+                AND(x7, x6, x4);       // x7 = extended Ed.b[dest]
                 AND(x6, x6, x5);       // x6 = clear Ed.b[dest]
-                ADDW(x5, x9, x2);
+                ADDW(x5, x7, x2);
                 ANDI(x4, xFlags, 1 << F_CF);
                 SLL(x4, x4, x3);  // extented
                 ADDW(x5, x5, x4); // x5 = adc
@@ -402,7 +402,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BNEZ_MARK2(x4);
                 IFXORNAT (X_ALL | X_PEND) {
                     SRLI(x2, x2, x3); // Gb
-                    SRLI(x4, x9, x3); // Eb
+                    SRLI(x4, x7, x3); // Eb
                 }
                 MARK3;
                 IFXORNAT (X_ALL | X_PEND) {
@@ -533,11 +533,11 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        MOV64xw(x9, i64);
+                        MOV64xw(x7, i64);
                         ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                         BNEZ_MARK3(x1);
                         // Aligned
-                        AMOADDxw(x1, x9, wback, 1, 1);
+                        AMOADDxw(x1, x7, wback, 1, 1);
                         B_MARK_nocond;
                         MARK3;
                         // Unaligned
@@ -545,7 +545,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MARK2; // Use MARK2 as a "MARKLOCK" since we're running out of marks.
                         LDxw(x1, wback, 0);
                         LRxw(x6, x5, 1, 1);
-                        ADDxw(x4, x1, x9);
+                        ADDxw(x4, x1, x7);
                         SCxw(x3, x6, x5, 1, 1);
                         BNEZ_MARK2(x3);
                         SDxw(x4, wback, 0);
@@ -601,8 +601,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        MOV64xw(x9, i64);
-                        AMOANDxw(x1, x9, wback, 1, 1);
+                        MOV64xw(x7, i64);
+                        AMOANDxw(x1, x7, wback, 1, 1);
                         IFXORNAT (X_ALL | X_PEND)
                             emit_and32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
@@ -627,11 +627,11 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        MOV64xw(x9, i64);
+                        MOV64xw(x7, i64);
                         ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                         BNEZ_MARK3(x1);
                         // Aligned
-                        SUB(x4, xZR, x9);
+                        SUB(x4, xZR, x7);
                         AMOADDxw(x1, x4, wback, 1, 1);
                         B_MARK_nocond;
                         MARK3;
@@ -640,7 +640,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MARK2; // Use MARK2 as a "MARKLOCK" since we're running out of marks.
                         LDxw(x1, wback, 0);
                         LRxw(x6, x5, 1, 1);
-                        SUBxw(x4, x1, x9);
+                        SUBxw(x4, x1, x7);
                         SCxw(x3, x6, x5, 1, 1);
                         BNEZ_MARK2(x3);
                         SDxw(x4, wback, 0);
@@ -670,8 +670,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        MOV64xw(x9, i64);
-                        AMOXORxw(x1, x9, wback, 1, 1);
+                        MOV64xw(x7, i64);
+                        AMOXORxw(x1, x7, wback, 1, 1);
                         IFXORNAT (X_ALL | X_PEND)
                             emit_xor32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }

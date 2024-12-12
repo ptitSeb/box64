@@ -487,7 +487,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     if(p) {
         pc = (void*)p->uc_mcontext.__gregs[0];
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.__gregs[16+_SP];
+            frame = (uintptr_t)p->uc_mcontext.__gregs[9];
     }
 #else
 #error Unsupported architecture
@@ -573,13 +573,13 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
 #elif defined(RV64)
     if(db && p) {
         sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[20];
-        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[21];
-        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[22];
-        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[23];
+        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[13];
+        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[12];
+        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[24];
+        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[9];
+        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[8];
+        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[11];
+        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[10];
         sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
     }
 #else

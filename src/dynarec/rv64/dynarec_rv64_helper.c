@@ -585,24 +585,22 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
                 SLLI(x2, x2, 3);
                 ADD(x3, x3, x2);
             }
-            LD(x2, x3, 0); // LR_D(x2, x3, 1, 1);
+            LD(x2, x3, 0);
         }
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         TABLE64(x3, p);
         GETIP_(ip);
-        LD(x2, x3, 0); // LR_D(x2, x3, 1, 1);
-    }
-    if (reg != A1) {
-        MV(A1, xRIP);
+        LD(x2, x3, 0);
     }
     CLEARIP();
-#ifdef HAVE_TRACE
-// MOVx(x3, 15);    no access to PC reg
-#endif
     SMEND();
+#ifdef HAVE_TRACE
+    JALR(xRA, x2);
+#else
     JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x2);
+#endif
 }
 
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
@@ -779,7 +777,7 @@ void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits)
     CLEARIP();
 }
 
-void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
+void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
 {
     MAYUSE(fnc);
     if (savereg == 0)
@@ -791,40 +789,44 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     fpu_pushcache(dyn, ninst, reg, 0);
     if (ret != -2) {
         SUBI(xSP, xSP, 16); // RV64 stack needs to be 16byte aligned
-        SD(xEmu, xSP, 0);
-        SD(savereg, xSP, 8);
-        // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
-        STORE_REG(RAX);
-        STORE_REG(RCX);
+        SD(savereg, xSP, 0);
+        STORE_REG(RDI);
+        STORE_REG(RSI);
         STORE_REG(RDX);
-        STORE_REG(R12);
-        STORE_REG(R13);
-        STORE_REG(R14);
-        STORE_REG(R15);
+        STORE_REG(RCX);
+        STORE_REG(R8);
+        STORE_REG(R9);
+        STORE_REG(RAX);
         SD(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
     TABLE64(reg, (uintptr_t)fnc);
+    MV(A0, xEmu);
+    if (arg1) MV(A1, arg1);
+    if (arg2) MV(A2, arg2);
+    if (arg3) MV(A3, arg3);
+    if (arg4) MV(A4, arg4);
+    if (arg5) MV(A5, arg5);
+    if (arg6) MV(A6, arg6);
     JALR(xRA, reg);
     if (ret >= 0) {
-        MV(ret, xEmu);
+        MV(ret, A0);
     }
-    if (ret != -2) {
-        LD(xEmu, xSP, 0);
-        LD(savereg, xSP, 8);
-        ADDI(xSP, xSP, 16);
+
+    LD(savereg, xSP, 0);
+    ADDI(xSP, xSP, 16);
 #define GO(A) \
     if (ret != x##A) { LOAD_REG(A); }
-        GO(RAX);
-        GO(RCX);
-        GO(RDX);
-        GO(R12);
-        GO(R13);
-        GO(R14);
-        GO(R15);
-        if (ret != xRIP)
-            LD(xRIP, xEmu, offsetof(x64emu_t, ip));
+    GO(RDI);
+    GO(RSI);
+    GO(RDX);
+    GO(RCX);
+    GO(R8);
+    GO(R9);
+    GO(RAX);
 #undef GO
-    }
+    if (ret != xRIP)
+        LD(xRIP, xEmu, offsetof(x64emu_t, ip));
+
     // regenerate mask
     XORI(xMASK, xZR, -1);
     SRLI(xMASK, xMASK, 32);
@@ -845,54 +847,16 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
-    FLAGS_ADJUST_TO11(xFlags, xFlags, x3);
-    SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_pushcache(dyn, ninst, x3, 1);
-    // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
-    // RDI, RSI, RDX, RCX, R8, R9 are used for function call
-    SUBI(xSP, xSP, 16);
-    SD(xEmu, xSP, 0);
-    SD(xRIP, xSP, 8); // RV64 stack needs to be 16byte aligned
-    STORE_REG(R12);
-    STORE_REG(R13);
-    STORE_REG(R14);
-    STORE_REG(R15);
-    /*
-    // float and double args
-    if (abs(w) > 1) {
-        MESSAGE(LOG_DUMP, "Getting %d XMM args\n", abs(w) - 1);
-        for (int i = 0; i < abs(w) - 1; ++i) {
-            sse_get_reg(dyn, ninst, x6, i, 0);
-        }
-    }
-    if (w < 0) {
-        MESSAGE(LOG_DUMP, "Return in XMM0\n");
-        sse_get_reg_empty(dyn, ninst, x6, 0, 0);
-    }
-    */
-    // prepare regs for native call
-    MV(A0, xRDI);
-    MV(A1, xRSI);
-    MV(A2, xRDX);
-    MV(A3, xRCX);
-    MV(A4, xR8);
-    MV(A5, xR9);
     // native call
-    TABLE64(xRAX, (uintptr_t)fnc); // using xRAX as scratch regs for call address
-    JALR(xRA, xRAX);
+    TABLE64(x3, (uintptr_t)fnc);
+    JALR(xRA, x3);
     // put return value in x64 regs
     if (w > 0) {
         MV(xRAX, A0);
         MV(xRDX, A1);
     }
     // all done, restore all regs
-    LD(xEmu, xSP, 0);
-    LD(xRIP, xSP, 8);
-    ADDI(xSP, xSP, 16);
-    LOAD_REG(R12);
-    LOAD_REG(R13);
-    LOAD_REG(R14);
-    LOAD_REG(R15);
     // regenerate mask
     XORI(xMASK, xZR, -1);
     SRLI(xMASK, xMASK, 32);
@@ -902,8 +866,6 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
 
     fpu_popcache(dyn, ninst, x3, 1);
-    LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);
     // SET_NODF();
 }
 
@@ -927,7 +889,7 @@ void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int s
         CBZ_MARKSEG(t1);
     }
     MOV64x(x1, segment);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 0, xFlags);
+    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 0, xFlags, x1, 0, 0, 0, 0, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment == _FS) ? "FS" : "GS");
 }
@@ -2813,7 +2775,7 @@ static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
             j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
-        CALL_(UpdateFlags, -1, 0);
+        CALL_(UpdateFlags, -1, 0, 0, 0);
         MARKF2;
     }
 }

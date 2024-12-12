@@ -118,7 +118,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     if (u8) {
                         ADDI(x2, xZR, u8);
-                        emit_cmp8(dyn, ninst, x1, x2, x9, x4, x5, x6);
+                        emit_cmp8(dyn, ninst, x1, x2, x7, x4, x5, x6);
                     } else {
                         emit_cmp8_0(dyn, ninst, x1, x3, x4);
                     }
@@ -175,7 +175,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     else
                         i64 = F8S;
                     MOV64xw(x5, i64);
-                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x9);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x7);
                     WBACK;
                     break;
                 case 3: // SBB
@@ -308,13 +308,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ADDI(x4, xZR, 0xff);
                 SLL(x4, x4, x1);
                 NOT(x4, x4);
-                SLL(x9, gd, x1);
+                SLL(x7, gd, x1);
 
                 // do aligned ll/sc sequence, reusing x2 (ed might be x2 but is no longer needed)
                 MARKLOCK;
                 LR_W(x2, x6, 1, 1);
                 AND(x5, x2, x4);
-                OR(x5, x5, x9);
+                OR(x5, x5, x7);
                 SC_W(x5, x5, x6, 1, 1);
                 BNEZ_MARKLOCK(x5);
 
