@@ -791,12 +791,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ed = (nextop & 7) + (rex.b << 3);
                         sse_reflect_reg(dyn, ninst, x6, ed);
                         ADDI(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                        ed = x2;
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                        if (ed != x2) {
-                            MV(x2, ed);
-                        }
                     }
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
@@ -804,22 +802,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     sse_reflect_reg(dyn, ninst, x6, 0);
                     switch (u8) {
                         case 0xC8:
-                            CALL(sha1nexte, -1, x1, x2);
+                            CALL(sha1nexte, -1, x1, ed);
                             break;
                         case 0xC9:
-                            CALL(sha1msg1, -1, x1, x2);
+                            CALL(sha1msg1, -1, x1, ed);
                             break;
                         case 0xCA:
-                            CALL(sha1msg2, -1, x1, x2);
+                            CALL(sha1msg2, -1, x1, ed);
                             break;
                         case 0xCB:
-                            CALL(sha256rnds2, -1, x1, x2);
+                            CALL(sha256rnds2, -1, x1, ed);
                             break;
                         case 0xCC:
-                            CALL(sha256msg1, -1, x1, x2);
+                            CALL(sha256msg1, -1, x1, ed);
                             break;
                         case 0xCD:
-                            CALL(sha256msg2, -1, x1, x2);
+                            CALL(sha256msg2, -1, x1, ed);
                             break;
                     }
                     break;
@@ -883,17 +881,17 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ed = (nextop & 7) + (rex.b << 3);
                         sse_reflect_reg(dyn, ninst, x6, ed);
                         ADDI(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                        wback = x2;
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 1);
-                        if (wback != x2) MV(x2, wback);
                     }
                     u8 = F8;
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
                     ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
                     MOV32w(x3, u8);
-                    CALL4(sha1rnds4, -1, x1, x2, x3, 0);
+                    CALL4(sha1rnds4, -1, x1, wback, x3, 0);
                     break;
                 default:
                     DEFAULT;
@@ -1917,7 +1915,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("XSAVE Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x2, rex.w ? 0 : 1);
                         CALL((void*)fpu_xsave, -1, ed, x2);
                         break;
@@ -1925,15 +1923,15 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("XRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x2, rex.w ? 0 : 1);
-                        CALL((void*)fpu_xrstor, -1, x1, x2);
+                        CALL((void*)fpu_xrstor, -1, ed, x2);
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization?\n");
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                        CALL_(native_clflush, -1, 0, wback, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        CALL_(native_clflush, -1, 0, ed, 0);
                         break;
                     default:
                         DEFAULT;
