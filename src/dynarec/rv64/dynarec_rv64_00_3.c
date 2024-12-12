@@ -994,18 +994,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (box64_dynarec_callret) {
                         SET_HASCALLRET();
                         // Push actual return address
-                        if (addr < (dyn->start + dyn->isize)) {
-                            // there is a next...
-                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
-                            AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDI(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
-                        } else {
-                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
-                            AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDI(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
-                        }
+                        j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                        AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                        ADDI(x4, x4, j64 & 0xfff);
+                        MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         ADDI(xSP, xSP, -16);
                         SD(x4, xSP, 0);
                         SD(x2, xSP, 8);
@@ -1018,9 +1010,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     else
                         j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
+                    MARK;
+                    if (box64_dynarec_callret && dyn->vector_sew != VECTOR_SEWNA)
+                        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
                     if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
-                        MARK;
                         j64 = getJumpTableAddress64(addr);
                         TABLE64(x4, j64);
                         LD(x4, x4, 0);
@@ -1488,28 +1482,21 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETIP_(addr);
                     if (box64_dynarec_callret) {
                         SET_HASCALLRET();
-                        // Push actual return address
-                        if (addr < (dyn->start + dyn->isize)) {
-                            // there is a next...
-                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
-                            AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDI(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
-                        } else {
-                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
-                            AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDI(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
-                        }
+                        j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                        AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                        ADDI(x4, x4, j64 & 0xfff);
+                        MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         ADDI(xSP, xSP, -16);
                         SD(x4, xSP, 0);
                         SD(xRIP, xSP, 8);
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    MARK;
+                    if (box64_dynarec_callret && dyn->vector_sew != VECTOR_SEWNA)
+                        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
                     if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
-                        MARK;
                         j64 = getJumpTableAddress64(addr);
                         TABLE64(x4, j64);
                         LD(x4, x4, 0);
