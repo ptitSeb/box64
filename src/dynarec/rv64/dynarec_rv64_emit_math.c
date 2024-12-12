@@ -34,11 +34,11 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX (X_CF) {
         if (rex.w) {
-            AND(s5, xMASK, s1);
+            ZEXTW2(s5, s1);
             if (rv64_zba) // lo
                 ADDUW(s5, s2, s5);
             else {
-                AND(s4, xMASK, s2);
+                ZEXTW2(s4, s2);
                 ADD(s5, s5, s4);
             }
             SRLI(s3, s1, 0x20);
@@ -48,8 +48,8 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             ADD(s5, s5, s4); // hi
             SRAI(s5, s5, 0x20);
         } else {
-            AND(s3, s1, xMASK);
-            AND(s4, s2, xMASK);
+            ZEXTW2(s3, s1);
+            ZEXTW2(s4, s2);
             ADD(s5, s3, s4);
             SRLI(s5, s5, 0x20);
         }
@@ -130,11 +130,11 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     IFX (X_CF) {
         if (rex.w) {
-            AND(s5, xMASK, s1);
+            ZEXTW2(s5, s1);
             if (rv64_zba) // lo
                 ADDUW(s5, s2, s5);
             else {
-                AND(s4, xMASK, s2);
+                ZEXTW2(s4, s2);
                 ADD(s5, s5, s4);
             }
             SRLI(s3, s1, 0x20);
@@ -144,8 +144,8 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             ADD(s5, s5, s4); // hi
             SRAI(s5, s5, 0x20);
         } else {
-            AND(s3, s1, xMASK);
-            AND(s4, s2, xMASK);
+            ZEXTW2(s3, s1);
+            ZEXTW2(s4, s2);
             ADD(s5, s3, s4);
             SRLI(s5, s5, 0x20);
         }
@@ -1353,11 +1353,11 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX (X_CF) {
         if (rex.w) {
-            AND(s5, xMASK, s1);
+            ZEXTW2(s5, s1);
             if (rv64_zba)
                 ADDUW(s5, s2, s5);
             else {
-                AND(s4, xMASK, s2);
+                ZEXTW2(s4, s2);
                 ADD(s5, s5, s4);
             } // lo
             ANDI(s3, xFlags, 1);
@@ -1369,8 +1369,8 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             ADD(s5, s5, s4); // hi
             SRAI(s6, s5, 0x20);
         } else {
-            AND(s3, s1, xMASK);
-            AND(s4, s2, xMASK);
+            ZEXTW2(s3, s1);
+            ZEXTW2(s4, s2);
             ADD(s5, s3, s4);
             ANDI(s3, xFlags, 1);
             ADD(s5, s5, s3); // add carry

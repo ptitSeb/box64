@@ -312,10 +312,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 AMOSWAP_W(xZR, xZR, x7, 1, 1);
                             } else {
                                 SMDMB();
-                                AND(x3, xRAX, xMASK);
+                                ZEXTW2(x3, xRAX);
                                 SLLI(x2, xRDX, 32);
                                 OR(x3, x3, x2);
-                                AND(x4, xRBX, xMASK);
+                                ZEXTW2(x4, xRBX);
                                 SLLI(x2, xRCX, 32);
                                 OR(x4, x4, x2);
                                 MARKLOCK;
@@ -327,7 +327,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 B_MARK3_nocond;
                                 MARK;
                                 SLLI(xRDX, x2, 32);
-                                AND(xRAX, x2, xMASK);
+                                ZEXTW2(xRAX, x2);
                                 MARK3;
                                 SMDMB();
                             }

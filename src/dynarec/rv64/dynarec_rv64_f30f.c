@@ -437,7 +437,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEXTW2(x4, ed);
                 ed = x4;
             }
             CLEAR_FLAGS();
@@ -479,7 +479,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEXTW2(x4, ed);
                 ed = x4;
             }
             ANDI(xFlags, xFlags, ~((1 << F_ZF) | (1 << F_CF)));
@@ -500,7 +500,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEXTW2(x4, ed);
                 ed = x4;
             }
             BNE_MARK(ed, xZR);

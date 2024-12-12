@@ -257,7 +257,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
                     } else {
                         if (!rex.w && MODREG) {
-                            AND(x1, ed, xMASK);
+                            ZEXTW2(x1, ed);
                             ed = x1;
                         }
                         emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
@@ -967,7 +967,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (rex.w) {
                         MV(x1, xRAX);
                     } else {
-                        AND(x1, xRAX, xMASK);
+                        ZEXTW2(x1, xRAX);
                     }
                     ANDI(x2, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x2);

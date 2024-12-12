@@ -32,8 +32,19 @@
         }                   \
     } while (0)
 
-// ZERO the upper part
-#define ZEROUP(r) AND(r, r, xMASK)
+// ZERO the upper part, compatible to zba, xtheadbb, and rv64gc
+#define ZEXTW2(rd, rs1)              \
+    do {                             \
+        if (rv64_zba) {              \
+            ZEXTW(rd, rs1);          \
+        } else if (rv64_xtheadbb) {  \
+            TH_EXTU(rd, rs1, 31, 0); \
+        } else {                     \
+            SLLI(rd, rs1, 32);       \
+            SRLI(rd, rd, 32);        \
+        }                            \
+    } while (0)
+#define ZEROUP(r) ZEXTW2(r, r)
 
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode) ((funct7) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
 #define I_type(imm12, rs1, funct3, rd, opcode)       ((imm12) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
@@ -145,14 +156,14 @@
         if (rex.w) {             \
             MV(rd, rs1);         \
         } else {                 \
-            AND(rd, rs1, xMASK); \
+            ZEXTW2(rd, rs1);     \
         }                        \
     } while (0)
 // rd = rs1 (pseudo instruction)
 #define MVz(rd, rs1)             \
     do {                         \
         if (rex.is32bits) {      \
-            AND(rd, rs1, xMASK); \
+            ZEXTW2(rd, rs1);     \
         } else {                 \
             MV(rd, rs1);         \
         }                        \
@@ -760,7 +771,7 @@
             SUBI(u8, u8, 32);                \
             MV(s2, s3);                      \
         } else {                             \
-            AND(s2, rs, xMASK);              \
+            ZEXTW2(s2, rs);                  \
         }                                    \
         SRLI(s3, s2, 16);                    \
         BEQZ(s3, 4 + 2 * 4);                 \
@@ -856,7 +867,7 @@
 // Insert low 16bits in rs to low 16bits of rd
 #define INSHz(rd, rs, s1, s2, init_s1, zexth_rs) \
     INSH(rd, rs, s1, s2, init_s1, zexth_rs)      \
-    if (rex.is32bits) AND(rd, rd, xMASK);
+    if (rex.is32bits) ZEXTW2(rd, rd);
 
 // Rotate left (register)
 #define ROL(rd, rs1, rs2) EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0110011))
@@ -939,7 +950,7 @@
         }                              \
     }                                  \
     if (!rex.w)                        \
-        AND(rd, rd, xMASK);
+        ZEXTW2(rd, rd);
 
 
 // Zbc

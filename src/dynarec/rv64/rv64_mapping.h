@@ -10,7 +10,7 @@ x1      ra     native ra    Return address                  N/A                 
 x2      sp     native sp    Stack pointer                   N/A                     Callee
 x3      gp     native gp    Global pointer                  N/A                     —
 x4      tp     native tp    Thread pointer                  N/A                     —
-x5      t0     xMask        Temporary                       Always 0xFFFFFFFF       Caller
+x5      t0     -            Temporary                       Unused                  Caller
 x6      t1     x1           Temporary                       Scratch                 Caller
 x7      t2     x2           Temporary                       Scratch                 Caller
 x8      s0/fp  RBP          Saved register/frame pointer    -                       Callee
@@ -22,7 +22,7 @@ x13     a3     RCX          Function argument               -                   
 x14     a4     R8           Function argument               -                       Caller
 x15     a5     R9           Function argument               -                       Caller
 x16     a6     RAX          Function argument               -                       Caller
-x17     a7     x7           Function argument               The Emu struct          Caller
+x17     a7     x7           Function argument               Scratch                 Caller
 x18     s2     R12          Saved register                  -                       Callee
 x19     s3     R13          Saved register                  -                       Callee
 x20     s4     R14          Saved register                  -                       Callee
@@ -30,7 +30,7 @@ x21     s5     R15          Saved register                  -                   
 x22     s6     RIP          Saved register                  -                       Callee
 x23     s7     FLAGS        Saved register                  -                       Callee
 x24     s8     RBX          Saved register                  -                       Callee
-x25     s9     xEmu         Saved register                  Scratch                 Callee
+x25     s9     xEmu         Saved register                  The Emu struct          Callee
 x26     s10    R10          Saved register                  -                       Callee
 x27     s11    R11          Saved register                  -                       Callee
 x28     t3     x3           Temporary                       Scratch                 Caller
@@ -74,7 +74,6 @@ x31     t6     x6           Temporary                       Scratch             
 #define x6   31
 #define xEmu 25
 
-#define xMASK 5
 #define x7    17
 
 #define xRA 1
@@ -112,7 +111,6 @@ x31     t6     x6           Temporary                       Scratch             
 #define RIP   x22
 #define Flags x23
 #define Emu   x25
-#define MASK  x5
 
 #endif
 
