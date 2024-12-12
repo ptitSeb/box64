@@ -1243,7 +1243,6 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xB6:
             INST_NAME("MOVZX Gw, Eb");
             nextop = F8;
-            gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
             if (MODREG) {
                 if (rex.rex) {
                     eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -1253,19 +1252,14 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
                     eb2 = (ed & 4) >> 2;  // L or H
                 }
-                if (eb2) {
-                    SRLI_D(x1, eb1, 8);
-                    eb1 = x1;
-                }
-                ANDI(x1, eb1, 0xff);
+                BSTRPICK_W(x1, eb1, eb2 * 8 + 7, eb2 * 8);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
                 LD_BU(x1, ed, fixedaddress);
             }
-            LU12I_W(x5, 0xffff0);
-            AND(gd, gd, x5);
-            OR(gd, gd, x1);
+            gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+            BSTRINS_D(gd, x1, 15, 0); // insert in Gw
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
