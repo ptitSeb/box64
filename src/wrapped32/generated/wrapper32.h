@@ -1395,6 +1395,7 @@ void iFXLiiibL__32(x64emu_t *emu, uintptr_t fnc);
 void iFXLLLLbL__32(x64emu_t *emu, uintptr_t fnc);
 void iFXLbL_ipi_32(x64emu_t *emu, uintptr_t fnc);
 void iFXbL_upip_32(x64emu_t *emu, uintptr_t fnc);
+void pFEppibp_p_32(x64emu_t *emu, uintptr_t fnc);
 void pEEppbL_Lp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEipuurLL__32(x64emu_t *emu, uintptr_t fnc);
 void iFppbL_pbL_p_32(x64emu_t *emu, uintptr_t fnc);

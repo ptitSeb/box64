@@ -1354,6 +1354,7 @@
 #() iFXLLLLbL_ -> iFXLLLLB
 #() iFXLbL_ipi -> iFXLBipi
 #() iFXbL_upip -> iFXBupip
+#() pFEppibp_p -> pFEppiBp
 #() pEEppbL_Lp -> pEEppBLp
 #() iEEipuurLL_ -> iEEipuuB
 #() iFppbL_pbL_p -> iFppBpBp
@@ -1665,10 +1666,22 @@ wrappedexpat:
 - uFpii:
   - XML_ParseBuffer
 wrappedfontconfig:
+- vFp:
+  - FcFontSetDestroy
+- pFp:
+  - FcCacheCopySet
 - uFpu:
   - FcFreeTypeCharIndex
+- pFpp:
+- pFpV:
+  - FcObjectSetBuild
+  - FcPatternBuild
+- pFppp:
+  - FcFontList
 - iFppiUi:
   - FcPatternAdd
+- pFppibp_p:
+  - FcFontSort
 wrappedfreetype:
 - vFp:
   - FT_Done_Glyph
