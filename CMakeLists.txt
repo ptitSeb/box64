@@ -821,6 +821,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedfreetype.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedfontconfig.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibx11.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibxdamage.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxext.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxfixes.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrender.c"

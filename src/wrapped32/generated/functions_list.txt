@@ -2456,6 +2456,7 @@ wrappedlibxcursor:
   - XcursorCursorsCreate
 - pFXp:
   - XcursorImagesLoadCursors
+wrappedlibxdamage:
 wrappedlibxext:
 - vFp:
   - XdbeFreeVisualInfo
