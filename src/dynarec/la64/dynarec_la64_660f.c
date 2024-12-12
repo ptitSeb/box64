@@ -107,6 +107,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_D(v0, v1, 0x10);
             break;
+        case 0x15:
+            INST_NAME("UNPCKHPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                v1 = fpu_get_scratch(dyn);
+                ADDI_D(x1, ed, 8);
+                FLD_D(v1, x1, fixedaddress);
+            }
+            VSHUF4I_D(v0, v1, 0xd);
+            break;
         case 0x16:
             INST_NAME("MOVHPD Gx, Eq");
             nextop = F8;
@@ -1224,6 +1239,27 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             BSTRPICK_D(x2, x2, 15, 0);
             GWBACK;
             UFLAG_DF(x1, d_imul16);
+            break;
+        case 0xB6:
+            INST_NAME("MOVZX Gw, Eb");
+            nextop = F8;
+            if (MODREG) {
+                if (rex.rex) {
+                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
+                    eb2 = 0;
+                } else {
+                    ed = (nextop & 7);
+                    eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;  // L or H
+                }
+                BSTRPICK_W(x1, eb1, eb2 * 8 + 7, eb2 * 8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
+                LD_BU(x1, ed, fixedaddress);
+            }
+            gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+            BSTRINS_D(gd, x1, 15, 0); // insert in Gw
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");

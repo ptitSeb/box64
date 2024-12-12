@@ -414,6 +414,32 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x3A: // more SSE3 opcodes
+            opcode = F8;
+            switch (opcode) {
+                case 0xCC:
+                    INST_NAME("SHA1RNDS4 Gx, Ex, Ib");
+                    nextop = F8;
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDI_D(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 1);
+                        if (wback != x2) MV(x2, wback);
+                    }
+                    u8 = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    MOV32w(x3, u8);
+                    CALL(sha1rnds4, -1);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
 
 #define GO(GETFLAGS, NO, YES, F, I)                                                          \
     READFLAGS(F);                                                                            \
