@@ -78,9 +78,5 @@ rv64_prolog:
     sd      zero, -8(sp)
     addi    sp, sp, -16
 
-    // setup MASK
-    xori    MASK, zero, -1
-    srli    MASK, MASK, 32
-
     // jump to block
     jr      t6

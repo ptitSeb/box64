@@ -1199,13 +1199,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MUL(xRAX, xRAX, ed);
                         if (gd != xRDX) { MV(xRDX, gd); }
                     } else {
-                        AND(x3, xRAX, xMASK);
+                        ZEXTW2(x3, xRAX);
                         if (MODREG) {
-                            AND(x4, ed, xMASK);
+                            ZEXTW2(x4, ed);
                             ed = x4;
                         }
                         MUL(xRDX, x3, ed); // 64 <- 32x32
-                        AND(xRAX, xRDX, xMASK);
+                        ZEXTW2(xRAX, xRDX);
                         SRLI(xRDX, xRDX, 32);
                     }
                     IFX (X_CF | X_OF) {
@@ -1237,7 +1237,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         ADDIW(x3, xRAX, 0); // sign extend 32bits-> 64bits
                         MUL(xRDX, x3, ed);  // 64 <- 32x32
-                        AND(xRAX, xRDX, xMASK);
+                        ZEXTW2(xRAX, xRDX);
                         SRLI(xRDX, xRDX, 32);
                     }
                     IFX (X_CF | X_OF) {
@@ -1282,15 +1282,15 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                                 MARK3;
                             }
                             SLLI(x3, xRDX, 32);
-                            AND(x2, xRAX, xMASK);
+                            ZEXTW2(x2, xRAX);
                             OR(x3, x3, x2);
                             if (MODREG) {
-                                AND(x4, ed, xMASK);
+                                ZEXTW2(x4, ed);
                                 ed = x4;
                             }
                             DIVU(x2, x3, ed);
                             REMU(xRDX, x3, ed);
-                            AND(xRAX, x2, xMASK);
+                            ZEXTW2(xRAX, x2);
                             ZEROUP(xRDX);
                         }
                     } else {
@@ -1352,11 +1352,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MARK3;
                         }
                         SLLI(x3, xRDX, 32);
-                        AND(x2, xRAX, xMASK);
+                        ZEXTW2(x2, xRAX);
                         OR(x3, x3, x2);
                         DIV(x2, x3, ed);
                         REM(xRDX, x3, ed);
-                        AND(xRAX, x2, xMASK);
+                        ZEXTW2(xRAX, x2);
                         ZEROUP(xRDX);
                     } else {
                         if (ninst && dyn->insts

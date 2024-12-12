@@ -107,7 +107,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x60:
             if (rex.is32bits) {
                 INST_NAME("PUSHAD");
-                AND(x1, xRSP, xMASK);
+                ZEXTW2(x1, xRSP);
                 PUSH1_32(xRAX);
                 PUSH1_32(xRCX);
                 PUSH1_32(xRDX);
@@ -163,7 +163,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                 } else {
                     if (MODREG) { // reg <= reg
-                        AND(gd, TO_NAT((nextop & 7) + (rex.b << 3)), xMASK);
+                        ZEXTW2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
                     } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);

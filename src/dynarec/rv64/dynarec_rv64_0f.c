@@ -68,7 +68,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 switch (nextop) {
                     case 0xD0:
                         INST_NAME("XGETBV");
-                        AND(x1, xRCX, xMASK);
+                        ZEXTW2(x1, xRCX);
                         BEQZ_MARK(x1);
                         UDF();
                         MARK;
@@ -99,7 +99,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SRLI(x3, x3, box64_rdtsc_shift);
                         }
                         SRLI(xRDX, x3, 32);
-                        AND(xRAX, x3, xMASK); // wipe upper part
+                        ZEXTW2(xRAX, x3); // wipe upper part
                         MV(xRCX, xZR);        // IA32_TSC, 0 for now
                         break;
                     default:
@@ -424,7 +424,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SRLI(x3, x3, box64_rdtsc_shift);
             }
             SRLI(xRDX, x3, 32);
-            AND(xRAX, x3, xMASK); // wipe upper part
+            ZEXTW2(xRAX, x3); // wipe upper part
             break;
         case 0x38:
             // SSE3
@@ -1425,7 +1425,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if (!rex.w) {
-                    AND(x4, ed, xMASK);
+                    ZEXTW2(x4, ed);
                     ed = x4;
                 }
             } else {
@@ -2181,7 +2181,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEXTW2(x4, ed);
                 ed = x4;
             }
             BNE_MARK(ed, xZR);
@@ -2200,7 +2200,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEXTW2(x4, ed);
                 ed = x4;
             }
             BNE_MARK(ed, xZR);

@@ -55,10 +55,6 @@ rv64_next:
 
     addi    sp,  sp,  (8 * 10)
 
-    // setup MASK
-    xori    MASK, zero, -1
-    srli    MASK, MASK, 32
-
     // return offset is jump address
     jr      t3
 

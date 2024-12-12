@@ -247,7 +247,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
         } else {
             ret = TO_NAT(nextop & 7);
             if (ret == hint) {
-                AND(hint, ret, xMASK); // to clear upper part
+                ZEXTW2(hint, ret); // to clear upper part
             }
         }
     } else {
@@ -402,7 +402,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
         } else {
             ret = TO_NAT((nextop & 7) + (rex.b << 3));
             if (ret == hint) {
-                AND(hint, ret, xMASK); // to clear upper part
+                ZEXTW2(hint, ret); // to clear upper part
             }
         }
     } else {
@@ -827,10 +827,6 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     if (ret != xRIP)
         LD(xRIP, xEmu, offsetof(x64emu_t, ip));
 
-    // regenerate mask
-    XORI(xMASK, xZR, -1);
-    SRLI(xMASK, xMASK, 32);
-
     // reinitialize sew
     if (dyn->vector_sew != VECTOR_SEWNA)
         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
@@ -857,9 +853,6 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
         MV(xRDX, A1);
     }
     // all done, restore all regs
-    // regenerate mask
-    XORI(xMASK, xZR, -1);
-    SRLI(xMASK, xMASK, 32);
 
     // reinitialize sew
     if (dyn->vector_sew != VECTOR_SEWNA)
@@ -1091,7 +1084,7 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         if (a > 0) {
             SLLI(s1, s1, a * 2);
         } else {
-            SLLI(s3, xMASK, 16); // 0xffff0000 (plus some unused hipart)
+            MOV32w(s3, 0xffff0000);
             OR(s1, s1, s3);
             SRLI(s1, s1, -a * 2);
         }
@@ -1187,7 +1180,7 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
         if (a > 0) {
             SLLI(s1, s1, a * 2);
         } else {
-            SLLI(s3, xMASK, 16); // 0xffff0000
+            MOV32w(s3, 0xffff0000);
             OR(s1, s1, s3);
             SRLI(s1, s1, -a * 2);
         }
@@ -1240,7 +1233,7 @@ static void x87_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, i
         // update tags
         LH(s1, xEmu, offsetof(x64emu_t, fpu_tags));
         if (a > 0) {
-            SLLI(s3, xMASK, 16); // 0xffff0000
+            MOV32w(s3, 0xffff0000);
             OR(s1, s1, s3);
             SRLI(s1, s1, a * 2);
         } else {
@@ -2726,7 +2719,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
         if (a > 0) {
             SLLI(s2, s2, a * 2);
         } else {
-            SLLI(s3, xMASK, 16); // 0xffff0000
+            MOV32w(s3, 0xffff0000);
             OR(s2, s2, s3);
             SRLI(s2, s2, -a * 2);
         }
