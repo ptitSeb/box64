@@ -551,7 +551,7 @@ HWCAP2_AFP
                 if (!strcasecmp(p, "xtheadba")) rv64_xtheadba = 0;
                 if (!strcasecmp(p, "xtheadbb")) rv64_xtheadbb = 0;
                 if (!strcasecmp(p, "xtheadbs")) rv64_xtheadbs = 0;
-                // if (!strcasecmp(p, "xtheadmemidx")) rv64_xtheadmemidx = 0;
+                if (!strcasecmp(p, "xtheadmemidx")) rv64_xtheadmemidx = 0;
                 // if (!strcasecmp(p, "xtheadfmemidx")) rv64_xtheadfmemidx = 0;
                 // if (!strcasecmp(p, "xtheadmac")) rv64_xtheadmac = 0;
                 // if (!strcasecmp(p, "xtheadfmv")) rv64_xtheadfmv = 0;
@@ -575,8 +575,8 @@ HWCAP2_AFP
     if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
     if (rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
     if (rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
+    if (rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
     // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
     // if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
     // if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
