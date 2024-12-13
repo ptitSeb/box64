@@ -75,6 +75,8 @@ GO("libcairo.so.2", cairo)
 GO("libcairo.so", cairo)
 GO("libdrm.so.2", libdrm)
 GO("libdrm.so", libdrm)
+GO("libvdpau.so.1", libvdpau)
+GO("libvdpau.so", libvdpau)
 
 GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)

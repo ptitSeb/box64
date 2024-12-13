@@ -1168,6 +1168,7 @@
 #() iEEipuu -> iEEipuu
 #() iEEippL -> iEEippL
 #() iEEpipp -> iEEpipp
+#() iFEpipp -> iFEpipp
 #() iEEpipV -> iEEpipV
 #() iFEpuip -> iFEpuip
 #() iFEpupu -> iFEpupu
@@ -2375,6 +2376,9 @@ wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime
 wrappedlibuuid:
+wrappedlibvdpau:
+- iFpipp:
+  - vdp_device_create_x11
 wrappedlibx11:
 - vFp:
   - XFreeStringList

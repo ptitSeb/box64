@@ -1209,6 +1209,7 @@ void iEEipii_32(x64emu_t *emu, uintptr_t fnc);
 void iEEipuu_32(x64emu_t *emu, uintptr_t fnc);
 void iEEippL_32(x64emu_t *emu, uintptr_t fnc);
 void iEEpipp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEpipp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEpipV_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpuip_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpupu_32(x64emu_t *emu, uintptr_t fnc);
