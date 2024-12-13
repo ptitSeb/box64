@@ -507,7 +507,7 @@ GOM(gethostbyname, pFEp)
 GOM(gethostbyname_r, iFEpppupp)
 //GO(gethostent, pFv)
 //GO(gethostent_r, iFppupp)
-// gethostid
+GO(gethostid, LFv)
 GOW(gethostname, iEpL)
 // __gethostname_chk
 GOM(getifaddrs, iEEbp_)
@@ -1239,7 +1239,7 @@ GOW(pathconf, lEpi)
 GOW(pause, iEv)
 GO(pclose, iES)
 GO(perror, vEp)
-// personality  // Weak
+GOW(personality, iFL)
 GOW(pipe, iEp)
 // __pipe
 GOW(pipe2, iEpO) // assuming this works the same as pipe, so pointer for array of 2 int
@@ -1256,7 +1256,7 @@ GO(posix_fadvise, iEilli)
 GO(posix_fadvise64, iEiIIi)
 GO(posix_fallocate, iEill)
 GO(posix_fallocate64, iEiII)
-// posix_madvise
+GO(posix_madvise, iEpLi)
 GOW(posix_memalign, iEBp_LL)
 // posix_openpt // Weak
 GOM(posix_spawn, iEEpppppp)
@@ -1464,7 +1464,7 @@ GO(__sched_setscheduler, iEiip)
 GOW(sched_setscheduler, iEiip)
 GO(__sched_yield, iEv)
 GOW(sched_yield, iEv)
-GO(__secure_getenv, tEp)
+GO2(__secure_getenv, tEp, secure_getenv)
 GO(secure_getenv, tEp)
 // seed48
 // seed48_r // Weak
@@ -1724,7 +1724,7 @@ GO(strtoll, IEpBp_i)
 GO(__strtoll_internal, IEpBp_ii)
 GO(__strtoll_l, IEpBp_ia)
 GOW(strtoll_l, IEpBp_ia)
-//GOW(strtoq, IEppi)  // is that ok?
+GOW(strtoq, IEppi)  // is that ok?
 GOM(strtoul, LEpBp_i)   //%%,noE
 GO2(__strtoul_internal, LEpBp_ii, my32_strtoul) //%%,noE
 GO(strtoull, UEpBp_i)
@@ -1734,7 +1734,7 @@ GO(__strtoull_internal, UEpBp_ii)
 GO(__strtoull_l, UEpBp_ia)
 GOW(strtoull_l, UEpBp_ia)
 //GO(strtoumax, UEppi)
-//GOW(strtouq, UEppi) // ok?
+GOW(strtouq, UEppi) // ok?
 GOW(strverscmp, iEpp)
 // __strverscmp
 GO(strxfrm, uEppL)

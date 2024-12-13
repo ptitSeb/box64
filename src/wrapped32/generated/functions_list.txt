@@ -36,6 +36,7 @@
 #() iEd -> iEd
 #() iEl -> iEl
 #() iEL -> iEL
+#() iFL -> iFL
 #() iEp -> iEp
 #() iFp -> iFp
 #() iEh -> iEh
@@ -568,6 +569,7 @@
 #() iFXpp -> iFXpp
 #() IEiIi -> IEiIi
 #() IFpIi -> IFpIi
+#() IEppi -> IEppi
 #() CFipp -> CFipp
 #() CFuUu -> CFuUu
 #() CFuff -> CFuff
@@ -589,6 +591,7 @@
 #() uEppL -> uEppL
 #() uFppp -> uFppp
 #() uFXuu -> uFXuu
+#() UEppi -> UEppi
 #() fFuii -> fFuii
 #() fEfff -> fEfff
 #() fEffp -> fEffp
@@ -1945,6 +1948,8 @@ wrappedlibc:
   - gethostbyname
 - pES:
   - getmntent
+- tEp:
+  - __secure_getenv
 - iEbp_:
   - getifaddrs
 - pErl_:

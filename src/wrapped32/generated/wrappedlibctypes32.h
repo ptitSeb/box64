@@ -35,6 +35,7 @@ typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pEp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pES_t)(void*);
+typedef char* (*tEp_t)(void*);
 typedef int32_t (*iEbp__t)(struct_p_t*);
 typedef void* (*pErl__t)(struct_l_t*);
 typedef void* (*pEriiiiiiiiilt__t)(struct_iiiiiiiiilt_t*);
@@ -167,6 +168,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(localtime, pEp_t) \
 	GO(gethostbyname, pFp_t) \
 	GO(getmntent, pES_t) \
+	GO(__secure_getenv, tEp_t) \
 	GO(getifaddrs, iEbp__t) \
 	GO(ctime, pErl__t) \
 	GO(asctime, pEriiiiiiiiilt__t) \
