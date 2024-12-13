@@ -405,7 +405,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = TO_NAT(opcode & 0x07) + (rex.b << 3);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             PUSH1_16(gd);
             break;
         case 0x58:
@@ -417,7 +417,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = TO_NAT(opcode & 0x07) + (rex.b << 3);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1_16(x1);
             INSHz(gd, x1, x2, x3, 1, 0);
             break;
@@ -726,7 +726,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x95:
         case 0x96:
         case 0x97:
-            gd = TO_NAT(opcode & 0x07) + (rex.b << 3);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             if (gd == xRAX) {
                 INST_NAME("NOP");
             } else {
@@ -1038,7 +1038,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Reg, Iw");
             u16 = F16;
             MOV32w(x1, u16);
-            gd = TO_NAT(opcode & 7) + (rex.b << 3);
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
             INSHz(gd, x1, x2, x3, 1, 0);
             break;
 
