@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 //GO(__create_ib_request, 
@@ -115,18 +115,18 @@
 //GO(xdr_ypstat, 
 //GO(xdr_ypupdate_args, 
 //GO(xdr_ypxfrstat, 
-//GO(yp_all, 
-//GO(yp_bind, 
-//GO(ypbinderr_string, 
-//GO(__yp_check, 
-//GO(yperr_string, 
-//GO(yp_first, 
-//GO(yp_get_default_domain, 
+//GOM(yp_all, iFEppbpp_)
+GO(yp_bind, iFp)
+GO(ypbinderr_string, pFi)
+GO(__yp_check, iFbp_)
+GO(yperr_string, pFi)
+GO(yp_first, iFppbp_pbp_p)
+GO(yp_get_default_domain, iFbp_)
 //GO(yp_maplist, 
-//GO(yp_master, 
-//GO(yp_match, 
-//GO(yp_next, 
-//GO(yp_order, 
-//GO(ypprot_err, 
-//GO(yp_unbind, 
-//GO(yp_update, 
+GO(yp_master, iFppbp_)
+GO(yp_match, iFpppibp_p)
+GO(yp_next, iFpppibp_pbp_p)
+GO(yp_order, iFppp)
+GO(ypprot_err, iFi)
+GO(yp_unbind, vFp)
+GO(yp_update, iFppupipi)
