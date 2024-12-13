@@ -255,6 +255,7 @@
 #() uFpu -> uFpu
 #() uFpp -> uFpp
 #() uFXL -> uFXL
+#() UFEp -> UFEp
 #() UEuu -> UEuu
 #() UFuu -> UFuu
 #() UEUU -> UEUU
@@ -557,7 +558,9 @@
 #() CFuUu -> CFuUu
 #() CFuff -> CFuff
 #() WFXip -> WFXip
+#() uFEpW -> uFEpW
 #() uFEpu -> uFEpu
+#() uFEpU -> uFEpU
 #() uFEpL -> uFEpL
 #() uFilp -> uFilp
 #() uFipu -> uFipu
@@ -2627,6 +2630,15 @@ wrappedsdl2:
 - IFp:
   - SDL_RWsize
   - SDL_RWtell
+- uFp:
+  - SDL_ReadBE16
+  - SDL_ReadBE32
+  - SDL_ReadLE16
+  - SDL_ReadLE32
+  - SDL_ReadU8
+- UFp:
+  - SDL_ReadBE64
+  - SDL_ReadLE64
 - pFv:
   - SDL_GetBasePath
 - pFp:
@@ -2656,6 +2668,16 @@ wrappedsdl2:
   - SDL_OpenAudio
   - SDL_SetWindowDisplayMode
   - SDL_ShowMessageBox
+- uFpW:
+  - SDL_WriteBE16
+  - SDL_WriteLE16
+- uFpu:
+  - SDL_WriteBE32
+  - SDL_WriteLE32
+  - SDL_WriteU8
+- uFpU:
+  - SDL_WriteBE64
+  - SDL_WriteLE64
 - pFpi:
   - SDL_LoadBMP_RW
   - SDL_notreal

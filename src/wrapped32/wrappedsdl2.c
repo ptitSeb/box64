@@ -529,6 +529,132 @@ EXPORT int my32_2_SDL_RWclose(x64emu_t* emu, void* a)
     return RWNativeClose2(rw);
 }
 
+EXPORT uint64_t my32_2_SDL_ReadU8(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadU8(rw);
+    RWNativeEnd2(rw);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_ReadBE16(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadBE16(rw);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_ReadBE32(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadBE32(rw);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_ReadBE64(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadBE64(rw);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_ReadLE16(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadLE16(rw);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_ReadLE32(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadLE32(rw);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_ReadLE64(x64emu_t* emu, void* a)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_ReadLE64(rw);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteU8(x64emu_t* emu, void* a, uint8_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteU8(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteBE16(x64emu_t* emu, void* a, uint16_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteBE16(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteBE32(x64emu_t* emu, void* a, uint64_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteBE32(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteBE64(x64emu_t* emu, void* a, uint64_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteBE64(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteLE16(x64emu_t* emu, void* a, uint16_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteLE16(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteLE32(x64emu_t* emu, void* a, uint64_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteLE32(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+EXPORT uint64_t my32_2_SDL_WriteLE64(x64emu_t* emu, void* a, uint64_t v)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t r = my->SDL_WriteLE64(rw, v);
+    RWNativeEnd2(rw);
+    inplace_SDL2_RWops_to_32(a);
+    return r;
+}
+
 typedef struct SDL_version_s
 {
     uint8_t major;

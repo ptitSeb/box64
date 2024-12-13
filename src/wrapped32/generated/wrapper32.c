@@ -346,6 +346,7 @@ typedef uint32_t (*uFpi_t)(void*, int32_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpp_t)(void*, void*);
 typedef uint32_t (*uFXL_t)(void*, uintptr_t);
+typedef uint64_t (*UFEp_t)(x64emu_t*, void*);
 typedef uint64_t (*UEuu_t)(uint32_t, uint32_t);
 typedef uint64_t (*UFuu_t)(uint32_t, uint32_t);
 typedef uint64_t (*UEUU_t)(uint64_t, uint64_t);
@@ -648,7 +649,9 @@ typedef uint8_t (*CFipp_t)(int32_t, void*, void*);
 typedef uint8_t (*CFuUu_t)(uint32_t, uint64_t, uint32_t);
 typedef uint8_t (*CFuff_t)(uint32_t, float, float);
 typedef uint16_t (*WFXip_t)(void*, int32_t, void*);
+typedef uint32_t (*uFEpW_t)(x64emu_t*, void*, uint16_t);
 typedef uint32_t (*uFEpu_t)(x64emu_t*, void*, uint32_t);
+typedef uint32_t (*uFEpU_t)(x64emu_t*, void*, uint64_t);
 typedef uint32_t (*uFEpL_t)(x64emu_t*, void*, uintptr_t);
 typedef uint32_t (*uFilp_t)(int32_t, intptr_t, void*);
 typedef uint32_t (*uFipu_t)(int32_t, void*, uint32_t);
@@ -2047,6 +2050,7 @@ void uFpi_32(x64emu_t *emu, uintptr_t fcn) { uFpi_t fn = (uFpi_t)fcn; R_EAX = (u
 void uFpu_32(x64emu_t *emu, uintptr_t fcn) { uFpu_t fn = (uFpu_t)fcn; R_EAX = (uint32_t)fn(from_ptriv(R_ESP + 4), from_ptri(uint32_t, R_ESP + 8)); }
 void uFpp_32(x64emu_t *emu, uintptr_t fcn) { uFpp_t fn = (uFpp_t)fcn; R_EAX = (uint32_t)fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8)); }
 void uFXL_32(x64emu_t *emu, uintptr_t fcn) { uFXL_t fn = (uFXL_t)fcn; R_EAX = (uint32_t)fn(getDisplay(from_ptriv(R_ESP + 4)), from_ulong(from_ptri(ulong_t, R_ESP + 8))); }
+void UFEp_32(x64emu_t *emu, uintptr_t fcn) { UFEp_t fn = (UFEp_t)fcn; ui64_t r; r.u = (uint64_t)fn(emu, from_ptriv(R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void UEuu_32(x64emu_t *emu, uintptr_t fcn) { UEuu_t fn = (UEuu_t)fcn; errno = emu->libc_err; ui64_t r; r.u = (uint64_t)fn(from_ptri(uint32_t, R_ESP + 4), from_ptri(uint32_t, R_ESP + 8)); R_EAX = r.d[0]; R_EDX = r.d[1]; emu->libc_err = errno; }
 void UFuu_32(x64emu_t *emu, uintptr_t fcn) { UFuu_t fn = (UFuu_t)fcn; ui64_t r; r.u = (uint64_t)fn(from_ptri(uint32_t, R_ESP + 4), from_ptri(uint32_t, R_ESP + 8)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void UEUU_32(x64emu_t *emu, uintptr_t fcn) { UEUU_t fn = (UEUU_t)fcn; errno = emu->libc_err; ui64_t r; r.u = (uint64_t)fn(from_ptri(uint64_t, R_ESP + 4), from_ptri(uint64_t, R_ESP + 12)); R_EAX = r.d[0]; R_EDX = r.d[1]; emu->libc_err = errno; }
@@ -2349,7 +2353,9 @@ void CFipp_32(x64emu_t *emu, uintptr_t fcn) { CFipp_t fn = (CFipp_t)fcn; R_EAX =
 void CFuUu_32(x64emu_t *emu, uintptr_t fcn) { CFuUu_t fn = (CFuUu_t)fcn; R_EAX = (unsigned char)fn(from_ptri(uint32_t, R_ESP + 4), from_ptri(uint64_t, R_ESP + 8), from_ptri(uint32_t, R_ESP + 16)); }
 void CFuff_32(x64emu_t *emu, uintptr_t fcn) { CFuff_t fn = (CFuff_t)fcn; R_EAX = (unsigned char)fn(from_ptri(uint32_t, R_ESP + 4), from_ptri(float, R_ESP + 8), from_ptri(float, R_ESP + 12)); }
 void WFXip_32(x64emu_t *emu, uintptr_t fcn) { WFXip_t fn = (WFXip_t)fcn; R_EAX = (unsigned short)fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 8), from_ptriv(R_ESP + 12)); }
+void uFEpW_32(x64emu_t *emu, uintptr_t fcn) { uFEpW_t fn = (uFEpW_t)fcn; R_EAX = (uint32_t)fn(emu, from_ptriv(R_ESP + 4), from_ptri(uint16_t, R_ESP + 8)); }
 void uFEpu_32(x64emu_t *emu, uintptr_t fcn) { uFEpu_t fn = (uFEpu_t)fcn; R_EAX = (uint32_t)fn(emu, from_ptriv(R_ESP + 4), from_ptri(uint32_t, R_ESP + 8)); }
+void uFEpU_32(x64emu_t *emu, uintptr_t fcn) { uFEpU_t fn = (uFEpU_t)fcn; R_EAX = (uint32_t)fn(emu, from_ptriv(R_ESP + 4), from_ptri(uint64_t, R_ESP + 8)); }
 void uFEpL_32(x64emu_t *emu, uintptr_t fcn) { uFEpL_t fn = (uFEpL_t)fcn; R_EAX = (uint32_t)fn(emu, from_ptriv(R_ESP + 4), from_ulong(from_ptri(ulong_t, R_ESP + 8))); }
 void uFilp_32(x64emu_t *emu, uintptr_t fcn) { uFilp_t fn = (uFilp_t)fcn; R_EAX = (uint32_t)fn(from_ptri(int32_t, R_ESP + 4), from_long(from_ptri(long_t, R_ESP + 8)), from_ptriv(R_ESP + 12)); }
 void uFipu_32(x64emu_t *emu, uintptr_t fcn) { uFipu_t fn = (uFipu_t)fcn; R_EAX = (uint32_t)fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(uint32_t, R_ESP + 12)); }

@@ -14,6 +14,8 @@
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int64_t (*IFp_t)(void*);
+typedef uint32_t (*uFp_t)(void*);
+typedef uint64_t (*UFp_t)(void*);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
 typedef uintptr_t (*hFp_t)(void*);
@@ -24,6 +26,9 @@ typedef void (*vFpV_t)(void*, ...);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef uint32_t (*uFpW_t)(void*, uint16_t);
+typedef uint32_t (*uFpu_t)(void*, uint32_t);
+typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
@@ -52,6 +57,13 @@ typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32
 	GO(SDL_RWclose, iFp_t) \
 	GO(SDL_RWsize, IFp_t) \
 	GO(SDL_RWtell, IFp_t) \
+	GO(SDL_ReadBE16, uFp_t) \
+	GO(SDL_ReadBE32, uFp_t) \
+	GO(SDL_ReadLE16, uFp_t) \
+	GO(SDL_ReadLE32, uFp_t) \
+	GO(SDL_ReadU8, uFp_t) \
+	GO(SDL_ReadBE64, UFp_t) \
+	GO(SDL_ReadLE64, UFp_t) \
 	GO(SDL_GetBasePath, pFv_t) \
 	GO(SDL_GL_GetProcAddress, pFp_t) \
 	GO(SDL_GetThreadID, hFp_t) \
@@ -71,6 +83,13 @@ typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32
 	GO(SDL_OpenAudio, iFpp_t) \
 	GO(SDL_SetWindowDisplayMode, iFpp_t) \
 	GO(SDL_ShowMessageBox, iFpp_t) \
+	GO(SDL_WriteBE16, uFpW_t) \
+	GO(SDL_WriteLE16, uFpW_t) \
+	GO(SDL_WriteBE32, uFpu_t) \
+	GO(SDL_WriteLE32, uFpu_t) \
+	GO(SDL_WriteU8, uFpu_t) \
+	GO(SDL_WriteBE64, uFpU_t) \
+	GO(SDL_WriteLE64, uFpU_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_notreal, pFpi_t) \
 	GO(SDL_CreateTextureFromSurface, pFpp_t) \
