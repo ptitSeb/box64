@@ -632,7 +632,6 @@
 #() pFEXL -> pFEXL
 #() pFEXp -> pFEXp
 #() pFiii -> pFiii
-#() pEipL -> pEipL
 #() pFipp -> pFipp
 #() pFulu -> pFulu
 #() pFupi -> pFupi
@@ -666,6 +665,7 @@
 #() SEEpp -> SEEpp
 #() SEppS -> SEppS
 #() tEipu -> tEipu
+#() tEipL -> tEipL
 #() tEppi -> tEppi
 #() vFibp_i -> vFiBi
 #() vFuibp_ -> vFuiB
@@ -2406,6 +2406,7 @@ wrappedlibx11:
   - XFreeModifiermap
   - XInitImage
   - XRefreshKeyboardMapping
+  - XScreenNumberOfScreen
   - _XInitImageFuncPtrs
 - iFX:
   - XCloseDisplay
@@ -2472,6 +2473,7 @@ wrappedlibx11:
   - XkbGetNames
   - XkbGetUpdatedMap
 - iFXlp:
+  - XCheckMaskEvent
   - XMaskEvent
 - iFXLp:
   - XGetWindowAttributes
@@ -2491,6 +2493,8 @@ wrappedlibx11:
   - XkbGetMap
 - vFXLpL:
   - XSetWMSizeHints
+- iFpppp:
+  - XPeekIfEvent
 - iFXLip:
   - XCheckTypedWindowEvent
 - iFXLlp:
@@ -2505,6 +2509,7 @@ wrappedlibx11:
 - iFXLpp:
   - XGetWMColormapWindows
   - XGetWMNormalHints
+  - XGetWMProtocols
 - iFXppp:
   - XCheckIfEvent
   - XIfEvent
@@ -2544,6 +2549,7 @@ wrappedlibx11:
 - iFpppipp:
   - XmbLookupString
   - Xutf8LookupString
+  - XwcLookupString
 - iFXLpppp:
   - XQueryTree
 - iFXppppp:
@@ -2635,6 +2641,8 @@ wrappedlibxext:
 - iFXLppiiiiuui:
   - XShmPutImage
 wrappedlibxfixes:
+- pFX:
+  - XFixesGetCursorImage
 - iFXpp:
   - XFixesQueryExtension
 wrappedlibxi:

@@ -1654,8 +1654,8 @@ GOW(strdup, pEp)
 GO(__strdup, pEp)
 GO(strerror, tEi)
 GO(strerror_l, pEia)
-GO(__strerror_r, pEipL)
-GOW(strerror_r, pEipL)
+GO(__strerror_r, tEipL)
+GOW(strerror_r, tEipL)
 //GO(strfmon, lEpLpppppppppp) //vaarg, probably needs align, there are just double...
 // __strfmon_l
 // strfmon_l    // Weak

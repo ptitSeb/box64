@@ -1362,5 +1362,14 @@ typedef struct my_XDeviceTimeCoord_32_s {
     ptr_t     data; //int*
 } my_XDeviceTimeCoord_32_t;
 
+typedef struct my_XFixesCursorImage_32_s {
+    short           x, y;
+    unsigned short  width, height;
+    unsigned short  xhot, yhot;
+    ulong_t         cursor_serial;
+    ptr_t           pixels; //unsigned long*
+    XID_32          atom;                   /* Version >= 2 only */
+    ptr_t           name;                  /* Version >= 2 only */
+} my_XFixesCursorImage_32_t;
 
 #endif//MY_X11_DEFS_32

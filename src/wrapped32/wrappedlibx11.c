@@ -1430,7 +1430,6 @@ EXPORT int32_t my32_XCheckIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler 
     convertXEvent(ev, &event);
     return ret;
 }
-#if 0
 EXPORT int32_t my32_XPeekIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
     my_XEvent_t event = {0};
@@ -1438,7 +1437,6 @@ EXPORT int32_t my32_XPeekIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h
     convertXEvent(ev, &event);
     return ret;
 }
-#endif
 
 EXPORT int my32_XFilterEvent(x64emu_t* emu, my_XEvent_32_t* evt, XID window)
 {
@@ -1452,6 +1450,14 @@ EXPORT int my32_XPutBackEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
     my_XEvent_t event = {0};
     unconvertXEvent(&event, evt);
     return my->XPutBackEvent(dpy, &event);
+}
+
+EXPORT int my32_XCheckMaskEvent(x64emu_t* emu, void* dpy, long mask, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    int32_t ret = my->XCheckMaskEvent(dpy, mask, &event);
+    convertXEvent(evt, &event);
+    return ret;
 }
 
 void WrapXImage(void* d, void* s)
@@ -1826,6 +1832,16 @@ EXPORT int my32_XmbLookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, v
     return ret;
 }
 
+EXPORT int my32_XwcLookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, void* buff, int len, ulong_t* keysym, void* status)
+{
+    my_XEvent_t event = {0};
+    XID keysym_l = 0;
+    if(evt) unconvertXEvent(&event, evt);
+    int ret = my->XwcLookupString(xic, evt?(&event):NULL, buff, len, keysym?(&keysym_l):NULL, status);
+    if(keysym) *keysym = to_ulong(keysym_l);
+    return ret;
+}
+
 EXPORT int my32_Xutf8LookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, void* buff, int len, ulong_t* keysym, void* status)
 {
     my_XEvent_t event = {0};
@@ -1872,6 +1888,18 @@ EXPORT int my32_XGetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hi
     long supplied_l = 0;
     int hints_l[17+2] = {0};
     int ret = my->XGetWMNormalHints(dpy, window, hints?hints_l:NULL, supplied?(&supplied_l):NULL);
+    if(supplied) *supplied = to_long(supplied_l);
+    if(hints) {
+        *(long_t*)hints = to_long(*(long*)hints_l);
+        memcpy(hints+4, hints_l+2, 17*4);
+    }
+    return ret;
+}
+EXPORT int my32_XGetWMProtocols(x64emu_t* emu, void* dpy, XID window, void* hints, long_t* supplied)
+{
+    long supplied_l = 0;
+    int hints_l[17+2] = {0};
+    int ret = my->XGetWMProtocols(dpy, window, hints?hints_l:NULL, supplied?(&supplied_l):NULL);
     if(supplied) *supplied = to_long(supplied_l);
     if(hints) {
         *(long_t*)hints = to_long(*(long*)hints_l);
@@ -2616,6 +2644,13 @@ EXPORT int my32_XGetWMColormapWindows(x64emu_t* emu, void* dpy, XID w, ptr_t* ma
         dst[i] = to_ulong(src[i]);
     }
     return ret;
+}
+
+EXPORT int my32_XScreenNumberOfScreen(x64emu_t* emu, void* s)
+{
+    my_Screen_32_t* screen = s;
+    void* dpy = getDisplay(from_ptrv(screen->display));
+    return my->XScreenNumberOfScreen(getScreen64(dpy, s));
 }
 
 #define CUSTOM_INIT                 \

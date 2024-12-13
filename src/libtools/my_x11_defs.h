@@ -1420,4 +1420,14 @@ typedef struct my_XDeviceTimeCoord_s {
     int*            data;
 } my_XDeviceTimeCoord_t;
 
+typedef struct my_XFixesCursorImage_s {
+    short           x, y;
+    unsigned short  width, height;
+    unsigned short  xhot, yhot;
+    unsigned long   cursor_serial;
+    unsigned long*  pixels;
+    XID             atom;                   /* Version >= 2 only */
+    void*           name;                  /* Version >= 2 only */
+} my_XFixesCursorImage_t;
+
 #endif//MY_X11_DEFS
