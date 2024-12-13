@@ -2686,6 +2686,7 @@ wrappedlibxss:
 wrappedlibxxf86vm:
 - iFXipp:
   - XF86VidModeGetAllModeLines
+wrappednsl:
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop
