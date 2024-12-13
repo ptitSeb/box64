@@ -1378,6 +1378,7 @@
 #() pFEpiiuu -> pFEpiiuu
 #() pEEpLLiN -> pEEpLLiN
 #() pEEppLLp -> pEEppLLp
+#() pFEXLpii -> pFEXLpii
 #() pFEXpppp -> pFEXpppp
 #() pFWCiWCi -> pFWCiWCi
 #() pFdddddd -> pFdddddd
@@ -1701,10 +1702,14 @@ wrappedcairo:
   - cairo_ft_scaled_font_lock_face
   - cairo_xcb_device_get_connection
 - uFpppp:
+  - cairo_pattern_set_user_data
   - cairo_set_user_data
   - cairo_surface_set_user_data
 - pFppdd:
   - cairo_pdf_surface_create_for_stream
+- pFXLpii:
+  - cairo_xlib_surface_create
+  - cairo_xlib_surface_create_for_bitmap
 wrappedcrashhandler:
 wrappedexpat:
 - vFpp:

@@ -72,6 +72,31 @@ void convert_Screen_to_32(void* d, void* s)
     dst->save_unders = src->save_unders;
     dst->root_input_mask = to_long(src->root_input_mask);
 }
+void convert_Screen_to_64(void* d, void* s)
+{
+    my_Screen_t* dst = d;
+    my_Screen_32_t* src = s;
+    dst->root_input_mask = from_long(src->root_input_mask);
+    dst->save_unders = src->save_unders;
+    dst->backing_store = src->backing_store;
+    dst->min_maps = src->min_maps;
+    dst->max_maps = src->max_maps;
+    dst->black_pixel = from_ulong(src->black_pixel);
+    dst->white_pixel = from_ulong(src->white_pixel);
+    dst->cmap = from_ulong(src->cmap);
+    dst->default_gc = from_ptrv(src->default_gc);
+    dst->root_visual = from_ptrv(src->root_visual);
+    dst->root_depth = src->root_depth;
+    dst->depths = from_ptrv(src->depths);
+    dst->ndepths = src->ndepths;
+    dst->mheight = src->mheight;
+    dst->mwidth = src->mwidth;
+    dst->height = src->height;
+    dst->width = src->width;
+    dst->root = from_ulong(src->root);
+    dst->display = getDisplay(from_ptrv(src->display));
+    dst->ext_data = from_ptrv(src->ext_data);
+}
 
 void internal_convert_Visual_to_32(void* d, void* s)
 {
@@ -137,6 +162,17 @@ my_Visual_t* getVisual64(int N, my_Visual_32_t* a)
     return ret->_64;
 }
 
+void* get_display_screen(int idx, void* a)
+{
+    my_XDisplay_t* dpy = my32_Displays_64[idx];
+    my_XDisplay_32_t* dpy32 = &my32_Displays_32[idx];
+    my_Screen_32_t* screens32 = from_ptrv(dpy32->screens);
+    for(int i=0; i<dpy->nscreens; ++i)
+        if(&screens32[i] == a)
+            return &dpy->screens[i];
+    return a;
+}
+
 void* convert_Visual_to_32(void* dpy, void* a)
 {
     if(!dpy) return a;
@@ -156,6 +192,15 @@ void* convert_Visual_to_64(void* dpy, void* a)
     return a;
 }
 
+void* getScreen64(void* dpy, void* a)
+{
+    if(!dpy) return a;
+    for(int i=0; i<N_DISPLAY; ++i)
+        if(((&my32_Displays_32[i])==dpy) || (my32_Displays_64[i]==dpy)) {
+            return get_display_screen(i, a);
+        }
+    return a;
+}
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);
 void* addDisplay(void* d)

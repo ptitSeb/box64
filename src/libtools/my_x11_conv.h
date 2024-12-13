@@ -24,6 +24,7 @@ void delDisplay(void* d);
 void refreshDisplay(void* dpy);
 
 void convert_Screen_to_32(void* d, void* s);
+void* getScreen64(void* dpy, void* a);
 
 void* convert_Visual_to_32(void* dpy, void* a);
 void* convert_Visual_to_64(void* dpy, void* a);

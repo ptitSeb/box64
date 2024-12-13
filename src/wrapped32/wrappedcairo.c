@@ -18,6 +18,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign32.h"
 #include "converter32.h"
+#include "libtools/my_x11_conv.h"
 
 static const char* cairoName = "libcairo.so.2";
 #define LIBNAME cairo
@@ -115,6 +116,22 @@ EXPORT void* my32_cairo_ft_scaled_font_lock_face(x64emu_t* emu, void* font)
 EXPORT void* my32_cairo_pdf_surface_create_for_stream(x64emu_t* emu, void* f, void* closure, double width, double height)
 {
     return my->cairo_pdf_surface_create_for_stream(find_cairo_write_func_Fct(f), closure, width, height);
+}
+
+EXPORT uint32_t my32_cairo_pattern_set_user_data(x64emu_t* emu, void* pat, void* key, void* data, void* d)
+{
+    return my->cairo_pattern_set_user_data(pat, key, data, find_destroy_Fct(d));
+}
+
+EXPORT void* my32_cairo_xlib_surface_create(x64emu_t* emu, void* dpy, XID d, void* vis, int w, int h)
+{
+    return my->cairo_xlib_surface_create(dpy, d, convert_Visual_to_64(dpy, vis), w, h);
+}
+
+EXPORT void* my32_cairo_xlib_surface_create_for_bitmap(x64emu_t* emu, void* dpy, XID d, void* screen, int w, int h)
+{
+
+    return my->cairo_xlib_surface_create_for_bitmap(dpy, d, getScreen64(dpy, screen), w, h);
 }
 
 #include "wrappedlib_init32.h"

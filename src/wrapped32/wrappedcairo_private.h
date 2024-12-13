@@ -171,7 +171,7 @@ GO(cairo_pattern_reference, pFp)
 GO(cairo_pattern_set_extend, vFpu)
 GO(cairo_pattern_set_filter, vFpu)
 GO(cairo_pattern_set_matrix, vFpp)
-//GOM(cairo_pattern_set_user_data, uFEpppp)
+GOM(cairo_pattern_set_user_data, uFEpppp)
 GO(cairo_pattern_status, uFp)
 //GO(cairo_pdf_get_versions, vFpp)
 GO(cairo_pdf_surface_create, pFpdd)
@@ -380,8 +380,8 @@ GOM(cairo_xcb_device_get_connection, pFEp)
 //GO(cairo_xlib_device_debug_cap_xrender_version, vFpii)
 //GO(cairo_xlib_device_debug_get_precision, iFp)
 //GO(cairo_xlib_device_debug_set_precision, vFpi)
-//GO(cairo_xlib_surface_create, pFpppii)
-//GO(cairo_xlib_surface_create_for_bitmap, pFpLpii)
+GOM(cairo_xlib_surface_create, pFEXLpii)
+GOM(cairo_xlib_surface_create_for_bitmap, pFEXLpii)
 //GO(cairo_xlib_surface_create_with_xrender_format, pFpLppii)
 //GO(cairo_xlib_surface_get_depth, 
 //GO(cairo_xlib_surface_get_display, pFp)
@@ -392,7 +392,7 @@ GOM(cairo_xcb_device_get_connection, pFEp)
 //GO(cairo_xlib_surface_get_width, 
 //GO(cairo_xlib_surface_get_xrender_format, pFp)
 //GO(cairo_xlib_surface_set_drawable, vFpLii)
-//GO(cairo_xlib_surface_set_size, vFpii)
+GO(cairo_xlib_surface_set_size, vFpii)
 //GO(cairo_xml_create, 
 //GO(cairo_xml_create_for_stream, 
 //GO(cairo_xml_for_recording_surface, 
