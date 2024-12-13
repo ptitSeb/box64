@@ -73,6 +73,8 @@ GO("libudev.so", udev1)
 GO("libuuid.so.1", libuuid)
 GO("libcairo.so.2", cairo)
 GO("libcairo.so", cairo)
+GO("libdrm.so.2", libdrm)
+GO("libdrm.so", libdrm)
 
 GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)
