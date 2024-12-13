@@ -96,8 +96,8 @@ GO2(__res_query, iEEpiipi, my32_res_query)
 GOWM(res_query, iEEpiipi)
 //GO2(__res_querydomain, iFppiipi, res_querydomain)
 //GOW(res_querydomain, iFppiipi)
-//GO2(__res_search, iFpiipi, res_search)
-//GOW(res_search, iFpiipi)
+GO2(__res_search, iFEpiipi, my32_res_search)
+GOWM(res_search, iEEpiipi)
 //GO(__res_send, iFpipi)
 //GO(res_send_setqhook, 
 //GO(res_send_setrhook, 

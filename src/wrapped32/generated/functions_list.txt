@@ -1337,6 +1337,7 @@
 #() iEEipiup -> iEEipiup
 #() iEEuppLp -> iEEuppLp
 #() iEEpiipi -> iEEpiipi
+#() iFEpiipi -> iFEpiipi
 #() iEEpiipV -> iEEpiipV
 #() iFEpiuuu -> iFEpiuuu
 #() iEEpiLpp -> iEEpiLpp
@@ -2321,6 +2322,9 @@ wrappedlibresolv:
 - iEpiipi:
   - __res_query
   - res_query
+  - res_search
+- iFpiipi:
+  - __res_search
 wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime

@@ -12,9 +12,12 @@
 #endif
 
 typedef int32_t (*iEpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
+typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__res_query, iEpiipi_t) \
-	GO(res_query, iEpiipi_t)
+	GO(res_query, iEpiipi_t) \
+	GO(res_search, iEpiipi_t) \
+	GO(__res_search, iFpiipi_t)
 
 #endif // __wrappedlibresolvTYPES32_H_

@@ -37,4 +37,12 @@ EXPORT int my32_res_query(x64emu_t* emu, void* dname, int class, int type, void*
     return ret;
 }
 
+EXPORT int my32_res_search(x64emu_t* emu, void* dname, int class, int type, void* answer, int anslen)
+{
+    convert_res_state_to_64(emu->res_state_64, emu->res_state_32);
+    int ret = my->__res_search(dname, class, type, answer, anslen);
+    emu->libc_herr = h_errno;
+    return ret;
+}
+
 #include "wrappedlib_init32.h"

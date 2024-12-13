@@ -1128,7 +1128,7 @@ GO(mkstemp64, iEp)
 //GO(mktemp, pEp)
 GO(mktime, LEbiiiiiiiiilt_)
 GO(mlock, iEpL)
-//GO(mlockall, iEi)
+GO(mlockall, iEi)
 GOM(mmap, pEEpLiiil)    //%%
 GOM(mmap64, pEEpLiiiI)  //%%
 // modf // Weak
@@ -1151,7 +1151,7 @@ GOWM(mremap, pEEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MR
 GOW(msync, iEpLi)
 // mtrace
 GO(munlock, iEpL)
-//GO(munlockall, iEv)
+GO(munlockall, iEv)
 GOM(munmap, iEEpL)       //%%
 // muntrace
 GOWM(nanosleep, iErLL_BLL_)	 //%%,noE
@@ -1260,14 +1260,14 @@ GO(posix_fallocate64, iEiII)
 GOW(posix_memalign, iEBp_LL)
 // posix_openpt // Weak
 GOM(posix_spawn, iEEpppppp)
-// posix_spawnattr_destroy
+GO(posix_spawnattr_destroy, iFp)
 // posix_spawnattr_getflags
 // posix_spawnattr_getpgroup
 // posix_spawnattr_getschedparam
 // posix_spawnattr_getschedpolicy
 // posix_spawnattr_getsigdefault
 // posix_spawnattr_getsigmask
-// posix_spawnattr_init
+GO(posix_spawnattr_init, iFp)
 // posix_spawnattr_setflags
 // posix_spawnattr_setpgroup
 // posix_spawnattr_setschedparam
@@ -1449,8 +1449,8 @@ GO(__sched_cpucount, iEup)
 //GO(__sched_cpufree, vEp)
 GO(sched_getaffinity, iEiup)
 GO(sched_getcpu, iEv)
-//GO(__sched_getparam, iEip)
-//GOW(sched_getparam, iEip)
+GO(__sched_getparam, iEip)
+GOW(sched_getparam, iEip)
 GO(__sched_get_priority_max, iEi)
 GOW(sched_get_priority_max, iEi)
 GO(__sched_get_priority_min, iEi)
@@ -1918,7 +1918,7 @@ GOWM(__vsnprintf, iEEpLpp)       //%%
 GOM(__vsnprintf_chk, iEEpLiipp)  //%%
 GOWM(vsprintf, iEEppp)            //%%
 GOM(__vsprintf_chk, iEEpiLpp)     //%% 
-//GOM(vsscanf, iEEppp) //%%
+GOM(vsscanf, iEEppp) //%%
 // __vsscanf    // Weak
 GOWM(vswprintf, iEEpLpp)         //%%
 GOWM(__vswprintf, iEEpLpp)         //%%
