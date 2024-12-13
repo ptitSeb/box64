@@ -1034,6 +1034,16 @@ typedef struct my_XDevicePropertyNotifyEvent_32_s
     XID_32        atom;
     int           state;
 } my_XDevicePropertyNotifyEvent_32_t;
+typedef struct my_XInputClass_32_s {
+     unsigned char class;
+     unsigned char length;
+} my_XInputClass_32_t;
+typedef struct my_XDeviceState_32_s {
+     XID_32 device_id;
+     int num_classes;
+     ptr_t data;    //my_XInputClass_32_t*
+} my_XDeviceState_32_t;
+
 typedef struct my_XFixesSelectionNotifyEvent_32_s
 {
     int     type;
@@ -1270,5 +1280,87 @@ typedef struct my_XShmSegmentInfo_32_s {
     ptr_t   shmaddr;
     int     readOnly;
 } my_XShmSegmentInfo_32_t;
+
+typedef struct my_XkbNamesRec_32_s {
+    XID_32          keycodes;
+    XID_32          geometry;
+    XID_32          symbols;
+    XID_32          types;
+    XID_32          compat;
+    XID_32          vmods[16];
+    XID_32          indicators[32];
+    XID_32          groups[4];
+    ptr_t           keys; //XkbKeyNameRec* as array[xkb->max_key_code + 1]
+    ptr_t           key_aliases; //XkbKeyAliasRec* as array[num_key_aliases]
+    ptr_t           radio_groups;   //XID*
+    XID_32          phys_symbols;
+    unsigned char   num_keys;
+    unsigned char   num_key_aliases;
+    unsigned short  num_rg;
+} my_XkbNamesRec_32_t;
+
+typedef struct my_XkbDescRec_32_s {
+   ptr_t              display; //my_XDisplay_32_t*
+   unsigned short     flags;
+   unsigned short     device_spec;
+   uint8_t            min_key_code;
+   uint8_t            max_key_code;
+   ptr_t              ctrls; //XkbControlsPtr
+   ptr_t              server; //XkbServerMapPtr
+   ptr_t              map; //XkbClientMapPtr
+   ptr_t              indicators; //XkbIndicatorPtr
+   ptr_t              names; //my_XkbNamesRec_32_t*
+   ptr_t              compat; //XkbCompatMapPtr
+   ptr_t              geom; //XkbGeometryPtr
+} my_XkbDescRec_32_t;
+
+typedef struct my_XmbTextItem_32_s {
+    ptr_t       chars;  //char*
+    int         nchars;
+    int         delta;
+    ptr_t       font_set;   //XFontSet
+} my_XmbTextItem_32_t;
+
+typedef struct my_XwcTextItem_32_s {
+    ptr_t           chars;  //wchar_t*
+    int             nchars;
+    int             delta;
+    ptr_t           font_set;   //XFontSet
+} my_XwcTextItem_32_t;
+
+// virtual structure
+typedef struct my_XFontSet_32_s {
+    void*   fontset;    // the actual fontset
+    ptr_t** names;      // arrays of array of names
+    int names_size;     // size of names
+    ptr_t** fonts;      // array of array of fonts
+    int fonts_size;     // soze of fonts
+} my_XFontSet_32_t;
+
+typedef struct my_XAnyClassinfo_32_s {
+    XID_32      c_class;
+    int         length;
+} my_XAnyClassInfo_32_t;
+
+typedef struct my_XDeviceInfo_32_s
+{
+    XID_32              id;        
+    XID_32              type;
+    ptr_t               name;   //char*
+    int                 num_classes;
+    int                 use;
+    ptr_t               inputclassinfo; //my_XAnyClassInfo_32_t*
+} my_XDeviceInfo_32_t;
+
+typedef struct my_XTimeCoord_32_s {
+	ulong_t time;
+	short x, y;
+} my_XTimeCoord_32_t;
+
+typedef struct my_XDeviceTimeCoord_32_s {
+    ulong_t   time;
+    ptr_t     data; //int*
+} my_XDeviceTimeCoord_32_t;
+
 
 #endif//MY_X11_DEFS_32

@@ -150,6 +150,11 @@ my_Visual_t* getVisual64(int N, my_Visual_32_t* a)
     khint_t k = kh_get(visuals, my32_Displays_Visuals[N], key);
     Visuals_t* ret = NULL;
     if(k==kh_end(my32_Displays_Visuals[N])) {
+        // workaround for already "64" Visual
+        // needed for retrocityrampge (probably other)
+        // TODO: fix the underlying issue
+        if(!a->ext_data && !a->visualid)
+            return (my_Visual_t*)a;
         int r;
         k = kh_put(visuals, my32_Displays_Visuals[N], key, &r);
         ret = &kh_value(my32_Displays_Visuals[N], k);
@@ -1005,25 +1010,53 @@ int inplace_XIDeviceInfo_enlarge(void* a)
     return n;
 }
 
-void inplace_XDevice_shrink(void* a)
+void* inplace_XDevice_shrink(void* a)
 {
-    if(!a) return;
+    if(!a) return a;
     my_XDevice_t* src = a;
     my_XDevice_32_t* dst = a;
 
-    dst->device_id = src->device_id;
+    dst->device_id = to_ulong(src->device_id);
     dst->num_classes = src->num_classes;
     dst->classes = to_ptrv(src->classes);
+
+    return a;
 }
-void inplace_XDevice_enlarge(void* a)
+void* inplace_XDevice_enlarge(void* a)
 {
-    if(!a) return;
+    if(!a) return a;
     my_XDevice_32_t* src = a;
     my_XDevice_t* dst = a;
 
     dst->classes = from_ptrv(src->classes);
     dst->num_classes = src->num_classes;
-    dst->device_id = src->device_id;
+    dst->device_id = from_ulong(src->device_id);
+
+    return a;
+}
+void* inplace_XDeviceState_shrink(void* a)
+{
+    if(!a) return a;
+    my_XDeviceState_t* src = a;
+    my_XDeviceState_32_t* dst = a;
+
+    dst->device_id = to_ulong(src->device_id);
+    dst->num_classes = src->num_classes;
+    dst->data = to_ptrv(src->data);
+
+    return a;
+}
+void* inplace_XDeviceState_enlarge(void* a)
+{
+    if(!a) return a;
+    my_XDeviceState_32_t* src = a;
+    my_XDeviceState_t* dst = a;
+
+    dst->data = from_ptrv(src->data);
+    dst->num_classes = src->num_classes;
+    dst->device_id = from_ulong(src->device_id);
+
+    return a;
 }
 
 void convert_XShmSegmentInfo_to_32(void* d, void* s)
@@ -1043,4 +1076,173 @@ void convert_XShmSegmentInfo_to_64(void* d, void* s)
     dst->shmaddr = from_ptrv(src->shmaddr);
     dst->shmid = src->shmid;
     dst->shmseg = from_ulong(src->shmseg);
+}
+void* inplace_XkbNamesRec_shrink(void* a)
+{
+    if(a) {
+        my_XkbNamesRec_t* src = a;
+        my_XkbNamesRec_32_t* dst = a;
+
+        for(int i=0; i<src->num_rg; ++i)
+            src->radio_groups[i] = to_ulong(src->radio_groups[i]);
+        dst->keycodes = to_ulong(src->keycodes);
+        dst->geometry = to_ulong(src->geometry);
+        dst->symbols = to_ulong(src->symbols);
+        dst->types = to_ulong(src->types);
+        dst->compat = to_ulong(src->compat);
+        for(int i=0; i<16; ++i)
+            dst->vmods[i] = to_ulong(src->vmods[i]);
+        for(int i=0; i<32; ++i)
+            dst->indicators[i] = to_ulong(src->indicators[i]);
+        for(int i=0; i<4; ++i)
+            dst->groups[i] = to_ulong(src->groups[i]);
+        dst->keys = to_ptrv(src->keys);
+        dst->key_aliases = to_ptrv(src->key_aliases);
+        dst->radio_groups = to_ptrv(src->radio_groups);
+        dst->phys_symbols = to_ulong(src->phys_symbols);
+        dst->num_keys = src->num_keys;
+        dst->num_key_aliases = src->num_key_aliases;
+        dst->num_rg = src->num_rg;
+    }
+    return a;
+}
+void* inplace_XkbNamesRec_enlarge(void* a)
+{
+    if(a) {
+        my_XkbNamesRec_32_t* src = a;
+        my_XkbNamesRec_t* dst = a;
+
+        dst->num_rg = src->num_rg;
+        dst->num_key_aliases = src->num_key_aliases;
+        dst->num_keys = src->num_keys;
+        dst->phys_symbols = from_ulong(src->phys_symbols);
+        dst->radio_groups = from_ptrv(src->radio_groups);
+        dst->key_aliases = from_ptrv(src->key_aliases);
+        for(int i=4-1; i>=0; --i)
+            dst->groups[i] = from_ulong(src->groups[i]);
+        for(int i=32-1; i>=0; --i)
+            dst->indicators[i] = from_ulong(src->indicators[i]);
+        for(int i=16-1; i>=0; --i)
+            dst->vmods[i] = from_ulong(src->vmods[i]);
+        dst->compat = from_ulong(src->compat);
+        dst->types = from_ulong(src->types);
+        dst->symbols = from_ulong(src->symbols);
+        dst->geometry = from_ulong(src->geometry);
+        dst->keys = from_ptrv(src->keys);
+        dst->keycodes = from_ulong(src->keycodes);
+
+        for(int i=src->num_rg-1; i>=0; --i)
+            dst->radio_groups[i] = from_ulong(dst->radio_groups[i]);
+    }
+    return a;
+}
+
+void* inplace_XkbDescRec_shrink(void* a)
+{
+    if(a) {
+        my_XkbDescRec_t* src = a;
+        my_XkbDescRec_32_t* dst = a;
+
+        dst->display = to_ptrv(FindDisplay(src->display));
+        dst->flags = src->flags;
+        dst->device_spec = src->device_spec;
+        dst->min_key_code = src->min_key_code;
+        dst->max_key_code = src->max_key_code;
+        dst->ctrls = to_ptrv(src->ctrls);
+        dst->server = to_ptrv(src->server);
+        dst->map = to_ptrv(src->map);
+        dst->indicators = to_ptrv(src->indicators);
+        dst->names = to_ptrv(inplace_XkbNamesRec_shrink(src->names));
+        dst->compat = to_ptrv(src->compat);
+        dst->geom = to_ptrv(src->geom);
+    }
+    return a;
+}
+void* inplace_XkbDescRec_enlarge(void* a)
+{
+    if(a) {
+        my_XkbDescRec_32_t* src = a;
+        my_XkbDescRec_t* dst = a;
+
+        dst->geom = from_ptrv(src->geom);
+        dst->compat = from_ptrv(src->compat);
+        dst->names = inplace_XkbNamesRec_enlarge(from_ptrv(src->names));
+        dst->indicators = from_ptrv(src->indicators);
+        dst->map = from_ptrv(src->map);
+        dst->server = from_ptrv(src->server);
+        dst->ctrls = from_ptrv(src->ctrls);
+        dst->max_key_code = src->max_key_code;
+        dst->min_key_code = src->min_key_code;
+        dst->device_spec = src->device_spec;
+        dst->flags = src->flags;
+        dst->display = getDisplay(from_ptrv(src->display));
+    }
+    return a;
+}
+
+void convert_XAnyClassInfo_to_32(void* d, void* s)
+{
+    if(!d || !s) return;
+    my_XAnyClassInfo_t* src = s;
+    my_XAnyClassInfo_32_t* dst = d;
+
+    dst->c_class = to_ulong(src->c_class);
+    dst->length = src->length;
+
+}
+void convert_XAnyClassInfo_to_64(void* d, void* s)
+{
+    if(!d || !s) return;
+    my_XAnyClassInfo_32_t* src = s;
+    my_XAnyClassInfo_t* dst = d;
+
+    dst->length = src->length;
+    dst->c_class = from_ulong(src->c_class);
+}
+void* inplace_XAnyClassInfo_shrink(void* a)
+{
+    if(a)
+        convert_XAnyClassInfo_to_32(a, a);
+    return a;
+}
+void* inplace_XAnyClassInfo_enlarge(void* a)
+{
+    if(a)
+        convert_XAnyClassInfo_to_64(a, a);
+    return a;
+}
+
+void* inplace_XDeviceInfo_shrink(void* a)
+{
+    if(a) {
+        my_XDeviceInfo_t* src = a;
+        my_XDeviceInfo_32_t* dst = a;
+
+        for(int i=0; i<src->num_classes; ++i)
+            convert_XAnyClassInfo_to_32(&((my_XAnyClassInfo_32_t*)src->inputclassinfo)[i], &src->inputclassinfo[i]);
+        dst->id = to_ulong(src->id);
+        dst->type = to_ulong(src->type);
+        dst->name = to_ptrv(src->name);
+        dst->num_classes = src->num_classes;
+        dst->use = src->use;
+        dst->inputclassinfo = to_ptrv(src->inputclassinfo);
+    }
+    return a;
+}
+void* inplace_XDeviceInfo_enlarge(void* a)
+{
+    if(a) {
+        my_XDeviceInfo_32_t* src = a;
+        my_XDeviceInfo_t* dst = a;
+
+        dst->inputclassinfo = from_ptrv(src->inputclassinfo);
+        dst->use = src->use;
+        dst->num_classes = src->num_classes;
+        dst->name = from_ptrv(src->name);
+        dst->type = from_ulong(src->type);
+        dst->id = from_ulong(src->id);
+        for(int i=dst->num_classes-1; i>=0; --i)
+            convert_XAnyClassInfo_to_64(&dst->inputclassinfo[i], &((my_XAnyClassInfo_32_t*)dst->inputclassinfo)[i]);
+    }
+    return a;
 }

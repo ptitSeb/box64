@@ -188,5 +188,19 @@ EXPORT void* my32_XcursorImagesLoadCursors(x64emu_t* emu, void* dpy, void* image
 	return ret;
 }
 
+EXPORT void* my32_XcursorLibraryLoadImages(x64emu_t* emu, void* name, void* theme, int size)
+{
+	void* ret = my->XcursorLibraryLoadImages(name, theme, size);
+	inplace_XcursorImages_shrink(ret);
+	return ret;
+}
+
+EXPORT void* my32_XcursorShapeLoadImages(x64emu_t* emu, uint32_t shape, void* theme, int size)
+{
+	void* ret = my->XcursorShapeLoadImages(shape, theme, size);
+	inplace_XcursorImages_shrink(ret);
+	return ret;
+}
+
 #include "wrappedlib_init32.h"
 

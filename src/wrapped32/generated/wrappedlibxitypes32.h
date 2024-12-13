@@ -14,18 +14,28 @@
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFXp_t)(void*, void*);
 typedef void* (*pFXL_t)(void*, uintptr_t);
+typedef void* (*pFXp_t)(void*, void*);
 typedef void* (*pFXip_t)(void*, int32_t, void*);
 typedef void* (*pFXLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXppu_t)(void*, void*, void*, uint32_t);
+typedef void* (*pFXpLLppp_t)(void*, void*, uintptr_t, uintptr_t, void*, void*, void*);
+typedef int32_t (*iFXpLiipiiL_t)(void*, void*, uintptr_t, int32_t, int32_t, void*, int32_t, int32_t, uintptr_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(XFreeDeviceList, vFp_t) \
+	GO(XFreeDeviceMotionEvents, vFp_t) \
+	GO(XFreeDeviceState, vFp_t) \
 	GO(XIFreeDeviceInfo, vFp_t) \
 	GO(XCloseDevice, iFXp_t) \
 	GO(XOpenDevice, pFXL_t) \
+	GO(XListInputDevices, pFXp_t) \
+	GO(XQueryDeviceState, pFXp_t) \
 	GO(XIQueryDevice, pFXip_t) \
 	GO(XIGetSelectedEvents, pFXLp_t) \
 	GO(XISelectEvents, iFXLpi_t) \
-	GO(XGetDeviceButtonMapping, iFXppu_t)
+	GO(XGetDeviceButtonMapping, iFXppu_t) \
+	GO(XGetDeviceMotionEvents, pFXpLLppp_t) \
+	GO(XGrabDevice, iFXpLiipiiL_t)
 
 #endif // __wrappedlibxiTYPES32_H_

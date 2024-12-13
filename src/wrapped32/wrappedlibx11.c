@@ -405,13 +405,12 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->w.bridge, iFppp_32, fct, 0, NULL);
 }
-#if 0
 // XConnectionWatchProc
 #define GO(A)   \
-static uintptr_t my32_XConnectionWatchProc_fct_##A = 0;                               \
-static void my32_XConnectionWatchProc_##A(void* dpy, void* data, int op, void* d)     \
-{                                                                                   \
-    RunFunctionFmt(my32_XConnectionWatchProc_fct_##A, "ppip", dpy, data, op, d);  \
+static uintptr_t my32_XConnectionWatchProc_fct_##A = 0;                                         \
+static void my32_XConnectionWatchProc_##A(void* dpy, void* data, int op, void* d)               \
+{                                                                                               \
+    RunFunctionFmt(my32_XConnectionWatchProc_fct_##A, "ppip", FindDisplay(dpy), data, op, d);   \
 }
 SUPER()
 #undef GO
@@ -428,7 +427,6 @@ static void* findXConnectionWatchProcFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XConnectionWatchProc callback\n");
     return NULL;
 }
-#endif
 // xifevent
 #define GO(A)   \
 static uintptr_t my32_xifevent_fct_##A = 0;                                             \
@@ -455,13 +453,12 @@ static void* findxifeventFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 xifevent callback\n");
     return NULL;
 }
-#if 0
 // XInternalAsyncHandler
 #define GO(A)   \
-static uintptr_t my32_XInternalAsyncHandler_fct_##A = 0;                                              \
-static int my32_XInternalAsyncHandler_##A(void* dpy, void* rep, void* buf, int len, void* data)       \
-{                                                                                                   \
-    return RunFunctionFmt(my32_XInternalAsyncHandler_fct_##A, "pppip", dpy, rep, buf, len, data);  \
+static uintptr_t my32_XInternalAsyncHandler_fct_##A = 0;                                                        \
+static int my32_XInternalAsyncHandler_##A(void* dpy, void* rep, void* buf, int len, void* data)                 \
+{                                                                                                               \
+    return RunFunctionFmt(my32_XInternalAsyncHandler_fct_##A, "pppip", FindDisplay(dpy), rep, buf, len, data);  \
 }
 SUPER()
 #undef GO
@@ -478,7 +475,6 @@ static void* findXInternalAsyncHandlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XInternalAsyncHandler callback\n");
     return NULL;
 }
-#endif
 // XSynchronizeProc
 #define GO(A)   \
 static uintptr_t my32_XSynchronizeProc_fct_##A = 0;                       \
@@ -556,12 +552,13 @@ static void* findXUnlockDisplayFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XUnlockDisplay callback\n");
     return NULL;
 }
+#endif
 // async_handler
 #define GO(A)   \
-static uintptr_t my32_async_handler_fct_##A = 0;                                      \
-static int my32_async_handler_##A(void* a, void* b, void* c, int d, void* e)          \
-{                                                                                   \
-    return (int)RunFunctionFmt(my32_async_handler_fct_##A, "pppip", a, b, c, d, e);   \
+static uintptr_t my32_async_handler_fct_##A = 0;                                                    \
+static int my32_async_handler_##A(void* a, void* b, void* c, int d, void* e)                        \
+{                                                                                                   \
+    return (int)RunFunctionFmt(my32_async_handler_fct_##A, "pppip", FindDisplay(a), b, c, d, e);    \
 }
 SUPER()
 #undef GO
@@ -578,7 +575,6 @@ static void* find_async_handler_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 async_handler callback\n");
     return NULL;
 }
-#endif
 // XImage function wrappers
 // create_image
 #define GO(A)   \
@@ -1606,7 +1602,7 @@ EXPORT void my32_XDestroyImage(x64emu_t* emu, void* image)
     to_hash_d((uintptr_t)((XImage*)image)->obdata);
     my->XDestroyImage(image);
 }
-#if 0
+
 typedef struct xintasync_s {
     struct xintasync_s *next;
     int (*handler)(
@@ -1624,7 +1620,6 @@ EXPORT void my32__XDeqAsyncHandler(x64emu_t* emu, void* cb, void* data)
     my->_XDeqAsyncHandler(findXInternalAsyncHandlerFct(cb), data);
 }
 
-#endif
 EXPORT void* my32_XESetWireToEvent(x64emu_t* emu, void* display, int32_t event_number, void* proc)
 {
     void* ret = NULL;
@@ -1661,11 +1656,11 @@ EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* m
     }
     return ret;
 }
-#if 0
 EXPORT int my32_XAddConnectionWatch(x64emu_t* emu, void* display, char* f, void* data)
 {
     return my->XAddConnectionWatch(display, findXConnectionWatchProcFct(f), data);
 }
+#if 0
 
 EXPORT void my32_XRemoveConnectionWatch(x64emu_t* emu, void* display, char* f, void* data)
 {
@@ -1687,7 +1682,7 @@ EXPORT void* my32_XSynchronize(x64emu_t* emu, void* display, int onoff)
 EXPORT void* my32_XOpenDisplay(void* name)
 {
     void* ret = my->XOpenDisplay(name);
-    if(ret && box64_x11sync) {my->XSynchronize(ret, 1); printf_log(LOG_INFO, "Forcing Syncronized opration on Display %p\n", ret);}
+    if(ret && box64_x11sync) {my->XSynchronize(ret, 1); printf_log(LOG_INFO, "Forcing Syncronized operation on Display %p\n", ret);}
     return ret;
 }
 
@@ -1884,16 +1879,15 @@ EXPORT int my32_XGetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hi
     }
     return ret;
 }
-#if 0
 EXPORT void* my32__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, size_t len)
 {
     // check if asynchandler needs updated wrapping
-    struct my32_XInternalAsync * p = dpy->async_handlers;
+    struct my_XInternalAsync * p = dpy->async_handlers;
     while(p) {
         if(GetNativeFnc((uintptr_t)p->handler)!=p->handler) {
             // needs wrapping and autobridge!
             void* new_handler = find_async_handler_Fct(p->handler);
-            AddAutomaticBridge(my_lib->w.bridge, iFpppip, new_handler, 0, "async_handler");
+            AddAutomaticBridge(my_lib->w.bridge, iFpppip_32, new_handler, 0, "async_handler");
             p->handler = new_handler;
         }
         p = p->next;
@@ -1901,7 +1895,6 @@ EXPORT void* my32__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, 
 
     return my->_XGetRequest(dpy, type, len);
 }
-#endif
 
 EXPORT int my32_XStringListToTextProperty(x64emu_t* emu, ptr_t* list, int count, void* text)
 {
@@ -1935,6 +1928,18 @@ EXPORT int my32_XmbTextListToTextProperty(x64emu_t* emu, void* dpy, ptr_t* list,
             l_list[i] = from_ptrv(list[i]);
     struct_pLiL_t text_l = {0};
     int ret = my->XmbTextListToTextProperty(dpy, list?(&l_list):NULL, count, style, &text_l);
+    to_struct_pLiL(to_ptrv(text), &text_l);
+    return ret;
+}
+
+EXPORT int my32_XwcTextListToTextProperty(x64emu_t* emu, void* dpy, ptr_t* list, int count, uint32_t style, void* text)
+{
+    char* l_list[count];
+    if(list)
+        for(int i=0; i<count; ++i)
+            l_list[i] = from_ptrv(list[i]);
+    struct_pLiL_t text_l = {0};
+    int ret = my->XwcTextListToTextProperty(dpy, list?(&l_list):NULL, count, style, &text_l);
     to_struct_pLiL(to_ptrv(text), &text_l);
     return ret;
 }
@@ -2020,6 +2025,29 @@ EXPORT void my32_Xutf8SetWMProperties(x64emu_t* emu, void* dpy, XID window, void
     my->Xutf8SetWMProperties(dpy, window, window_name, icon_name, argv?argv_l:NULL, argc, normal_hints?(&wm_size_l):NULL, wm_hints?(&wm_hints_l):NULL, class_hints?(&class_hints_l):NULL);
 }
 
+EXPORT void my32_XmbSetWMProperties(x64emu_t* emu, void* dpy, XID window, void* window_name, void* icon_name, ptr_t* argv, int argc, void* normal_hints, my_XWMHints_32_t* wm_hints, ptr_t* class_hints)
+{
+    int wm_size_l[17+2] = {0};
+    my_XWMHints_t wm_hints_l = {0};
+    char* class_hints_l[2] = {0};
+    char* argv_l[argc+1];
+
+    if(normal_hints)
+        convert_XSizeHints_to_64(&wm_size_l, normal_hints);
+    if(wm_hints)
+        convert_XWMints_to_64(&wm_hints_l, wm_hints);
+    if(class_hints) {
+        class_hints_l[0] = from_ptrv(class_hints[0]);
+        class_hints_l[1] = from_ptrv(class_hints[1]);
+    }
+    if(argv) {
+        memset(argv_l, 0, sizeof(argv_l));
+        for(int i=0; i<argc; ++i)
+            argv_l[i] = from_ptrv(argv[i]);
+    }
+    my->XmbSetWMProperties(dpy, window, window_name, icon_name, argv?argv_l:NULL, argc, normal_hints?(&wm_size_l):NULL, wm_hints?(&wm_hints_l):NULL, class_hints?(&class_hints_l):NULL);
+}
+
 
 EXPORT void* my32_XListExtensions(x64emu_t* emu, void* dpy, int* n)
 {
@@ -2061,21 +2089,18 @@ EXPORT int my32_XQueryTree(x64emu_t* emu, void* dpy, XID window, XID_32* root, X
     return ret;
 }
 
-EXPORT void* my32_XCreateFontSet(x64emu_t* emu, void* dpy, void* name, ptr_t* missing, int* missing_count, ptr_t* string)
+EXPORT int my32_Xutf8TextPropertyToTextList(x64emu_t* emu, void* dpy, void* prop, ptr_t* list, int* count)
 {
-    void** missing_l = NULL;
-    void* string_l = NULL;
-    void* ret = my->XCreateFontSet(dpy, name, &missing_l, missing_count, string?(&string_l):NULL);
-    if(string) *string = to_ptrv(string_l);
-    // inplace string list shrink
-    *missing = to_ptrv(missing_l);
-    if(missing_l && *missing_count) {
-        for(int i=0; i<*missing_count; ++i)
-            ((ptr_t*)missing_l)[i] = to_ptrv(missing_l[i]);
+    void** list_l = NULL;
+    int ret = my->Xutf8TextPropertyToTextList(dpy, prop, &list_l, count);
+    if(list_l && *count) {
+        for(int i=0; i<*count; ++i)
+            ((ptr_t*)list_l)[i] = to_ptrv(list_l[i]);
     }
     // put end marker, for expansion
-    if(missing_l)
-        ((ptr_t*)missing_l)[*missing_count] = 0;
+    if(list_l)
+        ((ptr_t*)list_l)[*count] = 0;
+    *list = to_ptrv(list_l);
     return ret;
 }
 
@@ -2083,6 +2108,21 @@ EXPORT int my32_XmbTextPropertyToTextList(x64emu_t* emu, void* dpy, void* prop, 
 {
     void** list_l = NULL;
     int ret = my->XmbTextPropertyToTextList(dpy, prop, &list_l, count);
+    if(list_l && *count) {
+        for(int i=0; i<*count; ++i)
+            ((ptr_t*)list_l)[i] = to_ptrv(list_l[i]);
+    }
+    // put end marker, for expansion
+    if(list_l)
+        ((ptr_t*)list_l)[*count] = 0;
+    *list = to_ptrv(list_l);
+    return ret;
+}
+
+EXPORT int my32_XwcTextPropertyToTextList(x64emu_t* emu, void* dpy, void* prop, ptr_t* list, int* count)
+{
+    void** list_l = NULL;
+    int ret = my->XwcTextPropertyToTextList(dpy, prop, &list_l, count);
     if(list_l && *count) {
         for(int i=0; i<*count; ++i)
             ((ptr_t*)list_l)[i] = to_ptrv(list_l[i]);
@@ -2226,6 +2266,198 @@ EXPORT int my32_XFreeFont(x64emu_t* emu, void* dpy, void* f)
     return my->XFreeFont(dpy, f);
 }
 
+EXPORT void* my32_XCreateFontSet(x64emu_t* emu, void* dpy, void* name, ptr_t* missing, int* missing_count, ptr_t* string)
+{
+    void** missing_l = NULL;
+    void* string_l = NULL;
+    void* ret = my->XCreateFontSet(dpy, name, &missing_l, missing_count, string?(&string_l):NULL);
+    if(string) *string = to_ptrv(string_l);
+    // inplace string list shrink
+    *missing = to_ptrv(missing_l);
+    if(missing_l && *missing_count) {
+        for(int i=0; i<*missing_count; ++i)
+            ((ptr_t*)missing_l)[i] = to_ptrv(missing_l[i]);
+    }
+    // put end marker, for expansion
+    if(missing_l)
+        ((ptr_t*)missing_l)[*missing_count] = 0;
+    my_XFontSet_32_t* set = box32_calloc(1, sizeof(my_XFontSet_32_t));
+    set->fontset = ret;
+    return set;
+}
+
+EXPORT int my32_XFontsOfFontSet(x64emu_t* emu, my_XFontSet_32_t* set, ptr_t* fonts_ret, ptr_t* names_ret)
+{
+    void* fonts_ret_l = NULL;
+    void* names_ret_l = NULL;
+    int ret = my->XFontsOfFontSet(set->fontset, fonts_ret?(&fonts_ret_l):NULL, names_ret?(&names_ret_l):NULL);
+    if(ret<=0)
+        return ret;
+    if(names_ret) {
+        int j = set->names_size++;
+        set->names = box32_realloc(set->names, sizeof(ptr_t*)*set->names_size);
+        set->names[j] = box32_malloc(sizeof(ptr_t)*ret);
+        for(int i=0; i<ret; ++i)
+            set->names[j][i] = to_ptrv(((void**)names_ret_l)[i]);
+        *names_ret = to_ptrv(set->names[j]);
+    }
+    if(fonts_ret) {
+        int j = set->fonts_size++;
+        set->fonts = box32_realloc(set->fonts, sizeof(ptr_t*)*set->fonts_size);
+        set->fonts[j] = box32_malloc(sizeof(ptr_t)*ret);
+        for(int i=0; i<ret; ++i)
+            set->fonts[j][i] = to_ptrv(((void**)fonts_ret_l)[i]);
+        *fonts_ret = to_ptrv(set->fonts[j]);
+    }
+}
+
+EXPORT void* my32_XExtentsOfFontSet(x64emu_t* emu, my_XFontSet_32_t* set)
+{
+    return my->XExtentsOfFontSet(set->fontset);
+}
+
+EXPORT void* my32_XLocaleOfFontSet(x64emu_t* emu, my_XFontSet_32_t* set)
+{
+    return my->XLocaleOfFontSet(set->fontset);
+}
+
+EXPORT void* my32_XBaseFontNameListOfFontSet(x64emu_t* emu, my_XFontSet_32_t* set)
+{
+    return my->XBaseFontNameListOfFontSet(set->fontset);
+}
+
+EXPORT int my32_XContextDependentDrawing(x64emu_t* emu, my_XFontSet_32_t* set)
+{
+    return my->XContextDependentDrawing(set->fontset);
+}
+
+EXPORT int my32_XDirectionalDependentDrawing(x64emu_t* emu, my_XFontSet_32_t* set)
+{
+    return my->XDirectionalDependentDrawing(set->fontset);
+}
+
+EXPORT int my32_XContextualDrawing(x64emu_t* emu, my_XFontSet_32_t* set)
+{
+    return my->XContextualDrawing(set->fontset);
+}
+
+EXPORT int my32_XmbTextEscapement(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz)
+{
+    return my->XmbTextEscapement(set->fontset, text, sz);
+}
+
+EXPORT int my32_XwcTextEscapement(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz)
+{
+    return my->XwcTextEscapement(set->fontset, text, sz);
+}
+
+EXPORT int my32_Xutf8TextEscapement(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz)
+{
+    return my->Xutf8TextEscapement(set->fontset, text, sz);
+}
+
+EXPORT int my32_XmbTextExtents(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz, void* ink, void* log)
+{
+    return my->XmbTextExtents(set->fontset, text, sz, ink, log);
+}
+
+EXPORT int my32_XwcTextExtents(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz, void* ink, void* log)
+{
+    return my->XwcTextExtents(set->fontset, text, sz, ink, log);
+}
+
+EXPORT int my32_Xutf8TextExtents(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz, void* ink, void* log)
+{
+    return my->Xutf8TextExtents(set->fontset, text, sz, ink, log);
+}
+
+EXPORT int my32_XmbTextPerCharExtents(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz, void* ink, void* log, int buff_sz, void* buff, void* ink_ret, void* log_ret)
+{
+    return my->XmbTextPerCharExtents(set->fontset, text, sz, ink, log, buff_sz, buff, ink_ret, log_ret);
+}
+
+EXPORT int my32_XwcTextPerCharExtents(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz, void* ink, void* log, int buff_sz, void* buff, void* ink_ret, void* log_ret)
+{
+    return my->XwcTextPerCharExtents(set->fontset, text, sz, ink, log, buff_sz, buff, ink_ret, log_ret);
+}
+
+EXPORT int my32_Xutf8TextPerCharExtents(x64emu_t* emu, my_XFontSet_32_t* set, void* text, int sz, void* ink, void* log, int buff_sz, void* buff, void* ink_ret, void* log_ret)
+{
+    return my->Xutf8TextPerCharExtents(set->fontset, text, sz, ink, log, buff_sz, buff, ink_ret, log_ret);
+}
+
+EXPORT void my32_XmbDrawString(x64emu_t* emu, void* dpy, XID d, my_XFontSet_32_t* set, void* gc, int x, int y, void* text, int sz)
+{
+    my->XmbDrawString(dpy, d, set->fontset, gc, x, y, text, sz);
+}
+
+EXPORT void my32_XwcDrawString(x64emu_t* emu, void* dpy, XID d, my_XFontSet_32_t* set, void* gc, int x, int y, void* text, int sz)
+{
+    my->XwcDrawString(dpy, d, set->fontset, gc, x, y, text, sz);
+}
+
+EXPORT void my32_Xutf8DrawString(x64emu_t* emu, void* dpy, XID d, my_XFontSet_32_t* set, void* gc, int x, int y, void* text, int sz)
+{
+    my->Xutf8DrawString(dpy, d, set->fontset, gc, x, y, text, sz);
+}
+
+EXPORT void my32_XmbDrawImageString(x64emu_t* emu, void* dpy, XID d, my_XFontSet_32_t* set, void* gc, int x, int y, void* text, int sz)
+{
+    my->XmbDrawImageString(dpy, d, set->fontset, gc, x, y, text, sz);
+}
+
+EXPORT void my32_XwcDrawImageString(x64emu_t* emu, void* dpy, XID d, my_XFontSet_32_t* set, void* gc, int x, int y, void* text, int sz)
+{
+    my->XwcDrawImageString(dpy, d, set->fontset, gc, x, y, text, sz);
+}
+
+EXPORT void my32_Xutf8DrawImageString(x64emu_t* emu, void* dpy, XID d, my_XFontSet_32_t* set, void* gc, int x, int y, void* text, int sz)
+{
+    my->Xutf8DrawImageString(dpy, d, set->fontset, gc, x, y, text, sz);
+}
+
+EXPORT void my32_XmbDrawText(x64emu_t* emu, void* dpy, XID d, void* gc, int x, int y, my_XmbTextItem_32_t* text, int sz)
+{
+    my_XmbTextItem_t text_l = {0};
+    text_l.chars = from_ptrv(text->chars);
+    text_l.nchars = text->nchars;
+    text_l.delta = text->delta;
+    text_l.font_set = ((my_XFontSet_32_t*)from_ptrv(text->font_set))->fontset;
+    my->XmbDrawText(dpy, d, gc, x, y, &text_l, sz);
+}
+
+EXPORT void my32_XwcDrawText(x64emu_t* emu, void* dpy, XID d, void* gc, int x, int y, my_XwcTextItem_32_t* text, int sz)
+{
+    my_XwcTextItem_t text_l = {0};
+    text_l.chars = from_ptrv(text->chars);
+    text_l.nchars = text->nchars;
+    text_l.delta = text->delta;
+    text_l.font_set = ((my_XFontSet_32_t*)from_ptrv(text->font_set))->fontset;
+    my->XwcDrawText(dpy, d, gc, x, y, &text_l, sz);
+}
+
+EXPORT void my32_Xutf8DrawText(x64emu_t* emu, void* dpy, XID d, void* gc, int x, int y, my_XmbTextItem_32_t* text, int sz)
+{
+    my_XmbTextItem_t text_l = {0};
+    text_l.chars = from_ptrv(text->chars);
+    text_l.nchars = text->nchars;
+    text_l.delta = text->delta;
+    text_l.font_set = ((my_XFontSet_32_t*)from_ptrv(text->font_set))->fontset;
+    my->Xutf8DrawText(dpy, d, gc, x, y, &text_l, sz);
+}
+
+EXPORT void my32_XFreeFontSet(x64emu_t* emu,void* dpy, my_XFontSet_32_t* set)
+{
+    my->XFreeFontSet(dpy, set->fontset);
+    for(int i=0; i<set->names_size; ++i)
+        box32_free(set->names[i]);
+    box32_free(set->names);
+    for(int i=0; i<set->fonts_size; ++i)
+        box32_free(set->names[i]);
+    box32_free(set->fonts);
+    box32_free(set);
+}
+
 EXPORT int my32_XChangeWindowAttributes(x64emu_t* emu, void* dpy, XID window, unsigned long mask, my_XSetWindowAttributes_32_t* attrs)
 {
     my_XSetWindowAttributes_t attrs_l[1];
@@ -2261,6 +2493,15 @@ EXPORT int my32_XTextExtents(x64emu_t* emu, my_XFontStruct_32_t* font_struct, vo
     return ret;
 }
 
+EXPORT int my32_XTextExtents16(x64emu_t* emu, my_XFontStruct_32_t* font_struct, void* string, int nchars, int* dir, int* ascent, int* descent, my_XCharStruct_32_t* overall)
+{
+    //XCharStruct doesn't need any changes
+    inplace_XFontStruct_enlarge(font_struct);
+    int ret = my->XTextExtents16(font_struct, string, nchars, dir, ascent, descent, overall);
+    inplace_XFontStruct_shrink(font_struct);
+    return ret;
+}
+
 EXPORT void* my32_XLoadQueryFont(x64emu_t* emu, void* dpy, void* name)
 {
     void* ret = my->XLoadQueryFont(dpy, name);
@@ -2286,6 +2527,14 @@ EXPORT int my32_XFreeFontInfo(x64emu_t* emu, ptr_t* names, void* free_info, int 
     return my->XFreeFontInfo(names_l, free_info, count);
 }
 
+EXPORT int my32_XTextWidth(x64emu_t* emu, void* font, void* string, int count)
+{
+    inplace_XFontStruct_enlarge(font);
+    int ret = my->XTextWidth(font, string, count);
+    inplace_XFontProp_shrink(font);
+    return ret;
+}
+
 EXPORT int my32_XTextWidth16(x64emu_t* emu, void* font, void* string, int count)
 {
     inplace_XFontStruct_enlarge(font);
@@ -2306,6 +2555,66 @@ EXPORT int my32_XGrabServer(x64emu_t* emu, void* dpy)
     int ret = my->XGrabServer(dpy);
     // update some of the values now that the server is grabbed
     refreshDisplay(dpy);
+    return ret;
+}
+
+EXPORT void* my32_XkbGetMap(x64emu_t* emu, void* dpy, uint32_t which, uint32_t dev)
+{
+    return inplace_XkbDescRec_shrink(my->XkbGetMap(dpy, which, dev));
+}
+EXPORT int my32_XkbGetNames(x64emu_t* emu, void* dpy, uint32_t which, my_XkbDescRec_32_t* ptr)
+{
+    inplace_XkbDescRec_enlarge(ptr);
+    int ret = my->XkbGetNames(dpy, which, ptr);
+    inplace_XkbDescRec_shrink(ptr);
+    return ret;
+}
+EXPORT int my32_XkbGetUpdatedMap(x64emu_t* emu, void* dpy, uint32_t which, my_XkbDescRec_32_t* ptr)
+{
+    inplace_XkbDescRec_enlarge(ptr);
+    int ret = my->XkbGetUpdatedMap(dpy, which, ptr);
+    inplace_XkbDescRec_shrink(ptr);
+    return ret;
+}
+
+EXPORT int my32_XkbGetControls(x64emu_t* emu, void* dpy, int which, my_XkbDescRec_32_t* ptr)
+{
+    inplace_XkbDescRec_enlarge(ptr);
+    int ret = my->XkbGetControls(dpy, which, ptr);
+    inplace_XkbDescRec_shrink(ptr);
+    return ret;
+}
+
+EXPORT void my32_XkbFreeKeyboard(x64emu_t* emu, void* xkb, int which, int all)
+{
+    my->XkbFreeKeyboard(inplace_XkbDescRec_enlarge(xkb), which, all);
+}
+
+EXPORT void* my32_XGetMotionEvents(x64emu_t* emu, void* dpy, XID w, unsigned long start, unsigned long stop, int* n)
+{
+    void* ret = my->XGetMotionEvents(dpy, w, start, stop, n);
+    if(ret) {
+        my_XTimeCoord_t *src = ret;
+        my_XTimeCoord_32_t* dst = ret;
+        for(int i=0; i<*n; ++i) {
+            dst[i].time = to_ulong(src[i].time);
+            dst[i].x = src[i].x;
+            dst[i].y = src[i].y;
+        }
+    }
+    return ret;
+}
+
+EXPORT int my32_XGetWMColormapWindows(x64emu_t* emu, void* dpy, XID w, ptr_t* maps, int* n)
+{
+    void* maps_l = NULL;
+    int ret = my->XGetWMColormapWindows(dpy, w, &maps_l, n);
+    *maps = to_ptrv(maps_l);
+    XID* src = maps_l;
+    XID_32* dst = maps_l;
+    for(int i=0; i<*n; ++i) {
+        dst[i] = to_ulong(src[i]);
+    }
     return ret;
 }
 

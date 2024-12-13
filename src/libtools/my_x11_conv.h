@@ -86,8 +86,10 @@ void* inplace_XRRPropertyInfo_shrink(void* a);
 void inplace_XIDeviceInfo_shrink(void* a, int n);
 int inplace_XIDeviceInfo_enlarge(void* a);
 
-void inplace_XDevice_shrink(void* a);
-void inplace_XDevice_enlarge(void* a);
+void* inplace_XDevice_shrink(void* a);
+void* inplace_XDevice_enlarge(void* a);
+void* inplace_XDeviceState_shrink(void* a);
+void* inplace_XDeviceState_enlarge(void* a);
 
 void register_XDevice_events(my_XDevice_t* a);
 void unregister_XDevice_events(my_XDevice_t* a);
@@ -98,4 +100,14 @@ void unregister_XRandR_events();
 
 void convert_XShmSegmentInfo_to_32(void* d, void* s);
 void convert_XShmSegmentInfo_to_64(void* d, void* s);
+
+void* inplace_XkbDescRec_shrink(void* a);
+void* inplace_XkbDescRec_enlarge(void* a);
+
+void convert_XAnyClassInfo_to_32(void* d, void* s);
+void convert_XAnyClassInfo_to_64(void* d, void* s);
+void* inplace_XAnyClassInfo_shrink(void* a);
+void* inplace_XAnyClassInfo_enlarge(void* a);
+void* inplace_XDeviceInfo_shrink(void* a);
+void* inplace_XDeviceInfo_enlarge(void* a);
 #endif//MY_X11_CONV
