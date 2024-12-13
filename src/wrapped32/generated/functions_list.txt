@@ -945,6 +945,7 @@
 #() pFEupp -> pFEupp
 #() pEEpii -> pEEpii
 #() pFEpip -> pFEpip
+#() pFEpui -> pFEpui
 #() pEEppi -> pEEppi
 #() pFEppi -> pFEppi
 #() pEEppp -> pEEppp
@@ -1532,7 +1533,6 @@
 #() iEEpLiLppp -> iEEpLiLppp
 #() iFEppipppp -> iFEppipppp
 #() iFuiiiiuup -> iFuiiiiuup
-#() iFpuippupp -> iFpuippupp
 #() iFpuuiiuuu -> iFpuuiiuuu
 #() iFXuupuupp -> iFXuupuupp
 #() iFXLpipppp -> iFXLpipppp
@@ -1573,6 +1573,7 @@
 #() vFddddddddd -> vFddddddddd
 #() vFXiLLpiipi -> vFXiLLpiipi
 #() vFXLiiipiii -> vFXLiiipiii
+#() iFEpuippupp -> iFEpuippupp
 #() iFEXLLLiipi -> iFEXLLLiipi
 #() iFuiiuuiiip -> iFuiiuuiiip
 #() iFuiiupiiup -> iFuiiupiiup
@@ -1965,6 +1966,8 @@ wrappedlibc:
   - shmat
 - pEpii:
 - pEpII:
+- pFpui:
+  - gethostbyaddr
 - pEpLL:
 - pEppi:
   - __realpath_chk
@@ -2039,6 +2042,8 @@ wrappedlibc:
 - pEpLiiil:
 - iEpippppp:
 - iEpLiLppp:
+- iFpuippupp:
+  - gethostbyaddr_r
 wrappedlibdl:
 - iEp:
   - dlclose

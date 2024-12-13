@@ -499,8 +499,8 @@ GOM(getgrnam_r, iEEpppLp)
 GO(getgrouplist, iEpipp)
 GOW(getgroups, iEip)
 // __getgroups_chk
-//GO(gethostbyaddr, pFpui)  // change h_errno only
-GO(gethostbyaddr_r, iFpuippupp)
+GOM(gethostbyaddr, pFEpui)
+GOM(gethostbyaddr_r, iFEpuippupp)
 GOM(gethostbyname, pFEp)
 //GO(gethostbyname2, pFpi)
 //GO(gethostbyname2_r, iFpippupp)

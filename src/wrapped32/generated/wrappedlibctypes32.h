@@ -82,6 +82,7 @@ typedef intptr_t (*lEppL_t)(void*, void*, uintptr_t);
 typedef void* (*pEipi_t)(int32_t, void*, int32_t);
 typedef void* (*pEpii_t)(void*, int32_t, int32_t);
 typedef void* (*pEpII_t)(void*, int64_t, int64_t);
+typedef void* (*pFpui_t)(void*, uint32_t, int32_t);
 typedef void* (*pEpLL_t)(void*, uintptr_t, uintptr_t);
 typedef void* (*pEppi_t)(void*, void*, int32_t);
 typedef double (*KEpBp_a_t)(void*, struct_p_t*, void*);
@@ -131,6 +132,7 @@ typedef void* (*pEpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t
 typedef void* (*pEpLiiil_t)(void*, uintptr_t, int32_t, int32_t, int32_t, intptr_t);
 typedef int32_t (*iEpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
 typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void*, void*);
+typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(freeaddrinfo, vEp_t) \
@@ -207,6 +209,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(sendmsg, lEipi_t) \
 	GO(writev, lEipi_t) \
 	GO(shmat, pEipi_t) \
+	GO(gethostbyaddr, pFpui_t) \
 	GO(__realpath_chk, pEppi_t) \
 	GO(__strtold_l, KEpBp_a_t) \
 	GO(strtold_l, KEpBp_a_t) \
@@ -231,6 +234,7 @@ typedef int32_t (*iEpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(gethostbyname_r, iFpppupp_t) \
 	GO(posix_spawn, iEpppppp_t) \
 	GO(process_vm_readv, lEipLpLL_t) \
-	GO(process_vm_writev, lEipLpLL_t)
+	GO(process_vm_writev, lEipLpLL_t) \
+	GO(gethostbyaddr_r, iFpuippupp_t)
 
 #endif // __wrappedlibcTYPES32_H_

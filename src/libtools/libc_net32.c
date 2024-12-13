@@ -238,6 +238,41 @@ EXPORT int my32_gethostbyname_r(x64emu_t* emu, void* name, struct i386_hostent* 
     return r;
 }
 
+EXPORT void* my32_gethostbyaddr(x64emu_t* emu, const char* a, uint32_t len, int type)
+{
+    static struct i386_hostent ret = {0};
+    static ptr_t strings[128] = {0};
+    struct hostent* h = gethostbyaddr(a, len, type);
+    if(!h) return NULL;
+    // convert...
+    ret.h_name = to_cstring(h->h_name);
+    ret.h_addrtype = h->h_addrtype;
+    ret.h_length = h->h_length;
+    ptr_t s = to_ptrv(&strings);
+    int idx = 0;
+    ret.h_aliases = h->h_aliases?s:0;
+    if(h->h_aliases) {
+        char** p = h->h_aliases;
+        while(*p) {
+            strings[idx++] = to_cstring(*p);
+            ++p;
+        }
+        strings[idx++] = 0;
+    }
+    ret.h_addr_list = h->h_addr_list?to_ptrv(&strings[idx]):0;
+    if(h->h_addr_list) {
+        char** p = h->h_addr_list;
+        while(*p) {
+            strings[idx++] = to_ptrv(*p);
+            ++p;
+        }   
+        strings[idx++] = 0;
+    }
+    // done
+    emu->libc_herr = h_errno;
+    return &ret;
+}
+
 EXPORT int my32_gethostbyaddr_r(x64emu_t* emu, void* addr, uint32_t len, int type, struct i386_hostent* ret, void* buff, size_t buflen, ptr_t* result, int* h_err)
 {
     struct hostent ret_l = {0};
