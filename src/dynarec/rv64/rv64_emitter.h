@@ -340,7 +340,7 @@
 #define POP1_32(reg)                              \
     do {                                          \
         if (rv64_xtheadmemidx && reg != xRSP) {   \
-            TH_LWIA(reg, xRSP, 4, 0);             \
+            TH_LWUIA(reg, xRSP, 4, 0);            \
         } else {                                  \
             LWU(reg, xRSP, 0);                    \
             if (reg != xRSP) ADDI(xRSP, xRSP, 4); \
@@ -373,7 +373,7 @@
 #define POP1_16(reg)                              \
     do {                                          \
         if (rv64_xtheadmemidx && reg != xRSP) {   \
-            TH_LHIA(reg, xRSP, 2, 0);             \
+            TH_LHUIA(reg, xRSP, 2, 0);            \
         } else {                                  \
             LHU(reg, xRSP, 0);                    \
             if (reg != xRSP) ADDI(xRSP, xRSP, 2); \
@@ -1137,12 +1137,26 @@
 // }
 #define TH_LHIA(rd, rs1, imm5, imm2) EMIT(I_type(0b001110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
 
+// Load indexed unsigned half-word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := zero_extend(mem[rs1+1:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LHUIA(rd, rs1, imm5, imm2) EMIT(I_type(0b101110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
 // Load indexed word, increment address after loading.
 // if (rs1 != rd) {
 //     rd := sign_extend(mem[rs1+3:rs1])
 //     rs1 := rs1 + (sign_extend(imm5) << imm2)
 // }
 #define TH_LWIA(rd, rs1, imm5, imm2) EMIT(I_type(0b010110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed unsigned word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := zero_extend(mem[rs1+3:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LWUIA(rd, rs1, imm5, imm2) EMIT(I_type(0b110110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
 
 // Load indexed double-word, increment address after loading.
 // if (rs1 != rd) {
@@ -1172,11 +1186,9 @@
 // th.lbuib rd, (rs1), imm5, imm2 Load indexed unsigned byte
 // th.lhia rd, (rs1), imm5, imm2 Load indexed half-word
 // th.lhib rd, (rs1), imm5, imm2 Load indexed half-word
-// th.lhuia rd, (rs1), imm5, imm2 Load indexed unsigned half-word
 // th.lhuib rd, (rs1), imm5, imm2 Load indexed unsigned half-word
 // th.lwia rd, (rs1), imm5, imm2 Load indexed word
 // th.lwib rd, (rs1), imm5, imm2 Load indexed word
-// th.lwuia rd, (rs1), imm5, imm2 Load indexed unsigned word
 // th.lwuib rd, (rs1), imm5, imm2 Load indexed unsigned word
 // th.ldib rd, (rs1), imm5, imm2 Load indexed double-word
 // th.sbia rd, (rs1), imm5, imm2 Store indexed byte
