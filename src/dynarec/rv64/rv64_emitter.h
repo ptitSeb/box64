@@ -310,25 +310,41 @@
 // 4-bytes[rs1+imm12] = rs2
 #define SW(rs2, rs1, imm12) EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
-#define PUSH1(reg)            \
-    do {                      \
-        SD(reg, xRSP, 0xFF8); \
-        SUBI(xRSP, xRSP, 8);  \
+#define PUSH1(reg)                              \
+    do {                                        \
+        if (rv64_xtheadmemidx && reg != xRSP) { \
+            TH_SDIB(reg, xRSP, -8, 0);          \
+        } else {                                \
+            SD(reg, xRSP, 0xFF8);               \
+            SUBI(xRSP, xRSP, 8);                \
+        }                                       \
     } while (0)
-#define POP1(reg)                             \
-    do {                                      \
-        LD(reg, xRSP, 0);                     \
-        if (reg != xRSP) ADDI(xRSP, xRSP, 8); \
+#define POP1(reg)                                 \
+    do {                                          \
+        if (rv64_xtheadmemidx && reg != xRSP) {   \
+            TH_LDIA(reg, xRSP, 8, 0);             \
+        } else {                                  \
+            LD(reg, xRSP, 0);                     \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 8); \
+        }                                         \
     } while (0)
-#define PUSH1_32(reg)         \
-    do {                      \
-        SW(reg, xRSP, 0xFFC); \
-        SUBI(xRSP, xRSP, 4);  \
+#define PUSH1_32(reg)                           \
+    do {                                        \
+        if (rv64_xtheadmemidx && reg != xRSP) { \
+            TH_SWIB(reg, xRSP, -4, 0);          \
+        } else {                                \
+            SW(reg, xRSP, 0xFFC);               \
+            SUBI(xRSP, xRSP, 4);                \
+        }                                       \
     } while (0)
-#define POP1_32(reg)                          \
-    do {                                      \
-        LWU(reg, xRSP, 0);                    \
-        if (reg != xRSP) ADDI(xRSP, xRSP, 4); \
+#define POP1_32(reg)                              \
+    do {                                          \
+        if (rv64_xtheadmemidx && reg != xRSP) {   \
+            TH_LWIA(reg, xRSP, 4, 0);             \
+        } else {                                  \
+            LWU(reg, xRSP, 0);                    \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 4); \
+        }                                         \
     } while (0)
 
 #define POP1z(reg)      \
@@ -344,16 +360,24 @@
         PUSH1(reg);     \
     }
 
-#define PUSH1_16(reg)         \
-    do {                      \
-        SH(reg, xRSP, 0xFFE); \
-        SUBI(xRSP, xRSP, 2);  \
+#define PUSH1_16(reg)                           \
+    do {                                        \
+        if (rv64_xtheadmemidx && reg != xRSP) { \
+            TH_SHIB(reg, xRSP, -2, 0);          \
+        } else {                                \
+            SH(reg, xRSP, 0xFFE);               \
+            SUBI(xRSP, xRSP, 2);                \
+        }                                       \
     } while (0)
 
-#define POP1_16(reg)                          \
-    do {                                      \
-        LHU(reg, xRSP, 0);                    \
-        if (reg != xRSP) ADDI(xRSP, xRSP, 2); \
+#define POP1_16(reg)                              \
+    do {                                          \
+        if (rv64_xtheadmemidx && reg != xRSP) {   \
+            TH_LHIA(reg, xRSP, 2, 0);             \
+        } else {                                  \
+            LHU(reg, xRSP, 0);                    \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 2); \
+        }                                         \
     } while (0)
 
 #define FENCE_gen(pred, succ) (((pred) << 24) | ((succ) << 20) | 0b0001111)
@@ -1106,6 +1130,42 @@
 // rs1 := rs1 + (sign_extend(imm5) << imm2)
 #define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
 
+// Load indexed half-word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := sign_extend(mem[rs1+1:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LHIA(rd, rs1, imm5, imm2) EMIT(I_type(0b001110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := sign_extend(mem[rs1+3:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LWIA(rd, rs1, imm5, imm2) EMIT(I_type(0b010110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed double-word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := sign_extend(mem[rs1+7:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LDIA(rd, rs1, imm5, imm2) EMIT(I_type(0b011110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Store indexed half-word, increment address before storage.
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+// mem[rs1+1:rs1] := rd
+#define TH_SHIB(rd, rs1, imm5, imm2) EMIT(I_type(0b001010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
+
+// Store indexed word, increment address before storage.
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+// mem[rs1+3:rs1] := rd
+#define TH_SWIB(rd, rs1, imm5, imm2) EMIT(I_type(0b010010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
+
+// Store indexed double-word, increment address before storage.
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+// mem[rs1+7:rs1] := rd
+#define TH_SDIB(rd, rs1, imm5, imm2) EMIT(I_type(0b011010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
+
 // TODO
 // th.lbib rd, (rs1), imm5, imm2 Load indexed byte
 // th.lbuia rd, (rs1), imm5, imm2 Load indexed unsigned byte
@@ -1118,7 +1178,6 @@
 // th.lwib rd, (rs1), imm5, imm2 Load indexed word
 // th.lwuia rd, (rs1), imm5, imm2 Load indexed unsigned word
 // th.lwuib rd, (rs1), imm5, imm2 Load indexed unsigned word
-// th.ldia rd, (rs1), imm5, imm2 Load indexed double-word
 // th.ldib rd, (rs1), imm5, imm2 Load indexed double-word
 // th.sbia rd, (rs1), imm5, imm2 Store indexed byte
 // th.sbib rd, (rs1), imm5, imm2 Store indexed byte
@@ -1127,7 +1186,6 @@
 // th.swia rd, (rs1), imm5, imm2 Store indexed word
 // th.swib rd, (rs1), imm5, imm2 Store indexed word
 // th.sdia rd, (rs1), imm5, imm2 Store indexed double-word
-// th.sdib rd, (rs1), imm5, imm2 Store indexed double-word
 // th.lrb rd, rs1, rs2, imm2 Load indexed byte
 // th.lrbu rd, rs1, rs2, imm2 Load indexed unsigned byte
 // th.lrh rd, rs1, rs2, imm2 Load indexed half-word
