@@ -961,6 +961,7 @@ void iFppLi_32(x64emu_t *emu, uintptr_t fnc);
 void iFpppi_32(x64emu_t *emu, uintptr_t fnc);
 void iFpppu_32(x64emu_t *emu, uintptr_t fnc);
 void iEpppL_32(x64emu_t *emu, uintptr_t fnc);
+void iEpppp_32(x64emu_t *emu, uintptr_t fnc);
 void iFpppp_32(x64emu_t *emu, uintptr_t fnc);
 void iESpiL_32(x64emu_t *emu, uintptr_t fnc);
 void iFXiii_32(x64emu_t *emu, uintptr_t fnc);

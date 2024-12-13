@@ -728,6 +728,11 @@ EXPORT int my32_vsyslog(x64emu_t* emu, int priority, void* fmt, void* b) {
     PREPARE_VALIST_32;
     return vsyslog(priority, (const char*)fmt, VARARGS_32);
 }
+EXPORT int my32_syslog(x64emu_t* emu, int priority, void* fmt, void* b) {
+    myStackAlign32((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST_32;
+    return vsyslog(priority, (const char*)fmt, VARARGS_32);
+}
 EXPORT int my32___vsyslog_chk(x64emu_t* emu, int priority, int flag, void* fmt, void* b) {
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
@@ -2261,6 +2266,18 @@ EXPORT int my32_getgrnam_r(x64emu_t* emu, const char* name, struct i386_group *g
     res->gr_gid = r->gr_gid;
     res->gr_mem = to_ptrv(r->gr_mem);
     return ret;
+}
+
+EXPORT void* my32_getgrnam(x64emu_t* emu, void* name)
+{
+    static struct i386_group ret;
+    struct group *grp = getgrnam(name);
+    if(!grp) return NULL;
+    ret.gr_name = to_ptrv(grp->gr_name);
+    ret.gr_passwd = to_ptrv(grp->gr_passwd);
+    ret.gr_gid = grp->gr_gid;
+    ret.gr_mem = to_ptrv(grp->gr_mem);
+    return &ret;
 }
 
 EXPORT int my32_getgrgid_r(x64emu_t* emu, gid_t gid, struct i386_group *grp, char *buf, size_t buflen, ptr_t* result)

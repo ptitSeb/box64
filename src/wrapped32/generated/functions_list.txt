@@ -920,6 +920,7 @@
 #() iFpppi -> iFpppi
 #() iFpppu -> iFpppu
 #() iEpppL -> iEpppL
+#() iEpppp -> iEpppp
 #() iFpppp -> iFpppp
 #() iESpiL -> iESpiL
 #() iFXiii -> iFXiii
@@ -1930,13 +1931,14 @@ wrappedlibc:
 - pFL:
   - _ZGTtnaX
   - _ZGTtnam
-- pFp:
-  - gethostbyname
 - pEp:
+  - getgrnam
   - getprotobyname
   - getpwnam
   - gmtime
   - localtime
+- pFp:
+  - gethostbyname
 - pES:
   - getmntent
 - iEbp_:
@@ -1995,6 +1997,7 @@ wrappedlibc:
 - vEipp:
   - vsyslog
 - vEipV:
+  - syslog
 - vEpuu:
 - vEpup:
   - _ITM_addUserCommitAction

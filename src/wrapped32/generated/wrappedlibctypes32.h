@@ -32,8 +32,8 @@ typedef void* (*pEu_t)(uint32_t);
 typedef void* (*pFu_t)(uint32_t);
 typedef void* (*pEL_t)(uintptr_t);
 typedef void* (*pFL_t)(uintptr_t);
-typedef void* (*pFp_t)(void*);
 typedef void* (*pEp_t)(void*);
+typedef void* (*pFp_t)(void*);
 typedef void* (*pES_t)(void*);
 typedef int32_t (*iEbp__t)(struct_p_t*);
 typedef void* (*pErl__t)(struct_l_t*);
@@ -160,11 +160,12 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(_ZGTtnaj, pFu_t) \
 	GO(_ZGTtnaX, pFL_t) \
 	GO(_ZGTtnam, pFL_t) \
-	GO(gethostbyname, pFp_t) \
+	GO(getgrnam, pEp_t) \
 	GO(getprotobyname, pEp_t) \
 	GO(getpwnam, pEp_t) \
 	GO(gmtime, pEp_t) \
 	GO(localtime, pEp_t) \
+	GO(gethostbyname, pFp_t) \
 	GO(getmntent, pES_t) \
 	GO(getifaddrs, iEbp__t) \
 	GO(ctime, pErl__t) \
@@ -196,6 +197,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(gmtime_r, pEpp_t) \
 	GO(localtime_r, pEpp_t) \
 	GO(vsyslog, vEipp_t) \
+	GO(syslog, vEipV_t) \
 	GO(_ITM_addUserCommitAction, vEpup_t) \
 	GO(posix_spawn_file_actions_adddup2, iEpii_t) \
 	GO(regcomp, iEppi_t) \

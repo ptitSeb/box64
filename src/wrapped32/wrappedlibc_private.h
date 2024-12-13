@@ -494,7 +494,7 @@ GOW(getgid, uEv)
 // getgrent_r
 //GO(getgrgid, pEu)
 GOM(getgrgid_r, iEEuppLp)
-//GO(getgrnam, pEp)
+GOM(getgrnam, pEEp)
 GOM(getgrnam_r, iEEpppLp)
 GO(getgrouplist, iEpipp)
 GOW(getgroups, iEip)
@@ -709,7 +709,7 @@ GO(inet_pton, iEipp)
 // initstate    // Weak
 //GOW(initstate_r, iEupup)
 // inl  // Weak
-// innetgr
+GO(innetgr, iEpppp)
 GO(inotify_add_watch, iEipu)
 GO(inotify_init, iEv)
 GO(inotify_init1, iEi)
@@ -1789,7 +1789,7 @@ GO2(__sysconf, lEEi, my_sysconf)
 //DATA(_sys_errlist, 4)
 //DATA(sys_errlist, 4)
 GOM(sysinfo, iEp)   //%noE
-//GO2(syslog, vEipV, vsyslog)
+GOM(syslog, vEEipV)
 GOM(__syslog_chk, vEEiipV)
 //DATA(_sys_nerr, 4)    // type R
 //DATA(sys_nerr, 4) // type R
