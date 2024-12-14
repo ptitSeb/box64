@@ -1366,19 +1366,30 @@ typedef struct my_XkbNamesRec_s {
     unsigned short  num_rg;
 } my_XkbNamesRec_t;
 
+typedef struct my_XkbClientMapRec_s {
+    unsigned char            size_types;
+    unsigned char            num_types;
+    void*                    types; //XkbKeyTypePtr
+    unsigned short           size_syms;
+    unsigned short           num_syms;
+    void*                    syms;  //KeySym*
+    void*                    key_sym_map;   //XkbSymMapPtr
+    unsigned char*           modmap;
+} my_XkbClientMapRec_t;
+
 typedef struct my_XkbDescRec_s {
-   my_XDisplay_t*     display;
-   unsigned short     flags;
-   unsigned short     device_spec;
-   uint8_t            min_key_code;
-   uint8_t            max_key_code;
-   void*              ctrls; //XkbControlsPtr
-   void*              server; //XkbServerMapPtr
-   void*              map; //XkbClientMapPtr
-   void*              indicators; //XkbIndicatorPtr
-   my_XkbNamesRec_t*  names;
-   void*              compat; //XkbCompatMapPtr
-   void*              geom; //XkbGeometryPtr
+   my_XDisplay_t*           display;
+   unsigned short           flags;
+   unsigned short           device_spec;
+   uint8_t                  min_key_code;
+   uint8_t                  max_key_code;
+   void*                    ctrls; //XkbControlsPtr
+   void*                    server; //XkbServerMapPtr
+   my_XkbClientMapRec_t*    map; //XkbClientMapPtr
+   void*                    indicators; //XkbIndicatorPtr
+   my_XkbNamesRec_t*        names;
+   void*                    compat; //XkbCompatMapPtr
+   void*                    geom; //XkbGeometryPtr
 } my_XkbDescRec_t;
 
 typedef struct my_XmbTextItem_s {

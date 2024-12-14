@@ -1194,6 +1194,39 @@ void* inplace_XkbNamesRec_enlarge(void* a)
     return a;
 }
 
+void* inplace_XkbClientMapRec_shrink(void* a)
+{
+    if(a) {
+        my_XkbClientMapRec_t* src = a;
+        my_XkbClientMapRec_32_t* dst = a;
+        dst->size_types = src->size_types;
+        dst->num_types = src->num_types;
+        dst->types = to_ptrv(src->types);
+        dst->size_syms = src->size_syms;
+        dst->num_syms = src->num_syms;
+        dst->syms = to_ptrv(src->syms);
+        dst->key_sym_map = to_ptrv(src->key_sym_map);
+        dst->modmap = to_ptrv(src->modmap);
+    }
+    return a;
+}
+void* inplace_XkbClientMapRec_enlarge(void* a)
+{
+    if(a) {
+        my_XkbClientMapRec_32_t* src = a;
+        my_XkbClientMapRec_t* dst = a;
+        dst->modmap = from_ptrv(src->modmap);
+        dst->key_sym_map = from_ptrv(src->key_sym_map);
+        dst->syms = from_ptrv(src->syms);
+        dst->num_syms = src->num_syms;
+        dst->size_syms = src->size_syms;
+        dst->types = from_ptrv(src->types);
+        dst->num_types = src->num_types;
+        dst->size_types = src->size_types;
+    }
+    return a;
+}
+
 void* inplace_XkbDescRec_shrink(void* a)
 {
     if(a) {
@@ -1207,7 +1240,7 @@ void* inplace_XkbDescRec_shrink(void* a)
         dst->max_key_code = src->max_key_code;
         dst->ctrls = to_ptrv(src->ctrls);
         dst->server = to_ptrv(src->server);
-        dst->map = to_ptrv(src->map);
+        dst->map = to_ptrv(inplace_XkbClientMapRec_shrink(src->map));
         dst->indicators = to_ptrv(src->indicators);
         dst->names = to_ptrv(inplace_XkbNamesRec_shrink(src->names));
         dst->compat = to_ptrv(src->compat);
@@ -1225,7 +1258,7 @@ void* inplace_XkbDescRec_enlarge(void* a)
         dst->compat = from_ptrv(src->compat);
         dst->names = inplace_XkbNamesRec_enlarge(from_ptrv(src->names));
         dst->indicators = from_ptrv(src->indicators);
-        dst->map = from_ptrv(src->map);
+        dst->map = inplace_XkbClientMapRec_enlarge(from_ptrv(src->map));
         dst->server = from_ptrv(src->server);
         dst->ctrls = from_ptrv(src->ctrls);
         dst->max_key_code = src->max_key_code;

@@ -1299,6 +1299,17 @@ typedef struct my_XkbNamesRec_32_s {
     unsigned short  num_rg;
 } my_XkbNamesRec_32_t;
 
+typedef struct my_XkbClientMapRec_32_s {
+    unsigned char            size_types;
+    unsigned char            num_types;
+    ptr_t                    types; //XkbKeyTypePtr
+    unsigned short           size_syms;
+    unsigned short           num_syms;
+    ptr_t                    syms;  //KeySym*
+    ptr_t                    key_sym_map;   //XkbSymMapPtr
+    ptr_t                    modmap;    //unsigned char*
+} my_XkbClientMapRec_32_t;
+
 typedef struct my_XkbDescRec_32_s {
    ptr_t              display; //my_XDisplay_32_t*
    unsigned short     flags;

@@ -1480,7 +1480,7 @@ void UnalignIOV_32(void* dest, void* source)
 void* my32___cmsg_nxthdr(struct i386_msghdr* mhdr, struct i386_cmsghdr* cmsg);
 
 // x86 -> Native
-void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control)
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* source)
 {
     struct iovec* iov = dest_iov;
     struct msghdr* d = dest;
@@ -1496,29 +1496,7 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
     }
     d->msg_iovlen = s->msg_iovlen;
     d->msg_controllen = s->msg_controllen;
-    if(convert_control) {
-        if(s->msg_control) {
-            d->msg_control = dest_cmsg;
-            struct i386_cmsghdr* cmsg = from_ptrv(s->msg_control);
-            struct cmsghdr* dcmsg = dest_cmsg;
-            while(cmsg) {
-                dcmsg->cmsg_len = from_ulong(cmsg->cmsg_len);
-                dcmsg->cmsg_level = cmsg->cmsg_level;
-                dcmsg->cmsg_type = cmsg->cmsg_type;
-                if(cmsg->cmsg_len) {
-                    dcmsg->cmsg_len += 4;
-                    memcpy(CMSG_DATA(dcmsg), cmsg+1, cmsg->cmsg_len-sizeof(struct i386_cmsghdr));
-                    d->msg_controllen += 4;
-                }
-                dcmsg = (struct cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+7)&~7));
-                cmsg = my32___cmsg_nxthdr(s, cmsg);
-            }
-        } else 
-            d->msg_control = NULL;
-    } else {
-        d->msg_control = (s->msg_control)?dest_cmsg:NULL;
-        if(d->msg_control) memset(d->msg_control, 0, d->msg_controllen);
-    }
+    d->msg_control = from_ptrv(s->msg_control);
     d->msg_flags = s->msg_flags;
 }
 
@@ -1537,23 +1515,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
     }
     d->msg_iovlen = s->msg_iovlen;
     d->msg_controllen = s->msg_controllen;
-    if(s->msg_control) {
-        struct i386_cmsghdr* dcmsg = from_ptrv(d->msg_control);
-        struct cmsghdr* scmsg = s->msg_control;
-        while(scmsg) {
-            dcmsg->cmsg_len = to_ulong(scmsg->cmsg_len);
-            dcmsg->cmsg_level = scmsg->cmsg_level;
-            dcmsg->cmsg_type = scmsg->cmsg_type;
-            if(dcmsg->cmsg_len) {
-                dcmsg->cmsg_len -= 4;
-                memcpy(dcmsg+1, CMSG_DATA(scmsg), dcmsg->cmsg_len-sizeof(struct i386_cmsghdr));
-                d->msg_controllen -= 4;
-            }
-            (struct i386_cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+3)&~3));
-            scmsg = CMSG_NXTHDR(s, scmsg);
-        }
-    } else 
-        d->msg_control = 0;
+    d->msg_control = to_ptrv(s->msg_control);
     d->msg_flags = s->msg_flags;
 }
 

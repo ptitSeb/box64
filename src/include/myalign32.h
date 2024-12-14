@@ -527,7 +527,7 @@ struct i386_mmsghdr {
 
 struct i386_cmsghdr
 {
-  ulong_t cmsg_len;
+  uint32_t cmsg_len;
   int cmsg_level;
   int cmsg_type;
 } __attribute__((packed, aligned(4)));
@@ -535,7 +535,7 @@ struct i386_cmsghdr
 void AlignIOV_32(void* dest, void* source);   // x86 -> Native
 void UnalignIOV_32(void* dest, void* source); // Native -> x86
 
-void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control);   // x86 -> Native
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* source);   // x86 -> Native
 void UnalignMsgHdr_32(void* dest, void* source); // back to Native -> x86
 
 struct i386_passwd

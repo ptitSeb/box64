@@ -2298,31 +2298,6 @@ EXPORT int my32_getgrgid_r(x64emu_t* emu, gid_t gid, struct i386_group *grp, cha
     return ret;
 }
 
-#if 0
-EXPORT int32_t my32_recvmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
-{
-    // Implemented starting glibc 2.12+
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "recvmmsg");
-    if(f)
-        return ((iFipuup_t)f)(fd, msgvec, vlen, flags, timeout);
-    // Use the syscall
-    return syscall(__NR_recvmmsg, fd, msgvec, vlen, flags, timeout);
-}
-
-EXPORT int32_t my32___sendmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags)
-{
-    // Implemented starting glibc 2.14+
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "__sendmmsg");
-    if(f)
-        return ((iFipuu_t)f)(fd, msgvec, vlen, flags);
-    // Use the syscall
-    return syscall(__NR_sendmmsg, fd, msgvec, vlen, flags);
-}
-#endif
 EXPORT int32_t my32___register_atfork(x64emu_t *emu, void* prepare, void* parent, void* child, void* handle)
 {
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my32_atfork...
