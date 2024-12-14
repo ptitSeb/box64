@@ -1162,7 +1162,7 @@ EXPORT int my32_stat(char* path, void* buf)
 {
     struct stat64 st;
     int r = stat64(path, &st);
-    UnalignStat64_32(&st, buf);
+    FillStatFromStat64(3, &st, buf);
     return r;
 }
 
@@ -1170,7 +1170,7 @@ EXPORT int my32_fstat(int fd, void* buf)
 {
     struct stat64 st;
     int r = fstat64(fd, &st);
-    UnalignStat64_32(&st, buf);
+    FillStatFromStat64(3, &st, buf);
     return r;
 }
 
@@ -1178,7 +1178,7 @@ EXPORT int my32_lstat(char* path, void* buf)
 {
     struct stat64 st;
     int r = lstat64(path, &st);
-    UnalignStat64_32(&st, buf);
+    FillStatFromStat64(3, &st, buf);
     return r;
 }
 
@@ -2628,7 +2628,7 @@ EXPORT void* my32_localeconv(x64emu_t* emu)
     memcpy(&ret.int_frac_digits, &l->int_frac_digits, 14);
     return &ret;
 }
-
+locale_t l;
 EXPORT struct __processor_model
 {
   unsigned int __cpu_vendor;

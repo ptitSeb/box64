@@ -43,11 +43,13 @@ typedef void (*vEip_t)(int32_t, void*);
 typedef void (*vEpi_t)(void*, int32_t);
 typedef void (*vEpu_t)(void*, uint32_t);
 typedef void (*vEpp_t)(void*, void*);
+typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iEip_t)(int32_t, void*);
 typedef int32_t (*iEup_t)(uint32_t, void*);
 typedef int32_t (*iEpi_t)(void*, int32_t);
 typedef int32_t (*iEpL_t)(void*, uintptr_t);
 typedef int32_t (*iEpp_t)(void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iEpV_t)(void*, ...);
 typedef int64_t (*IEII_t)(int64_t, int64_t);
 typedef uint64_t (*UEUU_t)(uint64_t, uint64_t);
@@ -86,6 +88,8 @@ typedef void* (*pEpII_t)(void*, int64_t, int64_t);
 typedef void* (*pFpui_t)(void*, uint32_t, int32_t);
 typedef void* (*pEpLL_t)(void*, uintptr_t, uintptr_t);
 typedef void* (*pEppi_t)(void*, void*, int32_t);
+typedef int64_t (*IEpBp_i_t)(void*, struct_p_t*, int32_t);
+typedef uint64_t (*UEpBp_i_t)(void*, struct_p_t*, int32_t);
 typedef double (*KEpBp_a_t)(void*, struct_p_t*, void*);
 typedef intptr_t (*lEpBp_i_t)(void*, struct_p_t*, int32_t);
 typedef uintptr_t (*LEpBp_i_t)(void*, struct_p_t*, int32_t);
@@ -203,10 +207,13 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(_ITM_addUserCommitAction, vEpup_t) \
 	GO(posix_spawn_file_actions_adddup2, iEpii_t) \
 	GO(regcomp, iEppi_t) \
+	GO(__isoc23_vsscanf, iEppp_t) \
 	GO(execvpe, iEppp_t) \
 	GO(vswscanf, iEppp_t) \
-	GO(__isoc99_fscanf, iEppV_t) \
+	GO(__isoc23_sscanf, iEppV_t) \
 	GO(swscanf, iEppV_t) \
+	GO(__isoc23_fscanf, iESpV_t) \
+	GO(__isoc99_fscanf, iESpV_t) \
 	GO(fscanf, iESpV_t) \
 	GO(readv, lEipi_t) \
 	GO(recvmsg, lEipi_t) \
@@ -215,9 +222,14 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(shmat, pEipi_t) \
 	GO(gethostbyaddr, pFpui_t) \
 	GO(__realpath_chk, pEppi_t) \
+	GO(__isoc23_strtoll, IEpBp_i_t) \
+	GO(__isoc23_strtoull, UEpBp_i_t) \
 	GO(__strtold_l, KEpBp_a_t) \
 	GO(strtold_l, KEpBp_a_t) \
+	GO(__isoc23_strtol, lEpBp_i_t) \
+	GO(__isoc23_wcstol, lEpBp_i_t) \
 	GO(wcstol, lEpBp_i_t) \
+	GO(__isoc23_strtoul, LEpBp_i_t) \
 	GO(wcstoul, LEpBp_i_t) \
 	GO(__vsyslog_chk, vEiipp_t) \
 	GO(__syslog_chk, vEiipV_t) \

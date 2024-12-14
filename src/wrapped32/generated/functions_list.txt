@@ -712,6 +712,7 @@
 #() pEppBp_ -> pEppB
 #() pFppbp_ -> pFppB
 #() pFXLbL_ -> pFXLB
+#() iEpprLL_ -> iEppB
 #() iFXLbpp_ -> iFXLB
 #() iFXbLC_i -> iFXBi
 #() vFLbL_bL_ -> vFLBB
@@ -1962,6 +1963,7 @@ wrappedlibc:
   - _obstack_newchunk
 - vEpu:
 - vEpp:
+- iFip:
 - iEip:
   - fstatvfs
   - fstatvfs64
@@ -1980,6 +1982,7 @@ wrappedlibc:
   - statvfs
   - statvfs64
   - utimes
+- iFpp:
 - iEpV:
   - execl
   - execlp
@@ -2022,14 +2025,17 @@ wrappedlibc:
 - iEppi:
   - regcomp
 - iEppp:
+  - __isoc23_vsscanf
   - execvpe
   - vswscanf
 - iEppV:
-  - __isoc99_fscanf
+  - __isoc23_sscanf
   - swscanf
 - iEpON:
 - iESpp:
 - iESpV:
+  - __isoc23_fscanf
+  - __isoc99_fscanf
   - fscanf
 - lEipi:
   - readv
@@ -2047,12 +2053,19 @@ wrappedlibc:
 - pEpLL:
 - pEppi:
   - __realpath_chk
+- IEpBp_i:
+  - __isoc23_strtoll
+- UEpBp_i:
+  - __isoc23_strtoull
 - KEpBp_a:
   - __strtold_l
   - strtold_l
 - lEpBp_i:
+  - __isoc23_strtol
+  - __isoc23_wcstol
   - wcstol
 - LEpBp_i:
+  - __isoc23_strtoul
   - wcstoul
 - vEiipp:
   - __vsyslog_chk

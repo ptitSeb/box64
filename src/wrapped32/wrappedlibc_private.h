@@ -417,6 +417,7 @@ GO(__fsetlocking, iESi)
 //GO(fsetpos, iEpp)
 //GO(fsetpos64, iEpp)
 GO(fsetxattr, iEippLi)
+GOM(fstat, iFip)    //%%,noE
 GOWM(fstatfs, iEip) //%%,noE
 GOWM(fstatfs64, iEip)    //%%,noE
 GOM(fstatvfs, iEEip)
@@ -894,7 +895,7 @@ GOW(isnanf, iEf)
 GO(__isnanf, iEf)
 // isnanl   // Weak
 // __isnanl
-GO2(__isoc99_fscanf, iEEppV, my32_fscanf)
+GO2(__isoc99_fscanf, iEESpV, my32_fscanf)
 // __isoc99_fwscanf
 // __isoc99_scanf
 GOM(__isoc99_sscanf, iEEppV)  //%%
@@ -906,6 +907,14 @@ GOM(__isoc99_sscanf, iEEppV)  //%%
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
+GO2(__isoc23_fscanf, iEESpV, my32_fscanf)
+GO2(__isoc23_sscanf, iEEppV, my32_sscanf)
+GO2(__isoc23_vsscanf, iEEppp, my32_vsscanf)
+GO2(__isoc23_wcstol, lEpBp_i, my32_wcstol)
+GO2(__isoc23_strtoll, IEpBp_i, strtoll)
+GO2(__isoc23_strtoull, UEpBp_i, strtoull)
+GO2(__isoc23_strtol, lEpBp_i, my32_strtol)
+GO2(__isoc23_strtoul, LEpBp_i, my32_strtoul)
 GO(isprint, iEi)
 // __isprint_l
 // isprint_l    // Weak
@@ -1585,7 +1594,7 @@ GOW(sigsetmask, iEi)
 // sigstack
 GOW(sigsuspend, iEp)
 // __sigsuspend
-//GOW(sigtimedwait, iEppp)
+GOW(sigtimedwait, iEpprLL_)
 //GOW(sigvec, iEipp)
 //GOW(sigwait, iEpp)
 //GOW(sigwaitinfo, iEpp)
@@ -1611,6 +1620,7 @@ GOM(sscanf, iEEppV) //%%
 GOM(__stack_chk_fail, vEEv) //%%
 //GOM(lstat64, iEpp)	//%%,noE
 //GOM(stat64, iEpp)	//%%,noE
+GOM(stat, iFpp) //%%,noE
 GOWM(statfs, iEpp)  //%%,noE
 // __statfs
 GOWM(statfs64, iEpp)     //%%,noE
@@ -1667,6 +1677,8 @@ GO(strlen, LEp)
 GOW(strncasecmp, iEppL)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
+GO(strlcat, pEppL)
+GO(strlcpy, pEppL)
 GO(strncat, pEppL)
 GO(__strncat_chk, pEppLL)
 GO(strncmp, iEppL)
@@ -2033,6 +2045,8 @@ GO(wctob, iEu)
 GO(__wctype_l, hEpa)
 GOW(wctype_l, hEpa)
 GO(wcwidth, iEu)
+GO(wcslcat, LFppL)
+GO(wcslcpy, LFppL)
 GOW(wmemchr, pEpiL)
 GO(wmemcmp, iEppL)
 GOW(wmemcpy, pEppL)
@@ -2198,9 +2212,7 @@ GO(__errno, pEv)
 //GO(__errno,
 #endif
 
-//GOM(stat,
 //GOM(lstat,
-//GOM(fstat,
 //GO(setprogname,
 //GO(getprogname,
 
