@@ -54,6 +54,8 @@ void inplace_XdbeScreenVisualInfo_enlarge(void* a);
 
 void inplace_XExtDisplayInfo_shrink(void* a);
 void inplace_XExtDisplayInfo_enlarge(void* a);
+void convert_XExtensionInfo_to_32(void* d, void* s);
+void convert_XExtensionInfo_to_64(void* d, void* s);
 void* inplace_XExtensionInfo_shrink(void* a);
 void* inplace_XExtensionInfo_enlarge(void* a);
 
@@ -108,6 +110,7 @@ void convert_XAnyClassInfo_to_32(void* d, void* s);
 void convert_XAnyClassInfo_to_64(void* d, void* s);
 void* inplace_XAnyClassInfo_shrink(void* a);
 void* inplace_XAnyClassInfo_enlarge(void* a);
-void* inplace_XDeviceInfo_shrink(void* a);
+void* inplace_XDeviceInfo_shrink(void* a, int n);
 void* inplace_XDeviceInfo_enlarge(void* a);
+
 #endif//MY_X11_CONV

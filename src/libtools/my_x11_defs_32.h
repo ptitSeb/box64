@@ -158,21 +158,21 @@ typedef struct my_XDisplay_32_s
     volatile ulong_t flags;
     int min_keycode;
     int max_keycode;
-    ptr_t keysyms;  //void *
+    ptr_t keysyms;  //void *                            //offset = 0xA0
     ptr_t modifiermap;  //void *
     int keysyms_per_keycode;
     ptr_t xdefaults;    //char *
-    ptr_t scratch_buffer;   //char *
+    ptr_t scratch_buffer;   //char *                    //offset = 0xB0
     ulong_t scratch_length;
     int ext_number;
     ptr_t ext_procs;    //struct my_XExten *
-    ptr_t event_vec;    //int (*event_vec[128])(void *, void *, void *);
-    ptr_t wire_vec; //int (*wire_vec[128])(void *, void *, void *);
-    XID_32 lock_meaning;
-    ptr_t lock; //void* 
+    ptr_t event_vec[128];    //int (*event_vec[128])(void *, void *, void *);   // start at 0xC0
+    ptr_t wire_vec[128]; //int (*wire_vec[128])(void *, void *, void *);
+    XID_32 lock_meaning;                                //offset = 0x4C0
+    ptr_t lock; //void*
     ptr_t async_handlers;   //struct my_XInternalAsync *
     ulong_t bigreq_size;
-    ptr_t lock_fns; //struct my_XLockPtrs *
+    ptr_t lock_fns; //struct my_XLockPtrs *             //offset = 0x4D0
     ptr_t idlist_alloc; //void (*idlist_alloc)(void *, void *, int);
     ptr_t key_bindings; //void* 
     XID_32 cursor_font;
@@ -1341,6 +1341,30 @@ typedef struct my_XAnyClassinfo_32_s {
     XID_32      c_class;
     int         length;
 } my_XAnyClassInfo_32_t;
+
+typedef struct my_XKeyInfo_32_s
+{
+    XID_32              c_class;
+    int                 length;
+    unsigned short      min_keycode;
+    unsigned short      max_keycode;
+    unsigned short      num_keys;
+} my_XKeyInfo_32_t;
+typedef struct my_XButtonInfo_32_s
+{
+    XID_32      c_class;
+    int         length;
+    short       num_buttons;
+} my_XButtonInfo_32_t;
+typedef struct  my_XValuatorInfo_32_s
+{
+    XID_32              c_class;
+    int                 length;
+    unsigned char       num_axes;
+    unsigned char       mode;
+    ulong_t             motion_buffer;
+    ptr_t               axes;   //XAxisInfoPtr
+} my_XValuatorInfo_32_t;
 
 typedef struct my_XDeviceInfo_32_s
 {

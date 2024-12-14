@@ -340,6 +340,12 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "XRRSetScreenSize")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %u, %d, %d, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16), from_ptri(int, R_ESP+20), from_ptri(int, R_ESP+24));
+                } else if(strstr(s, "XextAddDisplay")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, \'%s\', %p, %d, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+16)), from_ptri(int, R_ESP+20), from_ptrv(*(ptr_t*)from_ptr(R_ESP+24)));
+                } else if(strstr(s, "_XGetRequest")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %hhu, %u)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(uint8_t, R_ESP+8), from_ptri(ulong_t, R_ESP+12));
+                } else if(strstr(s, "_XReply")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16));
                 } else if(strstr(s, "pthread_mutex_init")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "pthread_mutex_lock")==s || strstr(s, "pthread_mutex_unlock")==s) {

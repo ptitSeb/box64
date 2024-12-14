@@ -1400,6 +1400,30 @@ typedef struct my_XAnyClassinfo_s {
     int         length;
 } my_XAnyClassInfo_t;
 
+typedef struct my_XKeyInfo_s
+{
+    XID                 c_class;
+    int                 length;
+    unsigned short      min_keycode;
+    unsigned short      max_keycode;
+    unsigned short      num_keys;
+} my_XKeyInfo_t;
+typedef struct my_XButtonInfo_s
+{
+    XID         c_class;
+    int         length;
+    short       num_buttons;
+} my_XButtonInfo_t;
+typedef struct  my_XValuatorInfo_s
+{
+    XID                 c_class;
+    int                 length;
+    unsigned char       num_axes;
+    unsigned char       mode;
+    unsigned long       motion_buffer;
+    void*               axes;   //XAxisInfoPtr
+} my_XValuatorInfo_t;
+
 typedef struct my_XDeviceInfo_s
 {
     XID                 id;        

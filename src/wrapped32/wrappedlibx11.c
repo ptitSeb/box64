@@ -1978,8 +1978,10 @@ EXPORT int my32_XGetWindowAttributes(x64emu_t* emu, void* dpy, XID window, my_XW
     my_XWindowAttributes_t l_attr = {0};
     int ret = my->XGetWindowAttributes(dpy, window, &l_attr);
     convert_XWindowAttributes_to_32(dpy, attr, &l_attr);
-    attr->screen = to_ptrv(&screen32);
-    convert_Screen_to_32(&screen32, l_attr.screen);
+    if(ret) {
+        attr->screen = to_ptrv(&screen32);
+        convert_Screen_to_32(&screen32, l_attr.screen);
+    }
     return ret;
 }
 
@@ -2251,8 +2253,13 @@ EXPORT void* my32_XGetVisualInfo(x64emu_t* emu, void* dpy, long mask, my_XVisual
 {
     my_XVisualInfo_t template_l = {0};
     if(template) convert_XVisualInfo_to_64_novisual(dpy, &template_l, template);
-    my_XVisualInfo_t* ret = my->XGetVisualInfo(dpy, mask, template?(&template_l):NULL, n);
-    inplace_XVisualInfo_shrink(dpy, ret);
+    void* ret = my->XGetVisualInfo(dpy, mask, template?(&template_l):NULL, n);
+    if(ret) {
+        my_XVisualInfo_t* src = ret;
+        my_XVisualInfo_32_t* dst = ret;
+        for(int i=0; i<*n; ++i)
+            convert_XVisualInfo_to_32(dpy, &dst[i], &src[i]);
+    }
     return ret;
 }
 
@@ -2651,6 +2658,13 @@ EXPORT int my32_XScreenNumberOfScreen(x64emu_t* emu, void* s)
     my_Screen_32_t* screen = s;
     void* dpy = getDisplay(from_ptrv(screen->display));
     return my->XScreenNumberOfScreen(getScreen64(dpy, s));
+}
+
+EXPORT int my32__XReply(x64emu_t* emu, void* dpy, void* rep, int extra, int discard)
+{
+    int ret = my->_XReply(dpy, rep, extra, discard);
+    printf_log(LOG_DEBUG, " (reply type:%hhu, length:32+%u) ", *(uint8_t*)rep, ((uint32_t*)rep)[1]);
+    return ret;
 }
 
 #define CUSTOM_INIT                 \

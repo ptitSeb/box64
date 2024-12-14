@@ -113,7 +113,8 @@ EXPORT void my32_XFreeDeviceState(x64emu_t* emu, void* ds)
 
 EXPORT void* my32_XListInputDevices(x64emu_t* emu, void* dpy, int* n)
 {
-    return inplace_XDeviceInfo_shrink(my->XListInputDevices(dpy, n));
+    void* ret  = my->XListInputDevices(dpy, n);
+    return inplace_XDeviceInfo_shrink(ret, *n);
 }
 
 EXPORT void my32_XFreeDeviceList(x64emu_t* emu, void* l)

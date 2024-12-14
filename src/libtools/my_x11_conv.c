@@ -231,9 +231,9 @@ void* addDisplay(void* d)
             my32_Displays_64[i] = dpy;
             ret = &my32_Displays_32[i];
             free_funcs = &my32_free_funcs_32[i];
-            ret->free_funcs = to_ptrv(free_funcs);
+            ret->free_funcs = (dpy->free_funcs)?to_ptrv(free_funcs):0;
             lock_fns = &my32_lock_fns_32[i];
-            ret->lock_fns = to_ptrv(lock_fns);
+            ret->lock_fns = (dpy->lock_fns)?to_ptrv(lock_fns):0;
             my32_Displays_Visuals[i] = kh_init(visuals);
         }
     }
@@ -248,13 +248,11 @@ void* addDisplay(void* d)
 
     #define GO(A, W)\
     if(dpy->A)      \
-        if(!CheckBridged(system, dpy->A)) \
-            ret->A = AddCheckBridge(system, W, dpy->A, 0, #A); \
+        ret->A = AddCheckBridge(system, W, dpy->A, 0, #A); \
 
     #define GO2(A, B, W) \
     if(dpy->A && dpy->A->B)  \
-        if(!CheckBridged(system, dpy->A->B)) \
-            A->B = AddCheckBridge(system, W, dpy->A->B, 0, #B "_" #A); \
+        A->B = AddCheckBridge(system, W, dpy->A->B, 0, #B "_" #A); \
 
     ret->vendor = to_cstring(dpy->vendor);
     ret->fd = dpy->fd;
@@ -298,8 +296,8 @@ void* addDisplay(void* d)
     //TODO: event_vec?
     //TODO: wire_vec?
     //TODO: async_handlers?
-    GO2(lock_fns, lock_display, vFp_32)
-    GO2(lock_fns, unlock_display, vFp_32)
+    GO2(lock_fns, lock_display, vFX_32)
+    GO2(lock_fns, unlock_display, vFX_32)
     GO(idlist_alloc, vFppi_32)
     //TODO: error_vec?
     //TODO: flushes
@@ -341,6 +339,8 @@ void refreshDisplay(void* dpy)
     my_XDisplay_32_t* dst = FindDisplay(dpy);
     // sync last request
     dst->request = src->request;
+    // num lock
+    dst->num_lock = src->num_lock;
     // sync screens
     if(dst->nscreens!=src->nscreens) {
         my_Screen_32_t* screens = from_ptrv(dst->screens);
@@ -350,6 +350,53 @@ void refreshDisplay(void* dpy)
         for(int i=0; i<dst->nscreens; ++i)
             convert_Screen_to_32(screens+i, src->screens+i);
     }
+    // functions
+    bridge_t* system = my_context->libx11->w.bridge;
+    int N = -1;
+    for(int i=0; i<N_DISPLAY && (N==-1); ++i) {
+        if(my32_Displays_64[i]==dpy)
+            N = i;
+    }
+    struct my_XFreeFuncs_32 *free_funcs = &my32_free_funcs_32[N];
+    dst->free_funcs = (src->free_funcs)?to_ptrv(free_funcs):0;
+    struct my_XLockPtrs_32 *lock_fns = &my32_lock_fns_32[N];
+    dst->lock_fns = (src->lock_fns)?to_ptrv(lock_fns):0;
+    #define GO(A, W)\
+    if(src->A)      \
+        dst->A = AddCheckBridge(system, W, src->A, 0, #A); \
+
+    #define GO2(A, B, W) \
+    if(src->A && src->A->B)  \
+        A->B = AddCheckBridge(system, W, src->A->B, 0, #B "_" #A); \
+
+    GO2(free_funcs, atoms, vFp_32)
+    GO2(free_funcs, modifiermap, iFp_32)
+    GO2(free_funcs, key_bindings, vFp_32)
+    GO2(free_funcs, context_db, vFp_32)
+    GO2(free_funcs, defaultCCCs, vFp_32)
+    GO2(free_funcs, clientCmaps, vFp_32)
+    GO2(free_funcs, intensityMaps, vFp_32)
+    GO2(free_funcs, im_filters, vFp_32)
+    GO2(free_funcs, xkb, vFp_32)
+    GO(resource_alloc, LFp_32)
+    GO(synchandler, iFp_32)
+    //TODO: ext_procs?
+    //TODO: event_vec?
+    //TODO: wire_vec?
+    //TODO: async_handlers?
+    GO2(lock_fns, lock_display, vFX_32)
+    GO2(lock_fns, unlock_display, vFX_32)
+    GO(idlist_alloc, vFppi_32)
+    //TODO: error_vec?
+    //TODO: flushes
+    //TODO: im_fd_info?
+    //TODO: conn_watchers
+    GO(savedsynchandler, iFp_32)
+    //TODO: generic_event_vec?
+    //TODO: generic_event_copy_vec?
+
+    #undef GO
+    #undef GO2
 }
 
 void convert_XWMints_to_64(void* d, void* s)
@@ -577,7 +624,7 @@ void inplace_XExtDisplayInfo_shrink(void* a)
     my_XExtDisplayInfo_32_t* dst = a;
 
     dst->next = to_ptrv(src->next);
-    dst->display = to_ptrv(getDisplay(src->display));
+    dst->display = to_ptrv(FindDisplay(src->display));
     dst->codes = to_ptrv(src->codes);
     dst->data = to_ptrv(src->data);
 }
@@ -589,15 +636,15 @@ void inplace_XExtDisplayInfo_enlarge(void* a)
 
     dst->data = from_ptrv(src->data);
     dst->codes = from_ptrv(src->codes);
-    dst->display = FindDisplay(from_ptrv(src->display));
+    dst->display = getDisplay(from_ptrv(src->display));
     dst->next = from_ptrv(src->next);
 }
 
-void* inplace_XExtensionInfo_shrink(void* a)
+void convert_XExtensionInfo_to_32(void* d, void* s)
 {
-    if(!a) return a;
-    my_XExtensionInfo_t* src = a;
-    my_XExtensionInfo_32_t* dst = a;
+    if(!s || !d) return;
+    my_XExtensionInfo_t* src = s;
+    my_XExtensionInfo_32_t* dst = d;
 
     my_XExtDisplayInfo_t* head = src->head;
     while(head) {
@@ -608,13 +655,12 @@ void* inplace_XExtensionInfo_shrink(void* a)
     dst->head = to_ptrv(src->head);
     dst->cur = to_ptrv(src->cur);
     dst->ndisplays = src->ndisplays;
-    return a;
 }
-void* inplace_XExtensionInfo_enlarge(void* a)
+void convert_XExtensionInfo_to_64(void* d, void* s)
 {
-    if(!a) return a;
-    my_XExtensionInfo_32_t* src = a;
-    my_XExtensionInfo_t* dst = a;
+    if(!d || !s) return;
+    my_XExtensionInfo_32_t* src = s;
+    my_XExtensionInfo_t* dst = d;
 
     dst->ndisplays = src->ndisplays;
     dst->cur = from_ptrv(src->cur);
@@ -624,6 +670,17 @@ void* inplace_XExtensionInfo_enlarge(void* a)
         inplace_XExtDisplayInfo_enlarge(head);
         head = head->next;
     }
+}
+void* inplace_XExtensionInfo_shrink(void* a)
+{
+    if(a)
+        convert_XExtensionInfo_to_32(a, a);
+    return a;
+}
+void* inplace_XExtensionInfo_enlarge(void* a)
+{
+    if(a)
+        convert_XExtensionInfo_to_64(a, a);
     return a;
 }
 
@@ -1185,9 +1242,31 @@ void convert_XAnyClassInfo_to_32(void* d, void* s)
     if(!d || !s) return;
     my_XAnyClassInfo_t* src = s;
     my_XAnyClassInfo_32_t* dst = d;
-
-    dst->c_class = to_ulong(src->c_class);
-    dst->length = src->length;
+    int len = src->length;
+    switch(src->c_class) {
+        case 2: //ValuatorClass
+            {
+                my_XValuatorInfo_t* src = s;
+                my_XValuatorInfo_32_t* dst = d;
+                dst->c_class = to_ulong(src->c_class);
+                dst->length = src->length;
+                dst->num_axes = src->num_axes;
+                dst->mode = src->mode;
+                dst->motion_buffer = to_ulong(src->motion_buffer);
+                dst->axes = to_ptrv(src->axes);
+            }
+            break;
+        case 0: //KeyClass
+        case 1: //ButtonClass
+        case 3: //FeedbackClass
+        case 4: //ProximityClass
+        case 5: //FocusClass
+        case 6: //OtherClass
+        case 7: //AttachClass
+        default:
+            dst->c_class = to_ulong(src->c_class);
+            memmove(d+4, s+8, len-4);
+    }
 
 }
 void convert_XAnyClassInfo_to_64(void* d, void* s)
@@ -1196,8 +1275,31 @@ void convert_XAnyClassInfo_to_64(void* d, void* s)
     my_XAnyClassInfo_32_t* src = s;
     my_XAnyClassInfo_t* dst = d;
 
-    dst->length = src->length;
-    dst->c_class = from_ulong(src->c_class);
+    int len = src->length;
+    switch(src->c_class) {
+        case 2: //ValuatorClass
+            {
+                my_XValuatorInfo_32_t* src = s;
+                my_XValuatorInfo_t* dst = d;
+                dst->axes = from_ptrv(src->axes);
+                dst->motion_buffer = from_ulong(src->motion_buffer);
+                dst->mode = src->mode;
+                dst->num_axes = src->num_axes;
+                dst->length = src->length;
+                dst->c_class = from_ulong(src->c_class);
+            }
+            break;
+        case 0: //KeyClass
+        case 1: //ButtonClass
+        case 3: //FeedbackClass
+        case 4: //ProximityClass
+        case 5: //FocusClass
+        case 6: //OtherClass
+        case 7: //AttachClass
+        default:
+            memmove(d+8, s+4, len-4);
+            dst->c_class = from_ulong(src->c_class);
+    }
 }
 void* inplace_XAnyClassInfo_shrink(void* a)
 {
@@ -1212,20 +1314,32 @@ void* inplace_XAnyClassInfo_enlarge(void* a)
     return a;
 }
 
-void* inplace_XDeviceInfo_shrink(void* a)
+void* inplace_XDeviceInfo_shrink(void* a, int n)
 {
     if(a) {
         my_XDeviceInfo_t* src = a;
         my_XDeviceInfo_32_t* dst = a;
 
-        for(int i=0; i<src->num_classes; ++i)
-            convert_XAnyClassInfo_to_32(&((my_XAnyClassInfo_32_t*)src->inputclassinfo)[i], &src->inputclassinfo[i]);
-        dst->id = to_ulong(src->id);
-        dst->type = to_ulong(src->type);
-        dst->name = to_ptrv(src->name);
-        dst->num_classes = src->num_classes;
-        dst->use = src->use;
-        dst->inputclassinfo = to_ptrv(src->inputclassinfo);
+        for(int i=0; i<n; ++i, ++src, ++dst) {
+            void* p = src->inputclassinfo;
+            for(int j=0; j<src->num_classes; ++j) {
+                my_XAnyClassInfo_32_t* dst_c = p;
+                my_XAnyClassInfo_t* src_c = p;
+                int len = src_c->length;
+                convert_XAnyClassInfo_to_32(dst_c, src_c);
+                p += len;
+            }
+            dst->id = to_ulong(src->id);
+            dst->type = to_ulong(src->type);
+            dst->name = to_ptrv(src->name);
+            dst->num_classes = src->num_classes;
+            dst->use = src->use;
+            dst->inputclassinfo = to_ptrv(src->inputclassinfo);
+        }
+        // mark last record, even on only 1 record, thos last 2 uint32_t are free
+        dst->inputclassinfo = 0;
+        dst->name = 0;
+
     }
     return a;
 }
@@ -1234,15 +1348,29 @@ void* inplace_XDeviceInfo_enlarge(void* a)
     if(a) {
         my_XDeviceInfo_32_t* src = a;
         my_XDeviceInfo_t* dst = a;
-
-        dst->inputclassinfo = from_ptrv(src->inputclassinfo);
-        dst->use = src->use;
-        dst->num_classes = src->num_classes;
-        dst->name = from_ptrv(src->name);
-        dst->type = from_ulong(src->type);
-        dst->id = from_ulong(src->id);
-        for(int i=dst->num_classes-1; i>=0; --i)
-            convert_XAnyClassInfo_to_64(&dst->inputclassinfo[i], &((my_XAnyClassInfo_32_t*)dst->inputclassinfo)[i]);
+        int n = 0;
+        while(src[n].inputclassinfo && src[n].name) ++n;
+        src+=n-1;
+        dst+=n-1;
+        for(int i=n-1; i>=0; --i, --src, --dst) {
+            dst->inputclassinfo = from_ptrv(src->inputclassinfo);
+            dst->use = src->use;
+            dst->num_classes = src->num_classes;
+            dst->name = from_ptrv(src->name);
+            dst->type = from_ulong(src->type);
+            dst->id = from_ulong(src->id);
+            for(int j=dst->num_classes-1; j>=0; --j) {
+                void* p = dst->inputclassinfo;
+                my_XAnyClassInfo_t* dst_c = p;
+                my_XAnyClassInfo_32_t* src_c = p;
+                for(int k=0; k<j; ++k) {
+                    p+=src_c->length;
+                    dst_c = p;
+                    src_c = p;
+                }
+                convert_XAnyClassInfo_to_64(dst_c, src_c);
+            }
+        }
     }
     return a;
 }

@@ -49,6 +49,7 @@ typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXLpp_t)(void*, uintptr_t, void*, void*);
+typedef int32_t (*iFXpii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
@@ -160,6 +161,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetWMColormapWindows, iFXLpp_t) \
 	GO(XGetWMNormalHints, iFXLpp_t) \
 	GO(XGetWMProtocols, iFXLpp_t) \
+	GO(_XReply, iFXpii_t) \
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
 	GO(XCreateColormap, LFXLpi_t) \

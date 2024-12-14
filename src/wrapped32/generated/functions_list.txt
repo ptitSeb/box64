@@ -1193,6 +1193,7 @@
 #() iFEXLLp -> iFEXLLp
 #() iFEXLpi -> iFEXLpi
 #() iFEXLpp -> iFEXLpp
+#() iFEXpii -> iFEXpii
 #() iFEXpLp -> iFEXpLp
 #() iFEXppu -> iFEXppu
 #() iFEXppp -> iFEXppp
@@ -2510,6 +2511,8 @@ wrappedlibx11:
   - XGetWMColormapWindows
   - XGetWMNormalHints
   - XGetWMProtocols
+- iFXpii:
+  - _XReply
 - iFXppp:
   - XCheckIfEvent
   - XIfEvent
