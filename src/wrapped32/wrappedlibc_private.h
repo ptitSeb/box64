@@ -1305,8 +1305,8 @@ GOM(__printf_chk, iEEipV) //%%
 // printf_size_info
 // profil   // Weak
 // __profile_frequency
-//DATAM(__progname, 4)
-//DATAM(__progname_full, 4)
+DATAM(__progname, 4)
+DATAM(__progname_full, 4)
 DATAM(program_invocation_name, 4)
 DATAM(program_invocation_short_name, 4)
 //GOW(pselect, iEippppp)
