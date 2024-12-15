@@ -824,15 +824,8 @@ EXPORT int my32_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
 // TODO: find a better way for mutex. It should be possible to use the actual mutex most of the time, especially for simple ones
 // Having the mutex table behind a mutex is far from ideal!
 
-typedef struct fake_pthread_mutext_s {
-	int __lock;
-	unsigned int __count;
-  	int __owner;
-	int i386__kind;
-	int __kind;
-	ptr_t real_mutex;
-} fakse_phtread_mutex_t;
-#define KIND_SIGN	0xbad001
+#include "threads32.h"
+
 pthread_mutex_t* createNewMutex()
 {
 	pthread_mutex_t* ret = (pthread_mutex_t*)box_calloc(1, sizeof(pthread_mutex_t));
@@ -842,7 +835,7 @@ pthread_mutex_t* createNewMutex()
 // init = 1: get the mutex and init it with optione attr (attr will disallow native mutex)
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 {
-	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
+	fake_phtread_mutex_t* fake = (fake_phtread_mutex_t*)m;
 	if(!fake->__lock && !fake->__count && !fake->__owner && !fake->__kind && !fake->i386__kind && !fake->real_mutex) {
 		printf_log(LOG_DEBUG, " (init t0) ", m);
 		fake->real_mutex = KIND_SIGN;
@@ -876,7 +869,7 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 }
 EXPORT int my32_pthread_mutex_destroy(pthread_mutex_t *m)
 {
-	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
+	fake_phtread_mutex_t* fake = (fake_phtread_mutex_t*)m;
 	if(fake->real_mutex==KIND_SIGN) {
 		//TODO: check if that save/restore is actually needed
 		uint8_t saved[sizeof(pthread_mutex_t)];
@@ -910,7 +903,7 @@ EXPORT int my32___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias
 
 EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
 {
-	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
+	fake_phtread_mutex_t* fake = (fake_phtread_mutex_t*)m;
 	if(!att) {
 		fake->__lock = 0;
 		fake->__count = 0;

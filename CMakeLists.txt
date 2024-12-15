@@ -416,6 +416,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/librarian/globalsymbols32.c"
         "${BOX64_ROOT}/src/libtools/myalign32.c"
         "${BOX64_ROOT}/src/libtools/myalign64_32.c"
+        "${BOX64_ROOT}/src/libtools/myalignxcb32.c"
         "${BOX64_ROOT}/src/libtools/signal32.c"
         "${BOX64_ROOT}/src/libtools/threads32.c"
         "${BOX64_ROOT}/src/libtools/libc_net32.c"

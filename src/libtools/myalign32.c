@@ -1572,15 +1572,3 @@ void convert_regext_to_64(void* d, void* s)
     dst->re_nsub = from_ulong(src->re_nsub);
     dst->flags = src->flags;
 }
-
-void* add_xcb_connection(void* src);
-void del_xcb_connection(void* src);
-
-void* add_xcb_connection32(void* src)
-{
-    return add_xcb_connection(src);
-}
-void del_xcb_connection32(void* src)
-{
-    del_xcb_connection(src);
-}
