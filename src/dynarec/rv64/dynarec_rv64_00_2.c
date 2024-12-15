@@ -345,10 +345,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 B_NEXT_nocond;
                 MARK;
                 // Unaligned
-                ANDI(x5, EDEADLK, -(1 << (rex.w + 2)));
-                LDxw(x1, ed, 0);
+                ANDI(x5, ed, -(1 << (rex.w + 2)));
                 MARKLOCK;
-                LDxw(x1, wback, 0);
+                LDxw(x1, ed, 0);
                 LRxw(x3, x5, 1, 1);
                 SCxw(x4, x3, x5, 1, 1);
                 BNEZ_MARKLOCK(x4);

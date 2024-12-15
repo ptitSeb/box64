@@ -494,7 +494,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x3, wback, ~3); // aligned addr
                         ADDI(x1, xZR, u8);
                         SLL(x1, x1, x2); // Ib << offset
-                        AMOORxw(x4, x1, x3, 1, 1);
+                        AMOOR_W(x4, x1, x3, 1, 1);
                         IFXORNAT (X_ALL | X_PEND) {
                             SRL(x1, x4, x2);
                             ANDI(x1, x1, 0xFF);
@@ -631,7 +631,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                         BNEZ_MARK3(x1);
                         // Aligned
-                        SUB(x4, xZR, x7);
+                        SUBxw(x4, xZR, x7);
                         AMOADDxw(x1, x4, wback, 1, 1);
                         B_MARK_nocond;
                         MARK3;
