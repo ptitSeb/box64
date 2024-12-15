@@ -268,10 +268,13 @@ pid_t my_vfork(x64emu_t* emu);
 static int clone32_fn(void* arg)
 {
     x64emu_t *emu = (x64emu_t*)arg;
+    printf_log(LOG_DEBUG, "%04d|New clone32_fn starting with emu=%p (R_ESP=%p)\n", GetTID(), arg, from_ptrv(R_ESP));
+    thread_forget_emu();
     thread_set_emu(emu);
     R_EAX = 0;
     DynaRun(emu);
     int ret = S_EAX;
+    printf_log(LOG_DEBUG, "%04d|clone32_fn ending with ret=%d (emu=%p)\n", GetTID(), ret, arg);
     FreeX64Emu(&emu);
     my_context->stack_clone_used = 0;
     return ret;
@@ -281,7 +284,7 @@ static int clone32_fn(void* arg)
 void EXPORT x86Syscall(x64emu_t *emu)
 {
     uint32_t s = R_EAX;
-    printf_log(LOG_DEBUG, "%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI); 
+    printf_log(LOG_DEBUG, "%04d|%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     void* tmp;
@@ -377,24 +380,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
                     void* stack_base = from_ptrv(R_ECX);
                     int stack_size = 0;
                     uintptr_t sp = R_ECX;
-                    if(!R_RSI) {
-                        // allocate a new stack...
-                        int currstack = 0;
-                        if((R_ESP>=(uintptr_t)emu->init_stack) && (R_ESP<=((uintptr_t)emu->init_stack+emu->size_stack)))
-                            currstack = 1;
-                        stack_size = (currstack && emu->size_stack)?emu->size_stack:(1024*1024);
-                        stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
-                        // copy value from old stack to new stack
-                        if(currstack) {
-                            memcpy(stack_base, emu->init_stack, stack_size);
-                            sp = (uintptr_t)emu->init_stack + R_ESP - (uintptr_t)stack_base;
-                        } else {
-                            int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_ESP);
-                            memcpy(stack_base+stack_size-size_to_copy, from_ptrv(R_ESP), size_to_copy);
-                            sp = (uintptr_t)stack_base+stack_size-size_to_copy;
-                        }
-                    }
-                    x64emu_t * newemu = NewX64Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, (R_ECX)?0:1);
+                    x64emu_t * newemu = NewX64Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, 0);
                     SetupX64Emu(newemu, emu);
                     CloneEmu(newemu, emu);
                     newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
@@ -417,7 +403,8 @@ void EXPORT x86Syscall(x64emu_t *emu)
                     S_RAX = syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_EDI, R_ESI);    // invert R_ESI/R_EDI on Aarch64 and most other
                     #endif
             }
-            break;        /*case 123:   // SYS_modify_ldt
+            break;        
+        /*case 123:   // SYS_modify_ldt
             R_EAX = my32_modify_ldt(emu, R_EBX, (thread_area_t*)(uintptr_t)R_ECX, R_EDX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;

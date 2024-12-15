@@ -11,10 +11,14 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpip_t)(void*, int32_t, void*);
+typedef int32_t (*iFpuip_t)(void*, uint32_t, int32_t, void*);
 typedef int32_t (*iEpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(ns_initparse, iFpip_t) \
+	GO(ns_parserr, iFpuip_t) \
 	GO(__res_query, iEpiipi_t) \
 	GO(res_query, iEpiipi_t) \
 	GO(res_search, iEpiipi_t) \

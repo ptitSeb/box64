@@ -1695,7 +1695,7 @@ EXPORT void* my32_XOpenDisplay(void* name)
 EXPORT int my32_XCloseDisplay(x64emu_t* emu, void* dpy)
 {
     int ret = my->XCloseDisplay(dpy);
-    if(ret) delDisplay(dpy);
+    if(!ret) delDisplay(dpy);
     return ret;
 }
 

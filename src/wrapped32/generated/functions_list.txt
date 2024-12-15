@@ -909,7 +909,6 @@
 #() iFpCCC -> iFpCCC
 #() iFpWWu -> iFpWWu
 #() iEpuiL -> iEpuiL
-#() iFpuip -> iFpuip
 #() iFpuuU -> iFpuuU
 #() iFpuLp -> iFpuLp
 #() iFpupi -> iFpupi
@@ -2395,6 +2394,10 @@ wrappedlibpthread:
 - iEBh_ppp:
   - pthread_create
 wrappedlibresolv:
+- iFpip:
+  - ns_initparse
+- iFpuip:
+  - ns_parserr
 - iEpiipi:
   - __res_query
   - res_query

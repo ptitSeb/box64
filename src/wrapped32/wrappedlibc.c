@@ -1720,6 +1720,7 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = FileIsX64ELF(path);
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     if (x86 || x64 || self) {
         int skip_first = 0;
@@ -1728,11 +1729,19 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        int toadd = script?2:1;
+        const char** newargv = (const char**)calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
         for(int i=0; i<n; ++i)
             newargv[i+1] = from_ptrv(argv[skip_first+i]);
-        if(self) newargv[1] = emu->context->fullpath;
+        if(self)
+            newargv[1] = emu->context->fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], skip_first?from_ptrv(argv[skip_first]):path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = skip_first?from_ptrv(argv[skip_first]):path;
+        }
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
@@ -3254,6 +3263,8 @@ EXPORT char* my32_program_invocation_short_name = NULL;
 EXPORT ptr_t my32_stdin = 0;
 EXPORT ptr_t my32_stdout = 0;
 EXPORT ptr_t my32_stderr = 0;
+
+EXPORT int __libc_enable_secure = 1;
 
 EXPORT long_t my32_timezone = 0;
 EXPORT void my32_tzset()

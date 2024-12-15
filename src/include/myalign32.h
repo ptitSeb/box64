@@ -602,5 +602,25 @@ typedef struct my_regex_32_s
 void convert_regext_to_32(void* d, void* s);
 void convert_regext_to_64(void* d, void* s);
 
+typedef struct my_ns_msg_32_s {
+	ptr_t     _msg; //const unsigned char	*_
+  ptr_t     _eom; //const unsigned char	*_
+	uint16_t	_id;
+  uint16_t  _flags;
+  uint16_t  _counts[4];
+	ptr_t     _sections[4];//const unsigned char	*_
+	uint32_t	_sect;
+	int			  _rrnum;
+	ptr_t     _msg_ptr; //const unsigned char	*
+} my_ns_msg_32_t;
+
+typedef	struct my_ns_rr_32_s {
+	char			  name[1025];
+	uint16_t		type;
+	uint16_t		rr_class;
+	uint32_t		ttl;
+	uint16_t		rdlength;
+	ptr_t	      rdata;  //const unsigned char *
+} my_ns_rr_32_t;
 
 #endif//__MY_ALIGN32__H_

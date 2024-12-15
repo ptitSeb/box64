@@ -2194,7 +2194,7 @@ GO(fallocate64, iEiiII)
 //DATAM(__libc_stack_end, 4)
 
 //DATAM(___brk_addr, 4)
-//DATA(__libc_enable_secure, 4)
+DATA(__libc_enable_secure, 4)
 
 GOM(__register_frame_info, vEpp)  //%%,noE faked function
 GOM(__deregister_frame_info, pEp) //%%,noE
