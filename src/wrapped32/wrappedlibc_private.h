@@ -1158,11 +1158,11 @@ GOWM(mremap, pEEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MR
 //GOW(msgrcv, lEipLli)
 //GOW(msgsnd, iEipLi)
 GOW(msync, iEpLi)
-// mtrace
+GO(mtrace, vFv)
 GO(munlock, iEpL)
 GO(munlockall, iEv)
 GOM(munmap, iEEpL)       //%%
-// muntrace
+GO(muntrace, vFv)
 GOWM(nanosleep, iErLL_BLL_)	 //%%,noE
 // __nanosleep  // Weak
 // netname2host
