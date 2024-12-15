@@ -518,24 +518,25 @@ struct i386_msghdr
   ptr_t     msg_control;  // void *
   ulong_t   msg_controllen;
   int msg_flags;
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_mmsghdr {
     struct i386_msghdr msg_hdr;
     unsigned int       msg_len;
 };
 
+// Some docs show cmsg_len as a socklen_t (so uint32_t), but thsi not true, it's a size_t (kernel_size_t)
 struct i386_cmsghdr
 {
-  uint32_t cmsg_len;
+  ulong_t cmsg_len;
   int cmsg_level;
   int cmsg_type;
-} __attribute__((packed, aligned(4)));
+};
 
 void AlignIOV_32(void* dest, void* source);   // x86 -> Native
 void UnalignIOV_32(void* dest, void* source); // Native -> x86
 
-void AlignMsgHdr_32(void* dest, void* dest_iov, void* source);   // x86 -> Native
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control);    // x86 -> Native
 void UnalignMsgHdr_32(void* dest, void* source); // back to Native -> x86
 
 struct i386_passwd

@@ -42,7 +42,8 @@ EXPORT ssize_t my32_recvmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, 
 {
     struct iovec iov[msg->msg_iovlen];
     struct msghdr m;
-    AlignMsgHdr_32(&m, iov, msg);
+    uint8_t buff[msg->msg_controllen+256];
+    AlignMsgHdr_32(&m, iov, buff, msg, 0);
     ssize_t ret = recvmsg(socket, &m, flags);
     UnalignMsgHdr_32(msg, &m);
     return ret;
@@ -52,7 +53,8 @@ EXPORT ssize_t my32_sendmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, 
 {
     struct iovec iov[msg->msg_iovlen];
     struct msghdr m;
-    AlignMsgHdr_32(&m, iov, msg);
+    uint8_t buff[msg->msg_controllen+256];
+    AlignMsgHdr_32(&m, iov, buff, msg, 1);
     ssize_t ret = sendmsg(socket, &m, flags);
     UnalignMsgHdr_32(msg, &m);
     return ret;
@@ -62,13 +64,16 @@ EXPORT int my32_recvmmsg(x64emu_t* emu, int socket, struct i386_mmsghdr* msgs, u
 {
     struct mmsghdr m[vlen];
     uint32_t iovlen = 0;
+    size_t ctrlen = 0;
     for(uint32_t i=0; i<vlen; ++i) {
         if(msgs[i].msg_hdr.msg_iovlen>iovlen) iovlen = msgs[i].msg_hdr.msg_iovlen;
+        if(msgs[i].msg_hdr.msg_controllen>ctrlen) ctrlen = msgs[i].msg_hdr.msg_controllen;
         m[i].msg_len = msgs[i].msg_len;
     }
     struct iovec iov[vlen][iovlen];
+    uint8_t buff[vlen][ctrlen+256];
     for(uint32_t i=0; i<vlen; ++i)
-        AlignMsgHdr_32(&m[i].msg_hdr, iov[i], &msgs[i].msg_hdr);
+        AlignMsgHdr_32(&m[i].msg_hdr, iov[i], buff[i], &msgs[i].msg_hdr, 1);
     int ret = recvmmsg(socket, m, vlen, flags, timeout);
     for(uint32_t i=0; i<vlen; ++i) {
         UnalignMsgHdr_32(&msgs[i].msg_hdr, &m[i].msg_hdr);
@@ -81,13 +86,16 @@ EXPORT int my32_sendmmsg(x64emu_t* emu, int socket, struct i386_mmsghdr* msgs, u
 {
     struct mmsghdr m[vlen];
     uint32_t iovlen = 0;
+    size_t ctrlen = 0;
     for(uint32_t i=0; i<vlen; ++i) {
         if(msgs[i].msg_hdr.msg_iovlen>iovlen) iovlen = msgs[i].msg_hdr.msg_iovlen;
+        if(msgs[i].msg_hdr.msg_controllen>ctrlen) ctrlen = msgs[i].msg_hdr.msg_controllen;
         m[i].msg_len = msgs[i].msg_len;
     }
     struct iovec iov[vlen][iovlen];
+    uint8_t buff[vlen][ctrlen+256];
     for(uint32_t i=0; i<vlen; ++i)
-        AlignMsgHdr_32(&m[i].msg_hdr, iov[i], &msgs[i].msg_hdr);
+        AlignMsgHdr_32(&m[i].msg_hdr, iov[i], buff[i], &msgs[i].msg_hdr, 1);
     int ret = sendmmsg(socket, m, vlen, flags);
     for(uint32_t i=0; i<vlen; ++i) {
         UnalignMsgHdr_32(&msgs[i].msg_hdr, &m[i].msg_hdr);
