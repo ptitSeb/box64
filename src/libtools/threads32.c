@@ -449,6 +449,8 @@ kh_mapcond_t *mapcond = NULL;
 
 static pthread_cond_t* add_cond(void* cond)
 {
+	if(((uintptr_t)cond)&7==0)
+		return cond;
 	mutex_lock(&my_context->mutex_thread);
 	khint_t k;
 	int ret;
@@ -464,6 +466,8 @@ static pthread_cond_t* add_cond(void* cond)
 }
 static pthread_cond_t* get_cond(void* cond)
 {
+	if(((uintptr_t)cond)&7==0)
+		return cond;
 	pthread_cond_t* ret;
 	int r;
 	mutex_lock(&my_context->mutex_thread);
@@ -476,7 +480,8 @@ static pthread_cond_t* get_cond(void* cond)
 			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
 			kh_value(mapcond, k) = ret;
 			//*(ptr_t*)cond = to_ptrv(cond);
-			pthread_cond_init(ret, NULL);
+			//pthread_cond_init(ret, NULL);
+			memcpy(ret, cond, sizeof(pthread_cond_t));
 		} else
 			ret = kh_value(mapcond, k);
 	} else
@@ -486,6 +491,8 @@ static pthread_cond_t* get_cond(void* cond)
 }
 static void del_cond(void* cond)
 {
+	if(((uintptr_t)cond)&7==0)
+		return;
 	if(!mapcond)
 		return;
 	mutex_lock(&my_context->mutex_thread);
