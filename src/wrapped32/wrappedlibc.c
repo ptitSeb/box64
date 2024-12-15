@@ -3304,11 +3304,14 @@ extern void* my__IO_2_1_stderr_;
 extern void* my__IO_2_1_stdin_ ;
 extern void* my__IO_2_1_stdout_;
 
+void libc32_net_init();
+
 #define CUSTOM_INIT         \
     box64->libclib = lib;   \
     my_lib = lib;           \
     InitCpuModel();         \
     ctSetup();              \
+    libc32_net_init();      \
     /*obstackSetup();*/     \
     my32_environ = my32__environ = my32___environ = box64->envv32;          \
     my32___progname_full = my32_program_invocation_name = box64->argv[0];   \

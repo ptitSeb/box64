@@ -2,6 +2,8 @@
 #error Meh...
 #endif
 
+//DATA not M cannot work on libc wbecause it's loaded in high memory
+
 // FILE* is S
 // locale_t needs special handling, with to_locale / from_locale (and is a / A)
 // struct utimbuf is: LL
@@ -671,8 +673,8 @@ GO(iconv_open, pEpp)
 GO(if_nametoindex, uEp)
 // imaxabs  // Weak
 GOWS(imaxdiv, pEpII) //%%
-DATA(in6addr_any, 16)  // type R
-DATA(in6addr_loopback, 16) // type R
+DATAM(in6addr_any, 16)  // type R
+DATAM(in6addr_loopback, 16) // type R
 // inb  // Weak
 //GOW(index, pEpi)
 // inet6_opt_append

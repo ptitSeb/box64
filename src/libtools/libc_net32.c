@@ -21,6 +21,7 @@
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <resolv.h>
+#include <netinet/in.h>
 
 #include "box64stack.h"
 #include "x64emu.h"
@@ -632,4 +633,13 @@ EXPORT int my32_ns_parserr(x64emu_t* emu, my_ns_msg_32_t* handle, uint32_t secti
     convert_ns_rr_to_32(rr, &rr_l);
     convert_ns_msg_to_32(handle, &handle_l);
     return ret;
+}
+
+EXPORT struct in6_addr my32_in6addr_any;
+EXPORT struct in6_addr my32_in6addr_loopback;
+
+void libc32_net_init()
+{
+    my32_in6addr_any = in6addr_any;
+    my32_in6addr_loopback = in6addr_loopback;
 }
