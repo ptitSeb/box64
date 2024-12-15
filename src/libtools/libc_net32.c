@@ -45,7 +45,8 @@ EXPORT ssize_t my32_recvmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, 
     uint8_t buff[msg->msg_controllen+256];
     AlignMsgHdr_32(&m, iov, buff, msg, 0);
     ssize_t ret = recvmsg(socket, &m, flags);
-    UnalignMsgHdr_32(msg, &m);
+    if(ret>0)
+        UnalignMsgHdr_32(msg, &m);
     return ret;
 }
 
