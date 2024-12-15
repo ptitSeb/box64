@@ -4,7 +4,6 @@
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <netdb.h>
-#include <resolv.h>
 
 #include "wrappedlibs.h"
 
@@ -27,6 +26,8 @@ static const char* libresolvName = "libresolv.so.2";
 #include "generated/wrappedlibresolvtypes32.h"
 
 #include "wrappercallback32.h"
+
+#include <resolv.h>
 
 void* convert_res_state_to_32(void* d, void* s);
 void* convert_res_state_to_64(void* d, void* s);
