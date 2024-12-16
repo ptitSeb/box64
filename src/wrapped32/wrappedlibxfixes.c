@@ -48,7 +48,7 @@ EXPORT void* my32_XFixesGetCursorImage(x64emu_t* emu, void* dpy)
         my_XFixesCursorImage_t* src = ret;
         my_XFixesCursorImage_32_t* dst = ret;
         for(size_t i=0; i<src->width*src->height; ++i)
-            ((ulong_t*)src->pixels)[i] = to_ulong(src->pixels[i]);
+            ((ulong_t*)src->pixels)[i] = to_ulong_silent(src->pixels[i]);
         dst->x = src->x;
         dst->y = src->y;
         dst->width = src->width;

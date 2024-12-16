@@ -88,6 +88,9 @@ static inline ptr_t to_ptrv_silent(void* p) {
 static inline void* from_ptriv(ptr_t l) {
     return from_ptrv(from_ptri(ptr_t, l));
 }
+static inline ptr_t to_ulong_silent(unsigned long l) {
+    return (ulong_t)l;
+}
 
 ulong_t to_hash(uintptr_t p);
 ulong_t to_hash_d(uintptr_t p);
