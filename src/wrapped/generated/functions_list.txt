@@ -72,6 +72,7 @@
 #() UFi
 #() UFu
 #() UFp
+#() UFb
 #() fFi
 #() fFf
 #() fFp
@@ -276,6 +277,9 @@
 #() UFpU
 #() UFpL
 #() UFpp
+#() UFbc
+#() UFbC
+#() UFbu
 #() fFEf
 #() fFEp
 #() fFif
@@ -360,7 +364,6 @@
 #() pFpL
 #() pFpp
 #() pFSi
-#() pFbC
 #() pFbu
 #() pFbp
 #() SFip
@@ -660,7 +663,6 @@
 #() uFppu
 #() uFppL
 #() uFppp
-#() uFbCu
 #() uFbWW
 #() uFbWu
 #() uFbuC
@@ -669,6 +671,13 @@
 #() uFbuU
 #() uFbup
 #() UFppi
+#() UFbCC
+#() UFbCu
+#() UFbCp
+#() UFbWW
+#() UFbWp
+#() UFbuu
+#() UFbup
 #() fFuii
 #() fFfff
 #() fFffp
@@ -811,12 +820,12 @@
 #() pFpSp
 #() pFpbi
 #() pFSpl
-#() pFbCC
 #() pFbuu
 #() pFbup
 #() pFbUp
 #() pFbpi
 #() pFbpu
+#() pFbpL
 #() pFbpp
 #() SFEpp
 #() SFpLp
@@ -1194,6 +1203,8 @@
 #() iFSpii
 #() iFSpiL
 #() iFbupp
+#() iFbUpp
+#() iFbpiU
 #() IFEpIi
 #() IFpIip
 #() IFppii
@@ -1237,15 +1248,21 @@
 #() uFpppL
 #() uFpppp
 #() uFbipp
-#() uFbCWp
 #() uFbuWp
 #() uFbuuC
 #() uFbuuu
-#() uFbuup
 #() UFpUui
 #() UFppii
 #() UFppip
 #() UFbipp
+#() UFbCWp
+#() UFbCuW
+#() UFbCuu
+#() UFbWWp
+#() UFbuWp
+#() UFbuuW
+#() UFbuuu
+#() UFbuup
 #() dFpppp
 #() lFEipV
 #() lFEpip
@@ -1408,9 +1425,6 @@
 #() pFpONN
 #() pFpbii
 #() pFSppi
-#() pFbCuW
-#() pFbCuu
-#() pFbuWp
 #() pFbuuC
 #() pFbuuu
 #() pFbuup
@@ -1833,11 +1847,19 @@
 #() uFpppip
 #() uFppppL
 #() uFppppp
-#() uFbCuuu
-#() uFbCuup
 #() uFbuuWW
-#() uFbuuup
 #() UFuiCiu
+#() UFbwwCC
+#() UFbCCCp
+#() UFbCCWp
+#() UFbCuWW
+#() UFbCuuu
+#() UFbCuup
+#() UFbuWwp
+#() UFbuWWW
+#() UFbuWWp
+#() UFbuuww
+#() UFbuuup
 #() lFEippL
 #() lFEuipp
 #() lFEppLL
@@ -1968,12 +1990,8 @@
 #() pFppppu
 #() pFppppL
 #() pFppppp
-#() pFbuWWW
-#() pFbuuWW
-#() pFbuuup
 #() pFbupii
 #() pFbpuii
-#() pFbpppp
 #() iWEpiup
 #() iWEpipp
 #() iWpiiii
@@ -2339,9 +2357,14 @@
 #() uFpppppi
 #() uFpppppp
 #() uFbippup
-#() uFbCuuWW
 #() uFbuuiup
+#() UFbwwwCC
 #() UFbippup
+#() UFbCuuCC
+#() UFbCuuWW
+#() UFbCuuWp
+#() UFbCuuup
+#() UFbuuuuu
 #() lFEpippp
 #() lFipipLu
 #() lFipLipu
@@ -2441,10 +2464,7 @@
 #() pFpppppu
 #() pFpppppp
 #() pFSpiiii
-#() pFbCuuCC
-#() pFbCuuup
 #() pFbuuwwu
-#() pFbuuuuu
 #() pFbuuUUU
 #() pFbpupii
 #() iWEpuuip
@@ -2691,9 +2711,16 @@
 #() uFppuiupu
 #() uFppuuuup
 #() uFppppppp
-#() uFbCuuuuu
 #() uFbuuuwwu
 #() uFbuupwwC
+#() UFbCuwwWW
+#() UFbCuwwup
+#() UFbCuWCCC
+#() UFbCuWWWW
+#() UFbCuuwwp
+#() UFbCuuuuu
+#() UFbuuwwup
+#() UFbuuCCup
 #() LFEppLppU
 #() LFEpppppu
 #() LFpLLuupp
@@ -2761,10 +2788,6 @@
 #() pFppppiip
 #() pFppppppu
 #() pFppppppp
-#() pFbCuwwWW
-#() pFbCuWCCC
-#() pFbCuuwwp
-#() pFbCpWWup
 #() iWpiiuuuu
 #() iWpuiiiip
 #() iWpuiiuii
@@ -2932,8 +2955,10 @@
 #() uFppuuuppu
 #() uFppuppppp
 #() uFpppppupp
-#() uFbCuuuCup
 #() uFbWWWWWWp
+#() UFbCuwwWWu
+#() UFbCuuuCup
+#() UFbuWWWWWW
 #() LFELpupupu
 #() LFEpuuuppp
 #() LFpLpuuLLu
@@ -2970,7 +2995,6 @@
 #() pFppppuppp
 #() pFpppppupp
 #() pFbCCuuwwC
-#() pFbCuwwWWu
 #() pFbWWiCpup
 #() pFbuuWWCuu
 #() pFbuuupwwp
@@ -3090,6 +3114,8 @@
 #() uFpuupuppuu
 #() uFppLpLuppp
 #() uFppppppppp
+#() UFbCuWCCuuu
+#() UFbuuwwWWww
 #() lFpppipiipp
 #() lFpppippppp
 #() LFEppppppii
@@ -3109,8 +3135,6 @@
 #() pFpppuipppp
 #() pFpppppiipp
 #() pFbiiCpWWup
-#() pFbCuWCCuuu
-#() pFbuuwwWWww
 #() pFbupuuuuup
 #() pFbppppuuCC
 #() iWEpuuiippu
@@ -3177,6 +3201,8 @@
 #() iFpppppppppu
 #() uFpddpippppp
 #() uFpppppppppp
+#() UFbCuWCCuuCW
+#() UFbuuuwwwwWW
 #() lFpLppdddddd
 #() pFEiuppppppp
 #() pFEpiiiiiipp
@@ -3189,9 +3215,7 @@
 #() pFppuuLLuppp
 #() pFpppiiiiiii
 #() pFpppppppppp
-#() pFbCuWCCuuCW
 #() pFbuwwWWuCuu
-#() pFbuuuwwwwWW
 #() pFbuuuWWWCCi
 #() iWEpuipupppp
 #() iWEpuuiiuipp
@@ -3251,6 +3275,7 @@
 #() uFEpLuppppLuA
 #() uFEppppppuppp
 #() uFppppppppppp
+#() UFbuuuwwwwWWu
 #() pFEpipppppppi
 #() pFEppiiLpppip
 #() pFEppuiipuuii
@@ -3287,6 +3312,8 @@
 #() iFpLpppppppppp
 #() iFppLlliLppppp
 #() iFpppppppppppp
+#() UFbCuuWWwwCCup
+#() UFbuuuWWWWWWWW
 #() LFpLiiuuuiupLp
 #() pFEpLiiuuLipii
 #() pFEppppppppppp
@@ -3294,8 +3321,6 @@
 #() pFppippLLLiLpp
 #() pFppuuppppuppp
 #() pFpppppppppppp
-#() pFbCuuWWwwCCup
-#() pFbuuuWWWWWWWW
 #() vFEpppppppuippp
 #() vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu
@@ -3314,7 +3339,7 @@
 #() iFppppppLLLLupp
 #() uFippuuuulllipp
 #() uFpppppuupppppp
-#() uFbCuuwwWWWWuup
+#() UFbCuuwwWWWWuup
 #() pFpuupppwwwwWWC
 #() pFppLppppiiLpip
 #() pFpppppppuipppp
@@ -5332,8 +5357,12 @@ wrappedlibxaw:
 wrappedlibxcb:
 - vFp:
   - xcb_disconnect
+- pFip:
+  - xcb_connect_to_fd
 - pFpp:
   - xcb_connect
+- pFppp:
+  - xcb_connect_to_display_with_auth_info
 wrappedlibxcbcursor:
 wrappedlibxcbdri2:
 wrappedlibxcbdri3:

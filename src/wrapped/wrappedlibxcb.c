@@ -33,6 +33,16 @@ EXPORT void* my_xcb_connect(x64emu_t* emu, void* dispname, void* screen)
 	return add_xcb_connection(my->xcb_connect(dispname, screen));
 }
 
+EXPORT void* my_xcb_connect_to_display_with_auth_info(x64emu_t* emu, void* dispname, void* auth, void* screen)
+{
+	return add_xcb_connection(my->xcb_connect_to_display_with_auth_info(dispname, auth, screen));
+}
+
+EXPORT void* my_xcb_connect_to_fd(x64emu_t* emu, int fd, void* auth)
+{
+	return add_xcb_connection(my->xcb_connect_to_fd(fd, auth));
+}
+
 EXPORT void my_xcb_disconnect(x64emu_t* emu, void* conn)
 {
 	my->xcb_disconnect(align_xcb_connection(conn));

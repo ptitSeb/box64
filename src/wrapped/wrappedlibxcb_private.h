@@ -1,678 +1,678 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
-GO(xcb_alloc_color, pFbuWWW)
-//GO(xcb_alloc_color_cells, 
-//GO(xcb_alloc_color_cells_masks, 
-//GO(xcb_alloc_color_cells_masks_end, 
-//GO(xcb_alloc_color_cells_masks_length, 
-//GO(xcb_alloc_color_cells_pixels, 
-//GO(xcb_alloc_color_cells_pixels_end, 
-//GO(xcb_alloc_color_cells_pixels_length, 
-//GO(xcb_alloc_color_cells_reply, 
-//GO(xcb_alloc_color_cells_sizeof, 
-//GO(xcb_alloc_color_cells_unchecked, 
-//GO(xcb_alloc_color_planes, 
-//GO(xcb_alloc_color_planes_pixels, 
-//GO(xcb_alloc_color_planes_pixels_end, 
-//GO(xcb_alloc_color_planes_pixels_length, 
-//GO(xcb_alloc_color_planes_reply, 
-//GO(xcb_alloc_color_planes_sizeof, 
-//GO(xcb_alloc_color_planes_unchecked, 
+GO(xcb_alloc_color, UFbuWWW)
+GO(xcb_alloc_color_cells, UFbCuWW)
+GO(xcb_alloc_color_cells_masks, pFp)
+GO(xcb_alloc_color_cells_masks_end, HFp)
+GO(xcb_alloc_color_cells_masks_length, iFp)
+GO(xcb_alloc_color_cells_pixels, pFp)
+GO(xcb_alloc_color_cells_pixels_end, HFp)
+GO(xcb_alloc_color_cells_pixels_length, iFp)
+GO(xcb_alloc_color_cells_reply, pFbup)
+GO(xcb_alloc_color_cells_sizeof, iFp)
+GO(xcb_alloc_color_cells_unchecked, UFbCuWW)
+GO(xcb_alloc_color_planes, UFbCuWWWW)
+GO(xcb_alloc_color_planes_pixels, pFp)
+GO(xcb_alloc_color_planes_pixels_end, HFp)
+GO(xcb_alloc_color_planes_pixels_length, iFp)
+GO(xcb_alloc_color_planes_reply, pFbup)
+GO(xcb_alloc_color_planes_sizeof, iFp)
+GO(xcb_alloc_color_planes_unchecked, UFbCuWWWW)
 GO(xcb_alloc_color_reply, pFbup)
-//GO(xcb_alloc_color_unchecked, 
-//GO(xcb_alloc_named_color, 
-//GO(xcb_alloc_named_color_reply, 
-//GO(xcb_alloc_named_color_sizeof, 
-//GO(xcb_alloc_named_color_unchecked, 
-//GO(xcb_allow_events, 
-//GO(xcb_allow_events_checked, 
+GO(xcb_alloc_color_unchecked, UFbuWWW)
+GO(xcb_alloc_named_color, UFbuWp)
+GO(xcb_alloc_named_color_reply, pFbup)
+GO(xcb_alloc_named_color_sizeof, iFp)
+GO(xcb_alloc_named_color_unchecked, UFbuWp)
+GO(xcb_allow_events, UFbCu)
+GO(xcb_allow_events_checked, UFbCu)
 //GO(xcb_arc_end, 
-//GO(xcb_arc_next, 
+GO(xcb_arc_next, vFp)
 //GO(xcb_atom_end, 
-//GO(xcb_atom_next, 
-GO(xcb_bell, pFbC)
-//GO(xcb_bell_checked, 
-//GO(xcb_big_requests_enable, 
-//GO(xcb_big_requests_enable_reply, 
-//GO(xcb_big_requests_enable_unchecked, 
-DATA(xcb_big_requests_id, sizeof(void*))
+GO(xcb_atom_next, vFp)
+GO(xcb_bell, UFbc)
+GO(xcb_bell_checked, UFbc)
+GO(xcb_big_requests_enable, UFb)
+GO(xcb_big_requests_enable_reply, pFbup)
+GO(xcb_big_requests_enable_unchecked, UFb)
+DATA(xcb_big_requests_id, 16)
 //GO(xcb_bool32_end, 
-//GO(xcb_bool32_next, 
+GO(xcb_bool32_next, vFp)
 //GO(xcb_button_end, 
-//GO(xcb_button_next, 
-//GO(xcb_change_active_pointer_grab, 
-//GO(xcb_change_active_pointer_grab_checked, 
-GO(xcb_change_gc, pFbuup)
-//GO(xcb_change_gc_aux, 
-//GO(xcb_change_gc_aux_checked, 
-GO(xcb_change_gc_checked, pFbuup)
-//GO(xcb_change_gc_sizeof, 
-//GO(xcb_change_gc_value_list, 
-//GO(xcb_change_gc_value_list_serialize, 
-//GO(xcb_change_gc_value_list_sizeof, 
-//GO(xcb_change_gc_value_list_unpack, 
-//GO(xcb_change_hosts, 
-//GO(xcb_change_hosts_address, 
-//GO(xcb_change_hosts_address_end, 
-//GO(xcb_change_hosts_address_length, 
-//GO(xcb_change_hosts_checked, 
-//GO(xcb_change_hosts_sizeof, 
-GO(xcb_change_keyboard_control, pFbup)
-//GO(xcb_change_keyboard_control_aux, 
-//GO(xcb_change_keyboard_control_aux_checked, 
-//GO(xcb_change_keyboard_control_checked, 
-//GO(xcb_change_keyboard_control_sizeof, 
-//GO(xcb_change_keyboard_control_value_list, 
-//GO(xcb_change_keyboard_control_value_list_serialize, 
-//GO(xcb_change_keyboard_control_value_list_sizeof, 
-//GO(xcb_change_keyboard_control_value_list_unpack, 
-//GO(xcb_change_keyboard_mapping, 
-//GO(xcb_change_keyboard_mapping_checked, 
-//GO(xcb_change_keyboard_mapping_keysyms, 
-//GO(xcb_change_keyboard_mapping_keysyms_end, 
-//GO(xcb_change_keyboard_mapping_keysyms_length, 
-//GO(xcb_change_keyboard_mapping_sizeof, 
-//GO(xcb_change_pointer_control, 
-//GO(xcb_change_pointer_control_checked, 
-GO(xcb_change_property, uFbCuuuCup)
-GO(xcb_change_property_checked, uFbCuuuCup)
-//GO(xcb_change_property_data, 
-//GO(xcb_change_property_data_end, 
-//GO(xcb_change_property_data_length, 
-//GO(xcb_change_property_sizeof, 
-GO(xcb_change_save_set, uFbCu)
-//GO(xcb_change_save_set_checked, 
-GO(xcb_change_window_attributes, uFbuup)
-//GO(xcb_change_window_attributes_aux, 
-//GO(xcb_change_window_attributes_aux_checked, 
-GO(xcb_change_window_attributes_checked, pFbuup)
-//GO(xcb_change_window_attributes_sizeof, 
-//GO(xcb_change_window_attributes_value_list, 
-//GO(xcb_change_window_attributes_value_list_serialize, 
-//GO(xcb_change_window_attributes_value_list_sizeof, 
-//GO(xcb_change_window_attributes_value_list_unpack, 
+GO(xcb_button_next, vFp)
+GO(xcb_change_active_pointer_grab, UFbuuW)
+GO(xcb_change_active_pointer_grab_checked, UFbuuW)
+GO(xcb_change_gc, UFbuup)
+GO(xcb_change_gc_aux, UFbuup)
+GO(xcb_change_gc_aux_checked, UFbuup)
+GO(xcb_change_gc_checked, UFbuup)
+GO(xcb_change_gc_sizeof, iFp)
+GO(xcb_change_gc_value_list, pFp)
+GO(xcb_change_gc_value_list_serialize, iFpup)
+GO(xcb_change_gc_value_list_sizeof, iFpu)
+GO(xcb_change_gc_value_list_unpack, iFpup)
+GO(xcb_change_hosts, UFbCCWp)
+GO(xcb_change_hosts_address, pFp)
+GO(xcb_change_hosts_address_end, HFp)
+GO(xcb_change_hosts_address_length, iFp)
+GO(xcb_change_hosts_checked, UFbCCWp)
+GO(xcb_change_hosts_sizeof, iFp)
+GO(xcb_change_keyboard_control, UFbup)
+GO(xcb_change_keyboard_control_aux, UFbup)
+GO(xcb_change_keyboard_control_aux_checked, UFbup)
+GO(xcb_change_keyboard_control_checked, UFbup)
+GO(xcb_change_keyboard_control_sizeof, iFp)
+GO(xcb_change_keyboard_control_value_list, pFp)
+GO(xcb_change_keyboard_control_value_list_serialize, iFpup)
+GO(xcb_change_keyboard_control_value_list_sizeof, iFpu)
+GO(xcb_change_keyboard_control_value_list_unpack, iFpup)
+GO(xcb_change_keyboard_mapping, UFbCCCp)
+GO(xcb_change_keyboard_mapping_checked, UFbCCCp)
+GO(xcb_change_keyboard_mapping_keysyms, pFp)
+GO(xcb_change_keyboard_mapping_keysyms_end, HFp)
+GO(xcb_change_keyboard_mapping_keysyms_length, iFp)
+GO(xcb_change_keyboard_mapping_sizeof, iFp)
+GO(xcb_change_pointer_control, UFbwwwCC)
+GO(xcb_change_pointer_control_checked, UFbwwwCC)
+GO(xcb_change_property, UFbCuuuCup)
+GO(xcb_change_property_checked, UFbCuuuCup)
+GO(xcb_change_property_data, pFp)
+GO(xcb_change_property_data_end, HFp)
+GO(xcb_change_property_data_length, iFp)
+GO(xcb_change_property_sizeof, iFp)
+GO(xcb_change_save_set, UFbCu)
+GO(xcb_change_save_set_checked, UFbCu)
+GO(xcb_change_window_attributes, UFbuup)
+GO(xcb_change_window_attributes_aux, UFbuup)
+GO(xcb_change_window_attributes_aux_checked, UFbuup)
+GO(xcb_change_window_attributes_checked, UFbuup)
+GO(xcb_change_window_attributes_sizeof, iFp)
+GO(xcb_change_window_attributes_value_list, pFp)
+GO(xcb_change_window_attributes_value_list_serialize, iFpup)
+GO(xcb_change_window_attributes_value_list_sizeof, iFpu)
+GO(xcb_change_window_attributes_value_list_unpack, iFpup)
 //GO(xcb_char2b_end, 
-//GO(xcb_char2b_next, 
+GO(xcb_char2b_next, vFp)
 //GO(xcb_charinfo_end, 
-//GO(xcb_charinfo_next, 
-//GO(xcb_circulate_window, 
-//GO(xcb_circulate_window_checked, 
-GO(xcb_clear_area, pFbCuwwWW)
-//GO(xcb_clear_area_checked, 
+GO(xcb_charinfo_next, vFp)
+GO(xcb_circulate_window, UFbCu)
+GO(xcb_circulate_window_checked, UFbCu)
+GO(xcb_clear_area, UFbCuwwWW)
+GO(xcb_clear_area_checked, UFbCuwwWW)
 //GO(xcb_client_message_data_end, 
-//GO(xcb_client_message_data_next, 
-GO(xcb_close_font, pFbu)
-GO(xcb_close_font_checked, pFbu)
+GO(xcb_client_message_data_next, vFp)
+GO(xcb_close_font, UFbu)
+GO(xcb_close_font_checked, UFbu)
 //GO(xcb_coloritem_end, 
-//GO(xcb_coloritem_next, 
+GO(xcb_coloritem_next, vFp)
 //GO(xcb_colormap_end, 
-//GO(xcb_colormap_next, 
-GO(xcb_configure_window, pFbuWp)
-//GO(xcb_configure_window_aux, 
-//GO(xcb_configure_window_aux_checked, 
-//GO(xcb_configure_window_checked, 
-//GO(xcb_configure_window_sizeof, 
-//GO(xcb_configure_window_value_list, 
-//GO(xcb_configure_window_value_list_serialize, 
-//GO(xcb_configure_window_value_list_sizeof, 
-//GO(xcb_configure_window_value_list_unpack, 
+GO(xcb_colormap_next, vFp)
+GO(xcb_configure_window, UFbuWp)
+GO(xcb_configure_window_aux, UFbuWp)
+GO(xcb_configure_window_aux_checked, UFbuWp)
+GO(xcb_configure_window_checked, UFbuWp)
+GO(xcb_configure_window_sizeof, iFp)
+GO(xcb_configure_window_value_list, pFp)
+GO(xcb_configure_window_value_list_serialize, iFpWp)
+GO(xcb_configure_window_value_list_sizeof, iFpW)
+GO(xcb_configure_window_value_list_unpack, iFpWp)
 GOM(xcb_connect, pFEpp)
 GO(xcb_connection_has_error, iFb)
-//GO(xcb_connect_to_display_with_auth_info, 
-//GO(xcb_connect_to_fd, 
-GO(xcb_convert_selection, pFbuuuuu)
-//GO(xcb_convert_selection_checked, 
-GO(xcb_copy_area, pFbuuuwwwwWW)
-GO(xcb_copy_area_checked, pFbuuuwwwwWW)
-//GO(xcb_copy_colormap_and_free, 
-//GO(xcb_copy_colormap_and_free_checked, 
-//GO(xcb_copy_gc, 
-//GO(xcb_copy_gc_checked, 
-//GO(xcb_copy_plane, 
-//GO(xcb_copy_plane_checked, 
-GO(xcb_create_colormap, uFbCuuu)
-GO(xcb_create_colormap_checked, uFbCuuu)
-GO(xcb_create_cursor, pFbuuuWWWWWWWW)
-//GO(xcb_create_cursor_checked, 
-GO(xcb_create_gc, uFbuuup)
-//GO(xcb_create_gc_aux, 
-//GO(xcb_create_gc_aux_checked, 
-GO(xcb_create_gc_checked, uFbuuup)
-//GO(xcb_create_gc_sizeof, 
-//GO(xcb_create_gc_value_list, 
-//GO(xcb_create_gc_value_list_serialize, 
-//GO(xcb_create_gc_value_list_sizeof, 
-//GO(xcb_create_gc_value_list_unpack, 
-GO(xcb_create_glyph_cursor, pFbuuuWWWWWWWW)
-//GO(xcb_create_glyph_cursor_checked, 
-GO(xcb_create_pixmap, uFbCuuWW)
-GO(xcb_create_pixmap_checked, uFbCuuWW)
-GO(xcb_create_window, uFbCuuwwWWWWuup)
-//GO(xcb_create_window_aux, 
-//GO(xcb_create_window_aux_checked, 
-GO(xcb_create_window_checked, uFbCuuwwWWWWuup)
-//GO(xcb_create_window_sizeof, 
-//GO(xcb_create_window_value_list, 
-//GO(xcb_create_window_value_list_serialize, 
-//GO(xcb_create_window_value_list_sizeof, 
-//GO(xcb_create_window_value_list_unpack, 
+GOM(xcb_connect_to_display_with_auth_info, pFEppp)
+GOM(xcb_connect_to_fd, pFEip)
+GO(xcb_convert_selection, UFbuuuuu)
+GO(xcb_convert_selection_checked, UFbuuuuu)
+GO(xcb_copy_area, UFbuuuwwwwWW)
+GO(xcb_copy_area_checked, UFbuuuwwwwWW)
+GO(xcb_copy_colormap_and_free, UFbuu)
+GO(xcb_copy_colormap_and_free_checked, UFbuu)
+GO(xcb_copy_gc, UFbuuu)
+GO(xcb_copy_gc_checked, UFbuuu)
+GO(xcb_copy_plane, UFbuuuwwwwWWu)
+GO(xcb_copy_plane_checked, UFbuuuwwwwWWu)
+GO(xcb_create_colormap, UFbCuuu)
+GO(xcb_create_colormap_checked, UFbCuuu)
+GO(xcb_create_cursor, UFbuuuWWWWWWWW)
+GO(xcb_create_cursor_checked, UFbuuuWWWWWWWW)
+GO(xcb_create_gc, UFbuuup)
+GO(xcb_create_gc_aux, UFbuuup)
+GO(xcb_create_gc_aux_checked, UFbuuup)
+GO(xcb_create_gc_checked, UFbuuup)
+GO(xcb_create_gc_sizeof, iFp)
+GO(xcb_create_gc_value_list, pFp)
+GO(xcb_create_gc_value_list_serialize, iFpup)
+GO(xcb_create_gc_value_list_sizeof, iFpu)
+GO(xcb_create_gc_value_list_unpack, iFpup)
+GO(xcb_create_glyph_cursor, UFbuuuWWWWWWWW)
+GO(xcb_create_glyph_cursor_checked, UFbuuuWWWWWWWW)
+GO(xcb_create_pixmap, UFbCuuWW)
+GO(xcb_create_pixmap_checked, UFbCuuWW)
+GO(xcb_create_window, UFbCuuwwWWWWuup)
+GO(xcb_create_window_aux, UFbCuuwwWWWWuup)
+GO(xcb_create_window_aux_checked, UFbCuuwwWWWWuup)
+GO(xcb_create_window_checked, UFbCuuwwWWWWuup)
+GO(xcb_create_window_sizeof, iFp)
+GO(xcb_create_window_value_list, pFp)
+GO(xcb_create_window_value_list_serialize, iFpup)
+GO(xcb_create_window_value_list_sizeof, iFpu)
+GO(xcb_create_window_value_list_unpack, iFpup)
 //GO(xcb_cursor_end, 
-//GO(xcb_cursor_next, 
-GO(xcb_delete_property, uFbuu)
-GO(xcb_delete_property_checked, uFbuu)
+GO(xcb_cursor_next, vFp)
+GO(xcb_delete_property, UFbuu)
+GO(xcb_delete_property_checked, UFbuu)
 //GO(xcb_depth_end, 
 GO(xcb_depth_next, vFp)
 GO(xcb_depth_sizeof, iFp)
 GO(xcb_depth_visuals, pFp)
-GO(xcb_depth_visuals_iterator, HFp)  //xcb_visualtype_iterator_t is a structure
-//GO(xcb_depth_visuals_length, 
-//GO(xcb_destroy_subwindows, 
-//GO(xcb_destroy_subwindows_checked, 
-GO(xcb_destroy_window, pFbu)
-//GO(xcb_destroy_window_checked, 
+GO(xcb_depth_visuals_iterator, HFp)
+GO(xcb_depth_visuals_length, iFp)
+GO(xcb_destroy_subwindows, UFbu)
+GO(xcb_destroy_subwindows_checked, UFbu)
+GO(xcb_destroy_window, UFbu)
+GO(xcb_destroy_window_checked, UFbu)
 GO(xcb_discard_reply, vFbu)
 GO(xcb_discard_reply64, vFbU)
 GOM(xcb_disconnect, vFEp)
 //GO(xcb_drawable_end, 
-//GO(xcb_drawable_next, 
-//GO(xcb_fill_poly, 
-//GO(xcb_fill_poly_checked, 
-//GO(xcb_fill_poly_points, 
-//GO(xcb_fill_poly_points_iterator, 
-//GO(xcb_fill_poly_points_length, 
-//GO(xcb_fill_poly_sizeof, 
+GO(xcb_drawable_next, vFp)
+GO(xcb_fill_poly, UFbuuCCup)
+GO(xcb_fill_poly_checked, UFbuuCCup)
+GO(xcb_fill_poly_points, pFp)
+GO(xcb_fill_poly_points_iterator, HFp)
+GO(xcb_fill_poly_points_length, iFp)
+GO(xcb_fill_poly_sizeof, iFpu)
 GO(xcb_flush, iFb)
 //GO(xcb_fontable_end, 
-//GO(xcb_fontable_next, 
+GO(xcb_fontable_next, vFp)
 //GO(xcb_font_end, 
-//GO(xcb_font_next, 
+GO(xcb_font_next, vFp)
 //GO(xcb_fontprop_end, 
-//GO(xcb_fontprop_next, 
-//GO(xcb_force_screen_saver, 
-//GO(xcb_force_screen_saver_checked, 
+GO(xcb_fontprop_next, vFp)
+GO(xcb_force_screen_saver, UFbC)
+GO(xcb_force_screen_saver_checked, UFbC)
 //GO(xcb_format_end, 
 GO(xcb_format_next, vFp)
-GO(xcb_free_colormap, pFbu)
-GO(xcb_free_colormap_checked, pFbu)
-//GO(xcb_free_colors, 
-//GO(xcb_free_colors_checked, 
-//GO(xcb_free_colors_pixels, 
-//GO(xcb_free_colors_pixels_end, 
-//GO(xcb_free_colors_pixels_length, 
-//GO(xcb_free_colors_sizeof, 
-GO(xcb_free_cursor, pFbp)
-//GO(xcb_free_cursor_checked, 
-GO(xcb_free_gc, uFbu)
-GO(xcb_free_gc_checked, uFbu)
-GO(xcb_free_pixmap, uFbu)
-GO(xcb_free_pixmap_checked, uFbu)
+GO(xcb_free_colormap, UFbu)
+GO(xcb_free_colormap_checked, UFbu)
+GO(xcb_free_colors, UFbuuup)
+GO(xcb_free_colors_checked, UFbuuup)
+GO(xcb_free_colors_pixels, pFp)
+GO(xcb_free_colors_pixels_end, HFp)
+GO(xcb_free_colors_pixels_length, iFp)
+GO(xcb_free_colors_sizeof, iFpu)
+GO(xcb_free_cursor, UFbu)
+GO(xcb_free_cursor_checked, UFbu)
+GO(xcb_free_gc, UFbu)
+GO(xcb_free_gc_checked, UFbu)
+GO(xcb_free_pixmap, UFbu)
+GO(xcb_free_pixmap_checked, UFbu)
 //GO(xcb_gcontext_end, 
-//GO(xcb_gcontext_next, 
+GO(xcb_gcontext_next, vFp)
 GO(xcb_generate_id, uFb)
-GO(xcb_get_atom_name, uFbu)
+GO(xcb_get_atom_name, UFbu)
 GO(xcb_get_atom_name_name, pFp)
-//GO(xcb_get_atom_name_name_end, 
+GO(xcb_get_atom_name_name_end, HFp)
 GO(xcb_get_atom_name_name_length, iFp)
 GO(xcb_get_atom_name_reply, pFbup)
-//GO(xcb_get_atom_name_sizeof, 
-//GO(xcb_get_atom_name_unchecked, 
+GO(xcb_get_atom_name_sizeof, iFp)
+GO(xcb_get_atom_name_unchecked, UFbu)
 GO(xcb_get_extension_data, pFbp)
 GO(xcb_get_file_descriptor, iFb)
-//GO(xcb_get_font_path, 
-//GO(xcb_get_font_path_path_iterator, 
-//GO(xcb_get_font_path_path_length, 
-//GO(xcb_get_font_path_reply, 
-//GO(xcb_get_font_path_sizeof, 
-//GO(xcb_get_font_path_unchecked, 
-GO(xcb_get_geometry, pFbu)
+GO(xcb_get_font_path, UFb)
+GO(xcb_get_font_path_path_iterator, HFp)
+GO(xcb_get_font_path_path_length, iFp)
+GO(xcb_get_font_path_reply, pFbup)
+GO(xcb_get_font_path_sizeof, iFp)
+GO(xcb_get_font_path_unchecked, UFb)
+GO(xcb_get_geometry, UFbu)
 GO(xcb_get_geometry_reply, pFbup)
-GO(xcb_get_geometry_unchecked, pFbu)
-GO(xcb_get_image, pFbCuwwWWu)
+GO(xcb_get_geometry_unchecked, UFbu)
+GO(xcb_get_image, UFbCuwwWWu)
 GO(xcb_get_image_data, pFp)
-//GO(xcb_get_image_data_end, 
+GO(xcb_get_image_data_end, HFp)
 GO(xcb_get_image_data_length, iFp)
 GO(xcb_get_image_reply, pFbup)
-//GO(xcb_get_image_sizeof, 
-GO(xcb_get_image_unchecked, pFbCuwwWWu)
-GO(xcb_get_input_focus, uFb)
+GO(xcb_get_image_sizeof, iFp)
+GO(xcb_get_image_unchecked, UFbCuwwWWu)
+GO(xcb_get_input_focus, UFb)
 GO(xcb_get_input_focus_reply, pFbup)
-//GO(xcb_get_input_focus_unchecked, 
-//GO(xcb_get_keyboard_control, 
-//GO(xcb_get_keyboard_control_reply, 
-//GO(xcb_get_keyboard_control_unchecked, 
-GO(xcb_get_keyboard_mapping, pFbCC)
+GO(xcb_get_input_focus_unchecked, UFb)
+GO(xcb_get_keyboard_control, UFb)
+GO(xcb_get_keyboard_control_reply, pFbup)
+GO(xcb_get_keyboard_control_unchecked, UFb)
+GO(xcb_get_keyboard_mapping, UFbCC)
 GO(xcb_get_keyboard_mapping_keysyms, pFp)
-//GO(xcb_get_keyboard_mapping_keysyms_end, 
+GO(xcb_get_keyboard_mapping_keysyms_end, HFp)
 GO(xcb_get_keyboard_mapping_keysyms_length, iFp)
 GO(xcb_get_keyboard_mapping_reply, pFbup)
-//GO(xcb_get_keyboard_mapping_sizeof, 
-//GO(xcb_get_keyboard_mapping_unchecked, 
+GO(xcb_get_keyboard_mapping_sizeof, iFp)
+GO(xcb_get_keyboard_mapping_unchecked, UFbCC)
 GO(xcb_get_maximum_request_length, uFb)
-GO(xcb_get_modifier_mapping, pFb)
+GO(xcb_get_modifier_mapping, UFb)
 GO(xcb_get_modifier_mapping_keycodes, pFp)
-//GO(xcb_get_modifier_mapping_keycodes_end, 
+GO(xcb_get_modifier_mapping_keycodes_end, HFp)
 GO(xcb_get_modifier_mapping_keycodes_length, iFp)
 GO(xcb_get_modifier_mapping_reply, pFbup)
-//GO(xcb_get_modifier_mapping_sizeof, pFp)
-//GO(xcb_get_modifier_mapping_unchecked, 
-//GO(xcb_get_motion_events, 
-//GO(xcb_get_motion_events_events, 
-//GO(xcb_get_motion_events_events_iterator, 
-//GO(xcb_get_motion_events_events_length, 
-//GO(xcb_get_motion_events_reply, 
-//GO(xcb_get_motion_events_sizeof, 
-//GO(xcb_get_motion_events_unchecked, 
-//GO(xcb_get_pointer_control, 
-//GO(xcb_get_pointer_control_reply, 
-//GO(xcb_get_pointer_control_unchecked, 
-//GO(xcb_get_pointer_mapping, 
-//GO(xcb_get_pointer_mapping_map, 
-//GO(xcb_get_pointer_mapping_map_end, 
-//GO(xcb_get_pointer_mapping_map_length, 
-//GO(xcb_get_pointer_mapping_reply, 
-//GO(xcb_get_pointer_mapping_sizeof, 
-//GO(xcb_get_pointer_mapping_unchecked, 
-GO(xcb_get_property, uFbCuuuuu)
+GO(xcb_get_modifier_mapping_sizeof, iFp)
+GO(xcb_get_modifier_mapping_unchecked, UFb)
+GO(xcb_get_motion_events, UFbuuu)
+GO(xcb_get_motion_events_events, pFp)
+GO(xcb_get_motion_events_events_iterator, HFp)
+GO(xcb_get_motion_events_events_length, iFp)
+GO(xcb_get_motion_events_reply, pFbup)
+GO(xcb_get_motion_events_sizeof, iFp)
+GO(xcb_get_motion_events_unchecked, UFbuuu)
+GO(xcb_get_pointer_control, UFb)
+GO(xcb_get_pointer_control_reply, pFbup)
+GO(xcb_get_pointer_control_unchecked, UFb)
+GO(xcb_get_pointer_mapping, UFb)
+GO(xcb_get_pointer_mapping_map, pFp)
+GO(xcb_get_pointer_mapping_map_end, HFp)
+GO(xcb_get_pointer_mapping_map_length, iFp)
+GO(xcb_get_pointer_mapping_reply, pFbup)
+GO(xcb_get_pointer_mapping_sizeof, iFp)
+GO(xcb_get_pointer_mapping_unchecked, UFb)
+GO(xcb_get_property, UFbCuuuuu)
 GO(xcb_get_property_reply, pFbup)
-//GO(xcb_get_property_sizeof, 
-GO(xcb_get_property_unchecked, uFbCuuuuu)
+GO(xcb_get_property_sizeof, iFp)
+GO(xcb_get_property_unchecked, UFbCuuuuu)
 GO(xcb_get_property_value, pFp)
-//GO(xcb_get_property_value_end, 
+GO(xcb_get_property_value_end, HFp)
 GO(xcb_get_property_value_length, iFp)
-GO(xcb_get_reply_fds, pFbpu)
-//GO(xcb_get_screen_saver, 
-//GO(xcb_get_screen_saver_reply, 
-//GO(xcb_get_screen_saver_unchecked, 
-GO(xcb_get_selection_owner, uFbu)
+GO(xcb_get_reply_fds, pFbpL)
+GO(xcb_get_screen_saver, UFb)
+GO(xcb_get_screen_saver_reply, pFbup)
+GO(xcb_get_screen_saver_unchecked, UFb)
+GO(xcb_get_selection_owner, UFbu)
 GO(xcb_get_selection_owner_reply, pFbup)
-GO(xcb_get_selection_owner_unchecked, uFbu)
+GO(xcb_get_selection_owner_unchecked, UFbu)
 GO(xcb_get_setup, pFb)
-GO(xcb_get_window_attributes, uFbu)
+GO(xcb_get_window_attributes, UFbu)
 GO(xcb_get_window_attributes_reply, pFbup)
-GO(xcb_get_window_attributes_unchecked, uFbu)
-GO(xcb_grab_button, pFbCuWCCuuCW)
-GO(xcb_grab_button_checked, pFbCuWCCuuCW)
-GO(xcb_grab_key, pFbCuWCCC)
-GO(xcb_grab_keyboard, pFbCuuCC)
+GO(xcb_get_window_attributes_unchecked, UFbu)
+GO(xcb_grab_button, UFbCuWCCuuCW)
+GO(xcb_grab_button_checked, UFbCuWCCuuCW)
+GO(xcb_grab_key, UFbCuWCCC)
+GO(xcb_grab_keyboard, UFbCuuCC)
 GO(xcb_grab_keyboard_reply, pFbup)
-//GO(xcb_grab_keyboard_unchecked, 
-GO(xcb_grab_key_checked, pFbCuWCCC)
-GO(xcb_grab_pointer, pFbCuWCCuuu)
+GO(xcb_grab_keyboard_unchecked, UFbCuuCC)
+GO(xcb_grab_key_checked, UFbCuWCCC)
+GO(xcb_grab_pointer, UFbCuWCCuuu)
 GO(xcb_grab_pointer_reply, pFbup)
-//GO(xcb_grab_pointer_unchecked, 
-GO(xcb_grab_server, uFb)
-GO(xcb_grab_server_checked, uFb)
-//GO(xcb_host_address, 
-//GO(xcb_host_address_end, 
-//GO(xcb_host_address_length, 
+GO(xcb_grab_pointer_unchecked, UFbCuWCCuuu)
+GO(xcb_grab_server, UFb)
+GO(xcb_grab_server_checked, UFb)
+GO(xcb_host_address, pFp)
+GO(xcb_host_address_end, HFp)
+GO(xcb_host_address_length, iFp)
 //GO(xcb_host_end, 
-//GO(xcb_host_next, 
-//GO(xcb_host_sizeof, 
-//GO(xcb_image_text_16, 
-//GO(xcb_image_text_16_checked, 
-//GO(xcb_image_text_16_sizeof, 
-//GO(xcb_image_text_16_string, 
-//GO(xcb_image_text_16_string_iterator, 
-//GO(xcb_image_text_16_string_length, 
-GO(xcb_image_text_8, pFbCuuwwp)
-GO(xcb_image_text_8_checked, pFbCuuwwp)
-//GO(xcb_image_text_8_sizeof, 
-//GO(xcb_image_text_8_string, 
-//GO(xcb_image_text_8_string_end, 
-//GO(xcb_image_text_8_string_length, 
-//GO(xcb_install_colormap, 
-//GO(xcb_install_colormap_checked, 
-GO(xcb_intern_atom, uFbCWp)
+GO(xcb_host_next, vFp)
+GO(xcb_host_sizeof, iFp)
+GO(xcb_image_text_16, UFbCuuwwp)
+GO(xcb_image_text_16_checked, UFbCuuwwp)
+GO(xcb_image_text_16_sizeof, iFp)
+GO(xcb_image_text_16_string, pFp)
+GO(xcb_image_text_16_string_iterator, HFp)
+GO(xcb_image_text_16_string_length, iFp)
+GO(xcb_image_text_8, UFbCuuwwp)
+GO(xcb_image_text_8_checked, UFbCuuwwp)
+GO(xcb_image_text_8_sizeof, iFp)
+GO(xcb_image_text_8_string, pFp)
+GO(xcb_image_text_8_string_end, HFp)
+GO(xcb_image_text_8_string_length, iFp)
+GO(xcb_install_colormap, UFbu)
+GO(xcb_install_colormap_checked, UFbu)
+GO(xcb_intern_atom, UFbCWp)
 GO(xcb_intern_atom_reply, pFbup)
-//GO(xcb_intern_atom_sizeof, 
-GO(xcb_intern_atom_unchecked, uFbCWp)
+GO(xcb_intern_atom_sizeof, iFp)
+GO(xcb_intern_atom_unchecked, UFbCWp)
 //GO(xcb_keycode32_end, 
-//GO(xcb_keycode32_next, 
+GO(xcb_keycode32_next, vFp)
 //GO(xcb_keycode_end, 
-//GO(xcb_keycode_next, 
+GO(xcb_keycode_next, vFp)
 //GO(xcb_keysym_end, 
-//GO(xcb_keysym_next, 
-//GO(xcb_kill_client, 
-//GO(xcb_kill_client_checked, 
-//GO(xcb_list_extensions, 
-//GO(xcb_list_extensions_names_iterator, 
-//GO(xcb_list_extensions_names_length, 
-//GO(xcb_list_extensions_reply, 
-//GO(xcb_list_extensions_sizeof, 
-//GO(xcb_list_extensions_unchecked, 
-//GO(xcb_list_fonts, 
-//GO(xcb_list_fonts_names_iterator, 
-//GO(xcb_list_fonts_names_length, 
-//GO(xcb_list_fonts_reply, 
-//GO(xcb_list_fonts_sizeof, 
-//GO(xcb_list_fonts_unchecked, 
-//GO(xcb_list_fonts_with_info, 
-//GO(xcb_list_fonts_with_info_name, 
-//GO(xcb_list_fonts_with_info_name_end, 
-//GO(xcb_list_fonts_with_info_name_length, 
-//GO(xcb_list_fonts_with_info_properties, 
-//GO(xcb_list_fonts_with_info_properties_iterator, 
-//GO(xcb_list_fonts_with_info_properties_length, 
-//GO(xcb_list_fonts_with_info_reply, 
-//GO(xcb_list_fonts_with_info_sizeof, 
-//GO(xcb_list_fonts_with_info_unchecked, 
-//GO(xcb_list_hosts, 
-//GO(xcb_list_hosts_hosts_iterator, 
-//GO(xcb_list_hosts_hosts_length, 
-//GO(xcb_list_hosts_reply, 
-//GO(xcb_list_hosts_sizeof, 
-//GO(xcb_list_hosts_unchecked, 
-//GO(xcb_list_installed_colormaps, 
-//GO(xcb_list_installed_colormaps_cmaps, 
-//GO(xcb_list_installed_colormaps_cmaps_end, 
-//GO(xcb_list_installed_colormaps_cmaps_length, 
-//GO(xcb_list_installed_colormaps_reply, 
-//GO(xcb_list_installed_colormaps_sizeof, 
-//GO(xcb_list_installed_colormaps_unchecked, 
-//GO(xcb_list_properties, 
-//GO(xcb_list_properties_atoms, 
-//GO(xcb_list_properties_atoms_end, 
-//GO(xcb_list_properties_atoms_length, 
-//GO(xcb_list_properties_reply, 
-//GO(xcb_list_properties_sizeof, 
-//GO(xcb_list_properties_unchecked, 
-//GO(xcb_lookup_color, 
-//GO(xcb_lookup_color_reply, 
-//GO(xcb_lookup_color_sizeof, 
-//GO(xcb_lookup_color_unchecked, 
-GO(xcb_map_subwindows, uFbu)
-//GO(xcb_map_subwindows_checked, 
-GO(xcb_map_window, uFbu)
-GO(xcb_map_window_checked, uFbu)
-//GO(xcb_no_operation, 
-//GO(xcb_no_operation_checked, 
-GO(xcb_open_font, uFbuWp)
-GO(xcb_open_font_checked, uFbuWp)
-//GO(xcb_open_font_name, 
-//GO(xcb_open_font_name_end, 
-//GO(xcb_open_font_name_length, 
-//GO(xcb_open_font_sizeof, 
+GO(xcb_keysym_next, vFp)
+GO(xcb_kill_client, UFbu)
+GO(xcb_kill_client_checked, UFbu)
+GO(xcb_list_extensions, UFb)
+GO(xcb_list_extensions_names_iterator, HFp)
+GO(xcb_list_extensions_names_length, iFp)
+GO(xcb_list_extensions_reply, pFbup)
+GO(xcb_list_extensions_sizeof, iFp)
+GO(xcb_list_extensions_unchecked, UFb)
+GO(xcb_list_fonts, UFbWWp)
+GO(xcb_list_fonts_names_iterator, HFp)
+GO(xcb_list_fonts_names_length, iFp)
+GO(xcb_list_fonts_reply, pFbup)
+GO(xcb_list_fonts_sizeof, iFp)
+GO(xcb_list_fonts_unchecked, UFbWWp)
+GO(xcb_list_fonts_with_info, UFbWWp)
+GO(xcb_list_fonts_with_info_name, pFp)
+GO(xcb_list_fonts_with_info_name_end, HFp)
+GO(xcb_list_fonts_with_info_name_length, iFp)
+GO(xcb_list_fonts_with_info_properties, pFp)
+GO(xcb_list_fonts_with_info_properties_iterator, HFp)
+GO(xcb_list_fonts_with_info_properties_length, iFp)
+GO(xcb_list_fonts_with_info_reply, pFbup)
+GO(xcb_list_fonts_with_info_sizeof, iFp)
+GO(xcb_list_fonts_with_info_unchecked, UFbWWp)
+GO(xcb_list_hosts, UFb)
+GO(xcb_list_hosts_hosts_iterator, HFp)
+GO(xcb_list_hosts_hosts_length, iFp)
+GO(xcb_list_hosts_reply, pFbup)
+GO(xcb_list_hosts_sizeof, iFp)
+GO(xcb_list_hosts_unchecked, UFb)
+GO(xcb_list_installed_colormaps, UFbu)
+GO(xcb_list_installed_colormaps_cmaps, pFp)
+GO(xcb_list_installed_colormaps_cmaps_end, HFp)
+GO(xcb_list_installed_colormaps_cmaps_length, iFp)
+GO(xcb_list_installed_colormaps_reply, pFbup)
+GO(xcb_list_installed_colormaps_sizeof, iFp)
+GO(xcb_list_installed_colormaps_unchecked, UFbu)
+GO(xcb_list_properties, UFbu)
+GO(xcb_list_properties_atoms, pFp)
+GO(xcb_list_properties_atoms_end, HFp)
+GO(xcb_list_properties_atoms_length, iFp)
+GO(xcb_list_properties_reply, pFbup)
+GO(xcb_list_properties_sizeof, iFp)
+GO(xcb_list_properties_unchecked, UFbu)
+GO(xcb_lookup_color, UFbuWp)
+GO(xcb_lookup_color_reply, pFbup)
+GO(xcb_lookup_color_sizeof, iFp)
+GO(xcb_lookup_color_unchecked, UFbuWp)
+GO(xcb_map_subwindows, UFbu)
+GO(xcb_map_subwindows_checked, UFbu)
+GO(xcb_map_window, UFbu)
+GO(xcb_map_window_checked, UFbu)
+GO(xcb_no_operation, UFb)
+GO(xcb_no_operation_checked, UFb)
+GO(xcb_open_font, UFbuWp)
+GO(xcb_open_font_checked, UFbuWp)
+GO(xcb_open_font_name, pFp)
+GO(xcb_open_font_name_end, HFp)
+GO(xcb_open_font_name_length, iFp)
+GO(xcb_open_font_sizeof, iFp)
 GO(xcb_parse_display, iFpppp)
 //GO(xcb_pixmap_end, 
-//GO(xcb_pixmap_next, 
+GO(xcb_pixmap_next, vFp)
 //GO(xcb_point_end, 
-//GO(xcb_point_next, 
+GO(xcb_point_next, vFp)
 GO(xcb_poll_for_event, pFb)
 GO(xcb_poll_for_queued_event, pFb)
 GO(xcb_poll_for_reply, iFbupp)
-//GO(xcb_poll_for_reply64, 
+GO(xcb_poll_for_reply64, iFbUpp)
 GO(xcb_poll_for_special_event, pFbp)
-GO(xcb_poly_arc, pFbuuup)
-//GO(xcb_poly_arc_arcs, 
-//GO(xcb_poly_arc_arcs_iterator, 
-//GO(xcb_poly_arc_arcs_length, 
-//GO(xcb_poly_arc_checked, 
-//GO(xcb_poly_arc_sizeof, 
-//GO(xcb_poly_fill_arc, 
-//GO(xcb_poly_fill_arc_arcs, 
-//GO(xcb_poly_fill_arc_arcs_iterator, 
-//GO(xcb_poly_fill_arc_arcs_length, 
-//GO(xcb_poly_fill_arc_checked, 
-//GO(xcb_poly_fill_arc_sizeof, 
-GO(xcb_poly_fill_rectangle, pFbuuup)
-GO(xcb_poly_fill_rectangle_checked, pFbuuup)
-//GO(xcb_poly_fill_rectangle_rectangles, 
-//GO(xcb_poly_fill_rectangle_rectangles_iterator, 
-//GO(xcb_poly_fill_rectangle_rectangles_length, 
-//GO(xcb_poly_fill_rectangle_sizeof, 
-GO(xcb_poly_line, pFbCuuup)
-GO(xcb_poly_line_checked, pFbCuuup)
-//GO(xcb_poly_line_points, 
-//GO(xcb_poly_line_points_iterator, 
-//GO(xcb_poly_line_points_length, 
-//GO(xcb_poly_line_sizeof, 
-GO(xcb_poly_point, pFbCuuup)
-//GO(xcb_poly_point_checked, 
-//GO(xcb_poly_point_points, 
-//GO(xcb_poly_point_points_iterator, 
-//GO(xcb_poly_point_points_length, 
-//GO(xcb_poly_point_sizeof, 
-GO(xcb_poly_rectangle, pFbuuup)
-//GO(xcb_poly_rectangle_checked, 
-//GO(xcb_poly_rectangle_rectangles, 
-//GO(xcb_poly_rectangle_rectangles_iterator, 
-//GO(xcb_poly_rectangle_rectangles_length, 
-//GO(xcb_poly_rectangle_sizeof, 
-GO(xcb_poly_segment, pFbuuup)
-//GO(xcb_poly_segment_checked, 
-//GO(xcb_poly_segment_segments, 
-//GO(xcb_poly_segment_segments_iterator, 
-//GO(xcb_poly_segment_segments_length, 
-//GO(xcb_poly_segment_sizeof, 
-//GO(xcb_poly_text_16, 
-//GO(xcb_poly_text_16_checked, 
-//GO(xcb_poly_text_16_items, 
-//GO(xcb_poly_text_16_items_end, 
-//GO(xcb_poly_text_16_items_length, 
-//GO(xcb_poly_text_16_sizeof, 
-//GO(xcb_poly_text_8, 
-//GO(xcb_poly_text_8_checked, 
-//GO(xcb_poly_text_8_items, 
-//GO(xcb_poly_text_8_items_end, 
-//GO(xcb_poly_text_8_items_length, 
-//GO(xcb_poly_text_8_sizeof, 
+GO(xcb_poly_arc, UFbuuup)
+GO(xcb_poly_arc_arcs, pFp)
+GO(xcb_poly_arc_arcs_iterator, HFp)
+GO(xcb_poly_arc_arcs_length, iFp)
+GO(xcb_poly_arc_checked, UFbuuup)
+GO(xcb_poly_arc_sizeof, iFpu)
+GO(xcb_poly_fill_arc, UFbuuup)
+GO(xcb_poly_fill_arc_arcs, pFp)
+GO(xcb_poly_fill_arc_arcs_iterator, HFp)
+GO(xcb_poly_fill_arc_arcs_length, iFp)
+GO(xcb_poly_fill_arc_checked, UFbuuup)
+GO(xcb_poly_fill_arc_sizeof, iFpu)
+GO(xcb_poly_fill_rectangle, UFbuuup)
+GO(xcb_poly_fill_rectangle_checked, UFbuuup)
+GO(xcb_poly_fill_rectangle_rectangles, pFp)
+GO(xcb_poly_fill_rectangle_rectangles_iterator, HFp)
+GO(xcb_poly_fill_rectangle_rectangles_length, iFp)
+GO(xcb_poly_fill_rectangle_sizeof, iFpu)
+GO(xcb_poly_line, UFbCuuup)
+GO(xcb_poly_line_checked, UFbCuuup)
+GO(xcb_poly_line_points, pFp)
+GO(xcb_poly_line_points_iterator, HFp)
+GO(xcb_poly_line_points_length, iFp)
+GO(xcb_poly_line_sizeof, iFpu)
+GO(xcb_poly_point, UFbCuuup)
+GO(xcb_poly_point_checked, UFbCuuup)
+GO(xcb_poly_point_points, pFp)
+GO(xcb_poly_point_points_iterator, HFp)
+GO(xcb_poly_point_points_length, iFp)
+GO(xcb_poly_point_sizeof, iFpu)
+GO(xcb_poly_rectangle, UFbuuup)
+GO(xcb_poly_rectangle_checked, UFbuuup)
+GO(xcb_poly_rectangle_rectangles, pFp)
+GO(xcb_poly_rectangle_rectangles_iterator, HFp)
+GO(xcb_poly_rectangle_rectangles_length, iFp)
+GO(xcb_poly_rectangle_sizeof, iFpu)
+GO(xcb_poly_segment, UFbuuup)
+GO(xcb_poly_segment_checked, UFbuuup)
+GO(xcb_poly_segment_segments, pFp)
+GO(xcb_poly_segment_segments_iterator, HFp)
+GO(xcb_poly_segment_segments_length, iFp)
+GO(xcb_poly_segment_sizeof, iFpu)
+GO(xcb_poly_text_16, UFbuuwwup)
+GO(xcb_poly_text_16_checked, UFbuuwwup)
+GO(xcb_poly_text_16_items, pFp)
+GO(xcb_poly_text_16_items_end, HFp)
+GO(xcb_poly_text_16_items_length, iFp)
+GO(xcb_poly_text_16_sizeof, iFpu)
+GO(xcb_poly_text_8, UFbuuwwup)
+GO(xcb_poly_text_8_checked, UFbuuwwup)
+GO(xcb_poly_text_8_items, pFp)
+GO(xcb_poly_text_8_items_end, HFp)
+GO(xcb_poly_text_8_items_length, iFp)
+GO(xcb_poly_text_8_sizeof, iFpu)
 GO(xcb_popcount, iFu)
 GO(xcb_prefetch_extension_data, vFbp)
 GO(xcb_prefetch_maximum_request_length, vFb)
-GO(xcb_put_image, pFbCuuWWwwCCup)
-GO(xcb_put_image_checked, pFbCuuWWwwCCup)
-//GO(xcb_put_image_data, 
-//GO(xcb_put_image_data_end, 
-//GO(xcb_put_image_data_length, 
-//GO(xcb_put_image_sizeof, 
-//GO(xcb_query_best_size, 
-//GO(xcb_query_best_size_reply, 
-//GO(xcb_query_best_size_unchecked, 
-//GO(xcb_query_colors, 
-//GO(xcb_query_colors_colors, 
-//GO(xcb_query_colors_colors_iterator, 
-//GO(xcb_query_colors_colors_length, 
-//GO(xcb_query_colors_reply, 
-//GO(xcb_query_colors_sizeof, 
-//GO(xcb_query_colors_unchecked, 
-//GO(xcb_query_extension, 
-//GO(xcb_query_extension_reply, 
-//GO(xcb_query_extension_sizeof, 
-//GO(xcb_query_extension_unchecked, 
-//GO(xcb_query_font, 
-//GO(xcb_query_font_char_infos, 
-//GO(xcb_query_font_char_infos_iterator, 
-//GO(xcb_query_font_char_infos_length, 
-//GO(xcb_query_font_properties, 
-//GO(xcb_query_font_properties_iterator, 
-//GO(xcb_query_font_properties_length, 
-//GO(xcb_query_font_reply, 
-//GO(xcb_query_font_sizeof, 
-//GO(xcb_query_font_unchecked, 
-GO(xcb_query_keymap, pFbp)
+GO(xcb_put_image, UFbCuuWWwwCCup)
+GO(xcb_put_image_checked, UFbCuuWWwwCCup)
+GO(xcb_put_image_data, pFp)
+GO(xcb_put_image_data_end, HFp)
+GO(xcb_put_image_data_length, iFp)
+GO(xcb_put_image_sizeof, iFpu)
+GO(xcb_query_best_size, UFbCuWW)
+GO(xcb_query_best_size_reply, pFbup)
+GO(xcb_query_best_size_unchecked, UFbCuWW)
+GO(xcb_query_colors, UFbuup)
+GO(xcb_query_colors_colors, pFp)
+GO(xcb_query_colors_colors_iterator, HFp)
+GO(xcb_query_colors_colors_length, iFp)
+GO(xcb_query_colors_reply, pFbup)
+GO(xcb_query_colors_sizeof, iFpu)
+GO(xcb_query_colors_unchecked, UFbuup)
+GO(xcb_query_extension, UFbWp)
+GO(xcb_query_extension_reply, pFbup)
+GO(xcb_query_extension_sizeof, iFp)
+GO(xcb_query_extension_unchecked, UFbWp)
+GO(xcb_query_font, UFbu)
+GO(xcb_query_font_char_infos, pFp)
+GO(xcb_query_font_char_infos_iterator, HFp)
+GO(xcb_query_font_char_infos_length, iFp)
+GO(xcb_query_font_properties, pFp)
+GO(xcb_query_font_properties_iterator, HFp)
+GO(xcb_query_font_properties_length, iFp)
+GO(xcb_query_font_reply, pFbup)
+GO(xcb_query_font_sizeof, iFp)
+GO(xcb_query_font_unchecked, UFbu)
+GO(xcb_query_keymap, UFb)
 GO(xcb_query_keymap_reply, pFbup)
-GO(xcb_query_keymap_unchecked, pFbp)
-GO(xcb_query_pointer, uFbu)
+GO(xcb_query_keymap_unchecked, UFb)
+GO(xcb_query_pointer, UFbu)
 GO(xcb_query_pointer_reply, pFbup)
-GO(xcb_query_pointer_unchecked, uFbu)
-GO(xcb_query_text_extents, pFbuup)
+GO(xcb_query_pointer_unchecked, UFbu)
+GO(xcb_query_text_extents, UFbuup)
 GO(xcb_query_text_extents_reply, pFbup)
-//GO(xcb_query_text_extents_sizeof, 
-//GO(xcb_query_text_extents_unchecked, 
-GO(xcb_query_tree, pFbu)
+GO(xcb_query_text_extents_sizeof, iFpu)
+GO(xcb_query_text_extents_unchecked, UFbuup)
+GO(xcb_query_tree, UFbu)
 GO(xcb_query_tree_children, pFp)
-//GO(xcb_query_tree_children_end, 
+GO(xcb_query_tree_children_end, HFp)
 GO(xcb_query_tree_children_length, iFp)
 GO(xcb_query_tree_reply, pFbup)
-//GO(xcb_query_tree_sizeof, 
-GO(xcb_query_tree_unchecked, pFbu)
-//GO(xcb_recolor_cursor, 
-//GO(xcb_recolor_cursor_checked, 
+GO(xcb_query_tree_sizeof, iFp)
+GO(xcb_query_tree_unchecked, UFbu)
+GO(xcb_recolor_cursor, UFbuWWWWWW)
+GO(xcb_recolor_cursor_checked, UFbuWWWWWW)
 //GO(xcb_rectangle_end, 
-//GO(xcb_rectangle_next, 
+GO(xcb_rectangle_next, vFp)
 GO(xcb_register_for_special_xge, pFbpup)
-GO(xcb_reparent_window, pFbuuWW)
-//GO(xcb_reparent_window_checked, 
+GO(xcb_reparent_window, UFbuuww)
+GO(xcb_reparent_window_checked, UFbuuww)
 GO(xcb_request_check, pFbu)
 //GO(xcb_rgb_end, 
-//GO(xcb_rgb_next, 
-//GO(xcb_rotate_properties, 
-//GO(xcb_rotate_properties_atoms, 
-//GO(xcb_rotate_properties_atoms_end, 
-//GO(xcb_rotate_properties_atoms_length, 
-//GO(xcb_rotate_properties_checked, 
-//GO(xcb_rotate_properties_sizeof, 
-GO(xcb_screen_allowed_depths_iterator, HFp)  //xcb_depth_iterator_t is a structure
-//GO(xcb_screen_allowed_depths_length, 
+GO(xcb_rgb_next, vFp)
+GO(xcb_rotate_properties, UFbuWwp)
+GO(xcb_rotate_properties_atoms, pFp)
+GO(xcb_rotate_properties_atoms_end, HFp)
+GO(xcb_rotate_properties_atoms_length, iFp)
+GO(xcb_rotate_properties_checked, UFbuWwp)
+GO(xcb_rotate_properties_sizeof, iFp)
+GO(xcb_screen_allowed_depths_iterator, HFp)
+GO(xcb_screen_allowed_depths_length, iFp)
 //GO(xcb_screen_end, 
 GO(xcb_screen_next, vFp)
-//GO(xcb_screen_sizeof, 
+GO(xcb_screen_sizeof, iFp)
 //GO(xcb_segment_end, 
-//GO(xcb_segment_next, 
-GO(xcb_send_event, uFbCuup)
-GO(xcb_send_event_checked, uFbCuup)
+GO(xcb_segment_next, vFp)
+GO(xcb_send_event, UFbCuup)
+GO(xcb_send_event_checked, UFbCuup)
 GO(xcb_send_fd, vFbi)
 GO(xcb_send_request, uFbipp)
 GO(xcb_send_request64, UFbipp)
 GO(xcb_send_request_with_fds, uFbippup)
 GO(xcb_send_request_with_fds64, UFbippup)
-//GO(xcb_set_access_control, 
-//GO(xcb_set_access_control_checked, 
-GO(xcb_set_clip_rectangles, pFbCpWWup)
-GO(xcb_set_clip_rectangles_checked, pFbCpWWup)
-//GO(xcb_set_clip_rectangles_rectangles, 
-//GO(xcb_set_clip_rectangles_rectangles_iterator, 
-//GO(xcb_set_clip_rectangles_rectangles_length, 
-//GO(xcb_set_clip_rectangles_sizeof, 
-//GO(xcb_set_close_down_mode, 
-//GO(xcb_set_close_down_mode_checked, 
-//GO(xcb_set_dashes, 
-//GO(xcb_set_dashes_checked, 
-//GO(xcb_set_dashes_dashes, 
-//GO(xcb_set_dashes_dashes_end, 
-//GO(xcb_set_dashes_dashes_length, 
-//GO(xcb_set_dashes_sizeof, 
-//GO(xcb_set_font_path, 
-//GO(xcb_set_font_path_checked, 
-//GO(xcb_set_font_path_font_iterator, 
-//GO(xcb_set_font_path_font_length, 
-//GO(xcb_set_font_path_sizeof, 
-GO(xcb_set_input_focus, pFbCuu) // xcb_void_cookie_t is a struct with only 1 uint inside
-//GO(xcb_set_input_focus_checked, 
-//GO(xcb_set_modifier_mapping, 
-//GO(xcb_set_modifier_mapping_reply, 
-//GO(xcb_set_modifier_mapping_sizeof, 
-//GO(xcb_set_modifier_mapping_unchecked, 
-//GO(xcb_set_pointer_mapping, 
-//GO(xcb_set_pointer_mapping_reply, 
-//GO(xcb_set_pointer_mapping_sizeof, 
-//GO(xcb_set_pointer_mapping_unchecked, 
-//GO(xcb_set_screen_saver, 
-//GO(xcb_set_screen_saver_checked, 
-GO(xcb_set_selection_owner, pFbpppp)
-GO(xcb_set_selection_owner_checked, pFbpppp)
+GO(xcb_set_access_control, UFbC)
+GO(xcb_set_access_control_checked, UFbC)
+GO(xcb_set_clip_rectangles, UFbCuwwup)
+GO(xcb_set_clip_rectangles_checked, UFbCuwwup)
+GO(xcb_set_clip_rectangles_rectangles, pFp)
+GO(xcb_set_clip_rectangles_rectangles_iterator, HFp)
+GO(xcb_set_clip_rectangles_rectangles_length, iFp)
+GO(xcb_set_clip_rectangles_sizeof, iFpu)
+GO(xcb_set_close_down_mode, UFbC)
+GO(xcb_set_close_down_mode_checked, UFbC)
+GO(xcb_set_dashes, UFbuWWp)
+GO(xcb_set_dashes_checked, UFbuWWp)
+GO(xcb_set_dashes_dashes, pFp)
+GO(xcb_set_dashes_dashes_end, HFp)
+GO(xcb_set_dashes_dashes_length, iFp)
+GO(xcb_set_dashes_sizeof, iFp)
+GO(xcb_set_font_path, UFbWp)
+GO(xcb_set_font_path_checked, UFbWp)
+GO(xcb_set_font_path_font_iterator, HFp)
+GO(xcb_set_font_path_font_length, iFp)
+GO(xcb_set_font_path_sizeof, iFp)
+GO(xcb_set_input_focus, UFbCuu)
+GO(xcb_set_input_focus_checked, UFbCuu)
+GO(xcb_set_modifier_mapping, UFbCp)
+GO(xcb_set_modifier_mapping_reply, pFbup)
+GO(xcb_set_modifier_mapping_sizeof, iFp)
+GO(xcb_set_modifier_mapping_unchecked, UFbCp)
+GO(xcb_set_pointer_mapping, UFbCp)
+GO(xcb_set_pointer_mapping_reply, pFbup)
+GO(xcb_set_pointer_mapping_sizeof, iFp)
+GO(xcb_set_pointer_mapping_unchecked, UFbCp)
+GO(xcb_set_screen_saver, UFbwwCC)
+GO(xcb_set_screen_saver_checked, UFbwwCC)
+GO(xcb_set_selection_owner, UFbuuu)
+GO(xcb_set_selection_owner_checked, UFbuuu)
 //GO(xcb_setup_authenticate_end, 
-//GO(xcb_setup_authenticate_next, 
-//GO(xcb_setup_authenticate_reason, 
-//GO(xcb_setup_authenticate_reason_end, 
-//GO(xcb_setup_authenticate_reason_length, 
-//GO(xcb_setup_authenticate_sizeof, 
+GO(xcb_setup_authenticate_next, vFp)
+GO(xcb_setup_authenticate_reason, pFp)
+GO(xcb_setup_authenticate_reason_end, HFp)
+GO(xcb_setup_authenticate_reason_length, iFp)
+GO(xcb_setup_authenticate_sizeof, iFp)
 //GO(xcb_setup_end, 
 //GO(xcb_setup_failed_end, 
-//GO(xcb_setup_failed_next, 
-//GO(xcb_setup_failed_reason, 
-//GO(xcb_setup_failed_reason_end, 
-//GO(xcb_setup_failed_reason_length, 
-//GO(xcb_setup_failed_sizeof, 
-//GO(xcb_setup_next, 
+GO(xcb_setup_failed_next, vFp)
+GO(xcb_setup_failed_reason, pFp)
+GO(xcb_setup_failed_reason_end, HFp)
+GO(xcb_setup_failed_reason_length, iFp)
+GO(xcb_setup_failed_sizeof, iFp)
+GO(xcb_setup_next, vFp)
 GO(xcb_setup_pixmap_formats, pFp)
 GO(xcb_setup_pixmap_formats_iterator, HFp)
 GO(xcb_setup_pixmap_formats_length, iFp)
-//GO(xcb_setup_request_authorization_protocol_data, 
-//GO(xcb_setup_request_authorization_protocol_data_end, 
-//GO(xcb_setup_request_authorization_protocol_data_length, 
-//GO(xcb_setup_request_authorization_protocol_name, 
-//GO(xcb_setup_request_authorization_protocol_name_end, 
-//GO(xcb_setup_request_authorization_protocol_name_length, 
+GO(xcb_setup_request_authorization_protocol_data, pFp)
+GO(xcb_setup_request_authorization_protocol_data_end, HFp)
+GO(xcb_setup_request_authorization_protocol_data_length, iFp)
+GO(xcb_setup_request_authorization_protocol_name, pFp)
+GO(xcb_setup_request_authorization_protocol_name_end, HFp)
+GO(xcb_setup_request_authorization_protocol_name_length, iFp)
 //GO(xcb_setup_request_end, 
-//GO(xcb_setup_request_next, 
-//GO(xcb_setup_request_sizeof, 
+GO(xcb_setup_request_next, vFp)
+GO(xcb_setup_request_sizeof, iFp)
 GO(xcb_setup_roots_iterator, HFp)
 GO(xcb_setup_roots_length, iFp)
-//GO(xcb_setup_sizeof, 
-//GO(xcb_setup_vendor, 
-//GO(xcb_setup_vendor_end, 
-//GO(xcb_setup_vendor_length, 
-//GO(xcb_store_colors, 
-//GO(xcb_store_colors_checked, 
-//GO(xcb_store_colors_items, 
-//GO(xcb_store_colors_items_iterator, 
-//GO(xcb_store_colors_items_length, 
-//GO(xcb_store_colors_sizeof, 
-//GO(xcb_store_named_color, 
-//GO(xcb_store_named_color_checked, 
-//GO(xcb_store_named_color_name, 
-//GO(xcb_store_named_color_name_end, 
-//GO(xcb_store_named_color_name_length, 
-//GO(xcb_store_named_color_sizeof, 
+GO(xcb_setup_sizeof, iFp)
+GO(xcb_setup_vendor, pFp)
+GO(xcb_setup_vendor_end, HFp)
+GO(xcb_setup_vendor_length, iFp)
+GO(xcb_store_colors, UFbuup)
+GO(xcb_store_colors_checked, UFbuup)
+GO(xcb_store_colors_items, pFp)
+GO(xcb_store_colors_items_iterator, HFp)
+GO(xcb_store_colors_items_length, iFp)
+GO(xcb_store_colors_sizeof, iFpu)
+GO(xcb_store_named_color, UFbCuuWp)
+GO(xcb_store_named_color_checked, UFbCuuWp)
+GO(xcb_store_named_color_name, pFp)
+GO(xcb_store_named_color_name_end, HFp)
+GO(xcb_store_named_color_name_length, iFp)
+GO(xcb_store_named_color_sizeof, iFp)
 //GO(xcb_str_end, 
-//GO(xcb_str_name, 
-//GO(xcb_str_name_end, 
-//GO(xcb_str_name_length, 
-//GO(xcb_str_next, 
+GO(xcb_str_name, pFp)
+GO(xcb_str_name_end, HFp)
+GO(xcb_str_name_length, iFp)
+GO(xcb_str_next, vFp)
 GO(xcb_str_sizeof, iFp)
-//GO(xcb_sumof, 
-//GO(xcb_take_socket, 
+GO(xcb_sumof, iFpi)
+//GOM(xcb_take_socket, iFEbppip)
 //GO(xcb_timecoord_end, 
-//GO(xcb_timecoord_next, 
+GO(xcb_timecoord_next, vFp)
 //GO(xcb_timestamp_end, 
-//GO(xcb_timestamp_next, 
-GO(xcb_translate_coordinates, pFbuuWW)
+GO(xcb_timestamp_next, vFp)
+GO(xcb_translate_coordinates, UFbuuww)
 GO(xcb_translate_coordinates_reply, pFbup)
-GO(xcb_translate_coordinates_unchecked, pFbuuWW)
-GO(xcb_ungrab_button, pFbCuW)
-GO(xcb_ungrab_button_checked, pFbCuW)
-GO(xcb_ungrab_key, pFbCuW)
-GO(xcb_ungrab_keyboard, pFbu)
-GO(xcb_ungrab_keyboard_checked, pFbu)
-GO(xcb_ungrab_key_checked, pFbCuW)
-GO(xcb_ungrab_pointer, pFbu)
-//GO(xcb_ungrab_pointer_checked, 
-GO(xcb_ungrab_server, uFb)
-GO(xcb_ungrab_server_checked, uFb)
-//GO(xcb_uninstall_colormap, 
-//GO(xcb_uninstall_colormap_checked, 
-//GO(xcb_unmap_subwindows, 
-//GO(xcb_unmap_subwindows_checked, 
-GO(xcb_unmap_window, pFbu)
-//GO(xcb_unmap_window_checked, 
+GO(xcb_translate_coordinates_unchecked, UFbuuww)
+GO(xcb_ungrab_button, UFbCuW)
+GO(xcb_ungrab_button_checked, UFbCuW)
+GO(xcb_ungrab_key, UFbCuW)
+GO(xcb_ungrab_keyboard, UFbu)
+GO(xcb_ungrab_keyboard_checked, UFbu)
+GO(xcb_ungrab_key_checked, UFbCuW)
+GO(xcb_ungrab_pointer, UFbu)
+GO(xcb_ungrab_pointer_checked, UFbu)
+GO(xcb_ungrab_server, UFb)
+GO(xcb_ungrab_server_checked, UFb)
+GO(xcb_uninstall_colormap, UFbu)
+GO(xcb_uninstall_colormap_checked, UFbu)
+GO(xcb_unmap_subwindows, UFbu)
+GO(xcb_unmap_subwindows_checked, UFbu)
+GO(xcb_unmap_window, UFbu)
+GO(xcb_unmap_window_checked, UFbu)
 GO(xcb_unregister_for_special_event, vFbp)
 //GO(xcb_visualid_end, 
-//GO(xcb_visualid_next, 
+GO(xcb_visualid_next, vFp)
 //GO(xcb_visualtype_end, 
 GO(xcb_visualtype_next, vFp)
 GO(xcb_wait_for_event, pFb)
 GO(xcb_wait_for_reply, pFbup)
 GO(xcb_wait_for_reply64, pFbUp)
 GO(xcb_wait_for_special_event, pFbp)
-GO(xcb_warp_pointer, pFbuuwwWWww)
-//GO(xcb_warp_pointer_checked, 
+GO(xcb_warp_pointer, UFbuuwwWWww)
+GO(xcb_warp_pointer_checked, UFbuuwwWWww)
 //GO(xcb_window_end, 
-//GO(xcb_window_next, 
-//GO(xcb_writev, 
-//GO(xcb_xc_misc_get_version, 
-//GO(xcb_xc_misc_get_version_reply, 
-//GO(xcb_xc_misc_get_version_unchecked, 
-//GO(xcb_xc_misc_get_xid_list, 
-//GO(xcb_xc_misc_get_xid_list_ids, 
-//GO(xcb_xc_misc_get_xid_list_ids_end, 
-//GO(xcb_xc_misc_get_xid_list_ids_length, 
-//GO(xcb_xc_misc_get_xid_list_reply, 
-//GO(xcb_xc_misc_get_xid_list_sizeof, 
-//GO(xcb_xc_misc_get_xid_list_unchecked, 
-//GO(xcb_xc_misc_get_xid_range, 
-//GO(xcb_xc_misc_get_xid_range_reply, 
-//GO(xcb_xc_misc_get_xid_range_unchecked, 
-DATA(xcb_xc_misc_id, 4)
+GO(xcb_window_next, vFp)
+GO(xcb_writev, iFbpiU)
+GO(xcb_xc_misc_get_version, UFbWW)
+GO(xcb_xc_misc_get_version_reply, pFbup)
+GO(xcb_xc_misc_get_version_unchecked, UFbWW)
+GO(xcb_xc_misc_get_xid_list, UFbu)
+GO(xcb_xc_misc_get_xid_list_ids, pFp)
+GO(xcb_xc_misc_get_xid_list_ids_end, HFp)
+GO(xcb_xc_misc_get_xid_list_ids_length, iFp)
+GO(xcb_xc_misc_get_xid_list_reply, pFbup)
+GO(xcb_xc_misc_get_xid_list_sizeof, iFp)
+GO(xcb_xc_misc_get_xid_list_unchecked, UFbu)
+GO(xcb_xc_misc_get_xid_range, UFb)
+GO(xcb_xc_misc_get_xid_range_reply, pFbup)
+GO(xcb_xc_misc_get_xid_range_unchecked, UFb)
+DATA(xcb_xc_misc_id, 16)

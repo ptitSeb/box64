@@ -12,10 +12,14 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef void* (*pFip_t)(int32_t, void*);
 typedef void* (*pFpp_t)(void*, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xcb_disconnect, vFp_t) \
-	GO(xcb_connect, pFpp_t)
+	GO(xcb_connect_to_fd, pFip_t) \
+	GO(xcb_connect, pFpp_t) \
+	GO(xcb_connect_to_display_with_auth_info, pFppp_t)
 
 #endif // __wrappedlibxcbTYPES_H_
