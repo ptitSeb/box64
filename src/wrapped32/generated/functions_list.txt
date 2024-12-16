@@ -1278,6 +1278,8 @@
 #() LFXpppi -> LFXpppi
 #() pFEppip -> pFEppip
 #() pFEppdd -> pFEppdd
+#() pFEpnuu -> pFEpnuu
+#() pFEpnup -> pFEpnup
 #() pFEXipp -> pFEXipp
 #() pFEXlpp -> pFEXlpp
 #() pFEXpip -> pFEXpip
@@ -1291,7 +1293,6 @@
 #() pFpdddd -> pFpdddd
 #() pFppuup -> pFppuup
 #() pFppupp -> pFppupp
-#() pFppnuu -> pFppnuu
 #() pFXLipp -> pFXLipp
 #() pFXpipi -> pFXpipi
 #() pFXppip -> pFXppip
@@ -1456,13 +1457,13 @@
 #() pFEpiiuu -> pFEpiiuu
 #() pEEpLLiN -> pEEpLLiN
 #() pEEppLLp -> pEEppLLp
+#() pFEpnCWp -> pFEpnCWp
 #() pFEXLLLp -> pFEXLLLp
 #() pFEXLpii -> pFEXLpii
 #() pFEXpppp -> pFEXpppp
 #() pFWCiWCi -> pFWCiWCi
 #() pFdddddd -> pFdddddd
 #() pFpiiiiu -> pFpiiiiu
-#() pFppnCWp -> pFppnCWp
 #() XFpppppp -> XFpppppp
 #() iFpppibp_p -> iFpppiBp
 #() iFpppbp_pp -> iFpppBpp
@@ -1683,6 +1684,7 @@
 #() LFXLiiiiiip -> LFXLiiiiiip
 #() LFXLiiuuuLL -> LFXLiiuuuLL
 #() pFEuiiiuuuu -> pFEuiiiuuuu
+#() pFEpnCuuuuu -> pFEpnCuuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
 #() pFpiiiiuuuu -> pFpiiiiuuuu
 #() iFXLbL_pppppp -> iFXLBpppppp
@@ -1719,7 +1721,7 @@
 #() iFXuuLiuiiLL -> iFXuuLiuiiLL
 #() iFXLLpiiuuii -> iFXLLpiiuuii
 #() pFEpiiiiuuuu -> pFEpiiiiuuuu
-#() pFEppnCuuuuu -> pFEppnCuuuuu
+#() pFEpnCuuuCup -> pFEpnCuuuCup
 #() pFpppppppppp -> pFpppppppppp
 #() pFXpuiipuuii -> pFXpuiipuuii
 #() iFXiiLiiibiip_ip -> iFXiiLiiiBip
@@ -1744,7 +1746,6 @@
 #() iFEXpLLiiLWpi -> iFEXpLLiiLWpi
 #() iFuiiiiuuiiip -> iFuiiiiuuiiip
 #() iFXLLpiiuuiiL -> iFXLLpiiuuiiL
-#() pFEppnCuuuCup -> pFEppnCuuuCup
 #() pFEXpuiipuuii -> pFEXpuiipuuii
 #() iFXiiLLiiibiip_ip -> iFXiiLLiiiBip
 #() vFXiLLrLiiuL_iiiipi -> vFXiLLBiiiipi
@@ -2655,15 +2656,22 @@ wrappedlibxcb:
 - pFpp:
   - xcb_connect
 - ZFpp:
-- zFpnuu:
-- zFpnCWp:
-- zFpnCuuuuu:
-- zFpnCuuuCup:
+- zFnuu:
+- zFnCWp:
+- zFnCuuuuu:
+- zFnCuuuCup:
 % ZFEpp -> pFEppp
-% zFpnuu -> pFppnuu
-% zFpnCWp -> pFppnCWp
-% zFEpnCuuuuu -> pFEppnCuuuuu
-% zFEpnCuuuCup -> pFEppnCuuuCup
+% zFEnuu -> pFEpnuu
+% zFEnCWp -> pFEpnCWp
+% zFEnCuuuuu -> pFEpnCuuuuu
+% zFEnCuuuCup -> pFEpnCuuuCup
+wrappedlibxcbres:
+% Z my_xcb_XXX_iterator_t pii
+% z my_xcb_cookie_t u
+- ZFp:
+- zFnup:
+% ZFEp -> pFEpp
+% zFEnup -> pFEpnup
 wrappedlibxcomposite:
 wrappedlibxcursor:
 - vFp:

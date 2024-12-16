@@ -6,13 +6,13 @@
 
 #undef ZFEpp
 #undef ZFEpp_32
-#undef zFpnuu
-#undef zFpnuu_32
-#undef zFpnCWp
-#undef zFpnCWp_32
-#undef zFEpnCuuuuu
-#undef zFEpnCuuuuu_32
-#undef zFEpnCuuuCup
-#undef zFEpnCuuuCup_32
+#undef zFEnuu
+#undef zFEnuu_32
+#undef zFEnCWp
+#undef zFEnCWp_32
+#undef zFEnCuuuuu
+#undef zFEnCuuuuu_32
+#undef zFEnCuuuCup
+#undef zFEnCuuuCup_32
 
 #endif // __wrappedlibxcbUNDEFS32_H_

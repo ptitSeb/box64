@@ -14,10 +14,10 @@
 typedef void (*vFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef my_xcb_XXX_iterator_t (*ZFpp_t)(void*, void*);
-typedef my_xcb_cookie_t (*zFpnuu_t)(void*, void*, uint32_t, uint32_t);
-typedef my_xcb_cookie_t (*zFpnCWp_t)(void*, void*, uint8_t, uint16_t, void*);
-typedef my_xcb_cookie_t (*zFpnCuuuuu_t)(void*, void*, uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
-typedef my_xcb_cookie_t (*zFpnCuuuCup_t)(void*, void*, uint8_t, uint32_t, uint32_t, uint32_t, uint8_t, uint32_t, void*);
+typedef my_xcb_cookie_t (*zFnuu_t)(void*, uint32_t, uint32_t);
+typedef my_xcb_cookie_t (*zFnCWp_t)(void*, uint8_t, uint16_t, void*);
+typedef my_xcb_cookie_t (*zFnCuuuuu_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef my_xcb_cookie_t (*zFnCuuuCup_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint8_t, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xcb_disconnect, vFp_t) \

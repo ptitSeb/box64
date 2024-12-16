@@ -79,7 +79,7 @@ GO(xcb_change_keyboard_mapping_keysyms_length, iFp)
 GO(xcb_change_keyboard_mapping_sizeof, iFp)
 //GOS(xcb_change_pointer_control, pFpnwwwCC)
 //GOS(xcb_change_pointer_control_checked, pFpnwwwCC)
-GOS(xcb_change_property, zFEpnCuuuCup)  //%%
+GOS(xcb_change_property, zFEnCuuuCup)  //%%
 //GOS(xcb_change_property_checked, pFpnCuuuCup)
 GO(xcb_change_property_data, pFp)
 //GOS(xcb_change_property_data_end, pFpp)
@@ -163,7 +163,7 @@ GO(xcb_create_window_value_list_sizeof, iFpu)
 GO(xcb_create_window_value_list_unpack, iFpup)
 //GO(xcb_cursor_end, 
 GO(xcb_cursor_next, vFbpii_)
-GOS(xcb_delete_property, zFpnuu)    //%%
+GOS(xcb_delete_property, zFEnuu)    //%%
 //GOS(xcb_delete_property_checked, pFpnuu)
 //GO(xcb_depth_end, 
 GO(xcb_depth_next, vFbpii_)
@@ -277,7 +277,7 @@ GO(xcb_get_pointer_mapping_map_length, iFp)
 GO(xcb_get_pointer_mapping_reply, pFnubp_)
 GO(xcb_get_pointer_mapping_sizeof, iFp)
 //GOS(xcb_get_pointer_mapping_unchecked, pFpn)
-GOS(xcb_get_property, zFEpnCuuuuu)  //%%
+GOS(xcb_get_property, zFEnCuuuuu)  //%%
 GO(xcb_get_property_reply, pFnubp_)
 GO(xcb_get_property_sizeof, iFp)
 //GOS(xcb_get_property_unchecked, pFpnCuuuuu)
@@ -327,7 +327,7 @@ GO(xcb_image_text_8_string, pFp)
 GO(xcb_image_text_8_string_length, iFp)
 //GOS(xcb_install_colormap, pFpnu)
 //GOS(xcb_install_colormap_checked, pFpnu)
-GOS(xcb_intern_atom, zFpnCWp)   //%%
+GOS(xcb_intern_atom, zFEnCWp)   //%%
 GO(xcb_intern_atom_reply, pFnubp_)
 GO(xcb_intern_atom_sizeof, iFp)
 //GOS(xcb_intern_atom_unchecked, pFpnCWp)

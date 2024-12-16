@@ -6,13 +6,13 @@
 
 #define ZFEpp pFEppp
 #define ZFEpp_32 pFEppp_32
-#define zFpnuu pFppnuu
-#define zFpnuu_32 pFppnuu_32
-#define zFpnCWp pFppnCWp
-#define zFpnCWp_32 pFppnCWp_32
-#define zFEpnCuuuuu pFEppnCuuuuu
-#define zFEpnCuuuuu_32 pFEppnCuuuuu_32
-#define zFEpnCuuuCup pFEppnCuuuCup
-#define zFEpnCuuuCup_32 pFEppnCuuuCup_32
+#define zFEnuu pFEpnuu
+#define zFEnuu_32 pFEpnuu_32
+#define zFEnCWp pFEpnCWp
+#define zFEnCWp_32 pFEpnCWp_32
+#define zFEnCuuuuu pFEpnCuuuuu
+#define zFEnCuuuuu_32 pFEpnCuuuuu_32
+#define zFEnCuuuCup pFEpnCuuuCup
+#define zFEnCuuuCup_32 pFEpnCuuuCup_32
 
 #endif // __wrappedlibxcbDEFS32_H_

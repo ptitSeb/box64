@@ -63,6 +63,8 @@ GO("libX11-xcb.so.1", libx11xcb)
 GO("libX11-xcb.so", libx11xcb)
 GO("libxcb.so.1", libxcb)
 GO("libxcb.so", libxcb)
+GO("libxcb-res.so.0", libxcbres)
+GO("libxcb-res.so", libxcbres)
 
 GO("libopenal.so.1", openal)
 GO("libopenal.so.0", openal)

@@ -28,9 +28,12 @@ typedef struct my_xcb_XXX_iterator_s {
     int               rem;
     int               index;
 } my_xcb_XXX_iterator_t;
-// xcb_visualtype_iterator_t is like my_xcb_XXX_iterator_t
-// xcb_depth_iterator_t is similar to my_xcb_XXX_iterator_t
-// xcb_format_iterator_t is similar to my_xcb_XXX_iterator_t
+
+typedef struct my_xcb_XXX_iterator_32_s {
+    ptr_t             data;
+    int               rem;
+    int               index;
+} my_xcb_XXX_iterator_32_t;
 
 typedef struct my_xcb_cookie_s {
     uint32_t        data;
@@ -80,10 +83,13 @@ SUPER(xcb_intern_atom, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t on
 #undef SUPER
 
 #define SUPER(F)           		   												\
-    EXPORT void* my32_##F(x64emu_t* emu, my_xcb_XXX_iterator_t* ret, void* R)	\
+    EXPORT void* my32_##F(x64emu_t* emu, my_xcb_XXX_iterator_32_t* ret, void* R)\
     {                              												\
         (void)emu;       														\
-        *ret = my->F(R); 														\
+		my_xcb_XXX_iterator_t ret_l = my->F(R);									\
+        ret->data = to_ptrv(ret_l.data); 										\
+        ret->rem = ret_l.rem; 													\
+        ret->index = ret_l.index; 												\
         return ret;      														\
     }
 
