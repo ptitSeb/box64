@@ -3357,7 +3357,11 @@ static int finalize_file(machine_t *target, file_t *file) {
 	// #pragma type_letters S FILE*
 	SET_WEAK_PTR_TO(FILE, S)
 	// #pragma type_letters b xcb_connection_t*
-	SET_WEAK_PTR_TO(xcb_connection_t, S)
+	if (target->size_long == 4) {
+		SET_WEAK_PTR_TO(xcb_connection_t, n)
+	} else {
+                SET_WEAK_PTR_TO(xcb_connection_t, b)
+	}
 	if (target->size_long == 4) {
 		// Only on x86, not on x86_64
 		it = kh_get(type_map, file->type_map, "locale_t");
