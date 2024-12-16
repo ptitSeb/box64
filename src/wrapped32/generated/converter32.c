@@ -194,6 +194,22 @@ void to_struct_LLLLLLLLLLLLLLLLLL(ptr_t d, const struct_LLLLLLLLLLLLLLLLLL_t *sr
 	*(ulong_t*)dest = to_ulong(src->L17); dest += 4;
 }
 
+void from_struct_LpCC(struct_LpCC_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->C2 = *(uint8_t*)src; src += 1;
+	dest->C3 = *(uint8_t*)src; src += 1;
+}
+void to_struct_LpCC(ptr_t d, const struct_LpCC_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(uint8_t*)dest = src->C2; dest += 1;
+	*(uint8_t*)dest = src->C3; dest += 1;
+}
+
 void from_struct_h(struct_h_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->h0 = from_hash(*(ulong_t*)src); src += 4;
@@ -212,6 +228,18 @@ void to_struct_H(ptr_t d, const struct_H_t *src) {
 	if (!src) return;
 	uint8_t* dest = (uint8_t*)from_ptrv(d);
 	*(ulong_t*)dest = to_hash_d(src->H0); dest += 4;
+}
+
+void from_struct_pL(struct_pL_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->L1 = from_ulong(*(long_t*)src); src += 4;
+}
+void to_struct_pL(ptr_t d, const struct_pL_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
 }
 
 void from_struct_ppppii(struct_ppppii_t *dest, ptr_t s) {
@@ -551,6 +579,20 @@ void to_struct_puu(ptr_t d, const struct_puu_t *src) {
 	*(uint32_t*)dest = src->u2; dest += 4;
 }
 
+void from_struct_pii(struct_pii_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->i1 = *(int*)src; src += 4;
+	dest->i2 = *(int*)src; src += 4;
+}
+void to_struct_pii(ptr_t d, const struct_pii_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(int*)dest = src->i1; dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+}
+
 void from_struct_piiL(struct_piiL_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
@@ -565,6 +607,22 @@ void to_struct_piiL(ptr_t d, const struct_piiL_t *src) {
 	*(int*)dest = src->i1; dest += 4;
 	*(int*)dest = src->i2; dest += 4;
 	*(ulong_t*)dest = to_ulong(src->L3); dest += 4;
+}
+
+void from_struct_ipip(struct_ipip_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->i0 = *(int*)src; src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->i2 = *(int*)src; src += 4;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_ipip(ptr_t d, const struct_ipip_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(int*)dest = src->i0; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
 }
 
 void from_struct_piip(struct_piip_t *dest, ptr_t s) {

@@ -96,6 +96,14 @@ typedef struct struct_LLLLLLLLLLLLLLLLLL_s {
 } struct_LLLLLLLLLLLLLLLLLL_t;
 void from_struct_LLLLLLLLLLLLLLLLLL(struct_LLLLLLLLLLLLLLLLLL_t *dest, ptr_t src);
 void to_struct_LLLLLLLLLLLLLLLLLL(ptr_t dest, const struct_LLLLLLLLLLLLLLLLLL_t *src);
+typedef struct struct_LpCC_s {
+	unsigned long L0;
+	void* p1;
+	uint8_t C2;
+	uint8_t C3;
+} struct_LpCC_t;
+void from_struct_LpCC(struct_LpCC_t *dest, ptr_t src);
+void to_struct_LpCC(ptr_t dest, const struct_LpCC_t *src);
 typedef struct struct_h_s {
 	uintptr_t h0;
 } struct_h_t;
@@ -106,6 +114,12 @@ typedef struct struct_H_s {
 } struct_H_t;
 void from_struct_H(struct_H_t *dest, ptr_t src);
 void to_struct_H(ptr_t dest, const struct_H_t *src);
+typedef struct struct_pL_s {
+	void* p0;
+	unsigned long L1;
+} struct_pL_t;
+void from_struct_pL(struct_pL_t *dest, ptr_t src);
+void to_struct_pL(ptr_t dest, const struct_pL_t *src);
 typedef struct struct_ppppii_s {
 	void* p0;
 	void* p1;
@@ -277,6 +291,13 @@ typedef struct struct_puu_s {
 } struct_puu_t;
 void from_struct_puu(struct_puu_t *dest, ptr_t src);
 void to_struct_puu(ptr_t dest, const struct_puu_t *src);
+typedef struct struct_pii_s {
+	void* p0;
+	int i1;
+	int i2;
+} struct_pii_t;
+void from_struct_pii(struct_pii_t *dest, ptr_t src);
+void to_struct_pii(ptr_t dest, const struct_pii_t *src);
 typedef struct struct_piiL_s {
 	void* p0;
 	int i1;
@@ -299,6 +320,14 @@ typedef struct struct_ppup_s {
 	uint32_t u2;
 	void* p3;
 } struct_ppup_t;
+typedef struct struct_ipip_s {
+	int i0;
+	void* p1;
+	int i2;
+	void* p3;
+} struct_ipip_t;
+void from_struct_ipip(struct_ipip_t *dest, ptr_t src);
+void to_struct_ipip(ptr_t dest, const struct_ipip_t *src);
 void from_struct_ppup(struct_ppup_t *dest, ptr_t src);
 void to_struct_ppup(ptr_t dest, const struct_ppup_t *src);
 typedef struct struct_iiiiiLi_s {

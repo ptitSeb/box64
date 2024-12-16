@@ -1204,8 +1204,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 			CType[(value, CType.ReadWrite.none)].asarg = asarg
 			CType[(value, CType.ReadWrite.none)].aspost = ""
 			if value == 'n':
-				CType[(value, CType.ReadWrite.none)].aspre = f"void *aligned_xcb = align_xcb_connection32(from_ptrv(R_ESP + {{p}})); "
-				CType[(value, CType.ReadWrite.none)].aspost = f" unalign_xcb_connection32(aligned_xcb, from_ptrv(R_ESP + {{p}}));"
+				CType[(value, CType.ReadWrite.none)].aspre = f"void *aligned_xcb = align_xcb_connection32(from_ptriv(R_ESP + {{p}})); "
+				CType[(value, CType.ReadWrite.none)].aspost = f" unalign_xcb_connection32(aligned_xcb, from_ptriv(R_ESP + {{p}}));"
 	for ctn in CType.getSingletons():
 		CType[ctn].generate_converters()
 	
