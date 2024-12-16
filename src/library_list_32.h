@@ -59,6 +59,9 @@ GO("libXss.so.1", libxss)
 GO("libXxf86vm.so.1", libxxf86vm)
 GO("libXinerama.so.1", xinerama)
 
+GO("libX11-xcb.so.1", libx11xcb)
+GO("libX11-xcb.so", libx11xcb)
+
 GO("libopenal.so.1", openal)
 GO("libopenal.so.0", openal)
 GO("libopenal.so", openal)

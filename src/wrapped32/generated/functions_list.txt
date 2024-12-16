@@ -179,6 +179,7 @@
 #() vFpp -> vFpp
 #() vESp -> vESp
 #() vFXi -> vFXi
+#() vFXu -> vFXu
 #() vFXL -> vFXL
 #() vFXp -> vFXp
 #() cFpp -> cFpp
@@ -2613,6 +2614,9 @@ wrappedlibx11:
   - XGetWindowProperty
 - LFXLiiuuuiupLp:
   - XCreateWindow
+wrappedlibx11xcb:
+- pFX:
+  - XGetXCBConnection
 wrappedlibxcomposite:
 wrappedlibxcursor:
 - vFp:

@@ -270,6 +270,7 @@ typedef void (*vEpp_t)(void*, void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vESp_t)(void*, void*);
 typedef void (*vFXi_t)(void*, int32_t);
+typedef void (*vFXu_t)(void*, uint32_t);
 typedef void (*vFXL_t)(void*, uintptr_t);
 typedef void (*vFXp_t)(void*, void*);
 typedef int8_t (*cFpp_t)(void*, void*);
@@ -2042,6 +2043,7 @@ void vEpp_32(x64emu_t *emu, uintptr_t fcn) { vEpp_t fn = (vEpp_t)fcn; errno = em
 void vFpp_32(x64emu_t *emu, uintptr_t fcn) { vFpp_t fn = (vFpp_t)fcn; fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8)); }
 void vESp_32(x64emu_t *emu, uintptr_t fcn) { vESp_t fn = (vESp_t)fcn; errno = emu->libc_err; fn(io_convert32(from_ptriv(R_ESP + 4)), from_ptriv(R_ESP + 8)); emu->libc_err = errno; }
 void vFXi_32(x64emu_t *emu, uintptr_t fcn) { vFXi_t fn = (vFXi_t)fcn; fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 8)); }
+void vFXu_32(x64emu_t *emu, uintptr_t fcn) { vFXu_t fn = (vFXu_t)fcn; fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptri(uint32_t, R_ESP + 8)); }
 void vFXL_32(x64emu_t *emu, uintptr_t fcn) { vFXL_t fn = (vFXL_t)fcn; fn(getDisplay(from_ptriv(R_ESP + 4)), from_ulong(from_ptri(ulong_t, R_ESP + 8))); }
 void vFXp_32(x64emu_t *emu, uintptr_t fcn) { vFXp_t fn = (vFXp_t)fcn; fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptriv(R_ESP + 8)); }
 void cFpp_32(x64emu_t *emu, uintptr_t fcn) { cFpp_t fn = (cFpp_t)fcn; R_EAX = fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8)); }

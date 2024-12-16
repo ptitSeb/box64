@@ -220,6 +220,7 @@ void vEpp_32(x64emu_t *emu, uintptr_t fnc);
 void vFpp_32(x64emu_t *emu, uintptr_t fnc);
 void vESp_32(x64emu_t *emu, uintptr_t fnc);
 void vFXi_32(x64emu_t *emu, uintptr_t fnc);
+void vFXu_32(x64emu_t *emu, uintptr_t fnc);
 void vFXL_32(x64emu_t *emu, uintptr_t fnc);
 void vFXp_32(x64emu_t *emu, uintptr_t fnc);
 void cFpp_32(x64emu_t *emu, uintptr_t fnc);
