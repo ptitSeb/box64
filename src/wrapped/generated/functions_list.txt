@@ -5374,6 +5374,7 @@ wrappedlibxcbpresent:
 wrappedlibxcbrandr:
 wrappedlibxcbrender:
 wrappedlibxcbrenderutil:
+wrappedlibxcbres:
 wrappedlibxcbshape:
 wrappedlibxcbshm:
 wrappedlibxcbsync:
