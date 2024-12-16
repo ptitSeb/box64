@@ -346,6 +346,40 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     XVSRLNI_H_W(v0, v0, 1);
                     XVPERMI_D(q0, v0, 0b1000);
                     break;
+                case 0x17:
+                    INST_NAME("PTEST Gx, Ex");
+                    nextop = F8;
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETGX(q0, 0);
+                    GETEX(q1, 0, 0);
+                    CLEAR_FLAGS(x3);
+                    SET_DFNONE();
+                    v0 = fpu_get_scratch(dyn);
+                    IFX (X_ZF) {
+                        VAND_V(v0, q1, q0);
+                        VSETEQZ_V(fcc0, v0);
+                        BCEQZ_MARK(fcc0);
+                        if (la64_lbt) {
+                            ADDI_D(x3, xZR, 1 << F_ZF);
+                            X64_SET_EFLAGS(x3, X_ZF);
+                        } else {
+                            ORI(xFlags, xFlags, 1 << F_ZF);
+                        }
+                    }
+                    MARK;
+                    IFX (X_CF) {
+                        VANDN_V(v0, q0, q1);
+                        VSETEQZ_V(fcc0, v0);
+                        BCEQZ_MARK2(fcc0);
+                        if (la64_lbt) {
+                            ADDI_D(x3, xZR, 1 << F_CF);
+                            X64_SET_EFLAGS(x3, X_CF);
+                        } else {
+                            ORI(xFlags, xFlags, 1 << F_CF);
+                        }
+                    }
+                    MARK2;
+                    break;
                 case 0x1C:
                     INST_NAME("PABSB Gx,Ex");
                     nextop = F8;
