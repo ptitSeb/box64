@@ -77,8 +77,8 @@ void free_tlsdatasize(void* p)
     if(!p)
         return;
     tlsdatasize_t *data = (tlsdatasize_t*)p;
-    box_free(data->ptr);
-    box_free(p);
+    actual_free(data->ptr);
+    actual_free(p);
     if(my_context)
         pthread_setspecific(my_context->tlskey, NULL);
 }
