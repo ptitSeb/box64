@@ -72,6 +72,7 @@ int box64_rdtsc_1ghz = 0;
 uint8_t box64_rdtsc_shift = 0;
 char* box64_insert_args = NULL;
 char* box64_new_args = NULL;
+int box64_dynarec_gdbjit = 1;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;

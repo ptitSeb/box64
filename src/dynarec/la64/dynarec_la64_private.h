@@ -133,6 +133,7 @@ typedef struct dynarec_la64_s {
     uint8_t              smwrite;    // for strongmem model emulation
     uint8_t              always_test;
     uint8_t              abort;
+    void*               gdbjit_block;
 } dynarec_la64_t;
 
 void add_next(dynarec_la64_t *dyn, uintptr_t addr);

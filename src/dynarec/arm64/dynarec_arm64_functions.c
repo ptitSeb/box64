@@ -25,6 +25,7 @@
 #include "dynarec_arm64_functions.h"
 #include "custommem.h"
 #include "bridge.h"
+#include "gdbjit.h"
 
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
@@ -747,6 +748,11 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
             dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
+    }
+    if (box64_dynarec_gdbjit) {
+        zydis_dec_t* dec = rex.is32bits?my_context->dec32:my_context->dec;
+        const char *inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr) : name;
+        dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
     }
 }
 
