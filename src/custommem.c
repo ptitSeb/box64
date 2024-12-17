@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <syscall.h>
+#include <sys/personality.h>
 
 #include "box64context.h"
 #include "elfloader.h"
@@ -821,6 +822,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
 void* box32_dynarec_mmap(size_t size)
 {
     // find a block that was prereserve before and big enough
+    size = (size+box64_pagesize-1)&~(box64_pagesize-1);
     uint32_t flag;
     static uintptr_t cur = 0x100000000LL;
     uintptr_t bend = 0;
@@ -1597,7 +1599,12 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
     LOCK_PROT();
-    rb_set(mapallmem, addr, addr+size, 1);
+    uint32_t val;
+    uintptr_t endb; 
+    int there = rb_get_end(mapallmem, addr, &val, &endb);
+    // block is here or absent, no half-block handled..
+    if(!there)
+        rb_set(mapallmem, addr, addr+size, 1);
     UNLOCK_PROT();
     // don't need to add precise tracking probably
 }
@@ -1859,7 +1866,7 @@ void reverveHigMem32(void)
               //  printf_log(LOG_DEBUG, " Failed to reserve %zx sized block\n", cur_size);
             cur_size>>=1;
         } else {
-            rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+cur_size, 1);
+            rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+cur_size, 2);
             //printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, cur_size);
         }
     }
@@ -1904,6 +1911,7 @@ void reverveHigMem32(void)
             start = bend;
         }
     }
+    personality(ADDR_LIMIT_32BIT);
 }
 #endif
 void my_reserveHighMem()
