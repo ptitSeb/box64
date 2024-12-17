@@ -1510,8 +1510,12 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
                     memcpy(CMSG_DATA(dcmsg), cmsg+1, cmsg->cmsg_len-sizeof(struct i386_cmsghdr));
                     d->msg_controllen += 4;
                 }
-                dcmsg = (struct cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+7)&~7));
+                struct cmsghdr* next = (struct cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+7)&~7));
                 cmsg = my32___cmsg_nxthdr(s, cmsg);
+                uintptr_t next_diff = (uintptr_t)next-((uintptr_t)dcmsg+dcmsg->cmsg_len);
+                if(cmsg)
+                    d->msg_controllen+=next_diff;
+                
             }
         } else 
             d->msg_control = NULL;
@@ -1536,7 +1540,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
         UnalignIOV_32(d_iov+i, s_iov+i);
     }
     d->msg_iovlen = s->msg_iovlen;
-    //d->msg_controllen = s->msg_controllen;
+    d->msg_controllen = s->msg_controllen;
     if(s->msg_control) {
         struct i386_cmsghdr* dcmsg = from_ptrv(d->msg_control);
         struct cmsghdr* scmsg = s->msg_control;
@@ -1547,7 +1551,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
             if(dcmsg->cmsg_len) {
                 dcmsg->cmsg_len -= 4;
                 memcpy(dcmsg+1, CMSG_DATA(scmsg), dcmsg->cmsg_len-sizeof(struct i386_cmsghdr));
-                //d->msg_controllen -= 4;
+                d->msg_controllen -= 4;
             }
             dcmsg = (struct i386_cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+3)&~3));
             scmsg = CMSG_NXTHDR(s, scmsg);
