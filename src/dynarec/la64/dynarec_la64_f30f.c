@@ -331,6 +331,51 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0xB8:
+            INST_NAME("POPCNT Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            v1 = fpu_get_scratch(dyn);
+            GETED(0);
+            GETGD;
+            if (MODREG) {
+                if (rex.w) {
+                    VINSGR2VR_D(v1, ed, 0);
+                    VINSGR2VR_D(v1, xZR, 1);
+                } else {
+                    ZEROUP2(x4, ed); // need to clear uper part
+                    ed = x4;
+                    VINSGR2VR_D(v1, ed, 0);
+                    VINSGR2VR_D(v1, xZR, 1);
+                }
+            } else {
+                if (rex.w) {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                    VLD(v1, ed, fixedaddress);
+                } else {
+                    GETED(0); // just load and clear the upper part
+                    VINSGR2VR_D(v1, ed, 0);
+                    VINSGR2VR_D(v1, xZR, 1);
+                }
+            }
+            CLEAR_FLAGS(x2);
+            BNEZ_MARK(ed);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+            MOV32w(gd, 0);
+            B_NEXT_nocond;
+            MARK;
+            VPCNT_B(v1, v1);
+            MESSAGE(LOG_DUMP, "Need Optimization UADDLV\n");
+            VPICKVE2GR_D(x3, v1, 0);
+            MOV32w(gd, 0);
+            MARK2;
+            ANDI(x4, x3, 0xf);
+            ADD_W(gd, gd, x4);
+            SRLI_D(x3, x3, 4);
+            BNEZ_MARK2(x3);
+            break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
             SETFLAGS(X_ZF, SF_SUBSET);

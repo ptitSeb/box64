@@ -417,6 +417,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VEXTRINS_D(q0, v1, VEXTRINS_IMM_4_0(1, 0));
                     }
                     break;
+                case 0x30:
+                    INST_NAME("PMOVZXBW Gx, Ex");
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX_empty(q0);
+                    VEXT2XV_HU_BU(q0, q1);
+                    break;
                 case 0x3A:
                     INST_NAME("PMINUW Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
