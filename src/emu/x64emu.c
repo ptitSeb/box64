@@ -95,7 +95,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
 EXPORTDYN
 x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
-    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize);
+    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X%s\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize, ownstack?" owned":"");
 
     x64emu_t *emu = (x64emu_t*)actual_calloc(1, sizeof(x64emu_t));
 
@@ -104,11 +104,11 @@ x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, i
     return emu;
 }
 
-x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
+x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize)
 {
     printf_log(LOG_DEBUG, "New X86_64 Emu from stack, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
 
-    internalX64Setup(emu, context, start, stack, stacksize, ownstack);
+    internalX64Setup(emu, context, start, stack, stacksize, 0);
     
     return emu;
 }
@@ -203,7 +203,7 @@ void CallAllCleanup(x64emu_t *emu)
 static void internalFreeX64(x64emu_t* emu)
 {
     if(emu && emu->stack2free)
-        !munmap(emu->stack2free, emu->size_stack);
+        munmap(emu->stack2free, emu->size_stack);
     #ifdef BOX32
     if(emu->res_state_32)
         actual_free(emu->res_state_32);
