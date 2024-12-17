@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -22,6 +23,7 @@
 #include "dynarec_native.h"
 #include "dynarec_arch.h"
 #include "dynarec_next.h"
+#include "gdbjit.h"
 
 void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -574,6 +576,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     protectDB(addr, 1);
     // init the helper
     dynarec_native_t helper = {0};
+#ifdef GDBJIT
+    helper.gdbjit_block = box_calloc(1, sizeof(gdbjit_block_t));
+#endif
     current_helper = &helper;
     helper.dynablock = block;
     helper.start = addr;
@@ -748,6 +753,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
     }
+    if (box64_dynarec_gdbjit) {
+        GdbJITNewBlock(helper.gdbjit_block, (GDB_CORE_ADDR)block->actual_block, (GDB_CORE_ADDR)block->actual_block + native_size);
+    }
     int oldtable64size = helper.table64size;
     size_t oldnativesize = helper.native_size;
     size_t oldinstsize = helper.insts_size;
@@ -782,6 +790,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     //block->x64_addr = (void*)start;
     block->x64_size = end-start;
     // all done...
+    if (box64_dynarec_gdbjit) {
+        GdbJITBlockReady(helper.gdbjit_block);
+    }
     __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abort if it is

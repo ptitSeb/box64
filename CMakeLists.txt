@@ -42,6 +42,7 @@ option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
 option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BOX32})
 option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
 option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LARCH64_ABI_1})
+option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -93,6 +94,11 @@ if(ANDROID)
     set(TERMUX_PATH "/data/data/com.termux/files")
     set(NOLOADADDR ON CACHE BOOL "")
     set(BAD_SIGNAL ON CACHE BOOL "")
+endif()
+
+if(GDBJIT)
+    message(STATUS "Build with GDBJIT support")
+    add_definitions(-DGDBJIT)
 endif()
 
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
@@ -386,6 +392,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/box64stack.c"
     "${BOX64_ROOT}/src/tools/bridge.c"
     "${BOX64_ROOT}/src/tools/callback.c"
+    "${BOX64_ROOT}/src/tools/gdbjit.c"
     "${BOX64_ROOT}/src/tools/my_cpuid.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
@@ -1034,6 +1041,11 @@ if(LARCH64_DYNAREC)
     )
 endif()
 
+
+if(GDBJIT)
+set(GDBJITREADER "${BOX64_ROOT}/gdbjit/reader.c")
+endif()
+
 if(DYNAREC)
     set(DYNAREC_PASS
         "${BOX64_ROOT}/src/wrapped/generated/wrapper.h"
@@ -1077,6 +1089,8 @@ if(DYNAREC)
         $<TARGET_OBJECTS:native_pass3>
         $<TARGET_OBJECTS:test_interpreter>
     )
+
+    add_library(box64gdbjitreader SHARED ${GDBJITREADER})
 endif()
 
 # creates git_head.h
@@ -1165,6 +1179,9 @@ if(NOT _x86 AND NOT _x86_64)
    if(NOT NO_LIB_INSTALL)
     install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION ${TERMUX_PATH}/usr/bin)
    endif()
+  endif()
+  if (GDBJIT)
+    install(TARGETS box64gdbjitreader RUNTIME DESTINATION lib)
   endif()
   if(NOT NO_CONF_INSTALL)
     configure_file(system/box64.conf.cmake system/box64.conf)
