@@ -1090,7 +1090,9 @@ if(DYNAREC)
         $<TARGET_OBJECTS:test_interpreter>
     )
 
-    add_library(box64gdbjitreader SHARED ${GDBJITREADER})
+    if(GDBJIT)
+        add_library(box64gdbjitreader SHARED ${GDBJITREADER})
+    endif()
 endif()
 
 # creates git_head.h
