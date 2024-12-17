@@ -2481,7 +2481,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CLC");
             SETFLAGS(X_CF, SF_SUBSET);
             SET_DFNONE();
-            BSTRINS_D(xFlags, xZR, F_CF, F_CF);
+            if (la64_lbt)
+                X64_SET_EFLAGS(xZR, X_CF);
+            else
+                BSTRINS_D(xFlags, xZR, F_CF, F_CF);
             break;
         case 0xFC:
             INST_NAME("CLD");

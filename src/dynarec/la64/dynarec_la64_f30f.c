@@ -336,45 +336,43 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET);
             SET_DFNONE();
             nextop = F8;
-            v1 = fpu_get_scratch(dyn);
             GETED(0);
             GETGD;
-            if (MODREG) {
-                if (rex.w) {
-                    VINSGR2VR_D(v1, ed, 0);
-                    VINSGR2VR_D(v1, xZR, 1);
-                } else {
-                    ZEROUP2(x4, ed); // need to clear uper part
-                    ed = x4;
-                    VINSGR2VR_D(v1, ed, 0);
-                    VINSGR2VR_D(v1, xZR, 1);
-                }
-            } else {
-                if (rex.w) {
-                    SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                    VLD(v1, ed, fixedaddress);
-                } else {
-                    GETED(0); // just load and clear the upper part
-                    VINSGR2VR_D(v1, ed, 0);
-                    VINSGR2VR_D(v1, xZR, 1);
-                }
+            if (!rex.w && MODREG) {
+                ZEROUP2(x4, ed);
+                ed = x4;
             }
             CLEAR_FLAGS(x2);
-            BNEZ_MARK(ed);
-            ORI(xFlags, xFlags, 1 << F_ZF);
+            BNE_MARK(ed, xZR);
+            if (la64_lbt) {
+                ADDI_D(x3, xZR, 1 << F_ZF);
+                X64_SET_EFLAGS(x3, X_ZF);
+            } else {
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
             MOV32w(gd, 0);
             B_NEXT_nocond;
             MARK;
-            VPCNT_B(v1, v1);
-            MESSAGE(LOG_DUMP, "Need Optimization UADDLV\n");
-            VPICKVE2GR_D(x3, v1, 0);
-            MOV32w(gd, 0);
-            MARK2;
-            ANDI(x4, x3, 0xf);
-            ADD_W(gd, gd, x4);
-            SRLI_D(x3, x3, 4);
-            BNEZ_MARK2(x3);
+            TABLE64(x1, 0x5555555555555555uLL);
+            SRLI_D(x5, ed, 1);
+            AND(x5, x5, x1);
+            SUB_D(x5, ed, x5);
+            TABLE64(x3, 0x3333333333333333uLL);
+            SRLI_D(x1, x5, 2);
+            AND(x1, x1, x3);
+            AND(x5, x5, x3);
+            ADD_D(x5, x5, x1);
+            TABLE64(x3, 0x0F0F0F0F0F0F0F0FuLL);
+            SRLI_D(x1, x5, 4);
+            ADD_D(x5, x5, x1);
+            AND(x5, x5, x3);
+            SRLI_D(x1, x5, 32);
+            ADD_W(x5, x5, x1);
+            SRLI_W(x1, x5, 16);
+            ADD_W(x5, x5, x1);
+            SRLI_W(x1, x5, 8);
+            ADD_W(x5, x5, x1);
+            ANDI(gd, x5, 0x7F);
             break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
