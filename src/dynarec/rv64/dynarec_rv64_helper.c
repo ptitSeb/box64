@@ -844,6 +844,13 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
     fpu_pushcache(dyn, ninst, x3, 1);
+    // check if additional sextw needed
+    int sextw_mask = ((w > 0 ? w : -w) >> 4) & 0b111111;
+    for (int i = 0; i < 6; i++) {
+        if (sextw_mask & (1 << i)) {
+            SEXT_W(A0+i, A0+i);
+        }
+    }
     // native call
     TABLE64(x3, (uintptr_t)fnc);
     JALR(xRA, x3);

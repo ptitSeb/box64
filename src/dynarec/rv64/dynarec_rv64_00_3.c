@@ -436,7 +436,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (isRetX87Wrapper(*(wrapper_t*)(addr)))
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if (tmp < 0 || tmp > 1)
+                    if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
                     if ((box64_log < 2 && !cycle_log) && tmp) {
                         // GETIP(ip+3+8+8); // read the 0xCC
@@ -932,7 +932,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
                     } else
                         tmp = 0;
-                    if (tmp < 0 || tmp > 1)
+                    if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
                     if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
                         // return value will be on the stack, so the stack depth needs to be updated

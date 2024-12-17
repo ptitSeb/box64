@@ -842,24 +842,25 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	
 	# H could be allowed maybe?
 	allowed_simply: Dict[str, str] = {"ARM64": "v", "RV64": "v"}
-	allowed_regs  : Dict[str, str] = {"ARM64": "cCwWiuIUlLp", "RV64": "CWuIUlLp"}
+	allowed_regs  : Dict[str, str] = {"ARM64": "cCwWiuIUlLp", "RV64": "CWIUlLp"}
 	allowed_fpr   : Dict[str, str] = {"ARM64": "fd", "RV64": "fd"}
+	allowed_sextw : Dict[str, str] = {"ARM64": "", "RV64": "cwiu"}
 	
 	# Detect functions which return in an x87 register
 	retx87_wraps: Dict[ClausesStr, List[FunctionType]] = {}
 	return_x87: str = "D"
 	
 	# Sanity checks
-	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNHPAxXYb", "RV64": "EcwiDVOSNHPAxXYb"}
+	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNHPAxXYb", "RV64": "EDVOSNHPAxXYb"}
 	assert(all(k in allowed_simply for k in forbidden_simple))
 	assert(all(k in allowed_regs for k in forbidden_simple))
 	assert(all(k in allowed_fpr for k in forbidden_simple))
 	for k1 in forbidden_simple:
-		assert(len(allowed_simply[k1]) + len(allowed_regs[k1]) + len(allowed_fpr[k1]) + len(forbidden_simple[k1]) == len(allowed_conv.values))
+		assert(len(allowed_simply[k1]) + len(allowed_regs[k1]) + len(allowed_fpr[k1]) + len(allowed_sextw[k1]) + len(forbidden_simple[k1]) == len(allowed_conv.values))
 		assert(all(c not in allowed_regs[k1] for c in allowed_simply[k1]))
 		assert(all(c not in allowed_simply[k1] + allowed_regs[k1] for c in allowed_fpr[k1]))
 		assert(all(c not in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] for c in forbidden_simple[k1]))
-		assert(all(c in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] + forbidden_simple[k1] for c in allowed_conv.values))
+		assert(all(c in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] + allowed_sextw[k1] + forbidden_simple[k1] for c in allowed_conv.values))
 	assert(all(c in allowed_conv.values for c in return_x87))
 	assert(all(c in forbidden_simple[k] for c in depends_on_ld for k in forbidden_simple))
 	
@@ -872,6 +873,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		for k in forbidden_simple:
 			regs_count: int = 0
 			fpr_count : int = 0
+			sextw_mask: int = 0
     		
 			if v.get_convention() is not allowed_conv:
 				continue
@@ -884,6 +886,9 @@ def main(root: str, files: Iterable[Filename], ver: str):
 					fpr_count = fpr_count + 1
 				elif c in allowed_simply[k]:
 					continue
+				elif c in allowed_sextw[k]:
+					sextw_mask |= 1 << regs_count
+					regs_count += 1
 				else:
 					break
 			else:
@@ -891,6 +896,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				if (regs_count <= 6) and (fpr_count <= 8):
 					# All checks passed!
 					ret_val = 1 + fpr_count
+					ret_val |= sextw_mask << 4
 					if v[0] in allowed_fpr[k]:
 						ret_val = -ret_val
 					ret[k] = ret_val
