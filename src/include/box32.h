@@ -30,12 +30,13 @@ uintptr_t from_hash(ulong_t l);
 uintptr_t from_hash_d(ulong_t l);
 #ifdef TEST32
 #include "debug.h"
+void box64_abort();
 
 static inline ptr_t to_ptr(uintptr_t p) {
     if(p!=0xffffffffffffffffLL && (p>>32)) {
         printf_log(LOG_NONE, "Warning, uintptr_t %p is not a 32bits value\n", (void*)p);
         #ifdef TEST_ABORT
-        abort();
+        box64_abort();
         #endif
     }
     return (ptr_t)p;
@@ -45,7 +46,7 @@ static inline ptr_t to_ptrv(void* p2) {
     if(p!=0xffffffffffffffffLL && (p>>32)) {
         printf_log(LOG_NONE, "Warning, pointer %p is not a 32bits value\n", p2);
         #ifdef TEST_ABORT
-        abort();
+        box64_abort();
         #endif
     }
     return (ptr_t)p;

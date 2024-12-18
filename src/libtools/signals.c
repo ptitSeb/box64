@@ -2376,6 +2376,40 @@ EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, in
     u->uc_mcontext.gregs[X64_RSP] = (uintptr_t)rsp;
 }
 
+void box64_abort() {
+    if(box64_showbt && LOG_INFO<=box64_log) {
+            // show native bt
+            #define BT_BUF_SIZE 100
+            int nptrs;
+            void *buffer[BT_BUF_SIZE];
+            char **strings;
+            x64emu_t* emu = thread_get_emu();
+
+#ifndef ANDROID
+            nptrs = backtrace(buffer, BT_BUF_SIZE);
+            strings = backtrace_symbols(buffer, nptrs);
+            if(strings) {
+                for (int j = 0; j < nptrs; j++)
+                    printf_log(LOG_INFO, "NativeBT: %s\n", strings[j]);
+                free(strings);
+            } else
+                printf_log(LOG_INFO, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
+#endif
+            extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
+            extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
+            nptrs = my_backtrace_ip(emu, buffer, BT_BUF_SIZE);
+            strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
+            if(strings) {
+                for (int j = 0; j < nptrs; j++)
+                    printf_log(LOG_INFO, "EmulatedBT: %s\n", strings[j]);
+                free(strings);
+            } else
+                printf_log(LOG_INFO, "EmulatedBT: none\n");
+        }
+    abort();
+}
+
+
 EXPORT int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2)
 {
 //    printf_log(LOG_NONE, "Warning: call to unimplemented swapcontext\n");
