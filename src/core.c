@@ -209,13 +209,12 @@ int ftrace_has_pid = 0;
 
 void openFTrace(const char* newtrace, int reopen)
 {
-    const char* t = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
+    const char* p = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
     #ifndef MAX_PATH
     #define MAX_PATH 4096
     #endif
     char tmp[MAX_PATH];
     char tmp2[MAX_PATH];
-    const char* p = t;
     int append=0;
     if(p && strlen(p) && p[strlen(p)-1]=='+') {
         strncpy(tmp2, p, sizeof(tmp2));
@@ -227,7 +226,7 @@ void openFTrace(const char* newtrace, int reopen)
         p = ftrace_name;
         append = 1;
     } else {
-        if (p && strstr(p, "%pid")) {
+        if (p && strstr(p, "\%pid")) {
             int next = 0;
             do {
                 strcpy(tmp, p);
@@ -235,11 +234,11 @@ void openFTrace(const char* newtrace, int reopen)
                 *c = 0; // cut
                 char pid[16];
                 if (next)
-                    sprintf(pid, "%d-%d", getpid(), next);
+                    sprintf(pid, "%d-%d", GetTID(), next);
                 else
-                    sprintf(pid, "%d", getpid());
+                    sprintf(pid, "%d", GetTID());
                 strcat(tmp, pid);
-                c = strstr(p, "%pid") + strlen("%pid");
+                c = strstr(p, "\%pid") + strlen("\%pid");
                 strcat(tmp, c);
                 ++next;
             } while (FileExist(tmp, IS_FILE) && !append);
@@ -247,7 +246,7 @@ void openFTrace(const char* newtrace, int reopen)
             ftrace_has_pid = 1;
         }
         if (ftrace_name)
-            free(ftrace_name);
+            box_free(ftrace_name);
         ftrace_name = NULL;
     }
     if(p) {
@@ -255,14 +254,14 @@ void openFTrace(const char* newtrace, int reopen)
             ftrace = stderr;
         else {
             if(append)
-                ftrace = fopen(p, "w+");
+                ftrace = fopen(p, "a");
             else
                 ftrace = fopen(p, "w");
             if(!ftrace) {
                 ftrace = stdout;
                 printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
             } else {
-                if (!reopen) ftrace_name = strdup(p);
+                if (!reopen) ftrace_name = box_strdup(p);
                 /*fclose(ftrace);
                 ftrace = NULL;*/
                 if(!box64_nobanner) {
@@ -279,8 +278,10 @@ void printf_ftrace(const char* fmt, ...)
 {
     if(ftrace_name) {
         int fd = fileno(ftrace);
-        if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1)
-            ftrace=fopen(ftrace_name, "w+");
+        if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1) {
+            ftrace=fopen(ftrace_name, "a");
+            printf_log(LOG_INFO, "%04d|Recreated trace because fd was invalid\n", GetTID());
+        }
     }
 
     va_list args;
@@ -294,9 +295,9 @@ void printf_ftrace(const char* fmt, ...)
 
 void my_prepare_fork()
 {
-    if (ftrace_has_pid && ftrace && ftrace != stdout && ftrace != stderr) {
+    if (ftrace_has_pid && ftrace && (ftrace != stdout) && (ftrace != stderr)) {
+        printf_log(LOG_INFO, "%04d|Closed trace file of %s at prepare\n", GetTID(), GetLastApplyName());
         fclose(ftrace);
-        printf_log(LOG_INFO, "Closed trace file of %s at prepare\n", GetLastApplyName());
     }
 }
 
@@ -304,7 +305,7 @@ void my_parent_fork()
 {
     if (ftrace_has_pid) {
         openFTrace(NULL, 1);
-        printf_log(LOG_INFO, "Reopened trace file of %s at parent\n", GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Reopened trace file of %s at parent\n", GetTID(), GetLastApplyName());
     }
 }
 
@@ -312,7 +313,7 @@ void my_child_fork()
 {
     if (ftrace_has_pid) {
         openFTrace(NULL, 0);
-        printf_log(LOG_INFO, "Created trace file of %s at child\n", GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Created trace file of %s at child\n", GetTID(), GetLastApplyName());
     }
 }
 
@@ -1338,58 +1339,26 @@ void PrintCollection(path_collection_t* col, const char* env)
 EXPORTDYN
 int CountEnv(char** env)
 {
-    // count, but remove all BOX64_* environnement
-    // also remove PATH and LD_LIBRARY_PATH
-    // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
     char** p = env;
     int c = 0;
     while(*p) {
-        if(strncmp(*p, "BOX64_", 6)!=0)
-            //if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0))
-                ++c;
+        ++c;
         ++p;
     }
-    return c+2;
+    return c;
 }
 EXPORTDYN
 int GatherEnv(char*** dest, char** env, char* prog)
 {
-    // Add all but BOX64_* environnement
-    // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
     char** p = env;
     int idx = 0;
-    int path = 0;
-    int ld_path = 0;
     while(*p) {
-        if(strncmp(*p, "BOX64_PATH=", 11)==0) {
-            (*dest)[idx++] = box_strdup(*p+6);
-            path = 1;
-        } else if(strncmp(*p, "BOX64_LD_LIBRARY_PATH=", 22)==0) {
-            (*dest)[idx++] = box_strdup(*p+6);
-            ld_path = 1;
-        } else if(strncmp(*p, "_=", 2)==0) {
-            /*int l = strlen(prog);
-            char tmp[l+3];
-            strcpy(tmp, "_=");
-            strcat(tmp, prog);
-            (*dest)[idx++] = box_strdup(tmp);*/
-        } else if(strncmp(*p, "BOX64_", 6)!=0) {
+        if(strncmp(*p, "_=", 2)==0) {
+            // ignore
+        } else {
             (*dest)[idx++] = box_strdup(*p);
-            /*if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
-            }*/
         }
         ++p;
-    }
-    // update the calloc of envv when adding new variables here
-    if(!path) {
-        (*dest)[idx++] = box_strdup("BOX64_PATH=.:bin");
-    }
-    if(!ld_path) {
-        #ifdef BOX32
-        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64:i386:libs:bin");
-        #else
-        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64");
-        #endif
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -2091,11 +2060,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)box_calloc(my_context->envc+4, sizeof(char*));
-    GatherEnv(&my_context->envv, environ?environ:env, my_context->box64path);
-    if(box64_dump || box64_log<=LOG_DEBUG) {
-        for (int i=0; i<my_context->envc; ++i)
-            printf_dump(LOG_DEBUG, " Env[%02d]: %s\n", i, my_context->envv[i]);
-    }
 
     path_collection_t ld_preload = {0};
     if(getenv("BOX64_LD_PRELOAD")) {
@@ -2135,6 +2099,12 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         my_context->argv[0] = box_strdup(prog);
     else
         my_context->argv[0] = ResolveFileSoft(prog, &my_context->box64_path);
+    //
+    GatherEnv(&my_context->envv, environ?environ:env, my_context->argv[0]);
+    if(box64_dump || box64_log<=LOG_DEBUG) {
+        for (int i=0; i<my_context->envc; ++i)
+            printf_dump(LOG_DEBUG, " Env[%02d]: %s\n", i, my_context->envv[i]);
+    }
     // check if box86 is present
     {
         my_context->box86path = box_strdup(my_context->box64path);
@@ -2479,7 +2449,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
 
     // child fork to handle traces
-    pthread_atfork(NULL, NULL, my_child_fork);
+    //pthread_atfork(my_prepare_fork, my_parent_fork, my_child_fork);
 
     thread_set_emu(emu);
 
