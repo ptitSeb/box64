@@ -367,6 +367,13 @@ Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is 
     * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
     * 1 : Dynarec will wait for FillBlock to be ready (Default)
 
+=item B<BOX64_DYNAREC_GDBJIT>=I<0|1>
+
+The GDBJIT debugging support, only available with the compilation option GDBJIT=ON, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
+
+    * 0 : Dynarec will not generate GDBJIT debuginfo. (Default)
+    * 1 : Dynarec will generate GDBJIT debuginfo.
+
 =item B<BOX64_SSE_FLUSHTO0>=I<0|1>
 
 Handling of SSE Flush to 0 flags
