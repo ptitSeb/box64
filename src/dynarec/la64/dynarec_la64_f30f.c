@@ -336,14 +336,31 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET);
             SET_DFNONE();
             nextop = F8;
+            v1 = fpu_get_scratch(dyn);
             GETED(0);
             GETGD;
-            if (!rex.w && MODREG) {
-                ZEROUP2(x4, ed);
-                ed = x4;
+            if (MODREG) {
+                if (rex.w) {
+                    VXOR_V(v1, v1, v1);
+                    VINSGR2VR_D(v1, ed, 0);
+                } else {
+                    ZEROUP2(x4, ed); // need to clear uper part
+                    ed = x4;
+                    VXOR_V(v1, v1, v1);
+                    VINSGR2VR_D(v1, ed, 0);
+                }
+            } else {
+                if (rex.w) {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                    FLD_D(v1, ed, fixedaddress);
+                } else {
+                    VXOR_V(v1, v1, v1);
+                    VINSGR2VR_D(v1, ed, 0);
+                }
             }
             CLEAR_FLAGS(x2);
-            BNE_MARK(ed, xZR);
+            BNEZ_MARK(ed);
             if (la64_lbt) {
                 ADDI_D(x3, xZR, 1 << F_ZF);
                 X64_SET_EFLAGS(x3, X_ZF);
@@ -353,26 +370,8 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV32w(gd, 0);
             B_NEXT_nocond;
             MARK;
-            TABLE64(x1, 0x5555555555555555uLL);
-            SRLI_D(x5, ed, 1);
-            AND(x5, x5, x1);
-            SUB_D(x5, ed, x5);
-            TABLE64(x3, 0x3333333333333333uLL);
-            SRLI_D(x1, x5, 2);
-            AND(x1, x1, x3);
-            AND(x5, x5, x3);
-            ADD_D(x5, x5, x1);
-            TABLE64(x3, 0x0F0F0F0F0F0F0F0FuLL);
-            SRLI_D(x1, x5, 4);
-            ADD_D(x5, x5, x1);
-            AND(x5, x5, x3);
-            SRLI_D(x1, x5, 32);
-            ADD_W(x5, x5, x1);
-            SRLI_W(x1, x5, 16);
-            ADD_W(x5, x5, x1);
-            SRLI_W(x1, x5, 8);
-            ADD_W(x5, x5, x1);
-            ANDI(gd, x5, 0x7F);
+            VPCNT_D(v1, v1);
+            VPICKVE2GR_D(gd, v1, 0);
             break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
