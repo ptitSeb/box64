@@ -94,6 +94,44 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             nextop = F8;
             switch (nextop) {
+                case 0xAB:
+                    INST_NAME("LOCK BTS Ed, Gd");
+                    SETFLAGS(X_ALL & ~X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    SET_DFNONE();
+                    nextop = F8;
+                    GETGD;
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        wback = 0;
+                        BEXT(x4, ed, gd, x2);
+                        ANDI(xFlags, xFlags, ~1);
+                        OR(xFlags, xFlags, x4);
+                        ADDI(x4, xZR, 1);
+                        ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+                        SLL(x4, x4, x2);
+                        OR(ed, ed, x4);
+                        if (!rex.w) ZEROUP(ed);
+                    } else {
+                        SMDMB();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SRAIxw(x1, gd, 5 + rex.w);
+                        ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                        ed = x1;
+                        wback = x3;
+                        MARKLOCK;
+                        LRxw(ed, wback, 1, 1);
+                        BEXT(x4, ed, gd, x2);
+                        ANDI(xFlags, xFlags, ~1);
+                        OR(xFlags, xFlags, x4);
+                        ADDI(x4, xZR, 1);
+                        ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+                        SLL(x4, x4, x2);
+                        OR(ed, ed, x4);
+                        SCxw(x7, ed, wback, 1, 1);
+                        BNEZ_MARKLOCK(x7);
+                        SMDMB();
+                    }
+                    break;
                 case 0xB0:
                     switch (rep) {
                         case 0:
@@ -234,6 +272,47 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             break;
                         default:
                             DEFAULT;
+                    }
+                    break;
+                case 0xB3:
+                    INST_NAME("LOCK BTR Ed, Gd");
+                    SETFLAGS(X_ALL & ~X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    SET_DFNONE();
+                    nextop = F8;
+                    GETGD;
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        wback = 0;
+                        BEXT(x4, ed, gd, x2); // F_CF is 1
+                        ANDI(xFlags, xFlags, ~1);
+                        OR(xFlags, xFlags, x4);
+                        ADDI(x4, xZR, 1);
+                        ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+                        SLL(x4, x4, x2);
+                        NOT(x4, x4);
+                        AND(ed, ed, x4);
+                        if (!rex.w) ZEROUP(ed);
+                    } else {
+                        SMDMB();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SRAIxw(x1, gd, 5 + rex.w);
+                        ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                        LDxw(x1, x3, fixedaddress);
+                        ed = x1;
+                        wback = x3;
+                        MARKLOCK;
+                        LRxw(ed, wback, 1, 1);
+                        BEXT(x4, ed, gd, x2); // F_CF is 1
+                        ANDI(xFlags, xFlags, ~1);
+                        OR(xFlags, xFlags, x4);
+                        ADDI(x4, xZR, 1);
+                        ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+                        SLL(x4, x4, x2);
+                        NOT(x4, x4);
+                        AND(ed, ed, x4);
+                        SCxw(x7, ed, wback, 1, 1);
+                        BNEZ_MARKLOCK(x7);
+                        SMDMB();
                     }
                     break;
                 case 0xC1:
