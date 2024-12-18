@@ -112,6 +112,7 @@ typedef struct instruction_rv64_s {
     uintptr_t           markf[2];
     uintptr_t           markseg;
     uintptr_t           marklock;
+    uintptr_t           marklock2;
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
     uint16_t            retn;
