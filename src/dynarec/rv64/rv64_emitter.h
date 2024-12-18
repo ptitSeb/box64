@@ -124,7 +124,15 @@
 // rd = rs1 - rs2
 #define SUBxw(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.w ? 0b0110011 : 0b0111011))
 // rd = rs1 - rs2
-#define SUBz(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.is32bits ? 0b0111011 : 0b0110011))
+#define SUBz(rd, rs1, rs2)     \
+    do {                       \
+        if (!rex.is32bits) {   \
+            SUB(rd, rs1, rs2); \
+        } else {               \
+            SUB(rd, rs1, rs2); \
+            ZEROUP(rd);        \
+        }                      \
+    } while (0)
 // rd = rs1<<rs2
 #define SLL(rd, rs1, rs2) EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0110011))
 // rd = (rs1<rs2)?1:0
