@@ -337,41 +337,38 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SET_DFNONE();
             nextop = F8;
             v1 = fpu_get_scratch(dyn);
-            GETED(0);
             GETGD;
             if (MODREG) {
+                GETED(0);
                 if (rex.w) {
                     VXOR_V(v1, v1, v1);
                     VINSGR2VR_D(v1, ed, 0);
                 } else {
-                    ZEROUP2(x4, ed); // need to clear uper part
-                    ed = x4;
                     VXOR_V(v1, v1, v1);
-                    VINSGR2VR_D(v1, ed, 0);
+                    VINSGR2VR_W(v1, ed, 0);
                 }
             } else {
                 if (rex.w) {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                    FLD_D(v1, ed, fixedaddress);
+                    FLD_S(v1, ed, fixedaddress);
                 } else {
+                    GETED(0);
                     VXOR_V(v1, v1, v1);
                     VINSGR2VR_D(v1, ed, 0);
                 }
             }
-            CLEAR_FLAGS(x2);
-            BNEZ_MARK(ed);
-            if (la64_lbt) {
-                ADDI_D(x3, xZR, 1 << F_ZF);
-                X64_SET_EFLAGS(x3, X_ZF);
-            } else {
-                ORI(xFlags, xFlags, 1 << F_ZF);
-            }
-            MOV32w(gd, 0);
-            B_NEXT_nocond;
-            MARK;
             VPCNT_D(v1, v1);
             VPICKVE2GR_D(gd, v1, 0);
+            BNEZ_MARK(gd);
+            if (la64_lbt) {
+                ADDI_D(x3, xZR, 1 << F_ZF);
+                X64_SET_EFLAGS(x3, X_ALL);
+            } else {
+                CLEAR_FLAGS(x2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            MARK;
             break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
