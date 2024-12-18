@@ -424,7 +424,15 @@
 // rd = rs1 + imm12
 #define ADDIxw(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, rex.w ? 0b0010011 : 0b0011011))
 // rd = rs1 + imm12
-#define ADDIz(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, rex.is32bits ? 0b0011011 : 0b0010011))
+#define ADDIz(rd, rs1, imm12)      \
+    do {                           \
+        if (!rex.is32bits) {       \
+            ADDI(rd, rs1, imm12);  \
+        } else {                   \
+            ADDIW(rd, rs1, imm12); \
+            ZEROUP(rd);            \
+        }                          \
+    } while (0)
 
 // rd = rs1 + (rs2 << imm2)
 #define ADDSL(rd, rs1, rs2, imm2, scratch) \
