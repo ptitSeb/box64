@@ -24,7 +24,7 @@ void GdbJITBlockReady(gdbjit_block_t* block);
 
 #else
 
-#define GdbJITNewBlock(a, b, c)
+#define GdbJITNewBlock(a, b, c, d)
 #define GdbJITBlockAddLine(a, b, c) NULL
 #define GdbJITBlockReady(a)
 
