@@ -1775,9 +1775,9 @@ void endBox64()
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
+    //void closeAllDLOpenned();
+    //closeAllDLOpenned();    // close residual dlopenned libs. Disabled, seems like a bad idea, better to unload with proper dependancies
     RunElfFini(my_context->elfs[0], emu);
-    void closeAllDLOpenned();
-    closeAllDLOpenned();    // close residual dlopenned libs
     // unload needed libs
     needed_libs_t* needed = my_context->elfs[0]->needed;
     printf_log(LOG_DEBUG, "Unloaded main elf: Will Dec RefCount of %d libs\n", needed?needed->size:0);
