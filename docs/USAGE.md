@@ -239,6 +239,11 @@ Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is 
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
 * 1 : Dynarec will wait for FillBlock to be ready (Default)
 
+#### BOX64_DYNAREC_GDBJIT *
+The GDBJIT debugging support, only available with the compilation option GDBJIT=ON, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
+* 0 : Dynarec will not generate GDBJIT debuginfo. (Default)
+* 1 : Dynarec will generate GDBJIT debuginfo.
+
 #### BOX64_DYNAREC_MISSING *
 Dynarec print the missing opcodes
 * 0 : not print the missing opcode (Default, unless DYNAREC_LOG>=1 or DYNAREC_DUMP>=1 is used)

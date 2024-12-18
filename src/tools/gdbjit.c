@@ -46,7 +46,7 @@ gdbjit_descriptor_t __jit_debug_descriptor = { 1, GDBJIT_NOACTION, NULL, NULL };
 
 /* --------------------------------------------------------------------------- */
 
-void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR end)
+void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR end, uintptr_t x64start)
 {
     if (!block)
         return;
@@ -59,6 +59,7 @@ void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR en
 
     block->start = start;
     block->end = end;
+    block->x64start = x64start;
     block->alloced = block->nlines = 0;
 }
 

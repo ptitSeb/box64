@@ -72,7 +72,6 @@ int box64_rdtsc_1ghz = 0;
 uint8_t box64_rdtsc_shift = 0;
 char* box64_insert_args = NULL;
 char* box64_new_args = NULL;
-int box64_dynarec_gdbjit = 1;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -98,6 +97,7 @@ uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 uintptr_t box64_dynarec_test_start = 0;
 uintptr_t box64_dynarec_test_end = 0;
+int box64_dynarec_gdbjit = 0;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -900,6 +900,15 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_wait)
             printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
+    }
+    p = getenv("BOX64_DYNAREC_GDBJIT");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_gdbjit = p[0]-'0';
+        }
+        if(box64_dynarec_gdbjit)
+            printf_log(LOG_INFO, "Dynarec will generate debuginfo for gdbjit\n");
     }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
     if(p) {
