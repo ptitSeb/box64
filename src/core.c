@@ -907,7 +907,7 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='1')
                 box64_dynarec_gdbjit = p[0]-'0';
         }
-        if(!box64_dynarec_gdbjit)
+        if(box64_dynarec_gdbjit)
             printf_log(LOG_INFO, "Dynarec will generate debuginfo for gdbjit\n");
     }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
