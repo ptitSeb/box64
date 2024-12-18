@@ -331,6 +331,46 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0xB8:
+            INST_NAME("POPCNT Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            v1 = fpu_get_scratch(dyn);
+            GETGD;
+            if (MODREG) {
+                GETED(0);
+                if (rex.w) {
+                    VINSGR2VR_D(v1, ed, 0);
+                } else {
+                    VINSGR2VR_W(v1, ed, 0);
+                }
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                FLDxw(v1, ed, fixedaddress);
+            }
+            if (rex.w) {
+                VPCNT_D(v1, v1);
+                MOVFR2GR_D(gd, v1);
+            } else {
+                VPCNT_W(v1, v1);
+                VPICKVE2GR_WU(gd, v1, 0);
+            }
+            IFX (X_ALL) {
+                if (la64_lbt) {
+                    X64_SET_EFLAGS(xZR, X_ALL);
+                    BNEZ_MARK(gd);
+                    ADDI_D(x3, xZR, 1 << F_ZF);
+                    X64_SET_EFLAGS(x3, X_ZF);
+                } else {
+                    CLEAR_FLAGS(x2);
+                    BNEZ_MARK(gd);
+                    ORI(xFlags, xFlags, 1 << F_ZF);
+                }
+                MARK;
+            }
+            break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
             SETFLAGS(X_ZF, SF_SUBSET);

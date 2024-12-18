@@ -162,9 +162,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 // done
                                 MARK;
                                 UFLAG_IF { emit_cmp8(dyn, ninst, x6, x4, x1, x2, x3, x5); }
-                                // load m8 into AL
-                                ANDI(xRAX, xRAX, ~0xff);
-                                OR(xRAX, xRAX, x4);
+                                BSTRINS_D(xRAX, x4, 7, 0);
                             }
                             SMDMB();
                             break;

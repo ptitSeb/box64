@@ -1825,6 +1825,20 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVSRLNI_H_W(vd, vj, imm5)    EMIT(type_2RI5(0b01110111010000001, imm5, vj, vd))
 #define XVSRLI_W(vd, vj, imm5)       EMIT(type_2RI5(0b01110111001100001, imm5, vj, vd))
 #define VSETEQZ_V(cd, vj)            EMIT(type_2R(0b0111001010011100100110, vj, cd & 0b111))
+#define VINSGR2VR_D(vd, rj, imm1)    EMIT(type_2RI1(0b011100101110101111110, imm1, rj, vd))
+#define VINSGR2VR_W(vd, rj, imm2)    EMIT(type_2RI2(0b01110010111010111110, imm2, rj, vd))
+#define VPCNT_B(vd, vj)              EMIT(type_2R(0b0111001010011100001000, vj, vd))
+#define VPCNT_H(vd, vj)              EMIT(type_2R(0b0111001010011100001001, vj, vd))
+#define VPCNT_W(vd, vj)              EMIT(type_2R(0b0111001010011100001010, vj, vd))
+#define VPCNT_D(vd, vj)              EMIT(type_2R(0b0111001010011100001011, vj, vd))
+#define VPICKVE2GR_B(rd, vj, imm4)   EMIT(type_2RI4(0b011100101110111110, imm4, vj, rd))
+#define VPICKVE2GR_H(rd, vj, imm3)   EMIT(type_2RI3(0b0111001011101111110, imm3, vj, rd))
+#define VPICKVE2GR_W(rd, vj, imm2)   EMIT(type_2RI1(0b01110010111011111110, imm2, vj, rd))
+#define VPICKVE2GR_D(rd, vj, imm1)   EMIT(type_2RI1(0b011100101110111111110, imm1, vj, rd))
+#define VPICKVE2GR_BU(rd, vj, imm4)  EMIT(type_2RI4(0b011100101110001110, imm4, vj, rd))
+#define VPICKVE2GR_HU(rd, vj, imm3)  EMIT(type_2RI3(0b0111001011100011110, imm3, vj, rd))
+#define VPICKVE2GR_WU(rd, vj, imm2)  EMIT(type_2RI1(0b01110010111000111110, imm2, vj, rd))
+#define VPICKVE2GR_DU(rd, vj, imm1)  EMIT(type_2RI1(0b011100101110001111110, imm1, vj, rd))
 
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions
