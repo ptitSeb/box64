@@ -34,7 +34,7 @@ typedef struct gdbjit_descriptor_s {
 } gdbjit_descriptor_t;
 
 /* GDB puts a breakpoint in this function. This can't be optimized out. */
-void __attribute__((noinline)) __jit_debug_register_code()
+EXPORT void __attribute__((noinline)) __jit_debug_register_code()
 {
     asm volatile("" ::: "memory");
 };
@@ -42,7 +42,7 @@ void __attribute__((noinline)) __jit_debug_register_code()
 /* Make sure to specify the version statically, because the debugger may check
  * the version before we can set it.
  */
-gdbjit_descriptor_t __jit_debug_descriptor = { 1, GDBJIT_NOACTION, NULL, NULL };
+EXPORT gdbjit_descriptor_t __jit_debug_descriptor = { 1, GDBJIT_NOACTION, NULL, NULL };
 
 /* --------------------------------------------------------------------------- */
 
