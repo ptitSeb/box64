@@ -283,8 +283,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     ZEXTW2(x4, xRBX);
                                     SLLI(x2, xRCX, 32);
                                     OR(x4, x4, x2); // x4 is ecx:ebx
-                                    ANDI(x5, wback, (1 << (rex.w + 2)) - 1);
-                                    BNEZ_MARK3(x1);
+                                    ANDI(x5, wback, 7);
+                                    BNEZ_MARK3(x5);
                                     // Aligned
                                     MARKLOCK;
                                     LR_D(x2, wback, 1, 1);
@@ -301,14 +301,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     B_NEXT_nocond;
                                     MARK3;
                                     // Unaligned
-                                    ANDI(x5, wback, -(1 << (rex.w + 2)));
+                                    ANDI(x5, wback, -8);
                                     MARKLOCK2;
                                     LD(x2, wback, 0);
                                     LR_D(x6, x5, 1, 1);
                                     BNE_MARK2(x2, x3); // edx:eax != ed, load m64 into edx:eax
-                                    SCxw(x7, x6, x5, 1, 1);
+                                    SC_D(x7, x6, x5, 1, 1);
                                     BNEZ_MARKLOCK2(x7);
-                                    SDxw(x4, wback, 0); // set ZF and load ecx:ebx into m64
+                                    SD(x4, wback, 0); // set ZF and load ecx:ebx into m64
                                     ORI(xFlags, xFlags, 1 << F_ZF);
                                     SMDMB();
                                     B_NEXT_nocond;
