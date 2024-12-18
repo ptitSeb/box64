@@ -705,10 +705,12 @@
 #define MARKF2       MARKFi(1)
 #define GETMARKF2    GETMARKFi(1)
 
-#define MARKSEG     dyn->insts[ninst].markseg = dyn->native_size
-#define GETMARKSEG  dyn->insts[ninst].markseg
-#define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
-#define GETMARKLOCK dyn->insts[ninst].marklock
+#define MARKSEG      dyn->insts[ninst].markseg = dyn->native_size
+#define GETMARKSEG   dyn->insts[ninst].markseg
+#define MARKLOCK     dyn->insts[ninst].marklock = dyn->native_size
+#define GETMARKLOCK  dyn->insts[ninst].marklock
+#define MARKLOCK2    dyn->insts[ninst].marklock2 = dyn->native_size
+#define GETMARKLOCK2 dyn->insts[ninst].marklock2
 
 #define Bxx_gen(OP, M, reg1, reg2)   \
     j64 = GET##M - dyn->native_size; \
@@ -768,6 +770,10 @@
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BNE_MARKLOCK(reg, xZR)
+// Branch to MARKLOCK2 if reg1!=reg2 (use j64)
+#define BNE_MARKLOCK2(reg1, reg2) Bxx_gen(NE, MARKLOCK2, reg1, reg2)
+// Branch to MARKLOCK2 if reg1!=0 (use j64)
+#define BNEZ_MARKLOCK2(reg) BNE_MARKLOCK2(reg, xZR)
 
 // Branch to NEXT if reg1==reg2 (use j64)
 #define BEQ_NEXT(reg1, reg2)                                                  \
