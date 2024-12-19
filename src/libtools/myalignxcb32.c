@@ -70,7 +70,7 @@ typedef struct my_xcb_connection_32_s {
     my_xcb_xid_32_t xid;
 } my_xcb_connection_32_t;
 
-#define NXCB 8
+#define NXCB 16
 static my_xcb_connection_t* my_xcb_connects[NXCB] = {0};
 static my_xcb_connection_32_t i386_xcb_connects[NXCB] = {0};
 
