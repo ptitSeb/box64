@@ -136,10 +136,10 @@
 #() vFbuuipWCCp_ -> vFB
 #() vFbWWpWpWpWp_ -> vFB
 #() LEbiiiiiiiiilt_ -> LEB
-#() LEriiiiiiiiilt_ -> LEB
 #() pEriiiiiiiiilt_ -> pEB
 #() vEEv -> vEEv
 #() vFEv -> vFEv
+#() vFEi -> vFEi
 #() vEEp -> vEEp
 #() vFEp -> vFEp
 #() vFEX -> vFEX
@@ -390,6 +390,7 @@
 #() vFbll_rllll_ -> vFBB
 #() iFXbiiuuLip_ -> iFXB
 #() iFpruuipWCCp_ -> iFpB
+#() lEEriiiiiiiiilt_ -> lEEB
 #() pEriiiiiiiiilt_p -> pEBp
 #() iEiBLLLLLLLLLLLLLLLLLL_ -> iEiB
 #() vEEip -> vEEip
@@ -918,7 +919,6 @@
 #() iFippp -> iFippp
 #() iEipON -> iEipON
 #() iFuiup -> iFuiup
-#() iEuupi -> iEuupi
 #() iFuppp -> iFuppp
 #() iFpiii -> iFpiii
 #() iFpiiL -> iFpiiL
@@ -1199,6 +1199,7 @@
 #() iEEipii -> iEEipii
 #() iEEipuu -> iEEipuu
 #() iEEippL -> iEEippL
+#() iEEuupi -> iEEuupi
 #() iEEpipp -> iEEpipp
 #() iFEpipp -> iFEpipp
 #() iEEpipV -> iEEpipV
@@ -1929,6 +1930,8 @@ wrappedlibasound:
   - snd_pcm_mmap_begin
 wrappedlibc:
 - vEv:
+- vFi:
+  - exit
 - vEp:
   - freeaddrinfo
   - regfree
@@ -1939,8 +1942,6 @@ wrappedlibc:
   - __close_nocancel
 - iEL:
 - iEp:
-  - posix_spawn_file_actions_destroy
-  - posix_spawn_file_actions_init
   - shmdt
   - sysinfo
 - iEO:
@@ -1990,6 +1991,7 @@ wrappedlibc:
   - getifaddrs
 - pErl_:
   - ctime
+- lEriiiiiiiiilt_:
 - pEriiiiiiiiilt_:
   - asctime
 - vEip:
@@ -2008,11 +2010,9 @@ wrappedlibc:
   - setrlimit
 - iEpi:
   - backtrace
-  - posix_spawn_file_actions_addclose
 - iEpL:
 - iEpp:
   - alphasort64
-  - execvp
   - statvfs
   - statvfs64
   - utimes
@@ -2054,13 +2054,11 @@ wrappedlibc:
 - iEipp:
 - iEipV:
 - iEpii:
-  - posix_spawn_file_actions_adddup2
 - iEpLi:
 - iEppi:
   - regcomp
 - iEppp:
   - __isoc23_vsscanf
-  - execvpe
   - vswscanf
 - iEppV:
   - __isoc23_sscanf
@@ -2116,6 +2114,8 @@ wrappedlibc:
   - utimensat
 - iEippL:
   - readlinkat
+- iEuupi:
+  - waitid
 - iEpipp:
 - iEpipV:
 - iEpuiL:
@@ -2140,7 +2140,6 @@ wrappedlibc:
 - iEpiipV:
 - iEpiLpp:
 - iEpipOi:
-  - posix_spawn_file_actions_addopen
 - iEppupi:
   - regexec
 - iEpppLp:
@@ -2157,7 +2156,6 @@ wrappedlibc:
 - iFpppupp:
   - gethostbyname_r
 - iEpppppp:
-  - posix_spawn
 - lEipLpLL:
   - process_vm_readv
   - process_vm_writev

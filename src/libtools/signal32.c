@@ -447,6 +447,23 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
 
     return ret;
 }
+void convert_siginfo_to_32(void* d, void* s, int sig)
+{
+    if(!s || !d) return;
+    my_siginfo32_t* dst = d;
+    siginfo_t* src = s;
+
+    memcpy(dst, src, sizeof(my_siginfo32_t));
+    if(sig==SIGILL || sig==SIGFPE || sig==SIGSEGV || sig==SIGBUS)
+        dst->_sifields._sigfault.__si_addr = to_ptrv(src->si_addr);
+    if(sig==SIGCHLD) {
+        dst->_sifields._sigchld.__si_pid = src->si_pid;
+        dst->_sifields._sigchld.__si_uid = src->si_uid;
+        dst->_sifields._sigchld.__si_status = src->si_status;
+        dst->_sifields._sigchld.__si_stime = src->si_stime;
+        dst->_sifields._sigchld.__si_utime = src->si_utime;
+    }
+}
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 #define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
@@ -520,9 +537,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     void* xstate = (void*)frame;
     frame -= sizeof(my_siginfo32_t);
     my_siginfo32_t* info2 = (my_siginfo32_t*)frame;
-    memcpy(info2, info, sizeof(my_siginfo32_t));
-    if(sig==SIGILL || sig==SIGFPE || sig==SIGSEGV || sig==SIGBUS)
-        info2->_sifields._sigfault.__si_addr = to_ptrv(info->si_addr);
+    convert_siginfo_to_32(info2, info, sig);
     // try to fill some sigcontext....
     frame -= sizeof(i386_ucontext_t);
     i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;

@@ -42,6 +42,7 @@
 #include <regex.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 
 #include "wrappedlibs.h"
 
@@ -418,7 +419,7 @@ static void* findcompare64Fct(void* fct)
 {
     if(!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort64; else return p; }
     #define GO(A) if(my32_compare64_fct_##A == (uintptr_t)fct) return my32_compare64_##A;
     SUPER()
     #undef GO
@@ -562,13 +563,11 @@ int my32_dl_iterate_phdr(x64emu_t *emu, void* F, void *data);
 
 pid_t EXPORT my32_fork(x64emu_t* emu)
 {
-/*    #if 1
+    #if 1
     emu->quit = 1;
     emu->fork = 1;
     return 0;
     #else
-    return 0;
-    #endif*/
     // execute atforks prepare functions, in reverse order
     for (int i=my_context->atfork_sz-1; i>=0; --i)
         if(my_context->atforks[i].prepare)
@@ -594,13 +593,14 @@ pid_t EXPORT my32_fork(x64emu_t* emu)
                 RunFunctionWithEmu(emu, 0, my_context->atforks[i].child, 0);
     }
     return v;
+    #endif
 }
 pid_t EXPORT my32___fork(x64emu_t* emu) __attribute__((alias("my32_fork")));
 pid_t EXPORT my32_vfork(x64emu_t* emu)
 {
     #if 1
     emu->quit = 1;
-    emu->fork = 1;  // use regular fork...
+    emu->fork = 3;
     return 0;
     #else
     return 0;
@@ -1417,13 +1417,15 @@ EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 {
     struct dirent64 *dp64 = readdir64((DIR *)dirp);
     if (!dp64) return NULL;
+    static struct i386_dirent dp32 = {0};
     uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
     int32_t off32 = dp64->d_off;
-    struct i386_dirent *dp32 = (struct i386_dirent *)&(dp64->d_off);
-    dp32->d_ino = ino32;
-    dp32->d_off = off32;
-    dp32->d_reclen -= 8;
-    return dp32;
+    dp32.d_ino = ino32;
+    dp32.d_off = off32;
+    dp32.d_reclen = sizeof(struct i386_dirent);
+    dp32.d_type = dp64->d_type;
+    strncpy(dp32.d_name, dp64->d_name, sizeof(dp32.d_name));
+    return &dp32;
 }
 #if 0
 
@@ -1640,46 +1642,40 @@ EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc
 }
 #endif
 #endif
-EXPORT int my32_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
+EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
-    struct dirent64** list;
-    int ret = scandir64(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
-    if(ret>=0)
-        *(ptr_t*)namelist = to_ptrv(list);
+    struct dirent64** list = NULL;
+    int ret = scandir64(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
+    *namelist = to_ptrv(list);
     if (ret>0) {
-        // adjust the array of dirent...
-        ptr_t* dp32_list = (ptr_t*)list;
-        struct dirent64** dp64_list = list;
+        // adjust the array of dirent... inplace adjust of listname and inplace of dirent too
         for(int i=0; i<ret; ++i) {
-            struct dirent64* dp64 = dp64_list[i];
+            struct dirent64* dp64 = list[i];
+            struct i386_dirent *dp32 = (struct i386_dirent*)dp64;
+            // inplace shrink dirent
             uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
             int32_t off32 = dp64->d_off;
-            struct i386_dirent *dp32 = (struct i386_dirent *)&(dp64->d_off);
             dp32->d_ino = ino32;
             dp32->d_off = off32;
-            dp32->d_reclen -= 8;
-            *dp32_list = to_ptrv(dp32);
-            ++dp32_list;
-            ++dp64;
+            dp32->d_reclen = dp64->d_reclen-12;
+            dp32->d_type = dp64->d_type;
+            memmove(dp32->d_name, dp64->d_name, dp32->d_reclen-(sizeof(struct i386_dirent)-sizeof(dp32->d_name)));
+            // inplace shrink pointer to
+            ((ptr_t*)list)[i] = to_ptrv(list[i]);
         }
     }
     return ret;
 }
-EXPORT int my32_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
+EXPORT int my32_scandir64(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
     struct dirent64** list;
-    int ret = scandir64(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
+    int ret = scandir64(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
     if(ret>=0)
-        *(ptr_t*)namelist = to_ptrv(list);
+        *namelist = to_ptrv(list);
     if (ret>0) {
-        // adjust the array of dirent...
-        ptr_t* dp32_list = (ptr_t*)list;
-        struct dirent64** dp64_list = list;
+        // inplace shrink of the array of dirent pointer (the dirent themselves are ok)
         for(int i=0; i<ret; ++i) {
-            struct dirent64* dp64 = dp64_list[i];
-            *dp32_list = to_ptrv(dp64);
-            ++dp32_list;
-            ++dp64;
+            ((ptr_t*)list)[i] = to_ptrv(list[i]);
         }
     }
     return ret;
@@ -1715,14 +1711,18 @@ EXPORT int32_t my32_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopen
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
+EXPORT ptr_t my32_environ = 0; //char**
+EXPORT ptr_t my32__environ = 0; //char**
+EXPORT ptr_t my32___environ = 0;  //char**
+
 EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
 {
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = FileIsX64ELF(path);
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    if (x86 || x64 || self) {
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p[%s, %s]) is x64=%d, x86=%d, script=%d\n", path, argv, argv[0]?from_ptrv(argv[0]):"", argv[1]?from_ptrv(argv[1]):"", x64, x86, script);
+    if (x86 || x64 || script || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -1730,10 +1730,11 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
         int n=skip_first;
         while(argv[n]) ++n;
         int toadd = script?2:1;
-        const char** newargv = (const char**)calloc(n+toadd+2, sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for(int i=0; i<n; ++i)
-            newargv[i+1] = from_ptrv(argv[skip_first+i]);
+            newargv[i+toadd] = from_ptrv(argv[skip_first+i]);
         if(self)
             newargv[1] = emu->context->fullpath;
         else {
@@ -1744,16 +1745,18 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
         }
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
-        free(newargv);
+        box_free(newargv);
         return ret;
     }
     // count argv and create the 64bits argv version
     int n=0;
     while(argv[n]) ++n;
-    char** newargv = (char**)calloc(n+1, sizeof(char*));
+    char** newargv = (char**)box_calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
-    return execv(path, (void*)newargv);
+    int ret = execv(path, (void*)newargv);
+    box_free(newargv);
+    return ret;
 }
 
 EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[])
@@ -1768,11 +1771,12 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
     else {
         int n=0;
         while(envp[n]) ++n;
-        const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
+        newenvp = (char**)box_calloc(n+1, sizeof(char*));
         for(int i=0; i<=n; ++i)
-            newenvp[i+1] = from_ptrv(envp[i]);
+            newenvp[i] = from_ptrv(envp[i]);
     }
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x86=%d\n", path, argv, envp, x86);
+    int ret;
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p(%p)) is x86=%d\n", path, argv, envp, newenvp, x86);
     if (x86 || x64 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
@@ -1780,20 +1784,21 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
         for(int i=0; i<n; ++i)
             newargv[i+1] = from_ptrv(argv[skip_first+i]);
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
-        int ret = execve(newargv[0], (char* const*)newargv, newenvp);
-        free(newargv);
+        ret = execve(newargv[0], (char* const*)newargv, newenvp);
+        box_free(newargv);
+        box_free(newenvp);
         return ret;
     }
     // count argv and create the 64bits argv version
     int n=0;
     while(argv[n]) ++n;
-    const char** newargv = (const char**)calloc(n+1, sizeof(char*));
+    const char** newargv = (const char**)box_calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
 
@@ -1803,10 +1808,11 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
         // uname -m is redirected to box32 -m
         path = my_context->box64path;
         const char *argv2[3] = { my_context->box64path, newargv[1], NULL };
-        return execve(path, (void*)argv2, newenvp);
-    }
-
-    return execve(path, (void*)newargv, newenvp);
+        ret = execve(path, (void*)argv2, newenvp);
+    } else
+        ret = execve(path, (void*)newargv, newenvp);
+    box_free(newenvp);
+    return ret;
 }
 
 // execvp should use PATH to search for the program first
@@ -1818,31 +1824,45 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
     int x64 = FileIsX64ELF(fullpath);
-    printf_log(LOG_DEBUG, "execvp(\"%s\", %p) is x86=%d\n", fullpath, argv, x86);
-    if (x86 || x64 || self) {
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
+    int ret;
+    printf_log(LOG_DEBUG, "execvp(\"%s\", %p) is x86=%d, x64=%d script=%d\n", fullpath, argv, x86, x64, script);
+    if (x86 || x64 || script || self) {
         int skip_first = 0;
         if(strlen(fullpath)>=strlen("wine-preloader") && strcmp(fullpath+strlen(fullpath)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        int toadd = script?2:1;
+        const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for(int i=0; i<n; ++i)
-            newargv[i+1] = from_ptrv(argv[skip_first+i]);
+            newargv[i+toadd] = from_ptrv(argv[skip_first+i]);
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
-        free(newargv);
+        box_free(newargv);
         return ret;
     }
     // count argv and create the 64bits argv version
     int n=0;
     while(argv[n]) ++n;
-    char** newargv = (char**)calloc(n+1, sizeof(char*));
+    char** newargv = (char**)box_calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
-    return execv(fullpath, (void*)newargv);
+    if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
+     && newargv[1] && (!strcmp(newargv[1], "-m") || !strcmp(newargv[1], "-p") || !strcmp(newargv[1], "-i"))
+     && !newargv[2]) {
+        // uname -m is redirected to box32 -m
+        path = my_context->box64path;
+        const char *argv2[3] = { my_context->box64path, newargv[1], NULL };
+        ret = execv(path, (void*)argv2);
+    } else
+        ret = execv(fullpath, (void*)newargv);
+    box_free(newargv);
+    return ret;
 }
 // execvp should use PATH to search for the program first
 EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[])
@@ -1853,6 +1873,7 @@ EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
     int x64 = FileIsX64ELF(fullpath);
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
     char** newenvp = NULL;
     // hack to update the environ var if needed
     if(envp == from_ptrv(my_context->envv32) && environ)
@@ -1860,27 +1881,29 @@ EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t
     else {
         int n=0;
         while(envp[n]) ++n;
-        const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
+        newenvp = (char**)box_calloc(n+1, sizeof(char*));
         for(int i=0; i<=n; ++i)
-            newenvp[i+1] = from_ptrv(envp[i]);
+            newenvp[i] = from_ptrv(envp[i]);
     }
-    printf_log(LOG_DEBUG, "execvpe(\"%s\", %p, %p) is x86=%d\n", fullpath, argv, envp, x86);
-    if (x86 || x64 || self) {
+    printf_log(LOG_DEBUG, "execvpe(\"%s\", %p, %p(%p%s)) is x86=%d x64=%d, scrit=%d\n", fullpath, argv, envp, newenvp, (newenvp==environ)?"=environ":"", x86, x64, script);
+    if (x86 || x64 || script || self) {
         int skip_first = 0;
         if(strlen(fullpath)>=strlen("wine-preloader") && strcmp(fullpath+strlen(fullpath)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        int toadd = script?2:1;
+        const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
-        for(int i=0; i<n; ++i)
-            newargv[i+1] = from_ptrv(argv[skip_first+i]);
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        for(int i=0; i<=n; ++i)
+            newargv[i+toadd] = from_ptrv(argv[skip_first+i]);
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n, newenvp);
         int ret = execve(newargv[0], (char* const*)newargv, (char* const*)newenvp);
-        free(newargv);
-        free(newenvp);
+        box_free(newargv);
+        box_free(newenvp);
         return ret;
     }
     // count argv and create the 64bits argv version
@@ -1889,9 +1912,21 @@ EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t
     char** newargv = (char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
+    if((!strcmp(fullpath + strlen(fullpath) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
+     && newargv[1] && (!strcmp(newargv[1], "-m") || !strcmp(newargv[1], "-p") || !strcmp(newargv[1], "-i"))
+     && !newargv[2]) {
+        // uname -m is redirected to box64 -m
+        path = my_context->box64path;
+        char *argv2[3] = { my_context->box64path, newargv[1], NULL };
+
+        int ret = execvpe(path, argv2, newenvp);
+        box_free(newargv);
+        box_free(newenvp);
+        return ret;
+    }
     int ret = execve(fullpath, (void*)newargv, (void*)newenvp);
-    free(newargv);
-    free(newenvp);
+    box_free(newargv);
+    box_free(newenvp);
     return ret;
 }
 
@@ -1985,7 +2020,7 @@ EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
         while(envp[n]) ++n;
         const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
         for(int i=0; i<=n; ++i)
-            newenvp[i+1] = from_ptrv(envp[i]);
+            newenvp[i] = from_ptrv(envp[i]);
     }
     printf_log(LOG_DEBUG, "posix_spawn(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, fullpath, actions, attrp, argv, envp, x86, fullpath);
     if ((x86 || self)) {
@@ -2036,7 +2071,7 @@ EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         while(envp[n]) ++n;
         const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
         for(int i=0; i<=n; ++i)
-            newenvp[i+1] = from_ptrv(envp[i]);
+            newenvp[i] = from_ptrv(envp[i]);
     }
     printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
     free(fullpath);
@@ -2111,6 +2146,16 @@ EXPORT void* my32_localtime(x64emu_t* emu, void* t)
         return &res_;
     }
     return NULL;
+}
+
+EXPORT long my32_timegm(x64emu_t* emu, void* t)
+{
+    long ret = timegm(t);
+    if((ret>0 && ret>0x7fffffffLL) || (ret<0 && ret<-0x80000000LL)) {
+        ret = -1;
+        errno = EOVERFLOW;
+    }
+    return ret;
 }
 
 EXPORT void* my32_localtime_r(x64emu_t* emu, void* t, void* res)
@@ -3251,10 +3296,6 @@ EXPORT int my32_on_exit(x64emu_t* emu, void* f, void* args)
 #endif
 #endif
 
-EXPORT ptr_t my32_environ = 0; //char**
-EXPORT ptr_t my32__environ = 0; //char**
-EXPORT ptr_t my32___environ = 0;  //char**
-
 EXPORT char* my32___progname = NULL;
 EXPORT char* my32___progname_full = NULL;
 EXPORT char* my32_program_invocation_name = NULL;
@@ -3283,6 +3324,15 @@ EXPORT void* my32___errno_location(x64emu_t* emu)
     // cannot use __thread as it makes the address not 32bits
     //emu->libc_err = errno;
     return &emu->libc_err;
+}
+
+void convert_siginfo_to_32(void* d, void* s, int sig);
+EXPORT int my32_waitid(x64emu_t* emu, uint32_t idtype, uint32_t id, void* siginfo, int options)
+{
+    siginfo_t siginfo_l;
+    int ret = waitid(idtype, id, siginfo?(&siginfo_l):NULL, options);
+    convert_siginfo_to_32(siginfo, &siginfo_l, SIGCHLD);
+    return ret;
 }
 
 #undef HAS_MY

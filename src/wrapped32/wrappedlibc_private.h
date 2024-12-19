@@ -291,13 +291,13 @@ GO(eventfd, iEui)
 //GO(eventfd_read, iEip)
 //GO(eventfd_write, iEiU)
 GO2(execl, iEEpV, my32_execv)
-//GO2(execle, iEEpV, my_32execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
+//GO2(execle, iEEpV, my32_execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
 GO2(execlp, iEpV, my32_execvp)
-GOWM(execv, iEEpp)     //%%
-GOM(execve, iEEppp)   //%% and this one too...
-GOWM(execvp, iEEpp)
-GOWM(execvpe, iEEppp)
-GO(exit, vEi)
+GOWM(execv, iEEpp)      //%%
+GOM(execve, iEEppp)     //%% and this one too...
+GOWM(execvp, iEEpp)     //%%
+GOWM(execvpe, iEEppp)   //%%
+GO2(exit, vFEi, my_exit)
 GO(_exit, vEi)
 GOW(_Exit, vEi)
 GOM(__explicit_bzero_chk, vEEpuu)    //%% not always defined
@@ -1270,7 +1270,7 @@ GO(posix_fallocate64, iEiII)
 GO(posix_madvise, iEpLi)
 GOW(posix_memalign, iEBp_LL)
 // posix_openpt // Weak
-GOM(posix_spawn, iEEpppppp)
+GOM(posix_spawn, iEEpppppp) //%%
 GO(posix_spawnattr_destroy, iFp)
 // posix_spawnattr_getflags
 // posix_spawnattr_getpgroup
@@ -1285,11 +1285,11 @@ GO(posix_spawnattr_init, iFp)
 // posix_spawnattr_setschedpolicy
 // posix_spawnattr_setsigdefault
 // posix_spawnattr_setsigmask
-GOM(posix_spawn_file_actions_addclose, iEEpi)
-GOM(posix_spawn_file_actions_adddup2, iEEpii)
-GOM(posix_spawn_file_actions_addopen, iEEpipOi)
-GOM(posix_spawn_file_actions_destroy, iEEp)
-GOM(posix_spawn_file_actions_init, iEEp)
+GOM(posix_spawn_file_actions_addclose, iEEpi)   //%%
+GOM(posix_spawn_file_actions_adddup2, iEEpii)   //%%
+GOM(posix_spawn_file_actions_addopen, iEEpipOi) //%%
+GOM(posix_spawn_file_actions_destroy, iEEp) //%%
+GOM(posix_spawn_file_actions_init, iEEp)    //%%
 GOM(posix_spawnp, iEEpppppp) //%%
 GO(ppoll, iEpurLL_p)
 GO(__ppoll_chk, iEpurLL_pL)
@@ -1830,7 +1830,7 @@ GO(tempnam, pEpp)
 GOW(textdomain, tEp)
 // tfind    // Weak
 GO(time, LEBL_)
-GO(timegm, LEriiiiiiiiilt_)
+GOM(timegm, lEEriiiiiiiiilt_)   //%%
 // timelocal    // Weak
 GO(timerfd_create, iEii)
 //GO(timerfd_gettime, iEip)
@@ -1950,7 +1950,7 @@ GOW(wait, iEp)
 //GOW(__wait, iEp)
 //GOW(wait3, iEpip)
 //GOW(wait4, iEipip)
-GOW(waitid, iEuupi) // might need to wrap "p", it's a siginfo_t *
+GOWM(waitid, iEEuupi)
 GOW(waitpid, iEipi)
 GOW(__waitpid, lElpi)
 //GO(warn, vEppppppppp)
