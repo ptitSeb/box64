@@ -1093,8 +1093,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (la64_lbt) {
                 X64_SET_EFLAGS(xZR, X_ZF);
             } else {
-                ADDI_D(x3, xZR, ~(1 << F_ZF));
-                AND(xFlags, xFlags, x3);
+                BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
             }
             break;
         case 0xBD:
@@ -1120,8 +1119,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (la64_lbt) {
                 X64_SET_EFLAGS(xZR, X_ZF);
             } else {
-                ADDI_D(x3, xZR, ~(1 << F_ZF));
-                AND(xFlags, xFlags, x3);
+                BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
             }
             if (rex.w)
                 CLZ_D(gd, ed);

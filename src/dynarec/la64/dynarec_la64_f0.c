@@ -279,8 +279,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 if (la64_lbt) {
                                     X64_SET_EFLAGS(xZR, X_ZF);
                                 } else {
-                                    ADDI_D(x2, xZR, ~(1 << F_ZF));
-                                    AND(xFlags, xFlags, x2);
+                                    BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
                                 }
                             }
                             if (rex.w) {
