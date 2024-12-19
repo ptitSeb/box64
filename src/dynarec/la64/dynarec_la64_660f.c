@@ -528,6 +528,32 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x3A: // these are some more SSSE3+ opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x0B:
+                    INST_NAME("ROUNDSD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEXSD(q1, 0, 1);
+                    u8 = F8;
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    XVREPLVE0_D(v0, q1);
+                    if (u8 & 4) {
+                        u8 = sse_setround(dyn, ninst, x1, x2);
+                        VFRINT_D(v1, v0);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else if ((u8 & 0x3) == 0x0) {
+                        VFRINTRNE_D(v1, v0);
+                    } else if ((u8 & 0x3) == 0x1) {
+                        VFRINTRM_D(v1, v0);
+                    } else if ((u8 & 0x3) == 0x2) {
+                        VFRINTRP_D(v1, v0);
+                    } else if ((u8 & 0x3) == 0x3) {
+                        VFRINTRZ_D(v1, v0);
+                    }
+                    XVINSVE0_D(q0, v1, 0);
+                    XVINSGR2VR_D(q0, xZR, 2);
+                    XVINSGR2VR_D(q0, xZR, 3);
+                    break;
                 case 0x0F:
                     INST_NAME("PALIGNR Gx, Ex, Ib");
                     nextop = F8;
