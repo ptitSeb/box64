@@ -50,8 +50,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(eb2);
     MAYUSE(j64);
     #if STEP > 1
-    static const int8_t round_round[] = { 0xE, 0x2, 0x6, 0xA};
-    #endif
+    static const int8_t round_round[] = {
+        0xE, // round to nearest with ties to even
+        0x2, // round toward minus infinity
+        0x6, // round toward plus infinity
+        0xA  // round toward zero
+    };
+#endif
 
 
     switch (opcode) {
