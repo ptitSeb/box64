@@ -13,6 +13,6 @@ void DeleteX86TraceDecoder(zydis_dec_t **dec);
 zydis_dec_t* InitX64TraceDecoder(box64context_t *context);
 void DeleteX64TraceDecoder(zydis_dec_t **dec);
 
-const char* DecodeX64Trace(zydis_dec_t *dec, uintptr_t p);
+const char* DecodeX64Trace(zydis_dec_t* dec, uintptr_t p, int withhex);
 
 #endif //__X64TRACE_H_

@@ -36,7 +36,7 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%s%p: %s", (box64_dynarec_dump>1)?"\e[01;33m":"", ip, DecodeX64Trace(dec, inst->addr));
+            dynarec_log(LOG_NONE, "%s%p: %s", (box64_dynarec_dump > 1) ? "\e[01;33m" : "", ip, DecodeX64Trace(dec, inst->addr, 1));
         } else {
             dynarec_log(LOG_NONE, "%s%p: ", (box64_dynarec_dump>1)?"\e[01;33m":"", ip);
             for(int i=0; i<inst->size; ++i) {
