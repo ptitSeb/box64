@@ -1232,7 +1232,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                 printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11)));
             }
         } else {
-            printf_log(LOG_NONE, "%s", DecodeX64Trace(is32bits?my_context->dec32:my_context->dec, ip));
+            printf_log(LOG_NONE, "%s", DecodeX64Trace(is32bits ? my_context->dec32 : my_context->dec, ip, 1));
             uint8_t peek = PK(0);
             rex_t rex = {0};
             if(!is32bits && peek>=0x40 && peek<=0x4f) {

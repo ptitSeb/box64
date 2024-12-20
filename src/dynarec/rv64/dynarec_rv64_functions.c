@@ -725,7 +725,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
     if (box64_dynarec_gdbjit) {
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
-        const char* inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr) : name;
+        const char* inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0) : name;
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
     }
 }
