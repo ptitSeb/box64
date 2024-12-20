@@ -6,6 +6,7 @@
 #include <sys/param.h>
 #include <sys/mman.h>
 #include <dlfcn.h>
+#include <malloc.h>
 
 #include "box64context.h"
 #include "debug.h"
@@ -190,6 +191,7 @@ void* box32_calloc(size_t n, size_t s)
     void* ret = box_calloc(n, s);
     if(ret<SPACE32) return ret;
     box_free(ret);
+    malloc_trim(0);
     return customCalloc32(n, s);
 }
 void* box32_malloc(size_t s)
@@ -197,6 +199,7 @@ void* box32_malloc(size_t s)
     void* ret = box_malloc(s);
     if(ret<SPACE32) return ret;
     box_free(ret);
+    malloc_trim(0);
     return customMalloc32(s);
 }
 void* box32_realloc(void* p, size_t s)
@@ -205,6 +208,7 @@ void* box32_realloc(void* p, size_t s)
         return customRealloc32(p, s);
     void* ret = box_realloc(p, s);
     if(ret<SPACE32) return ret;
+    malloc_trim(0);
     void* newret = customMalloc32(s);
     memcpy(newret, ret, s);
     box_free(ret);
@@ -222,6 +226,7 @@ void* box32_memalign(size_t align, size_t s)
     void* ret = box_memalign(align, s);
     if(ret<SPACE32) return ret;
     box_free(ret);
+    malloc_trim(0);
     return customMemAligned32(align, s);
 }
 size_t box32_malloc_usable_size(void* p)
