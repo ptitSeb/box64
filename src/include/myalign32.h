@@ -626,4 +626,35 @@ typedef	struct my_ns_rr_32_s {
 	ptr_t	      rdata;  //const unsigned char *
 } my_ns_rr_32_t;
 
+struct my_obstack_chunk_32_t
+{
+  ptr_t  limit; //char *
+  ptr_t  prev;  //struct _obstack_chunk *
+  char contents[4];
+};
+
+struct my_obstack_32_t
+{
+  long_t chunk_size;
+  ptr_t  chunk; //struct _obstack_chunk *
+  ptr_t  object_base; //char*
+  ptr_t  next_free; //char*
+  ptr_t  chunk_limit; //char*
+  union
+  {
+    int tempint;
+    ptr_t tempptr;  //void*
+  } temp;
+  int alignment_mask;
+  ptr_t chunkfun; //struct _obstack_chunk *(*chunkfun) (void *, long);
+  ptr_t freefun; //void (*freefun) (void *, struct _obstack_chunk *);
+  ptr_t extra_arg;//void *
+  unsigned use_extra_arg : 1;
+  unsigned maybe_empty_object : 1;
+  unsigned alloc_failed : 1;
+};
+
+void convert_obstack_to_32(void* d, void* s);
+void convert_obstack_to_64(void* d, void* s);
+
 #endif//__MY_ALIGN32__H_
