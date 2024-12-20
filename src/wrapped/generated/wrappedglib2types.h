@@ -70,8 +70,10 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_main_context_get_poll_func, pFp_t) \
 	GO(g_private_new, pFp_t) \
 	GO(g_ptr_array_new_with_free_func, pFp_t) \
+	GO(g_sequence_new, pFp_t) \
 	GO(g_set_print_handler, pFp_t) \
 	GO(g_set_printerr_handler, pFp_t) \
+	GO(g_tree_new, pFp_t) \
 	GO(g_array_set_clear_func, vFpp_t) \
 	GO(g_array_sort, vFpp_t) \
 	GO(g_completion_set_compare, vFpp_t) \
@@ -115,6 +117,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_queue_foreach, vFppp_t) \
 	GO(g_slist_foreach, vFppp_t) \
 	GO(g_static_private_set, vFppp_t) \
+	GO(g_tree_foreach, vFppp_t) \
 	GO(g_string_append_printf, vFppV_t) \
 	GO(g_string_printf, vFppV_t) \
 	GO(g_variant_builder_add, vFppV_t) \
@@ -147,6 +150,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_log, vFpipV_t) \
 	GO(g_logv, vFpipA_t) \
 	GO(g_datalist_id_set_data_full, vFpupp_t) \
+	GO(g_queue_insert_sorted, vFpppp_t) \
 	GO(g_source_set_callback, vFpppp_t) \
 	GO(g_snprintf, iFpLpV_t) \
 	GO(g_vsnprintf, iFpLpA_t) \
@@ -161,8 +165,11 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_thread_create, pFppip_t) \
 	GO(g_hash_table_new_full, pFpppp_t) \
 	GO(g_list_insert_sorted_with_data, pFpppp_t) \
+	GO(g_sequence_insert_sorted, pFpppp_t) \
+	GO(g_sequence_lookup, pFpppp_t) \
 	GO(g_slist_insert_sorted_with_data, pFpppp_t) \
 	GO(g_thread_try_new, pFpppp_t) \
+	GO(g_tree_new_full, pFpppp_t) \
 	GO(g_qsort_with_data, vFpiLpp_t) \
 	GO(g_set_error, vFpuipV_t) \
 	GO(g_child_watch_add_full, uFiippp_t) \

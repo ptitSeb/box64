@@ -3823,8 +3823,10 @@ wrappedglib2:
   - g_main_context_get_poll_func
   - g_private_new
   - g_ptr_array_new_with_free_func
+  - g_sequence_new
   - g_set_print_handler
   - g_set_printerr_handler
+  - g_tree_new
 - vFpp:
   - g_array_set_clear_func
   - g_array_sort
@@ -3881,6 +3883,7 @@ wrappedglib2:
   - g_queue_foreach
   - g_slist_foreach
   - g_static_private_set
+  - g_tree_foreach
 - vFppV:
   - g_string_append_printf
   - g_string_printf
@@ -3926,6 +3929,7 @@ wrappedglib2:
 - vFpupp:
   - g_datalist_id_set_data_full
 - vFpppp:
+  - g_queue_insert_sorted
   - g_source_set_callback
 - iFpLpV:
   - g_snprintf
@@ -3951,8 +3955,11 @@ wrappedglib2:
 - pFpppp:
   - g_hash_table_new_full
   - g_list_insert_sorted_with_data
+  - g_sequence_insert_sorted
+  - g_sequence_lookup
   - g_slist_insert_sorted_with_data
   - g_thread_try_new
+  - g_tree_new_full
 - vFpiLpp:
   - g_qsort_with_data
 - vFpuipV:
