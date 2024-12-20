@@ -417,6 +417,13 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOVGR2FR_W(q1, x2);
             VEXTRINS_W(v0, q1, 0);
             break;
+        case 0xE6:
+            INST_NAME("CVTDQ2PD Gx, Ex");
+            nextop = F8;
+            GETEXSD(v1, 0, 0);
+            GETGX_empty(v0);
+            VFFINTL_D_W(v0, v1);
+            break;
         default:
             DEFAULT;
     }

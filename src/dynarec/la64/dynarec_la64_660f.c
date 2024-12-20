@@ -49,6 +49,15 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j64);
+    #if STEP > 1
+    static const int8_t round_round[] = {
+        0xE, // round to nearest with ties to even
+        0x2, // round toward minus infinity
+        0x6, // round toward plus infinity
+        0xA  // round toward zero
+    };
+#endif
+
 
     switch (opcode) {
         case 0x10:
@@ -528,6 +537,22 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x3A: // these are some more SSSE3+ opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x0B:
+                    INST_NAME("ROUNDSD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEXSD(q1, 0, 1);
+                    u8 = F8;
+                    v1 = fpu_get_scratch(dyn);
+                    if (u8 & 4) {
+                        u8 = sse_setround(dyn, ninst, x1, x2);
+                        VFRINT_D(v1, q1);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        VFRINTRRD_D(v1, q1, round_round[u8 & 3]);
+                    }
+                    VEXTRINS_D(q0, v1, 0);
+                    break;
                 case 0x0F:
                     INST_NAME("PALIGNR Gx, Ex, Ib");
                     nextop = F8;
