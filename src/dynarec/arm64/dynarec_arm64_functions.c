@@ -690,9 +690,9 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         length += sprintf(buf + length, " nf:%hhx/%hhx/%hhx", dyn->insts[ninst].set_nat_flags, dyn->insts[ninst].use_nat_flags, dyn->insts[ninst].need_nat_flags);
     }
     if (dyn->insts[ninst].invert_carry)
-        length += sprintf(buf + length, "CI");
+        length += sprintf(buf + length, " CI");
     if (dyn->insts[ninst].gen_inverted_carry)
-        length += sprintf(buf + length, "gic");
+        length += sprintf(buf + length, " gic");
     if (dyn->insts[ninst].before_nat_flags & NF_CF) {
         length += sprintf(buf + length, " %ccb", dyn->insts[ninst].normal_carry_before ? 'n' : 'i');
     }
@@ -710,7 +710,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         length += sprintf(buf + length, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
     }
     if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
-        length += sprintf(buf + length, "jmp=out");
+        length += sprintf(buf + length, ", jmp=out");
     if (dyn->insts[ninst].x64.has_callret)
         length += sprintf(buf + length, ", callret");
     if (dyn->last_ip) {
