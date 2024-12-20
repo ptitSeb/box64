@@ -49,6 +49,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j64);
+    #if STEP > 1
+    static const int8_t round_round[] = { 0xE, 0x2, 0x6, 0xA};
+    #endif
+
 
     switch (opcode) {
         case 0x10:
@@ -536,23 +540,17 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    XVREPLVE0_D(v0, q1);
+                    XVREPLVE0_D(v0, q1); // copy src lo64 to tmp every elements
                     if (u8 & 4) {
                         u8 = sse_setround(dyn, ninst, x1, x2);
                         VFRINT_D(v1, v0);
                         x87_restoreround(dyn, ninst, u8);
-                    } else if ((u8 & 0x3) == 0x0) {
-                        VFRINTRNE_D(v1, v0);
-                    } else if ((u8 & 0x3) == 0x1) {
-                        VFRINTRM_D(v1, v0);
-                    } else if ((u8 & 0x3) == 0x2) {
-                        VFRINTRP_D(v1, v0);
-                    } else if ((u8 & 0x3) == 0x3) {
-                        VFRINTRZ_D(v1, v0);
+                    } else {
+                        VFRINTRRD_D(v1, v0, round_round[u8 & 3]);
                     }
-                    XVINSVE0_D(q0, v1, 0);
-                    XVINSGR2VR_D(q0, xZR, 2);
-                    XVINSGR2VR_D(q0, xZR, 3);
+                    XVINSVE0_D(q0, v1, 0);    // write tmp 0th element to dest 0th
+                    XVINSGR2VR_D(q0, xZR, 2); // set dest hi128
+                    XVINSGR2VR_D(q0, xZR, 3); // to zero
                     break;
                 case 0x0F:
                     INST_NAME("PALIGNR Gx, Ex, Ib");
