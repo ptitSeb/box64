@@ -608,9 +608,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_op1 = emu->op1;
     multiuint_t old_op2 = emu->op2;
     multiuint_t old_res = emu->res;
-    // uc_link
-    void* old_uc_link = emu->uc_link;
-    emu->uc_link = NULL;
     //Push64(emu, GetRBP(emu));   // set frame pointer
     //SetRBP(emu, GetRSP(emu));   // save RSP
     //R_RSP -= 200;
@@ -626,7 +623,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
-    emu->uc_link = old_uc_link;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
         if(emu->flags.quitonlongjmp==1)
             emu->flags.longjmp = 0;   // don't change anything because of the longjmp

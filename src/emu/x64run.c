@@ -2253,7 +2253,7 @@ x64emurun:
 fini:
 #ifndef TEST_INTERPRETER
     // check the TRACE flag before going to out, in case it's a step by step scenario
-    if(!emu->quit && !emu->fork && !emu->uc_link && ACCESS_FLAG(F_TF)) {
+    if(!emu->quit && !emu->fork && ACCESS_FLAG(F_TF)) {
         R_RIP = addr;
         emit_signal(emu, SIGTRAP, (void*)addr, 1);
         if(emu->quit) goto fini;
@@ -2261,7 +2261,7 @@ fini:
 #endif
 if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, CS is not default value: 0x%x\n", emu->segs[_CS]);
 #ifndef TEST_INTERPRETER
-    printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);
+    printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->quit);
     if(unimp) {
         //emu->quit = 1;
         UnimpOpcode(emu, is32bits);
@@ -2276,18 +2276,6 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
         emu = x64emu_fork(emu, forktype);
         if(step)
             return 0;
-        goto x64emurun;
-    }
-    // setcontext handling
-    else if(emu->quit && emu->uc_link) {
-        emu->quit = 0;
-        #ifdef BOX32
-        if(box64_is32bits)
-            my32_setcontext(emu, emu->uc_link);
-        else
-        #endif
-            my_setcontext(emu, emu->uc_link);
-        addr = R_RIP;
         goto x64emurun;
     }
 #else

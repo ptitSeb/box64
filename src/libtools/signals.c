@@ -31,6 +31,7 @@
 #include "threads.h"
 #include "emu/x87emu_private.h"
 #include "custommem.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -2291,8 +2292,6 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
 
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
-    // ensure uc_link is properly initialized
-    u->uc_link = (x64_ucontext_t*)emu->uc_link;
 
     return 0;
 }
@@ -2331,11 +2330,19 @@ EXPORT int my_setcontext(x64emu_t* emu, void* ucp)
     emu->mxcsr.x32 = *(uint32_t*)(ucp + 432);
     // set signal mask
     sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
-    // set uc_link
-    emu->uc_link = u->uc_link;
     errno = 0;
 
     return R_EAX;
+}
+void vFEv(x64emu_t *emu, uintptr_t fnc);
+EXPORT void my_start_context(x64emu_t* emu)
+{
+    // this is call indirectly by swapcontext from a makecontext, and will link context or just exit
+    x64_ucontext_t *u = *(x64_ucontext_t**)R_RBX;
+    if(u)
+        my_setcontext(emu, u);
+    else
+        emu->quit = 1;
 }
 
 EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int64_t* argv)
@@ -2346,15 +2353,19 @@ EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, in
     uintptr_t* rsp = (uintptr_t*)(u->uc_stack.ss_sp + u->uc_stack.ss_size - sizeof(uintptr_t));
     // setup the function
     u->uc_mcontext.gregs[X64_RIP] = (intptr_t)fnc;
+    // setup return to private start_context uc_link
+    *rsp = (uintptr_t)u->uc_link;
+    u->uc_mcontext.gregs[X64_RBX] = (uintptr_t)rsp;
+    --rsp;
     // setup args
     int n = 3;
     int j = 0;
     int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
     for (int i=0; i<argc; ++i) {
         // get value first
-        uint64_t v;
+        uint32_t v;
         if(n<6)
-            v = emu->regs[regs_abi[n++]].q[0];
+            v = emu->regs[regs_abi[n++]].dword[0];
         else
             v = argv[j++];
         // push value
@@ -2372,7 +2383,7 @@ EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, in
     }
     // push the return value
     --rsp;
-    *rsp = my_context->exit_bridge;
+    *rsp = AddCheckBridge(my_context->system, vFEv, my_start_context, 0, "my_start_context");//my_context->exit_bridge;
     u->uc_mcontext.gregs[X64_RSP] = (uintptr_t)rsp;
 }
 
