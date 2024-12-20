@@ -1509,7 +1509,7 @@ GOWM(prctl, iFEiLLLL)
 GO(pread, lFipLl)
 GOW(__pread64, lFipLI)
 GO(pread64, lFipLI)
-//GO(__pread64_chk, 
+GO(__pread64_chk, lFipLlL)
 GO(__pread_chk, lFipLlL)
 GO(preadv, lFipil)
 GO(preadv2, lFipili)
