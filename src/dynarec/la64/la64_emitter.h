@@ -1841,9 +1841,6 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VPICKVE2GR_DU(rd, vj, imm1)  EMIT(type_2RI1(0b011100101111001111110, imm1, vj, rd))
 #define VFRINT_D(vd, vj)             EMIT(type_2R(0b0111001010011101001110, vj, vd))
 #define VFRINTRRD_D(vd, vj, imm4)    EMIT(type_2RI4(0b011100101001110101, imm4, vj, vd))
-#define XVREPLVE0_D(vd, vj)          EMIT(type_2R(0b0111011100000111111000, vj, vd))
-#define XVINSVE0_D(vd, vj, imm2)     EMIT(type_2RI2(0b01110110111111111110, imm2, vj, vd))
-#define XVINSGR2VR_D(vd, rj, imm2)   EMIT(type_2RI2(0b01110110111010111110, imm2, rj, vd))
 
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions
