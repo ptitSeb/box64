@@ -207,6 +207,11 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 		own = 1;
 	}
 
+	if((uintptr_t)stack>=0x100000000LL) {
+		if(own) munmap(stack, stacksize);
+		return EAGAIN;
+	}
+
 	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX64Emu(emuthread, emu);
