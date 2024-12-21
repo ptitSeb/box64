@@ -89,6 +89,25 @@ Box64 supports Wine64 and Proton. For 32-bit components, Box86 is required. Syst
 
 Box64 wraps Vulkan libraries.
 
+## Comparison of CPU Emulators
+
+| FEATURE | Box64 | FEX | QEMU |
+| --- | --- | --- | --- |
+| x86_64 architecture support | Interpreter | No | JIT |
+| Arm architecture support | JIT | JIT | JIT |
+| LoongArch architecture support | JIT | No | JIT |
+| PowerPC architecture support | Interpreter | No | JIT |
+| RISC-V architecture support | JIT | No | JIT |
+| Dynamically-linked programs | Yes | Yes | Yes |
+| Statically-linked programs | No | Yes | Yes |
+| Library handling | Wrapped | Translated | Emulated |
+| Native x86_64 libraries wrapped | 250+ | 10+ | No |
+| Native x86_32 libraries wrapped | 90+ (Box86), 40+ (Box32) | No | No |
+| x86 RootFS required | No | Yes | Yes |
+| 4KB to 16KB pagesize support | Partial | No | Yes |
+| 32-bit on 64-bit | Yes | Yes | Yes |
+| Native OpenGL and Vulkan support | Yes | Yes | No |
+
 ----
 Final word
 ----
