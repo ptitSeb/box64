@@ -1681,8 +1681,8 @@ static int isProcSelf(const char *path, const char* w)
 
 static int isSysCpuCache(const char *path, const char* w, int* _cpu, int* _index)
 {
-    char tmp[128];
-    int cpu, index;
+    char tmp[128] = {0};
+    int cpu=0, index=0;
     if(sscanf(path, "/sys/devices/system/cpu/cpu%d/cache/index%d/%s", &cpu, &index, tmp)!=3)
         return 0;
     if(strcmp(tmp, w))
@@ -2092,7 +2092,7 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
     }
-    int cpu, index;
+    int cpu=0, index=0;
     if(isSysCpuCache(path, "ways_of_associativity", &cpu, &index) && !FileExist(path, IS_FILE)) {
         // Create a dummy one
         int tmp = shm_open(TMP_CPUCACHE_ASSOC, O_RDWR | O_CREAT, S_IRWXU);
