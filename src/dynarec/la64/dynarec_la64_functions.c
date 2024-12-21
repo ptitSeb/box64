@@ -259,55 +259,62 @@ const char* getCacheName(int t, int n)
 
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
+    if (!box64_dynarec_dump && !box64_dynarec_gdbjit) return;
+
+    static char buf[512];
+    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
+        dyn->insts[ninst].x64.barrier,
+        dyn->insts[ninst].x64.state_flags,
+        dyn->f.pending,
+        dyn->f.dfnone,
+        dyn->insts[ninst].x64.may_set ? "may" : "set",
+        dyn->insts[ninst].x64.set_flags,
+        dyn->insts[ninst].x64.gen_flags,
+        dyn->insts[ninst].x64.use_flags,
+        dyn->insts[ninst].x64.need_before,
+        dyn->insts[ninst].x64.need_after,
+        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write);
+    if (dyn->insts[ninst].pred_sz) {
+        length += sprintf(buf + length, ", pred=");
+        for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
+            length += sprintf(buf + length, "%s%d", ii ? "/" : "", dyn->insts[ninst].pred[ii]);
+    }
+    if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts >= 0)
+        length += sprintf(buf + length, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
+    if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
+        length += sprintf(buf + length, ", jmp=out");
+    if (dyn->last_ip)
+        length += sprintf(buf + length, ", last_ip=%p", (void*)dyn->last_ip);
+    for (int ii = 0; ii < 24; ++ii) {
+        switch (dyn->insts[ninst].lsx.lsxcache[ii].t) {
+            case LSX_CACHE_ST_D: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_ST_F: length += sprintf(buf + length, " S%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_ST_I64: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_MM: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_XMMW: length += sprintf(buf + length, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_XMMR: length += sprintf(buf + length, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_SCR: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_NONE:
+            default: break;
+        }
+    }
+    if (dyn->lsx.stack || dyn->insts[ninst].lsx.stack_next || dyn->insts[ninst].lsx.x87stack)
+        length += sprintf(buf + length, " X87:%d/%d(+%d/-%d)%d", dyn->lsx.stack, dyn->insts[ninst].lsx.stack_next, dyn->insts[ninst].lsx.stack_push, dyn->insts[ninst].lsx.stack_pop, dyn->insts[ninst].lsx.x87stack);
+    if (dyn->insts[ninst].lsx.combined1 || dyn->insts[ninst].lsx.combined2)
+        length += sprintf(buf + length, " %s:%d/%d", dyn->insts[ninst].lsx.swapped ? "SWP" : "CMB", dyn->insts[ninst].lsx.combined1, dyn->insts[ninst].lsx.combined2);
+
     if (box64_dynarec_dump) {
         printf_x64_instruction(rex.is32bits ? my_context->dec32 : my_context->dec, &dyn->insts[ninst].x64, name);
-        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, %s%s\n",
             (box64_dynarec_dump > 1) ? "\e[32m" : "",
-            (void*)(dyn->native_start + dyn->insts[ninst].address),
-            dyn->insts[ninst].size / 4,
-            ninst,
-            dyn->insts[ninst].x64.barrier,
-            dyn->insts[ninst].x64.state_flags,
-            dyn->f.pending,
-            dyn->f.dfnone,
-            dyn->insts[ninst].x64.may_set ? "may" : "set",
-            dyn->insts[ninst].x64.set_flags,
-            dyn->insts[ninst].x64.gen_flags,
-            dyn->insts[ninst].x64.use_flags,
-            dyn->insts[ninst].x64.need_before,
-            dyn->insts[ninst].x64.need_after,
-            dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write);
-        if (dyn->insts[ninst].pred_sz) {
-            dynarec_log(LOG_NONE, ", pred=");
-            for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
-                dynarec_log(LOG_NONE, "%s%d", ii ? "/" : "", dyn->insts[ninst].pred[ii]);
-        }
-        if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts >= 0)
-            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
-        if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
-            dynarec_log(LOG_NONE, ", jmp=out");
-        if (dyn->last_ip)
-            dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
-        for (int ii = 0; ii < 24; ++ii) {
-            switch (dyn->insts[ninst].lsx.lsxcache[ii].t) {
-                case LSX_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_ST_I64: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_NONE:
-                default: break;
-            }
-        }
-        if (dyn->lsx.stack || dyn->insts[ninst].lsx.stack_next || dyn->insts[ninst].lsx.x87stack)
-            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->lsx.stack, dyn->insts[ninst].lsx.stack_next, dyn->insts[ninst].lsx.stack_push, dyn->insts[ninst].lsx.stack_pop, dyn->insts[ninst].lsx.x87stack);
-        if (dyn->insts[ninst].lsx.combined1 || dyn->insts[ninst].lsx.combined2)
-            dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].lsx.swapped ? "SWP" : "CMB", dyn->insts[ninst].lsx.combined1, dyn->insts[ninst].lsx.combined2);
-        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump > 1) ? "\e[m" : "");
+            (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (box64_dynarec_dump > 1) ? "\e[m" : "");
     }
     if (box64_dynarec_gdbjit) {
+        if (box64_dynarec_gdbjit > 1) {
+            static char buf2[512];
+            sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
+            dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
+        }
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
         const char* inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0) : name;
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);

@@ -762,11 +762,13 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (box64_dynarec_dump > 1) ? "\e[m" : "");
     }
     if (box64_dynarec_gdbjit) {
+        if (box64_dynarec_gdbjit > 1) {
+            static char buf2[512];
+            sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
+            dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
+        }
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
         const char* inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0) : name;
-        static char buf2[512];
-        sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
-        dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
     }
 }

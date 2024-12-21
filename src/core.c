@@ -903,12 +903,12 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
     }
     p = getenv("BOX64_DYNAREC_GDBJIT");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_gdbjit = p[0]-'0';
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '2')
+                box64_dynarec_gdbjit = p[0] - '0';
         }
-        if(box64_dynarec_gdbjit)
+        if (box64_dynarec_gdbjit)
             printf_log(LOG_INFO, "Dynarec will generate debuginfo for gdbjit\n");
     }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");

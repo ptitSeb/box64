@@ -243,6 +243,7 @@ Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is 
 The GDBJIT debugging support, only available with the compilation option GDBJIT=ON, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
 * 0 : Dynarec will not generate GDBJIT debuginfo. (Default)
 * 1 : Dynarec will generate GDBJIT debuginfo.
+* 2 : Dynarec will generate detailed GDBJIT debuginfo with internal state.
 
 #### BOX64_DYNAREC_MISSING *
 Dynarec print the missing opcodes
