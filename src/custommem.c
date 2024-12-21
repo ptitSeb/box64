@@ -487,7 +487,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     // add a new block
     int i = n_blocks++;
     if(n_blocks>c_blocks) {
-        c_blocks += 4;
+        c_blocks += box64_is32bits?8:256;
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
