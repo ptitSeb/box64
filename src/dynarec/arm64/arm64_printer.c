@@ -1713,14 +1713,26 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
-    // DMB ISH
+    // DMB
     if(isMask(opcode, "11010101000000110011nnnn10111111", &a)) {
-        snprintf(buff, sizeof(buff), "DMB %s", (Rn==0b1011)?"ISH":"???");
+        const char* barrier[] = {
+            "???", "???", "???", "???", // 0-3
+            "???", "???", "???", "???", // 4-7
+            "???", "ISHLD", "ISHST", "ISH", // 8-11
+            "???", "LD", "ST", "SY"  // 12-15
+        };
+        snprintf(buff, sizeof(buff), "DMB %s", barrier[Rn]);
         return buff;
     }
-    // DSB ISH/ISHST
+    // DSB
     if(isMask(opcode, "11010101000000110011nnnn10011111", &a)) {
-        snprintf(buff, sizeof(buff), "DSB %s", (Rn==0b1011)?"ISH":((Rn==0b1010)?"ISHST":"???"));
+        const char* barrier[] = {
+            "???", "???", "???", "???", // 0-3
+            "???", "???", "???", "???", // 4-7
+            "???", "ISHLD", "ISHST", "ISH", // 8-11
+            "???", "LD", "ST", "SY"  // 12-15
+        };
+        snprintf(buff, sizeof(buff), "DSB %s", barrier[Rn]);
         return buff;
     }
 
