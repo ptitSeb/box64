@@ -37,24 +37,18 @@ typedef struct bridge_s {
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
-// from src/wrapped/wrappedlibc.c
-void* my_mmap(x64emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
-int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
-
 brick_t* NewBrick(void* old)
 {
     brick_t* ret = (brick_t*)box_calloc(1, sizeof(brick_t));
     if(old)
         old = old + NBRICK * sizeof(onebridge_t);
-    void* ptr = my_mmap(NULL, old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
+    void* ptr = box_mmap(old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
     if(ptr == MAP_FAILED)
-        ptr = my_mmap(NULL, NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0);
+        ptr = box_mmap(NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0);
     if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
-    #ifdef DYNAREC
     setProtection((uintptr_t)ptr, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC | PROT_NOPROT);
-    #endif
     dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%zx)\n", ptr, NBRICK*sizeof(onebridge_t));
     ret->b = ptr;
     return ret;
@@ -77,7 +71,8 @@ void FreeBridge(bridge_t** bridge)
     while(b) {
         brick_t *n = b->next;
         dynarec_log(LOG_INFO, "FreeBridge brick at %p (size 0x%zx)\n", b->b, NBRICK*sizeof(onebridge_t));
-        my_munmap(NULL, b->b, NBRICK*sizeof(onebridge_t));
+        box_munmap(b->b, NBRICK*sizeof(onebridge_t));
+        freeProtection((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
         box_free(b);
         b = n;
     }

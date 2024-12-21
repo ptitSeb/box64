@@ -86,6 +86,7 @@ typedef struct blocklist_s {
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static int                 c_blocks = 0;       // capacity of blocks for custom malloc
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
+static int                 setting_prot = 0;
 
 typedef union mark_s {
     struct {
@@ -318,6 +319,16 @@ static size_t sizeBlock(void* sub)
     return SIZE_BLOCK(s->next);
 }
 
+static int isBlockChainCoherent(blockmark_t* m, blockmark_t* end)
+{
+    while(m) {
+        if(m>end) return 0;
+        if(m==end) return 1;
+        m = NEXT_BLOCK(m);
+    }
+    return 0;
+}
+
 // return 1 if block is coherent, 0 if not (and printf the issues)
 int printBlockCoherent(int i)
 {
@@ -328,6 +339,8 @@ int printBlockCoherent(int i)
     int ret = 1;
     blockmark_t* m = (blockmark_t*)p_blocks[i].block;
     if(!m) {printf_log(LOG_NONE, "Warning, block #%d is NULL\n", i); return 0;}
+    // check coherency of the chained list first
+    if(!isBlockChainCoherent(m, (blockmark_t*)(p_blocks[i].block+p_blocks[i].size-sizeof(blockmark_t)))) {printf_log(LOG_NONE, "Warning, block #%d chained list is not coherent\n", i); return 0;}
     // check if first is correct
     blockmark_t* first = getNextFreeBlock(m);
     if(p_blocks[i].first && p_blocks[i].first!=first) {printf_log(LOG_NONE, "First %p and stored first %p differs for block %d\n", first, p_blocks[i].first, i); ret = 0;}
@@ -491,13 +504,14 @@ void* internal_customMalloc(size_t size, int is32bits)
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
+    allocsize = (allocsize+box64_pagesize-1)&~(box64_pagesize-1);
     p_blocks[i].block = NULL;   // incase there is a re-entrance
     p_blocks[i].first = NULL;
     p_blocks[i].size = 0;
     if(is32bits)    // unlocking, because mmap might use it
         mutex_unlock(&mutex_blocks);
     void* p = is32bits
-                ?mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_32BIT, -1, 0)
+                ?box_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_32BIT, -1, 0)
                 :internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     if(is32bits)
         mutex_lock(&mutex_blocks);
@@ -522,11 +536,13 @@ void* internal_customMalloc(size_t size, int is32bits)
     if(blockstree)
         rb_set(blockstree, (uintptr_t)p, (uintptr_t)p+allocsize, i);
     if(mapallmem) {
-        // defer the setProtection...
-        //setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
-        defered_prot_p = (uintptr_t)p;
-        defered_prot_sz = allocsize;
-        defered_prot_prot = PROT_READ|PROT_WRITE;
+        if(setting_prot) {
+            // defer the setProtection...
+            defered_prot_p = (uintptr_t)p;
+            defered_prot_sz = allocsize;
+            defered_prot_prot = PROT_READ|PROT_WRITE;
+        } else
+            setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
     }
     return ret;
 }
@@ -1543,10 +1559,12 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     size = ALIGN(size);
     LOCK_PROT();
+    ++setting_prot;
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
     rb_set(mapallmem, cur, end, 1);
     rb_set(memprot, cur, end, prot);
+    --setting_prot;
     UNLOCK_PROT();
 }
 
@@ -1923,6 +1941,20 @@ void my_reserveHighMem()
     #ifdef BOX32
     if(box64_is32bits) {
         reverveHigMem32();
+        // now reserve some memory in low address (because wine tend to allocate everything for itself)
+        void* p[20];
+        #define SZ 2*1024*1024
+        size_t n = sizeof(p)/sizeof(p[0]);
+        for(size_t i=0; i<n; ++i)
+            p[i] = box32_malloc(SZ-128);
+        if(box64_log>=LOG_DEBUG) {
+            printf_log(LOG_DEBUG, "Reserved %u MB of low memory [", (SZ)*n);
+            for(size_t i=0; i<n; ++i)
+                printf_log(LOG_DEBUG, "%p%s", p[i], (i==(n-1))?"]\n":", ");
+        }
+        for(size_t i=0; i<n; ++i)
+            box32_free(p[i]);
+        #undef SZ
         return;
     }
     #endif
@@ -2152,5 +2184,59 @@ int internal_munmap(void* addr, unsigned long length)
     }
     int ret = libc_munmap(addr, length);
     #endif
+    return ret;
+}
+
+EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
+{
+    if(prot&PROT_WRITE)
+        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
+    int new_flags = flags;
+    void* old_addr = addr;
+    #ifndef NOALIGN
+    new_flags&=~MAP_32BIT;   // remove MAP_32BIT
+    if((flags&MAP_32BIT) && !(flags&MAP_FIXED)) {
+        // MAP_32BIT only exist on x86_64!
+        addr = find31bitBlockNearHint(old_addr, length, 0);
+    } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
+        if (!(flags&MAP_FIXED) && !addr)
+            addr = find47bitBlock(length);
+    }
+    #endif
+    void* ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
+    #if !defined(NOALIGN)
+    if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
+      (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
+        int olderr = errno;
+        internal_munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        addr = find31bitBlockNearHint(old_addr, length, 0); // is this the best way?
+        new_flags = (addr && isBlockFree(addr, length) )? (new_flags|MAP_FIXED) : new_flags;
+        if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
+        ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
+        if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
+            errno = olderr;
+    } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine)) && (addr && (addr!=ret)) &&
+             (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
+        int olderr = errno;
+        internal_munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        addr = find47bitBlockNearHint(old_addr, length, 0); // is this the best way?
+        new_flags = (addr && isBlockFree(addr, length)) ? (new_flags|MAP_FIXED) : new_flags;
+        if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
+        ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
+        if(old_addr && ret!=old_addr && ret!=MAP_FAILED) {
+            errno = olderr;
+            if(old_addr>(void*)0x7fffffffff && !have48bits)
+                errno = EEXIST;
+        }
+    }
+    #endif
+    return ret;
+}
+
+EXPORT int box_munmap(void* addr, size_t length)
+{
+    int ret = internal_munmap(addr, length);
     return ret;
 }
