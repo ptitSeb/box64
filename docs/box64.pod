@@ -373,6 +373,7 @@ The GDBJIT debugging support, only available with the compilation option GDBJIT=
 
     * 0 : Dynarec will not generate GDBJIT debuginfo. (Default)
     * 1 : Dynarec will generate GDBJIT debuginfo.
+    * 2 : Dynarec will generate detailed GDBJIT debuginfo with internal state.
 
 =item B<BOX64_SSE_FLUSHTO0>=I<0|1>
 

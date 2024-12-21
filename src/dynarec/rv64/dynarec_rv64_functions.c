@@ -625,105 +625,71 @@ const char* getCacheName(int t, int n)
 
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
-    static const char* fnames[] = {
-        "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7",
-        "fs0", "fs1",
-        "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7",
-        "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "fs9", "fs10", "fs11",
-        "ft8", "ft9", "ft10", "ft11"
-    };
-    static const char* vnames[] = {
-        "v0",
-        "v1",
-        "v2",
-        "v3",
-        "v4",
-        "v5",
-        "v6",
-        "v7",
-        "v8",
-        "v9",
-        "v10",
-        "v11",
-        "v12",
-        "v13",
-        "v14",
-        "v15",
-        "v16",
-        "v17",
-        "v18",
-        "v19",
-        "v20",
-        "v21",
-        "v22",
-        "v23",
-        "v24",
-        "v25",
-        "v26",
-        "v27",
-        "v8",
-        "v9",
-        "v30",
-        "v31",
-    };
+    if (!box64_dynarec_dump && !box64_dynarec_gdbjit) return;
+
+    static char buf[512];
+    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
+        dyn->insts[ninst].x64.barrier,
+        dyn->insts[ninst].x64.state_flags,
+        dyn->f.pending,
+        dyn->f.dfnone,
+        dyn->insts[ninst].x64.may_set ? "may" : "set",
+        dyn->insts[ninst].x64.set_flags,
+        dyn->insts[ninst].x64.gen_flags,
+        dyn->insts[ninst].x64.use_flags,
+        dyn->insts[ninst].x64.need_before,
+        dyn->insts[ninst].x64.need_after,
+        dyn->insts[ninst].nat_flags_fusion,
+        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write,
+        dyn->insts[ninst].vector_sew_entry, dyn->insts[ninst].vector_sew_exit);
+    if (dyn->insts[ninst].pred_sz) {
+        length += sprintf(buf + length, ", pred=");
+        for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
+            length += sprintf(buf + length, "%s%d", ii ? "/" : "", dyn->insts[ninst].pred[ii]);
+    }
+    if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts >= 0)
+        length += sprintf(buf + length, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
+    if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
+        length += sprintf(buf + length, ", jmp=out");
+    if (dyn->last_ip)
+        length += sprintf(buf + length, ", last_ip=%p", (void*)dyn->last_ip);
+    for (int ii = 0; ii < 32; ++ii) {
+        switch (dyn->insts[ninst].e.extcache[ii].t) {
+            case EXT_CACHE_ST_D: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_ST_F: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_ST_I64: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_MM: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_MMV: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_SS: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_SD: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_XMMR: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_XMMW: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_YMMW: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_YMMR: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_SCR: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_NONE:
+            default: break;
+        }
+    }
+    if (dyn->ymm_zero)
+        length += sprintf(buf + length, " ymm0_mask = %04x", dyn->ymm_zero);
+    if (dyn->e.stack || dyn->insts[ninst].e.stack_next || dyn->insts[ninst].e.x87stack)
+        length += sprintf(buf + length, " X87:%d/%d(+%d/-%d)%d", dyn->e.stack, dyn->insts[ninst].e.stack_next, dyn->insts[ninst].e.stack_push, dyn->insts[ninst].e.stack_pop, dyn->insts[ninst].e.x87stack);
+    if (dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2)
+        length += sprintf(buf + length, " %s:%d/%d", dyn->insts[ninst].e.swapped ? "SWP" : "CMB", dyn->insts[ninst].e.combined1, dyn->insts[ninst].e.combined2);
+
     if (box64_dynarec_dump) {
         printf_x64_instruction(rex.is32bits ? my_context->dec32 : my_context->dec, &dyn->insts[ninst].x64, name);
-        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, %s%s\n",
             (box64_dynarec_dump > 1) ? "\e[32m" : "",
-            (void*)(dyn->native_start + dyn->insts[ninst].address),
-            dyn->insts[ninst].size / 4,
-            ninst,
-            dyn->insts[ninst].x64.barrier,
-            dyn->insts[ninst].x64.state_flags,
-            dyn->f.pending,
-            dyn->f.dfnone,
-            dyn->insts[ninst].x64.may_set ? "may" : "set",
-            dyn->insts[ninst].x64.set_flags,
-            dyn->insts[ninst].x64.gen_flags,
-            dyn->insts[ninst].x64.use_flags,
-            dyn->insts[ninst].x64.need_before,
-            dyn->insts[ninst].x64.need_after,
-            dyn->insts[ninst].nat_flags_fusion,
-            dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write,
-            dyn->insts[ninst].vector_sew_entry, dyn->insts[ninst].vector_sew_exit);
-        if (dyn->insts[ninst].pred_sz) {
-            dynarec_log(LOG_NONE, ", pred=");
-            for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
-                dynarec_log(LOG_NONE, "%s%d", ii ? "/" : "", dyn->insts[ninst].pred[ii]);
-        }
-        if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts >= 0)
-            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
-        if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
-            dynarec_log(LOG_NONE, ", jmp=out");
-        if (dyn->last_ip)
-            dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
-        for (int ii = 0; ii < 32; ++ii) {
-            switch (dyn->insts[ninst].e.extcache[ii].t) {
-                case EXT_CACHE_ST_D: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_ST_F: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_ST_I64: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_MM: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_MMV: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_SS: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_SD: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_XMMR: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_XMMW: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_YMMW: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_YMMR: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_SCR: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-                case EXT_CACHE_NONE:
-                default: break;
-            }
-        }
-        if (dyn->ymm_zero)
-            dynarec_log(LOG_NONE, " ymm0_mask = %04x", dyn->ymm_zero);
-        if (dyn->e.stack || dyn->insts[ninst].e.stack_next || dyn->insts[ninst].e.x87stack)
-            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->e.stack, dyn->insts[ninst].e.stack_next, dyn->insts[ninst].e.stack_push, dyn->insts[ninst].e.stack_pop, dyn->insts[ninst].e.x87stack);
-        if (dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2)
-            dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].e.swapped ? "SWP" : "CMB", dyn->insts[ninst].e.combined1, dyn->insts[ninst].e.combined2);
-        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump > 1) ? "\e[m" : "");
+            (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (box64_dynarec_dump > 1) ? "\e[m" : "");
     }
     if (box64_dynarec_gdbjit) {
+        if (box64_dynarec_gdbjit > 1) {
+            static char buf2[512];
+            sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
+            dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
+        }
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
         const char* inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0) : name;
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
