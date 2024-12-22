@@ -419,11 +419,11 @@
 #define SDz(rs2, rs1, imm12) EMIT(S_type(imm12, rs2, rs1, 0b010 + (1 - rex.is32bits), 0b0100011))
 
 // Shift Left Immediate
-#define SLLI(rd, rs1, imm6) EMIT(I_type(imm6, rs1, 0b001, rd, 0b0010011))
+#define SLLI(rd, rs1, imm6) EMIT(I_type(((imm6) & 0x3f), rs1, 0b001, rd, 0b0010011))
 // Shift Right Logical Immediate
-#define SRLI(rd, rs1, imm6) EMIT(I_type(imm6, rs1, 0b101, rd, 0b0010011))
+#define SRLI(rd, rs1, imm6) EMIT(I_type(((imm6) & 0x3f), rs1, 0b101, rd, 0b0010011))
 // Shift Right Arithmetic Immediate
-#define SRAI(rd, rs1, imm6) EMIT(I_type((imm6) | (0b010000 << 6), rs1, 0b101, rd, 0b0010011))
+#define SRAI(rd, rs1, imm6) EMIT(I_type(((imm6) & 0x3f) | (0b010000 << 6), rs1, 0b101, rd, 0b0010011))
 
 // rd = rs1 + imm12
 #define ADDIW(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, 0b0011011))
