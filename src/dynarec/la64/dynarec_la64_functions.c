@@ -257,6 +257,78 @@ const char* getCacheName(int t, int n)
     return buff;
 }
 
+static register_mapping_t register_mappings[] = {
+    { "rax", "t0" },
+    { "eax", "t0" },
+    { "ax", "t0" },
+    { "ah", "t0" },
+    { "al", "t0" },
+    { "rcx", "t1" },
+    { "ecx", "t1" },
+    { "cx", "t1" },
+    { "ch", "t1" },
+    { "cl", "t1" },
+    { "rdx", "t2" },
+    { "edx", "t2" },
+    { "dx", "t2" },
+    { "dh", "t2" },
+    { "dl", "t2" },
+    { "rbx", "t3" },
+    { "ebx", "t3" },
+    { "bx", "t3" },
+    { "bh", "t3" },
+    { "bl", "t3" },
+    { "rsi", "t4" },
+    { "esi", "t4" },
+    { "si", "t4" },
+    { "sil", "t4" },
+    { "rdi", "t5" },
+    { "edi", "t5" },
+    { "di", "t5" },
+    { "dil", "t5" },
+    { "rsp", "t6" },
+    { "esp", "t6" },
+    { "sp", "t6" },
+    { "spl", "t6" },
+    { "rbp", "t7" },
+    { "ebp", "t7" },
+    { "bp", "t7" },
+    { "bpl", "t7" },
+    { "r8", "s0" },
+    { "r8d", "s0" },
+    { "r8w", "s0" },
+    { "r8b", "s0" },
+    { "r9", "s1" },
+    { "r9d", "s1" },
+    { "r9w", "s1" },
+    { "r9b", "s1" },
+    { "r10", "s2" },
+    { "r10d", "s2" },
+    { "r10w", "s2" },
+    { "r10b", "s2" },
+    { "r11", "s3" },
+    { "r11d", "s3" },
+    { "r11w", "s3" },
+    { "r11b", "s3" },
+    { "r12", "s4" },
+    { "r12d", "s4" },
+    { "r12w", "s4" },
+    { "r12b", "s4" },
+    { "r13", "s5" },
+    { "r13d", "s5" },
+    { "r13w", "s5" },
+    { "r13b", "s5" },
+    { "r14", "s6" },
+    { "r14d", "s6" },
+    { "r14w", "s6" },
+    { "r14b", "s6" },
+    { "r15", "s7" },
+    { "r15d", "s7" },
+    { "r15w", "s7" },
+    { "r15b", "s7" },
+    { "rip", "t8" },
+};
+
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
     if (!box64_dynarec_dump && !box64_dynarec_gdbjit) return;
@@ -310,13 +382,18 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (box64_dynarec_dump > 1) ? "\e[m" : "");
     }
     if (box64_dynarec_gdbjit) {
+        static char buf2[512];
         if (box64_dynarec_gdbjit > 1) {
-            static char buf2[512];
             sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
             dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
         }
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
-        const char* inst_name = dec ? DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0) : name;
+        const char* inst_name = name;
+        if (dec) {
+            inst_name = DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0);
+            x64disas_add_register_mapping_annotations(buf2, inst_name, register_mappings, sizeof(register_mappings) / sizeof(register_mappings[0]));
+            inst_name = buf2;
+        }
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
     }
 }

@@ -95,7 +95,6 @@ gdbjit_block_t* GdbJITBlockAddLine(gdbjit_block_t* block, GDB_CORE_ADDR addr, co
     block->lines[block->nlines-1].pc = addr;
     block->lines[block->nlines-1].line = block->nlines;
     fprintf(block->file, "%s\n", line);
-    fflush(block->file);
     return block;
 }
 
