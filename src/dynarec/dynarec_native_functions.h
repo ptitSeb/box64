@@ -83,6 +83,13 @@ int is_avx_zero_unset(dynarec_native_t* dyn, int ninst, int reg);
 void avx_mark_zero_reset(dynarec_native_t* dyn, int ninst);
 void avx_unmark_zero(dynarec_native_t* dyn, int ninst, int reg);
 
+typedef struct register_mapping_s {
+    const char* name;
+    const char* native;
+} register_mapping_t;
+
+void x64disas_add_register_mapping_annotations(char* buf, const char* disas, const register_mapping_t* mappings, size_t mappings_sz);
+
 ADDITIONNAL_DEFINITION()
 
 #endif //__DYNAREC_NATIVE_FUNCTIONS_H__
