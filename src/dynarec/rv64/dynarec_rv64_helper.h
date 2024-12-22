@@ -1855,54 +1855,56 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     BLT(reg, s, 4 + 4);           \
     ADDIW(reg, s, -1);
 
-#define FAST_8BIT_OPERATION(dst, src, s1, OP)                                                                      \
-    if (!box64_dynarec_nativeflags && MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
-        if (rex.rex) {                                                                                             \
-            wb = TO_NAT((nextop & 7) + (rex.b << 3));                                                              \
-            wb2 = 0;                                                                                               \
-            gb = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                                                    \
-            gb2 = 0;                                                                                               \
-        } else {                                                                                                   \
-            wb = (nextop & 7);                                                                                     \
-            wb2 = (wb >> 2) * 8;                                                                                   \
-            wb = TO_NAT(wb & 3);                                                                                   \
-            gd = (nextop & 0x38) >> 3;                                                                             \
-            gb2 = ((gd & 4) >> 2) * 8;                                                                             \
-            gb = TO_NAT(gd & 3);                                                                                   \
-        }                                                                                                          \
-        if (src##2) { ANDI(s1, src, 0xf00); }                                                                      \
-        SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                                                            \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 8 + dst##2);                                                                            \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 8 + dst##2);                                                                         \
-        }                                                                                                          \
-        OP;                                                                                                        \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 64 - 8 - dst##2);                                                                       \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 64 - 8 - dst##2);                                                                    \
-        }                                                                                                          \
-        break;                                                                                                     \
+#define FAST_8BIT_OPERATION(dst, src, s1, OP)                                        \
+    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+        if (rex.rex) {                                                               \
+            wb = TO_NAT((nextop & 7) + (rex.b << 3));                                \
+            wb2 = 0;                                                                 \
+            gb = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                      \
+            gb2 = 0;                                                                 \
+        } else {                                                                     \
+            wb = (nextop & 7);                                                       \
+            wb2 = (wb >> 2) * 8;                                                     \
+            wb = TO_NAT(wb & 3);                                                     \
+            gd = (nextop & 0x38) >> 3;                                               \
+            gb2 = ((gd & 4) >> 2) * 8;                                               \
+            gb = TO_NAT(gd & 3);                                                     \
+        }                                                                            \
+        if (src##2) { ANDI(s1, src, 0xf00); }                                        \
+        SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                              \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 8 + dst##2);                                              \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 8 + dst##2);                                           \
+        }                                                                            \
+        OP;                                                                          \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 64 - 8 - dst##2);                                         \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 64 - 8 - dst##2);                                      \
+        }                                                                            \
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(dst, xZR);             \
+        break;                                                                       \
     }
 
-#define FAST_16BIT_OPERATION(dst, src, s1, OP)                                                                     \
-    if (!box64_dynarec_nativeflags && MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
-        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                                                        \
-        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                  \
-        SLLI(s1, src, 64 - 16);                                                                                    \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 16);                                                                                    \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 16);                                                                                 \
-        }                                                                                                          \
-        OP;                                                                                                        \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 64 - 16);                                                                               \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 64 - 16);                                                                            \
-        }                                                                                                          \
-        break;                                                                                                     \
+#define FAST_16BIT_OPERATION(dst, src, s1, OP)                                       \
+    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                          \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                    \
+        SLLI(s1, src, 64 - 16);                                                      \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 16);                                                      \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 16);                                                   \
+        }                                                                            \
+        OP;                                                                          \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 64 - 16);                                                 \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 64 - 16);                                              \
+        }                                                                            \
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);              \
+        break;                                                                       \
     }
 
 #define VECTOR_SPLAT_IMM(vreg, imm, s1)                 \
