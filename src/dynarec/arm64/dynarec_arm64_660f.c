@@ -2444,14 +2444,32 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETSEW(x1, 0);
             GETSGW(x2);
             MULw(x2, x2, x1);
-            UFLAG_RES(x2);
             GWBACK;
-            UFLAG_DF(x1, d_imul16);
+            UFLAG_IF {
+                SET_DFNONE(x4);
+                IFX(X_CF|X_OF) {
+                    ASRw(x1, x2, 16);
+                    CMPSw_REG_ASR(x1, x2, 31);
+                    CSETw(x3, cNE);
+                    IFX(X_CF) {
+                        BFIw(xFlags, x3, F_CF, 1);
+                    }
+                    IFX(X_OF) {
+                        BFIw(xFlags, x3, F_OF, 1);
+                    }
+                }
+                IFX(X_AF | X_PF | X_ZF | X_SF)
+                    if(box64_dynarec_test) {
+                        // to avoid noise during test
+                        MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                        BICw(xFlags, xFlags, x3);
+                    }
+            }
             break;
 
         case 0xB3:

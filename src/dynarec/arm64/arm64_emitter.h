@@ -205,17 +205,25 @@ int convert_bitmask(uint64_t bitmask);
 
 #define SUBx_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(1, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBSx_REG(Rd, Rn, Rm)              FEMIT(ADDSUB_REG_gen(1, 1, 1, 0b00, Rm, 0, Rn, Rd))
+#define SUBSx_REG_ASR(Rd, Rn, Rm, asr)     FEMIT(ADDSUB_REG_gen(1, 1, 1, 0b10, Rm, asr, Rn, Rd))
 #define SUBx_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(1, 1, 0, 0b00, Rm, lsl, Rn, Rd))
 #define SUBw_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(0, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBw_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(0, 1, 0, 0b00, Rm, lsl, Rn, Rd))
 #define SUBSw_REG(Rd, Rn, Rm)              FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b00, Rm, 0, Rn, Rd))
 #define SUBSw_REG_LSL(Rd, Rn, Rm, lsl)     FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b00, Rm, lsl, Rn, Rd))
+#define SUBSw_REG_LSR(Rd, Rn, Rm, lsr)     FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b01, Rm, lsr, Rn, Rd))
+#define SUBSw_REG_ASR(Rd, Rn, Rm, asr)     FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b10, Rm, asr, Rn, Rd))
 #define SUBxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBz_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(rex.is32bits?0:1, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBSxw_REG(Rd, Rn, Rm)             FEMIT(ADDSUB_REG_gen(rex.w, 1, 1, 0b00, Rm, 0, Rn, Rd))
+#define SUBSxw_REG_ASR(Rd, Rn, Rm, asr)    FEMIT(ADDSUB_REG_gen(rex.w, 1, 1, 0b10, Rm, asr, Rn, Rd))
 #define CMPSx_REG(Rn, Rm)                   SUBSx_REG(xZR, Rn, Rm)
+#define CMPSx_REG_ASR(Rn, Rm, asr)          SUBSx_REG_ASR(xZR, Rn, Rm, asr)
 #define CMPSw_REG(Rn, Rm)                   SUBSw_REG(wZR, Rn, Rm)
+#define CMPSw_REG_LSR(Rn, Rm, lsr)          SUBSw_REG_LSR(wZR, Rn, Rm, lsr)
+#define CMPSw_REG_ASR(Rn, Rm, asr)          SUBSw_REG_ASR(wZR, Rn, Rm, asr)
 #define CMPSxw_REG(Rn, Rm)                  SUBSxw_REG(xZR, Rn, Rm)
+#define CMPSxw_REG_ASR(Rn, Rm, asr)         SUBSxw_REG_ASR(xZR, Rn, Rm, asr)
 #define NEGx_REG(Rd, Rm)                    SUBx_REG(Rd, xZR, Rm);
 #define NEGw_REG(Rd, Rm)                    SUBw_REG(Rd, wZR, Rm);
 #define NEGxw_REG(Rd, Rm)                   SUBxw_REG(Rd, xZR, Rm);

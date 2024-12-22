@@ -1910,8 +1910,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MULx(gd, gd, ed);
                     SET_DFNONE(x4);
                     IFX(X_CF|X_OF) {
-                        ASRx(x4, gd, 63);
-                        CMPSx_REG(x3, x4);
+                        CMPSx_REG_ASR(x3, gd, 63);
                         CSETw(x3, cNE);
                         IFX(X_CF) {
                             BFIw(xFlags, x3, F_CF, 1);
@@ -1931,8 +1930,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVw_REG(gd, gd);
                     SET_DFNONE(x4);
                     IFX(X_CF|X_OF) {
-                        ASRw(x4, gd, 31);
-                        CMPSw_REG(x3, x4);
+                        CMPSw_REG_ASR(x3, gd, 31);
                         CSETw(x3, cNE);
                         IFX(X_CF) {
                             BFIw(xFlags, x3, F_CF, 1);
