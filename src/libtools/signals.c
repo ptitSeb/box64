@@ -1478,21 +1478,9 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
-        static uintptr_t repeated_page = 0;
-        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%hhx (old page=%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot, (void*)repeated_page);
-        static int repeated_count = 0;
-        if(repeated_page == ((uintptr_t)addr&~(box64_pagesize-1))) {
-            ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
-            if(repeated_count>1) {
-                dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
-                SetHotPage(repeated_page);
-            }
-        } else {
-            repeated_page = (uintptr_t)addr&~(box64_pagesize-1);
-            repeated_count = 0;
-        }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        if(db) CheckHotPage((uintptr_t)addr);
         int db_need_test = db?getNeedTest((uintptr_t)db->x64_addr):0;
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
             emu = getEmuSignal(emu, p, db);

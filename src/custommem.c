@@ -1482,20 +1482,37 @@ int isprotectedDB(uintptr_t addr, size_t size)
     return 1;
 }
 
-uintptr_t hotpage = 0;
-int hotpage_cnt = 0;
+static uintptr_t hotpage = 0;
+static int hotpage_cnt = 0;
+static int repeated_count = 0;
+static uintptr_t repeated_page = 0;
 #define HOTPAGE_MARK 64
 void SetHotPage(uintptr_t addr)
 {
     hotpage = addr&~(box64_pagesize-1);
     hotpage_cnt = HOTPAGE_MARK;
 }
+void CheckHotPage(uintptr_t addr)
+{
+    uintptr_t page = (uintptr_t)addr&~(box64_pagesize-1);
+    if(repeated_count==1 && repeated_page==page) {
+        dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
+        SetHotPage(repeated_page);
+        repeated_count = 0;
+        repeated_page = 0;
+    } else {
+        repeated_count = 1;
+        repeated_page = page;
+    }
+}
 int isInHotPage(uintptr_t addr)
 {
     if(!hotpage_cnt)
         return 0;
-    --hotpage_cnt;
-    return (addr>=hotpage) && (addr<hotpage+box64_pagesize);
+    int ret = (addr>=hotpage) && (addr<hotpage+box64_pagesize);
+    if(ret)
+        --hotpage_cnt;
+    return ret;
 }
 int checkInHotPage(uintptr_t addr)
 {
