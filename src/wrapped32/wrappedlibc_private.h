@@ -2141,7 +2141,7 @@ GO(xdr_u_int, iEpp)
 GO(xdr_void, iEv)
 // xdr_wrapstring
 // xencrypt
-GO(__xmknod, iEipup)
+GOM(__xmknod, iEEipup)
 //GO(__xmknodat, iEiipip)
 GO(__xpg_basename, tEp)
 // __xpg_sigpause   // Weak

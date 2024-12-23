@@ -910,7 +910,6 @@
 #() iEipii -> iEipii
 #() iEipip -> iEipip
 #() iEipui -> iEipui
-#() iEipup -> iEipup
 #() iFipup -> iFipup
 #() iFipLp -> iFipLp
 #() iEippi -> iEippi
@@ -1198,6 +1197,7 @@
 #() iEEiipV -> iEEiipV
 #() iEEipii -> iEEipii
 #() iEEipuu -> iEEipuu
+#() iEEipup -> iEEipup
 #() iEEippL -> iEEippL
 #() iEEuupi -> iEEuupi
 #() iEEpipp -> iEEpipp
@@ -2110,6 +2110,8 @@ wrappedlibc:
 - iEipii:
 - iEipuu:
   - sendmmsg
+- iEipup:
+  - __xmknod
 - iEippi:
   - utimensat
 - iEippL:
@@ -2434,6 +2436,10 @@ wrappedlibresolv:
   - res_search
 - iFpiipi:
   - __res_search
+- iFppppi:
+  - __dn_expand
+- iFppiipi:
+  - __res_nquery
 wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime
