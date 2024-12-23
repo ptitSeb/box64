@@ -2187,6 +2187,12 @@ int internal_munmap(void* addr, unsigned long length)
     return ret;
 }
 
+#ifndef MAP_FIXED_NOREPLACE
+#define MAP_FIXED_NOREPLACE 0x200000
+#endif
+#ifndef MAP_32BIT
+#define MAP_32BIT 0x40
+#endif
 EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
 {
     if(prot&PROT_WRITE)
