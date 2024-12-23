@@ -5,6 +5,8 @@ If you don't want to compile box64 yourself and prefer to use third-party pre-bu
 
 You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
 
+Additional installation steps may be necessary when copying only the box64 executable file without running make install in cross-build environments. See [Cross-compiling](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#Cross-compiling)
+
 ## Per-platform compiling instructions
 ----
 
@@ -296,3 +298,34 @@ Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | sudo tee /etc/apt/so
 sudo apt update
 sudo apt install box64-generic-arm -y
 ```
+
+## Cross-compiling 
+----
+### Set Up the Cross-Compiler
+For example, to compile Box64 for RISC-V on an x86 machine, you can get prebuilt GNU toolchain from the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases) 
+
+### Run CMake with Cross-Compilation Options 
+Follow the per-platform compilation instructions to configure the CMake options for your target architecture.
+In particular, you must specify the cross-compiler. For example:
+```
+-DCMAKE_C_COMPILER=riscv64-unknown-linux-gnu-gcc  # Or whichever cross-compiler you use
+```
+
+### Running tests with QEMU (optional)
+To do a quick check, run:
+```
+qemu-riscv64 -L path/to/your/riscv64/sysroot box64 --help
+```
+You can run `dirname $(find -name libc.so.6)` to determine whether sysroot is provided by the prebuilt GNU toolchain or not.
+
+To run CTest-based tests under QEMU:
+```
+ctest -j$(nproc)
+```
+
+### Installing on the Target Machine
+After successfully cross-compiling, copy the box64 executable to your RISC-V device. Note that simply copying the binary does not automatically install Box64’s shared libraries. Because `make install` does not run on the target during cross-compilation, libraries required for emulation may be missing.
+
+To fix this, copy the shared libraries folder from the Box64 repository (`x64lib` or `x86lib`) to your target. Place them into the proper library search paths, for example:
+- `/usr/lib/box64-x86_64-linux-gnu/` (for x86_64) 
+- `/usr/lib/box64-i386-linux-gnu/` (for i386) 
