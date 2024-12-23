@@ -910,7 +910,6 @@
 #() iEipii -> iEipii
 #() iEipip -> iEipip
 #() iEipui -> iEipui
-#() iEipup -> iEipup
 #() iFipup -> iFipup
 #() iFipLp -> iFipLp
 #() iEippi -> iEippi
@@ -1198,6 +1197,7 @@
 #() iEEiipV -> iEEiipV
 #() iEEipii -> iEEipii
 #() iEEipuu -> iEEipuu
+#() iEEipup -> iEEipup
 #() iEEippL -> iEEippL
 #() iEEuupi -> iEEuupi
 #() iEEpipp -> iEEpipp
@@ -2110,6 +2110,8 @@ wrappedlibc:
 - iEipii:
 - iEipuu:
   - sendmmsg
+- iEipup:
+  - __xmknod
 - iEippi:
   - utimensat
 - iEippL:

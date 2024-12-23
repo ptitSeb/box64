@@ -521,6 +521,10 @@ void EXPORT my32___stack_chk_fail(x64emu_t* emu)
     print_cycle_log(LOG_INFO);
     StopEmu(emu, buff, 1);
 }
+int EXPORT my32___xmknod(x64emu_t* emu, int ver, const char* path, mode_t mode, dev_t* dev)
+{
+    return mknod(path, mode, *dev);
+}
 void EXPORT my32___gmon_start__(x64emu_t *emu)
 {
     printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");

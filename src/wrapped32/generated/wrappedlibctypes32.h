@@ -103,6 +103,7 @@ typedef int32_t (*iEiiip_t)(int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iEiipV_t)(int32_t, int32_t, void*, ...);
 typedef int32_t (*iEipii_t)(int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iEipuu_t)(int32_t, void*, uint32_t, uint32_t);
+typedef int32_t (*iEipup_t)(int32_t, void*, uint32_t, void*);
 typedef int32_t (*iEippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iEippL_t)(int32_t, void*, void*, uintptr_t);
 typedef int32_t (*iEuupi_t)(uint32_t, uint32_t, void*, int32_t);
@@ -232,6 +233,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(__vsyslog_chk, vEiipp_t) \
 	GO(__syslog_chk, vEiipV_t) \
 	GO(sendmmsg, iEipuu_t) \
+	GO(__xmknod, iEipup_t) \
 	GO(utimensat, iEippi_t) \
 	GO(readlinkat, iEippL_t) \
 	GO(waitid, iEuupi_t) \
