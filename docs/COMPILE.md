@@ -5,6 +5,8 @@ If you don't want to compile box64 yourself and prefer to use third-party pre-bu
 
 You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
 
+Additional installation steps may be necessary when copying only the box64 executable file without running make install in cross-build environments. See [Cross-compiling](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#Cross-compiling)
+
 ## Per-platform compiling instructions
 ----
 
@@ -296,3 +298,14 @@ Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | sudo tee /etc/apt/so
 sudo apt update
 sudo apt install box64-generic-arm -y
 ```
+
+## Cross-compiling 
+Cross-compiling for embedded systems often presents challenges due to limited computing resources, making direct compilation on the target platform impractical. A cross-compiler generates executable code for a platform different from the one on which the compiler itself is running.
+
+When cross-compiling Box64, one common issue is the absence of necessary libraries on the target platform. This typically happens because the cross-compilation process does not execute the `make install` command on the target system. The `make install` command includes a script for copying essential libraries to the search paths.
+
+Without this step, errors can occur during library loading. This is particularly problematic for libraries that lack a wrapper and require emulation. In such cases, the dependent libraries must be available in the x86_64 architecture format to ensure compatibility and prevent runtime failures.
+----
+### Manual Installation of Shared Libraries
+Copy the shared libraries folder (`x64lib` or `x86lib`) from the Box64 repository and transfer it to the target device. Ensure that the shared libraries are located in the appropriate search paths : 
+`/usr/lib/box64-x86_64-linux-gnu/` (for x86_64) or  `/usr/lib/box64-i386-linux-gnu/` (for i386) .
