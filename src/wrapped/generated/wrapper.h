@@ -3348,6 +3348,7 @@ void iFpLLlliLppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpLpuuLpLpppL(x64emu_t *emu, uintptr_t fnc);
 void iFpLpppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFppLlliLppppp(x64emu_t *emu, uintptr_t fnc);
+void iFpppipipiipii(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void UFbCuuWWwwCCup(x64emu_t *emu, uintptr_t fnc);
 void UFbuuuWWWWWWWW(x64emu_t *emu, uintptr_t fnc);
