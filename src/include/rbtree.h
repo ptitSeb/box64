@@ -58,6 +58,16 @@ void rbtree_delete(rbtree_t* tree);
 uint32_t rb_get(rbtree_t* tree, uintptr_t addr);
 
 /** 
+ * rb_get_64() - Retrieves data associated with a specific address in the red-black tree.
+ * @tree: Pointer to the red-black tree from which data is to be retrieved.
+ * @addr: The memory address used as a key to find the corresponding node in the tree.
+ *
+ * This function searches the red-black tree for a node that corresponds to the specified address.
+ * Return: The 64bits data associated with the address if found; otherwise, 0.
+ */
+uint64_t rb_get_64(rbtree_t* tree, uintptr_t addr);
+
+/** 
  * rb_get_end() - Searches for a node within a specified address range in a red-black tree and retrieves its data and end address.
  * @tree: Pointer to the red-black tree to be searched.
  * @addr: The address to search for within the nodes of the red-black tree.
@@ -70,6 +80,20 @@ uint32_t rb_get(rbtree_t* tree, uintptr_t addr);
  * Return: 1 if a node containing the address is found, otherwise 0.
  */
 int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end);
+
+/** 
+ * rb_get_end_64() - Searches for a node within a specified address range in a red-black tree and retrieves its data and end address.
+ * @tree: Pointer to the red-black tree to be searched.
+ * @addr: The address to search for within the nodes of the red-black tree.
+ * @val: Pointer to store the data of the node that contains the address if found.
+ * @end: Pointer to store the end address of the node that contains the address, or the start of the next node if not found, or UINTPTR_MAX if no next node exists.
+ *
+ * This function traverses the red-black tree starting from the root, searching for a node where the 'addr' falls between the node's start and end addresses (exclusive of end).
+ * If such a node is found, the function stores the node's data in '*val' and the node's end address in '*end', then returns 1 to indicate success.
+ * If no such node is found, the function sets '*val' to 0 and '*end' to the start address of the next node in the tree structure or to UINTPTR_MAX if there is no subsequent node.
+ * Return: 1 if a node containing the address is found, otherwise 0.
+ */
+int rb_get_end_64(rbtree_t* tree, uintptr_t addr, uint64_t* val, uintptr_t* end);
 
 /**
  * rb_set() - Set an address range in a red-black tree.
@@ -187,6 +211,19 @@ int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end);
  * Return: 0 on success, or -1 on failure. 
  */
 int rb_set(rbtree_t* tree, uintptr_t start, uintptr_t end, uint32_t data);
+
+
+/**
+ * rb_set_64() - Set an address range in a red-black tree.
+ * @tree: Pointer to the red-black tree where the address range will be set.
+ * @start: The starting address of the range to be set.
+ * @end: The ending address of the range to be set.
+ * @data: The data value to associate with the address range.
+ *
+ * This function adds a new address range with associated data to the red-black tree. 
+ */
+
+int rb_set_64(rbtree_t* tree, uintptr_t start, uintptr_t end, uint64_t data);
 
 /**
  * rb_unset() - Removes a range of values from the red-black tree.

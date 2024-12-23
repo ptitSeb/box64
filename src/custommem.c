@@ -35,6 +35,7 @@
 
 // init inside dynablocks.c
 static mmaplist_t          *mmaplist = NULL;
+static rbtree_t            *rbt_dynmem = NULL;
 static uint64_t jmptbl_allocated = 0, jmptbl_allocated1 = 0, jmptbl_allocated2 = 0, jmptbl_allocated3 = 0;
 #ifdef JMPTABL_SHIFT4
 static uint64_t jmptbl_allocated4 = 0;
@@ -794,8 +795,12 @@ size_t customGetUsableSize(void* p)
 
 #ifdef DYNAREC
 #define NCHUNK          64
+typedef struct mapchunk_s {
+    blocklist_t         chunk;
+    rbtree_t*           tree;
+} mapchunk_t;
 typedef struct mmaplist_s {
-    blocklist_t         chunks[NCHUNK];
+    mapchunk_t          chunks[NCHUNK];
     mmaplist_t*         next;
 } mmaplist_t;
 
@@ -806,31 +811,9 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     
     uintptr_t addr = (uintptr_t)p;
 
-    int i= 0;
-    mmaplist_t* list = mmaplist;
-    if(!list)
-        return NULL;
-    while(list) {
-        if ((addr>(uintptr_t)list->chunks[i].block) 
-         && (addr<((uintptr_t)list->chunks[i].block+list->chunks[i].size))) {
-            blockmark_t* sub = (blockmark_t*)list->chunks[i].block;
-            while((uintptr_t)sub<addr) {
-                blockmark_t* n = NEXT_BLOCK(sub);
-                if((uintptr_t)n>addr) {
-                    // found it!
-                    // self is the field of a block
-                    return *(dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
-                }
-                sub = n;
-            }
-            return NULL;
-        }
-        ++i;
-        if(i==NCHUNK) {
-            i = 0;
-            list = list->next;
-        }
-    }
+    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, (uintptr_t)p);
+    if(bl)
+        return *(dynablock_t**)rb_get_64(bl->tree, (uintptr_t)p);
     return NULL;
 }
 
@@ -877,19 +860,20 @@ uintptr_t AllocDynarecMap(size_t size)
     int i = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);
     while(1) {
-        if(list->chunks[i].maxfree>=size) {
+        if(list->chunks[i].chunk.maxfree>=size) {
             // looks free, try to alloc!
             size_t rsize = 0;
-            void* sub = getFirstBlock(list->chunks[i].block, size, &rsize, list->chunks[i].first);
+            void* sub = getFirstBlock(list->chunks[i].chunk.block, size, &rsize, list->chunks[i].chunk.first);
             if(sub) {
-                void* ret = allocBlock(list->chunks[i].block, sub, size, &list->chunks[i].first);
-                if(rsize==list->chunks[i].maxfree)
-                    list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, list->chunks[i].first);
+                void* ret = allocBlock(list->chunks[i].chunk.block, sub, size, &list->chunks[i].chunk.first);
+                if(rsize==list->chunks[i].chunk.maxfree)
+                    list->chunks[i].chunk.maxfree = getMaxFreeBlock(list->chunks[i].chunk.block, list->chunks[i].chunk.size, list->chunks[i].chunk.first);
+                rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
                 return (uintptr_t)ret;
             }
         }
         // check if new
-        if(!list->chunks[i].size) {
+        if(!list->chunks[i].chunk.size) {
             // alloc a new block, aversized or not, we are at the end of the list
             size_t allocsize = (sz>DYNMMAPSZ)?sz:DYNMMAPSZ;
             // allign sz with pagesize
@@ -923,9 +907,11 @@ uintptr_t AllocDynarecMap(size_t size)
 #endif
             setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
 
-            list->chunks[i].block = p;
-            list->chunks[i].first = p;
-            list->chunks[i].size = allocsize;
+            list->chunks[i].chunk.block = p;
+            list->chunks[i].chunk.first = p;
+            list->chunks[i].chunk.size = allocsize;
+            list->chunks[i].tree = rbtree_init("dynamap");
+            rb_set_64(rbt_dynmem, (uintptr_t)p, (uintptr_t)p+allocsize, (uintptr_t)&list->chunks[i]);
             // setup marks
             blockmark_t* m = (blockmark_t*)p;
             m->prev.x32 = 0;
@@ -935,10 +921,11 @@ uintptr_t AllocDynarecMap(size_t size)
             n->next.x32 = 0;
             n->prev.x32 = m->next.x32;
             // alloc 1st block
-            void* ret  = allocBlock(list->chunks[i].block, p, size, &list->chunks[i].first);
-            list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, list->chunks[i].first);
-            if(list->chunks[i].maxfree)
-                list->chunks[i].first = getNextFreeBlock(m);
+            void* ret  = allocBlock(list->chunks[i].chunk.block, p, size, &list->chunks[i].chunk.first);
+            list->chunks[i].chunk.maxfree = getMaxFreeBlock(list->chunks[i].chunk.block, list->chunks[i].chunk.size, list->chunks[i].chunk.first);
+            if(list->chunks[i].chunk.maxfree)
+                list->chunks[i].chunk.first = getNextFreeBlock(m);
+            rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
             return (uintptr_t)ret;
         }
         // next chunk...
@@ -957,23 +944,16 @@ void FreeDynarecMap(uintptr_t addr)
     if(!addr)
         return;
     
-    int i= 0;
-    mmaplist_t* list = mmaplist;
 
-    while(list) {
-        if ((addr>(uintptr_t)list->chunks[i].block) 
-         && (addr<((uintptr_t)list->chunks[i].block+list->chunks[i].size))) {
-            void* sub = (void*)(addr-sizeof(blockmark_t));
-            size_t newfree = freeBlock(list->chunks[i].block, list->chunks[i].size, sub, &list->chunks[i].first);
-            if(list->chunks[i].maxfree < newfree)
-                list->chunks[i].maxfree = newfree;
-            return;
-        }
-        ++i;
-        if(i==NCHUNK) {
-            i = 0;
-            list = list->next;
-        }
+    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, addr);
+
+    if(bl) {
+        void* sub = (void*)(addr-sizeof(blockmark_t));
+        size_t newfree = freeBlock(bl->chunk.block, bl->chunk.size, sub, &bl->chunk.first);
+        if(bl->chunk.maxfree < newfree)
+            bl->chunk.maxfree = newfree;
+        rb_unset(bl->tree, addr, addr+newfree);
+        return;
     }
 }
 
@@ -2029,6 +2009,7 @@ void init_custommem_helper(box64context_t* ctx)
             box64_jmptbldefault0[i] = (uintptr_t)native_next;
     }
     lockaddress = kh_init(lockaddress);
+    rbt_dynmem = rbtree_init("rbt_dynmem");
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapallmem list
@@ -2086,8 +2067,10 @@ void fini_custommem_helper(box64context_t *ctx)
         mmaplist = NULL;
         while(head) {
             for (int i=0; i<NCHUNK; ++i) {
-                if(head->chunks[i].block)
-                    internal_munmap(head->chunks[i].block, head->chunks[i].size);
+                if(head->chunks[i].chunk.block)
+                    internal_munmap(head->chunks[i].chunk.block, head->chunks[i].chunk.size);
+                if(head->chunks[i].tree)
+                    rbtree_delete(head->chunks[i].tree);
             }
             mmaplist_t *old = head;
             head = head->next;
@@ -2120,6 +2103,8 @@ void fini_custommem_helper(box64context_t *ctx)
     }
     kh_destroy(lockaddress, lockaddress);
     lockaddress = NULL;
+    rbtree_delete(rbt_dynmem);
+    rbt_dynmem = NULL;
 #endif
     rbtree_delete(memprot);
     memprot = NULL;

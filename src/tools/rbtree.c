@@ -24,7 +24,7 @@ static void rbtree_print(const rbtree_t* tree);
 typedef struct rbnode {
     struct rbnode *left, *right, *parent;
     uintptr_t start, end;
-    uint32_t data;
+    uint64_t data;
     uint8_t meta;
 } rbnode;
 
@@ -58,7 +58,7 @@ void rbtree_delete(rbtree_t *tree) {
 #define IS_BLACK 0x2
 
 // Make sure prev is either the rightmost node before start or the leftmost range after start
-static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uintptr_t end, uint32_t data) {
+static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uintptr_t end, uint64_t data) {
 // printf("Adding %lx-%lx:%hhx next to %p\n", start, end, data, prev);
     rbnode *node = rbtreeMalloc(sizeof(*node));
     if (!node) return -1;
@@ -233,7 +233,7 @@ static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uint
     return -1; // unreachable
 }
 
-static int add_range(rbtree_t *tree, uintptr_t start, uintptr_t end, uint32_t data) {
+static int add_range(rbtree_t *tree, uintptr_t start, uintptr_t end, uint64_t data) {
 // printf("add_range\n");
     rbnode *cur = tree->root, *prev = NULL;
     while (cur) {
@@ -565,6 +565,12 @@ uint32_t rb_get(rbtree_t *tree, uintptr_t addr) {
     else return 0;
 }
 
+uint64_t rb_get_64(rbtree_t *tree, uintptr_t addr) {
+    rbnode *node = find_addr(tree, addr);
+    if (node) return node->data;
+    else return 0;
+}
+
 int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
     rbnode *node = tree->root, *next = NULL;
     while (node) {
@@ -589,7 +595,31 @@ int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
     return 0;
 }
 
-int rb_set(rbtree_t *tree, uintptr_t start, uintptr_t end, uint32_t data) {
+int rb_get_end_64(rbtree_t* tree, uintptr_t addr, uint64_t* val, uintptr_t* end) {
+    rbnode *node = tree->root, *next = NULL;
+    while (node) {
+        if ((node->start <= addr) && (node->end > addr)) {
+            *val = node->data;
+            *end = node->end;
+            return 1;
+        }
+        if (node->end <= addr) {
+            node = node->right;
+        } else {
+            next = node;
+            node = node->left;
+        }
+    }
+    *val = 0;
+    if (next) {
+        *end = next->start;
+    } else {
+        *end = (uintptr_t)-1;
+    }
+    return 0;
+}
+
+int rb_set_64(rbtree_t *tree, uintptr_t start, uintptr_t end, uint64_t data) {
 // printf("rb_set( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx, %hhu);\n", start, end, data); fflush(stdout);
 dynarec_log(LOG_DEBUG, "set %s: 0x%lx, 0x%lx, 0x%x\n", tree->name, start, end, data);
     if (!tree->root) {
@@ -722,6 +752,10 @@ dynarec_log(LOG_DEBUG, "set %s: 0x%lx, 0x%lx, 0x%x\n", tree->name, start, end, d
     return add_range_next_to(tree, last->left ? pred_node(last) : last, start, end, data);
 }
 
+int rb_set(rbtree_t *tree, uintptr_t start, uintptr_t end, uint32_t data) {
+    return rb_set_64(tree, start, end, data);
+}
+
 int rb_unset(rbtree_t *tree, uintptr_t start, uintptr_t end) {
 // printf("rb_unset( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx);\n", start, end); fflush(stdout);
 dynarec_log(LOG_DEBUG, "unset: %s 0x%lx, 0x%lx);\n", tree->name, start, end);
@@ -825,7 +859,7 @@ static void print_rbnode(const rbnode *node, unsigned depth, uintptr_t minstart,
     } else {
         print_rbnode(node->left, depth + ((node->meta & IS_BLACK) ? 1 : 0), minstart, node->start, bdepth);
     }
-    printf(", (%c/%p) %lx-%lx: %hhu, ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
+    printf(", (%c/%p) %lx-%lx: %llu, ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
     if (node->right && (node->right->meta & IS_LEFT)) {
         printf("<invalid meta>");
     } else if (node->right && (node->right->parent != node)) {
