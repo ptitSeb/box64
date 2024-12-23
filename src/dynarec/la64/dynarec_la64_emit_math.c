@@ -853,7 +853,7 @@ void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
                 X64_SBC_W(s1, s2);
         }
         MVxw(s1, s3);
-
+        if (!rex.w) ZEROUP(s1);
         IFX (X_PEND)
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         return;
@@ -1212,6 +1212,7 @@ void emit_adc32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
                 X64_ADC_W(s1, s2);
         }
         MV(s1, s3);
+        if (!rex.w) ZEROUP(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
