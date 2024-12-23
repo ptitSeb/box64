@@ -2069,9 +2069,10 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 #define ADDIz(rd, rj, imm12)       \
     do {                           \
-        if (rex.is32bits)          \
+        if (rex.is32bits) {        \
             ADDI_W(rd, rj, imm12); \
-        else                       \
+            ZEROUP(rd);            \
+        } else                     \
             ADDI_D(rd, rj, imm12); \
     } while (0)
 
@@ -2164,9 +2165,10 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 #define SUBz(rd, rj, rk)       \
     do {                       \
-        if (rex.is32bits)      \
+        if (rex.is32bits) {    \
             SUB_W(rd, rj, rk); \
-        else                   \
+            ZEROUP(rd);        \
+        } else                 \
             SUB_D(rd, rj, rk); \
     } while (0)
 
