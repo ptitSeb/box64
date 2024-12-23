@@ -2434,6 +2434,10 @@ wrappedlibresolv:
   - res_search
 - iFpiipi:
   - __res_search
+- iFppppi:
+  - __dn_expand
+- iFppiipi:
+  - __res_nquery
 wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime

@@ -15,6 +15,8 @@ typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFpuip_t)(void*, uint32_t, int32_t, void*);
 typedef int32_t (*iEpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
+typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
+typedef int32_t (*iFppiipi_t)(void*, void*, int32_t, int32_t, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(ns_initparse, iFpip_t) \
@@ -22,6 +24,8 @@ typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
 	GO(__res_query, iEpiipi_t) \
 	GO(res_query, iEpiipi_t) \
 	GO(res_search, iEpiipi_t) \
-	GO(__res_search, iFpiipi_t)
+	GO(__res_search, iFpiipi_t) \
+	GO(__dn_expand, iFppppi_t) \
+	GO(__res_nquery, iFppiipi_t)
 
 #endif // __wrappedlibresolvTYPES32_H_
