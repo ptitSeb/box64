@@ -86,6 +86,101 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 }
 
+// emit SHL16 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
+void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+{
+    if (!c) return;
+    // c != 0
+
+    IFX (X_PEND) {
+        MOV64x(s3, c);
+        ST_H(s3, xEmu, offsetof(x64emu_t, op2));
+        ST_H(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shl16);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_PEND) {
+        } else {
+            MOV64x(s3, c);
+        }
+        IFX (X_ALL) {
+            X64_SLL_H(s1, s3);
+        }
+
+        SLLI_D(s1, s1, c);
+        BSTRPICK_D(s1, s1, 15, 0);
+
+        IFX (X_PEND) {
+            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    if (c < 16) {
+        IFX (X_CF | X_OF) {
+            SRLI_D(s3, s1, 16 - c);
+            ANDI(s5, s3, 1); // LSB == F_CF
+            IFX (X_CF) {
+                OR(xFlags, xFlags, s5);
+            }
+        }
+
+        SLLI_D(s1, s1, c + 48);
+        IFX (X_SF) {
+            BGE(s1, xZR, 8);
+            ORI(xFlags, xFlags, 1 << F_SF);
+        }
+        SRLI_D(s1, s1, 48);
+
+        IFX (X_PEND) {
+            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        IFX (X_ZF) {
+            BNEZ(s1, 8);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+        }
+        IFX (X_OF) {
+            // OF flag is affected only on 1-bit shifts
+            if (c == 1) {
+                SRLI_D(s3, s1, 15);
+                XOR(s3, s3, s5);
+                SLLI_D(s3, s3, F_OF);
+                OR(xFlags, xFlags, s3);
+            }
+        }
+        IFX (X_PF) {
+            emit_pf(dyn, ninst, s1, s3, s4);
+        }
+    } else {
+        IFX (X_CF) {
+            if (c == 16) {
+                ANDI(s3, s1, 1);
+                OR(xFlags, xFlags, s3); // F_CF == 0
+            }
+        }
+        MV(s1, xZR);
+
+        IFX (X_PEND) {
+            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        // OF nop
+        // SF nop
+        // AF nop
+        IFX (X_PF | X_ZF) {
+            IFX (X_ZF) {
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            IFX (X_PF) {
+                ORI(xFlags, xFlags, 1 << F_PF);
+            }
+        }
+    }
+}
+
 // emit SHL32 instruction, from s1 , shift s2, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
@@ -354,6 +449,72 @@ void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 }
 
+// emit SHR16 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
+void emit_shr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+{
+    if (!c) return;
+    // c != 0
+
+    IFX (X_PEND) {
+        MOV64x(s3, c);
+        ST_H(s3, xEmu, offsetof(x64emu_t, op2));
+        ST_H(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shr16);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_PEND) {
+        } else {
+            MOV64x(s3, c);
+        }
+        IFX (X_ALL) {
+            X64_SRL_H(s1, s3);
+        }
+        SRLI_D(s1, s1, c);
+        IFX (X_PEND) {
+            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        if (c > 1) {
+            SRAI_D(s3, s1, c - 1);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        } else {
+            // no need to shift
+            ANDI(s3, s1, 1); // LSB == F_CF
+        }
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        // OF flag is set to the most-significant bit of the original operand
+        if (c == 1) {
+            SRLI_D(s3, s1, 15);
+            SLLI_D(s3, s3, F_OF);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+
+    SRLI_D(s1, s1, c);
+
+    // SF should be unset
+    IFX (X_PEND) {
+        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit SHR32 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3 and s4 as scratch
 void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
@@ -549,6 +710,72 @@ void emit_sar16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
     SRL_D(s1, s1, s2);
+    BSTRPICK_D(s1, s1, 15, 0);
+
+    IFX (X_PEND) {
+        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+
+// emit SAR16 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
+void emit_sar16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+{
+    if (!c) return;
+    // c != 0
+
+    IFX (X_PEND) {
+        MOV64x(s3, c);
+        ST_H(s3, xEmu, offsetof(x64emu_t, op2));
+        ST_H(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_sar16);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_PEND) {
+        } else {
+            MOV64x(s3, c);
+        }
+        IFX (X_ALL) {
+            X64_SRA_H(s1, s3);
+        }
+        SRLI_D(s1, s1, c);
+        BSTRPICK_D(s1, s1, 15, 0);
+        IFX (X_PEND) {
+            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        if (c > 1) {
+            SRAI_D(s3, s1, c - 1);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        } else {
+            // no need to shift
+            ANDI(s3, s1, 1); // LSB == F_CF
+        }
+        OR(xFlags, xFlags, s3);
+    }
+    // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
+    // OF nop
+    IFX (X_SF) {
+        // SF is the same as the original operand
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+
+    SRLI_D(s1, s1, c);
     BSTRPICK_D(s1, s1, 15, 0);
 
     IFX (X_PEND) {
