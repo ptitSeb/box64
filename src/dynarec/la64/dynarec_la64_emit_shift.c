@@ -277,7 +277,7 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
 
         SLLIxw(s1, s1, c);
-
+        if (!rex.w) ZEROUP(s1);
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -613,7 +613,7 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
 
         SRLIxw(s1, s1, c);
-
+        if (!rex.w) ZEROUP(s1);
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -821,7 +821,7 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
 
         SRAIxw(s1, s1, c);
-
+        if (!rex.w) ZEROUP(s1);
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -896,6 +896,7 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     ROTRIxw(s1, s1, c);
+    if (!rex.w) ZEROUP(s1);
 
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -928,7 +929,8 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
     int64_t j64;
-
+    if (!rex.w) ZEROUP(s1);
+    BEQ_NEXT(s2, xZR);
     IFX (X_PEND) {
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w ? d_rol64 : d_rol32);
@@ -942,9 +944,6 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         else
             X64_ROTL_W(s1, s2);
     }
-
-    if (!rex.w) ZEROUP(s1);
-    BEQ_NEXT(s2, xZR);
 
     SLLxw(s3, s1, s2);
     NEG_D(s4, s2);

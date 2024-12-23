@@ -74,6 +74,7 @@ void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             X64_XOR_B(s1, s3);
         }
         XORI(s1, s1, c & 0xff);
+        ANDI(s1, s1, 0xff);
         IFX (X_PEND)
             ST_B(s1, xEmu, offsetof(x64emu_t, res));
         return;
