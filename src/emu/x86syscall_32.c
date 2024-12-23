@@ -265,9 +265,15 @@ pid_t my_vfork(x64emu_t* emu);
 #define FUTEX_LOCK_PI2 13
 #endif
 
+typedef struct clone_s {
+    x64emu_t* emu;
+    void* stack2free;
+} clone_t;
+
 static int clone32_fn(void* arg)
 {
-    x64emu_t *emu = (x64emu_t*)arg;
+    clone_t* args = arg;
+    x64emu_t *emu = args->emu;
     printf_log(LOG_DEBUG, "%04d|New clone32_fn starting with emu=%p (R_ESP=%p)\n", GetTID(), arg, from_ptrv(R_ESP));
     thread_forget_emu();
     thread_set_emu(emu);
@@ -276,8 +282,13 @@ static int clone32_fn(void* arg)
     int ret = S_EAX;
     printf_log(LOG_DEBUG, "%04d|clone32_fn ending with ret=%d (emu=%p)\n", GetTID(), ret, arg);
     FreeX64Emu(&emu);
-    my_context->stack_clone_used = 0;
-    return ret;
+    void* stack2free = args->stack2free;
+    box_free(args);
+    if(my_context->stack_clone_used && !stack2free)
+        my_context->stack_clone_used = 0;
+    if(stack2free)
+        box_free(stack2free);   // this free the stack, so it will crash very soon!
+    _exit(ret);
 }
 
 
@@ -385,15 +396,17 @@ void EXPORT x86Syscall(x64emu_t *emu)
                     CloneEmu(newemu, emu);
                     newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                     void* mystack = NULL;
+                    clone_t* args = box_calloc(1, sizeof(clone_t));
+                    args->emu = newemu;
                     if(my_context->stack_clone_used) {
-                        mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                        args->stack2free = mystack = box_malloc(1024*1024);  // stack for own process...
                     } else {
                         if(!my_context->stack_clone)
                             my_context->stack_clone = box_malloc(1024*1024);
                         mystack = my_context->stack_clone;
                         my_context->stack_clone_used = 1;
                     }
-                    int64_t ret = clone(clone32_fn, (void*)((uintptr_t)mystack+1024*1024), R_EBX, newemu, R_EDX, R_EDI, R_ESI);
+                    int64_t ret = clone(clone32_fn, (void*)((uintptr_t)mystack+1024*1024), R_EBX, args, R_EDX, R_EDI, R_ESI);
                     S_RAX = ret;
                 }
                 else
