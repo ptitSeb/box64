@@ -361,7 +361,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET);
                     GETGX(q0, 0);
                     GETEX(q1, 0, 0);
-                    CLEAR_FLAGS(x3);
+                    if (!la64_lbt) {
+                        CLEAR_FLAGS(x3);
+                    } else IFX (X_ALL) {
+                        X64_SET_EFLAGS(xZR, X_ALL);
+                    }
                     SET_DFNONE();
                     v0 = fpu_get_scratch(dyn);
                     IFX (X_ZF) {
@@ -370,7 +374,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BCEQZ_MARK(fcc0);
                         if (la64_lbt) {
                             ADDI_D(x3, xZR, 1 << F_ZF);
-                            X64_SET_EFLAGS(x3, X_ZF);
+                            X64_SET_EFLAGS(x3, X_ALL);
                         } else {
                             ORI(xFlags, xFlags, 1 << F_ZF);
                         }
@@ -382,7 +386,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BCEQZ_MARK2(fcc0);
                         if (la64_lbt) {
                             ADDI_D(x3, xZR, 1 << F_CF);
-                            X64_SET_EFLAGS(x3, X_CF);
+                            X64_SET_EFLAGS(x3, X_ALL);
                         } else {
                             ORI(xFlags, xFlags, 1 << F_CF);
                         }
