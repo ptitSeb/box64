@@ -9,6 +9,7 @@
 #define MAYSETFLAGS()   dyn->insts[ninst].x64.may_set = 1
 #define READFLAGS(A)    \
         dyn->insts[ninst].x64.use_flags = A; dyn->f.dfnone = 1;\
+        if(!box64_dynarec_df && (A)&X_PEND) dyn->insts[ninst].x64.use_flags = X_ALL; \
         dyn->f.pending=SF_SET
 #define SETFLAGS(A,B)   \
         dyn->insts[ninst].x64.set_flags = A;    \
