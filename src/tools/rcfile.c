@@ -768,7 +768,7 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         box64_dynarec_x87double = 1;
         box64_dynarec_div0 = 1;
         box64_dynarec_callret = 0;
-        #ifdef RV64
+        #if defined(RV64) || defined(LA64) 
         box64_dynarec_nativeflags = 0;
         #endif
     }

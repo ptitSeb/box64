@@ -568,6 +568,11 @@ f24-f31  fs0-fs7   Static registers                Callee
 //     PC = PC + SignExtend({imm21, 2'b0}, GRLEN)
 #define BNEZ(rj, imm23) EMIT(type_1RI21(0b010001, ((imm23) >> 2), rj))
 
+#define BGT(rj, rd, imm13)  BLT(rd, rj, imm13)
+#define BLE(rj, rd, imm13)  BGE(rd, rj, imm13)
+#define BGTU(rj, rd, imm13) BLTU(rd, rj, imm13)
+#define BLEU(rj, rd, imm13) BGEU(rd, rj, imm13)
+
 #define BCEQZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23) >> 2), 0b00000 | cj))
 #define BCNEZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23) >> 2), 0b01000 | cj))
 
@@ -583,7 +588,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define B__(reg1, reg2, imm28) B(imm28)
 
 #define BEQ_safe(rj, rd, imm)                      \
-    if {                                           \
+    do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BEQ(rj, rd, imm);                      \
             NOP();                                 \
@@ -591,8 +596,7 @@ f24-f31  fs0-fs7   Static registers                Callee
             BNE(rj, rd, 8);                        \
             B(imm - 4);                            \
         }                                          \
-    }                                              \
-    while (0)
+    } while (0)
 
 #define BNE_safe(rj, rd, imm)                      \
     do {                                           \
@@ -645,6 +649,50 @@ f24-f31  fs0-fs7   Static registers                Callee
             NOP();                                 \
         } else {                                   \
             BLTU(rj, rd, 8);                       \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
+
+#define BGT_safe(rj, rd, imm)                      \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BGT(rj, rd, imm);                      \
+            NOP();                                 \
+        } else {                                   \
+            BLE(rj, rd, 8);                        \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
+
+#define BLE_safe(rj, rd, imm)                      \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BLE(rj, rd, imm);                      \
+            NOP();                                 \
+        } else {                                   \
+            BGT(rj, rd, 8);                        \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
+
+#define BGTU_safe(rj, rd, imm)                     \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BGTU(rj, rd, imm);                     \
+            NOP();                                 \
+        } else {                                   \
+            BLEU(rj, rd, 8);                       \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
+
+#define BLEU_safe(rj, rd, imm)                     \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BLEU(rj, rd, imm);                     \
+            NOP();                                 \
+        } else {                                   \
+            BGTU(rj, rd, 8);                       \
             B(imm - 4);                            \
         }                                          \
     } while (0)

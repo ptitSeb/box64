@@ -712,7 +712,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         LD_D(xFlags, xEmu, offsetof(x64emu_t, eflags));
         SPILL_EFLAGS();
     }
-    SET_NODF();
+    // SET_NODF();
     dyn->last_ip = 0;
 }
 

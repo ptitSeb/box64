@@ -525,7 +525,7 @@ HWCAP2_AFP
             return;
         }
 
-        if (la64_lbt = (((cpucfg2 >> 18) & 0b1) && box64_dynarec_nativeflags))
+        if (la64_lbt = ((cpucfg2 >> 18) & 0b1))
             printf_log(LOG_INFO, " LBT_X86");
         if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
             printf_log(LOG_INFO, " LAM_BH");
@@ -987,7 +987,7 @@ void LoadLogEnv()
             box64_dynarec_x87double = 1;
             box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
-            #ifdef RV64
+            #if defined( RV64) || defined(LA64)
             box64_dynarec_nativeflags = 0;
             #endif
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
