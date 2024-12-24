@@ -1009,9 +1009,14 @@
 #endif
 
 #ifndef READFLAGS_FUSION
-#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                     \
-    if(dyn->insts[ninst].nat_flags_fusion) get_free_scratch(dyn, ninst, &tmp1, &tmp2, &tmp3, s1, s2, s3, s4, s5);   \
-    else { tmp1=s1; tmp2=s2; tmp3=s3; }                                                                             \
+#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                \
+    if (dyn->insts[ninst].nat_flags_fusion)                                    \
+        get_free_scratch(dyn, ninst, &tmp1, &tmp2, &tmp3, s1, s2, s3, s4, s5); \
+    else {                                                                     \
+        tmp1 = s1;                                                             \
+        tmp2 = s2;                                                             \
+        tmp3 = s3;                                                             \
+    }                                                                          \
     READFLAGS(A)
 #endif
 
@@ -1668,85 +1673,85 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 #define MAYUSE(A)
 #endif
 
-// GOCOND will use x1 and x3
-#define GOCOND(B, T1, T2)                                                                   \
-    case B + 0x0:                                                                           \
-        INST_NAME(T1 "O " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_OF2), EQZ, NEZ, _, _, X_OF)                              \
-        break;                                                                              \
-    case B + 0x1:                                                                           \
-        INST_NAME(T1 "NO " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_OF2), NEZ, EQZ, _, _, X_OF)                              \
-        break;                                                                              \
-    case B + 0x2:                                                                           \
-        INST_NAME(T1 "C " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF)                           \
-        break;                                                                              \
-    case B + 0x3:                                                                           \
-        INST_NAME(T1 "NC " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF)                           \
-        break;                                                                              \
-    case B + 0x4:                                                                           \
-        INST_NAME(T1 "Z " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF)                             \
-        break;                                                                              \
-    case B + 0x5:                                                                           \
-        INST_NAME(T1 "NZ " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF)                             \
-        break;                                                                              \
-    case B + 0x6:                                                                           \
-        INST_NAME(T1 "BE " T2);                                                             \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF)    \
-        break;                                                                              \
-    case B + 0x7:                                                                           \
-        INST_NAME(T1 "NBE " T2);                                                            \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF)    \
-        break;                                                                              \
-    case B + 0x8:                                                                           \
-        INST_NAME(T1 "S " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_SF), EQZ, NEZ, _, _, X_SF)                               \
-        break;                                                                              \
-    case B + 0x9:                                                                           \
-        INST_NAME(T1 "NS " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_SF), NEZ, EQZ, _, _, X_SF)                               \
-        break;                                                                              \
-    case B + 0xA:                                                                           \
-        INST_NAME(T1 "P " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF)                               \
-        break;                                                                              \
-    case B + 0xB:                                                                           \
-        INST_NAME(T1 "NP " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF)                               \
-        break;                                                                              \
-    case B + 0xC:                                                                           \
-        INST_NAME(T1 "L " T2);                                                              \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2), EQZ, NEZ, GE, LT, X_SF | X_OF)                        \
-        break;                                                                              \
-    case B + 0xD:                                                                           \
-        INST_NAME(T1 "GE " T2);                                                             \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2), NEZ, EQZ, LT, GE, X_SF | X_OF)                        \
-        break;                                                                              \
-    case B + 0xE:                                                                           \
-        INST_NAME(T1 "LE " T2);                                                             \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2);                                                       \
-            ANDI(x3, xFlags, 1 << F_ZF);                                                    \
-            OR(x1, x1, x3);                                                                 \
-            ANDI(x1, x1, (1 << F_OF2) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF) \
-        break;                                                                              \
-    case B + 0xF:                                                                           \
-        INST_NAME(T1 "G " T2);                                                              \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2);                                                       \
-            ANDI(x3, xFlags, 1 << F_ZF);                                                    \
-            OR(x1, x1, x3);                                                                 \
-            ANDI(x1, x1, (1 << F_OF2) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF) \
+// GOCOND will use tmp1 and tmp3
+#define GOCOND(B, T1, T2)                                                                       \
+    case B + 0x0:                                                                               \
+        INST_NAME(T1 "O " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_OF2), EQZ, NEZ, _, _, X_OF)                                \
+        break;                                                                                  \
+    case B + 0x1:                                                                               \
+        INST_NAME(T1 "NO " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_OF2), NEZ, EQZ, _, _, X_OF)                                \
+        break;                                                                                  \
+    case B + 0x2:                                                                               \
+        INST_NAME(T1 "C " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF)                             \
+        break;                                                                                  \
+    case B + 0x3:                                                                               \
+        INST_NAME(T1 "NC " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF)                             \
+        break;                                                                                  \
+    case B + 0x4:                                                                               \
+        INST_NAME(T1 "Z " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF)                               \
+        break;                                                                                  \
+    case B + 0x5:                                                                               \
+        INST_NAME(T1 "NZ " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF)                               \
+        break;                                                                                  \
+    case B + 0x6:                                                                               \
+        INST_NAME(T1 "BE " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF)      \
+        break;                                                                                  \
+    case B + 0x7:                                                                               \
+        INST_NAME(T1 "NBE " T2);                                                                \
+        GO(ANDI(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF)      \
+        break;                                                                                  \
+    case B + 0x8:                                                                               \
+        INST_NAME(T1 "S " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, _, _, X_SF)                                 \
+        break;                                                                                  \
+    case B + 0x9:                                                                               \
+        INST_NAME(T1 "NS " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, _, _, X_SF)                                 \
+        break;                                                                                  \
+    case B + 0xA:                                                                               \
+        INST_NAME(T1 "P " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF)                                 \
+        break;                                                                                  \
+    case B + 0xB:                                                                               \
+        INST_NAME(T1 "NP " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF)                                 \
+        break;                                                                                  \
+    case B + 0xC:                                                                               \
+        INST_NAME(T1 "L " T2);                                                                  \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2), EQZ, NEZ, GE, LT, X_SF | X_OF)                        \
+        break;                                                                                  \
+    case B + 0xD:                                                                               \
+        INST_NAME(T1 "GE " T2);                                                                 \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2), NEZ, EQZ, LT, GE, X_SF | X_OF)                        \
+        break;                                                                                  \
+    case B + 0xE:                                                                               \
+        INST_NAME(T1 "LE " T2);                                                                 \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2);                                                       \
+            ANDI(tmp3, xFlags, 1 << F_ZF);                                                      \
+            OR(tmp1, tmp1, tmp3);                                                               \
+            ANDI(tmp1, tmp1, (1 << F_OF2) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF) \
+        break;                                                                                  \
+    case B + 0xF:                                                                               \
+        INST_NAME(T1 "G " T2);                                                                  \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2);                                                       \
+            ANDI(tmp3, xFlags, 1 << F_ZF);                                                      \
+            OR(tmp1, tmp1, tmp3);                                                               \
+            ANDI(tmp1, tmp1, (1 << F_OF2) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF) \
         break
 
 // Dummy macros
