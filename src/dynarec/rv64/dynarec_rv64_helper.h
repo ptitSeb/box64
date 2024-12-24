@@ -1888,7 +1888,10 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         } else {                                                                     \
             TH_SRRI(dst, dst, 64 - 8 - dst##2);                                      \
         }                                                                            \
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(dst, xZR);             \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                    \
+            ANDI(s1, dst, 0xff);                                                     \
+            NAT_FLAGS_OPS(s1, xZR);                                                  \
+        }                                                                            \
         break;                                                                       \
     }
 
@@ -1908,7 +1911,10 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         } else {                                                                     \
             TH_SRRI(dst, dst, 64 - 16);                                              \
         }                                                                            \
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);              \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                    \
+            ZEXTH(s1, dst);                                                          \
+            NAT_FLAGS_OPS(s1, xZR);                                                  \
+        }                                                                            \
         break;                                                                       \
     }
 
