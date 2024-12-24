@@ -220,10 +220,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
                 VEXTRINS_D(v1, v0, 0x01);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
                 v1 = fpu_get_scratch(dyn);
-                VEXTRINS_D(v1, v0, 0x01);
-                FST_D(v1, ed, fixedaddress);
+                VSTELM_D(v0, ed, 0, 1);
                 SMWRITE2();
             }
             break;
