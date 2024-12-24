@@ -34,6 +34,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2, gback;
     uint8_t eb1, eb2;
+    uint8_t tmp1, tmp2, tmp3;
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
     int v0, v1;
@@ -276,6 +277,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                              \
     READFLAGS(F);                                                                            \
+    tmp1 = x1;                                                                               \
+    tmp3 = x3;                                                                               \
     GETFLAGS;                                                                                \
     nextop = F8;                                                                             \
     GETGD;                                                                                   \

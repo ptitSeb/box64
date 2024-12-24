@@ -100,7 +100,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         SRLI(xRDX, x3, 32);
                         ZEXTW2(xRAX, x3); // wipe upper part
-                        MV(xRCX, xZR);        // IA32_TSC, 0 for now
+                        MV(xRCX, xZR);    // IA32_TSC, 0 for now
                         break;
                     default:
                         DEFAULT;
@@ -898,30 +898,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
-#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                                     \
-    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                        \
-    if (!dyn->insts[ninst].nat_flags_fusion) {                                                      \
-        GETFLAGS;                                                                                   \
-    }                                                                                               \
-    nextop = F8;                                                                                    \
-    GETGD;                                                                                          \
-    if (MODREG) {                                                                                   \
-        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                   \
-        if (dyn->insts[ninst].nat_flags_fusion) {                                                   \
-            NATIVEJUMP(NATNO, 8);                                                                   \
-        } else {                                                                                    \
-            B##NO(tmp1, 8);                                                                         \
-        }                                                                                           \
-        MV(gd, ed);                                                                                 \
-    } else {                                                                                        \
-        addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0);    \
-        if (dyn->insts[ninst].nat_flags_fusion) {                                                   \
-            NATIVEJUMP(NATNO, 8);                                                                   \
-        } else {                                                                                    \
-            B##NO(tmp1, 8);                                                                         \
-        }                                                                                           \
-        LDxw(gd, ed, fixedaddress);                                                                 \
-    }                                                                                               \
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                                  \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                     \
+    if (!dyn->insts[ninst].nat_flags_fusion) {                                                   \
+        GETFLAGS;                                                                                \
+    }                                                                                            \
+    nextop = F8;                                                                                 \
+    GETGD;                                                                                       \
+    if (MODREG) {                                                                                \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                                \
+            NATIVEJUMP(NATNO, 8);                                                                \
+        } else {                                                                                 \
+            B##NO(tmp1, 8);                                                                      \
+        }                                                                                        \
+        MV(gd, ed);                                                                              \
+    } else {                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                                \
+            NATIVEJUMP(NATNO, 8);                                                                \
+        } else {                                                                                 \
+            B##NO(tmp1, 8);                                                                      \
+        }                                                                                        \
+        LDxw(gd, ed, fixedaddress);                                                              \
+    }                                                                                            \
     if (!rex.w) ZEROUP(gd);
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
@@ -1712,6 +1712,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                              \
     READFLAGS(F);                                                                            \
+    tmp1 = x1;                                                                               \
+    tmp3 = x3;                                                                               \
     GETFLAGS;                                                                                \
     nextop = F8;                                                                             \
     S##YES(x3, x1);                                                                          \
