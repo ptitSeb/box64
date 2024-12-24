@@ -221,7 +221,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 VEXTRINS_D(v1, v0, 0x01);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                v1 = fpu_get_scratch(dyn);
                 VSTELM_D(v0, ed, 0, 1);
                 SMWRITE2();
             }
