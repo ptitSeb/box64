@@ -334,7 +334,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (!box64_dynarec_dump && !box64_dynarec_gdbjit) return;
 
     static char buf[512];
-    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
+    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d)",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
         dyn->f.pending,
@@ -345,6 +345,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         dyn->insts[ninst].x64.use_flags,
         dyn->insts[ninst].x64.need_before,
         dyn->insts[ninst].x64.need_after,
+        dyn->insts[ninst].nat_flags_fusion,
         dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write);
     if (dyn->insts[ninst].pred_sz) {
         length += sprintf(buf + length, ", pred=");
@@ -484,4 +485,41 @@ void fpu_save_and_unwind(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
 void fpu_unwind_restore(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
 {
     memcpy(&dyn->insts[ninst].lsx, cache, sizeof(lsxcache_t));
+}
+
+void updateNativeFlags(dynarec_la64_t* dyn)
+{
+    if (!box64_dynarec_nativeflags)
+        return;
+    for (int i = 1; i < dyn->size; ++i)
+        if (dyn->insts[i].nat_flags_fusion) {
+            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == i - 1
+                && (dyn->insts[i].x64.use_flags & dyn->insts[i - 1].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                dyn->insts[i - 1].nat_flags_fusion = 1;
+                if (dyn->insts[i].x64.use_flags & X_SF) {
+                    dyn->insts[i - 1].nat_flags_needsign = 1;
+                }
+                dyn->insts[i].x64.use_flags = 0;
+            } else
+                dyn->insts[i].nat_flags_fusion = 0;
+        }
+}
+
+void get_free_scratch(dynarec_la64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5)
+{
+    uint8_t n1 = dyn->insts[ninst].nat_flags_op1;
+    uint8_t n2 = dyn->insts[ninst].nat_flags_op2;
+    uint8_t tmp[5] = { 0 };
+    int idx = 0;
+#define GO(s) \
+    if ((s != n1) && (s != n2)) tmp[idx++] = s
+    GO(s1);
+    GO(s2);
+    GO(s3);
+    GO(s4);
+    GO(s5);
+#undef GO
+    *tmp1 = tmp[0];
+    *tmp2 = tmp[1];
+    *tmp3 = tmp[2];
 }

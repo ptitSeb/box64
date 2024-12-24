@@ -405,10 +405,12 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
-    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
-        if (!rex.w) {
+    if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s3, 32);
             SRAI(s3, s3, 32);
+        } else {
+            ZEROUP(s3);
         }
     }
 }
@@ -451,10 +453,12 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
-    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
-        if (!rex.w) {
+    if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s3, 32);
             SRAI(s3, s3, 32);
+        } else {
+            ZEROUP(s3);
         }
     }
 }

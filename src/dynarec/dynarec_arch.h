@@ -44,7 +44,7 @@
 
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
-#define PREUPDATE_SPECIFICS(A)
+#define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t

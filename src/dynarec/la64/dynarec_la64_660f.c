@@ -34,6 +34,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2, gback;
     uint8_t eb1, eb2;
+    uint8_t tmp1, tmp2, tmp3;
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
     int v0, v1, v2;
@@ -190,7 +191,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 INST_NAME("UCOMISD Gx, Ex");
             }
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETGX(d0, 0);
@@ -358,7 +359,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETGX(q0, 0);
                     GETEX(q1, 0, 0);
                     if (!la64_lbt) {
@@ -730,8 +731,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
-#define GO(GETFLAGS, NO, YES, F, I)                                                          \
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                           \
     READFLAGS(F);                                                                            \
+    tmp1 = x1;                                                                               \
+    tmp3 = x3;                                                                               \
     if (la64_lbt) {                                                                          \
         X64_SETJ(x1, I);                                                                     \
     } else {                                                                                 \
@@ -1300,7 +1303,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETSEW(x1, 0);
             GETSGW(x2);

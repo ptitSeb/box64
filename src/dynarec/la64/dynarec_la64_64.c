@@ -63,7 +63,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     switch (opcode) {
         case 0x03:
             INST_NAME("ADD Gd, Seg:Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             GETGD;
@@ -72,7 +72,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             GETGD;
@@ -81,7 +81,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x33:
             INST_NAME("XOR Gd, Seg:Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             GETGD;
@@ -103,7 +103,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0: // ADD
                     INST_NAME("ADD Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_add8c(dyn, ninst, x1, u8, x2, x4, x5);
@@ -112,7 +112,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 1: // OR
                     INST_NAME("OR Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
@@ -122,7 +122,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ADC Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
@@ -132,7 +132,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SBB Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
@@ -141,7 +141,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4: // AND
                     INST_NAME("AND Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_and8c(dyn, ninst, x1, u8, x2, x4);
@@ -150,7 +150,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 5: // SUB
                     INST_NAME("SUB Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
@@ -159,7 +159,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 6: // XOR
                     INST_NAME("XOR Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     emit_xor8c(dyn, ninst, x1, u8, x2, x4);
@@ -168,7 +168,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEBO(x1, 1);
                     u8 = F8;
                     if (u8) {
@@ -193,7 +193,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("ADD Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -208,7 +208,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("OR Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -224,7 +224,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("ADC Ed, Ib");
                     }
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -246,7 +246,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("SBB Ed, Ib");
                     }
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -262,7 +262,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("AND Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -277,7 +277,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("SUB Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -292,7 +292,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("XOR Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -307,7 +307,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("CMP Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEDO(x6, (opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;

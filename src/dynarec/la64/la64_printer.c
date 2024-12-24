@@ -432,27 +432,27 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if (isMask(opcode, "010110iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BEQ", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BEQ", Xt[Rj], Xt[Rd], signExtend(imm << 2, 18));
         return buff;
     }
     if (isMask(opcode, "010111iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BNE", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BNE", Xt[Rj], Xt[Rd], signExtend(imm << 2, 18));
         return buff;
     }
     if (isMask(opcode, "011000iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BLT", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BLT", Xt[Rj], Xt[Rd], signExtend(imm << 2, 18));
         return buff;
     }
     if (isMask(opcode, "011001iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BGE", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BGE", Xt[Rj], Xt[Rd], signExtend(imm << 2, 18));
         return buff;
     }
     if (isMask(opcode, "011010iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BLTU", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BLTU", Xt[Rj], Xt[Rd], signExtend(imm << 2, 18));
         return buff;
     }
     if (isMask(opcode, "011011iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BGEU", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "BGEU", Xt[Rj], Xt[Rd], signExtend(imm << 2, 18));
         return buff;
     }
     if (isMask(opcode, "010000iiiiiiiiiiiiiiiijjjjjuuuuu", &a)) {

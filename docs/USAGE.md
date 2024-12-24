@@ -222,7 +222,7 @@ Generated code for aligned atomics only
 #### BOX64_DYNAREC_NATIVEFLAGS *
 Generate code will use native flags if possible
 * 0 : The code generated whill not use native flags even when possible
-* 1 : Generated code will use native flags when possible (Arm64 only for now) (Default)
+* 1 : Generated code will use native flags when possible (Default)
 
 #### BOX64_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings

@@ -416,10 +416,10 @@
 #define MARKF2       MARKFi(1)
 #define GETMARKF2    GETMARKFi(1)
 
-#define MARKSEG     dyn->insts[ninst].markseg = dyn->native_size
-#define GETMARKSEG  dyn->insts[ninst].markseg
-#define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
-#define GETMARKLOCK dyn->insts[ninst].marklock
+#define MARKSEG      dyn->insts[ninst].markseg = dyn->native_size
+#define GETMARKSEG   dyn->insts[ninst].markseg
+#define MARKLOCK     dyn->insts[ninst].marklock = dyn->native_size
+#define GETMARKLOCK  dyn->insts[ninst].marklock
 #define MARKLOCK2    dyn->insts[ninst].marklock2 = dyn->native_size
 #define GETMARKLOCK2 dyn->insts[ninst].marklock2
 
@@ -553,7 +553,8 @@
 
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
 #define IFXA(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A)) && (B))
-#define IFX_PENDOR0 if ((dyn->insts[ninst].x64.gen_flags & (X_PEND) || !dyn->insts[ninst].x64.gen_flags))
+#define IFXORNAT(A) if ((dyn->insts[ninst].x64.gen_flags & (A)) || dyn->insts[ninst].nat_flags_fusion)
+#define IFX_PENDOR0 if ((dyn->insts[ninst].x64.gen_flags & (X_PEND) || (!dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion)))
 #define IFXX(A)     if ((dyn->insts[ninst].x64.gen_flags == (A)))
 #define IFX2X(A, B) if ((dyn->insts[ninst].x64.gen_flags == (A) || dyn->insts[ninst].x64.gen_flags == (B) || dyn->insts[ninst].x64.gen_flags == ((A) | (B))))
 #define IFXN(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A) && !(dyn->insts[ninst].x64.gen_flags & (B))))
@@ -639,7 +640,7 @@
             if ((width) == 8) {                                       \
                 ANDI(scratch1, scratch2, 0x80);                       \
             } else {                                                  \
-                SRLI_D(scratch1, scratch2, (width)-1);                \
+                SRLI_D(scratch1, scratch2, (width) - 1);              \
                 if ((width) != 64) ANDI(scratch1, scratch1, 1);       \
             }                                                         \
             BEQZ(scratch1, 8);                                        \
@@ -647,7 +648,7 @@
         }                                                             \
         IFX (X_OF) {                                                  \
             /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */ \
-            SRLI_D(scratch1, scratch2, (width)-2);                    \
+            SRLI_D(scratch1, scratch2, (width) - 2);                  \
             SRLI_D(scratch2, scratch1, 1);                            \
             XOR(scratch1, scratch1, scratch2);                        \
             ANDI(scratch1, scratch1, 1);                              \
@@ -678,8 +679,29 @@
     }
 #endif
 
+#ifndef READFLAGS_FUSION
+#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                \
+    if (dyn->insts[ninst].nat_flags_fusion)                                    \
+        get_free_scratch(dyn, ninst, &tmp1, &tmp2, &tmp3, s1, s2, s3, s4, s5); \
+    else {                                                                     \
+        tmp1 = s1;                                                             \
+        tmp2 = s2;                                                             \
+        tmp3 = s3;                                                             \
+    }                                                                          \
+    READFLAGS(A)
+#endif
+
+#define NAT_FLAGS_OPS(op1, op2)                    \
+    do {                                           \
+        dyn->insts[ninst + 1].nat_flags_op1 = op1; \
+        dyn->insts[ninst + 1].nat_flags_op2 = op2; \
+    } while (0)
+
+#define NAT_FLAGS_ENABLE_CARRY() dyn->insts[ninst].nat_flags_carry = 1
+#define NAT_FLAGS_ENABLE_SIGN()  dyn->insts[ninst].nat_flags_sign = 1
+
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)                                                                                              \
+#define SETFLAGS(A, B, FUSION)                                                                                      \
     if (dyn->f.pending != SF_SET                                                                                    \
         && ((B) & SF_SUB)                                                                                           \
         && (dyn->insts[ninst].x64.gen_flags & (~(A))))                                                              \
@@ -687,6 +709,14 @@
     if (dyn->insts[ninst].x64.gen_flags) switch (B) {                                                               \
             case SF_SUBSET:                                                                                         \
             case SF_SET: dyn->f.pending = SF_SET; break;                                                            \
+            case SF_SET_DF:                                                                                         \
+                dyn->f.pending = SF_SET;                                                                            \
+                dyn->f.dfnone = 1;                                                                                  \
+                break;                                                                                              \
+            case SF_SET_NODF:                                                                                       \
+                dyn->f.pending = SF_SET;                                                                            \
+                dyn->f.dfnone = 0;                                                                                  \
+                break;                                                                                              \
             case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                                    \
             case SF_SUBSET_PENDING:                                                                                 \
             case SF_SET_PENDING:                                                                                    \
@@ -694,7 +724,8 @@
                 break;                                                                                              \
         }                                                                                                           \
     else                                                                                                            \
-        dyn->f.pending = SF_SET
+        dyn->f.pending = SF_SET;                                                                                    \
+    dyn->insts[ninst].nat_flags_nofusion = (FUSION)
 #endif
 #ifndef JUMP
 #define JUMP(A, C)
@@ -738,23 +769,23 @@
 #define GETIP_(A) TABLE64(0, 0)
 #else
 // put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
-#define GETIP(A)                                     \
-    if (dyn->last_ip && ((A)-dyn->last_ip) < 2048) { \
-        uint64_t _delta_ip = (A)-dyn->last_ip;       \
-        dyn->last_ip += _delta_ip;                   \
-        if (_delta_ip) {                             \
-            ADDI_D(xRIP, xRIP, _delta_ip);           \
-        }                                            \
-    } else {                                         \
-        dyn->last_ip = (A);                          \
-        if (dyn->last_ip < 0xffffffff) {             \
-            MOV64x(xRIP, dyn->last_ip);              \
-        } else                                       \
-            TABLE64(xRIP, dyn->last_ip);             \
+#define GETIP(A)                                       \
+    if (dyn->last_ip && ((A) - dyn->last_ip) < 2048) { \
+        uint64_t _delta_ip = (A) - dyn->last_ip;       \
+        dyn->last_ip += _delta_ip;                     \
+        if (_delta_ip) {                               \
+            ADDI_D(xRIP, xRIP, _delta_ip);             \
+        }                                              \
+    } else {                                           \
+        dyn->last_ip = (A);                            \
+        if (dyn->last_ip < 0xffffffff) {               \
+            MOV64x(xRIP, dyn->last_ip);                \
+        } else                                         \
+            TABLE64(xRIP, dyn->last_ip);               \
     }
 #define GETIP_(A)                                         \
-    if (dyn->last_ip && ((A)-dyn->last_ip) < 2048) {      \
-        int64_t _delta_ip = (A)-dyn->last_ip;             \
+    if (dyn->last_ip && ((A) - dyn->last_ip) < 2048) {    \
+        int64_t _delta_ip = (A) - dyn->last_ip;           \
         if (_delta_ip) { ADDI_D(xRIP, xRIP, _delta_ip); } \
     } else {                                              \
         if ((A) < 0xffffffff) {                           \
@@ -862,16 +893,16 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_and32          STEPNAME(emit_and32)
 #define emit_and32c         STEPNAME(emit_and32c)
 #define emit_shl16          STEPNAME(emit_shl16)
-#define emit_shl16c          STEPNAME(emit_shl16c)
+#define emit_shl16c         STEPNAME(emit_shl16c)
 #define emit_shl32          STEPNAME(emit_shl32)
 #define emit_shl32c         STEPNAME(emit_shl32c)
 #define emit_shr8           STEPNAME(emit_shr8)
 #define emit_shr16          STEPNAME(emit_shr16)
-#define emit_shr16c          STEPNAME(emit_shr16c)
+#define emit_shr16c         STEPNAME(emit_shr16c)
 #define emit_shr32          STEPNAME(emit_shr32)
 #define emit_shr32c         STEPNAME(emit_shr32c)
 #define emit_sar16          STEPNAME(emit_sar16)
-#define emit_sar16c          STEPNAME(emit_sar16c)
+#define emit_sar16c         STEPNAME(emit_sar16c)
 #define emit_sar32c         STEPNAME(emit_sar32c)
 #define emit_shld32c        STEPNAME(emit_shld32c)
 #define emit_shrd32c        STEPNAME(emit_shrd32c)
@@ -1054,85 +1085,95 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 #define MAYUSE(A)
 #endif
 
-#define GOCOND(B, T1, T2)                                                                        \
-    case B + 0x0:                                                                                \
-        INST_NAME(T1 "O " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_OF), EQZ, NEZ, X_OF, X64_JMP_JO);                             \
-        break;                                                                                   \
-    case B + 0x1:                                                                                \
-        INST_NAME(T1 "NO " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_OF), NEZ, EQZ, X_OF, X64_JMP_JNO);                            \
-        break;                                                                                   \
-    case B + 0x2:                                                                                \
-        INST_NAME(T1 "C " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, X_CF, X64_JMP_JC);                             \
-        break;                                                                                   \
-    case B + 0x3:                                                                                \
-        INST_NAME(T1 "NC " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, X_CF, X64_JMP_JNC);                            \
-        break;                                                                                   \
-    case B + 0x4:                                                                                \
-        INST_NAME(T1 "Z " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, X_ZF, X64_JMP_JZ);                             \
-        break;                                                                                   \
-    case B + 0x5:                                                                                \
-        INST_NAME(T1 "NZ " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, X_ZF, X64_JMP_JNZ);                            \
-        break;                                                                                   \
-    case B + 0x6:                                                                                \
-        INST_NAME(T1 "BE " T2);                                                                  \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, X_CF | X_ZF, X64_JMP_JBE);     \
-        break;                                                                                   \
-    case B + 0x7:                                                                                \
-        INST_NAME(T1 "NBE " T2);                                                                 \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, X_CF | X_ZF, X64_JMP_JNBE);    \
-        break;                                                                                   \
-    case B + 0x8:                                                                                \
-        INST_NAME(T1 "S " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_SF), EQZ, NEZ, X_SF, X64_JMP_JS);                             \
-        break;                                                                                   \
-    case B + 0x9:                                                                                \
-        INST_NAME(T1 "NS " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_SF), NEZ, EQZ, X_SF, X64_JMP_JNS);                            \
-        break;                                                                                   \
-    case B + 0xA:                                                                                \
-        INST_NAME(T1 "P " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_PF), EQZ, NEZ, X_PF, X64_JMP_JP);                             \
-        break;                                                                                   \
-    case B + 0xB:                                                                                \
-        INST_NAME(T1 "NP " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_PF), NEZ, EQZ, X_PF, X64_JMP_JNP);                            \
-        break;                                                                                   \
-    case B + 0xC:                                                                                \
-        INST_NAME(T1 "L " T2);                                                                   \
-        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
-            XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_SF), EQZ, NEZ, X_SF | X_OF, X64_JMP_JL);                         \
-        break;                                                                                   \
-    case B + 0xD:                                                                                \
-        INST_NAME(T1 "GE " T2);                                                                  \
-        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
-            XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_SF), NEZ, EQZ, X_SF | X_OF, X64_JMP_JGE);                        \
-        break;                                                                                   \
-    case B + 0xE:                                                                                \
-        INST_NAME(T1 "LE " T2);                                                                  \
-        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
-            XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_SF);                                                             \
-            ANDI(x3, xFlags, 1 << F_ZF);                                                         \
-            OR(x1, x1, x3);                                                                      \
-            ANDI(x1, x1, (1 << F_SF) | (1 << F_ZF)), EQZ, NEZ, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
-        break;                                                                                   \
-    case B + 0xF:                                                                                \
-        INST_NAME(T1 "G " T2);                                                                   \
-        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
-            XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_SF);                                                             \
-            ANDI(x3, xFlags, 1 << F_ZF);                                                         \
-            OR(x1, x1, x3);                                                                      \
-            ANDI(x1, x1, (1 << F_SF) | (1 << F_ZF)), NEZ, EQZ, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
+#define GOCOND(B, T1, T2)                                                                                    \
+    case B + 0x0:                                                                                            \
+        INST_NAME(T1 "O " T2);                                                                               \
+        GO(ANDI(tmp1, xFlags, 1 << F_OF), EQZ, NEZ, _, _, X_OF, X64_JMP_JO);                                 \
+        break;                                                                                               \
+    case B + 0x1:                                                                                            \
+        INST_NAME(T1 "NO " T2);                                                                              \
+        GO(ANDI(tmp1, xFlags, 1 << F_OF), NEZ, EQZ, _, _, X_OF, X64_JMP_JNO);                                \
+        break;                                                                                               \
+    case B + 0x2:                                                                                            \
+        INST_NAME(T1 "C " T2);                                                                               \
+        GO(ANDI(tmp1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF, X64_JMP_JC);                             \
+        break;                                                                                               \
+    case B + 0x3:                                                                                            \
+        INST_NAME(T1 "NC " T2);                                                                              \
+        GO(ANDI(tmp1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF, X64_JMP_JNC);                            \
+        break;                                                                                               \
+    case B + 0x4:                                                                                            \
+        INST_NAME(T1 "Z " T2);                                                                               \
+        GO(ANDI(tmp1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF, X64_JMP_JZ);                               \
+        break;                                                                                               \
+    case B + 0x5:                                                                                            \
+        INST_NAME(T1 "NZ " T2);                                                                              \
+        GO(ANDI(tmp1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF, X64_JMP_JNZ);                              \
+        break;                                                                                               \
+    case B + 0x6:                                                                                            \
+        INST_NAME(T1 "BE " T2);                                                                              \
+        GO(ANDI(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF, X64_JMP_JBE);     \
+        break;                                                                                               \
+    case B + 0x7:                                                                                            \
+        INST_NAME(T1 "NBE " T2);                                                                             \
+        GO(ANDI(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF, X64_JMP_JNBE);    \
+        break;                                                                                               \
+    case B + 0x8:                                                                                            \
+        INST_NAME(T1 "S " T2);                                                                               \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, _, _, X_SF, X64_JMP_JS);                                 \
+        break;                                                                                               \
+    case B + 0x9:                                                                                            \
+        INST_NAME(T1 "NS " T2);                                                                              \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, _, _, X_SF, X64_JMP_JNS);                                \
+        break;                                                                                               \
+    case B + 0xA:                                                                                            \
+        INST_NAME(T1 "P " T2);                                                                               \
+        GO(ANDI(tmp1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF, X64_JMP_JP);                                 \
+        break;                                                                                               \
+    case B + 0xB:                                                                                            \
+        INST_NAME(T1 "NP " T2);                                                                              \
+        GO(ANDI(tmp1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF, X64_JMP_JNP);                                \
+        break;                                                                                               \
+    case B + 0xC:                                                                                            \
+        INST_NAME(T1 "L " T2);                                                                               \
+        GO(SRLI_D(tmp1, xFlags, F_OF - F_SF);                                                                \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDI(tmp1, tmp1, 1 << F_SF), EQZ, NEZ, GE, LT, X_SF | X_OF, X64_JMP_JL);                         \
+        break;                                                                                               \
+    case B + 0xD:                                                                                            \
+        INST_NAME(T1 "GE " T2);                                                                              \
+        GO(SRLI_D(tmp1, xFlags, F_OF - F_SF);                                                                \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDI(tmp1, tmp1, 1 << F_SF), NEZ, EQZ, LT, GE, X_SF | X_OF, X64_JMP_JGE);                        \
+        break;                                                                                               \
+    case B + 0xE:                                                                                            \
+        INST_NAME(T1 "LE " T2);                                                                              \
+        GO(SRLI_D(tmp1, xFlags, F_OF - F_SF);                                                                \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDI(tmp1, tmp1, 1 << F_SF);                                                                     \
+            ANDI(tmp3, xFlags, 1 << F_ZF);                                                                   \
+            OR(tmp1, tmp1, tmp3);                                                                            \
+            ANDI(tmp1, tmp1, (1 << F_SF) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
+        break;                                                                                               \
+    case B + 0xF:                                                                                            \
+        INST_NAME(T1 "G " T2);                                                                               \
+        GO(SRLI_D(tmp1, xFlags, F_OF - F_SF);                                                                \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDI(tmp1, tmp1, 1 << F_SF);                                                                     \
+            ANDI(tmp3, xFlags, 1 << F_ZF);                                                                   \
+            OR(tmp1, tmp1, tmp3);                                                                            \
+            ANDI(tmp1, tmp1, (1 << F_SF) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
         break
+
+// Dummy macros
+#define B__safe(a, b, c) XOR(xZR, xZR, xZR)
+#define B_(a, b, c)      XOR(xZR, xZR, xZR)
+
+#define NATIVEJUMP_safe(COND, val) \
+    B##COND##_safe(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
+
+#define NATIVEJUMP(COND, val) \
+    B##COND(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
 
 #define NOTEST(s1)                                       \
     if (box64_dynarec_test) {                            \
