@@ -968,6 +968,38 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(gd);
             }
             break;
+        case 0xB3:
+            INST_NAME("BTR Ed, Gd");
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                wback = 0;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAIxw(x1, gd, 5 + rex.w);
+                ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+                wback = x3;
+            }
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+            SRL_D(x4, ed, x2);
+            BSTRINS_D(xFlags, x4, 0, 0);
+            ADDI_D(x4, xZR, 1);
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+            SLL_D(x4, x4, x2);
+            ANDN(ed, ed, x4);
+            if (wback) {
+                SDxw(ed, wback, fixedaddress);
+                SMWRITE();
+            } else if (!rex.w) {
+                ZEROUP(ed);
+            }
+            break;
         case 0xB6:
             INST_NAME("MOVZX Gd, Eb");
             nextop = F8;

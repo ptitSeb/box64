@@ -336,13 +336,77 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 }
 
+// emit SHL8 instruction, from s1 , shift s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_shl8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    IFX (X_PEND) {
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        ST_B(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_shl8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_ALL) {
+            X64_SLL_B(s1, s2);
+        }
+        SLL_D(s1, s1, s2);
+        ANDI(s1, s1, 0xff);
+
+        IFX (X_PEND) {
+            ST_B(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    SLL_D(s1, s1, s2);
+
+    // s2 is not 0 here and is 1..1f/3f
+    CLEAR_FLAGS(s3);
+    IFX (X_CF | X_OF) {
+        SRLI_D(s5, s1, 8);
+        ANDI(s5, s5, 1); // LSB == F_CF
+        IFX (X_CF) {
+            OR(xFlags, xFlags, s5);
+        }
+    }
+
+    SLLI_D(s1, s1, 56);
+    IFX (X_SF) {
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    SRLI_D(s1, s1, 56);
+
+    IFX (X_PEND) {
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        ADDI_D(s3, s2, -1);
+        BNEZ(s3, 4 + 4 * 4);
+        SRLI_D(s3, s1, 7);
+        XOR(s3, s3, s5);
+        SLLI_D(s3, s3, F_OF);
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit SHR8 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3 and s4 as scratch
 void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    int64_t j64;
-
-
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
     IFX (X_PEND) {
         ST_B(s2, xEmu, offsetof(x64emu_t, op2));
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));

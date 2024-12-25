@@ -1634,6 +1634,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX_empty(v0);
             // TODO: fastround
             VFTINTRZ_W_D(v0, v1, v1);
+            VINSGR2VR_D(v0, xZR, 1);
             break;
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
@@ -1709,6 +1710,57 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(q1, 0, 0);
                 VXOR_V(q0, q0, q1);
             }
+            break;
+        case 0xF1:
+            INST_NAME("PSLLW Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            VREPLVE_H(v1, q1, xZR);
+            VPICKVE2GR_DU(x4, q1, 0);
+            SLTUI(x3, x4, 16);
+            SUB_D(x3, xZR, x3);
+            NOR(x3, x3, xZR);
+            VREPLGR2VR_D(v0, x3);
+            VSLL_H(q0, q0, v1);
+            VAND_V(v0, q0, v0);
+            VXOR_V(q0, q0, v0);
+            break;
+        case 0xF2:
+            INST_NAME("PSLLD Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            VREPLVE_W(v1, q1, xZR);
+            VPICKVE2GR_DU(x4, q1, 0);
+            SLTUI(x3, x4, 32);
+            SUB_D(x3, xZR, x3);
+            NOR(x3, x3, xZR);
+            VREPLGR2VR_D(v0, x3);
+            VSLL_W(q0, q0, v1);
+            VAND_V(v0, q0, v0);
+            VXOR_V(q0, q0, v0);
+            break;
+        case 0xF3:
+            INST_NAME("PSLLQ Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            VREPLVE_D(v1, q1, xZR);
+            VPICKVE2GR_DU(x4, q1, 0);
+            SLTUI(x3, x4, 64);
+            SUB_D(x3, xZR, x3);
+            NOR(x3, x3, xZR);
+            VREPLGR2VR_D(v0, x3);
+            VSLL_D(q0, q0, v1);
+            VAND_V(v0, q0, v0);
+            VXOR_V(q0, q0, v0);
             break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx,Ex");

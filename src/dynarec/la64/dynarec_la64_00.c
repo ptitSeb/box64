@@ -1912,6 +1912,23 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD2: // TODO: Jump if CL is 0
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 4:
+                case 6:
+                    if (opcode == 0xD0) {
+                        INST_NAME("SHL Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHL Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1F);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1) MAYSETFLAGS();
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
                 case 5:
                     if (opcode == 0xD0) {
                         INST_NAME("SHR Eb, 1");
@@ -1924,8 +1941,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (box64_dynarec_safeflags > 1)
-                        MAYSETFLAGS();
+                    if (box64_dynarec_safeflags > 1) MAYSETFLAGS();
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
