@@ -506,7 +506,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                LD_H(x1, wback, fixedaddress);
+                LD_HU(x1, wback, fixedaddress);
                 ed = x1;
             }
             ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
