@@ -103,6 +103,18 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FLD_D(v1, wback, fixedaddress);
             VEXTRINS_D(v0, v1, 0);
             break;
+        case 0x13:
+            INST_NAME("MOVLPD Eq, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            FST_D(v0, ed, fixedaddress);
+            SMWRITE2();
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
@@ -146,6 +158,18 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v1 = fpu_get_scratch(dyn);
             FLD_D(v1, ed, fixedaddress);
             VEXTRINS_D(v0, v1, 0x10);
+            break;
+        case 0x17:
+            INST_NAME("MOVHPD Eq, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+            VSTELM_D(v0, ed, 0, 1);
+            SMWRITE2();
             break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
