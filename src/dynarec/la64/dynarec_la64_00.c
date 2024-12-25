@@ -1908,6 +1908,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xCF:
+            INST_NAME("IRET");
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
+            BARRIER(BARRIER_FLOAT);
+            iret_to_epilog(dyn, ninst, rex.w);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xD0:
         case 0xD2: // TODO: Jump if CL is 0
             nextop = F8;
