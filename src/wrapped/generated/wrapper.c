@@ -3492,7 +3492,7 @@ typedef int32_t (*iFLLii_t)(uintptr_t, uintptr_t, int32_t, int32_t);
 typedef uint16_t (*WFpLLu_t)(void*, uintptr_t, uintptr_t, uint32_t);
 typedef int32_t (*iFEipup_t)(x64emu_t*, int32_t, void*, uint32_t, void*);
 typedef int32_t (*iFEiipup_t)(x64emu_t*, int32_t, int32_t, void*, uint32_t, void*);
-typedef int32_t (*iFpipppL_t)(void*, int32_t, void*, void*, void*, uintptr_t);
+typedef int32_t (*iFEpipppL_t)(x64emu_t*, void*, int32_t, void*, void*, void*, uintptr_t);
 typedef intptr_t (*lFpLpdddddd_t)(void*, uintptr_t, void*, double, double, double, double, double, double);
 #endif
 
@@ -6964,7 +6964,7 @@ void iFLLii(x64emu_t *emu, uintptr_t fcn) { iFLLii_t fn = (iFLLii_t)fcn; R_RAX=(
 void WFpLLu(x64emu_t *emu, uintptr_t fcn) { WFpLLu_t fn = (WFpLLu_t)fcn; R_RAX=(unsigned short)fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX, (uint32_t)R_RCX); }
 void iFEipup(x64emu_t *emu, uintptr_t fcn) { iFEipup_t fn = (iFEipup_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX); }
 void iFEiipup(x64emu_t *emu, uintptr_t fcn) { iFEiipup_t fn = (iFEiipup_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX, (void*)R_R8); }
-void iFpipppL(x64emu_t *emu, uintptr_t fcn) { iFpipppL_t fn = (iFpipppL_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (uintptr_t)R_R9); }
+void iFEpipppL(x64emu_t *emu, uintptr_t fcn) { iFEpipppL_t fn = (iFEpipppL_t)fcn; R_RAX=(uint32_t)fn(emu, (void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (uintptr_t)R_R9); }
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fcn) { lFpLpdddddd_t fn = (lFpLpdddddd_t)fcn; R_RAX=(intptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, emu->xmm[0].d[0], emu->xmm[1].d[0], emu->xmm[2].d[0], emu->xmm[3].d[0], emu->xmm[4].d[0], emu->xmm[5].d[0]); }
 #endif
 
@@ -8988,7 +8988,6 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFLLi) return 1;
 	if (fun == &iFLLii) return 1;
 	if (fun == &WFpLLu) return 1;
-	if (fun == &iFpipppL) return 1;
 	if (fun == &lFpLpdddddd) return 7;
 #endif
 	return 0;
@@ -11003,7 +11002,6 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFLLi) return 65;
 	if (fun == &iFLLii) return 193;
 	if (fun == &WFpLLu) return 129;
-	if (fun == &iFpipppL) return 33;
 	if (fun == &lFpLpdddddd) return 7;
 #endif
 	return 0;

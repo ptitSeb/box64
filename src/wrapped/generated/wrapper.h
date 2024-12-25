@@ -3450,7 +3450,7 @@ void iFLLii(x64emu_t *emu, uintptr_t fnc);
 void WFpLLu(x64emu_t *emu, uintptr_t fnc);
 void iFEipup(x64emu_t *emu, uintptr_t fnc);
 void iFEiipup(x64emu_t *emu, uintptr_t fnc);
-void iFpipppL(x64emu_t *emu, uintptr_t fnc);
+void iFEpipppL(x64emu_t *emu, uintptr_t fnc);
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
 #endif
 

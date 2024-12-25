@@ -2152,8 +2152,8 @@ GOM(sysconf, lFEi)
 //DATA(_sys_errlist, 8)
 //DATA(sys_errlist, 8)
 #else
-GO(__sysctl, iFpipppL)
-GOW(sysctl, iFpipppL)
+GOM(__sysctl, iFEpipppL)
+GOWM(sysctl, iFEpipppL)
 DATA(_sys_errlist, 8)
 DATA(sys_errlist, 8)
 #endif

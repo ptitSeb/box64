@@ -3405,7 +3405,7 @@
 #!defined(STATICBUILD) WFpLLu
 #!defined(STATICBUILD) iFEipup
 #!defined(STATICBUILD) iFEiipup
-#!defined(STATICBUILD) iFpipppL
+#!defined(STATICBUILD) iFEpipppL
 #!defined(STATICBUILD) lFpLpdddddd
 #() vFEv -> vFE
 #() iFEv -> iFE
@@ -4734,6 +4734,9 @@ wrappedlibc:
   - lsearch
 - vFiipupV:
   - error_at_line
+- iFpipppL:
+  - __sysctl
+  - sysctl
 - iFpLiLpp:
   - __vsnprintf_chk
 - iFpLiLpV:

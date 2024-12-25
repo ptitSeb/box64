@@ -1531,6 +1531,24 @@ EXPORT void* my_tsearch(x64emu_t* emu, void* key, void* root, void* fnc)
     (void)emu;
     return tsearch(key, root, findcompareFct(fnc));
 }
+
+EXPORT int my___sysctl(x64emu_t* emu, int* name, int nlen, void* oldval, size_t* oldlenp, void* newval, size_t newlen)
+{
+    return ENOSYS;
+}
+
+EXPORT int my_sysctl(x64emu_t* emu, int* name, int nlen, void* oldval, size_t* oldlenp, void* newval, size_t newlen)
+{
+    /* Glibc 2.32 Release note.
+      The deprecated <sys/sysctl.h> header and the sysctl function have been
+      removed.  To support old binaries, the sysctl function continues to
+      exist as a compatibility symbol (on those architectures which had it),
+      but always fails with ENOSYS.  This reflects the removal of the system
+      call from all architectures, starting with Linux 5.5.
+    */
+    return ENOSYS;
+}
+
 EXPORT void my_tdestroy(x64emu_t* emu, void* root, void* fnc)
 {
     (void)emu;
