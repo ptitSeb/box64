@@ -501,7 +501,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Seg, Ew");
             nextop = F8;
             u8 = (nextop & 0x38) >> 3;
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();

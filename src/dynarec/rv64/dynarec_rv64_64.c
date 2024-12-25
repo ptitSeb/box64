@@ -456,7 +456,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             u8 = (nextop & 0x38) >> 3;
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();

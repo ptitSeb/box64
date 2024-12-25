@@ -135,9 +135,9 @@ uintptr_t dynarec64_6764_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, in
             switch((nextop>>3)&7) {
                 case 6: // Push Ed
                     INST_NAME("PUSH FS:Ew");
-                    if((nextop&0xC0)==0xC0) {   // reg
+                    if (MODREG) {
                         DEFAULT;
-                    } else {                    // mem <= i32
+                    } else {
                         SMREAD();
                         addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0, 0, 0);
                         LDRw_REG(x3, ed, x4);

@@ -1140,9 +1140,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x8C:
             INST_NAME("MOV Ed, Seg");
             nextop = F8;
-            if ((nextop & 0xC0) == 0xC0) { // reg <= seg
+            if (MODREG) {
                 LD_HU(TO_NAT((nextop & 7) + (rex.b << 3)), xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
-            } else { // mem <= seg
+            } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 LD_HU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
                 ST_H(x3, ed, fixedaddress);

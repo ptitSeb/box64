@@ -264,7 +264,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x18:
             nextop = F8;
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 INST_NAME("NOP (multibyte)");
             } else
                 switch ((nextop >> 3) & 7) {
@@ -1641,7 +1641,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             gd = ((nextop & 0x38) >> 3);
             v0 = mmx_get_reg(dyn, ninst, x1, x2, x3, gd);
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 if (rex.w)
                     FMVXD(ed, v0);

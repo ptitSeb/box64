@@ -60,7 +60,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 if(rex.rex) {
                     wback = TO_NAT((nextop & 0x07) + (rex.b << 3));
                     wb2 = 0;
@@ -147,7 +147,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 if(rex.rex) {
                     wback = TO_NAT((nextop & 0x07) + (rex.b << 3));
                     wb2 = 0;
@@ -865,7 +865,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 if(rex.rex) {
                     wback = TO_NAT((nextop & 0x07) + (rex.b << 3));
                     wb2 = 0;
@@ -1022,7 +1022,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {

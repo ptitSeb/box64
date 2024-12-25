@@ -710,7 +710,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ew, Seg");
             nextop = F8;
             LHU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
-            if ((nextop & 0xC0) == 0xC0) { // reg <= seg
+            if (MODREG) {
                 INSHz(TO_NAT((nextop & 7) + (rex.b << 3)), x3, x1, x2, 1, 0);
             } else { // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -722,7 +722,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Seg, Ew");
             nextop = F8;
             u8 = (nextop & 0x38) >> 3;
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
