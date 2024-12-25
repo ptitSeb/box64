@@ -274,6 +274,11 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 #define NOP() ANDI(xZR, xZR, 0)
 
+#define BREAK() EMIT(0b1010100)
+
+// there is no UDF instruction, use BREAK instead is an acceptable offer
+#define UDF() BREAK()
+
 // tmp = SLL(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
 #define SLL_W(rd, rj, rk) EMIT(type_3R(0b00000000000101110, rk, rj, rd))
