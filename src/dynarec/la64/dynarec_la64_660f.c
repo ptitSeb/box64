@@ -167,7 +167,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 return addr;
             }
             addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-            VSTELM_D(v0, ed, 0, 0x10);
+            VSTELM_D(v0, ed, 0, 1);
             SMWRITE2();
             break;
         case 0x1F:
