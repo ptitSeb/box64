@@ -208,7 +208,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     } else {
                         SMREAD();
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LBU(gd, ed, fixedaddress);
                     }
                     break;
@@ -221,7 +221,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ZEXTH(gd, ed);
                     } else {
                         SMREAD();
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LHU(gd, ed, fixedaddress);
                     }
                     break;
@@ -472,7 +472,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ADDIW(gd, TO_NAT((nextop & 7) + (rex.b << 3)), 0);
                 } else { // mem <= reg
                     SMREAD();
-                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(gd, ed, fixedaddress);
                 }
             } else {
@@ -480,7 +480,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ZEXTW2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
                 } else { // mem <= reg
                     SMREAD();
-                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LWU(gd, ed, fixedaddress);
                 }
             }
