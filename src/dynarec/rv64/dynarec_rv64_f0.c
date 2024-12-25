@@ -61,7 +61,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             SMDMB();
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             } else {
@@ -452,7 +452,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGB(x2);
             SMDMB();
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 if (rex.rex) {
                     wback = TO_NAT((nextop & 7) + (rex.b << 3));
                     wb2 = 0;

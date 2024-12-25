@@ -661,9 +661,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             u8 = (nextop&0x38)>>3;
             LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
-            if((nextop&0xC0)==0xC0) {   // reg <= seg
+            if (MODREG) {
                 BFIz(TO_NAT((nextop & 7) + (rex.b << 3)), x3, 0, 16);
-            } else {                    // mem <= seg
+            } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 STH(x3, wback, fixedaddress);
                 SMWRITE2();
@@ -674,7 +674,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOV Seg,Ew");
             nextop = F8;
             u8 = (nextop&0x38)>>3;
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
@@ -689,7 +689,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP Ew");
             nextop = F8;
             POP1_16(x1);
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 wback = TO_NAT((nextop & 7) + (rex.b << 3));
                 BFIz(wback, x1, 0, 16);
             } else {

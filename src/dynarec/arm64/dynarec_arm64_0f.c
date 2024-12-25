@@ -337,7 +337,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x18:
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 INST_NAME("NOP (multibyte)");
             } else
             switch((nextop>>3)&7) {
@@ -1548,7 +1548,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOVD Ed, Gm");
             nextop = F8;
             GETGM(v0);
-            if((nextop&0xC0)==0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 0x07) + (rex.b << 3));
                 if(rex.w) {
                     FMOVxD(ed, v0);

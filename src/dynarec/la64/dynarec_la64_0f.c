@@ -228,7 +228,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x18:
             nextop = F8;
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 INST_NAME("NOP (multibyte)");
             } else
                 switch ((nextop >> 3) & 7) {
