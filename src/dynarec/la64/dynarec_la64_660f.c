@@ -22,6 +22,7 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
+#include "emu/x64compstrings.h"
 
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
@@ -727,6 +728,39 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     MOV32w(x4, u8);
                     CALL(native_pclmul, -1);
+                    break;
+                case 0x63:
+                    INST_NAME("PCMPISTRI Gx, Ex, Ib");
+                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    nextop = F8;
+                    GETG;
+                    if (gd > 7) sse_reflect_reg(dyn, ninst, gd);
+                    ADDI_D(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        if (ed > 7) sse_reflect_reg(dyn, ninst, ed);
+                        ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        if (ed != x1) MV(x1, ed);
+                    }
+                    u8 = F8;
+                    MOV32w(x3, u8);
+                    CALL(sse42_compare_string_implicit_len, x1);
+                    BNEZ_MARK(x1);
+                    MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+                    B_NEXT_nocond;
+                    MARK;
+                    if (u8 & 0b1000000) {
+                        CLZ_W(xRCX, x1);
+                        ADDI_D(x2, xZR, 31);
+                        SUB_D(xRCX, x2, xRCX);
+                    } else {
+                        if (rex.w)
+                            CTZ_D(xRCX, x1);
+                        else
+                            CTZ_W(xRCX, x1);
+                    }
                     break;
                 case 0xDF:
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI

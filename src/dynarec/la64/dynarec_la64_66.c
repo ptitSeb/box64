@@ -625,6 +625,65 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRDI, xRDI, x3);
             }
             break;
+        case 0xAF:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) {
+                        INST_NAME("REPNZ SCASW");
+                    } else {
+                        INST_NAME("REPZ SCASW");
+                    }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    CBZ_NEXT(xRCX);
+                    GETDIR(x3, x1, rex.w ? 8 : 2);
+                    if (rex.w) {
+                        MARK;
+                        LD_D(x2, xRDI, 0);
+                        ADD_D(xRDI, xRDI, x3);
+                        ADDI_D(xRCX, xRCX, -1);
+                        if (rep == 1) {
+                            BEQ_MARK3(xRAX, x2);
+                        } else {
+                            BNE_MARK3(xRAX, x2);
+                        }
+                        BNE_MARK(xRCX, xZR);
+                        MARK3;
+                        emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+                    } else {
+                        BSTRPICK_D(x1, xRAX, 15, 0);
+                        MARK;
+                        LD_HU(x2, xRDI, 0);
+                        ADD_D(xRDI, xRDI, x3);
+                        ADDI_D(xRCX, xRCX, -1);
+                        if (rep == 1) {
+                            BEQ_MARK3(x1, x2);
+                        } else {
+                            BNE_MARK3(x1, x2);
+                        }
+                        BNE_MARK(xRCX, xZR);
+                        MARK3;
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    }
+                    break;
+                default:
+                    INST_NAME("SCASW");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    GETDIR(x3, x1, rex.w ? 8 : 2);
+                    if (rex.w) {
+                        LD_D(x2, xRDI, 0);
+                        ADD_D(xRDI, xRDI, x3);
+                        emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+                    } else {
+                        BSTRPICK_D(x1, xRAX, 15, 0);
+                        LD_HU(x2, xRDI, 0);
+                        ADD_D(xRDI, xRDI, x3);
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    }
+                    break;
+            }
+            break;
         case 0xB8:
         case 0xB9:
         case 0xBA:
@@ -789,6 +848,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u16 = F16;
                     MOV32w(x2, u16);
                     emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ew");
+                    GETEW(x1, 0);
+                    MOV32w(x5, 0xffff);
+                    XOR(ed, ed, x5); // No flags affected
+                    EWBACK;
                     break;
                 case 3:
                     INST_NAME("NEG Ew");
