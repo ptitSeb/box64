@@ -104,6 +104,8 @@
 #include "x64emu_private.h"
 #include "x64run_private.h"
 
+extern int box64_dynarec_test;
+
 /*------------------------- Global Variables ------------------------------*/
 
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
@@ -778,6 +780,8 @@ uint8_t rol8(x64emu_t *emu, uint8_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 7)) & 1, F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the LSB of the result */
@@ -801,6 +805,8 @@ uint16_t rol16(x64emu_t *emu, uint16_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 15)) & 1, F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the LSB of the result */
@@ -824,6 +830,8 @@ uint32_t rol32(x64emu_t *emu, uint32_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 31)) & 1, F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the LSB of the result */
@@ -847,6 +855,8 @@ uint64_t rol64(x64emu_t *emu, uint64_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 63)) & 1, F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the LSB of the result */
@@ -874,6 +884,8 @@ uint8_t ror8(x64emu_t *emu, uint8_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 6), F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the MSB of the result */
@@ -897,6 +909,8 @@ uint16_t ror16(x64emu_t *emu, uint16_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 14), F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the MSB of the result */
@@ -920,6 +934,8 @@ uint32_t ror32(x64emu_t *emu, uint32_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 30), F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the MSB of the result */
@@ -943,6 +959,8 @@ uint64_t ror64(x64emu_t *emu, uint64_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 62), F_OF);
+	} else if(box64_dynarec_test) {
+		CLEAR_FLAG(F_OF);
 	}
 
 	/* set new CF; note that it is the MSB of the result */
@@ -977,7 +995,7 @@ uint16_t shld16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(((res ^ d) >> 15)&1, F_OF);
 		} else {
-			CONDITIONAL_SET_FLAG((d >> 15)&1, F_OF);
+			CLEAR_FLAG(F_OF);
 		}
 	} else {
 		res = (fill << (cnt)) | (d >> (16 - cnt));
@@ -991,6 +1009,8 @@ uint16_t shld16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 		CLEAR_FLAG(F_OF);
 	}
+	if(box64_dynarec_test)
+		CLEAR_FLAG(F_AF);
 	return (uint16_t)res;
 }
 
@@ -1016,8 +1036,10 @@ uint32_t shld32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 31)&1, F_OF);
 	} else {
-		CONDITIONAL_SET_FLAG((d >> 31)&1, F_OF);
+		CLEAR_FLAG(F_OF);
 	}
+	if(box64_dynarec_test)
+		CLEAR_FLAG(F_AF);
 	return res;
 }
 
@@ -1043,8 +1065,10 @@ uint64_t shld64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 63)&1, F_OF);
 	} else {
-		CONDITIONAL_SET_FLAG((d >> 63)&1, F_OF);
+		CLEAR_FLAG(F_OF);
 	}
+	if(box64_dynarec_test)
+		CLEAR_FLAG(F_AF);
 	return res;
 }
 
@@ -1076,7 +1100,7 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(((res ^ d) >> 15)&1, F_OF);
         } else {
-			CONDITIONAL_SET_FLAG((d >> 15)&1, F_OF);
+			CLEAR_FLAG(F_OF);
         }
 	} else {
 		if(s==16)
@@ -1098,6 +1122,8 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		CLEAR_FLAG(F_PF);
 	#endif
     }
+	if(box64_dynarec_test)
+		CLEAR_FLAG(F_AF);
 	return (uint16_t)res;
 }
 
@@ -1123,8 +1149,10 @@ uint32_t shrd32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 31)&1, F_OF);
 	} else {
-		CONDITIONAL_SET_FLAG((d >> 31)&1, F_OF);
+		CLEAR_FLAG(F_OF);
 	}
+	if(box64_dynarec_test)
+		CLEAR_FLAG(F_AF);
 	return res;
 }
 
@@ -1151,8 +1179,10 @@ uint64_t shrd64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 63)&1, F_OF);
 	} else {
-		CONDITIONAL_SET_FLAG((d >> 63)&1, F_OF);
+		CLEAR_FLAG(F_OF);
 	}
+	if(box64_dynarec_test)
+		CLEAR_FLAG(F_AF);
 	return res;
 }
 /****************************************************************************

@@ -656,7 +656,7 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(!emu->res.u8, F_ZF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 CONDITIONAL_SET_FLAG(emu->res.u8 & 0x80, F_SF);
-                if(emu->op2.u8==1)
+                if(emu->op2.u8==1 || box64_dynarec_test)
                     CLEAR_FLAG(F_OF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
@@ -670,7 +670,7 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(!emu->res.u16, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
-                if(emu->op2.u16==1)
+                if(emu->op2.u16==1 || box64_dynarec_test)
                     CLEAR_FLAG(F_OF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
@@ -684,7 +684,7 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(!emu->res.u32, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res.u32 & 0x80000000, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
-                if(emu->op2.u32==1)
+                if(emu->op2.u32==1 || box64_dynarec_test)
                     CLEAR_FLAG(F_OF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
@@ -698,7 +698,7 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(!emu->res.u64, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res.u64 & 0x8000000000000000LL, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
-                if(emu->op2.u64==1)
+                if(emu->op2.u64==1 || box64_dynarec_test)
                     CLEAR_FLAG(F_OF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
@@ -715,6 +715,9 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
+                    if(cnt>1) {
+                        CLEAR_FLAG(F_OF);
+                    }
                 }
             }
             if (cnt == 1) {
@@ -731,6 +734,9 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
+                    if(cnt>1) {
+                        CLEAR_FLAG(F_OF);
+                    }
                 }
             }
             if (cnt == 1) {
@@ -747,6 +753,9 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
+                    if(cnt>1) {
+                        CLEAR_FLAG(F_OF);
+                    }
                 }
             }
             if (cnt == 1) {
@@ -766,6 +775,9 @@ void UpdateFlags(x64emu_t *emu)
                 }
                 if(box64_dynarec_test) {
                     CLEAR_FLAG(F_AF);
+                    if(cnt>1) {
+                        CLEAR_FLAG(F_OF);
+                    }
                 }
             }
             break;
@@ -779,7 +791,9 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 if (cnt == 1) {
                     CONDITIONAL_SET_FLAG((emu->op1.u16 ^ emu->res.u16) & 0x8000, F_OF);
-                }
+                } else {
+                    CLEAR_FLAG(F_OF);
+               }
             }
             break;
         case d_shrd32:
@@ -792,6 +806,8 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 if (cnt == 1) {
                     CONDITIONAL_SET_FLAG((emu->op1.u32 ^ emu->res.u32) & 0x80000000, F_OF);
+                } else {
+                    CLEAR_FLAG(F_OF);
                 }
             }
             break;
@@ -805,6 +821,8 @@ void UpdateFlags(x64emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
                 if (cnt == 1) {
                     CONDITIONAL_SET_FLAG((emu->op1.u64 ^ emu->res.u64) & 0x8000000000000000LL, F_OF);
+                } else {
+                    CLEAR_FLAG(F_OF);
                 }
             }
             break;
