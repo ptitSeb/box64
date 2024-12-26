@@ -17,6 +17,9 @@
 #include <linux/auxvec.h>
 #include <asm/hwcap.h>
 #endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #endif
 
 #include "build_info.h"
@@ -99,6 +102,8 @@ uintptr_t box64_dynarec_test_start = 0;
 uintptr_t box64_dynarec_test_end = 0;
 int box64_dynarec_gdbjit = 0;
 int box64_dynarec_df = 1;
+int box64_dynarec_perf_map = 0;
+int box64_dynarec_perf_map_fd = -1;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -911,6 +916,15 @@ void LoadLogEnv()
         }
         if (box64_dynarec_gdbjit)
             printf_log(LOG_INFO, "Dynarec will generate debuginfo for gdbjit\n");
+    }
+    p = getenv("BOX64_DYNAREC_PERFMAP");
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '1')
+                box64_dynarec_perf_map = p[0] - '0';
+        }
+        if (box64_dynarec_perf_map)
+            printf_log(LOG_INFO, "Dynarec will generate map file for Linux perf tool\n");
     }
     p = getenv("BOX64_DYNAREC_DF");
     if(p) {
@@ -2526,6 +2540,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     *emulator = emu;
 
+#ifdef DYNAREC
+    if (box64_dynarec_perf_map) {
+        char pathname[32];
+        snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
+        box64_dynarec_perf_map_fd = open(pathname, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+    }
+#endif
+
     return 0;
 }
 
@@ -2562,6 +2584,13 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
     if(trace_func)  {
         box_free(trace_func);
         trace_func = NULL;
+    }
+#endif
+
+#ifdef DYNAREC
+    if (box64_dynarec_perf_map && box64_dynarec_perf_map_fd != -1) {
+        close(box64_dynarec_perf_map_fd);
+        box64_dynarec_perf_map_fd = -1;
     }
 #endif
 

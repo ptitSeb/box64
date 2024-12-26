@@ -841,3 +841,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     //block->done = 1;
     return (void*)block;
 }
+
+void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size)
+{
+    char pbuf[128];
+    uint64_t sz = 0;
+    uintptr_t start = 0;
+    const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, func_addr), (void*)func_addr, &start, &sz);
+    snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s\n", code_addr, code_size, symbname);
+    write(box64_dynarec_perf_map_fd, pbuf, strlen(pbuf));
+}

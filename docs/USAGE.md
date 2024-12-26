@@ -245,6 +245,11 @@ The GDBJIT debugging support, only available with the compilation option GDBJIT=
 * 1 : Dynarec will generate GDBJIT debuginfo.
 * 2 : Dynarec will generate detailed GDBJIT debuginfo with internal state.
 
+#### BOX64_DYNAREC_PERFMAP *
+Dynarec generate map file for Linux perf tool.
+* 0 : Dynarec will not generate perf map. (Default)
+* 1 : Dynarec will generate perf map.
+
 #### BOX64_DYNAREC_MISSING *
 Dynarec print the missing opcodes
 * 0 : not print the missing opcode (Default, unless DYNAREC_LOG>=1 or DYNAREC_DUMP>=1 is used)
