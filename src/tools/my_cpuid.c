@@ -134,7 +134,7 @@ const char* getCpuName()
     }
     setenv("BOX64_CPUNAME", name, 1);   // temporary set
     #ifndef STATICBUILD
-    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
+    FILE* f = popen("lscpu | grep -i \"model name:\\|型号名称：\" | sed -r 's/(Model name:|型号名称：)\\s{1,}//g'", "r");
     if(f) {
         char tmp[200] = "";
         ssize_t s = fread(tmp, 1, 200, f);
@@ -155,7 +155,7 @@ const char* getCpuName()
         }
     }
     // failled, try to get architecture at least
-    f = popen("lscpu | grep \"Architecture:\" | sed -r 's/Architecture:\\s{1,}//g'", "r");
+    f = popen("lscpu | grep -i \"architecture:\\|架构：\" | sed -r 's/(architecture:|架构：)\\s{1,}//g'", "r");
     if(f) {
         char tmp[200] = "";
         ssize_t s = fread(tmp, 1, 200, f);
