@@ -950,6 +950,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define FCMP_D(cd, fj, fk, cond) EMIT(type_4R(0b000011000010, cond, fk, fj, cd & 0b111))
 #define FSEL(fd, fj, fk, ca)     EMIT(type_4R(0b000011010000, ca & 0b111, fk, fj, fd))
 
+#define RDTIME_D(rd, rj) EMIT(type_2R(0b11010, rj, rd))
+
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LSX/LASX extension instructions
 

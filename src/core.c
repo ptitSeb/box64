@@ -593,7 +593,7 @@ void computeRDTSC()
 {
     int hardware  = 0;
     box64_rdtsc_shift = 0;
-    #if defined(ARM64) || defined(RV64)
+    #if defined(ARM64) || defined(RV64) || defined(LA64)
     hardware = 1;
     box64_rdtsc = 0;    // allow hardware counter
     #else

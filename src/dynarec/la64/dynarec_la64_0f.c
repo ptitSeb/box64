@@ -338,8 +338,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x31:
             INST_NAME("RDTSC");
             NOTEST(x1);
-            // TODO: how to read the wall-clock real time on LoongArch?
-            CALL(ReadTSC, x3); // will return the u64 in x3
+            if (box64_rdtsc) {
+                CALL(ReadTSC, x3); // will return the u64 in x3
+            } else {
+                RDTIME_D(x3, xZR);
+            }
             if (box64_rdtsc_shift) {
                 SRLI_D(x3, x3, box64_rdtsc_shift);
             }

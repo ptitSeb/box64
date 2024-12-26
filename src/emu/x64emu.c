@@ -702,6 +702,37 @@ static inline uint64_t readFreq()
                  : "=r"(val));
     return val;
 }
+#elif defined(LA64)
+static inline uint64_t readCycleCounter()
+{
+    uint64_t val;
+    asm volatile("rdtime.d %0, %1"
+                 : "=r"(val) : "r"(0));
+    return val;
+}
+
+static inline uint64_t readFreq()
+{
+    static size_t val = -1;
+
+    FILE* f = popen("cat /proc/cpuinfo | grep -i \"CPU MHz\" | head -n 1 | sed -r 's/CPU MHz.+:\\s{1,}//g'", "r");
+    if(f) {
+        char tmp[200] = "";
+        ssize_t s = fread(tmp, 1, 200, f);
+        pclose(f);
+        if (s > 0) return (uint64_t)atof(tmp) * 1e6;
+    }
+    
+    // fallback to rdtime + sleep
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 50000000; // 50 milliseconds
+    uint64_t cycles = readCycleCounter();
+    nanosleep(&ts, NULL);
+    // round to MHz
+    val = (size_t)round(((double)(readCycleCounter() - cycles) * 20) / 1e6) * 1e6;
+    return (uint64_t)val;
+}
 #endif
 
 uint64_t ReadTSC(x64emu_t* emu)
@@ -709,7 +740,7 @@ uint64_t ReadTSC(x64emu_t* emu)
     (void)emu;
     
     // Hardware counter, per architecture
-#if defined(ARM64) || defined(RV64)
+#if defined(ARM64) || defined(RV64) || defined(LA64)
     if (!box64_rdtsc) return readCycleCounter();
 #endif
     // fall back to gettime...
@@ -728,7 +759,7 @@ uint64_t ReadTSCFrequency(x64emu_t* emu)
 {
     (void)emu;
     // Hardware counter, per architecture
-#if defined(ARM64) || defined(RV64)
+#if defined(ARM64) || defined(RV64) || defined(LA64)
     if (!box64_rdtsc) return readFreq();
 #endif
     // fall back to get time

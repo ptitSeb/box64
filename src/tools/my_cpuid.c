@@ -134,7 +134,7 @@ const char* getCpuName()
     }
     setenv("BOX64_CPUNAME", name, 1);   // temporary set
     #ifndef STATICBUILD
-    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
+    FILE* f = popen("LC_ALL=C lscpu | grep -i \"model name:\" | head -n 1 | sed -r 's/(model name:)\\s{1,}//gi'", "r");
     if(f) {
         char tmp[200] = "";
         ssize_t s = fread(tmp, 1, 200, f);
@@ -145,9 +145,6 @@ const char* getCpuName()
                 // trim ending
                 while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
                     tmp[strlen(tmp)-1] = 0;
-                // incase multiple cpu type are present, there will be multiple lines
-                while(strchr(tmp, '\n'))
-                    *strchr(tmp,'\n') = ' ';
                 strncpy(name, tmp, 199);
             }
             setenv("BOX64_CPUNAME", name, 1);
@@ -155,7 +152,7 @@ const char* getCpuName()
         }
     }
     // failled, try to get architecture at least
-    f = popen("lscpu | grep \"Architecture:\" | sed -r 's/Architecture:\\s{1,}//g'", "r");
+    f = popen("LC_ALL=C lscpu | grep -i \"architecture:\" | head -n 1 | sed -r 's/(architecture:)\\s{1,}//gi'", "r");
     if(f) {
         char tmp[200] = "";
         ssize_t s = fread(tmp, 1, 200, f);
@@ -165,9 +162,6 @@ const char* getCpuName()
             // trim ending
             while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
                 tmp[strlen(tmp)-1] = 0;
-            // incase multiple cpu type are present, there will be multiple lines
-            while(strchr(tmp, '\n'))
-                *strchr(tmp,'\n') = ' ';
             snprintf(name, 199, "unknown %s cpu", tmp);
             setenv("BOX64_CPUNAME", name, 1);
             return name;
