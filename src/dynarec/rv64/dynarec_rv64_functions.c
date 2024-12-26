@@ -698,7 +698,7 @@ static register_mapping_t register_mappings[] = {
 
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
-    if (!box64_dynarec_dump && !box64_dynarec_gdbjit) return;
+    if (!box64_dynarec_dump && !box64_dynarec_gdbjit && !box64_dynarec_perf_map) return;
 
     static char buf[512];
     int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
@@ -771,6 +771,11 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             inst_name = buf2;
         }
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
+    }
+    if (box64_dynarec_perf_map && box64_dynarec_perf_map_fd != -1) {
+        buf[128];
+        snprintf(buf, sizeof(buf), "0x%lx %ld %s\n", dyn->native_start + dyn->insts[ninst].address, dyn->insts[ninst].size / 4, name);
+        write(box64_dynarec_perf_map_fd, buf, strlen(buf));
     }
 }
 
