@@ -692,19 +692,24 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SMWRITE2();
                     }
                     break;
+                case 0x20:
+                    INST_NAME("PINSRB Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETED(1);
+                    u8 = F8;
+                    VINSGR2VR_B(q0, ed, (u8 & 0xf));
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
                     GETED(1);
                     u8 = F8;
-                    d0 = fpu_get_scratch(dyn);
                     if (rex.w) {
-                        MOVGR2FR_D(d0, ed);
-                        VEXTRINS_D(q0, d0, (u8 & 1) << 4);
+                        VINSGR2VR_D(q0, ed, (u8 & 1));
                     } else {
-                        MOVGR2FR_W(d0, ed);
-                        VEXTRINS_W(q0, d0, (u8 & 3) << 4);
+                        VINSGR2VR_W(q0, ed, (u8 & 3));
                     }
                     break;
                 case 0x44:

@@ -1610,6 +1610,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             // TODO: refine these...
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rol8, ed, x3);
+                    EBBACK();
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
@@ -1920,6 +1930,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD2: // TODO: Jump if CL is 0
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    if (opcode == 0xD0) {
+                        INST_NAME("ROL Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROL Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    CALL_(rol8, ed, x3);
+                    EBBACK();
+                    break;
                 case 4:
                 case 6:
                     if (opcode == 0xD0) {
