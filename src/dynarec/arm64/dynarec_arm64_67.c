@@ -1170,9 +1170,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 DEFAULT;
             } else {                    // mem <= reg
                 addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                if(ed!=gd) {
-                    MOVw_REG(gd, ed);
-                }
+                MOVw_REG(gd, ed);   // need to trucate to 32bits as it's 67 prefixed
             }
             break;
 
