@@ -53,8 +53,8 @@ GO(xcb_render_composite, pFbpCpppwwwwwwWW)
 //GO(xcb_render_composite_glyphs_8_glyphcmds_end, 
 //GO(xcb_render_composite_glyphs_8_glyphcmds_length, 
 //GO(xcb_render_composite_glyphs_8_sizeof, 
-//GO(xcb_render_create_anim_cursor, 
-//GO(xcb_render_create_anim_cursor_checked, 
+GO(xcb_render_create_anim_cursor, pFbpup)
+GO(xcb_render_create_anim_cursor_checked, pFbpup)
 //GO(xcb_render_create_anim_cursor_cursors, 
 //GO(xcb_render_create_anim_cursor_cursors_iterator, 
 //GO(xcb_render_create_anim_cursor_cursors_length, 

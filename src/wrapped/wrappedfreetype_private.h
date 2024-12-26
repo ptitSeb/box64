@@ -82,7 +82,7 @@ GO(FT_Get_Track_Kerning, iFplip)
 GO(FT_Get_Transform, vFppp)
 GO(FT_Get_TrueType_Engine_Type, uFp)
 GO(FT_Get_Var_Blend_Coordinates, iFpup)
-//GO(FT_Get_Var_Design_Coordinates, 
+GO(FT_Get_Var_Design_Coordinates, iFpup)
 GO(FT_Get_WinFNT_Header, iFpp)  // does FT_WinFNT_HeaderRec_ needs alignment?
 GO(FT_Get_X11_Font_Format, pFp)
 GO(FT_Glyph_Copy, iFpp)
@@ -155,6 +155,7 @@ GO(FT_Set_Charmap, iFpp)
 GO(FT_Set_Char_Size, iFplluu)
 //GO(FT_Set_Debug_Hook, 
 GO(FT_Set_Default_Properties, vFp)
+GO(FT_Set_Named_Instance, iFpu)
 //GO(FT_Set_MM_Blend_Coordinates, 
 GO(FT_Set_MM_Design_Coordinates, iFpup)
 GO(FT_Set_Pixel_Sizes, iFpuu)
