@@ -450,7 +450,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             SMDMB();
             switch ((nextop >> 3) & 7) {
-                case 0: // ADD
+                case 0:
                     if (opcode == 0x81) {
                         INST_NAME("LOCK ADD Ed, Id");
                     } else {
@@ -488,7 +488,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SMDMB();
                     }
                     break;
-                case 1: // OR
+                case 1:
                     if (opcode == 0x81) {
                         INST_NAME("LOCK OR Ed, Id");
                     } else {
@@ -526,7 +526,37 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
                     break;
-                case 5: // SUB
+                case 4:
+                    if (opcode == 0x81) {
+                        INST_NAME("LOCK AND Ed, Id");
+                    } else {
+                        INST_NAME("LOCK AND Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (MODREG) {
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        MOV64xw(x7, i64);
+                        if (rex.w) {
+                            AMAND_DB_D(x1, x7, wback);
+                        } else {
+                            AMAND_DB_W(x1, x7, wback);
+                        }
+                        IFXORNAT (X_ALL | X_PEND)
+                            emit_and32c(dyn, ninst, rex, x1, i64, x3, x4);
+                    }
+                    break;
+                case 5:
                     if (opcode == 0x81) {
                         INST_NAME("LOCK SUB Ed, Id");
                     } else {
