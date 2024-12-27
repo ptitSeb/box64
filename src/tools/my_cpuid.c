@@ -538,7 +538,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         | 1<<16     // pat
                         | 1<<19     // clflush (seems to be with SSE2)
                         | 1<<21     // DS, used with VMX, is that usefull?
-                        //| 1<<22     // MMXext
+                        | 1<<22     // MMXext
                         | 1<<23     // mmx
                         | 1<<24     // fxsr (fxsave, fxrestore)
                         //| 1<<25     // FFXSR
