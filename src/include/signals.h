@@ -14,6 +14,16 @@ typedef struct x64_sigaction_s {
 	void (*sa_restorer)(void);
 } x64_sigaction_t;
 
+typedef struct x64_sigaction_restorer_s {
+	union {
+	  sighandler_t _sa_handler;
+	  void (*_sa_sigaction)(int, siginfo_t *, void *);
+	} _u;
+	uint32_t sa_flags;
+	void (*sa_restorer)(void);
+	sigset_t sa_mask;
+} x64_sigaction_restorer_t;
+
 #ifdef ANDROID
 typedef struct android_sigaction_s {
 	int sa_flags;
@@ -25,16 +35,6 @@ typedef struct android_sigaction_s {
 	void (*sa_restorer)(void);
 } android_sigaction_t;
 #endif
-
-typedef struct x64_sigaction_restorer_s {
-	union {
-	  sighandler_t _sa_handler;
-	  void (*_sa_sigaction)(int, siginfo_t *, void *);
-	} _u;
-	uint32_t sa_flags;
-	void (*sa_restorer)(void);
-	sigset_t sa_mask;
-} x64_sigaction_restorer_t;
 
 #ifdef BOX32
 typedef struct __attribute__((packed)) i386_sigaction_s {

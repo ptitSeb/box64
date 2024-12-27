@@ -2129,11 +2129,7 @@ int EXPORT my___sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act,
 #endif
 __attribute__((alias("my_sigaction")));
 
-#ifdef ANDROID
-int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const android_sigaction_restorer_t *act, android_sigaction_restorer_t *oldact, int sigsetsize)
-#else
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
-#endif
 {
     printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
     if(signum<0 || signum>MAX_SIGNAL) {
