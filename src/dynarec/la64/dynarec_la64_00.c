@@ -532,7 +532,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
-            break;
         case 0x63:
             if (rex.is32bits) {
                 // this is ARPL opcode
@@ -1220,6 +1219,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
+            RESTORE_EFLAGS(x1);
             PUSH1z(xFlags);
             break;
         case 0x9D:
@@ -1229,6 +1229,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV32w(x1, 0x3F7FD7);
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x202);
+            SPILL_EFLAGS();
             SET_DFNONE();
             if (box64_wine) { // should this be done all the time?
                 ANDI(x1, xFlags, 1 << F_TF);
