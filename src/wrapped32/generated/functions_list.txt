@@ -118,6 +118,7 @@
 #() hEv -> hEv
 #() hFv -> hFv
 #() aEa -> aEa
+#() tEv -> tEv
 #() tEi -> tEi
 #() tEu -> tEu
 #() tEp -> tEp

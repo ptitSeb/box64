@@ -639,8 +639,8 @@ GOWM(gmtime_r, pEEpp)
 GO(gnu_dev_major, uEU)
 GO(gnu_dev_makedev, UEuu)
 GO(gnu_dev_minor, uEU)
-GOW(gnu_get_libc_release, pEv)
-GOW(gnu_get_libc_version, pEv)
+GOW(gnu_get_libc_release, tEv)
+GOW(gnu_get_libc_version, tEv)
 // __gnu_mcount_nc
 // __gnu_Unwind_Find_exidx
 GO(grantpt, iEi)

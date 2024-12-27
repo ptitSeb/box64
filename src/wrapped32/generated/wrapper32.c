@@ -212,6 +212,7 @@ typedef void* (*pFn_t)(void*);
 typedef uintptr_t (*hEv_t)(void);
 typedef uintptr_t (*hFv_t)(void);
 typedef void* (*aEa_t)(void*);
+typedef char* (*tEv_t)(void);
 typedef char* (*tEi_t)(int32_t);
 typedef char* (*tEu_t)(uint32_t);
 typedef char* (*tEp_t)(void*);
@@ -2017,6 +2018,7 @@ void pFn_32(x64emu_t *emu, uintptr_t fcn) { pFn_t fn = (pFn_t)fcn; void *aligned
 void hEv_32(x64emu_t *emu, uintptr_t fcn) { hEv_t fn = (hEv_t)fcn; errno = emu->libc_err; R_EAX = to_hash(fn()); emu->libc_err = errno; }
 void hFv_32(x64emu_t *emu, uintptr_t fcn) { hFv_t fn = (hFv_t)fcn; R_EAX = to_hash(fn()); }
 void aEa_32(x64emu_t *emu, uintptr_t fcn) { aEa_t fn = (aEa_t)fcn; errno = emu->libc_err; R_EAX = to_locale(fn(from_locale(from_ptri(ptr_t, R_ESP + 4)))); emu->libc_err = errno; }
+void tEv_32(x64emu_t *emu, uintptr_t fcn) { tEv_t fn = (tEv_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn()); emu->libc_err = errno; }
 void tEi_32(x64emu_t *emu, uintptr_t fcn) { tEi_t fn = (tEi_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptri(int32_t, R_ESP + 4))); emu->libc_err = errno; }
 void tEu_32(x64emu_t *emu, uintptr_t fcn) { tEu_t fn = (tEu_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptri(uint32_t, R_ESP + 4))); emu->libc_err = errno; }
 void tEp_32(x64emu_t *emu, uintptr_t fcn) { tEp_t fn = (tEp_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptriv(R_ESP + 4))); emu->libc_err = errno; }
