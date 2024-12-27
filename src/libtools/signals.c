@@ -2064,7 +2064,11 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
 EXPORT sighandler_t my___sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 EXPORT sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));    // not completely exact
 
+#ifdef ANDROID
+int EXPORT my_sigaction(x64emu_t* emu, int signum, const android_sigaction_t *act, android_sigaction_t *oldact)
+#else
 int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact)
+#endif
 {
     printf_log(LOG_DEBUG, "Sigaction(signum=%d, act=%p(f=%p, flags=0x%x), old=%p)\n", signum, act, act?act->_u._sa_handler:NULL, act?act->sa_flags:0, oldact);
     if(signum<0 || signum>MAX_SIGNAL) {
@@ -2118,10 +2122,18 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
     }
     return ret;
 }
+#ifdef ANDROID
+int EXPORT my___sigaction(x64emu_t* emu, int signum, const android_sigaction_t *act, android_sigaction_t *oldact)
+#else
 int EXPORT my___sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact)
+#endif
 __attribute__((alias("my_sigaction")));
 
+#ifdef ANDROID
+int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const android_sigaction_restorer_t *act, android_sigaction_restorer_t *oldact, int sigsetsize)
+#else
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
+#endif
 {
     printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
     if(signum<0 || signum>MAX_SIGNAL) {

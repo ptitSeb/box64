@@ -14,6 +14,18 @@ typedef struct x64_sigaction_s {
 	void (*sa_restorer)(void);
 } x64_sigaction_t;
 
+#ifdef ANDROID
+typedef struct android_sigaction_s {
+	union {
+	  sighandler_t _sa_handler;
+	  void (*_sa_sigaction)(int, siginfo_t *, void *);
+	} _u;
+	sigset_t sa_mask;
+	uint32_t sa_flags;
+	void (*sa_restorer)(void);
+} android_sigaction_t;
+#endif
+
 typedef struct x64_sigaction_restorer_s {
 	union {
 	  sighandler_t _sa_handler;
