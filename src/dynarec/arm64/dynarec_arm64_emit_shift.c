@@ -1437,8 +1437,6 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         LSRxw(s4, s1, rex.w?63:31);
     }
     if(s1==s2) {
-        SUBw_U12(s3, s5, rex.w?64:32);
-        SUBw_REG(s3, xZR, s3);
         RORxw_REG(s1, s1, s3);
     } else {
         LSLxw_REG(s1, s1, s5);
