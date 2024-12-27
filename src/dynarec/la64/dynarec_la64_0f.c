@@ -1072,7 +1072,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else if (!rex.w) {
                         ZEROUP(ed);
                     }
-                    MARK;
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
@@ -1093,7 +1092,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else if (!rex.w) {
                         ZEROUP(ed);
                     }
-                    MARK;
                     break;
                 case 7:
                     INST_NAME("BTC Ed, Ib");

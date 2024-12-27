@@ -680,6 +680,7 @@ void iret_to_epilog(dynarec_la64_t* dyn, int ninst, int is64bits)
     MOV32w(x1, 0x3F7FD7);
     AND(xFlags, xFlags, x1);
     ORI(xFlags, xFlags, 0x2);
+    SPILL_EFLAGS();
     SET_DFNONE();
     // POP RSP
     if (is64bits) {
