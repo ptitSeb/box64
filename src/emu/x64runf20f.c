@@ -36,6 +36,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     uint8_t tmp8u;
     int32_t tmp32s;
     int64_t tmp64s0, tmp64s1;
+    uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opgm;
@@ -88,7 +89,12 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GX->d[0] = ED->sdword[0];
         }
         break;
-
+    case 0x2B:  /* MOVNTSD Ex, Gx */
+        nextop = F8;
+        GETEX8(0);
+        GETGX;
+        EX->q[0] = GX->q[0];
+        break;
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
         nextop = F8;
         _GETEX(0);
@@ -303,6 +309,41 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             for (int i=0; i<4; ++i)
                 GX->uw[i] = EX->uw[(tmp8u>>(i*2))&3];
             GX->q[1] = EX->q[1];
+        }
+        break;
+
+    case 0x78:  /* INSERTQ Ex, Gx, ib, ib */
+        // AMD only
+        nextop = F8;
+        if(!box64_cputype || !(MODREG)) {
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
+        } else {
+            GETGX;
+            GETEX(2);
+            tmp8u = F8&0x3f;
+            tmp8s = F8&0x3f;
+            tmp64u = (1<<(tmp8s+1)-1);
+            EX->q[0] &=~(tmp64u<<tmp8u);
+            EX->q[0] |= (GX->q[0]&tmp64u)<<tmp8u;
+        }
+        break;
+    case 0x79:  /* INSERTQ Ex, Gx */
+        // AMD only
+        nextop = F8;
+        if(!box64_cputype || !(MODREG)) {
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
+        } else {
+            GETGX;
+            GETEX(2);
+            tmp8u = GX->ub[8]&0x3f;
+            tmp8s = GX->ub[9]&0x3f;
+            tmp64u = (1<<(tmp8s+1)-1);
+            EX->q[0] &=~(tmp64u<<tmp8u);
+            EX->q[0] |= (GX->q[0]&tmp64u)<<tmp8u;
         }
         break;
 

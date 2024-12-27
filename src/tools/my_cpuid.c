@@ -519,7 +519,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         | 1<<1      // cmplegacy?
                         | 1<<2      // securevm
                         | 1<<5      // ABM (LZCNT)
-                        //| 1<<6      // SSE4a (extrq, instrq, movntss, movntsd)
+                        | 1<<6      // SSE4a (extrq, instrq, movntss, movntsd)
                         //| 1<<7      // misaligned SSE
                         | 1<<8      // 3DNowPrefetch
                         //| 1<<10     // IBS

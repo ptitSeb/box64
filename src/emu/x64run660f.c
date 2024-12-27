@@ -19,6 +19,7 @@
 #include "x64trace.h"
 #include "x87emu_private.h"
 #include "box64context.h"
+#include "signals.h"
 #include "bridge.h"
 
 #include "modrm.h"
@@ -1698,6 +1699,38 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         for (int i=0; i<4; ++i)
             GX->ud[i] = (GX->ud[i]==EX->ud[i])?0xffffffff:0;
+        break;
+    
+    case 0x78:  /* EXTRQ Ex, ib, ib */
+        // AMD only
+        nextop = F8;
+        if(!box64_cputype || (nextop&0xC0)>>3) {
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
+        } else {
+            GETEX(2);
+            tmp8u = F8&0x3f;
+            tmp8s = F8&0x3f;
+            EX->q[0]>>tmp8u;
+            EX->q[0]&=(1<<(tmp8s+1)-1);
+        }
+        break;
+    case 0x79:  /* EXTRQ Ex, Gx */
+        // AMD only
+        nextop = F8;
+        if(!box64_cputype || !(MODREG)) {
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
+        } else {
+            GETGX;
+            GETEX(2);
+            tmp8u = GX->ub[0]&0x3f;
+            tmp8s = GX->ub[1]&0x3f;
+            EX->q[0]>>tmp8u;
+            EX->q[0]&=(1<<(tmp8s+1)-1);
+        }
         break;
 
     case 0x7C:  /* HADDPD Gx, Ex */

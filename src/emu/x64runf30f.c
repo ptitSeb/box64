@@ -98,7 +98,12 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         else
             GX->f[0] = ED->sdword[0];
         break;
-
+    case 0x2B:  /* MOVNTSS Ex Gx */
+        nextop = F8;
+        GETEX4(0);
+        GETGX;
+        EX->ud[0] = GX->ud[0];
+        break;
     case 0x2C:  /* CVTTSS2SI Gd, Ex */
         nextop = F8;
         GETEX(0);
