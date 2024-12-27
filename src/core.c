@@ -64,6 +64,7 @@ path_collection_t box64_addlibs = {0};
 int box64_maxcpu = 0;
 int box64_maxcpu_immutable = 0;
 int box64_is32bits = 0;
+int box64_cputype = 0;
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
@@ -1307,6 +1308,14 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Will use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
         else
             printf_log(LOG_INFO, "Will not use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
+    }
+    p = getenv("BOX64_CPUTYPE");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_cputype = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Will emulate an %s CPU\n", box64_cputype?"AMD":"Intel");
     }
     p = getenv("BOX64_IGNOREINT3");
         if(p) {

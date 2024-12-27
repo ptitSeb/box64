@@ -127,6 +127,7 @@ ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
 ENTRYSTRING_(BOX64_ARGS, new_args)                      \
 ENTRYSTRING_(BOX64_INSERT_ARGS, insert_args)            \
 ENTRYBOOL(BOX64_RESERVE_HIGH, new_reserve_high)         \
+ENTRYINT(BOX64_CPUTYPE, box64_cputype, 0, 1, 1)         \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
