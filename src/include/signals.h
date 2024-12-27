@@ -16,12 +16,12 @@ typedef struct x64_sigaction_s {
 
 #ifdef ANDROID
 typedef struct android_sigaction_s {
+	int sa_flags;
 	union {
 	  sighandler_t _sa_handler;
 	  void (*_sa_sigaction)(int, siginfo_t *, void *);
 	} _u;
 	sigset_t sa_mask;
-	uint32_t sa_flags;
 	void (*sa_restorer)(void);
 } android_sigaction_t;
 #endif
