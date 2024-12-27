@@ -1,85 +1,9 @@
 #ifndef __RV64_EMITTER_H__
 #define __RV64_EMITTER_H__
-/*
-    RV64 Emitter
 
-*/
+#include "rv64_mapping.h"
 
-// RV64 ABI
-/*
-reg     name    description                     saver
-------------------------------------------------------
-x0      zero    Hard-wired zero                 —
-x1      ra      Return address                  Caller
-x2      sp      Stack pointer                   Callee
-x3      gp      Global pointer                  —
-x4      tp      Thread pointer                  —
-x5–7    t0–2    Temporaries                     Caller
-x8      s0/fp   Saved register/frame pointer    Callee
-x9      s1      Saved register                  Callee
-x10–11  a0–1    Function arguments/return val.  Caller
-x12–17  a2–7    Function arguments              Caller
-x18–27  s2–11   Saved registers                 Callee
-x28–31  t3–6    Temporaries                     Caller
--------------------------------------------------------
-f0–7    ft0–7   FP temporaries                  Caller
-f8–9    fs0–1   FP saved registers              Callee
-f10–11  fa0–1   FP arguments/return values      Caller
-f12–17  fa2–7   FP arguments                    Caller
-f18–27  fs2–11  FP saved registers              Callee
-f28–31  ft8–11  FP temporaries                  Caller
-*/
-// x86 Register mapping
-#define xRAX   16
-#define xRCX   17
-#define xRDX   18
-#define xRBX   19
-#define xRSP   20
-#define xRBP   21
-#define xRSI   22
-#define xRDI   23
-#define xR8    24
-#define xR9    25
-#define xR10   26
-#define xR11   27
-#define xR12   28
-#define xR13   29
-#define xR14   30
-#define xR15   31
-#define xFlags 8
-#define xRIP   7
-
-// convert a x86 register to native according to the register mapping
-#define TO_NAT(A) (xRAX + (A))
-
-// scratch registers
-#define x1 11
-#define x2 12
-#define x3 13
-#define x4 14
-#define x5 15
-#define x6 6
-#define x9 9
-// used to clear the upper 32bits
-#define xMASK 5
-
-// emu is r10
-#define xEmu 10
-// RV64 RA
-#define xRA 1
-#define xSP 2
-// RV64 args
-#define A0 10
-#define A1 11
-#define A2 12
-#define A3 13
-#define A4 14
-#define A5 15
-#define A6 16
-#define A7 17
-// xZR reg is 0
-#define xZR 0
-#define wZR xZR
+// RV64 Emitter
 
 // replacement for F_OF internaly, using a reserved bit. Need to use F_OF2 internaly, never F_OF directly!
 #define F_OF2 F_res3
@@ -108,8 +32,19 @@ f28–31  ft8–11  FP temporaries                  Caller
         }                   \
     } while (0)
 
-// ZERO the upper part
-#define ZEROUP(r) AND(r, r, xMASK)
+// ZERO the upper part, compatible to zba, xtheadbb, and rv64gc
+#define ZEXTW2(rd, rs1)              \
+    do {                             \
+        if (rv64_zba) {              \
+            ZEXTW(rd, rs1);          \
+        } else if (rv64_xtheadbb) {  \
+            TH_EXTU(rd, rs1, 31, 0); \
+        } else {                     \
+            SLLI(rd, rs1, 32);       \
+            SRLI(rd, rd, 32);        \
+        }                            \
+    } while (0)
+#define ZEROUP(r) ZEXTW2(r, r)
 
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode) ((funct7) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
 #define I_type(imm12, rs1, funct3, rd, opcode)       ((imm12) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
@@ -189,7 +124,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 - rs2
 #define SUBxw(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.w ? 0b0110011 : 0b0111011))
 // rd = rs1 - rs2
-#define SUBz(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, rex.is32bits ? 0b0111011 : 0b0110011))
+#define SUBz(rd, rs1, rs2)     \
+    do {                       \
+        if (!rex.is32bits) {   \
+            SUB(rd, rs1, rs2); \
+        } else {               \
+            SUB(rd, rs1, rs2); \
+            ZEROUP(rd);        \
+        }                      \
+    } while (0)
 // rd = rs1<<rs2
 #define SLL(rd, rs1, rs2) EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, 0b0110011))
 // rd = (rs1<rs2)?1:0
@@ -221,14 +164,14 @@ f28–31  ft8–11  FP temporaries                  Caller
         if (rex.w) {             \
             MV(rd, rs1);         \
         } else {                 \
-            AND(rd, rs1, xMASK); \
+            ZEXTW2(rd, rs1);     \
         }                        \
     } while (0)
 // rd = rs1 (pseudo instruction)
 #define MVz(rd, rs1)             \
     do {                         \
         if (rex.is32bits) {      \
-            AND(rd, rs1, xMASK); \
+            ZEXTW2(rd, rs1);     \
         } else {                 \
             MV(rd, rs1);         \
         }                        \
@@ -375,25 +318,41 @@ f28–31  ft8–11  FP temporaries                  Caller
 // 4-bytes[rs1+imm12] = rs2
 #define SW(rs2, rs1, imm12) EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
-#define PUSH1(reg)            \
-    do {                      \
-        SD(reg, xRSP, 0xFF8); \
-        SUBI(xRSP, xRSP, 8);  \
+#define PUSH1(reg)                              \
+    do {                                        \
+        if (rv64_xtheadmemidx && reg != xRSP) { \
+            TH_SDIB(reg, xRSP, -8, 0);          \
+        } else {                                \
+            SD(reg, xRSP, 0xFF8);               \
+            SUBI(xRSP, xRSP, 8);                \
+        }                                       \
     } while (0)
-#define POP1(reg)                             \
-    do {                                      \
-        LD(reg, xRSP, 0);                     \
-        if (reg != xRSP) ADDI(xRSP, xRSP, 8); \
+#define POP1(reg)                                 \
+    do {                                          \
+        if (rv64_xtheadmemidx && reg != xRSP) {   \
+            TH_LDIA(reg, xRSP, 8, 0);             \
+        } else {                                  \
+            LD(reg, xRSP, 0);                     \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 8); \
+        }                                         \
     } while (0)
-#define PUSH1_32(reg)         \
-    do {                      \
-        SW(reg, xRSP, 0xFFC); \
-        SUBI(xRSP, xRSP, 4);  \
+#define PUSH1_32(reg)                           \
+    do {                                        \
+        if (rv64_xtheadmemidx && reg != xRSP) { \
+            TH_SWIB(reg, xRSP, -4, 0);          \
+        } else {                                \
+            SW(reg, xRSP, 0xFFC);               \
+            SUBI(xRSP, xRSP, 4);                \
+        }                                       \
     } while (0)
-#define POP1_32(reg)                          \
-    do {                                      \
-        LWU(reg, xRSP, 0);                    \
-        if (reg != xRSP) ADDI(xRSP, xRSP, 4); \
+#define POP1_32(reg)                              \
+    do {                                          \
+        if (rv64_xtheadmemidx && reg != xRSP) {   \
+            TH_LWUIA(reg, xRSP, 4, 0);            \
+        } else {                                  \
+            LWU(reg, xRSP, 0);                    \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 4); \
+        }                                         \
     } while (0)
 
 #define POP1z(reg)      \
@@ -409,16 +368,24 @@ f28–31  ft8–11  FP temporaries                  Caller
         PUSH1(reg);     \
     }
 
-#define PUSH1_16(reg)         \
-    do {                      \
-        SH(reg, xRSP, 0xFFE); \
-        SUBI(xRSP, xRSP, 2);  \
+#define PUSH1_16(reg)                           \
+    do {                                        \
+        if (rv64_xtheadmemidx && reg != xRSP) { \
+            TH_SHIB(reg, xRSP, -2, 0);          \
+        } else {                                \
+            SH(reg, xRSP, 0xFFE);               \
+            SUBI(xRSP, xRSP, 2);                \
+        }                                       \
     } while (0)
 
-#define POP1_16(reg)                          \
-    do {                                      \
-        LHU(reg, xRSP, 0);                    \
-        if (reg != xRSP) ADDI(xRSP, xRSP, 2); \
+#define POP1_16(reg)                              \
+    do {                                          \
+        if (rv64_xtheadmemidx && reg != xRSP) {   \
+            TH_LHUIA(reg, xRSP, 2, 0);            \
+        } else {                                  \
+            LHU(reg, xRSP, 0);                    \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 2); \
+        }                                         \
     } while (0)
 
 #define FENCE_gen(pred, succ) (((pred) << 24) | ((succ) << 20) | 0b0001111)
@@ -452,11 +419,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SDz(rs2, rs1, imm12) EMIT(S_type(imm12, rs2, rs1, 0b010 + (1 - rex.is32bits), 0b0100011))
 
 // Shift Left Immediate
-#define SLLI(rd, rs1, imm6) EMIT(I_type(imm6, rs1, 0b001, rd, 0b0010011))
+#define SLLI(rd, rs1, imm6) EMIT(I_type(((imm6) & 0x3f), rs1, 0b001, rd, 0b0010011))
 // Shift Right Logical Immediate
-#define SRLI(rd, rs1, imm6) EMIT(I_type(imm6, rs1, 0b101, rd, 0b0010011))
+#define SRLI(rd, rs1, imm6) EMIT(I_type(((imm6) & 0x3f), rs1, 0b101, rd, 0b0010011))
 // Shift Right Arithmetic Immediate
-#define SRAI(rd, rs1, imm6) EMIT(I_type((imm6) | (0b010000 << 6), rs1, 0b101, rd, 0b0010011))
+#define SRAI(rd, rs1, imm6) EMIT(I_type(((imm6) & 0x3f) | (0b010000 << 6), rs1, 0b101, rd, 0b0010011))
 
 // rd = rs1 + imm12
 #define ADDIW(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, 0b0011011))
@@ -465,7 +432,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 + imm12
 #define ADDIxw(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, rex.w ? 0b0010011 : 0b0011011))
 // rd = rs1 + imm12
-#define ADDIz(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, rex.is32bits ? 0b0011011 : 0b0010011))
+#define ADDIz(rd, rs1, imm12)      \
+    do {                           \
+        if (!rex.is32bits) {       \
+            ADDI(rd, rs1, imm12);  \
+        } else {                   \
+            ADDIW(rd, rs1, imm12); \
+            ZEROUP(rd);            \
+        }                          \
+    } while (0)
 
 // rd = rs1 + (rs2 << imm2)
 #define ADDSL(rd, rs1, rs2, imm2, scratch) \
@@ -836,7 +811,7 @@ f28–31  ft8–11  FP temporaries                  Caller
             SUBI(u8, u8, 32);                \
             MV(s2, s3);                      \
         } else {                             \
-            AND(s2, rs, xMASK);              \
+            ZEXTW2(s2, rs);                  \
         }                                    \
         SRLI(s3, s2, 16);                    \
         BEQZ(s3, 4 + 2 * 4);                 \
@@ -932,7 +907,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Insert low 16bits in rs to low 16bits of rd
 #define INSHz(rd, rs, s1, s2, init_s1, zexth_rs) \
     INSH(rd, rs, s1, s2, init_s1, zexth_rs)      \
-    if (rex.is32bits) AND(rd, rd, xMASK);
+    if (rex.is32bits) ZEXTW2(rd, rd);
 
 // Rotate left (register)
 #define ROL(rd, rs1, rs2) EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0110011))
@@ -1015,7 +990,7 @@ f28–31  ft8–11  FP temporaries                  Caller
         }                              \
     }                                  \
     if (!rex.w)                        \
-        AND(rd, rd, xMASK);
+        ZEXTW2(rd, rd);
 
 
 // Zbc
@@ -1171,19 +1146,66 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rs1 := rs1 + (sign_extend(imm5) << imm2)
 #define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
 
+// Load indexed half-word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := sign_extend(mem[rs1+1:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LHIA(rd, rs1, imm5, imm2) EMIT(I_type(0b001110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed unsigned half-word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := zero_extend(mem[rs1+1:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LHUIA(rd, rs1, imm5, imm2) EMIT(I_type(0b101110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := sign_extend(mem[rs1+3:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LWIA(rd, rs1, imm5, imm2) EMIT(I_type(0b010110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed unsigned word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := zero_extend(mem[rs1+3:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LWUIA(rd, rs1, imm5, imm2) EMIT(I_type(0b110110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Load indexed double-word, increment address after loading.
+// if (rs1 != rd) {
+//     rd := sign_extend(mem[rs1+7:rs1])
+//     rs1 := rs1 + (sign_extend(imm5) << imm2)
+// }
+#define TH_LDIA(rd, rs1, imm5, imm2) EMIT(I_type(0b011110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
+
+// Store indexed half-word, increment address before storage.
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+// mem[rs1+1:rs1] := rd
+#define TH_SHIB(rd, rs1, imm5, imm2) EMIT(I_type(0b001010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
+
+// Store indexed word, increment address before storage.
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+// mem[rs1+3:rs1] := rd
+#define TH_SWIB(rd, rs1, imm5, imm2) EMIT(I_type(0b010010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
+
+// Store indexed double-word, increment address before storage.
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+// mem[rs1+7:rs1] := rd
+#define TH_SDIB(rd, rs1, imm5, imm2) EMIT(I_type(0b011010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
+
 // TODO
 // th.lbib rd, (rs1), imm5, imm2 Load indexed byte
 // th.lbuia rd, (rs1), imm5, imm2 Load indexed unsigned byte
 // th.lbuib rd, (rs1), imm5, imm2 Load indexed unsigned byte
 // th.lhia rd, (rs1), imm5, imm2 Load indexed half-word
 // th.lhib rd, (rs1), imm5, imm2 Load indexed half-word
-// th.lhuia rd, (rs1), imm5, imm2 Load indexed unsigned half-word
 // th.lhuib rd, (rs1), imm5, imm2 Load indexed unsigned half-word
 // th.lwia rd, (rs1), imm5, imm2 Load indexed word
 // th.lwib rd, (rs1), imm5, imm2 Load indexed word
-// th.lwuia rd, (rs1), imm5, imm2 Load indexed unsigned word
 // th.lwuib rd, (rs1), imm5, imm2 Load indexed unsigned word
-// th.ldia rd, (rs1), imm5, imm2 Load indexed double-word
 // th.ldib rd, (rs1), imm5, imm2 Load indexed double-word
 // th.sbia rd, (rs1), imm5, imm2 Store indexed byte
 // th.sbib rd, (rs1), imm5, imm2 Store indexed byte
@@ -1192,7 +1214,6 @@ f28–31  ft8–11  FP temporaries                  Caller
 // th.swia rd, (rs1), imm5, imm2 Store indexed word
 // th.swib rd, (rs1), imm5, imm2 Store indexed word
 // th.sdia rd, (rs1), imm5, imm2 Store indexed double-word
-// th.sdib rd, (rs1), imm5, imm2 Store indexed double-word
 // th.lrb rd, rs1, rs2, imm2 Load indexed byte
 // th.lrbu rd, rs1, rs2, imm2 Load indexed unsigned byte
 // th.lrh rd, rs1, rs2, imm2 Load indexed half-word

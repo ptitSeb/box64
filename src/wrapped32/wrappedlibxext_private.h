@@ -93,7 +93,7 @@ GO(XSyncAwaitFence, iFXbL_i)
 //GO(XSyncChangeAlarm, iFpLLp)
 //GO(XSyncChangeCounter, iFpuU)
 //GO(XSyncCreateAlarm, LFpLp)     // XSyncAlarm is an XID
-//GO(XSyncCreateCounter, uFpU)    // XSyncValue is a struct of 2 int
+GO(XSyncCreateCounter, LFXU)    // XSyncValue is a struct of 2 int
 GO(XSyncCreateFence, LFXLi)
 GO(XSyncDestroyAlarm, iFXL)
 GO(XSyncDestroyCounter, iFXL)
@@ -111,7 +111,7 @@ GO(XSyncQueryCounter, iFXLp)
 GO(XSyncQueryExtension, iFXpp)
 GO(XSyncQueryFence, iFXLp)
 GO(XSyncResetFence, iFXL)
-//GO(XSyncSetCounter, iFpuU)      // XSyncCounter is an XID
+GO(XSyncSetCounter, iFXLU)      // XSyncCounter is an XID
 GO(XSyncSetPriority, iFXLi)
 GO(XSyncTriggerFence, iFXL)
 //GO(XSyncValueAdd, 
@@ -119,9 +119,9 @@ GO(XSyncTriggerFence, iFXL)
 //GO(XSyncValueGreaterOrEqual, 
 //GO(XSyncValueGreaterThan, 
 //GO(XSyncValueHigh32, 
-//GO(XSyncValueIsNegative, 
-//GO(XSyncValueIsPositive, 
-//GO(XSyncValueIsZero, iFp)
+GO(XSyncValueIsNegative, iFU)
+GO(XSyncValueIsPositive, iFU)
+GO(XSyncValueIsZero, iFU)
 //GO(XSyncValueLessOrEqual, 
 //GO(XSyncValueLessThan, 
 //GO(XSyncValueLow32, 

@@ -41,6 +41,28 @@ EXPORT int my32_XFixesQueryExtension(x64emu_t* emu, void* dpy, int* event_base, 
     return ret;
 }
 
+EXPORT void* my32_XFixesGetCursorImage(x64emu_t* emu, void* dpy)
+{
+    void* ret = my->XFixesGetCursorImage(dpy);
+    if(ret) {
+        my_XFixesCursorImage_t* src = ret;
+        my_XFixesCursorImage_32_t* dst = ret;
+        for(size_t i=0; i<src->width*src->height; ++i)
+            ((ulong_t*)src->pixels)[i] = to_ulong_silent(src->pixels[i]);
+        dst->x = src->x;
+        dst->y = src->y;
+        dst->width = src->width;
+        dst->height = src->height;
+        dst->xhot = src->xhot;
+        dst->cursor_serial = src->cursor_serial;
+        dst->pixels = to_ptrv(src->pixels);
+        // should check if v2 here!
+        dst->atom = to_ulong(src->atom);
+        dst->name = to_ptrv(src->name);
+    }
+    return ret;
+}
+
 #if 0
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libxcb.so", "libXau.so", "libXdmcp.so"

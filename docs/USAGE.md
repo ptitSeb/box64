@@ -7,8 +7,9 @@ Env. var with * can also be put inside box64rc files.
 Box64 look for 2 places for rcfile: `/etc/box64.box64rc` and `~/.box64rc`
 The second takes precedence to the first, on an APP level 
 (that means if an [MYAPP] my appears in both file, only the settings in `~/.box64rc` will be applied)
-There is also some égeneric" name, like [*SETUP*] that will be applied to every program containing "setup" in the name
+There is also some "generic" name, like [*SETUP*] that will be applied to every program containing "setup" in the name
 (Note that this is not a full regex rules, it's just a name between '[*' and '*]', nothing else)
+Settings priority: `~/.box64rc` > `/etc/box64.box64rc` > Command line.
 
 #### BOX64_LOG *
 Controls the Verbosity level of the logs
@@ -221,7 +222,7 @@ Generated code for aligned atomics only
 #### BOX64_DYNAREC_NATIVEFLAGS *
 Generate code will use native flags if possible
 * 0 : The code generated whill not use native flags even when possible
-* 1 : Generated code will use native flags when possible (Arm64 only for now) (Default)
+* 1 : Generated code will use native flags when possible (Default)
 
 #### BOX64_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
@@ -237,6 +238,17 @@ Detect libjvm and apply conservative settings. Obsolete, use BOX64_JVM instead.
 Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is not multithreaded)
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
 * 1 : Dynarec will wait for FillBlock to be ready (Default)
+
+#### BOX64_DYNAREC_GDBJIT *
+The GDBJIT debugging support, only available with the compilation option GDBJIT=ON, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
+* 0 : Dynarec will not generate GDBJIT debuginfo. (Default)
+* 1 : Dynarec will generate GDBJIT debuginfo.
+* 2 : Dynarec will generate detailed GDBJIT debuginfo with internal state.
+
+#### BOX64_DYNAREC_PERFMAP *
+Dynarec generate map file for Linux perf tool.
+* 0 : Dynarec will not generate perf map. (Default)
+* 1 : Dynarec will generate perf map.
 
 #### BOX64_DYNAREC_MISSING *
 Dynarec print the missing opcodes

@@ -4,6 +4,17 @@
 
 typedef void (*sighandler_t)(int);
 
+#ifdef ANDROID
+typedef struct x64_sigaction_s {
+	int sa_flags;
+	union {
+	  sighandler_t _sa_handler;
+	  void (*_sa_sigaction)(int, siginfo_t *, void *);
+	} _u;
+	sigset_t sa_mask;
+	void (*sa_restorer)(void);
+} x64_sigaction_t;
+#else
 typedef struct x64_sigaction_s {
 	union {
 	  sighandler_t _sa_handler;
@@ -13,6 +24,7 @@ typedef struct x64_sigaction_s {
 	uint32_t sa_flags;
 	void (*sa_restorer)(void);
 } x64_sigaction_t;
+#endif
 
 typedef struct x64_sigaction_restorer_s {
 	union {

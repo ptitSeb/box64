@@ -84,6 +84,11 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
 void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem, int n);
 void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack);
 
+void* align_xcb_connection32(void* src);
+void unalign_xcb_connection32(void* src, void* dst);
+void* add_xcb_connection32(void* src);
+void del_xcb_connection32(void* src);
+
 void UnalignStat64_32(const void* source, void* dest);
 
 void UnalignStatFS_32(const void* source, void* dest);
@@ -493,6 +498,13 @@ struct i386_hostent {
     ptr_t  h_addr_list;// char **
 };
 
+struct i386_servent {
+    ptr_t  s_name;     // char  *
+    ptr_t  s_aliases;  // char **
+    int    s_port;
+    ptr_t  s_proto;     // char *
+};
+
 struct i386_iovec
 {
   ptr_t     iov_base; // void *
@@ -508,19 +520,25 @@ struct i386_msghdr
   ptr_t     msg_control;  // void *
   ulong_t   msg_controllen;
   int msg_flags;
-} __attribute__((packed, aligned(4)));
+};
 
+struct i386_mmsghdr {
+    struct i386_msghdr msg_hdr;
+    unsigned int       msg_len;
+};
+
+// Some docs show cmsg_len as a socklen_t (so uint32_t), but thsi not true, it's a size_t (kernel_size_t)
 struct i386_cmsghdr
 {
   ulong_t cmsg_len;
   int cmsg_level;
   int cmsg_type;
-} __attribute__((packed, aligned(4)));
+};
 
 void AlignIOV_32(void* dest, void* source);   // x86 -> Native
 void UnalignIOV_32(void* dest, void* source); // Native -> x86
 
-void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control);   // x86 -> Native
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control);    // x86 -> Native
 void UnalignMsgHdr_32(void* dest, void* source); // back to Native -> x86
 
 struct i386_passwd
@@ -587,5 +605,56 @@ typedef struct my_regex_32_s
 void convert_regext_to_32(void* d, void* s);
 void convert_regext_to_64(void* d, void* s);
 
+typedef struct my_ns_msg_32_s {
+	ptr_t     _msg; //const unsigned char	*_
+  ptr_t     _eom; //const unsigned char	*_
+	uint16_t	_id;
+  uint16_t  _flags;
+  uint16_t  _counts[4];
+	ptr_t     _sections[4];//const unsigned char	*_
+	uint32_t	_sect;
+	int			  _rrnum;
+	ptr_t     _msg_ptr; //const unsigned char	*
+} my_ns_msg_32_t;
+
+typedef	struct my_ns_rr_32_s {
+	char			  name[1025];
+	uint16_t		type;
+	uint16_t		rr_class;
+	uint32_t		ttl;
+	uint16_t		rdlength;
+	ptr_t	      rdata;  //const unsigned char *
+} my_ns_rr_32_t;
+
+struct my_obstack_chunk_32_t
+{
+  ptr_t  limit; //char *
+  ptr_t  prev;  //struct _obstack_chunk *
+  char contents[4];
+};
+
+struct my_obstack_32_t
+{
+  long_t chunk_size;
+  ptr_t  chunk; //struct _obstack_chunk *
+  ptr_t  object_base; //char*
+  ptr_t  next_free; //char*
+  ptr_t  chunk_limit; //char*
+  union
+  {
+    int tempint;
+    ptr_t tempptr;  //void*
+  } temp;
+  int alignment_mask;
+  ptr_t chunkfun; //struct _obstack_chunk *(*chunkfun) (void *, long);
+  ptr_t freefun; //void (*freefun) (void *, struct _obstack_chunk *);
+  ptr_t extra_arg;//void *
+  unsigned use_extra_arg : 1;
+  unsigned maybe_empty_object : 1;
+  unsigned alloc_failed : 1;
+};
+
+void convert_obstack_to_32(void* d, void* s);
+void convert_obstack_to_64(void* d, void* s);
 
 #endif//__MY_ALIGN32__H_

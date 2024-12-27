@@ -25,9 +25,10 @@
 // emit XOR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_xor8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s4, d_xor8);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -62,9 +63,10 @@ void emit_xor8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit XOR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s4, d_xor8);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -74,6 +76,7 @@ void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             X64_XOR_B(s1, s3);
         }
         XORI(s1, s1, c & 0xff);
+        ANDI(s1, s1, 0xff);
         IFX (X_PEND)
             ST_B(s1, xEmu, offsetof(x64emu_t, res));
         return;
@@ -102,9 +105,10 @@ void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 // emit XOR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s4, d_xor16);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -142,9 +146,10 @@ void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 // emit XOR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX(X_PEND) {
         SET_DF(s4, rex.w ? d_xor64 : d_xor32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -193,9 +198,10 @@ void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit XOR32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
 void emit_xor32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s4, rex.w ? d_xor64 : d_xor32);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -259,9 +265,10 @@ void emit_xor32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 // emit AND8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_and8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX(X_PEND) {
         SET_DF(s3, d_and8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -296,9 +303,10 @@ void emit_and8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit AND8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
-    IFX(X_PEND) {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    IFX (X_PEND) {
         SET_DF(s3, d_and8);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -333,9 +341,10 @@ void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 
 void emit_and16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s3, d_tst16);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -370,9 +379,10 @@ void emit_and16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit AND32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_and32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    IFX (X_PEND) {
         SET_DF(s3, rex.w ? d_tst64 : d_tst32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -412,9 +422,10 @@ void emit_and32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit AND32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
-    IFX(X_PEND) {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    IFX (X_PEND) {
         SET_DF(s3, rex.w ? d_tst64 : d_tst32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -458,9 +469,10 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 // emit OR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_or16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s3, d_or16);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -495,9 +507,10 @@ void emit_or16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit OR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    IFX (X_PEND) {
         SET_DF(s4, rex.w?d_or64:d_or32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -540,9 +553,10 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 // emit OR32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
-    IFX(X_PEND) {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    IFX (X_PEND) {
         SET_DF(s4, rex.w ? d_or64 : d_or32);
-    } else IFX(X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
@@ -594,9 +608,10 @@ void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 // emit OR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
 void emit_or8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
     IFX (X_PEND) {
         SET_DF(s3, d_or8);
-    } else IFX (X_ALL) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 

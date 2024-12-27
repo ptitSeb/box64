@@ -5,6 +5,7 @@
 
 #define instruction_native_t        instruction_arm64_t
 #define dynarec_native_t            dynarec_arm_t
+#define extcache_native_t           neoncache_t
 
 #define ADDITIONNAL_DEFINITION()  \
     int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst);
@@ -27,6 +28,7 @@
 
 #define instruction_native_t        instruction_la64_t
 #define dynarec_native_t            dynarec_la64_t
+#define extcache_native_t           lsxcache_t
 
 #define ADDITIONNAL_DEFINITION() \
     int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst);
@@ -42,11 +44,12 @@
 
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
-#define PREUPDATE_SPECIFICS(A)
+#define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
 #define dynarec_native_t            dynarec_rv64_t
+#define extcache_native_t           extcache_t
 
 #define ADDITIONNAL_DEFINITION()                                  \
     int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst); \

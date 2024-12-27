@@ -31,7 +31,7 @@ int isRetX87Wrapper(wrapper_t fun);
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
-    uint8_t gd, ed;
+    uint8_t gd, ed, tmp1, tmp2, tmp3;
     int8_t i8;
     int32_t i32, tmp;
     int64_t i64, j64;
@@ -56,7 +56,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     switch (opcode) {
         case 0x00:
             INST_NAME("ADD Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -65,7 +65,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x01:
             INST_NAME("ADD Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -74,7 +74,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x02:
             INST_NAME("ADD Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -83,7 +83,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x03:
             INST_NAME("ADD Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -91,7 +91,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x04:
             INST_NAME("ADD AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
@@ -99,13 +99,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x05:
             INST_NAME("ADD EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -114,7 +114,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x09:
             INST_NAME("OR Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -123,7 +123,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0A:
             INST_NAME("OR Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -132,7 +132,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0B:
             INST_NAME("OR Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -140,7 +140,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0C:
             INST_NAME("OR AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_or8c(dyn, ninst, x1, u8, x3, x4, x5);
@@ -148,7 +148,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
@@ -170,7 +170,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x10:
             INST_NAME("ADC Eb, Gb");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -180,7 +180,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x11:
             INST_NAME("ADC Ed, Gd");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -190,7 +190,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x12:
             INST_NAME("ADC Gb, Eb");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x2, 0);
             GETGB(x1);
@@ -200,7 +200,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x13:
             INST_NAME("ADC Gd, Ed");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -209,7 +209,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x14:
             INST_NAME("ADC AL, Ib");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_adc8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
@@ -218,7 +218,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x15:
             INST_NAME("ADC EAX, Id");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             MOV64xw(x1, i64);
             emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
@@ -226,7 +226,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -236,7 +236,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x19:
             INST_NAME("SBB Ed, Gd");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -246,7 +246,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1A:
             INST_NAME("SBB Gb, Eb");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x2, 0);
             GETGB(x1);
@@ -256,7 +256,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1B:
             INST_NAME("SBB Gd, Ed");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -265,7 +265,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1C:
             INST_NAME("SBB AL, Ib");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_sbb8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
@@ -274,14 +274,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1D:
             INST_NAME("SBB EAX, Id");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             MOV64xw(x2, i64);
             emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -290,7 +290,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -299,7 +299,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x22:
             INST_NAME("AND Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -308,7 +308,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x23:
             INST_NAME("AND Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -316,7 +316,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x24:
             INST_NAME("AND AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_and8c(dyn, ninst, x1, u8, x3, x4);
@@ -324,13 +324,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x25:
             INST_NAME("AND EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -339,7 +339,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -348,7 +348,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x2A:
             INST_NAME("SUB Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -357,7 +357,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -365,7 +365,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x2C:
             INST_NAME("SUB AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_sub8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
@@ -373,13 +373,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x2D:
             INST_NAME("SUB EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
             break;
         case 0x30:
             INST_NAME("XOR Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -388,7 +388,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x31:
             INST_NAME("XOR Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -399,7 +399,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x32:
             INST_NAME("XOR Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -408,7 +408,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x33:
             INST_NAME("XOR Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -416,7 +416,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x34:
             INST_NAME("XOR AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_xor8c(dyn, ninst, x1, u8, x3, x4);
@@ -424,13 +424,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x35:
             INST_NAME("XOR EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -438,7 +438,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -446,7 +446,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x3B:
             INST_NAME("CMP Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -454,7 +454,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x3A:
             INST_NAME("CMP Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -462,7 +462,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x3C:
             INST_NAME("CMP AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             if (u8) {
@@ -474,7 +474,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x3D:
             INST_NAME("CMP EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             if (i64) {
                 MOV64xw(x2, i64);
@@ -491,7 +491,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
@@ -504,7 +504,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
@@ -531,7 +531,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP reg");
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
-            break;
             break;
         case 0x63:
             if (rex.is32bits) {
@@ -590,7 +589,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(4);
@@ -630,7 +629,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(1);
@@ -665,7 +664,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL();
             CALL(native_priv, -1);
@@ -677,7 +676,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL();
             CALL(native_priv, -1);
@@ -687,51 +686,61 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *ok = 0;
             break;
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                         \
-            READFLAGS(F);                                                                           \
-            i8 = F8S;                                                                               \
-            BARRIER(BARRIER_MAYBE);                                                                 \
-            JUMP(addr + i8, 1);                                                                     \
-            if (la64_lbt) {                                                                         \
-                X64_SETJ(x1, I);                                                                    \
-            } else {                                                                                \
-                GETFLAGS;                                                                           \
-            }                                                                                       \
-            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-                /* out of block */                                                                  \
-                i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (la64_lbt)                                                                       \
-                    BEQZ_safe(x1, i32);                                                             \
-                else                                                                                \
-                    B##NO##_safe(x1, i32);                                                          \
-                if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-                    if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-                    jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
-                } else {                                                                            \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-                    B(i32);                                                                         \
-                }                                                                                   \
-            } else {                                                                                \
-                /* inside the block */                                                              \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (la64_lbt)                                                                       \
-                    BNEZ_safe(x1, i32);                                                             \
-                else                                                                                \
-                    B##YES##_safe(x1, i32);                                                         \
-            }
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                          \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
+    i8 = F8S;                                                                               \
+    BARRIER(BARRIER_MAYBE);                                                                 \
+    JUMP(addr + i8, 1);                                                                     \
+    if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
+        if (la64_lbt) {                                                                     \
+            X64_SETJ(tmp1, I);                                                              \
+        } else {                                                                            \
+            GETFLAGS;                                                                       \
+        }                                                                                   \
+    }                                                                                       \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+        /* out of block */                                                                  \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
+            NATIVEJUMP_safe(NATNO, i32);                                                    \
+        } else {                                                                            \
+            if (la64_lbt)                                                                   \
+                BEQZ_safe(tmp1, i32);                                                       \
+            else                                                                            \
+                B##NO##_safe(tmp1, i32);                                                    \
+        }                                                                                   \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                fpu_purgecache(dyn, ninst, 1, tmp1, tmp2, tmp3);                            \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
+        } else {                                                                            \
+            CacheTransform(dyn, ninst, cacheupd, tmp1, tmp2, tmp3);                         \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+            B(i32);                                                                         \
+        }                                                                                   \
+    } else {                                                                                \
+        /* inside the block */                                                              \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
+            NATIVEJUMP_safe(NATYES, i32);                                                   \
+        } else {                                                                            \
+            if (la64_lbt)                                                                   \
+                BNEZ_safe(tmp1, i32);                                                       \
+            else                                                                            \
+                B##YES##_safe(tmp1, i32);                                                   \
+        }                                                                                   \
+    }
 
             GOCOND(0x70, "J", "ib");
 
-        #undef GO
+#undef GO
 
         case 0x80:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 0: // ADD
                     INST_NAME("ADD Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_add8c(dyn, ninst, x1, u8, x2, x4, x5);
@@ -739,7 +748,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1: // OR
                     INST_NAME("OR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
@@ -748,7 +757,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 2: // ADC
                     INST_NAME("ADC Eb, Ib");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_adc8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
@@ -757,7 +766,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 3: // SBB
                     INST_NAME("SBB Eb, Ib");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
@@ -765,7 +774,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4: // AND
                     INST_NAME("AND Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_and8c(dyn, ninst, x1, u8, x2, x4);
@@ -773,7 +782,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 5: // SUB
                     INST_NAME("SUB Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
@@ -781,7 +790,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6: // XOR
                     INST_NAME("XOR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_xor8c(dyn, ninst, x1, u8, x2, x4);
@@ -789,7 +798,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     if (u8) {
@@ -813,7 +822,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("ADD Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -828,7 +837,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("OR Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -844,7 +853,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("ADC Ed, Ib");
                     }
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -861,7 +870,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("SBB Ed, Ib");
                     }
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -877,7 +886,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("AND Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -892,7 +901,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("SUB Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -907,7 +916,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("XOR Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -922,7 +931,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("CMP Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -943,7 +952,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x84:
             INST_NAME("TEST Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
@@ -951,7 +960,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -1127,6 +1136,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(gd, ed, fixedaddress);
             }
             break;
+        case 0x8C:
+            INST_NAME("MOV Ed, Seg");
+            nextop = F8;
+            if (MODREG) {
+                LD_HU(TO_NAT((nextop & 7) + (rex.b << 3)), xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LD_HU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+                ST_H(x3, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop = F8;
@@ -1148,7 +1169,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 POP1z(xRAX + (nextop & 7) + (rex.b << 3));
             } else {
                 POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, &lock, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
                 if (ed == xRSP) {
                     SDz(x2, ed, fixedaddress);
                 } else {
@@ -1198,15 +1219,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
+            RESTORE_EFLAGS(x1);
             PUSH1z(xFlags);
             break;
         case 0x9D:
             INST_NAME("POPF");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             POP1z(xFlags);
             MOV32w(x1, 0x3F7FD7);
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x202);
+            SPILL_EFLAGS();
             SET_DFNONE();
             if (box64_wine) { // should this be done all the time?
                 ANDI(x1, xFlags, 1 << F_TF);
@@ -1326,7 +1349,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("REPZ CMPSB");
                     }
                     MAYSETFLAGS();
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
@@ -1360,7 +1383,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 default:
                     INST_NAME("CMPSB");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 1);
                     LD_BU(x1, xRSI, 0);
                     LD_BU(x2, xRDI, 0);
@@ -1372,7 +1395,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             ANDI(x1, xRAX, 0xff);
             u8 = F8;
             MOV32w(x2, u8);
@@ -1380,7 +1403,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xA9:
             INST_NAME("TEST EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
@@ -1445,7 +1468,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("REPZ SCASB");
                     }
                     MAYSETFLAGS();
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xRAX, 0xff);
                     ANDI(x2, xFlags, 1 << F_DF);
@@ -1476,7 +1499,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 default:
                     INST_NAME("SCASB");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 1);
                     ANDI(x1, xRAX, 0xff);
                     LD_BU(x2, xRDI, 0);
@@ -1495,7 +1518,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("REPZ SCASD");
                     }
                     MAYSETFLAGS();
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
                     if (rex.w) {
                         MV(x1, xRAX);
@@ -1530,7 +1553,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 default:
                     INST_NAME("SCASD");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, rex.w ? 8 : 4);
                     LDxw(x2, xRDI, 0);
                     ADD_D(xRDI, xRDI, x3);
@@ -1588,13 +1611,23 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             // TODO: refine these...
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rol8, ed, x3);
+                    EBBACK();
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
                     GETEB(x1, 1);
                     u8 = (F8) & 0x1f;
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
+                        SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                         UFLAG_IF {
                             MOV32w(x4, u8);
                             UFLAG_OP2(x4);
@@ -1613,7 +1646,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = (F8) & 0x1f;
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
+                        SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                         UFLAG_IF {
                             MOV32w(x4, u8);
                             UFLAG_OP2(x4);
@@ -1634,7 +1667,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETSEB(x1, 1);
                     u8 = (F8) & 0x1f;
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
+                        SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                         UFLAG_IF {
                             MOV32w(x4, u8);
                             UFLAG_OP2(x4);
@@ -1662,7 +1695,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1682,7 +1715,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1703,7 +1736,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
                         GETED(1);
                         u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                         emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
@@ -1722,7 +1755,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHR Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
                         GETED(1);
                         u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                         emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1742,7 +1775,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // flags are not affected if count is 0, we make it a nop if possible.
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
                         GETED(1);
                         u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                         emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1763,7 +1796,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xC2:
             INST_NAME("RETN");
-            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if (box64_dynarec_safeflags) {
                 READFLAGS(X_PEND); // lets play safe here too
             }
@@ -1775,7 +1807,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xC3:
             INST_NAME("RET");
-            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if (box64_dynarec_safeflags) {
                 READFLAGS(X_PEND); // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
@@ -1791,8 +1822,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
-                    eb1 = TO_NAT((ed & 3));  // Ax, Cx, Dx or Bx
-                    eb2 = (ed & 4) >> 2;     // L or H
+                    eb1 = TO_NAT((ed & 3)); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;    // L or H
                 } else {
                     eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
@@ -1836,7 +1867,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             POP1z(xRBP);
             break;
         case 0xCC:
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             SKIPTEST(x1);
             if (PK(0) == 'S' && PK(1) == 'C') {
                 addr += 2;
@@ -1888,10 +1919,50 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xCF:
+            INST_NAME("IRET");
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
+            BARRIER(BARRIER_FLOAT);
+            iret_to_epilog(dyn, ninst, rex.w);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xD0:
         case 0xD2: // TODO: Jump if CL is 0
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    if (opcode == 0xD0) {
+                        INST_NAME("ROL Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROL Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    CALL_(rol8, ed, x3);
+                    EBBACK();
+                    break;
+                case 4:
+                case 6:
+                    if (opcode == 0xD0) {
+                        INST_NAME("SHL Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHL Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1F);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1) MAYSETFLAGS();
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
                 case 5:
                     if (opcode == 0xD0) {
                         INST_NAME("SHR Eb, 1");
@@ -1903,9 +1974,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x2, xRCX, 0x1F);
                         BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
-                    if (box64_dynarec_safeflags > 1)
-                        MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1) MAYSETFLAGS();
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
@@ -1918,7 +1988,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ed, 1");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
@@ -1926,7 +1996,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
@@ -1935,21 +2005,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, 1");
-                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     GETED(0);
                     emit_shl32c(dyn, ninst, rex, ed, 1, x3, x4, x5);
                     WBACK;
                     break;
                 case 5:
                     INST_NAME("SHR Ed, 1");
-                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     GETED(0);
                     emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     break;
                 case 7:
                     INST_NAME("SAR Ed, 1");
-                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     GETED(0);
                     emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
@@ -1963,7 +2033,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ed, CL");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
                     emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
@@ -1972,7 +2042,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1:
                     INST_NAME("ROR Ed, CL");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
                     emit_ror32(dyn, ninst, rex, ed, x6, x3, x4);
@@ -1982,7 +2052,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, CL");
-                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
                     if (!rex.w && MODREG) { ZEROUP(ed); }
@@ -1992,7 +2062,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 5:
                     INST_NAME("SHR Ed, CL");
-                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
                     if (!rex.w && MODREG) { ZEROUP(ed); }
@@ -2002,7 +2072,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("SAR Ed, CL");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
                     if (!rex.w && MODREG) { ZEROUP(ed); }
@@ -2018,35 +2088,35 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
-        #define GO(Z)                                                                               \
-            BARRIER(BARRIER_MAYBE);                                                                 \
-            JUMP(addr + i8, 1);                                                                     \
-            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-                /* out of the block */                                                              \
-                i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (Z) {                                                                            \
-                    BNE(xRCX, xZR, i32);                                                            \
-                } else {                                                                            \
-                    BEQ(xRCX, xZR, i32);                                                            \
-                }                                                                                   \
-                if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-                    if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-                    jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
-                } else {                                                                            \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-                    B(i32);                                                                         \
-                }                                                                                   \
-            } else {                                                                                \
-                /* inside the block */                                                              \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (Z) {                                                                            \
-                    BEQ(xRCX, xZR, i32);                                                            \
-                } else {                                                                            \
-                    BNE(xRCX, xZR, i32);                                                            \
-                };                                                                                  \
-            }
+#define GO(Z)                                                                               \
+    BARRIER(BARRIER_MAYBE);                                                                 \
+    JUMP(addr + i8, 1);                                                                     \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+        /* out of the block */                                                              \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+        if (Z) {                                                                            \
+            BNE(xRCX, xZR, i32);                                                            \
+        } else {                                                                            \
+            BEQ(xRCX, xZR, i32);                                                            \
+        }                                                                                   \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
+        } else {                                                                            \
+            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+            B(i32);                                                                         \
+        }                                                                                   \
+    } else {                                                                                \
+        /* inside the block */                                                              \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+        if (Z) {                                                                            \
+            BEQ(xRCX, xZR, i32);                                                            \
+        } else {                                                                            \
+            BNE(xRCX, xZR, i32);                                                            \
+        };                                                                                  \
+    }
 
         case 0xE0:
             INST_NAME("LOOPNZ");
@@ -2083,7 +2153,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i8 = F8S;
             GO(1);
             break;
-        #undef GO
+#undef GO
 
         case 0xE8:
             INST_NAME("CALL Id");
@@ -2103,7 +2173,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #endif
             switch (tmp) {
                 case 3:
-                    SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     SKIPTEST(x1);
                     BARRIER(BARRIER_FULL);
                     if (dyn->last_ip && (addr - dyn->last_ip < 0x1000)) {
@@ -2161,7 +2231,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if ((box64_dynarec_safeflags > 1) || (ninst && dyn->insts[ninst - 1].x64.set_flags)) {
                         READFLAGS(X_PEND); // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
                     /*if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
@@ -2189,10 +2259,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         }
                         ADDI_D(xSP, xSP, -16);
                         ST_D(x4, xSP, 0);
@@ -2201,12 +2271,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *ok = 0;
                         *need_epilog = 0;
                     }
-                    if(rex.is32bits)
-                        j64 = (uint32_t)(addr+i32);
+                    if (rex.is32bits)
+                        j64 = (uint32_t)(addr + i32);
                     else
-                        j64 = addr+i32;
+                        j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
-                    if(box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
@@ -2227,10 +2297,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("JMP Ib");
                 i32 = F8S;
             }
-            if(rex.is32bits)
-                j64 = (uint32_t)(addr+i32);
+            if (rex.is32bits)
+                j64 = (uint32_t)(addr + i32);
             else
-                j64 = addr+i32;
+                j64 = addr + i32;
             JUMP((uintptr_t)getAlternate((void*)j64), 0);
             if (dyn->insts[ninst].x64.jmp_insts == -1) {
                 // out of the block
@@ -2255,7 +2325,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xF4:
             INST_NAME("HLT");
-            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL();
             CALL(native_priv, -1);
@@ -2270,7 +2340,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0:
                 case 1:
                     INST_NAME("TEST Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -2284,14 +2354,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 3:
                     INST_NAME("NEG Eb");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_neg8(dyn, ninst, x1, x2, x4);
                     EBBACK();
                     break;
                 case 4:
                     INST_NAME("MUL AL, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
                     MUL_W(x1, x2, x1);
@@ -2302,7 +2372,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 6:
                     INST_NAME("DIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_ALL, SF_SET_DF);
+                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     CALL(div8, -1);
                     break;
@@ -2316,7 +2386,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0:
                 case 1:
                     INST_NAME("TEST Ed, Id");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED(4);
                     i64 = F32S;
                     emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
@@ -2331,14 +2401,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 3:
                     INST_NAME("NEG Ed");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_neg32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
                     break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     if (rex.w) {
                         if (ed == xRDX)
@@ -2364,7 +2434,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                     GETSED(0);
                     if (rex.w) {
                         if (ed == xRDX)
@@ -2386,10 +2456,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    SET_DFNONE();
                     // TODO: handle zero divisor
                     if (!rex.w) {
-                        SET_DFNONE();
                         GETED(0);
                         SLLI_D(x3, xRDX, 32);
                         ZEROUP2(x2, xRAX);
@@ -2407,7 +2477,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             && dyn->insts[ninst - 1].x64.addr
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x31
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0xD2) {
-                            SET_DFNONE();
                             GETED(0);
                             DIV_DU(x2, xRAX, ed);
                             MOD_DU(xRDX, xRAX, ed);
@@ -2422,14 +2491,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DIV_DU(x2, xRAX, ed);
                             MOD_DU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
-                            SET_DFNONE();
                         }
                     }
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
                     SKIPTEST(x1);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     // TODO: handle zero divisor
                     if (!rex.w) {
                         SET_DFNONE()
@@ -2477,6 +2545,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xF8:
+            INST_NAME("CLC");
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            if (la64_lbt)
+                X64_SET_EFLAGS(xZR, X_CF);
+            else
+                BSTRINS_D(xFlags, xZR, F_CF, F_CF);
+            break;
         case 0xFC:
             INST_NAME("CLD");
             BSTRINS_D(xFlags, xZR, F_DF, F_DF);
@@ -2490,14 +2567,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_inc8(dyn, ninst, ed, x2, x4, x5);
                     EBBACK();
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_dec8(dyn, ninst, ed, x2, x4, x5);
                     EBBACK();
@@ -2511,14 +2588,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
                     break;
                 case 1: // DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
@@ -2528,7 +2605,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     PASS2IF ((box64_dynarec_safeflags > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
                         READFLAGS(X_PEND); // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET); // Hack to put flag in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to put flag in "don't care" state
                     }
                     GETEDz(0);
                     if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
@@ -2549,10 +2626,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         }
                         ADDI_D(xSP, xSP, -16);
                         ST_D(x4, xSP, 0);
@@ -2560,7 +2637,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    if(box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);

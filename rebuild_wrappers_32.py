@@ -583,8 +583,8 @@ class FileSpec:
 	# CONSTANT- rvalues: valid replacement values (outside of structures)
 	# CONSTANT- validrepl: valid replacement values (for structures)
 	#           structs: structure ids and additional data
-	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't', 'X']
-	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't', 'X']
+	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't', 'X', 'n']
+	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't', 'X', 'n']
 	validrepl: Sequence[str] = ['c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_']
 	
 	def __init__(self) -> None:
@@ -1150,7 +1150,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid return type: wo structure declaration\n",           # B
 		"\n#error Invalid return type: end of structure declaration\n",       # _
 		"R_EAX = to_cstring(fn({0}));",                                       # t
-		"R_EAX = to_ptrv(addDisplay(fn({0})));",           	  			  # X
+		"R_EAX = to_ptrv(addDisplay(fn({0})));",           	  			  	  # X
+		"\n#error Invalid return type: xcb_connection_t*\n",       			  # n
 	]
 	asargs = [
 		"emu, ",                                              # E
@@ -1188,6 +1189,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid argument type: end of structure declaration\n", # _
 		"\n#error Invalid argument type: maybe-high string\n",# t
 		"getDisplay(from_ptriv(R_ESP + {p})), ", 		      # X
+		"aligned_xcb, ", 		      						  # n
 	]
 	if len(FileSpec.values) != len(asreturns):
 		raise NotImplementedError("len(values) = {lenval} != len(asreturns) = {lenvals}".format(lenval=len(FileSpec.values), lenvals=len(asreturns)))
@@ -1201,6 +1203,9 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 			CType[(value, CType.ReadWrite.none)].aspre = ""
 			CType[(value, CType.ReadWrite.none)].asarg = asarg
 			CType[(value, CType.ReadWrite.none)].aspost = ""
+			if value == 'n':
+				CType[(value, CType.ReadWrite.none)].aspre = f"void *aligned_xcb = align_xcb_connection32(from_ptriv(R_ESP + {{p}})); "
+				CType[(value, CType.ReadWrite.none)].aspost = f" unalign_xcb_connection32(aligned_xcb, from_ptriv(R_ESP + {{p}}));"
 	for ctn in CType.getSingletons():
 		CType[ctn].generate_converters()
 	
@@ -1300,6 +1305,9 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		void* getDisplay(void*);
 		void* addDisplay(void*);
 		
+		void* align_xcb_connection32(void* src);
+		void unalign_xcb_connection32(void* src, void* dst);
+
 		""",
 		"wrapper32.h": """
 		#ifndef __WRAPPER32_H_
@@ -1405,8 +1413,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		files_guard[fhdr] = trim(files_guard[fhdr])
 	
 	# Typedefs
-	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        h            H            a        A        V        O          S        2                  P        N      M      s        r               b               B               _               t          X
-	tdtypes = ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "uintptr_t", "uintptr_t", "void*", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "...", "...", "void*", "\n#error _\n", "\n#error _\n", "\n#error _\n", "\n#error _\n", "char*", "void*"]
+	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        h            H            a        A        V        O          S        2                  P        N      M      s        r               b               B               _               t          X       n
+	tdtypes = ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "uintptr_t", "uintptr_t", "void*", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "...", "...", "void*", "\n#error _\n", "\n#error _\n", "\n#error _\n", "\n#error _\n", "char*", "void*", "void*"]
 	if len(FileSpec.values) != len(tdtypes):
 		raise NotImplementedError("len(values) = {lenval} != len(tdtypes) = {lentypes}".format(lenval=len(FileSpec.values), lentypes=len(tdtypes)))
 	def generate_typedefs(funs: Iterable[FunctionType], file):
@@ -1431,8 +1439,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 				                                   for i in range(2, len(funtype.orig.replaced))) + ");\n")
 	
 	# Wrappers
-	#         E  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  h  H  a  A  V  O  S  2  P  N  M  s  r  b  B  _  t  X
-	deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 8, 4, 0, 0, 0, 1, 1, 4, 1, 4, 4]
+	#         E  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  h  H  a  A  V  O  S  2  P  N  M  s  r  b  B  _  t  X  n
+	deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 8, 4, 0, 0, 0, 1, 1, 4, 1, 4, 4, 4]
 	# Asserts
 	if len(FileSpec.values) != len(deltas):
 		raise NotImplementedError("len(values) = {lenval} != len(deltas) = {lendeltas}".format(lenval=len(FileSpec.values), lendeltas=len(deltas)))

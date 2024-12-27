@@ -159,6 +159,13 @@ EXPORT int my32_XRRQueryExtension(x64emu_t* emu, void* dpy, int* event_base, int
     return ret;
 }
 
+EXPORT int my32_XRRUpdateConfiguration(x64emu_t* emu, my_XEvent_32_t* evt)
+{
+    my_XEvent_t evt_l = {0};
+    unconvertXEvent(&evt_l, evt);
+    return my->XRRUpdateConfiguration(&evt_l);
+}
+
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
 #else

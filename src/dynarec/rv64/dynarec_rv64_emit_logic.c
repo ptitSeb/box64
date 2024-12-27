@@ -420,7 +420,7 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         MOV64xw(s3, c);
         AND(s1, s1, s3); // res = s1 & s2
     }
-    if (!rex.w && (c > 2047 || c < 0)) ZEROUP(s1);
+    if (!rex.w && c < 0) ZEROUP(s1);
 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 

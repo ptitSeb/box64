@@ -93,6 +93,13 @@ typedef struct instruction_la64_s {
     uint8_t             last_write;
     uint8_t             lock;
     uint8_t             df_notneeded;
+    uint8_t             nat_flags_fusion:1;
+    uint8_t             nat_flags_nofusion:1;
+    uint8_t             nat_flags_carry:1;
+    uint8_t             nat_flags_sign:1;
+    uint8_t             nat_flags_needsign:1;
+    uint8_t             nat_flags_op1;
+    uint8_t             nat_flags_op2;
     flagcache_t         f_exit;     // flags status at end of instruction
     lsxcache_t          lsx;        // lsxcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
@@ -133,6 +140,7 @@ typedef struct dynarec_la64_s {
     uint8_t              smwrite;    // for strongmem model emulation
     uint8_t              always_test;
     uint8_t              abort;
+    void*               gdbjit_block;
 } dynarec_la64_t;
 
 void add_next(dynarec_la64_t *dyn, uintptr_t addr);

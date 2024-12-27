@@ -67,6 +67,9 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst);
 
 // Undo the changes of a neoncache to get the status before the instruction
 void neoncacheUnwind(neoncache_t* cache);
+void fpu_save_and_unwind(dynarec_arm_t* dyn, int ninst, neoncache_t* cache);
+void fpu_unwind_restore(dynarec_arm_t* dyn, int ninst, neoncache_t* cache);
+
 
 // Get if ED will have the correct parity. Not emitting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_native_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta);

@@ -31,6 +31,7 @@
 #include "threads.h"
 #include "emu/x87emu_private.h"
 #include "custommem.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -501,8 +502,8 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
             emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
         }
 #elif defined(RV64)
-        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
+        if(db && p->uc_mcontext.__gregs[25]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
         }
 #else
 #error Unsupported Architecture
@@ -604,23 +605,23 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
         emu->eflags.x64 = p->uc_mcontext.__gregs[31];
 #elif defined(RV64)
         emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[16];
-        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[17];
-        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[18];
-        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[19];
-        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[20];
-        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[21];
-        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[22];
-        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[23];
-        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[24];
-        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[25];
+        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
+        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[12];
+        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[24];
+        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[9];
+        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[8];
+        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[11];
+        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[10];
+        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[14];
+        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[15];
         emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[26];
         emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[27];
-        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[28];
-        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[29];
-        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[30];
-        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[31];
-        emu->ip.q[0] = ip;
-        emu->eflags.x64 = p->uc_mcontext.__gregs[8];
+        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[18];
+        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[19];
+        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[20];
+        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[21];
+    emu->ip.q[0] = ip;
+    emu->eflags.x64 = p->uc_mcontext.__gregs[23];
 #else
 #error  Unsupported architecture
 #endif
@@ -972,7 +973,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     if(p) {
         pc = (void*)p->uc_mcontext.__gregs[0];
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.__gregs[16+_SP];
+            frame = (uintptr_t)p->uc_mcontext.__gregs[9];
     }
 #else
 #error Unsupported architecture
@@ -1075,21 +1076,21 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
 #elif defined(RV64)
     if(db && p) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[20];
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[21];
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[22];
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[23];
-        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[24];
-        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[25];
+        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
+        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[12];
+        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[24];
+        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[9];
+        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[8];
+        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[11];
+        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[10];
+        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[14];
+        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[15];
         sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.__gregs[26];
         sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.__gregs[27];
-        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[28];
-        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[29];
-        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[30];
-        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[31];
+        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[18];
+        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[19];
+        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[20];
+        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[21];
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #else
@@ -1477,21 +1478,9 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
-        static uintptr_t repeated_page = 0;
-        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%hhx (old page=%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot, (void*)repeated_page);
-        static int repeated_count = 0;
-        if(repeated_page == ((uintptr_t)addr&~(box64_pagesize-1))) {
-            ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
-            if(repeated_count>1) {
-                dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
-                SetHotPage(repeated_page);
-            }
-        } else {
-            repeated_page = (uintptr_t)addr&~(box64_pagesize-1);
-            repeated_count = 0;
-        }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        if(db) CheckHotPage((uintptr_t)addr);
         int db_need_test = db?getNeedTest((uintptr_t)db->x64_addr):0;
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
             emu = getEmuSignal(emu, p, db);
@@ -1676,12 +1665,12 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             rsp = (void*)p->uc_mcontext.__gregs[12+_SP];
         }
 #elif defined(RV64)
-        if(db && p->uc_mcontext.__gregs[10]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[10];
+        if(db && p->uc_mcontext.__gregs[25]>0x10000) {
+            emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
         }
         if(db) {
             x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.__gregs[16+_SP];
+            rsp = (void*)p->uc_mcontext.__gregs[9];
         }
 #else
 #error Unsupported Architecture
@@ -1837,7 +1826,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
                     if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
+                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[(((uint8_t[]) { 16, 13, 12, 24, 9, 8, 11, 10, 14, 15, 26, 27, 18, 19, 20, 21 })[i])]);
                 }
                 printf_log(log_minimum, "\n");
                 for (int i=0; i<6; ++i)
@@ -2291,8 +2280,6 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
 
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
-    // ensure uc_link is properly initialized
-    u->uc_link = (x64_ucontext_t*)emu->uc_link;
 
     return 0;
 }
@@ -2331,11 +2318,19 @@ EXPORT int my_setcontext(x64emu_t* emu, void* ucp)
     emu->mxcsr.x32 = *(uint32_t*)(ucp + 432);
     // set signal mask
     sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
-    // set uc_link
-    emu->uc_link = u->uc_link;
     errno = 0;
 
     return R_EAX;
+}
+void vFEv(x64emu_t *emu, uintptr_t fnc);
+EXPORT void my_start_context(x64emu_t* emu)
+{
+    // this is call indirectly by swapcontext from a makecontext, and will link context or just exit
+    x64_ucontext_t *u = *(x64_ucontext_t**)R_RBX;
+    if(u)
+        my_setcontext(emu, u);
+    else
+        emu->quit = 1;
 }
 
 EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int64_t* argv)
@@ -2346,15 +2341,19 @@ EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, in
     uintptr_t* rsp = (uintptr_t*)(u->uc_stack.ss_sp + u->uc_stack.ss_size - sizeof(uintptr_t));
     // setup the function
     u->uc_mcontext.gregs[X64_RIP] = (intptr_t)fnc;
+    // setup return to private start_context uc_link
+    *rsp = (uintptr_t)u->uc_link;
+    u->uc_mcontext.gregs[X64_RBX] = (uintptr_t)rsp;
+    --rsp;
     // setup args
     int n = 3;
     int j = 0;
     int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
     for (int i=0; i<argc; ++i) {
         // get value first
-        uint64_t v;
+        uint32_t v;
         if(n<6)
-            v = emu->regs[regs_abi[n++]].q[0];
+            v = emu->regs[regs_abi[n++]].dword[0];
         else
             v = argv[j++];
         // push value
@@ -2372,9 +2371,43 @@ EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, in
     }
     // push the return value
     --rsp;
-    *rsp = my_context->exit_bridge;
+    *rsp = AddCheckBridge(my_context->system, vFEv, my_start_context, 0, "my_start_context");//my_context->exit_bridge;
     u->uc_mcontext.gregs[X64_RSP] = (uintptr_t)rsp;
 }
+
+void box64_abort() {
+    if(box64_showbt && LOG_INFO<=box64_log) {
+            // show native bt
+            #define BT_BUF_SIZE 100
+            int nptrs;
+            void *buffer[BT_BUF_SIZE];
+            char **strings;
+            x64emu_t* emu = thread_get_emu();
+
+#ifndef ANDROID
+            nptrs = backtrace(buffer, BT_BUF_SIZE);
+            strings = backtrace_symbols(buffer, nptrs);
+            if(strings) {
+                for (int j = 0; j < nptrs; j++)
+                    printf_log(LOG_INFO, "NativeBT: %s\n", strings[j]);
+                free(strings);
+            } else
+                printf_log(LOG_INFO, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
+#endif
+            extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
+            extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
+            nptrs = my_backtrace_ip(emu, buffer, BT_BUF_SIZE);
+            strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
+            if(strings) {
+                for (int j = 0; j < nptrs; j++)
+                    printf_log(LOG_INFO, "EmulatedBT: %s\n", strings[j]);
+                free(strings);
+            } else
+                printf_log(LOG_INFO, "EmulatedBT: none\n");
+        }
+    abort();
+}
+
 
 EXPORT int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2)
 {

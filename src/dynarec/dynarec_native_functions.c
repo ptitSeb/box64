@@ -670,3 +670,32 @@ void propagate_nodf(dynarec_native_t* dyn, int ninst)
         --ninst;       
     }
 }
+
+void x64disas_add_register_mapping_annotations(char* buf, const char* disas, const register_mapping_t* mappings, size_t mappings_sz)
+{
+    static char tmp[32];
+    tmp[0] = '\0';
+    int len = 0;
+    // skip the mnemonic
+    char* p = strchr(disas, ' ');
+    if (!p) {
+        sprintf(buf, "%s", disas);
+        return;
+    }
+    p++; // skip the space
+    while (*p) {
+        while (*p && !(*p >= 'a' && *p <= 'e') && *p != 's' && *p != 'r') // skip non-register characters
+            p++;
+        if (!*p) break;
+        for (int i = 0; i < mappings_sz; ++i) {
+            if (!strncmp(p, mappings[i].name, strlen(mappings[i].name))) {
+                len += sprintf(tmp + len, " %s,", mappings[i].native);
+                p += strlen(mappings[i].name) - 1;
+                break;
+            }
+        }
+        p++;
+        }
+    if (tmp[0]) tmp[strlen(tmp) - 1] = '\0';
+    sprintf(buf, "%-35s ;%s", disas, tmp);
+}

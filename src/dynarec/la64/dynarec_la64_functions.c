@@ -25,6 +25,8 @@
 #include "dynarec_la64_functions.h"
 #include "custommem.h"
 #include "bridge.h"
+#include "gdbjit.h"
+#include "elfloader.h"
 
 #define XMM0 0
 #define XMM8 16
@@ -256,55 +258,148 @@ const char* getCacheName(int t, int n)
     return buff;
 }
 
+static register_mapping_t register_mappings[] = {
+    { "rax", "t0" },
+    { "eax", "t0" },
+    { "ax", "t0" },
+    { "ah", "t0" },
+    { "al", "t0" },
+    { "rcx", "t1" },
+    { "ecx", "t1" },
+    { "cx", "t1" },
+    { "ch", "t1" },
+    { "cl", "t1" },
+    { "rdx", "t2" },
+    { "edx", "t2" },
+    { "dx", "t2" },
+    { "dh", "t2" },
+    { "dl", "t2" },
+    { "rbx", "t3" },
+    { "ebx", "t3" },
+    { "bx", "t3" },
+    { "bh", "t3" },
+    { "bl", "t3" },
+    { "rsi", "t4" },
+    { "esi", "t4" },
+    { "si", "t4" },
+    { "sil", "t4" },
+    { "rdi", "t5" },
+    { "edi", "t5" },
+    { "di", "t5" },
+    { "dil", "t5" },
+    { "rsp", "t6" },
+    { "esp", "t6" },
+    { "sp", "t6" },
+    { "spl", "t6" },
+    { "rbp", "t7" },
+    { "ebp", "t7" },
+    { "bp", "t7" },
+    { "bpl", "t7" },
+    { "r8", "s0" },
+    { "r8d", "s0" },
+    { "r8w", "s0" },
+    { "r8b", "s0" },
+    { "r9", "s1" },
+    { "r9d", "s1" },
+    { "r9w", "s1" },
+    { "r9b", "s1" },
+    { "r10", "s2" },
+    { "r10d", "s2" },
+    { "r10w", "s2" },
+    { "r10b", "s2" },
+    { "r11", "s3" },
+    { "r11d", "s3" },
+    { "r11w", "s3" },
+    { "r11b", "s3" },
+    { "r12", "s4" },
+    { "r12d", "s4" },
+    { "r12w", "s4" },
+    { "r12b", "s4" },
+    { "r13", "s5" },
+    { "r13d", "s5" },
+    { "r13w", "s5" },
+    { "r13b", "s5" },
+    { "r14", "s6" },
+    { "r14d", "s6" },
+    { "r14w", "s6" },
+    { "r14b", "s6" },
+    { "r15", "s7" },
+    { "r15d", "s7" },
+    { "r15w", "s7" },
+    { "r15b", "s7" },
+    { "rip", "t8" },
+};
+
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
+    if (!box64_dynarec_dump && !box64_dynarec_gdbjit && !box64_dynarec_perf_map) return;
+
+    static char buf[512];
+    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d)",
+        dyn->insts[ninst].x64.barrier,
+        dyn->insts[ninst].x64.state_flags,
+        dyn->f.pending,
+        dyn->f.dfnone,
+        dyn->insts[ninst].x64.may_set ? "may" : "set",
+        dyn->insts[ninst].x64.set_flags,
+        dyn->insts[ninst].x64.gen_flags,
+        dyn->insts[ninst].x64.use_flags,
+        dyn->insts[ninst].x64.need_before,
+        dyn->insts[ninst].x64.need_after,
+        dyn->insts[ninst].nat_flags_fusion,
+        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write);
+    if (dyn->insts[ninst].pred_sz) {
+        length += sprintf(buf + length, ", pred=");
+        for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
+            length += sprintf(buf + length, "%s%d", ii ? "/" : "", dyn->insts[ninst].pred[ii]);
+    }
+    if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts >= 0)
+        length += sprintf(buf + length, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
+    if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
+        length += sprintf(buf + length, ", jmp=out");
+    if (dyn->last_ip)
+        length += sprintf(buf + length, ", last_ip=%p", (void*)dyn->last_ip);
+    for (int ii = 0; ii < 24; ++ii) {
+        switch (dyn->insts[ninst].lsx.lsxcache[ii].t) {
+            case LSX_CACHE_ST_D: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_ST_F: length += sprintf(buf + length, " S%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_ST_I64: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_MM: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_XMMW: length += sprintf(buf + length, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_XMMR: length += sprintf(buf + length, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_SCR: length += sprintf(buf + length, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_NONE:
+            default: break;
+        }
+    }
+    if (dyn->lsx.stack || dyn->insts[ninst].lsx.stack_next || dyn->insts[ninst].lsx.x87stack)
+        length += sprintf(buf + length, " X87:%d/%d(+%d/-%d)%d", dyn->lsx.stack, dyn->insts[ninst].lsx.stack_next, dyn->insts[ninst].lsx.stack_push, dyn->insts[ninst].lsx.stack_pop, dyn->insts[ninst].lsx.x87stack);
+    if (dyn->insts[ninst].lsx.combined1 || dyn->insts[ninst].lsx.combined2)
+        length += sprintf(buf + length, " %s:%d/%d", dyn->insts[ninst].lsx.swapped ? "SWP" : "CMB", dyn->insts[ninst].lsx.combined1, dyn->insts[ninst].lsx.combined2);
+
     if (box64_dynarec_dump) {
         printf_x64_instruction(rex.is32bits ? my_context->dec32 : my_context->dec, &dyn->insts[ninst].x64, name);
-        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, %s%s\n",
             (box64_dynarec_dump > 1) ? "\e[32m" : "",
-            (void*)(dyn->native_start + dyn->insts[ninst].address),
-            dyn->insts[ninst].size / 4,
-            ninst,
-            dyn->insts[ninst].x64.barrier,
-            dyn->insts[ninst].x64.state_flags,
-            dyn->f.pending,
-            dyn->f.dfnone,
-            dyn->insts[ninst].x64.may_set ? "may" : "set",
-            dyn->insts[ninst].x64.set_flags,
-            dyn->insts[ninst].x64.gen_flags,
-            dyn->insts[ninst].x64.use_flags,
-            dyn->insts[ninst].x64.need_before,
-            dyn->insts[ninst].x64.need_after,
-            dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write);
-        if (dyn->insts[ninst].pred_sz) {
-            dynarec_log(LOG_NONE, ", pred=");
-            for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
-                dynarec_log(LOG_NONE, "%s%d", ii ? "/" : "", dyn->insts[ninst].pred[ii]);
+            (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (box64_dynarec_dump > 1) ? "\e[m" : "");
+    }
+    if (box64_dynarec_gdbjit) {
+        static char buf2[512];
+        if (box64_dynarec_gdbjit > 1) {
+            sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
+            dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
         }
-        if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts >= 0)
-            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
-        if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
-            dynarec_log(LOG_NONE, ", jmp=out");
-        if (dyn->last_ip)
-            dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
-        for (int ii = 0; ii < 24; ++ii) {
-            switch (dyn->insts[ninst].lsx.lsxcache[ii].t) {
-                case LSX_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_ST_I64: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
-                case LSX_CACHE_NONE:
-                default: break;
-            }
+        zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
+        const char* inst_name = name;
+        if (dec) {
+            inst_name = DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 0);
+            x64disas_add_register_mapping_annotations(buf2, inst_name, register_mappings, sizeof(register_mappings) / sizeof(register_mappings[0]));
+            inst_name = buf2;
         }
-        if (dyn->lsx.stack || dyn->insts[ninst].lsx.stack_next || dyn->insts[ninst].lsx.x87stack)
-            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->lsx.stack, dyn->insts[ninst].lsx.stack_next, dyn->insts[ninst].lsx.stack_push, dyn->insts[ninst].lsx.stack_pop, dyn->insts[ninst].lsx.x87stack);
-        if (dyn->insts[ninst].lsx.combined1 || dyn->insts[ninst].lsx.combined2)
-            dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].lsx.swapped ? "SWP" : "CMB", dyn->insts[ninst].lsx.combined1, dyn->insts[ninst].lsx.combined2);
-        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump > 1) ? "\e[m" : "");
+        dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
+    }
+    if (box64_dynarec_perf_map && box64_dynarec_perf_map_fd != -1) {
+        writePerfMap(dyn->insts[ninst].x64.addr, dyn->native_start + dyn->insts[ninst].address, dyn->insts[ninst].size / 4);
     }
 }
 
@@ -384,4 +479,51 @@ void fpu_reset_ninst(dynarec_la64_t* dyn, int ninst)
     // TODO: x87 and mmx
     sse_reset(&dyn->insts[ninst].lsx);
     fpu_reset_reg_lsxcache(&dyn->insts[ninst].lsx);
+}
+
+void fpu_save_and_unwind(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
+{
+    memcpy(cache, &dyn->insts[ninst].lsx, sizeof(lsxcache_t));
+    lsxcacheUnwind(&dyn->insts[ninst].lsx);
+}
+void fpu_unwind_restore(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
+{
+    memcpy(&dyn->insts[ninst].lsx, cache, sizeof(lsxcache_t));
+}
+
+void updateNativeFlags(dynarec_la64_t* dyn)
+{
+    if (!box64_dynarec_nativeflags)
+        return;
+    for (int i = 1; i < dyn->size; ++i)
+        if (dyn->insts[i].nat_flags_fusion) {
+            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == i - 1
+                && (dyn->insts[i].x64.use_flags & dyn->insts[i - 1].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                dyn->insts[i - 1].nat_flags_fusion = 1;
+                if (dyn->insts[i].x64.use_flags & X_SF) {
+                    dyn->insts[i - 1].nat_flags_needsign = 1;
+                }
+                dyn->insts[i].x64.use_flags = 0;
+            } else
+                dyn->insts[i].nat_flags_fusion = 0;
+        }
+}
+
+void get_free_scratch(dynarec_la64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5)
+{
+    uint8_t n1 = dyn->insts[ninst].nat_flags_op1;
+    uint8_t n2 = dyn->insts[ninst].nat_flags_op2;
+    uint8_t tmp[5] = { 0 };
+    int idx = 0;
+#define GO(s) \
+    if ((s != n1) && (s != n2)) tmp[idx++] = s
+    GO(s1);
+    GO(s2);
+    GO(s3);
+    GO(s4);
+    GO(s5);
+#undef GO
+    *tmp1 = tmp[0];
+    *tmp2 = tmp[1];
+    *tmp3 = tmp[2];
 }

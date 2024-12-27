@@ -246,8 +246,8 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
                 SEXT_W(s3, s1);
                 SEXT_W(s4, s2);
             } else {
-                AND(s3, s1, xMASK);
-                AND(s4, s2, xMASK);
+                ZEXTW2(s3, s1);
+                ZEXTW2(s4, s2);
             }
             NAT_FLAGS_OPS(s3, s4);
         }
@@ -290,7 +290,7 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
             if (dyn->insts[ninst].nat_flags_needsign) {
                 SEXT_W(s3, s1);
             } else {
-                AND(s3, s1, xMASK);
+                ZEXTW2(s3, s1);
             }
             NAT_FLAGS_OPS(s3, xZR);
         }
@@ -405,10 +405,12 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
-    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
-        if (!rex.w) {
+    if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s3, 32);
             SRAI(s3, s3, 32);
+        } else {
+            ZEROUP(s3);
         }
     }
 }
@@ -451,10 +453,12 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
-    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
-        if (!rex.w) {
+    if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
             SLLI(s3, s3, 32);
             SRAI(s3, s3, 32);
+        } else {
+            ZEROUP(s3);
         }
     }
 }

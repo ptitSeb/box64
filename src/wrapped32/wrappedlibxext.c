@@ -84,7 +84,7 @@ static void* reverse_exterrorhandleFct(void* fct)
 static uintptr_t my_create_gc_fct_##A = 0;                                      \
 static int my_create_gc_##A(void* a, uint32_t b, void* c)                       \
 {                                                                               \
-    return RunFunctionFmt(my_create_gc_fct_##A, "pup", getDisplay(a), b, c);    \
+    return RunFunctionFmt(my_create_gc_fct_##A, "pup", FindDisplay(a), b, c);   \
 }
 SUPER()
 #undef GO
@@ -106,7 +106,7 @@ static void* find_create_gc_Fct(void* fct)
 static uintptr_t my_copy_gc_fct_##A = 0;                                    \
 static int my_copy_gc_##A(void* a, uint32_t b, void* c)                     \
 {                                                                           \
-    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", getDisplay(a), b, c);  \
+    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", FindDisplay(a), b, c); \
 }
 SUPER()
 #undef GO
@@ -128,7 +128,7 @@ static void* find_copy_gc_Fct(void* fct)
 static uintptr_t my_flush_gc_fct_##A = 0;                                   \
 static int my_flush_gc_##A(void* a, uint32_t b, void* c)                    \
 {                                                                           \
-    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", getDisplay(a), b, c); \
+    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", FindDisplay(a), b, c);\
 }
 SUPER()
 #undef GO
@@ -150,7 +150,7 @@ static void* find_flush_gc_Fct(void* fct)
 static uintptr_t my_free_gc_fct_##A = 0;                                    \
 static int my_free_gc_##A(void* a, uint32_t b, void* c)                     \
 {                                                                           \
-    return RunFunctionFmt(my_free_gc_fct_##A, "pup", getDisplay(a), b, c);  \
+    return RunFunctionFmt(my_free_gc_fct_##A, "pup", FindDisplay(a), b, c); \
 }
 SUPER()
 #undef GO
@@ -173,7 +173,7 @@ static uintptr_t my_create_font_fct_##A = 0;                                    
 static int my_create_font_##A(void* a, void* b, void* c)                            \
 {                                                                                   \
     inplace_XFontStruct_shrink(b);                                                  \
-    int ret = RunFunctionFmt(my_create_font_fct_##A, "ppp", getDisplay(a), b, c);   \
+    int ret = RunFunctionFmt(my_create_font_fct_##A, "ppp", FindDisplay(a), b, c);  \
     inplace_XFontStruct_enlarge(b);                                                 \
     return ret;                                                                     \
 }
@@ -198,7 +198,7 @@ static uintptr_t my_free_font_fct_##A = 0;                                      
 static int my_free_font_##A(void* a, void* b, void* c)                          \
 {                                                                               \
     inplace_XFontStruct_shrink(b);                                              \
-    int ret = RunFunctionFmt(my_free_font_fct_##A, "ppp", getDisplay(a), b, c); \
+    int ret = RunFunctionFmt(my_free_font_fct_##A, "ppp", FindDisplay(a), b, c);\
     inplace_XFontStruct_enlarge(b);                                             \
     return ret;                                                                 \
 }
@@ -222,7 +222,7 @@ static void* find_free_font_Fct(void* fct)
 static uintptr_t my_close_display_fct_##A = 0;                                  \
 static int my_close_display_##A(void* a, void* b)                               \
 {                                                                               \
-    return RunFunctionFmt(my_close_display_fct_##A, "pp", getDisplay(a), b);    \
+    return RunFunctionFmt(my_close_display_fct_##A, "pp", FindDisplay(a), b);   \
 }
 SUPER()
 #undef GO
@@ -245,7 +245,7 @@ static uintptr_t my32_wire_to_event_fct_##A = 0;                                
 static int my32_wire_to_event_##A(void* dpy, void* re, void* event)                                 \
 {                                                                                                   \
     static my_XEvent_32_t re_s = {0};                                                               \
-    int ret = (int)RunFunctionFmt(my32_wire_to_event_fct_##A, "ppp", getDisplay(dpy), &re_s, event);\
+    int ret = (int)RunFunctionFmt(my32_wire_to_event_fct_##A, "ppp", FindDisplay(dpy), &re_s, event);\
     unconvertXEvent(re, &re_s);                                                                     \
     return ret;                                                                                     \
 }
@@ -305,7 +305,7 @@ static int my32_event_to_wire_##A(void* dpy, void* re, void* event)             
 {                                                                                                   \
     my_XEvent_32_t re_s = {0};                                                                      \
     convertXEvent(&re_s, re);                                                                       \
-    return (int)RunFunctionFmt(my32_event_to_wire_fct_##A, "ppp", getDisplay(dpy), &re_s, event);   \
+    return (int)RunFunctionFmt(my32_event_to_wire_fct_##A, "ppp", FindDisplay(dpy), &re_s, event);  \
 }
 SUPER()
 #undef GO
@@ -360,7 +360,7 @@ static void* reverse_event_to_wire_Fct(library_t* lib, void* fct)
 static uintptr_t my_error_fct_##A = 0;                                          \
 static int my_error_##A(void* a, void* b, void* c, int* d)                      \
 {                                                                               \
-    return RunFunctionFmt(my_error_fct_##A, "pppp", getDisplay(a), b, c, d);    \
+    return RunFunctionFmt(my_error_fct_##A, "pppp", FindDisplay(a), b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -382,7 +382,7 @@ static void* find_error_Fct(void* fct)
 static uintptr_t my_error_string_fct_##A = 0;                                           \
 static int my_error_string_##A(void* a, int b, void* c, void* d, int e)                 \
 {                                                                                       \
-    return RunFunctionFmt(my_error_string_fct_##A, "pippi", getDisplay(a), b, c, d, e); \
+    return RunFunctionFmt(my_error_string_fct_##A, "pippi", FindDisplay(a), b, c, d, e);\
 }
 SUPER()
 #undef GO
@@ -492,26 +492,6 @@ EXPORT void* my32_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
     return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
 }
 
-//EXPORT void* my32_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* extname, my32_XExtensionHooks* hooks, int nevents, void* data)
-//{
-//    my32_XExtensionHooks natives = {0};
-//    #define GO(A) natives.A = find_##A##_Fct(hooks->A);
-//    GO(create_gc)
-//    GO(copy_gc)
-//    GO(flush_gc)
-//    GO(free_gc)
-//    GO(create_font)
-//    GO(free_font)
-//    GO(close_display)
-//    GO(wire_to_event)
-//    GO(event_to_wire)
-//    GO(error)
-//    GO(error_string)
-//    #undef GO
-//    void *ret = my->XextAddDisplay(extinfo, dpy, extname, &natives, nevents, data);
-//    return ret;
-//}
-
 EXPORT void* my32_XdbeGetVisualInfo(x64emu_t* emu, void* dpy, XID_32* draws, int* num)
 {
     XID draws_l[*num];
@@ -557,17 +537,29 @@ EXPORT void* my32_XextAddDisplay(x64emu_t* emu, void* ext, void* dpy, void* name
         GO(error_string);
         #undef GO
     }
-    inplace_XExtensionInfo_shrink(my->XextAddDisplay(inplace_XExtensionInfo_enlarge(ext), dpy, name, hooks?(&hooks_l):NULL, nevents, data));
+    my_XExtensionInfo_t ext_l = {0};
+    convert_XExtensionInfo_to_64(&ext_l, ext);
+    void* ret = my->XextAddDisplay(&ext_l, dpy, name, hooks?(&hooks_l):NULL, nevents, data);
+    convert_XExtensionInfo_to_32(ext, &ext_l);
+    //inplace_XExtDisplayInfo_shrink(ret); //no need, XExtensionInfo will shrink XExtDisplayInfo in the process
+    return ret;
 }
 
 EXPORT void* my32_XextFindDisplay(x64emu_t* emu, void* ext, void* dpy)
 {
-    return inplace_XExtensionInfo_shrink(my->XextFindDisplay(inplace_XExtensionInfo_enlarge(ext), dpy));
+    my_XExtensionInfo_t ext_l = {0};
+    convert_XExtensionInfo_to_64(&ext_l, ext);
+    void* ret = my->XextFindDisplay(&ext_l, dpy);
+    convert_XExtensionInfo_to_32(ext, &ext_l);
+    //inplace_XExtDisplayInfo_shrink(ret); //no need, XExtensionInfo will shrink XExtDisplayInfo in the process
+    return ret;
 }
 
 EXPORT int my32_XextRemoveDisplay(x64emu_t* emu, void* ext, void* dpy)
 {
-    return my->XextRemoveDisplay(inplace_XExtensionInfo_enlarge(ext), dpy);
+    int ret = my->XextRemoveDisplay(inplace_XExtensionInfo_enlarge(ext), dpy);
+    inplace_XExtensionInfo_shrink(ext);
+    return ret;
 }
 
 #if 0

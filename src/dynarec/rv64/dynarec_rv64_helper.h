@@ -679,13 +679,15 @@
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
+#define CALL(F, ret, arg1, arg2)                          call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, 0, 0, 0, 0)
+#define CALL4(F, ret, arg1, arg2, arg3, arg4)             call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, arg3, arg4, 0, 0)
+#define CALL6(F, ret, arg1, arg2, arg3, arg4, arg5, arg6) call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, arg3, arg4, arg5, arg6)
 // CALL_ will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x6, ret, 1, reg)
+#define CALL_(F, ret, reg, arg1, arg2) call_c(dyn, ninst, F, x6, ret, 1, reg, arg1, arg2, 0, 0, 0, 0)
 // CALL_S will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
-#define CALL_S(F, ret) call_c(dyn, ninst, F, x6, ret, 0, 0)
+#define CALL_S(F, ret, arg1) call_c(dyn, ninst, F, x6, ret, 0, 0, arg1, 0, 0, 0, 0, 0)
 
 #define MARKi(i)    dyn->insts[ninst].mark[i] = dyn->native_size
 #define GETMARKi(i) dyn->insts[ninst].mark[i]
@@ -703,10 +705,12 @@
 #define MARKF2       MARKFi(1)
 #define GETMARKF2    GETMARKFi(1)
 
-#define MARKSEG     dyn->insts[ninst].markseg = dyn->native_size
-#define GETMARKSEG  dyn->insts[ninst].markseg
-#define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
-#define GETMARKLOCK dyn->insts[ninst].marklock
+#define MARKSEG      dyn->insts[ninst].markseg = dyn->native_size
+#define GETMARKSEG   dyn->insts[ninst].markseg
+#define MARKLOCK     dyn->insts[ninst].marklock = dyn->native_size
+#define GETMARKLOCK  dyn->insts[ninst].marklock
+#define MARKLOCK2    dyn->insts[ninst].marklock2 = dyn->native_size
+#define GETMARKLOCK2 dyn->insts[ninst].marklock2
 
 #define Bxx_gen(OP, M, reg1, reg2)   \
     j64 = GET##M - dyn->native_size; \
@@ -766,6 +770,10 @@
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BNE_MARKLOCK(reg, xZR)
+// Branch to MARKLOCK2 if reg1!=reg2 (use j64)
+#define BNE_MARKLOCK2(reg1, reg2) Bxx_gen(NE, MARKLOCK2, reg1, reg2)
+// Branch to MARKLOCK2 if reg1!=0 (use j64)
+#define BNEZ_MARKLOCK2(reg) BNE_MARKLOCK2(reg, xZR)
 
 // Branch to NEXT if reg1==reg2 (use j64)
 #define BEQ_NEXT(reg1, reg2)                                                  \
@@ -810,49 +818,29 @@
 #define LOAD_REG(A)  LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
 // Need to also store current value of some register, as they may be used by functions like setjmp
-#define STORE_XEMU_CALL(s0)                             \
-    if (rv64_xtheadmempair) {                           \
-        ADDI(s0, xEmu, offsetof(x64emu_t, regs[_RSP])); \
-        TH_SDD(xRDX, xRBX, xEmu, 1);                    \
-        TH_SDD(xRSP, xRBP, s0, 0);                      \
-        TH_SDD(xRSI, xRDI, s0, 1);                      \
-        TH_SDD(xR8, xR9, s0, 2);                        \
-        TH_SDD(xR10, xR11, s0, 3);                      \
-    } else {                                            \
-        STORE_REG(RBX);                                 \
-        STORE_REG(RDX);                                 \
-        STORE_REG(RSP);                                 \
-        STORE_REG(RBP);                                 \
-        STORE_REG(RDI);                                 \
-        STORE_REG(RSI);                                 \
-        STORE_REG(R8);                                  \
-        STORE_REG(R9);                                  \
-        STORE_REG(R10);                                 \
-        STORE_REG(R11);                                 \
-    }
+#define STORE_XEMU_CALL(s0) \
+    STORE_REG(RBX);         \
+    STORE_REG(RSP);         \
+    STORE_REG(RBP);         \
+    STORE_REG(R10);         \
+    STORE_REG(R11);         \
+    STORE_REG(R12);         \
+    STORE_REG(R13);         \
+    STORE_REG(R14);         \
+    STORE_REG(R15);
 
 #define LOAD_XEMU_CALL()
 
-#define LOAD_XEMU_REM(s0)                               \
-    if (rv64_xtheadmempair) {                           \
-        ADDI(s0, xEmu, offsetof(x64emu_t, regs[_RSP])); \
-        TH_LDD(xRDX, xRBX, xEmu, 1);                    \
-        TH_LDD(xRSP, xRBP, s0, 0);                      \
-        TH_LDD(xRSI, xRDI, s0, 1);                      \
-        TH_LDD(xR8, xR9, s0, 2);                        \
-        TH_LDD(xR10, xR11, s0, 3);                      \
-    } else {                                            \
-        LOAD_REG(RBX);                                  \
-        LOAD_REG(RDX);                                  \
-        LOAD_REG(RSP);                                  \
-        LOAD_REG(RBP);                                  \
-        LOAD_REG(RDI);                                  \
-        LOAD_REG(RSI);                                  \
-        LOAD_REG(R8);                                   \
-        LOAD_REG(R9);                                   \
-        LOAD_REG(R10);                                  \
-        LOAD_REG(R11);                                  \
-    }
+#define LOAD_XEMU_REM(s0) \
+    LOAD_REG(RBX);        \
+    LOAD_REG(RSP);        \
+    LOAD_REG(RBP);        \
+    LOAD_REG(R10);        \
+    LOAD_REG(R11);        \
+    LOAD_REG(R12);        \
+    LOAD_REG(R13);        \
+    LOAD_REG(R14);        \
+    LOAD_REG(R15);
 
 
 #define SET_DFNONE()                               \
@@ -869,7 +857,7 @@
         MOV_U12(S, (N));                                                                                                        \
         SW(S, xEmu, offsetof(x64emu_t, df));                                                                                    \
         if (dyn->f.pending == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_(UpdateFlags, -1, 0);                                                                                          \
+            CALL_(UpdateFlags, -1, 0, 0, 0);                                                                                    \
             dyn->f.pending = SF_SET;                                                                                            \
             SET_NODF();                                                                                                         \
         }                                                                                                                       \
@@ -1013,7 +1001,7 @@
             j64 = (GETMARKF) - (dyn->native_size);  \
             BEQ(x3, xZR, j64);                      \
         }                                           \
-        CALL_(UpdateFlags, -1, 0);                  \
+        CALL_(UpdateFlags, -1, 0, 0, 0);            \
         MARKF;                                      \
         dyn->f.pending = SF_SET;                    \
         SET_DFOK();                                 \
@@ -1021,9 +1009,14 @@
 #endif
 
 #ifndef READFLAGS_FUSION
-#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                     \
-    if(dyn->insts[ninst].nat_flags_fusion) get_free_scratch(dyn, ninst, &tmp1, &tmp2, &tmp3, s1, s2, s3, s4, s5);   \
-    else { tmp1=s1; tmp2=s2; tmp3=s3; }                                                                             \
+#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                \
+    if (dyn->insts[ninst].nat_flags_fusion)                                    \
+        get_free_scratch(dyn, ninst, &tmp1, &tmp2, &tmp3, s1, s2, s3, s4, s5); \
+    else {                                                                     \
+        tmp1 = s1;                                                             \
+        tmp2 = s2;                                                             \
+        tmp3 = s3;                                                             \
+    }                                                                          \
     READFLAGS(A)
 #endif
 
@@ -1169,7 +1162,7 @@
 
 void rv64_epilog(void);
 void rv64_epilog_fast(void);
-void* rv64_next(x64emu_t* emu, uintptr_t addr);
+void* rv64_next(void);
 
 #ifndef STEPNAME
 #define STEPNAME3(N, M) N##M
@@ -1394,7 +1387,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);
-void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);
 void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
@@ -1680,85 +1673,85 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 #define MAYUSE(A)
 #endif
 
-// GOCOND will use x1 and x3
-#define GOCOND(B, T1, T2)                                                                   \
-    case B + 0x0:                                                                           \
-        INST_NAME(T1 "O " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_OF2), EQZ, NEZ, _, _, X_OF)                              \
-        break;                                                                              \
-    case B + 0x1:                                                                           \
-        INST_NAME(T1 "NO " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_OF2), NEZ, EQZ, _, _, X_OF)                              \
-        break;                                                                              \
-    case B + 0x2:                                                                           \
-        INST_NAME(T1 "C " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF)                           \
-        break;                                                                              \
-    case B + 0x3:                                                                           \
-        INST_NAME(T1 "NC " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF)                           \
-        break;                                                                              \
-    case B + 0x4:                                                                           \
-        INST_NAME(T1 "Z " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF)                             \
-        break;                                                                              \
-    case B + 0x5:                                                                           \
-        INST_NAME(T1 "NZ " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF)                             \
-        break;                                                                              \
-    case B + 0x6:                                                                           \
-        INST_NAME(T1 "BE " T2);                                                             \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF)    \
-        break;                                                                              \
-    case B + 0x7:                                                                           \
-        INST_NAME(T1 "NBE " T2);                                                            \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF)    \
-        break;                                                                              \
-    case B + 0x8:                                                                           \
-        INST_NAME(T1 "S " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_SF), EQZ, NEZ, _, _, X_SF)                               \
-        break;                                                                              \
-    case B + 0x9:                                                                           \
-        INST_NAME(T1 "NS " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_SF), NEZ, EQZ, _, _, X_SF)                               \
-        break;                                                                              \
-    case B + 0xA:                                                                           \
-        INST_NAME(T1 "P " T2);                                                              \
-        GO(ANDI(x1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF)                               \
-        break;                                                                              \
-    case B + 0xB:                                                                           \
-        INST_NAME(T1 "NP " T2);                                                             \
-        GO(ANDI(x1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF)                               \
-        break;                                                                              \
-    case B + 0xC:                                                                           \
-        INST_NAME(T1 "L " T2);                                                              \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2), EQZ, NEZ, GE, LT, X_SF | X_OF)                        \
-        break;                                                                              \
-    case B + 0xD:                                                                           \
-        INST_NAME(T1 "GE " T2);                                                             \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2), NEZ, EQZ, LT, GE, X_SF | X_OF)                        \
-        break;                                                                              \
-    case B + 0xE:                                                                           \
-        INST_NAME(T1 "LE " T2);                                                             \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2);                                                       \
-            ANDI(x3, xFlags, 1 << F_ZF);                                                    \
-            OR(x1, x1, x3);                                                                 \
-            ANDI(x1, x1, (1 << F_OF2) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF) \
-        break;                                                                              \
-    case B + 0xF:                                                                           \
-        INST_NAME(T1 "G " T2);                                                              \
-        GO(SRLI(x1, xFlags, F_SF - F_OF2);                                                  \
-            XOR(x1, x1, xFlags);                                                            \
-            ANDI(x1, x1, 1 << F_OF2);                                                       \
-            ANDI(x3, xFlags, 1 << F_ZF);                                                    \
-            OR(x1, x1, x3);                                                                 \
-            ANDI(x1, x1, (1 << F_OF2) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF) \
+// GOCOND will use tmp1 and tmp3
+#define GOCOND(B, T1, T2)                                                                       \
+    case B + 0x0:                                                                               \
+        INST_NAME(T1 "O " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_OF2), EQZ, NEZ, _, _, X_OF)                                \
+        break;                                                                                  \
+    case B + 0x1:                                                                               \
+        INST_NAME(T1 "NO " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_OF2), NEZ, EQZ, _, _, X_OF)                                \
+        break;                                                                                  \
+    case B + 0x2:                                                                               \
+        INST_NAME(T1 "C " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF)                             \
+        break;                                                                                  \
+    case B + 0x3:                                                                               \
+        INST_NAME(T1 "NC " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF)                             \
+        break;                                                                                  \
+    case B + 0x4:                                                                               \
+        INST_NAME(T1 "Z " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF)                               \
+        break;                                                                                  \
+    case B + 0x5:                                                                               \
+        INST_NAME(T1 "NZ " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF)                               \
+        break;                                                                                  \
+    case B + 0x6:                                                                               \
+        INST_NAME(T1 "BE " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF)      \
+        break;                                                                                  \
+    case B + 0x7:                                                                               \
+        INST_NAME(T1 "NBE " T2);                                                                \
+        GO(ANDI(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF)      \
+        break;                                                                                  \
+    case B + 0x8:                                                                               \
+        INST_NAME(T1 "S " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, _, _, X_SF)                                 \
+        break;                                                                                  \
+    case B + 0x9:                                                                               \
+        INST_NAME(T1 "NS " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, _, _, X_SF)                                 \
+        break;                                                                                  \
+    case B + 0xA:                                                                               \
+        INST_NAME(T1 "P " T2);                                                                  \
+        GO(ANDI(tmp1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF)                                 \
+        break;                                                                                  \
+    case B + 0xB:                                                                               \
+        INST_NAME(T1 "NP " T2);                                                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF)                                 \
+        break;                                                                                  \
+    case B + 0xC:                                                                               \
+        INST_NAME(T1 "L " T2);                                                                  \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2), EQZ, NEZ, GE, LT, X_SF | X_OF)                        \
+        break;                                                                                  \
+    case B + 0xD:                                                                               \
+        INST_NAME(T1 "GE " T2);                                                                 \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2), NEZ, EQZ, LT, GE, X_SF | X_OF)                        \
+        break;                                                                                  \
+    case B + 0xE:                                                                               \
+        INST_NAME(T1 "LE " T2);                                                                 \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2);                                                       \
+            ANDI(tmp3, xFlags, 1 << F_ZF);                                                      \
+            OR(tmp1, tmp1, tmp3);                                                               \
+            ANDI(tmp1, tmp1, (1 << F_OF2) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF) \
+        break;                                                                                  \
+    case B + 0xF:                                                                               \
+        INST_NAME(T1 "G " T2);                                                                  \
+        GO(SRLI(tmp1, xFlags, F_SF - F_OF2);                                                    \
+            XOR(tmp1, tmp1, xFlags);                                                            \
+            ANDI(tmp1, tmp1, 1 << F_OF2);                                                       \
+            ANDI(tmp3, xFlags, 1 << F_ZF);                                                      \
+            OR(tmp1, tmp1, tmp3);                                                               \
+            ANDI(tmp1, tmp1, (1 << F_OF2) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF) \
         break
 
 // Dummy macros
@@ -1867,54 +1860,62 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     BLT(reg, s, 4 + 4);           \
     ADDIW(reg, s, -1);
 
-#define FAST_8BIT_OPERATION(dst, src, s1, OP)                                                                      \
-    if (!box64_dynarec_nativeflags && MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
-        if (rex.rex) {                                                                                             \
-            wb = TO_NAT((nextop & 7) + (rex.b << 3));                                                              \
-            wb2 = 0;                                                                                               \
-            gb = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                                                    \
-            gb2 = 0;                                                                                               \
-        } else {                                                                                                   \
-            wb = (nextop & 7);                                                                                     \
-            wb2 = (wb >> 2) * 8;                                                                                   \
-            wb = TO_NAT(wb & 3);                                                                                   \
-            gd = (nextop & 0x38) >> 3;                                                                             \
-            gb2 = ((gd & 4) >> 2) * 8;                                                                             \
-            gb = TO_NAT(gd & 3);                                                                                   \
-        }                                                                                                          \
-        if (src##2) { ANDI(s1, src, 0xf00); }                                                                      \
-        SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                                                            \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 8 + dst##2);                                                                            \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 8 + dst##2);                                                                         \
-        }                                                                                                          \
-        OP;                                                                                                        \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 64 - 8 - dst##2);                                                                       \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 64 - 8 - dst##2);                                                                    \
-        }                                                                                                          \
-        break;                                                                                                     \
+#define FAST_8BIT_OPERATION(dst, src, s1, OP)                                        \
+    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+        if (rex.rex) {                                                               \
+            wb = TO_NAT((nextop & 7) + (rex.b << 3));                                \
+            wb2 = 0;                                                                 \
+            gb = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                      \
+            gb2 = 0;                                                                 \
+        } else {                                                                     \
+            wb = (nextop & 7);                                                       \
+            wb2 = (wb >> 2) * 8;                                                     \
+            wb = TO_NAT(wb & 3);                                                     \
+            gd = (nextop & 0x38) >> 3;                                               \
+            gb2 = ((gd & 4) >> 2) * 8;                                               \
+            gb = TO_NAT(gd & 3);                                                     \
+        }                                                                            \
+        if (src##2) { ANDI(s1, src, 0xf00); }                                        \
+        SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                              \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 8 + dst##2);                                              \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 8 + dst##2);                                           \
+        }                                                                            \
+        OP;                                                                          \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 64 - 8 - dst##2);                                         \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 64 - 8 - dst##2);                                      \
+        }                                                                            \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                    \
+            ANDI(s1, dst, 0xff);                                                     \
+            NAT_FLAGS_OPS(s1, xZR);                                                  \
+        }                                                                            \
+        break;                                                                       \
     }
 
-#define FAST_16BIT_OPERATION(dst, src, s1, OP)                                                                     \
-    if (!box64_dynarec_nativeflags && MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
-        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                                                        \
-        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                  \
-        SLLI(s1, src, 64 - 16);                                                                                    \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 16);                                                                                    \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 16);                                                                                 \
-        }                                                                                                          \
-        OP;                                                                                                        \
-        if (rv64_zbb) {                                                                                            \
-            RORI(dst, dst, 64 - 16);                                                                               \
-        } else {                                                                                                   \
-            TH_SRRI(dst, dst, 64 - 16);                                                                            \
-        }                                                                                                          \
-        break;                                                                                                     \
+#define FAST_16BIT_OPERATION(dst, src, s1, OP)                                       \
+    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                          \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                    \
+        SLLI(s1, src, 64 - 16);                                                      \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 16);                                                      \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 16);                                                   \
+        }                                                                            \
+        OP;                                                                          \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 64 - 16);                                                 \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 64 - 16);                                              \
+        }                                                                            \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                    \
+            ZEXTH(s1, dst);                                                          \
+            NAT_FLAGS_OPS(s1, xZR);                                                  \
+        }                                                                            \
+        break;                                                                       \
     }
 
 #define VECTOR_SPLAT_IMM(vreg, imm, s1)                 \

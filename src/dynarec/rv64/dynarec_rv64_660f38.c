@@ -197,11 +197,11 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 8; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
-                        MUL(x9, x3, x4);
+                        MUL(x7, x3, x4);
                         LBU(x3, gback, gdoffset + i * 2 + 1);
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
-                        ADD(x3, x3, x9);
+                        ADD(x3, x3, x7);
                         if (rv64_zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
@@ -742,16 +742,16 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         ed = (nextop & 7) + (rex.b << 3);
                         sse_reflect_reg(dyn, ninst, x6, ed);
                         ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                        ed = x1;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                        if (ed != x1) MV(x1, ed);
                     }
                     // prepare rest arguments
                     MV(x2, xRDX);
                     MV(x4, xRAX);
                     u8 = F8;
                     MOV32w(x5, u8);
-                    CALL(sse42_compare_string_explicit_len, x1);
+                    CALL6(sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
                     ZEROUP(x1);
                     BNEZ_MARK(x1);
                     MOV32w(xRCX, (u8 & 1) ? 8 : 16);
@@ -773,7 +773,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     SSE_LOOP_MV_Q(x3);
                     sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
-                    CALL(native_aesimc, -1);
+                    CALL(native_aesimc, -1, x1, 0);
                     break;
                 case 0xDC:
                     INST_NAME("AESENC Gx, Ex"); // AES-NI
@@ -781,7 +781,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
-                    CALL(native_aese, -1);
+                    CALL(native_aese, -1, x1, 0);
                     GETGX();
                     GETEX(x2, 0, 8);
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
@@ -792,7 +792,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
-                    CALL(native_aeselast, -1);
+                    CALL(native_aeselast, -1, x1, 0);
                     GETGX();
                     GETEX(x2, 0, 8);
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
@@ -803,7 +803,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
-                    CALL(native_aesd, -1);
+                    CALL(native_aesd, -1, x1, 0);
                     GETGX();
                     GETEX(x2, 0, 8);
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
@@ -815,7 +815,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
-                    CALL(native_aesdlast, -1);
+                    CALL(native_aesdlast, -1, x1, 0);
                     GETGX();
                     GETEX(x2, 0, 8);
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
@@ -1218,7 +1218,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     }
                     u8 = F8;
                     MOV32w(x4, u8);
-                    CALL(native_pclmul, -1);
+                    CALL4(native_pclmul, -1, x1, x2, x3, x4);
                     break;
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
@@ -1231,13 +1231,13 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         ed = (nextop & 7) + (rex.b << 3);
                         sse_reflect_reg(dyn, ninst, x6, ed);
                         ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                        ed = x1;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                        if (ed != x1) MV(x1, ed);
                     }
                     u8 = F8;
                     MOV32w(x3, u8);
-                    CALL(sse42_compare_string_implicit_len, x1);
+                    CALL4(sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
                     ZEROUP(x1);
                     BNEZ_MARK(x1);
                     MOV32w(xRCX, (u8 & 1) ? 8 : 16);
@@ -1271,7 +1271,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     }
                     u8 = F8;
                     MOV32w(x4, u8);
-                    CALL(native_aeskeygenassist, -1);
+                    CALL4(native_aeskeygenassist, -1, x1, x2, x3, x4);
                     break;
                 default:
                     DEFAULT;

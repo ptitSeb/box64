@@ -109,9 +109,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_op1 = emu->op1;
     multiuint_t old_op2 = emu->op2;
     multiuint_t old_res = emu->res;
-    // uc_link
-    void* old_uc_link = emu->uc_link;
-    emu->uc_link = NULL;
 
     #ifdef BOX32
     if(box64_is32bits)
@@ -124,7 +121,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     DynaRun(emu);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
-    emu->uc_link = old_uc_link;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
         if(emu->flags.quitonlongjmp==1)
             emu->flags.longjmp = 0;   // don't change anything because of the longjmp
@@ -220,6 +216,9 @@ void DynaRun(x64emu_t* emu)
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
+                if(!box64_dynarec_df) {
+                    CHECK_FLAGS(emu);
+                }
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
             }
@@ -228,15 +227,6 @@ void DynaRun(x64emu_t* emu)
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x64emu_fork(emu, forktype);
-            }
-            if(emu->quit && emu->uc_link) {
-                emu->quit = 0;
-                #ifdef BOX32
-                if(box64_is32bits)
-                    my32_setcontext(emu, emu->uc_link);
-                else
-                #endif
-                    my_setcontext(emu, emu->uc_link);
             }
         }
 #endif

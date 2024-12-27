@@ -11,9 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFX_t)(void*);
 typedef int32_t (*iFXpp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(XFixesGetCursorImage, pFX_t) \
 	GO(XFixesQueryExtension, iFXpp_t)
 
 #endif // __wrappedlibxfixesTYPES32_H_

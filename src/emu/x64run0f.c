@@ -1156,6 +1156,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 else
                     CLEAR_FLAG(F_CF);
             }
+            if(box64_dynarec_test) {
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_PF);
+            }
             break;
         case 0xA4:                      /* SHLD Ed,Gd,Ib */
             nextop = F8;
@@ -1236,6 +1242,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 }
                 if(MODREG)
                     ED->dword[1] = 0;
+            }
+            if(box64_dynarec_test) {
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_PF);
             }
             break;
         case 0xAC:                      /* SHRD Ed,Gd,Ib */
@@ -1400,6 +1412,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 if(MODREG)
                     ED->dword[1] = 0;
             }
+            if(box64_dynarec_test) {
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_PF);
+            }
             break;
 
         case 0xB6:                      /* MOVZX Gd,Eb */
@@ -1435,6 +1453,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         else
                             CLEAR_FLAG(F_CF);
                     }
+                    if(box64_dynarec_test) {
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_AF);
+                        CLEAR_FLAG(F_PF);
+                    }
                     break;
                 case 5:             /* BTS Ed, Ib */
                     CHECK_FLAGS(emu);
@@ -1459,6 +1483,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         if(MODREG)
                             ED->dword[1] = 0;
                     }
+                    if(box64_dynarec_test) {
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_AF);
+                        CLEAR_FLAG(F_PF);
+                    }
                     break;
                 case 6:             /* BTR Ed, Ib */
                     CHECK_FLAGS(emu);
@@ -1481,6 +1511,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         if(MODREG)
                             ED->dword[1] = 0;
                     }
+                    if(box64_dynarec_test) {
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_AF);
+                        CLEAR_FLAG(F_PF);
+                    }
                     break;
                 case 7:             /* BTC Ed, Ib */
                     CHECK_FLAGS(emu);
@@ -1502,6 +1538,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         ED->dword[0] ^= (1<<tmp8u);
                         if(MODREG)
                             ED->dword[1] = 0;
+                    }
+                    if(box64_dynarec_test) {
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_AF);
+                        CLEAR_FLAG(F_PF);
                     }
                     break;
 
@@ -1543,6 +1585,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 ED->dword[0] ^= (1<<tmp8u);
                 if(MODREG)
                     ED->dword[1] = 0;
+            }
+            if(box64_dynarec_test) {
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_PF);
             }
             break;
         case 0xBC:                      /* BSF Ed,Gd */

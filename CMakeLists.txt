@@ -41,6 +41,8 @@ option(CI "Set to ON if running in CI" ${CI})
 option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
 option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BOX32})
 option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
+option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LARCH64_ABI_1})
+option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -52,6 +54,10 @@ if(LARCH64)
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(LARCH64_DYNAREC ON CACHE BOOL "")
+    if(LARCH64_ABI_1)
+        message(STATUS "Build for Loongarch64 ABI 1.0 system")
+        add_definitions(-DLA64_ABI_1)
+    endif()
 endif()
 if(RV64)
     set(LD80BITS OFF CACHE BOOL "")
@@ -88,6 +94,11 @@ if(ANDROID)
     set(TERMUX_PATH "/data/data/com.termux/files")
     set(NOLOADADDR ON CACHE BOOL "")
     set(BAD_SIGNAL ON CACHE BOOL "")
+endif()
+
+if(GDBJIT)
+    message(STATUS "Build with GDBJIT support")
+    add_definitions(-DGDBJIT)
 endif()
 
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
@@ -381,6 +392,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/box64stack.c"
     "${BOX64_ROOT}/src/tools/bridge.c"
     "${BOX64_ROOT}/src/tools/callback.c"
+    "${BOX64_ROOT}/src/tools/gdbjit.c"
     "${BOX64_ROOT}/src/tools/my_cpuid.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
@@ -411,6 +423,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/librarian/globalsymbols32.c"
         "${BOX64_ROOT}/src/libtools/myalign32.c"
         "${BOX64_ROOT}/src/libtools/myalign64_32.c"
+        "${BOX64_ROOT}/src/libtools/myalignxcb32.c"
         "${BOX64_ROOT}/src/libtools/signal32.c"
         "${BOX64_ROOT}/src/libtools/threads32.c"
         "${BOX64_ROOT}/src/libtools/libc_net32.c"
@@ -620,6 +633,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrandr.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrender.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbrenderutil.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbres.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshape.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbshm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbsync.c"
@@ -767,7 +781,7 @@ if(NOT CI)
         OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
         COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
         "${BOX64_ROOT}"
-        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "STATICBUILD" "--"
+        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "STATICBUILD" "LA64" "--"
         ${WRAPPEDS_HEAD}
         MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
         DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
@@ -816,6 +830,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedfreetype.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedfontconfig.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibx11.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibxdamage.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxext.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxfixes.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrender.c"
@@ -827,10 +842,17 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxxf86vm.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedxinerama.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedexpat.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibx11xcb.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibxcb.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibxcbres.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedudev0.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedudev1.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibuuid.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedtcmallocminimal.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedcairo.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibdrm.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibvdpau.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappednsl.c"
     )
     endif()
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
@@ -1024,6 +1046,11 @@ if(LARCH64_DYNAREC)
     )
 endif()
 
+
+if(GDBJIT)
+set(GDBJITREADER "${BOX64_ROOT}/gdbjit/reader.c")
+endif()
+
 if(DYNAREC)
     set(DYNAREC_PASS
         "${BOX64_ROOT}/src/wrapped/generated/wrapper.h"
@@ -1067,6 +1094,10 @@ if(DYNAREC)
         $<TARGET_OBJECTS:native_pass3>
         $<TARGET_OBJECTS:test_interpreter>
     )
+
+    if(GDBJIT)
+        add_library(box64gdbjitreader SHARED ${GDBJITREADER})
+    endif()
 endif()
 
 # creates git_head.h
@@ -1105,7 +1136,7 @@ else()
         target_link_libraries(${BOX64} c m dl)
         endif()
     else()
-	    set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -lutil -Wl,--as-needed -pthread")
+	    set_property(TARGET ${BOX64} APPEND_STRING PROPERTY LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -lutil -Wl,--as-needed -pthread ")
     endif()
 endif()
 if(DYNAREC)
@@ -1116,9 +1147,9 @@ target_link_libraries(${BOX64} interpreter)
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)
         if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
-            set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-no-pie -Wl,--image-base=${BOX64_ELF_ADDRESS}")
+            set_property(TARGET ${BOX64} APPEND_STRING PROPERTY LINK_FLAGS "-no-pie -Wl,--image-base=${BOX64_ELF_ADDRESS} ")
         else()
-            set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,-Ttext-segment,${BOX64_ELF_ADDRESS}")
+            set_property(TARGET ${BOX64} APPEND_STRING PROPERTY LINK_FLAGS "-Wl,-Ttext-segment,${BOX64_ELF_ADDRESS} ")
         endif()
     endif()
 else()
@@ -1126,7 +1157,7 @@ else()
     if(NOT NOLOADADDR)
         if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
             if(WITH_MOLD) # --image-base requires -no-pie in mold!
-                set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-no-pie -lm")
+                set_property(TARGET ${BOX64} APPEND_STRING PROPERTY LINK_FLAGS "-no-pie -lm ")
             endif()
             target_link_options(${BOX64} PUBLIC LINKER:--image-base=${BOX64_ELF_ADDRESS})
         else()
@@ -1155,6 +1186,9 @@ if(NOT _x86 AND NOT _x86_64)
    if(NOT NO_LIB_INSTALL)
     install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION ${TERMUX_PATH}/usr/bin)
    endif()
+  endif()
+  if (GDBJIT)
+    install(TARGETS box64gdbjitreader RUNTIME DESTINATION lib)
   endif()
   if(NOT NO_CONF_INSTALL)
     configure_file(system/box64.conf.cmake system/box64.conf)

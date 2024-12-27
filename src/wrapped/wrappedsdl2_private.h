@@ -533,6 +533,7 @@ GO(SDL_RenderFillRect, iFpp)
 GO(SDL_RenderFillRects, iFppi)
 // SDL_RenderFillRectsF
 // SDL_RenderFlush
+GO(SDL_RenderGeometryRaw, iFpppipipiipii)
 GO(SDL_RenderGetClipRect, vFpp)
 GO(SDL_RenderGetIntegerScale, iFp)
 GO(SDL_RenderGetLogicalSize, vFppp)

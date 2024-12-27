@@ -266,7 +266,7 @@ int decode_opcode(uintptr_t rip, int is32bits)
             return OPCODE_READ|OPCODE_STACK;
         case 0x80 ... 0x83:
             nextop = addr[idx++];
-            return (MODREG)?0:((((nextop>>3)&7!=7)?OPCODE_WRITE:0)|OPCODE_READ);
+            return (MODREG)?0:(((((nextop>>3)&7)!=7)?OPCODE_WRITE:0)|OPCODE_READ);
         case 0x8F:
             nextop = addr[idx++];
             return ((MODREG)?0:(OPCODE_WRITE))|OPCODE_READ|OPCODE_STACK;

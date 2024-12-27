@@ -147,11 +147,11 @@ ulong_t to_hash_d(uintptr_t p) {
 }
 
 typedef struct struct_locale_s {
-	void* p0[13];
+	void* p0[13];   // struct __locale_data *
 	void* p1;   //const unsigned short int *__ctype_b;
 	void* p2;   //const int *__ctype_tolower;
 	void* p3;   //const int *__ctype_toupper;
-	void* p4[13];
+	void* p4[13];   //const char*
 } struct_locale_t;
 // not a real structure
 #define LOCALE_SIGN 0x54abcd845412LL
@@ -180,7 +180,7 @@ void to_struct_locale(ptr_t d, const struct_locale_t *src) {
 	    dest->p0[i] = to_hashv(src->p0[i]);
     }
     for(int i=0; i<13; ++i) {
-	    dest->p4[i] = to_hashv(src->p4[i]);
+	    dest->p4[i] = to_cstring(src->p4[i]);
     }
     // copy the 3 ctype int (1st is short int, but int will do)
     memcpy(dest->type_b, src->p1-128*sizeof(short), 384*sizeof(short));
@@ -194,9 +194,9 @@ void free_struct_locale(const struct_locale_t *src) {
     for(int i=0; i<13; ++i) {
 	    to_hash_d((uintptr_t)src->p0[i]);
     }
-    for(int i=0; i<13; ++i) {
+    /*for(int i=0; i<13; ++i) {
 	    to_hash_d((uintptr_t)src->p4[i]);
-    }
+    }*/
 }
 
 // Convert from locale key to original 64bits value

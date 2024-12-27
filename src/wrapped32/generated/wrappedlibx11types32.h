@@ -28,19 +28,28 @@ typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFXi_t)(void*, int32_t);
 typedef void* (*pFXL_t)(void*, uintptr_t);
 typedef void* (*pFXp_t)(void*, void*);
+typedef void (*vFpui_t)(void*, uint32_t, int32_t);
 typedef void (*vFXLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFXip_t)(void*, int32_t, void*);
+typedef int32_t (*iFXup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFXlp_t)(void*, intptr_t, void*);
 typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
+typedef int32_t (*iFXpp_t)(void*, void*, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
 typedef void* (*pFXip_t)(void*, int32_t, void*);
+typedef void* (*pFXCL_t)(void*, uint8_t, uintptr_t);
+typedef void* (*pFXuu_t)(void*, uint32_t, uint32_t);
+typedef void (*vFXLpL_t)(void*, uintptr_t, void*, uintptr_t);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXLpp_t)(void*, uintptr_t, void*, void*);
+typedef int32_t (*iFXpii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
@@ -53,14 +62,18 @@ typedef int32_t (*iFXpiip_t)(void*, void*, int32_t, int32_t, void*);
 typedef int32_t (*iFXpiup_t)(void*, void*, int32_t, uint32_t, void*);
 typedef int32_t (*iFXpppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
+typedef void* (*pFXLLLp_t)(void*, uintptr_t, uintptr_t, uintptr_t, void*);
 typedef void* (*pFXpppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppipp_t)(void*, void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFXLpppp_t)(void*, uintptr_t, void*, void*, void*, void*);
 typedef int32_t (*iFXppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void (*vFXLpiipi_t)(void*, uintptr_t, void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
+typedef void (*vFXLppiipi_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFXLLLiipi_t)(void*, uintptr_t, uintptr_t, uintptr_t, int32_t, int32_t, void*, int32_t);
 typedef void* (*pFXLiiuuLi_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
 typedef void (*vFXLpppippp_t)(void*, uintptr_t, void*, void*, void*, int32_t, void*, void*, void*);
+typedef int32_t (*iFppippippp_t)(void*, void*, int32_t, void*, void*, int32_t, void*, void*, void*);
 typedef int32_t (*iFXLppiiiiuu_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
 typedef void* (*pFXpuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
 typedef void* (*pFXLiiuuLipii_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t, void*, int32_t, int32_t);
@@ -70,26 +83,36 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XFreeStringList, vFp_t) \
 	GO(XLockDisplay, vFX_t) \
+	GO(XContextDependentDrawing, iFp_t) \
+	GO(XContextualDrawing, iFp_t) \
 	GO(XDestroyImage, iFp_t) \
+	GO(XDirectionalDependentDrawing, iFp_t) \
 	GO(XFreeExtensionList, iFp_t) \
 	GO(XFreeFontNames, iFp_t) \
 	GO(XFreeModifiermap, iFp_t) \
 	GO(XInitImage, iFp_t) \
 	GO(XRefreshKeyboardMapping, iFp_t) \
+	GO(XScreenNumberOfScreen, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \
 	GO(XCloseDisplay, iFX_t) \
 	GO(XGrabServer, iFX_t) \
 	GO(XVisualIDFromVisual, LFp_t) \
+	GO(XBaseFontNameListOfFontSet, pFp_t) \
+	GO(XExtentsOfFontSet, pFp_t) \
+	GO(XLocaleOfFontSet, pFp_t) \
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(XGetModifierMapping, pFX_t) \
 	GO(XOpenDisplay, XFp_t) \
 	GO(XFreeEventData, vFXp_t) \
+	GO(XFreeFontSet, vFXp_t) \
+	GO(_XDeqAsyncHandler, vFXp_t) \
 	GO(XFilterEvent, iFpL_t) \
 	GO(XFreeFont, iFXp_t) \
 	GO(XGetEventData, iFXp_t) \
 	GO(XNextEvent, iFXp_t) \
 	GO(XPeekEvent, iFXp_t) \
+	GO(XPutBackEvent, iFXp_t) \
 	GO(XLookupKeysym, LFpi_t) \
 	GO(XVaCreateNestedList, pFiV_t) \
 	GO(XCreateIC, pFpV_t) \
@@ -101,18 +124,33 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XQueryFont, pFXL_t) \
 	GO(XListExtensions, pFXp_t) \
 	GO(XLoadQueryFont, pFXp_t) \
+	GO(XkbFreeKeyboard, vFpui_t) \
 	GO(XSetWMNormalHints, vFXLp_t) \
 	GO(XStringListToTextProperty, iFpip_t) \
 	GO(XFreeFontInfo, iFppi_t) \
+	GO(XTextWidth, iFppi_t) \
 	GO(XTextWidth16, iFppi_t) \
+	GO(XmbTextEscapement, iFppi_t) \
+	GO(Xutf8TextEscapement, iFppi_t) \
+	GO(XwcTextEscapement, iFppi_t) \
+	GO(XFontsOfFontSet, iFppp_t) \
 	GO(XCheckTypedEvent, iFXip_t) \
+	GO(XkbGetNames, iFXup_t) \
+	GO(XkbGetUpdatedMap, iFXup_t) \
+	GO(XCheckMaskEvent, iFXlp_t) \
 	GO(XMaskEvent, iFXlp_t) \
 	GO(XGetWindowAttributes, iFXLp_t) \
 	GO(XSetWMHints, iFXLp_t) \
+	GO(XkbGetControls, iFXLp_t) \
+	GO(XAddConnectionWatch, iFXpp_t) \
 	GO(XGetPixel, LFXii_t) \
 	GO(XESetCloseDisplay, pFXip_t) \
 	GO(XESetEventToWire, pFXip_t) \
 	GO(XESetWireToEvent, pFXip_t) \
+	GO(_XGetRequest, pFXCL_t) \
+	GO(XkbGetMap, pFXuu_t) \
+	GO(XSetWMSizeHints, vFXLpL_t) \
+	GO(XPeekIfEvent, iFpppp_t) \
 	GO(XCheckTypedWindowEvent, iFXLip_t) \
 	GO(XCheckWindowEvent, iFXLlp_t) \
 	GO(XWindowEvent, iFXLlp_t) \
@@ -120,32 +158,57 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XQueryColors, iFXLpi_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
 	GO(XStoreColors, iFXLpi_t) \
+	GO(XGetWMColormapWindows, iFXLpp_t) \
 	GO(XGetWMNormalHints, iFXLpp_t) \
+	GO(XGetWMProtocols, iFXLpp_t) \
+	GO(_XReply, iFXpii_t) \
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
 	GO(XCreateColormap, LFXLpi_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
 	GO(XListFonts, pFXpip_t) \
 	GO(XmbTextPropertyToTextList, iFXbpLiL_pp_t) \
+	GO(Xutf8TextPropertyToTextList, iFXbpLiL_pp_t) \
+	GO(XwcTextPropertyToTextList, iFXbpLiL_pp_t) \
 	GO(XLookupString, iFppipp_t) \
+	GO(XmbTextExtents, iFppipp_t) \
+	GO(Xutf8TextExtents, iFppipp_t) \
+	GO(XwcTextExtents, iFppipp_t) \
 	GO(XSendEvent, iFXLilp_t) \
 	GO(XFreeColors, iFXLpiL_t) \
 	GO(XInternAtoms, iFXpiip_t) \
 	GO(XmbTextListToTextProperty, iFXpiup_t) \
 	GO(Xutf8TextListToTextProperty, iFXpiup_t) \
+	GO(XwcTextListToTextProperty, iFXpiup_t) \
 	GO(XQueryExtension, iFXpppp_t) \
 	GO(XSubImage, pFpiiuu_t) \
+	GO(XGetMotionEvents, pFXLLLp_t) \
 	GO(XCreateFontSet, pFXpppp_t) \
 	GO(XmbLookupString, iFpppipp_t) \
 	GO(Xutf8LookupString, iFpppipp_t) \
+	GO(XwcLookupString, iFpppipp_t) \
 	GO(XQueryTree, iFXLpppp_t) \
 	GO(XRegisterIMInstantiateCallback, iFXppppp_t) \
 	GO(XUnregisterIMInstantiateCallback, iFXppppp_t) \
+	GO(XmbDrawText, vFXLpiipi_t) \
+	GO(Xutf8DrawText, vFXLpiipi_t) \
+	GO(XwcDrawText, vFXLpiipi_t) \
 	GO(XTextExtents, iFppipppp_t) \
+	GO(XTextExtents16, iFppipppp_t) \
+	GO(XmbDrawImageString, vFXLppiipi_t) \
+	GO(XmbDrawString, vFXLppiipi_t) \
+	GO(Xutf8DrawImageString, vFXLppiipi_t) \
+	GO(Xutf8DrawString, vFXLppiipi_t) \
+	GO(XwcDrawImageString, vFXLppiipi_t) \
+	GO(XwcDrawString, vFXLppiipi_t) \
 	GO(XChangeProperty, iFXLLLiipi_t) \
 	GO(XGetImage, pFXLiiuuLi_t) \
 	GO(XSetWMProperties, vFXLpppippp_t) \
+	GO(XmbSetWMProperties, vFXLpppippp_t) \
 	GO(Xutf8SetWMProperties, vFXLpppippp_t) \
+	GO(XmbTextPerCharExtents, iFppippippp_t) \
+	GO(Xutf8TextPerCharExtents, iFppippippp_t) \
+	GO(XwcTextPerCharExtents, iFppippippp_t) \
 	GO(XPutImage, iFXLppiiiiuu_t) \
 	GO(XCreateImage, pFXpuiipuuii_t) \
 	GO(XGetSubImage, pFXLiiuuLipii_t) \

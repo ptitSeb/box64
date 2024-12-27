@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -33,6 +34,8 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_SUB_B(s1, s2);
@@ -41,6 +44,15 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         IFX_PENDOR0 {
             SUB_D(s6, s1, s2);
             ST_B(s6, xEmu, offsetof(x64emu_t, res));
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                EXT_W_B(s3, s1);
+                EXT_W_B(s4, s2);
+                NAT_FLAGS_OPS(s3, s4);
+            } else {
+                NAT_FLAGS_OPS(s1, s2);
+            }
         }
         return;
     }
@@ -70,6 +82,15 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     IFX(X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
+            EXT_W_B(s3, s1);
+            EXT_W_B(s4, s2);
+            NAT_FLAGS_OPS(s3, s4);
+        } else {
+            NAT_FLAGS_OPS(s1, s2);
+        }
+    }
 }
 
 // emit CMP8 instruction, from cmp s1 , 0, using s3 and s4 as scratch
@@ -84,9 +105,19 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_SUB_B(s1, xZR);
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                EXT_W_B(s3, s1);
+                NAT_FLAGS_OPS(s3, xZR);
+            } else {
+                NAT_FLAGS_OPS(s1, xZR);
+            }
         }
         return;
     }
@@ -104,6 +135,14 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
+            EXT_W_B(s3, s1);
+            NAT_FLAGS_OPS(s3, xZR);
+        } else {
+            NAT_FLAGS_OPS(s1, xZR);
+        }
+    }
 }
 
 // emit CMP16 instruction, from cmp s1, s2, using s3 and s4 as scratch
@@ -117,6 +156,8 @@ void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_SUB_H(s1, s2);
@@ -125,6 +166,15 @@ void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         IFX_PENDOR0 {
             SUB_D(s6, s1, s2);
             ST_H(s6, xEmu, offsetof(x64emu_t, res));
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                EXT_W_H(s3, s1);
+                EXT_W_H(s4, s2);
+                NAT_FLAGS_OPS(s3, s4);
+            } else {
+                NAT_FLAGS_OPS(s1, s2);
+            }
         }
         return;
     }
@@ -156,6 +206,15 @@ void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX(X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
+            EXT_W_H(s3, s1);
+            EXT_W_H(s4, s2);
+            NAT_FLAGS_OPS(s3, s4);
+        } else {
+            NAT_FLAGS_OPS(s1, s2);
+        }
+    }
 }
 
 // emit CMP16 instruction, from cmp s1 , #0, using s3 and s4 as scratch
@@ -170,9 +229,19 @@ void emit_cmp16_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_SUB_H(s1, xZR);
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                EXT_W_H(s3, s1);
+                NAT_FLAGS_OPS(s3, xZR);
+            } else {
+                NAT_FLAGS_OPS(s1, xZR);
+            }
         }
         return;
     }
@@ -190,6 +259,14 @@ void emit_cmp16_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
+            EXT_W_H(s3, s1);
+            NAT_FLAGS_OPS(s3, xZR);
+        } else {
+            NAT_FLAGS_OPS(s1, xZR);
+        }
+    }
 }
 
 // emit CMP32 instruction, from cmp s1, s2, using s3 and s4 as scratch
@@ -203,6 +280,8 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (la64_lbt) {
         IFX(X_ALL) {
             if (rex.w)
@@ -214,6 +293,20 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         IFX_PENDOR0 {
             SUBxw(s6, s1, s2);
             SDxw(s6, xEmu, offsetof(x64emu_t, res));
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (rex.w)
+                NAT_FLAGS_OPS(s1, s2);
+            else {
+                if (dyn->insts[ninst].nat_flags_needsign) {
+                    SEXT_W(s3, s1);
+                    SEXT_W(s4, s2);
+                } else {
+                    ZEROUP2(s3, s1);
+                    ZEROUP2(s4, s2);
+                }
+                NAT_FLAGS_OPS(s3, s4);
+            }
         }
         return;
     }
@@ -244,6 +337,20 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) {
+        if (rex.w)
+            NAT_FLAGS_OPS(s1, s2);
+        else {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                SEXT_W(s3, s1);
+                SEXT_W(s4, s2);
+            } else {
+                ZEROUP2(s3, s1);
+                ZEROUP2(s4, s2);
+            }
+            NAT_FLAGS_OPS(s3, s4);
+        }
+    }
 }
 
 // emit CMP32 instruction, from cmp s1, 0, using s3 and s4 as scratch
@@ -258,12 +365,26 @@ void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_CARRY();
+    NAT_FLAGS_ENABLE_SIGN();
     if (la64_lbt) {
         IFX(X_ALL) {
             if (rex.w)
                 X64_SUB_D(s1, xZR);
             else
                 X64_SUB_W(s1, xZR);
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (rex.w)
+                NAT_FLAGS_OPS(s1, xZR);
+            else {
+                if (dyn->insts[ninst].nat_flags_needsign) {
+                    SEXT_W(s3, s1);
+                } else {
+                    ZEROUP2(s3, s1);
+                }
+                NAT_FLAGS_OPS(s3, xZR);
+            }
         }
         return;
     }
@@ -285,6 +406,18 @@ void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
+    if (dyn->insts[ninst].nat_flags_fusion) {
+        if (rex.w)
+            NAT_FLAGS_OPS(s1, xZR);
+        else {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                SEXT_W(s3, s1);
+            } else {
+                ZEROUP2(s3, s1);
+            }
+            NAT_FLAGS_OPS(s3, xZR);
+        }
+    }
 }
 
 
@@ -297,14 +430,23 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_SIGN();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_AND_B(s1, s2);
         }
 
-        IFX_PENDOR0 {
+        if (dyn->insts[ninst].nat_flags_fusion) {
             AND(s3, s1, s2);
-            ST_D(s3, xEmu, offsetof(x64emu_t, res));
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                EXT_W_B(s3, s3);
+            }
+        }
+
+        IFX_PENDOR0 {
+            if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
+            ST_B(s3, xEmu, offsetof(x64emu_t, res));
         }
         return;
     }
@@ -327,6 +469,9 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX(X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
+    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
+        EXT_W_B(s3, s3);
+    }
 }
 
 // emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
@@ -338,13 +483,22 @@ void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_SIGN();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
     if (la64_lbt) {
         IFX (X_ALL) {
             X64_AND_H(s1, s2);
         }
 
-        IFX_PENDOR0 {
+        if (dyn->insts[ninst].nat_flags_fusion) {
             AND(s3, s1, s2);
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                EXT_W_H(s3, s3);
+            }
+        }
+
+        IFX_PENDOR0 {
+            if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
             ST_H(s3, xEmu, offsetof(x64emu_t, res));
         }
         return;
@@ -368,6 +522,9 @@ void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
     IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
+    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
+        EXT_W_H(s3, s3);
+    }
 }
 
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
@@ -379,6 +536,8 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         SET_DFNONE();
     }
 
+    NAT_FLAGS_ENABLE_SIGN();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
     if (la64_lbt) {
         IFX(X_ALL) {
             if (rex.w)
@@ -387,8 +546,17 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
                 X64_AND_W(s1, s2);
         }
 
-        IFX_PENDOR0 {
+        if (dyn->insts[ninst].nat_flags_fusion) {
             AND(s3, s1, s2);
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                if (!rex.w) SEXT_W(s3, s3);
+            } else if (!rex.w) {
+                ZEROUP(s3);
+            }
+        }
+
+        IFX_PENDOR0 {
+            if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
             SDxw(s3, xEmu, offsetof(x64emu_t, res));
         }
         return;
@@ -415,18 +583,27 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     IFX(X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
+    if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
+            SEXT_W(s3, s3);
+        } else {
+            ZEROUP(s3);
+        }
+    }
 }
 
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
 {
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
     IFX_PENDOR0 {
         SET_DF(s3, rex.w ? d_tst64 : d_tst32);
     } else {
         SET_DFNONE();
     }
 
-
+    NAT_FLAGS_ENABLE_SIGN();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
     if (la64_lbt) {
         IFX(X_ALL) {
             MOV64xw(s3, c);
@@ -436,13 +613,23 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
                 X64_AND_W(s1, s3);
         }
 
-        IFX_PENDOR0 {
-            if (c >= 0 && c <= 4095) {
-                ANDI(s3, s1, c);
-            } else {
-                IFX(X_ALL) { } else MOV64xw(s3, c);
-                AND(s3, s1, s3);
+        if (c >= 0 && c <= 4095) {
+            ANDI(s3, s1, c);
+        } else {
+            IFX (X_ALL) {
+            } else
+                MOV64xw(s3, c);
+            AND(s3, s1, s3);
+        }
+        if (dyn->insts[ninst].nat_flags_fusion) {
+            if (dyn->insts[ninst].nat_flags_needsign) {
+                if (!rex.w) SEXT_W(s3, s3);
+            } else if (!rex.w) {
+                ZEROUP(s3);
             }
+        }
+
+        IFX_PENDOR0 {
             SDxw(s3, xEmu, offsetof(x64emu_t, res));
         }
         return;
@@ -470,5 +657,12 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+        if (dyn->insts[ninst].nat_flags_needsign) {
+            SEXT_W(s3, s3);
+        } else {
+            ZEROUP(s3);
+        }
     }
 }

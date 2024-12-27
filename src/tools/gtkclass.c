@@ -6,18 +6,99 @@
 
 #include "wrappedlibs.h"
 
-#include "debug.h"
-#include "wrapper.h"
 #include "bridge.h"
+#include "debug.h"
 #include "callback.h"
-#include "box64context.h"
 #include "librarian.h"
 #include "gtkclass.h"
 #include "library.h"
-#include "custommem.h"
-#include "khash.h"
 
-int is_gtk3 = 0;
+// This file takes ages to compile, and yet wrapper.h changed pretty often, remove
+// the dependency and declare the functions and macros here to prevent the recompilation as much as possible.
+// #include "wrapper.h"
+/*
+To generate this content again, you can use the following Python code:
+
+import re
+file_path = 'path/to/box64/src/tools/gtkclass.c'
+with open(file_path, 'r') as file:
+    content = file.read()
+pattern = r' ([a-zA-Z]F[a-zA-Z]+)'
+matches = re.findall(pattern, content)
+unique_sorted_matches = sorted(set(matches))
+for match in unique_sorted_matches:
+    print(f'void {match}(x64emu_t *emu, uintptr_t fnc);')
+*/
+
+void UFp(x64emu_t* emu, uintptr_t fnc);
+void iFL(x64emu_t* emu, uintptr_t fnc);
+void iFp(x64emu_t* emu, uintptr_t fnc);
+void iFpUU(x64emu_t* emu, uintptr_t fnc);
+void iFpUup(x64emu_t* emu, uintptr_t fnc);
+void iFpi(x64emu_t* emu, uintptr_t fnc);
+void iFpii(x64emu_t* emu, uintptr_t fnc);
+void iFpiii(x64emu_t* emu, uintptr_t fnc);
+void iFpiiip(x64emu_t* emu, uintptr_t fnc);
+void iFpip(x64emu_t* emu, uintptr_t fnc);
+void iFpipLpp(x64emu_t* emu, uintptr_t fnc);
+void iFpippp(x64emu_t* emu, uintptr_t fnc);
+void iFpp(x64emu_t* emu, uintptr_t fnc);
+void iFppLp(x64emu_t* emu, uintptr_t fnc);
+void iFppU(x64emu_t* emu, uintptr_t fnc);
+void iFppUup(x64emu_t* emu, uintptr_t fnc);
+void iFppdd(x64emu_t* emu, uintptr_t fnc);
+void iFppi(x64emu_t* emu, uintptr_t fnc);
+void iFppii(x64emu_t* emu, uintptr_t fnc);
+void iFppiiu(x64emu_t* emu, uintptr_t fnc);
+void iFppp(x64emu_t* emu, uintptr_t fnc);
+void iFpppi(x64emu_t* emu, uintptr_t fnc);
+void iFpppp(x64emu_t* emu, uintptr_t fnc);
+void iFppppp(x64emu_t* emu, uintptr_t fnc);
+void iFpu(x64emu_t* emu, uintptr_t fnc);
+void iFpupp(x64emu_t* emu, uintptr_t fnc);
+void pFL(x64emu_t* emu, uintptr_t fnc);
+void pFLup(x64emu_t* emu, uintptr_t fnc);
+void pFp(x64emu_t* emu, uintptr_t fnc);
+void pFpLi(x64emu_t* emu, uintptr_t fnc);
+void pFpLp(x64emu_t* emu, uintptr_t fnc);
+void pFpi(x64emu_t* emu, uintptr_t fnc);
+void pFpipp(x64emu_t* emu, uintptr_t fnc);
+void pFpll(x64emu_t* emu, uintptr_t fnc);
+void pFpp(x64emu_t* emu, uintptr_t fnc);
+void pFppL(x64emu_t* emu, uintptr_t fnc);
+void pFppp(x64emu_t* emu, uintptr_t fnc);
+void pFpppp(x64emu_t* emu, uintptr_t fnc);
+void pFppppp(x64emu_t* emu, uintptr_t fnc);
+void pFpppppp(x64emu_t* emu, uintptr_t fnc);
+void pFv(x64emu_t* emu, uintptr_t fnc);
+void uFpp(x64emu_t* emu, uintptr_t fnc);
+void vFLp(x64emu_t* emu, uintptr_t fnc);
+void vFLup(x64emu_t* emu, uintptr_t fnc);
+void vFp(x64emu_t* emu, uintptr_t fnc);
+void vFpdd(x64emu_t* emu, uintptr_t fnc);
+void vFpi(x64emu_t* emu, uintptr_t fnc);
+void vFpii(x64emu_t* emu, uintptr_t fnc);
+void vFpiii(x64emu_t* emu, uintptr_t fnc);
+void vFpip(x64emu_t* emu, uintptr_t fnc);
+void vFpipp(x64emu_t* emu, uintptr_t fnc);
+void vFpipppp(x64emu_t* emu, uintptr_t fnc);
+void vFpp(x64emu_t* emu, uintptr_t fnc);
+void vFppdd(x64emu_t* emu, uintptr_t fnc);
+void vFppi(x64emu_t* emu, uintptr_t fnc);
+void vFppiipuu(x64emu_t* emu, uintptr_t fnc);
+void vFppip(x64emu_t* emu, uintptr_t fnc);
+void vFppp(x64emu_t* emu, uintptr_t fnc);
+void vFpppp(x64emu_t* emu, uintptr_t fnc);
+void vFppppp(x64emu_t* emu, uintptr_t fnc);
+void vFpppppp(x64emu_t* emu, uintptr_t fnc);
+void vFpppuu(x64emu_t* emu, uintptr_t fnc);
+void vFppu(x64emu_t* emu, uintptr_t fnc);
+void vFppupp(x64emu_t* emu, uintptr_t fnc);
+void vFppuu(x64emu_t* emu, uintptr_t fnc);
+void vFpu(x64emu_t* emu, uintptr_t fnc);
+void vFpup(x64emu_t* emu, uintptr_t fnc);
+void vFpupp(x64emu_t* emu, uintptr_t fnc);
+void vFu(x64emu_t* emu, uintptr_t fnc);
 
 static bridge_t*        my_bridge           = NULL;
 static const char* (*g_type_name)(size_t)   = NULL;

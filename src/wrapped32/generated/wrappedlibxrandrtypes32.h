@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFXL_t)(void*, uintptr_t);
 typedef int32_t (*iFXpp_t)(void*, void*, void*);
 typedef void* (*pFXLL_t)(void*, uintptr_t, uintptr_t);
@@ -23,6 +24,7 @@ typedef int32_t (*iFXpLLiiLWpi_t)(void*, void*, uintptr_t, uintptr_t, int32_t, i
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XRRFreeProviderInfo, vFp_t) \
 	GO(XRRFreeProviderResources, vFp_t) \
+	GO(XRRUpdateConfiguration, iFp_t) \
 	GO(XRRGetProviderResources, pFXL_t) \
 	GO(XRRGetScreenResources, pFXL_t) \
 	GO(XRRGetScreenResourcesCurrent, pFXL_t) \

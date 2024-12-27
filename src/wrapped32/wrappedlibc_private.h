@@ -2,6 +2,8 @@
 #error Meh...
 #endif
 
+//DATA not M cannot work on libc wbecause it's loaded in high memory
+
 // FILE* is S
 // locale_t needs special handling, with to_locale / from_locale (and is a / A)
 // struct utimbuf is: LL
@@ -170,8 +172,8 @@ GOW(__connect, iEipu)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
-//GOW(creat, iEpu)
-//GO(creat64, iEpu)
+GOW(creat, iEpu)
+GO(creat64, iEpu)
 // create_module    // Weak
 GO(ctermid, tEp)
 GOM(ctime, pEErl_)
@@ -195,9 +197,9 @@ GOM(__cxa_thread_atexit_impl, iEEppp) //%%
 // daemon
 DATAV(daylight, 4)
 // __daylight   // type B
-GOW(dcgettext, pEppi)
-GO(__dcgettext, pEppi)
-//GOW(dcngettext, pEpppui)
+GOW(dcgettext, tEppi)
+GO(__dcgettext, tEppi)
+GOW(dcngettext, tEpppLi)
 // __default_morecore
 // __default_rt_sa_restorer_v1
 // __default_rt_sa_restorer_v2
@@ -289,13 +291,13 @@ GO(eventfd, iEui)
 //GO(eventfd_read, iEip)
 //GO(eventfd_write, iEiU)
 GO2(execl, iEEpV, my32_execv)
-//GO2(execle, iEEpV, my_32execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
+//GO2(execle, iEEpV, my32_execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
 GO2(execlp, iEpV, my32_execvp)
-GOWM(execv, iEEpp)     //%%
-GOM(execve, iEEppp)   //%% and this one too...
-GOWM(execvp, iEEpp)
-GOWM(execvpe, iEEppp)
-GO(exit, vEi)
+GOWM(execv, iEEpp)      //%%
+GOM(execve, iEEppp)     //%% and this one too...
+GOWM(execvp, iEEpp)     //%%
+GOWM(execvpe, iEEppp)   //%%
+GO2(exit, vFEi, my_exit)
 GO(_exit, vEi)
 GOW(_Exit, vEi)
 GOM(__explicit_bzero_chk, vEEpuu)    //%% not always defined
@@ -360,7 +362,7 @@ GOW(finitef, iEf)
 // finitel  // Weak
 // __finitel
 // __flbf
-//GO(flistxattr, iEipu)
+GO(flistxattr, iEipL)
 GOW(flock, iEii)
 GOW(flockfile, vFS)
 GOW(_flushlbf, vEv)
@@ -417,6 +419,7 @@ GO(__fsetlocking, iESi)
 //GO(fsetpos, iEpp)
 //GO(fsetpos64, iEpp)
 GO(fsetxattr, iEippLi)
+GOM(fstat, iFip)    //%%,noE
 GOWM(fstatfs, iEip) //%%,noE
 GOWM(fstatfs64, iEip)    //%%,noE
 GOM(fstatvfs, iEEip)
@@ -436,7 +439,7 @@ GOW(ftruncate64, iEiI)
 //GOM(fts_read, pEEp)      //%%
 // fts_set
 //GOM(ftw, iEEppi)         //%%
-//GOM(ftw64, iEEppi)       //%%
+GOM(ftw64, iEEppi)       //%%
 GOW(funlockfile, vFS)
 GOM(futimens, iEEip)
 GOWM(futimes, iEEip)
@@ -494,20 +497,20 @@ GOW(getgid, uEv)
 // getgrent_r
 //GO(getgrgid, pEu)
 GOM(getgrgid_r, iEEuppLp)
-//GO(getgrnam, pEp)
+GOM(getgrnam, pEEp)
 GOM(getgrnam_r, iEEpppLp)
 GO(getgrouplist, iEpipp)
 GOW(getgroups, iEip)
 // __getgroups_chk
-//GO(gethostbyaddr, pFpui)  // change h_errno only
-GO(gethostbyaddr_r, iFpuippupp)
+GOM(gethostbyaddr, pFEpui)
+GOM(gethostbyaddr_r, iFEpuippupp)
 GOM(gethostbyname, pFEp)
 //GO(gethostbyname2, pFpi)
 //GO(gethostbyname2_r, iFpippupp)
 GOM(gethostbyname_r, iFEpppupp)
 //GO(gethostent, pFv)
 //GO(gethostent_r, iFppupp)
-// gethostid
+GO(gethostid, LFv)
 GOW(gethostname, iEpL)
 // __gethostname_chk
 GOM(getifaddrs, iEEbp_)
@@ -562,7 +565,7 @@ GOM(getprotobyname, pEEp)
 GOW(getpt, iEv)
 // getpublickey
 // getpw    // Weak
-//GO(getpwent, pEv)
+GOM(getpwent, pEEv)
 // getpwent_r
 GOM(getpwnam, pEEp)
 GOM(getpwnam_r, iEEpppLp)
@@ -583,7 +586,7 @@ GOW(getrusage, iEiBLLLLLLLLLLLLLLLLLL_)
 //GOW(gets, pEp)
 // __gets_chk
 // getsecretkey
-//GO(getservbyname, pEpp)
+GOM(getservbyname, pEEpp)
 //GO(getservbyname_r, iEppppup)
 //GO(getservbyport, pEip)
 //GO(getservbyport_r, iEipppup)
@@ -636,8 +639,8 @@ GOWM(gmtime_r, pEEpp)
 GO(gnu_dev_major, uEU)
 GO(gnu_dev_makedev, UEuu)
 GO(gnu_dev_minor, uEU)
-GOW(gnu_get_libc_release, pEv)
-GOW(gnu_get_libc_version, pEv)
+GOW(gnu_get_libc_release, tEv)
+GOW(gnu_get_libc_version, tEv)
 // __gnu_mcount_nc
 // __gnu_Unwind_Find_exidx
 GO(grantpt, iEi)
@@ -667,11 +670,11 @@ GO(iconv_open, pEpp)
 //GO(if_freenameindex, vEp)
 //GO(if_indextoname, pEup)
 //GO(if_nameindex, pEv)
-//GO(if_nametoindex, uEp)
+GO(if_nametoindex, uEp)
 // imaxabs  // Weak
 GOWS(imaxdiv, pEpII) //%%
-DATA(in6addr_any, 16)  // type R
-//DATA(in6addr_loopback, 16) // type R
+DATAM(in6addr_any, 16)  // type R
+DATAM(in6addr_loopback, 16) // type R
 // inb  // Weak
 //GOW(index, pEpi)
 // inet6_opt_append
@@ -709,7 +712,7 @@ GO(inet_pton, iEipp)
 // initstate    // Weak
 //GOW(initstate_r, iEupup)
 // inl  // Weak
-// innetgr
+GO(innetgr, iEpppp)
 GO(inotify_add_watch, iEipu)
 GO(inotify_init, iEv)
 GO(inotify_init1, iEi)
@@ -724,7 +727,7 @@ GO(inotify_rm_watch, iEii)
 //DATA(_IO_2_1_stdout_, 152)
 //GO(_IO_adjust_column, uEupi)
 // _IO_adjust_wcolumn
-GO(ioctl, iEiip)   //the vararg is just to have optional arg of various type, but only 1 arg
+GO(ioctl, iEiLp)   //the vararg is just to have optional arg of various type, but only 1 arg
 //GO(_IO_default_doallocate, iES)
 //GO(_IO_default_finish, vESi)
 //GO(_IO_default_pbackfail, iESi)
@@ -894,7 +897,7 @@ GOW(isnanf, iEf)
 GO(__isnanf, iEf)
 // isnanl   // Weak
 // __isnanl
-GO2(__isoc99_fscanf, iEEppV, my32_fscanf)
+GO2(__isoc99_fscanf, iEESpV, my32_fscanf)
 // __isoc99_fwscanf
 // __isoc99_scanf
 GOM(__isoc99_sscanf, iEEppV)  //%%
@@ -906,6 +909,14 @@ GOM(__isoc99_sscanf, iEEppV)  //%%
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
+GO2(__isoc23_fscanf, iEESpV, my32_fscanf)
+GO2(__isoc23_sscanf, iEEppV, my32_sscanf)
+GO2(__isoc23_vsscanf, iEEppp, my32_vsscanf)
+GO2(__isoc23_wcstol, lEpBp_i, my32_wcstol)
+GO2(__isoc23_strtoll, IEpBp_i, strtoll)
+GO2(__isoc23_strtoull, UEpBp_i, strtoull)
+GO2(__isoc23_strtol, lEpBp_i, my32_strtol)
+GO2(__isoc23_strtoul, LEpBp_i, my32_strtoul)
 GO(isprint, iEi)
 // __isprint_l
 // isprint_l    // Weak
@@ -995,8 +1006,8 @@ GOW(ldexpl, DFDi)
 GOW2(ldexpl, KFKi, ldexp)
 #endif
 GOS(ldiv, pEEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
-//GOM(lfind, pEEpppLp)            //%%
-//GO(lgetxattr, iEpppu)
+GOM(lfind, pEEppbL_Lp)            //%%
+GO(lgetxattr, iEpppL)
 GOM(__libc_alloca_cutoff, iEEL) //%%
 // __libc_allocate_rtsig
 // __libc_allocate_rtsig_private
@@ -1037,10 +1048,10 @@ GO2(__libc_sigaction, iEEipp, my32_sigaction) //%%
 GOW(link, iEpp)
 //GO(linkat, iEipipi)
 GOW(listen, iEii)
-//GO(listxattr, iEppu)
+GO(listxattr, iEppL)
 // llabs
 // lldiv
-//GO(llistxattr, iEppu)
+GO(llistxattr, iEppL)
 // llseek   // Weak
 // loc1 // type B
 // loc2 // type B
@@ -1056,11 +1067,11 @@ GOM(__longjmp_chk, vEEpi)   //%%
 GO(lrand48, lEv)
 // lrand48_r
 //GO(lremovexattr, iEpp)
-//GOM(lsearch, pEEpppLp)      //%%
+GOM(lsearch, pEEppbL_Lp)      //%%
 GOW(lseek, lEili)
 // __lseek  // Weak
 GOW(lseek64, IEiIi)
-//GO(lsetxattr, iEpppui)
+GO(lsetxattr, iEpppLi)
 //GO(lutimes, iEpp)
 GOM(__lxstat, iEEipp)       //%%
 GOM(__lxstat64, iEEipp)     //%%
@@ -1128,7 +1139,7 @@ GO(mkstemp64, iEp)
 //GO(mktemp, pEp)
 GO(mktime, LEbiiiiiiiiilt_)
 GO(mlock, iEpL)
-//GO(mlockall, iEi)
+GO(mlockall, iEi)
 GOM(mmap, pEEpLiiil)    //%%
 GOM(mmap64, pEEpLiiiI)  //%%
 // modf // Weak
@@ -1149,11 +1160,11 @@ GOWM(mremap, pEEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MR
 //GOW(msgrcv, lEipLli)
 //GOW(msgsnd, iEipLi)
 GOW(msync, iEpLi)
-// mtrace
+GO(mtrace, vFv)
 GO(munlock, iEpL)
-//GO(munlockall, iEv)
+GO(munlockall, iEv)
 GOM(munmap, iEEpL)       //%%
-// muntrace
+GO(muntrace, vFv)
 GOWM(nanosleep, iErLL_BLL_)	 //%%,noE
 // __nanosleep  // Weak
 // netname2host
@@ -1162,7 +1173,7 @@ GOW(newlocale, aEipa)
 GO(__newlocale, aEipa)
 // nfsservctl
 //GOM(nftw, iEEppii)       //%%
-//GOM(nftw64, iEEppii)     //%%
+GOM(nftw64, iEEppii)     //%%
 //GOW(ngettext, pEppu)
 GO(nice, iEi)
 // _nl_default_dirname   // type R
@@ -1239,7 +1250,7 @@ GOW(pathconf, lEpi)
 GOW(pause, iEv)
 GO(pclose, iES)
 GO(perror, vEp)
-// personality  // Weak
+GOW(personality, iFL)
 GOW(pipe, iEp)
 // __pipe
 GOW(pipe2, iEpO) // assuming this works the same as pipe, so pointer for array of 2 int
@@ -1256,29 +1267,29 @@ GO(posix_fadvise, iEilli)
 GO(posix_fadvise64, iEiIIi)
 GO(posix_fallocate, iEill)
 GO(posix_fallocate64, iEiII)
-// posix_madvise
+GO(posix_madvise, iEpLi)
 GOW(posix_memalign, iEBp_LL)
 // posix_openpt // Weak
-GOM(posix_spawn, iEEpppppp)
-// posix_spawnattr_destroy
+GOM(posix_spawn, iEEpppppp) //%%
+GO(posix_spawnattr_destroy, iFp)
 // posix_spawnattr_getflags
 // posix_spawnattr_getpgroup
 // posix_spawnattr_getschedparam
 // posix_spawnattr_getschedpolicy
 // posix_spawnattr_getsigdefault
 // posix_spawnattr_getsigmask
-// posix_spawnattr_init
+GO(posix_spawnattr_init, iFp)
 // posix_spawnattr_setflags
 // posix_spawnattr_setpgroup
 // posix_spawnattr_setschedparam
 // posix_spawnattr_setschedpolicy
 // posix_spawnattr_setsigdefault
 // posix_spawnattr_setsigmask
-GOM(posix_spawn_file_actions_addclose, iEEpi)
-GOM(posix_spawn_file_actions_adddup2, iEEpii)
-GOM(posix_spawn_file_actions_addopen, iEEpipOi)
-GOM(posix_spawn_file_actions_destroy, iEEp)
-GOM(posix_spawn_file_actions_init, iEEp)
+GOM(posix_spawn_file_actions_addclose, iEEpi)   //%%
+GOM(posix_spawn_file_actions_adddup2, iEEpii)   //%%
+GOM(posix_spawn_file_actions_addopen, iEEpipOi) //%%
+GOM(posix_spawn_file_actions_destroy, iEEp) //%%
+GOM(posix_spawn_file_actions_init, iEEp)    //%%
 GOM(posix_spawnp, iEEpppppp) //%%
 GO(ppoll, iEpurLL_p)
 GO(__ppoll_chk, iEpurLL_pL)
@@ -1296,8 +1307,8 @@ GOM(__printf_chk, iEEipV) //%%
 // printf_size_info
 // profil   // Weak
 // __profile_frequency
-//DATAM(__progname, 4)
-//DATAM(__progname_full, 4)
+DATAM(__progname, 4)
+DATAM(__progname_full, 4)
 DATAM(program_invocation_name, 4)
 DATAM(program_invocation_short_name, 4)
 //GOW(pselect, iEippppp)
@@ -1380,7 +1391,7 @@ GO(recv, lEipLi)
 GO(__recv_chk, iEipLLi)
 GOW(recvfrom, lEipLipp)
 // __recvfrom_chk
-//GOM(recvmmsg, iEEipuup)    //%% actual recvmmsg is glibc 2.12+. The syscall is Linux 2.6.33+, so use syscall...
+GOM(recvmmsg, iEEipuurLL_)
 GOWM(recvmsg, lEEipi)
 // re_exec  // Weak
 GOWM(regcomp, iEEppi)
@@ -1408,8 +1419,8 @@ GOW(re_set_syntax, LEL)
 GO(__res_iclose, vEpi)
 GO(__res_init, iEv)
 //GO(__res_maybe_init, iEpi)
-//GO(__res_nclose, vEp)
-//GO(__res_ninit, iEp)
+GO(__res_nclose, vEp)
+GO(__res_ninit, iEp)
 //DATA(__resp, 4)
 // __res_randomid
 GOM(__res_state, pEEv)
@@ -1449,8 +1460,8 @@ GO(__sched_cpucount, iEup)
 //GO(__sched_cpufree, vEp)
 GO(sched_getaffinity, iEiup)
 GO(sched_getcpu, iEv)
-//GO(__sched_getparam, iEip)
-//GOW(sched_getparam, iEip)
+GO(__sched_getparam, iEip)
+GOW(sched_getparam, iEip)
 GO(__sched_get_priority_max, iEi)
 GOW(sched_get_priority_max, iEi)
 GO(__sched_get_priority_min, iEi)
@@ -1464,7 +1475,7 @@ GO(__sched_setscheduler, iEiip)
 GOW(sched_setscheduler, iEiip)
 GO(__sched_yield, iEv)
 GOW(sched_yield, iEv)
-GO(__secure_getenv, tEp)
+GO2(__secure_getenv, tEp, secure_getenv)
 GO(secure_getenv, tEp)
 // seed48
 // seed48_r // Weak
@@ -1480,7 +1491,7 @@ GOW(send, lEipLi)
 GO(sendfile, lEiibl_L)
 GO(sendfile64, lEiipL)
 GOWM(sendmsg, lEEipi)
-//GOM(__sendmmsg, iEEipuu)    //%% actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
+GOM(sendmmsg, iEEipuu)
 GOW(sendto, lEipLipu)
 // setaliasent
 GOW(setbuf, vESp)
@@ -1540,12 +1551,12 @@ GOW(setuid, iEu)
 GOW(setutent, vEv)
 // setutxent
 GOW(setvbuf, iESpiL)
-//GO(setxattr, iEpppui)
+GO(setxattr, iEpppLi)
 // sgetspent
 // sgetspent_r  // Weak
-GOW(shmat, pEipi)
+GOWM(shmat, pEEipi)
 GOW(shmctl, iEiip)
-GOW(shmdt, iEp)
+GOWM(shmdt, iEEp)
 GOW(shmget, iEiLi)
 GOW(shutdown, iEii)
 GOWM(sigaction, iEEipp)    //%%
@@ -1585,7 +1596,7 @@ GOW(sigsetmask, iEi)
 // sigstack
 GOW(sigsuspend, iEp)
 // __sigsuspend
-//GOW(sigtimedwait, iEppp)
+GOW(sigtimedwait, iEpprLL_)
 //GOW(sigvec, iEipp)
 //GOW(sigwait, iEpp)
 //GOW(sigwaitinfo, iEpp)
@@ -1596,7 +1607,7 @@ GOM(__snprintf_chk, iEEpLiipV) //%%
 // sockatmark
 GOW(socket, iEiii)
 GOW(socketpair, iEiiip)
-//GO(splice, iEipipuu)
+GO(splice, iEipipLu)
 GOM(sprintf, iEEppV) //%%
 GOM(__sprintf_chk, iEEpiipV) //%%
 // sprofil  // Weak
@@ -1611,6 +1622,7 @@ GOM(sscanf, iEEppV) //%%
 GOM(__stack_chk_fail, vEEv) //%%
 //GOM(lstat64, iEpp)	//%%,noE
 //GOM(stat64, iEpp)	//%%,noE
+GOM(stat, iFpp) //%%,noE
 GOWM(statfs, iEpp)  //%%,noE
 // __statfs
 GOWM(statfs64, iEpp)     //%%,noE
@@ -1654,8 +1666,8 @@ GOW(strdup, pEp)
 GO(__strdup, pEp)
 GO(strerror, tEi)
 GO(strerror_l, pEia)
-GO(__strerror_r, pEipL)
-GOW(strerror_r, pEipL)
+GO(__strerror_r, tEipL)
+GOW(strerror_r, tEipL)
 //GO(strfmon, lEpLpppppppppp) //vaarg, probably needs align, there are just double...
 // __strfmon_l
 // strfmon_l    // Weak
@@ -1667,6 +1679,8 @@ GO(strlen, LEp)
 GOW(strncasecmp, iEppL)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
+GO(strlcat, pEppL)
+GO(strlcpy, pEppL)
 GO(strncat, pEppL)
 GO(__strncat_chk, pEppLL)
 GO(strncmp, iEppL)
@@ -1722,19 +1736,19 @@ GO(strtoll, IEpBp_i)
 //GO(__strtol_l, lEppiip)
 //GOW(strtol_l, lEppiip)
 GO(__strtoll_internal, IEpBp_ii)
-//GO(__strtoll_l, IEppip)
-//GOW(strtoll_l, IEppip)
-//GOW(strtoq, IEppi)  // is that ok?
+GO(__strtoll_l, IEpBp_ia)
+GOW(strtoll_l, IEpBp_ia)
+GOW(strtoq, IEppi)  // is that ok?
 GOM(strtoul, LEpBp_i)   //%%,noE
 GO2(__strtoul_internal, LEpBp_ii, my32_strtoul) //%%,noE
 GO(strtoull, UEpBp_i)
 //GO(__strtoul_l, uEppip)
 //GOW(strtoul_l, LEppip)
 GO(__strtoull_internal, UEpBp_ii)
-//GO(__strtoull_l, UEppip)
-//GOW(strtoull_l, UEppip)
+GO(__strtoull_l, UEpBp_ia)
+GOW(strtoull_l, UEpBp_ia)
 //GO(strtoumax, UEppi)
-//GOW(strtouq, UEppi) // ok?
+GOW(strtouq, UEppi) // ok?
 GOW(strverscmp, iEpp)
 // __strverscmp
 GO(strxfrm, uEppL)
@@ -1789,7 +1803,7 @@ GO2(__sysconf, lEEi, my_sysconf)
 //DATA(_sys_errlist, 4)
 //DATA(sys_errlist, 4)
 GOM(sysinfo, iEp)   //%noE
-//GO2(syslog, vEipV, vsyslog)
+GOM(syslog, vEEipV)
 GOM(__syslog_chk, vEEiipV)
 //DATA(_sys_nerr, 4)    // type R
 //DATA(sys_nerr, 4) // type R
@@ -1813,10 +1827,10 @@ GO(tcsetpgrp, iEii)
 // tee
 //GO(telldir, iEp)
 GO(tempnam, pEpp)
-//GOW(textdomain, pEp)
+GOW(textdomain, tEp)
 // tfind    // Weak
-GO(time, LErl_)
-GO(timegm, LEriiiiiiiiilt_)
+GO(time, LEBL_)
+GOM(timegm, lEEriiiiiiiiilt_)   //%%
 // timelocal    // Weak
 GO(timerfd_create, iEii)
 //GO(timerfd_gettime, iEip)
@@ -1918,7 +1932,7 @@ GOWM(__vsnprintf, iEEpLpp)       //%%
 GOM(__vsnprintf_chk, iEEpLiipp)  //%%
 GOWM(vsprintf, iEEppp)            //%%
 GOM(__vsprintf_chk, iEEpiLpp)     //%% 
-//GOM(vsscanf, iEEppp) //%%
+GOM(vsscanf, iEEppp) //%%
 // __vsscanf    // Weak
 GOWM(vswprintf, iEEpLpp)         //%%
 GOWM(__vswprintf, iEEpLpp)         //%%
@@ -1936,7 +1950,7 @@ GOW(wait, iEp)
 //GOW(__wait, iEp)
 //GOW(wait3, iEpip)
 //GOW(wait4, iEipip)
-GOW(waitid, iEuupi) // might need to wrap "p", it's a siginfo_t *
+GOWM(waitid, iEEuupi)
 GOW(waitpid, iEipi)
 GOW(__waitpid, lElpi)
 //GO(warn, vEppppppppp)
@@ -2020,7 +2034,7 @@ GO(wcstoull, UEpBp_i)
 // wcstouq  // Weak
 // wcswcs   // Weak
 //GO(wcswidth, iEpu)
-//GO(wcsxfrm, uEppu)
+GO(wcsxfrm, LEppL)
 //GOW(wcsxfrm_l, uEppup)
 GO(__wcsxfrm_l, LEppLa)
 GO(wctob, iEu)
@@ -2033,6 +2047,8 @@ GO(wctob, iEu)
 GO(__wctype_l, hEpa)
 GOW(wctype_l, hEpa)
 GO(wcwidth, iEu)
+GO(wcslcat, LFppL)
+GO(wcslcpy, LFppL)
 GOW(wmemchr, pEpiL)
 GO(wmemcmp, iEppL)
 GOW(wmemcpy, pEppL)
@@ -2125,7 +2141,7 @@ GO(xdr_u_int, iEpp)
 GO(xdr_void, iEv)
 // xdr_wrapstring
 // xencrypt
-GO(__xmknod, iEipup)
+GOM(__xmknod, iEEipup)
 //GO(__xmknodat, iEiipip)
 GO(__xpg_basename, tEp)
 // __xpg_sigpause   // Weak
@@ -2180,7 +2196,7 @@ GO(fallocate64, iEiiII)
 //DATAM(__libc_stack_end, 4)
 
 //DATAM(___brk_addr, 4)
-//DATA(__libc_enable_secure, 4)
+DATA(__libc_enable_secure, 4)
 
 GOM(__register_frame_info, vEpp)  //%%,noE faked function
 GOM(__deregister_frame_info, pEp) //%%,noE
@@ -2198,9 +2214,7 @@ GO(__errno, pEv)
 //GO(__errno,
 #endif
 
-//GOM(stat,
 //GOM(lstat,
-//GOM(fstat,
 //GO(setprogname,
 //GO(getprogname,
 

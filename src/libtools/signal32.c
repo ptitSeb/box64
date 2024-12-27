@@ -31,6 +31,7 @@
 #include "threads.h"
 #include "emu/x87emu_private.h"
 #include "custommem.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -447,6 +448,23 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
 
     return ret;
 }
+void convert_siginfo_to_32(void* d, void* s, int sig)
+{
+    if(!s || !d) return;
+    my_siginfo32_t* dst = d;
+    siginfo_t* src = s;
+
+    memcpy(dst, src, sizeof(my_siginfo32_t));
+    if(sig==SIGILL || sig==SIGFPE || sig==SIGSEGV || sig==SIGBUS)
+        dst->_sifields._sigfault.__si_addr = to_ptrv(src->si_addr);
+    if(sig==SIGCHLD) {
+        dst->_sifields._sigchld.__si_pid = src->si_pid;
+        dst->_sifields._sigchld.__si_uid = src->si_uid;
+        dst->_sifields._sigchld.__si_status = src->si_status;
+        dst->_sifields._sigchld.__si_stime = src->si_stime;
+        dst->_sifields._sigchld.__si_utime = src->si_utime;
+    }
+}
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 #define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
@@ -487,7 +505,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     if(p) {
         pc = (void*)p->uc_mcontext.__gregs[0];
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.__gregs[16+_SP];
+            frame = (uintptr_t)p->uc_mcontext.__gregs[9];
     }
 #else
 #error Unsupported architecture
@@ -520,9 +538,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     void* xstate = (void*)frame;
     frame -= sizeof(my_siginfo32_t);
     my_siginfo32_t* info2 = (my_siginfo32_t*)frame;
-    memcpy(info2, info, sizeof(my_siginfo32_t));
-    if(sig==SIGILL || sig==SIGFPE || sig==SIGSEGV || sig==SIGBUS)
-        info2->_sifields._sigfault.__si_addr = to_ptrv(info->si_addr);
+    convert_siginfo_to_32(info2, info, sig);
     // try to fill some sigcontext....
     frame -= sizeof(i386_ucontext_t);
     i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;
@@ -573,13 +589,13 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
 #elif defined(RV64)
     if(db && p) {
         sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[20];
-        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[21];
-        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[22];
-        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[23];
+        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[13];
+        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[12];
+        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[24];
+        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[9];
+        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[8];
+        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[11];
+        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[10];
         sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
     }
 #else
@@ -934,8 +950,6 @@ EXPORT int my32_getcontext(x64emu_t* emu, void* ucp)
     fpu_savenv(emu, from_ptrv(u->uc_mcontext.fpregs), 1);   // it seems getcontext only save fpu env, not fpu regs
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
-    // ensure uc_link is properly initialized
-    u->uc_link = to_ptrv(emu->uc_link);
 
     return 0;
 }
@@ -948,15 +962,15 @@ EXPORT int my32_setcontext(x64emu_t* emu, void* ucp)
     emu->init_stack = from_ptrv(u->uc_stack.ss_sp);
     emu->size_stack = from_ulong(u->uc_stack.ss_size);
     // set general register
-    R_EAX = u->uc_mcontext.gregs[I386_EAX];
-    R_ECX = u->uc_mcontext.gregs[I386_ECX];
-    R_EDX = u->uc_mcontext.gregs[I386_EDX];
-    R_EDI = u->uc_mcontext.gregs[I386_EDI];
-    R_ESI = u->uc_mcontext.gregs[I386_ESI];
-    R_EBP = u->uc_mcontext.gregs[I386_EBP];
-    R_EIP = u->uc_mcontext.gregs[I386_EIP];
-    R_ESP = u->uc_mcontext.gregs[I386_ESP];
-    R_EBX = u->uc_mcontext.gregs[I386_EBX];
+    R_RAX = u->uc_mcontext.gregs[I386_EAX];
+    R_RCX = u->uc_mcontext.gregs[I386_ECX];
+    R_RDX = u->uc_mcontext.gregs[I386_EDX];
+    R_RDI = u->uc_mcontext.gregs[I386_EDI];
+    R_RSI = u->uc_mcontext.gregs[I386_ESI];
+    R_RBP = u->uc_mcontext.gregs[I386_EBP];
+    R_RIP = u->uc_mcontext.gregs[I386_EIP];
+    R_RSP = u->uc_mcontext.gregs[I386_ESP];
+    R_RBX = u->uc_mcontext.gregs[I386_EBX];
     // get segments
     R_GS = u->uc_mcontext.gregs[I386_GS];
     R_FS = u->uc_mcontext.gregs[I386_FS];
@@ -968,10 +982,20 @@ EXPORT int my32_setcontext(x64emu_t* emu, void* ucp)
     fpu_loadenv(emu, from_ptrv(u->uc_mcontext.fpregs), 1);
     // set signal mask
     sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
-    // set uc_link
-    emu->uc_link = from_ptrv(u->uc_link);
+
     errno = 0;
     return R_EAX;
+}
+
+void vFEv_32(x64emu_t *emu, uintptr_t fnc);
+EXPORT void my32_start_context(x64emu_t* emu)
+{
+    // this is call indirectly by swapcontext from a makecontext, and will link context or just exit
+    i386_ucontext_t *u = (i386_ucontext_t*)from_ptriv(R_EBX);
+    if(u)
+        my32_setcontext(emu, u);
+    else
+        emu->quit = 1;
 }
 
 EXPORT void my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int32_t* argv)
@@ -982,8 +1006,12 @@ EXPORT void my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, 
     u->uc_mcontext.gregs[I386_ESP] = to_ptr(u->uc_stack.ss_sp + u->uc_stack.ss_size - 4);
     // setup the function
     u->uc_mcontext.gregs[I386_EIP] = to_ptrv(fnc);
-    // setup args
     uint32_t* esp = (uint32_t*)from_ptr(u->uc_mcontext.gregs[I386_ESP]);
+    // setup return to private start_context uc_link
+    *esp = u->uc_link;
+    u->uc_mcontext.gregs[I386_EBX] = (uintptr_t)esp;
+    --esp;
+    // setup args
     for (int i=0; i<argc; ++i) {
         // push value
         --esp;
@@ -991,7 +1019,7 @@ EXPORT void my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, 
     }
     // push the return value
     --esp;
-    *esp = to_ptr(my_context->exit_bridge);
+    *esp = AddCheckBridge(my_context->system, vFEv_32, my32_start_context, 0, "my_start_context");//my_context->exit_bridge;//to_ptr(my_context->exit_bridge);
     u->uc_mcontext.gregs[I386_ESP] = (uintptr_t)esp;
 }
 

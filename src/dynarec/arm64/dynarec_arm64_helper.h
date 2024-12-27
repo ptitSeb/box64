@@ -74,17 +74,18 @@
         LDz(x1, wback, fixedaddress);                                                                                                                     \
         ed = x1;                                                                                                                                          \
     }
-#define GETEDw(D)  if((nextop&0xC0)==0xC0) {            \
-                    ed = xEAX+(nextop&7)+(rex.b<<3);    \
-                    wback = 0;                          \
-                } else {                                \
-                    SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL,0, D); \
-                    LDW(x1, wback, fixedaddress);       \
-                    ed = x1;                            \
-                }
+#define GETEDw(D)                                                                                                     \
+    if (MODREG) {                                                                                                     \
+        ed = xEAX + (nextop & 7) + (rex.b << 3);                                                                      \
+        wback = 0;                                                                                                    \
+    } else {                                                                                                          \
+        SMREAD();                                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << 2, 3, rex, NULL, 0, D); \
+        LDW(x1, wback, fixedaddress);                                                                                 \
+        ed = x1;                                                                                                      \
+    }
 #define GETSEDw(D)                                                                                                    \
-    if ((nextop & 0xC0) == 0xC0) {                                                                                    \
+    if (MODREG) {                                                                                                     \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                     \
         SXTWx(x1, ed);                                                                                                \
         wb = x1;                                                                                                      \
@@ -106,7 +107,7 @@
         ed = x1;                                                                                                                                       \
     }
 #define GETSED32w(D)                                                                                                    \
-    if ((nextop & 0xC0) == 0xC0) {                                                                                      \
+    if (MODREG) {                                                                                                       \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                       \
         SXTWx(x1, ed);                                                                                                  \
         wb = x1;                                                                                                        \
@@ -211,7 +212,7 @@
         ed = x1;                                                                                        \
     }
 #define GETSEDOw(O, D)                                                                                  \
-    if ((nextop & 0xC0) == 0xC0) {                                                                      \
+    if (MODREG) {                                                                                       \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                       \
         SXTWx(x1, ed);                                                                                  \
         wb = x1;                                                                                        \

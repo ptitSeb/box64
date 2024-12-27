@@ -1,70 +1,82 @@
-//riscv prologue for dynarec
-//Save stuff, prepare stack and register
-//called with pointer to emu as 1st parameter
-//and address to jump to as 2nd parameter
+#define ASM_MAPPING 1
+#include "rv64_mapping.h"
+#undef ASM_MAPPING
 
 .text
 .align 4
 
 .global rv64_prolog
+
+// rv64_prolog(emu, jump_address)
 rv64_prolog:
-    //save all 18 used register
-    addi    sp,  sp, -(8 * 24)  // 16 bytes aligned
-    sd      ra, (sp)  // save ra
-    sd      x8, 8(sp) // save fp
-    sd      x18, (2*8)(sp)
-    sd      x19, (3*8)(sp)
-    sd      x20, (4*8)(sp)
-    sd      x21, (5*8)(sp)
-    sd      x22, (6*8)(sp)
-    sd      x23, (7*8)(sp)
-    sd      x24, (8*8)(sp)
-    sd      x25, (9*8)(sp)
-    sd      x26, (10*8)(sp)
-    sd      x27, (11*8)(sp)
-    sd      x9,  (12*8)(sp)
-    fsd     f18, (13*8)(sp)
-    fsd     f19, (14*8)(sp)
-    fsd     f20, (15*8)(sp)
-    fsd     f21, (16*8)(sp)
-    fsd     f22, (17*8)(sp)
-    fsd     f23, (18*8)(sp)
-    fsd     f24, (19*8)(sp)
-    fsd     f25, (20*8)(sp)
-    fsd     f26, (21*8)(sp)
-    fsd     f27, (22*8)(sp)
-    //setup emu -> register
-    ld      x16, (a0)
-    ld      x17, 8(a0)
-    ld      x18, 16(a0)
-    ld      x19, 24(a0)
-    ld      x20, 32(a0)
-    ld      x21, 40(a0)
-    ld      x22, 48(a0)
-    ld      x23, 56(a0)
-    ld      x24, 64(a0)
-    ld      x25, 72(a0)
-    ld      x26, 80(a0)
-    ld      x27, 88(a0)
-    ld      x28, 96(a0)
-    ld      x29, 104(a0)
-    ld      x30, 112(a0)
-    ld      x31, 120(a0)
-    ld      x8, 128(a0)     //xFlags
-    ld      x7, 136(a0)     // xRIP
-    // // adjust flags bit 11 -> bit 5
-    andi    x8, x8, ~(1<<5)    // probably not usefull?
-    srli    x5, x8, 11-5
-    andi    x5, x5, 1<<5
-    or      x8, x8, x5
-    ld      x5, 808(a0) // grab an old value of emu->xSPSave
-    sd      sp, 808(a0) // save current sp to emu->xSPSave
+
+    // 16 bytes aligned
+    addi    sp,   sp, -(8 * 24)
+
+    // save callee-saved registers
+    sd      ra,   (0*8)(sp)
+    sd      fp,   (1*8)(sp)
+    sd      s1,   (2*8)(sp)
+    sd      s2,   (3*8)(sp)
+    sd      s3,   (4*8)(sp)
+    sd      s4,   (5*8)(sp)
+    sd      s5,   (6*8)(sp)
+    sd      s6,   (7*8)(sp)
+    sd      s7,   (8*8)(sp)
+    sd      s8,   (9*8)(sp)
+    sd      s9,   (10*8)(sp)
+    sd      s10,  (11*8)(sp)
+    sd      s11,  (12*8)(sp)
+    fsd     fs2,  (13*8)(sp)
+    fsd     fs3,  (14*8)(sp)
+    fsd     fs4,  (15*8)(sp)
+    fsd     fs5,  (16*8)(sp)
+    fsd     fs6,  (17*8)(sp)
+    fsd     fs7,  (18*8)(sp)
+    fsd     fs8,  (19*8)(sp)
+    fsd     fs9,  (20*8)(sp)
+    fsd     fs10, (21*8)(sp)
+    fsd     fs11, (22*8)(sp)
+
+    // save a1
+    mv      t6,  a1
+
+    /*** switch to box64 register naming convection ***/
+
+    // load x86 registers from emu
+    mv      Emu, a0
+    ld      RAX,   0(Emu)
+    ld      RCX,   8(Emu)
+    ld      RDX,   16(Emu)
+    ld      RBX,   24(Emu)
+    ld      RSP,   32(Emu)
+    ld      RBP,   40(Emu)
+    ld      RSI,   48(Emu)
+    ld      RDI,   56(Emu)
+    ld      R8,    64(Emu)
+    ld      R9,    72(Emu)
+    ld      R10,   80(Emu)
+    ld      R11,   88(Emu)
+    ld      R12,   96(Emu)
+    ld      R13,   104(Emu)
+    ld      R14,   112(Emu)
+    ld      R15,   120(Emu)
+    ld      Flags, 128(Emu)
+    ld      RIP,   136(Emu)
+
+    // adjust flags bit 11 -> bit 5
+    andi    Flags, Flags, ~(1<<5)   // probably not usefull?
+    srli    t3, Flags, 11-5
+    andi    t3, t3, 1<<5
+    or      Flags, Flags, t3
+
+    ld      t3, 808(Emu) // grab an old value of emu->xSPSave
+    sd      sp, 808(Emu) // save current sp to emu->xSPSave
+
     // push sentinel onto the stack
-    sd      x5, -16(sp)
+    sd      t3, -16(sp)
     sd      zero, -8(sp)
     addi    sp, sp, -16
-    // setup xMASK
-    xori    x5, x0, -1
-    srli    x5, x5, 32
+
     // jump to block
-    jr    a1
+    jr      t6

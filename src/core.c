@@ -17,6 +17,9 @@
 #include <linux/auxvec.h>
 #include <asm/hwcap.h>
 #endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #endif
 
 #include "build_info.h"
@@ -61,6 +64,7 @@ path_collection_t box64_addlibs = {0};
 int box64_maxcpu = 0;
 int box64_maxcpu_immutable = 0;
 int box64_is32bits = 0;
+int box64_cputype = 0;
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
@@ -80,7 +84,7 @@ int box64_dynarec_bigblock = 1;
 int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_weakbarrier = 1;
-int box64_dynarec_pause = 3;
+int box64_dynarec_pause = 0;
 int box64_dynarec_x87double = 0;
 int box64_dynarec_div0 = 0;
 int box64_dynarec_fastnan = 1;
@@ -97,6 +101,10 @@ uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 uintptr_t box64_dynarec_test_start = 0;
 uintptr_t box64_dynarec_test_end = 0;
+int box64_dynarec_gdbjit = 0;
+int box64_dynarec_df = 1;
+int box64_dynarec_perf_map = 0;
+int box64_dynarec_perf_map_fd = -1;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -208,13 +216,12 @@ int ftrace_has_pid = 0;
 
 void openFTrace(const char* newtrace, int reopen)
 {
-    const char* t = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
+    const char* p = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
     #ifndef MAX_PATH
     #define MAX_PATH 4096
     #endif
     char tmp[MAX_PATH];
     char tmp2[MAX_PATH];
-    const char* p = t;
     int append=0;
     if(p && strlen(p) && p[strlen(p)-1]=='+') {
         strncpy(tmp2, p, sizeof(tmp2));
@@ -226,7 +233,7 @@ void openFTrace(const char* newtrace, int reopen)
         p = ftrace_name;
         append = 1;
     } else {
-        if (p && strstr(p, "%pid")) {
+        if (p && strstr(p, "\%pid")) {
             int next = 0;
             do {
                 strcpy(tmp, p);
@@ -234,11 +241,11 @@ void openFTrace(const char* newtrace, int reopen)
                 *c = 0; // cut
                 char pid[16];
                 if (next)
-                    sprintf(pid, "%d-%d", getpid(), next);
+                    sprintf(pid, "%d-%d", GetTID(), next);
                 else
-                    sprintf(pid, "%d", getpid());
+                    sprintf(pid, "%d", GetTID());
                 strcat(tmp, pid);
-                c = strstr(p, "%pid") + strlen("%pid");
+                c = strstr(p, "\%pid") + strlen("\%pid");
                 strcat(tmp, c);
                 ++next;
             } while (FileExist(tmp, IS_FILE) && !append);
@@ -246,7 +253,7 @@ void openFTrace(const char* newtrace, int reopen)
             ftrace_has_pid = 1;
         }
         if (ftrace_name)
-            free(ftrace_name);
+            box_free(ftrace_name);
         ftrace_name = NULL;
     }
     if(p) {
@@ -254,14 +261,14 @@ void openFTrace(const char* newtrace, int reopen)
             ftrace = stderr;
         else {
             if(append)
-                ftrace = fopen(p, "w+");
+                ftrace = fopen(p, "a");
             else
                 ftrace = fopen(p, "w");
             if(!ftrace) {
                 ftrace = stdout;
                 printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
             } else {
-                if (!reopen) ftrace_name = strdup(p);
+                if (!reopen) ftrace_name = box_strdup(p);
                 /*fclose(ftrace);
                 ftrace = NULL;*/
                 if(!box64_nobanner) {
@@ -278,8 +285,10 @@ void printf_ftrace(const char* fmt, ...)
 {
     if(ftrace_name) {
         int fd = fileno(ftrace);
-        if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1)
-            ftrace=fopen(ftrace_name, "w+");
+        if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1) {
+            ftrace=fopen(ftrace_name, "a");
+            printf_log(LOG_INFO, "%04d|Recreated trace because fd was invalid\n", GetTID());
+        }
     }
 
     va_list args;
@@ -293,9 +302,9 @@ void printf_ftrace(const char* fmt, ...)
 
 void my_prepare_fork()
 {
-    if (ftrace_has_pid && ftrace && ftrace != stdout && ftrace != stderr) {
+    if (ftrace_has_pid && ftrace && (ftrace != stdout) && (ftrace != stderr)) {
+        printf_log(LOG_INFO, "%04d|Closed trace file of %s at prepare\n", GetTID(), GetLastApplyName());
         fclose(ftrace);
-        printf_log(LOG_INFO, "Closed trace file of %s at prepare\n", GetLastApplyName());
     }
 }
 
@@ -303,7 +312,7 @@ void my_parent_fork()
 {
     if (ftrace_has_pid) {
         openFTrace(NULL, 1);
-        printf_log(LOG_INFO, "Reopened trace file of %s at parent\n", GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Reopened trace file of %s at parent\n", GetTID(), GetLastApplyName());
     }
 }
 
@@ -311,7 +320,7 @@ void my_child_fork()
 {
     if (ftrace_has_pid) {
         openFTrace(NULL, 0);
-        printf_log(LOG_INFO, "Created trace file of %s at child\n", GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Created trace file of %s at child\n", GetTID(), GetLastApplyName());
     }
 }
 
@@ -522,7 +531,7 @@ HWCAP2_AFP
             return;
         }
 
-        if (la64_lbt = (((cpucfg2 >> 18) & 0b1) && box64_dynarec_nativeflags))
+        if (la64_lbt = ((cpucfg2 >> 18) & 0b1))
             printf_log(LOG_INFO, " LBT_X86");
         if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
             printf_log(LOG_INFO, " LAM_BH");
@@ -551,7 +560,7 @@ HWCAP2_AFP
                 if (!strcasecmp(p, "xtheadba")) rv64_xtheadba = 0;
                 if (!strcasecmp(p, "xtheadbb")) rv64_xtheadbb = 0;
                 if (!strcasecmp(p, "xtheadbs")) rv64_xtheadbs = 0;
-                // if (!strcasecmp(p, "xtheadmemidx")) rv64_xtheadmemidx = 0;
+                if (!strcasecmp(p, "xtheadmemidx")) rv64_xtheadmemidx = 0;
                 // if (!strcasecmp(p, "xtheadfmemidx")) rv64_xtheadfmemidx = 0;
                 // if (!strcasecmp(p, "xtheadmac")) rv64_xtheadmac = 0;
                 // if (!strcasecmp(p, "xtheadfmv")) rv64_xtheadfmv = 0;
@@ -575,8 +584,8 @@ HWCAP2_AFP
     if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
     if (rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
     if (rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
+    if (rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
     // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
     // if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
     // if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
@@ -590,7 +599,7 @@ void computeRDTSC()
 {
     int hardware  = 0;
     box64_rdtsc_shift = 0;
-    #if defined(ARM64) || defined(RV64)
+    #if defined(ARM64) || defined(RV64) || defined(LA64)
     hardware = 1;
     box64_rdtsc = 0;    // allow hardware counter
     #else
@@ -900,6 +909,33 @@ void LoadLogEnv()
         if(!box64_dynarec_wait)
             printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
     }
+    p = getenv("BOX64_DYNAREC_GDBJIT");
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '2')
+                box64_dynarec_gdbjit = p[0] - '0';
+        }
+        if (box64_dynarec_gdbjit)
+            printf_log(LOG_INFO, "Dynarec will generate debuginfo for gdbjit\n");
+    }
+    p = getenv("BOX64_DYNAREC_PERFMAP");
+    if (p) {
+        if (strlen(p) == 1) {
+            if (p[0] >= '0' && p[0] <= '1')
+                box64_dynarec_perf_map = p[0] - '0';
+        }
+        if (box64_dynarec_perf_map)
+            printf_log(LOG_INFO, "Dynarec will generate map file for Linux perf tool\n");
+    }
+    p = getenv("BOX64_DYNAREC_DF");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_df = p[0]-'0';
+        }
+        if(!box64_dynarec_df)
+            printf_log(LOG_INFO, "Dynarec will not use/generate defered flags\n");
+    }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
     if(p) {
         if(strlen(p)==1) {
@@ -966,7 +1002,7 @@ void LoadLogEnv()
             box64_dynarec_x87double = 1;
             box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
-            #ifdef RV64
+            #if defined( RV64) || defined(LA64)
             box64_dynarec_nativeflags = 0;
             #endif
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
@@ -1273,6 +1309,14 @@ void LoadLogEnv()
         else
             printf_log(LOG_INFO, "Will not use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
     }
+    p = getenv("BOX64_CPUTYPE");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_cputype = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Will emulate an %s CPU\n", box64_cputype?"AMD":"Intel");
+    }
     p = getenv("BOX64_IGNOREINT3");
         if(p) {
         if(strlen(p)==1) {
@@ -1328,58 +1372,26 @@ void PrintCollection(path_collection_t* col, const char* env)
 EXPORTDYN
 int CountEnv(char** env)
 {
-    // count, but remove all BOX64_* environnement
-    // also remove PATH and LD_LIBRARY_PATH
-    // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
     char** p = env;
     int c = 0;
     while(*p) {
-        if(strncmp(*p, "BOX64_", 6)!=0)
-            //if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0))
-                ++c;
+        ++c;
         ++p;
     }
-    return c+2;
+    return c;
 }
 EXPORTDYN
 int GatherEnv(char*** dest, char** env, char* prog)
 {
-    // Add all but BOX64_* environnement
-    // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
     char** p = env;
     int idx = 0;
-    int path = 0;
-    int ld_path = 0;
     while(*p) {
-        if(strncmp(*p, "BOX64_PATH=", 11)==0) {
-            (*dest)[idx++] = box_strdup(*p+6);
-            path = 1;
-        } else if(strncmp(*p, "BOX64_LD_LIBRARY_PATH=", 22)==0) {
-            (*dest)[idx++] = box_strdup(*p+6);
-            ld_path = 1;
-        } else if(strncmp(*p, "_=", 2)==0) {
-            /*int l = strlen(prog);
-            char tmp[l+3];
-            strcpy(tmp, "_=");
-            strcat(tmp, prog);
-            (*dest)[idx++] = box_strdup(tmp);*/
-        } else if(strncmp(*p, "BOX64_", 6)!=0) {
+        if(strncmp(*p, "_=", 2)==0) {
+            // ignore
+        } else {
             (*dest)[idx++] = box_strdup(*p);
-            /*if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
-            }*/
         }
         ++p;
-    }
-    // update the calloc of envv when adding new variables here
-    if(!path) {
-        (*dest)[idx++] = box_strdup("BOX64_PATH=.:bin");
-    }
-    if(!ld_path) {
-        #ifdef BOX32
-        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64:i386:libs:bin");
-        #else
-        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64");
-        #endif
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -1796,9 +1808,9 @@ void endBox64()
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
+    //void closeAllDLOpenned();
+    //closeAllDLOpenned();    // close residual dlopenned libs. Disabled, seems like a bad idea, better to unload with proper dependancies
     RunElfFini(my_context->elfs[0], emu);
-    void closeAllDLOpenned();
-    closeAllDLOpenned();    // close residual dlopenned libs
     // unload needed libs
     needed_libs_t* needed = my_context->elfs[0]->needed;
     printf_log(LOG_DEBUG, "Unloaded main elf: Will Dec RefCount of %d libs\n", needed?needed->size:0);
@@ -2081,11 +2093,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)box_calloc(my_context->envc+4, sizeof(char*));
-    GatherEnv(&my_context->envv, environ?environ:env, my_context->box64path);
-    if(box64_dump || box64_log<=LOG_DEBUG) {
-        for (int i=0; i<my_context->envc; ++i)
-            printf_dump(LOG_DEBUG, " Env[%02d]: %s\n", i, my_context->envv[i]);
-    }
 
     path_collection_t ld_preload = {0};
     if(getenv("BOX64_LD_PRELOAD")) {
@@ -2125,6 +2132,12 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         my_context->argv[0] = box_strdup(prog);
     else
         my_context->argv[0] = ResolveFileSoft(prog, &my_context->box64_path);
+    //
+    GatherEnv(&my_context->envv, environ?environ:env, my_context->argv[0]);
+    if(box64_dump || box64_log<=LOG_DEBUG) {
+        for (int i=0; i<my_context->envc; ++i)
+            printf_dump(LOG_DEBUG, " Env[%02d]: %s\n", i, my_context->envv[i]);
+    }
     // check if box86 is present
     {
         my_context->box86path = box_strdup(my_context->box64path);
@@ -2263,7 +2276,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     // check if file exist
     if(!my_context->argv[0] || !FileExist(my_context->argv[0], IS_FILE)) {
-        printf_log(LOG_NONE, "Error: File is not found. (check BOX64_PATH)\n");
+        printf_log(LOG_NONE, "Error: File is not found. (%s)\n", my_context->argv[0]);
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
@@ -2469,7 +2482,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
 
     // child fork to handle traces
-    pthread_atfork(NULL, NULL, my_child_fork);
+    //pthread_atfork(my_prepare_fork, my_parent_fork, my_child_fork);
 
     thread_set_emu(emu);
 
@@ -2536,6 +2549,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     *emulator = emu;
 
+#ifdef DYNAREC
+    if (box64_dynarec_perf_map) {
+        char pathname[32];
+        snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
+        box64_dynarec_perf_map_fd = open(pathname, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+    }
+#endif
+
     return 0;
 }
 
@@ -2572,6 +2593,13 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
     if(trace_func)  {
         box_free(trace_func);
         trace_func = NULL;
+    }
+#endif
+
+#ifdef DYNAREC
+    if (box64_dynarec_perf_map && box64_dynarec_perf_map_fd != -1) {
+        close(box64_dynarec_perf_map_fd);
+        box64_dynarec_perf_map_fd = -1;
     }
 #endif
 

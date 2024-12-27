@@ -326,6 +326,16 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOVGR2FR_D(q1, x2);
             VEXTRINS_D(v0, q1, 0);
             break;
+        case 0xE6: // TODO: !fastround
+            INST_NAME("CVTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0, 0);
+            GETGX_empty(v0);
+            u8 = sse_setround(dyn, ninst, x1, x2);
+            VFTINT_W_D(v0, v1, v1);
+            x87_restoreround(dyn, ninst, u8);
+            VINSGR2VR_D(v0, xZR, 1);
+            break;
         default:
             DEFAULT;
     }

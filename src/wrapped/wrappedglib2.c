@@ -733,6 +733,28 @@ static void* findTimeOutFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 TimeOut callback\n");
     return NULL;
 }
+// GTraverseFunc ...
+#define GO(A)   \
+static uintptr_t my_GTraverseFunc_fct_##A = 0;                              \
+static int my_GTraverseFunc_##A(void* a, void* b, void* c)                  \
+{                                                                           \
+    return (int)RunFunctionFmt(my_GTraverseFunc_fct_##A, "ppp", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* findGTraverseFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GTraverseFunc_fct_##A == (uintptr_t)fct) return my_GTraverseFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GTraverseFunc_fct_##A == 0) {my_GTraverseFunc_fct_##A = (uintptr_t)fct; return my_GTraverseFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GTraverseFunc callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1478,6 +1500,41 @@ EXPORT void my_g_assertion_message_cmpnum(void* domain, void* file, int32_t line
     my->g_assertion_message_cmpnum(domain, file, line, func, expr, arg1, comp, arg2, numtype);
 }
 #endif
+
+EXPORT void* my_g_sequence_new(x64emu_t* emu, void* d)
+{
+    return my->g_sequence_new(findGDestroyNotifyFct(d));
+}
+
+EXPORT void* my_g_sequence_lookup(x64emu_t* emu, void* seq, void* data, void* f, void* cmp_data)
+{
+    return my->g_sequence_lookup(seq, data, findGCompareDataFuncFct(f), cmp_data);
+}
+
+EXPORT void* my_g_sequence_insert_sorted(x64emu_t* emu, void* seq, void* data, void* f, void* cmp_data)
+{
+    return my->g_sequence_insert_sorted(seq, data, findGCompareDataFuncFct(f), cmp_data);
+}
+
+EXPORT void* my_g_tree_new(x64emu_t* emu, void* f)
+{
+    return my->g_tree_new(findGCompareFuncFct(f));
+}
+
+EXPORT void* my_g_tree_new_full(x64emu_t* emu, void* f, void* data, void* d1, void* d2)
+{
+    return my->g_tree_new_full(findGCompareFuncFct(f), data, findGDestroyNotifyFct(d1), findGDestroyNotifyFct(d2));
+}
+
+EXPORT void my_g_tree_foreach(x64emu_t* emu, void* tree, void* f, void* data)
+{
+    my->g_tree_foreach(tree, findGTraverseFuncFct(f), data);
+}
+
+EXPORT void my_g_queue_insert_sorted(x64emu_t* emu, void* queue, void* data, void* f, void* user_data)
+{
+    my->g_queue_insert_sorted(queue, data, findGCompareDataFuncFct(f), user_data);
+}
 
 #define PRE_INIT    \
     if(box64_nogtk) \

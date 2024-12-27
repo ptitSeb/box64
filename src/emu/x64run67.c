@@ -318,6 +318,13 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             GD->q[0] = ((uintptr_t)ED)&0xffffffff;
         break;
 
+    case 0xA1:                      /* MOV EAX,Od */
+        if(rex.w)
+            R_RAX = *(uint64_t*)(uintptr_t)F32;
+        else
+            R_RAX = *(uint32_t*)(uintptr_t)F32;
+        break;
+
     case 0xC1:                      /* GRP2 Ed,Ib */
         nextop = F8;
         GETED32(1);

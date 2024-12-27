@@ -1509,7 +1509,11 @@ GOWM(prctl, iFEiLLLL)
 GO(pread, lFipLl)
 GOW(__pread64, lFipLI)
 GO(pread64, lFipLI)
-//GO(__pread64_chk, 
+#ifdef LA64
+GO2(__pread64_chk, lFipLlL, __pread_chk)
+#else
+GO(__pread64_chk, lFipLlL)
+#endif
 GO(__pread_chk, lFipLlL)
 GO(preadv, lFipil)
 GO(preadv2, lFipili)
@@ -2148,8 +2152,8 @@ GOM(sysconf, lFEi)
 //DATA(_sys_errlist, 8)
 //DATA(sys_errlist, 8)
 #else
-GO(__sysctl, iFpipppL)
-GOW(sysctl, iFpipppL)
+GOM(__sysctl, iFEpipppL)
+GOWM(sysctl, iFEpipppL)
 DATA(_sys_errlist, 8)
 DATA(sys_errlist, 8)
 #endif

@@ -95,7 +95,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
 EXPORTDYN
 x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
-    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize);
+    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X%s\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize, ownstack?" owned":"");
 
     x64emu_t *emu = (x64emu_t*)actual_calloc(1, sizeof(x64emu_t));
 
@@ -104,11 +104,11 @@ x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, i
     return emu;
 }
 
-x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
+x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize)
 {
     printf_log(LOG_DEBUG, "New X86_64 Emu from stack, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
 
-    internalX64Setup(emu, context, start, stack, stacksize, ownstack);
+    internalX64Setup(emu, context, start, stack, stacksize, 0);
     
     return emu;
 }
@@ -203,7 +203,7 @@ void CallAllCleanup(x64emu_t *emu)
 static void internalFreeX64(x64emu_t* emu)
 {
     if(emu && emu->stack2free)
-        !munmap(emu->stack2free, emu->size_stack);
+        munmap(emu->stack2free, emu->size_stack);
     #ifdef BOX32
     if(emu->res_state_32)
         actual_free(emu->res_state_32);
@@ -570,10 +570,10 @@ void StopEmu(x64emu_t* emu, const char* reason, int is32bits)
 #ifdef HAVE_TRACE
     if(box64_is32bits) {
         if(my_context->dec32)
-            printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec32, emu->old_ip));
+            printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec32, emu->old_ip, 1));
     } else {
         if(my_context->dec)
-            printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec, emu->old_ip));
+            printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec, emu->old_ip, 1));
     }
 #endif
 }
@@ -608,9 +608,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_op1 = emu->op1;
     multiuint_t old_op2 = emu->op2;
     multiuint_t old_res = emu->res;
-    // uc_link
-    void* old_uc_link = emu->uc_link;
-    emu->uc_link = NULL;
     //Push64(emu, GetRBP(emu));   // set frame pointer
     //SetRBP(emu, GetRSP(emu));   // save RSP
     //R_RSP -= 200;
@@ -626,7 +623,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
-    emu->uc_link = old_uc_link;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
         if(emu->flags.quitonlongjmp==1)
             emu->flags.longjmp = 0;   // don't change anything because of the longjmp
@@ -706,6 +702,37 @@ static inline uint64_t readFreq()
                  : "=r"(val));
     return val;
 }
+#elif defined(LA64)
+static inline uint64_t readCycleCounter()
+{
+    uint64_t val;
+    asm volatile("rdtime.d %0, %1"
+                 : "=r"(val) : "r"(0));
+    return val;
+}
+
+static inline uint64_t readFreq()
+{
+    static size_t val = -1;
+
+    FILE* f = popen("cat /proc/cpuinfo | grep -i \"CPU MHz\" | head -n 1 | sed -r 's/CPU MHz.+:\\s{1,}//g'", "r");
+    if(f) {
+        char tmp[200] = "";
+        ssize_t s = fread(tmp, 1, 200, f);
+        pclose(f);
+        if (s > 0) return (uint64_t)atof(tmp) * 1e6;
+    }
+    
+    // fallback to rdtime + sleep
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 50000000; // 50 milliseconds
+    uint64_t cycles = readCycleCounter();
+    nanosleep(&ts, NULL);
+    // round to MHz
+    val = (size_t)round(((double)(readCycleCounter() - cycles) * 20) / 1e6) * 1e6;
+    return (uint64_t)val;
+}
 #endif
 
 uint64_t ReadTSC(x64emu_t* emu)
@@ -713,7 +740,7 @@ uint64_t ReadTSC(x64emu_t* emu)
     (void)emu;
     
     // Hardware counter, per architecture
-#if defined(ARM64) || defined(RV64)
+#if defined(ARM64) || defined(RV64) || defined(LA64)
     if (!box64_rdtsc) return readCycleCounter();
 #endif
     // fall back to gettime...
@@ -732,7 +759,7 @@ uint64_t ReadTSCFrequency(x64emu_t* emu)
 {
     (void)emu;
     // Hardware counter, per architecture
-#if defined(ARM64) || defined(RV64)
+#if defined(ARM64) || defined(RV64) || defined(LA64)
     if (!box64_rdtsc) return readFreq();
 #endif
     // fall back to get time

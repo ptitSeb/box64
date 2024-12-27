@@ -224,7 +224,10 @@ EXPORT void my__obstack_newchunk(x64emu_t* emu, struct obstack* obstack, int s)
 #ifdef BOX32
 EXPORT void my32__obstack_newchunk(x64emu_t* emu, struct obstack* obstack, int s)
 {
-    _obstack_newchunk(obstack, s);
+    struct obstack obstack_l = {0};
+    convert_obstack_to_64(&obstack_l, obstack);
+    _obstack_newchunk(&obstack_l, s);
+    convert_obstack_to_32(obstack, &obstack_l);
 }
 #endif
 
@@ -242,9 +245,12 @@ EXPORT int32_t my_obstack_vprintf(x64emu_t* emu, struct obstack* obstack, void* 
 #ifdef BOX32
 EXPORT int32_t my32_obstack_vprintf(x64emu_t* emu, struct obstack* obstack, void* fmt, void* b)
 {
+    struct obstack obstack_l = {0};
+    convert_obstack_to_64(&obstack_l, obstack);
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    int r = obstack_vprintf(obstack, (const char*)fmt, VARARGS_32);
+    int r = obstack_vprintf(&obstack_l, (const char*)fmt, VARARGS_32);
+    convert_obstack_to_32(obstack, &obstack_l);
     return r;
 }
 #endif

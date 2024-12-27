@@ -208,7 +208,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     } else {
                         SMREAD();
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LBU(gd, ed, fixedaddress);
                     }
                     break;
@@ -221,7 +221,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ZEXTH(gd, ed);
                     } else {
                         SMREAD();
-                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LHU(gd, ed, fixedaddress);
                     }
                     break;
@@ -472,15 +472,15 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ADDIW(gd, TO_NAT((nextop & 7) + (rex.b << 3)), 0);
                 } else { // mem <= reg
                     SMREAD();
-                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(gd, ed, fixedaddress);
                 }
             } else {
                 if (MODREG) { // reg <= reg
-                    AND(gd, TO_NAT((nextop & 7) + (rex.b << 3)), xMASK);
+                    ZEXTW2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
                 } else { // mem <= reg
                     SMREAD();
-                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LWU(gd, ed, fixedaddress);
                 }
             }
@@ -719,7 +719,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             } else { // mem <= reg
                 addr = geted32(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
-                AND(gd, ed, xMASK);
+                ZEXTW2(gd, ed);
             }
             break;
 
@@ -804,7 +804,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SUBI(xRCX, xRCX, 1);
             ANDI(x1, xFlags, 1 << F_ZF);
             CBNZ_NEXT(x1);
-            AND(x1, xRCX, xMASK);
+            ZEXTW2(x1, xRCX);
             GO(0);
             break;
         case 0xE1:
@@ -814,20 +814,20 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SUBI(xRCX, xRCX, 1);
             ANDI(x1, xFlags, 1 << F_ZF);
             CBZ_NEXT(x1);
-            AND(x1, xRCX, xMASK);
+            ZEXTW2(x1, xRCX);
             GO(0);
             break;
         case 0xE2:
             INST_NAME("LOOP (32bits)");
             i8 = F8S;
             SUBI(xRCX, xRCX, 1);
-            AND(x1, xRCX, xMASK);
+            ZEXTW2(x1, xRCX);
             GO(0);
             break;
         case 0xE3:
             INST_NAME("JECXZ (32bits)");
             i8 = F8S;
-            AND(x1, xRCX, xMASK);
+            ZEXTW2(x1, xRCX);
             GO(1);
             break;
 #undef GO
@@ -852,7 +852,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (gd != xRDX) MV(xRDX, gd);
                     } else {
                         MUL(xRDX, xRAX, ed); // 64 <- 32x32
-                        AND(xRAX, xRDX, xMASK);
+                        ZEXTW2(xRAX, xRDX);
                         SRLIW(xRDX, xRDX, 32);
                     }
                     UFLAG_RES(xRAX);

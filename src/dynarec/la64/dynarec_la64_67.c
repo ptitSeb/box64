@@ -65,7 +65,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x19:
             INST_NAME("SBB Ed, Gd");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED32(0);
@@ -75,7 +75,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1A:
             INST_NAME("SBB Gb, Eb");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB32(x2, 0);
             GETGB(x1);
@@ -85,7 +85,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1B:
             INST_NAME("SBB Gd, Ed");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
             GETED32(0);
@@ -94,7 +94,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x1D:
             INST_NAME("SBB EAX, Id");
             READFLAGS(X_CF);
-            SETFLAGS(X_ALL, SF_SET_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             MOV64xw(x2, i64);
             emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
@@ -155,12 +155,14 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP2(gd, ed);
             }
             break;
+        case 0xE8:
+            return dynarec64_00(dyn, addr - 1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode)
         case 0xF7:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
                     GETED32(0);
                     if (rex.w) {
                         if (ed == xRDX)

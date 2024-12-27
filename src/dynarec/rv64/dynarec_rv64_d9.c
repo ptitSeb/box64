@@ -210,7 +210,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_refresh(dyn, ninst, x1, x2, 0);
             s0 = x87_stackcount(dyn, ninst, x1);
-            CALL(fpu_fxam, -1); // should be possible inline, but is it worth it?
+            CALL(fpu_fxam, -1, 0, 0); // should be possible inline, but is it worth it?
             x87_unstackcount(dyn, ninst, x1, s0);
 #endif
             break;
@@ -266,7 +266,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_f2xm1, -1);
+            CALL(native_f2xm1, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xF1:
@@ -275,7 +275,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fyl2x, -1);
+            CALL(native_fyl2x, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -284,7 +284,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_ftan, -1);
+            CALL(native_ftan, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_F);
             if (ST_IS_F(0)) {
@@ -301,7 +301,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fpatan, -1);
+            CALL(native_fpatan, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -311,7 +311,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fxtract, -1);
+            CALL(native_fxtract, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xF5:
@@ -320,7 +320,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fprem1, -1);
+            CALL(native_fprem1, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xF6:
@@ -345,7 +345,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fprem, -1);
+            CALL(native_fprem, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xF9:
@@ -354,7 +354,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fyl2xp1, -1);
+            CALL(native_fyl2xp1, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -373,7 +373,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fsincos, -1);
+            CALL(native_fsincos, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xFC:
@@ -422,7 +422,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fscale, -1);
+            CALL(native_fscale, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xFE:
@@ -430,7 +430,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fsin, -1);
+            CALL(native_fsin, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
         case 0xFF:
@@ -438,7 +438,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             s0 = x87_stackcount(dyn, ninst, x3);
-            CALL(native_fcos, -1);
+            CALL(native_fcos, -1, 0, 0);
             x87_unstackcount(dyn, ninst, x3, s0);
             break;
 
@@ -494,11 +494,8 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                    if (ed != x1) {
-                        MV(x1, ed);
-                    }
                     MOV32w(x2, 0);
-                    CALL(fpu_loadenv, -1);
+                    CALL(fpu_loadenv, -1, ed, x2);
                     break;
                 case 5:
                     INST_NAME("FLDCW Ew");
@@ -510,11 +507,8 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                    if (ed != x1) {
-                        MV(x1, ed);
-                    }
                     MOV32w(x2, 0);
-                    CALL(fpu_savenv, -1);
+                    CALL(fpu_savenv, -1, ed, x2);
                     break;
                 case 7:
                     INST_NAME("FNSTCW Ew");

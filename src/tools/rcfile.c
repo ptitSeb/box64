@@ -127,6 +127,7 @@ ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
 ENTRYSTRING_(BOX64_ARGS, new_args)                      \
 ENTRYSTRING_(BOX64_INSERT_ARGS, insert_args)            \
 ENTRYBOOL(BOX64_RESERVE_HIGH, new_reserve_high)         \
+ENTRYINT(BOX64_CPUTYPE, box64_cputype, 0, 1, 1)         \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -175,6 +176,7 @@ ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 ENTRYSTRING_(BOX64_DYNAREC_TEST, box64_dynarec_test)                \
 ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
+ENTRYBOOL(BOX64_DYNAREC_DF, box64_dynarec_df)                       \
 
 #else
 #define SUPER3()                                                    \
@@ -203,6 +205,7 @@ IGNORE(BOX64_DYNAREC_WAIT)                                          \
 IGNORE(BOX64_NODYNAREC)                                             \
 IGNORE(BOX64_DYNAREC_TEST)                                          \
 IGNORE(BOX64_DYNAREC_MISSING)                                       \
+IGNORE(BOX64_DYNAREC_DF)                                            \
 
 #endif
 
@@ -766,7 +769,7 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         box64_dynarec_x87double = 1;
         box64_dynarec_div0 = 1;
         box64_dynarec_callret = 0;
-        #ifdef RV64
+        #if defined(RV64) || defined(LA64) 
         box64_dynarec_nativeflags = 0;
         #endif
     }

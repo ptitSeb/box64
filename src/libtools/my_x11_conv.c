@@ -72,6 +72,31 @@ void convert_Screen_to_32(void* d, void* s)
     dst->save_unders = src->save_unders;
     dst->root_input_mask = to_long(src->root_input_mask);
 }
+void convert_Screen_to_64(void* d, void* s)
+{
+    my_Screen_t* dst = d;
+    my_Screen_32_t* src = s;
+    dst->root_input_mask = from_long(src->root_input_mask);
+    dst->save_unders = src->save_unders;
+    dst->backing_store = src->backing_store;
+    dst->min_maps = src->min_maps;
+    dst->max_maps = src->max_maps;
+    dst->black_pixel = from_ulong(src->black_pixel);
+    dst->white_pixel = from_ulong(src->white_pixel);
+    dst->cmap = from_ulong(src->cmap);
+    dst->default_gc = from_ptrv(src->default_gc);
+    dst->root_visual = from_ptrv(src->root_visual);
+    dst->root_depth = src->root_depth;
+    dst->depths = from_ptrv(src->depths);
+    dst->ndepths = src->ndepths;
+    dst->mheight = src->mheight;
+    dst->mwidth = src->mwidth;
+    dst->height = src->height;
+    dst->width = src->width;
+    dst->root = from_ulong(src->root);
+    dst->display = getDisplay(from_ptrv(src->display));
+    dst->ext_data = from_ptrv(src->ext_data);
+}
 
 void internal_convert_Visual_to_32(void* d, void* s)
 {
@@ -125,6 +150,11 @@ my_Visual_t* getVisual64(int N, my_Visual_32_t* a)
     khint_t k = kh_get(visuals, my32_Displays_Visuals[N], key);
     Visuals_t* ret = NULL;
     if(k==kh_end(my32_Displays_Visuals[N])) {
+        // workaround for already "64" Visual
+        // needed for retrocityrampge (probably other)
+        // TODO: fix the underlying issue
+        if(!a->ext_data && !a->visualid)
+            return (my_Visual_t*)a;
         int r;
         k = kh_put(visuals, my32_Displays_Visuals[N], key, &r);
         ret = &kh_value(my32_Displays_Visuals[N], k);
@@ -135,6 +165,17 @@ my_Visual_t* getVisual64(int N, my_Visual_32_t* a)
     } else
         ret = &kh_value(my32_Displays_Visuals[N], k);
     return ret->_64;
+}
+
+void* get_display_screen(int idx, void* a)
+{
+    my_XDisplay_t* dpy = my32_Displays_64[idx];
+    my_XDisplay_32_t* dpy32 = &my32_Displays_32[idx];
+    my_Screen_32_t* screens32 = from_ptrv(dpy32->screens);
+    for(int i=0; i<dpy->nscreens; ++i)
+        if(&screens32[i] == a)
+            return &dpy->screens[i];
+    return a;
 }
 
 void* convert_Visual_to_32(void* dpy, void* a)
@@ -156,6 +197,15 @@ void* convert_Visual_to_64(void* dpy, void* a)
     return a;
 }
 
+void* getScreen64(void* dpy, void* a)
+{
+    if(!dpy) return a;
+    for(int i=0; i<N_DISPLAY; ++i)
+        if(((&my32_Displays_32[i])==dpy) || (my32_Displays_64[i]==dpy)) {
+            return get_display_screen(i, a);
+        }
+    return a;
+}
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);
 void* addDisplay(void* d)
@@ -181,9 +231,9 @@ void* addDisplay(void* d)
             my32_Displays_64[i] = dpy;
             ret = &my32_Displays_32[i];
             free_funcs = &my32_free_funcs_32[i];
-            ret->free_funcs = to_ptrv(free_funcs);
+            ret->free_funcs = (dpy->free_funcs)?to_ptrv(free_funcs):0;
             lock_fns = &my32_lock_fns_32[i];
-            ret->lock_fns = to_ptrv(lock_fns);
+            ret->lock_fns = (dpy->lock_fns)?to_ptrv(lock_fns):0;
             my32_Displays_Visuals[i] = kh_init(visuals);
         }
     }
@@ -198,13 +248,11 @@ void* addDisplay(void* d)
 
     #define GO(A, W)\
     if(dpy->A)      \
-        if(!CheckBridged(system, dpy->A)) \
-            ret->A = AddCheckBridge(system, W, dpy->A, 0, #A); \
+        ret->A = AddCheckBridge(system, W, dpy->A, 0, #A); \
 
     #define GO2(A, B, W) \
     if(dpy->A && dpy->A->B)  \
-        if(!CheckBridged(system, dpy->A->B)) \
-            A->B = AddCheckBridge(system, W, dpy->A->B, 0, #B "_" #A); \
+        A->B = AddCheckBridge(system, W, dpy->A->B, 0, #B "_" #A); \
 
     ret->vendor = to_cstring(dpy->vendor);
     ret->fd = dpy->fd;
@@ -248,8 +296,8 @@ void* addDisplay(void* d)
     //TODO: event_vec?
     //TODO: wire_vec?
     //TODO: async_handlers?
-    GO2(lock_fns, lock_display, vFp_32)
-    GO2(lock_fns, unlock_display, vFp_32)
+    GO2(lock_fns, lock_display, vFX_32)
+    GO2(lock_fns, unlock_display, vFX_32)
     GO(idlist_alloc, vFppi_32)
     //TODO: error_vec?
     //TODO: flushes
@@ -291,6 +339,8 @@ void refreshDisplay(void* dpy)
     my_XDisplay_32_t* dst = FindDisplay(dpy);
     // sync last request
     dst->request = src->request;
+    // num lock
+    dst->num_lock = src->num_lock;
     // sync screens
     if(dst->nscreens!=src->nscreens) {
         my_Screen_32_t* screens = from_ptrv(dst->screens);
@@ -300,6 +350,53 @@ void refreshDisplay(void* dpy)
         for(int i=0; i<dst->nscreens; ++i)
             convert_Screen_to_32(screens+i, src->screens+i);
     }
+    // functions
+    bridge_t* system = my_context->libx11->w.bridge;
+    int N = -1;
+    for(int i=0; i<N_DISPLAY && (N==-1); ++i) {
+        if(my32_Displays_64[i]==dpy)
+            N = i;
+    }
+    struct my_XFreeFuncs_32 *free_funcs = &my32_free_funcs_32[N];
+    dst->free_funcs = (src->free_funcs)?to_ptrv(free_funcs):0;
+    struct my_XLockPtrs_32 *lock_fns = &my32_lock_fns_32[N];
+    dst->lock_fns = (src->lock_fns)?to_ptrv(lock_fns):0;
+    #define GO(A, W)\
+    if(src->A)      \
+        dst->A = AddCheckBridge(system, W, src->A, 0, #A); \
+
+    #define GO2(A, B, W) \
+    if(src->A && src->A->B)  \
+        A->B = AddCheckBridge(system, W, src->A->B, 0, #B "_" #A); \
+
+    GO2(free_funcs, atoms, vFp_32)
+    GO2(free_funcs, modifiermap, iFp_32)
+    GO2(free_funcs, key_bindings, vFp_32)
+    GO2(free_funcs, context_db, vFp_32)
+    GO2(free_funcs, defaultCCCs, vFp_32)
+    GO2(free_funcs, clientCmaps, vFp_32)
+    GO2(free_funcs, intensityMaps, vFp_32)
+    GO2(free_funcs, im_filters, vFp_32)
+    GO2(free_funcs, xkb, vFp_32)
+    GO(resource_alloc, LFp_32)
+    GO(synchandler, iFp_32)
+    //TODO: ext_procs?
+    //TODO: event_vec?
+    //TODO: wire_vec?
+    //TODO: async_handlers?
+    GO2(lock_fns, lock_display, vFX_32)
+    GO2(lock_fns, unlock_display, vFX_32)
+    GO(idlist_alloc, vFppi_32)
+    //TODO: error_vec?
+    //TODO: flushes
+    //TODO: im_fd_info?
+    //TODO: conn_watchers
+    GO(savedsynchandler, iFp_32)
+    //TODO: generic_event_vec?
+    //TODO: generic_event_copy_vec?
+
+    #undef GO
+    #undef GO2
 }
 
 void convert_XWMints_to_64(void* d, void* s)
@@ -527,7 +624,7 @@ void inplace_XExtDisplayInfo_shrink(void* a)
     my_XExtDisplayInfo_32_t* dst = a;
 
     dst->next = to_ptrv(src->next);
-    dst->display = to_ptrv(getDisplay(src->display));
+    dst->display = to_ptrv(FindDisplay(src->display));
     dst->codes = to_ptrv(src->codes);
     dst->data = to_ptrv(src->data);
 }
@@ -539,15 +636,15 @@ void inplace_XExtDisplayInfo_enlarge(void* a)
 
     dst->data = from_ptrv(src->data);
     dst->codes = from_ptrv(src->codes);
-    dst->display = FindDisplay(from_ptrv(src->display));
+    dst->display = getDisplay(from_ptrv(src->display));
     dst->next = from_ptrv(src->next);
 }
 
-void* inplace_XExtensionInfo_shrink(void* a)
+void convert_XExtensionInfo_to_32(void* d, void* s)
 {
-    if(!a) return a;
-    my_XExtensionInfo_t* src = a;
-    my_XExtensionInfo_32_t* dst = a;
+    if(!s || !d) return;
+    my_XExtensionInfo_t* src = s;
+    my_XExtensionInfo_32_t* dst = d;
 
     my_XExtDisplayInfo_t* head = src->head;
     while(head) {
@@ -558,13 +655,12 @@ void* inplace_XExtensionInfo_shrink(void* a)
     dst->head = to_ptrv(src->head);
     dst->cur = to_ptrv(src->cur);
     dst->ndisplays = src->ndisplays;
-    return a;
 }
-void* inplace_XExtensionInfo_enlarge(void* a)
+void convert_XExtensionInfo_to_64(void* d, void* s)
 {
-    if(!a) return a;
-    my_XExtensionInfo_32_t* src = a;
-    my_XExtensionInfo_t* dst = a;
+    if(!d || !s) return;
+    my_XExtensionInfo_32_t* src = s;
+    my_XExtensionInfo_t* dst = d;
 
     dst->ndisplays = src->ndisplays;
     dst->cur = from_ptrv(src->cur);
@@ -574,6 +670,17 @@ void* inplace_XExtensionInfo_enlarge(void* a)
         inplace_XExtDisplayInfo_enlarge(head);
         head = head->next;
     }
+}
+void* inplace_XExtensionInfo_shrink(void* a)
+{
+    if(a)
+        convert_XExtensionInfo_to_32(a, a);
+    return a;
+}
+void* inplace_XExtensionInfo_enlarge(void* a)
+{
+    if(a)
+        convert_XExtensionInfo_to_64(a, a);
     return a;
 }
 
@@ -960,25 +1067,53 @@ int inplace_XIDeviceInfo_enlarge(void* a)
     return n;
 }
 
-void inplace_XDevice_shrink(void* a)
+void* inplace_XDevice_shrink(void* a)
 {
-    if(!a) return;
+    if(!a) return a;
     my_XDevice_t* src = a;
     my_XDevice_32_t* dst = a;
 
-    dst->device_id = src->device_id;
+    dst->device_id = to_ulong(src->device_id);
     dst->num_classes = src->num_classes;
     dst->classes = to_ptrv(src->classes);
+
+    return a;
 }
-void inplace_XDevice_enlarge(void* a)
+void* inplace_XDevice_enlarge(void* a)
 {
-    if(!a) return;
+    if(!a) return a;
     my_XDevice_32_t* src = a;
     my_XDevice_t* dst = a;
 
     dst->classes = from_ptrv(src->classes);
     dst->num_classes = src->num_classes;
-    dst->device_id = src->device_id;
+    dst->device_id = from_ulong(src->device_id);
+
+    return a;
+}
+void* inplace_XDeviceState_shrink(void* a)
+{
+    if(!a) return a;
+    my_XDeviceState_t* src = a;
+    my_XDeviceState_32_t* dst = a;
+
+    dst->device_id = to_ulong(src->device_id);
+    dst->num_classes = src->num_classes;
+    dst->data = to_ptrv(src->data);
+
+    return a;
+}
+void* inplace_XDeviceState_enlarge(void* a)
+{
+    if(!a) return a;
+    my_XDeviceState_32_t* src = a;
+    my_XDeviceState_t* dst = a;
+
+    dst->data = from_ptrv(src->data);
+    dst->num_classes = src->num_classes;
+    dst->device_id = from_ulong(src->device_id);
+
+    return a;
 }
 
 void convert_XShmSegmentInfo_to_32(void* d, void* s)
@@ -998,4 +1133,277 @@ void convert_XShmSegmentInfo_to_64(void* d, void* s)
     dst->shmaddr = from_ptrv(src->shmaddr);
     dst->shmid = src->shmid;
     dst->shmseg = from_ulong(src->shmseg);
+}
+void* inplace_XkbNamesRec_shrink(void* a)
+{
+    if(a) {
+        my_XkbNamesRec_t* src = a;
+        my_XkbNamesRec_32_t* dst = a;
+
+        for(int i=0; i<src->num_rg; ++i)
+            src->radio_groups[i] = to_ulong(src->radio_groups[i]);
+        dst->keycodes = to_ulong(src->keycodes);
+        dst->geometry = to_ulong(src->geometry);
+        dst->symbols = to_ulong(src->symbols);
+        dst->types = to_ulong(src->types);
+        dst->compat = to_ulong(src->compat);
+        for(int i=0; i<16; ++i)
+            dst->vmods[i] = to_ulong(src->vmods[i]);
+        for(int i=0; i<32; ++i)
+            dst->indicators[i] = to_ulong(src->indicators[i]);
+        for(int i=0; i<4; ++i)
+            dst->groups[i] = to_ulong(src->groups[i]);
+        dst->keys = to_ptrv(src->keys);
+        dst->key_aliases = to_ptrv(src->key_aliases);
+        dst->radio_groups = to_ptrv(src->radio_groups);
+        dst->phys_symbols = to_ulong(src->phys_symbols);
+        dst->num_keys = src->num_keys;
+        dst->num_key_aliases = src->num_key_aliases;
+        dst->num_rg = src->num_rg;
+    }
+    return a;
+}
+void* inplace_XkbNamesRec_enlarge(void* a)
+{
+    if(a) {
+        my_XkbNamesRec_32_t* src = a;
+        my_XkbNamesRec_t* dst = a;
+
+        dst->num_rg = src->num_rg;
+        dst->num_key_aliases = src->num_key_aliases;
+        dst->num_keys = src->num_keys;
+        dst->phys_symbols = from_ulong(src->phys_symbols);
+        dst->radio_groups = from_ptrv(src->radio_groups);
+        dst->key_aliases = from_ptrv(src->key_aliases);
+        for(int i=4-1; i>=0; --i)
+            dst->groups[i] = from_ulong(src->groups[i]);
+        for(int i=32-1; i>=0; --i)
+            dst->indicators[i] = from_ulong(src->indicators[i]);
+        for(int i=16-1; i>=0; --i)
+            dst->vmods[i] = from_ulong(src->vmods[i]);
+        dst->compat = from_ulong(src->compat);
+        dst->types = from_ulong(src->types);
+        dst->symbols = from_ulong(src->symbols);
+        dst->geometry = from_ulong(src->geometry);
+        dst->keys = from_ptrv(src->keys);
+        dst->keycodes = from_ulong(src->keycodes);
+
+        for(int i=src->num_rg-1; i>=0; --i)
+            dst->radio_groups[i] = from_ulong(dst->radio_groups[i]);
+    }
+    return a;
+}
+
+void* inplace_XkbClientMapRec_shrink(void* a)
+{
+    if(a) {
+        my_XkbClientMapRec_t* src = a;
+        my_XkbClientMapRec_32_t* dst = a;
+        dst->size_types = src->size_types;
+        dst->num_types = src->num_types;
+        dst->types = to_ptrv(src->types);
+        dst->size_syms = src->size_syms;
+        dst->num_syms = src->num_syms;
+        dst->syms = to_ptrv(src->syms);
+        dst->key_sym_map = to_ptrv(src->key_sym_map);
+        dst->modmap = to_ptrv(src->modmap);
+    }
+    return a;
+}
+void* inplace_XkbClientMapRec_enlarge(void* a)
+{
+    if(a) {
+        my_XkbClientMapRec_32_t* src = a;
+        my_XkbClientMapRec_t* dst = a;
+        dst->modmap = from_ptrv(src->modmap);
+        dst->key_sym_map = from_ptrv(src->key_sym_map);
+        dst->syms = from_ptrv(src->syms);
+        dst->num_syms = src->num_syms;
+        dst->size_syms = src->size_syms;
+        dst->types = from_ptrv(src->types);
+        dst->num_types = src->num_types;
+        dst->size_types = src->size_types;
+    }
+    return a;
+}
+
+void* inplace_XkbDescRec_shrink(void* a)
+{
+    if(a) {
+        my_XkbDescRec_t* src = a;
+        my_XkbDescRec_32_t* dst = a;
+
+        dst->display = to_ptrv(FindDisplay(src->display));
+        dst->flags = src->flags;
+        dst->device_spec = src->device_spec;
+        dst->min_key_code = src->min_key_code;
+        dst->max_key_code = src->max_key_code;
+        dst->ctrls = to_ptrv(src->ctrls);
+        dst->server = to_ptrv(src->server);
+        dst->map = to_ptrv(inplace_XkbClientMapRec_shrink(src->map));
+        dst->indicators = to_ptrv(src->indicators);
+        dst->names = to_ptrv(inplace_XkbNamesRec_shrink(src->names));
+        dst->compat = to_ptrv(src->compat);
+        dst->geom = to_ptrv(src->geom);
+    }
+    return a;
+}
+void* inplace_XkbDescRec_enlarge(void* a)
+{
+    if(a) {
+        my_XkbDescRec_32_t* src = a;
+        my_XkbDescRec_t* dst = a;
+
+        dst->geom = from_ptrv(src->geom);
+        dst->compat = from_ptrv(src->compat);
+        dst->names = inplace_XkbNamesRec_enlarge(from_ptrv(src->names));
+        dst->indicators = from_ptrv(src->indicators);
+        dst->map = inplace_XkbClientMapRec_enlarge(from_ptrv(src->map));
+        dst->server = from_ptrv(src->server);
+        dst->ctrls = from_ptrv(src->ctrls);
+        dst->max_key_code = src->max_key_code;
+        dst->min_key_code = src->min_key_code;
+        dst->device_spec = src->device_spec;
+        dst->flags = src->flags;
+        dst->display = getDisplay(from_ptrv(src->display));
+    }
+    return a;
+}
+
+void convert_XAnyClassInfo_to_32(void* d, void* s)
+{
+    if(!d || !s) return;
+    my_XAnyClassInfo_t* src = s;
+    my_XAnyClassInfo_32_t* dst = d;
+    int len = src->length;
+    switch(src->c_class) {
+        case 2: //ValuatorClass
+            {
+                my_XValuatorInfo_t* src = s;
+                my_XValuatorInfo_32_t* dst = d;
+                dst->c_class = to_ulong(src->c_class);
+                dst->length = src->length;
+                dst->num_axes = src->num_axes;
+                dst->mode = src->mode;
+                dst->motion_buffer = to_ulong(src->motion_buffer);
+                dst->axes = to_ptrv(src->axes);
+            }
+            break;
+        case 0: //KeyClass
+        case 1: //ButtonClass
+        case 3: //FeedbackClass
+        case 4: //ProximityClass
+        case 5: //FocusClass
+        case 6: //OtherClass
+        case 7: //AttachClass
+        default:
+            dst->c_class = to_ulong(src->c_class);
+            memmove(d+4, s+8, len-4);
+    }
+
+}
+void convert_XAnyClassInfo_to_64(void* d, void* s)
+{
+    if(!d || !s) return;
+    my_XAnyClassInfo_32_t* src = s;
+    my_XAnyClassInfo_t* dst = d;
+
+    int len = src->length;
+    switch(src->c_class) {
+        case 2: //ValuatorClass
+            {
+                my_XValuatorInfo_32_t* src = s;
+                my_XValuatorInfo_t* dst = d;
+                dst->axes = from_ptrv(src->axes);
+                dst->motion_buffer = from_ulong(src->motion_buffer);
+                dst->mode = src->mode;
+                dst->num_axes = src->num_axes;
+                dst->length = src->length;
+                dst->c_class = from_ulong(src->c_class);
+            }
+            break;
+        case 0: //KeyClass
+        case 1: //ButtonClass
+        case 3: //FeedbackClass
+        case 4: //ProximityClass
+        case 5: //FocusClass
+        case 6: //OtherClass
+        case 7: //AttachClass
+        default:
+            memmove(d+8, s+4, len-4);
+            dst->c_class = from_ulong(src->c_class);
+    }
+}
+void* inplace_XAnyClassInfo_shrink(void* a)
+{
+    if(a)
+        convert_XAnyClassInfo_to_32(a, a);
+    return a;
+}
+void* inplace_XAnyClassInfo_enlarge(void* a)
+{
+    if(a)
+        convert_XAnyClassInfo_to_64(a, a);
+    return a;
+}
+
+void* inplace_XDeviceInfo_shrink(void* a, int n)
+{
+    if(a) {
+        my_XDeviceInfo_t* src = a;
+        my_XDeviceInfo_32_t* dst = a;
+
+        for(int i=0; i<n; ++i, ++src, ++dst) {
+            void* p = src->inputclassinfo;
+            for(int j=0; j<src->num_classes; ++j) {
+                my_XAnyClassInfo_32_t* dst_c = p;
+                my_XAnyClassInfo_t* src_c = p;
+                int len = src_c->length;
+                convert_XAnyClassInfo_to_32(dst_c, src_c);
+                p += len;
+            }
+            dst->id = to_ulong(src->id);
+            dst->type = to_ulong(src->type);
+            dst->name = to_ptrv(src->name);
+            dst->num_classes = src->num_classes;
+            dst->use = src->use;
+            dst->inputclassinfo = to_ptrv(src->inputclassinfo);
+        }
+        // mark last record, even on only 1 record, thos last 2 uint32_t are free
+        dst->inputclassinfo = 0;
+        dst->name = 0;
+
+    }
+    return a;
+}
+void* inplace_XDeviceInfo_enlarge(void* a)
+{
+    if(a) {
+        my_XDeviceInfo_32_t* src = a;
+        my_XDeviceInfo_t* dst = a;
+        int n = 0;
+        while(src[n].inputclassinfo && src[n].name) ++n;
+        src+=n-1;
+        dst+=n-1;
+        for(int i=n-1; i>=0; --i, --src, --dst) {
+            dst->inputclassinfo = from_ptrv(src->inputclassinfo);
+            dst->use = src->use;
+            dst->num_classes = src->num_classes;
+            dst->name = from_ptrv(src->name);
+            dst->type = from_ulong(src->type);
+            dst->id = from_ulong(src->id);
+            for(int j=dst->num_classes-1; j>=0; --j) {
+                void* p = dst->inputclassinfo;
+                my_XAnyClassInfo_t* dst_c = p;
+                my_XAnyClassInfo_32_t* src_c = p;
+                for(int k=0; k<j; ++k) {
+                    p+=src_c->length;
+                    dst_c = p;
+                    src_c = p;
+                }
+                convert_XAnyClassInfo_to_64(dst_c, src_c);
+            }
+        }
+    }
+    return a;
 }

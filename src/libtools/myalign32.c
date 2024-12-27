@@ -6,6 +6,7 @@
 #include <sys/epoll.h>
 #include <fts.h>
 #include <sys/socket.h>
+#include <obstack.h>
 
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
@@ -1486,7 +1487,6 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
     struct msghdr* d = dest;
     struct i386_msghdr* s = source;
     struct i386_iovec* s_iov = from_ptrv(s->msg_iov);
-
     d->msg_name = from_ptrv(s->msg_name);
     d->msg_namelen = s->msg_namelen;
     d->msg_iov = iov;
@@ -1499,7 +1499,7 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
     if(convert_control) {
         if(s->msg_control) {
             d->msg_control = dest_cmsg;
-            struct i386_cmsghdr* cmsg = from_ptrv(s->msg_control);
+            struct i386_cmsghdr* cmsg = (s->msg_controllen)?from_ptrv(s->msg_control):NULL;
             struct cmsghdr* dcmsg = dest_cmsg;
             while(cmsg) {
                 dcmsg->cmsg_len = from_ulong(cmsg->cmsg_len);
@@ -1510,12 +1510,18 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
                     memcpy(CMSG_DATA(dcmsg), cmsg+1, cmsg->cmsg_len-sizeof(struct i386_cmsghdr));
                     d->msg_controllen += 4;
                 }
-                dcmsg = (struct cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+7)&~7));
+                struct cmsghdr* next = (struct cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+7)&~7));
                 cmsg = my32___cmsg_nxthdr(s, cmsg);
+                uintptr_t next_diff = (uintptr_t)next-((uintptr_t)dcmsg+dcmsg->cmsg_len);
+                if(cmsg)
+                    d->msg_controllen+=next_diff;
+                dcmsg = next;
+                
             }
         } else 
             d->msg_control = NULL;
     } else {
+        if(d->msg_controllen) d->msg_controllen+=4;
         d->msg_control = (s->msg_control)?dest_cmsg:NULL;
         if(d->msg_control) memset(d->msg_control, 0, d->msg_controllen);
     }
@@ -1528,7 +1534,6 @@ void UnalignMsgHdr_32(void* dest, void* source)
     struct i386_msghdr* d = dest;
     struct iovec* s_iov = s->msg_iov;
     struct i386_iovec* d_iov = from_ptrv(d->msg_iov);
-
     d->msg_name = to_ptrv(s->msg_name);
     d->msg_namelen = s->msg_namelen;
     // TODO: check if iovlen is too big
@@ -1539,7 +1544,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
     d->msg_controllen = s->msg_controllen;
     if(s->msg_control) {
         struct i386_cmsghdr* dcmsg = from_ptrv(d->msg_control);
-        struct cmsghdr* scmsg = s->msg_control;
+        struct cmsghdr* scmsg = (s->msg_controllen)?s->msg_control:NULL;
         while(scmsg) {
             dcmsg->cmsg_len = to_ulong(scmsg->cmsg_len);
             dcmsg->cmsg_level = scmsg->cmsg_level;
@@ -1549,7 +1554,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
                 memcpy(dcmsg+1, CMSG_DATA(scmsg), dcmsg->cmsg_len-sizeof(struct i386_cmsghdr));
                 d->msg_controllen -= 4;
             }
-            (struct i386_cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+3)&~3));
+            dcmsg = (struct i386_cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+3)&~3));
             scmsg = CMSG_NXTHDR(s, scmsg);
         }
     } else 
@@ -1609,4 +1614,80 @@ void convert_regext_to_64(void* d, void* s)
     dst->translate = from_ptrv(src->translate);
     dst->re_nsub = from_ulong(src->re_nsub);
     dst->flags = src->flags;
+}
+
+void* inplace_obstack_chunk_shrink(void* a)
+{
+    if(a) {
+        struct my_obstack_chunk_32_t* dst = a;
+        struct _obstack_chunk* src = a;
+        dst->limit = to_ptrv(src->limit);
+        dst->prev = to_ptrv(src->prev);
+        memcpy(dst->contents, src->contents, sizeof(dst->contents));
+    }
+    return a;
+}
+void* inplace_obstack_chunk_enlarge(void* a)
+{
+    if(a) {
+        struct my_obstack_chunk_32_t* src = a;
+        struct _obstack_chunk* dst = a;
+        memcpy(dst->contents, src->contents, sizeof(dst->contents));
+        dst->prev = from_ptrv(src->prev);
+        dst->limit = from_ptrv(src->limit);
+    }
+    return a;
+}
+
+void convert_obstack_to_32(void* d, void* s)
+{
+    if(!d || !s) return;
+    struct my_obstack_32_t* dst = d;
+    struct obstack *src = s;
+    // chunks
+    struct _obstack_chunk* chunk = src->chunk;
+    while(chunk) {
+        struct _obstack_chunk* prev = chunk->prev;
+        inplace_obstack_chunk_shrink(chunk);
+        chunk = prev;
+    }
+    // struture
+    dst->chunk_size = to_long(src->chunk_size);
+    dst->chunk = to_ptrv(src->chunk);
+    dst->object_base = to_ptrv(src->object_base);
+    dst->next_free = to_ptrv(src->next_free);
+    dst->chunk_limit = to_ptrv(src->chunk_limit);
+    dst->temp.tempptr = to_ptrv(src->temp.tempptr);
+    dst->chunkfun = to_ptrv(src->chunkfun);
+    dst->freefun = to_ptrv(src->freefun);
+    dst->extra_arg = to_ptrv(src->extra_arg);
+    dst->use_extra_arg = src->use_extra_arg;
+    dst->maybe_empty_object = src->maybe_empty_object;
+    dst->alloc_failed = src->alloc_failed;
+}
+void convert_obstack_to_64(void* d, void* s)
+{
+    if(!d || !s) return;
+    struct my_obstack_32_t* src = s;
+    struct obstack *dst = d;
+    // struture
+    dst->alloc_failed = src->alloc_failed;
+    dst->maybe_empty_object = src->maybe_empty_object;
+    dst->use_extra_arg = src->use_extra_arg;
+    dst->extra_arg = from_ptrv(src->extra_arg);
+    dst->freefun = from_ptrv(src->freefun);
+    dst->chunkfun = from_ptrv(src->chunkfun);
+    dst->temp.tempptr = from_ptrv(src->temp.tempptr);
+    dst->chunk_limit = from_ptrv(src->chunk_limit);
+    dst->next_free = from_ptrv(src->next_free);
+    dst->object_base = from_ptrv(src->object_base);
+    dst->chunk = from_ptrv(src->chunk);
+    dst->chunk_size = from_long(src->chunk_size);
+    // chunks
+    struct _obstack_chunk* chunk = dst->chunk;
+    while(chunk) {
+        struct _obstack_chunk* prev = chunk->prev;
+        inplace_obstack_chunk_enlarge(chunk);
+        chunk = prev;
+    }
 }

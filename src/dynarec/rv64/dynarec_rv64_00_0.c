@@ -541,7 +541,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_cmp8(dyn, ninst, x1, x2, x9, x4, x5, x6);
+            emit_cmp8(dyn, ninst, x1, x2, x7, x4, x5, x6);
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
@@ -557,7 +557,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_cmp8(dyn, ninst, x2, x1, x9, x4, x5, x6);
+            emit_cmp8(dyn, ninst, x2, x1, x7, x4, x5, x6);
             break;
         case 0x3B:
             INST_NAME("CMP Gd, Ed");

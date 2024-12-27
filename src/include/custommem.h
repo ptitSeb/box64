@@ -132,11 +132,18 @@ void addLockAddress(uintptr_t addr);    // add an address to the list of "LOCK"a
 int isLockAddress(uintptr_t addr);  // return 1 is the address is used as a LOCK, 0 else
 
 void SetHotPage(uintptr_t addr);
+void CheckHotPage(uintptr_t addr);
 int isInHotPage(uintptr_t addr);
 int checkInHotPage(uintptr_t addr);
 #endif
 
+// this will simulate an x86_64 version of the function (no tracking will done, but tracking will be used)
+void* box_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+// this will simulate an x86_64 version of the function (no tracking will done)
+int box_munmap(void* addr, unsigned long length);
+// this will call the syscall directly
 void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+// this will call the syscall directly
 int internal_munmap(void* addr, unsigned long length);
 
 void reserveHighMem();
