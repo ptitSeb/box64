@@ -152,7 +152,7 @@ const char* getCpuName()
         }
     }
     // failled, try to get architecture at least
-    f = popen("LC_ALL=C lscpu | grep -i \"architecture:\" | head -n 1 | sed -r 's/(architecture:)\\s{1,}//gi'", "r");
+    f = popen("uname -m", "r");
     if(f) {
         char tmp[200] = "";
         ssize_t s = fread(tmp, 1, 200, f);
