@@ -19,6 +19,7 @@
 #include "callback.h"
 
 const char* gmpName = "libgmp.so.10";
+#define ALTNAME "libgmp.so"
 #define LIBNAME gmp
 
 #include "generated/wrappedgmptypes.h"
