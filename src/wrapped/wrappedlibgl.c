@@ -18,6 +18,7 @@
 #include "gltools.h"
 
 const char* libglName = "libGL.so.1";
+#define ALTNAME "libGL.so"
 #define LIBNAME libgl
 static library_t* my_lib = NULL;
 
