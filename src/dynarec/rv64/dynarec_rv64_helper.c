@@ -2620,7 +2620,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
     int s1_val = 0;
     int s2_val = 0;
     // unload every unneeded cache
-    // check SSE first, than MMX, in order, for optimisation issue
+    // check SSE first, than MMX, in order, for optimization issue
     for (int i = 0; i < 16; ++i) {
         int j = findCacheSlot(dyn, ninst, EXT_CACHE_SS, i, &cache);
         if (j >= 0 && findCacheSlot(dyn, ninst, EXT_CACHE_SS, i, &cache_i2) == -1)

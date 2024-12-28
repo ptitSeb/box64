@@ -407,7 +407,7 @@ static int FindR386COPYRel(elfheader_t* h, const char* name, ptr_t *offs, uint32
             if((t==R_386_COPY) && symname && !strcmp(symname, name) && (sym->st_size==size)) {
                 int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
                 if(version2!=-1) version2 &= 0x7fff;
-                if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
+                if(version && !version2) version2=-1;   // match a versioned symbol against a global "local" symbol
                 const char* vername2 = GetSymbolVersion(h, version2);
                 Elf32_Half flags = GetSymbolVersionFlag(h, version2);
                 int veropt2 = flags?0:1;

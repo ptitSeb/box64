@@ -36,8 +36,8 @@
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
 typedef int  (*iFLi_t)(unsigned long, int);
-//starting with glibc 2.34+, those 2 functions are in libc.so as versionned symbol only
-// So use dlsym to get the symbol unversionned, as simple link will not work.
+//starting with glibc 2.34+, those 2 functions are in libc.so as versioned symbol only
+// So use dlsym to get the symbol unversioned, as simple link will not work.
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 // with glibc 2.34+, pthread_kill changed behaviour and might break some program, so using old version if possible
@@ -447,7 +447,7 @@ EXPORT int my32___pthread_key_create(x64emu_t* emu, void* key, void* dtor) __att
 // phtread_cond_init with null attr seems to only write 1 (NULL) dword on x64, while it's 48 bytes on ARM. 
 // Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
 // What about cond that are statically initialized? 
-// Note, this is is a versionned function (the pthread_cond_*), and this seems to correspond to an old behaviour
+// Note, this is is a versioned function (the pthread_cond_*), and this seems to correspond to an old behaviour
 
 KHASH_MAP_INIT_INT(mapcond, pthread_cond_t*);
 

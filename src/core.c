@@ -609,7 +609,7 @@ void computeRDTSC()
     uint64_t freq = ReadTSCFrequency(NULL);
     if(freq<((box64_rdtsc_1ghz)?1000000000LL:1000000)) {
         box64_rdtsc = 1;
-        if(hardware) printf_log(LOG_INFO, "Hardware counter to slow (%d kHz), not using it\n", freq/1000);
+        if(hardware) printf_log(LOG_INFO, "Hardware counter is too slow (%d kHz), not using it\n", freq/1000);
         hardware = 0;
         freq = ReadTSCFrequency(NULL);
     }
@@ -1808,8 +1808,8 @@ void endBox64()
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
-    //void closeAllDLOpenned();
-    //closeAllDLOpenned();    // close residual dlopenned libs. Disabled, seems like a bad idea, better to unload with proper dependancies
+    //void closeAllDLOpened();
+    //closeAllDLOpened();    // close residual dlopened libs. Disabled, seems like a bad idea, better to unload with proper dependancies
     RunElfFini(my_context->elfs[0], emu);
     // unload needed libs
     needed_libs_t* needed = my_context->elfs[0]->needed;
