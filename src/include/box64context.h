@@ -138,7 +138,7 @@ typedef struct box64context_s {
     uintptr_t           ep;             // entry point
 
     lib_t               *maplib;        // lib and symbols handling
-    lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
+    lib_t               *local_maplib;  // libs and symbols opened has local (only collection of libs, no symbols)
     dic_t               *versym;        // dictionnary of versioned symbols
     kh_mapsymbols_t     *globdata;      // GLOBAL_DAT relocation for COPY mapping in main elf
     kh_mapsymbols_t     *uniques;       // symbols with STB_GNU_UNIQUE bindings
