@@ -12,11 +12,8 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-#ifdef ANDROID
-    const char* glesv2Name = "libGLESv2.so";
-#else
-    const char* glesv2Name = "libGLESv2.so.2";
-#endif
+const char* glesv2Name = "libGLESv2.so.2";
+#define ALTNAME "libGLESv2.so"
 
 #define LIBNAME glesv2
 

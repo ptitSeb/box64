@@ -17,11 +17,8 @@
 #include "librarian.h"
 #include "myalign.h"
 
-#ifdef ANDROID
-    const char* pulsemainloopglibName = "libpulse-mainloop-glib.so";
-#else
-    const char* pulsemainloopglibName = "libpulse-mainloop-glib.so.0";
-#endif
+const char* pulsemainloopglibName = "libpulse-mainloop-glib.so.0";
+#define ALTNAME "libpulse-mainloop-glib.so"
 
 #define LIBNAME pulsemainloopglib
 
@@ -41,11 +38,6 @@ EXPORT void* my_pa_glib_mainloop_get_api(x64emu_t* emu, void* mainloop)
     if(box64_nopulse)   \
         return -1;
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libpulse.so"
-#else
 #define NEEDED_LIBS "libpulse.so.0"
-#endif
-
 
 #include "wrappedlib_init.h"

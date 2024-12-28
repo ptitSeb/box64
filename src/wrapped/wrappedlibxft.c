@@ -51,13 +51,6 @@ EXPORT void* my_XftFontOpen(x64emu_t* emu, void* dpy, int screen, uintptr_t* b)
     return ret;
 }
 
-
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libfontconfig.so", "libXrender.so", "libfreetype.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libfontconfig.so.1", "libXrender.so.1", "libfreetype.so.6"
-#endif
-
-
 
 #include "wrappedlib_init.h"

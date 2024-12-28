@@ -1621,10 +1621,6 @@ EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, si
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \
     if(box64_x11threads) my->XInitThreads();
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libxcb.so"
-#else
 #define NEEDED_LIBS "libxcb.so.1"
-#endif
 
 #include "wrappedlib_init.h"
