@@ -216,10 +216,6 @@ EXPORT void my_XtAddRawEventHandler(x64emu_t* emu, void* w, uint32_t mask, int n
     my->XtAddRawEventHandler(w, mask, nonmaskable, findXtEventHandlerFct(f), data);
 }
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libXext.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
-#endif
 
 #include "wrappedlib_init.h"

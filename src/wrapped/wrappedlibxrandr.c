@@ -22,10 +22,6 @@ const char* libxrandrName = "libXrandr.so.2";
 
 #define LIBNAME libxrandr
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6", "libXrender.so.1"
-#endif
 
 #include "wrappedlib_init.h"

@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbresName = "libxcb-res.so";
-#else
-	const char* libxcbresName = "libxcb-res.so.0";
-#endif
+const char* libxcbresName = "libxcb-res.so.0";
+#define ALTNAME "libxcb-res.so"
 
 #define LIBNAME libxcbres
 

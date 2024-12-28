@@ -12,6 +12,7 @@
 #include "x64emu.h"
 
 const char* libunistring2Name = "libunistring.so.2";
+#define ALTNAME "libunistring.so"
 #define LIBNAME libunistring2
 
 #include "wrappedlib_init.h"

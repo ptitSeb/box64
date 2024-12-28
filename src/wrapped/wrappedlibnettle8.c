@@ -19,6 +19,7 @@
 #include "myalign.h"
 
 const char* libnettle8Name = "libnettle.so.8";
+#define ALTNAME "libnettle.so"
 #define LIBNAME libnettle8
 
 #define ADDED_FUNCTIONS()

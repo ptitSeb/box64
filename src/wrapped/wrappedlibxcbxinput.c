@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbxinputName = "libxcb-xinput.so";
-#else
-	const char* libxcbxinputName = "libxcb-xinput.so.0";
-#endif
+const char* libxcbxinputName = "libxcb-xinput.so.0";
+#define ALTNAME "libxcb-xinput.so"
 #define LIBNAME libxcbxinput
 
 #include "wrappedlib_init.h"
