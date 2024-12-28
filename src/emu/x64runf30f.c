@@ -346,7 +346,6 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         RESET_FLAGS(emu);
         CLEAR_FLAG(F_OF);
         CLEAR_FLAG(F_SF);
-        CLEAR_FLAG(F_ZF);
         CLEAR_FLAG(F_AF);
         CLEAR_FLAG(F_CF);
         CLEAR_FLAG(F_PF);
