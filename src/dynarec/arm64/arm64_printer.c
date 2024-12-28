@@ -1667,6 +1667,15 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // CNT
+    if(isMask(opcode, "0Q00111000100000010110nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B"};
+        const char* Vd = Y[a.Q];
+        const char* Va = Y[a.Q];
+        snprintf(buff, sizeof(buff), "CNT V%d.%s, V%d.%s", Rd, Vd, Rn, Va);
+        return buff;
+    }
+
     // DUP
     if(isMask(opcode, "0Q001110000iiiii000001nnnnnddddd", &a)) {
         const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
