@@ -20,7 +20,7 @@
 const char* curlName = "libcurl.so.4";
 #define ALTNAME "libcurl.so"
 
-#define ALTNAME "libcurl-gnutls.so.4"
+#define ALTNAME2 "libcurl-gnutls.so.4"
 #define LIBNAME curl
 
 #include "generated/wrappedcurltypes.h"
