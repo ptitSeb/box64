@@ -69,9 +69,15 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETVD;
             if(rex.w) {
                 // 64bits mul
-                UMULH(x3, xRDX, ed);
+                if((gd==xRDX) || (gd==ed) || (gd==vd))
+                    gb1 = x3;
+                else
+                    gb1 = gd;
+                UMULH(gb1, xRDX, ed);
                 MULx(vd, xRDX, ed);
-                MOVx_REG(gd, x3);
+                if(gb1==x3) {
+                    MOVx_REG(gd, gb1);
+                }
             } else {
                 // 32bits mul
                 UMULL(x3, xRDX, ed);
