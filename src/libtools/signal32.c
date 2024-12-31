@@ -861,7 +861,7 @@ void my32_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* db = NULL;
     #endif
 
-    my_sigactionhandler_oldcode_32(sig, 0, info, ucntx, NULL, db);
+    my_sigactionhandler_oldcode_32(NULL, sig, 0, info, ucntx, NULL, db);
 }
 
 

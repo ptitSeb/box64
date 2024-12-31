@@ -953,7 +953,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
 }
 
 #ifdef BOX32
-void my_sigactionhandler_oldcode_32(ix64emu_t* emu, nt32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
+void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
 #endif
 void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
