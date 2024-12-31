@@ -562,6 +562,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         B+16 .. B+23    : jmpnext (or jmp_epilog) address. jumpnext is used when the block needs testing
         B+24 .. B+31    : empty (in case an architecture needs more than 2 opcodes)
         B+32 .. B+32+sz : instsize (compressed array with each instruction length on x64 and native side)
+        C ..    C+sz    : arch: arch specific info (likes flags info) per inst (can be absent)
 
     */
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
@@ -725,14 +726,16 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
     size_t native_size = (helper.native_size+7)&~7;   // round the size...
+    size_t arch_size = ARCH_SIZE(&helper);
     // ok, now allocate mapped memory, with executable flag on
-    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize;
-    //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize
+    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size;
+    //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch
     void* actual_p = (void*)AllocDynarecMap(sz);
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
     void* next = tablestart + helper.table64size*sizeof(uint64_t);
     void* instsize = next + 4*sizeof(void*);
+    void* arch = instsize + insts_rsize;
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", block, sz);
         CancelBlock64(0);
@@ -784,6 +787,14 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     block->always_test = helper.always_test;
     block->dirty = block->always_test;
     block->is32bits = is32bits;
+    if(arch_size) {
+        block->arch = arch;
+        block->arch_size = arch_size;
+        ARCH_FILL(&helper, arch);
+    } else {
+        block->arch = NULL;
+        block->arch_size = arch_size;
+    }
     *(dynablock_t**)next = block;
     *(void**)(next+3*sizeof(void*)) = native_next;
     CreateJmpNext(block->jmpnext, next+3*sizeof(void*));

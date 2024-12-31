@@ -17,6 +17,7 @@
 #include "arm64/arm64_printer.h"
 #include "arm64/dynarec_arm64_private.h"
 #include "arm64/dynarec_arm64_functions.h"
+#include "arm64/dynarec_arm64_arch.h"
 // Limit here is defined by LD litteral, that is 19bits
 #define MAXBLOCK_SIZE ((1<<19)-200)
 
@@ -24,6 +25,9 @@
 #define UPDATE_SPECIFICS(A)     updateNativeFlags(A)
 #define PREUPDATE_SPECIFICS(A)
 
+#define ARCH_SIZE(A)    get_size_arch(A)
+#define ARCH_FILL(A, B) populate_arch(A, B)
+#define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #elif defined(LA64)
 
 #define instruction_native_t        instruction_la64_t
@@ -45,6 +49,10 @@
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
+
+#define ARCH_SIZE(A)    0
+#define ARCH_FILL(A, B)  {}
+#define ARCH_ADJUST(A, B, C, D) {}
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -68,6 +76,10 @@
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
+
+#define ARCH_SIZE(A)    0
+#define ARCH_FILL(A, B)  {}
+#define ARCH_ADJUST(A, B, C, D) {}
 #else
 #error Unsupported platform
 #endif

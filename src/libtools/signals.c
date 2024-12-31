@@ -36,6 +36,7 @@
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
 #include "dynarec_native.h"
+#include "dynarec/dynarec_arch.h"
 #endif
 
 
@@ -491,6 +492,31 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t native_addr)
     } while(db->instsize[i].x64 || db->instsize[i].nat);
     return x64addr;
 }
+int getX64AddressInst(dynablock_t* db, uintptr_t x64pc)
+{
+    uintptr_t x64addr = (uintptr_t)db->x64_addr;
+    uintptr_t armaddr = (uintptr_t)db->block;
+    int ret = 0;
+    if(x64pc<(uintptr_t)db->x64_addr || x64pc>(uintptr_t)db->x64_addr+db->x64_size)
+        return -1;
+    int i = 0;
+    do {
+        int x64sz = 0;
+        int armsz = 0;
+        do {
+            x64sz+=db->instsize[i].x64;
+            armsz+=db->instsize[i].nat*4;
+            ++i;
+        } while((db->instsize[i-1].x64==15) || (db->instsize[i-1].nat==15));
+        // if the opcode is a NOP on ARM side (so armsz==0), it cannot be an address to find
+        if((x64pc>=x64addr) && (x64pc<(x64addr+x64sz)))
+            return ret;
+        armaddr+=armsz;
+        x64addr+=x64sz;
+        ret++;
+    } while(db->instsize[i].x64 || db->instsize[i].nat);
+    return ret;
+}
 x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
 {
 #if defined(ARM64)
@@ -927,16 +953,10 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
 }
 
 #ifdef BOX32
-void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
+void my_sigactionhandler_oldcode_32(ix64emu_t* emu, nt32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
 #endif
-void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
-    #ifdef BOX32
-    if(box64_is32bits) {
-        my_sigactionhandler_oldcode_32(sig, simple, info, ucntx, old_code, cur_db);
-        return;
-    }
-    #endif
     int Locks = unlockMutex();
     int log_minimum = (box64_showsegv)?LOG_NONE:LOG_DEBUG;
 
@@ -1376,6 +1396,63 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     relockMutex(Locks);
 }
 
+void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc)
+{
+    #define GO(A) uintptr_t old_##A = R_##A;
+    GO(RAX);
+    GO(RBX);
+    GO(RCX);
+    GO(RDX);
+    GO(RBP);
+    GO(RSP);
+    GO(RDI);
+    GO(RSI);
+    GO(R8);
+    GO(R9);
+    GO(R10);
+    GO(R11);
+    GO(R12);
+    GO(R13);
+    GO(R14);
+    GO(R15);
+    GO(RIP);
+    #undef GO
+    #ifdef DYNAREC
+    dynablock_t* db = cur_db;
+    if(db) {
+        copyUCTXreg2Emu(emu, ucntx, x64pc);
+        adjustregs(emu);
+        if(db && db->arch_size)
+            ARCH_ADJUST(db, emu, ucntx, x64pc);
+    }
+    #endif
+    #ifdef BOX32
+    if(box64_is32bits) {
+        my_sigactionhandler_oldcode_32(emu, sig, simple, info, ucntx, old_code, cur_db);
+    } else
+    #endif
+    my_sigactionhandler_oldcode_64(emu, sig, simple, info, ucntx, old_code, cur_db);
+    #define GO(A) R_##A = old_##A
+    GO(RAX);
+    GO(RBX);
+    GO(RCX);
+    GO(RDX);
+    GO(RBP);
+    GO(RSP);
+    GO(RDI);
+    GO(RSI);
+    GO(R8);
+    GO(R9);
+    GO(R10);
+    GO(R11);
+    GO(R12);
+    GO(R13);
+    GO(R14);
+    GO(R15);
+    GO(RIP);
+    #undef GO
+}
+
 extern void* current_helper;
 #define USE_SIGNAL_MUTEX
 #ifdef USE_SIGNAL_MUTEX
@@ -1486,8 +1563,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             emu = getEmuSignal(emu, p, db);
             // dynablock got auto-dirty! need to get out of it!!!
             if(emu->jmpbuf) {
-                copyUCTXreg2Emu(emu, p, getX64Address(db, (uintptr_t)pc));
+                uintptr_t x64pc = getX64Address(db, (uintptr_t)pc);
+                copyUCTXreg2Emu(emu, p, x64pc);
                 adjustregs(emu);
+                if(db && db->arch_size)
+                    ARCH_ADJUST(db, emu, p, x64pc);
 #ifdef ARM64
                 //TODO: Need proper SIMD/x87 register traking!
                 /*if(fpsimd) {
@@ -1611,6 +1691,37 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     int tid = GetTID();
     int mapped = memExist((uintptr_t)addr);
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
+    uintptr_t x64pc = (uintptr_t)-1;
+    x64pc = R_RIP;
+    rsp = (void*)R_RSP;
+#if defined(DYNAREC)
+#if defined(ARM64)
+    if(db) {
+        x64pc = getX64Address(db, (uintptr_t)pc);
+        rsp = (void*)p->uc_mcontext.regs[10+_SP];
+    }
+#elif defined(LA64)
+    if(db && p->uc_mcontext.__gregs[4]>0x10000) {
+        emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
+    }
+    if(db) {
+        x64pc = getX64Address(db, (uintptr_t)pc);
+        rsp = (void*)p->uc_mcontext.__gregs[12+_SP];
+    }
+#elif defined(RV64)
+    if(db && p->uc_mcontext.__gregs[25]>0x10000) {
+        emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
+    }
+    if(db) {
+        x64pc = getX64Address(db, (uintptr_t)pc);
+        rsp = (void*)p->uc_mcontext.__gregs[9];
+    }
+#else
+#error Unsupported Architecture
+#endif //arch
+#endif //DYNAREC
+    if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
+        x64pc--;
     if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==tid && old_prot==prot) {
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, old_addr, prot);
         exit(-1);
@@ -1643,41 +1754,10 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         old_tid = tid;
         old_prot = prot;
         const char* name = (log_minimum<=box64_log)?GetNativeName(pc):NULL;
-        uintptr_t x64pc = (uintptr_t)-1;
         const char* x64name = NULL;
         // Adjust RIP for special case of NULL function run
         if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
             R_RIP = 0x0;
-        x64pc = R_RIP;
-        rsp = (void*)R_RSP;
-#if defined(DYNAREC)
-#if defined(ARM64)
-        if(db) {
-            x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.regs[10+_SP];
-        }
-#elif defined(LA64)
-        if(db && p->uc_mcontext.__gregs[4]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
-        }
-        if(db) {
-            x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.__gregs[12+_SP];
-        }
-#elif defined(RV64)
-        if(db && p->uc_mcontext.__gregs[25]>0x10000) {
-            emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
-        }
-        if(db) {
-            x64pc = getX64Address(db, (uintptr_t)pc);
-            rsp = (void*)p->uc_mcontext.__gregs[9];
-        }
-#else
-#error Unsupported Architecture
-#endif //arch
-#endif //DYNAREC
-        if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
-            x64pc--;
         if(log_minimum<=box64_log) {
             elfheader_t* elf = FindElfAddress(my_context, x64pc);
             if(elf) {
@@ -1877,7 +1957,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     }
     relockMutex(Locks);
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
-        my_sigactionhandler_oldcode(emu, sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db);
+        my_sigactionhandler_oldcode(emu, sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db, x64pc);
         return;
     }
     // no handler (or double identical segfault)
@@ -1904,8 +1984,13 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #else
     void* db = NULL;
     #endif
-
-    my_sigactionhandler_oldcode(NULL, sig, 0, info, ucntx, NULL, db);
+    x64emu_t* emu = thread_get_emu();
+    uintptr_t x64pc = R_RIP;
+    #ifdef DYNAREC
+    if(db)
+        x64pc = getX64Address(db, (uintptr_t)pc);
+    #endif
+    my_sigactionhandler_oldcode(emu, sig, 0, info, ucntx, NULL, db, x64pc);
 }
 
 #ifndef DYNAREC
@@ -1983,7 +2068,7 @@ printf_log(LOG_NONE, "Emu Stack: %p 0x%lx%s\n", emu->init_stack, emu->size_stack
             printf_log(LOG_NONE, "SIGILL: Opcode at ip is %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n", mem[0], mem[1], mem[2], mem[3], mem[4], mem[5]);
         }
     }
-    my_sigactionhandler_oldcode(emu, sig, 0, &info, NULL, NULL, NULL);
+    my_sigactionhandler_oldcode(emu, sig, 0, &info, NULL, NULL, NULL, R_RIP);
 }
 
 void check_exec(x64emu_t* emu, uintptr_t addr)
@@ -2012,7 +2097,7 @@ void emit_interruption(x64emu_t* emu, int num, void* addr)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr);
     }
-    my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL);
+    my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
 }
 
 void emit_div0(x64emu_t* emu, void* addr, int code)
@@ -2031,7 +2116,7 @@ void emit_div0(x64emu_t* emu, void* addr, int code)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Divide by 0 at IP=%p(%s / %s) / addr=%p\n", (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr);
     }
-    my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL);
+    my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
 }
 
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)

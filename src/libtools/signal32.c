@@ -468,7 +468,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 #define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
-void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
     int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
@@ -477,7 +477,8 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
 
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
-    x64emu_t *emu = thread_get_emu();
+    if(!emu)
+        emu = thread_get_emu();
     uintptr_t frame = R_RSP;
 #if defined(DYNAREC)
 #if defined(ARM64)
