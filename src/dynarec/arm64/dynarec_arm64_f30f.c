@@ -185,8 +185,12 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETED(0);
                     GETGD;
                     MRS_nzcv(x3);
-                    LSRw(x4, xFlags, F_OF);
-                    BFIx(x3, x4, 29, 1); // set C
+                    IFNATIVE_BEFORE(NF_VF) {
+                        LSRw(x4, x3, NZCV_V);
+                    } else {
+                        LSRw(x4, xFlags, F_OF);
+                    }
+                    BFIx(x3, x4, NZCV_C, 1); // set C
                     MSR_nzcv(x3);      // load CC into ARM CF
                     IFX(X_OF) {
                         ADCSxw_REG(gd, gd, ed);
@@ -478,7 +482,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             CNT_8(v1, v1);
             UADDLV_8(v1, v1);
-            VMOVQDto(gd, v1, 0);
+            VMOVHto(gd, v1, 0);
             IFX(X_ALL) {
                 IFX(X_AF|X_PF|X_SF|X_OF|X_CF) {
                     MOV32w(x1, (1<<F_OF) | (1<<F_SF) | (1<<F_ZF) | (1<<F_AF) | (1<<F_CF) | (1<<F_PF));
