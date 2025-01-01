@@ -85,15 +85,21 @@ uintptr_t dynarec64_67_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 GETGD;
                 GETED32(0);
                 GETVD;
-                if(rex.w) {
-                    // 64bits mul
-                    UMULH(x3, xRDX, ed);
-                    MULx(vd, xRDX, ed);
-                    MOVx_REG(gd, x3);
+                    if(rex.w) {
+                        // 64bits mul
+                    if((gd==xRDX) || (gd==ed) || (gd==vd))
+                        gb1 = x3;
+                    else
+                        gb1 = gd;
+                    UMULH(gb1, xRDX, ed);
+                    if(gd!=vd) {MULx(vd, xRDX, ed);}
+                    if(gb1==x3) {
+                        MOVx_REG(gd, gb1);
+                    }
                 } else {
                     // 32bits mul
                     UMULL(x3, xRDX, ed);
-                    MOVw_REG(vd, x3);
+                    if(gd!=vd) {MOVw_REG(vd, x3);}
                     LSRx(gd, x3, 32);
                 }
                 break;

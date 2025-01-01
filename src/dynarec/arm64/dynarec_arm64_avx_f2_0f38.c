@@ -74,14 +74,14 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 else
                     gb1 = gd;
                 UMULH(gb1, xRDX, ed);
-                MULx(vd, xRDX, ed);
+                if(gd!=vd) {MULx(vd, xRDX, ed);}
                 if(gb1==x3) {
                     MOVx_REG(gd, gb1);
                 }
             } else {
                 // 32bits mul
                 UMULL(x3, xRDX, ed);
-                MOVw_REG(vd, x3);
+                if(gd!=vd) {MOVw_REG(vd, x3);}
                 LSRx(gd, x3, 32);
             }
             break;
