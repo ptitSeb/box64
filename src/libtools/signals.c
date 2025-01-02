@@ -1417,6 +1417,8 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(R15);
     GO(RIP);
     #undef GO
+    sse_regs_t old_xmm[16];
+    memcpy(old_xmm, emu->xmm, sizeof(old_xmm));
     #ifdef DYNAREC
     dynablock_t* db = cur_db;
     if(db) {
@@ -1451,6 +1453,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(R15);
     GO(RIP);
     #undef GO
+    memcpy(emu->xmm, old_xmm, sizeof(old_xmm));
 }
 
 extern void* current_helper;
