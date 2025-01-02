@@ -215,8 +215,8 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         }
     }
     if(arch->sse) {
-//printf_log(LOG_INFO, " sse ");
         arch_sse_t* sse = (arch_sse_t*)((uintptr_t)arch + sz);
+//printf_log(LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
         sz += sizeof(arch_sse_t);
         for(int i=0; i<16; ++i)
             if(fpsimd && (sse->sse>>i)&1) {
@@ -226,8 +226,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 } else {
                     idx = XMM0 + i;
                 }
-
-                emu->xmm[i].u128 = fpsimd->vregs[i];
+                emu->xmm[i].u128 = fpsimd->vregs[idx];
             }
     }
 //printf_log(LOG_INFO, "\n");
