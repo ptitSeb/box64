@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <ucontext.h>
+#include <string.h>
 
 #include "debug.h"
 #include "dynablock.h"
@@ -11,26 +12,126 @@
 #include "dynarec/dynablock_private.h"
 #include "dynarec_arm64_arch.h"
 
+typedef struct arch_build_s
+{
+    uint8_t flags:1;
+    uint8_t x87:1;
+    uint8_t mmx:1;
+    uint8_t sse:1;
+    uint8_t ymm:1;
+    arch_flags_t flags_;
+    arch_x87_t x87_;
+    arch_mmx_t mmx_;
+    arch_sse_t sse_;
+    arch_ymm_t ymm_;
+} arch_build_t;
+
+static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
+{
+    int ret = 0;
+    // flags
+    if((dyn->insts[ninst].f_entry.dfnone==0) || dyn->insts[ninst].need_nat_flags) {
+        ++ret;
+        arch->flags = 1;
+        arch->flags_.defered = dyn->insts[ninst].f_entry.dfnone==0;
+        arch->flags_.vf = dyn->insts[ninst].need_nat_flags&NF_VF;
+        arch->flags_.nf = dyn->insts[ninst].need_nat_flags&NF_SF;
+        arch->flags_.eq = dyn->insts[ninst].need_nat_flags&NF_EQ;
+        arch->flags_.cf = dyn->insts[ninst].need_nat_flags&NF_CF;
+        arch->flags_.inv_cf = !dyn->insts[ninst].normal_carry;
+    } else {
+        arch->flags = 0;
+        memset(&arch->flags_, 0, sizeof(arch_flags_t));
+    }
+    return ret;
+}
+
 size_t get_size_arch(dynarec_arm_t* dyn)
 {
-    if(!box64_dynarec_nativeflags)
-        return 0;
-    return dyn->isize*sizeof(arch_flags_t);
+    arch_build_t build = {0};
+    arch_build_t previous = {0};
+    size_t sz = 0;
+    int seq = 0;
+    int nseq = 0;
+    int last = 0;
+    if(!dyn->size) return 0;
+    for(int i=0; i<dyn->size; ++i) {
+        last = arch_build(dyn, i, &build);
+        if(!memcmp(&build, &previous, sizeof(arch_build_t)) && seq<((1<<12)-1) && i) {
+            // same sequence, increment
+            seq++;
+        } else {
+            seq = 0;
+            ++nseq;
+            memcpy(&previous, &build, sizeof(arch_build_t));
+            sz+=sizeof(arch_arch_t);
+            if(build.flags) sz+=sizeof(arch_flags_t);
+            if(build.x87) sz+=sizeof(arch_x87_t);
+            if(build.mmx) sz+=sizeof(arch_mmx_t);
+            if(build.sse) sz+=sizeof(arch_sse_t);
+            if(build.ymm) sz+=sizeof(arch_ymm_t);
+        }
+    }
+    if(nseq==1 && !last)
+        return 0;   //empty, no flags, no nothing
+    return sz;
+}
+
+static void build_next(arch_arch_t* arch, arch_build_t* build)
+{
+    arch->flags = build->flags;
+    arch->x87 = build->x87;
+    arch->mmx = build->mmx;
+    arch->sse = build->sse;
+    arch->ymm = build->ymm;
+    void* p = ((void*)arch)+sizeof(arch_arch_t);
+    #define GO(A)                                           \
+    if(arch->A) {                                           \
+        arch_##A##_t* A##_ = p;                             \
+        memcpy(p, &build->A##_, sizeof(arch_ ##A##_t));     \
+        p+=sizeof(arch_##A##_t);                            \
+    }
+    GO(flags)
+    GO(x87)
+    GO(mmx)
+    GO(sse)
+    GO(ymm)
+    #undef GO
+}
+
+static int sizeof_arch(arch_arch_t* arch)
+{
+    int sz = sizeof(arch_arch_t);
+    #define GO(A)   if(arch->A) sz+sizeof(arch_##A##_t)
+    GO(flags);
+    GO(x87);
+    GO(mmx);
+    GO(sse);
+    GO(ymm);
+    #undef GO
 }
 
 void populate_arch(dynarec_arm_t* dyn, void* p)
 {
-    if(!box64_dynarec_nativeflags)
-        return;
-
-    arch_flags_t* flags = p;
+    arch_build_t build = {0};
+    arch_build_t previous = {0};
+    arch_arch_t* arch = p;
+    arch_arch_t* next = p;
+    int seq = 0;
     for(int i=0; i<dyn->size; ++i) {
-        flags[i].defered = dyn->insts[i].f_entry.dfnone==0;
-        flags[i].vf = dyn->insts[i].need_nat_flags&NF_VF;
-        flags[i].nf = dyn->insts[i].need_nat_flags&NF_SF;
-        flags[i].eq = dyn->insts[i].need_nat_flags&NF_EQ;
-        flags[i].cf = dyn->insts[i].need_nat_flags&NF_CF;
-        flags[i].inv_cf = !dyn->insts[i].normal_carry;
+        arch_build(dyn, i, &build);
+        if(!memcmp(&build, &previous, sizeof(arch_build_t)) && seq<((1<<12)-1) && i) {
+            // same sequence, increment
+            seq++;
+            arch->seq = seq;
+        } else {
+            arch = next;
+            build_next(arch, &build);
+            seq = 0;
+            memcpy(&previous, &build, sizeof(arch_build_t));
+            int sz = sizeof_arch(arch);
+            next = (arch_arch_t*)((uintptr_t)next+sz);
+        }
     }
 }
 
@@ -49,33 +150,51 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
 {
     if(!db->arch_size || !db->arch)
         return;
-    arch_flags_t* flags = db->arch;
     int ninst = getX64AddressInst(db, x64pc);
-printf_log(LOG_INFO, "adjust_arch(...), db=%p, x64pc=%p, nints=%d, flags:%s %c%c%c%c%s\n", db, (void*)x64pc, ninst, flags[ninst-1].defered?"defered":"", flags[ninst-1].vf?'V':' ', flags[ninst-1].nf?'S':' ', flags[ninst-1].eq?'Z':' ', flags[ninst-1].cf?'C':' ', (flags[ninst-1].cf && flags[ninst-1].inv_cf)?"inverted":"");
-    if(ninst<0)
+printf_log(LOG_INFO, "adjust_arch(...), db=%p, x64pc=%p, nints=%d", db, (void*)x64pc, ninst);
+    if(ninst<0) {
+printf_log(LOG_INFO, "\n");
         return;
+    }
     if(ninst==0) {
+printf_log(LOG_INFO, "\n");
         CHECK_FLAGS(emu);
         return;
     }
-    if(flags[ninst-1].defered) {
-        CHECK_FLAGS(emu);
-        //return;
+    // look for state at ninst-1
+    arch_arch_t* arch = db->arch;
+    arch_arch_t* next = arch;
+    int i = -1;
+    while(i<ninst-1) {
+        arch = next;
+        i += 1+arch->seq;
+        next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
-    if(flags[ninst-1].nf) {
-        CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_N), F_SF);
-    }
-    if(flags[ninst-1].vf) {
-        CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_V), F_OF);
-    }
-    if(flags[ninst-1].eq) {
-        CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_Z), F_ZF);
-    }
-    if(flags[ninst-1].cf) {
-        if(flags[ninst-1].inv_cf) {
-            CONDITIONAL_SET_FLAG((p->uc_mcontext.pstate&(1<<NZCV_C))==0, F_CF);
-        } else {
-            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_C), F_CF);
+    int sz = sizeof(arch_arch_t);
+    if(arch->flags) {
+printf_log(LOG_INFO, " flags ");
+        arch_flags_t* flags = (arch_flags_t*)((uintptr_t)arch + sz);
+        sz += sizeof(arch_flags_t);
+        if(flags->defered) {
+            CHECK_FLAGS(emu);
+            //return;
+        }
+        if(flags->nf) {
+            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_N), F_SF);
+        }
+        if(flags->vf) {
+            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_V), F_OF);
+        }
+        if(flags->eq) {
+            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_Z), F_ZF);
+        }
+        if(flags->cf) {
+            if(flags->inv_cf) {
+                CONDITIONAL_SET_FLAG((p->uc_mcontext.pstate&(1<<NZCV_C))==0, F_CF);
+            } else {
+                CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_C), F_CF);
+            }
         }
     }
+printf_log(LOG_INFO, "\n");
 }
