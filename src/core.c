@@ -925,7 +925,7 @@ void LoadLogEnv()
                 box64_dynarec_perf_map = p[0] - '0';
         }
         if (box64_dynarec_perf_map)
-            printf_log(LOG_INFO, "Dynarec will generate map file for Linux perf tool\n");
+            printf_log(LOG_INFO, "Dynarec will generate map file /tmp/perf-%d.map for Linux perf tool\n", getpid());
     }
     p = getenv("BOX64_DYNAREC_DF");
     if(p) {
