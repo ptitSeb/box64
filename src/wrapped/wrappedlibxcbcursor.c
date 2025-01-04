@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-	const char* libxcbcursorName = "libxcb-cursor.so";
-#else
-	const char* libxcbcursorName = "libxcb-cursor.so.0";
-#endif
+const char* libxcbcursorName = "libxcb-cursor.so.0";
+#define ALTNAME "libxcb-cursor.so"
 
 #define LIBNAME libxcbcursor
 

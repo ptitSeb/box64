@@ -75,6 +75,23 @@ uintptr_t Run66F30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GD->q[0] = tmp8u;
         break;
 
+    case 0xB8:  /* POPCNT Gd,Ed */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w)
+            GD->q[0] = __builtin_popcountl(ED->q[0]);
+        else
+            GD->q[0] = __builtin_popcount(ED->word[0]);
+        RESET_FLAGS(emu);
+        CLEAR_FLAG(F_OF);
+        CLEAR_FLAG(F_SF);
+        CLEAR_FLAG(F_AF);
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CONDITIONAL_SET_FLAG(GD->q[0]==0, F_ZF);
+        break;
+
     default:
         return 0;
     }

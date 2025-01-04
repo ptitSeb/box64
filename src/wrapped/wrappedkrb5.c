@@ -16,11 +16,8 @@
 #include "librarian.h"
 #include "callback.h"
 
-#ifdef ANDROID
-    const char* krb5Name = "libkrb5.so";
-#else
-    const char* krb5Name = "libkrb5.so.3";
-#endif
+const char* krb5Name = "libkrb5.so.3";
+#define ALTNAME "libkrb5.so"
 
 #define LIBNAME krb5
 

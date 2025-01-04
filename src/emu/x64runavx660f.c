@@ -1452,7 +1452,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 EY->u128 = 0;
             }
             break;
-        case 0xD7:  /* PMOVMSKB Gd,Ex */
+        case 0xD7:  /* VPMOVMSKB Gd,Ex */
             nextop = F8;
             if(MODREG) {
                 GETEX(0);

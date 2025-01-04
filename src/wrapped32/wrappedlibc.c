@@ -931,7 +931,7 @@ EXPORT int my32___vsprintf_chk(x64emu_t* emu, void* buff, int flags, size_t len,
     return r;
 }
 
-EXPORT int my32_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
+EXPORT int my32_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // probably unnecessary to do a GOM, a simple wrap should be enough
 {
     int n = myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH);
     PREPARE_VALIST_32;

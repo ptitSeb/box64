@@ -21,6 +21,8 @@ typedef struct dynablock_s {
     uint8_t         is32bits:1;
     int             isize;
     instsize_t*     instsize;
+    void*           arch;       // arch dependant per inst info (can be NULL)
+    size_t          arch_size;  // size of of arch dependant infos
     void*           jmpnext;    // a branch jmpnext code when block is marked
 } dynablock_t;
 

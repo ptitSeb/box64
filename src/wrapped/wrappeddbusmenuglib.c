@@ -18,11 +18,8 @@
 #include "emu/x64emu_private.h"
 #include "callback.h"
 
-#ifdef ANDROID
-    const char* dbusmenuglibName = "libdbusmenu-glib.so";
-#else
-    const char* dbusmenuglibName = "libdbusmenu-glib.so.4";
-#endif
+const char* dbusmenuglibName = "libdbusmenu-glib.so.4";
+#define ALTNAME "libdbusmenu-glib.so"
 
 #define LIBNAME dbusmenuglib
 

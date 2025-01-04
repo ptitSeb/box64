@@ -1691,11 +1691,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xA4:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, Ib");
-            if(geted_ib(dyn, addr, ninst, nextop)) {
+            if(geted_ib(dyn, addr, ninst, nextop)&(rex.w?63:31)) {
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETED(1);
                 GETGD;
-                u8 = F8;
+                u8 = F8&(rex.w?63:31);
                 emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
                 WBACK;
             } else {
@@ -1779,11 +1779,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, Ib");
-            if(geted_ib(dyn, addr, ninst, nextop)) {
+            if(geted_ib(dyn, addr, ninst, nextop)&(rex.w?63:31)) {
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETED(1);
                 GETGD;
-                u8 = F8;
+                u8 = F8&(rex.w?63:31);
                 emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
                 WBACK;
             } else {

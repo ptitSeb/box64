@@ -174,7 +174,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             box_free(tmp);
             box_free(platform);
         }
-        // check if alread dlopenned...
+        // check if already dlopened...
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(dl->dllibs[i].full && IsSameLib(dl->dllibs[i].lib, rfilename)) {
                 if(flag&0x4) {   // don't re-open in RTLD_NOLOAD mode
@@ -254,7 +254,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         my_context->deferredInitSz = old_deferredInitSz;
         my_context->deferredInitCap = old_deferredInitCap;
     } else {
-        // check if already dlopenned...
+        // check if already dlopened...
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
             if(dl->dllibs[i].is_self) {
                 ++dl->dllibs[i].count;
@@ -667,7 +667,7 @@ EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* re
     return -1;
 }
 
-void closeAllDLOpenned()
+void closeAllDLOpened()
 {
     dlprivate_t *dl = my_context->dlprivate;
     actualy_closing = 1;
@@ -691,7 +691,7 @@ void closeAllDLOpenned()
     else
 
 #define CUSTOM_FINI \
-    closeAllDLOpenned();
+    closeAllDLOpened();
 
 // define all standard library functions
 #include "wrappedlib_init.h"

@@ -177,7 +177,7 @@ void emit_xor32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 void emit_xor32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
     int mask = convert_bitmask_xw(c);
-    if(!mask) {
+    if(!mask && !((!rex.w && c==0xffffffffLL) || (rex.w && c==0xffffffffffffffffLL))) {
         MOV64xw(s3, c);
         emit_xor32(dyn, ninst, rex, s1, s3, s3, s4);
         return;
@@ -187,7 +187,11 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    EORxw_mask(s1, s1, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+    if(!mask) {
+        MVNxw_REG(s1, s1);
+    } else {
+        EORxw_mask(s1, s1, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+    }
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }

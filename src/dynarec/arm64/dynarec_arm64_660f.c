@@ -924,13 +924,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_CF, SF_SUBSET);
                     GETED(0);
                     GETGD;
-                    MRS_nzcv(x3);
-                    BFIx(x3, xFlags, 29, 1); // set C
-                    MSR_nzcv(x3);      // load CC into ARM CF
+                    IFNATIVE_BEFORE(NF_CF) {
+                        if(INVERTED_CARRY_BEFORE) {
+                            if(arm64_flagm)
+                                CFINV();
+                            else {
+                                MRS_nzcv(x3);
+                                EORx_mask(x3, x3, 1, 35, 0);  //mask=1<<NZCV_C
+                                MSR_nzcv(x3);
+                            }
+                        }
+                    } else {
+                        MRS_nzcv(x3);
+                        BFIx(x3, xFlags, 29, 1); // set C
+                        MSR_nzcv(x3);      // load CC into ARM CF
+                    }
                     IFX(X_CF) {
                         ADCSxw_REG(gd, gd, ed);
-                        CSETw(x3, cCS);
-                        BFIw(xFlags, x3, F_CF, 1);
+                        IFNATIVE(NF_CF) {} else {
+                            CSETw(x3, cCS);
+                            BFIw(xFlags, x3, F_CF, 1);
+                        }
                     } else {
                         ADCxw_REG(gd, gd, ed);
                     }

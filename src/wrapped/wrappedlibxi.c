@@ -16,10 +16,6 @@ const char* libxiName = "libXi.so.6";
 
 #define LIBNAME libxi
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libXext.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
-#endif
 
 #include "wrappedlib_init.h"

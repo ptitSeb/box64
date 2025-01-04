@@ -17,13 +17,10 @@
 #include "callback.h"
 #include "elfloader.h"
 
-#ifdef ANDROID
-    const char* curlName = "libcurl.so";
-#else
-    const char* curlName = "libcurl.so.4";
-#endif
+const char* curlName = "libcurl.so.4";
+#define ALTNAME "libcurl.so"
 
-#define ALTNAME "libcurl-gnutls.so.4"
+#define ALTNAME2 "libcurl-gnutls.so.4"
 #define LIBNAME curl
 
 #include "generated/wrappedcurltypes.h"

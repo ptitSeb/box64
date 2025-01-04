@@ -151,7 +151,7 @@ EXPORT int my32__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* 
 //        if(!box32_isglibc234) setNeededLibs(lib, 1, "libc.so.6");
 
 
-void closeAllDLOpenned();
+void closeAllDLOpened();
 
 #define PRE_INIT\
     if(1)                                                           \
@@ -159,7 +159,7 @@ void closeAllDLOpenned();
     else
 
 #define CUSTOM_FINI \
-    closeAllDLOpenned();
+    closeAllDLOpened();
 
 // define all standard library functions
 #include "wrappedlib_init32.h"

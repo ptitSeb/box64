@@ -303,7 +303,7 @@ void FreeBox64Context(box64context_t** context)
     if(--(*context)->forked >= 0)
         return;
 
-    box64context_t* ctx = *context;   // local copy to do the cleanning
+    box64context_t* ctx = *context;   // local copy to do the cleaning
 
     //clean_current_emuthread();    // cleaning main thread seems a bad idea
     if(ctx->local_maplib)

@@ -12,6 +12,7 @@
 #include "x64emu.h"
 
 const char* idn2Name = "libidn2.so.0";
+#define ALTNAME "libidn2.so"
 #define LIBNAME idn2
 
 #include "wrappedlib_init.h"

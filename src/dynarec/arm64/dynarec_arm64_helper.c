@@ -2217,7 +2217,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     neoncache_t cache = dyn->n;
     int s1_val = 0;
     int s2_val = 0;
-    // unload every uneeded cache
+    // unload every unneeded cache
     // ymm0 first
     int s3_top = 1;
     uint16_t to_purge = dyn->ymm_zero&~dyn->insts[i2].ymm0_in;
@@ -2233,7 +2233,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
             }
     }
     s3_top = 0xffff;
-    // check SSE first, than MMX, in order, to optimise successive memory write
+    // check SSE first, than MMX, in order, to optimize successive memory write
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
         if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache_i2)==-1)

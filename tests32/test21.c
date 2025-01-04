@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     void* v1 = dlopen("test21_v1.so", RTLD_NOW);
     void* v2 = dlopen("test21_v2.so", RTLD_NOW);
     if(!v1 || !v2) {
-        printf("Error openning libs: v1=%p, v2=%p\n", v1, v2);
+        printf("Error openning libs: v1=%p, v2=%p\n", v1, v2); // typo: opening
         exit(-1);
     }
     iFv_t returnVersion = (iFv_t)dlsym(v2, "returnVersion");

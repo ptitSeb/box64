@@ -63,10 +63,6 @@ EXPORT int my_ldap_sasl_interactive_bind_s(x64emu_t* emu, void* ld, void* dn, vo
     return my->ldap_sasl_interactive_bind_s(ld, dn, mechs, sctrls, cctrls, flags, find_LDAP_SASL_INTERACT_PROC_Fct(f), defaults);
 }
 
-#ifdef ANDROID
-#define NEEDED_LIBS "liblber-2.4.so"
-#else
 #define NEEDED_LIBS "liblber-2.4.so.2"
-#endif
 
 #include "wrappedlib_init.h"

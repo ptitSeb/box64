@@ -17,11 +17,8 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-#ifdef ANDROID
-    const char* pangoName = "libpango-1.0.so";
-#else
-    const char* pangoName = "libpango-1.0.so.0";
-#endif
+const char* pangoName = "libpango-1.0.so.0";
+#define ALTNAME "libpango-1.0.so"
 #define LIBNAME pango
 
 #include "generated/wrappedpangotypes.h"
@@ -100,10 +97,6 @@ EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass
     if(box64_nogtk) \
         return -1;
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libgobject-2.0.so", "libglib-2.0.so"
-#else
 #define NEEDED_LIBS "libgobject-2.0.so.0", "libglib-2.0.so.0"
-#endif
 
 #include "wrappedlib_init.h"

@@ -32,7 +32,7 @@ option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
 option(TERMUX "Set to ON if targeting an Android device with Termux" ${TERMUX})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
-option(SAVE_MEM "Set to ON to build dynarec with some slower memory saving optimisations" ${SAVE_MEM})
+option(SAVE_MEM "Set to ON to build dynarec with some slower memory saving optimizations" ${SAVE_MEM})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info on SIGSEGV" ${BAD_SIGNAL})
@@ -899,6 +899,7 @@ if(ARM_DYNAREC)
         ${DYNAREC_SRC}
 
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_arch.c"
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"

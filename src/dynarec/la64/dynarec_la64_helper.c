@@ -1256,8 +1256,8 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
     lsxcache_t cache = dyn->lsx;
     int s1_val = 0;
     int s2_val = 0;
-    // unload every uneeded cache
-    // check SSE first, than MMX, in order, for optimisation issue
+    // unload every unneeded cache
+    // check SSE first, than MMX, in order, for optimization issue
     for (int i = 0; i < 16; ++i) {
         int j = findCacheSlot(dyn, ninst, LSX_CACHE_XMMW, i, &cache);
         if (j >= 0 && findCacheSlot(dyn, ninst, LSX_CACHE_XMMW, i, &cache_i2) == -1)

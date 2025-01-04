@@ -19,6 +19,7 @@
 #include "myalign.h"
 
 const char* libdrmName = "libdrm.so.2";
+#define ALTNAME "libdrm.so"
 #define LIBNAME libdrm
 
 #define ADDED_FUNCTIONS()                   \

@@ -387,10 +387,6 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
     return ret;
 }
 
-#ifdef ANDROID
-#define NEEDED_LIBS "libX11.so", "libxcb.so", "libXau.so", "libdl.so", "libXdmcp.so"
-#else
 #define NEEDED_LIBS "libX11.so.6", "libxcb.so.1", "libXau.so.6", "libdl.so.2", "libXdmcp.so.6"
-#endif
 
 #include "wrappedlib_init.h"
