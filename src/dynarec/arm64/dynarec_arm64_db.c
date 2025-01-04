@@ -202,13 +202,17 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    BFCw(x5, FPSR_QC, 1);   // reset QC bit
                     MSR_fpsr(x5);
                     FRINTZD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     VST32(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
+                    TBNZ_MARK2(x5, FPSR_IOC);
+                    TBNZ_MARK2(x5, FPSR_QC);
+                    B_MARK3_nocond;
+                    MARK2;
                     MOV32w(x5, 0x80000000);
                     STW(x5, wback, fixedaddress);
                     MARK3;
@@ -228,13 +232,17 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    BFCw(x5, FPSR_QC, 1);   // reset QC bit
                     MSR_fpsr(x5);
                     FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     VST32(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
+                    TBNZ_MARK2(x5, FPSR_IOC);
+                    TBNZ_MARK2(x5, FPSR_QC);
+                    B_MARK3_nocond;
+                    MARK2;
                     MOV32w(x5, 0x80000000);
                     STW(x5, wback, fixedaddress);
                     MARK3;
@@ -254,13 +262,17 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    BFCw(x5, FPSR_QC, 1);   // reset QC bit
                     MSR_fpsr(x5);
                     FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                     VST32(s0, wback, fixedaddress);
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
+                    TBNZ_MARK2(x5, FPSR_IOC);
+                    TBNZ_MARK2(x5, FPSR_QC);
+                    B_MARK3_nocond;
+                    MARK2;
                     MOV32w(x5, 0x80000000);
                     STW(x5, wback, fixedaddress);
                     MARK3;

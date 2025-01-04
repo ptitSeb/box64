@@ -175,12 +175,12 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, v1);
                     SQXTN_S_D(s0, s0);
                 }
-                VMOVSto(x3, s0, 0);
+                SQXTN_H_S(s0, s0);
+                VMOVHto(x3, s0, 0);
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBNZ_MARK2(x5, FPSR_IOC);
-                SXTHw(x5, x3);  // check if 16bits value is fine
-                SUBw_REG(x5, x5, x3);
-                CBZw_MARK3(x5);
+                TBNZ_MARK2(x5, FPSR_QC);
+                B_MARK3_nocond;
                 MARK2;
                 MOV32w(x3, 0x8000);
                 MARK3;
@@ -215,12 +215,12 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                 }
-                VMOVSto(x3, s0, 0);
+                SQXTN_H_S(s0, s0);
+                VMOVHto(x3, s0, 0);
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBNZ_MARK2(x5, FPSR_IOC);
-                SXTHw(x5, x3);  // check if 16bits value is fine
-                SUBw_REG(x5, x5, x3);
-                CBZw_MARK3(x5);
+                TBNZ_MARK2(x5, FPSR_QC);
+                B_MARK3_nocond;
                 MARK2;
                 MOV32w(x3, 0x8000);
                 MARK3;
@@ -245,6 +245,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 #else
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                BFCw(x5, FPSR_QC, 1);   // reset QC bit
                 MSR_fpsr(x5);
                 if(ST_IS_F(0)) {
                     FRINTXS(s0, v1);
@@ -254,12 +255,12 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
                 }
-                VMOVSto(x3, s0, 0);
+                SQXTN_H_S(s0, s0);
+                VMOVHto(x3, s0, 0);
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBNZ_MARK2(x5, FPSR_IOC);
-                SXTHw(x5, x3);  // check if 16bits value is fine
-                SUBw_REG(x5, x5, x3);
-                CBZw_MARK3(x5);
+                TBNZ_MARK2(x5, FPSR_QC);
+                B_MARK3_nocond;
                 MARK2;
                 MOV32w(x3, 0x8000);
                 MARK3;
