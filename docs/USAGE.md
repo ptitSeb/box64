@@ -307,6 +307,11 @@ Do not load vulkan libraries.
  * 0 : Load vulkan libraries if found. (default)
  * 1 : Disables loading of vulkan libraries, both native and x86_64. (can be useful on Pi4, where the vulkan driver is not quite there yet.)
 
+#### BOX64_ARG0
+Define argv[0] of the executable.
+ * yyyy
+Will rewrite argv[0] instead of using program path.
+
 ----
 
 ### DynaRec optimizations
