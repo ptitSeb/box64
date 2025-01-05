@@ -268,16 +268,21 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_EAX |= cpu<<24;
             }*/
             R_EDX =   1         // fpu 
+                    | 1<<1      // vme
                     | 1<<2      // debugging extension
                     | 1<<3      // pse
                     | 1<<4      // rdtsc
                     | 1<<5      // msr
                     | 1<<6      // pae
+                    | 1<<7      // mcheck extension
                     | 1<<8      // cmpxchg8
                     | 1<<11     // sep (sysenter & sysexit)
                     | 1<<12     // mtrr
+                    | 1<<13     // pgb
+                    | 1<<14     // mcheck arch
                     | 1<<15     // cmov
                     | 1<<16     // pat
+                    | 1<<17     // pse36
                     | 1<<19     // clflush (seems to be with SSE2)
                     | 1<<21     // DS, used with VMX, is that usefull?
                     | 1<<23     // mmx
@@ -288,7 +293,9 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     ;
             R_ECX =   1<<0      // SSE3
                     | 1<<1      // PCLMULQDQ
-                    | 1<<5      // VMX  //is that usefull
+                    | (box64_cputype?0:1)<<2      // DS 64bits
+                    | 1<<3      // Monitor/MWait (priviledge instructions)
+                    | (box64_cputype?0:1)<<5      // VMX  //is that usefull
                     | 1<<9      // SSSE3
                     | box64_avx2<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
@@ -302,6 +309,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | box64_avx<<28 // AVX
                     | box64_avx<<29 // F16C
                     | box64_avx2<<30     // RDRAND
+                    | 0<<31     // Hypervisor guest running
                     ; 
             break;
         case 0x2:
@@ -375,13 +383,22 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_EBX = 
                         box64_avx<<3 |  // BMI1 
                         box64_avx2<<5 |  //AVX2
+                        (box64_cputype?0:1)<<6 | // FDP_EXCPTN_ONLY
+                        1<<7 | // SMEP
                         box64_avx2<<8 | //BMI2
+                        (box64_cputype?0:1)<<9 |    // Enhanced REP MOVSB   // is it a good idea?
+                        1<<10 | //INVPCID (priviledge instruction
+                        (box64_cputype?0:1)<<13 | // Deprecates FPU CS and FPU DS
+                        0<<18 | // RDSEED
                         box64_avx2<<19 | //ADX
+                        1<<23 | // CLFLUSHOPT
+                        1<<24 | // CLWB
                         box64_shaext<<29|  // SHA extension
                         0;
                 R_RCX = 
                         box64_avx<<9   | //VAES
                         box64_avx2<<10 | //VPCLMULQDQ.
+                        1<<22 | // RDPID
                         0;
                 R_RDX = 0;
 
@@ -523,7 +540,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         //| 1<<7      // misaligned SSE
                         | 1<<8      // 3DNowPrefetch
                         //| 1<<10     // IBS
-                        //| 1<<11     // SSE5
+                        //| 1<<11     // XOP
+                        //| 1<<16     // FMA4
                         ; 
                 R_EDX =   1         // fpu 
                         | 1<<2      // debugging extension
@@ -534,9 +552,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         | 1<<8      // cmpxchg8
                         | 1<<11     // sep (sysenter & sysexit)
                         | 1<<12     // mtrr
+                        | 1<<13     // pge
                         | 1<<15     // cmov
                         | 1<<16     // pat
+                        | 1<<17     // pse36
                         | 1<<19     // clflush (seems to be with SSE2)
+                        | 1<<20     // NX
                         | 1<<21     // DS, used with VMX, is that usefull?
                         | 1<<22     // MMXext
                         | 1<<23     // mmx

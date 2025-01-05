@@ -90,6 +90,18 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETED(0);
             if(MODREG)
             switch(nextop) {
+                case 0xC8:  /* MONITOR */
+                    // this is a privilege opcode...
+                    #ifndef TEST_INTERPRETER
+                    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                    #endif
+                    break;
+                case 0xC9:  /* MWAIT */
+                    // this is a privilege opcode...
+                    #ifndef TEST_INTERPRETER
+                    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                    #endif
+                    break;
                 case 0xD0:
                     if(R_RCX) {
                         #ifndef TEST_INTERPRETER
@@ -1802,6 +1814,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         if(MODREG)
                             ED->dword[1] = 1;
                     }
+                    break;
+                case 7:     /* RDPID Ed */
+                    ED->q[0] = helper_getcpu(emu);
                     break;
                 default:
                     return 0;

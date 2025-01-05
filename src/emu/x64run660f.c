@@ -21,6 +21,9 @@
 #include "box64context.h"
 #include "signals.h"
 #include "bridge.h"
+#ifdef DYNAREC
+#include "custommem.h"
+#endif
 
 #include "modrm.h"
 #include "x64compstrings.h"
@@ -697,6 +700,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GX->uw[0] = tmp16u;
                 GX->uw[1] = tmp16s;
                 GX->ud[1] = 0;
+                break;
+
+            case 0x82:  /* INVPCID */
+                nextop = F8;
+                GETED(0);
+                // this is a privilege opcode...
+                #ifndef TEST_INTERPRETER
+                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                #endif
                 break;
 
             case 0xDB:  /* AESIMC Gx, Ex */
@@ -1886,7 +1898,35 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         else
             EW->word[0] = shrd16(emu, EW->word[0], GW->word[0], tmp8u);
         break;
-
+    case 0xAE:                      /* Grp Ed (SSE) */
+        nextop = F8;
+        if(MODREG)
+            switch(nextop) {
+                default:
+                    return 0;
+            }
+        else
+        switch((nextop>>3)&7) {
+            case 6:                 /* CLWB Ed */
+                // same code and CLFLUSH, is it ok?
+                _GETED(0);
+                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                if(box64_dynarec)
+                    cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
+                #endif
+                break;
+            case 7:                 /* CLFLUSHOPT Ed */
+                // same code and CLFLUSH, is it ok?
+                _GETED(0);
+                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                if(box64_dynarec)
+                    cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
+                #endif
+                break;
+            default:
+                return 0;
+        }
+        break;
     case 0xAF:                      /* IMUL Gw,Ew */
         nextop = F8;
         GETEW(0);

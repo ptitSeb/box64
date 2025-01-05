@@ -2468,6 +2468,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
                 MOVxw_REG(ed, x1);
                 break;
+            case 7:
+                INST_NAME("RDPID Ed");
+                GETED(0);
+                CALL_(helper_getcpu, ed, x2);
+                break;
             default:
                 DEFAULT;
             } else switch((nextop>>3)&7) {
