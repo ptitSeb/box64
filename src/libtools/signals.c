@@ -611,41 +611,41 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
     emu->ip.q[0] = ip;
     emu->eflags.x64 = p->uc_mcontext.regs[26];
 #elif defined(LA64)
-        emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[12];
-        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
-        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[14];
-        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[15];
-        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[16];
-        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[17];
-        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[18];
-        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[19];
-        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[23];
-        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[24];
-        emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[25];
-        emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[26];
-        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[27];
-        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[28];
-        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[29];
-        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[30];
-        emu->ip.q[0] = ip;
-        emu->eflags.x64 = p->uc_mcontext.__gregs[31];
+    emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[12];
+    emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
+    emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[14];
+    emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[15];
+    emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[16];
+    emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[17];
+    emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[18];
+    emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[19];
+    emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[23];
+    emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[24];
+    emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[25];
+    emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[26];
+    emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[27];
+    emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[28];
+    emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[29];
+    emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[30];
+    emu->ip.q[0] = ip;
+    emu->eflags.x64 = p->uc_mcontext.__gregs[31];
 #elif defined(RV64)
-        emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[16];
-        emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
-        emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[12];
-        emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[24];
-        emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[9];
-        emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[8];
-        emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[11];
-        emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[10];
-        emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[14];
-        emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[15];
-        emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[26];
-        emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[27];
-        emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[18];
-        emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[19];
-        emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[20];
-        emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[21];
+    emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[16];
+    emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
+    emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[12];
+    emu->regs[_BX].q[0] = p->uc_mcontext.__gregs[24];
+    emu->regs[_SP].q[0] = p->uc_mcontext.__gregs[9];
+    emu->regs[_BP].q[0] = p->uc_mcontext.__gregs[8];
+    emu->regs[_SI].q[0] = p->uc_mcontext.__gregs[11];
+    emu->regs[_DI].q[0] = p->uc_mcontext.__gregs[10];
+    emu->regs[_R8].q[0] = p->uc_mcontext.__gregs[14];
+    emu->regs[_R9].q[0] = p->uc_mcontext.__gregs[15];
+    emu->regs[_R10].q[0] = p->uc_mcontext.__gregs[26];
+    emu->regs[_R11].q[0] = p->uc_mcontext.__gregs[27];
+    emu->regs[_R12].q[0] = p->uc_mcontext.__gregs[18];
+    emu->regs[_R13].q[0] = p->uc_mcontext.__gregs[19];
+    emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[20];
+    emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[21];
     emu->ip.q[0] = ip;
     emu->eflags.x64 = p->uc_mcontext.__gregs[23];
 #else
@@ -1047,76 +1047,11 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     sigcontext->uc_mcontext.gregs[X64_RBP] = R_RBP;
     sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
     sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
-    sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;//emu->old_ip;   // old_ip should be more accurate as the "current" IP, but it's not always up-to-date
+    sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
     // flags
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
     // get segments
     sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
-#if defined(DYNAREC)
-#if defined(ARM64)
-    if(db && p) {
-        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.regs[10];
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.regs[11];
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.regs[12];
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.regs[13];
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.regs[14];
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.regs[15];
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.regs[16];
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.regs[17];
-        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.regs[18];
-        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.regs[19];
-        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.regs[20];
-        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.regs[21];
-        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.regs[22];
-        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.regs[23];
-        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.regs[24];
-        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.regs[25];
-        sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
-    }
-#elif defined(LA64)
-    if(db && p) {
-        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[12];
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[14];
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[15];
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[23];
-        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[24];
-        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.__gregs[25];
-        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.__gregs[26];
-        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[27];
-        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[28];
-        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[29];
-        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[30];
-        sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
-    }
-#elif defined(RV64)
-    if(db && p) {
-        sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
-        sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[12];
-        sigcontext->uc_mcontext.gregs[X64_RBX] = p->uc_mcontext.__gregs[24];
-        sigcontext->uc_mcontext.gregs[X64_RSP] = p->uc_mcontext.__gregs[9];
-        sigcontext->uc_mcontext.gregs[X64_RBP] = p->uc_mcontext.__gregs[8];
-        sigcontext->uc_mcontext.gregs[X64_RSI] = p->uc_mcontext.__gregs[11];
-        sigcontext->uc_mcontext.gregs[X64_RDI] = p->uc_mcontext.__gregs[10];
-        sigcontext->uc_mcontext.gregs[X64_R8] = p->uc_mcontext.__gregs[14];
-        sigcontext->uc_mcontext.gregs[X64_R9] = p->uc_mcontext.__gregs[15];
-        sigcontext->uc_mcontext.gregs[X64_R10] = p->uc_mcontext.__gregs[26];
-        sigcontext->uc_mcontext.gregs[X64_R11] = p->uc_mcontext.__gregs[27];
-        sigcontext->uc_mcontext.gregs[X64_R12] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[X64_R13] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[X64_R14] = p->uc_mcontext.__gregs[20];
-        sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.__gregs[21];
-        sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
-    }
-#else
-#error Unsupported architecture
-#endif
-#endif
     if(R_CS==0x23) {
         // trucate regs to 32bits, just in case
         #define GO(R)   sigcontext->uc_mcontext.gregs[X64_R##R]&=0xFFFFFFFF
@@ -1571,36 +1506,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 adjustregs(emu);
                 if(db && db->arch_size)
                     ARCH_ADJUST(db, emu, p, x64pc);
-#ifdef ARM64
-                //TODO: Need proper SIMD/x87 register traking!
-                /*if(fpsimd) {
-                    emu->xmm[0].u128 = fpsimd->vregs[0];
-                    emu->xmm[1].u128 = fpsimd->vregs[1];
-                    emu->xmm[2].u128 = fpsimd->vregs[2];
-                    emu->xmm[3].u128 = fpsimd->vregs[3];
-                }*/
-#elif defined(LA64)
-                /*if(fpsimd) {
-                    emu->xmm[0].u128 = fpsimd->vregs[0];
-                    emu->xmm[1].u128 = fpsimd->vregs[1];
-                    emu->xmm[2].u128 = fpsimd->vregs[2];
-                    emu->xmm[3].u128 = fpsimd->vregs[3];
-                }*/
-#elif defined(RV64)
-                /*if(fpsimd) {
-                    emu->xmm[0].u128 = fpsimd->vregs[0];
-                    emu->xmm[1].u128 = fpsimd->vregs[1];
-                    emu->xmm[2].u128 = fpsimd->vregs[2];
-                    emu->xmm[3].u128 = fpsimd->vregs[3];
-                }*/
-#else
-#error  Unsupported architecture
-#endif
-                if(addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) {
-                    dynarec_log(LOG_INFO, "Auto-SMC detected, getting out of current Dynablock (%p, x64addr=%p, need_test=%d/%d/%d)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test);
-                } else {
-                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) unprotected, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, (void*)R_RIP, (void*)addr);
-                }
+                dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) %s, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size))?"Auto-SMC":"unprotected", (void*)R_RIP, (void*)addr);
                 //relockMutex(Locks);
                 unlock_signal();
                 if(Locks & is_dyndump_locked)

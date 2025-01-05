@@ -157,13 +157,13 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     if(!db->arch_size || !db->arch)
         return;
     int ninst = getX64AddressInst(db, x64pc);
-//printf_log(LOG_INFO, "adjust_arch(...), db=%p, x64pc=%p, nints=%d", db, (void*)x64pc, ninst);
+    dynarec_log(LOG_INFO, "adjust_arch(...), db=%p, x64pc=%p, nints=%d", db, (void*)x64pc, ninst);
     if(ninst<0) {
-//printf_log(LOG_INFO, "\n");
+    dynarec_log(LOG_INFO, "\n");
         return;
     }
     if(ninst==0) {
-//printf_log(LOG_INFO, "\n");
+    dynarec_log(LOG_INFO, "\n");
         CHECK_FLAGS(emu);
         return;
     }
@@ -174,14 +174,14 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     while(i<ninst-1) {
         arch = next;
         i += 1+arch->seq;
-//printf_log(LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
+    dynarec_log(LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     int sz = sizeof(arch_arch_t);
     if(arch->flags) {
         arch_flags_t* flags = (arch_flags_t*)((uintptr_t)arch + sz);
         sz += sizeof(arch_flags_t);
-//printf_log(LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
+    dynarec_log(LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
         if(flags->defered) {
             CHECK_FLAGS(emu);
             //return;
@@ -216,7 +216,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     }
     if(arch->sse) {
         arch_sse_t* sse = (arch_sse_t*)((uintptr_t)arch + sz);
-//printf_log(LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
+    dynarec_log(LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
         sz += sizeof(arch_sse_t);
         for(int i=0; i<16; ++i)
             if(fpsimd && (sse->sse>>i)&1) {
@@ -229,5 +229,5 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 emu->xmm[i].u128 = fpsimd->vregs[idx];
             }
     }
-//printf_log(LOG_INFO, "\n");
+    dynarec_log(LOG_INFO, "\n");
 }

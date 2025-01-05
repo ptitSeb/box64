@@ -379,9 +379,10 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
         need |= dyn->insts[ninst].x64.need_after;
-        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SUBSET || dyn->insts[ninst].x64.state_flags==SF_SET || dyn->insts[ninst].x64.state_flags==SF_SET_NODF)) {
+        if((need&X_PEND) && ((dyn->insts[ninst].x64.state_flags==SF_SUBSET) || (dyn->insts[ninst].x64.state_flags==SF_SET) || (dyn->insts[ninst].x64.state_flags==SF_SET_NODF))) {
             need &=~X_PEND;
             need |= X_ALL;
+            STOP_NATIVE_FLAGS(dyn, ninst);
         }
         if((need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
             need |= X_ALL&~(dyn->insts[ninst].x64.set_flags);

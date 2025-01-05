@@ -562,47 +562,6 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     sigcontext->uc_mcontext.gregs[I386_SS] = R_SS;
     sigcontext->uc_mcontext.gregs[I386_FS] = R_FS;
     sigcontext->uc_mcontext.gregs[I386_GS] = R_GS;
-#if defined(DYNAREC)
-#if defined(ARM64)
-    if(db && p) {
-        sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.regs[10];
-        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.regs[11];
-        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.regs[12];
-        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.regs[13];
-        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.regs[14];
-        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.regs[15];
-        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.regs[16];
-        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.regs[17];
-        sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
-    }
-#elif defined(LA64)
-    if(db && p) {
-        sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.__gregs[12];
-        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[13];
-        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[14];
-        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[15];
-        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
-    }
-#elif defined(RV64)
-    if(db && p) {
-        sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[13];
-        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[12];
-        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[24];
-        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[9];
-        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[8];
-        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[11];
-        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[10];
-        sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
-    }
-#else
-#error Unsupported architecture
-#endif
-#endif
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = to_ptrv(xstate);//(struct x64_libc_fpstate*)&sigcontext->xstate;
     fpu_xsave_mask(emu, xstate, 1, 0b111);
