@@ -2142,9 +2142,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     {
         my_context->box86path = box_strdup(my_context->box64path);
         #ifndef BOX32
-        char* p = strrchr(my_context->box86path, '6');  // get the 6 of box64
-        p[0] = '8'; p[1] = '6'; // change 64 to 86
-        if(!FileExist(my_context->box86path, IS_FILE)) {
+        if(strstr(my_context->box86path, "box64")) {
+            char* p = strrchr(my_context->box86path, '6');  // get the 6 of box64
+            p[0] = '8'; p[1] = '6'; // change 64 to 86
+        } else {
+            box_free(my_context->box86path);
+            my_context->box86path = ResolveFileSoft("box86", &my_context->box64_path);
+        }
+        if(my_context->box86path && !FileExist(my_context->box86path, IS_FILE)) {
             box_free(my_context->box86path);
             my_context->box86path = NULL;
         }
