@@ -56,9 +56,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
-    #if STEP > 1
-    static const int8_t mask_shift8[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    #endif
 
     /* Remember to not create a new fpu_scratch after some GY/VY/EY is created, because Y can be in the scratch area and might overlap (and scratch will win) */
 
@@ -1396,9 +1393,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             GETEX_Y(q0, 0, 0);
             GETGD;
-            TABLE64(x2, (uintptr_t)&mask_shift8);
-            VLDR64_U12(v0, x2, 0);     // load shift
-            VDUPQ_64(v0, v0, 0);
+            TABLE64(x2, 0x0706050403020100LL);
+            VDUPQD(v0, x2);
             VSHRQ_8(q1, q0, 7);
             USHLQ_8(q1, q1, v0); // shift
             UADDLV_8(v1, q1);   // accumalte
