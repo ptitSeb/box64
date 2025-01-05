@@ -209,6 +209,7 @@ int convert_bitmask(uint64_t bitmask);
 #define SUBx_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(1, 1, 0, 0b00, Rm, lsl, Rn, Rd))
 #define SUBw_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(0, 1, 0, 0b00, Rm, 0, Rn, Rd))
 #define SUBw_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(0, 1, 0, 0b00, Rm, lsl, Rn, Rd))
+#define SUBw_REG_ASR(Rd, Rn, Rm, asr)       EMIT(ADDSUB_REG_gen(0, 1, 0, 0b10, Rm, asr, Rn, Rd))
 #define SUBSw_REG(Rd, Rn, Rm)              FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b00, Rm, 0, Rn, Rd))
 #define SUBSw_REG_LSL(Rd, Rn, Rm, lsl)     FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b00, Rm, lsl, Rn, Rd))
 #define SUBSw_REG_LSR(Rd, Rn, Rm, lsr)     FEMIT(ADDSUB_REG_gen(0, 1, 1, 0b01, Rm, lsr, Rn, Rd))
