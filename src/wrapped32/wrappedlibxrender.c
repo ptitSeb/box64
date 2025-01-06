@@ -51,8 +51,8 @@ EXPORT void* my32_XRenderFindFormat(x64emu_t* emu, void* dpy, unsigned long mask
         return kh_value(hash_picformat, k);
     int r;
     k = kh_put(picformat, hash_picformat, (uintptr_t)ret, &r);
-    struct_LiiuL_t* res = calloc(1, sizeof(struct_LiiuL_t));
-    to_struct_LiiuL(to_ptrv(res), ret);
+    struct_LiiwwwwwwwwL_t* res = calloc(1, sizeof(struct_LiiwwwwwwwwL_t));
+    to_struct_LiiwwwwwwwwL(to_ptrv(res), ret);
     kh_value(hash_picformat, k) = res;
     return res;
 }
@@ -66,8 +66,8 @@ EXPORT void* my32_XRenderFindStandardFormat(x64emu_t* emu, void* dpy, int fmt)
         return kh_value(hash_picformat, k);
     int r;
     k = kh_put(picformat, hash_picformat, (uintptr_t)ret, &r);
-    struct_LiiuL_t* res = calloc(1, sizeof(struct_LiiuL_t));
-    to_struct_LiiuL(to_ptrv(res), ret);
+    struct_LiiwwwwwwwwL_t* res = calloc(1, sizeof(struct_LiiwwwwwwwwL_t));
+    to_struct_LiiwwwwwwwwL(to_ptrv(res), ret);
     kh_value(hash_picformat, k) = res;
     return res;
 }
@@ -81,8 +81,8 @@ EXPORT void* my32_XRenderFindVisualFormat(x64emu_t* emu, void* dpy, void* visual
         return kh_value(hash_picformat, k);
     int r;
     k = kh_put(picformat, hash_picformat, (uintptr_t)ret, &r);
-    struct_LiiuL_t* res = calloc(1, sizeof(struct_LiiuL_t));
-    to_struct_LiiuL(to_ptrv(res), ret);
+    struct_LiiwwwwwwwwL_t* res = calloc(1, sizeof(struct_LiiwwwwwwwwL_t));
+    to_struct_LiiwwwwwwwwL(to_ptrv(res), ret);
     kh_value(hash_picformat, k) = res;
     return res;
 }

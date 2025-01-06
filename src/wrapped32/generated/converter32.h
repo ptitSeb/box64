@@ -439,5 +439,38 @@ typedef struct struct_WWWWWWWWWuip_s {
 } struct_WWWWWWWWWuip_t;
 void from_struct_WWWWWWWWWuip(struct_WWWWWWWWWuip_t *dest, ptr_t src);
 void to_struct_WWWWWWWWWuip(ptr_t dest, const struct_WWWWWWWWWuip_t *src);
+typedef struct struct_LiiwwwwwwwwL_s {
+	unsigned long L0;
+	int i1;
+	int i2;
+	short w3;
+	short w4;
+	short w5;
+	short w6;
+	short w7;
+	short w8;
+	short w9;
+	short w10;
+	unsigned long L11;
+} struct_LiiwwwwwwwwL_t;
+void from_struct_LiiwwwwwwwwL(struct_LiiwwwwwwwwL_t *dest, ptr_t src);
+void to_struct_LiiwwwwwwwwL(ptr_t dest, const struct_LiiwwwwwwwwL_t *src);
+typedef struct struct_iLiiiiLiiiiLi_s {
+	int i0;
+	unsigned long L1;
+	int i2;
+	int i3;
+	int i4;
+	int i5;
+	unsigned long L6;
+	int i7;
+	int i8;
+	int i9;
+	int i10;
+	unsigned long L11;
+	int i12;
+} struct_iLiiiiLiiiiLi_t;
+void from_struct_iLiiiiLiiiiLi(struct_iLiiiiLiiiiLi_t* dest, ptr_t src);
+void to_struct_iLiiiiLiiiiLi(ptr_t dest, const struct_iLiiiiLiiiiLi_t* src);
 
 #endif // __CONVERTER_H_

@@ -386,13 +386,13 @@
 #() iFbppi_i -> iFBi
 #() iFXbiip_ -> iFXB
 #() iErLL_BLL_ -> iEBB
-#() LFXrLiiuL_ -> LFXB
 #() pErppppii_p -> pEBp
 #() vFbll_rllll_ -> vFBB
 #() iFXbiiuuLip_ -> iFXB
 #() iFpruuipWCCp_ -> iFpB
 #() lEEriiiiiiiiilt_ -> lEEB
 #() pEriiiiiiiiilt_p -> pEBp
+#() LFXrLiiwwwwwwwwL_ -> LFXB
 #() iEiBLLLLLLLLLLLLLLLLLL_ -> iEiB
 #() vEEip -> vEEip
 #() vFEip -> vFEip
@@ -749,10 +749,10 @@
 #() vFXLrpLiL_ -> vFXLB
 #() iFXLbpLiL_ -> iFXLB
 #() iFXLbLLii_ -> iFXLB
-#() pFXrLiiuL_p -> pFXBp
 #() iFXLbLWWWcc_ -> iFXLB
 #() iEirLLLL_BLLLL_ -> iEiBB
 #() pEppriiiiiiiiilt_ -> pEppB
+#() pFXrLiiwwwwwwwwL_p -> pFXBp
 #() vEEipp -> vEEipp
 #() vFEipp -> vFEipp
 #() vEEipV -> vEEipV
@@ -1319,15 +1319,15 @@
 #() vFbp_ppibup_ -> vFBppiB
 #() iFEXbpLiL_pp -> iFEXBpp
 #() iFpppbp_bup_ -> iFpppBB
-#() LFXLrLiiuL_Lp -> LFXLBLp
-#() pFEXLrLiiuL_i -> pFEXLBi
 #() iFXLiuriiiiiLi_ -> iFXLiuB
 #() LELbp_bL_bp_bL_ -> LELBBBB
 #() vFXLbLLLLLLLLLL_iL -> vFXLBiL
 #() iFXiiiBpLiiiLLLii_ -> iFXiiiB
 #() LEpLpriiiiiiiiilt_a -> LEpLpBa
+#() pFEXLrLiiwwwwwwwwL_i -> pFEXLBi
 #() iFXLpbLWWWcc_bLWWWcc_ -> iFXLpBB
 #() iFXLpBLWWWcc_BLWWWcc_ -> iFXLpBB
+#() LFXLrLiiwwwwwwwwL_LriLiiiiLiiiiLi_ -> LFXLBLB
 #() vFEiiipp -> vFEiiipp
 #() vFEuippp -> vFEuippp
 #() vFEupupi -> vFEupupi
@@ -1693,8 +1693,8 @@
 #() iFXiLiiibiip_ip -> iFXiLiiiBip
 #() iFXiLLLiiibiip_ -> iFXiLLLiiiB
 #() iFXLbL_bL_ppppp -> iFXLBBppppp
-#() vFXiLLrLiiuL_iipi -> vFXiLLBiipi
 #() pFEXbpLiLLLii_uippuu -> pFEXBuippuu
+#() vFXiLLrLiiwwwwwwwwL_iipi -> vFXiLLBiipi
 #() vFEXLpppippp -> vFEXLpppippp
 #() vFiiiiiiiiii -> vFiiiiiiiiii
 #() vFiiiiiiiiui -> vFiiiiiiiiui
@@ -1750,8 +1750,8 @@
 #() iFXLLpiiuuiiL -> iFXLLpiiuuiiL
 #() pFEXpuiipuuii -> pFEXpuiipuuii
 #() iFXiiLLiiibiip_ip -> iFXiiLLiiiBip
-#() vFXiLLrLiiuL_iiiipi -> vFXiLLBiiiipi
 #() iFXLibL_iiiibL_bL_bL_ -> iFXLiBiiiiBBB
+#() vFXiLLrLiiwwwwwwwwL_iiiipi -> vFXiLLBiiiipi
 #() vFuiiiiiiiiuUC -> vFuiiiiiiiiuUC
 #() vFuiiiiiiiuuip -> vFuiiiiiiiuuip
 #() vFuuiiiiiiiiuu -> vFuuiiiiiiiiuu
@@ -1763,8 +1763,8 @@
 #() iFEXLppiiiiuui -> iFEXLppiiiiuui
 #() iFXLpppppppppp -> iFXLpppppppppp
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
-#() vFXiLLrLiiuL_Liiiipi -> vFXiLLBLiiiipi
 #() iFXiLbL_bL_ppppbip_pp -> iFXiLBBppppBpp
+#() vFXiLLrLiiwwwwwwwwL_Liiiipi -> vFXiLLBLiiiipi
 #() vFuiiiiiiiiiuup -> vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
 #() vFuUuuuuuuuuuuu -> vFuUuuuuuuuuuuu
@@ -2786,7 +2786,7 @@ wrappedlibxrender:
   - XRenderFindStandardFormat
 - pFXp:
   - XRenderFindVisualFormat
-- pFXLrLiiuL_i:
+- pFXLrLiiwwwwwwwwL_i:
   - XRenderFindFormat
 wrappedlibxss:
 wrappedlibxxf86vm:
