@@ -1136,14 +1136,14 @@ linkmap32_t* getLinkMapElf32(elfheader_t* h)
 linkmap32_t* addLinkMapLib32(library_t* lib)
 {
     if(!my_context->linkmap32) {
-        my_context->linkmap32 = (linkmap32_t*)box_calloc(1, sizeof(linkmap32_t));
+        my_context->linkmap32 = (linkmap32_t*)actual_calloc(1, sizeof(linkmap32_t));
         my_context->linkmap32->l_lib = lib;
         return my_context->linkmap32;
     }
     linkmap32_t* lm = my_context->linkmap32;
     while(lm->l_next)
         lm = (linkmap32_t*)from_ptrv(lm->l_next);
-    lm->l_next = to_ptrv(box_calloc(1, sizeof(linkmap32_t)));
+    lm->l_next = to_ptrv(actual_calloc(1, sizeof(linkmap32_t)));
     linkmap32_t* l_next = (linkmap32_t*)from_ptrv(lm->l_next);
     l_next->l_lib = lib;
     l_next->l_prev = to_ptrv(lm);
@@ -1157,7 +1157,7 @@ void removeLinkMapLib32(library_t* lib)
         ((linkmap32_t*)from_ptrv(lm->l_next))->l_prev = lm->l_prev;
     if(lm->l_prev)
         ((linkmap32_t*)from_ptrv(lm->l_prev))->l_next = lm->l_next;
-    box_free(lm);
+    actual_free(lm);
 }
 
 void AddMainElfToLinkmap32(elfheader_t* elf)
@@ -1165,7 +1165,7 @@ void AddMainElfToLinkmap32(elfheader_t* elf)
     linkmap32_t* lm = addLinkMapLib32(NULL);    // main elf will have a null lib link
 
     lm->l_addr = (Elf32_Addr)to_ptrv(GetElfDelta(elf));
-    lm->l_name = to_ptrv(my_context->fullpath);
+    lm->l_name = to_cstring(my_context->fullpath);
     lm->l_ld = to_ptrv(GetDynamicSection(elf));
 }
 #endif
@@ -1193,14 +1193,14 @@ linkmap_t* getLinkMapElf(elfheader_t* h)
 linkmap_t* addLinkMapLib(library_t* lib)
 {
     if(!my_context->linkmap) {
-        my_context->linkmap = (linkmap_t*)box_calloc(1, sizeof(linkmap_t));
+        my_context->linkmap = (linkmap_t*)actual_calloc(1, sizeof(linkmap_t));
         my_context->linkmap->l_lib = lib;
         return my_context->linkmap;
     }
     linkmap_t* lm = my_context->linkmap;
     while(lm->l_next)
         lm = lm->l_next;
-    lm->l_next = (linkmap_t*)box_calloc(1, sizeof(linkmap_t));
+    lm->l_next = (linkmap_t*)actual_calloc(1, sizeof(linkmap_t));
     lm->l_next->l_lib = lib;
     lm->l_next->l_prev = lm;
     return lm->l_next;
@@ -1213,7 +1213,7 @@ void removeLinkMapLib(library_t* lib)
         lm->l_next->l_prev = lm->l_prev;
     if(lm->l_prev)
         lm->l_prev->l_next = lm->l_next;
-    box_free(lm);
+    actual_free(lm);
 }
 
 void AddMainElfToLinkmap(elfheader_t* elf)
