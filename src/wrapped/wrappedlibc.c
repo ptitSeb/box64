@@ -3811,6 +3811,13 @@ EXPORT int my_xdr_string(x64emu_t* emu, void* arg1, char** arg2, unsigned int ar
 #endif
 }
 
+EXPORT void my_xdr_free(x64emu_t* emu, void* arg1, char* arg2)
+{
+#ifdef HAVE_RPC_XDR_H
+    xdr_free(arg1, arg2);
+#endif
+}
+
 #ifndef _SC_NPROCESSORS_ONLN
 #define _SC_NPROCESSORS_ONLN    84
 #endif 

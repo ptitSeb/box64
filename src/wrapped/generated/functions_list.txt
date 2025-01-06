@@ -4486,6 +4486,7 @@ wrappedlibc:
   - obstack_free
   - tdestroy
   - twalk
+  - xdr_free
 - vFpV:
   - warn
   - warnx
