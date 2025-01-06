@@ -26,6 +26,7 @@ typedef int32_t (*iFppiipi_t)(void*, void*, int32_t, int32_t, void*, int32_t);
 	GO(res_search, iEpiipi_t) \
 	GO(__res_search, iFpiipi_t) \
 	GO(__dn_expand, iFppppi_t) \
-	GO(__res_nquery, iFppiipi_t)
+	GO(__res_nquery, iFppiipi_t) \
+	GO(__res_nsearch, iFppiipi_t)
 
 #endif // __wrappedlibresolvTYPES32_H_

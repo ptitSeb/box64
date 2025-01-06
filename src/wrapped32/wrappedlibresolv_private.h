@@ -87,7 +87,7 @@ GOM(ns_parserr, iFEpuip)
 //GO(__res_nmkquery, 
 GO2(__res_nquery, iFppiipi, res_nquery)
 //GO(__res_nquerydomain, 
-//GO(__res_nsearch, iFppiipi)
+GO2(__res_nsearch, iFppiipi, res_nsearch)
 //GO(__res_nsend, 
 //DATA(_res_opcodes, 4)
 //GO(__res_ownok, iFp)

@@ -130,6 +130,7 @@ static const char* libcName =
 
 extern int fix_64bit_inodes;
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
+typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 #if 0
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
@@ -147,7 +148,6 @@ typedef int32_t (*iFiiII_t)(int, int, int64_t, int64_t);
 typedef int32_t (*iFiiiV_t)(int, int, int, ...);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
@@ -305,13 +305,13 @@ static void* findnftw64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw64 callback\n");
     return NULL;
 }
-#if 0
+
 // globerr
 #define GO(A)   \
-static uintptr_t my32_globerr_fct_##A = 0;                                        \
-static int my32_globerr_##A(void* epath, int eerrno)                              \
+static uintptr_t my32_globerr_fct_##A = 0;                                      \
+static int my32_globerr_##A(void* epath, int eerrno)                            \
 {                                                                               \
-    return (int)RunFunction(my_context, my32_globerr_fct_##A, 2, epath, eerrno);  \
+    return (int)RunFunctionFmt(my32_globerr_fct_##A, "pi", epath, eerrno);      \
 }
 SUPER()
 #undef GO
@@ -329,7 +329,7 @@ static void* findgloberrFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc globerr callback\n");
     return NULL;
 }
-#endif
+
 #undef dirent
 // filter_dir
 #define GO(A)   \
@@ -1626,19 +1626,18 @@ EXPORT int32_t my32_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_
         UnalignEpollEvent32(events, _events, ret);
     return ret;
 }
-#if 0
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     static iFpipp_t f = NULL;
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFpipp_t)dlsym(lib->priv.w.lib, "glob");
+        f = (iFpipp_t)dlsym(NULL, "glob");
     }
 
     return f(pat, flags, findgloberrFct(errfnc), pglob);
 }
-
+#if 0
 #ifndef ANDROID
 EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {

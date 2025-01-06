@@ -367,6 +367,7 @@ void pFiu_32(x64emu_t *emu, uintptr_t fnc);
 void pFip_32(x64emu_t *emu, uintptr_t fnc);
 void pEia_32(x64emu_t *emu, uintptr_t fnc);
 void pFuu_32(x64emu_t *emu, uintptr_t fnc);
+void pEup_32(x64emu_t *emu, uintptr_t fnc);
 void pFup_32(x64emu_t *emu, uintptr_t fnc);
 void pELL_32(x64emu_t *emu, uintptr_t fnc);
 void pFLL_32(x64emu_t *emu, uintptr_t fnc);

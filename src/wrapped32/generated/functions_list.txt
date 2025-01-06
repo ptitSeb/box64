@@ -326,6 +326,7 @@
 #() pFip -> pFip
 #() pEia -> pEia
 #() pFuu -> pFuu
+#() pEup -> pEup
 #() pFup -> pFup
 #() pELL -> pELL
 #() pFLL -> pFLL
@@ -2441,6 +2442,7 @@ wrappedlibresolv:
   - __dn_expand
 - iFppiipi:
   - __res_nquery
+  - __res_nsearch
 wrappedlibrt:
 - iEuBLL_:
   - __clock_gettime

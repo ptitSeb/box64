@@ -628,9 +628,9 @@ GO(getwchar_unlocked, uEv)
 //GO(getwd, pEp)
 // __getwd_chk
 GO(getxattr, iEpppL)
-//GOM(glob, iEEpipp)             //%%
+GOM(glob, iEEpipp)             //%%
 //GOM(glob64, iEEpipp)           //%%
-//GO(globfree, vEp)
+GO(globfree, vEp)
 //GO(globfree64, vEp)
 // glob_pattern_p   // Weak
 GOM(gmtime, pEEp)
@@ -668,7 +668,7 @@ GO(iconv, LELbp_bL_bp_bL_)
 GO(iconv_close, iEp)
 GO(iconv_open, pEpp)
 //GO(if_freenameindex, vEp)
-//GO(if_indextoname, pEup)
+GOW(if_indextoname, pEup)
 //GO(if_nameindex, pEv)
 GO(if_nametoindex, uEp)
 // imaxabs  // Weak
