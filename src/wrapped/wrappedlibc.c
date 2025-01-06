@@ -42,6 +42,7 @@
 #include <sys/prctl.h>
 #include <sys/ptrace.h>
 #include <error.h>
+#include <rpc/xdr.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -3797,6 +3798,11 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
         return 0;
     }
     return prctl(option, arg2, arg3, arg4, arg5);
+}
+
+EXPORT int my_xdr_string(x64emu_t* emu, void* arg1, char** arg2, unsigned int arg3)
+{
+    return xdr_string(arg1, arg2, arg3);
 }
 
 #ifndef _SC_NPROCESSORS_ONLN

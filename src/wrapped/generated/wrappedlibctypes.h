@@ -54,6 +54,7 @@ typedef int32_t (*iFipV_t)(int32_t, void*, ...);
 typedef int32_t (*iFipA_t)(int32_t, void*, va_list);
 typedef int32_t (*iFpLi_t)(void*, uintptr_t, int32_t);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFppA_t)(void*, void*, va_list);
@@ -229,6 +230,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(mprotect, iFpLi_t) \
 	GO(ftw, iFppi_t) \
 	GO(ftw64, iFppi_t) \
+	GO(xdr_string, iFppu_t) \
 	GO(__cxa_atexit, iFppp_t) \
 	GO(__cxa_thread_atexit_impl, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \
