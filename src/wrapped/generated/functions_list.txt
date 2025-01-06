@@ -4486,7 +4486,6 @@ wrappedlibc:
   - obstack_free
   - tdestroy
   - twalk
-  - xdr_free
 - vFpV:
   - warn
   - warnx
@@ -4589,8 +4588,6 @@ wrappedlibc:
 - iFppi:
   - ftw
   - ftw64
-- iFppu:
-  - xdr_string
 - iFppp:
   - __cxa_atexit
   - __cxa_thread_atexit_impl

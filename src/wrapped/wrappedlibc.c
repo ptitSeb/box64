@@ -3799,16 +3799,6 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
     return prctl(option, arg2, arg3, arg4, arg5);
 }
 
-EXPORT int my_xdr_string(x64emu_t* emu, void* arg1, char** arg2, unsigned int arg3)
-{
-    return my->xdr_string(arg1, arg2, arg3);
-}
-
-EXPORT void my_xdr_free(x64emu_t* emu, void* arg1, char* arg2)
-{
-    my->xdr_free(arg1, arg2);
-}
-
 #ifndef _SC_NPROCESSORS_ONLN
 #define _SC_NPROCESSORS_ONLN    84
 #endif 
