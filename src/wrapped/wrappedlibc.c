@@ -42,7 +42,9 @@
 #include <sys/prctl.h>
 #include <sys/ptrace.h>
 #include <error.h>
+#ifdef HAVE_RPC_XDR_H
 #include <rpc/xdr.h>
+#endif
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -3802,7 +3804,11 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
 
 EXPORT int my_xdr_string(x64emu_t* emu, void* arg1, char** arg2, unsigned int arg3)
 {
+#ifdef HAVE_RPC_XDR_H
     return xdr_string(arg1, arg2, arg3);
+#else
+    return 0;
+#endif
 }
 
 #ifndef _SC_NPROCESSORS_ONLN

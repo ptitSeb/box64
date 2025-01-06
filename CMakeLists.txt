@@ -490,6 +490,12 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64runavxf30f3a.c"
 )
 
+include(CheckIncludeFiles)
+check_include_files("rpc/xdr.h" HAVE_RPC_XDR_H)
+if(HAVE_RPC_XDR_H)
+    add_definitions(-DHAVE_RPC_XDR_H)
+endif()
+
 if(STATICBUILD)
 set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
