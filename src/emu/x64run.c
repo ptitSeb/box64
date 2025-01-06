@@ -1584,37 +1584,51 @@ x64emurun:
             #endif
             break;
         case 0xCF:                      /* IRET */
-            addr = (!rex.w)?Pop32(emu):Pop64(emu);
-            emu->segs[_CS] = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
-            emu->segs_serial[_CS] = 0;
-            emu->eflags.x64 = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
-            if(!is32bits || (is32bits && emu->segs[_CS]!=0x23)) {
-                tmp64u = (!rex.w)?Pop32(emu):Pop64(emu);  //RSP
-                emu->segs[_SS] = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
-                emu->segs_serial[_SS] = 0;
-                R_RSP = tmp64u;
-            }
-            RESET_FLAGS(emu);
-            R_RIP = addr;
-            STEP;
-            if(is32bits!=(emu->segs[_CS]==0x23)) {
-                is32bits = (emu->segs[_CS]==0x23);
-                if(is32bits) {
-                    // Zero upper part of the 32bits regs
-                    R_RAX = R_EAX;
-                    R_RBX = R_EBX;
-                    R_RCX = R_ECX;
-                    R_RDX = R_EDX;
-                    R_RSP = R_ESP;
-                    R_RBP = R_EBP;
-                    R_RSI = R_ESI;
-                    R_RDI = R_EDI;
+            {
+                addr = (!rex.w)?Pop32(emu):Pop64(emu);
+                uint32_t new_cs = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff; 
+                uint32_t new_ss = 0;
+                uintptr_t new_sp = 0;
+                emu->eflags.x64 = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+                if(!is32bits || (is32bits && new_cs!=0x23)) {
+                    new_sp = (!rex.w)?Pop32(emu):Pop64(emu);
+                    new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
+                    emu->segs_serial[_SS] = 0;
+                } else {
+                    // no change
+                    new_ss = emu->segs[_SS];
+                    new_sp = R_RSP;
                 }
+                RESET_FLAGS(emu);
                 #ifndef TEST_INTERPRETER
-                if(is32bits)
-                    running32bits = 1;
+                if((new_cs&3)!=3)
+                    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);    // GP if trying to change priv level
                 #endif
+                emu->segs[_CS] = new_cs;
+                emu->segs_serial[_CS] = 0;
+                R_RIP = addr;
+                R_RSP = new_sp;
+                emu->segs[_SS] = new_sp;
+                if(is32bits!=(emu->segs[_CS]==0x23)) {
+                    is32bits = (emu->segs[_CS]==0x23);
+                    if(is32bits) {
+                        // Zero upper part of the 32bits regs
+                        R_RAX = R_EAX;
+                        R_RBX = R_EBX;
+                        R_RCX = R_ECX;
+                        R_RDX = R_EDX;
+                        R_RSP = R_ESP;
+                        R_RBP = R_EBP;
+                        R_RSI = R_ESI;
+                        R_RDI = R_EDI;
+                    }
+                    #ifndef TEST_INTERPRETER
+                    if(is32bits)
+                        running32bits = 1;
+                    #endif
+                }
             }
+            STEP;
             break;
         case 0xD0:                      /* GRP2 Eb,1 */
         case 0xD2:                      /* GRP2 Eb,CL */
