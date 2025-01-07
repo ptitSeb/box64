@@ -2015,10 +2015,10 @@ void reserveHighMem()
 void init_custommem_helper(box64context_t* ctx)
 {
     (void)ctx;
-    cur_brk = dlsym(RTLD_NEXT, "__curbrk");
     if(inited) // already initialized
         return;
     inited = 1;
+    cur_brk = dlsym(RTLD_NEXT, "__curbrk");
     blockstree = rbtree_init("blockstree");
     // if there is some blocks already
     if(n_blocks)
