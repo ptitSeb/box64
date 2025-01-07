@@ -258,6 +258,9 @@
         ed = i;                                                                                                                 \
         wb1 = 1;                                                                                                                \
     }
+//Compute wback for MDREG only, no fetching
+#define CALCEW()                                                                                                                \
+    wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                \
 //GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i, D)                                                                                                              \
     if (MODREG) {                                                                                                                \

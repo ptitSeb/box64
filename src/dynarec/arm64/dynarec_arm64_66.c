@@ -1347,9 +1347,15 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("NOT Ew");
-                    GETEW(x1, 0);
-                    MVNw_REG(ed, ed);
-                    EWBACK;
+                    if(MODREG) {
+                        CALCEW();
+                        int mask = convert_bitmask_x(0xffff);
+                        EORx_mask(wback, wback, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+                    } else {
+                        GETEW(x1, 0);
+                        MVNw_REG(ed, ed);
+                        EWBACK;
+                    }
                     break;
                 case 3:
                     INST_NAME("NEG Ew");

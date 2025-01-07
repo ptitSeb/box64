@@ -3383,9 +3383,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("NOT Eb");
-                    GETEB(x1, 0);
-                    MVNw_REG(x1, x1);
-                    EBBACK;
+                    if(MODREG) {
+                        CALCEB();
+                        int mask = convert_bitmask_x(0xff<<wb2);
+                        EORx_mask(wback, wback, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+                    } else {
+                        GETEB(x1, 0);
+                        MVNw_REG(x1, x1);
+                        EBBACK;
+                    }
                     break;
                 case 3:
                     INST_NAME("NEG Eb");
