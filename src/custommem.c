@@ -1624,6 +1624,9 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     // don't need to add precise tracking probably
 }
 
+uintptr_t pbrk = 0;
+uintptr_t old_brk = 0;
+uintptr_t* cur_brk = NULL;
 void loadProtectionFromMap()
 {
     if(box64_mapclean)
@@ -1640,6 +1643,8 @@ void loadProtectionFromMap()
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
             allocProtection(s, e-s, prot);
+            if(!pbrk && strstr(buf, "[heap]"))
+                pbrk = s;
             if(s>0x7fff00000000LL)
                 have48bits = 1;
         }
@@ -1651,6 +1656,10 @@ void loadProtectionFromMap()
             printf_log(LOG_INFO, "BOX64: Detected 48bits at least of address space\n");
         else
             printf_log(LOG_INFO, "BOX64: Didn't detect 48bits of address space, considering it's 39bits\n");
+    }
+    if(!pbrk) {
+        printf_log(LOG_INFO, "BOX64: Warning, program break not found\n");
+        if(cur_brk) pbrk = *cur_brk;    // approximate is better than nothing
     }
     fclose(f);
     box64_mapclean = 1;
@@ -1701,6 +1710,11 @@ int memExist(uintptr_t addr)
 
 void* find31bitBlockNearHint(void* hint_, size_t size, uintptr_t mask)
 {
+    // first, check if program break as changed
+    if(pbrk && cur_brk && *cur_brk!=old_brk) {
+        old_brk = *cur_brk;
+        setProtection(pbrk, old_brk-pbrk, PROT_READ|PROT_WRITE);
+    }
     uint32_t prot;
     uintptr_t hint = (uintptr_t)hint_;
     if(hint_<LOWEST) hint = (uintptr_t)WINE_LOWEST;
@@ -1750,6 +1764,11 @@ void* find47bitBlock(size_t size)
 }
 void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
+    // first, check if program break as changed
+    if(pbrk && cur_brk && *cur_brk!=old_brk) {
+        old_brk = *cur_brk;
+        setProtection(pbrk, old_brk-pbrk, PROT_READ|PROT_WRITE);
+    }
     uint32_t prot;
     if(hint<LOWEST) hint = LOWEST;
     uintptr_t bend = 0;
@@ -1996,6 +2015,7 @@ void reserveHighMem()
 void init_custommem_helper(box64context_t* ctx)
 {
     (void)ctx;
+    cur_brk = dlsym(RTLD_NEXT, "__curbrk");
     if(inited) // already initialized
         return;
     inited = 1;
