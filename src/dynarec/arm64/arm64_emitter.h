@@ -1306,7 +1306,7 @@ int convert_bitmask(uint64_t bitmask);
 #define VFRSQRTSQS(Vd, Vn, Vm)      EMIT(FRSQRTS_vector(1, 0, Vm, Vn, Vd))
 #define VFRSQRTSQD(Vd, Vn, Vm)      EMIT(FRSQRTS_vector(1, 0, Vm, Vn, Vd))
 
-// CMP
+// CMP . NZCV: unordere=0011, eq=0110, inf=1000, sup=0010
 #define FCMP_scalar(type, Rn, Rm, opc)  (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b1000<<10 | (Rn)<<5 | (opc)<<3)
 #define FCMPS(Sn, Sm)              FEMIT(FCMP_scalar(0b00, Sn, Sm, 0b00))
 #define FCMPD(Dn, Dm)              FEMIT(FCMP_scalar(0b01, Dn, Dm, 0b00))
@@ -1835,7 +1835,7 @@ int convert_bitmask(uint64_t bitmask);
 #define FCMLTS_0(Rd, Rn)             EMIT(FCMP_0_scalar(0, 0, 0b10, (Rn), (Rd)))
 #define FCMLTD_0(Rd, Rn)             EMIT(FCMP_0_scalar(0, 1, 0b10, (Rn), (Rd)))
 
-// Scalar Float CMP
+// Scalar Float CMEQ
 #define FCMP_op_scalar(U, E, sz, Rm, ac, Rn, Rd)    (0b01<<30 | (U)<<29 | 0b11110<<24 | (E)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b1110<<12 | (ac)<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define FCMEQS(Rd, Rn, Rm)          EMIT(FCMP_op_scalar(0, 0, 0, (Rm), 0, (Rn), (Rd)))
 #define FCMEQD(Rd, Rn, Rm)          EMIT(FCMP_op_scalar(0, 0, 1, (Rm), 0, (Rn), (Rd)))

@@ -1324,6 +1324,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "FCMP %c%d, %c%d", s, Rn, s, Rm);
         return buff;
     }
+    //FCMEQ
+    if(isMask(opcode, "000111100f1mmmmm111001nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':'D';
+        snprintf(buff, sizeof(buff), "FCMEQ %c%d, %c%d, %c%d", s, Rd, s, Rn, s, Rm);
+        return buff;
+    }
     //FCMP vector
     if(isMask(opcode, "0QU01110cf1mmmmm111001nnnnnddddd", &a)) {
         char s = (sf==0)?'S':((sf==1)?'D':'?');
