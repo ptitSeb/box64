@@ -446,6 +446,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
     printf_log(LOG_DEBUG, "%04d|sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%lx], oss=%p\n", GetTID(), ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
     if(ss->ss_flags && ss->ss_flags!=SS_DISABLE && ss->ss_flags!=SS_ONSTACK) {
         errno = EINVAL;
+        signal_jmpbuf_active = 0;
         return -1;
     }
 
@@ -1632,7 +1633,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
         x64pc--;
     if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==tid && old_prot==prot) {
-        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, old_addr, prot);
+        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, x64pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, x64pc, old_addr, prot);
         exit(-1);
     } else {
         if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
@@ -1662,8 +1663,17 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         old_addr = addr;
         old_tid = tid;
         old_prot = prot;
-        const char* name = (log_minimum<=box64_log)?GetNativeName(pc):NULL;
+        const char* name = NULL;
         const char* x64name = NULL;
+        if(log_minimum<=box64_log) {
+                signal_jmpbuf_active = 1;
+                if(sigsetjmp(SIG_JMPBUF, 1)) {
+                    // segfault while gathering function name...
+                    name = "???";
+                } else
+                    name = GetNativeName(pc);
+                signal_jmpbuf_active = 0;
+        }
         // Adjust RIP for special case of NULL function run
         if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
             R_RIP = 0x0;
