@@ -322,6 +322,16 @@
 #define EWBACKW(w)   if(wb1) {STH(w, wback, fixedaddress); SMWRITE();} else {BFIx(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK BFIx(TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)), gd, 0, 16);
+// no fetch version of GETEB for MODREG path only
+#define CALCEB()                                                                                             \
+    if (rex.rex) {                                                                                           \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                         \
+        wb2 = 0;                                                                                             \
+    } else {                                                                                                 \
+        wback = (nextop & 7);                                                                                \
+        wb2 = (wback >> 2) * 8;                                                                              \
+        wback = TO_NAT(wback & 3);                                                                           \
+    }                                                                                                        \
 //GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D)                                                                                              \
     if (MODREG) {                                                                                                \
@@ -410,6 +420,16 @@
     }
 // Write eb (ed) back to original register / memory
 #define EBBACK   if(wb1) {STB(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, wb2, 8);}
+// no fetch version of GETGB
+#define CALCGB()                                             \
+    if (rex.rex) {                                           \
+        gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gb2 = 0;                                             \
+    } else {                                                 \
+        gd = (nextop & 0x38) >> 3;                           \
+        gb2 = ((gd & 4) << 1);                               \
+        gb1 = TO_NAT(gd & 3);                                \
+    }                                                        \
 //GETGB will use i for gd
 #define GETGB(i)                                             \
     if (rex.rex) {                                           \
@@ -1169,6 +1189,7 @@
 #define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
 #define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A)}
 #define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
+#define UFLAG_IF2(A) if(dyn->insts[ninst].x64.gen_flags A)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif

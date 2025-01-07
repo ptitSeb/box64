@@ -126,10 +126,23 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_or8(dyn, ninst, x1, x2, x4, x5);
-            EBBACK;
+            UFLAG_IF {
+                GETEB(x1, 0);
+                GETGB(x2);
+                emit_or8(dyn, ninst, x1, x2, x4, x5);
+                EBBACK;
+            } else {
+                if(MODREG) {
+                    GETGB(x2);
+                    CALCEB();
+                    ORRx_REG_LSL(wback, wback, x2, wb2);
+                } else {
+                    GETEB(x1, 0);
+                    CALCGB();
+                    ORRw_REG_LSR(x1, x1, gb1, 8*gb2);
+                    EBBACK;
+                }
+            }
             break;
         case 0x09:
             INST_NAME("OR Ed, Gd");
@@ -144,10 +157,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("OR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETEB(x2, 0);
-            GETGB(x1);
-            emit_or8(dyn, ninst, x1, x2, x3, x4);
-            GBBACK;
+            UFLAG_IF {
+                GETEB(x2, 0);
+                GETGB(x1);
+                emit_or8(dyn, ninst, x1, x2, x3, x4);
+                GBBACK;
+            } else {
+                GETEB(x2, 0);
+                CALCGB();
+                ORRx_REG_LSL(gb1, gb1, x2, gb2*8);
+            }
             break;
         case 0x0B:
             INST_NAME("OR Gd, Ed");
@@ -161,9 +180,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("OR AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             u8 = F8;
-            UXTBw(x1, xRAX);
-            emit_or8c(dyn, ninst, x1, u8, x3, x4);
-            BFIx(xRAX, x1, 0, 8);
+            UFLAG_IF {
+                UXTBw(x1, xRAX);
+                emit_or8c(dyn, ninst, x1, u8, x3, x4);
+                BFIx(xRAX, x1, 0, 8);
+            } else {
+                int mask = convert_bitmask_x(u8);
+                if(mask)
+                    ORRx_mask(xRAX, xRAX, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+                else {
+                    MOV32w(x1, u8);
+                    ORRx_REG(xRAX, xRAX, x1);
+                }
+            }
             break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
@@ -1024,10 +1053,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1: //OR
                     INST_NAME("OR Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEB(x1, 1);
-                    u8 = F8;
-                    emit_or8c(dyn, ninst, x1, u8, x2, x4);
-                    EBBACK;
+                    UFLAG_IF2(|| !MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_or8c(dyn, ninst, x1, u8, x2, x4);
+                        EBBACK;
+                    } else {
+                        CALCEB();
+                        u8 = F8;
+                        int mask = convert_bitmask_x(((uint32_t)u8)<<wb2);
+                        if(mask)
+                            ORRx_mask(wback, wback, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+                        else {
+                            MOV32w(x1, ((uint32_t)u8)<<wb2);
+                            ORRx_REG(wback, wback, x1);
+                        }
+                    }
                     break;
                 case 2: //ADC
                     INST_NAME("ADC Eb, Ib");
