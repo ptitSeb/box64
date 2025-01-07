@@ -415,9 +415,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("AND AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             u8 = F8;
-            UXTBw(x1, xRAX);
-            emit_and8c(dyn, ninst, x1, u8, x3, x4);
-            BFIx(xRAX, x1, 0, 8);
+            UFLAG_IF {
+                UXTBw(x1, xRAX);
+                emit_and8c(dyn, ninst, x1, u8, x3, x4);
+                BFIx(xRAX, x1, 0, 8);
+            } else {
+                int mask = convert_bitmask_x(0xffffffffffffff00LL | u8);
+                if(mask)
+                    ANDx_mask(xRAX, xRAX, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+                else {
+                    u8 = ~u8;
+                    MOV32w(x1, u8);
+                    BICx_REG(xRAX, xRAX, x1);
+                }
+            }
             break;
         case 0x25:
             INST_NAME("AND EAX, Id");
@@ -1120,10 +1131,23 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4: //AND
                     INST_NAME("AND Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEB(x1, 1);
-                    u8 = F8;
-                    emit_and8c(dyn, ninst, x1, u8, x2, x4);
-                    EBBACK;
+                    UFLAG_IF2(|| !MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_and8c(dyn, ninst, x1, u8, x2, x4);
+                        EBBACK;
+                    } else {
+                        CALCEB();
+                        u8 = F8;
+                        u64 = wb2?0xffffffffffff00ffLL:0xffffffffffffff00LL;
+                        int mask = convert_bitmask_x(u64|(((uint64_t)u8)<<wb2));
+                        if(mask)
+                            ANDx_mask(wback, wback, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+                        else {
+                            MOV32w(x1, ((uint32_t)~u8)<<wb2);
+                            BICx_REG(wback, wback, x1);
+                        }
+                    }
                     break;
                 case 5: //SUB
                     INST_NAME("SUB Eb, Ib");
