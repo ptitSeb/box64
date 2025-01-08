@@ -356,16 +356,22 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         B_MARK3(c__);
                         MARK2;
                     }
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
-                    FRINTXD(s0, v1);
-                    VFCVTZSd(s0, s0);
-                    VST64(s0, wback, fixedaddress);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
-                    ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
-                    STx(x5, wback, fixedaddress);
+                    if(arm64_frintts) {
+                        FRINT64XD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        VST64(s0, wback, fixedaddress);
+                    } else {
+                        MRS_fpsr(x5);
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        FRINTXD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        VST64(s0, wback, fixedaddress);
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TBZ_MARK3(x5, FPSR_IOC);
+                        ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
+                        STx(x5, wback, fixedaddress);
+                    }
                     MARK3;
                     #endif
                     x87_restoreround(dyn, ninst, u8);

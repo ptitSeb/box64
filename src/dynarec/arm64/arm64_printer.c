@@ -743,8 +743,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
                 snprintf(buff, sizeof(buff), "BFC %s, %d, %d", sf?Xt[Rd]:Wt[Rd], lsb, width);
             else
                 snprintf(buff, sizeof(buff), "BFI %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], lsb, width);
-        } else
-            snprintf(buff, sizeof(buff), "BFXIL %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms-immr+1);
+        } else {
+            if(Rn==31 && immr==0)
+                snprintf(buff, sizeof(buff), "BFC %s, %d, %d", sf?Xt[Rd]:Wt[Rd], immr, imms-immr+1);
+            else
+                snprintf(buff, sizeof(buff), "BFXIL %s, %s, %d, %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], immr, imms-immr+1);
+        }
         return buff;
     }
     // ---- BRANCH / TEST
@@ -1641,6 +1645,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         const char* Z[] = {"8H", "4S", "2D", "?"};
         const char* Va = Z[sf];
         snprintf(buff, sizeof(buff), "%cQXTN%s V%d.%s, V%d.%s", a.U?'U':'S', a.Q?"2":"", Rd, Vd, Rn, Va);
+        return buff;
+    }
+    if(isMask(opcode, "01U11110ff100001010010nnnnnddddd", &a)) {
+        const char Z[] = {'B', 'H', 'S', 'D', '?'};
+        snprintf(buff, sizeof(buff), "SQXT%sN %c%d, %c%d", a.U?"U":"", Z[sf], Rn, Z[sf+1], Rm);
         return buff;
     }
 

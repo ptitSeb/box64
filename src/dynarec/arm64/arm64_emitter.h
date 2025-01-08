@@ -1150,7 +1150,9 @@ int convert_bitmask(uint64_t bitmask);
 #define VFMOVDQ_8(Vd, u8)                   EMIT(FMOV_vector_imm(1, 1, ((u8)>>5)&0b111, (u8)&0b11111, Vd))
 
 #define FMOV_scalar_imm(type, imm8, Rd)     (0b11110<<24 | (type)<<22 | 1<<21 | (imm8)<<13 | 0b100<<10 | (Rd))
+// FMOV to Sd, imm=7 :~6:6:6:6:6:6:5:4 :3:2:1:0....
 #define FMOVS_8(Sd, u8)                     EMIT(FMOV_scalar_imm(0b00, u8, Sd))
+// FMOV to Dd, imm=7 :~6:6:6:6:6:6:6:6:6:5:4 :3:2:1:0....
 #define FMOVD_8(Dd, u8)                     EMIT(FMOV_scalar_imm(0b01, u8, Dd))
 
 // VMOV

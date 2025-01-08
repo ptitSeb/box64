@@ -161,19 +161,20 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     s0 = fpu_get_scratch(dyn, ninst);
                     if(arm64_frintts) {
                         FRINT64ZD(s0, v1);
-                        FCVTZSxD(x2, s0);
-                        STx(x2, ed, fixedaddress);
+                        VFCVTZSd(s0, s0);
+                        VST64(s0, ed, fixedaddress);
                     } else {
                         MRS_fpsr(x5);
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         MSR_fpsr(x5);
                         FRINTRRD(s0, v1, 3);
-                        FCVTZSxD(x2, s0);
+                        VFCVTZSd(s0, s0);
+                        VST64(s0, ed, fixedaddress);
                         MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                         TBZ_MARK3(x5, FPSR_IOC);
                         ORRx_mask(x2, xZR, 1, 1, 0);    //0x8000000000000000
-                        MARK3;
                         STx(x2, ed, fixedaddress);
+                        MARK3;
                     }
                 }
                 X87_POP_OR_FAIL(dyn, ninst, x3);

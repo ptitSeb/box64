@@ -926,9 +926,9 @@ uint8_t mark_natflag(dynarec_arm_t* dyn, int ninst, uint8_t flag, int before)
 {
     if(dyn->insts[ninst].x64.set_flags && !before) {
         dyn->insts[ninst].set_nat_flags |= flag;
-        if(dyn->insts[ninst].x64.use_flags) {
-            dyn->insts[ninst].use_nat_flags |= flag;
-        }
+        //if(dyn->insts[ninst].x64.use_flags) {
+        //    dyn->insts[ninst].use_nat_flags |= flag;
+        //}
     } else {
         if(before)
             dyn->insts[ninst].use_nat_flags_before |= flag;
@@ -1098,7 +1098,7 @@ void updateNativeFlags(dynarec_native_t* dyn)
 {
     if(!box64_dynarec_nativeflags)
         return;
-    // backward check if native flags are used
+    // forward check if native flags are used
     for(int ninst=0; ninst<dyn->size; ++ninst)
         if(flag2native(dyn->insts[ninst].x64.gen_flags) && (dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)) {
             propagateNativeFlags(dyn, ninst);

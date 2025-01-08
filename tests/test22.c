@@ -167,55 +167,54 @@ int main(int argc, const char** argv)
  char pf, cf, zf;
  char pa, ca, za;
  uint64_t flags;
- uint64_t tests[][2] = {
-  {0x0, 0x4082c00000000000LL},
-  {0x8000000000000000LL, 0x4082c00000000000LL},
-  {0x8000000000000000LL, 0x0},
-  {0x40dfffc000000000LL, 0x40e0002000000000LL}, 	// 0x7fff and 0x8001 as double
-  {0xc0e0002000000000LL, 0xc0dfffc000000000LL},		// -0x8001 and -0x7fff as double
-  {0x8000000000000000LL, 0x3ff0000000000000LL},
-  {0x3ff0000000000000LL, 0x3fe89d9000000000LL},
-  {0x3ff0000000000000LL, 0x7ff0000000000000LL},
-  {0xfff0000000000000LL, 0x7ff0000000000000LL},
-  {0x3ff0002ca0000000LL, 0xaeff000025000000LL},
-  {0x3ff0000050000000LL, 0xc082c00000000000LL},
-  {0x0, 0x7ff8000000000001LL},
-  {0x7ff8000000000001LL, 0x7ff8000000000001LL},
- };
- int n = sizeof(tests)/sizeof(tests[0]); 
- for(int i=0; i<n; ++i)
-  for(int j=0; j<2; ++j) {
-   *(uint64_t*)&a = tests[i][0+j];
-   *(uint64_t*)&b = tests[i][1-j];
-   printf("FUCOMI 0x%llx 0x%llx ", *(uint64_t*)&a, *(uint64_t*)&b);
-   flags = _fucomip_(a, b);
-   ca = (flags>>0)&1?'C':'-';
-   za = (flags>>(0+6))&1?'Z':'-';
-   pa = (flags>>(0+2))&1?'P':'-';
-   printf("%c%c%c\n", za, pa, ca);
-   printf("FUCOMPP 0x%llx 0x%llx ", *(uint64_t*)&a, *(uint64_t*)&b);
-   flags = _fucompp_(a, b);
-   ca = (flags>>8)&1?'C':'-';
-   za = (flags>>(8+6))&1?'Z':'-';
-   pa = (flags>>(8+2))&1?'P':'-';
-   printf("%c%c%c\n", za, pa, ca);
-   for(int rd=0; rd<3; ++rd) {
-    printf("Rounding %d\n", rd);
-    printf(" FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&a, _frndint_(a, rd<<2));
-    printf(" FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&b, _frndint_(b, rd<<2));
-    printf(" FISTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fistpw_(a, rd<<2));
-    printf(" FISTP 0x%llx => word: %x\n", *(uint64_t*)&b, _fistpw_(b, rd<<2));
-    printf(" FISTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fistpl_(a, rd<<2));
-    printf(" FISTP 0x%llx => long: %x\n", *(uint64_t*)&b, _fistpl_(b, rd<<2));
-    printf(" FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fistpq_(a, rd<<2));
-    printf(" FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&b, _fistpq_(b, rd<<2));
-    printf(" FISTTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fisttpw_(a, rd<<2));
-    printf(" FISTTP 0x%llx => word: %x\n", *(uint64_t*)&b, _fisttpw_(b, rd<<2));
-    printf(" FISTTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fisttpl_(a, rd<<2));
-    printf(" FISTTP 0x%llx => long: %x\n", *(uint64_t*)&b, _fisttpl_(b, rd<<2));
-    printf(" FISTTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fisttpq_(a, rd<<2));
-    printf(" FISTTP 0x%llx => quad: %llx\n", *(uint64_t*)&b, _fisttpq_(b, rd<<2));
-  }
+ uint64_t tests[] = {
+    0x0,
+    0x4082c00000000000LL,
+    0x8000000000000000LL,
+    0x40dfffc000000000LL, 
+    0x40e0002000000000LL, 	// 0x7fff and 0x8001 as double
+    0xc0e0002000000000LL, 
+    0xc0dfffc000000000LL,	// -0x8001 and -0x7fff as double
+    0x3ff0000000000000LL,
+    0x3fe89d9000000000LL,
+    0x7ff0000000000000LL,
+    0xfff0000000000000LL, 
+    0x3ff0002ca0000000LL, 
+    0xaeff000025000000LL,
+    0x3ff0000050000000LL, 
+    0xc082c00000000000LL,
+    0x7ff8000000000001LL,
+};
+int n = sizeof(tests)/sizeof(tests[0]); 
+for(int i=0; i<n; ++i)
+    for(int j=0; j<n; ++j) {
+        *(uint64_t*)&a = tests[i];
+        *(uint64_t*)&b = tests[j];
+        printf("FUCOMI 0x%llx 0x%llx ", *(uint64_t*)&a, *(uint64_t*)&b);
+        flags = _fucomip_(a, b);
+        ca = (flags>>0)&1?'C':'-';
+        za = (flags>>(0+6))&1?'Z':'-';
+        pa = (flags>>(0+2))&1?'P':'-';
+        printf("%c%c%c\n", za, pa, ca);
+        printf("FUCOMPP 0x%llx 0x%llx ", *(uint64_t*)&a, *(uint64_t*)&b);
+        flags = _fucompp_(a, b);
+        ca = (flags>>8)&1?'C':'-';
+        za = (flags>>(8+6))&1?'Z':'-';
+        pa = (flags>>(8+2))&1?'P':'-';
+        printf("%c%c%c\n", za, pa, ca);
+    }
+for(int i=0; i<n; ++i) {
+    *(uint64_t*)&a = tests[i];
+    for(int rd=0; rd<3; ++rd) {
+        printf("Rounding %d\n", rd);
+        printf(" FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&a, _frndint_(a, rd<<2));
+        printf(" FISTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fistpw_(a, rd<<2));
+        printf(" FISTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fistpl_(a, rd<<2));
+        printf(" FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fistpq_(a, rd<<2));
+        printf(" FISTTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fisttpw_(a, rd<<2));
+        printf(" FISTTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fisttpl_(a, rd<<2));
+        printf(" FISTTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fisttpq_(a, rd<<2));
+    }
  }
  printf("\nDone\n");
 }

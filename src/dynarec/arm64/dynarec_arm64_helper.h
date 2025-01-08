@@ -950,7 +950,8 @@
     MOV32w(s2, 0b01000101); /* unordered */                                 \
     CSELw(s1, s2, s1, cVS);                                                 \
     if(v1||v2) {                                                            \
-        Bcond(cVS, 10*4);                                                   \
+        Bcond(cVS, 11*4);                                                   \
+        Bcond(cEQ, 10*4);                                                   \
         if(is_f) {                                                          \
             ORRw_mask(s4, xZR, 12, 10); /*+inf*/                            \
             FMOVwS(s2, v1);                                                 \
@@ -996,7 +997,8 @@
         CSELw(s1, s2, s1, cEQ);                                             \
         /* greater than leave 0 */                                          \
         if(s4) {                                                            \
-            Bcond(cVS, 10*4);                                               \
+            Bcond(cVS, 11*4);                                               \
+            Bcond(cEQ, 10*4);                                               \
             if(is_f) {                                                      \
                 ORRw_mask(s4, xZR, 12, 10); /*+inf*/                        \
                 FMOVwS(s2, v1);                                             \
