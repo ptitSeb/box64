@@ -1324,7 +1324,11 @@ GOWD(modfl, DFDp, modf)
 //GOW(modify_ldt, 
 //GOW(moncontrol, 
 //GO(__monstartup, 
-//GOW(monstartup, 
+#ifdef STATICBUILD
+//GOW(monstartup, vFLL)
+#else
+GOW(monstartup, vFLL)
+#endif
 //DATA(__morecore, 
 GOW(mount, iFpppLp)
 GO(mprobe, iFp)
