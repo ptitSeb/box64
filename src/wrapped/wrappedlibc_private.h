@@ -1325,7 +1325,7 @@ GOWD(modfl, DFDp, modf)
 //GOW(moncontrol, 
 //GO(__monstartup, 
 #ifdef STATICBUILD
-//GO(monstartup, iFpp)
+//GO(monstartup, vFLL)
 #else
 GO(monstartup, vFLL)
 #endif
