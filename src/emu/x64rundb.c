@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <fenv.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@
 #include "x64primop.h"
 #include "x64trace.h"
 #include "x87emu_private.h"
+#include "x87emu_setround.h"
 #include "box64context.h"
 #include "bridge.h"
 
@@ -35,6 +37,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
     x64emu_t*emu = test->emu;
     #endif
 
+    int oldround = fpu_setround(emu);
     nextop = F8;
     if(MODREG)
     switch(nextop) {
@@ -128,6 +131,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
 
     default:
+        fesetround(oldround);
         return 0;
     } else
         switch((nextop>>3)&7) {
@@ -179,7 +183,9 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 fpu_do_pop(emu);
                 break;
             default:
+                fesetround(oldround);
                 return 0;
         }
-  return addr;
+    fesetround(oldround);
+    return addr;
 }

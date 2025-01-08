@@ -1,0 +1,810 @@
+Testing: s = (0x1.123456789abcp2) -> (double)s
+FE_TONEAREST   0x1.123456789abcp+2
+FE_DOWNWARD    0x1.123456789abcp+2
+FE_UPWARD      0x1.123456789abcp+2
+FE_TOWARDZERO  0x1.123456789abcp+2
+
+Testing: s = (0x1.123456789abcp2) -> (float)s
+FE_TONEAREST   0x1.123456p+2
+FE_DOWNWARD    0x1.123456p+2
+FE_UPWARD      0x1.123458p+2
+FE_TOWARDZERO  0x1.123456p+2
+
+Testing: s = (-(0x1.123456789abcp2)) -> (double)s
+FE_TONEAREST   -0x1.123456789abcp+2
+FE_DOWNWARD    -0x1.123456789abcp+2
+FE_UPWARD      -0x1.123456789abcp+2
+FE_TOWARDZERO  -0x1.123456789abcp+2
+
+Testing: s = (-(0x1.123456789abcp2)) -> (float)s
+FE_TONEAREST   -0x1.123456p+2
+FE_DOWNWARD    -0x1.123458p+2
+FE_UPWARD      -0x1.123456p+2
+FE_TOWARDZERO  -0x1.123456p+2
+
+Testing: d = (0x1.123456789abcp512) -> (float)d
+FE_TONEAREST   inf
+FE_DOWNWARD    0x1.fffffep+127
+FE_UPWARD      inf
+FE_TOWARDZERO  0x1.fffffep+127
+
+Testing: s = (0x1.123456789abcp29) -> (double)s
+FE_TONEAREST   0x1.123456789abcp+29
+FE_DOWNWARD    0x1.123456789abcp+29
+FE_UPWARD      0x1.123456789abcp+29
+FE_TOWARDZERO  0x1.123456789abcp+29
+
+Testing: s = (0x1.123456789abcp29) -> (float)s
+FE_TONEAREST   0x1.123456p+29
+FE_DOWNWARD    0x1.123456p+29
+FE_UPWARD      0x1.123458p+29
+FE_TOWARDZERO  0x1.123456p+29
+
+Testing: s = (0x1.123456789abcp29) -> (int16_t)s
+FE_TONEAREST   -32768
+FE_DOWNWARD    -32768
+FE_UPWARD      -32768
+FE_TOWARDZERO  -32768
+
+Testing: s = (0x1.123456789abcp29) -> (int8_t)s
+FE_TONEAREST   0
+FE_DOWNWARD    0
+FE_UPWARD      0
+FE_TOWARDZERO  0
+
+Testing: s = (0x1.123456789abcp29) -> (unsigned short)s
+FE_TONEAREST   35535
+FE_DOWNWARD    35535
+FE_UPWARD      35535
+FE_TOWARDZERO  35535
+
+Testing: s = (0x1.123456789abcp29) -> (unsigned char)s
+FE_TONEAREST   0
+FE_DOWNWARD    0
+FE_UPWARD      0
+FE_TOWARDZERO  0
+
+Testing: s = (-(0x1.123456789abcp29)) -> (double)s
+FE_TONEAREST   -0x1.123456789abcp+29
+FE_DOWNWARD    -0x1.123456789abcp+29
+FE_UPWARD      -0x1.123456789abcp+29
+FE_TOWARDZERO  -0x1.123456789abcp+29
+
+Testing: s = (-(0x1.123456789abcp29)) -> (float)s
+FE_TONEAREST   -0x1.123456p+29
+FE_DOWNWARD    -0x1.123458p+29
+FE_UPWARD      -0x1.123456p+29
+FE_TOWARDZERO  -0x1.123456p+29
+
+Testing: d = (-0x1.123456789abcp30) -> (int32_t)d
+FE_TONEAREST   -1150096798
+FE_DOWNWARD    -1150096798
+FE_UPWARD      -1150096798
+FE_TOWARDZERO  -1150096798
+
+Testing: d = (-0x1.123456789abcp62) -> (int64_t)d
+FE_TONEAREST   -4939628135293321216
+FE_DOWNWARD    -4939628135293321216
+FE_UPWARD      -4939628135293321216
+FE_TOWARDZERO  -4939628135293321216
+
+Testing: s = (0x1.123456789abcp2f) -> (double)s
+FE_TONEAREST   0x1.123456p+2
+FE_DOWNWARD    0x1.123456p+2
+FE_UPWARD      0x1.123458p+2
+FE_TOWARDZERO  0x1.123456p+2
+
+Testing: s = (0x1.123456789abcp2f) -> (float)s
+FE_TONEAREST   0x1.123456p+2
+FE_DOWNWARD    0x1.123456p+2
+FE_UPWARD      0x1.123458p+2
+FE_TOWARDZERO  0x1.123456p+2
+
+Testing: s = (-(0x1.123456789abcp2f)) -> (double)s
+FE_TONEAREST   -0x1.123456p+2
+FE_DOWNWARD    -0x1.123458p+2
+FE_UPWARD      -0x1.123456p+2
+FE_TOWARDZERO  -0x1.123456p+2
+
+Testing: s = (-(0x1.123456789abcp2f)) -> (float)s
+FE_TONEAREST   -0x1.123456p+2
+FE_DOWNWARD    -0x1.123458p+2
+FE_UPWARD      -0x1.123456p+2
+FE_TOWARDZERO  -0x1.123456p+2
+
+Testing: s = (0x1.123456789abcp29f) -> (double)s
+FE_TONEAREST   0x1.123456p+29
+FE_DOWNWARD    0x1.123456p+29
+FE_UPWARD      0x1.123458p+29
+FE_TOWARDZERO  0x1.123456p+29
+
+Testing: s = (0x1.123456789abcp29f) -> (float)s
+FE_TONEAREST   0x1.123456p+29
+FE_DOWNWARD    0x1.123456p+29
+FE_UPWARD      0x1.123458p+29
+FE_TOWARDZERO  0x1.123456p+29
+
+Testing: s = (0x1.123456789abcp29f) -> (int16_t)s
+FE_TONEAREST   -32768
+FE_DOWNWARD    -32768
+FE_UPWARD      -32768
+FE_TOWARDZERO  -32768
+
+Testing: s = (0x1.123456789abcp29f) -> (int8_t)s
+FE_TONEAREST   0
+FE_DOWNWARD    0
+FE_UPWARD      0
+FE_TOWARDZERO  0
+
+Testing: s = (0x1.123456789abcp29f) -> (unsigned short)s
+FE_TONEAREST   35520
+FE_DOWNWARD    35520
+FE_UPWARD      35584
+FE_TOWARDZERO  35520
+
+Testing: s = (0x1.123456789abcp29f) -> (unsigned char)s
+FE_TONEAREST   0
+FE_DOWNWARD    0
+FE_UPWARD      0
+FE_TOWARDZERO  0
+
+Testing: s = (-(0x1.123456789abcp29f)) -> (double)s
+FE_TONEAREST   -0x1.123456p+29
+FE_DOWNWARD    -0x1.123458p+29
+FE_UPWARD      -0x1.123456p+29
+FE_TOWARDZERO  -0x1.123456p+29
+
+Testing: s = (-(0x1.123456789abcp29f)) -> (float)s
+FE_TONEAREST   -0x1.123456p+29
+FE_DOWNWARD    -0x1.123458p+29
+FE_UPWARD      -0x1.123456p+29
+FE_TOWARDZERO  -0x1.123456p+29
+
+Testing: f = -0x1.123456789abcp30f -> (int32_t)f
+FE_TONEAREST   -1150096768
+FE_DOWNWARD    -1150096896
+FE_UPWARD      -1150096768
+FE_TOWARDZERO  -1150096768
+
+Testing: d = -0x1.1234567p0 -> (double)((int)d)
+FE_TONEAREST   -0x1p+0
+FE_DOWNWARD    -0x1p+0
+FE_UPWARD      -0x1p+0
+FE_TOWARDZERO  -0x1p+0
+
+Testing: d = 0x1.9234567p0 -> (double)((int)d)
+FE_TONEAREST   0x1p+0
+FE_DOWNWARD    0x1p+0
+FE_UPWARD      0x1p+0
+FE_TOWARDZERO  0x1p+0
+
+Testing: d = -0x1.9234567p0 -> (double)((int)d)
+FE_TONEAREST   -0x1p+0
+FE_DOWNWARD    -0x1p+0
+FE_UPWARD      -0x1p+0
+FE_TOWARDZERO  -0x1p+0
+
+Testing: d = 0x1.1234567p0 -> (double)((long int)d)
+FE_TONEAREST   0x1p+0
+FE_DOWNWARD    0x1p+0
+FE_UPWARD      0x1p+0
+FE_TOWARDZERO  0x1p+0
+
+Testing: d = -0x1.1234567p0 -> (double)((long int)d)
+FE_TONEAREST   -0x1p+0
+FE_DOWNWARD    -0x1p+0
+FE_UPWARD      -0x1p+0
+FE_TOWARDZERO  -0x1p+0
+
+Testing: d = 0x1.9234567p0 -> (double)((long int)d)
+FE_TONEAREST   0x1p+0
+FE_DOWNWARD    0x1p+0
+FE_UPWARD      0x1p+0
+FE_TOWARDZERO  0x1p+0
+
+Testing: d = -0x1.9234567p0 -> (double)((long int)d)
+FE_TONEAREST   -0x1p+0
+FE_DOWNWARD    -0x1p+0
+FE_UPWARD      -0x1p+0
+FE_TOWARDZERO  -0x1p+0
+
+Testing: (d1 = (1.0), d2 = (0x1.0000000000001p0)) -> d1 + d2
+FE_TONEAREST   0x1p+1
+FE_DOWNWARD    0x1p+1
+FE_UPWARD      0x1.0000000000001p+1
+FE_TOWARDZERO  0x1p+1
+
+Testing: (d1 = -(1.0), d2 = (0x1.0000000000001p0)) -> d1 + d2
+FE_TONEAREST   0x1p-52
+FE_DOWNWARD    0x1p-52
+FE_UPWARD      0x1p-52
+FE_TOWARDZERO  0x1p-52
+
+Testing: (d1 = (1.0), d2 = -(0x1.0000000000001p0)) -> d1 + d2
+FE_TONEAREST   -0x1p-52
+FE_DOWNWARD    -0x1p-52
+FE_UPWARD      -0x1p-52
+FE_TOWARDZERO  -0x1p-52
+
+Testing: (d1 = -(1.0), d2 = -(0x1.0000000000001p0)) -> d1 + d2
+FE_TONEAREST   -0x1p+1
+FE_DOWNWARD    -0x1.0000000000001p+1
+FE_UPWARD      -0x1p+1
+FE_TOWARDZERO  -0x1p+1
+
+Testing: (d1 = (1.0), d2 = (0x1.0000000000001p0)) -> d1 - d2
+FE_TONEAREST   -0x1p-52
+FE_DOWNWARD    -0x1p-52
+FE_UPWARD      -0x1p-52
+FE_TOWARDZERO  -0x1p-52
+
+Testing: (d1 = -(1.0), d2 = (0x1.0000000000001p0)) -> d1 - d2
+FE_TONEAREST   -0x1p+1
+FE_DOWNWARD    -0x1.0000000000001p+1
+FE_UPWARD      -0x1p+1
+FE_TOWARDZERO  -0x1p+1
+
+Testing: (d1 = (1.0), d2 = -(0x1.0000000000001p0)) -> d1 - d2
+FE_TONEAREST   0x1p+1
+FE_DOWNWARD    0x1p+1
+FE_UPWARD      0x1.0000000000001p+1
+FE_TOWARDZERO  0x1p+1
+
+Testing: (d1 = -(1.0), d2 = -(0x1.0000000000001p0)) -> d1 - d2
+FE_TONEAREST   0x1p-52
+FE_DOWNWARD    0x1p-52
+FE_UPWARD      0x1p-52
+FE_TOWARDZERO  0x1p-52
+
+Testing: (d1 = (1.0), d2 = (0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   0x1p-52
+FE_DOWNWARD    0x1p-52
+FE_UPWARD      0x1p-52
+FE_TOWARDZERO  0x1p-52
+
+Testing: (d1 = -(1.0), d2 = (0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   0x1p+1
+FE_DOWNWARD    0x1p+1
+FE_UPWARD      0x1.0000000000001p+1
+FE_TOWARDZERO  0x1p+1
+
+Testing: (d1 = (1.0), d2 = -(0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   -0x1p+1
+FE_DOWNWARD    -0x1.0000000000001p+1
+FE_UPWARD      -0x1p+1
+FE_TOWARDZERO  -0x1p+1
+
+Testing: (d1 = -(1.0), d2 = -(0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   -0x1p-52
+FE_DOWNWARD    -0x1p-52
+FE_UPWARD      -0x1p-52
+FE_TOWARDZERO  -0x1p-52
+
+Testing: (d1 = (1.0), d2 = (0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   0x1.1000000000001p+0
+FE_DOWNWARD    0x1.1p+0
+FE_UPWARD      0x1.1000000000001p+0
+FE_TOWARDZERO  0x1.1p+0
+
+Testing: (d1 = -(1.0), d2 = (0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   -0x1.dfffffffffffep-1
+FE_DOWNWARD    -0x1.dffffffffffffp-1
+FE_UPWARD      -0x1.dfffffffffffep-1
+FE_TOWARDZERO  -0x1.dfffffffffffep-1
+
+Testing: (d1 = (1.0), d2 = -(0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   0x1.dfffffffffffep-1
+FE_DOWNWARD    0x1.dfffffffffffep-1
+FE_UPWARD      0x1.dffffffffffffp-1
+FE_TOWARDZERO  0x1.dfffffffffffep-1
+
+Testing: (d1 = -(1.0), d2 = -(0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   -0x1.1000000000001p+0
+FE_DOWNWARD    -0x1.1000000000001p+0
+FE_UPWARD      -0x1.1p+0
+FE_TOWARDZERO  -0x1.1p+0
+
+Testing: (d1 = (1.0), d2 = (0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   0x1.dfffffffffffep-1
+FE_DOWNWARD    0x1.dfffffffffffep-1
+FE_UPWARD      0x1.dffffffffffffp-1
+FE_TOWARDZERO  0x1.dfffffffffffep-1
+
+Testing: (d1 = -(1.0), d2 = (0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   -0x1.1000000000001p+0
+FE_DOWNWARD    -0x1.1000000000001p+0
+FE_UPWARD      -0x1.1p+0
+FE_TOWARDZERO  -0x1.1p+0
+
+Testing: (d1 = (1.0), d2 = -(0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   0x1.1000000000001p+0
+FE_DOWNWARD    0x1.1p+0
+FE_UPWARD      0x1.1000000000001p+0
+FE_TOWARDZERO  0x1.1p+0
+
+Testing: (d1 = -(1.0), d2 = -(0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   -0x1.dfffffffffffep-1
+FE_DOWNWARD    -0x1.dffffffffffffp-1
+FE_UPWARD      -0x1.dfffffffffffep-1
+FE_TOWARDZERO  -0x1.dfffffffffffep-1
+
+Testing: (d1 = (1.0), d2 = (0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   -0x1.dfffffffffffep-1
+FE_DOWNWARD    -0x1.dffffffffffffp-1
+FE_UPWARD      -0x1.dfffffffffffep-1
+FE_TOWARDZERO  -0x1.dfffffffffffep-1
+
+Testing: (d1 = -(1.0), d2 = (0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   0x1.1000000000001p+0
+FE_DOWNWARD    0x1.1p+0
+FE_UPWARD      0x1.1000000000001p+0
+FE_TOWARDZERO  0x1.1p+0
+
+Testing: (d1 = (1.0), d2 = -(0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   -0x1.1000000000001p+0
+FE_DOWNWARD    -0x1.1000000000001p+0
+FE_UPWARD      -0x1.1p+0
+FE_TOWARDZERO  -0x1.1p+0
+
+Testing: (d1 = -(1.0), d2 = -(0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   0x1.dfffffffffffep-1
+FE_DOWNWARD    0x1.dfffffffffffep-1
+FE_UPWARD      0x1.dffffffffffffp-1
+FE_TOWARDZERO  0x1.dfffffffffffep-1
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 + d2
+FE_TONEAREST   0x1.2bc55ef8922bp+1
+FE_DOWNWARD    0x1.2bc55ef8922bp+1
+FE_UPWARD      0x1.2bc55ef8922bp+1
+FE_TOWARDZERO  0x1.2bc55ef8922bp+1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 + d2
+FE_TONEAREST   0x1.12233445566p-4
+FE_DOWNWARD    0x1.12233445566p-4
+FE_UPWARD      0x1.12233445566p-4
+FE_TOWARDZERO  0x1.12233445566p-4
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 + d2
+FE_TONEAREST   -0x1.12233445566p-4
+FE_DOWNWARD    -0x1.12233445566p-4
+FE_UPWARD      -0x1.12233445566p-4
+FE_TOWARDZERO  -0x1.12233445566p-4
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 + d2
+FE_TONEAREST   -0x1.2bc55ef8922bp+1
+FE_DOWNWARD    -0x1.2bc55ef8922bp+1
+FE_UPWARD      -0x1.2bc55ef8922bp+1
+FE_TOWARDZERO  -0x1.2bc55ef8922bp+1
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd404804dp+0
+FE_DOWNWARD    0x1.5ebd3ddf57ep+0
+FE_UPWARD      0x1.5ebd428e6d5cp+0
+FE_TOWARDZERO  0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd404804dp+0
+FE_DOWNWARD    -0x1.5ebd404804dp+0
+FE_UPWARD      -0x1.5ebd4025c068p+0
+FE_TOWARDZERO  -0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd404804dp+0
+FE_DOWNWARD    -0x1.5ebd4025c068p+0
+FE_UPWARD      -0x1.5ebd404804dp+0
+FE_TOWARDZERO  -0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd404804dp+0
+FE_DOWNWARD    0x1.5ebd428e6d5cp+0
+FE_UPWARD      0x1.5ebd3ddf57ep+0
+FE_TOWARDZERO  0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd40f80919p+0
+FE_DOWNWARD    0x1.5ebd3e8f5c27dp+0
+FE_UPWARD      0x1.5ebd40f809191p+0
+FE_TOWARDZERO  0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd40f80919p+0
+FE_DOWNWARD    -0x1.5ebd40f809191p+0
+FE_UPWARD      -0x1.5ebd3e8f5c27dp+0
+FE_TOWARDZERO  -0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd40f80919p+0
+FE_DOWNWARD    -0x1.5ebd3e8f5c27ep+0
+FE_UPWARD      -0x1.5ebd40f80919p+0
+FE_TOWARDZERO  -0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd40f80919p+0
+FE_DOWNWARD    0x1.5ebd40f80919p+0
+FE_UPWARD      0x1.5ebd3e8f5c27ep+0
+FE_TOWARDZERO  0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd402bc44c4p+0
+FE_DOWNWARD    0x1.5ebd402bc44c4p+0
+FE_UPWARD      0x1.5ebd402bc44c5p+0
+FE_TOWARDZERO  0x1.5ebd402bc44c4p+0
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd402bc44c4p+0
+FE_DOWNWARD    -0x1.5ebd402bc44c5p+0
+FE_UPWARD      -0x1.5ebd402bc44c4p+0
+FE_TOWARDZERO  -0x1.5ebd402bc44c4p+0
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd402bc44c4p+0
+FE_DOWNWARD    -0x1.5ebd402bc44c5p+0
+FE_UPWARD      -0x1.5ebd402bc44c4p+0
+FE_TOWARDZERO  -0x1.5ebd402bc44c4p+0
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd402bc44c4p+0
+FE_DOWNWARD    0x1.5ebd402bc44c4p+0
+FE_UPWARD      0x1.5ebd402bc44c5p+0
+FE_TOWARDZERO  0x1.5ebd402bc44c4p+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd40f80919p+0
+FE_DOWNWARD    0x1.5ebd3e8f5c27dp+0
+FE_UPWARD      0x1.5ebd40f809191p+0
+FE_TOWARDZERO  0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd40f80919p+0
+FE_DOWNWARD    -0x1.5ebd40f809191p+0
+FE_UPWARD      -0x1.5ebd3e8f5c27dp+0
+FE_TOWARDZERO  -0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd40f80919p+0
+FE_DOWNWARD    -0x1.5ebd3e8f5c27ep+0
+FE_UPWARD      -0x1.5ebd40f80919p+0
+FE_TOWARDZERO  -0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd40f80919p+0
+FE_DOWNWARD    0x1.5ebd40f80919p+0
+FE_UPWARD      0x1.5ebd3e8f5c27ep+0
+FE_TOWARDZERO  0x1.5ebd3e8f5c27dp+0
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd3f7bc003ap+0
+FE_DOWNWARD    0x1.5ebd3f7bc003ap+0
+FE_UPWARD      0x1.5ebd41c2288e5p+0
+FE_TOWARDZERO  0x1.5ebd3f7bc003ap+0
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd3f7bc003ap+0
+FE_DOWNWARD    -0x1.5ebd3f7bc003bp+0
+FE_UPWARD      -0x1.5ebd41c2288e4p+0
+FE_TOWARDZERO  -0x1.5ebd3f7bc003ap+0
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd3f7bc003ap+0
+FE_DOWNWARD    -0x1.5ebd41c2288e5p+0
+FE_UPWARD      -0x1.5ebd3f7bc003ap+0
+FE_TOWARDZERO  -0x1.5ebd3f7bc003ap+0
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd3f7bc003ap+0
+FE_DOWNWARD    0x1.5ebd41c2288e4p+0
+FE_UPWARD      0x1.5ebd3f7bc003bp+0
+FE_TOWARDZERO  0x1.5ebd3f7bc003ap+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd404804dp+0
+FE_DOWNWARD    0x1.5ebd3ddf57ep+0
+FE_UPWARD      0x1.5ebd428e6d5cp+0
+FE_TOWARDZERO  0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd404804dp+0
+FE_DOWNWARD    -0x1.5ebd404804dp+0
+FE_UPWARD      -0x1.5ebd4025c068p+0
+FE_TOWARDZERO  -0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.5ebd404804dp+0
+FE_DOWNWARD    -0x1.5ebd4025c068p+0
+FE_UPWARD      -0x1.5ebd404804dp+0
+FE_TOWARDZERO  -0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.5ebd404804dp+0
+FE_DOWNWARD    0x1.5ebd428e6d5cp+0
+FE_UPWARD      0x1.5ebd3ddf57ep+0
+FE_TOWARDZERO  0x1.5ebd3ddf57ep+0
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (5)) -> d1 *d2
+FE_TONEAREST   0x1.6c0156ac0156p+2
+FE_DOWNWARD    0x1.6c0156ac0156p+2
+FE_UPWARD      0x1.6c0156ac0156p+2
+FE_TOWARDZERO  0x1.6c0156ac0156p+2
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (5)) -> d1 *d2
+FE_TONEAREST   -0x1.6c0156ac0156p+2
+FE_DOWNWARD    -0x1.6c0156ac0156p+2
+FE_UPWARD      -0x1.6c0156ac0156p+2
+FE_TOWARDZERO  -0x1.6c0156ac0156p+2
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(5)) -> d1 *d2
+FE_TONEAREST   -0x1.6c0156ac0156p+2
+FE_DOWNWARD    -0x1.6c0156ac0156p+2
+FE_UPWARD      -0x1.6c0156ac0156p+2
+FE_TOWARDZERO  -0x1.6c0156ac0156p+2
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(5)) -> d1 *d2
+FE_TONEAREST   0x1.6c0156ac0156p+2
+FE_DOWNWARD    0x1.6c0156ac0156p+2
+FE_UPWARD      0x1.6c0156ac0156p+2
+FE_TOWARDZERO  0x1.6c0156ac0156p+2
+
+Testing: (d1 = (15), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.2111111111102p+4
+FE_DOWNWARD    0x1.2111111111102p+4
+FE_UPWARD      0x1.2111111111102p+4
+FE_TOWARDZERO  0x1.2111111111102p+4
+
+Testing: (d1 = -(15), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.2111111111102p+4
+FE_DOWNWARD    -0x1.2111111111102p+4
+FE_UPWARD      -0x1.2111111111102p+4
+FE_TOWARDZERO  -0x1.2111111111102p+4
+
+Testing: (d1 = (15), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.2111111111102p+4
+FE_DOWNWARD    -0x1.2111111111102p+4
+FE_UPWARD      -0x1.2111111111102p+4
+FE_TOWARDZERO  -0x1.2111111111102p+4
+
+Testing: (d1 = -(15), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.2111111111102p+4
+FE_DOWNWARD    0x1.2111111111102p+4
+FE_UPWARD      0x1.2111111111102p+4
+FE_TOWARDZERO  0x1.2111111111102p+4
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = (15)) -> d1 *d2
+FE_TONEAREST   0x1.110101ap+4
+FE_DOWNWARD    0x1.1100ffcp+4
+FE_UPWARD      0x1.110101ap+4
+FE_TOWARDZERO  0x1.1100ffcp+4
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = (15)) -> d1 *d2
+FE_TONEAREST   -0x1.110101ap+4
+FE_DOWNWARD    -0x1.110101ap+4
+FE_UPWARD      -0x1.1100ffcp+4
+FE_TOWARDZERO  -0x1.1100ffcp+4
+
+Testing: (d1 = (0x1.233445566778p0f), d2 = -(15)) -> d1 *d2
+FE_TONEAREST   -0x1.110101ap+4
+FE_DOWNWARD    -0x1.1100ffcp+4
+FE_UPWARD      -0x1.110101ap+4
+FE_TOWARDZERO  -0x1.1100ffcp+4
+
+Testing: (d1 = -(0x1.233445566778p0f), d2 = -(15)) -> d1 *d2
+FE_TONEAREST   0x1.110101ap+4
+FE_DOWNWARD    0x1.110101ap+4
+FE_UPWARD      0x1.1100ffcp+4
+FE_TOWARDZERO  0x1.1100ffcp+4
+
+Testing: (d1 = (15), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.2111108p+4
+FE_DOWNWARD    0x1.2111108p+4
+FE_UPWARD      0x1.2111126p+4
+FE_TOWARDZERO  0x1.2111108p+4
+
+Testing: (d1 = -(15), d2 = (0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.2111108p+4
+FE_DOWNWARD    -0x1.2111108p+4
+FE_UPWARD      -0x1.2111126p+4
+FE_TOWARDZERO  -0x1.2111108p+4
+
+Testing: (d1 = (15), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   -0x1.2111108p+4
+FE_DOWNWARD    -0x1.2111126p+4
+FE_UPWARD      -0x1.2111108p+4
+FE_TOWARDZERO  -0x1.2111108p+4
+
+Testing: (d1 = -(15), d2 = -(0x1.3456789abcdep0f)) -> d1 *d2
+FE_TONEAREST   0x1.2111108p+4
+FE_DOWNWARD    0x1.2111126p+4
+FE_UPWARD      0x1.2111108p+4
+FE_TOWARDZERO  0x1.2111108p+4
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   0x1.e38ca44203ab9p-1
+FE_DOWNWARD    0x1.e38ca44203ab8p-1
+FE_UPWARD      0x1.e38ca44203ab9p-1
+FE_TOWARDZERO  0x1.e38ca44203ab8p-1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   -0x1.e38ca44203ab9p-1
+FE_DOWNWARD    -0x1.e38ca44203ab9p-1
+FE_UPWARD      -0x1.e38ca44203ab8p-1
+FE_TOWARDZERO  -0x1.e38ca44203ab8p-1
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   -0x1.e38ca44203ab9p-1
+FE_DOWNWARD    -0x1.e38ca44203ab9p-1
+FE_UPWARD      -0x1.e38ca44203ab8p-1
+FE_TOWARDZERO  -0x1.e38ca44203ab8p-1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   0x1.e38ca44203ab9p-1
+FE_DOWNWARD    0x1.e38ca44203ab8p-1
+FE_UPWARD      0x1.e38ca44203ab9p-1
+FE_TOWARDZERO  0x1.e38ca44203ab8p-1
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   0x1.e38ca44203ab9p-1
+FE_DOWNWARD    0x1.e38ca44203ab8p-1
+FE_UPWARD      0x1.e38ca44203ab9p-1
+FE_TOWARDZERO  0x1.e38ca44203ab8p-1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   -0x1.e38ca44203ab9p-1
+FE_DOWNWARD    -0x1.e38ca44203ab9p-1
+FE_UPWARD      -0x1.e38ca44203ab8p-1
+FE_TOWARDZERO  -0x1.e38ca44203ab8p-1
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   -0x1.e38ca44203ab9p-1
+FE_DOWNWARD    -0x1.e38ca44203ab9p-1
+FE_UPWARD      -0x1.e38ca44203ab8p-1
+FE_TOWARDZERO  -0x1.e38ca44203ab8p-1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(0x1.3456789abcdep0)) -> d1 / d2
+FE_TONEAREST   0x1.e38ca44203ab9p-1
+FE_DOWNWARD    0x1.e38ca44203ab8p-1
+FE_UPWARD      0x1.e38ca44203ab9p-1
+FE_TOWARDZERO  0x1.e38ca44203ab8p-1
+
+Testing: (d1 = (0x1.233445566778p0), d2 = (0x1.3456789abcdep0f)) -> d1 / d2
+FE_TONEAREST   0x1.e38ca534ae61p-1
+FE_DOWNWARD    0x1.e38ca534ae61p-1
+FE_UPWARD      0x1.e38ca211bd4adp-1
+FE_TOWARDZERO  0x1.e38ca534ae61p-1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = (0x1.3456789abcdep0f)) -> d1 / d2
+FE_TONEAREST   -0x1.e38ca534ae61p-1
+FE_DOWNWARD    -0x1.e38ca534ae611p-1
+FE_UPWARD      -0x1.e38ca211bd4acp-1
+FE_TOWARDZERO  -0x1.e38ca534ae61p-1
+
+Testing: (d1 = (0x1.233445566778p0), d2 = -(0x1.3456789abcdep0f)) -> d1 / d2
+FE_TONEAREST   -0x1.e38ca534ae61p-1
+FE_DOWNWARD    -0x1.e38ca211bd4adp-1
+FE_UPWARD      -0x1.e38ca534ae61p-1
+FE_TOWARDZERO  -0x1.e38ca534ae61p-1
+
+Testing: (d1 = -(0x1.233445566778p0), d2 = -(0x1.3456789abcdep0f)) -> d1 / d2
+FE_TONEAREST   0x1.e38ca534ae61p-1
+FE_DOWNWARD    0x1.e38ca211bd4acp-1
+FE_UPWARD      0x1.e38ca534ae611p-1
+FE_TOWARDZERO  0x1.e38ca534ae61p-1
+
+Testing: (d1 = (1.0), d2 = (0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   0x1p-52
+FE_DOWNWARD    0x1p-52
+FE_UPWARD      0x1p-52
+FE_TOWARDZERO  0x1p-52
+
+Testing: (d1 = -(1.0), d2 = (0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   0x1p+1
+FE_DOWNWARD    0x1p+1
+FE_UPWARD      0x1.0000000000001p+1
+FE_TOWARDZERO  0x1p+1
+
+Testing: (d1 = (1.0), d2 = -(0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   -0x1p+1
+FE_DOWNWARD    -0x1.0000000000001p+1
+FE_UPWARD      -0x1p+1
+FE_TOWARDZERO  -0x1p+1
+
+Testing: (d1 = -(1.0), d2 = -(0x1.0000000000001p0)) -> d2 - d1
+FE_TONEAREST   -0x1p-52
+FE_DOWNWARD    -0x1p-52
+FE_UPWARD      -0x1p-52
+FE_TOWARDZERO  -0x1p-52
+
+Testing: (d1 = (1.0), d2 = (0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   0x1.1000000000001p+0
+FE_DOWNWARD    0x1.1p+0
+FE_UPWARD      0x1.1000000000001p+0
+FE_TOWARDZERO  0x1.1p+0
+
+Testing: (d1 = -(1.0), d2 = (0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   -0x1.dfffffffffffep-1
+FE_DOWNWARD    -0x1.dffffffffffffp-1
+FE_UPWARD      -0x1.dfffffffffffep-1
+FE_TOWARDZERO  -0x1.dfffffffffffep-1
+
+Testing: (d1 = (1.0), d2 = -(0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   0x1.dfffffffffffep-1
+FE_DOWNWARD    0x1.dfffffffffffep-1
+FE_UPWARD      0x1.dffffffffffffp-1
+FE_TOWARDZERO  0x1.dfffffffffffep-1
+
+Testing: (d1 = -(1.0), d2 = -(0x1.000000000000dp-4)) -> d1 + d2
+FE_TONEAREST   -0x1.1000000000001p+0
+FE_DOWNWARD    -0x1.1000000000001p+0
+FE_UPWARD      -0x1.1p+0
+FE_TOWARDZERO  -0x1.1p+0
+
+Testing: (d1 = (1.0), d2 = (0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   0x1.dfffffffffffep-1
+FE_DOWNWARD    0x1.dfffffffffffep-1
+FE_UPWARD      0x1.dffffffffffffp-1
+FE_TOWARDZERO  0x1.dfffffffffffep-1
+
+Testing: (d1 = -(1.0), d2 = (0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   -0x1.1000000000001p+0
+FE_DOWNWARD    -0x1.1000000000001p+0
+FE_UPWARD      -0x1.1p+0
+FE_TOWARDZERO  -0x1.1p+0
+
+Testing: (d1 = (1.0), d2 = -(0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   0x1.1000000000001p+0
+FE_DOWNWARD    0x1.1p+0
+FE_UPWARD      0x1.1000000000001p+0
+FE_TOWARDZERO  0x1.1p+0
+
+Testing: (d1 = -(1.0), d2 = -(0x1.000000000000dp-4)) -> d1 - d2
+FE_TONEAREST   -0x1.dfffffffffffep-1
+FE_DOWNWARD    -0x1.dffffffffffffp-1
+FE_UPWARD      -0x1.dfffffffffffep-1
+FE_TOWARDZERO  -0x1.dfffffffffffep-1
+
+Testing: (d1 = (1.0), d2 = (0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   -0x1.dfffffffffffep-1
+FE_DOWNWARD    -0x1.dffffffffffffp-1
+FE_UPWARD      -0x1.dfffffffffffep-1
+FE_TOWARDZERO  -0x1.dfffffffffffep-1
+
+Testing: (d1 = -(1.0), d2 = (0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   0x1.1000000000001p+0
+FE_DOWNWARD    0x1.1p+0
+FE_UPWARD      0x1.1000000000001p+0
+FE_TOWARDZERO  0x1.1p+0
+
+Testing: (d1 = (1.0), d2 = -(0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   -0x1.1000000000001p+0
+FE_DOWNWARD    -0x1.1000000000001p+0
+FE_UPWARD      -0x1.1p+0
+FE_TOWARDZERO  -0x1.1p+0
+
+Testing: (d1 = -(1.0), d2 = -(0x1.000000000000dp-4)) -> d2 - d1
+FE_TONEAREST   0x1.dfffffffffffep-1
+FE_DOWNWARD    0x1.dfffffffffffep-1
+FE_UPWARD      0x1.dffffffffffffp-1
+FE_TOWARDZERO  0x1.dfffffffffffep-1
+
+Testing X87 instruction: "FSQRT" (ST0 = 0x1p+2, ST1 = 0x0p+0)
+FE_TONEAREST    ST0 = 0x1p+1
+FE_DOWNWARD     ST0 = 0x1p+1
+FE_UPWARD       ST0 = 0x1p+1
+FE_TOWARDZERO   ST0 = 0x1p+1
+
+Testing X87 instruction: "FSQRT" (ST0 = 0x1.0000000000001p+1, ST1 = 0x0p+0)
+FE_TONEAREST    ST0 = 0x1.6a09e667f3bcdp+0
+FE_DOWNWARD     ST0 = 0x1.6a09e667f3bcdp+0
+FE_UPWARD       ST0 = 0x1.6a09e667f3bcep+0
+FE_TOWARDZERO   ST0 = 0x1.6a09e667f3bcdp+0
+
+Testing X87 instruction: "FSQRT" (ST0 = 0x1.123456789abcp+31, ST1 = 0x0p+0)
+FE_TONEAREST    ST0 = 0x1.76b0aac9e6a5p+15
+FE_DOWNWARD     ST0 = 0x1.76b0aac9e6a4fp+15
+FE_UPWARD       ST0 = 0x1.76b0aac9e6a5p+15
+FE_TOWARDZERO   ST0 = 0x1.76b0aac9e6a4fp+15
+
+Testing X87 instruction: "FSQRT" (ST0 = 0x1.123456789abdp+31, ST1 = 0x0p+0)
+FE_TONEAREST    ST0 = 0x1.76b0aac9e6a5bp+15
+FE_DOWNWARD     ST0 = 0x1.76b0aac9e6a5ap+15
+FE_UPWARD       ST0 = 0x1.76b0aac9e6a5bp+15
+FE_TOWARDZERO   ST0 = 0x1.76b0aac9e6a5ap+15
+

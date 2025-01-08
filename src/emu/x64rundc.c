@@ -17,6 +17,7 @@
 #include "x64primop.h"
 #include "x64trace.h"
 #include "x87emu_private.h"
+#include "x87emu_setround.h"
 #include "box64context.h"
 #include "bridge.h"
 
@@ -34,6 +35,7 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
     x64emu_t*emu = test->emu;
     #endif
 
+    int oldround = fpu_setround(emu);
     nextop = F8;
     if(MODREG)
     switch(nextop) {
@@ -119,6 +121,7 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
             ST(nextop&7).d /=  ST0.d;
             break;
         default:
+            fesetround(oldround);
             return 0;
     } else {
             GETE8(0);
@@ -149,8 +152,10 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 ST0.d = *(double*)ED / ST0.d;
                 break;
            default:
+                fesetround(oldround);
                 return 0;
         }
     }
-  return addr;
+    fesetround(oldround);
+    return addr;
 }

@@ -1497,6 +1497,17 @@ add_test(avx_intrinsics ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${B
 
 set_tests_properties(avx_intrinsics PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0;BOX64_AVX=2")
 
+add_test(fpu_rounding ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test31 -D TEST_OUTPUT=tmpfile31.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref31.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+if(ARM_DYNAREC)
+set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0;BOX64_DYNAREC_TEST=1")
+else()
+set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX64_DYNAREC=0")
+endif()
+
 else()
 
 add_test(bootSyscall ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
