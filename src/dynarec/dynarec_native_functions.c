@@ -42,7 +42,7 @@ void native_print_armreg(x64emu_t* emu, uintptr_t reg, uintptr_t n)
 
 void native_f2xm1(x64emu_t* emu)
 {
-    ST0.d = exp2(ST0.d) - 1.0;
+    ST0.d = expm1(LN2 * ST0.d);
 }
 void native_fyl2x(x64emu_t* emu)
 {
@@ -50,11 +50,14 @@ void native_fyl2x(x64emu_t* emu)
 }
 void native_ftan(x64emu_t* emu)
 {
+#pragma STDC FENV_ACCESS ON
+    // seems that tan of glib doesn't follow the rounding direction mode
     ST0.d = tan(ST0.d);
     emu->sw.f.F87_C2 = 0;
 }
 void native_fpatan(x64emu_t* emu)
 {
+#pragma STDC FENV_ACCESS ON
     ST1.d = atan2(ST1.d, ST0.d);
 }
 void native_fxtract(x64emu_t* emu)
@@ -97,10 +100,12 @@ void native_fprem(x64emu_t* emu)
 }
 void native_fyl2xp1(x64emu_t* emu)
 {
-    ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
+    ST(1).d = log1p(ST0.d)*ST(1).d/LN2;
 }
 void native_fsincos(x64emu_t* emu)
 {
+#pragma STDC FENV_ACCESS ON
+    // seems that sincos of glib doesn't follow the rounding direction mode
     sincos(ST1.d, &ST1.d, &ST0.d);
     emu->sw.f.F87_C2 = 0;
 }
@@ -110,16 +115,21 @@ void native_frndint(x64emu_t* emu)
 }
 void native_fscale(x64emu_t* emu)
 {
+#pragma STDC FENV_ACCESS ON
     if(ST0.d!=0.0)
-        ST0.d *= exp2(trunc(ST1.d));
+        ST0.d = ldexp(ST0.d, trunc(ST1.d));
 }
 void native_fsin(x64emu_t* emu)
 {
+#pragma STDC FENV_ACCESS ON
+    // seems that sin of glib doesn't follow the rounding direction mode
     ST0.d = sin(ST0.d);
     emu->sw.f.F87_C2 = 0;
 }
 void native_fcos(x64emu_t* emu)
 {
+#pragma STDC FENV_ACCESS ON
+    // seems that cos of glib doesn't follow the rounding direction mode
     ST0.d = cos(ST0.d);
     emu->sw.f.F87_C2 = 0;
 }

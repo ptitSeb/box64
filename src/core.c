@@ -847,7 +847,7 @@ void LoadLogEnv()
                 box64_dynarec_fastround = p[0]-'0';
         }
         if(!box64_dynarec_fastround)
-            printf_log(LOG_INFO, "Dynarec will try to generate x86 precise IEEE->int rounding\n");
+            printf_log(LOG_INFO, "Dynarec will try to generate x86 precise IEEE->int rounding and and set rounding mode for computation\n");
         else if(box64_dynarec_fastround==2)
             printf_log(LOG_INFO, "Dynarec will generate x86 very imprecise double->float rounding\n");
     }

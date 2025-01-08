@@ -368,8 +368,8 @@ Generate x86 -NAN.
 #### BOX64_DYNAREC_FASTROUND *
 
 Generate precise x86 rounding.
- * 0 : Generate float/double -> int rounding like on x86.
- * 1 : Do not do anything special with edge case Rounding, to go as fast as possible (no INF/NAN/Overflow -> MIN_INT conversion). (default, faster)
+ * 0 : Generate float/double -> int rounding and use current rounding mode for float/double computation like on x86.
+ * 1 : Do not do anything special with edge case Rounding, to go as fast as possible (no INF/NAN/Overflow -> MIN_INT conversion, and no non-default rounding modes). (default, faster)
  * 2 : Everything from 1 plus also fast round of double->float (not taking into account current rounding mode).
 
 #### BOX64_DYNAREC_SAFEFLAGS *
