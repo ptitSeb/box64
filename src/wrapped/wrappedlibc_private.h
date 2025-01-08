@@ -1324,7 +1324,7 @@ GOWD(modfl, DFDp, modf)
 //GOW(modify_ldt, 
 //GOW(moncontrol, 
 //GO(__monstartup, 
-//GOW(monstartup, 
+GO(monstartup, iFpp)
 //DATA(__morecore, 
 GOW(mount, iFpppLp)
 GO(mprobe, iFp)
