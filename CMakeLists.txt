@@ -1502,7 +1502,11 @@ add_test(fpu_rounding ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref31.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
+if(ARM_DYNAREC)
+set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0;BOX64_DYNAREC_TEST=1")
+else()
+set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX64_DYNAREC=0")
+endif()
 
 else()
 
