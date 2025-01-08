@@ -139,7 +139,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     GETEB(x1, 0);
                     CALCGB();
-                    ORRw_REG_LSR(x1, x1, gb1, 8*gb2);
+                    ORRw_REG_LSR(x1, x1, gb1, gb2);
                     EBBACK;
                 }
             }
@@ -165,7 +165,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETEB(x2, 0);
                 CALCGB();
-                ORRx_REG_LSL(gb1, gb1, x2, gb2*8);
+                ORRx_REG_LSL(gb1, gb1, x2, gb2);
             }
             break;
         case 0x0B:
@@ -531,7 +531,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     GETEB(x1, 0);
                     CALCGB();
-                    EORw_REG_LSR(x1, x1, gb1, 8*gb2);
+                    EORw_REG_LSR(x1, x1, gb1, gb2);
                     EBBACK;
                 }
             }
@@ -557,7 +557,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETEB(x2, 0);
                 CALCGB();
-                EORx_REG_LSL(gb1, gb1, x2, gb2*8);
+                EORx_REG_LSL(gb1, gb1, x2, gb2);
             }
             break;
         case 0x33:
