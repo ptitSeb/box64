@@ -1325,9 +1325,9 @@ GOWD(modfl, DFDp, modf)
 //GOW(moncontrol, 
 //GO(__monstartup, 
 #ifdef STATICBUILD
-//GO(monstartup, vFLL)
+//GOW(monstartup, vFLL)
 #else
-GO(monstartup, vFLL)
+GOW(monstartup, vFLL)
 #endif
 //DATA(__morecore, 
 GOW(mount, iFpppLp)
