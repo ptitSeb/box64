@@ -1144,7 +1144,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(mask)
                             ANDx_mask(wback, wback, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                         else {
-                            MOV32w(x1, ((uint32_t)~u8)<<wb2);
+                            u8 = ~u8;
+                            MOV32w(x1, ((uint32_t)u8)<<wb2);
                             BICx_REG(wback, wback, x1);
                         }
                     }
