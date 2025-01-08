@@ -128,7 +128,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FCMPD_0(v1);
             }
-            FCOM(x1, x2, x3, x4, 0, 0, ST_IS_F(0));   // same flags...
+            FCOM(x1, x2, x3);   // same flags...
             break;
         case 0xE5:
             INST_NAME("FXAM");
