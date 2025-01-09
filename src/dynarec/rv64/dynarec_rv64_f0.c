@@ -374,7 +374,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     SMDMB();
                                     B_NEXT_nocond;
                                     MARK;
-                                    SLLI(xRDX, x2, 32);
+                                    SRLI(xRDX, x2, 32);
                                     ZEXTW2(xRAX, x2);
                                     SMDMB();
                                     B_NEXT_nocond;
@@ -392,7 +392,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     SMDMB();
                                     B_NEXT_nocond;
                                     MARK2;
-                                    SLLI(xRDX, x2, 32);
+                                    SRLI(xRDX, x2, 32);
                                     ZEXTW2(xRAX, x2);
                                     SMDMB();
                                     break;

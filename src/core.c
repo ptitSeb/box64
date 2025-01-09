@@ -989,10 +989,10 @@ void LoadLogEnv()
             }
             if(box64_dynarec_test_end>box64_dynarec_test_start) {
                 box64_dynarec_test = 1;
-                printf_log(LOG_INFO, "Dynarec test in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+                printf_log(LOG_INFO, "Dynarec test in the range %p - %p\n", (void*)box64_dynarec_test_start, (void*)box64_dynarec_test_end);
             } else {
                 box64_dynarec_test = 0;
-                printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", p, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+                printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", p, (void*)box64_dynarec_test_start, (void*)box64_dynarec_test_end);
             }
         }
 
