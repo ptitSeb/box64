@@ -313,7 +313,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
                 VMV_X_S(gd, VMASK);
-                ZEROUP(gd);
+                ANDI(gd, gd, 0xF);
             }
             break;
         case 0x51:
