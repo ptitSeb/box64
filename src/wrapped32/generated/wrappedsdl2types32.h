@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFp_t)(void*);
 typedef int64_t (*IFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
@@ -52,6 +53,7 @@ typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_FreeSurface, vFp_t) \
+	GO(SDL_GetCPUCount, iFv_t) \
 	GO(SDL_PollEvent, iFp_t) \
 	GO(SDL_PushEvent, iFp_t) \
 	GO(SDL_RWclose, iFp_t) \

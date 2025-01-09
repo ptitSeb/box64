@@ -189,7 +189,7 @@ GO(SDL_GetClipboardText, pFv)
 GOM(SDL_GetClosestDisplayMode, pFipp)   //%noE
 //GO(SDL_GetColorKey, iFpp)
 GO(SDL_GetCPUCacheLineSize, iFv)
-GO(SDL_GetCPUCount, iFv)
+GOM(SDL_GetCPUCount, iFEv)
 GO(SDL_GetCurrentAudioDriver, pFv)
 GOM(SDL_GetCurrentDisplayMode, iFip)    //%noE
 GO(SDL_GetCurrentVideoDriver, pFv)

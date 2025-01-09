@@ -195,6 +195,7 @@
 #() cFpp -> cFpp
 #() wFpi -> wFpi
 #() iEEv -> iEEv
+#() iFEv -> iFEv
 #() iEEi -> iEEi
 #() iEEL -> iEEL
 #() iEEp -> iEEp
@@ -2871,6 +2872,8 @@ wrappedsdl2:
 % J SDL2_GUID_t uuuu
 - vFp:
   - SDL_FreeSurface
+- iFv:
+  - SDL_GetCPUCount
 - iFp:
   - SDL_PollEvent
   - SDL_PushEvent

@@ -236,6 +236,7 @@ void vFnp_32(x64emu_t *emu, uintptr_t fnc);
 void cFpp_32(x64emu_t *emu, uintptr_t fnc);
 void wFpi_32(x64emu_t *emu, uintptr_t fnc);
 void iEEv_32(x64emu_t *emu, uintptr_t fnc);
+void iFEv_32(x64emu_t *emu, uintptr_t fnc);
 void iEEi_32(x64emu_t *emu, uintptr_t fnc);
 void iEEL_32(x64emu_t *emu, uintptr_t fnc);
 void iEEp_32(x64emu_t *emu, uintptr_t fnc);
