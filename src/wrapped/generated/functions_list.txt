@@ -5768,6 +5768,7 @@ wrappedsdl2:
 - vFp:
   - SDL_UnloadObject
 - iFv:
+  - SDL_GetCPUCount
   - SDL_Has3DNow
   - SDL_HasAVX
   - SDL_HasAVX2

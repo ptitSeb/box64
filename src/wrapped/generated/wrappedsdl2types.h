@@ -51,6 +51,7 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_UnloadObject, vFp_t) \
+	GO(SDL_GetCPUCount, iFv_t) \
 	GO(SDL_Has3DNow, iFv_t) \
 	GO(SDL_HasAVX, iFv_t) \
 	GO(SDL_HasAVX2, iFv_t) \

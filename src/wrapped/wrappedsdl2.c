@@ -42,8 +42,17 @@ int EXPORT my2_SDL_HasRDTSC(void) __attribute__((alias("sdl_Yes")));
 int EXPORT my2_SDL_HasSSE(void) __attribute__((alias("sdl_Yes")));
 int EXPORT my2_SDL_HasSSE2(void) __attribute__((alias("sdl_Yes")));
 int EXPORT my2_SDL_HasSSE3(void) __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasSSE41(void) __attribute__((alias("sdl_No")));
-int EXPORT my2_SDL_HasSSE42(void) __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_HasSSE41(void) __attribute__((alias("sdl_Yes")));
+int EXPORT my2_SDL_HasSSE42(void) {
+    return box64_sse42?1:0;
+}
+int EXPORT my2_SDL_HasAVX(void) {
+    return box64_avx?1:0;
+}
+int EXPORT my2_SDL_HasAVX2(void) {
+    return box64_avx2?1:0;
+}
+int EXPORT my2_SDL_HasAVX512F(void) __attribute__((alias("sdl_No")));
 
 typedef struct {
   int32_t freq;
@@ -822,6 +831,14 @@ EXPORT unsigned long my2_SDL_GetThreadID(x64emu_t* emu, void* thread)
         sched_yield();
         ret = my->SDL_GetThreadID(thread);
     }
+    return ret;
+}
+
+EXPORT int my2_SDL_GetCPUCount(x64emu_t* emu)
+{
+    int ret = my->SDL_GetCPUCount();
+    if(box64_maxcpu && ret>box64_maxcpu)
+        ret = box64_maxcpu;
     return ret;
 }
 
