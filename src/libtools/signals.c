@@ -663,7 +663,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
     ucontext_t *p = (ucontext_t *)ucntx;
     uint32_t opcode = *(uint32_t*)pc;
     struct fpsimd_context *fpsimd = (struct fpsimd_context *)_fpsimd;
-    //printf_log(LOG_INFO, "Checking SIGBUS special casses with pc=%p, opcode=%x, fpsimd=%p\n", pc, opcode, fpsimd);
+    //printf_log(LOG_INFO, "Checking SIGBUS special cases with pc=%p, opcode=%x, fpsimd=%p\n", pc, opcode, fpsimd);
     if((opcode&0b10111111110000000000000000000000)==0b10111001000000000000000000000000) {
         // this is STR
         int scale = (opcode>>30)&3;
@@ -949,6 +949,33 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+#elif RV64
+#define GET_FIELD(v, high, low) (((v) >> low) & ((1ULL << (high - low + 1)) - 1))
+#define SIGN_EXT(val, val_sz) (((int32_t)(val) << (32 - (val_sz))) >> (32 - (val_sz)))
+
+    ucontext_t *p = (ucontext_t *)ucntx;
+    uint32_t inst = *(uint32_t*)pc;
+
+    uint32_t funct3 = GET_FIELD(inst, 14, 12);
+    uint32_t opcode = GET_FIELD(inst, 6, 0);
+    if (opcode == 0b0100011 && (funct3 == 0b010 /* SW */ || funct3 == 0b011 /* SD */)) {
+        int val = (inst >> 20) & 0x1f;
+        int dest = (inst >> 15) & 0x1f;
+        int64_t imm = (GET_FIELD(inst, 31, 25) << 5) | (GET_FIELD(inst, 11, 7));
+        imm = SIGN_EXT(imm, 12);
+        volatile uint8_t *addr = (void *)(p->uc_mcontext.__gregs[dest] + imm);
+        uint64_t value = p->uc_mcontext.__gregs[val];
+        for(int i = 0; i < (funct3 == 0b010 ? 4 : 8); ++i) {
+            addr[i] = (value >> (i * 8)) & 0xff;
+        }
+        p->uc_mcontext.__gregs[0] += 4; // pc += 4
+        return 1;
+    } else {
+        printf_log(LOG_NONE, "Unsupported SIGBUS special cases with pc=%p, opcode=%x\n", pc, inst);
+    }
+
+#undef GET_FIELD
+#undef SIGN_EXT
 #endif
     return 0;
 }
@@ -1479,6 +1506,23 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         info->si_code = 2;
     }
     #endif
+#ifdef RV64
+    if((sig==SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC)) && sigbus_specialcases(info, ucntx, pc, fpsimd)) {
+        // special case fixed, restore everything and just continues
+        if(box64_log >= LOG_DEBUG || box64_showsegv) {
+            static void*  old_pc[2] = {0};
+            static int old_pc_i = 0;
+            if(old_pc[0]!=pc && old_pc[1]!=pc) {
+                old_pc[old_pc_i++] = pc;
+                if(old_pc_i==2)
+                    old_pc_i = 0;
+                printf_log(LOG_NONE, "Special unalinged cased fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t *)pc, addr);
+            }
+        }
+        relockMutex(Locks);
+        return;
+    }
+#endif
 #ifdef DYNAREC
     if((Locks & is_dyndump_locked) && ((sig==SIGSEGV) || (sig==SIGBUS)) && current_helper) {
         printf_log(LOG_INFO, "FillBlock triggered a %s at %p from %p\n", (sig==SIGSEGV)?"segfault":"bus error", addr, pc);
