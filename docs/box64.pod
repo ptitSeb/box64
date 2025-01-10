@@ -396,6 +396,20 @@ Handling of x87 80bits long double
     * 0 : Try to handle 80bits long double as precise as possible (Default)
     * 1 : Handle them as double
 
+=item B<BOX64_MAXCPU>=I<0|XXX>
+
+Maximum CPU Cores exposed.
+
+    * 0 : Do not cap the number of cpu core exposed. (default)
+    * XXX : Cap the maximum CPU Core exposed to XXX. (usefull with wine64 or GridAutosport for example)
+
+=item B<BOX64_RDTSC_1GHZ>=I<0|1>
+
+Use hardware counter for rdtsc if available.
+
+    * 0 : Use hardware counter for rdtsc opcode if available (default)
+    * 1 : Use hardware counter for rdtsc if available and only if precision is at least 1GHz
+
 =item B<BOX64_SYNC_ROUNDING>=I<0|1>
 
 Box64 will sync rounding mode with fesetround/fegetround.

@@ -235,6 +235,12 @@ Maximum CPU Cores exposed.
  * 0 : Do not cap the number of cpu core exposed. (default)
  * XXX : Cap the maximum CPU Core exposed to XXX. (usefull with wine64 or GridAutosport for example)
 
+#### BOX64_RDTSC_1GHZ
+
+Use hardware counter for rdtsc if available.
+* 0 : Use hardware counter for rdtsc opcode if available (default)
+* 1 : Use hardware counter for rdtsc if available and only if precision is at least 1GHz
+
 #### BOX64_SYNC_ROUNDING *
 
 Sync rounding mode with fesetround/fegetround.
