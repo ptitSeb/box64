@@ -197,9 +197,9 @@ void D2LD(void* d, void* ld)
         if(exp80!=0){ 
             mant80final |= 0x8000000000000000L;
             exp80final += (BIAS80 - BIAS64);
-        } else if(mant80final!=0) {
-            // denormals -> normal
-            exp80final = BIAS80-1023;
+        } else {
+            // denormals -> normal (the case of 0 has been dealt with already)
+            exp80final = BIAS80-BIAS64;
             int one = __builtin_clz(mant80final) + 1;
             exp80final -= one;
             mant80final<<=one;
