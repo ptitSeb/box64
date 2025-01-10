@@ -619,7 +619,7 @@ void* customRealloc32(void* p, size_t size)
 
 void internal_customFree(void* p, int is32bits)
 {
-    if(!p) {
+    if(!p || !inited) {
         return;
     }
     uintptr_t addr = (uintptr_t)p;
