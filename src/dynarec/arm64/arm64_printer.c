@@ -1649,7 +1649,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "01U11110ff100001010010nnnnnddddd", &a)) {
         const char Z[] = {'B', 'H', 'S', 'D', '?'};
-        snprintf(buff, sizeof(buff), "SQXT%sN %c%d, %c%d", a.U?"U":"", Z[sf], Rn, Z[sf+1], Rm);
+        snprintf(buff, sizeof(buff), "SQXT%sN %c%d, %c%d", a.U?"U":"", Z[sf], Rd, Z[sf+1], Rn);
         return buff;
     }
 
