@@ -253,7 +253,7 @@ void* my32_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** p
 {
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
 	//void* stack = malloc(stacksize);
-	void* stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN|MAP_32BIT, -1, 0);
+	void* stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
 	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread, emu);
@@ -947,7 +947,7 @@ EXPORT int my32___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias
 EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
 {
 	fake_phtread_mutex_t* fake = (fake_phtread_mutex_t*)m;
-	if(!att) {
+	/*if(!att) {
 		fake->__lock = 0;
 		fake->__count = 0;
 		fake->i386__kind = 0;
@@ -955,7 +955,7 @@ EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
 		fake->real_mutex = KIND_SIGN;
 		printf_log(LOG_DEBUG, " (init t0) ");
 		return 0;
-	}
+	}*/
 	if(fake->__kind==KIND_SIGN) {
 		printf_log(LOG_DEBUG, "(reinit %p) ",from_ptrv(fake->real_mutex));
 		return pthread_mutex_init(from_ptrv(fake->real_mutex), att);
