@@ -1350,7 +1350,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x6F:
             INST_NAME("MOVDQA Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             if (MODREG) {
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, dyn->vector_eew);
                 GETGX_empty_vector(v0);
@@ -1637,7 +1637,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("MOVDQA Ex, Gx");
             nextop = F8;
             GETG;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, ed);
