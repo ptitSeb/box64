@@ -198,18 +198,13 @@ x64emu_t* thread_get_emu()
 {
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!et) {
-		int stacksize = 2*1024*1024;
-		// try to get stack size of the thread
-		pthread_attr_t attr;
-		if(!pthread_getattr_np(pthread_self(), &attr)) {
-			size_t stack_size;
-        	void *stack_addr;
-			if(!pthread_attr_getstack(&attr, &stack_addr, &stack_size))
-				if(stack_size)
-					stacksize = stack_size;
-			pthread_attr_destroy(&attr);
-		}
-		void* stack = internal_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+		// this should not happens. So if it happens, use a small stack
+		int stacksize = 256*1024;
+		void* stack = NULL;
+		if(box64_is32bits)
+			stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+		else
+			stack = internal_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
 		if(stack!=MAP_FAILED)
 			setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		x64emu_t *emu = NewX64Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
