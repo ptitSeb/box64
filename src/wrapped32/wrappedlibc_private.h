@@ -544,7 +544,7 @@ GOM(getopt_long, iEipppp)      //%noE
 //GOM(getopt_long_only, iEipppp) //%noE
 GOW(getpagesize, iEv)
 GO(__getpagesize, iEv)
-//GO(getpass, pEp)
+GO(getpass, tEp)
 GOW(getpeername, iEipp)
 GOW(getpgid, iEi)
 // __getpgid
