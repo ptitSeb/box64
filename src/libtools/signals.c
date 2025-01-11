@@ -276,6 +276,12 @@ x64_stack_t* sigstack_getstack() {
     return (x64_stack_t*)pthread_getspecific(sigstack_key);
 }
 
+#ifndef DYNAREC
+typedef void dynablock_t;
+dynablock_t* FindDynablockFromNativeAddress(uintptr_t addr) {return NULL;}
+uintptr_t getX64Address(dynablock_t* db, uintptr_t pc) {return 0;}
+#endif
+
 // this allow handling "safe" function that just abort if accessing a bad address
 static __thread JUMPBUFF signal_jmpbuf;
 #ifdef ANDROID
