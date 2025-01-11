@@ -676,6 +676,7 @@ int is_addr_unaligned(uintptr_t addr)
     return (k==kh_end(unaligned))?0:1;
 }
 
+#ifdef DYNAREC
 int mark_db_unaligned(dynablock_t* db, uintptr_t x64pc)
 {
     add_unaligned_address(x64pc);
@@ -684,15 +685,16 @@ int mark_db_unaligned(dynablock_t* db, uintptr_t x64pc)
 if(box64_showsegv) printf_log(LOG_INFO, "Marked db %p as dirty, and address %p as needing unaligned handling\n", db, (void*)x64pc);
     return 2;   // marked, exit handling...
 }
-
+#endif
 
 int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, dynablock_t* db, uintptr_t x64pc)
 {
     if((uintptr_t)pc<0x10000)
         return 0;
-
+#ifdef DYNAREC
     if(ARCH_UNALIGNED(db, x64pc))
         /*return*/ mark_db_unaligned(db, x64pc);    // don't force an exit for now
+#endif
 #ifdef ARM64
     ucontext_t *p = (ucontext_t *)ucntx;
     uint32_t opcode = *(uint32_t*)pc;
