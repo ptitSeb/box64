@@ -278,7 +278,7 @@ x64_stack_t* sigstack_getstack() {
 
 #ifndef DYNAREC
 typedef void dynablock_t;
-dynablock_t* FindDynablockFromNativeAddress(uintptr_t addr) {return NULL;}
+dynablock_t* FindDynablockFromNativeAddress(void* addr) {return NULL;}
 uintptr_t getX64Address(dynablock_t* db, uintptr_t pc) {return 0;}
 #endif
 
@@ -1694,8 +1694,6 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     }
     if(!db_searched)
         db = FindDynablockFromNativeAddress(pc);
-#else
-    void* db = NULL;
 #endif
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
