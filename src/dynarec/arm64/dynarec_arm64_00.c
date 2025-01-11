@@ -1412,8 +1412,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg
                 MOVxw_REG(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, &lock, 0, 0);
-                STxw(gd, ed, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, &lock, 0, 0);
+                    if(gd==wback) {
+                        MOVx_REG(x2, wback);
+                        wback = x2;
+                    }
+                    for(int i=0; i<(1<<(2+rex.w)); ++i) {
+                        STURB_I9(gd, wback, i);
+                        RORxw(gd, gd, 8);
+                    }
+                    // gd restored after that
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, &lock, 0, 0);
+                    STxw(gd, ed, fixedaddress);
+                }
                 SMWRITELOCK(lock);
             }
             break;
@@ -2376,14 +2389,29 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
             } else {                    // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
-                i64 = F32S;
-                if(i64) {
-                    MOV64xw(x3, i64);
-                    ed = x3;
-                } else
-                    ed = xZR;
-                STxw(ed, wback, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, &lock, 0, 4);
+                    i64 = F32S;
+                    if(i64) {
+                        MOV64xw(x3, i64);
+                        ed = x3;
+                    } else
+                        ed = xZR;
+                    for(int i=0; i<(1<<(2+rex.w)); ++i) {
+                        STURB_I9(ed, wback, i);
+                        if(ed!=xZR)
+                            RORxw(ed, ed, 8);
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
+                    i64 = F32S;
+                    if(i64) {
+                        MOV64xw(x3, i64);
+                        ed = x3;
+                    } else
+                        ed = xZR;
+                    STxw(ed, wback, fixedaddress);
+                }
                 SMWRITELOCK(lock);
             }
             break;

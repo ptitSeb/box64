@@ -927,10 +927,12 @@ int convert_bitmask(uint64_t bitmask);
 #define VLD64(A, B, C)      if(unscaled) {VLDR64_I9(A, B, C);} else {VLDR64_U12(A, B, C);}
 #define VLD32(A, B, C)      if(unscaled) {VLDR32_I9(A, B, C);} else {VLDR32_U12(A, B, C);}
 #define VLD16(A, B, C)      if(unscaled) {VLDR16_I9(A, B, C);} else {VLDR16_U12(A, B, C);}
+#define VLD8(A, B, C)       if(unscaled) {VLDR8_I9(A, B, C);} else {VLDR8_U12(A, B, C);}
 #define VST128(A, B, C)     if(unscaled) {VSTR128_I9(A, B, C);} else {VSTR128_U12(A, B, C);}
 #define VST64(A, B, C)      if(unscaled) {VSTR64_I9(A, B, C);} else {VSTR64_U12(A, B, C);}
 #define VST32(A, B, C)      if(unscaled) {VSTR32_I9(A, B, C);} else {VSTR32_U12(A, B, C);}
 #define VST16(A, B, C)      if(unscaled) {VSTR16_I9(A, B, C);} else {VSTR16_U12(A, B, C);}
+#define VST8(A, B, C)       if(unscaled) {VSTR8_I9(A, B, C);} else {VSTR8_U12(A, B, C);}
 
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))

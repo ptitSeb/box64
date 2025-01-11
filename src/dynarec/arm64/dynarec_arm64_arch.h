@@ -50,7 +50,8 @@ typedef struct arch_arch_s
     uint16_t mmx:1;
     uint16_t sse:1;
     uint16_t ymm:1;
-    uint16_t seq:11;    // how many instruction on the same values
+    uint16_t unaligned:1;
+    uint16_t seq:10;    // how many instruction on the same values
 } arch_arch_t;
 
 // get size of arch specific info (can be 0)
@@ -59,4 +60,6 @@ size_t get_size_arch(dynarec_arm_t* dyn);
 void populate_arch(dynarec_arm_t* dyn, void* p);
 //adjust flags and more
 void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t native_addr);
+// get if instruction can be regenerated for unaligned access
+int arch_unaligned(dynablock_t* db, uintptr_t x64pc);
 #endif // __DYNAREC_ARM_ARCH_H__

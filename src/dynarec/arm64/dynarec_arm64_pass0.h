@@ -66,3 +66,5 @@
 #define IFNATIVE_BEFORE(A)     if(mark_natflag(dyn, ninst, A, 1))
 #define INVERT_CARRY(A) dyn->insts[ninst].invert_carry = 1
 #define INVERT_CARRY_BEFORE(A) dyn->insts[ninst].invert_carry_before = 1
+// mark opcode as "unaligned" possible only if the current address is not marked as already unaligned
+#define IF_UNALIGNED(A) if((dyn->insts[ninst].unaligned=(is_addr_unaligned(A)?0:1)))

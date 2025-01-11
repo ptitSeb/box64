@@ -184,6 +184,8 @@
 #define SMDMB() DMB_ISH()
 #endif
 
+int is_addr_unaligned(uintptr_t addr);
+
 #ifdef ARM64
 #include "arm64/dynarec_arm64_helper.h"
 #elif defined(LA64)

@@ -29,6 +29,7 @@
 #define ARCH_FILL(A, B) populate_arch(A, B)
 #define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B)   A->insts[B].nat_flags_op = NAT_FLAG_OP_UNUSABLE
+#define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 #elif defined(LA64)
 
 #define instruction_native_t        instruction_la64_t
@@ -55,6 +56,7 @@
 #define ARCH_FILL(A, B)  {}
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
+#define ARCH_UNALIGNED(A, B) 0
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -83,6 +85,7 @@
 #define ARCH_FILL(A, B)  {}
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
+#define ARCH_UNALIGNED(A, B) 0
 #else
 #error Unsupported platform
 #endif

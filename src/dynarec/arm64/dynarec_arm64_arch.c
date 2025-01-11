@@ -21,6 +21,7 @@ typedef struct arch_build_s
     uint8_t mmx:1;
     uint8_t sse:1;
     uint8_t ymm:1;
+    uint8_t unaligned;
     arch_flags_t flags_;
     arch_x87_t x87_;
     arch_mmx_t mmx_;
@@ -48,7 +49,8 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
             arch->sse = 1;
             arch->sse_.sse |= 1<<i;
         }
-    return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm;
+    arch->unaligned = dyn->insts[ninst].unaligned;
+    return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
 }
 
 size_t get_size_arch(dynarec_arm_t* dyn)
@@ -62,7 +64,7 @@ size_t get_size_arch(dynarec_arm_t* dyn)
     if(!dyn->size) return 0;
     for(int i=0; i<dyn->size; ++i) {
         last = arch_build(dyn, i, &build);
-        if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<11)-1)) && i) {
+        if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
             // same sequence, increment
             ++seq;
         } else {
@@ -89,6 +91,7 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     arch->mmx = build->mmx;
     arch->sse = build->sse;
     arch->ymm = build->ymm;
+    arch->unaligned = build->unaligned;
     arch->seq = 0;
     void* p = ((void*)arch)+sizeof(arch_arch_t);
     #define GO(A)                                           \
@@ -126,7 +129,7 @@ void populate_arch(dynarec_arm_t* dyn, void* p)
     int seq = 0;
     for(int i=0; i<dyn->size; ++i) {
         arch_build(dyn, i, &build);
-        if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<11)-1)) && i) {
+        if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
             // same sequence, increment
             seq++;
             arch->seq = seq;
@@ -230,4 +233,24 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
             }
     }
     dynarec_log(LOG_INFO, "\n");
+}
+
+int arch_unaligned(dynablock_t* db, uintptr_t x64pc)
+{
+    if(!db->arch_size || !db->arch)
+        return 0;
+    int ninst = getX64AddressInst(db, x64pc);
+    if(ninst<0) {
+        return 0;
+    }
+    // look for state at ninst
+    arch_arch_t* arch = db->arch;
+    arch_arch_t* next = arch;
+    int i = -1;
+    while(i<ninst) {
+        arch = next;
+        i += 1+arch->seq;
+        next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
+    }
+    return arch->unaligned;
 }

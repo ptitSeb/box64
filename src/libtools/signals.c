@@ -32,6 +32,7 @@
 #include "emu/x87emu_private.h"
 #include "custommem.h"
 #include "bridge.h"
+#include "khash.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -655,10 +656,43 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 #endif
 }
 
-int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
+KHASH_SET_INIT_INT64(unaligned)
+static kh_unaligned_t    *unaligned = NULL;
+
+void add_unaligned_address(uintptr_t addr)
+{
+    if(!unaligned)
+        unaligned = kh_init(unaligned);
+    khint_t k;
+    int ret;
+    k = kh_put(unaligned, unaligned, addr, &ret);    // just add
+}
+
+int is_addr_unaligned(uintptr_t addr)
+{
+    if(!unaligned)
+        return 0;
+    khint_t k = kh_get(unaligned, unaligned, addr);
+    return (k==kh_end(unaligned))?0:1;
+}
+
+int mark_db_unaligned(dynablock_t* db, uintptr_t x64pc)
+{
+    add_unaligned_address(x64pc);
+    db->hash++; // dirty the block
+    MarkDynablock(db);      // and mark it
+if(box64_showsegv) printf_log(LOG_INFO, "Marked db %p as dirty, and address %p as needing unaligned handling\n", db, (void*)x64pc);
+    return 2;   // marked, exit handling...
+}
+
+
+int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, dynablock_t* db, uintptr_t x64pc)
 {
     if((uintptr_t)pc<0x10000)
         return 0;
+
+    if(ARCH_UNALIGNED(db, x64pc))
+        /*return*/ mark_db_unaligned(db, x64pc);    // don't force an exit for now
 #ifdef ARM64
     ucontext_t *p = (ucontext_t *)ucntx;
     uint32_t opcode = *(uint32_t*)pc;
@@ -978,6 +1012,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
 #undef SIGN_EXT
 #endif
     return 0;
+#undef CHECK
 }
 
 #ifdef BOX32
@@ -1482,19 +1517,32 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* fpsimd = NULL;
     #warning Unhandled architecture
 #endif
-    if((sig==SIGBUS) && (addr!=pc) && sigbus_specialcases(info, ucntx, pc, fpsimd)) {
-        // special case fixed, restore everything and just continues
-        if(box64_log>=LOG_DEBUG || box64_showsegv) {
-            static void*  old_pc[2] = {0};
-            static int old_pc_i = 0;
-            if(old_pc[0]!=pc && old_pc[1]!=pc) {
-                old_pc[old_pc_i++] = pc;
-                if(old_pc_i==2)
-                    old_pc_i = 0;
-                printf_log(LOG_INFO, "Special unalinged cased fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t*)pc, addr);
+    dynablock_t* db = NULL;
+    int db_searched = 0;
+    if((sig==SIGBUS) && (addr!=pc)) {
+        db = FindDynablockFromNativeAddress(pc);
+        db_searched = 1;
+        uint8_t* x64pc = NULL;
+        if(db)
+            x64pc = (uint8_t*)getX64Address(db, (uintptr_t)pc);
+        int fixed = 0;
+        if((fixed=sigbus_specialcases(info, ucntx, pc, fpsimd, db, (uintptr_t)x64pc))) {
+            // special case fixed, restore everything and just continues
+            if(box64_log>=LOG_DEBUG || box64_showsegv) {
+                static void*  old_pc[2] = {0};
+                static int old_pc_i = 0;
+                if(old_pc[0]!=pc && old_pc[1]!=pc) {
+                    old_pc[old_pc_i++] = pc;
+                    if(old_pc_i==2)
+                        old_pc_i = 0;
+                    if(db)
+                        printf_log(LOG_INFO, "Special unalinged case fixed @%p, opcode=%08x (addr=%p, db=%p, x64pc=%p[%02hhX %02hhX %02hhX %02hhX %02hhX])\n", pc, *(uint32_t*)pc, addr, db, x64pc, x64pc[0], x64pc[1], x64pc[2], x64pc[3], x64pc[4], x64pc[5]);
+                    else
+                        printf_log(LOG_INFO, "Special unalinged case fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t*)pc, addr);
+                }
             }
+            return;
         }
-        return;
     }
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
@@ -1507,20 +1555,29 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     #endif
 #ifdef RV64
-    if((sig==SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC)) && sigbus_specialcases(info, ucntx, pc, fpsimd)) {
-        // special case fixed, restore everything and just continues
-        if(box64_log >= LOG_DEBUG || box64_showsegv) {
-            static void*  old_pc[2] = {0};
-            static int old_pc_i = 0;
-            if(old_pc[0]!=pc && old_pc[1]!=pc) {
-                old_pc[old_pc_i++] = pc;
-                if(old_pc_i==2)
-                    old_pc_i = 0;
-                printf_log(LOG_NONE, "Special unalinged cased fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t *)pc, addr);
+    if((sig==SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
+        if(!db_searched)
+            db = FindDynablockFromNativeAddress(pc);
+        db_searched = 1;
+        uint8_t* x64pc = NULL;
+        if(db)
+            x64pc = (uint8_t*)getX64Address(db, (uintptr_t)pc);
+        int fixed = 0;
+        if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, (uintptr_t)x64pc))) {
+            // special case fixed, restore everything and just continues
+            if(box64_log >= LOG_DEBUG || box64_showsegv) {
+                static void*  old_pc[2] = {0};
+                static int old_pc_i = 0;
+                if(old_pc[0]!=pc && old_pc[1]!=pc) {
+                    old_pc[old_pc_i++] = pc;
+                    if(old_pc_i==2)
+                        old_pc_i = 0;
+                    printf_log(LOG_NONE, "Special unalinged cased fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t *)pc, addr);
+                }
             }
+            relockMutex(Locks);
+            return;
         }
-        relockMutex(Locks);
-        return;
     }
 #endif
 #ifdef DYNAREC
@@ -1531,12 +1588,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
         // cancelFillBlock does not return
     }
-    dynablock_t* db = NULL;
-    int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         lock_signal();
         // check if SMC inside block
-        db = FindDynablockFromNativeAddress(pc);
+        if(!db_searched)
+            db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
