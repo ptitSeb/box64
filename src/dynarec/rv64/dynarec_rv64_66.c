@@ -1124,9 +1124,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             // save an srli instruction...
                             wback = TO_NAT((nextop & 7) + (rex.b << 3));
                             u8 = (F8) & 0x1f;
-                            SLLI(x1, wback, 48);
-                            SRLI(x1, x1, 48 + u8);
-                            ed = x1;
+                            if (u8 > 15) {
+                                ed = xZR;
+                            } else {
+                                SLLI(x1, wback, 48);
+                                SRLI(x1, x1, 48 + u8);
+                                ed = x1;
+                            }
                             wb1 = 0;
                             EWBACK;
                             if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(ed, xZR);
