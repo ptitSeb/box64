@@ -80,22 +80,22 @@ void FreeElfHeader(elfheader_t** head)
     if(my_context)
         RemoveElfHeader(my_context, h);
 
-    box_free(h->PHEntries._64); //_64 or _32 doesn't mater for free, it's the same address
-    box_free(h->SHEntries._64);
-    box_free(h->SHStrTab);
-    box_free(h->StrTab);
-    box_free(h->Dynamic._64);
-    box_free(h->DynStr);
-    box_free(h->SymTab._64);
-    box_free(h->DynSym._64);
+    actual_free(h->PHEntries._64); //_64 or _32 doesn't mater for free, it's the same address
+    actual_free(h->SHEntries._64);
+    actual_free(h->SHStrTab);
+    actual_free(h->StrTab);
+    actual_free(h->Dynamic._64);
+    actual_free(h->DynStr);
+    actual_free(h->SymTab._64);
+    actual_free(h->DynSym._64);
 
     FreeElfMemory(h);
 
-    box_free(h->name);
-    box_free(h->path);
+    actual_free(h->name);
+    actual_free(h->path);
     if(h->file)
         fclose(h->file);
-    box_free(h);
+    actual_free(h);
 
     *head = NULL;
 }

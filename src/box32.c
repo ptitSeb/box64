@@ -314,7 +314,7 @@ ptr_t to_cstring(char* p) {
         // create a new key, but need write lock!
         pthread_rwlock_unlock(&hash_lock);
         pthread_rwlock_wrlock(&hash_lock);
-        ret = to_ptrv(box_strdup(p));
+        ret = to_ptrv(box32_strdup(p));
         int r;
         k = kh_put(strings, const_strings, (char*)from_ptrv(ret), &r);
         kh_value(const_strings, k) = ret;
@@ -335,7 +335,7 @@ ptr_t to_cstring_d(char* p) {
     } else {
         ret = kh_value(const_strings, k);
         kh_del(strings, const_strings, k);
-        free(from_ptrv(ret));
+        box32_free(from_ptrv(ret));
     }
     pthread_rwlock_unlock(&hash_lock);
     return ret;

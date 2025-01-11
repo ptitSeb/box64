@@ -236,6 +236,13 @@ size_t box32_malloc_usable_size(void* p)
     else
         return box_malloc_usable_size(p);
 }
+
+char* box32_strdup(const char* s) {
+    char* ret = box32_calloc(1, strlen(s)+1);
+    memcpy(ret, s, strlen(s));
+    return ret;
+}
+
 #endif
 
 // redefining all libc memory allocation routines

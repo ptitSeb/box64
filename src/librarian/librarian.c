@@ -266,7 +266,7 @@ static int AddNeededLib_add(lib_t** maplib, int local, needed_libs_t* needed, in
                 return 1;
             }
             lm->l_addr = (Elf32_Addr)to_ptrv(GetElfDelta(lib->e.elf));
-            lm->l_name = to_ptrv(lib->name);
+            lm->l_name = to_cstring(lib->name);
             lm->l_ld = to_ptrv(GetDynamicSection(lib->e.elf));
         } else
         #endif

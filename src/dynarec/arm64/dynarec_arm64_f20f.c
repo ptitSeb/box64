@@ -271,7 +271,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = fpu_get_scratch(dyn, ninst);
-            FCVT_S_D(d1, d0);
+            if(box64_dynarec_fastround==2) {
+                FCVT_S_D(d1, d0);
+            } else {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                FCVT_S_D(d1, d0);
+                x87_restoreround(dyn, ninst, u8);
+            }
             VMOVeS(v0, 0, d1, 0);
             break;
 

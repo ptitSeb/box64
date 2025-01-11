@@ -196,6 +196,7 @@ void* box32_realloc(void* p, size_t s);
 void box32_free(void* p);
 void* box32_memalign(size_t align, size_t s);
 size_t box32_malloc_usable_size(void* p);
+char* box32_strdup(const char* s);
 
 #define actual_calloc(A, B)             (box64_is32bits?box32_calloc(A, B):box_calloc(A, B))
 #define actual_malloc(A)                (box64_is32bits?box32_malloc(A):box_malloc(A))
