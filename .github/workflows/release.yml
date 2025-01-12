@@ -53,6 +53,7 @@ jobs:
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
             sudo apt-get -y install git cmake make python3 patchelf
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
+              sudo apt-get -y install p7zip
               wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
               unzip android-ndk-r26b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r26b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
@@ -71,7 +72,6 @@ jobs:
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
             fi
             if [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
-              sudo apt-get -y install p7zip
               wget https://mirrors.utermux.dev/termux/termux-main/pool/main/liba/libandroid-sysv-semaphore/libandroid-sysv-semaphore_0.1_aarch64.deb
               7z x libandroid-sysv-semaphore_0.1_aarch64.deb
               tar -xf data.tar.xz
@@ -256,6 +256,9 @@ jobs:
         id: git-info
         run: echo "SHORT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
+      - name: "Get Box64 Version"
+        run: echo "BOX64_VERSION=$(cat src/box64version.h | grep BOX64_MAJOR | cut -d " " -f 3).$(cat src/box64version.h | grep BOX64_MINOR | cut -d " " -f 3).$(cat src/box64version.h | grep BOX64_REVISION | cut -d " " -f 3)" >> $GITHUB_ENV
+
       - name: "Packaging WCP file for Winlator"
         if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild'
         run: |
@@ -277,6 +280,23 @@ jobs:
           patchelf --set-interpreter /data/data/com.winlator/files/imagefs/usr/lib/ld-linux-aarch64.so.1 ./box64
           tar --zstd -cf box64-latest.wcp box64 profile.json
 
+      - name: "Package Rat File for MiceWine"
+        if: matrix.platform == 'ANDROID' && matrix.type != 'StaticBuild'
+        run: |
+          cd build
+
+          mkdir -p files/usr/bin
+
+          cp box64 files/usr/bin
+
+          echo "name=Box64 (CI Build)" > pkg-header
+          echo "category=Box64" >> pkg-header
+          echo "version=${BOX64_VERSION}-${SHORT_COMMIT}" >> pkg-header
+          echo "architecture=aarch64" >> pkg-header
+          echo "vkDriverLib=" >> pkg-header
+
+          7z -tzip -mx=5 a box64-latest.rat files pkg-header
+
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4
         with:
@@ -289,3 +309,10 @@ jobs:
         with:
           name: box64-latest-${{ matrix.type }}-wcp
           path: build/box64-latest.wcp
+
+      - name: "Upload Rat File"
+        if: matrix.platform == 'ANDROID' && matrix.type != 'StaticBuild'
+        uses: actions/upload-artifact@v4
+        with:
+          name: box64-MiceWine-${{ matrix.type }}
+          path: build/box64-latest.rat
