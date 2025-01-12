@@ -295,7 +295,7 @@ jobs:
           echo "architecture=aarch64" >> pkg-header
           echo "vkDriverLib=" >> pkg-header
 
-          7z -tzip -mx=5 a box64-${BOX64_VERSION}-${SHORT_COMMIT}.rat files pkg-header
+          7z -tzip -mx=5 a box64-latest.rat files pkg-header
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4
@@ -315,4 +315,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: box64-MiceWine-${{ matrix.type }}
-          path: build/box64-${BOX64_VERSION}-${SHORT_COMMIT}.rat
+          path: build/box64-latest.rat
