@@ -2005,14 +2005,15 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
+    void* pc = NULL;
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
     #ifdef ARM64
-    void * pc = (void*)p->uc_mcontext.pc;
+    pc = (void*)p->uc_mcontext.pc;
     #elif defined(LA64)
-    void * pc = (void*)p->uc_mcontext.__pc;
+    pc = (void*)p->uc_mcontext.__pc;
     #elif defined(RV64)
-    void * pc = (void*)p->uc_mcontext.__gregs[0];
+    pc = (void*)p->uc_mcontext.__gregs[0];
     #else
     #error Unsupported architecture
     #endif
