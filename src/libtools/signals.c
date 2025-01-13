@@ -1424,7 +1424,14 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(RIP);
     #undef GO
     sse_regs_t old_xmm[16];
+    sse_regs_t old_ymm[16];
+    mmx87_regs_t old_mmx[8];
+    mmx87_regs_t old_x87[8];
+    uint32_t old_top = emu->top;
     memcpy(old_xmm, emu->xmm, sizeof(old_xmm));
+    memcpy(old_ymm, emu->ymm, sizeof(old_ymm));
+    memcpy(old_mmx, emu->mmx, sizeof(old_mmx));
+    memcpy(old_x87, emu->x87, sizeof(old_x87));
     #ifdef DYNAREC
     dynablock_t* db = cur_db;
     if(db) {
@@ -1460,6 +1467,10 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(RIP);
     #undef GO
     memcpy(emu->xmm, old_xmm, sizeof(old_xmm));
+    memcpy(emu->ymm, old_ymm, sizeof(old_ymm));
+    memcpy(emu->mmx, old_mmx, sizeof(old_mmx));
+    memcpy(emu->x87, old_x87, sizeof(old_x87));
+    emu->top = old_top;
 }
 
 extern void* current_helper;
@@ -2005,16 +2016,13 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #else
     #error Unsupported architecture
     #endif
-    dynablock_t* db = FindDynablockFromNativeAddress(pc);
-    #else
-    void* db = NULL;
     #endif
+    dynablock_t* db = FindDynablockFromNativeAddress(pc);
     x64emu_t* emu = thread_get_emu();
     uintptr_t x64pc = R_RIP;
-    #ifdef DYNAREC
     if(db)
         x64pc = getX64Address(db, (uintptr_t)pc);
-    #endif
+    if(box64_showsegv) printf_log(LOG_INFO, "sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p\n", sig, pc, x64pc, db);
     my_sigactionhandler_oldcode(emu, sig, 0, info, ucntx, NULL, db, x64pc);
 }
 

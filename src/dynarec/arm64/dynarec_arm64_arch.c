@@ -14,41 +14,146 @@
 #include "dynarec_arm64_arch.h"
 #include "dynarec_arm64_functions.h"
 
+//order might be important, so define SUPER for the right one
+#define SUPER() \
+    GO(flags)   \
+    GO(x87)     \
+    GO(mmx)     \
+    GO(sse)     \
+    GO(ymm)     \
+
+
+typedef struct arch_flags_s
+{
+    uint8_t defered:1;
+    uint8_t nf:1;
+    uint8_t eq:1;
+    uint8_t vf:1;
+    uint8_t cf:1;
+    uint8_t inv_cf:1;
+} arch_flags_t;
+
+#define X87_ST_D 0
+#define X87_ST_F 1
+#define X87_ST_I64 2
+typedef struct arch_x87_s
+{
+    int8_t delta;        //up to +/-7
+    uint8_t x87;        // 1bit is STx present
+    uint16_t x87_type;  // 2bits per STx type
+    uint32_t x87_pos;   //4bits per STx position (well, 3 would be enough)
+} arch_x87_t;
+
+typedef struct arch_mmx_s
+{
+    uint8_t mmx;    //1bit for each mmx reg present
+} arch_mmx_t;
+
+typedef struct arch_sse_s
+{
+    uint16_t sse;   //1bit for each sse reg present
+} arch_sse_t;
+
+typedef struct arch_ymm_s
+{
+    uint16_t ymm0;      // 1bit for ymm0
+    uint16_t ymm;       // 1bit for each ymm present
+    uint64_t ymm_pos;   // 4bits for position of each ymm present
+} arch_ymm_t;
+
+typedef struct arch_arch_s
+{
+    #define GO(A) uint16_t A:1;
+    SUPER()
+    #undef GO
+    uint16_t unaligned:1;
+    uint16_t seq:10;    // how many instruction on the same values
+} arch_arch_t;
+
 typedef struct arch_build_s
 {
-    uint8_t flags:1;
-    uint8_t x87:1;
-    uint8_t mmx:1;
-    uint8_t sse:1;
-    uint8_t ymm:1;
+    #define GO(A) uint8_t A:1;
+    SUPER()
+    #undef GO
     uint8_t unaligned;
-    arch_flags_t flags_;
-    arch_x87_t x87_;
-    arch_mmx_t mmx_;
-    arch_sse_t sse_;
-    arch_ymm_t ymm_;
+    #define GO(A) arch_##A##_t A##_;
+    SUPER()
+    #undef GO
 } arch_build_t;
 
 static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
 {
     memset(arch, 0, sizeof(arch_build_t));
     // flags
-    if((dyn->insts[ninst].f_entry.dfnone==0) || dyn->insts[ninst].need_nat_flags) {
+    if((dyn->insts[ninst].f_entry.dfnone==0) || dyn->insts[ninst].need_nat_flags || dyn->insts[ninst].before_nat_flags) {
         arch->flags = 1;
         arch->flags_.defered = dyn->insts[ninst].f_entry.dfnone==0;
-        arch->flags_.vf = dyn->insts[ninst].need_nat_flags&NF_VF;
-        arch->flags_.nf = dyn->insts[ninst].need_nat_flags&NF_SF;
-        arch->flags_.eq = dyn->insts[ninst].need_nat_flags&NF_EQ;
-        arch->flags_.cf = dyn->insts[ninst].need_nat_flags&NF_CF;
+        uint8_t flags = dyn->insts[ninst].need_nat_flags | dyn->insts[ninst].before_nat_flags;
+        arch->flags_.vf = flags&NF_VF;
+        arch->flags_.nf = flags&NF_SF;
+        arch->flags_.eq = flags&NF_EQ;
+        arch->flags_.cf = flags&NF_CF;
         if(arch->flags_.cf)
             arch->flags_.inv_cf = !dyn->insts[ninst].normal_carry;
     }
-    // sse
-    for(int i=0; i<16; ++i)
-        if(dyn->insts[ninst].n.ssecache[i].v!=-1) {
-            arch->sse = 1;
-            arch->sse_.sse |= 1<<i;
-        }
+    // got through all naoncache to gather regs assignments
+    int idx;
+    for(int i=0; i<32; ++i)
+        if(dyn->insts[ninst].n.neoncache[i].v!=-1)
+            switch(dyn->insts[ninst].n.neoncache[i].t) {
+                case NEON_CACHE_XMMW:
+                    arch->sse = 1;
+                    arch->sse_.sse |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                    break;
+                case NEON_CACHE_MM:
+                    arch->mmx = 1;
+                    arch->mmx_.mmx |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                    break;
+                case NEON_CACHE_YMMW:
+                    arch->ymm = 1;
+                    arch->ymm_.ymm |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                    idx = i;
+                    if(idx>=EMM0 && idx<=EMM0+8)
+                        idx-=EMM0;
+                    else
+                        idx-=SCRATCH0-8;
+                    arch->ymm_.ymm_pos |= idx<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                    break;
+                case NEON_CACHE_ST_D:
+                    arch->x87 = 1;
+                    arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                    arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                    arch->x87_.x87_type = (X87_ST_D)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                    break;
+                case NEON_CACHE_ST_F:
+                    arch->x87 = 1;
+                    arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                    arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                    arch->x87_.x87_type = (X87_ST_F)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                    break;
+                case NEON_CACHE_ST_I64:
+                    arch->x87 = 1;
+                    arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                    arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                    arch->x87_.x87_type = (X87_ST_I64)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                    break;
+                case NEON_CACHE_XMMR:
+                case NEON_CACHE_YMMR:
+                default:
+                    // doing nothing, it's just a value read in memory
+                    break;
+            }
+    // ymm0
+    if(dyn->insts[ninst].ymm0_out) {
+        arch->ymm = 1;
+        arch->ymm_.ymm0 = dyn->insts[ninst].ymm0_out;
+    }
+    // x87 top
+    if(dyn->insts[ninst].n.x87stack) {
+        arch->x87 = 1;
+        arch->x87_.delta = dyn->insts[ninst].n.x87stack;
+    }
+    // opcode can handle unaligned 
     arch->unaligned = dyn->insts[ninst].unaligned;
     return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
 }
@@ -72,11 +177,9 @@ size_t get_size_arch(dynarec_arm_t* dyn)
             ++nseq;
             memcpy(&previous, &build, sizeof(arch_build_t));
             sz+=sizeof(arch_arch_t);
-            if(build.flags) sz+=sizeof(arch_flags_t);
-            if(build.x87) sz+=sizeof(arch_x87_t);
-            if(build.mmx) sz+=sizeof(arch_mmx_t);
-            if(build.sse) sz+=sizeof(arch_sse_t);
-            if(build.ymm) sz+=sizeof(arch_ymm_t);
+            #define GO(A) if(build.A) sz+=sizeof(arch_##A##_t);
+            SUPER()
+            #undef GO
         }
     }
     if(nseq==1 && !last)
@@ -86,11 +189,9 @@ size_t get_size_arch(dynarec_arm_t* dyn)
 
 static void build_next(arch_arch_t* arch, arch_build_t* build)
 {
-    arch->flags = build->flags;
-    arch->x87 = build->x87;
-    arch->mmx = build->mmx;
-    arch->sse = build->sse;
-    arch->ymm = build->ymm;
+    #define GO(A) arch->A = build->A;
+    SUPER()
+    #undef GO
     arch->unaligned = build->unaligned;
     arch->seq = 0;
     void* p = ((void*)arch)+sizeof(arch_arch_t);
@@ -99,23 +200,15 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
         memcpy(p, &build->A##_, sizeof(arch_ ##A##_t));     \
         p+=sizeof(arch_##A##_t);                            \
     }
-    GO(flags)
-    GO(x87)
-    GO(mmx)
-    GO(sse)
-    GO(ymm)
+    SUPER()
     #undef GO
 }
 
 static int sizeof_arch(arch_arch_t* arch)
 {
     int sz = sizeof(arch_arch_t);
-    #define GO(A)   if(arch->A) sz+=sizeof(arch_##A##_t)
-    GO(flags);
-    GO(x87);
-    GO(mmx);
-    GO(sse);
-    GO(ymm);
+    #define GO(A)   if(arch->A) sz+=sizeof(arch_##A##_t);
+    SUPER()
     #undef GO
     return sz;
 }
@@ -139,12 +232,12 @@ void populate_arch(dynarec_arm_t* dyn, void* p)
             seq = 0;
             memcpy(&previous, &build, sizeof(arch_build_t));
             int sz = sizeof_arch(arch);
-            next = (arch_arch_t*)((uintptr_t)next+sz);
+            next = (arch_arch_t*)((uintptr_t)arch+sz);
         }
     }
 }
 
-int getX64AddressInst(dynablock_t* db, uintptr_t native_addr); // define is signal.c
+int getX64AddressInst(dynablock_t* db, uintptr_t x64pc); // define is signal.c
 
 // NZCV N
 #define NZCV_N      31
@@ -173,18 +266,26 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     // look for state at ninst-1
     arch_arch_t* arch = db->arch;
     arch_arch_t* next = arch;
-    int i = -1;
+    #define GO(A) arch_##A##_t* A = NULL;
+    SUPER()
+    #undef GO
+    int i = 0;
     while(i<ninst-1) {
         arch = next;
         i += 1+arch->seq;
-    dynarec_log(LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
+        dynarec_log(LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     int sz = sizeof(arch_arch_t);
-    if(arch->flags) {
-        arch_flags_t* flags = (arch_flags_t*)((uintptr_t)arch + sz);
-        sz += sizeof(arch_flags_t);
-    dynarec_log(LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
+    #define GO(A)                                   \
+    if(arch->A) {                                   \
+        A = (arch_##A##_t*)((uintptr_t)arch + sz);  \
+        sz+=sizeof(arch_##A##_t);                   \
+    }
+    SUPER()
+    #undef GO
+    if(flags) {
+        dynarec_log(LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
         if(flags->defered) {
             CHECK_FLAGS(emu);
             //return;
@@ -217,10 +318,8 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 ff = (struct _aarch64_ctx*)((uintptr_t)ff + ff->size);
         }
     }
-    if(arch->sse) {
-        arch_sse_t* sse = (arch_sse_t*)((uintptr_t)arch + sz);
-    dynarec_log(LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
-        sz += sizeof(arch_sse_t);
+    if(sse) {
+        dynarec_log(LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
         for(int i=0; i<16; ++i)
             if(fpsimd && (sse->sse>>i)&1) {
                 int idx = 0;
@@ -231,6 +330,51 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 }
                 emu->xmm[i].u128 = fpsimd->vregs[idx];
             }
+    }
+    if(ymm) {
+        dynarec_log(LOG_INFO, " ymm[%x, pos=%x, 0=%x (fpsimd=%p)] ", ymm->ymm, ymm->ymm_pos, ymm->ymm0, fpsimd);
+        for(int i=0; i<16; ++i) {
+            if(fpsimd && (ymm->ymm>>i)&1) {
+                int idx = (ymm->ymm_pos>>(i*4))&0xf;
+                if(i>7) {
+                    idx = SCRATCH0 + i - 8;
+                } else {
+                    idx = EMM0 + i;
+                }
+                emu->ymm[i].u128 = fpsimd->vregs[idx];
+            }
+            if(ymm->ymm0&(1<<i))
+                emu->ymm[i].u128 = 0;
+        }
+    }
+    if(mmx) {
+        dynarec_log(LOG_INFO, " mmx[%x (fpsimd=%p)] ", mmx->mmx, fpsimd);
+        for(int i=0; i<8; ++i)
+            if(fpsimd && (mmx->mmx>>i)&1) {
+                int idx = EMM0 + i;
+                emu->mmx[i].q = fpsimd->vregs[idx]&0xffffffffffffffffLL;
+            }
+    }
+    if(x87) {
+        dynarec_log(LOG_INFO, " x87[%x, pos=%x, type=%x (fpsimd=%p)] ", x87->x87, x87->x87_pos, x87->x87_type, fpsimd);
+        emu->top -= x87->delta;
+        for(int i=0; i<8; ++i) {
+            if(x87->x87&(1<<i)) {
+                int idx = EMM0 + (x87->x87_pos>>(i*4))&0x0f;
+                int t = (x87->x87_type>>(i*2))&0x3;
+                switch (t) {
+                    case X87_ST_F:
+                        emu->x87[(emu->top+i)&7].d = *(float*)&fpsimd->vregs[idx];
+                        break;
+                    case X87_ST_I64:
+                        emu->x87[(emu->top+i)&7].d = *(int64_t*)&fpsimd->vregs[idx];
+                        break;
+                    case X87_ST_D:
+                        emu->x87[(emu->top+i)&7].d = *(double*)&fpsimd->vregs[idx];
+                        break;
+                }
+            }
+        }
     }
     dynarec_log(LOG_INFO, "\n");
 }
