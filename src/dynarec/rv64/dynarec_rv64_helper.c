@@ -844,6 +844,9 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
     fpu_pushcache(dyn, ninst, x3, 1);
+    // save RSP in case there are x86 callbacks...
+    SD(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
+    SD(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
     // check if additional sextw needed
     int sextw_mask = ((w > 0 ? w : -w) >> 4) & 0b111111;
     for (int i = 0; i < 6; i++) {
