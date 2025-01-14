@@ -568,15 +568,15 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     int olddynarec = box64_dynarec;
     #endif
     printf_log(LOG_INFO, "Apply RC params for %s\n", name);
-    #define ENTRYINT(NAME, name, minval, maxval, bits) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
+    #define ENTRYINT(NAME, name, minval, maxval, bits) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name); name = param->name;}
     #define ENTRYBOOL(NAME, name) ENTRYINT(NAME, name, 0, 1, 1)
-    #define CENTRYBOOL(NAME, name) if(param->is_##name##_present) {my_context->name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
-    #define ENTRYINTPOS(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
-    #define ENTRYSTRING(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
+    #define CENTRYBOOL(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name); my_context->name = param->name;}
+    #define ENTRYINTPOS(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name); name = param->name;}
+    #define ENTRYSTRING(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name); name = param->name;}
     #define ENTRYSTRING_(NAME, name)  
-    #define ENTRYDSTRING(NAME, name) if(param->is_##name##_present) {if(name) box_free(name); name = box_strdup(param->name); printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
-    #define ENTRYADDR(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%zd\n", #NAME, param->name);}
-    #define ENTRYULONG(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%lld\n", #NAME, param->name);}
+    #define ENTRYDSTRING(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name); if(name) box_free(name); name = box_strdup(param->name);}
+    #define ENTRYADDR(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%zd\n", #NAME, param->name); name = param->name;}
+    #define ENTRYULONG(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%lld\n", #NAME, param->name); name = param->name;}
     SUPER()
     #undef ENTRYBOOL
     #undef CENTRYBOOL
@@ -619,7 +619,7 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     #endif
     if(!box64_maxcpu_immutable) {
         if(new_maxcpu!=box64_maxcpu && box64_maxcpu && box64_maxcpu<new_maxcpu) {
-        printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
+            printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
         } else
             box64_maxcpu = new_maxcpu;
     } else if(new_maxcpu!=box64_maxcpu)
@@ -635,31 +635,31 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         openFTrace(param->trace_file, 0);
     }
     if(param->is_emulated_libs_present) {
-        AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_EMULATED_LIBS", param->emulated_libs);
+        AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
     }
     if(param->is_new_addlibs_present) {
         AddNewLibs(param->new_addlibs);
     }
     if(param->is_new_env_present) {
-        addNewEnvVar(param->new_env);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV", param->new_env);
+        addNewEnvVar(param->new_env);
     }
     if(param->is_new_env1_present) {
-        addNewEnvVar(param->new_env1);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV1", param->new_env1);
+        addNewEnvVar(param->new_env1);
     }
     if(param->is_new_env2_present) {
-        addNewEnvVar(param->new_env2);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV2", param->new_env2);
+        addNewEnvVar(param->new_env2);
     }
     if(param->is_new_env3_present) {
-        addNewEnvVar(param->new_env3);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV3", param->new_env3);
+        addNewEnvVar(param->new_env3);
     }
     if(param->is_new_env4_present) {
-        addNewEnvVar(param->new_env4);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV4", param->new_env4);
+        addNewEnvVar(param->new_env4);
     }
     if(param->is_new_args_present) {
         printf_log(LOG_INFO, "Adding \"%s\" arguments to command line\n", param->new_args);
@@ -674,10 +674,10 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         box64_insert_args = box_strdup(param->insert_args);
     }
     if(param->is_bash_present && FileIsX64ELF(param->bash)) {
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
         if(my_context->bashpath)
             box_free(my_context->bashpath);
         my_context->bashpath = box_strdup(param->bash);
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
     }
     #ifdef HAVE_TRACE
     int old_x64trace = my_context->x64trace;
@@ -757,8 +757,8 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     if(param->is_box64_dynarec_forward_present) {
         int forward = 0;
         if(sscanf(param->box64_dynarec_forward, "%d", &forward)==1) {
-            box64_dynarec_forward = forward;
             printf_log(LOG_INFO, "Appling BOX64_DYNAREC_FORWARD=%d\n", box64_dynarec_forward);
+            box64_dynarec_forward = forward;
         }
     }
     if(!olddynarec && box64_dynarec)
