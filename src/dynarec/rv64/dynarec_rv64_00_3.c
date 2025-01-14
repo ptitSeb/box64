@@ -918,7 +918,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     SKIPTEST(x1);
                     BARRIER(BARRIER_FULL);
-                    if (dyn->last_ip && (addr - dyn->last_ip < 0x1000)) {
+                    if (dyn->last_ip && (addr - dyn->last_ip < 0x800)) {
                         ADDI(x2, xRIP, addr - dyn->last_ip);
                     } else {
                         TABLE64(x2, addr);
@@ -953,7 +953,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BNE_MARK(xRIP, x3); // Not the expected address, exit dynarec block
                         POP1(xRIP);         // pop the return address
                         if (dyn->insts[ninst].retn) {
-                            if (dyn->insts[ninst].retn < 0x1000) {
+                            if (dyn->insts[ninst].retn < 0x800) {
                                 ADDI(xRSP, xRSP, dyn->insts[ninst].retn);
                             } else {
                                 MOV64x(x3, dyn->insts[ninst].retn);
