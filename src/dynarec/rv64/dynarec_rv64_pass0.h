@@ -86,10 +86,10 @@
         dynarec_log(LOG_NONE, "\n");                                                                                                                \
     }
 
-#define SET_ELEMENT_WIDTH(s1, sew, set)                  \
-    do {                                                 \
-        if (sew != VECTOR_SEWANY && set)                 \
-            dyn->vector_sew = sew;                       \
-        else if (dyn->vector_sew == VECTOR_SEWNA && set) \
-            dyn->vector_sew = VECTOR_SEW8;               \
+#define SET_ELEMENT_WIDTH(s1, sew, set)                    \
+    do {                                                   \
+        if ((sew) != VECTOR_SEWANY && (set))               \
+            dyn->vector_sew = (sew);                       \
+        else if (dyn->vector_sew == VECTOR_SEWNA && (set)) \
+            dyn->vector_sew = VECTOR_SEW8;                 \
     } while (0)
