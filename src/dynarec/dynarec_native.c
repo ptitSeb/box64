@@ -506,6 +506,37 @@ static uint64_t static_table64[(MAX_INSTS+3)/4];
 static instruction_native_t static_insts[MAX_INSTS+2] = {0};
 // TODO: ninst could be a uint16_t instead of an int, that could same some temp. memory
 
+void ClearCache(void* start, size_t len)
+{
+#if defined(ARM64) && !defined(ANDROID)
+    // manually clear cache, I have issue with regular function on Ampere with kernel 6.12.4
+    uintptr_t xstart = (uintptr_t)start;
+    uintptr_t xend = (uintptr_t)start + len;
+    // Cache Type Info. Only grab the info once
+    static uint64_t ctr_el0 = 0;
+    if (ctr_el0 == 0)
+        __asm __volatile("mrs %0, ctr_el0" : "=r"(ctr_el0));
+    const int ctr_el0_idc = (ctr_el0>>28)&1;    // 0: datacache needs to be cleaned too, 1: no need
+    const int ctr_el0_dic = (ctr_el0>>29)&1;    // 0: instruction cache needs to be cleaned, 1: no need
+    const uintptr_t dcache_line_size = 4 << ((ctr_el0 >> 16) & 15);
+    const uintptr_t icache_line_size = 4 << ((ctr_el0 >> 0) & 15);
+    if (!ctr_el0_idc) {
+        //purge each dcache line if no icache is defined...
+        for (uint64_t addr=xstart&~(dcache_line_size-1); addr<xend; addr+=dcache_line_size)
+            __asm __volatile("dc cvau, %0" ::"r"(addr));
+    }
+    // ignoring idc...
+    if (1/*ctr_el0_idx*/) {
+        // purge each icache line
+        for (uint64_t addr=xstart&~(icache_line_size-1); addr<xend; addr+=icache_line_size)
+            __asm __volatile("ic ivau, %0" ::"r"(addr));
+    }
+    __asm __volatile("isb sy");
+#else
+    __builtin___clear_cache(start, start+len+1);
+#endif
+}
+
 void CancelBlock64(int need_lock)
 {
     if(need_lock)
@@ -547,7 +578,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr, int is32bits) {
     *(void**)(p+2*sizeof(void*)) = native_epilog;
     CreateJmpNext(block->jmpnext, p+2*sizeof(void*));
     // all done...
-    __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
+    ClearCache(actual_p+sizeof(void*), 3*sizeof(void*));   // need to clear the cache before execution...
     return block;
 }
 
@@ -753,7 +784,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.table64 = (uint64_t*)helper.tablestart;
     // pass 3, emit (log emit native opcode)
     if(box64_dynarec_dump) {
-        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64"); 
+        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu)", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size); 
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
     }
@@ -805,7 +836,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     if (box64_dynarec_gdbjit) {
         GdbJITBlockReady(helper.gdbjit_block);
     }
-    __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
+    ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abort if it is
     if((helper.abort || (block->hash != hash))) {
