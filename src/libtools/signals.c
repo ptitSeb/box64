@@ -1538,14 +1538,15 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
     dynablock_t* db = NULL;
     int db_searched = 0;
+    uintptr_t x64pc = (uintptr_t)-1;
+    x64pc = R_RIP;
     if((sig==SIGBUS) && (addr!=pc)) {
         db = FindDynablockFromNativeAddress(pc);
-        db_searched = 1;
-        uint8_t* x64pc = NULL;
         if(db)
-            x64pc = (uint8_t*)getX64Address(db, (uintptr_t)pc);
+            x64pc = getX64Address(db, (uintptr_t)pc);
+        db_searched = 1;
         int fixed = 0;
-        if((fixed=sigbus_specialcases(info, ucntx, pc, fpsimd, db, (uintptr_t)x64pc))) {
+        if((fixed=sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc))) {
             // special case fixed, restore everything and just continues
             if(box64_log>=LOG_DEBUG || box64_showsegv) {
                 static void*  old_pc[2] = {0};
@@ -1554,8 +1555,9 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     old_pc[old_pc_i++] = pc;
                     if(old_pc_i==2)
                         old_pc_i = 0;
+                    uint8_t* x64 = (uint8_t*)x64pc;
                     if(db)
-                        printf_log(LOG_INFO, "Special unalinged case fixed @%p, opcode=%08x (addr=%p, db=%p, x64pc=%p[%02hhX %02hhX %02hhX %02hhX %02hhX])\n", pc, *(uint32_t*)pc, addr, db, x64pc, x64pc[0], x64pc[1], x64pc[2], x64pc[3], x64pc[4], x64pc[5]);
+                        printf_log(LOG_INFO, "Special unalinged case fixed @%p, opcode=%08x (addr=%p, db=%p, x64pc=%p[%02hhX %02hhX %02hhX %02hhX %02hhX])\n", pc, *(uint32_t*)pc, addr, db, x64pc, x64[0], x64[1], x64[2], x64[3], x64[4], x64[5]);
                     else
                         printf_log(LOG_INFO, "Special unalinged case fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t*)pc, addr);
                 }
@@ -1575,14 +1577,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #endif
 #ifdef RV64
     if((sig==SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
-        if(!db_searched)
+        if(!db_searched) {
             db = FindDynablockFromNativeAddress(pc);
-        db_searched = 1;
-        uint8_t* x64pc = NULL;
-        if(db)
-            x64pc = (uint8_t*)getX64Address(db, (uintptr_t)pc);
+            if(db)
+                x64pc = getX64Address(db, (uintptr_t)pc);
+            db_searched = 1;
+        }
         int fixed = 0;
-        if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, (uintptr_t)x64pc))) {
+        if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc))) {
             // special case fixed, restore everything and just continues
             if(box64_log >= LOG_DEBUG || box64_showsegv) {
                 static void*  old_pc[2] = {0};
@@ -1610,9 +1612,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         lock_signal();
         // check if SMC inside block
-        if(!db_searched)
+        if(!db_searched) {
             db = FindDynablockFromNativeAddress(pc);
-        db_searched = 1;
+            if(db)
+                x64pc = getX64Address(db, (uintptr_t)pc);
+            db_searched = 1;
+        }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         if(db) CheckHotPage((uintptr_t)addr);
@@ -1650,8 +1655,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         unlock_signal();
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
         lock_signal();
-        db = FindDynablockFromNativeAddress(pc);
-        db_searched = 1;
+        if(!db_searched) {
+            db = FindDynablockFromNativeAddress(pc);
+            if(db)
+                x64pc = getX64Address(db, (uintptr_t)pc);
+            db_searched = 1;
+        }
         if(db && db->x64_addr>= addr && (db->x64_addr+db->x64_size)<addr) {
             dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
         }
@@ -1703,8 +1712,12 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         // unprotect and continue to signal handler, because Write is not there on purpose
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
     }
-    if(!db_searched)
+    if(!db_searched) {
         db = FindDynablockFromNativeAddress(pc);
+        if(db)
+            x64pc = getX64Address(db, (uintptr_t)pc);
+        db_searched = 1;
+    }
 #endif
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
@@ -1718,13 +1731,10 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     int tid = GetTID();
     int mapped = memExist((uintptr_t)addr);
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
-    uintptr_t x64pc = (uintptr_t)-1;
-    x64pc = R_RIP;
     rsp = (void*)R_RSP;
 #if defined(DYNAREC)
 #if defined(ARM64)
     if(db) {
-        x64pc = getX64Address(db, (uintptr_t)pc);
         rsp = (void*)p->uc_mcontext.regs[10+_SP];
     }
 #elif defined(LA64)
@@ -1732,7 +1742,6 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
     }
     if(db) {
-        x64pc = getX64Address(db, (uintptr_t)pc);
         rsp = (void*)p->uc_mcontext.__gregs[12+_SP];
     }
 #elif defined(RV64)
@@ -1740,7 +1749,6 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         emu = (x64emu_t*)p->uc_mcontext.__gregs[25];
     }
     if(db) {
-        x64pc = getX64Address(db, (uintptr_t)pc);
         rsp = (void*)p->uc_mcontext.__gregs[9];
     }
 #else
