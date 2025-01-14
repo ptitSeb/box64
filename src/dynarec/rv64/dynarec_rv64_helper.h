@@ -1147,16 +1147,16 @@
 #define MODREG ((nextop & 0xC0) == 0xC0)
 
 #ifndef SET_ELEMENT_WIDTH
-#define SET_ELEMENT_WIDTH(s1, sew, set)                                             \
-    do {                                                                            \
-        if (sew == VECTOR_SEWANY && dyn->vector_sew != VECTOR_SEWNA) {              \
-            dyn->vector_eew = dyn->vector_sew;                                      \
-        } else if (sew == dyn->vector_sew) {                                        \
-            dyn->vector_eew = dyn->vector_sew;                                      \
-        } else {                                                                    \
-            dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, sew, VECTOR_LMUL1, 1); \
-        }                                                                           \
-        if (set) dyn->vector_sew = dyn->vector_eew;                                 \
+#define SET_ELEMENT_WIDTH(s1, sew, set)                                               \
+    do {                                                                              \
+        if ((sew) == VECTOR_SEWANY && dyn->vector_sew != VECTOR_SEWNA) {              \
+            dyn->vector_eew = dyn->vector_sew;                                        \
+        } else if ((sew) == dyn->vector_sew) {                                        \
+            dyn->vector_eew = dyn->vector_sew;                                        \
+        } else {                                                                      \
+            dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, (sew), VECTOR_LMUL1, 1); \
+        }                                                                             \
+        if (set) dyn->vector_sew = dyn->vector_eew;                                   \
     } while (0)
 #endif
 

@@ -3035,7 +3035,6 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     int scratch = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     VMV_V_I(scratch, 1);
-                    VMV_S_X(vreg, xZR);
                     VSLIDE1UP_VX(vreg, scratch, xZR, VECTOR_UNMASKED);
                     vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
                     return;
@@ -3068,7 +3067,6 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     MOV64x(s1, 0x100000000ULL);
                     VMV_V_X(scratch, s1);
-                    VMV_S_X(vreg, xZR);
                     VSLIDE1UP_VX(vreg, scratch, xZR, VECTOR_UNMASKED);
                     vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
                     return;
@@ -3104,7 +3102,6 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     MOV64x(s1, 0x100000001ULL);
                     VMV_V_X(scratch, s1);
-                    VMV_S_X(vreg, xZR);
                     VSLIDE1UP_VX(vreg, scratch, xZR, VECTOR_UNMASKED);
                     vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
                     return;
