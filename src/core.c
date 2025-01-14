@@ -517,6 +517,7 @@ HWCAP2_AFP
         printf_log(LOG_INFO, " AFP");
     if(arm64_rndr)
         printf_log(LOG_INFO, " RNDR");
+    printf_log(LOG_INFO, "\n");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch ");
     char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
@@ -540,6 +541,7 @@ HWCAP2_AFP
         if ((la64_scq = (cpucfg2 >> 30) & 0b1))
             printf_log(LOG_INFO, " SCQ");
     }
+    printf_log(LOG_INFO, "\n");
 #elif defined(RV64)
     void RV64_Detect_Function();
     // private env. variable for the developer ;)
@@ -571,24 +573,25 @@ HWCAP2_AFP
         }
     }
 
-    printf_log(LOG_INFO, "Dynarec for RISC-V ");
-    printf_log(LOG_INFO, "With extension: I M A F D C");
-    if(rv64_zba) printf_log(LOG_INFO, " Zba");
-    if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
-    if(rv64_zbc) printf_log(LOG_INFO, " Zbc");
-    if(rv64_zbs) printf_log(LOG_INFO, " Zbs");
-    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, " Vector (vlen: %d)", rv64_vlen);
-    if (rv64_xtheadvector) printf_log(LOG_INFO, " XTheadVector (vlen: %d)", rv64_vlen);
-    if(rv64_xtheadba) printf_log(LOG_INFO, " XTheadBa");
-    if(rv64_xtheadbb) printf_log(LOG_INFO, " XTheadBb");
-    if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
-    if (rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
-    if (rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
-    if (rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
+    printf_log(LOG_INFO, "Dynarec for rv64g");
+    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, "v");
+    if (rv64_zba) printf_log(LOG_INFO, "_zba");
+    if (rv64_zbb) printf_log(LOG_INFO, "_zbb");
+    if (rv64_zbc) printf_log(LOG_INFO, "_zbc");
+    if (rv64_zbs) printf_log(LOG_INFO, "_zbs");
+    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, "_zvl%d", rv64_vlen);
+    if (rv64_xtheadba) printf_log(LOG_INFO, "_xtheadba");
+    if (rv64_xtheadbb) printf_log(LOG_INFO, "_xtheadbb");
+    if (rv64_xtheadbs) printf_log(LOG_INFO, "_xtheadbs");
+    if (rv64_xtheadmempair) printf_log(LOG_INFO, "_xtheadmempair");
+    if (rv64_xtheadcondmov) printf_log(LOG_INFO, "_xtheadcondmov");
+    if (rv64_xtheadmemidx) printf_log(LOG_INFO, "_xtheadmemidx");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
-    // if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
-    // if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
+    // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " xtheadfmemidx");
+    // if(rv64_xtheadmac) printf_log(LOG_INFO, " xtheadmac");
+    // if(rv64_xtheadfmv) printf_log(LOG_INFO, " xtheadfmv");
+    if (rv64_xtheadvector) printf_log(LOG_INFO, "_xthvector");
+    printf_log(LOG_INFO, "\n");
 #else
 #error Unsupported architecture
 #endif
@@ -1344,7 +1347,7 @@ void LoadLogEnv()
     // grab cpu name
     int ncpu = getNCpu();
     const char* cpuname = getCpuName();
-    printf_log(LOG_INFO, " PageSize:%zd Running on %s with %d core%s\n", box64_pagesize, cpuname, ncpu, ncpu > 1 ? "s" : "");
+    printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd\n", cpuname, ncpu, ncpu > 1 ? "s" : "", box64_pagesize);
     // grab and calibrate hardware counter
     computeRDTSC();
 }
@@ -1460,7 +1463,7 @@ void PrintFlags() {
 }
 
 void PrintHelp() {
-    printf("This is Box64, The Linux x86_64 emulator with a twist\n");
+    printf("This is Box64, the Linux x86_64 emulator with a twist.\n");
     printf("\nUsage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
     printf(" options are:\n");
     printf("    '-v'|'--version' to print box64 version and quit\n");
@@ -1774,7 +1777,7 @@ void setupTrace()
                     if(!search)
                         search = ElfGetSymTabStartEnd(my_context->elfs[i], &s_trace_start, &s_trace_end, p);
                 }
-            } 
+            }
             if(search) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
