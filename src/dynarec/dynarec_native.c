@@ -508,7 +508,7 @@ static instruction_native_t static_insts[MAX_INSTS+2] = {0};
 
 void ClearCache(void* start, size_t len)
 {
-#if defined(ARM64) && !defined(ANDROID)
+#if defined(ARM64)
     // manually clear cache, I have issue with regular function on Ampere with kernel 6.12.4
     uintptr_t xstart = (uintptr_t)start;
     uintptr_t xend = (uintptr_t)start + len;
