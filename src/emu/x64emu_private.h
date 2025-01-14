@@ -110,15 +110,17 @@ typedef struct x64emu_s {
     forkpty_t*  forkpty_info;
     emu_flags_t flags;
     x64test_t   test;       // used for dynarec testing
+    // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
+    __int128_t dummy_align; // here to have scratch 128bits aligned
+    uint64_t scratch[N_SCRATCH];
+
+    // Warning, offsetof(x64emu_t, xxx) will be too big for fields below.
     #ifdef HAVE_TRACE
     sse_regs_t  old_xmm[16];
     sse_regs_t  old_ymm[16];
     reg64_t     oldregs[16];
     uintptr_t   prev2_ip;
     #endif
-    // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
-    __int128_t  dummy_align;    // here to have scratch 128bits aligned
-    uint64_t    scratch[N_SCRATCH];
     // local stack, do be deleted when emu is freed
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)
