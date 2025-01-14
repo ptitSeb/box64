@@ -1388,16 +1388,17 @@ int GatherEnv(char*** dest, char** env, char* prog)
 {
     char** p = env;
     int idx = 0;
+    int _prog = 0;
     while(*p) {
         if(strncmp(*p, "_=", 2)==0) {
-            // ignore
+            _prog = 1;
         } else {
             (*dest)[idx++] = box_strdup(*p);
         }
         ++p;
     }
     // add "_=prog" at the end...
-    if(prog) {
+    if(_prog && prog) {
         int l = strlen(prog);
         char tmp[l+3];
         strcpy(tmp, "_=");
@@ -1405,7 +1406,7 @@ int GatherEnv(char*** dest, char** env, char* prog)
         (*dest)[idx++] = box_strdup(tmp);
     }
     // and a final NULL
-    (*dest)[idx++] = 0;
+    (*dest)[idx++] = NULL;
     return 0;
 }
 
@@ -1857,7 +1858,7 @@ static void add_argv(const char* what) {
         if(!where)
             where = (box64_wine)?2:1;
         printf_log(LOG_INFO, "Inserting \"%s\" to the argument %d\n", what, where);
-        my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
+        my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1+1)*sizeof(char*));
         memmove(my_context->argv+where+1, my_context->argv+where, (my_context->argc-where)*sizeof(char*));
         my_context->argv[where] = box_strdup(what);
         my_context->argc++;
@@ -2095,7 +2096,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     my_context->envc = CountEnv(environ?environ:env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
     // allocate extra space for new environment variables such as BOX64_PATH
-    my_context->envv = (char**)box_calloc(my_context->envc+4, sizeof(char*));
+    my_context->envv = (char**)box_calloc(my_context->envc+1, sizeof(char*));
 
     path_collection_t ld_preload = {0};
     if(getenv("BOX64_LD_PRELOAD")) {

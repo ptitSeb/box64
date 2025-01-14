@@ -38,11 +38,12 @@ void SetupInitialStack32(x64emu_t *emu)
     PushString32(emu, emu->context->argv[0]);
     uintptr_t p_arg0 = from_ptr(R_ESP);
     // push envs
-    uintptr_t p_envv[emu->context->envc];
+    uintptr_t p_envv[emu->context->envc+1];
     for (int i=emu->context->envc-1; i>=0; --i) {
         PushString32(emu, emu->context->envv[i]);
         p_envv[i] = from_ptr(R_ESP);
     }
+    p_envv[emu->context->envc] = 0;
     // push args, also, free the argv[] string and point to the one in the main stack
     uintptr_t p_argv[emu->context->argc];
     for (int i=emu->context->argc-1; i>=0; --i) {

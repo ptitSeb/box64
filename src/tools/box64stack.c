@@ -61,7 +61,8 @@ void SetupInitialStack(x64emu_t *emu)
     PushString(emu, emu->context->argv[0]);
     uintptr_t p_arg0 = R_RSP;
     // push envs
-    uintptr_t p_envv[emu->context->envc];
+    uintptr_t p_envv[emu->context->envc+1];
+    p_envv[emu->context->envc] = 0;
     for (int i=emu->context->envc-1; i>=0; --i) {
         PushString(emu, emu->context->envv[i]);
         box_free(emu->context->envv[i]);
