@@ -240,7 +240,13 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
-            FCVT_S_D(d1, v1);
+            if(box64_dynarec_fastround==2) {
+                FCVT_S_D(d1, v1);
+            } else {
+                u8 = sse_setround(dyn, ninst, x1, x2, x3);
+                FCVT_S_D(d1, v1);
+                x87_restoreround(dyn, ninst, u8);
+            }
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
