@@ -177,6 +177,7 @@ ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 ENTRYSTRING_(BOX64_DYNAREC_TEST, box64_dynarec_test)                \
 ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
 ENTRYBOOL(BOX64_DYNAREC_DF, box64_dynarec_df)                       \
+ENTRYBOOL(BOX64_DYNAREC_DIRTY, box64_dynarec_dirty)                 \
 
 #else
 #define SUPER3()                                                    \
@@ -206,6 +207,7 @@ IGNORE(BOX64_NODYNAREC)                                             \
 IGNORE(BOX64_DYNAREC_TEST)                                          \
 IGNORE(BOX64_DYNAREC_MISSING)                                       \
 IGNORE(BOX64_DYNAREC_DF)                                            \
+IGNORE(BOX64_DYNAREC_DIRTY)                                         \
 
 #endif
 

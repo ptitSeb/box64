@@ -105,6 +105,7 @@ int box64_dynarec_gdbjit = 0;
 int box64_dynarec_df = 1;
 int box64_dynarec_perf_map = 0;
 int box64_dynarec_perf_map_fd = -1;
+int box64_dynarec_dirty = 0;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -938,6 +939,15 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_df)
             printf_log(LOG_INFO, "Dynarec will not use/generate defered flags\n");
+    }
+    p = getenv("BOX64_DYNAREC_DIRTY");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_dirty = p[0]-'0';
+        }
+        if(box64_dynarec_dirty)
+            printf_log(LOG_INFO, "Dynarec will allow dirty block to continu running\n");
     }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
     if(p) {

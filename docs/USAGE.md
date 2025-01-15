@@ -409,6 +409,12 @@ Wait for FillBlock to be ready (FillBlock builds Dynarec blocks and is not multi
  * 0 : Do not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs).
  * 1 : Wait for FillBlock to be ready. (default, mostly faster)
 
+#### BOX64_DYNAREC_DIRTY *
+
+Allow continue running a block that is unprotected and potentially dirty
+ * 0 : Do not allow conitnuing to run a dynablock that gets unprotected (default)
+ * 1 : Allow continue to run a dynablock that write data in the same page the code is. It can get faster loading time of some game but can also get unexpected crash.
+
 ### Detection
 
 #### BOX64_DYNAREC_BLEEDING_EDGE *

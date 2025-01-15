@@ -46,6 +46,7 @@ extern int box64_dynarec_nativeflags;
 extern int box64_dynarec_df;
 extern int box64_dynarec_perf_map;
 extern int box64_dynarec_perf_map_fd;
+extern int box64_dynarec_dirty;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;
