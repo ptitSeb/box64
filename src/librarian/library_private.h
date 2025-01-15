@@ -78,7 +78,7 @@ typedef struct elib_s {
 typedef struct library_s {
     char*               name;   // <> path
     char*               path;   // original path
-    int8_t              nbdot;  // nombre of "." after .so
+    int8_t              nbdot;  // number of "." after .so
     int8_t              type;   // 0: native(wrapped) 1: emulated(elf) -1: undetermined
     uint8_t             deepbind;
     wrappedlib_fini_t   fini;
