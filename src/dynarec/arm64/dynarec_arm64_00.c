@@ -823,7 +823,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x62:
             if(rex.is32bits) {
                 // BOUND here
-                DEFAULT;                
+                DEFAULT;
             } else {
                 INST_NAME("BOUND Gd, Ed");
                 nextop = F8;
@@ -833,7 +833,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x63:
             if(rex.is32bits) {
                 // ARPL here
-                DEFAULT;                
+                DEFAULT;
             } else {
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;
@@ -899,7 +899,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -923,7 +923,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULL(gd, ed, x4);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -963,7 +963,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -987,7 +987,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULL(gd, ed, x4);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -1603,7 +1603,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             ANDw_REG(xFlags, xFlags, x1);
             MOV32w(x1, 0x202);
             ORRw_REG(xFlags, xFlags, x1);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             if(box64_wine || 1) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
                 // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
@@ -1617,7 +1617,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BICw_REG(xFlags, xFlags, x2);
             ANDw_REG_LSR(x1, x2, xRAX, 8);
             ORRw_REG(xFlags, xFlags, x1);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             break;
         case 0x9F:
             INST_NAME("LAHF");
@@ -3149,8 +3149,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE6:                      /* OUT Ib, AL */
         case 0xE7:                      /* OUT Ib, EAX */
             INST_NAME(opcode==0xE4?"IN AL, Ib":(opcode==0xE5?"IN EAX, Ib":(opcode==0xE6?"OUT Ib, AL":"OUT Ib, EAX")));
-            if(rex.is32bits && box64_ignoreint3)
-            { 
+            if (rex.is32bits && box64_ignoreint3) {
                 F8;
             } else {
                 if(box64_dynarec_safeflags>1) {
@@ -3437,7 +3436,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MULw(x1, x2, x1);
                     BFIx(xRAX, x1, 0, 16);
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSw_REG_LSR(xZR, x1, 8);
                             CSETw(x3, cNE);
@@ -3464,7 +3463,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MULw(x1, x2, x1);
                     BFIx(xRAX, x1, 0, 16);
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             ASRxw(x2, x1, 8);
                             CMPSw_REG_ASR(x2, x1, 16);
@@ -3503,7 +3502,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
                     BFIx(xRAX, x4, 8, 8);
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -3530,7 +3529,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
                     BFIx(xRAX, x4, 8, 8);
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -3578,7 +3577,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LSRx(xRDX, xRDX, 32);
                     }
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSxw_U12(xRDX, 0);
                             CSETw(x3, cNE);
@@ -3612,7 +3611,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LSRx(xRDX, xRDX, 32);
                     }
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSxw_REG_ASR(xRDX, xRAX, rex.w?63:31);
                             CSETw(x3, cNE);
@@ -3709,7 +3708,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -3787,7 +3786,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -3799,13 +3798,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xF8:
             INST_NAME("CLC");
             SETFLAGS(X_CF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             BFCx(xFlags, F_CF, 1);
             break;
         case 0xF9:
             INST_NAME("STC");
             SETFLAGS(X_CF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             ORRx_mask(xFlags, xFlags, 1, 0, 0); // xFlags | 1
             break;
         case 0xFA:                      /* STI */

@@ -975,7 +975,7 @@
         /* greater than leave 0 */                                          \
         ORRw_REG(xFlags, xFlags, s1);                                       \
     }                                                                       \
-    SET_DFNONE(s1);                                                         \
+    SET_DFNONE();                                                           \
 
 #ifndef IF_UNALIGNED
 #define IF_UNALIGNED(A)    if(is_addr_unaligned(A))
@@ -1081,18 +1081,26 @@
     x87_do_pop(dyn, ninst, scratch)
 #endif
 
-#define SET_DFNONE(S)    do {dyn->f.dfnone_here=1; if(!dyn->f.dfnone) {STRw_U12(wZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}} while(0);
-#define SET_DF(S, N)        \
-    if((N)!=d_none) {       \
-        MOVZw(S, (N));      \
-        STRw_U12(S, xEmu, offsetof(x64emu_t, df)); \
-        if(dyn->f.pending==SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after&X_PEND)) {  \
-            CALL_(UpdateFlags, -1, 0);              \
-            dyn->f.pending = SF_SET;                \
-            SET_NODF();     \
-        }                   \
-        dyn->f.dfnone=0;    \
-    } else SET_DFNONE(S)
+#define SET_DFNONE()                                     \
+    do {                                                 \
+        dyn->f.dfnone_here = 1;                          \
+        if (!dyn->f.dfnone) {                            \
+            STRw_U12(wZR, xEmu, offsetof(x64emu_t, df)); \
+            dyn->f.dfnone = 1;                           \
+        }                                                \
+    } while (0);
+#define SET_DF(S, N)                                                                                                            \
+    if ((N) != d_none) {                                                                                                        \
+        MOVZw(S, (N));                                                                                                          \
+        STRw_U12(S, xEmu, offsetof(x64emu_t, df));                                                                              \
+        if (dyn->f.pending == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
+            CALL_(UpdateFlags, -1, 0);                                                                                          \
+            dyn->f.pending = SF_SET;                                                                                            \
+            SET_NODF();                                                                                                         \
+        }                                                                                                                       \
+        dyn->f.dfnone = 0;                                                                                                      \
+    } else                                                                                                                      \
+        SET_DFNONE()
 #ifndef SET_NODF
 #define SET_NODF()          dyn->f.dfnone = 0
 #endif

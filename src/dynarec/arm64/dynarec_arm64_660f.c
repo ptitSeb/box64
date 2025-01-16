@@ -530,7 +530,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         MOV32w(x1, (1<<F_PF)|(1<<F_AF)|(1<<F_OF)|(1<<F_SF));
                         BICw_REG(xFlags, xFlags, x1);
                     }
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     break;
 
                 case 0x1C:
@@ -1418,7 +1418,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         // flags
                         IFX(X_ALL) {
-                            SET_DFNONE(x4);
+                            SET_DFNONE();
                             IFX(X_CF) {
                                 CMPSw_REG(x1, xZR);
                                 CSETw(x4, cNE);
@@ -2330,7 +2330,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xA3:
             INST_NAME("BT Ew, Gw");
             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2390,7 +2390,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2495,7 +2495,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MULw(x2, x2, x1);
             GWBACK;
             UFLAG_IF {
-                SET_DFNONE(x4);
+                SET_DFNONE();
                 IFX(X_CF|X_OF) {
                     ASRw(x1, x2, 16);
                     CMPSw_REG_ASR(x1, x2, 31);
@@ -2519,7 +2519,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2595,7 +2595,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 4:
                     INST_NAME("BT Ew, Ib");
                     SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     gd = x2;
                     GETEW(x1, 1);
                     u8 = F8;
@@ -2613,7 +2613,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 5:
                     INST_NAME("BTS Ew, Ib");
                     SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
@@ -2633,7 +2633,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 6:
                     INST_NAME("BTR Ew, Ib");
                     SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
@@ -2652,7 +2652,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 7:
                     INST_NAME("BTC Ew, Ib");
                     SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
@@ -2676,7 +2676,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2713,7 +2713,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xBC:
             INST_NAME("BSF Gw,Ew");
             SETFLAGS(X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             GETGD;
             GETEW(x1, 0);  // Get EW
@@ -2737,7 +2737,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xBD:
             INST_NAME("BSR Gw,Ew");
             SETFLAGS(X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             GETGD;
             GETEW(x1, 0);  // Get EW

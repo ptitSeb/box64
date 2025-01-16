@@ -77,7 +77,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(arm64_atomics) {
                     UFLAG_IF {
                         LDADDALB(x2, x1, wback);
-                        emit_add8(dyn, ninst, x1, x2, x4, x5);    
+                        emit_add8(dyn, ninst, x1, x2, x4, x5);
                     } else {
                         STADDLB(x2, wback);
                     }
@@ -114,7 +114,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(arm64_atomics) {
                     UFLAG_IF {
                         LDADDALxw(gd, x1, wback);
-                        emit_add32(dyn, ninst, rex, x1, gd, x3, x4);    
+                        emit_add32(dyn, ninst, rex, x1, gd, x3, x4);
                     } else {
                         STADDLxw(gd, wback);
                     }
@@ -164,7 +164,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(arm64_atomics) {
                     LDSETALB(x2, x1, wback);
                     UFLAG_IF {
-                        emit_or8(dyn, ninst, x1, x2, x4, x5);    
+                        emit_or8(dyn, ninst, x1, x2, x4, x5);
                     }
                 } else {
                     MARKLOCK;
@@ -189,7 +189,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(arm64_atomics) {
                     LDSETALxw(gd, x1, wback);
                     UFLAG_IF {
-                        emit_or32(dyn, ninst, rex, x1, gd, x3, x4);    
+                        emit_or32(dyn, ninst, rex, x1, gd, x3, x4);
                     }
                 } else {
                     MARKLOCK;
@@ -209,7 +209,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xAB:
                     INST_NAME("LOCK BTS Ed, Gd");
                     SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     nextop = F8;
                     GETGD;
                     if(MODREG) {
@@ -407,7 +407,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xB3:
                     INST_NAME("LOCK BTR Ed, Gd");
                     SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     nextop = F8;
                     GETGD;
                     if(MODREG) {
@@ -461,7 +461,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     case 4:
                         INST_NAME("LOCK BT Ed, Ib");
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                        SET_DFNONE(x1);
+                        SET_DFNONE();
                         gd = x2;
                         if(MODREG) {
                             ed = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -496,7 +496,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     case 5:
                         INST_NAME("LOCK BTS Ed, Ib");
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                        SET_DFNONE(x1);
+                        SET_DFNONE();
                         if(MODREG) {
                             ed = TO_NAT((nextop & 7) + (rex.b << 3));
                             wback = 0;
@@ -543,7 +543,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     case 6:
                         INST_NAME("LOCK BTR Ed, Ib");
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                        SET_DFNONE(x1);
+                        SET_DFNONE();
                         if(MODREG) {
                             ed = TO_NAT((nextop & 7) + (rex.b << 3));
                             wback = 0;
@@ -585,7 +585,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     case 7:
                         INST_NAME("LOCK BTC Ed, Ib");
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                        SET_DFNONE(x1);
+                        SET_DFNONE();
                         if(MODREG) {
                             ed = TO_NAT((nextop & 7) + (rex.b << 3));
                             wback = 0;
@@ -770,7 +770,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             if(arm64_uscat) {
                                 if(rex.w) {
                                     TSTx_mask(wback, 1, 0, 3);
-                                    B_MARK2(cNE);    
+                                    B_MARK2(cNE);
                                 } else {
                                     ANDx_mask(x2, wback, 1, 0, 3);  // mask = F
                                     CMPSw_U12(x2, 8);
@@ -1040,7 +1040,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(arm64_atomics) {
                     UFLAG_IF {
                         LDEORALxw(gd, x1, wback);
-                        emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);    
+                        emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);
                     } else {
                         STEORLxw(gd, wback);
                     }
@@ -1260,7 +1260,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOV32w(x2, u8);
                             UFLAG_IF {
                                 LDEORALB(x2, x1, wback);
-                                emit_xor8(dyn, ninst, x1, x2, x3, x4);    
+                                emit_xor8(dyn, ninst, x1, x2, x3, x4);
                             } else {
                                 STEORLB(x2, wback);
                             }
@@ -1369,7 +1369,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 emit_or32(dyn, ninst, rex, x1, x5, x3, x4);
                             } else {
                                 STSETLxw(x5, wback);
-                            } 
+                            }
                         } else {
                             MARKLOCK;
                             LDAXRxw(x1, wback);
