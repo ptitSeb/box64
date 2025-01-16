@@ -1061,6 +1061,35 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
+// emit ROL16 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
+void emit_rol16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+
+    SET_DFNONE();
+
+    SLLI(s3, s1, 48 + c);
+    SRLI(s3, s3, 48);
+    SRLI(s1, s1, 16 - c);
+    OR(s1, s1, s3);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    IFX (X_CF | X_OF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+        ANDI(s4, s1, 1 << F_CF);
+        IFX (X_CF) OR(xFlags, xFlags, s4);
+    }
+    IFX (X_OF) {
+        if (c == 1) {
+            SRLI(s3, s1, 15);
+            XOR(s3, s3, s4);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+}
+
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
