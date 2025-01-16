@@ -59,7 +59,7 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0xBD:
             INST_NAME("LZCNT Gw, Ew");
             SETFLAGS(X_CF|X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             GETEW(x1, 0);
             GETGW(x2);

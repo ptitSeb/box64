@@ -281,7 +281,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 UFLAG_IF {
                                     SMULH(x3, gd, ed);
                                     MULx(gd, gd, ed);
-                                    SET_DFNONE(x4);
+                                    SET_DFNONE();
                                     IFX(X_CF|X_OF) {
                                         ASRx(x4, x3, 63);
                                         CMPSx_REG(x3, x4);
@@ -303,7 +303,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     UFLAG_RES(gd);
                                     LSRx(x3, gd, 32);
                                     MOVw_REG(gd, gd);
-                                    SET_DFNONE(x4);
+                                    SET_DFNONE();
                                     IFX(X_CF|X_OF) {
                                         ASRw(x4, gd, 31);
                                         CMPSw_REG(x3, x4);
@@ -546,7 +546,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -571,7 +571,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULL(gd, ed, x4);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -996,7 +996,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             ANDw_REG(xFlags, xFlags, x1);
             MOV32w(x1, 0x202);
             ORRw_REG(xFlags, xFlags, x1);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             if(box64_wine) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
                 // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
@@ -1344,7 +1344,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LSRx(xRDX, xRDX, 32);
                     }
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSxw_U12(xRDX, 0);
                             CSETw(x3, cNE);
@@ -1378,7 +1378,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LSRx(xRDX, xRDX, 32);
                     }
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             ASRxw(x4, xRAX, rex.w?63:31);
                             CMPSxw_REG(xRDX, x4);
@@ -1464,7 +1464,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -1536,7 +1536,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));

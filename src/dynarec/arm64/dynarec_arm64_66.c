@@ -445,7 +445,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             gd=x2;
             GWBACK;
             UFLAG_IF {
-                SET_DFNONE(x4);
+                SET_DFNONE();
                 IFX(X_CF|X_OF) {
                     ASRxw(x1, x2, 16);
                     CMPSw_REG_ASR(x1, x2, 31);
@@ -741,7 +741,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV32w(x1, 0x3F7FD7);
             ANDw_REG(xFlags, xFlags, x1);
             ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
-            SET_DFNONE(x1);
+            SET_DFNONE();
             if(box64_wine) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
                 // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
@@ -1282,7 +1282,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
-        
+
         case 0xD9:
             nextop = F8;
             if(MODREG) {
@@ -1373,7 +1373,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIz(xRAX, x1, 0, 16);
                     BFXILx(xRDX, x1, 16, 16);
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSw_REG_LSR(xZR, x1, 16);
                             CSETw(x3, cNE);
@@ -1401,7 +1401,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIz(xRAX, x1, 0, 16);
                     BFXILx(xRDX, x1, 16, 16);
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             ASRxw(x2, x1, 16);
                             CMPSw_REG_ASR(x2, x1, 31);
@@ -1441,7 +1441,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIz(xRAX, x3, 0, 16);
                     BFIz(xRDX, x4, 0, 16);
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -1469,7 +1469,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIz(xRAX, x3, 0, 16);
                     BFIz(xRDX, x4, 0, 16);
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -1481,13 +1481,13 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xF8:
             INST_NAME("CLC");
             SETFLAGS(X_CF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             BFCx(xFlags, F_CF, 1);
             break;
         case 0xF9:
             INST_NAME("STC");
             SETFLAGS(X_CF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             ORRx_mask(xFlags, xFlags, 1, 0, 0); // xFlags | 1
             break;
 

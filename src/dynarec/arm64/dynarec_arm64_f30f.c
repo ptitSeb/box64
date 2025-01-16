@@ -458,7 +458,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xB8:
             INST_NAME("POPCNT Gd, Ed");
             SETFLAGS(X_ALL, SF_SET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             v1 = fpu_get_scratch(dyn, ninst);
             GETGD;
@@ -494,7 +494,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     else {
                         CSETw(x1, cEQ);
                         BFIw(xFlags, x1, F_ZF, 1);
-                    }                    
+                    }
                 }
             }
             break;
@@ -502,7 +502,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
             SETFLAGS(X_CF|X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             GETED(0);
             GETGD;
@@ -522,7 +522,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xBD:
             INST_NAME("LZCNT Gd, Ed");
             SETFLAGS(X_CF|X_ZF, SF_SUBSET);
-            SET_DFNONE(x1);
+            SET_DFNONE();
             nextop = F8;
             GETED(0);
             GETGD;

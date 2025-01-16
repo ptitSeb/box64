@@ -58,7 +58,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
 
     while(opcode==0x67) opcode = F8;
-    
+
     // reset rex after 67
     GETREX();
 
@@ -928,7 +928,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -952,7 +952,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULL(gd, ed, x4);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
-                    SET_DFNONE(x1);
+                    SET_DFNONE();
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
@@ -1476,7 +1476,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LSRx(xRDX, xRDX, 32);
                     }
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSxw_U12(xRDX, 0);
                             CSETw(x3, cNE);
@@ -1510,7 +1510,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LSRx(xRDX, xRDX, 32);
                     }
                     UFLAG_IF {
-                        SET_DFNONE(x4);
+                        SET_DFNONE();
                         IFX(X_CF|X_OF) {
                             CMPSxw_REG_ASR(xRDX, xRAX, rex.w?63:31);
                             CSETw(x3, cNE);
@@ -1565,7 +1565,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
@@ -1607,7 +1607,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE(x2);
+                    SET_DFNONE();
                     IFX(X_AF | X_SF | X_CF | X_PF | X_ZF | X_OF)
                         if(box64_dynarec_test) {
                             MOV32w(x1, (1<<F_AF) | (1<<F_SF) | (1<<F_CF) | (1<<F_PF) | (1<<F_ZF) | (1<<F_OF));
