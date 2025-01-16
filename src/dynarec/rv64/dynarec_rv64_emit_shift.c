@@ -1600,3 +1600,87 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
+
+// emit RCL16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!(c % 17)) return;
+
+    SET_DFNONE();
+
+    c %= 17;
+
+    ANDI(s3, xFlags, 1 << F_CF);
+    SLLI(s3, s3, 16);
+    OR(s1, s1, s3); // insert CF to bit 16
+
+    SLLI(s4, s1, 47 + c);
+    SLLI(s3, s4, 1);
+    SRLI(s3, s3, 48);
+    SRLI(s1, s1, 17 - c);
+    OR(s1, s1, s3);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    IFX (X_CF | X_OF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+        SRLI(s4, s4, 63);
+        IFX (X_CF) OR(xFlags, xFlags, s4);
+    }
+
+    IFX (X_OF) {
+        if (c == 1) {
+            SRLI(s3, s1, 15);
+            XOR(s3, s3, s4);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+}
+
+// emit RCR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    MAYUSE(s1);
+    MAYUSE(s3);
+    MAYUSE(s4);
+
+    if (!(c % 17)) return;
+
+    SET_DFNONE();
+
+    c %= 17;
+
+
+    ANDI(s3, xFlags, 1 << F_CF);
+    SLLI(s3, s3, 16);
+    OR(s1, s1, s3); // insert CF to bit 16
+
+    SRLI(s3, s1, c);
+    SLLI(s4, s1, 63 - c);
+    SLLI(s1, s4, s1);
+    SRLI(s1, s1, 48);
+    OR(s1, s1, s3);
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    IFX (X_CF | X_OF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+    }
+
+    IFX (X_CF) {
+        SRLI(s4, s4, 63);
+        OR(xFlags, xFlags, s4);
+    }
+
+    IFX (X_OF) {
+        if (c == 1) {
+            SRLI(s3, s1, 14);
+            SRLI(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDI(s3, s3, 1);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+}
