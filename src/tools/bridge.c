@@ -61,7 +61,10 @@ bridge_t *NewBridge()
     // it also test if an internal symbol "sc_seccomp" address's is also > 0x700000000000 before enabling seccomp syscall filter.
     // This hack  allow the test to pass, but only if the system has at least 47bits address space.
     // it will not work on 39bits address space and will need more hacks there
-    b->head = NewBrick((!box64_is32bits && box64_wine)?((void*)0x700000000000LL):NULL);
+    void* load_addr = NULL;
+    if((!box64_is32bits && box64_wine && my_context->exit_bridge))  // a first bridge is create for system use, before box64_is32bits can be computed, so use exit_bridge to detect that
+        load_addr = (void*)0x700000000000LL;
+    b->head = NewBrick(load_addr);
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
 
