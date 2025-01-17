@@ -42,9 +42,9 @@ brick_t* NewBrick(void* old)
     brick_t* ret = (brick_t*)box_calloc(1, sizeof(brick_t));
     if(old)
         old = old + NBRICK * sizeof(onebridge_t);
-    void* ptr = box_mmap(old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
+    void* ptr = box_mmap(old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!box64_is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
     if(ptr == MAP_FAILED)
-        ptr = box_mmap(NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | 0x40 | MAP_ANONYMOUS, -1, 0);
+        ptr = box_mmap(NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!box64_is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0);
     if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
@@ -57,7 +57,11 @@ brick_t* NewBrick(void* old)
 bridge_t *NewBridge()
 {
     bridge_t *b = (bridge_t*)box_calloc(1, sizeof(bridge_t));
-    b->head = NewBrick(NULL);
+    // before enable seccomp and bpf fileter, proton check if "syscall" address (from libc) is > 0x700000000000
+    // it also test if an internal symbol "sc_seccomp" address's is also > 0x700000000000 before enabling seccomp syscall filter.
+    // This hack  allow the test to pass, but only if the system has at least 47bits address space.
+    // it will not work on 39bits address space and will need more hacks there
+    b->head = NewBrick((!box64_is32bits && box64_wine)?((void*)0x700000000000LL):NULL);
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
 

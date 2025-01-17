@@ -34,6 +34,7 @@
 #include "callback.h"
 #include "signals.h"
 #include "x64tls.h"
+#include "elfloader.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
@@ -294,6 +295,7 @@ static const scwrap_t syscallwrap[] = {
     //[317] = {__NR_seccomp, 3},
     [318] = {__NR_getrandom, 3},
     [319] = {__NR_memfd_create, 2},
+    //[323] = {__NR_userfaultfd, 1}, //disable for now
     [324] = {__NR_membarrier, 2},
     #ifdef __NR_copy_file_range
     // TODO: call back if unavailable?
@@ -432,6 +434,16 @@ void EXPORT x64Syscall(x64emu_t *emu)
 {
     RESET_FLAGS(emu);
     uint32_t s = R_EAX; // EAX? (syscalls only go up to 547 anyways)
+    // check if it's a wine process, then filter the syscall (simulate SECCMP)
+    if(box64_wine && !box64_is32bits) {
+        //64bits only here...
+        uintptr_t ret_addr = R_RIP-2;
+        if(ret_addr<0x700000000000LL && (my_context->signals[SIGSYS]>2) && !FindElfAddress(my_context, ret_addr)) {
+            // not a linux elf, not a syscall to setup x86_64 arch. Signal SIGSYS
+            emit_signal(emu, SIGSYS, (void*)ret_addr, R_EAX&0xffff);  // what are the parameters?
+            return;
+        }
+    }
     int log = 0;
     char t_buff[256] = "\0";
     char t_buffret[128] = "\0";
