@@ -1928,7 +1928,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 prot, db, db?db->block:0, db?(db->block+db->size):0,
                 db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0,
                 getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)),
-                (db?getNeedTest((uintptr_t)db->x64_addr):0)?"need_stest":"clean", db?db->hash:0, hash,
+                (db?getNeedTest((uintptr_t)db->x64_addr):0)?"needs_test":"clean", db?db->hash:0, hash,
                 (void*)my_context->signals[sig]);
 #if defined(ARM64)
             if(db) {
