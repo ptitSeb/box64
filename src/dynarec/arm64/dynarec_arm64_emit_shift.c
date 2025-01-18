@@ -1083,7 +1083,12 @@ void emit_rcr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
 
     c%=9;
     IFX(X_OF) {
-        MOVw_REG(s3, wFlags);
+        if(c==1) {
+            EORw_REG_LSR(s3, xFlags, s1, 7);
+            BFIw(xFlags, s3, F_OF, 1);
+        } else if(box64_dynarec_test) {
+            BFCw(xFlags, F_OF, 1);
+        }
     }
     BFIw(s1, xFlags, 8, 1); // insert cf
     IFX(X_CF) {
@@ -1093,14 +1098,6 @@ void emit_rcr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
         ORRw_REG_LSL(s1, s1, s1, 9);    // insert s1 again
     }
     LSRw_IMM(s1, s1, c); // do the rcr
-    IFX(X_OF) {
-        if(c==1) {
-            EORw_REG_LSR(s3, s3, s1, 7);
-            BFIw(xFlags, s3, F_OF, 1);
-        } else if(box64_dynarec_test) {
-            BFCw(xFlags, F_OF, 1);
-        }
-    }
 }
 
 // emit RCL16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
@@ -1148,6 +1145,12 @@ void emit_rcr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     c%=17;
     BFIw(s1, xFlags, 16, 1); // insert cf
     IFX(X_OF) {
+        if(c==1) {
+            EORw_REG_LSR(s3, xFlags, s1, 15);
+            BFIw(xFlags, s3, F_OF, 1);
+        } else if(box64_dynarec_test) {
+            BFCw(xFlags, F_OF, 1);
+        }
         MOVw_REG(s3, wFlags);
     }
     IFX(X_CF) {
@@ -1157,14 +1160,6 @@ void emit_rcr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         ORRx_REG_LSL(s1, s1, s1, 17);    // insert s1 again
     }
     LSRx_IMM(s1, s1, c); // do the rcr
-    IFX(X_OF) {
-        if(c==1) {
-            EORw_REG_LSR(s3, s3, s1, 15);
-            BFIw(xFlags, s3, F_OF, 1);
-        } else if(box64_dynarec_test) {
-            BFCw(xFlags, F_OF, 1);
-        }
-    }
 }
 
 // emit RCL32/RCL64 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
