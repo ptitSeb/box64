@@ -1503,6 +1503,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     void* rsp = NULL;
     x64emu_t* emu = thread_get_emu();
+    int tid = GetTID();
 #ifdef __aarch64__
     void * pc = (void*)p->uc_mcontext.pc;
     struct fpsimd_context *fpsimd = NULL;
@@ -1673,7 +1674,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(addr && pc /*&& db*/) {
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 // probably a glitch due to intensive multitask...
-                dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x, retrying\n", pc, addr, db, prot);
+                dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x, retrying\n", tid, pc, addr, db, prot);
                 glitch_pc = pc;
                 glitch_addr = addr;
                 glitch_prot = prot;
@@ -1681,7 +1682,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 unlock_signal();
                 return; // try again
             }
-dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x\n", pc, addr, db, prot);
+dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x\n", tid, pc, addr, db, prot);
             glitch_pc = NULL;
             glitch_addr = NULL;
             glitch_prot = 0;
@@ -1728,7 +1729,6 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     static void* old_addr = 0;
     static int old_tid = 0;
     static uint32_t old_prot = 0;
-    int tid = GetTID();
     int mapped = memExist((uintptr_t)addr);
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
     rsp = (void*)R_RSP;
