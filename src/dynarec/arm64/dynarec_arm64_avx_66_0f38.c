@@ -272,41 +272,42 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGX(v0, 0);
-            if(MODREG) {
-                GETEX(v1, 0, 0);
-            } else {
-                v1 = fpu_get_scratch(dyn, ninst); 
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
-            }
+            GETEX(v1, 0, 0);
             v2 = fpu_get_scratch(dyn, ninst);
             if(vex.l) {
-                GETGY(v0, 0, MODREG?((nextop&7)+(rex.b<<3)):-1, -1, -1);
-                if(MODREG) {
-                    GETEY(v1);
-                } else {
-                    VLDR128_U12(v1, ed, fixedaddress+16);
-                }
-            } else {
                 if(!MODREG)
-                    VLDR128_U12(v1, ed, fixedaddress);
-            }
-            IFX(X_ZF) {
-                VANDQ(v2, v0, v1);
-                CMEQQ_0_64(v2, v2);
-                UQXTN_32(v2, v2);
-                VMOVQDto(x2, v2, 0);
-                ADDSx_U12(xZR, x2, 1);
-                CSETw(x2, cEQ);
-                BFIw(xFlags, x2, F_ZF, 1);
+                    q1 = fpu_get_scratch(dyn, ninst);
+                q2 = fpu_get_scratch(dyn, ninst);
+                GETGY(q0, 0, MODREG?((nextop&7)+(rex.b<<3)):-1, -1, -1);
+                GETEY(q1);
             }
             IFX(X_CF) {
                 VBICQ(v2, v1, v0);
+                if(vex.l) {
+                    VBICQ(q2, q1, q0);
+                    VORRQ(v2, v2, q2);
+                }
                 CMEQQ_0_64(v2, v2);
                 UQXTN_32(v2, v2);
                 VMOVQDto(x2, v2, 0);
                 ADDSx_U12(xZR, x2, 1);
                 CSETw(x2, cEQ);
                 BFIw(xFlags, x2, F_CF, 1);
+            }
+            IFX(X_ZF) {
+                VANDQ(v2, v0, v1);
+                if(vex.l) {
+                    VANDQ(q2, q0, q1);
+                    VORRQ(v2, v2, q2);
+                }
+                CMEQQ_0_64(v2, v2);
+                UQXTN_32(v2, v2);
+                VMOVQDto(x2, v2, 0);
+                ADDSx_U12(xZR, x2, 1);
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x2, cEQ);
+                    BFIw(xFlags, x2, F_ZF, 1);
+                }
             }
             IFX(X_AF|X_SF|X_OF|X_PF) {
                 MOV32w(x2, (1<<F_AF) | (1<<F_OF) | (1<<F_SF) | (1<<F_PF));
