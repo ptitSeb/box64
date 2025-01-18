@@ -472,7 +472,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                         } else {
                             // Will fetch only 1 byte, to avoid alignment issue
-                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 1);
                             u8 = F8;
                             if(u8>>3) {
                                 ADDx_U12(x3, wback, u8>>3);
@@ -515,7 +515,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             ORRxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                         } else {
                             // Will fetch only 1 byte, to avoid alignment issue
-                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 1);
                             u8 = F8;
                             if(u8>>3) {
                                 ADDx_U12(x3, wback, u8>>3);
@@ -560,7 +560,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             BFCxw(ed, u8, 1);
                         } else {
-                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 1);
                             u8 = F8;
                             if(u8>>3) {
                                 ADDx_U12(x3, wback, u8>>3);
@@ -603,7 +603,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOV32w(x4, 1);
                             EORxw_REG_LSL(ed, ed, x4, u8);
                         } else {
-                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 1);
                             u8 = F8;
                             if(u8>>3) {
                                 ADDx_U12(x3, wback, u8>>3);
