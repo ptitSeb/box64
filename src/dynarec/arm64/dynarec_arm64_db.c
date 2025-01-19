@@ -127,9 +127,8 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE2:
             INST_NAME("FNCLEX");
             LDRH_U12(x2, xEmu, offsetof(x64emu_t, sw));
-            MOV32w(x1, 0);
-            BFIw(x2, x1, 0, 8);  // IE .. PE, SF, ES
-            BFIw(x2, x1, 15, 1); // B
+            BFCw(x2, 0, 8); // IE .. PE, SF, ES
+            BFCw(x2, 15, 1);    // B
             STRH_U12(x2, xEmu, offsetof(x64emu_t, sw));
             break;
         case 0xE3:
