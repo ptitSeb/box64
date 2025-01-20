@@ -334,12 +334,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(x2, 0, 4);
             d0 = fpu_get_scratch(dyn);
             for (int i = 0; i < 2; ++i) {
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // // reset all bits
                 }
                 FLW(d0, wback, fixedaddress + i * 4);
                 FCVTWS(x1, d0, RD_RTZ);
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQ_MARKi(x5, xZR, i);
@@ -357,12 +357,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             d0 = fpu_get_scratch(dyn);
             u8 = sse_setround(dyn, ninst, x6, x4);
             for (int i = 0; i < 2; ++i) {
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // // reset all bits
                 }
                 FLW(d0, wback, fixedaddress + i * 4);
                 FCVTWS(x1, d0, RD_DYN);
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQ_MARKi(x5, xZR, i);
@@ -962,12 +962,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // do accurate computation, because riscv doesn't have rsqrt
             MOV32w(x3, 1);
             FCVTSW(s1, x3, RD_DYN);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FCVTSW(v0, xZR, RD_DYN);
             }
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FLES(x3, v0, s0); // s0 >= 0.0f?
                     BNEZ(x3, 6 * 4);
                     FEQS(x3, s0, s0); // isnan(s0)?
@@ -1121,7 +1121,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, gback, gdoffset + i * 4);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, s0, s0);
                     FEQS(x4, s1, s1);
                     AND(x3, x3, x4);
@@ -1160,7 +1160,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, gback, gdoffset + i * 4);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, s0, s0);
                     FEQS(x4, s1, s1);
                     AND(x3, x3, x4);

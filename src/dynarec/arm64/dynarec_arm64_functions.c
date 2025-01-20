@@ -1096,7 +1096,7 @@ static void propagateNativeFlags(dynarec_arm_t* dyn, int start)
 
 void updateNativeFlags(dynarec_native_t* dyn)
 {
-    if(!box64_dynarec_nativeflags)
+    if(!BOX64ENV(dynarec_nativeflags))
         return;
     // forward check if native flags are used
     for(int ninst=0; ninst<dyn->size; ++ninst)

@@ -111,7 +111,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0, 0);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
             d1 = fpu_get_scratch(dyn);
@@ -123,7 +123,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MOVFR2GR_S(gd, d1);
                 ZEROUP(gd);
             }
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
                 AND(x5, x5, x3);
@@ -142,7 +142,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0, 0);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
             u8 = sse_setround(dyn, ninst, x5, x6);
@@ -156,7 +156,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ZEROUP(gd);
             }
             x87_restoreround(dyn, ninst, u8);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
                 AND(x5, x5, x3);
@@ -210,7 +210,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
             VFTINTRZ_W_S(v0, v1);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 q0 = fpu_get_scratch(dyn);
                 q1 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);

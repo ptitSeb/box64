@@ -2234,7 +2234,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    /*if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
+                    /*if (BOX64ENV(dynarec_callret) && box64_dynarec_bigblock > 1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -2249,7 +2249,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
-                    if (box64_dynarec_callret) {
+                    if (BOX64ENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
@@ -2276,7 +2276,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
-                    if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
@@ -2608,7 +2608,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to put flag in "don't care" state
                     }
                     GETEDz(0);
-                    if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
+                    if (BOX64ENV(dynarec_callret) && box64_dynarec_bigblock > 1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -2616,7 +2616,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *ok = 0;
                     }
                     GETIP_(addr);
-                    if (box64_dynarec_callret) {
+                    if (BOX64ENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
@@ -2637,7 +2637,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);

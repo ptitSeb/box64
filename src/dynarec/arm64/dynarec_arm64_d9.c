@@ -291,11 +291,11 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_ftan, -1, box64_dynarec_fastround ? 0 : u8);
+            CALL_(native_ftan, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             x87_unstackcount(dyn, ninst, x1, i1);
-           if(!box64_dynarec_fastround)
+           if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             if(PK(0)==0xdd && PK(1)==0xd8) {
                 MESSAGE(LOG_DUMP, "Optimized next DD D8 fstp st0, st0, not emitting 1\n");
@@ -316,10 +316,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fpatan, -1, box64_dynarec_fastround ? 0 : u8);
-            if(!box64_dynarec_fastround)
+            CALL_(native_fpatan, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
             X87_POP_OR_FAIL(dyn, ninst, x3);
@@ -426,14 +426,14 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xFA:
             INST_NAME("FSQRT");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
             if(ST_IS_F(0)) {
                 FSQRTS(v1, v1);
             } else {
                 FSQRTD(v1, v1);
             }
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             break;
         case 0xFB:
@@ -442,10 +442,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 1);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fsincos, -1, box64_dynarec_fastround ? 0 : u8);
-            if(!box64_dynarec_fastround)
+            CALL_(native_fsincos, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
@@ -473,10 +473,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fscale, -1, box64_dynarec_fastround ? 0 : u8);
-            if(!box64_dynarec_fastround)
+            CALL_(native_fscale, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
@@ -485,10 +485,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fsin, -1, box64_dynarec_fastround ? 0 : u8);
-            if(!box64_dynarec_fastround)
+            CALL_(native_fsin, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
@@ -497,10 +497,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
-            if(!box64_dynarec_fastround)
+            if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fcos, -1, box64_dynarec_fastround ? 0 : u8);
-            if(!box64_dynarec_fastround)
+            CALL_(native_fcos, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
@@ -511,7 +511,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         switch((nextop>>3)&7) {
             case 0:
                 INST_NAME("FLD ST0, float[ED]");
-                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box64_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, BOX64ENV(dynarec_x87double)?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                 VLD32(v1, ed, fixedaddress);
                 if(!ST_IS_F(0)) {
@@ -525,10 +525,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     s0 = v1;
                 else {
                     s0 = fpu_get_scratch(dyn, ninst);
-                    if(!box64_dynarec_fastround)
+                    if(!BOX64ENV(dynarec_fastround))
                         u8 = x87_setround(dyn, ninst, x1, x2, x4);
                     FCVT_S_D(s0, v1);
-                    if(!box64_dynarec_fastround)
+                    if(!BOX64ENV(dynarec_fastround))
                         x87_restoreround(dyn, ninst, u8);
                 }
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
@@ -539,10 +539,10 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                 if(!ST_IS_F(0)) {
-                    if(!box64_dynarec_fastround)
+                    if(!BOX64ENV(dynarec_fastround))
                         u8 = x87_setround(dyn, ninst, x1, x5, x4);
                     FCVT_S_D(v1, v1);
-                    if(!box64_dynarec_fastround)
+                    if(!BOX64ENV(dynarec_fastround))
                         x87_restoreround(dyn, ninst, u8);
                 }
                 VST32(v1, ed, fixedaddress);

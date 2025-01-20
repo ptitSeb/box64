@@ -114,7 +114,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSD(q0, 0, 0);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
             d1 = fpu_get_scratch(dyn);
@@ -127,7 +127,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ZEROUP(gd);
             }
             if (!rex.w) ZEROUP(gd);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
                 AND(x5, x5, x3);
@@ -144,7 +144,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSD(q0, 0, 0);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
             d1 = fpu_get_scratch(dyn);
@@ -158,7 +158,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ZEROUP(gd);
             }
             x87_restoreround(dyn, ninst, u8);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
                 AND(x5, x5, x3);
@@ -177,7 +177,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d1 = fpu_get_scratch(dyn);
             GETEXSD(d0, 0, 0);
             FSQRT_D(d1, d0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 v1 = fpu_get_scratch(dyn);
                 MOVGR2FR_D(v1, xZR);
                 FCMP_D(fcc0, d0, v1, cLT);
@@ -193,7 +193,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FADD_D(d0, v0, v1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_D(fcc1, d0, d0, cOR);
@@ -210,7 +210,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FMUL_D(d0, v0, v1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_D(fcc1, d0, d0, cOR);
@@ -236,7 +236,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FSUB_D(d0, v0, v1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_D(fcc1, d0, d0, cOR);
@@ -266,7 +266,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FDIV_D(d0, v0, v1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_D(fcc1, d0, d0, cOR);

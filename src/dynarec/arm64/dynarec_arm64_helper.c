@@ -626,7 +626,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     POP1z(xRIP);
     MOVz_REG(x1, xRIP);
     SMEND();
-    if(box64_dynarec_callret) {
+    if(BOX64ENV(dynarec_callret)) {
         // pop the actual return address for ARM stack
         LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
@@ -673,7 +673,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     }
     MOVz_REG(x1, xRIP);
     SMEND();
-    if(box64_dynarec_callret) {
+    if(BOX64ENV(dynarec_callret)) {
         // pop the actual return address for ARM stack
         LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?

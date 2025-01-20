@@ -446,7 +446,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGM(q0);
             GETEX(v1, 0, 0);
-            if (box64_dynarec_fastround) {
+            if (BOX64ENV(dynarec_fastround)) {
                 VFCVTZSS(q0, v1);
             } else {
                 if(arm64_frintts) {
@@ -480,7 +480,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGM(q0);
             GETEX(v1, 0, 0);
-            if (box64_dynarec_fastround) {
+            if (BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 VFRINTIS(q0, v1);
                 x87_restoreround(dyn, ninst, u8);
@@ -1175,7 +1175,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
             VFMINQS(v0, v0, v1);
-            if(!box64_dynarec_fastnan && (v0!=v1)) {
+            if(!BOX64ENV(dynarec_fastnan) && (v0!=v1)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VBIFQ(v0, v1, q0);   // copy dest where source is NaN
@@ -1196,7 +1196,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
             VFMAXQS(v0, v0, v1);
-            if(!box64_dynarec_fastnan && (v0!=v1)) {
+            if(!BOX64ENV(dynarec_fastnan) && (v0!=v1)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VBIFQ(v0, v1, q0);   // copy dest where source is NaN

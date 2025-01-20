@@ -1427,7 +1427,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEW(x1, 0);
                     UXTHw(x2, xRAX);
                     BFIw(x2, xRDX, 16, 16);
-                    if(box64_dynarec_div0) {
+                    if(BOX64ENV(dynarec_div0)) {
                         CBNZw_MARK3(ed);
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
@@ -1453,7 +1453,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     GETSEW(x1, 0);
-                    if(box64_dynarec_div0) {
+                    if(BOX64ENV(dynarec_div0)) {
                         CBNZw_MARK3(ed);
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);

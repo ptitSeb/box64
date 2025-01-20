@@ -56,11 +56,6 @@ int box64_is32bits = 0;
 
 
 
-#if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
-int box64_mmap32 = 1;
-#else
-int box64_mmap32 = 0;
-#endif
 int box64_ignoreint3 = 0;
 int box64_rdtsc = 0;
 int box64_rdtsc_1ghz = 0;
@@ -76,18 +71,12 @@ int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_weakbarrier = 1;
 int box64_dynarec_pause = 0;
-int box64_dynarec_x87double = 0;
-int box64_dynarec_div0 = 0;
-int box64_dynarec_fastnan = 1;
-int box64_dynarec_fastround = 1;
 int box64_dynarec_safeflags = 1;
-int box64_dynarec_callret = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_missing = 0;
 int box64_dynarec_aligned_atomics = 0;
-int box64_dynarec_nativeflags = 1;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 int box64_dynarec_gdbjit = 0;
@@ -738,44 +727,6 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will generate nothing for the pause instuction\n");
     }
 #endif
-    p = getenv("BOX64_DYNAREC_X87DOUBLE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_x87double = p[0]-'0';
-        }
-        if(box64_dynarec_x87double)
-            printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
-    }
-    p = getenv("BOX64_DYNAREC_DIV0");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_div0 = p[0]-'0';
-        }
-        if(box64_dynarec_div0)
-            printf_log(LOG_INFO, "Dynarec will check for divide by 0\n");
-    }
-    p = getenv("BOX64_DYNAREC_FASTNAN");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_fastnan = p[0]-'0';
-        }
-        if(!box64_dynarec_fastnan)
-            printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
-    }
-    p = getenv("BOX64_DYNAREC_FASTROUND");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
-                box64_dynarec_fastround = p[0]-'0';
-        }
-        if(!box64_dynarec_fastround)
-            printf_log(LOG_INFO, "Dynarec will try to generate x86 precise IEEE->int rounding and and set rounding mode for computation\n");
-        else if(box64_dynarec_fastround==2)
-            printf_log(LOG_INFO, "Dynarec will generate x86 very imprecise double->float rounding\n");
-    }
     p = getenv("BOX64_DYNAREC_SAFEFLAGS");
     if(p) {
         if(strlen(p)==1) {
@@ -786,17 +737,6 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will not play it safe with x64 flags\n");
         else
             printf_log(LOG_INFO, "Dynarec will play %s safe with x64 flags\n", (box64_dynarec_safeflags==1)?"moderatly":"it");
-    }
-    p = getenv("BOX64_DYNAREC_CALLRET");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_callret = p[0]-'0';
-        }
-        if(box64_dynarec_callret)
-            printf_log(LOG_INFO, "Dynarec will optimize CALL/RET\n");
-        else
-            printf_log(LOG_INFO, "Dynarec will not optimize CALL/RET\n");
     }
     p = getenv("BOX64_DYNAREC_BLEEDING_EDGE");
     if(p) {
@@ -878,15 +818,6 @@ void LoadLogEnv()
         }
         if(box64_dynarec_aligned_atomics)
             printf_log(LOG_INFO, "Dynarec will generate only aligned atomics code\n");
-    }
-    p = getenv("BOX64_DYNAREC_NATIVEFLAGS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_nativeflags = p[0]-'0';
-        }
-        if(!box64_dynarec_nativeflags)
-            printf_log(LOG_INFO, "Dynarec will not use native flags if possible\n");
     }
     p = getenv("BOX64_DYNAREC_MISSING");
     if(p) {
@@ -1165,17 +1096,6 @@ void LoadLogEnv()
         }
         if(box64_showbt)
             printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
-    }
-    p = getenv("BOX64_MMAP32");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_mmap32 = p[0]-'0';
-        }
-        if(box64_mmap32)
-            printf_log(LOG_INFO, "Will use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
-        else
-            printf_log(LOG_INFO, "Will not use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
     }
     p = getenv("BOX64_IGNOREINT3");
         if(p) {

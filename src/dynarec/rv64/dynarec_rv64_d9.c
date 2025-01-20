@@ -460,7 +460,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
-                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box64_dynarec_x87double ? EXT_CACHE_ST_D : EXT_CACHE_ST_F);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, BOX64ENV(dynarec_x87double) ? EXT_CACHE_ST_D : EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     FLW(v1, ed, fixedaddress);
                     if (!ST_IS_F(0)) {

@@ -850,7 +850,7 @@ int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)
 
 void updateNativeFlags(dynarec_rv64_t* dyn)
 {
-    if (!box64_dynarec_nativeflags)
+    if (!BOX64ENV(dynarec_nativeflags))
         return;
     for (int i = 1; i < dyn->size; ++i)
         if (dyn->insts[i].nat_flags_fusion) {

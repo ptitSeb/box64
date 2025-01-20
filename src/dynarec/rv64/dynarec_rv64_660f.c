@@ -192,12 +192,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             for (int i = 0; i < 2; ++i) {
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // // reset all bits
                 }
                 FLD(d0, wback, fixedaddress + i * 8);
                 FCVTWD(x1, d0, RD_RTZ);
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQ_MARKi(x5, xZR, i);
@@ -215,12 +215,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d0 = fpu_get_scratch(dyn);
             u8 = sse_setround(dyn, ninst, x4, x5);
             for (int i = 0; i < 2; ++i) {
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // // reset all bits
                 }
                 FLD(d0, wback, fixedaddress + i * 8);
                 FCVTWD(x1, d0, RD_DYN);
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQ_MARKi(x5, xZR, i);
@@ -320,17 +320,17 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 d1 = fpu_get_scratch(dyn);
                 FMVDX(d1, xZR);
             }
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FLTD(x3, d0, d1);
                 }
                 FSQRTD(d0, d0);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     BEQ(x3, xZR, 8);
                     FNEGD(d0, d0);
                 }
@@ -371,12 +371,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0, 8);
             GETGX();
             SSE_LOOP_FQ(x3, x4, {
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x3, v0, v0);
                     FEQD(x4, v1, v1);
                 }
                 FADDD(v0, v0, v1);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     AND(x3, x3, x4);
                     BEQZ(x3, 16);
                     FEQD(x3, v0, v0);
@@ -391,12 +391,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0, 8);
             GETGX();
             SSE_LOOP_FQ(x3, x4, {
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x3, v0, v0);
                     FEQD(x4, v1, v1);
                 }
                 FMULD(v0, v0, v1);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     AND(x3, x3, x4);
                     BEQZ(x3, 16);
                     FEQD(x3, v0, v0);
@@ -445,12 +445,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0, 8);
             GETGX();
             SSE_LOOP_FQ(x3, x4, {
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x3, v0, v0);
                     FEQD(x4, v1, v1);
                 }
                 FSUBD(v0, v0, v1);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     AND(x3, x3, x4);
                     BEQZ(x3, 16);
                     FEQD(x3, v0, v0);
@@ -484,12 +484,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x1, 0, 8);
             GETGX();
             SSE_LOOP_FQ(x3, x4, {
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x3, v0, v0);
                     FEQD(x4, v1, v1);
                 }
                 FDIVD(v0, v0, v1);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     AND(x3, x3, x4);
                     BEQZ(x3, 16);
                     FEQD(x3, v0, v0);
@@ -1090,13 +1090,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d1 = fpu_get_scratch(dyn);
             FLD(d0, gback, gdoffset + 0);
             FLD(d1, gback, gdoffset + 8);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x3, d0, d0);
                 FEQD(x4, d1, d1);
                 AND(x3, x3, x4);
             }
             FADDD(d0, d0, d1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x4, d0, d0);
                 BEQZ(x3, 12);
                 BNEZ(x4, 8);
@@ -1109,13 +1109,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(x2, 0, 8);
                 FLD(d0, wback, fixedaddress + 0);
                 FLD(d1, wback, fixedaddress + 8);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x3, d0, d0);
                     FEQD(x4, d1, d1);
                     AND(x3, x3, x4);
                 }
                 FADDD(d0, d0, d1);
-                if (!box64_dynarec_fastnan) {
+                if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x4, d0, d0);
                     BEQZ(x3, 12);
                     BNEZ(x4, 8);
@@ -1921,11 +1921,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v1 = fpu_get_scratch(dyn);
             FLD(v0, wback, fixedaddress + 0);
             FLD(v1, wback, fixedaddress + 8);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
             }
             FCVTWD(x3, v0, RD_RTZ);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 BEQ_MARK(x5, xZR);
@@ -1934,7 +1934,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSFLAGSI(0); // // reset all bits
             }
             FCVTWD(x4, v1, RD_RTZ);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 BEQ_MARK2(x5, xZR);

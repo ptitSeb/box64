@@ -1414,7 +1414,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET);
                     if(!rex.w) {
                         GETEDO(x6, 0);
-                        if(box64_dynarec_div0) {
+                        if(BOX64ENV(dynarec_div0)) {
                             CBNZx_MARK3(ed);
                             GETIP_(ip);
                             STORE_XEMU_CALL(xRIP);
@@ -1440,7 +1440,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
                             GETEDO(x6, 0);
-                            if(box64_dynarec_div0) {
+                            if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
@@ -1460,7 +1460,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             CALL(div64, -1);
                             B_NEXT_nocond;
                             MARK;
-                            if(box64_dynarec_div0) {
+                            if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
@@ -1490,7 +1490,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETSEDOw(x6, 0);
                         MOVw_REG(x3, xRAX);
                         ORRx_REG_LSL(x3, x3, xRDX, 32);
-                        if(box64_dynarec_div0) {
+                        if(BOX64ENV(dynarec_div0)) {
                             CBNZx_MARK3(wb);
                             GETIP_(ip);
                             STORE_XEMU_CALL(xRIP);
@@ -1510,7 +1510,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             GETEDO(x6, 0);
-                            if(box64_dynarec_div0) {
+                            if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
@@ -1525,7 +1525,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         } else {
                             GETEDO(x6, 0);
-                            if(box64_dynarec_div0) {
+                            if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
@@ -1586,7 +1586,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETEDOz(x6, 0);
-                    if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                    if(BOX64ENV(dynarec_callret) && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -1594,7 +1594,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                     }
                     GETIP_(addr);
-                    if(box64_dynarec_callret) {
+                    if(BOX64ENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
@@ -1611,7 +1611,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    if(box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if(BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);

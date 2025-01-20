@@ -493,7 +493,7 @@ void fpu_unwind_restore(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
 
 void updateNativeFlags(dynarec_la64_t* dyn)
 {
-    if (!box64_dynarec_nativeflags)
+    if (!BOX64ENV(dynarec_nativeflags))
         return;
     for (int i = 1; i < dyn->size; ++i)
         if (dyn->insts[i].nat_flags_fusion) {

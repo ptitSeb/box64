@@ -169,11 +169,11 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (ST_IS_I64(0)) {
                         FSD(v1, wback, fixedaddress);
                     } else {
-                        if (!box64_dynarec_fastround) {
+                        if (!BOX64ENV(dynarec_fastround)) {
                             FSFLAGSI(0); // reset all bits
                         }
                         FCVTLD(x4, v1, RD_RTZ);
-                        if (!box64_dynarec_fastround) {
+                        if (!BOX64ENV(dynarec_fastround)) {
                             FRFLAGS(x5); // get back FPSR to check the IOC bit
                             ANDI(x5, x5, 1 << FR_NV);
                             BEQZ_MARK(x5);

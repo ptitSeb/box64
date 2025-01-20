@@ -127,10 +127,10 @@ extern char* ftrace_name;
 
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 #define ENVSUPER5() \
-    BOOLEAN(BOX64_MMAP32, mapp32, 1)
+    BOOLEAN(BOX64_MMAP32, mmap32, 1)
 #else
 #define ENVSUPER5() \
-    BOOLEAN(BOX64_MMAP32, mapp32, 0)
+    BOOLEAN(BOX64_MMAP32, mmap32, 0)
 #endif
 
 #define ENVSUPER() \
