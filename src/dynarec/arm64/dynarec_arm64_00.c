@@ -2507,12 +2507,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         GETIP(ip+1); // read the 0xCC
                         STORE_XEMU_CALL(xRIP);
+                        ADDx_U12(x3, xRIP, 8+8);    // expected return address
                         ADDx_U12(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                        CALL_S(x64Int3, -1);
+                        CALL_(x64Int3, -1, x3);
                         SMWRITE2();
                         LOAD_XEMU_CALL(xRIP);
                         addr+=8+8;
-                        TABLE64(x3, addr); // expected return address
                         CMPSx_REG(xRIP, x3);
                         B_MARK(cNE);
                         LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
@@ -3217,7 +3217,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CALL_S(x64Int3, -1);
                         SMWRITE2();
                         LOAD_XEMU_CALL(xRIP);
-                        TABLE64(x3, dyn->insts[ninst].natcall);
+                        MOV64x(x3, dyn->insts[ninst].natcall);
                         ADDx_U12(x3, x3, 2+8+8);
                         CMPSx_REG(xRIP, x3);
                         B_MARK(cNE);    // Not the expected address, exit dynarec block
@@ -3225,9 +3225,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(dyn->insts[ninst].retn) {
                             ADDx_U12(xRSP, xRSP, dyn->insts[ninst].retn);
                         }
-                        TABLE64(x3, addr);
-                        CMPSx_REG(xRIP, x3);
-                        B_MARK(cNE);    // Not the expected address again
                         LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
                         CBZw_NEXT(w1);  // not quitting, so lets continue
                         MARK;
@@ -3238,11 +3235,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     // this is call to next step, so just push the return address to the stack
-                    if(rex.is32bits) {
-                        MOV32w(x2, addr);
-                    } else {
-                        TABLE64(x2, addr);
-                    }
+                    MOV64x(x2, addr);
                     PUSH1z(x2);
                     break;
                 default:
@@ -3252,11 +3245,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    if(rex.is32bits) {
-                        MOV32w(x2, addr);
-                    } else {
-                        TABLE64(x2, addr);
-                    }
+                    MOV64x(x2, addr);
                     fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
                     if(box64_dynarec_callret) {
@@ -3286,7 +3275,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
-                        TABLE64(x4, j64);
+                        MOV64x(x4, j64);
                         LDRx_U12(x4, x4, 0);
                         BR(x4);
                     }

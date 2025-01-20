@@ -867,10 +867,10 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
     int t2 = x4;
     if(reg==t2) ++t2;
     LDRw_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[segment]));
-    if(segment==_GS) {
+    /*if(segment==_GS) {
         LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
         CBNZw_MARKSEG(t2);   // fast check
-    } else {
+    } else*/ {
         LDRx_U12(reg, xEmu, offsetof(x64emu_t, context));
         LDRw_U12(reg, reg, offsetof(box64context_t, sel_serial));
         SUBw_REG(t2, reg, t2);
