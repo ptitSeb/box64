@@ -53,7 +53,6 @@ int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
 
 
-int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
 int box64_x11sync = 0;
 path_collection_t box64_addlibs = {0};
@@ -1083,19 +1082,6 @@ void LoadLogEnv()
         }
         if(!box64_dummy_crashhandler)
             printf_log(LOG_INFO, "Don't use dummy crashhandler lib\n");
-    }
-    p = getenv("BOX64_MALLOC_HACK");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+2)
-                box64_malloc_hack = p[0]-'0';
-        }
-        if(!box64_malloc_hack) {
-            if(box64_malloc_hack==1) {
-                printf_log(LOG_INFO, "Malloc hook will not be redirected\n");
-            } else
-                printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurrences\n");
-        }
     }
     p = getenv("BOX64_NOPULSE");
     if(p) {

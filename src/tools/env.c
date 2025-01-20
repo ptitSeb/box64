@@ -24,7 +24,6 @@ static void applyCustomRules()
     if (BOX64ENV(log) == LOG_NEVER) {
         SET_BOX64ENV(log, BOX64ENV(log) - 1);
         SET_BOX64ENV(dump, 1);
-        box64env.is_dump_overridden = 1;
     }
 
     if (BOX64ENV(rolling_log) == 1) {
@@ -144,6 +143,9 @@ static void initializeEnvFile(const char* filename)
         if (strcmp(val, "0")) {                     \
             current_env.is_##name##_overridden = 1; \
             current_env.name = 1;                   \
+        } else {                                    \
+            current_env.is_##name##_overridden = 1; \
+            current_env.name = 0;                   \
         }                                           \
     }
 #define ADDRESS(NAME, name)                           \

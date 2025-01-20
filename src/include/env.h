@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #define BOX64ENV(name)            (box64env.name)
-#define SET_BOX64ENV(name, value) box64env.name = (value)
+#define SET_BOX64ENV(name, value) { box64env.name = (value); box64env.is_##name##_overridden = 1; }
 
 /*
     INTEGER(NAME, name, default, min, max)

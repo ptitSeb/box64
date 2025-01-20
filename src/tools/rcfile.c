@@ -108,7 +108,6 @@ ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_JVM, box64_jvm)                         \
 ENTRYBOOL(BOX64_UNITYPLAYER, box64_unityplayer)         \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
-ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
 ENTRYINTPOS(BOX64_MAXCPU, new_maxcpu)                   \
 ENTRYSTRING_(BOX64_ADDLIBS, new_addlibs)                \
 ENTRYSTRING_(BOX64_ENV, new_env)                        \
