@@ -2988,8 +2988,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     (void)emu;
     void* ret = box_mmap(addr, length, prot, flags, fd, offset);
     int e = errno;
-    if((ret==MAP_FAILED && (emu || box64_is32bits)) && (BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%s (%d)\n", strerror(errno), errno);}
-    if(((ret!=MAP_FAILED) && (emu || box64_is32bits)) && (BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
+    if((ret==MAP_FAILED && (emu || box64_is32bits)) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "%s (%d)\n", strerror(errno), errno);}
+    if(((ret!=MAP_FAILED) && (emu || box64_is32bits)) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     #ifdef DYNAREC
     if(box64_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
@@ -3008,7 +3008,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         if((flags&MAP_SHARED) && (fd>0)) {
             uint32_t flags = fcntl(fd, F_GETFL);
             if((flags&O_ACCMODE)==O_RDWR) {
-                if((BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
+                if((BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
                 prot |= PROT_NEVERCLEAN;
             }
         }
@@ -3043,9 +3043,9 @@ EXPORT void* my_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int fla
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
     (void)emu;
-    if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);}
+    if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);}
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
-    if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
+    if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     if(ret!=(void*)-1) {
         uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
         if(ret==old_addr) {
@@ -3093,7 +3093,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
 EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
 {
     (void)emu;
-    if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, 0x%lx)\n", addr, length);}
+    if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, 0x%lx)\n", addr, length);}
     int ret = box_munmap(addr, length);
     int e = errno;
     #ifdef DYNAREC
@@ -3111,7 +3111,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
 EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
     (void)emu;
-    if(emu && (BOX64ENV(log)>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mprotect(%p, 0x%lx, 0x%x)\n", addr, len, prot);}
+    if(emu && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "mprotect(%p, 0x%lx, 0x%x)\n", addr, len, prot);}
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);

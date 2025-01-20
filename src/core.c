@@ -50,7 +50,6 @@ extern box64env_t box64env;
 int box64_quit = 0;
 int box64_exit_code = 0;
 int box64_stdout_no_w = 0;
-int box64_dynarec_log = LOG_NONE;
 uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
 int box64_nosandbox = 0;
@@ -673,23 +672,6 @@ void LoadLogEnv()
                 box64_dynarec_dump = p[0]-'0';
         }
         if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
-    }
-    p = getenv("BOX64_DYNAREC_LOG");
-    if(p) {
-        if(strlen(p)==1) {
-            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_NEVER))
-                box64_dynarec_log = p[0]-'0';
-        } else {
-            if(!strcasecmp(p, "NONE"))
-                box64_dynarec_log = LOG_NONE;
-            else if(!strcasecmp(p, "INFO"))
-                box64_dynarec_log = LOG_INFO;
-            else if(!strcasecmp(p, "DEBUG"))
-                box64_dynarec_log = LOG_DEBUG;
-            else if(!strcasecmp(p, "VERBOSE"))
-                box64_dynarec_log = LOG_VERBOSE;
-        }
-        printf_log(LOG_INFO, "Dynarec log level is %d\n", box64_dynarec_log);
     }
     p = getenv("BOX64_DYNAREC");
     if(p) {

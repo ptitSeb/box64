@@ -6,7 +6,6 @@
 typedef struct box64context_s box64context_t;
 extern box64env_t box64env;
 
-extern int box64_dynarec_log;
 extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
 extern uintptr_t box64_load_addr;
@@ -160,7 +159,7 @@ void printf_ftrace(const char* fmt, ...);
         if (dlsym_error || ((L) <= BOX64ENV(log))) { printf_ftrace(__VA_ARGS__); } \
     } while (0)
 
-#define dynarec_log(L, ...) do {if((L)<=box64_dynarec_log) {printf_ftrace(__VA_ARGS__);}} while(0)
+#define dynarec_log(L, ...) do {if((L)<=BOX64ENV(dynarec_log)) {printf_ftrace(__VA_ARGS__);}} while(0)
 
 #define EXPORT __attribute__((visibility("default")))
 #ifdef BUILD_DYNAMIC

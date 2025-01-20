@@ -63,7 +63,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         block = DBGetBlock(emu, addr, 1, is32bits);
     if(!block) {
         #ifdef HAVE_TRACE
-        if(LOG_INFO<=box64_dynarec_log) {
+        if(LOG_INFO<=BOX64ENV(dynarec_log)) {
             if(checkInHotPage(addr)) {
                 dynarec_log(LOG_INFO, "Not trying to run a block from a Hotpage at %p\n", (void*)addr);
             } else {
@@ -79,7 +79,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     if(!block->done) {
         // not finished yet... leave linker
         #ifdef HAVE_TRACE
-        if(box64_dynarec_log && !block->isize) {
+        if(BOX64ENV(dynarec_log) && !block->isize) {
             dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
             printf_log(LOG_NONE, "Warning, NULL block at %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
         }
@@ -210,7 +210,7 @@ void DynaRun(x64emu_t* emu)
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                if(box64_dynarec_log) {
+                if(BOX64ENV(dynarec_log)) {
                     if(ACCESS_FLAG(F_TF))
                         dynarec_log(LOG_INFO, "%04d|Running Interpreter @%p, emu=%p because TF is on\n", GetTID(), (void*)R_RIP, emu);
                     else

@@ -627,7 +627,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        if(box64_dynarec_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -742,7 +742,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
+        if(box64_dynarec_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -750,7 +750,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 2, instruction size
     native_pass2(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
+        if(box64_dynarec_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -800,7 +800,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.insts_size = 0;  // reset
     native_pass3(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
+        if(box64_dynarec_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
         CancelBlock64(0);
         return NULL;
     }
