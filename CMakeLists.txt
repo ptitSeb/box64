@@ -92,7 +92,7 @@ if(SW64)
 endif()
 if(ANDROID)
     set(TERMUX_PATH "/data/data/com.termux/files")
-    set(NOLOADADDR ON CACHE BOOL "")
+    #set(NOLOADADDR ON CACHE BOOL "")  #no need to force this setting it seems now
     set(BAD_SIGNAL ON CACHE BOOL "")
 endif()
 
