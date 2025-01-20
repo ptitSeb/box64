@@ -948,7 +948,7 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
     (void)maplib;
     uintptr_t ep = h->entrypoint + h->delta;
     printf_log(LOG_DEBUG, "Entry Point is %p\n", (void*)ep);
-    if(box64_dump) {
+    if (BOX64ENV(dump)) {
         printf_dump(LOG_NEVER, "(short) Dump of Entry point\n");
         int sz = 64;
         uintptr_t lastbyte = GetLastByte(h);
@@ -980,10 +980,10 @@ void AddSymbols(lib_t *maplib, elfheader_t* h)
     if(box64_is32bits) {
         AddSymbols32(maplib, h);
     } else {
-        //if(box64_dump && h->hash)   old_elf_hash_dump(h);
-        //if(box64_dump && h->gnu_hash)   new_elf_hash_dump(h);
-        if(box64_dump && h->DynSym._64) DumpDynSym64(h);
-        if(h==my_context->elfs[0]) 
+        // if(BOX64ENV(dump) && h->hash)   old_elf_hash_dump(h);
+        // if(BOX64ENV(dump) && h->gnu_hash)   new_elf_hash_dump(h);
+        if (BOX64ENV(dump) && h->DynSym._64) DumpDynSym64(h);
+        if (h==my_context->elfs[0])
             GrabX64CopyMainElfReloc(h);
     }
     #ifndef STATICBUILD

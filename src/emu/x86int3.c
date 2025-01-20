@@ -64,17 +64,17 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
             elfheader_t *h = FindElfAddress(my_context, *(uintptr_t*)(R_ESP));
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
-            if(box64_log>=LOG_DEBUG || cycle_log) {
+            if(BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(rolling_log)) {
                 int tid = GetTID();
                 char t_buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
                 int cycle_line = my_context->current_line;
-                if(cycle_log) {
-                    my_context->current_line = (my_context->current_line+1)%cycle_log;
+                if(BOX64ENV(rolling_log)) {
+                    my_context->current_line = (my_context->current_line+1)%BOX64ENV(rolling_log);
                 }
-                char* buff = cycle_log?my_context->log_call[cycle_line]:t_buff;
-                char* buffret = cycle_log?my_context->log_ret[cycle_line]:NULL;
+                char* buff = BOX64ENV(rolling_log)?my_context->log_call[cycle_line]:t_buff;
+                char* buffret = BOX64ENV(rolling_log)?my_context->log_ret[cycle_line]:NULL;
                 if(buffret) buffret[0] = '\0';
                 char *tmp;
                 int post = 0;
@@ -87,7 +87,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 if(!s)
                     s = GetNativeName((void*)a);
                 if(a==(uintptr_t)PltResolver32) {
-                    if(cycle_log) {
+                    if(BOX64ENV(rolling_log)) {
                         ptr_t addr = *((uint32_t*)from_ptrv(R_ESP));
                         int slot = *((uint32_t*)from_ptrv(R_ESP+4));
                         elfheader_t *h = (elfheader_t*)from_ptrv(addr);
@@ -399,7 +399,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptriv(R_ESP), (char *)s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                 }
-                if(!cycle_log) {
+                if(!BOX64ENV(rolling_log)) {
                     mutex_lock(&emu->context->mutex_trace);
                     printf_log(LOG_NONE, "%s =>", buff);
                     mutex_unlock(&emu->context->mutex_trace);
@@ -462,7 +462,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==3 && (S_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                if(cycle_log) {
+                if(BOX64ENV(rolling_log)) {
                     if(ret_fmt==1)
                         snprintf(buffret, 128, "%d%s%s", S_EAX, buff2, buff3);
                     else

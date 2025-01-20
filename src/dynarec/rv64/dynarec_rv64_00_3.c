@@ -438,7 +438,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
-                    if ((box64_log < 2 && !cycle_log) && tmp) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
                         // GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr + 8), tmp);
                         addr += 8 + 8;
@@ -927,7 +927,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {
                         // Partially support isSimpleWrapper
                         tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
                     } else
@@ -937,7 +937,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
                         // GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address

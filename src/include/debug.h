@@ -1,10 +1,11 @@
 #ifndef __DEBUG_H_
 #define __DEBUG_H_
 #include <stdint.h>
+#include <env.h>
 
 typedef struct box64context_s box64context_t;
-extern int box64_log;    // log level
-extern int box64_dump;   // dump elf or not
+extern box64env_t box64env;
+
 extern int box64_dynarec_log;
 extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
@@ -88,8 +89,7 @@ extern int box64_libcef;
 extern int box64_jvm;
 extern int box64_unityplayer;
 extern int box64_sdl2_jguid;
-extern int dlsym_error;    // log dlsym error
-extern int cycle_log;      // if using rolling logs
+extern int dlsym_error; // log dlsym error
 #ifdef HAVE_TRACE
 extern int trace_xmm;      // include XMM reg in trace?
 extern int trace_emm;      // include EMM reg in trace?
@@ -145,11 +145,20 @@ extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 
 void printf_ftrace(const char* fmt, ...);
 
-#define printf_log(L, ...) do {if((L)<=box64_log) {printf_ftrace(__VA_ARGS__);}} while(0)
+#define printf_log(L, ...)                                        \
+    do {                                                          \
+        if ((L) <= BOX64ENV(log)) { printf_ftrace(__VA_ARGS__); } \
+    } while (0)
 
-#define printf_dump(L, ...) do {if(box64_dump || ((L)<=box64_log)) {printf_ftrace(__VA_ARGS__);}} while(0)
+#define printf_dump(L, ...)                                                           \
+    do {                                                                              \
+        if (BOX64ENV(dump) || ((L) <= BOX64ENV(log))) { printf_ftrace(__VA_ARGS__); } \
+    } while (0)
 
-#define printf_dlsym(L, ...) do {if(dlsym_error || ((L)<=box64_log)) {printf_ftrace(__VA_ARGS__);}} while(0)
+#define printf_dlsym(L, ...)                                                       \
+    do {                                                                           \
+        if (dlsym_error || ((L) <= BOX64ENV(log))) { printf_ftrace(__VA_ARGS__); } \
+    } while (0)
 
 #define dynarec_log(L, ...) do {if((L)<=box64_dynarec_log) {printf_ftrace(__VA_ARGS__);}} while(0)
 

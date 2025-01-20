@@ -1934,7 +1934,7 @@ void reverveHigMem32(void)
         }
     }
     printf_log(LOG_INFO, "Memory higher than 32bits reserved\n");
-    if(box64_log>=LOG_DEBUG) {
+    if (BOX64ENV(log)>=LOG_DEBUG) {
         uintptr_t start=0x100000000LL;
         int prot;
         uintptr_t bend;
@@ -1963,7 +1963,7 @@ void my_reserveHighMem()
         size_t n = sizeof(p)/sizeof(p[0]);
         for(size_t i=0; i<n; ++i)
             p[i] = box32_malloc(SZ-128);
-        if(box64_log>=LOG_DEBUG) {
+        if (BOX64ENV(log)>=LOG_DEBUG) {
             printf_log(LOG_DEBUG, "Reserved %u MB of low memory [", (SZ)*n);
             for(size_t i=0; i<n; ++i)
                 printf_log(LOG_DEBUG, "%p%s", p[i], (i==(n-1))?"]\n":", ");
@@ -2087,12 +2087,11 @@ void fini_custommem_helper(box64context_t *ctx)
     }
     #ifdef JMPTABL_SHIFT4
     }
-    if(box64_log) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- jump table: %lld kio (%lld level 4, %lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated4, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
-    #else
-    if(box64_log) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- jump table: %lld kio (%lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
-    #endif
-    if(box64_log)
-        testAllBlocks();
+    if(BOX64ENV(log)) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- jump table: %lld kio (%lld level 4, %lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated4, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+#else
+    if(BOX64ENV(log)) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- jump table: %lld kio (%lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+#endif
+    if(BOX64ENV(log)) testAllBlocks();
 #endif
     if(!inited)
         return;

@@ -1549,7 +1549,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         int fixed = 0;
         if((fixed=sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc))) {
             // special case fixed, restore everything and just continues
-            if(box64_log>=LOG_DEBUG || box64_showsegv) {
+            if (BOX64ENV(log)>=LOG_DEBUG || box64_showsegv) {
                 static void*  old_pc[2] = {0};
                 static int old_pc_i = 0;
                 if(old_pc[0]!=pc && old_pc[1]!=pc) {
@@ -1587,7 +1587,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         int fixed = 0;
         if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc))) {
             // special case fixed, restore everything and just continues
-            if(box64_log >= LOG_DEBUG || box64_showsegv) {
+            if (BOX64ENV(log) >= LOG_DEBUG || box64_showsegv) {
                 static void*  old_pc[2] = {0};
                 static int old_pc_i = 0;
                 if(old_pc[0]!=pc && old_pc[1]!=pc) {
@@ -1790,19 +1790,19 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         old_prot = prot;
         const char* name = NULL;
         const char* x64name = NULL;
-        if(log_minimum<=box64_log) {
-                signal_jmpbuf_active = 1;
-                if(sigsetjmp(SIG_JMPBUF, 1)) {
-                    // segfault while gathering function name...
-                    name = "???";
-                } else
-                    name = GetNativeName(pc);
-                signal_jmpbuf_active = 0;
+        if (log_minimum<=BOX64ENV(log)) {
+            signal_jmpbuf_active = 1;
+            if(sigsetjmp(SIG_JMPBUF, 1)) {
+                // segfault while gathering function name...
+                name = "???";
+            } else
+                name = GetNativeName(pc);
+            signal_jmpbuf_active = 0;
         }
         // Adjust RIP for special case of NULL function run
         if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
             R_RIP = 0x0;
-        if(log_minimum<=box64_log) {
+        if(log_minimum<=BOX64ENV(log)) {
             elfheader_t* elf = FindElfAddress(my_context, x64pc);
             if(elf) {
                 signal_jmpbuf_active = 1;
@@ -1839,9 +1839,9 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
                 exit(-1);
             }
         }
-        print_cycle_log(log_minimum);
+        print_rolling_log(log_minimum);
 
-        if((box64_showbt || sig==SIGABRT) && log_minimum<=box64_log) {
+        if((box64_showbt || sig==SIGABRT) && log_minimum<=BOX64ENV(log)) {
             // show native bt
             #define BT_BUF_SIZE 100
             int nptrs;
@@ -1913,7 +1913,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             #undef GO
         }
 
-        if(log_minimum<=box64_log) {
+        if(log_minimum<=BOX64ENV(log)) {
             static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
             static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
             int shown_regs = 0;
@@ -2055,15 +2055,15 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     info.si_addr = addr;
     const char* x64name = NULL;
     const char* elfname = NULL;
-    if(box64_log>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
+    if(BOX64ENV(log)>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if(elf)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
-print_cycle_log(LOG_INFO);
+        print_rolling_log(LOG_INFO);
 
-        if((box64_showbt || sig==SIGABRT) && box64_log>=LOG_INFO) {
+        if((box64_showbt || sig==SIGABRT) && BOX64ENV(log)>=LOG_INFO) {
             // show native bt
             #define BT_BUF_SIZE 100
             int nptrs;
@@ -2132,7 +2132,7 @@ void emit_interruption(x64emu_t* emu, int num, void* addr)
     info.si_addr = NULL;//addr;
     const char* x64name = NULL;
     const char* elfname = NULL;
-    if(box64_log>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
+    if(BOX64ENV(log)>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if(elf)
@@ -2151,7 +2151,7 @@ void emit_div0(x64emu_t* emu, void* addr, int code)
     info.si_addr = addr;
     const char* x64name = NULL;
     const char* elfname = NULL;
-    if(box64_log>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
+    if(BOX64ENV(log)>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if(elf)
@@ -2503,7 +2503,7 @@ EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, in
 }
 
 void box64_abort() {
-    if(box64_showbt && LOG_INFO<=box64_log) {
+    if(box64_showbt && LOG_INFO<=BOX64ENV(log)) {
             // show native bt
             #define BT_BUF_SIZE 100
             int nptrs;

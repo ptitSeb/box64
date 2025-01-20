@@ -70,13 +70,10 @@ static const char default_rcfile[] =
 
 // list of all entries
 #define SUPER1()                                        \
-ENTRYINTPOS(BOX64_ROLLING_LOG, new_cycle_log)           \
 ENTRYSTRING_(BOX64_LD_LIBRARY_PATH, ld_library_path)    \
 ENTRYSTRING_(BOX64_PATH, box64_path)                    \
 ENTRYSTRING_(BOX64_TRACE_FILE, trace_file)              \
 ENTRYADDR(BOX64_LOAD_ADDR, box64_load_addr)             \
-ENTRYINT(BOX64_LOG, box64_log, 0, 3, 2)                 \
-ENTRYBOOL(BOX64_DUMP, box64_dump)                       \
 ENTRYBOOL(BOX64_DLSYM_ERROR, dlsym_error)               \
 CENTRYBOOL(BOX64_NOSIGSEGV, no_sigsegv)                 \
 CENTRYBOOL(BOX64_NOSIGILL, no_sigill)                   \
@@ -238,7 +235,7 @@ typedef struct my_params_s {
 #define ENTRYDSTRING(NAME, name) uint8_t is_##name##_present:1;
 #define ENTRYADDR(NAME, name) uint8_t is_##name##_present:1;
 #define ENTRYULONG(NAME, name) uint8_t is_##name##_present:1;
-#define IGNORE(NAME) 
+#define IGNORE(NAME)
 SUPER()
 // done
 #undef ENTRYBOOL
@@ -300,15 +297,15 @@ static kh_params_t *params_gen = NULL;
 
 static void clearParam(my_params_t* param)
 {
-    #define ENTRYBOOL(NAME, name) 
-    #define CENTRYBOOL(NAME, name) 
-    #define ENTRYINT(NAME, name, minval, maxval, bits) 
-    #define ENTRYINTPOS(NAME, name) 
-    #define ENTRYSTRING(NAME, name) box_free(param->name); 
-    #define ENTRYSTRING_(NAME, name) box_free(param->name); 
-    #define ENTRYDSTRING(NAME, name) box_free(param->name); 
-    #define ENTRYADDR(NAME, name) 
-    #define ENTRYULONG(NAME, name) 
+    #define ENTRYBOOL(NAME, name)
+    #define CENTRYBOOL(NAME, name)
+    #define ENTRYINT(NAME, name, minval, maxval, bits)
+    #define ENTRYINTPOS(NAME, name)
+    #define ENTRYSTRING(NAME, name) box_free(param->name);
+    #define ENTRYSTRING_(NAME, name) box_free(param->name);
+    #define ENTRYDSTRING(NAME, name) box_free(param->name);
+    #define ENTRYADDR(NAME, name)
+    #define ENTRYULONG(NAME, name)
     SUPER()
     #undef ENTRYBOOL
     #undef CENTRYBOOL
@@ -481,7 +478,7 @@ void LoadRCFile(const char* filename)
             #undef ENTRYADDR
             #undef ENTRYULONG
             #undef IGNORE
-            #define IGNORE(NAME) 
+            #define IGNORE(NAME)
         }
     }
     // last entry to be pushed too
@@ -498,7 +495,7 @@ void DeleteParams()
 {
     if(!params)
         return;
-    
+
     // free strings
     my_params_t* p;
     // need to free duplicated strings
@@ -547,7 +544,7 @@ void ApplyParams(const char* name)
         k1 = kh_get(params, params, lname);
         my_params_t* param;
         const char* k2;
-        kh_foreach_ref(params_gen, k2, param, 
+        kh_foreach_ref(params_gen, k2, param,
             if(strstr(lname, k2))
                 internal_ApplyParams(name, param);
         )
@@ -560,7 +557,6 @@ void ApplyParams(const char* name)
 }
 
 void internal_ApplyParams(const char* name, const my_params_t* param) {
-    int new_cycle_log = cycle_log;
     int new_maxcpu = box64_maxcpu;
     int new_avx = box64_avx2?2:box64_avx;
     int box64_dynarec_jvm = box64_jvm;
@@ -575,7 +571,7 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     #define CENTRYBOOL(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name); my_context->name = param->name;}
     #define ENTRYINTPOS(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name); name = param->name;}
     #define ENTRYSTRING(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name); name = param->name;}
-    #define ENTRYSTRING_(NAME, name)  
+    #define ENTRYSTRING_(NAME, name)
     #define ENTRYDSTRING(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name); if(name) box_free(name); name = box_strdup(param->name);}
     #define ENTRYADDR(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%zd\n", #NAME, param->name); name = param->name;}
     #define ENTRYULONG(NAME, name) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%lld\n", #NAME, param->name); name = param->name;}
@@ -592,13 +588,6 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     // now handle the manuel entry (the one with ending underscore)
     if(want_exit)
         exit(0);
-    if(new_cycle_log==1)
-        new_cycle_log = 16;
-    if(new_cycle_log!=cycle_log) {
-        freeCycleLog(my_context);
-        cycle_log = new_cycle_log;
-        initCycleLog(my_context);
-    }
     if(new_reserve_high)
         my_reserveHighMem();
     if(param->is_new_avx_present) {
@@ -771,13 +760,9 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         box64_dynarec_x87double = 1;
         box64_dynarec_div0 = 1;
         box64_dynarec_callret = 0;
-        #if defined(RV64) || defined(LA64) 
+        #if defined(RV64) || defined(LA64)
         box64_dynarec_nativeflags = 0;
         #endif
     }
     #endif
-    if(box64_log==3) {
-        box64_log = 2;
-        box64_dump = 1;
-    }
 }

@@ -370,7 +370,7 @@ void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64conte
     if(!needed) // no needed libs, no problems
         return;
     for(int i=0; i<needed->size; ++i) {
-        if(box64_log>=LOG_DEBUG && needed->libs[i])
+        if (BOX64ENV(log)>=LOG_DEBUG && needed->libs[i])
             printf_dump(LOG_DEBUG, "Will remove after failed init %s\n", needed->names[i]);
         AddNeededLib_remove(maplib, local, &needed->libs[i], box64, emu);
     }

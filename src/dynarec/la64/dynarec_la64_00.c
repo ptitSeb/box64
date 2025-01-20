@@ -2185,7 +2185,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {
                         // FIXME: Add basic support for isSimpleWrapper
                         tmp = 0; // isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
                     } else
@@ -2195,7 +2195,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // FIXME: if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
                     //     // return value will be on the stack, so the stack depth needs to be updated
                     //     x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
                         // GETIP(ip+3+8+8); // read the 0xCC
                         // FIXME: call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address

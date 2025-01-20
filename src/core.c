@@ -42,13 +42,13 @@
 #include "elfs/elfloader_private.h"
 #include "library.h"
 #include "core.h"
+#include "env.h"
 
 box64context_t *my_context = NULL;
+extern box64env_t box64env;
+
 int box64_quit = 0;
 int box64_exit_code = 0;
-int box64_log = LOG_INFO; //LOG_NONE;
-int box64_dump = 0;
-int box64_nobanner = 0;
 int box64_stdout_no_w = 0;
 int box64_dynarec_log = LOG_NONE;
 uintptr_t box64_pagesize;
@@ -151,7 +151,6 @@ int box64_jvm = 1;
 int box64_unityplayer = 1;
 int box64_sdl2_jguid = 0;
 int dlsym_error = 0;
-int cycle_log = 0;
 #ifdef HAVE_TRACE
 int trace_xmm = 0;
 int trace_emm = 0;
@@ -272,7 +271,7 @@ void openFTrace(const char* newtrace, int reopen)
                 if (!reopen) ftrace_name = box_strdup(p);
                 /*fclose(ftrace);
                 ftrace = NULL;*/
-                if(!box64_nobanner) {
+                if (!BOX64ENV(nobanner)) {
                     printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
                     box64_stdout_no_w = 1;
                 }
@@ -643,73 +642,23 @@ EXPORTDYN
 void LoadLogEnv()
 {
     ftrace = stdout;
-    box64_nobanner = isatty(fileno(stdout))?0:1;
-    const char *p = getenv("BOX64_NOBANNER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_nobanner = p[0]-'0';
-        }
-    }
+
     // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
     openFTrace(NULL, 0);
-    box64_log = ftrace_name?LOG_INFO:(isatty(fileno(stdout))?LOG_INFO:LOG_NONE); //default LOG value different if stdout is redirected or not
-    p = getenv("BOX64_LOG");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0'+LOG_NONE && p[0]<='0'+LOG_NEVER) {
-                box64_log = p[0]-'0';
-                if(box64_log == LOG_NEVER) {
-                    --box64_log;
-                    box64_dump = 1;
-                }
-            }
-        } else {
-            if(!strcasecmp(p, "NONE"))
-                box64_log = LOG_NONE;
-            else if(!strcasecmp(p, "INFO"))
-                box64_log = LOG_INFO;
-            else if(!strcasecmp(p, "DEBUG"))
-                box64_log = LOG_DEBUG;
-            else if(!strcasecmp(p, "DUMP")) {
-                box64_log = LOG_DEBUG;
-                box64_dump = 1;
-            }
-        }
-        if(!box64_nobanner)
-            printf_log(LOG_INFO, "Debug level is %d\n", box64_log);
-    }
-    if((box64_nobanner || box64_log) && ftrace==stdout)
+
+    if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace==stdout)
         box64_stdout_no_w = 1;
 
 #if !defined(DYNAREC) && (defined(ARM64) || defined(RV64) || defined(LA64))
     printf_log(LOG_INFO, "Warning: DynaRec is available on this host architecture, an interpreter-only build is probably not intended.\n");
 #endif
 
-    p = getenv("BOX64_ROLLING_LOG");
-    if(p) {
-        int cycle = 0;
-        if(sscanf(p, "%d", &cycle)==1)
-                cycle_log = cycle;
-        if(cycle_log==1)
-            cycle_log = 16;
-        if(cycle_log<0)
-            cycle_log = 0;
-        if(cycle_log && box64_log>LOG_INFO) {
-            cycle_log = 0;
-            printf_log(LOG_NONE, "Incompatible Rolling log and Debug Log, disabling Rolling log\n");
-        }
-    }
-    if(!box64_nobanner && cycle_log)
-        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", cycle_log);
-    p = getenv("BOX64_DUMP");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dump = p[0]-'0';
-        }
-    }
-    if(!box64_nobanner && box64_dump)
+    char* p;
+
+    if (!BOX64ENV(nobanner) && BOX64ENV(rolling_log))
+        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", BOX64ENV(rolling_log));
+
+    if (!BOX64ENV(nobanner) && BOX64ENV(dump))
         printf_log(LOG_INFO, "Elf Dump if ON\n");
 #ifdef DYNAREC
     #ifdef ARM64
@@ -1375,7 +1324,7 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
 
 void PrintCollection(path_collection_t* col, const char* env)
 {
-    if(LOG_INFO<=box64_log) {
+    if (LOG_INFO<=BOX64ENV(log)) {
         printf_log(LOG_INFO, "%s: ", env);
         for(int i=0; i<col->size; i++)
             printf_log(LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"\n":":");
@@ -1426,60 +1375,12 @@ void AddNewLibs(const char* list)
     printf_log(LOG_INFO, "BOX64: Adding %s to the libs\n", list);
 }
 
-void PrintFlags() {
-    printf("Environment Variables:\n");
-    printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
-    printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib:lib64')\n");
-    printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
-    printf(" BOX64_DUMP with 0/1 to dump elf infos\n");
-    printf(" BOX64_NOBANNER with 0/1 to enable/disable the printing of box64 version and build at start\n");
-#ifdef DYNAREC
-    printf(" BOX64_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
-    printf(" BOX64_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
-    printf(" BOX64_NODYNAREC with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified\n");
-#endif
-#ifdef HAVE_TRACE
-    printf(" BOX64_TRACE with 1 to enable x86_64 execution trace\n");
-    printf("    or with XXXXXX-YYYYYY to enable x86_64 execution trace only between address\n");
-    printf("    or with FunctionName to enable x86_64 execution trace only in one specific function\n");
-    printf("  use BOX64_TRACE_INIT instead of BOX64_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
-    printf(" BOX64_TRACE_EMM with 1 to enable dump of MMX registers along with regular registers\n");
-    printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE registers along with regular registers\n");
-    printf(" BOX64_TRACE_COLOR with 1 to enable detection of changed general register values\n");
-    printf(" BOX64_TRACE_START with N to enable trace after N instructions\n");
-#ifdef DYNAREC
-    printf(" BOX64_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
-#endif
-#endif
-    printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)\n");
-    printf(" BOX64_DLSYM_ERROR with 1 to log dlsym errors\n");
-    printf(" BOX64_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
-    printf(" BOX64_NOSIGSEGV=1 to disable handling of SigSEGV\n");
-    printf(" BOX64_NOSIGILL=1 to disable handling of SigILL\n");
-    printf(" BOX64_SHOWSEGV=1 to show Segfault signal even if a signal handler is present\n");
-    printf(" BOX64_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)\n");
-    printf(" BOX64_LIBGL=libXXXX set the name (and optionnally full path) for libGL.so.1\n");
-    printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
-    printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow one to continue even if a lib is missing (unadvised, will probably crash later)\n");
-    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11)\n");
-    printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
-    printf(" BOX64_CRASHHANDLER=0 to not use a dummy crashhandler lib\n");
-    printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
-    printf(" BOX64_NOGTK=1 to disable the loading of wrapped gtk libs\n");
-    printf(" BOX64_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
-    printf(" BOX64_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
-    printf(" BOX64_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
-    printf(" BOX64_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
-    printf(" BOX64_MMAP32=1 to use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for Snapdragon build)\n");
-}
-
 void PrintHelp() {
     printf("This is Box64, the Linux x86_64 emulator with a twist.\n");
     printf("\nUsage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
     printf(" options are:\n");
     printf("    '-v'|'--version' to print box64 version and quit\n");
     printf("    '-h'|'--help' to print this and quit\n");
-    printf("    '-f'|'--flags' to print box64 flags and quit\n");
 }
 
 void addNewEnvVar(const char* s)
@@ -1522,7 +1423,7 @@ void LoadEnvVars(box64context_t *context)
     if(getenv("BOX64_EMULATED_LIBS")) {
         char* p = getenv("BOX64_EMULATED_LIBS");
         ParseList(p, &context->box64_emulated_libs, 0);
-        if (my_context->box64_emulated_libs.size && box64_log) {
+        if (my_context->box64_emulated_libs.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 will force the used of emulated libs for ");
             for (int i=0; i<context->box64_emulated_libs.size; ++i)
                 printf_log(LOG_INFO, "%s ", context->box64_emulated_libs.paths[i]);
@@ -1939,6 +1840,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         exit(0);
     }
 
+    LoadEnvVariables();
+    InitializeEnvFiles();
+
     // check BOX64_LOG debug level
     LoadLogEnv();
     if(!getenv("BOX64_NORCFILES")) {
@@ -1969,10 +1873,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             PrintHelp();
             exit(0);
         }
-        if(!strcmp(prog, "-f") || !strcmp(prog, "--flags")) {
-            PrintFlags();
-            exit(0);
-        }
         // other options?
         if(!strcmp(prog, "--")) {
             prog = argv[++nextarg];
@@ -1985,8 +1885,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf("BOX64: Nothing to run\n");
         exit(0);
     }
-    if(!box64_nobanner)
-        PrintBox64Version();
+    if (!BOX64ENV(nobanner)) PrintBox64Version();
     // precheck, for win-preload
     const char* prog_ = strrchr(prog, '/');
     if(!prog_) prog_ = prog; else ++prog_;
@@ -2028,8 +1927,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
             if(getenv("BOX64_WINEDBG")) {
-                box64_nobanner = 1;
-                box64_log = 0;
+                SET_BOX64ENV(nobanner, 1);
+                BOX64ENV(log) = 0;
             } else {
                 printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
                 exit(0);    // exiting, it doesn't work anyway
@@ -2051,7 +1950,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
                 box64_custom_gstreamer = box_strdup(tmp);
             }
         }
-        // Try to get the name of the exe being run, to ApplyParams laters
+        // Try to get the name of the exe being run, to ApplyEnvFileEntry laters
         if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 && !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1])-4, ".exe")) {
             const char* pp = strrchr(argv[nextarg+1], '/');
             if(pp)
@@ -2112,7 +2011,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(getenv("BOX64_LD_PRELOAD")) {
         char* p = getenv("BOX64_LD_PRELOAD");
         ParseList(p, &ld_preload, 0);
-        if (ld_preload.size && box64_log) {
+        if (ld_preload.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
                 printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
@@ -2130,7 +2029,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if(strstr(p, "libasan.so"))
             box64_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
         AppendList(&ld_preload, p, 0);
-        if (ld_preload.size && box64_log) {
+        if (ld_preload.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
                 printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
@@ -2148,7 +2047,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         my_context->argv[0] = ResolveFileSoft(prog, &my_context->box64_path);
     //
     GatherEnv(&my_context->envv, environ?environ:env, my_context->argv[0]);
-    if(box64_dump || box64_log<=LOG_DEBUG) {
+    if (BOX64ENV(dump) || BOX64ENV(log)<=LOG_DEBUG) {
         for (int i=0; i<my_context->envc; ++i)
             printf_dump(LOG_DEBUG, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
@@ -2189,7 +2088,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // special case for bash (add BOX86_NOBANNER=1 if not there)
     if(!strcmp(prgname, "bash") || !strcmp(prgname, "box64-bash")) {
         printf_log(LOG_INFO, "bash detected, disabling banner\n");
-        if (!box64_nobanner) {
+        if (!BOX64ENV(nobanner)) {
             setenv("BOX86_NOBANNER", "1", 0);
             setenv("BOX64_NOBANNER", "1", 0);
         }
@@ -2216,6 +2115,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         ApplyParams(wine_prog);
         wine_prog = NULL;
     }
+
+    ApplyEnvFileEntry(prgname);
+    if (box64_wine && wine_prog) {
+        ApplyEnvFileEntry(wine_prog);
+        wine_prog = NULL;
+    }
+    PrintEnvVariables();
+
     if(box64_wine)
         box64_maxcpu_immutable = 1; // cannot change once wine is loaded
 
@@ -2459,8 +2366,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             printf_log(LOG_NONE, "Error setting process name (%s)\n", strerror(errno));
         else
             printf_log(LOG_INFO, "Rename process to \"%s\"\n", p);
-        if(strcmp(prgname, p))
+        if(strcmp(prgname, p)) {
             ApplyParams(p);
+            ApplyEnvFileEntry(p);
+        }
         // and now all change the argv (so libs libs mesa find the correct program names)
         char* endp = (char*)argv[argc-1];
         while(*endp)

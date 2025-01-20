@@ -52,7 +52,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     dynablock_t* block = NULL;
     if(hasAlternate((void*)addr)) {
         printf_log(LOG_DEBUG, "Jmp address has alternate: %p", (void*)addr);
-        if(box64_log<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
+        if (BOX64ENV(log)<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
         uintptr_t old_addr = addr;
         addr = (uintptr_t)getAlternate((void*)addr);    // set new address
         R_RIP = addr;   // but also new RIP!

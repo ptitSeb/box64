@@ -2500,7 +2500,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(isRetX87Wrapper(*(wrapper_t*)(addr)))
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if((box64_log<2 && !cycle_log && !box64_dynarec_test) && tmp) {
+                    if((BOX64ENV(log)<2 && !BOX64ENV(rolling_log) && !box64_dynarec_test) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
                         addr+=8+8;
@@ -3197,14 +3197,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     // calling a native function
                     SMEND();
                     sse_purge07cache(dyn, ninst, x3);
-                    if((box64_log<2 && !cycle_log && !box64_dynarec_test) && dyn->insts[ninst].natcall) {
+                    if ((BOX64ENV(log)<2 && !BOX64ENV(rolling_log) && !box64_dynarec_test) && dyn->insts[ninst].natcall) {
                         tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
                     } else
                         tmp=0;
                     if(dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
                     // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                    if ((BOX64ENV(log)<2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
                         SMWRITE2();

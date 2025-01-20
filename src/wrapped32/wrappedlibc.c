@@ -21,7 +21,7 @@
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
-#include <sys/syscall.h> 
+#include <sys/syscall.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
 #include <sys/ipc.h>
@@ -518,7 +518,7 @@ void EXPORT my32___stack_chk_fail(x64emu_t* emu)
     #else
     sprintf(buff, "%p: Stack is corrupted, aborting ESP=0x%x %s\n", addr, R_ESP, name);
     #endif
-    print_cycle_log(LOG_INFO);
+    print_rolling_log(LOG_INFO);
     StopEmu(emu, buff, 1);
 }
 int EXPORT my32___xmknod(x64emu_t* emu, int ver, const char* path, mode_t mode, dev_t* dev)

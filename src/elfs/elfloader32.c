@@ -118,9 +118,9 @@ static void GrabX32CopyMainElfReloc(elfheader_t* head)
 void checkHookedSymbols(elfheader_t* h);
 void AddSymbols32(lib_t *maplib, elfheader_t* h)
 {
-    //if(box64_dump && h->hash)   old_elf_hash_dump(h);
-    //if(box64_dump && h->gnu_hash)   new_elf_hash_dump(h);
-    if(box64_dump && h->DynSym._32) DumpDynSym32(h);
+    // if(BOX64ENV(dump) && h->hash)   old_elf_hash_dump(h);
+    // if(BOX64ENV(dump) && h->gnu_hash)   new_elf_hash_dump(h);
+    if (BOX64ENV(dump) && h->DynSym._32) DumpDynSym32(h);
     if(h==my_context->elfs[0]) 
         GrabX32CopyMainElfReloc(h);
     #ifndef STATICBUILD
