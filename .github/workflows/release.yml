@@ -29,7 +29,7 @@ jobs:
       matrix:
         platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC]
         type: [Release, Trace, StaticBuild, Box32]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, ubuntu-22.04-arm]
         exclude:
           - platform: ANDROID
             type: StaticBuild
@@ -41,6 +41,22 @@ jobs:
             type: Box32
           - platform: TERMUX
             type: Box32
+          - platform: X64
+            os: ubuntu-22.04-arm
+          - platform: RISCV
+            os: ubuntu-22.04-arm
+          - platform: RV3588
+            os: ubuntu-latest
+          - platform: ARM64
+            os: ubuntu-latest
+          - platform: ANDROID
+            os: ubuntu-22.04-arm
+          - platform: TERMUX
+            os: ubuntu-22.04-arm
+          - platform: LARCH64
+            os: ubuntu-22.04-arm
+          - platform: ANDROID_GLIBC
+            os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -241,13 +257,6 @@ jobs:
 
             BOX64_DYNAREC=0 ctest $CTEST_OPTIONS
             ctest $CTEST_OPTIONS
-          elif [[ ${{ matrix.platform }} != 'X64' ]]; then # AArch64
-            export INTERPRETER=qemu-aarch64-static
-            export QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
-            
-            BOX64_DYNAREC=0 ctest $CTEST_OPTIONS
-            ctest $CTEST_OPTIONS
-            BOX64_DYNAREC_TEST=1 ctest $CTEST_OPTIONS -E nocosim
           else
             ctest -j$(nproc)
           fi
