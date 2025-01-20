@@ -132,7 +132,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
 {
     ptr_t offs = 0;
     loadProtectionFromMap();
-    int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
+    int log_level = BOX64ENV(load_addr)?LOG_INFO:LOG_DEBUG;
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
     uintptr_t max_align = (box64_pagesize-1);
@@ -141,10 +141,10 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
             ++head->multiblock_n;
         }
 
-    if(!head->vaddr && box64_load_addr) {
-        offs = to_ptrv(find31bitBlockNearHint((void*)box64_load_addr, head->memsz, max_align));
-        box64_load_addr = offs + head->memsz;
-        box64_load_addr = (box64_load_addr+0x10ffffff)&~0xffffff;
+    if(!head->vaddr && BOX64ENV(load_addr)) {
+        offs = to_ptrv(find31bitBlockNearHint((void*)BOX64ENV(load_addr), head->memsz, max_align));
+        BOX64ENV(load_addr) = offs + head->memsz;
+        BOX64ENV(load_addr) = (BOX64ENV(load_addr)+0x10ffffff)&~0xffffff;
     }
     if(!offs && !head->vaddr)
         offs = (uintptr_t)find31bitBlockElf(head->memsz, mainbin, max_align);

@@ -214,7 +214,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         return AllocLoadElfMemory32(context, head, mainbin);
     uintptr_t offs = 0;
     loadProtectionFromMap();
-    int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
+    int log_level = BOX64ENV(load_addr)?LOG_INFO:LOG_DEBUG;
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
     uintptr_t max_align = head->align-1;
@@ -223,10 +223,10 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             ++head->multiblock_n;
         }
 
-    if(!head->vaddr && box64_load_addr) {
-        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz+head->align, max_align);
-        box64_load_addr = offs + head->memsz;
-        box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
+    if(!head->vaddr && BOX64ENV(load_addr)) {
+        offs = (uintptr_t)find47bitBlockNearHint((void*)((BOX64ENV(load_addr)+max_align)&~max_align), head->memsz+head->align, max_align);
+        BOX64ENV(load_addr) = offs + head->memsz;
+        BOX64ENV(load_addr) = (BOX64ENV(load_addr)+0x10ffffffLL)&~0xffffffLL;
     }
     if(!offs && !head->vaddr)
         offs = (uintptr_t)find47bitBlockElf(head->memsz+head->align, mainbin, max_align); // limit to 47bits...

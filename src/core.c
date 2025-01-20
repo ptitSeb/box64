@@ -51,11 +51,8 @@ int box64_quit = 0;
 int box64_exit_code = 0;
 int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
-uintptr_t box64_load_addr = 0;
-int box64_nosandbox = 0;
-int box64_inprocessgpu = 0;
-int box64_cefdisablegpu = 0;
-int box64_cefdisablegpucompositor = 0;
+
+
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
 int box64_x11sync = 0;
@@ -1030,13 +1027,6 @@ void LoadLogEnv()
         }
         if(!box64_sdl2_jguid)
             printf_log(LOG_INFO, "BOX64 will workaround the use of  SDL_GetJoystickGUIDInfo with 4 args instead of 5\n");
-    }
-    p = getenv("BOX64_LOAD_ADDR");
-    if(p) {
-        if(sscanf(p, "0x%zx", &box64_load_addr)!=1)
-            box64_load_addr = 0;
-        if(box64_load_addr)
-            printf_log(LOG_INFO, "Use a starting load address of %p\n", (void*)box64_load_addr);
     }
     p = getenv("BOX64_DLSYM_ERROR");
     if(p) {
@@ -2112,19 +2102,19 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
     }
-    if(box64_nosandbox)
+    if(BOX64ENV(nosandbox))
     {
         add_argv("--no-sandbox");
     }
-    if(box64_inprocessgpu)
+    if(BOX64ENV(inprocessgpu))
     {
         add_argv("--in-process-gpu");
     }
-    if(box64_cefdisablegpu)
+    if(BOX64ENV(cefdisablegpu))
     {
         add_argv("-cef-disable-gpu");
     }
-    if(box64_cefdisablegpucompositor)
+    if(BOX64ENV(cefdisablegpucompositor))
     {
         add_argv("-cef-disable-gpu-compositor");
     }

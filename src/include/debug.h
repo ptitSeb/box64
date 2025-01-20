@@ -8,7 +8,6 @@ extern box64env_t box64env;
 
 extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
-extern uintptr_t box64_load_addr;
 extern int box64_dynarec_test;
 extern int box64_maxcpu;
 extern int box64_mmap32;
@@ -99,10 +98,6 @@ extern char* trace_init;
 extern char* box64_trace;
 extern uint64_t start_cnt;
 #endif
-extern int box64_nosandbox;
-extern int box64_inprocessgpu;
-extern int box64_cefdisablegpu;
-extern int box64_cefdisablegpucompositor;
 extern int box64_maxcpu_immutable;
 extern int box64_malloc_hack;
 extern int box64_dummy_crashhandler;

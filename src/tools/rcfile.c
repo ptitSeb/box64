@@ -73,7 +73,6 @@ static const char default_rcfile[] =
 ENTRYSTRING_(BOX64_LD_LIBRARY_PATH, ld_library_path)    \
 ENTRYSTRING_(BOX64_PATH, box64_path)                    \
 ENTRYSTRING_(BOX64_TRACE_FILE, trace_file)              \
-ENTRYADDR(BOX64_LOAD_ADDR, box64_load_addr)             \
 ENTRYBOOL(BOX64_DLSYM_ERROR, dlsym_error)               \
 CENTRYBOOL(BOX64_NOSIGSEGV, no_sigsegv)                 \
 CENTRYBOOL(BOX64_NOSIGILL, no_sigill)                   \
@@ -104,10 +103,6 @@ ENTRYINT(BOX64_AVX, new_avx, 0, 2, 2)                   \
 ENTRYBOOL(BOX64_FUTEX_WAITV, box64_futex_waitv)         \
 ENTRYSTRING_(BOX64_BASH, bash)                          \
 ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 3, 2)                \
-ENTRYBOOL(BOX64_NOSANDBOX, box64_nosandbox)             \
-ENTRYBOOL(BOX64_INPROCESSGPU, box64_inprocessgpu)       \
-ENTRYBOOL(BOX64_CEFDISABLEGPU, box64_cefdisablegpu)     \
-ENTRYBOOL(BOX64_CEFDISABLEGPUCOMPOSITOR, box64_cefdisablegpucompositor)\
 ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_JVM, box64_jvm)                         \
