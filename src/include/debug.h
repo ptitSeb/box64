@@ -8,16 +8,13 @@ extern box64env_t box64env;
 
 extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
-extern int box64_maxcpu;
 extern int box64_mmap32;
 extern int box64_ignoreint3;
 extern int box64_rdtsc;
 extern int box64_rdtsc_1ghz;
 extern uint8_t box64_rdtsc_shift;
 extern int box64_is32bits;
-extern int box64_x11sync;
 extern int box64_dynarec_gdbjit;
-extern int box64_cputype;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
@@ -96,7 +93,6 @@ extern char* trace_init;
 extern char* box64_trace;
 extern uint64_t start_cnt;
 #endif
-extern int box64_maxcpu_immutable;
 extern int box64_dummy_crashhandler;
 extern int box64_sse_flushto0;
 extern int box64_x87_no80bits;

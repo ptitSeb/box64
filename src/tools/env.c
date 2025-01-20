@@ -63,6 +63,10 @@ static void applyCustomRules()
 #endif
         }
     }
+
+    if (box64env.maxcpu == 0 || (!box64_wine && box64env.new_maxcpu < box64env.maxcpu)) {
+        box64env.maxcpu = box64env.new_maxcpu;
+    }
 }
 
 static void trimStringInplace(char* s)

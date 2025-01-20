@@ -108,8 +108,6 @@ ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_JVM, box64_jvm)                         \
 ENTRYBOOL(BOX64_UNITYPLAYER, box64_unityplayer)         \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
-ENTRYINTPOS(BOX64_MAXCPU, new_maxcpu)                   \
-ENTRYSTRING_(BOX64_ADDLIBS, new_addlibs)                \
 ENTRYSTRING_(BOX64_ENV, new_env)                        \
 ENTRYSTRING_(BOX64_ENV1, new_env1)                      \
 ENTRYSTRING_(BOX64_ENV2, new_env2)                      \
@@ -118,7 +116,6 @@ ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
 ENTRYSTRING_(BOX64_ARGS, new_args)                      \
 ENTRYSTRING_(BOX64_INSERT_ARGS, insert_args)            \
 ENTRYBOOL(BOX64_RESERVE_HIGH, new_reserve_high)         \
-ENTRYINT(BOX64_CPUTYPE, box64_cputype, 0, 1, 1)         \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -547,7 +544,6 @@ void ApplyParams(const char* name)
 }
 
 void internal_ApplyParams(const char* name, const my_params_t* param) {
-    int new_maxcpu = box64_maxcpu;
     int new_avx = box64_avx2?2:box64_avx;
     int box64_dynarec_jvm = box64_jvm;
     int new_reserve_high = 0;
@@ -598,13 +594,6 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     if(param->is_box64_dynarec_jvm_present && !param->is_box64_jvm_present)
         box64_jvm = box64_dynarec_jvm;
     #endif
-    if(!box64_maxcpu_immutable) {
-        if(new_maxcpu!=box64_maxcpu && box64_maxcpu && box64_maxcpu<new_maxcpu) {
-            printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
-        } else
-            box64_maxcpu = new_maxcpu;
-    } else if(new_maxcpu!=box64_maxcpu)
-        printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because it's too late\n", new_maxcpu);
     if(param->is_ld_library_path_present) AppendList(&my_context->box64_ld_lib, param->ld_library_path, 1);
     if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
     if(param->is_trace_file_present) {
@@ -618,9 +607,6 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     if(param->is_emulated_libs_present) {
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_EMULATED_LIBS", param->emulated_libs);
         AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
-    }
-    if(param->is_new_addlibs_present) {
-        AddNewLibs(param->new_addlibs);
     }
     if(param->is_new_env_present) {
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV", param->new_env);

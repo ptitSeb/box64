@@ -315,7 +315,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     case 0x78:  /* INSERTQ Ex, Gx, ib, ib */
         // AMD only
         nextop = F8;
-        if(!box64_cputype || !(MODREG)) {
+        if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
@@ -332,7 +332,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     case 0x79:  /* INSERTQ Ex, Gx */
         // AMD only
         nextop = F8;
-        if(!box64_cputype || !(MODREG)) {
+        if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             #endif

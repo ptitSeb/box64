@@ -51,14 +51,11 @@ int box64_quit = 0;
 int box64_exit_code = 0;
 int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
-
-
-int box64_x11sync = 0;
 path_collection_t box64_addlibs = {0};
-int box64_maxcpu = 0;
-int box64_maxcpu_immutable = 0;
 int box64_is32bits = 0;
-int box64_cputype = 0;
+
+
+
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
@@ -1169,19 +1166,6 @@ void LoadLogEnv()
         if(box64_showbt)
             printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
     }
-    p = getenv("BOX64_MAXCPU");
-    if(p) {
-        int maxcpu = 0;
-        if(sscanf(p, "%d", &maxcpu)==1)
-                box64_maxcpu = maxcpu;
-        if(box64_maxcpu<0)
-            box64_maxcpu = 0;
-        if(box64_maxcpu) {
-            printf_log(LOG_NONE, "Will not expose more than %d cpu cores\n", box64_maxcpu);
-        } else {
-            printf_log(LOG_NONE, "Will not limit the number of cpu cores exposed\n");
-        }
-    }
     p = getenv("BOX64_MMAP32");
         if(p) {
         if(strlen(p)==1) {
@@ -1193,14 +1177,6 @@ void LoadLogEnv()
         else
             printf_log(LOG_INFO, "Will not use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
     }
-    p = getenv("BOX64_CPUTYPE");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_cputype = p[0]-'0';
-        }
-        printf_log(LOG_INFO, "Will emulate an %s CPU\n", box64_cputype?"AMD":"Intel");
-    }
     p = getenv("BOX64_IGNOREINT3");
         if(p) {
         if(strlen(p)==1) {
@@ -1209,13 +1185,6 @@ void LoadLogEnv()
         }
         if(box64_ignoreint3)
             printf_log(LOG_INFO, "Will silently ignore INT3 in the code\n");
-    }
-    p = getenv("BOX64_X11SYNC");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_x11sync = p[0]-'0';
-        }
     }
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);
@@ -1414,8 +1383,8 @@ void LoadEnvVars(box64context_t *context)
             printf_log(LOG_INFO, "BOX64: Disabling handling of SigILL\n");
         }
     }
-    if(getenv("BOX64_ADDLIBS")) {
-        AddNewLibs(getenv("BOX64_ADDLIBS"));
+    if(BOX64ENV(addlibs)) {
+        AddNewLibs(BOX64ENV(addlibs));
     }
     // check BOX64_PATH and load it
     LoadEnvPath(&context->box64_path, ".:bin", "BOX64_PATH");
@@ -2044,9 +2013,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         wine_prog = NULL;
     }
     PrintEnvVariables();
-
-    if(box64_wine)
-        box64_maxcpu_immutable = 1; // cannot change once wine is loaded
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);

@@ -1688,7 +1688,7 @@ EXPORT void* my32_XSynchronize(x64emu_t* emu, void* display, int onoff)
 EXPORT void* my32_XOpenDisplay(void* name)
 {
     void* ret = my->XOpenDisplay(name);
-    if(ret && box64_x11sync) {my->XSynchronize(ret, 1); printf_log(LOG_INFO, "Forcing Syncronized operation on Display %p\n", ret);}
+    if(ret && BOX64ENV(x11sync)) {my->XSynchronize(ret, 1); printf_log(LOG_INFO, "Forcing Syncronized operation on Display %p\n", ret);}
     return ret;
 }
 

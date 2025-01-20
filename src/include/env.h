@@ -19,6 +19,7 @@ extern char* ftrace_name;
 #define DEFAULT_LOG_LEVEL (ftrace_name ? LOG_INFO : (isatty(fileno(stdout)) ? LOG_INFO : LOG_NONE))
 
 #define ENVSUPER1()                                                          \
+    STRING(BOX64_ADDLIBS, addlibs)                                           \
     BOOLEAN(BOX64_ALLOWMISSINGLIBS, allow_missing_libs, 0)                   \
     BOOLEAN(BOX64_CEFDISABLEGPU, cefdisablegpu, 0)                           \
     BOOLEAN(BOX64_CEFDISABLEGPUCOMPOSITOR, cefdisablegpucompositor, 0)       \
@@ -63,7 +64,7 @@ extern char* ftrace_name;
     ADDRESS(BOX64_LOAD_ADDR, load_addr)                                      \
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3)                         \
     BOOLEAN(BOX64_MALLOC_HACK, malloc_hack, 0)                               \
-    INTEGER(BOX64_MAXCPU, maxcpu, 0, 0, 100)                                 \
+    INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100)                             \
     BOOLEAN(BOX64_NOBANNER, nobanner, (isatty(fileno(stdout)) ? 0 : 1))      \
     BOOLEAN(BOX64_NOGTK, nogtk, 0)                                           \
     BOOLEAN(BOX64_NOPULSE, nopulse, 0)                                       \
@@ -165,6 +166,7 @@ typedef struct box64env_s {
 #undef STRING
 
     /******** Custom ones ********/
+    int maxcpu;
     int dynarec_test;
     uintptr_t dynarec_test_start;
     uintptr_t dynarec_test_end;
