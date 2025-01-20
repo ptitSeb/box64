@@ -459,7 +459,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             } else {
                 INST_NAME("INT 3");
-                if (!box64_ignoreint3) {
+                if (!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
                     TABLE64(x1, (uintptr_t)my_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
@@ -976,7 +976,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    /*if(BOX64ENV(dynarec_callret) && box64_dynarec_bigblock>1) {
+                    /*if(BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock)>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -1472,7 +1472,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to put flag in "don't care" state
                     }
                     GETEDz(0);
-                    if (BOX64ENV(dynarec_callret) && box64_dynarec_bigblock > 1) {
+                    if (BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock) > 1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);

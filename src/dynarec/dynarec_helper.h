@@ -49,12 +49,12 @@
         SMWRITE();                     \
     } while (0)
 
-#define SMWRITE2()                                             \
-    do {                                                       \
-        if (box64_dynarec_strongmem >= STRONGMEM_SIMD_WRITE) { \
-            dyn->smwrite = 1;                                  \
-            dyn->insts[ninst].will_write = 2;                  \
-        }                                                      \
+#define SMWRITE2()                                                 \
+    do {                                                           \
+        if (BOX64ENV(dynarec_strongmem) >= STRONGMEM_SIMD_WRITE) { \
+            dyn->smwrite = 1;                                      \
+            dyn->insts[ninst].will_write = 2;                      \
+        }                                                          \
     } while (0)
 
 #define SMREAD()
@@ -71,7 +71,7 @@
 #define SMEND()                                                                                \
     do {                                                                                       \
         /* If there is any guest memory write, which is a SEQ, then compute the last_write. */ \
-        if (dyn->smwrite && (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE)) {               \
+        if (dyn->smwrite && (BOX64ENV(dynarec_strongmem) >= STRONGMEM_LAST_WRITE)) {           \
             int i = ninst;                                                                     \
             while (i >= 0 && !dyn->insts[i].will_write)                                        \
                 --i;                                                                           \
@@ -88,7 +88,7 @@
 #define SMWRITE()                                                     \
     do {                                                              \
         /* Put a barrier at every third memory write. */              \
-        if (box64_dynarec_strongmem >= STRONGMEM_SEQ_WRITE) {         \
+        if (BOX64ENV(dynarec_strongmem) >= STRONGMEM_SEQ_WRITE) {     \
             if (++dyn->smwrite >= 3 /* Every third memory write */) { \
                 DMB_ISH();                                            \
                 dyn->smwrite = 1;                                     \
@@ -110,10 +110,10 @@
     } while (0)
 
 // Similar to SMWRITE, but for SIMD instructions.
-#define SMWRITE2()                                           \
-    do {                                                     \
-        if (box64_dynarec_strongmem >= STRONGMEM_SIMD_WRITE) \
-            SMWRITE();                                       \
+#define SMWRITE2()                                               \
+    do {                                                         \
+        if (BOX64ENV(dynarec_strongmem) >= STRONGMEM_SIMD_WRITE) \
+            SMWRITE();                                           \
     } while (0)
 
 // An opcode reads guest memory, this need to be put before the LOAD instruction manually.
@@ -130,22 +130,22 @@
     } while (0)
 
 // An opcode will write memory, this will be put before the STORE instruction automatically.
-#define WILLWRITE()                                                                                  \
-    do {                                                                                             \
-        if (box64_dynarec_strongmem >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {          \
-            /* Will write but never written, this is the start of a SEQ, put a barrier. */           \
-            if (box64_dynarec_weakbarrier)                                                           \
-                DMB_ISHLD();                                                                         \
-            else                                                                                     \
-                DMB_ISH();                                                                           \
-        } else if (box64_dynarec_strongmem >= STRONGMEM_LAST_WRITE && box64_dynarec_weakbarrier != 2 \
-            && dyn->insts[ninst].last_write) {                                                       \
-            /* Last write, put a barrier */                                                          \
-            if (box64_dynarec_weakbarrier)                                                           \
-                DMB_ISHST();                                                                         \
-            else                                                                                     \
-                DMB_ISH();                                                                           \
-        }                                                                                            \
+#define WILLWRITE()                                                                                          \
+    do {                                                                                                     \
+        if (BOX64ENV(dynarec_strongmem) >= dyn->insts[ninst].will_write && dyn->smwrite == 0) {              \
+            /* Will write but never written, this is the start of a SEQ, put a barrier. */                   \
+            if (BOX64ENV(dynarec_weakbarrier))                                                               \
+                DMB_ISHLD();                                                                                 \
+            else                                                                                             \
+                DMB_ISH();                                                                                   \
+        } else if (BOX64ENV(dynarec_strongmem) >= STRONGMEM_LAST_WRITE && BOX64ENV(dynarec_weakbarrier) != 2 \
+            && dyn->insts[ninst].last_write) {                                                               \
+            /* Last write, put a barrier */                                                                  \
+            if (BOX64ENV(dynarec_weakbarrier))                                                               \
+                DMB_ISHST();                                                                                 \
+            else                                                                                             \
+                DMB_ISH();                                                                                   \
+        }                                                                                                    \
     } while (0)
 
 // Similar to WILLWRITE, but checks lock.
@@ -167,11 +167,11 @@
 // Will be put at the end of the SEQ
 #define SMEND()                                                         \
     do {                                                                \
-        if (box64_dynarec_strongmem) {                                  \
+        if (BOX64ENV(dynarec_strongmem)) {                              \
             /* It's a SEQ, put a barrier here. */                       \
             if (dyn->smwrite) {                                         \
                 /* Check if the next instruction has a end loop mark */ \
-                if (box64_dynarec_weakbarrier)                          \
+                if (BOX64ENV(dynarec_weakbarrier))                      \
                     DMB_ISHST();                                        \
                 else                                                    \
                     DMB_ISH();                                          \

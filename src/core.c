@@ -53,23 +53,16 @@ int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
 path_collection_t box64_addlibs = {0};
 int box64_is32bits = 0;
-
-
-
-int box64_ignoreint3 = 0;
 int box64_rdtsc = 0;
-int box64_rdtsc_1ghz = 0;
 uint8_t box64_rdtsc_shift = 0;
+
+
 char* box64_insert_args = NULL;
 char* box64_new_args = NULL;
+
+
 #ifdef DYNAREC
 int box64_dynarec = 1;
-int box64_dynarec_dump = 0;
-int box64_dynarec_forced = 0;
-int box64_dynarec_bigblock = 1;
-int box64_dynarec_forward = 128;
-int box64_dynarec_strongmem = 0;
-int box64_dynarec_weakbarrier = 1;
 int box64_dynarec_pause = 0;
 int box64_dynarec_safeflags = 1;
 int box64_dynarec_bleeding_edge = 1;
@@ -83,7 +76,6 @@ int box64_dynarec_gdbjit = 0;
 int box64_dynarec_df = 1;
 int box64_dynarec_perf_map = 0;
 int box64_dynarec_perf_map_fd = -1;
-int box64_dynarec_dirty = 0;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -308,118 +300,6 @@ int getNCpu();
 void GatherDynarecExtensions()
 {
 #ifdef ARM64
-/*
-HWCAP_FP
-    Functionality implied by ID_AA64PFR0_EL1.FP == 0b0000.
-HWCAP_ASIMD
-    Functionality implied by ID_AA64PFR0_EL1.AdvSIMD == 0b0000.
-HWCAP_EVTSTRM
-    The generic timer is configured to generate events at a frequency of
-    approximately 10KHz.
-HWCAP_AES
-    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0001. => AESE, AESD, AESMC, and AESIMC instructions are implemented
-HWCAP_PMULL
-    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0010. => AESE, AESD, AESMC, and AESIMC instructions are implemented plus PMULL/PMULL2 instructions operating on 64-bit data quantities.
-HWCAP_SHA1
-    Functionality implied by ID_AA64ISAR0_EL1.SHA1 == 0b0001. => SHA1C, SHA1P, SHA1M, SHA1H, SHA1SU0, and SHA1SU1 instructions implemented.
-HWCAP_SHA2
-    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0001. => SHA256H, SHA256H2, SHA256SU0 and SHA256SU1 instructions implemented.
-HWCAP_CRC32
-    Functionality implied by ID_AA64ISAR0_EL1.CRC32 == 0b0001. => CRC32B, CRC32H, CRC32W, CRC32X, CRC32CB, CRC32CH, CRC32CW, and CRC32CX instructions implemented.
-HWCAP_ATOMICS
-    Functionality implied by ID_AA64ISAR0_EL1.Atomic == 0b0010. => LDADD, LDCLR, LDEOR, LDSET, LDSMAX, LDSMIN, LDUMAX, LDUMIN, CAS, CASP, and SWP instructions implemented.
-HWCAP_FPHP
-    Functionality implied by ID_AA64PFR0_EL1.FP == 0b0001.
-HWCAP_ASIMDHP
-    Functionality implied by ID_AA64PFR0_EL1.AdvSIMD == 0b0001.
-HWCAP_CPUID
-    EL0 access to certain ID registers is available.
-    These ID registers may imply the availability of features.
-HWCAP_ASIMDRDM
-    Functionality implied by ID_AA64ISAR0_EL1.RDM == 0b0001. => SQRDMLAH and SQRDMLSH instructions implemented.
-HWCAP_JSCVT
-    Functionality implied by ID_AA64ISAR1_EL1.JSCVT == 0b0001. => The FJCVTZS instruction is implemented.
-HWCAP_FCMA
-    Functionality implied by ID_AA64ISAR1_EL1.FCMA == 0b0001. => The FCMLA and FCADD instructions are implemented.
-HWCAP_LRCPC
-    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0001. => LDAPR and variants
-HWCAP_DCPOP
-    Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0001.
-HWCAP_SHA3
-    Functionality implied by ID_AA64ISAR0_EL1.SHA3 == 0b0001. => EOR3, RAX1, XAR, and BCAX instructions implemented.
-HWCAP_SM3
-    Functionality implied by ID_AA64ISAR0_EL1.SM3 == 0b0001. => SM3SS1, SM3TT1A, SM3TT1B, SM3TT2A, SM3TT2B, SM3PARTW1, and SM3PARTW2 instructions implemented.
-HWCAP_SM4
-    Functionality implied by ID_AA64ISAR0_EL1.SM4 == 0b0001. => SM4E and SM4EKEY instructions implemented.
-HWCAP_ASIMDDP
-    Functionality implied by ID_AA64ISAR0_EL1.DP == 0b0001. => UDOT and SDOT instructions implemented.
-HWCAP_SHA512
-    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0010. => SHA512H, SHA512H2, SHA512SU0, and SHA512SU1 instructions implemented.
-HWCAP_SVE
-    Functionality implied by ID_AA64PFR0_EL1.SVE == 0b0001.
-HWCAP_ASIMDFHM
-   Functionality implied by ID_AA64ISAR0_EL1.FHM == 0b0001. => FMLAL and FMLSL instructions are implemented.
-HWCAP_DIT
-    Functionality implied by ID_AA64PFR0_EL1.DIT == 0b0001.
-HWCAP_USCAT
-    Functionality implied by ID_AA64MMFR2_EL1.AT == 0b0001.
-HWCAP_ILRCPC
-    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0010. => The LDAPUR*, STLUR*, and LDAPR* instructions are implemented.
-HWCAP_FLAGM
-    Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0001.
-HWCAP_SSBS
-    Functionality implied by ID_AA64PFR1_EL1.SSBS == 0b0010. => AArch64 provides the PSTATE.SSBS mechanism to mark regions that are Speculative Store Bypassing Safe, and the MSR and MRS instructions to directly read and write the PSTATE.SSBS field.
-HWCAP_SB
-    Functionality implied by ID_AA64ISAR1_EL1.SB == 0b0001. => SB instruction is implemented.
-HWCAP_PACA
-    Functionality implied by ID_AA64ISAR1_EL1.APA == 0b0001 or
-    ID_AA64ISAR1_EL1.API == 0b0001.
-HWCAP_PACG
-    Functionality implied by ID_AA64ISAR1_EL1.GPA == 0b0001 or => Generic Authentication using the QARMA algorithm is implemented. This includes the PACGA instruction.
-    ID_AA64ISAR1_EL1.GPI == 0b0001.
-HWCAP2_DCPODP
-    Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0010. => DC CVAP and DC CVADP supported
-HWCAP2_SVE2
-    Functionality implied by ID_AA64ZFR0_EL1.SVEVer == 0b0001.
-HWCAP2_SVEAES
-    Functionality implied by ID_AA64ZFR0_EL1.AES == 0b0001.
-HWCAP2_SVEPMULL
-    Functionality implied by ID_AA64ZFR0_EL1.AES == 0b0010.
-HWCAP2_SVEBITPERM
-    Functionality implied by ID_AA64ZFR0_EL1.BitPerm == 0b0001.
-HWCAP2_SVESHA3
-    Functionality implied by ID_AA64ZFR0_EL1.SHA3 == 0b0001.
-HWCAP2_SVESM4
-    Functionality implied by ID_AA64ZFR0_EL1.SM4 == 0b0001.
-HWCAP2_FLAGM2
-    Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0010. => CFINV, RMIF, SETF16, SETF8, AXFLAG, and XAFLAG instructions are implemented.
-HWCAP2_FRINT
-    Functionality implied by ID_AA64ISAR1_EL1.FRINTTS == 0b0001. => FRINT32Z, FRINT32X, FRINT64Z, and FRINT64X instructions are implemented.
-HWCAP2_SVEI8MM
-    Functionality implied by ID_AA64ZFR0_EL1.I8MM == 0b0001.
-HWCAP2_SVEF32MM
-    Functionality implied by ID_AA64ZFR0_EL1.F32MM == 0b0001.
-HWCAP2_SVEF64MM
-    Functionality implied by ID_AA64ZFR0_EL1.F64MM == 0b0001.
-HWCAP2_SVEBF16
-    Functionality implied by ID_AA64ZFR0_EL1.BF16 == 0b0001
-HWCAP2_I8MM
-    Functionality implied by ID_AA64ISAR1_EL1.I8MM == 0b0001. => SMMLA, SUDOT, UMMLA, USMMLA, and USDOT instructions are implemented
-HWCAP2_BF16
-    Functionality implied by ID_AA64ISAR1_EL1.BF16 == 0b0001. => BFDOT, BFMLAL, BFMLAL2, BFMMLA, BFCVT, and BFCVT2 instructions are implemented.
-HWCAP2_DGH
-    Functionality implied by ID_AA64ISAR1_EL1.DGH == 0b0001. => Data Gathering Hint is implemented.
-HWCAP2_RNG
-    Functionality implied by ID_AA64ISAR0_EL1.RNDR == 0b0001.
-HWCAP2_BTI
-    Functionality implied by ID_AA64PFR0_EL1.BT == 0b0001.
-HWCAP2_MTE
-    Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010. => Full Memory Tagging Extension is implemented.
-HWCAP2_ECV
-    Functionality implied by ID_AA64MMFR0_EL1.ECV == 0b0001.
-HWCAP2_AFP
-    AFP = 0b0001 => The AArch64-FPCR.{AH, FIZ, NEP} fields are supported. (Alternate floating-point behavior)
-*/
     unsigned long hwcap = real_getauxval(AT_HWCAP);
     if(!hwcap)  // no HWCap: provide a default...
         hwcap = HWCAP_ASIMD;
@@ -588,7 +468,7 @@ void computeRDTSC()
     printf_log(LOG_INFO, "Will use time-based emulation for RDTSC, even if hardware counters are available\n");
     #endif
     uint64_t freq = ReadTSCFrequency(NULL);
-    if(freq<((box64_rdtsc_1ghz)?1000000000LL:1000000)) {
+    if(freq<((BOX64ENV(rdtsc_1ghz))?1000000000LL:1000000)) {
         box64_rdtsc = 1;
         if(hardware) printf_log(LOG_INFO, "Hardware counter is too slow (%d kHz), not using it\n", freq/1000);
         hardware = 0;
@@ -644,14 +524,6 @@ void LoadLogEnv()
     /*if(arm64_uscat)
         box64_dynarec_aligned_atomics = 1;*/ // the unaligned support is not good enough for x86 emulation, so diabling
     #endif
-    p = getenv("BOX64_DYNAREC_DUMP");
-    if(p) {
-        if(strlen(p)==1) {
-            if (p[0] >= '0' && p[0] <= '2')
-                box64_dynarec_dump = p[0]-'0';
-        }
-        if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
-    }
     p = getenv("BOX64_DYNAREC");
     if(p) {
         if(strlen(p)==1) {
@@ -659,59 +531,6 @@ void LoadLogEnv()
                 box64_dynarec = p[0]-'0';
         }
         printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"on":"off");
-    }
-    p = getenv("BOX64_DYNAREC_FORCED");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_forced = p[0]-'0';
-        }
-        if(box64_dynarec_forced)
-            printf_log(LOG_INFO, "Dynarec is forced on all addresses\n");
-    }
-    p = getenv("BOX64_DYNAREC_BIGBLOCK");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='3')
-                box64_dynarec_bigblock = p[0]-'0';
-        }
-        if(!box64_dynarec_bigblock)
-            printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
-        else if (box64_dynarec_bigblock>1)
-            printf_log(LOG_INFO, "Dynarec will try to make bigger blocks%s\n", (box64_dynarec_bigblock>2)?" even on non-elf memory":"");
-
-    }
-    p = getenv("BOX64_DYNAREC_FORWARD");
-    if(p) {
-        int val = -1;
-        if(sscanf(p, "%d", &val)==1) {
-            if(val>=0)
-                box64_dynarec_forward = val;
-        }
-        if(box64_dynarec_forward)
-            printf_log(LOG_INFO, "Dynarec will continue block for %d bytes on forward jump\n", box64_dynarec_forward);
-        else
-            printf_log(LOG_INFO, "Dynarec will not continue block on forward jump\n");
-    }
-    p = getenv("BOX64_DYNAREC_STRONGMEM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='4')
-                box64_dynarec_strongmem = p[0]-'0';
-        }
-        if(box64_dynarec_strongmem)
-            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":((box64_dynarec_strongmem>1)?" with more performance loss":""));
-    }
-    p = getenv("BOX64_DYNAREC_WEAKBARRIER");
-    if (p) {
-        if (strlen(p) == 1) {
-            if (p[0] >= '0' && p[0] <= '2')
-                box64_dynarec_weakbarrier = p[0] - '0';
-        }
-        if (box64_dynarec_weakbarrier)
-            printf_log(LOG_INFO, "Dynarec will try to use weaker memory barriers to reduce the performance loss introduce by strong memory emulation\n");
-        else
-            printf_log(LOG_INFO, "Dynarec will not use weakbarrier on strong memory emulation\n");
     }
 #ifdef ARM64
     p = getenv("BOX64_DYNAREC_PAUSE");
@@ -800,15 +619,6 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_df)
             printf_log(LOG_INFO, "Dynarec will not use/generate defered flags\n");
-    }
-    p = getenv("BOX64_DYNAREC_DIRTY");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_dirty = p[0]-'0';
-        }
-        if(box64_dynarec_dirty)
-            printf_log(LOG_INFO, "Dynarec will allow dirty block to continu running\n");
     }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
     if(p) {
@@ -1052,15 +862,6 @@ void LoadLogEnv()
         if(!box64_avx2)
             printf_log(LOG_INFO, "Will not expose AVX2 capabilities\n");
     }
-    p = getenv("BOX64_RDTSC_1GHZ");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_rdtsc_1ghz = p[0]-'0';
-        }
-        if(!box64_rdtsc_1ghz)
-            printf_log(LOG_INFO, "Will require a hardware counter of 1GHz minimum or will fallback to software\n");
-    }
     p = getenv("BOX64_FIX_64BIT_INODES");
     if(p) {
         if(strlen(p)==1) {
@@ -1096,15 +897,6 @@ void LoadLogEnv()
         }
         if(box64_showbt)
             printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
-    }
-    p = getenv("BOX64_IGNOREINT3");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_ignoreint3 = p[0]-'0';
-        }
-        if(box64_ignoreint3)
-            printf_log(LOG_INFO, "Will silently ignore INT3 in the code\n");
     }
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);

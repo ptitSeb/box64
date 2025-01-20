@@ -3022,8 +3022,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             if(r>0 && strlen(filename)>strlen("UnityPlayer.dll") && !strcasecmp(filename+strlen(filename)-strlen("UnityPlayer.dll"), "UnityPlayer.dll")) {
                 printf_log(LOG_INFO, "BOX64: Detected UnityPlayer.dll\n");
                 #ifdef DYNAREC
-                if(!box64_dynarec_strongmem)
-                    box64_dynarec_strongmem = 1;
+                if(!BOX64ENV(dynarec_strongmem)) SET_BOX64ENV(dynarec_strongmem, 1);
                 #endif
                 unityplayer_detected = 1;
             }

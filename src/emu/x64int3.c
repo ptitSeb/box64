@@ -389,7 +389,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
         printf_log(LOG_DEBUG, "%04d|Warning, x64int3 with no CC opcode at %p?\n", GetTID(), (void*)R_RIP);
         return;
     }
-    if(!box64_ignoreint3 && my_context->signals[SIGTRAP]) {
+    if(!BOX64ENV(ignoreint3) && my_context->signals[SIGTRAP]) {
         R_RIP = *addr;  // update RIP
         emit_signal(emu, SIGTRAP, NULL, 3);
     } else {

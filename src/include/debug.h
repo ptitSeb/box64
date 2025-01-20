@@ -8,21 +8,13 @@ extern box64env_t box64env;
 
 extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
-extern int box64_ignoreint3;
 extern int box64_rdtsc;
-extern int box64_rdtsc_1ghz;
 extern uint8_t box64_rdtsc_shift;
 extern int box64_is32bits;
 extern int box64_dynarec_gdbjit;
 #ifdef DYNAREC
-extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
-extern int box64_dynarec_forced;
 extern uintptr_t box64_nodynarec_start, box64_nodynarec_end;
-extern int box64_dynarec_bigblock;
-extern int box64_dynarec_forward;
-extern int box64_dynarec_strongmem;
-extern int box64_dynarec_weakbarrier;
 extern int box64_dynarec_pause;
 extern int box64_dynarec_safeflags;
 extern int box64_dynarec_bleeding_edge;
@@ -33,7 +25,6 @@ extern int box64_dynarec_aligned_atomics;
 extern int box64_dynarec_df;
 extern int box64_dynarec_perf_map;
 extern int box64_dynarec_perf_map_fd;
-extern int box64_dynarec_dirty;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;

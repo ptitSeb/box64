@@ -480,7 +480,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
         }
         return;
     }
-    if(!box64_ignoreint3 && my_context->signals[SIGTRAP]) {
+    if(!BOX64ENV(ignoreint3) && my_context->signals[SIGTRAP]) {
         R_RIP = *addr;  // update RIP
         emit_signal(emu, SIGTRAP, NULL, 3);
     } else {

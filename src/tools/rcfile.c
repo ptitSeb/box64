@@ -78,7 +78,6 @@ CENTRYBOOL(BOX64_NOSIGSEGV, no_sigsegv)                 \
 CENTRYBOOL(BOX64_NOSIGILL, no_sigill)                   \
 ENTRYBOOL(BOX64_SHOWSEGV, box64_showsegv)               \
 ENTRYBOOL(BOX64_SHOWBT, box64_showbt)                   \
-ENTRYBOOL(BOX64_IGNOREINT3, box64_ignoreint3)           \
 IGNORE(BOX64_RDTSC)                                     \
 ENTRYBOOL(BOX64_X11THREADS, box64_x11threads)           \
 ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
@@ -95,7 +94,6 @@ ENTRYBOOL(BOX64_CRASHHANDLER, box64_dummy_crashhandler) \
 ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
 ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
 ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
-ENTRYBOOL(BOX64_RDTSC_1GHZ, box64_rdtsc_1ghz)           \
 ENTRYBOOL(BOX64_SHAEXT, box64_shaext)                   \
 ENTRYBOOL(BOX64_SSE42, box64_sse42)                     \
 ENTRYINT(BOX64_AVX, new_avx, 0, 2, 2)                   \
@@ -139,11 +137,6 @@ IGNORE(BOX64_TRACE_COLOR)                               \
 #ifdef DYNAREC
 #define SUPER3()                                                    \
 ENTRYBOOL(BOX64_DYNAREC, box64_dynarec)                             \
-ENTRYINT(BOX64_DYNAREC_DUMP, box64_dynarec_dump, 0, 2, 2)           \
-ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
-ENTRYSTRING_(BOX64_DYNAREC_FORWARD, box64_dynarec_forward)          \
-ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 3, 2) \
-ENTRYINT(BOX64_DYNAREC_WEAKBARRIER, box64_dynarec_weakbarrier, 0, 2, 2) \
 ENTRYINT(BOX64_DYNAREC_PAUSE, box64_dynarec_pause, 0, 3, 2)         \
 ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
@@ -156,16 +149,10 @@ ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
 ENTRYBOOL(BOX64_DYNAREC_DF, box64_dynarec_df)                       \
-ENTRYBOOL(BOX64_DYNAREC_DIRTY, box64_dynarec_dirty)                 \
 
 #else
 #define SUPER3()                                                    \
 IGNORE(BOX64_DYNAREC)                                               \
-IGNORE(BOX64_DYNAREC_DUMP)                                          \
-IGNORE(BOX64_DYNAREC_BIGBLOCK)                                      \
-IGNORE(BOX64_DYNAREC_FORWARD)                                       \
-IGNORE(BOX64_DYNAREC_STRONGMEM)                                     \
-IGNORE(BOX64_DYNAREC_WEAKBARRIER)                                   \
 IGNORE(BOX64_DYNAREC_PAUSE)                                         \
 IGNORE(BOX64_DYNAREC_DIV0)                                          \
 IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
@@ -181,7 +168,6 @@ IGNORE(BOX64_DYNAREC_WAIT)                                          \
 IGNORE(BOX64_NODYNAREC)                                             \
 IGNORE(BOX64_DYNAREC_MISSING)                                       \
 IGNORE(BOX64_DYNAREC_DF)                                            \
-IGNORE(BOX64_DYNAREC_DIRTY)                                         \
 
 #endif
 
@@ -492,7 +478,6 @@ extern char* box64_insert_args;
 void openFTrace(const char* newtrace, int reopen);
 void addNewEnvVar(const char* s);
 void AddNewLibs(const char* libs);
-void computeRDTSC();
 void my_reserveHighMem();
 #ifdef DYNAREC
 void GatherDynarecExtensions();
@@ -578,8 +563,6 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
             box64_avx = 1; box64_avx2 = 1;
         }
     }
-    if(param->is_box64_rdtsc_1ghz_present)
-        computeRDTSC();
     #ifdef DYNAREC
     if(param->is_box64_dynarec_jvm_present && !param->is_box64_jvm_present)
         box64_jvm = box64_dynarec_jvm;
@@ -682,13 +665,6 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
             printf_log(LOG_INFO, "Appling BOX64_NODYNAREC=%p-%p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
         } else {
             printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", param->box64_nodynarec, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
-        }
-    }
-    if(param->is_box64_dynarec_forward_present) {
-        int forward = 0;
-        if(sscanf(param->box64_dynarec_forward, "%d", &forward)==1) {
-            printf_log(LOG_INFO, "Appling BOX64_DYNAREC_FORWARD=%d\n", box64_dynarec_forward);
-            box64_dynarec_forward = forward;
         }
     }
     if(!olddynarec && box64_dynarec)

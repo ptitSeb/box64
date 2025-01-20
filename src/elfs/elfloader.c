@@ -1460,7 +1460,7 @@ dynablock_t* GetDynablocksFromAddress(box64context_t *context, uintptr_t addr)
     if(ret) {
         return ret;
     }*/
-    if(box64_dynarec_forced) {
+    if(BOX64ENV(dynarec_forced)) {
         addDBFromAddressRange(addr, 1);
         return getDB(addr);
     }

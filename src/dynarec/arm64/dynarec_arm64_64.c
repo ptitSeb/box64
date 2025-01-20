@@ -1586,7 +1586,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETEDOz(x6, 0);
-                    if(BOX64ENV(dynarec_callret) && box64_dynarec_bigblock>1) {
+                    if(BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock)>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);

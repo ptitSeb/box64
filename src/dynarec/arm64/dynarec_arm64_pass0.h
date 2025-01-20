@@ -39,7 +39,7 @@
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
-        if(BOX64ENV(dynarec_log)>=LOG_INFO || box64_dynarec_dump || box64_dynarec_missing==1) {\
+        if(BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || box64_dynarec_missing==1) {\
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
         (void*)ip, rex.is32bits?"x86 ":"x64 ",\
         PKip(0),                        \

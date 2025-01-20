@@ -359,19 +359,19 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         #ifdef DYNAREC
         if(libname && box64_dynarec_bleeding_edge && strstr(libname, "libmonobdwgc-2.0.so")) {
             printf_dump(LOG_INFO, "MonoBleedingEdge detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
-            box64_dynarec_bigblock = 0;
-            box64_dynarec_strongmem = 1;
+            SET_BOX64ENV(dynarec_bigblock, 0);
+            SET_BOX64ENV(dynarec_strongmem, 1);
         }
         if(libname && box64_dynarec_tbb && strstr(libname, "libtbb.so")) {
             printf_dump(LOG_INFO, "libtbb detected, enable Dynarec StrongMem\n");
-            box64_dynarec_strongmem = 1;
+            SET_BOX64ENV(dynarec_strongmem, 1);
         }
         #endif
         if(libname && box64_jvm && strstr(libname, "libjvm.so")) {
             #ifdef DYNAREC
             printf_dump(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem, hide SSE 4.2\n");
-            box64_dynarec_bigblock = 0;
-            box64_dynarec_strongmem = 1;
+            SET_BOX64ENV(dynarec_bigblock, 0);
+            SET_BOX64ENV(dynarec_strongmem, 1);
             #else
             printf_dump(LOG_INFO, "libjvm detected, hide SSE 4.2\n");
             #endif

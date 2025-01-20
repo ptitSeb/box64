@@ -2524,7 +2524,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             } else {
                 INST_NAME("INT 3");
-                if(!box64_ignoreint3) {
+                if(!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
                     TABLE64(x1, (uintptr_t)my_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
@@ -3149,7 +3149,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE6:                      /* OUT Ib, AL */
         case 0xE7:                      /* OUT Ib, EAX */
             INST_NAME(opcode==0xE4?"IN AL, Ib":(opcode==0xE5?"IN EAX, Ib":(opcode==0xE6?"OUT Ib, AL":"OUT Ib, EAX")));
-            if (rex.is32bits && box64_ignoreint3) {
+            if (rex.is32bits && BOX64ENV(ignoreint3)) {
                 F8;
             } else {
                 if(box64_dynarec_safeflags>1) {
@@ -3340,7 +3340,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
             INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, EAX")));
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else {
                 if(box64_dynarec_safeflags>1) {
                     READFLAGS(X_PEND);
@@ -3810,7 +3810,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xFA:                      /* STI */
         case 0xFB:                      /* CLI */
             INST_NAME(opcode==0xFA?"CLI":"STI");
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else {
                 if(box64_dynarec_safeflags>1) {
                     READFLAGS(X_PEND);
@@ -3884,7 +3884,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETEDz(0);
-                    if(BOX64ENV(dynarec_callret) && box64_dynarec_bigblock>1) {
+                    if(BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock)>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);

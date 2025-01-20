@@ -2609,10 +2609,10 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     dyn->ymm_zero = dyn->insts[reset_n].ymm0_out;
     #endif
     #if STEP == 0
-    if(box64_dynarec_dump && dyn->n.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->n.x87stack, ninst, reset_n);
+    if(BOX64ENV(dynarec_dump) && dyn->n.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->n.x87stack, ninst, reset_n);
         #endif
     #if defined(HAVE_TRACE) && (STEP>2)
-    if(box64_dynarec_dump && 0) //disable for now, need more work
+    if(BOX64ENV(dynarec_dump) && 0) //disable for now, need more work
         if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neoncache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
             for(int i=0; i<32; ++i)
