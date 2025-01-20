@@ -164,7 +164,6 @@ ENTRYBOOL(BOX64_DYNAREC_ALIGNED_ATOMICS, box64_dynarec_aligned_atomics) \
 ENTRYBOOL(BOX64_DYNAREC_NATIVEFLAGS, box64_dynarec_nativeflags)     \
 ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
-ENTRYSTRING_(BOX64_DYNAREC_TEST, box64_dynarec_test)                \
 ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
 ENTRYBOOL(BOX64_DYNAREC_DF, box64_dynarec_df)                       \
 ENTRYBOOL(BOX64_DYNAREC_DIRTY, box64_dynarec_dirty)                 \
@@ -193,7 +192,6 @@ IGNORE(BOX64_DYNAREC_ALIGNED_ATOMICS)                               \
 IGNORE(BOX64_DYNAREC_NATIVEFLAGS)                                   \
 IGNORE(BOX64_DYNAREC_WAIT)                                          \
 IGNORE(BOX64_NODYNAREC)                                             \
-IGNORE(BOX64_DYNAREC_TEST)                                          \
 IGNORE(BOX64_DYNAREC_MISSING)                                       \
 IGNORE(BOX64_DYNAREC_DF)                                            \
 IGNORE(BOX64_DYNAREC_DIRTY)                                         \
@@ -710,33 +708,6 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
             printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", param->box64_nodynarec, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
         }
     }
-    if(param->is_box64_dynarec_test_present) {
-        uintptr_t no_start = 0, no_end = 0;
-        if(strlen(param->box64_dynarec_test)==1) {
-            box64_dynarec_test = param->box64_dynarec_test[0]-'0';
-            box64_dynarec_test_start = 0x0;
-            box64_dynarec_test_end = 0x0;
-            if(box64_dynarec_test>2) box64_dynarec_test = 0;
-            printf_log(LOG_INFO, "Appling BOX64_DYNAREC_TEST=%d\n", box64_dynarec_test);
-        } else {
-            int ok = 0;
-            if(sscanf(param->box64_dynarec_test, "0x%lX-0x%lX", &no_start, &no_end)==2)
-                ok = 1;
-            if(!ok && sscanf(param->box64_dynarec_test, "%lx-%lx", &no_start, &no_end)==2)
-                ok = 1;
-            if(!ok && sscanf(param->box64_dynarec_test, "%ld-%ld", &no_start, &no_end)==2)
-                ok = 1;
-            if(ok && no_end>no_start) {
-                box64_dynarec_test = 1;
-                box64_dynarec_test_start = no_start;
-                box64_dynarec_test_end = no_end;
-                printf_log(LOG_INFO, "Appling BOX64_DYNAREC_TEST=%p-%p\n", (void*)box64_dynarec_test_start, (void*)box64_dynarec_test_end);
-            } else {
-                box64_dynarec_test = 0;
-                printf_log(LOG_INFO, "Ignoring BOX64_DYNAREC_TEST=%s (%p-%p)\n", param->box64_dynarec_test, (void*)box64_dynarec_test_start, (void*)box64_dynarec_test_end);
-            }
-        }
-    }
     if(param->is_box64_dynarec_forward_present) {
         int forward = 0;
         if(sscanf(param->box64_dynarec_forward, "%d", &forward)==1) {
@@ -746,15 +717,5 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     }
     if(!olddynarec && box64_dynarec)
         GatherDynarecExtensions();
-    if(param->is_box64_dynarec_test_present && box64_dynarec_test) {
-        box64_dynarec_fastnan = 0;
-        box64_dynarec_fastround = 0;
-        box64_dynarec_x87double = 1;
-        box64_dynarec_div0 = 1;
-        box64_dynarec_callret = 0;
-        #if defined(RV64) || defined(LA64)
-        box64_dynarec_nativeflags = 0;
-        #endif
-    }
     #endif
 }

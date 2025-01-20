@@ -1773,16 +1773,16 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     B##COND(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
 
 #define NOTEST(s1)                                     \
-    if (box64_dynarec_test) {                          \
+    if (BOX64ENV(dynarec_test)) {                      \
         SW(xZR, xEmu, offsetof(x64emu_t, test.test));  \
         SW(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
 #define SKIPTEST(s1)                                   \
-    if (box64_dynarec_test) {                          \
+    if (BOX64ENV(dynarec_test)) {                      \
         SW(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
 #define GOTEST(s1, s2)                               \
-    if (box64_dynarec_test) {                        \
+    if (BOX64ENV(dynarec_test)) {                    \
         MOV32w(s2, 1);                               \
         SW(s2, xEmu, offsetof(x64emu_t, test.test)); \
     }

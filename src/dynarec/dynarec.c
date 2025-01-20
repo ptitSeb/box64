@@ -172,7 +172,7 @@ void DynaRun(x64emu_t* emu)
             {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
                 #ifdef DYNAREC
-                if(box64_dynarec_test) {
+                if(BOX64ENV(dynarec_test)) {
                     if(emu->test.clean)
                         x64test_check(emu, R_RIP);
                     emu->test.clean = 0;
@@ -216,7 +216,7 @@ void DynaRun(x64emu_t* emu)
                     else
                         dynarec_log(LOG_DEBUG, "%04d|Running Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 }
-                if(box64_dynarec_test)
+                if (BOX64ENV(dynarec_test))
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {

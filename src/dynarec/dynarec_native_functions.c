@@ -184,7 +184,7 @@ void native_fld(x64emu_t* emu, uint8_t* ed)
 
 void native_ud(x64emu_t* emu)
 {
-    if(box64_dynarec_test)
+    if(BOX64ENV(dynarec_test))
         emu->test.test = 0;
     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
 }

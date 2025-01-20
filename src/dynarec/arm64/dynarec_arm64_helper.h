@@ -1884,19 +1884,19 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         }                                                   \
         break
 
-#define NOTEST(s1)                                          \
-    if(box64_dynarec_test) {                                \
-        STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.test)); \
-        STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.clean));\
+#define NOTEST(s1)                                           \
+    if (BOX64ENV(dynarec_test)) {                            \
+        STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.test));  \
+        STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
-#define SKIPTEST(s1)                                        \
-    if(box64_dynarec_test) {                                \
-        STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.clean));\
+#define SKIPTEST(s1)                                         \
+    if (BOX64ENV(dynarec_test)) {                            \
+        STRw_U12(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
-#define GOTEST(s1, s2)                                      \
-    if(box64_dynarec_test) {                                \
-        MOV32w(s2, 1);                                      \
-        STRw_U12(s2, xEmu, offsetof(x64emu_t, test.test));  \
+#define GOTEST(s1, s2)                                     \
+    if (BOX64ENV(dynarec_test)) {                          \
+        MOV32w(s2, 1);                                     \
+        STRw_U12(s2, xEmu, offsetof(x64emu_t, test.test)); \
     }
 
 #define GETREX()                                \

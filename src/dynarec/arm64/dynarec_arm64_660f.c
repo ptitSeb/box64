@@ -2348,7 +2348,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 LSRw_REG(x1, ed, x2);
                 BFIw(xFlags, x1, F_CF, 1);
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2416,7 +2416,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2508,7 +2508,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                 }
                 IFX(X_AF | X_PF | X_ZF | X_SF)
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         // to avoid noise during test
                         MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x3);
@@ -2544,7 +2544,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2603,7 +2603,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2623,7 +2623,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     mask = convert_bitmask_xw(1<<u8);
                     ORRxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2642,7 +2642,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     BFCxw(ed, u8, 1);
                     EWBACK;
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2662,7 +2662,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     mask = convert_bitmask_xw(1<<u8);
                     EORxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2703,7 +2703,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}

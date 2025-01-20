@@ -53,7 +53,6 @@ int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
 
 
-int box64_dynarec_test = 0;
 int box64_x11sync = 0;
 path_collection_t box64_addlibs = {0};
 int box64_maxcpu = 0;
@@ -94,8 +93,6 @@ int box64_dynarec_aligned_atomics = 0;
 int box64_dynarec_nativeflags = 1;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
-uintptr_t box64_dynarec_test_start = 0;
-uintptr_t box64_dynarec_test_end = 0;
 int box64_dynarec_gdbjit = 0;
 int box64_dynarec_df = 1;
 int box64_dynarec_perf_map = 0;
@@ -913,39 +910,6 @@ void LoadLogEnv()
                     sscanf(p, "%lx-%lx", &box64_nodynarec_start, &box64_nodynarec_end);
             }
             printf_log(LOG_INFO, "No dynablock creation that start in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
-        }
-    }
-    p = getenv("BOX64_DYNAREC_TEST");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_test = p[0]-'0';
-            box64_dynarec_test_start = 0x0;
-            box64_dynarec_test_end = 0x0;
-        } else if (strchr(p,'-')) {
-            if(sscanf(p, "%ld-%ld", &box64_dynarec_test_start, &box64_dynarec_test_end)!=2) {
-                if(sscanf(p, "0x%lX-0x%lX", &box64_dynarec_test_start, &box64_dynarec_test_end)!=2)
-                    sscanf(p, "%lx-%lx", &box64_dynarec_test_start, &box64_dynarec_test_end);
-            }
-            if(box64_dynarec_test_end>box64_dynarec_test_start) {
-                box64_dynarec_test = 1;
-                printf_log(LOG_INFO, "Dynarec test in the range %p - %p\n", (void*)box64_dynarec_test_start, (void*)box64_dynarec_test_end);
-            } else {
-                box64_dynarec_test = 0;
-                printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", p, (void*)box64_dynarec_test_start, (void*)box64_dynarec_test_end);
-            }
-        }
-
-        if(box64_dynarec_test) {
-            box64_dynarec_fastnan = 0;
-            box64_dynarec_fastround = 0;
-            box64_dynarec_x87double = 1;
-            box64_dynarec_div0 = 1;
-            box64_dynarec_callret = 0;
-            #if defined( RV64) || defined(LA64)
-            box64_dynarec_nativeflags = 0;
-            #endif
-            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }
 

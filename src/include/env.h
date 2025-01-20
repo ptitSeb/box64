@@ -48,6 +48,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_SAFEFLAGS, dynarec_safeflags, 1, 0, 2)             \
     BOOLEAN(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 0)                   \
     BOOLEAN(BOX64_DYNAREC_TBB, dynarec_tbb, 1)                               \
+    STRING(BOX64_DYNAREC_TEST, dynarec_test_str)                             \
     BOOLEAN(BOX64_DYNAREC_TRACE, dynarec_trace, 0)                           \
     BOOLEAN(BOX64_DYNAREC_WAIT, dynarec_wait, 1)                             \
     BOOLEAN(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 1)               \
@@ -162,6 +163,11 @@ typedef struct box64env_s {
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
+
+    /******** Custom ones ********/
+    int dynarec_test;
+    uintptr_t dynarec_test_start;
+    uintptr_t dynarec_test_end;
 
 #ifdef ARM64
     int arm64_asimd : 1;

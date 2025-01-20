@@ -359,7 +359,7 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
 
     x64emu_t *emu = thread_get_emu();
     #ifdef DYNAREC
-    if(box64_dynarec_test)
+    if (BOX64ENV(dynarec_test))
         emu->test.test = 0;
     #endif
 
@@ -405,11 +405,11 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
     emu->flags.quitonlongjmp = oldquitonlongjmp;
 
     #ifdef DYNAREC
-    if(box64_dynarec_test) {
+    if (BOX64ENV(dynarec_test)) {
         emu->test.test = 0;
         emu->test.clean = 0;
     }
-    #endif
+#endif
 
     if(emu->flags.longjmp) {
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler

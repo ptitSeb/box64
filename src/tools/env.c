@@ -32,6 +32,37 @@ static void applyCustomRules()
     if (BOX64ENV(rolling_log) && BOX64ENV(log) > LOG_INFO) {
         SET_BOX64ENV(rolling_log, 0);
     }
+
+    if (box64env.is_dynarec_test_str_overridden) {
+        if (strlen(box64env.dynarec_test_str) == 1) {
+            if (box64env.dynarec_test_str[0] >= '0' && box64env.dynarec_test_str[0] <= '1')
+                box64env.dynarec_test = box64env.dynarec_test_str[0] - '0';
+
+            box64env.dynarec_test_start = 0x0;
+            box64env.dynarec_test_end = 0x0;
+        } else if (strchr(box64env.dynarec_test_str, '-')) {
+            if (sscanf(box64env.dynarec_test_str, "%ld-%ld", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2) {
+                if (sscanf(box64env.dynarec_test_str, "0x%lX-0x%lX", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2)
+                    sscanf(box64env.dynarec_test_str, "%lx-%lx", &box64env.dynarec_test_start, &box64env.dynarec_test_end);
+            }
+            if (box64env.dynarec_test_end > box64env.dynarec_test_start) {
+                box64env.dynarec_test = 1;
+            } else {
+                box64env.dynarec_test = 0;
+            }
+        }
+
+        if (box64env.dynarec_test) {
+            SET_BOX64ENV(dynarec_fastnan, 0);
+            SET_BOX64ENV(dynarec_fastround, 0);
+            SET_BOX64ENV(dynarec_x87double, 1);
+            SET_BOX64ENV(dynarec_div0, 1);
+            SET_BOX64ENV(dynarec_callret, 0);
+#if defined(RV64) || defined(LA64)
+            SET_BOX64ENV(dynarec_nativeflags, 0);
+#endif
+        }
+    }
 }
 
 static void trimStringInplace(char* s)

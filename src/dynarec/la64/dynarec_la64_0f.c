@@ -901,7 +901,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             GETED(0);
-            if (box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 // avoid noise during test
                 CLEAR_FLAGS(x3);
             }
