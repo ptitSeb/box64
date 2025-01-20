@@ -45,7 +45,7 @@ jobs:
             os: ubuntu-22.04-arm
           - platform: RISCV
             os: ubuntu-22.04-arm
-          - platform: RV3588
+          - platform: RK3588
             os: ubuntu-latest
           - platform: ARM64
             os: ubuntu-latest
