@@ -1000,14 +1000,14 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
 
     uint32_t funct3 = GET_FIELD(inst, 14, 12);
     uint32_t opcode = GET_FIELD(inst, 6, 0);
-    if ((opcode == 0b0100011 || opcode == 0b0100111 /* F */) && (funct3 == 0b010 /* (F)SW */ || funct3 == 0b011 /* (F)SD */)) {
+    if ((opcode == 0b0100011 || opcode == 0b0100111 /* F */) && (funct3 == 0b010 /* (F)SW */ || funct3 == 0b011 /* (F)SD */ || funct3 == 0b001 /* SH */)) {
         int val = (inst >> 20) & 0x1f;
         int dest = (inst >> 15) & 0x1f;
         int64_t imm = (GET_FIELD(inst, 31, 25) << 5) | (GET_FIELD(inst, 11, 7));
         imm = SIGN_EXT(imm, 12);
         volatile uint8_t *addr = (void *)(p->uc_mcontext.__gregs[dest] + imm);
         uint64_t value = opcode == 0b0100011 ? p->uc_mcontext.__gregs[val] : p->uc_mcontext.__fpregs.__d.__f[val<<1];
-        for(int i = 0; i < (funct3 == 0b010 ? 4 : 8); ++i) {
+        for(int i = 0; i < (funct3 == 0b010 ? 4 : funct3 == 0b011 ? 8 : 2); ++i) {
             addr[i] = (value >> (i * 8)) & 0xff;
         }
         p->uc_mcontext.__gregs[0] += 4; // pc += 4
