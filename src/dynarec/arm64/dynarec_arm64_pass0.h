@@ -9,14 +9,14 @@
 #define MAYSETFLAGS()   dyn->insts[ninst].x64.may_set = 1
 #define READFLAGS(A)    \
         dyn->insts[ninst].x64.use_flags = A; dyn->f.dfnone = 1;\
-        if(!box64_dynarec_df && (A)&X_PEND) dyn->insts[ninst].x64.use_flags = X_ALL; \
+        if(!BOX64ENV(dynarec_df) && (A)&X_PEND) dyn->insts[ninst].x64.use_flags = X_ALL; \
         dyn->f.pending=SF_SET
 #define SETFLAGS(A,B)   \
         dyn->insts[ninst].x64.set_flags = A;    \
         dyn->insts[ninst].x64.state_flags = (B)&~SF_DF;  \
         dyn->f.pending=(B)&SF_SET_PENDING;      \
         dyn->f.dfnone=((B)&SF_SET)?(((B)==SF_SET_NODF)?0:1):0;  \
-        if(!box64_dynarec_df) {dyn->f.dfnone=1; dyn->f.pending=0; if((A)==SF_PENDING){printf_log(LOG_INFO, "Warning, some opcode use SF_PENDING, forcing deferedflags ON\n"); box64_dynarec_df=1; }}
+        if(!BOX64ENV(dynarec_df)) {dyn->f.dfnone=1; dyn->f.pending=0; if((A)==SF_PENDING){printf_log(LOG_INFO, "Warning, some opcode use SF_PENDING, forcing deferedflags ON\n"); SET_BOX64ENV(dynarec_df, 1); }}
 #define EMIT(A)         dyn->native_size+=4
 #define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C; dyn->insts[ninst].x64.jmp_insts = 0
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
@@ -39,7 +39,7 @@
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
-        if(BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || box64_dynarec_missing==1) {\
+        if(BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing)==1) {\
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
         (void*)ip, rex.is32bits?"x86 ":"x64 ",\
         PKip(0),                        \

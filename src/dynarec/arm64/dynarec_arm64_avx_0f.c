@@ -568,7 +568,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                         INST_NAME("VLDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if(box64_sse_flushto0) {
+                        if(BOX64ENV(sse_flushto0)) {
                             MRS_fpcr(x1);                   // get fpscr
                             LSRw_IMM(x3, ed, 15);           // get FZ bit
                             BFIw(x1, x3, 24, 1);            // inject FZ bit

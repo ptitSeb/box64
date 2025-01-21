@@ -24,7 +24,7 @@ const char* notifyName = "libnotify.so.4";
 
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

@@ -1599,7 +1599,7 @@ struct i386_dirent {
 
 EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 {
-    if (fix_64bit_inodes)
+    if (BOX64ENV(fix_64bit_inodes))
     {
         struct dirent64 *dp64 = readdir64((DIR *)dirp);
         if (!dp64) return NULL;
@@ -1627,7 +1627,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** result)
 {
     struct dirent64 d64, *dp64;
-    if (fix_64bit_inodes && (sizeof(d64.d_name) > 1))
+    if (BOX64ENV(fix_64bit_inodes) && (sizeof(d64.d_name) > 1))
     {
         static iFppp_t f = NULL;
         if(!f) {
@@ -1781,11 +1781,11 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fxsr cpuid pclmulqdq cx16 aes movbe pni "\
                       "sse4_1%s%s%s lzcnt popcnt%s%s%s%s%s%s%s%s%s\n", 
-                      box64_sse42?" sse4_2":"", box64_avx?" avx":"", box64_shaext?"sha_ni":"", 
-                      box64_avx?" bmi1":"", box64_avx2?" avx2":"", box64_avx?" bmi2":"", 
-                      box64_avx2?" vaes":"", box64_avx2?" fma":"",
-                      box64_avx?" xsave":"", box64_avx?" f16c":"", box64_avx2?" randr":"",
-                      box64_avx2?" adx":""
+                      BOX64ENV(sse42)?" sse4_2":"", BOX64ENV(avx)?" avx":"", BOX64ENV(shaext)?"sha_ni":"", 
+                      BOX64ENV(avx)?" bmi1":"", BOX64ENV(avx2)?" avx2":"", BOX64ENV(avx)?" bmi2":"", 
+                      BOX64ENV(avx2)?" vaes":"", BOX64ENV(avx2)?" fma":"",
+                      BOX64ENV(avx)?" xsave":"", BOX64ENV(avx)?" f16c":"", BOX64ENV(avx2)?" randr":"",
+                      BOX64ENV(avx2)?" adx":""
                       );
         P;
         sprintf(buff, "address sizes\t: 48 bits physical, 48 bits virtual\n");
@@ -2273,14 +2273,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         if(my_environ!=my_context->envv) envv = my_environ;
         if(my__environ!=my_context->envv) envv = my__environ;
         if(my___environ!=my_context->envv) envv = my___environ;
-/*if(!envv && n>2 && strstr(newargv[2], "fxc.exe")) {
-setenv("BOX64_LOG", "2", 1);
-setenv("BOX64_TRACE_FILE", "/home/seb/trace-%pid.txt", 1);
-setenv("BOX64_TRACE","server_init_process_done", 1);
-setenv("BOX64_DYNAREC", "0", 1);
-setenv("WINEDEBUG", "+server", 1);
-//setenv("BOX64_DYNAREC", "0", 1);
-}*/
+
         int ret;
         if(envv)
             ret = execve(newargv[0], (char* const*)newargv, envv);
@@ -2991,7 +2984,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     if((ret==MAP_FAILED && (emu || box64_is32bits)) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "%s (%d)\n", strerror(errno), errno);}
     if(((ret!=MAP_FAILED) && (emu || box64_is32bits)) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     #ifdef DYNAREC
-    if(box64_dynarec && ret!=MAP_FAILED) {
+    if(BOX64ENV(dynarec) && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
         {
             // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
@@ -3013,7 +3006,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             }
         }
         static int unityplayer_detected = 0;
-        if(fd>0 && box64_unityplayer && !unityplayer_detected) {
+        if(fd>0 && BOX64ENV(unityplayer) && !unityplayer_detected) {
             char filename[4096];
             char buf[128];
             sprintf(buf, "/proc/self/fd/%d", fd);
@@ -3051,19 +3044,19 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
             if(old_size && old_size<new_size) {
                 setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
                 #ifdef DYNAREC
-                if(box64_dynarec)
+                if(BOX64ENV(dynarec))
                     addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
                 #endif
             } else if(old_size && new_size<old_size) {
                 freeProtection((uintptr_t)ret+new_size, old_size-new_size);
                 #ifdef DYNAREC
-                if(box64_dynarec)
+                if(BOX64ENV(dynarec))
                     cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
                 #endif
             } else if(!old_size) {
                 setProtection_mmap((uintptr_t)ret, new_size, prot);
                 #ifdef DYNAREC
-                if(box64_dynarec)
+                if(BOX64ENV(dynarec))
                     addDBFromAddressRange((uintptr_t)ret, new_size);
                 #endif
             }
@@ -3075,13 +3068,13 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
             ) {
                 freeProtection((uintptr_t)old_addr, old_size);
                 #ifdef DYNAREC
-                if(box64_dynarec)
+                if(BOX64ENV(dynarec))
                     cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
                 #endif
             }
             setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
             #ifdef DYNAREC
-            if(box64_dynarec)
+            if(BOX64ENV(dynarec))
                 addDBFromAddressRange((uintptr_t)ret, new_size);
             #endif
         }
@@ -3096,7 +3089,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     int ret = box_munmap(addr, length);
     int e = errno;
     #ifdef DYNAREC
-    if(!ret && box64_dynarec && length) {
+    if(!ret && BOX64ENV(dynarec) && length) {
         cleanDBFromAddressRange((uintptr_t)addr, length, 1);
     }
     #endif
@@ -3115,7 +3108,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box64_dynarec && !ret && len) {
+    if(BOX64ENV(dynarec) && !ret && len) {
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else

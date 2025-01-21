@@ -195,7 +195,7 @@ EXPORT uint32_t my_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, uin
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT         \

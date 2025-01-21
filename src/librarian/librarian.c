@@ -361,7 +361,7 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_lib
             DecRefCount(&needed->libs[n-i-1], emu);
     }
     // all done
-    if(allow_missing_libs) return 0;
+    if(BOX64ENV(allow_missing_libs)) return 0;
     return ret;
 }
 EXPORTDYN
@@ -585,13 +585,13 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     }
     #ifndef STATICBUILD
     // some special case symbol, defined inside box64 itself
-    if(!strcmp(name, "gdk_display") && !box64_nogtk) {
+    if(!strcmp(name, "gdk_display") && !BOX64ENV(nogtk)) {
         *start = (uintptr_t)my_GetGTKDisplay();
         *end = *start+sizeof(void*);
         printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
         return 1;
     }
-    if(!strcmp(name, "g_threads_got_initialized") && !box64_nogtk) {
+    if(!strcmp(name, "g_threads_got_initialized") && !BOX64ENV(nogtk)) {
         *start = (uintptr_t)my_GetGthreadsGotInitialized();
         *end = *start+sizeof(int);
         printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
@@ -658,14 +658,14 @@ int GetGlobalWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* star
     }
     #ifndef STATICBUILD
     // some special case symbol, defined inside box64 itself
-    if(!strcmp(name, "gdk_display") && !box64_nogtk) {
+    if(!strcmp(name, "gdk_display") && !BOX64ENV(nogtk)) {
         *start = (uintptr_t)my_GetGTKDisplay();
         *end = *start+sizeof(void*);
         if(elfsym) *elfsym = NULL;
         printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
         return 1;
     }
-    if(!strcmp(name, "g_threads_got_initialized") && !box64_nogtk) {
+    if(!strcmp(name, "g_threads_got_initialized") && !BOX64ENV(nogtk)) {
         *start = (uintptr_t)my_GetGthreadsGotInitialized();
         *end = *start+sizeof(int);
         if(elfsym) *elfsym = NULL;

@@ -1314,7 +1314,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GETED(0);
                     emu->mxcsr.x32 = ED->dword[0];
                     #ifndef TEST_INTERPRETER
-                    if(box64_sse_flushto0)
+                    if(BOX64ENV(sse_flushto0))
                         applyFlushTo0(emu);
                     #endif
                     break;
@@ -1337,7 +1337,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 case 7:                 /* CLFLUSH Ed */
                     _GETED(0);
                     #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(box64_dynarec)
+                    if(BOX64ENV(dynarec))
                         cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
                     #endif
                     break;

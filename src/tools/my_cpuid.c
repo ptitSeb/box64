@@ -297,18 +297,18 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<3      // Monitor/MWait (priviledge instructions)
                     | (BOX64ENV(cputype)?0:1)<<5      // VMX  //is that usefull
                     | 1<<9      // SSSE3
-                    | box64_avx2<<12     // fma
+                    | BOX64ENV(avx2)<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
-                    | box64_sse42<<20     // SSE4_2 can be hiden
+                    | BOX64ENV(sse42)<<20     // SSE4_2 can be hiden
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
-                    | box64_avx<<26 // xsave
-                    | box64_avx<<27 // osxsave
-                    | box64_avx<<28 // AVX
-                    | box64_avx<<29 // F16C
-                    | box64_avx2<<30     // RDRAND
+                    | BOX64ENV(avx)<<26 // xsave
+                    | BOX64ENV(avx)<<27 // osxsave
+                    | BOX64ENV(avx)<<28 // AVX
+                    | BOX64ENV(avx)<<29 // F16C
+                    | BOX64ENV(avx2)<<30     // RDRAND
                     | 0<<31     // Hypervisor guest running
                     ; 
             break;
@@ -381,23 +381,23 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             if(R_ECX==0) {
                 R_EAX = 0;
                 R_EBX = 
-                        box64_avx<<3 |  // BMI1 
-                        box64_avx2<<5 |  //AVX2
+                        BOX64ENV(avx)<<3 |  // BMI1 
+                        BOX64ENV(avx2)<<5 |  //AVX2
                         (BOX64ENV(cputype)?0:1)<<6 | // FDP_EXCPTN_ONLY
                         1<<7 | // SMEP
-                        box64_avx2<<8 | //BMI2
+                        BOX64ENV(avx2)<<8 | //BMI2
                         (BOX64ENV(cputype)?0:1)<<9 |    // Enhanced REP MOVSB   // is it a good idea?
                         1<<10 | //INVPCID (priviledge instruction
                         (BOX64ENV(cputype)?0:1)<<13 | // Deprecates FPU CS and FPU DS
                         0<<18 | // RDSEED
-                        box64_avx2<<19 | //ADX
+                        BOX64ENV(avx2)<<19 | //ADX
                         1<<23 | // CLFLUSHOPT
                         1<<24 | // CLWB
-                        box64_shaext<<29|  // SHA extension
+                        BOX64ENV(shaext)<<29|  // SHA extension
                         0;
                 R_RCX = 
-                        box64_avx<<9   | //VAES
-                        box64_avx2<<10 | //VPCLMULQDQ.
+                        BOX64ENV(avx)<<9   | //VAES
+                        BOX64ENV(avx2)<<10 | //VPCLMULQDQ.
                         1<<22 | // RDPID
                         0;
                 R_RDX = 0;

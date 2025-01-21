@@ -734,7 +734,7 @@ static register_mapping_t register_mappings[] = {
 
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
-    if (!BOX64ENV(dynarec_dump) && !box64_dynarec_gdbjit && !box64_dynarec_perf_map) return;
+    if (!BOX64ENV(dynarec_dump) && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
     static char buf[512];
     int length = sprintf(buf, "barrier=%d state=%d/%d/%d(%d:%d->%d:%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d)",
@@ -834,9 +834,9 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             (BOX64ENV(dynarec_dump) > 1) ? "\e[32m" : "",
             (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (BOX64ENV(dynarec_dump) > 1) ? "\e[m" : "");
     }
-    if (box64_dynarec_gdbjit) {
+    if (BOX64ENV(dynarec_gdbjit)) {
         static char buf2[512];
-        if (box64_dynarec_gdbjit > 1) {
+        if (BOX64ENV(dynarec_gdbjit) > 1) {
             sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
             dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
         }
@@ -849,7 +849,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         }
         dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), inst_name);
     }
-    if (box64_dynarec_perf_map && box64_dynarec_perf_map_fd != -1) {
+    if (BOX64ENV(dynarec_perf_map) && BOX64ENV(dynarec_perf_map_fd) != -1) {
         writePerfMap(dyn->insts[ninst].x64.addr, dyn->native_start + dyn->insts[ninst].address, dyn->insts[ninst].size / 4, name);
     }
 }

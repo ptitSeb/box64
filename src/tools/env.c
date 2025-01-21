@@ -51,22 +51,56 @@ static void applyCustomRules()
                 box64env.dynarec_test = 0;
             }
         }
+    }
 
-        if (box64env.dynarec_test) {
-            SET_BOX64ENV(dynarec_fastnan, 0);
-            SET_BOX64ENV(dynarec_fastround, 0);
-            SET_BOX64ENV(dynarec_x87double, 1);
-            SET_BOX64ENV(dynarec_div0, 1);
-            SET_BOX64ENV(dynarec_callret, 0);
-#if defined(RV64) || defined(LA64)
-            SET_BOX64ENV(dynarec_nativeflags, 0);
-#endif
+    if (box64env.is_nodynarec_overridden) {
+        if(box64env.nodynarec) {
+            if (strchr(box64env.nodynarec,'-')) {
+                if(sscanf(box64env.nodynarec, "%ld-%ld", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2) {
+                    if(sscanf(box64env.nodynarec, "0x%lX-0x%lX", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2)
+                        sscanf(box64env.nodynarec, "%lx-%lx", &box64env.nodynarec_start, &box64env.nodynarec_end);
+                }
+            }
         }
+    }
+
+    if (box64env.dynarec_test) {
+        SET_BOX64ENV(dynarec_fastnan, 0);
+        SET_BOX64ENV(dynarec_fastround, 0);
+        SET_BOX64ENV(dynarec_x87double, 1);
+        SET_BOX64ENV(dynarec_div0, 1);
+        SET_BOX64ENV(dynarec_callret, 0);
+#if defined(RV64) || defined(LA64)
+        SET_BOX64ENV(dynarec_nativeflags, 0);
+#endif
     }
 
     if (box64env.maxcpu == 0 || (!box64_wine && box64env.new_maxcpu < box64env.maxcpu)) {
         box64env.maxcpu = box64env.new_maxcpu;
     }
+
+    if (box64env.dynarec_perf_map) {
+        char pathname[32];
+        snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
+        box64env.dynarec_perf_map_fd = open(pathname, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+    }
+    if (!box64env.libgl) {
+        const char *p = getenv("SDL_VIDEO_GL_DRIVER");
+        if(p) SET_BOX64ENV(libgl, box_strdup(p));
+    }
+    if (box64env.avx == 2) {
+        box64env.avx = 1;
+        box64env.avx2 = 1;
+    }
+
+    if (box64env.exit) exit(0);
+
+    if (box64env.env) setenv("BOX64_ENV", 1, 1);
+    if (box64env.env1) setenv("BOX64_ENV1", 1, 1);
+    if (box64env.env2) setenv("BOX64_ENV2", 1, 1);
+    if (box64env.env3) setenv("BOX64_ENV3", 1, 1);
+    if (box64env.env4) setenv("BOX64_ENV4", 1, 1);
+    if (box64env.env5) setenv("BOX64_ENV5", 1, 1);
 }
 
 static void trimStringInplace(char* s)

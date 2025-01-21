@@ -2001,14 +2001,8 @@ void my_reserveHighMem()
 
 void reserveHighMem()
 {
-    char* p = getenv("BOX64_RESERVE_HIGH");
-    if(!box64_is32bits)
-    #if 0//def ADLINK
-        if(p && p[0]=='0')
-    #else
-        if(!p || p[0]=='0')
-    #endif
-            return; // don't reserve by default
+    if(!box64_is32bits && !BOX64ENV(reserve_high))
+        return; // don't reserve by default on 64bits
     my_reserveHighMem();
 }
 
@@ -2028,7 +2022,7 @@ void init_custommem_helper(box64context_t* ctx)
     sigfillset(&critical_prot);
     init_mutexes();
 #ifdef DYNAREC
-    if(box64_dynarec) {
+    if(BOX64ENV(dynarec)) {
         #ifdef JMPTABL_SHIFT4
         for(int i=0; i<(1<<JMPTABL_SHIFT4); ++i)
             box64_jmptbl4[i] = box64_jmptbldefault3;
@@ -2097,7 +2091,7 @@ void fini_custommem_helper(box64context_t *ctx)
         return;
     inited = 0;
 #ifdef DYNAREC
-    if(box64_dynarec) {
+    if(BOX64ENV(dynarec)) {
         dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
         mmaplist_t* head = mmaplist;
         mmaplist = NULL;

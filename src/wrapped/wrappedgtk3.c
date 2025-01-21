@@ -825,7 +825,7 @@ EXPORT void my3_gtk_list_box_set_header_func(x64emu_t* emu, void* box, void* f, 
 
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define ALTMY my3_

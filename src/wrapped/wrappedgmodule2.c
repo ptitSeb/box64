@@ -18,7 +18,7 @@ const char* gmodule2Name = "libgmodule-2.0.so.0";
 #define LIBNAME gmodule2
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define NEEDED_LIBS "libglib-2.0.so.0"

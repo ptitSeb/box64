@@ -18,7 +18,7 @@ const char* gsttagName = "libgsttag-1.0.so.0";
 #define LIBNAME gsttag
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

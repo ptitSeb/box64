@@ -184,7 +184,7 @@ void DynaRun(x64emu_t* emu)
             emu->flags.need_jmpbuf = 0;
 
 #ifdef DYNAREC
-        if(!box64_dynarec)
+        if(!BOX64ENV(dynarec))
 #endif
             Run(emu, 0);
 #ifdef DYNAREC
@@ -221,7 +221,7 @@ void DynaRun(x64emu_t* emu)
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
-                if(!box64_dynarec_df) {
+                if(!BOX64ENV(dynarec_df)) {
                     CHECK_FLAGS(emu);
                 }
                 // block is here, let's run it!

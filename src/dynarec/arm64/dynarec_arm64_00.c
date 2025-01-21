@@ -1010,7 +1010,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -1026,7 +1026,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -1553,7 +1553,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(gd==xRAX) {
                 if (rep == 2) {
                     INST_NAME("PAUSE");
-                    switch (box64_dynarec_pause) {
+                    switch (BOX64ENV(dynarec_pause)) {
                         case 1: YIELD; break;
                         case 2: WFI; break;
                         case 3:
@@ -1730,7 +1730,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
-                if(box64_dynarec_safeflags>1)
+                if(BOX64ENV(dynarec_safeflags)>1)
                     MAYSETFLAGS();
                 SMREAD();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -1772,7 +1772,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
-                if(box64_dynarec_safeflags>1)
+                if(BOX64ENV(dynarec_safeflags)>1)
                     MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
@@ -1914,7 +1914,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
-                if(box64_dynarec_safeflags>1)
+                if(BOX64ENV(dynarec_safeflags)>1)
                     MAYSETFLAGS();
                 SMREAD();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -1953,7 +1953,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
-                if(box64_dynarec_safeflags>1)
+                if(BOX64ENV(dynarec_safeflags)>1)
                     MAYSETFLAGS();
                 SMREAD();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -2283,7 +2283,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC2:
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
-            if(box64_dynarec_safeflags) {
+            if(BOX64ENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND);  // lets play safe here too
             }
             fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
@@ -2295,7 +2295,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC3:
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
-            if(box64_dynarec_safeflags) {
+            if(BOX64ENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
@@ -2573,7 +2573,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 jump_to_epilog(dyn, 0, xRIP, ninst);
             } else if(u8==0x03) {
                 INST_NAME("INT 3");
-                if(box64_dynarec_safeflags>1) {
+                if(BOX64ENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -2587,7 +2587,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 *ok = 0;
             } else {
                 INST_NAME("INT n");
-                if(box64_dynarec_safeflags>1) {
+                if(BOX64ENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -2748,7 +2748,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("ROL Eb, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
@@ -2778,7 +2778,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("ROR Eb, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
@@ -2808,7 +2808,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Eb, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
@@ -2820,7 +2820,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Eb, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
@@ -2832,7 +2832,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("SHL Eb, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
@@ -2845,7 +2845,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("SHR Eb, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
@@ -2858,7 +2858,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("SAR Eb, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
@@ -2876,7 +2876,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("ROL Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2911,7 +2911,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("ROR Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2947,7 +2947,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2965,7 +2965,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2982,7 +2982,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("SHL Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -3000,7 +3000,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("SHR Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -3018,7 +3018,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("SAR Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if(box64_dynarec_safeflags>1)
+                    if(BOX64ENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -3152,7 +3152,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if (rex.is32bits && BOX64ENV(ignoreint3)) {
                 F8;
             } else {
-                if(box64_dynarec_safeflags>1) {
+                if(BOX64ENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -3246,7 +3246,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     PUSH1z(x2);
                     break;
                 default:
-                    if((box64_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x64.set_flags)) {
+                    if((BOX64ENV(dynarec_safeflags)>1) || (ninst && dyn->insts[ninst-1].x64.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
@@ -3342,7 +3342,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, EAX")));
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else {
-                if(box64_dynarec_safeflags>1) {
+                if(BOX64ENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -3362,7 +3362,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF1:
             INST_NAME("INT1");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -3378,7 +3378,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xF4:
             INST_NAME("HLT");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -3812,7 +3812,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME(opcode==0xFA?"CLI":"STI");
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else {
-                if(box64_dynarec_safeflags>1) {
+                if(BOX64ENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -3875,7 +3875,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((box64_dynarec_safeflags>1) ||
+                    PASS2IF((BOX64ENV(dynarec_safeflags)>1) ||
                         ((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {

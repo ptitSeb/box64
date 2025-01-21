@@ -1206,7 +1206,6 @@ int printFunctionAddr(uintptr_t nextaddr, const char* text)
 }
 
 #ifdef HAVE_TRACE
-extern uint64_t start_cnt;
 #define PK(a)     (*(uint8_t*)(ip+a))
 #define PKS(a)    (*(int8_t*)(ip+a))
 #define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
@@ -1215,8 +1214,8 @@ extern uint64_t start_cnt;
 void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
 {
     int is32bits = (emu->segs[_CS]==0x23);
-    if(start_cnt) --start_cnt;
-    if(!start_cnt && my_context->dec && (
+    if(BOX64ENV(start_cnt)) SET_BOX64ENV(start_cnt, BOX64ENV(start_cnt)-1);
+    if(!BOX64ENV(start_cnt) && my_context->dec && (
             (trace_end == 0) 
             || ((ip >= trace_start) && (ip < trace_end))) ) {
         int tid = syscall(SYS_gettid);

@@ -1361,7 +1361,7 @@ EXPORT int my_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db,
 EXPORT int my_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
-    if(!ret && name && !strcmp(name, "GLX") && box64_x11glx) {
+    if(!ret && name && !strcmp(name, "GLX") && BOX64ENV(x11glx)) {
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;
@@ -1619,7 +1619,7 @@ EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, si
 #define CUSTOM_INIT                 \
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XLockMutex_fn"), 0, "_XLockMutex_fn"); \
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \
-    if(box64_x11threads) my->XInitThreads();
+    if(BOX64ENV(x11threads)) my->XInitThreads();
 
 #define NEEDED_LIBS "libxcb.so.1"
 

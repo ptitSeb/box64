@@ -423,12 +423,6 @@ Detect MonoBleedingEdge and apply conservative settings.
  * 0 : Do not detect MonoBleedingEdge.
  * 1 : Detect MonoBleedingEdge and apply BIGBLOCK=0 STRONGMEM=1 when detected. (default)
 
-#### BOX64_DYNAREC_JVM *
-
-Detect libjvm and apply conservative settings. Obsolete, use BOX64_JVM instead.
- * 0 : Do not detect libjvm.
- * 1 : Detect libjvm and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 when detected. (default)
-
 #### BOX64_LIBCEF *
 
 Detect libcef and apply malloc_hack settings.

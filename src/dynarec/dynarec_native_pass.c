@@ -137,7 +137,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             MESSAGE(LOG_DUMP, "----------\n");
         }
 #ifdef HAVE_TRACE
-        else if(my_context->dec && box64_dynarec_trace) {
+        else if(my_context->dec && BOX64ENV(dynarec_trace)) {
         if((trace_end == 0)
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
@@ -328,7 +328,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP == 0
         memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
         if((ok>0) && (((BOX64ENV(dynarec_bigblock)<stopblock) && !isJumpTableDefault64((void*)addr))
-            || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
+            || (addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end))))
         #else
         if((ok>0) && (ninst==dyn->size))
         #endif
@@ -346,7 +346,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             #endif
             MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size);
-            if(!BOX64ENV(dynarec_dump) && addr>=box64_nodynarec_start && addr<box64_nodynarec_end)
+            if(!BOX64ENV(dynarec_dump) && addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end))
                 dynarec_log(LOG_INFO, "Stopping block in no-dynarec zone\n");
             --ninst;
             if(!dyn->insts[ninst].x64.barrier) {

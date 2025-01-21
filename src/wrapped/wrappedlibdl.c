@@ -354,7 +354,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     if(box64_is32bits && handle==(void*)0xffffffff)
         handle = (void*)~0LL;
     CLEARERR
-    printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, rsymbol, dlsym_error?"":"\n");
+    printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, rsymbol, BOX64ENV(dlsym_error)?"":"\n");
     if(handle==NULL) {
         // special case, look globably
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) {
@@ -522,7 +522,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     if(box64_is32bits && handle==(void*)0xffffffff)
         handle = (void*)~0LL;
     CLEARERR
-    printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", dlsym_error?"":"\n");
+    printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", BOX64ENV(dlsym_error)?"":"\n");
     if(handle==NULL) {
         // special case, look globably
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername, 0, NULL)) {

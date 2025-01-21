@@ -55,27 +55,21 @@ path_collection_t box64_addlibs = {0};
 int box64_is32bits = 0;
 int box64_rdtsc = 0;
 uint8_t box64_rdtsc_shift = 0;
-
-
-char* box64_insert_args = NULL;
-char* box64_new_args = NULL;
-
+int box64_mapclean = 0;
+int box64_zoom = 0;
+int box64_steam = 0;
+int box64_steamcmd = 0;
+int box64_wine = 0;
+int box64_musl = 0;
+char* box64_custom_gstreamer = NULL;
+int box64_tcmalloc_minimal = 0;
+uintptr_t fmod_smc_start = 0;
+uintptr_t fmod_smc_end = 0;
+uint32_t default_gs = 0x53;
+uint32_t default_fs = 0;
+int box64_isglibc234 = 0;
 
 #ifdef DYNAREC
-int box64_dynarec = 1;
-int box64_dynarec_pause = 0;
-int box64_dynarec_safeflags = 1;
-int box64_dynarec_bleeding_edge = 1;
-int box64_dynarec_tbb = 1;
-int box64_dynarec_wait = 1;
-int box64_dynarec_missing = 0;
-int box64_dynarec_aligned_atomics = 0;
-uintptr_t box64_nodynarec_start = 0;
-uintptr_t box64_nodynarec_end = 0;
-int box64_dynarec_gdbjit = 0;
-int box64_dynarec_df = 1;
-int box64_dynarec_perf_map = 0;
-int box64_dynarec_perf_map_fd = -1;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -113,72 +107,12 @@ int la64_lam_bh = 0;
 int la64_lamcas = 0;
 int la64_scq = 0;
 #endif
-#else   //DYNAREC
-int box64_dynarec = 0;
 #endif
-int box64_libcef = 1;
-int box64_jvm = 1;
-int box64_unityplayer = 1;
-int box64_sdl2_jguid = 0;
-int dlsym_error = 0;
+
 #ifdef HAVE_TRACE
-int trace_xmm = 0;
-int trace_emm = 0;
-int trace_regsdiff = 0;
-uint64_t start_cnt = 0;
 uintptr_t trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
-char* trace_init = NULL;
-char* box64_trace = NULL;
-#ifdef DYNAREC
-int box64_dynarec_trace = 0;
 #endif
-#endif
-int box64_x11threads = 0;
-int box64_x11glx = 1;
-int allow_missing_libs = 0;
-int box64_prefer_emulated = 0;
-int box64_prefer_wrapped = 0;
-int box64_wrap_egl = 0;
-int box64_sse_flushto0 = 0;
-int box64_x87_no80bits = 0;
-int box64_sync_rounding = 0;
-int box64_shaext = 1;
-int box64_sse42 = 1;
-#if defined(DYNAREC) && defined(ARM64)
-int box64_avx = 1;
-int box64_avx2 = 1;
-#else
-int box64_avx = 0;
-int box64_avx2 = 0;
-#endif
-int fix_64bit_inodes = 0;
-int box64_dummy_crashhandler = 1;
-int box64_mapclean = 0;
-int box64_zoom = 0;
-int box64_steam = 0;
-int box64_steamcmd = 0;
-int box64_wine = 0;
-int box64_musl = 0;
-int box64_nopulse = 0;
-int box64_nogtk = 0;
-int box64_novulkan = 0;
-int box64_showsegv = 0;
-int box64_showbt = 0;
-int box64_isglibc234 = 0;
-#ifdef BAD_SIGNAL
-int box64_futex_waitv = 0;
-#else
-int box64_futex_waitv = 1;
-#endif
-char* box64_libGL = NULL;
-char* box64_custom_gstreamer = NULL;
-uintptr_t fmod_smc_start = 0;
-uintptr_t fmod_smc_end = 0;
-uint32_t default_gs = 0x53;
-uint32_t default_fs = 0;
-int jit_gdb = 0;
-int box64_tcmalloc_minimal = 0;
 
 FILE* ftrace = NULL;
 char* ftrace_name = NULL;
@@ -186,7 +120,7 @@ int ftrace_has_pid = 0;
 
 void openFTrace(const char* newtrace, int reopen)
 {
-    const char* p = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
+    const char* p = newtrace?newtrace:BOX64ENV(trace_file);
     #ifndef MAX_PATH
     #define MAX_PATH 4096
     #endif
@@ -296,17 +230,18 @@ void my_child_fork()
 
 const char* getCpuName();
 int getNCpu();
+
 #ifdef DYNAREC
 void GatherDynarecExtensions()
 {
 #ifdef ARM64
     unsigned long hwcap = real_getauxval(AT_HWCAP);
-    if(!hwcap)  // no HWCap: provide a default...
+    if(!hwcap)
         hwcap = HWCAP_ASIMD;
     // first, check all needed extensions, lif half, edsp and fastmult
     if((hwcap&HWCAP_ASIMD) == 0) {
         printf_log(LOG_INFO, "Missing ASMID cpu support, disabling Dynarec\n");
-        box64_dynarec=0;
+        SET_BOX64ENV(dynarec, 0);
         return;
     }
     if(hwcap&HWCAP_CRC32)
@@ -386,7 +321,7 @@ void GatherDynarecExtensions()
             printf_log(LOG_INFO, "with extension LSX LASX");
         } else {
             printf_log(LOG_INFO, "\nMissing LSX and/or LASX extension support, disabling Dynarec\n");
-            box64_dynarec = 0;
+            SET_BOX64ENV(dynarec, 0);
             return;
         }
 
@@ -501,7 +436,7 @@ void LoadLogEnv()
 {
     ftrace = stdout;
 
-    // grab BOX64_TRACE_FILE envvar, and change %pid to actual pid is present in the name
+    // grab BOX64ENV(trace_file), and change %pid to actual pid is present in the name
     openFTrace(NULL, 0);
 
     if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace==stdout)
@@ -518,386 +453,6 @@ void LoadLogEnv()
 
     if (!BOX64ENV(nobanner) && BOX64ENV(dump))
         printf_log(LOG_INFO, "Elf Dump if ON\n");
-#ifdef DYNAREC
-    #ifdef ARM64
-    // unaligned atomic (with restriction) is supported in hardware
-    /*if(arm64_uscat)
-        box64_dynarec_aligned_atomics = 1;*/ // the unaligned support is not good enough for x86 emulation, so diabling
-    #endif
-    p = getenv("BOX64_DYNAREC");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec = p[0]-'0';
-        }
-        printf_log(LOG_INFO, "Dynarec is %s\n", box64_dynarec?"on":"off");
-    }
-#ifdef ARM64
-    p = getenv("BOX64_DYNAREC_PAUSE");
-    if (p) {
-        if (strlen(p) == 1) {
-            if (p[0] >= '0' && p[0] <= '3')
-                box64_dynarec_pause = p[0] - '0';
-        }
-        if (box64_dynarec_pause)
-            printf_log(LOG_INFO, "Dynarec will use %s to emulate pause instruction\n",
-                box64_dynarec_pause == 1 ? "yield" : (box64_dynarec_pause == 2 ? "wfi" : "wfe"));
-        else
-            printf_log(LOG_INFO, "Dynarec will generate nothing for the pause instuction\n");
-    }
-#endif
-    p = getenv("BOX64_DYNAREC_SAFEFLAGS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
-                box64_dynarec_safeflags = p[0]-'0';
-        }
-        if(!box64_dynarec_safeflags)
-            printf_log(LOG_INFO, "Dynarec will not play it safe with x64 flags\n");
-        else
-            printf_log(LOG_INFO, "Dynarec will play %s safe with x64 flags\n", (box64_dynarec_safeflags==1)?"moderatly":"it");
-    }
-    p = getenv("BOX64_DYNAREC_BLEEDING_EDGE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_bleeding_edge = p[0]-'0';
-        }
-        if(!box64_dynarec_bleeding_edge)
-            printf_log(LOG_INFO, "Dynarec will not detect MonoBleedingEdge\n");
-    }
-    p = getenv("BOX64_DYNAREC_JVM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_jvm = p[0]-'0';
-        }
-        if(!box64_jvm)
-            printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
-    }
-    p = getenv("BOX64_DYNAREC_TBB");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_tbb = p[0]-'0';
-        }
-        if(!box64_dynarec_tbb)
-            printf_log(LOG_INFO, "Dynarec will not detect libtbb\n");
-    }
-    p = getenv("BOX64_DYNAREC_WAIT");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_wait = p[0]-'0';
-        }
-        if(!box64_dynarec_wait)
-            printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
-    }
-    p = getenv("BOX64_DYNAREC_GDBJIT");
-    if (p) {
-        if (strlen(p) == 1) {
-            if (p[0] >= '0' && p[0] <= '2')
-                box64_dynarec_gdbjit = p[0] - '0';
-        }
-        if (box64_dynarec_gdbjit)
-            printf_log(LOG_INFO, "Dynarec will generate debuginfo for gdbjit\n");
-    }
-    p = getenv("BOX64_DYNAREC_PERFMAP");
-    if (p) {
-        if (strlen(p) == 1) {
-            if (p[0] >= '0' && p[0] <= '1')
-                box64_dynarec_perf_map = p[0] - '0';
-        }
-        if (box64_dynarec_perf_map)
-            printf_log(LOG_INFO, "Dynarec will generate map file /tmp/perf-%d.map for Linux perf tool\n", getpid());
-    }
-    p = getenv("BOX64_DYNAREC_DF");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_df = p[0]-'0';
-        }
-        if(!box64_dynarec_df)
-            printf_log(LOG_INFO, "Dynarec will not use/generate defered flags\n");
-    }
-    p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_aligned_atomics = p[0]-'0';
-        }
-        if(box64_dynarec_aligned_atomics)
-            printf_log(LOG_INFO, "Dynarec will generate only aligned atomics code\n");
-    }
-    p = getenv("BOX64_DYNAREC_MISSING");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
-                box64_dynarec_missing = p[0]-'0';
-        }
-        if(box64_dynarec_missing==1)
-            printf_log(LOG_INFO, "Dynarec will print missing opcodes\n");
-        else if (box64_dynarec_missing==2)
-            printf_log(LOG_INFO, "Dynarec will print fallback to scalar opcodes\n");
-    }
-    p = getenv("BOX64_NODYNAREC");
-    if(p) {
-        if (strchr(p,'-')) {
-            if(sscanf(p, "%ld-%ld", &box64_nodynarec_start, &box64_nodynarec_end)!=2) {
-                if(sscanf(p, "0x%lX-0x%lX", &box64_nodynarec_start, &box64_nodynarec_end)!=2)
-                    sscanf(p, "%lx-%lx", &box64_nodynarec_start, &box64_nodynarec_end);
-            }
-            printf_log(LOG_INFO, "No dynablock creation that start in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
-        }
-    }
-
-#endif
-#ifdef HAVE_TRACE
-    p = getenv("BOX64_TRACE_XMM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                trace_xmm = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_TRACE_EMM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                trace_emm = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_TRACE_COLOR");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                trace_regsdiff = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_TRACE_START");
-    if(p) {
-        char* p2;
-        start_cnt = strtoll(p, &p2, 10);
-        printf_log(LOG_INFO, "Will start trace only after %lu instructions\n", start_cnt);
-    }
-#ifdef DYNAREC
-    p = getenv("BOX64_DYNAREC_TRACE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_dynarec_trace = p[0]-'0';
-            if(box64_dynarec_trace)
-                printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
-        }
-    }
-#endif
-#endif
-    // Other BOX64 env. var.
-    p = getenv("BOX64_LIBCEF");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_libcef = p[0]-'0';
-        }
-        if(!box64_libcef)
-            printf_log(LOG_INFO, "BOX64 will not detect libcef\n");
-    }
-    p = getenv("BOX64_JVM");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_jvm = p[0]-'0';
-        }
-        if(!box64_jvm)
-            printf_log(LOG_INFO, "BOX64 will not detect libjvm\n");
-    }
-    p = getenv("BOX64_UNITYPLAYER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_unityplayer = p[0]-'0';
-        }
-        if(!box64_unityplayer)
-            printf_log(LOG_INFO, "BOX64 will not detect UnityPlayer.dll\n");
-    }
-    p = getenv("BOX64_SDL2_JGUID");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_sdl2_jguid = p[0]-'0';
-        }
-        if(!box64_sdl2_jguid)
-            printf_log(LOG_INFO, "BOX64 will workaround the use of  SDL_GetJoystickGUIDInfo with 4 args instead of 5\n");
-    }
-    p = getenv("BOX64_DLSYM_ERROR");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                dlsym_error = p[0]-'0';
-        }
-    }
-    p = getenv("BOX64_X11THREADS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_x11threads = p[0]-'0';
-        }
-        if(box64_x11threads)
-            printf_log(LOG_INFO, "Try to Call XInitThreads if libX11 is loaded\n");
-    }
-    p = getenv("BOX64_X11GLX");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_x11glx = p[0]-'0';
-        }
-        if(box64_x11glx)
-            printf_log(LOG_INFO, "Hack to force libX11 GLX extension present\n");
-        else
-            printf_log(LOG_INFO, "Disabled Hack to force libX11 GLX extension present\n");
-    }
-    p = getenv("BOX64_LIBGL");
-    if(p)
-        box64_libGL = box_strdup(p);
-    if(!box64_libGL) {
-        p = getenv("SDL_VIDEO_GL_DRIVER");
-        if(p)
-            box64_libGL = box_strdup(p);
-    }
-    if(box64_libGL) {
-        printf_log(LOG_INFO, "BOX64 using \"%s\" as libGL.so.1\n", p);
-    }
-    p = getenv("BOX64_ALLOWMISSINGLIBS");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                allow_missing_libs = p[0]-'0';
-        }
-        if(allow_missing_libs)
-            printf_log(LOG_INFO, "Allow missing needed libs\n");
-    }
-    p = getenv("BOX64_CRASHHANDLER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_dummy_crashhandler = p[0]-'0';
-        }
-        if(!box64_dummy_crashhandler)
-            printf_log(LOG_INFO, "Don't use dummy crashhandler lib\n");
-    }
-    p = getenv("BOX64_NOPULSE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_nopulse = p[0]-'0';
-        }
-        if(box64_nopulse)
-            printf_log(LOG_INFO, "Disable the use of pulseaudio libs\n");
-    }
-    p = getenv("BOX64_NOGTK");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_nogtk = p[0]-'0';
-        }
-        if(box64_nogtk)
-            printf_log(LOG_INFO, "Disable the use of wrapped gtk libs\n");
-    }
-    p = getenv("BOX64_NOVULKAN");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_novulkan = p[0]-'0';
-        }
-        if(box64_novulkan)
-            printf_log(LOG_INFO, "Disable the use of wrapped vulkan libs\n");
-    }
-    p = getenv("BOX64_FUTEX_WAITV");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_futex_waitv = p[0]-'0';
-        }
-        #ifdef BAD_SIGNAL
-        if(box64_futex_waitv)
-            printf_log(LOG_INFO, "Enable the use of futex waitv syscall (if available on the system\n");
-        #else
-        if(!box64_futex_waitv)
-            printf_log(LOG_INFO, "Disable the use of futex waitv syscall\n");
-        #endif
-    }
-    p = getenv("BOX64_SHAEXT");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_shaext = p[0]-'0';
-        }
-        if(!box64_shaext)
-            printf_log(LOG_INFO, "Do not expose SHAEXT capabilities\n");
-    }
-    p = getenv("BOX64_SSE42");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_sse42 = p[0]-'0';
-        }
-        if(!box64_sse42)
-            printf_log(LOG_INFO, "Do not expose SSE 4.2 capabilities\n");
-    }
-    p = getenv("BOX64_AVX");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+2)
-                box64_avx = p[0]-'0';
-        }
-        if(box64_avx)
-            printf_log(LOG_INFO, "Will expose AVX capabilities\n");
-        if(box64_avx==2) {
-            box64_avx=1;
-            box64_avx2 = 1;
-            printf_log(LOG_INFO, "Will expose AVX2 capabilities\n");
-        }
-        if(!box64_avx)
-            printf_log(LOG_INFO, "Will not expose AVX capabilities\n");
-        if(!box64_avx2)
-            printf_log(LOG_INFO, "Will not expose AVX2 capabilities\n");
-    }
-    p = getenv("BOX64_FIX_64BIT_INODES");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                fix_64bit_inodes = p[0]-'0';
-        }
-        if(fix_64bit_inodes)
-            printf_log(LOG_INFO, "Fix 64bit inodes\n");
-    }
-    p = getenv("BOX64_JITGDB");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+3)
-                jit_gdb = p[0]-'0';
-        }
-        if(jit_gdb)
-            printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":((jit_gdb==3)?"lldb":"gdb"));
-    }
-    p = getenv("BOX64_SHOWSEGV");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_showsegv = p[0]-'0';
-        }
-        if(box64_showsegv)
-            printf_log(LOG_INFO, "Show Segfault signal even if a signal handler is present\n");
-    }
-    p = getenv("BOX64_SHOWBT");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
-                box64_showbt = p[0]-'0';
-        }
-        if(box64_showbt)
-            printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
-    }
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
@@ -914,12 +469,10 @@ void LoadLogEnv()
     computeRDTSC();
 }
 
-EXPORTDYN
-void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
+static void loadPath(path_collection_t *col, const char* defpath, const char* path)
 {
-    const char* p = getenv(env);
-    if(p) {
-        ParseList(p, col, 1);
+    if(path) {
+        ParseList(path, col, 1);
     } else {
         ParseList(defpath, col, 1);
     }
@@ -1006,25 +559,8 @@ void addNewEnvVar(const char* s)
 EXPORTDYN
 void LoadEnvVars(box64context_t *context)
 {
-    // Check custom env. var. and add them if needed
-    {
-        char* p = getenv("BOX64_ENV");
-        if(p)
-            addNewEnvVar(p);
-        int i = 1;
-        char box64_env[50];
-        do {
-            sprintf(box64_env, "BOX64_ENV%d", i);
-            p = getenv(box64_env);
-            if(p) {
-                addNewEnvVar(p);
-                ++i;
-            }
-        } while(p);
-    }
-
-    if(getenv("BOX64_EMULATED_LIBS")) {
-        char* p = getenv("BOX64_EMULATED_LIBS");
+    if(BOX64ENV(emulated_libs)) {
+        char* p = BOX64ENV(emulated_libs);
         ParseList(p, &context->box64_emulated_libs, 0);
         if (my_context->box64_emulated_libs.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 will force the used of emulated libs for ");
@@ -1033,6 +569,7 @@ void LoadEnvVars(box64context_t *context)
             printf_log(LOG_INFO, "\n");
         }
     }
+
     // Add libssl and libcrypto (and a few others) to prefer the emulated version because multiple versions exist
     AddPath("libssl.so.1", &context->box64_emulated_libs, 0);
     AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
@@ -1045,77 +582,21 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
     AddPath("libtbbmalloc_proxy.so.2", &context->box64_emulated_libs, 0);
 
-    if(getenv("BOX64_SSE_FLUSHTO0")) {
-        if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
-            box64_sse_flushto0 = 1;
-            printf_log(LOG_INFO, "BOX64: Direct apply of SSE Flush to 0 flag\n");
-        }
+    if(BOX64ENV(nosigsegv) && BOX64ENV(nosigsegv)) {
+        context->no_sigsegv = 1;
     }
-    if(getenv("BOX64_X87_NO80BITS")) {
-        if (strcmp(getenv("BOX64_X87_NO80BITS"), "1")==0) {
-            box64_x87_no80bits = 1;
-            printf_log(LOG_INFO, "BOX64: All 80bits x87 long double will be handle as double\n");
-        }
-    }
-    if(getenv("BOX64_SYNC_ROUNDING")) {
-        if (strcmp(getenv("BOX64_SYNC_ROUNDING"), "1")==0) {
-            box64_sync_rounding = 1;
-            printf_log(LOG_INFO, "BOX64: Rounding mode will be synced with fesetround/fegetround\n");
-        }
-    }
-    if(getenv("BOX64_PREFER_WRAPPED")) {
-        if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
-            box64_prefer_wrapped = 1;
-            printf_log(LOG_INFO, "BOX64: Prefering Wrapped libs\n");
-        }
-    }
-    if(getenv("BOX64_PREFER_EMULATED")) {
-        if (strcmp(getenv("BOX64_PREFER_EMULATED"), "1")==0) {
-            box64_prefer_emulated = 1;
-            printf_log(LOG_INFO, "BOX64: Prefering Emulated libs\n");
-        }
-    }
-    if(getenv("BOX64_WRAP_EGL")) {
-        char* p = getenv("BOX64_WRAP_EGL");
-        if (*p>='0' && *p<='1') {
-            box64_wrap_egl = *p - '0';
-            if(box64_wrap_egl) printf_log(LOG_INFO, "BOX64: Prefering Native(Wrapped) EGL/GLESv2\n");
-        }
-    }
-
-    if(getenv("BOX64_NOSIGSEGV")) {
-        if (strcmp(getenv("BOX64_NOSIGSEGV"), "1")==0) {
-            context->no_sigsegv = 1;
-            printf_log(LOG_INFO, "BOX64: Disabling handling of SigSEGV\n");
-        }
-    }
-    if(getenv("BOX64_NOSIGILL")) {
-        if (strcmp(getenv("BOX64_NOSIGILL"), "1")==0) {
-            context->no_sigill = 1;
-            printf_log(LOG_INFO, "BOX64: Disabling handling of SigILL\n");
-        }
+    if(BOX64ENV(nosigill) && BOX64ENV(nosigill)) {
+        context->no_sigill = 1;
     }
     if(BOX64ENV(addlibs)) {
         AddNewLibs(BOX64ENV(addlibs));
     }
-    // check BOX64_PATH and load it
-    LoadEnvPath(&context->box64_path, ".:bin", "BOX64_PATH");
+    loadPath(&context->box64_path, ".:bin", BOX64ENV(path));
     if(getenv("PATH"))
         AppendList(&context->box64_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
 #ifdef HAVE_TRACE
-    char* p = getenv("BOX64_TRACE");
-    if(p) {
-        if (strcmp(p, "0")) {
-            context->x64trace = 1;
-            box64_trace = p;
-        }
-    }
-    p = getenv("BOX64_TRACE_INIT");
-    if(p) {
-        if (strcmp(p, "0")) {
-            context->x64trace = 1;
-            trace_init = p;
-        }
+    if((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || strcmp(BOX64ENV(trace), "0")) {
+        context->x64trace = 1;
     }
     if(my_context->x64trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
@@ -1130,13 +611,12 @@ void LoadEnvVars(box64context_t *context)
 EXPORTDYN
 void LoadLDPath(box64context_t *context)
 {
-    // check BOX64_LD_LIBRARY_PATH and load it
     #ifdef BOX32
     if(box64_is32bits)
-        LoadEnvPath(&context->box64_ld_lib, ".:lib:i386:bin:libs", "BOX64_LD_LIBRARY_PATH");
+        loadPath(&context->box64_ld_lib, ".:lib:i386:bin:libs", BOX64ENV(ld_library_path));
     else
     #endif
-    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
+    loadPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", BOX64ENV(ld_library_path));
     #ifndef TERMUX
     if(box64_is32bits) {
         #ifdef BOX32
@@ -1191,7 +671,7 @@ EXPORTDYN
 void setupTraceInit()
 {
 #ifdef HAVE_TRACE
-    char* p = trace_init;
+    char* p = BOX64ENV(trace_init);
     if(p) {
         setbuf(stdout, NULL);
         uintptr_t s_trace_start=0, s_trace_end=0;
@@ -1223,10 +703,8 @@ void setupTraceInit()
             }
         }
     } else {
-        p = box64_trace;
-        if(p)
-            if (strcmp(p, "0"))
-                SetTraceEmu(0, 1);
+        if(BOX64ENV(trace) && strcmp(BOX64ENV(trace), "0"))
+            SetTraceEmu(0, 1);
     }
 #endif
 }
@@ -1262,7 +740,7 @@ EXPORTDYN
 void setupTrace()
 {
 #ifdef HAVE_TRACE
-    char* p = box64_trace;
+    char* p = BOX64ENV(trace);
     if(p) {
         setbuf(stdout, NULL);
         uintptr_t s_trace_start=0, s_trace_end=0;
@@ -1342,11 +820,11 @@ void endBox64()
     FreeBox64Context(&my_context);
     #ifdef DYNAREC
     // disable dynarec now
-    box64_dynarec = 0;
+    SET_BOX64ENV(dynarec, 0);
     #endif
-    if(box64_libGL) {
-        box_free(box64_libGL);
-        box64_libGL = NULL;
+    if(BOX64ENV(libgl)) {
+        box_free(BOX64ENV(libgl));
+        SET_BOX64ENV(libgl, NULL);
     }
     if(box64_custom_gstreamer) {
         box_free(box64_custom_gstreamer);
@@ -1434,7 +912,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf("See 'box64 --help' for more information.\n");
         exit(0);
     }
-    if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb") && getenv("BOX64_TRACE_FILE"))
+    if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb") && BOX64ENV(trace_file))
         exit(0);
     // uname -m is redirected to box64 -m
     if(argc==2 && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i")))
@@ -1453,7 +931,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     char* bashpath = NULL;
     {
-        char* p = getenv("BOX64_BASH");
+        char* p = BOX64ENV(bash);
         if(p) {
             if(FileIsX64ELF(p)) {
                 bashpath = p;
@@ -1547,9 +1025,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             strcat(tmp, "/../lib64/gstreamer-1.0");
             // check if it exist
             if(FileExist(tmp, 0)) {
-                //printf_log(LOG_INFO, "BOX64: Custom gstreamer detected, disable gtk wrapping\n");
-                //box64_nogtk = 1;
-                //is_custom_gstreamer = 1;
                 box64_custom_gstreamer = box_strdup(tmp);
             }
         }
@@ -1688,7 +1163,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf_log(LOG_INFO, "Zoom detected, Trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
     }
-    // special case for bash (add BOX86_NOBANNER=1 if not there)
+    // special case for bash
     if(!strcmp(prgname, "bash") || !strcmp(prgname, "box64-bash")) {
         printf_log(LOG_INFO, "bash detected, disabling banner\n");
         if (!BOX64ENV(nobanner)) {
@@ -1747,9 +1222,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         add_argv("-cef-disable-gpu-compositor");
     }
     // add new args only if there is no args already
-    if(box64_new_args) {
+    if(BOX64ENV(new_args)) {
         char tmp[256];
-        char* p = box64_new_args;
+        char* p = BOX64ENV(new_args);
         int state = 0;
         char* p2 = p;
         if(my_context->argc==1 || (my_context->argc==2 && box64_wine))
@@ -1771,12 +1246,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
                 }
                 ++p2;
             }
-        box_free(box64_new_args);
-        box64_new_args = NULL;
     }
-    if(box64_insert_args) {
+    if(BOX64ENV(insert_args)) {
         char tmp[256];
-        char* p = box64_insert_args;
+        char* p = BOX64ENV(insert_args);
         int state = 0;
         char* p2 = p;
         while(state>=0) {
@@ -1797,8 +1270,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             }
             ++p2;
         }
-        box_free(box64_insert_args);
-        box64_insert_args = NULL;
     }
     // check if file exist
     if(!my_context->argv[0] || !FileExist(my_context->argv[0], IS_FILE)) {
@@ -2076,15 +1547,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     setupTrace();
 
     *emulator = emu;
-
-#ifdef DYNAREC
-    if (box64_dynarec_perf_map) {
-        char pathname[32];
-        snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
-        box64_dynarec_perf_map_fd = open(pathname, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
-    }
-#endif
-
     return 0;
 }
 
@@ -2123,13 +1585,5 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
         trace_func = NULL;
     }
 #endif
-
-#ifdef DYNAREC
-    if (box64_dynarec_perf_map && box64_dynarec_perf_map_fd != -1) {
-        close(box64_dynarec_perf_map_fd);
-        box64_dynarec_perf_map_fd = -1;
-    }
-#endif
-
     return ret;
 }

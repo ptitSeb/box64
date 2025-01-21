@@ -529,7 +529,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GETED(0);
                     emu->mxcsr.x32 = ED->dword[0];
                     #ifndef TEST_INTERPRETER
-                    if(box64_sse_flushto0)
+                    if(BOX64ENV(sse_flushto0))
                         applyFlushTo0(emu);
                     #endif
                     break;

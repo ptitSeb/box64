@@ -165,7 +165,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x09:
             INST_NAME("WBINVD");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -181,7 +181,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x0B:
             INST_NAME("UD2");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -220,7 +220,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x0E:
             INST_NAME("femms");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -527,7 +527,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x30:
             INST_NAME("WRMSR");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -1719,7 +1719,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            if(BOX64ENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1807,7 +1807,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            if(BOX64ENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1863,7 +1863,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if(box64_sse_flushto0) {
+                        if(BOX64ENV(sse_flushto0)) {
                             MRS_fpcr(x1);                   // get fpscr
                             LSRw_IMM(x3, ed, 15);           // get FZ bit
                             BFIw(x1, x3, 24, 1);            // inject FZ bit

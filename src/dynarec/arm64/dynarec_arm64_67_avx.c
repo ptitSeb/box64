@@ -132,7 +132,7 @@ uintptr_t dynarec64_67_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
     }
     else {DEFAULT;}
 
-    if((*ok==-1) && (BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || box64_dynarec_missing==1)) {
+    if((*ok==-1) && (BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing)==1)) {
         dynarec_log(LOG_NONE, "Dynarec unimplemented AVX opcode size %d prefix %s map %s opcode %02X ", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
     }
     return addr;

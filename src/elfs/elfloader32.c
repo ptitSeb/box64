@@ -311,7 +311,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                     mprotect((void*)paddr, asize, prot);
             }
 #ifdef DYNAREC
-            if(box64_dynarec && (e->p_flags & PF_X)) {
+            if(BOX64ENV(dynarec) && (e->p_flags & PF_X)) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", head->multiblocks[n].p, (void*)head->multiblocks[n].asize);
                 addDBFromAddressRange((uintptr_t)head->multiblocks[n].p, head->multiblocks[n].asize);
             }

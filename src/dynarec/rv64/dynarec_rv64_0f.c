@@ -1790,7 +1790,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-            if (box64_dynarec_safeflags > 1)
+            if (BOX64ENV(dynarec_safeflags) > 1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1852,7 +1852,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            if (box64_dynarec_safeflags > 1)
+            if (BOX64ENV(dynarec_safeflags) > 1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1903,7 +1903,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         SW(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if (box64_sse_flushto0) {
+                        if (BOX64ENV(sse_flushto0)) {
                             // TODO: applyFlushTo0 also needs to add RISC-V support.
                         }
                         break;

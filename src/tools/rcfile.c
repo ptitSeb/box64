@@ -69,123 +69,8 @@ static const char default_rcfile[] =
 ;
 
 // list of all entries
-#define SUPER1()                                        \
-ENTRYSTRING_(BOX64_LD_LIBRARY_PATH, ld_library_path)    \
-ENTRYSTRING_(BOX64_PATH, box64_path)                    \
-ENTRYSTRING_(BOX64_TRACE_FILE, trace_file)              \
-ENTRYBOOL(BOX64_DLSYM_ERROR, dlsym_error)               \
-CENTRYBOOL(BOX64_NOSIGSEGV, no_sigsegv)                 \
-CENTRYBOOL(BOX64_NOSIGILL, no_sigill)                   \
-ENTRYBOOL(BOX64_SHOWSEGV, box64_showsegv)               \
-ENTRYBOOL(BOX64_SHOWBT, box64_showbt)                   \
-IGNORE(BOX64_RDTSC)                                     \
-ENTRYBOOL(BOX64_X11THREADS, box64_x11threads)           \
-ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
-ENTRYDSTRING(BOX64_LIBGL, box64_libGL)                  \
-ENTRYBOOL(BOX64_SSE_FLUSHTO0, box64_sse_flushto0)       \
-ENTRYBOOL(BOX64_X87_NO80BITS, box64_x87_no80bits)       \
-ENTRYBOOL(BOX64_SYNC_ROUNDING, box64_sync_rounding)     \
-ENTRYSTRING_(BOX64_EMULATED_LIBS, emulated_libs)        \
-ENTRYBOOL(BOX64_ALLOWMISSINGLIBS, allow_missing_libs)   \
-ENTRYBOOL(BOX64_PREFER_WRAPPED, box64_prefer_wrapped)   \
-ENTRYBOOL(BOX64_PREFER_EMULATED, box64_prefer_emulated) \
-ENTRYBOOL(BOX64_WRAP_EGl, box64_wrap_egl)               \
-ENTRYBOOL(BOX64_CRASHHANDLER, box64_dummy_crashhandler) \
-ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
-ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
-ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
-ENTRYBOOL(BOX64_SHAEXT, box64_shaext)                   \
-ENTRYBOOL(BOX64_SSE42, box64_sse42)                     \
-ENTRYINT(BOX64_AVX, new_avx, 0, 2, 2)                   \
-ENTRYBOOL(BOX64_FUTEX_WAITV, box64_futex_waitv)         \
-ENTRYSTRING_(BOX64_BASH, bash)                          \
-ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 3, 2)                \
-ENTRYBOOL(BOX64_EXIT, want_exit)                        \
-ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
-ENTRYBOOL(BOX64_JVM, box64_jvm)                         \
-ENTRYBOOL(BOX64_UNITYPLAYER, box64_unityplayer)         \
-ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
-ENTRYSTRING_(BOX64_ENV, new_env)                        \
-ENTRYSTRING_(BOX64_ENV1, new_env1)                      \
-ENTRYSTRING_(BOX64_ENV2, new_env2)                      \
-ENTRYSTRING_(BOX64_ENV3, new_env3)                      \
-ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
+#define SUPER()                                        \
 ENTRYSTRING_(BOX64_ARGS, new_args)                      \
-ENTRYSTRING_(BOX64_INSERT_ARGS, insert_args)            \
-ENTRYBOOL(BOX64_RESERVE_HIGH, new_reserve_high)         \
-
-#ifdef HAVE_TRACE
-#define SUPER2()                                        \
-ENTRYSTRING_(BOX64_TRACE, trace)                        \
-ENTRYULONG(BOX64_TRACE_START, start_cnt)                \
-ENTRYSTRING_(BOX64_TRACE_INIT, trace_init)              \
-ENTRYBOOL(BOX64_TRACE_XMM, trace_xmm)                   \
-ENTRYBOOL(BOX64_TRACE_EMM, trace_emm)                   \
-ENTRYBOOL(BOX64_TRACE_COLOR, trace_regsdiff)            \
-
-#else
-#define SUPER2()                                        \
-IGNORE(BOX64_TRACE)                                     \
-IGNORE(BOX64_TRACE_START)                               \
-IGNORE(BOX64_TRACE_INIT)                                \
-IGNORE(BOX64_TRACE_XMM)                                 \
-IGNORE(BOX64_TRACE_EMM)                                 \
-IGNORE(BOX64_TRACE_COLOR)                               \
-
-#endif
-
-#ifdef DYNAREC
-#define SUPER3()                                                    \
-ENTRYBOOL(BOX64_DYNAREC, box64_dynarec)                             \
-ENTRYINT(BOX64_DYNAREC_PAUSE, box64_dynarec_pause, 0, 3, 2)         \
-ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
-ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
-ENTRYBOOL(BOX64_DYNAREC_JVM, box64_dynarec_jvm)                     \
-ENTRYBOOL(BOX64_DYNAREC_TBB, box64_dynarec_tbb)                     \
-IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
-IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
-ENTRYBOOL(BOX64_DYNAREC_ALIGNED_ATOMICS, box64_dynarec_aligned_atomics) \
-ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
-ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
-ENTRYBOOL(BOX64_DYNAREC_MISSING, box64_dynarec_missing)             \
-ENTRYBOOL(BOX64_DYNAREC_DF, box64_dynarec_df)                       \
-
-#else
-#define SUPER3()                                                    \
-IGNORE(BOX64_DYNAREC)                                               \
-IGNORE(BOX64_DYNAREC_PAUSE)                                         \
-IGNORE(BOX64_DYNAREC_DIV0)                                          \
-IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
-IGNORE(BOX64_DYNAREC_CALLRET)                                       \
-IGNORE(BOX64_DYNAREC_BLEEDING_EDGE)                                 \
-IGNORE(BOX64_DYNAREC_JVM)                                           \
-IGNORE(BOX64_DYNAREC_TBB)                                           \
-IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
-IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
-IGNORE(BOX64_DYNAREC_ALIGNED_ATOMICS)                               \
-IGNORE(BOX64_DYNAREC_NATIVEFLAGS)                                   \
-IGNORE(BOX64_DYNAREC_WAIT)                                          \
-IGNORE(BOX64_NODYNAREC)                                             \
-IGNORE(BOX64_DYNAREC_MISSING)                                       \
-IGNORE(BOX64_DYNAREC_DF)                                            \
-
-#endif
-
-#if defined(HAVE_TRACE) && defined(DYNAREC)
-#define SUPER4()                                                    \
-ENTRYBOOL(BOX64_DYNAREC_TRACE, box64_dynarec_trace)                 \
-
-#else
-#define SUPER4()                                                    \
-IGNORE(BOX64_DYNAREC_TRACE)                                         \
-
-#endif
-
-#define SUPER() \
-SUPER1()        \
-SUPER2()        \
-SUPER3()        \
-SUPER4()
 
 typedef struct my_params_s {
 // is present part
@@ -473,8 +358,6 @@ void DeleteParams()
 extern int ftrace_has_pid;
 extern FILE* ftrace;
 extern char* ftrace_name;
-extern char* box64_new_args;
-extern char* box64_insert_args;
 void openFTrace(const char* newtrace, int reopen);
 void addNewEnvVar(const char* s);
 void AddNewLibs(const char* libs);
@@ -519,12 +402,8 @@ void ApplyParams(const char* name)
 }
 
 void internal_ApplyParams(const char* name, const my_params_t* param) {
-    int new_avx = box64_avx2?2:box64_avx;
-    int box64_dynarec_jvm = box64_jvm;
-    int new_reserve_high = 0;
-    int want_exit = 0;
     #ifdef DYNAREC
-    int olddynarec = box64_dynarec;
+    int olddynarec = BOX64ENV(dynarec);
     #endif
     printf_log(LOG_INFO, "Apply RC params for %s\n", name);
     #define ENTRYINT(NAME, name, minval, maxval, bits) if(param->is_##name##_present) {printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name); name = param->name;}
@@ -546,128 +425,8 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
     #undef ENTRYDSTRING
     #undef ENTRYADDR
     #undef ENTRYULONG
-    // now handle the manuel entry (the one with ending underscore)
-    if(want_exit)
-        exit(0);
-    if(new_reserve_high)
-        my_reserveHighMem();
-    if(param->is_new_avx_present) {
-        if(!new_avx) {
-            printf_log(LOG_INFO, "Hiding AVX extension\n");
-            box64_avx = 0; box64_avx2 = 0;
-        } else if(new_avx==1) {
-            printf_log(LOG_INFO, "Exposing AVX extension\n");
-            box64_avx = 1; box64_avx2 = 0;
-        } else if(new_avx==2) {
-            printf_log(LOG_INFO, "Exposing AVX/AVX2 extensions\n");
-            box64_avx = 1; box64_avx2 = 1;
-        }
-    }
     #ifdef DYNAREC
-    if(param->is_box64_dynarec_jvm_present && !param->is_box64_jvm_present)
-        box64_jvm = box64_dynarec_jvm;
-    #endif
-    if(param->is_ld_library_path_present) AppendList(&my_context->box64_ld_lib, param->ld_library_path, 1);
-    if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
-    if(param->is_trace_file_present) {
-        // open a new ftrace...
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_TRACE_FILE", param->trace_file);
-        if(ftrace_name) {
-            fclose(ftrace);
-        }
-        openFTrace(param->trace_file, 0);
-    }
-    if(param->is_emulated_libs_present) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_EMULATED_LIBS", param->emulated_libs);
-        AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
-    }
-    if(param->is_new_env_present) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV", param->new_env);
-        addNewEnvVar(param->new_env);
-    }
-    if(param->is_new_env1_present) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV1", param->new_env1);
-        addNewEnvVar(param->new_env1);
-    }
-    if(param->is_new_env2_present) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV2", param->new_env2);
-        addNewEnvVar(param->new_env2);
-    }
-    if(param->is_new_env3_present) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV3", param->new_env3);
-        addNewEnvVar(param->new_env3);
-    }
-    if(param->is_new_env4_present) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV4", param->new_env4);
-        addNewEnvVar(param->new_env4);
-    }
-    if(param->is_new_args_present) {
-        printf_log(LOG_INFO, "Adding \"%s\" arguments to command line\n", param->new_args);
-        if(box64_new_args)
-            box_free(box64_new_args);
-        box64_new_args = box_strdup(param->new_args);
-    }
-    if(param->is_insert_args_present) {
-        printf_log(LOG_INFO, "Adding \"%s\" arguments to command line\n", param->insert_args);
-        if(box64_insert_args)
-            box_free(box64_insert_args);
-        box64_insert_args = box_strdup(param->insert_args);
-    }
-    if(param->is_bash_present && FileIsX64ELF(param->bash)) {
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
-        if(my_context->bashpath)
-            box_free(my_context->bashpath);
-        my_context->bashpath = box_strdup(param->bash);
-    }
-    #ifdef HAVE_TRACE
-    int old_x64trace = my_context->x64trace;
-    if(param->is_trace_present) {
-        char*p = param->trace;
-        if (strcmp(p, "0")) {
-            my_context->x64trace = 1;
-            box64_trace = p;
-        }
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_TRACE", param->trace);
-    }
-    if(param->is_trace_init_present) {
-        char* p = param->trace_init;
-        if (strcmp(p, "0")) {
-            my_context->x64trace = 1;
-            trace_init = p;
-        }
-        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_TRACE_INIT", param->trace_init);
-    }
-    if(my_context->x64trace && !old_x64trace) {
-        printf_log(LOG_INFO, "Initializing Zydis lib\n");
-        if(InitX64Trace(my_context)) {
-            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
-            my_context->x64trace = 0;
-        }
-    }
-    if(param->is_trace_init_present)
-        setupTraceInit();
-    if(param->is_trace_present)
-        setupTrace();
-    #endif
-    #ifdef DYNAREC
-    if(param->is_box64_nodynarec_present) {
-        uintptr_t no_start = 0, no_end = 0;
-        int ok = 0;
-        if(sscanf(param->box64_nodynarec, "0x%lX-0x%lX", &no_start, &no_end)==2)
-            ok = 1;
-        if(!ok && sscanf(param->box64_nodynarec, "%lx-%lx", &no_start, &no_end)==2)
-            ok = 1;
-        if(!ok && sscanf(param->box64_nodynarec, "%ld-%ld", &no_start, &no_end)==2)
-            ok = 1;
-        if(ok && no_end>no_start) {
-            box64_nodynarec_start = no_start;
-            box64_nodynarec_end = no_end;
-            printf_log(LOG_INFO, "Appling BOX64_NODYNAREC=%p-%p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
-        } else {
-            printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", param->box64_nodynarec, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
-        }
-    }
-    if(!olddynarec && box64_dynarec)
+    if(!olddynarec && BOX64ENV(dynarec))
         GatherDynarecExtensions();
     #endif
 }

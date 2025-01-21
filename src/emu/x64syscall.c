@@ -838,7 +838,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         #endif
         case 449:
             #ifdef __NR_futex_waitv
-            if(box64_futex_waitv)
+            if(BOX64ENV(futex_waitv))
                 S_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
             else
             #endif
@@ -1116,7 +1116,7 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 449:
             #ifdef __NR_futex_waitv
-            if(box64_futex_waitv)
+            if(BOX64ENV(futex_waitv))
                 return syscall(__NR_futex_waitv, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
             else
             #endif

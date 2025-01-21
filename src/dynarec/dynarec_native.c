@@ -597,7 +597,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         C ..    C+sz    : arch: arch specific info (likes flags info) per inst (can be absent)
 
     */
-    if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
+    if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return CreateEmptyBlock(block, addr, is32bits);
     }
@@ -788,7 +788,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
     }
-    if (box64_dynarec_gdbjit) {
+    if (BOX64ENV(dynarec_gdbjit)) {
         GdbJITNewBlock(helper.gdbjit_block, (GDB_CORE_ADDR)block->actual_block, (GDB_CORE_ADDR)block->actual_block + native_size, helper.start);
     }
     int oldtable64size = helper.table64size;
@@ -833,7 +833,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     //block->x64_addr = (void*)start;
     block->x64_size = end-start;
     // all done...
-    if (box64_dynarec_gdbjit) {
+    if (BOX64ENV(dynarec_gdbjit)) {
         GdbJITBlockReady(helper.gdbjit_block);
     }
     ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...
@@ -892,5 +892,5 @@ void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, co
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, func_addr), (void*)func_addr, &start, &sz);
     snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s:%s\n", code_addr, code_size, symbname, inst_name);
-    write(box64_dynarec_perf_map_fd, pbuf, strlen(pbuf));
+    write(BOX64ENV(dynarec_perf_map_fd), pbuf, strlen(pbuf));
 }

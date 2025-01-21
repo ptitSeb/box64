@@ -229,7 +229,7 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 			et->join = 0;
 	}
 	#ifdef DYNAREC
-	if(box64_dynarec) {
+	if(BOX64ENV(dynarec)) {
 		// pre-creation of the JIT code for the entry point of the thread
 		DBGetBlock(emu, (uintptr_t)start_routine, 1, 1);
 	}
@@ -261,7 +261,7 @@ void* my32_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** p
 	et->fnc = (uintptr_t)f;
 	et->arg = arg;
 	#ifdef DYNAREC
-	if(box64_dynarec) {
+	if(BOX64ENV(dynarec)) {
 		// pre-creation of the JIT code for the entry point of the thread
 		dynablock_t *current = NULL;
 		DBGetBlock(emu, (uintptr_t)f, 1, 1);

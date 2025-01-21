@@ -22,8 +22,8 @@ const char* pulsesimpleName = "libpulse-simple.so.0";
 
 #define LIBNAME pulsesimple
 
-#define PRE_INIT        \
-    if(box64_nopulse)   \
+#define PRE_INIT          \
+    if(BOX64ENV(nopulse)) \
         return -1;
 
 #define NEEDED_LIBS "libpulse.so.0"
