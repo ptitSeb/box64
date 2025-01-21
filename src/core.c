@@ -1538,5 +1538,12 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
         trace_func = NULL;
     }
 #endif
+
+#ifdef DYNAREC
+    if (BOX64ENV(dynarec_perf_map) && BOX64ENV(dynarec_perf_map_fd) != -1) {
+        close(BOX64ENV(dynarec_perf_map_fd));
+        SET_BOX64ENV(dynarec_perf_map_fd, -1);
+    }
+#endif
     return ret;
 }
