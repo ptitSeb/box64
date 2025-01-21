@@ -128,11 +128,11 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
             BANNER;
             printf_log(LOG_NONE, "MEM: @%p :", (void*)test->memaddr);
             for(int i=0; i<test->memsize; ++i)
-                printf_log(LOG_NONE, " %02x", ((uint8_t*)test->memaddr)[i]);
-            printf_log(LOG_NONE, " |");
+                printf_log_prefix(0, LOG_NONE, " %02x", ((uint8_t*)test->memaddr)[i]);
+            printf_log_prefix(0, LOG_NONE, " |");
             for(int i=0; i<test->memsize; ++i)
-                printf_log(LOG_NONE, " %02x", test->mem[i]);
-            printf_log(LOG_NONE, "\n");
+                printf_log_prefix(0, LOG_NONE, " %02x", test->mem[i]);
+            printf_log_prefix(0, LOG_NONE, "\n");
         }
     }
     if(banner)  // there was an error, re-sync!

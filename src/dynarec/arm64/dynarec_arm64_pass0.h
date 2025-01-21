@@ -49,7 +49,7 @@
         PKip(10),PKip(11),PKip(12),     \
         PKip(13),PKip(14));             \
         printFunctionAddr(ip, " => ");  \
-        dynarec_log(LOG_NONE, "\n");    \
+        dynarec_log_prefix(0, LOG_NONE, "\n"); \
         }
 
 #define FEMIT(A)        dyn->insts[ninst].nat_flags_op = dyn->insts[ninst].x64.set_flags?NAT_FLAG_OP_TOUCH:NAT_FLAG_OP_UNUSABLE

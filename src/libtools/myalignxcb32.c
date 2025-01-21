@@ -88,7 +88,7 @@ void* align_xcb_connection32(void* src)
         dest = add_xcb_connection32(src);
     #else
     if(!dest) {
-        printf_log(LOG_NONE, "BOX64: Error, xcb_connect %p not found\n", src);
+        printf_log(LOG_NONE, "Error, xcb_connect %p not found\n", src);
         abort();
     }
     #endif
@@ -190,7 +190,7 @@ void* add_xcb_connection32(void* src)
             unalign_xcb_connection32(src, &i386_xcb_connects[i]);
             return &i386_xcb_connects[i];
         }
-    printf_log(LOG_NONE, "BOX64: Error, no more free xcb_connect 32bits slot for %p\n", src);
+    printf_log(LOG_NONE, "Error, no more free xcb_connect 32bits slot for %p\n", src);
     return src;
 }
 
@@ -205,5 +205,5 @@ void del_xcb_connection32(void* src)
             memset(&i386_xcb_connects[i], 0, sizeof(my_xcb_connection_32_t));
             return;
         }
-    printf_log(LOG_NONE, "BOX64: Error, 32bits xcb_connect %p not found for deletion\n", src);
+    printf_log(LOG_NONE, "Error, 32bits xcb_connect %p not found for deletion\n", src);
 }

@@ -184,7 +184,7 @@ void openFTrace(const char* newtrace, int reopen)
     }
 }
 
-void printf_ftrace(const char* fmt, ...)
+void printf_ftrace(int prefix, const char* fmt, ...)
 {
     if(ftrace_name) {
         int fd = fileno(ftrace);
@@ -196,6 +196,9 @@ void printf_ftrace(const char* fmt, ...)
 
     va_list args;
     va_start(args, fmt);
+    if (prefix && ftrace == stdout) {
+        fprintf(ftrace, box64_is32bits ? "[BOX32] " : "[BOX64] ");
+    }
     vfprintf(ftrace, fmt, args);
 
     fflush(ftrace);
@@ -286,30 +289,30 @@ void GatherDynarecExtensions()
     #endif
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
-        printf_log(LOG_INFO, " AES");
+        printf_log_prefix(0, LOG_INFO, " AES");
     if(arm64_crc32)
-        printf_log(LOG_INFO, " CRC32");
+        printf_log_prefix(0, LOG_INFO, " CRC32");
     if(arm64_pmull)
-        printf_log(LOG_INFO, " PMULL");
+        printf_log_prefix(0, LOG_INFO, " PMULL");
     if(arm64_atomics)
-        printf_log(LOG_INFO, " ATOMICS");
+        printf_log_prefix(0, LOG_INFO, " ATOMICS");
     if(arm64_sha1)
-        printf_log(LOG_INFO, " SHA1");
+        printf_log_prefix(0, LOG_INFO, " SHA1");
     if(arm64_sha2)
-        printf_log(LOG_INFO, " SHA2");
+        printf_log_prefix(0, LOG_INFO, " SHA2");
     if(arm64_uscat)
-        printf_log(LOG_INFO, " USCAT");
+        printf_log_prefix(0, LOG_INFO, " USCAT");
     if(arm64_flagm)
-        printf_log(LOG_INFO, " FLAGM");
+        printf_log_prefix(0, LOG_INFO, " FLAGM");
     if(arm64_flagm2)
-        printf_log(LOG_INFO, " FLAGM2");
+        printf_log_prefix(0, LOG_INFO, " FLAGM2");
     if(arm64_frintts)
-        printf_log(LOG_INFO, " FRINT");
+        printf_log_prefix(0, LOG_INFO, " FRINT");
     if(arm64_afp)
-        printf_log(LOG_INFO, " AFP");
+        printf_log_prefix(0, LOG_INFO, " AFP");
     if(arm64_rndr)
-        printf_log(LOG_INFO, " RNDR");
-    printf_log(LOG_INFO, "\n");
+        printf_log_prefix(0, LOG_INFO, " RNDR");
+    printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch ");
     char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
@@ -317,7 +320,7 @@ void GatherDynarecExtensions()
         uint32_t cpucfg2 = 0, idx = 2;
         asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
         if (((cpucfg2 >> 6) & 0b11) == 3) {
-            printf_log(LOG_INFO, "with extension LSX LASX");
+            printf_log_prefix(0, LOG_INFO, "with extension LSX LASX");
         } else {
             printf_log(LOG_INFO, "\nMissing LSX and/or LASX extension support, disabling Dynarec\n");
             SET_BOX64ENV(dynarec, 0);
@@ -325,15 +328,15 @@ void GatherDynarecExtensions()
         }
 
         if (la64_lbt = ((cpucfg2 >> 18) & 0b1))
-            printf_log(LOG_INFO, " LBT_X86");
+            printf_log_prefix(0, LOG_INFO, " LBT_X86");
         if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
-            printf_log(LOG_INFO, " LAM_BH");
+            printf_log_prefix(0, LOG_INFO, " LAM_BH");
         if ((la64_lamcas = (cpucfg2 >> 28) & 0b1))
-            printf_log(LOG_INFO, " LAMCAS");
+            printf_log_prefix(0, LOG_INFO, " LAMCAS");
         if ((la64_scq = (cpucfg2 >> 30) & 0b1))
-            printf_log(LOG_INFO, " SCQ");
+            printf_log_prefix(0, LOG_INFO, " SCQ");
     }
-    printf_log(LOG_INFO, "\n");
+    printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(RV64)
     void RV64_Detect_Function();
     // private env. variable for the developer ;)
@@ -366,24 +369,24 @@ void GatherDynarecExtensions()
     }
 
     printf_log(LOG_INFO, "Dynarec for rv64g");
-    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, "v");
-    if (rv64_zba) printf_log(LOG_INFO, "_zba");
-    if (rv64_zbb) printf_log(LOG_INFO, "_zbb");
-    if (rv64_zbc) printf_log(LOG_INFO, "_zbc");
-    if (rv64_zbs) printf_log(LOG_INFO, "_zbs");
-    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, "_zvl%d", rv64_vlen);
-    if (rv64_xtheadba) printf_log(LOG_INFO, "_xtheadba");
-    if (rv64_xtheadbb) printf_log(LOG_INFO, "_xtheadbb");
-    if (rv64_xtheadbs) printf_log(LOG_INFO, "_xtheadbs");
-    if (rv64_xtheadmempair) printf_log(LOG_INFO, "_xtheadmempair");
-    if (rv64_xtheadcondmov) printf_log(LOG_INFO, "_xtheadcondmov");
-    if (rv64_xtheadmemidx) printf_log(LOG_INFO, "_xtheadmemidx");
+    if (rv64_vector && !rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "v");
+    if (rv64_zba) printf_log_prefix(0, LOG_INFO, "_zba");
+    if (rv64_zbb) printf_log_prefix(0, LOG_INFO, "_zbb");
+    if (rv64_zbc) printf_log_prefix(0, LOG_INFO, "_zbc");
+    if (rv64_zbs) printf_log_prefix(0, LOG_INFO, "_zbs");
+    if (rv64_vector && !rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "_zvl%d", rv64_vlen);
+    if (rv64_xtheadba) printf_log_prefix(0, LOG_INFO, "_xtheadba");
+    if (rv64_xtheadbb) printf_log_prefix(0, LOG_INFO, "_xtheadbb");
+    if (rv64_xtheadbs) printf_log_prefix(0, LOG_INFO, "_xtheadbs");
+    if (rv64_xtheadmempair) printf_log_prefix(0, LOG_INFO, "_xtheadmempair");
+    if (rv64_xtheadcondmov) printf_log_prefix(0, LOG_INFO, "_xtheadcondmov");
+    if (rv64_xtheadmemidx) printf_log_prefix(0, LOG_INFO, "_xtheadmemidx");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " xtheadfmemidx");
-    // if(rv64_xtheadmac) printf_log(LOG_INFO, " xtheadmac");
-    // if(rv64_xtheadfmv) printf_log(LOG_INFO, " xtheadfmv");
-    if (rv64_xtheadvector) printf_log(LOG_INFO, "_xthvector");
-    printf_log(LOG_INFO, "\n");
+    // if(rv64_xtheadfmemidx) printf_log_prefix(0, LOG_INFO, " xtheadfmemidx");
+    // if(rv64_xtheadmac) printf_log_prefix(0, LOG_INFO, " xtheadmac");
+    // if(rv64_xtheadfmv) printf_log_prefix(0, LOG_INFO, " xtheadfmv");
+    if (rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "_xthvector");
+    printf_log_prefix(0, LOG_INFO, "\n");
 #else
 #error Unsupported architecture
 #endif
@@ -416,18 +419,18 @@ void computeRDTSC()
     printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"software":"hardware");
     int ghz = freq>=1000000000LL;
     if(ghz) freq/=100000000LL; else freq/=100000;
-    if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
-    if(!ghz && (freq>=1000)) printf_log(LOG_INFO, "%d MHz", freq/10);
-    if(!ghz && (freq<1000)) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
+    if (ghz) printf_log_prefix(0, LOG_INFO, "%d.%d GHz", freq / 10, freq % 10);
+    if (!ghz && (freq >= 1000)) printf_log_prefix(0, LOG_INFO, "%d MHz", freq / 10);
+    if (!ghz && (freq < 1000)) printf_log_prefix(0, LOG_INFO, "%d.%d MHz", freq / 10, freq % 10);
     if(box64_rdtsc_shift) {
-        printf_log(LOG_INFO, " emulating ");
+        printf_log_prefix(0, LOG_INFO, " emulating ");
         ghz = efreq>=1000000000LL;
         if(ghz) efreq/=100000000LL; else efreq/=100000;
-        if(ghz) printf_log(LOG_INFO, "%d.%d GHz", efreq/10, efreq%10);
-        if(!ghz && (efreq>=1000)) printf_log(LOG_INFO, "%d MHz", efreq/10);
-        if(!ghz && (efreq<1000)) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
+        if (ghz) printf_log_prefix(0, LOG_INFO, "%d.%d GHz", efreq / 10, efreq % 10);
+        if (!ghz && (efreq >= 1000)) printf_log_prefix(0, LOG_INFO, "%d MHz", efreq / 10);
+        if (!ghz && (efreq < 1000)) printf_log_prefix(0, LOG_INFO, "%d.%d MHz", efreq / 10, efreq % 10);
     }
-    printf_log(LOG_INFO, "\n");
+    printf_log_prefix(0, LOG_INFO, "\n");
 }
 
 static void displayMiscInfo()
@@ -478,7 +481,8 @@ void PrintCollection(path_collection_t* col, const char* env)
     if (LOG_INFO<=BOX64ENV(log)) {
         printf_log(LOG_INFO, "%s: ", env);
         for(int i=0; i<col->size; i++)
-            printf_log(LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"\n":":");
+            printf_log_prefix(0, LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"":":");
+        printf_log_prefix(0, LOG_INFO, "\n");
     }
 }
 
@@ -523,7 +527,7 @@ int GatherEnv(char*** dest, char** env, char* prog)
 void AddNewLibs(const char* list)
 {
     AppendList(&box64_addlibs, list, 0);
-    printf_log(LOG_INFO, "BOX64: Adding %s to the libs\n", list);
+    printf_log(LOG_INFO, "Adding %s to the libs\n", list);
 }
 
 void PrintHelp() {
@@ -559,8 +563,8 @@ static void addLibPaths(box64context_t* context)
         if (my_context->box64_emulated_libs.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 will force the used of emulated libs for ");
             for (int i=0; i<context->box64_emulated_libs.size; ++i)
-                printf_log(LOG_INFO, "%s ", context->box64_emulated_libs.paths[i]);
-            printf_log(LOG_INFO, "\n");
+                printf_log_prefix(0, LOG_INFO, "%s ", context->box64_emulated_libs.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
         }
     }
 
@@ -875,7 +879,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         /*PrintBox64Version();
         PrintHelp();
         return 1;*/
-        printf("BOX64: Missing operand after 'box64'\n");
+        printf("[BOX64] Missing operand after 'box64'\n");
         printf("See 'box64 --help' for more information.\n");
         exit(0);
     }
@@ -929,7 +933,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         prog = argv[++nextarg];
     }
     if(!prog || nextarg==argc) {
-        printf("BOX64: Nothing to run\n");
+        printf("[BOX64] Nothing to run\n");
         exit(0);
     }
     if (!BOX64ENV(nobanner)) PrintBox64Version();
@@ -946,7 +950,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         #endif
         if(x64 || x86) {
             prog = argv[++nextarg];
-            printf_log(LOG_INFO, "BOX64: Wine preloader detected, loading \"%s\" directly\n", prog);
+            printf_log(LOG_INFO, "Wine preloader detected, loading \"%s\" directly\n", prog);
             wine_preloaded = 1;
             prog_ = strrchr(prog, '/');
             if(!prog_) prog_ = prog; else ++prog_;
@@ -955,7 +959,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     #ifndef STATICBUILD
     // pre-check for pressure-vessel-wrap
     if(!strcmp(prog_, "pressure-vessel-wrap")) {
-        printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected\n");
+        printf_log(LOG_INFO, "pressure-vessel-wrap detected\n");
         pressure_vessel(argc, argv, nextarg+1, prog);
     }
     #endif
@@ -967,7 +971,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
      || !strcmp(prog_, "wine64-development")
      || !strcmp(prog_, "wine")) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
-        printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
+        printf_log(LOG_INFO, "Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
         if(wine_preloaded || 1) {
             wine_prereserve(prereserve);
         }
@@ -1007,10 +1011,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
                     wine_prog = argv[nextarg+1];
             }
         }
-        if(wine_prog) printf_log(LOG_INFO, "BOX64: Detected running wine with \"%s\"\n", wine_prog);
+        if(wine_prog) printf_log(LOG_INFO, "Detected running wine with \"%s\"\n", wine_prog);
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
-        printf_log(LOG_INFO, "BOX64: ld-musl detected. Trying to workaround and use system ld-linux\n");
+        printf_log(LOG_INFO, "ld-musl detected. Trying to workaround and use system ld-linux\n");
         box64_musl = 1;
         // skip ld-musl and go through args unti "--" is found, handling "--library-path" to add some libs to BOX64_LD_LIBRARY
         ++nextarg;
@@ -1058,8 +1062,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if (ld_preload.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
-                printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
-            printf_log(LOG_INFO, "\n");
+                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
         }
     }
     if(getenv("LD_PRELOAD")) {
@@ -1076,8 +1080,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if (ld_preload.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
-                printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
-            printf_log(LOG_INFO, "\n");
+                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
         }
     }
     // print PATH and LD_LIB used
@@ -1253,7 +1257,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     #ifdef BOX32
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
     if(box64_is32bits) {
-        printf_log(LOG_INFO, "BOX64: Using Box32 to load 32bits elf\n");
+        printf_log(LOG_INFO, "Using Box32 to load 32bits elf\n");
         loadProtectionFromMap();
         reserveHighMem();
         init_pthread_helper_32();
@@ -1328,7 +1332,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box64_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!
-            printf_log(LOG_INFO, "BOX64: tcmalloc_minimal.so.4 used. Reloading box64 with the lib preladed\n");
+            printf_log(LOG_INFO, "tcmalloc_minimal.so.4 used. Reloading box64 with the lib preladed\n");
             // need to get a new envv variable. so first count it and check if LD_PRELOAD is there
             int preload=(getenv("LD_PRELOAD"))?1:0;
             int nenv = 0;
@@ -1368,7 +1372,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             if(execve(newargv[0], newargv, newenv)<0)
                 printf_log(LOG_NONE, "Failed to relaunch. Error is %d/%s\n", errno, strerror(errno));
         } else {
-            printf_log(LOG_INFO, "BOX64: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
+            printf_log(LOG_INFO, "Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
     }
 #if defined(RPI) || defined(RK3399) || defined(RK3326)

@@ -304,7 +304,7 @@ static void old_elf_hash_dump(elfheader_t* h)
     }
     printf_log(LOG_NONE,"Chains[%d] = ", nchains);
     for (uint32_t i = 0; i<nchains; ++i)
-        printf_log(LOG_NONE, "%d ", chains[i]);
+        printf_log_prefix(0, LOG_NONE, "%d ", chains[i]);
     printf_log(LOG_NONE, "\n------------\n");
 }
 
@@ -369,7 +369,7 @@ static void new_elf_hash_dump(elfheader_t* h)
     printf_log(LOG_NONE, "Buckets[%d] offset=%d = \n", nbuckets, symoffset);
     for(uint32_t i=0; i<nbuckets; ++i) {
         uint32_t symidx = buckets[i];
-        printf_log(LOG_NONE, "%d:", symidx);
+        printf_log_prefix(0, LOG_NONE, "%d:", symidx);
         while(symidx>=symoffset) {
             const char* name = h->DynStr + h->DynSym._64[symidx].st_name;
             const uint32_t hash = chains[symidx-symoffset];
@@ -377,7 +377,7 @@ static void new_elf_hash_dump(elfheader_t* h)
                 symidx=0;
             else
                 symidx++;
-            printf_log(LOG_NONE, " %s (%x) -> %d", name, hash, symidx);
+            printf_log_prefix(0, LOG_NONE, " %s (%x) -> %d", name, hash, symidx);
         }
         printf_log(LOG_NONE, "\n");
     }

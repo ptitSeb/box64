@@ -458,7 +458,7 @@ int la64_lock_cas_h_slow(void* addr, uint16_t ref, uint16_t val)
 
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 {
-    dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, la64_print(opcode, (uintptr_t)dyn->block));
+    dynarec_log_prefix(0, LOG_NONE, "\t%08x\t%s\n", opcode, la64_print(opcode, (uintptr_t)dyn->block));
 }
 
 static void sse_reset(lsxcache_t* lsx)

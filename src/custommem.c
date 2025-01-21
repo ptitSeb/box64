@@ -1045,11 +1045,11 @@ int isDBFromAddressRange(uintptr_t addr, size_t size)
     while (start_addr<end) {
         start_addr = getDBSize(start_addr, end-start_addr, &db);
         if(db) {
-            dynarec_log(LOG_DEBUG, "1\n");
+            dynarec_log_prefix(0, LOG_DEBUG, "1\n");
             return 1;
         }
     }
-    dynarec_log(LOG_DEBUG, "0\n");
+    dynarec_log_prefix(0, LOG_DEBUG, "0\n");
     return 0;
 }
 
@@ -1470,7 +1470,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
         uint32_t prot;
         uintptr_t bend;
         if (!rb_get_end(memprot, addr, &prot, &bend) || !(prot&PROT_DYN)) {
-            dynarec_log(LOG_DEBUG, "0\n");
+            dynarec_log_prefix(0, LOG_DEBUG, "0\n");
             UNLOCK_PROT_READ();
             return 0;
         } else {
@@ -1478,7 +1478,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
         }
     }
     UNLOCK_PROT_READ();
-    dynarec_log(LOG_DEBUG, "1\n");
+    dynarec_log_prefix(0, LOG_DEBUG, "1\n");
     return 1;
 }
 
@@ -1653,12 +1653,12 @@ void loadProtectionFromMap()
     if(!shown48bits) {
         shown48bits = 1;
         if(have48bits)
-            printf_log(LOG_INFO, "BOX64: Detected 48bits at least of address space\n");
+            printf_log(LOG_INFO, "Detected 48bits at least of address space\n");
         else
-            printf_log(LOG_INFO, "BOX64: Didn't detect 48bits of address space, considering it's 39bits\n");
+            printf_log(LOG_INFO, "Didn't detect 48bits of address space, considering it's 39bits\n");
     }
     if(!pbrk) {
-        printf_log(LOG_INFO, "BOX64: Warning, program break not found\n");
+        printf_log(LOG_INFO, "Warning, program break not found\n");
         if(cur_brk) pbrk = *cur_brk;    // approximate is better than nothing
     }
     fclose(f);

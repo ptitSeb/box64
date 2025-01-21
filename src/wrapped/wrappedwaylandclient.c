@@ -597,7 +597,7 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
     } else if(!strcmp(proxy_name, "zxdg_output_v1")) {
         l = find_zxdg_output_v1_listener_Fct(l);
     } else
-        printf_log(LOG_INFO, "BOX64: Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
+        printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
 }
 

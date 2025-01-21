@@ -67,24 +67,35 @@ extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 #define LOG_NEVER 3
 #define LOG_VERBOSE 3
 
-void printf_ftrace(const char* fmt, ...);
+void printf_ftrace(int prefix, const char* fmt, ...);
 
-#define printf_log(L, ...)                                        \
-    do {                                                          \
-        if ((L) <= BOX64ENV(log)) { printf_ftrace(__VA_ARGS__); } \
+#define printf_log_prefix(prefix, L, ...)                                 \
+    do {                                                                  \
+        if ((L) <= BOX64ENV(log)) { printf_ftrace(prefix, __VA_ARGS__); } \
     } while (0)
 
-#define printf_dump(L, ...)                                                           \
-    do {                                                                              \
-        if (BOX64ENV(dump) || ((L) <= BOX64ENV(log))) { printf_ftrace(__VA_ARGS__); } \
+#define printf_log(L, ...) printf_log_prefix(1, L, __VA_ARGS__)
+
+#define printf_dump_prefix(prefix, L, ...)                                                    \
+    do {                                                                                      \
+        if (BOX64ENV(dump) || ((L) <= BOX64ENV(log))) { printf_ftrace(prefix, __VA_ARGS__); } \
     } while (0)
 
-#define printf_dlsym(L, ...)                                                                 \
-    do {                                                                                     \
-        if (BOX64ENV(dlsym_error) || ((L) <= BOX64ENV(log))) { printf_ftrace(__VA_ARGS__); } \
+#define printf_dump(L, ...) printf_dump_prefix(1, L, __VA_ARGS__)
+
+#define printf_dlsym_prefix(prefix, L, ...)                                                          \
+    do {                                                                                             \
+        if (BOX64ENV(dlsym_error) || ((L) <= BOX64ENV(log))) { printf_ftrace(prefix, __VA_ARGS__); } \
     } while (0)
 
-#define dynarec_log(L, ...) do {if((L)<=BOX64ENV(dynarec_log)) {printf_ftrace(__VA_ARGS__);}} while(0)
+#define printf_dlsym(L, ...) printf_dlsym_prefix(1, L, __VA_ARGS__)
+
+#define dynarec_log_prefix(prefix, L, ...)                                        \
+    do {                                                                          \
+        if ((L) <= BOX64ENV(dynarec_log)) { printf_ftrace(prefix, __VA_ARGS__); } \
+    } while (0)
+
+#define dynarec_log(L, ...) dynarec_log_prefix(1, L, __VA_ARGS__)
 
 #define EXPORT __attribute__((visibility("default")))
 #ifdef BUILD_DYNAMIC

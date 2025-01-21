@@ -528,7 +528,7 @@ pid_t EXPORT my_fork(x64emu_t* emu)
     if(type == EMUTYPE_MAIN)
         thread_set_emu(emu);
     if(v<0) {
-        printf_log(LOG_NONE, "BOX64: Warning, fork errored... (%d)\n", v);
+        printf_log(LOG_NONE, "Warning, fork errored... (%d)\n", v);
         // error...
     } else if(v>0) {
         // execute atforks parent functions
@@ -3012,7 +3012,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             ssize_t r = readlink(buf, filename, sizeof(filename)-1);
             if(r!=-1) filename[r]=0;
             if(r>0 && strlen(filename)>strlen("UnityPlayer.dll") && !strcasecmp(filename+strlen(filename)-strlen("UnityPlayer.dll"), "UnityPlayer.dll")) {
-                printf_log(LOG_INFO, "BOX64: Detected UnityPlayer.dll\n");
+                printf_log(LOG_INFO, "Detected UnityPlayer.dll\n");
                 #ifdef DYNAREC
                 if(!BOX64ENV(dynarec_strongmem)) SET_BOX64ENV(dynarec_strongmem, 1);
                 #endif
@@ -3776,16 +3776,16 @@ EXPORT void my__exit(x64emu_t* emu, int code) __attribute__((alias("my_exit")));
 EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
 {
     if(option==PR_SET_NAME) {
-        printf_log(LOG_DEBUG, "BOX64: set process name to \"%s\"\n", (char*)arg2);
+        printf_log(LOG_DEBUG, "set process name to \"%s\"\n", (char*)arg2);
         ApplyEnvFileEntry((char*)arg2);
         size_t l = strlen((char*)arg2);
         if(l>4 && !strcasecmp((char*)arg2+l-4, ".exe")) {
-            printf_log(LOG_DEBUG, "BOX64: hacking orig command line to \"%s\"\n", (char*)arg2);
+            printf_log(LOG_DEBUG, "hacking orig command line to \"%s\"\n", (char*)arg2);
             strcpy(my_context->orig_argv[0], (char*)arg2);
         }
     }
     if(option==PR_SET_SECCOMP) {
-        printf_log(LOG_INFO, "BOX64: ignoring prctl(PR_SET_SECCOMP, ...)\n");
+        printf_log(LOG_INFO, "ignoring prctl(PR_SET_SECCOMP, ...)\n");
         return 0;
     }
     return prctl(option, arg2, arg3, arg4, arg5);

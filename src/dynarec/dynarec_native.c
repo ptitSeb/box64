@@ -40,9 +40,9 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
         } else {
             dynarec_log(LOG_NONE, "%s%p: ", (BOX64ENV(dynarec_dump)>1)?"\e[01;33m":"", ip);
             for(int i=0; i<inst->size; ++i) {
-                dynarec_log(LOG_NONE, "%02X ", ip[i]);
+                dynarec_log_prefix(0, LOG_NONE, "%02X ", ip[i]);
             }
-            dynarec_log(LOG_NONE, " %s", name);
+            dynarec_log_prefix(0, LOG_NONE, " %s", name);
         }
         // print Call function name if possible
         if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
@@ -55,7 +55,7 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
             }
         }
         // end of line and colors
-        dynarec_log(LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
+        dynarec_log_prefix(0, LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
     }
 }
 
@@ -845,7 +845,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return NULL;
     }
     if((oldnativesize!=helper.native_size) || (oldtable64size<helper.table64size)) {
-        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%zu, %d) & pass3 (%zu, %d)!\n", oldnativesize+oldtable64size*8, oldsize, helper.native_size+helper.table64size*8, helper.size);
+        printf_log(LOG_NONE, "Warning, size difference in block between pass2 (%zu, %d) & pass3 (%zu, %d)!\n", oldnativesize+oldtable64size*8, oldsize, helper.native_size+helper.table64size*8, helper.size);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x64 opcodes:\n", helper.size);
         for(int i=0; i<helper.size; ++i) {
@@ -866,7 +866,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     //dynaFree(helper.insts);
     helper.insts = NULL;
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
-        printf_log(LOG_NONE, "BOX64: Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
+        printf_log(LOG_NONE, "Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%ld, marking as need_test\n", block->x64_addr, block->x64_size);

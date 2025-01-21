@@ -64,5 +64,5 @@
             PKip(10), PKip(11), PKip(12),                                                                                                           \
             PKip(13), PKip(14));                                                                                                                    \
         printFunctionAddr(ip, " => ");                                                                                                              \
-        dynarec_log(LOG_NONE, "\n");                                                                                                                \
+        dynarec_log_prefix(0, LOG_NONE, "\n");                                                                                                                \
     }
