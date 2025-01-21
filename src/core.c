@@ -196,7 +196,9 @@ void printf_ftrace(int prefix, const char* fmt, ...)
 
     va_list args;
     va_start(args, fmt);
-    if (prefix && ftrace == stdout) fprintf(ftrace, "[BOX64] ");
+    if (prefix && ftrace == stdout) {
+        fprintf(ftrace, box64_is32bits ? "[BOX32] " : "[BOX64] ");
+    }
     vfprintf(ftrace, fmt, args);
 
     fflush(ftrace);
