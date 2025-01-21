@@ -186,6 +186,8 @@ typedef struct box64env_s {
     uintptr_t nodynarec_start;
     uintptr_t nodynarec_end;
     int dynarec_perf_map_fd;
+
+    uint64_t is_dynarec_perf_map_fd_overridden : 1;
 } box64env_t;
 
 void InitializeEnvFiles();
