@@ -525,7 +525,7 @@ int GatherEnv(char*** dest, char** env, char* prog)
 void AddNewLibs(const char* list)
 {
     AppendList(&box64_addlibs, list, 0);
-    printf_log(LOG_INFO, "BOX64: Adding %s to the libs\n", list);
+    printf_log(LOG_INFO, "Adding %s to the libs\n", list);
 }
 
 void PrintHelp() {
@@ -877,7 +877,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         /*PrintBox64Version();
         PrintHelp();
         return 1;*/
-        printf("BOX64: Missing operand after 'box64'\n");
+        printf("[BOX64] Missing operand after 'box64'\n");
         printf("See 'box64 --help' for more information.\n");
         exit(0);
     }
@@ -931,7 +931,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         prog = argv[++nextarg];
     }
     if(!prog || nextarg==argc) {
-        printf("BOX64: Nothing to run\n");
+        printf("[BOX64] Nothing to run\n");
         exit(0);
     }
     if (!BOX64ENV(nobanner)) PrintBox64Version();
@@ -948,7 +948,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         #endif
         if(x64 || x86) {
             prog = argv[++nextarg];
-            printf_log(LOG_INFO, "BOX64: Wine preloader detected, loading \"%s\" directly\n", prog);
+            printf_log(LOG_INFO, "Wine preloader detected, loading \"%s\" directly\n", prog);
             wine_preloaded = 1;
             prog_ = strrchr(prog, '/');
             if(!prog_) prog_ = prog; else ++prog_;
@@ -957,7 +957,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     #ifndef STATICBUILD
     // pre-check for pressure-vessel-wrap
     if(!strcmp(prog_, "pressure-vessel-wrap")) {
-        printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected\n");
+        printf_log(LOG_INFO, "pressure-vessel-wrap detected\n");
         pressure_vessel(argc, argv, nextarg+1, prog);
     }
     #endif
@@ -969,7 +969,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
      || !strcmp(prog_, "wine64-development")
      || !strcmp(prog_, "wine")) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
-        printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
+        printf_log(LOG_INFO, "Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
         if(wine_preloaded || 1) {
             wine_prereserve(prereserve);
         }
@@ -1009,10 +1009,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
                     wine_prog = argv[nextarg+1];
             }
         }
-        if(wine_prog) printf_log(LOG_INFO, "BOX64: Detected running wine with \"%s\"\n", wine_prog);
+        if(wine_prog) printf_log(LOG_INFO, "Detected running wine with \"%s\"\n", wine_prog);
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
-        printf_log(LOG_INFO, "BOX64: ld-musl detected. Trying to workaround and use system ld-linux\n");
+        printf_log(LOG_INFO, "ld-musl detected. Trying to workaround and use system ld-linux\n");
         box64_musl = 1;
         // skip ld-musl and go through args unti "--" is found, handling "--library-path" to add some libs to BOX64_LD_LIBRARY
         ++nextarg;
@@ -1255,7 +1255,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     #ifdef BOX32
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
     if(box64_is32bits) {
-        printf_log(LOG_INFO, "BOX64: Using Box32 to load 32bits elf\n");
+        printf_log(LOG_INFO, "Using Box32 to load 32bits elf\n");
         loadProtectionFromMap();
         reserveHighMem();
         init_pthread_helper_32();
@@ -1330,7 +1330,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box64_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!
-            printf_log(LOG_INFO, "BOX64: tcmalloc_minimal.so.4 used. Reloading box64 with the lib preladed\n");
+            printf_log(LOG_INFO, "tcmalloc_minimal.so.4 used. Reloading box64 with the lib preladed\n");
             // need to get a new envv variable. so first count it and check if LD_PRELOAD is there
             int preload=(getenv("LD_PRELOAD"))?1:0;
             int nenv = 0;
@@ -1370,7 +1370,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             if(execve(newargv[0], newargv, newenv)<0)
                 printf_log(LOG_NONE, "Failed to relaunch. Error is %d/%s\n", errno, strerror(errno));
         } else {
-            printf_log(LOG_INFO, "BOX64: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
+            printf_log(LOG_INFO, "Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
     }
 #if defined(RPI) || defined(RK3399) || defined(RK3326)

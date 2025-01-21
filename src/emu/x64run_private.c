@@ -1146,7 +1146,7 @@ void UpdateFlags(x64emu_t *emu)
             break;
 
         case d_unknown:
-            printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
+            printf_log(LOG_NONE, "%p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
             break;
     }
     RESET_FLAGS(emu);

@@ -950,7 +950,7 @@ static void register_plugins_from_folder(x64emu_t* emu, const char* folder)
             }
             void* f_init = handle?(is_native?dlsym(handle, regfunc_name):my_dlsym(emu, handle, regfunc_name)):NULL;
             if(f_init) {
-                printf_log(LOG_DEBUG, "BOX64: Will registering %sgstplugin %s\n", is_native?"native ":"", filename);
+                printf_log(LOG_DEBUG, "Will registering %sgstplugin %s\n", is_native?"native ":"", filename);
                 if(is_native)
                     ((vFv_t)(f_init))();
                 else
@@ -962,7 +962,7 @@ static void register_plugins_from_folder(x64emu_t* emu, const char* folder)
                 my->plugins[my->plugin_cnt].is_native = is_native;
                 my->plugins[my->plugin_cnt++].handle = handle;
             } else {
-                printf_log(LOG_DEBUG, "BOX64: Failled to register %sgstplugin %s, name=%s, handle=%p\n", is_native?"native ":"", filename, name, handle);
+                printf_log(LOG_DEBUG, "Failled to register %sgstplugin %s, name=%s, handle=%p\n", is_native?"native ":"", filename, name, handle);
             }
             if(handle && !f_init) {
                 is_native?dlclose(handle):my_dlclose(emu, handle);

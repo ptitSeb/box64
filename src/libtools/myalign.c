@@ -1261,7 +1261,7 @@ void* align_xcb_connection(void* src)
         dest = add_xcb_connection(src);
     #else
     if(!dest) {
-        printf_log(LOG_NONE, "BOX64: Error, xcb_connect %p not found\n", src);
+        printf_log(LOG_NONE, "Error, xcb_connect %p not found\n", src);
         abort();
     }
     #endif
@@ -1339,7 +1339,7 @@ void* add_xcb_connection(void* src)
             unalign_xcb_connection(src, &x64_xcb_connects[i]);
             return &x64_xcb_connects[i];
         }
-    printf_log(LOG_NONE, "BOX64: Error, no more free xcb_connect slot for %p\n", src);
+    printf_log(LOG_NONE, "Error, no more free xcb_connect slot for %p\n", src);
     return src;
 }
 
@@ -1354,5 +1354,5 @@ void del_xcb_connection(void* src)
             memset(&x64_xcb_connects[i], 0, sizeof(x64_xcb_connection_t));
             return;
         }
-    printf_log(LOG_NONE, "BOX64: Error, xcb_connect %p not found for deletion\n", src);
+    printf_log(LOG_NONE, "Error, xcb_connect %p not found for deletion\n", src);
 }

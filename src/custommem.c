@@ -1653,12 +1653,12 @@ void loadProtectionFromMap()
     if(!shown48bits) {
         shown48bits = 1;
         if(have48bits)
-            printf_log(LOG_INFO, "BOX64: Detected 48bits at least of address space\n");
+            printf_log(LOG_INFO, "Detected 48bits at least of address space\n");
         else
-            printf_log(LOG_INFO, "BOX64: Didn't detect 48bits of address space, considering it's 39bits\n");
+            printf_log(LOG_INFO, "Didn't detect 48bits of address space, considering it's 39bits\n");
     }
     if(!pbrk) {
-        printf_log(LOG_INFO, "BOX64: Warning, program break not found\n");
+        printf_log(LOG_INFO, "Warning, program break not found\n");
         if(cur_brk) pbrk = *cur_brk;    // approximate is better than nothing
     }
     fclose(f);
