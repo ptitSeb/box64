@@ -112,7 +112,7 @@ static void old_elf_hash_dump(elfheader_t* h)
     }
     printf_log(LOG_NONE,"Chains[%d] = ", nchains);
     for (uint32_t i = 0; i<nchains; ++i)
-        printf_log(LOG_NONE, "%d ", chains[i]);
+        printf_log_prefix(0, LOG_NONE, "%d ", chains[i]);
     printf_log(LOG_NONE, "\n------------\n");
 }
 

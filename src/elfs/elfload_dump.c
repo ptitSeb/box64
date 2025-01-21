@@ -427,19 +427,19 @@ void DumpBinary(char* p, int sz)
         if (n>sz) n = sz;
         int fill = 16-sz;
         for (int j = 0; j<delta; ++j)
-            printf_dump(LOG_NEVER, "   ");
+            printf_dump_prefix(0, LOG_NEVER, "   ");
         for (int j = 0; j<n; ++j)
-            printf_dump(LOG_NEVER, "%02X ", d[j]);
+            printf_dump_prefix(0, LOG_NEVER, "%02X ", d[j]);
         for (int j = 0; j<fill; ++j)
-            printf_dump(LOG_NEVER, "   ");
-        printf_dump(LOG_NEVER, " | ");
+            printf_dump_prefix(0, LOG_NEVER, "   ");
+        printf_dump_prefix(0, LOG_NEVER, " | ");
         for (int j = 0; j<delta; ++j)
-            printf_dump(LOG_NEVER, " ");
+            printf_dump_prefix(0, LOG_NEVER, " ");
         for (int j = 0; j<n; ++j)
-            printf_dump(LOG_NEVER, "%c", (d[j]<32 || d[j]>127)?'.':d[j]);
+            printf_dump_prefix(0, LOG_NEVER, "%c", (d[j]<32 || d[j]>127)?'.':d[j]);
         for (int j = 0; j<fill; ++j)
-            printf_dump(LOG_NEVER, " ");
-        printf_dump(LOG_NEVER, "\n");
+            printf_dump_prefix(0, LOG_NEVER, " ");
+        printf_dump_prefix(0, LOG_NEVER, "\n");
         d+=n;
         sz-=n;
         delta=0;

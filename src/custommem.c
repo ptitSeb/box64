@@ -1045,11 +1045,11 @@ int isDBFromAddressRange(uintptr_t addr, size_t size)
     while (start_addr<end) {
         start_addr = getDBSize(start_addr, end-start_addr, &db);
         if(db) {
-            dynarec_log(LOG_DEBUG, "1\n");
+            dynarec_log_prefix(0, LOG_DEBUG, "1\n");
             return 1;
         }
     }
-    dynarec_log(LOG_DEBUG, "0\n");
+    dynarec_log_prefix(0, LOG_DEBUG, "0\n");
     return 0;
 }
 
@@ -1470,7 +1470,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
         uint32_t prot;
         uintptr_t bend;
         if (!rb_get_end(memprot, addr, &prot, &bend) || !(prot&PROT_DYN)) {
-            dynarec_log(LOG_DEBUG, "0\n");
+            dynarec_log_prefix(0, LOG_DEBUG, "0\n");
             UNLOCK_PROT_READ();
             return 0;
         } else {
@@ -1478,7 +1478,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
         }
     }
     UNLOCK_PROT_READ();
-    dynarec_log(LOG_DEBUG, "1\n");
+    dynarec_log_prefix(0, LOG_DEBUG, "1\n");
     return 1;
 }
 

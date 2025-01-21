@@ -1934,46 +1934,46 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             if(db) {
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
-                    if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
+                    if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
+                    printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.regs[10+i]);
                 }
-                printf_log(log_minimum, "\n");
+                printf_log_prefix(0, log_minimum, "\n");
                 for (int i=0; i<6; ++i)
-                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+                    printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                 for (int i=-4; i<4; ++i) {
-                    printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+                    printf_log_prefix(0, log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
                 }
 #elif defined(RV64)
             if(db) {
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
-                    if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[(((uint8_t[]) { 16, 13, 12, 24, 9, 8, 11, 10, 14, 15, 26, 27, 18, 19, 20, 21 })[i])]);
+                    if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
+                    printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[(((uint8_t[]) { 16, 13, 12, 24, 9, 8, 11, 10, 14, 15, 26, 27, 18, 19, 20, 21 })[i])]);
                 }
-                printf_log(log_minimum, "\n");
+                printf_log_prefix(0, log_minimum, "\n");
                 for (int i=0; i<6; ++i)
-                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+                    printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                 for (int i=-4; i<4; ++i) {
-                    printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+                    printf_log_prefix(0, log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
                 }
 #elif defined(LA64)
             if(db) {
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
-                    if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[12+i]);
+                    if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
+                    printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[12+i]);
                 }
-                printf_log(log_minimum, "\n");
+                printf_log_prefix(0, log_minimum, "\n");
                 for (int i=0; i<6; ++i)
-                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+                    printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                 for (int i=-4; i<4; ++i) {
-                    printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+                    printf_log_prefix(0, log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
                 }
 #else
             #warning TODO
@@ -1983,19 +1983,19 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
 #endif
             if(!shown_regs) {
                 for (int i=0; i<16; ++i) {
-                    if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
+                    if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
+                    printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
                 }
-                printf_log(log_minimum, "\n");
+                printf_log_prefix(0, log_minimum, "\n");
                 for (int i=0; i<6; ++i)
-                    printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+                    printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             if(sig==SIGILL) {
-                printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
+                printf_log_prefix(0, log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
             } else if(sig==SIGBUS || (sig==SIGSEGV && (x64pc!=(uintptr_t)addr) && (pc!=addr))) {
-                printf_log(log_minimum, " %sopcode=%02X %02X %02X %02X %02X %02X %02X %02X (opcode=%08x)\n", (emu->segs[_CS]==0x23)?"x86":"x64", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7], *(uint32_t*)pc);
+                printf_log_prefix(0, log_minimum, " %sopcode=%02X %02X %02X %02X %02X %02X %02X %02X (opcode=%08x)\n", (emu->segs[_CS]==0x23)?"x86":"x64", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7], *(uint32_t*)pc);
             } else {
-                printf_log(log_minimum, "\n");
+                printf_log_prefix(0, log_minimum, "\n");
             }
         }
     }

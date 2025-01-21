@@ -496,19 +496,19 @@ void PrintEnvVariables()
         printf_log(LOG_INFO, "BOX64ENV: Variables overridden via env and/or RC file:\n");
 #define INTEGER(NAME, name, default, min, max) \
     if (box64env.is_##name##_overridden)       \
-        printf_log(LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
+        printf_log_prefix(0, LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
 #define INTEGER64(NAME, name, default)   \
     if (box64env.is_##name##_overridden) \
-        printf_log(LOG_INFO, "\t%s=%lld\n", #NAME, box64env.name);
+        printf_log_prefix(0, LOG_INFO, "\t%s=%lld\n", #NAME, box64env.name);
 #define BOOLEAN(NAME, name, default)     \
     if (box64env.is_##name##_overridden) \
-        printf_log(LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
+        printf_log_prefix(0, LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
 #define ADDRESS(NAME, name)              \
     if (box64env.is_##name##_overridden) \
-        printf_log(LOG_INFO, "\t%s=%p\n", #NAME, (void*)box64env.name);
+        printf_log_prefix(0, LOG_INFO, "\t%s=%p\n", #NAME, (void*)box64env.name);
 #define STRING(NAME, name)               \
     if (box64env.is_##name##_overridden) \
-        printf_log(LOG_INFO, "\t%s=%s\n", #NAME, box64env.name);
+        printf_log_prefix(0, LOG_INFO, "\t%s=%s\n", #NAME, box64env.name);
     ENVSUPER()
 #undef INTEGER
 #undef INTEGER64

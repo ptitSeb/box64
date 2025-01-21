@@ -40,9 +40,9 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
         } else {
             dynarec_log(LOG_NONE, "%s%p: ", (BOX64ENV(dynarec_dump)>1)?"\e[01;33m":"", ip);
             for(int i=0; i<inst->size; ++i) {
-                dynarec_log(LOG_NONE, "%02X ", ip[i]);
+                dynarec_log_prefix(0, LOG_NONE, "%02X ", ip[i]);
             }
-            dynarec_log(LOG_NONE, " %s", name);
+            dynarec_log_prefix(0, LOG_NONE, " %s", name);
         }
         // print Call function name if possible
         if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
@@ -55,7 +55,7 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
             }
         }
         // end of line and colors
-        dynarec_log(LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
+        dynarec_log_prefix(0, LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
     }
 }
 

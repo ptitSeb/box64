@@ -779,7 +779,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
 
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 {
-    dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, rv64_print(opcode, (uintptr_t)dyn->block));
+    dynarec_log_prefix(0, LOG_NONE, "\t%08x\t%s\n", opcode, rv64_print(opcode, (uintptr_t)dyn->block));
 }
 
 void print_newinst(dynarec_native_t* dyn, int ninst)

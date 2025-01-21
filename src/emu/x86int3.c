@@ -470,9 +470,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else {
                     mutex_lock(&emu->context->mutex_trace);
                     if(ret_fmt==1)
-                        printf_log(LOG_NONE, " return %d%s%s\n", S_EAX, buff2, buff3);
+                        printf_log_prefix(0, LOG_NONE, " return %d%s%s\n", S_EAX, buff2, buff3);
                     else
-                        printf_log(LOG_NONE, " return 0x%X%s%s\n", R_EAX, buff2, buff3);
+                        printf_log_prefix(0, LOG_NONE, " return 0x%X%s%s\n", R_EAX, buff2, buff3);
                     mutex_unlock(&emu->context->mutex_trace);
                 }
             } else

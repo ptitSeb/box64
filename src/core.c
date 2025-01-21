@@ -184,7 +184,7 @@ void openFTrace(const char* newtrace, int reopen)
     }
 }
 
-void printf_ftrace(const char* fmt, ...)
+void printf_ftrace(int prefix, const char* fmt, ...)
 {
     if(ftrace_name) {
         int fd = fileno(ftrace);
@@ -196,6 +196,7 @@ void printf_ftrace(const char* fmt, ...)
 
     va_list args;
     va_start(args, fmt);
+    if (prefix && ftrace == stdout) fprintf(ftrace, "[BOX64] ");
     vfprintf(ftrace, fmt, args);
 
     fflush(ftrace);
@@ -286,30 +287,30 @@ void GatherDynarecExtensions()
     #endif
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
-        printf_log(LOG_INFO, " AES");
+        printf_log_prefix(0, LOG_INFO, " AES");
     if(arm64_crc32)
-        printf_log(LOG_INFO, " CRC32");
+        printf_log_prefix(0, LOG_INFO, " CRC32");
     if(arm64_pmull)
-        printf_log(LOG_INFO, " PMULL");
+        printf_log_prefix(0, LOG_INFO, " PMULL");
     if(arm64_atomics)
-        printf_log(LOG_INFO, " ATOMICS");
+        printf_log_prefix(0, LOG_INFO, " ATOMICS");
     if(arm64_sha1)
-        printf_log(LOG_INFO, " SHA1");
+        printf_log_prefix(0, LOG_INFO, " SHA1");
     if(arm64_sha2)
-        printf_log(LOG_INFO, " SHA2");
+        printf_log_prefix(0, LOG_INFO, " SHA2");
     if(arm64_uscat)
-        printf_log(LOG_INFO, " USCAT");
+        printf_log_prefix(0, LOG_INFO, " USCAT");
     if(arm64_flagm)
-        printf_log(LOG_INFO, " FLAGM");
+        printf_log_prefix(0, LOG_INFO, " FLAGM");
     if(arm64_flagm2)
-        printf_log(LOG_INFO, " FLAGM2");
+        printf_log_prefix(0, LOG_INFO, " FLAGM2");
     if(arm64_frintts)
-        printf_log(LOG_INFO, " FRINT");
+        printf_log_prefix(0, LOG_INFO, " FRINT");
     if(arm64_afp)
-        printf_log(LOG_INFO, " AFP");
+        printf_log_prefix(0, LOG_INFO, " AFP");
     if(arm64_rndr)
-        printf_log(LOG_INFO, " RNDR");
-    printf_log(LOG_INFO, "\n");
+        printf_log_prefix(0, LOG_INFO, " RNDR");
+    printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch ");
     char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
@@ -317,7 +318,7 @@ void GatherDynarecExtensions()
         uint32_t cpucfg2 = 0, idx = 2;
         asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
         if (((cpucfg2 >> 6) & 0b11) == 3) {
-            printf_log(LOG_INFO, "with extension LSX LASX");
+            printf_log_prefix(0, LOG_INFO, "with extension LSX LASX");
         } else {
             printf_log(LOG_INFO, "\nMissing LSX and/or LASX extension support, disabling Dynarec\n");
             SET_BOX64ENV(dynarec, 0);
@@ -325,15 +326,15 @@ void GatherDynarecExtensions()
         }
 
         if (la64_lbt = ((cpucfg2 >> 18) & 0b1))
-            printf_log(LOG_INFO, " LBT_X86");
+            printf_log_prefix(0, LOG_INFO, " LBT_X86");
         if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
-            printf_log(LOG_INFO, " LAM_BH");
+            printf_log_prefix(0, LOG_INFO, " LAM_BH");
         if ((la64_lamcas = (cpucfg2 >> 28) & 0b1))
-            printf_log(LOG_INFO, " LAMCAS");
+            printf_log_prefix(0, LOG_INFO, " LAMCAS");
         if ((la64_scq = (cpucfg2 >> 30) & 0b1))
-            printf_log(LOG_INFO, " SCQ");
+            printf_log_prefix(0, LOG_INFO, " SCQ");
     }
-    printf_log(LOG_INFO, "\n");
+    printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(RV64)
     void RV64_Detect_Function();
     // private env. variable for the developer ;)
@@ -366,24 +367,24 @@ void GatherDynarecExtensions()
     }
 
     printf_log(LOG_INFO, "Dynarec for rv64g");
-    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, "v");
-    if (rv64_zba) printf_log(LOG_INFO, "_zba");
-    if (rv64_zbb) printf_log(LOG_INFO, "_zbb");
-    if (rv64_zbc) printf_log(LOG_INFO, "_zbc");
-    if (rv64_zbs) printf_log(LOG_INFO, "_zbs");
-    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, "_zvl%d", rv64_vlen);
-    if (rv64_xtheadba) printf_log(LOG_INFO, "_xtheadba");
-    if (rv64_xtheadbb) printf_log(LOG_INFO, "_xtheadbb");
-    if (rv64_xtheadbs) printf_log(LOG_INFO, "_xtheadbs");
-    if (rv64_xtheadmempair) printf_log(LOG_INFO, "_xtheadmempair");
-    if (rv64_xtheadcondmov) printf_log(LOG_INFO, "_xtheadcondmov");
-    if (rv64_xtheadmemidx) printf_log(LOG_INFO, "_xtheadmemidx");
+    if (rv64_vector && !rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "v");
+    if (rv64_zba) printf_log_prefix(0, LOG_INFO, "_zba");
+    if (rv64_zbb) printf_log_prefix(0, LOG_INFO, "_zbb");
+    if (rv64_zbc) printf_log_prefix(0, LOG_INFO, "_zbc");
+    if (rv64_zbs) printf_log_prefix(0, LOG_INFO, "_zbs");
+    if (rv64_vector && !rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "_zvl%d", rv64_vlen);
+    if (rv64_xtheadba) printf_log_prefix(0, LOG_INFO, "_xtheadba");
+    if (rv64_xtheadbb) printf_log_prefix(0, LOG_INFO, "_xtheadbb");
+    if (rv64_xtheadbs) printf_log_prefix(0, LOG_INFO, "_xtheadbs");
+    if (rv64_xtheadmempair) printf_log_prefix(0, LOG_INFO, "_xtheadmempair");
+    if (rv64_xtheadcondmov) printf_log_prefix(0, LOG_INFO, "_xtheadcondmov");
+    if (rv64_xtheadmemidx) printf_log_prefix(0, LOG_INFO, "_xtheadmemidx");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " xtheadfmemidx");
-    // if(rv64_xtheadmac) printf_log(LOG_INFO, " xtheadmac");
-    // if(rv64_xtheadfmv) printf_log(LOG_INFO, " xtheadfmv");
-    if (rv64_xtheadvector) printf_log(LOG_INFO, "_xthvector");
-    printf_log(LOG_INFO, "\n");
+    // if(rv64_xtheadfmemidx) printf_log_prefix(0, LOG_INFO, " xtheadfmemidx");
+    // if(rv64_xtheadmac) printf_log_prefix(0, LOG_INFO, " xtheadmac");
+    // if(rv64_xtheadfmv) printf_log_prefix(0, LOG_INFO, " xtheadfmv");
+    if (rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "_xthvector");
+    printf_log_prefix(0, LOG_INFO, "\n");
 #else
 #error Unsupported architecture
 #endif
@@ -416,18 +417,18 @@ void computeRDTSC()
     printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"software":"hardware");
     int ghz = freq>=1000000000LL;
     if(ghz) freq/=100000000LL; else freq/=100000;
-    if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
-    if(!ghz && (freq>=1000)) printf_log(LOG_INFO, "%d MHz", freq/10);
-    if(!ghz && (freq<1000)) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
+    if (ghz) printf_log_prefix(0, LOG_INFO, "%d.%d GHz", freq / 10, freq % 10);
+    if (!ghz && (freq >= 1000)) printf_log_prefix(0, LOG_INFO, "%d MHz", freq / 10);
+    if (!ghz && (freq < 1000)) printf_log_prefix(0, LOG_INFO, "%d.%d MHz", freq / 10, freq % 10);
     if(box64_rdtsc_shift) {
-        printf_log(LOG_INFO, " emulating ");
+        printf_log_prefix(0, LOG_INFO, " emulating ");
         ghz = efreq>=1000000000LL;
         if(ghz) efreq/=100000000LL; else efreq/=100000;
-        if(ghz) printf_log(LOG_INFO, "%d.%d GHz", efreq/10, efreq%10);
-        if(!ghz && (efreq>=1000)) printf_log(LOG_INFO, "%d MHz", efreq/10);
-        if(!ghz && (efreq<1000)) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
+        if (ghz) printf_log_prefix(0, LOG_INFO, "%d.%d GHz", efreq / 10, efreq % 10);
+        if (!ghz && (efreq >= 1000)) printf_log_prefix(0, LOG_INFO, "%d MHz", efreq / 10);
+        if (!ghz && (efreq < 1000)) printf_log_prefix(0, LOG_INFO, "%d.%d MHz", efreq / 10, efreq % 10);
     }
-    printf_log(LOG_INFO, "\n");
+    printf_log_prefix(0, LOG_INFO, "\n");
 }
 
 static void displayMiscInfo()
@@ -478,7 +479,8 @@ void PrintCollection(path_collection_t* col, const char* env)
     if (LOG_INFO<=BOX64ENV(log)) {
         printf_log(LOG_INFO, "%s: ", env);
         for(int i=0; i<col->size; i++)
-            printf_log(LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"\n":":");
+            printf_log_prefix(0, LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"":":");
+        printf_log_prefix(0, LOG_INFO, "\n");
     }
 }
 
@@ -559,8 +561,8 @@ static void addLibPaths(box64context_t* context)
         if (my_context->box64_emulated_libs.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 will force the used of emulated libs for ");
             for (int i=0; i<context->box64_emulated_libs.size; ++i)
-                printf_log(LOG_INFO, "%s ", context->box64_emulated_libs.paths[i]);
-            printf_log(LOG_INFO, "\n");
+                printf_log_prefix(0, LOG_INFO, "%s ", context->box64_emulated_libs.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
         }
     }
 
@@ -1058,8 +1060,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if (ld_preload.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
-                printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
-            printf_log(LOG_INFO, "\n");
+                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
         }
     }
     if(getenv("LD_PRELOAD")) {
@@ -1076,8 +1078,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if (ld_preload.size && BOX64ENV(log)) {
             printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
-                printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
-            printf_log(LOG_INFO, "\n");
+                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
         }
     }
     // print PATH and LD_LIB used

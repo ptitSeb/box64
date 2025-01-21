@@ -255,11 +255,11 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     int ninst = getX64AddressInst(db, x64pc);
     dynarec_log(LOG_INFO, "adjust_arch(...), db=%p, x64pc=%p, nints=%d", db, (void*)x64pc, ninst);
     if(ninst<0) {
-    dynarec_log(LOG_INFO, "\n");
+    dynarec_log_prefix(0, LOG_INFO, "\n");
         return;
     }
     if(ninst==0) {
-    dynarec_log(LOG_INFO, "\n");
+    dynarec_log_prefix(0, LOG_INFO, "\n");
         CHECK_FLAGS(emu);
         return;
     }
@@ -273,7 +273,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     while(i<ninst-1) {
         arch = next;
         i += 1+arch->seq;
-        dynarec_log(LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
+        dynarec_log_prefix(0, LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     int sz = sizeof(arch_arch_t);
@@ -285,7 +285,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     SUPER()
     #undef GO
     if(flags) {
-        dynarec_log(LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
+        dynarec_log_prefix(0, LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
         if(flags->defered) {
             CHECK_FLAGS(emu);
             //return;
@@ -319,7 +319,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         }
     }
     if(sse) {
-        dynarec_log(LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
+        dynarec_log_prefix(0, LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
         for(int i=0; i<16; ++i)
             if(fpsimd && (sse->sse>>i)&1) {
                 int idx = 0;
@@ -332,7 +332,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
             }
     }
     if(ymm) {
-        dynarec_log(LOG_INFO, " ymm[%x, pos=%x, 0=%x (fpsimd=%p)] ", ymm->ymm, ymm->ymm_pos, ymm->ymm0, fpsimd);
+        dynarec_log_prefix(0, LOG_INFO, " ymm[%x, pos=%x, 0=%x (fpsimd=%p)] ", ymm->ymm, ymm->ymm_pos, ymm->ymm0, fpsimd);
         for(int i=0; i<16; ++i) {
             if(fpsimd && (ymm->ymm>>i)&1) {
                 int idx = (ymm->ymm_pos>>(i*4))&0xf;
@@ -348,7 +348,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         }
     }
     if(mmx) {
-        dynarec_log(LOG_INFO, " mmx[%x (fpsimd=%p)] ", mmx->mmx, fpsimd);
+        dynarec_log_prefix(0, LOG_INFO, " mmx[%x (fpsimd=%p)] ", mmx->mmx, fpsimd);
         for(int i=0; i<8; ++i)
             if(fpsimd && (mmx->mmx>>i)&1) {
                 int idx = EMM0 + i;
@@ -356,7 +356,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
             }
     }
     if(x87) {
-        dynarec_log(LOG_INFO, " x87[%x, pos=%x, type=%x (fpsimd=%p)] ", x87->x87, x87->x87_pos, x87->x87_type, fpsimd);
+        dynarec_log_prefix(0, LOG_INFO, " x87[%x, pos=%x, type=%x (fpsimd=%p)] ", x87->x87, x87->x87_pos, x87->x87_type, fpsimd);
         emu->top -= x87->delta;
         for(int i=0; i<8; ++i) {
             if(x87->x87&(1<<i)) {
@@ -376,7 +376,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
             }
         }
     }
-    dynarec_log(LOG_INFO, "\n");
+    dynarec_log_prefix(0, LOG_INFO, "\n");
 }
 
 int arch_unaligned(dynablock_t* db, uintptr_t x64pc)
