@@ -5,7 +5,12 @@
 #include <unistd.h>
 
 #define BOX64ENV(name)            (box64env.name)
-#define SET_BOX64ENV(name, value) { box64env.name = (value); box64env.is_##name##_overridden = 1; }
+#define SET_BOX64ENV(name, value)            \
+    {                                        \
+        box64env.name = (value);             \
+        box64env.is_any_overridden = 1;      \
+        box64env.is_##name##_overridden = 1; \
+    }
 
 /*
     INTEGER(NAME, name, default, min, max)
@@ -187,6 +192,7 @@ typedef struct box64env_s {
     uintptr_t nodynarec_end;
     int dynarec_perf_map_fd;
 
+    uint64_t is_any_overridden : 1;
     uint64_t is_dynarec_perf_map_fd_overridden : 1;
 } box64env_t;
 

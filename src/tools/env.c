@@ -261,6 +261,7 @@ static void initializeEnvFile(const char* filename)
         int v = strtol(val, &p, 0);                 \
         if (p != val && v >= min && v <= max) {     \
             current_env.is_##name##_overridden = 1; \
+            current_env.is_any_overridden = 1;      \
             current_env.name = v;                   \
         }                                           \
     }
@@ -270,6 +271,7 @@ static void initializeEnvFile(const char* filename)
         int64_t v = strtoll(val, &p, 0);            \
         if (p != val) {                             \
             current_env.is_##name##_overridden = 1; \
+            current_env.is_any_overridden = 1;      \
             current_env.name = v;                   \
         }                                           \
     }
@@ -278,9 +280,11 @@ static void initializeEnvFile(const char* filename)
     {                                               \
         if (strcmp(val, "0")) {                     \
             current_env.is_##name##_overridden = 1; \
+            current_env.is_any_overridden = 1;      \
             current_env.name = 1;                   \
         } else {                                    \
             current_env.is_##name##_overridden = 1; \
+            current_env.is_any_overridden = 1;      \
             current_env.name = 0;                   \
         }                                           \
     }
@@ -290,6 +294,7 @@ static void initializeEnvFile(const char* filename)
         uintptr_t v = (uintptr_t)strtoll(val, &p, 0); \
         if (p != val) {                               \
             current_env.is_##name##_overridden = 1;   \
+            current_env.is_any_overridden = 1;        \
             current_env.name = v;                     \
         }                                             \
     }
@@ -297,6 +302,7 @@ static void initializeEnvFile(const char* filename)
     else if (!strcmp(key, #NAME))                         \
     {                                                     \
         current_env.is_##name##_overridden = 1;           \
+        current_env.is_any_overridden = 1;                \
         if (current_env.name) box_free(current_env.name); \
         current_env.name = strdup(val);                   \
     }
@@ -362,26 +368,31 @@ static void internalEnvFileEntry(const char* entryname, const box64env_t* env)
     if (env->is_##name##_overridden) {         \
         box64env.name = env->name;             \
         box64env.is_##name##_overridden = 1;   \
+        box64env.is_any_overridden = 1;        \
     }
 #define INTEGER64(NAME, name, default)       \
     if (env->is_##name##_overridden) {       \
         box64env.name = env->name;           \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
 #define BOOLEAN(NAME, name, default)         \
     if (env->is_##name##_overridden) {       \
         box64env.name = env->name;           \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
 #define ADDRESS(NAME, name)                  \
     if (env->is_##name##_overridden) {       \
         box64env.name = env->name;           \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
 #define STRING(NAME, name)                   \
     if (env->is_##name##_overridden) {       \
         box64env.name = env->name;           \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
     ENVSUPER()
 #undef INTEGER
@@ -439,6 +450,7 @@ void LoadEnvVariables()
             box64env.name = default;                      \
         } else {                                          \
             box64env.is_##name##_overridden = 1;          \
+            box64env.is_any_overridden = 1;               \
         }                                                 \
     }
 #define INTEGER64(NAME, name, default)       \
@@ -446,24 +458,28 @@ void LoadEnvVariables()
     if (p) {                                 \
         box64env.name = atoll(p);            \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
 #define BOOLEAN(NAME, name, default)         \
     p = getenv(#NAME);                       \
     if (p) {                                 \
         box64env.name = p[0] != '0';         \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
 #define ADDRESS(NAME, name)                  \
     p = getenv(#NAME);                       \
     if (p) {                                 \
         box64env.name = (uintptr_t)atoll(p); \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
 #define STRING(NAME, name)                   \
     p = getenv(#NAME);                       \
     if (p) {                                 \
         box64env.name = strdup(p);           \
         box64env.is_##name##_overridden = 1; \
+        box64env.is_any_overridden = 1;      \
     }
     ENVSUPER()
 #undef INTEGER
@@ -476,7 +492,8 @@ void LoadEnvVariables()
 
 void PrintEnvVariables()
 {
-    printf_log(LOG_INFO, "BOX64ENV: Variables overridden via env and/or RC file:\n");
+    if (box64env.is_any_overridden)
+        printf_log(LOG_INFO, "BOX64ENV: Variables overridden via env and/or RC file:\n");
 #define INTEGER(NAME, name, default, min, max) \
     if (box64env.is_##name##_overridden)       \
         printf_log(LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
