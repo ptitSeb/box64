@@ -581,10 +581,10 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
     AddPath("libtbbmalloc_proxy.so.2", &context->box64_emulated_libs, 0);
 
-    if(BOX64ENV(nosigsegv) && BOX64ENV(nosigsegv)) {
+    if(BOX64ENV(nosigsegv)) {
         context->no_sigsegv = 1;
     }
-    if(BOX64ENV(nosigill) && BOX64ENV(nosigill)) {
+    if(BOX64ENV(nosigill)) {
         context->no_sigill = 1;
     }
     if(BOX64ENV(addlibs)) {
@@ -594,7 +594,7 @@ void LoadEnvVars(box64context_t *context)
     if(getenv("PATH"))
         AppendList(&context->box64_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
 #ifdef HAVE_TRACE
-    if((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || strcmp(BOX64ENV(trace), "0")) {
+    if((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || (BOX64ENV(trace) && strcmp(BOX64ENV(trace), "0"))) {
         context->x64trace = 1;
     }
     if(my_context->x64trace) {
