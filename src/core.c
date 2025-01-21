@@ -430,8 +430,7 @@ void computeRDTSC()
     printf_log(LOG_INFO, "\n");
 }
 
-EXPORTDYN
-void LoadLogEnv()
+static void displayMiscInfo()
 {
     // grab BOX64ENV(trace_file), and change %pid to actual pid is present in the name
     openFTrace(NULL, 0);
@@ -445,23 +444,22 @@ void LoadLogEnv()
 
     char* p;
 
-    if (!BOX64ENV(nobanner) && BOX64ENV(rolling_log))
-        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", BOX64ENV(rolling_log));
-
-    if (!BOX64ENV(nobanner) && BOX64ENV(dump))
-        printf_log(LOG_INFO, "Elf Dump if ON\n");
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
+
 #ifdef DYNAREC
     // grab cpu extensions for dynarec usage
     GatherDynarecExtensions();
 #endif
-    // grab cpu name
+
+    // grab ncpu and cpu name
     int ncpu = getNCpu();
     const char* cpuname = getCpuName();
+
     printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd\n", cpuname, ncpu, ncpu > 1 ? "s" : "", box64_pagesize);
+
     // grab and calibrate hardware counter
     computeRDTSC();
 }
@@ -553,8 +551,7 @@ void addNewEnvVar(const char* s)
     box_free(p);
 }
 
-EXPORTDYN
-void LoadEnvVars(box64context_t *context)
+static void addLibPaths(box64context_t* context)
 {
     if(BOX64ENV(emulated_libs)) {
         char* p = BOX64ENV(emulated_libs);
@@ -591,6 +588,7 @@ void LoadEnvVars(box64context_t *context)
     loadPath(&context->box64_path, ".:bin", BOX64ENV(path));
     if(getenv("PATH"))
         AppendList(&context->box64_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
+
 #ifdef HAVE_TRACE
     if((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || (BOX64ENV(trace) && strcmp(BOX64ENV(trace), "0"))) {
         context->x64trace = 1;
@@ -895,8 +893,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     LoadEnvVariables();
     InitializeEnvFiles();
 
-    // check BOX64_LOG debug level
-    LoadLogEnv();
+    displayMiscInfo();
+
     char* bashpath = NULL;
     {
         char* p = BOX64ENV(bash);
@@ -1038,8 +1036,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // Create a new context
     my_context = NewBox64Context(argc - nextarg);
 
-    // check BOX64_LD_LIBRARY_PATH and load it
-    LoadEnvVars(my_context);
+    addLibPaths(my_context);
+
     // Append ld_list if it exist
     if(ld_libs_args!=-1)
         PrependList(&my_context->box64_ld_lib, argv[ld_libs_args], 1);
