@@ -397,7 +397,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/fileutils.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
-    "${BOX64_ROOT}/src/tools/rcfile.c"
+    "${BOX64_ROOT}/src/tools/env.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
@@ -1787,8 +1787,8 @@ if(BOX32)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref20.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    add_test(NAME multiple_dlopen_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test21 -D TEST_OUTPUT=tmpfile32_21.txt 
+    add_test(NAME multiple_dlopen_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test21 -D TEST_OUTPUT=tmpfile32_21.txt
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref21.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 

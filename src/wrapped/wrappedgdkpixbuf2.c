@@ -63,7 +63,7 @@ EXPORT void* my_gdk_pixbuf_new_from_data(x64emu_t* emu, void* data, int32_t colo
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

@@ -404,8 +404,8 @@ static void* find_DebugUtilsMessengerCallback_Fct(void* fct)
 
 //#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = box_strdup(libGL);} else
 
-#define PRE_INIT        \
-    if(box64_novulkan)  \
+#define PRE_INIT           \
+    if(BOX64ENV(novulkan)) \
         return -1;
 
 #define CUSTOM_INIT \

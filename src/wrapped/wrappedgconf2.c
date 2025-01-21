@@ -85,7 +85,7 @@ EXPORT uint32_t my_gconf_client_notify_add(x64emu_t* emu, void* client, void* se
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

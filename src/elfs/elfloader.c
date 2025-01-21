@@ -214,7 +214,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         return AllocLoadElfMemory32(context, head, mainbin);
     uintptr_t offs = 0;
     loadProtectionFromMap();
-    int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
+    int log_level = BOX64ENV(load_addr)?LOG_INFO:LOG_DEBUG;
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
     uintptr_t max_align = head->align-1;
@@ -223,10 +223,10 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             ++head->multiblock_n;
         }
 
-    if(!head->vaddr && box64_load_addr) {
-        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz+head->align, max_align);
-        box64_load_addr = offs + head->memsz;
-        box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
+    if(!head->vaddr && BOX64ENV(load_addr)) {
+        offs = (uintptr_t)find47bitBlockNearHint((void*)((BOX64ENV(load_addr)+max_align)&~max_align), head->memsz+head->align, max_align);
+        BOX64ENV(load_addr) = offs + head->memsz;
+        BOX64ENV(load_addr) = (BOX64ENV(load_addr)+0x10ffffffLL)&~0xffffffLL;
     }
     if(!offs && !head->vaddr)
         offs = (uintptr_t)find47bitBlockElf(head->memsz+head->align, mainbin, max_align); // limit to 47bits...
@@ -393,7 +393,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     mprotect((void*)paddr, asize, prot);
             }
 #ifdef DYNAREC
-            if(box64_dynarec && (e->p_flags & PF_X)) {
+            if(BOX64ENV(dynarec) && (e->p_flags & PF_X)) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", head->multiblocks[n].p, (void*)head->multiblocks[n].asize);
                 addDBFromAddressRange((uintptr_t)head->multiblocks[n].p, head->multiblocks[n].asize);
             }
@@ -433,7 +433,7 @@ void FreeElfMemory(elfheader_t* head)
 #ifdef DYNAREC
         for(int i=0; i<head->multiblock_n; ++i) {
             dynarec_log(LOG_INFO, "Free DynaBlocks %p-%p for %s\n", head->multiblocks[i].p, head->multiblocks[i].p+head->multiblocks[i].asize, head->path);
-            if(box64_dynarec)
+            if(BOX64ENV(dynarec))
                 cleanDBFromAddressRange((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].asize, 1);
             freeProtection((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].asize);
         }
@@ -948,7 +948,7 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
     (void)maplib;
     uintptr_t ep = h->entrypoint + h->delta;
     printf_log(LOG_DEBUG, "Entry Point is %p\n", (void*)ep);
-    if(box64_dump) {
+    if (BOX64ENV(dump)) {
         printf_dump(LOG_NEVER, "(short) Dump of Entry point\n");
         int sz = 64;
         uintptr_t lastbyte = GetLastByte(h);
@@ -980,10 +980,10 @@ void AddSymbols(lib_t *maplib, elfheader_t* h)
     if(box64_is32bits) {
         AddSymbols32(maplib, h);
     } else {
-        //if(box64_dump && h->hash)   old_elf_hash_dump(h);
-        //if(box64_dump && h->gnu_hash)   new_elf_hash_dump(h);
-        if(box64_dump && h->DynSym._64) DumpDynSym64(h);
-        if(h==my_context->elfs[0]) 
+        // if(BOX64ENV(dump) && h->hash)   old_elf_hash_dump(h);
+        // if(BOX64ENV(dump) && h->gnu_hash)   new_elf_hash_dump(h);
+        if (BOX64ENV(dump) && h->DynSym._64) DumpDynSym64(h);
+        if (h==my_context->elfs[0])
             GrabX64CopyMainElfReloc(h);
     }
     #ifndef STATICBUILD
@@ -1102,7 +1102,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
     // TODO: Add LD_LIBRARY_PATH and RPATH handling
     if(AddNeededLib(maplib, local, bindnow, deepbind, h->needed, h, box64, emu)) {
         printf_log(LOG_INFO, "Error loading one of needed lib\n");
-        if(!allow_missing_libs)
+        if(!BOX64ENV(allow_missing_libs))
             return 1;   //error...
     }
     return 0;
@@ -1460,7 +1460,7 @@ dynablock_t* GetDynablocksFromAddress(box64context_t *context, uintptr_t addr)
     if(ret) {
         return ret;
     }*/
-    if(box64_dynarec_forced) {
+    if(BOX64ENV(dynarec_forced)) {
         addDBFromAddressRange(addr, 1);
         return getDB(addr);
     }

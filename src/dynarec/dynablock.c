@@ -208,7 +208,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     }
 
     if(need_lock) {
-        if(box64_dynarec_wait) {
+        if(BOX64ENV(dynarec_wait)) {
             mutex_lock(&my_context->mutex_dyndump);
         } else {
             if(mutex_trylock(&my_context->mutex_dyndump))   // FillBlock not available for now

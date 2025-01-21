@@ -490,7 +490,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5D:
             INST_NAME("VMINPS Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
@@ -498,7 +498,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 // FMIN/FMAX wll not copy a NaN if either is NaN
                 // but x86 will copy src2 if either value is NaN, so lets force a copy of Src2 (Ex) if result is NaN
                 VFMINQS(v0, v2, v1);
-                if(!box64_dynarec_fastnan && (v2!=v1)) {
+                if(!BOX64ENV(dynarec_fastnan) && (v2!=v1)) {
                     VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                     VBIFQ(v0, v1, q0);   // copy dest where source is NaN
                 }
@@ -518,7 +518,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5F:
             INST_NAME("VMAXPS Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
@@ -526,7 +526,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 // FMIN/FMAX wll not copy a NaN if either is NaN
                 // but x86 will copy src2 if either value is NaN, so lets force a copy of Src2 (Ex) if result is NaN
                 VFMAXQS(v0, v2, v1);
-                if(!box64_dynarec_fastnan && (v2!=v1)) {
+                if(!BOX64ENV(dynarec_fastnan) && (v2!=v1)) {
                     VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                     VBIFQ(v0, v1, q0);   // copy dest where source is NaN
                 }
@@ -568,7 +568,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                         INST_NAME("VLDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if(box64_sse_flushto0) {
+                        if(BOX64ENV(sse_flushto0)) {
                             MRS_fpcr(x1);                   // get fpscr
                             LSRw_IMM(x3, ed, 15);           // get FZ bit
                             BFIw(x1, x3, 24, 1);            // inject FZ bit

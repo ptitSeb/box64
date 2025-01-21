@@ -201,11 +201,11 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("FISTTP Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FSFLAGSI(0); // reset all bits
                     }
                     FCVTWD(x4, v1, RD_RTZ);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FRFLAGS(x5); // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1 << FR_NV);
                         BEQZ_MARK(x5);
@@ -225,12 +225,12 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                     v2 = fpu_get_scratch(dyn);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FSFLAGSI(0); // reset all bits
                     }
                     FCVTWD(x4, v1, RD_DYN);
                     x87_restoreround(dyn, ninst, u8);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FRFLAGS(x5); // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1 << FR_NV);
                         BEQ_MARK2(x5, xZR);
@@ -260,7 +260,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SD(x5, ed, fixedaddress + 0);
                         SH(x6, ed, fixedaddress + 8);
                     } else {
-                        if (box64_x87_no80bits) {
+                        if (BOX64ENV(x87_no80bits)) {
                             X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_D);
                             FLD(v1, ed, fixedaddress);
                         } else {
@@ -274,7 +274,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("FSTP tbyte");
-                    if (box64_x87_no80bits) {
+                    if (BOX64ENV(x87_no80bits)) {
                         v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         FSD(v1, wback, fixedaddress);

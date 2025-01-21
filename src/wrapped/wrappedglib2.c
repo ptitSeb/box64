@@ -1537,7 +1537,7 @@ EXPORT void my_g_queue_insert_sorted(x64emu_t* emu, void* queue, void* data, voi
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

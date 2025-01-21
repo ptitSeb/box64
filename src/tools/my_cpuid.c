@@ -108,8 +108,8 @@ int getNCpu()
 {
     if(!nCPU)
         grabNCpu();
-    if(box64_maxcpu && nCPU>box64_maxcpu)
-        return box64_maxcpu;
+    if(BOX64ENV(maxcpu) && nCPU>BOX64ENV(maxcpu))
+        return BOX64ENV(maxcpu);
     return nCPU;
 }
 
@@ -200,7 +200,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     int ncpu = getNCpu();
     if(!ncpu) ncpu = 1;
     int ncluster = 1;
-    if(box64_cputype) {
+    if(BOX64ENV(cputype)) {
         while(ncpu>256) {
             ncluster++; // do cluster of 256 cpus...
             if(ncpu>=256)
@@ -228,8 +228,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
-            R_EAX = box64_cputype?0x0000000f:0x0000000f;//was 0x15 before, but something seems wrong for leaf 0x15, and cpu-z take that as pure cpu speed...
-            if(box64_cputype) {
+            R_EAX = BOX64ENV(cputype)?0x0000000f:0x0000000f;//was 0x15 before, but something seems wrong for leaf 0x15, and cpu-z take that as pure cpu speed...
+            if(BOX64ENV(cputype)) {
                 // return AuthenticAMD
                 R_EBX = 0x68747541;
                 R_ECX = 0x444d4163;
@@ -242,7 +242,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x1:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 R_EAX = (0xc<<0) | // stepping 0-3
                         (0x1<<4) | // base model 4-7
                         (0xf<<8) | // base familly 8-11
@@ -261,7 +261,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         (0x0<<20)| // extended familly
                         0 ; // family and all, simulating Haswell type of cpu
             }
-            R_EBX = 0 | (8<<0x8) | ((box64_cputype?0:ncluster)<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            R_EBX = 0 | (8<<0x8) | ((BOX64ENV(cputype)?0:ncluster)<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
             /*{
                 int cpu = sched_getcpu();
                 if(cpu<0) cpu=0;
@@ -289,31 +289,31 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<24     // fxsr (fxsave, fxrestore)
                     | 1<<25     // SSE
                     | 1<<26     // SSE2
-                    | (box64_cputype?0:1)<<28     // HT / Multi-core
+                    | (BOX64ENV(cputype)?0:1)<<28     // HT / Multi-core
                     ;
             R_ECX =   1<<0      // SSE3
                     | 1<<1      // PCLMULQDQ
-                    | (box64_cputype?0:1)<<2      // DS 64bits
+                    | (BOX64ENV(cputype)?0:1)<<2      // DS 64bits
                     | 1<<3      // Monitor/MWait (priviledge instructions)
-                    | (box64_cputype?0:1)<<5      // VMX  //is that usefull
+                    | (BOX64ENV(cputype)?0:1)<<5      // VMX  //is that usefull
                     | 1<<9      // SSSE3
-                    | box64_avx2<<12     // fma
+                    | BOX64ENV(avx2)<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
-                    | box64_sse42<<20     // SSE4_2 can be hiden
+                    | BOX64ENV(sse42)<<20     // SSE4_2 can be hiden
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
-                    | box64_avx<<26 // xsave
-                    | box64_avx<<27 // osxsave
-                    | box64_avx<<28 // AVX
-                    | box64_avx<<29 // F16C
-                    | box64_avx2<<30     // RDRAND
+                    | BOX64ENV(avx)<<26 // xsave
+                    | BOX64ENV(avx)<<27 // osxsave
+                    | BOX64ENV(avx)<<28 // AVX
+                    | BOX64ENV(avx)<<29 // F16C
+                    | BOX64ENV(avx2)<<30     // RDRAND
                     | 0<<31     // Hypervisor guest running
                     ; 
             break;
         case 0x2:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -326,7 +326,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
         
         case 0x4:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -381,23 +381,23 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             if(R_ECX==0) {
                 R_EAX = 0;
                 R_EBX = 
-                        box64_avx<<3 |  // BMI1 
-                        box64_avx2<<5 |  //AVX2
-                        (box64_cputype?0:1)<<6 | // FDP_EXCPTN_ONLY
+                        BOX64ENV(avx)<<3 |  // BMI1 
+                        BOX64ENV(avx2)<<5 |  //AVX2
+                        (BOX64ENV(cputype)?0:1)<<6 | // FDP_EXCPTN_ONLY
                         1<<7 | // SMEP
-                        box64_avx2<<8 | //BMI2
-                        (box64_cputype?0:1)<<9 |    // Enhanced REP MOVSB   // is it a good idea?
+                        BOX64ENV(avx2)<<8 | //BMI2
+                        (BOX64ENV(cputype)?0:1)<<9 |    // Enhanced REP MOVSB   // is it a good idea?
                         1<<10 | //INVPCID (priviledge instruction
-                        (box64_cputype?0:1)<<13 | // Deprecates FPU CS and FPU DS
+                        (BOX64ENV(cputype)?0:1)<<13 | // Deprecates FPU CS and FPU DS
                         0<<18 | // RDSEED
-                        box64_avx2<<19 | //ADX
+                        BOX64ENV(avx2)<<19 | //ADX
                         1<<23 | // CLFLUSHOPT
                         1<<24 | // CLWB
-                        box64_shaext<<29|  // SHA extension
+                        BOX64ENV(shaext)<<29|  // SHA extension
                         0;
                 R_RCX = 
-                        box64_avx<<9   | //VAES
-                        box64_avx2<<10 | //VPCLMULQDQ.
+                        BOX64ENV(avx)<<9   | //VAES
+                        BOX64ENV(avx2)<<10 | //VPCLMULQDQ.
                         1<<22 | // RDPID
                         0;
                 R_RDX = 0;
@@ -405,7 +405,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
             break;
         case 0xB:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -416,7 +416,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0xC:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -453,7 +453,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EAX = 0;
             break;
         case 0xF:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -475,7 +475,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x14:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -492,7 +492,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x15:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // reserved
                 R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
             } else {
@@ -512,7 +512,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
 
         case 0x80000000:        // max extended
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 R_EAX = 0x8000001a;
                 R_EBX = 0x68747541;
                 R_ECX = 0x444d4163;
@@ -522,7 +522,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x80000001:        //Extended Processor Signature and Feature Bits
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 R_EAX = (0xc<<0) | // stepping 0-3
                         (0x1<<4) | // base model 4-7
                         (0xf<<8) | // base familly 8-11
@@ -606,7 +606,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EDX = ((uint32_t*)branding)[11];
             break;  
         case 0x80000005:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 //L1 cache and TLB
                 R_EAX = 0;
                 R_EBX = 0;
@@ -620,7 +620,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x80000006:    // L2 cache line size and associativity
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 R_EAX = 0;
                 R_EBX = 0;
                 R_ECX = 64 | (0x6<<12) | (256<<16); // bits: 0-7 line size, 15-12: assoc (using special encoding), 31-16: size in K    //TODO: read info from /sys/devices/system/cpu/cpuX/cache/index2
@@ -633,7 +633,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x80000007:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // Advanced Power Management Information
                 R_EAX = 0;
                 R_EBX = 0;
@@ -648,7 +648,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x80000008:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // Address Size And Physical Core Count Information
                 R_EAX = 0;  // 23-16 guest / 15-8 linear / 7-0 phys
                 R_EBX = 0;  // reserved
@@ -663,7 +663,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x8000000a:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // SVM Revision and Feature Identification 
                 R_EAX = 0;
                 R_EBX = 0;
@@ -678,7 +678,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x8000001a:
-            if(box64_cputype) {
+            if(BOX64ENV(cputype)) {
                 // Performance Optimization Identifiers
                 R_EAX =   1<<0  // FP128
                         | 1<<1  // MOVU

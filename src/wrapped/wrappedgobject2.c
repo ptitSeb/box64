@@ -839,7 +839,7 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT \

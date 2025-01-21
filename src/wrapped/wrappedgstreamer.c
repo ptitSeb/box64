@@ -1229,7 +1229,7 @@ EXPORT void my_gst_mini_object_init(x64emu_t* emu, void* obj, uint32_t flags, si
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT \

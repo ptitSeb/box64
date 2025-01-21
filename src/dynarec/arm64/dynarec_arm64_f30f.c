@@ -131,13 +131,13 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0, 0);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
             FCVTZSxwS(gd, d0);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -152,7 +152,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEXSS(q0, 0, 0);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
@@ -162,7 +162,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             FRINTIS(d1, q0);
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwS(gd, d1);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -258,7 +258,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn, ninst);
             GETEXSS(d0, 0, 0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -288,7 +288,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0) ;
             GETGX_empty(v0);
-            if(box64_dynarec_fastround) {
+            if(BOX64ENV(dynarec_fastround)) {
                 VFCVTZSQS(v0, v1);
             } else {
                 MRS_fpsr(x5);

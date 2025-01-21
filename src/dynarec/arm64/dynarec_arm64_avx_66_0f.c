@@ -295,13 +295,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x51:
             INST_NAME("VSQRTPD Gx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 d1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
                     VFCMEQQD(d0, v1, v1);    // 0 if NAN, 1 if not NAN
                     VFSQRTQD(v0, v1);
@@ -359,19 +359,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x58:
             INST_NAME("VADDPD Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
                     VFMAXQD(q0, v2, v1);    // propagate NAN
                     VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFADDQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
                     VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
                     VSHLQ_64(q1, q1, 63);   // only keep the sign bit
@@ -383,19 +383,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x59:
             INST_NAME("VMULPD Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
                     VFMAXQD(q0, v2, v1);    // propagate NAN
                     VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFMULQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
                     VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
                     VSHLQ_64(q1, q1, 63);   // only keep the sign bit
@@ -409,7 +409,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            if(box64_dynarec_fastround==2) {
+            if(BOX64ENV(dynarec_fastround)==2) {
                 FCVTXN(v0, v1);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x4);
@@ -418,7 +418,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(vex.l) {
                 GETEY(v1);
-                if(box64_dynarec_fastround==2) {
+                if(BOX64ENV(dynarec_fastround)==2) {
                     FCVTXN2(v0, v1);
                 } else {
                     FCVTN2(v0, v1);
@@ -431,14 +431,14 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VCVTPS2DQ Gx, Ex");
             nextop = F8;
             u8 = sse_setround(dyn, ninst, x1, x2, x6);
-            if(!box64_dynarec_fastround && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 d1 = fpu_get_scratch(dyn, ninst);
                 MOVI_32_lsl(d1, 0x80, 3);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETEX(v1, 0, 0); GETGX_empty(v0); } else { GETGY_empty_EY(v0, v1); }
-                if(box64_dynarec_fastround) {
+                if(BOX64ENV(dynarec_fastround)) {
                     VFRINTISQ(v0, v1);
                     VFCVTZSQS(v0, v0);
                 } else {
@@ -467,19 +467,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5C:
             INST_NAME("VSUBPD Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
                     VFMAXQD(q0, v1, v2);    // propagate NAN
                     VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFSUBQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
                     VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
                     VSHLQ_64(q1, q1, 63);   // only keep the sign bit
@@ -491,14 +491,14 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5D:
             INST_NAME("VMINPD Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan)
+            if(!BOX64ENV(dynarec_fastnan))
                 q0 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 // FMIN/FMAX wll not copy a NaN if either is NaN
                 // but x86 will copy src2 if either value is NaN, so lets force a copy of Src2 (Ex) if result is NaN
                 VFMINQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan && (v2!=v1)) {
+                if(!BOX64ENV(dynarec_fastnan) && (v2!=v1)) {
                     VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                     VBIFQ(v0, v1, q0);   // copy dest where source is NaN
                 }
@@ -508,19 +508,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5E:
             INST_NAME("DIVPD Gx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
                     VFMAXQD(q0, v2, v1);    // propagate NAN
                     VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFDIVQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
                     VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
                     VSHLQ_64(q1, q1, 63);   // only keep the sign bit
@@ -532,7 +532,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5F:
             INST_NAME("VMAXPD Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
@@ -540,7 +540,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 // FMIN/FMAX wll not copy a NaN if either is NaN
                 // but x86 will copy src2 if either value is NaN, so lets force a copy of Src2 (Ex) if result is NaN
                 VFMAXQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan && (v2!=v1)) {
+                if(!BOX64ENV(dynarec_fastnan) && (v2!=v1)) {
                     VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                     VBIFQ(v0, v1, q0);   // copy dest where source is NaN
                 }
@@ -1125,13 +1125,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x7C:
             INST_NAME("VHADDPD Gx, Vx, Ex");
             nextop = F8;
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
                     // but need to mix low/high part
                     VTRNQ1_64(q0, v2, v1);
@@ -1140,7 +1140,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFADDPQD(v0, v2, v1);
-                if(!box64_dynarec_fastnan) {
+                if(!BOX64ENV(dynarec_fastnan)) {
                     VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
                     VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
                     VSHLQ_64(q1, q1, 63);   // only keep the sign bit
@@ -1616,11 +1616,11 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     GETEX_Y(v1, 0, 0);
                     GETGX_empty(v0);
                 } else {
-                    if(box64_dynarec_fastround)
+                    if(BOX64ENV(dynarec_fastround))
                         d0 = fpu_get_scratch(dyn, ninst);
                     GETEY(v1);
                 }
-                if(box64_dynarec_fastround) {
+                if(BOX64ENV(dynarec_fastround)) {
                     VFCVTZSQD(l?d0:v0, v1); // convert double -> int64
                     if(!l)
                         SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part

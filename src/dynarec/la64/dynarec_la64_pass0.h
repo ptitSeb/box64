@@ -12,7 +12,7 @@
     dyn->f.pending = SF_SET
 
 #define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                 \
-    if (box64_dynarec_nativeflags && ninst > 0 && !dyn->insts[ninst - 1].nat_flags_nofusion) {                  \
+    if (BOX64ENV(dynarec_nativeflags) && ninst > 0 && !dyn->insts[ninst - 1].nat_flags_nofusion) {                  \
         if ((A) == (X_ZF))                                                                                      \
             dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
         else if (dyn->insts[ninst - 1].nat_flags_carry && ((A) == (X_CF) || (A) == (X_CF | X_ZF)))              \
@@ -54,7 +54,7 @@
 #define DEFAULT                                                                                                                                     \
     --dyn->size;                                                                                                                                    \
     *ok = -1;                                                                                                                                       \
-    if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing==1) {                                                          \
+    if (BOX64ENV(dynarec_log) >= LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing)==1) {                                                          \
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
             (void*)ip, rex.is32bits ? "32bits " : "",                                                                                               \
             PKip(0),                                                                                                                                \

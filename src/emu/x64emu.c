@@ -415,7 +415,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
     char tmp[160];
     buff[0] = '\0';
 #ifdef HAVE_TRACE
-    if(trace_emm) {
+    if(BOX64ENV(trace_emm)) {
         // do emm reg if needed
         for(int i=0; i<8; ++i) {
             sprintf(tmp, "mm%d:%016lx", i, emu->mmx[i].q);
@@ -423,10 +423,10 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
     }
-    if(trace_xmm) {
+    if(BOX64ENV(trace_xmm)) {
         // do xmm reg if needed
         for(int i=0; i<(is32bits?8:16); ++i) {
-            if (trace_regsdiff && (emu->old_xmm[i].q[0] != emu->xmm[i].q[0] || emu->old_xmm[i].q[1] != emu->xmm[i].q[1])) {
+            if (BOX64ENV(trace_regsdiff) && (emu->old_xmm[i].q[0] != emu->xmm[i].q[0] || emu->old_xmm[i].q[1] != emu->xmm[i].q[1])) {
                 sprintf(tmp, "\e[1;35m%02d:%016lx-%016lx\e[m", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
                 emu->old_xmm[i].q[0] = emu->xmm[i].q[0];
                 emu->old_xmm[i].q[1] = emu->xmm[i].q[1];
@@ -434,8 +434,8 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 sprintf(tmp, "%02d:%016lx-%016lx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
             }
             strcat(buff, tmp);
-            if(box64_avx) {
-                if (trace_regsdiff && (emu->old_ymm[i].q[0] != emu->ymm[i].q[0] || emu->old_ymm[i].q[1] != emu->ymm[i].q[1])) {
+            if(BOX64ENV(avx)) {
+                if (BOX64ENV(trace_regsdiff) && (emu->old_ymm[i].q[0] != emu->ymm[i].q[0] || emu->old_ymm[i].q[1] != emu->ymm[i].q[1])) {
                     sprintf(tmp, "\e[1;35m-%016lx-%016lx\e[m", emu->ymm[i].q[1], emu->ymm[i].q[0]);
                     emu->old_ymm[i].q[0] = emu->ymm[i].q[0];
                     emu->old_ymm[i].q[1] = emu->ymm[i].q[1];
@@ -444,7 +444,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 }
                 strcat(buff, tmp);
             }
-            if(box64_avx)
+            if(BOX64ENV(avx))
                 if ((i&1)==1) strcat(buff, "\n"); else strcat(buff, " ");
             else
                 if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
@@ -477,7 +477,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
     if(is32bits)
         for (int i=_AX; i<=_RDI; ++i) {
 #ifdef HAVE_TRACE
-            if (trace_regsdiff && (emu->regs[i].dword[0] != emu->oldregs[i].q[0])) {
+            if (BOX64ENV(trace_regsdiff) && (emu->regs[i].dword[0] != emu->oldregs[i].q[0])) {
                 sprintf(tmp, "\e[1;35m%s=%08x\e[m ", regname32[i], emu->regs[i].dword[0]);
                 emu->oldregs[i].q[0] = emu->regs[i].dword[0];
             } else {
@@ -505,7 +505,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
     else
         for (int i=_AX; i<=_R15; ++i) {
 #ifdef HAVE_TRACE
-            if (trace_regsdiff && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
+            if (BOX64ENV(trace_regsdiff) && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
                 sprintf(tmp, "\e[1;35m%s=%016lx\e[m ", regname[i], emu->regs[i].q[0]);
                 emu->oldregs[i].q[0] = emu->regs[i].q[0];
             } else {

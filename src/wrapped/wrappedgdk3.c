@@ -199,7 +199,7 @@ EXPORT void my3_gdk_threads_set_lock_functions(x64emu_t* emu, void* enter_fn, vo
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define ALTMY my3_

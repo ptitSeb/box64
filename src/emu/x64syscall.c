@@ -450,14 +450,14 @@ void EXPORT x64Syscall(x64emu_t *emu)
     char buff2[64] = "\0";
     char* buff = NULL;
     char* buffret = NULL;
-    if(box64_log>=LOG_DEBUG || cycle_log) {
+    if(BOX64ENV(log) >= LOG_DEBUG || BOX64ENV(rolling_log)) {
         log = 1;
-        buff = cycle_log?my_context->log_call[my_context->current_line]:t_buff;
-        buffret = cycle_log?my_context->log_ret[my_context->current_line]:t_buffret;
-        if(cycle_log)
-            my_context->current_line = (my_context->current_line+1)%cycle_log;
+        buff = BOX64ENV(rolling_log)?my_context->log_call[my_context->current_line]:t_buff;
+        buffret = BOX64ENV(rolling_log)?my_context->log_ret[my_context->current_line]:t_buffret;
+        if(BOX64ENV(rolling_log))
+            my_context->current_line = (my_context->current_line+1)%BOX64ENV(rolling_log);
         snprintf(buff, 255, "%04d|%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9);
-        if(!cycle_log)
+        if(!BOX64ENV(rolling_log))
             printf_log(LOG_NONE, "%s", buff);
     }
     // check wrapper first
@@ -480,7 +480,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         if(S_RAX==-1 && errno>0)
             S_RAX = -errno;
         if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
-        if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
+        if(log && !BOX64ENV(rolling_log)) printf_log(LOG_NONE, "=> %s\n", buffret);
         return;
     }
     switch (s) {
@@ -838,7 +838,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         #endif
         case 449:
             #ifdef __NR_futex_waitv
-            if(box64_futex_waitv)
+            if(BOX64ENV(futex_waitv))
                 S_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
             else
             #endif
@@ -851,7 +851,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             return;
     }
     if(log) snprintf(buffret, 127, "0x%lx%s", R_RAX, buff2);
-    if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
+    if(log && !BOX64ENV(rolling_log)) printf_log(LOG_NONE, "=> %s\n", buffret);
 }
 
 #define stack(n) (R_RSP+8+n)
@@ -1116,7 +1116,7 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 449:
             #ifdef __NR_futex_waitv
-            if(box64_futex_waitv)
+            if(BOX64ENV(futex_waitv))
                 return syscall(__NR_futex_waitv, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
             else
             #endif

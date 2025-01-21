@@ -783,8 +783,8 @@ EXPORT unsigned long my32_2_SDL_GetThreadID(x64emu_t* emu, void* thread)
 EXPORT int my32_2_SDL_GetCPUCount(x64emu_t* emu)
 {
     int ret = my->SDL_GetCPUCount();
-    if(box64_maxcpu && ret>box64_maxcpu)
-        ret = box64_maxcpu;
+    if(BOX64ENV(maxcpu) && ret>BOX64ENV(maxcpu))
+        ret = BOX64ENV(maxcpu);
     return ret;
 }
 

@@ -890,9 +890,9 @@ static void* find_glVDPAUUnmapSurfacesNV_Fct(void* fct)
 #undef SUPER
 
 #define PRE_INIT                                                                \
-    if(box64_libGL) {                                                           \
-        lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL);              \
-        lib->path = strdup(box64_libGL);                                        \
+    if(BOX64ENV(libgl)) {                                                           \
+        lib->w.lib = dlopen(BOX64ENV(libgl), RTLD_LAZY | RTLD_GLOBAL);              \
+        lib->path = strdup(BOX64ENV(libgl));                                        \
     } else if(strstr(lib->name, "libGLX_nvidia.so.0")) {                        \
         lib->w.lib = dlopen("libGLX_nvidia.so.0", RTLD_LAZY | RTLD_GLOBAL);     \
         if(lib->w.lib) lib->path = strdup("libGLX_nvidia.so.0");                \

@@ -624,7 +624,7 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT \

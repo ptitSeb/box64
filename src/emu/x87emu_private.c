@@ -81,7 +81,7 @@ void fpu_fbld(x64emu_t* emu, uint8_t* s) {
 // long double (80bits) -> double (64bits)
 void LD2D(void* ld, void* d)
 {
-    if(box64_x87_no80bits) {
+    if(BOX64ENV(x87_no80bits)) {
         *(uint64_t*)d = *(uint64_t*)ld;
         return;
     }
@@ -160,7 +160,7 @@ void LD2D(void* ld, void* d)
 // double (64bits) -> long double (80bits)
 void D2LD(void* d, void* ld)
 {
-    if(box64_x87_no80bits) {
+    if(BOX64ENV(x87_no80bits)) {
         *(uint64_t*)ld = *(uint64_t*)d;
         return;
     }
@@ -214,7 +214,7 @@ void D2LD(void* d, void* ld)
 
 double FromLD(void* ld)
 {
-    if(box64_x87_no80bits)
+    if(BOX64ENV(x87_no80bits))
         return *(double*)ld;
     double ret; // cannot add = 0; it break factorio (issue when calling fmodl)
     LD2D(ld, &ret);
@@ -379,7 +379,7 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
     emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
     emu->mxcsr.x32 = p->MxCsr;
-    if(box64_sse_flushto0)
+    if(BOX64ENV(sse_flushto0))
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
@@ -404,7 +404,7 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
     emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
     emu->mxcsr.x32 = p->MxCsr;
-    if(box64_sse_flushto0)
+    if(BOX64ENV(sse_flushto0))
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
@@ -488,7 +488,7 @@ void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
         emu->cw.x16 = p->ControlWord;
         emu->sw.x16 = p->StatusWord;
         emu->mxcsr.x32 = p->MxCsr;
-        if(box64_sse_flushto0)
+        if(BOX64ENV(sse_flushto0))
             applyFlushTo0(emu);
         emu->top = emu->sw.f.F87_TOP;
         uint8_t tags = p->TagWord;

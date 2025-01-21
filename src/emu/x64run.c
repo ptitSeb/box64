@@ -590,7 +590,7 @@ x64emurun:
         case 0x6E:                      /* OUTSB DX */
         case 0x6F:                      /* OUTSD DX */
 #ifndef TEST_INTERPRETER
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {
             } else {
                 emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
@@ -1872,7 +1872,7 @@ x64emurun:
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
             F8;
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
@@ -1912,7 +1912,7 @@ x64emurun:
         case 0xEF:                      /* OUT DX, EAX */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
@@ -2075,14 +2075,14 @@ x64emurun:
             break;
         case 0xFA:                      /* CLI */
             // this is a privilege opcode
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             break;
         case 0xFB:                      /* STI */
             // this is a privilege opcode
-            if(rex.is32bits && box64_ignoreint3)
+            if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;

@@ -5,7 +5,7 @@
     addInst(dyn->instsize, &dyn->insts_size, 0, 0);
 #define EMIT(A)                                                        \
     do {                                                               \
-        if (box64_dynarec_dump) print_opcode(dyn, ninst, (uint32_t)A); \
+        if (BOX64ENV(dynarec_dump)) print_opcode(dyn, ninst, (uint32_t)A); \
         *(uint32_t*)(dyn->block) = (uint32_t)(A);                      \
         dyn->block += 4;                                               \
         dyn->native_size += 4;                                         \
@@ -13,13 +13,13 @@
     } while (0)
 
 #define MESSAGE(A, ...) \
-    if (box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
+    if (BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST                                                                                                  \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                         \
     dyn->inst_sew = dyn->vector_sew;                                                                              \
     dyn->inst_vlmul = VECTOR_LMUL1;                                                                               \
     dyn->inst_vl = 0;                                                                                             \
-    if (box64_dynarec_dump) print_newinst(dyn, ninst);                                                            \
+    if (BOX64ENV(dynarec_dump)) print_newinst(dyn, ninst);                                                            \
     if (ninst) {                                                                                                  \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
@@ -44,7 +44,7 @@
     }
 
 #define DEFAULT_VECTOR                                                                                       \
-    if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing == 2) {                 \
+    if (BOX64ENV(dynarec_log) >= LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing) == 2) {                 \
         dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %sOpcode"                   \
                               " %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
             (void*)ip, rex.is32bits ? "x86 " : "x64 ",                                                       \

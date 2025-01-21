@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
+#include "env.h"
+
 #ifndef MAP_FAILED
 #define MAP_FAILED ((void *) -1)
 #endif
@@ -29,12 +31,12 @@ void* box_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ss
 void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
 
 extern int running32bits;
-extern int box64_mmap32;
+extern box64env_t box64env;
 
 EXPORT void* mmap64(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
 {
     void* ret;
-    if(!addr && ((running32bits && box64_mmap32) || (flags&MAP_32BIT) || box64_is32bits))
+    if(!addr && ((running32bits && BOX64ENV(mmap32)) || (flags&MAP_32BIT) || box64_is32bits))
         ret = box_mmap(addr, length, prot, flags | MAP_32BIT, fd, offset);
     else
         ret = internal_mmap(addr, length, prot, flags, fd, offset);

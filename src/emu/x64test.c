@@ -106,7 +106,7 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
         BANNER;
         printf_log(LOG_NONE, "MXCSR: %x | %x\n", ref->mxcsr.x32, emu->mxcsr.x32);
     }
-    if(box64_avx)
+    if(BOX64ENV(avx))
         if(memcmp(ref->ymm, emu->ymm, sizeof(emu->ymm))) {
             BANNER;
             for(int i=0; i<16; ++i) {

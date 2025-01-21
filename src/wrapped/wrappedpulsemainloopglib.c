@@ -35,7 +35,7 @@ EXPORT void* my_pa_glib_mainloop_get_api(x64emu_t* emu, void* mainloop)
 }
 
 #define PRE_INIT        \
-    if(box64_nopulse)   \
+    if(BOX64ENV(nopulse))   \
         return -1;
 
 #define NEEDED_LIBS "libpulse.so.0"

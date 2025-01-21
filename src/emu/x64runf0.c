@@ -290,7 +290,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
-                if(box64_dynarec_test) {
+                if(BOX64ENV(dynarec_test)) {
                     CLEAR_FLAG(F_OF);
                     CLEAR_FLAG(F_SF);
                     CLEAR_FLAG(F_AF);
@@ -478,7 +478,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     }
                     pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
-                    if(box64_dynarec_test) {
+                    if(BOX64ENV(dynarec_test)) {
                         CLEAR_FLAG(F_OF);
                         CLEAR_FLAG(F_SF);
                         CLEAR_FLAG(F_AF);
@@ -506,7 +506,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     else
                                         CLEAR_FLAG(F_CF);
                                 }
-                                if(box64_dynarec_test) {
+                                if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
                                     CLEAR_FLAG(F_AF);
@@ -580,7 +580,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
-                                if(box64_dynarec_test) {
+                                if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
                                     CLEAR_FLAG(F_AF);
@@ -638,7 +638,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
-                                if(box64_dynarec_test) {
+                                if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
                                     CLEAR_FLAG(F_AF);
@@ -692,7 +692,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
-                                if(box64_dynarec_test) {
+                                if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
                                     CLEAR_FLAG(F_AF);

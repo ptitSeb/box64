@@ -1180,18 +1180,18 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     B##COND(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
 
 #define NOTEST(s1)                                       \
-    if (box64_dynarec_test) {                            \
+    if (BOX64ENV(dynarec_test)) {                        \
         ST_W(xZR, xEmu, offsetof(x64emu_t, test.test));  \
         ST_W(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
 
 #define SKIPTEST(s1)                                     \
-    if (box64_dynarec_test) {                            \
+    if (BOX64ENV(dynarec_test)) {                        \
         ST_W(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
 
 #define GOTEST(s1, s2)                                 \
-    if (box64_dynarec_test) {                          \
+    if (BOX64ENV(dynarec_test)) {                      \
         MOV32w(s2, 1);                                 \
         ST_W(s2, xEmu, offsetof(x64emu_t, test.test)); \
     }

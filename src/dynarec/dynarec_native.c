@@ -30,15 +30,15 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
     if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
         uintptr_t a = *(uintptr_t*)(ip+3);
         if(a==0) {
-            dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (box64_dynarec_dump>1)?"\e[01;33m":"", (void*)ip, (box64_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[01;33m":"", (void*)ip, (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
         } else {
-            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (box64_dynarec_dump>1)?"\e[01;33m":"", (void*)ip, (void*)a, (box64_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[01;33m":"", (void*)ip, (void*)a, (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%s%p: %s", (box64_dynarec_dump > 1) ? "\e[01;33m" : "", ip, DecodeX64Trace(dec, inst->addr, 1));
+            dynarec_log(LOG_NONE, "%s%p: %s", (BOX64ENV(dynarec_dump) > 1) ? "\e[01;33m" : "", ip, DecodeX64Trace(dec, inst->addr, 1));
         } else {
-            dynarec_log(LOG_NONE, "%s%p: ", (box64_dynarec_dump>1)?"\e[01;33m":"", ip);
+            dynarec_log(LOG_NONE, "%s%p: ", (BOX64ENV(dynarec_dump)>1)?"\e[01;33m":"", ip);
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
             }
@@ -55,12 +55,12 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
             }
         }
         // end of line and colors
-        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
+        dynarec_log(LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
     }
 }
 
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
-    if(!box64_dynarec_bigblock)
+    if(!BOX64ENV(dynarec_bigblock))
         return;
     // exist?
     for(int i=0; i<dyn->next_sz; ++i)
@@ -422,7 +422,7 @@ static void updateYmm0s(dynarec_native_t* dyn, int ninst, int max_ninst_reached)
     int can_incr = ninst == max_ninst_reached; // Are we the top-level call?
     int ok = 1;
     while ((can_incr || ok) && ninst<dyn->size) {
-        //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "update ninst=%d (%d): can_incr=%d\n", ninst, max_ninst_reached, can_incr);
+        //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "update ninst=%d (%d): can_incr=%d\n", ninst, max_ninst_reached, can_incr);
         uint16_t new_purge_ymm, new_ymm0_in, new_ymm0_out;
 
         if (dyn->insts[ninst].pred_sz && dyn->insts[ninst].x64.alive) {
@@ -433,18 +433,18 @@ static void updateYmm0s(dynarec_native_t* dyn, int ninst, int max_ninst_reached)
             uint16_t ymm0_inter = (ninst && !(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? ((uint16_t)-1) : (uint16_t)0;
             for (int i = 0; i < dyn->insts[ninst].pred_sz; ++i) {
                 int pred = dyn->insts[ninst].pred[i];
-                //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "\twith pred[%d] = %d", i, pred);
+                //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "\twith pred[%d] = %d", i, pred);
                 if (pred >= max_ninst_reached) {
-                    //if(box64_dynarec_dump) dynarec_log(LOG_NONE, " (skipped)\n");
+                    //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, " (skipped)\n");
                     continue;
                 }
 
                 int pred_out = dyn->insts[pred].x64.has_callret ? 0 : dyn->insts[pred].ymm0_out;
-                //if(box64_dynarec_dump) dynarec_log(LOG_NONE, " ~> %04X\n", pred_out);
+                //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, " ~> %04X\n", pred_out);
                 ymm0_union |= pred_out;
                 ymm0_inter &= pred_out;
             }
-            //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "\t=> %04X,%04X\n", ymm0_union, ymm0_inter);
+            //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "\t=> %04X,%04X\n", ymm0_union, ymm0_inter);
             // Notice the default values yield something coherent here (if all pred are after ninst)
             new_purge_ymm = ymm0_union & ~ymm0_inter;
             new_ymm0_in = ymm0_inter;
@@ -466,7 +466,7 @@ static void updateYmm0s(dynarec_native_t* dyn, int ninst, int max_ninst_reached)
 
                 int jmp = (dyn->insts[ninst].x64.jmp)?dyn->insts[ninst].x64.jmp_insts:-1;
                 if((jmp!=-1) && (jmp < max_ninst_reached)) {
-                    //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "\t! jump to %d\n", jmp);
+                    //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "\t! jump to %d\n", jmp);
                     // The jump goes before the last instruction reached, update the destination
                     // If this is the top level call, this means the jump goes backward (jmp != ninst)
                     // Otherwise, since we don't update all instructions, we may miss the update (don't use jmp < ninst)
@@ -480,7 +480,7 @@ static void updateYmm0s(dynarec_native_t* dyn, int ninst, int max_ninst_reached)
                     // Also update jumps to before (they are skipped otherwise)
                     int jmp = (dyn->insts[ninst].x64.jmp)?dyn->insts[ninst].x64.jmp_insts:-1;
                     if((jmp!=-1) && (jmp < max_ninst_reached)) {
-                        //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "\t! jump to %d\n", jmp);
+                        //if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "\t! jump to %d\n", jmp);
                         updateYmm0s(dyn, jmp, max_ninst_reached);
                     }
                 } else {
@@ -597,7 +597,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         C ..    C+sz    : arch: arch specific info (likes flags info) per inst (can be absent)
 
     */
-    if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
+    if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return CreateEmptyBlock(block, addr, is32bits);
     }
@@ -627,7 +627,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -742,7 +742,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
+        if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -750,7 +750,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 2, instruction size
     native_pass2(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
+        if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -783,12 +783,12 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.table64cap = helper.table64size;
     helper.table64 = (uint64_t*)helper.tablestart;
     // pass 3, emit (log emit native opcode)
-    if(box64_dynarec_dump) {
-        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu)", (box64_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size); 
+    if(BOX64ENV(dynarec_dump)) {
+        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu)", (BOX64ENV(dynarec_dump)>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size); 
         printFunctionAddr(helper.start, " => ");
-        dynarec_log(LOG_NONE, "%s\n", (box64_dynarec_dump>1)?"\e[m":"");
+        dynarec_log(LOG_NONE, "%s\n", (BOX64ENV(dynarec_dump)>1)?"\e[m":"");
     }
-    if (box64_dynarec_gdbjit) {
+    if (BOX64ENV(dynarec_gdbjit)) {
         GdbJITNewBlock(helper.gdbjit_block, (GDB_CORE_ADDR)block->actual_block, (GDB_CORE_ADDR)block->actual_block + native_size, helper.start);
     }
     int oldtable64size = helper.table64size;
@@ -800,7 +800,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.insts_size = 0;  // reset
     native_pass3(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
+        if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -833,7 +833,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     //block->x64_addr = (void*)start;
     block->x64_size = end-start;
     // all done...
-    if (box64_dynarec_gdbjit) {
+    if (BOX64ENV(dynarec_gdbjit)) {
         GdbJITBlockReady(helper.gdbjit_block);
     }
     ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...
@@ -892,5 +892,5 @@ void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, co
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, func_addr), (void*)func_addr, &start, &sz);
     snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s:%s\n", code_addr, code_size, symbname, inst_name);
-    write(box64_dynarec_perf_map_fd, pbuf, strlen(pbuf));
+    write(BOX64ENV(dynarec_perf_map_fd), pbuf, strlen(pbuf));
 }

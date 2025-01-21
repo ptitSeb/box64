@@ -259,7 +259,7 @@ void FreeBox64Context(box64context_t** context);
 // Cycle log handling
 void freeCycleLog(box64context_t* ctx);
 void initCycleLog(box64context_t* context);
-void print_cycle_log(int loglevel);
+void print_rolling_log(int loglevel);
 
 // return the index of the added header
 int AddElfHeader(box64context_t* ctx, elfheader_t* head);

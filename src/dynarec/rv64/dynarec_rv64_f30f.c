@@ -134,13 +134,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
             }
             FCVTSxw(gd, d0, RD_RTZ);
             if (!rex.w)
                 ZEROUP(gd);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
@@ -156,7 +156,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
             }
             u8 = sse_setround(dyn, ninst, x5, x6);
@@ -164,7 +164,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             x87_restoreround(dyn, ninst, u8);
             if (!rex.w)
                 ZEROUP(gd);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
@@ -209,12 +209,12 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x3, v0, v0);
                 FEQS(x4, d0, d0);
             }
             FADDS(v0, v0, d0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 AND(x3, x3, x4);
                 BNEZ_MARK(x3);
                 CBNZ_NEXT(x4);
@@ -227,12 +227,12 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x3, v0, v0);
                 FEQS(x4, d0, d0);
             }
             FMULS(v0, v0, d0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 AND(x3, x3, x4);
                 BNEZ_MARK(x3);
                 CBNZ_NEXT(x4);
@@ -264,12 +264,12 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 12);
             v0 = fpu_get_scratch(dyn);
             for (int i = 0; i < 4; ++i) {
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // reset all bits
                 }
                 FLW(v0, wback, fixedaddress + i * 4);
                 FCVTWS(x3, v0, RD_RTZ);
-                if (!box64_dynarec_fastround) {
+                if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQZ(x5, 8);
@@ -283,12 +283,12 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x3, v0, v0);
                 FEQS(x4, d0, d0);
             }
             FSUBS(v0, v0, d0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 AND(x3, x3, x4);
                 BNEZ_MARK(x3);
                 CBNZ_NEXT(x4);
@@ -316,12 +316,12 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x3, v0, v0);
                 FEQS(x4, d0, d0);
             }
             FDIVS(v0, v0, d0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 AND(x3, x3, x4);
                 BNEZ_MARK(x3);
                 CBNZ_NEXT(x4);

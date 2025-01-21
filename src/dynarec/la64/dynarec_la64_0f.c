@@ -592,7 +592,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            if (!box64_dynarec_fastnan && v0 != v1) {
+            if (!BOX64ENV(dynarec_fastnan) && v0 != v1) {
                 q0 = fpu_get_scratch(dyn);
                 // always copy from v1 if any oprand is NaN
                 VFCMP_S(q0, v0, v1, cUN);
@@ -614,7 +614,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            if (!box64_dynarec_fastnan && v0 != v1) {
+            if (!BOX64ENV(dynarec_fastnan) && v0 != v1) {
                 q0 = fpu_get_scratch(dyn);
                 // always copy from v1 if any oprand is NaN
                 VFCMP_S(q0, v0, v1, cUN);
@@ -856,7 +856,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if (box64_sse_flushto0) {
+                        if (BOX64ENV(sse_flushto0)) {
                             // TODO
                         }
                         break;
@@ -901,7 +901,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             GETED(0);
-            if (box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 // avoid noise during test
                 CLEAR_FLAGS(x3);
             }

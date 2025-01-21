@@ -150,7 +150,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LD(x4, ed, fixedaddress);
                 VMV_S_X(v0, x4);
             }
-            if (box64_dynarec_fastround) {
+            if (BOX64ENV(dynarec_fastround)) {
                 VFMV_F_S(v0, v0);
                 FCVTLDxw(gd, v0, RD_RTZ);
                 if (!rex.w) ZEROUP(gd);
@@ -183,7 +183,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LD(x4, ed, fixedaddress);
                 VMV_S_X(v0, x4);
             }
-            if (box64_dynarec_fastround) {
+            if (BOX64ENV(dynarec_fastround)) {
                 VFMV_F_S(v0, v0);
                 u8 = sse_setround(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
@@ -223,7 +223,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LD(x4, ed, fixedaddress);
                 VMV_S_X(v1, x4);
             }
-            if (box64_dynarec_fastnan) {
+            if (BOX64ENV(dynarec_fastnan)) {
                 VECTOR_LOAD_VMASK(0b01, x4, 1);
                 VFSQRT_V(v0, v1, VECTOR_MASKED);
             } else {
@@ -243,7 +243,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x58:
-            if (!box64_dynarec_fastnan) return 0;
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -262,7 +262,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFADD_VV(v0, v0, v1, VECTOR_MASKED);
             break;
         case 0x59:
-            if (!box64_dynarec_fastnan) return 0;
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -322,7 +322,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x5C:
-            if (!box64_dynarec_fastnan) return 0;
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -355,7 +355,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW64);
             }
-            if (box64_dynarec_fastnan) {
+            if (BOX64ENV(dynarec_fastnan)) {
                 VECTOR_LOAD_VMASK(0b01, x4, 1);
                 VFMIN_VV(v0, v0, v1, VECTOR_MASKED);
             } else {
@@ -382,7 +382,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x5E:
-            if (!box64_dynarec_fastnan) return 0;
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -415,7 +415,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW64);
             }
-            if (box64_dynarec_fastnan) {
+            if (BOX64ENV(dynarec_fastnan)) {
                 VECTOR_LOAD_VMASK(0b01, x4, 1);
                 VFMAX_VV(v0, v0, v1, VECTOR_MASKED);
             } else {
@@ -553,7 +553,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0xE6:
-            if (!box64_dynarec_fastround) return 0;
+            if (!BOX64ENV(dynarec_fastround)) return 0;
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);

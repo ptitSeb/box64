@@ -861,13 +861,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn);
                 v1 = fpu_get_scratch(dyn);
                 VFCMP_D(v0, q0, q1, cUN);
             }
             VFADD_D(q1, q1, q0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 VFCMP_D(v1, q1, q1, cUN);
                 VANDN_V(v0, v0, v1);
                 VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
@@ -882,13 +882,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn);
                 v1 = fpu_get_scratch(dyn);
                 VFCMP_D(v0, q0, q1, cUN);
             }
             VFMUL_D(q1, q1, q0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 VFCMP_D(v1, q1, q1, cUN);
                 VANDN_V(v0, v0, v1);
                 VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
@@ -903,7 +903,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            // TODO: !box64_dynarec_fastround
+            // TODO: !BOX64ENV(dynarec_fastround)
             q0 = fpu_get_scratch(dyn);
             VFCVT_S_D(q0, v1, v1);
             VXOR_V(v0, v0, v0);
@@ -915,12 +915,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
             u8 = sse_setround(dyn, ninst, x6, x4);
-            if (v0 == v1 && !box64_dynarec_fastround) {
+            if (v0 == v1 && !BOX64ENV(dynarec_fastround)) {
                 v1 = fpu_get_scratch(dyn);
                 VOR_V(v1, v0, v0);
             }
             VFTINT_W_S(v0, v1);
-            if (!box64_dynarec_fastround) {
+            if (!BOX64ENV(dynarec_fastround)) {
                 q0 = fpu_get_scratch(dyn);
                 q1 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
@@ -941,13 +941,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn);
                 v1 = fpu_get_scratch(dyn);
                 VFCMP_D(v0, q0, q1, cUN);
             }
             VFSUB_D(q1, q1, q0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 VFCMP_D(v1, q1, q1, cUN);
                 VANDN_V(v0, v0, v1);
                 VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
@@ -962,13 +962,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn);
                 v1 = fpu_get_scratch(dyn);
                 VFCMP_D(v0, q0, q1, cUN);
             }
             VFDIV_D(q1, q1, q0);
-            if (!box64_dynarec_fastnan) {
+            if (!BOX64ENV(dynarec_fastnan)) {
                 VFCMP_D(v1, q1, q1, cUN);
                 VANDN_V(v0, v0, v1);
                 VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8

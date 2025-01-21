@@ -1655,7 +1655,7 @@ EXPORT int my32_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* d
 EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
-    if(!ret && name && !strcmp(name, "GLX") && box64_x11glx) {
+    if(!ret && name && !strcmp(name, "GLX") && BOX64ENV(x11glx)) {
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;
@@ -1688,7 +1688,7 @@ EXPORT void* my32_XSynchronize(x64emu_t* emu, void* display, int onoff)
 EXPORT void* my32_XOpenDisplay(void* name)
 {
     void* ret = my->XOpenDisplay(name);
-    if(ret && box64_x11sync) {my->XSynchronize(ret, 1); printf_log(LOG_INFO, "Forcing Syncronized operation on Display %p\n", ret);}
+    if(ret && BOX64ENV(x11sync)) {my->XSynchronize(ret, 1); printf_log(LOG_INFO, "Forcing Syncronized operation on Display %p\n", ret);}
     return ret;
 }
 
@@ -2670,7 +2670,7 @@ EXPORT int my32__XReply(x64emu_t* emu, void* dpy, void* rep, int extra, int disc
 #define CUSTOM_INIT                 \
     AddAutomaticBridge(lib->w.bridge, vFp_32, *(void**)dlsym(lib->w.lib, "_XLockMutex_fn"), 0, "_XLockMutex_fn"); \
     AddAutomaticBridge(lib->w.bridge, vFp_32, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \
-    if(box64_x11threads) my->XInitThreads();    \
+    if(BOX64ENV(x11threads)) my->XInitThreads();    \
     my_context->libx11 = lib;
 
 #define CUSTOM_FINI     \

@@ -223,7 +223,7 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT \

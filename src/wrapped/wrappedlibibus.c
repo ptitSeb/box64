@@ -114,7 +114,7 @@ EXPORT void my_ibus_input_context_process_key_event_async(x64emu_t* emu, void* b
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define NEEDED_LIBS "libgio-2.0.so.0", "libgobject-2.0.so.0", "libglib-2.0.so.0"

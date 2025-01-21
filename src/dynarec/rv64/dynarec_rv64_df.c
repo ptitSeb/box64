@@ -135,7 +135,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FSFLAGSI(0); // reset all bits
                     }
                     if (ST_IS_F(0)) {
@@ -143,7 +143,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         FCVTWD(x4, v1, RD_RTZ);
                     }
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FRFLAGS(x5); // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1 << FR_NV);
                         BNEZ_MARK(x5);
@@ -162,7 +162,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FSFLAGSI(0); // reset all bits
                     }
                     if (ST_IS_F(0)) {
@@ -171,7 +171,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FCVTWD(x4, v1, RD_DYN);
                     }
                     x87_restoreround(dyn, ninst, u8);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FRFLAGS(x5); // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1 << FR_NV);
                         BNEZ_MARK(x5);
@@ -189,7 +189,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FSFLAGSI(0); // reset all bits
                     }
                     if (ST_IS_F(0)) {
@@ -198,7 +198,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FCVTWD(x4, v1, RD_DYN);
                     }
                     x87_restoreround(dyn, ninst, u8);
-                    if (!box64_dynarec_fastround) {
+                    if (!BOX64ENV(dynarec_fastround)) {
                         FRFLAGS(x5); // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1 << FR_NV);
                         BNEZ_MARK(x5);
@@ -288,11 +288,11 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             MARK;
                         }
 
-                        if (!box64_dynarec_fastround) {
+                        if (!BOX64ENV(dynarec_fastround)) {
                             FSFLAGSI(0); // reset all bits
                         }
                         FCVTLD(x4, v1, RD_DYN);
-                        if (!box64_dynarec_fastround) {
+                        if (!BOX64ENV(dynarec_fastround)) {
                             FRFLAGS(x5); // get back FPSR to check the IOC bit
                             ANDI(x5, x5, 1 << FR_NV);
                             BEQ_MARK2(x5, xZR);

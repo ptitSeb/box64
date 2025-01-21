@@ -21,7 +21,7 @@
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
-#include <sys/syscall.h> 
+#include <sys/syscall.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
 #include <sys/ipc.h>
@@ -128,7 +128,6 @@ static const char* libcName =
 #endif
     ;
 
-extern int fix_64bit_inodes;
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 #if 0
@@ -518,7 +517,7 @@ void EXPORT my32___stack_chk_fail(x64emu_t* emu)
     #else
     sprintf(buff, "%p: Stack is corrupted, aborting ESP=0x%x %s\n", addr, R_ESP, name);
     #endif
-    print_cycle_log(LOG_INFO);
+    print_rolling_log(LOG_INFO);
     StopEmu(emu, buff, 1);
 }
 int EXPORT my32___xmknod(x64emu_t* emu, int ver, const char* path, mode_t mode, dev_t* dev)
@@ -1119,7 +1118,7 @@ static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
 
     i386st->st_dev = st64->st_dev;
     i386st->__pad1 = 0;
-    if (fix_64bit_inodes)
+    if (BOX64ENV(fix_64bit_inodes))
     {
         i386st->st_ino = st64->st_ino ^ (st64->st_ino >> 32);
     }
@@ -1436,7 +1435,7 @@ EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** result)
 {
     struct dirent64 d64, *dp64;
-    if (fix_64bit_inodes && (sizeof(d64.d_name) > 1))
+    if (BOX64ENV(fix_64bit_inodes) && (sizeof(d64.d_name) > 1))
     {
         static iFppp_t f = NULL;
         if(!f) {
@@ -1530,7 +1529,7 @@ EXPORT ssize_t my32_read(int fd, void* buf, size_t count)
 {
     int ret = read(fd, buf, count);
 #ifdef DYNAREC
-    if(ret!=count && ret>0 && box64_dynarec) {
+    if(ret!=count && ret>0 && BOX64ENV(dynarec)) {
         // continue reading...
         void* p = buf+ret;
         if(hasDBFromAddress((uintptr_t)p)) {

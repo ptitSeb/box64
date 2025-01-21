@@ -2312,8 +2312,8 @@ EXPORT size_t my_fuse_add_direntry(x64emu_t* emu, void* req, char *buf, size_t b
 EXPORT int my_fuse_main_real(x64emu_t* emu, int argc, void* argv, const fuse_operations_t* op, size_t op_size, void* data)
 {
     static fuse_operations_t o_ = {0};
-box64_log=2;
-box64_showsegv=1;
+    SET_BOX64ENV(log, 2);
+    SET_BOX64ENV(showsegv, 1);
     size_t cvt = 0;
     #define GO(A) if(cvt<op_size) {o_.A = find_##A##_Fct(op->A); cvt+=sizeof(void*); if(o_.A) printf_log(LOG_DEBUG, "fuse: %s is present\n", #A);}
     // size is aligned in GOS

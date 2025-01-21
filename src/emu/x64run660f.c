@@ -1717,7 +1717,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x78:  /* EXTRQ Ex, ib, ib */
         // AMD only
         nextop = F8;
-        if(!box64_cputype || (nextop&0xC0)>>3) {
+        if(!BOX64ENV(cputype) || (nextop&0xC0)>>3) {
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
@@ -1732,7 +1732,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x79:  /* EXTRQ Ex, Gx */
         // AMD only
         nextop = F8;
-        if(!box64_cputype || !(MODREG)) {
+        if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
@@ -1911,7 +1911,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 // same code and CLFLUSH, is it ok?
                 _GETED(0);
                 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                if(box64_dynarec)
+                if(BOX64ENV(dynarec))
                     cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
                 #endif
                 break;
@@ -1919,7 +1919,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 // same code and CLFLUSH, is it ok?
                 _GETED(0);
                 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                if(box64_dynarec)
+                if(BOX64ENV(dynarec))
                     cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
                 #endif
                 break;

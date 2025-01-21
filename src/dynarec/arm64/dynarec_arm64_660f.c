@@ -231,7 +231,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGM(q0);
             GETEX(v1, 0, 0);
-            if(box64_dynarec_fastround) {
+            if(BOX64ENV(dynarec_fastround)) {
                 VFCVTZSQD(q0, v1);
                 SQXTN_32(q0, q0);
             } else {
@@ -267,7 +267,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGM(q0);
             GETEX(v1, 0, 0);
-            if(box64_dynarec_fastround) {
+            if(BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 VFRINTIDQ(q0, v1);
                 FCVTXN(q0, q0);
@@ -1640,7 +1640,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1695,7 +1695,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1703,7 +1703,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFADDQD(q1, q1, q0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
@@ -1715,7 +1715,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1723,7 +1723,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFMULQD(q1, q1, q0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
@@ -1735,7 +1735,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            if(box64_dynarec_fastround==2) {
+            if(BOX64ENV(dynarec_fastround)==2) {
                 FCVTXN(v0, v1);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
@@ -1748,7 +1748,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            if(box64_dynarec_fastround) {
+            if(BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 VFRINTISQ(v0, v1);
                 x87_restoreround(dyn, ninst, u8);
@@ -1783,7 +1783,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1791,7 +1791,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFSUBQD(q1, q1, q0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
@@ -1805,7 +1805,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(v1, 0, 0);
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
-            if(!box64_dynarec_fastnan && v0!=v1) {
+            if(!BOX64ENV(dynarec_fastnan) && v0!=v1) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VANDQ(v0, v0, q0);
@@ -1819,7 +1819,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1827,7 +1827,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFDIVQD(q1, q1, q0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
@@ -1841,7 +1841,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(v1, 0, 0);
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
-            if(!box64_dynarec_fastnan && v0!=v1) {
+            if(!BOX64ENV(dynarec_fastnan) && v0!=v1) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VANDQ(v0, v0, q0);
@@ -2261,7 +2261,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q1, 1);
             GETEX(q0, 0, 0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -2272,7 +2272,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFADDPQD(q1, q1, q0);
-            if(!box64_dynarec_fastnan) {
+            if(!BOX64ENV(dynarec_fastnan)) {
                 VFCMEQQD(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_64(v1, v1, 63);   // only keep the sign bit
@@ -2348,7 +2348,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 LSRw_REG(x1, ed, x2);
                 BFIw(xFlags, x1, F_CF, 1);
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2375,7 +2375,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             INST_NAME("SHLD Ew, Gw, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            if(BOX64ENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGW(x2);
             GETEW(x1, 0);
@@ -2416,7 +2416,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2443,7 +2443,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            if(BOX64ENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGW(x2);
             GETEW(x1, 0);
@@ -2508,7 +2508,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                 }
                 IFX(X_AF | X_PF | X_ZF | X_SF)
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         // to avoid noise during test
                         MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x3);
@@ -2544,7 +2544,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2603,7 +2603,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2623,7 +2623,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     mask = convert_bitmask_xw(1<<u8);
                     ORRxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2642,7 +2642,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     BFCxw(ed, u8, 1);
                     EWBACK;
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2662,7 +2662,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     mask = convert_bitmask_xw(1<<u8);
                     EORxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2703,7 +2703,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -3134,7 +3134,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            if(box64_dynarec_fastround) {
+            if(BOX64ENV(dynarec_fastround)) {
                 VFCVTZSQD(v0, v1);  // convert double -> int64
                 SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
             } else {

@@ -165,7 +165,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x09:
             INST_NAME("WBINVD");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -181,7 +181,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x0B:
             INST_NAME("UD2");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -220,7 +220,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x0E:
             INST_NAME("femms");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -446,7 +446,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGM(q0);
             GETEX(v1, 0, 0);
-            if (box64_dynarec_fastround) {
+            if (BOX64ENV(dynarec_fastround)) {
                 VFCVTZSS(q0, v1);
             } else {
                 if(arm64_frintts) {
@@ -480,7 +480,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGM(q0);
             GETEX(v1, 0, 0);
-            if (box64_dynarec_fastround) {
+            if (BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 VFRINTIS(q0, v1);
                 x87_restoreround(dyn, ninst, u8);
@@ -527,7 +527,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x30:
             INST_NAME("WRMSR");
-            if(box64_dynarec_safeflags>1) {
+            if(BOX64ENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -1175,7 +1175,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
             VFMINQS(v0, v0, v1);
-            if(!box64_dynarec_fastnan && (v0!=v1)) {
+            if(!BOX64ENV(dynarec_fastnan) && (v0!=v1)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VBIFQ(v0, v1, q0);   // copy dest where source is NaN
@@ -1196,7 +1196,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
             VFMAXQS(v0, v0, v1);
-            if(!box64_dynarec_fastnan && (v0!=v1)) {
+            if(!BOX64ENV(dynarec_fastnan) && (v0!=v1)) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VBIFQ(v0, v1, q0);   // copy dest where source is NaN
@@ -1693,7 +1693,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LSRxw_REG(x4, ed, x2);
                 BFIw(xFlags, x4, F_CF, 1);
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -1719,7 +1719,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            if(BOX64ENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1781,7 +1781,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STxw(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -1807,7 +1807,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            if(BOX64ENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1863,7 +1863,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if(box64_sse_flushto0) {
+                        if(BOX64ENV(sse_flushto0)) {
                             MRS_fpcr(x1);                   // get fpscr
                             LSRw_IMM(x3, ed, 15);           // get FZ bit
                             BFIw(x1, x3, 24, 1);            // inject FZ bit
@@ -1956,7 +1956,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             IFX(X_AF | X_PF | X_ZF | X_SF)
-                if(box64_dynarec_test) {
+                if (BOX64ENV(dynarec_test)) {
                     // to avoid noise during test
                     MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                     BICw(xFlags, xFlags, x1);
@@ -2025,7 +2025,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STxw(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2088,7 +2088,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2119,7 +2119,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
                     }
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2149,7 +2149,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
                     }
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2180,7 +2180,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
                     }
-                    if(box64_dynarec_test) {
+                    if (BOX64ENV(dynarec_test)) {
                         IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                         IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                         IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
@@ -2226,7 +2226,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STxw(ed, wback, fixedaddress);
                 SMWRITE();
             }
-            if(box64_dynarec_test) {
+            if (BOX64ENV(dynarec_test)) {
                 IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
                 IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
                 IFX(X_AF) {BFCw(xFlags, F_AF, 1);}

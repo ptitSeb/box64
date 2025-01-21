@@ -222,7 +222,7 @@ EXPORT void my_dbus_g_proxy_disconnect_signal(x64emu_t* emu, void* proxy, void* 
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

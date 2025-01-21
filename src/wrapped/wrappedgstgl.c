@@ -265,7 +265,7 @@ EXPORT void my_gst_gl_window_set_resize_callback(x64emu_t* emu, void* window, vo
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT \

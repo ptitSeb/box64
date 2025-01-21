@@ -151,7 +151,7 @@ EXPORT uint32_t my_atk_add_global_event_listener(x64emu_t* emu, void* f, void* p
 }
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #define CUSTOM_INIT \

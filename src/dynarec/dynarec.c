@@ -52,7 +52,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     dynablock_t* block = NULL;
     if(hasAlternate((void*)addr)) {
         printf_log(LOG_DEBUG, "Jmp address has alternate: %p", (void*)addr);
-        if(box64_log<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
+        if (BOX64ENV(log)<LOG_DEBUG) dynarec_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
         uintptr_t old_addr = addr;
         addr = (uintptr_t)getAlternate((void*)addr);    // set new address
         R_RIP = addr;   // but also new RIP!
@@ -63,7 +63,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         block = DBGetBlock(emu, addr, 1, is32bits);
     if(!block) {
         #ifdef HAVE_TRACE
-        if(LOG_INFO<=box64_dynarec_log) {
+        if(LOG_INFO<=BOX64ENV(dynarec_log)) {
             if(checkInHotPage(addr)) {
                 dynarec_log(LOG_INFO, "Not trying to run a block from a Hotpage at %p\n", (void*)addr);
             } else {
@@ -79,7 +79,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     if(!block->done) {
         // not finished yet... leave linker
         #ifdef HAVE_TRACE
-        if(box64_dynarec_log && !block->isize) {
+        if(BOX64ENV(dynarec_log) && !block->isize) {
             dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
             printf_log(LOG_NONE, "Warning, NULL block at %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
         }
@@ -172,7 +172,7 @@ void DynaRun(x64emu_t* emu)
             {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
                 #ifdef DYNAREC
-                if(box64_dynarec_test) {
+                if(BOX64ENV(dynarec_test)) {
                     if(emu->test.clean)
                         x64test_check(emu, R_RIP);
                     emu->test.clean = 0;
@@ -184,7 +184,7 @@ void DynaRun(x64emu_t* emu)
             emu->flags.need_jmpbuf = 0;
 
 #ifdef DYNAREC
-        if(!box64_dynarec)
+        if(!BOX64ENV(dynarec))
 #endif
             Run(emu, 0);
 #ifdef DYNAREC
@@ -210,18 +210,18 @@ void DynaRun(x64emu_t* emu)
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                if(box64_dynarec_log) {
+                if(BOX64ENV(dynarec_log)) {
                     if(ACCESS_FLAG(F_TF))
                         dynarec_log(LOG_INFO, "%04d|Running Interpreter @%p, emu=%p because TF is on\n", GetTID(), (void*)R_RIP, emu);
                     else
                         dynarec_log(LOG_DEBUG, "%04d|Running Interpreter @%p, emu=%p\n", GetTID(), (void*)R_RIP, emu);
                 }
-                if(box64_dynarec_test)
+                if (BOX64ENV(dynarec_test))
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
-                if(!box64_dynarec_df) {
+                if(!BOX64ENV(dynarec_df)) {
                     CHECK_FLAGS(emu);
                 }
                 // block is here, let's run it!

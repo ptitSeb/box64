@@ -19,7 +19,6 @@
 #include "wrapper.h"
 #include "x64emu.h"
 #include "signals.h"
-#include "rcfile.h"
 #include "gltools.h"
 #include "rbtree.h"
 #include "dynarec.h"
@@ -49,7 +48,6 @@ void finiAllHelpers(box64context_t* context)
     static int finied = 0;
     if(finied)
         return;
-    DeleteParams();
     fini_pthread_helper(context);
     fini_signal_helper();
     fini_bridge_helper();
@@ -181,8 +179,8 @@ static void atfork_child_box64context(void)
 
 void freeCycleLog(box64context_t* ctx)
 {
-    if(cycle_log) {
-        for(int i=0; i<cycle_log; ++i) {
+    if(BOX64ENV(rolling_log)) {
+        for(int i=0; i<BOX64ENV(rolling_log); ++i) {
             box_free(ctx->log_call[i]);
             box_free(ctx->log_ret[i]);
         }
@@ -194,10 +192,10 @@ void freeCycleLog(box64context_t* ctx)
 }
 void initCycleLog(box64context_t* context)
 {
-    if(cycle_log) {
-        context->log_call = (char**)box_calloc(cycle_log, sizeof(char*));
-        context->log_ret = (char**)box_calloc(cycle_log, sizeof(char*));
-        for(int i=0; i<cycle_log; ++i) {
+    if(BOX64ENV(rolling_log)) {
+        context->log_call = (char**)box_calloc(BOX64ENV(rolling_log), sizeof(char*));
+        context->log_ret = (char**)box_calloc(BOX64ENV(rolling_log), sizeof(char*));
+        for(int i=0; i<BOX64ENV(rolling_log); ++i) {
             context->log_call[i] = (char*)box_calloc(256, 1);
             context->log_ret[i] = (char*)box_calloc(128, 1);
         }

@@ -611,7 +611,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
     POP1z(xRIP);
     MVz(x1, xRIP);
     SMEND();
-    if (box64_dynarec_callret) {
+    if (BOX64ENV(dynarec_callret)) {
         // pop the actual return address from RV64 stack
         LD(xRA, xSP, 0);      // native addr
         LD(x6, xSP, 8);       // x86 addr
@@ -680,7 +680,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
     }
     MVz(x1, xRIP);
     SMEND();
-    if (box64_dynarec_callret) {
+    if (BOX64ENV(dynarec_callret)) {
         // pop the actual return address from RV64 stack
         LD(xRA, xSP, 0);      // native addr
         LD(x6, xSP, 8);       // x86 addr
@@ -2891,10 +2891,10 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
 #endif
     extcacheUnwind(&dyn->e);
 #if STEP == 0
-    if (box64_dynarec_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->e.x87stack);
+    if (BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->e.x87stack);
 #endif
 #if defined(HAVE_TRACE) && (STEP > 2)
-    if (box64_dynarec_dump)
+    if (BOX64ENV(dynarec_dump))
         if (memcmp(&dyn->e, &dyn->insts[reset_n].e, sizeof(ext_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in extcache: reset=");
             for (int i = 0; i < 24; ++i)

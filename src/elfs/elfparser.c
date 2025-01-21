@@ -188,14 +188,14 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
             FreeElfHeader(&h);
             return NULL;
         }
-        if(box64_dump) DumpMainHeader64(&header, h);
+        if (BOX64ENV(dump)) DumpMainHeader64(&header, h);
 
         LoadNamedSection(f, h->SHEntries._64, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
         LoadNamedSection(f, h->SHEntries._64, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab._64, &h->numSymTab);
-        if(box64_dump && h->SymTab._64) DumpSymTab64(h);
+        if (BOX64ENV(dump) && h->SymTab._64) DumpSymTab64(h);
 
         LoadNamedSection(f, h->SHEntries._64, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic._64, &h->numDynamic);
-        if(box64_dump && h->Dynamic._64) DumpDynamicSections64(h);
+        if (BOX64ENV(dump) && h->Dynamic._64) DumpDynamicSections64(h);
         // grab DT_REL & DT_RELA stuffs
         // also grab the DT_STRTAB string table
         {
@@ -393,7 +393,7 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
         LoadNamedSection(f, h->SHEntries._64, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
         LoadNamedSection(f, h->SHEntries._64, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
     }
-    
+
     return h;
 }
 

@@ -178,14 +178,14 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
             FreeElfHeader(&h);
             return NULL;
         }
-        if(box64_dump) DumpMainHeader32(&header, h);
+        if (BOX64ENV(dump)) DumpMainHeader32(&header, h);
 
         LoadNamedSection(f, h->SHEntries._32, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
         LoadNamedSection(f, h->SHEntries._32, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab._32, &h->numSymTab);
-        if(box64_dump && h->SymTab._32) DumpSymTab32(h);
+        if (BOX64ENV(dump) && h->SymTab._32) DumpSymTab32(h);
 
         LoadNamedSection(f, h->SHEntries._32, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic._32, &h->numDynamic);
-        if(box64_dump && h->Dynamic._32) DumpDynamicSections32(h);
+        if (BOX64ENV(dump) && h->Dynamic._32) DumpDynamicSections32(h);
         // grab DT_REL & DT_RELA stuffs
         // also grab the DT_STRTAB string table
         {

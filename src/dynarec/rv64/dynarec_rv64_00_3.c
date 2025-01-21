@@ -280,7 +280,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xC2:
             INST_NAME("RETN");
             // SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
-            if (box64_dynarec_safeflags) {
+            if (BOX64ENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND); // lets play safe here too
             }
             fpu_purgecache(dyn, ninst, 1, x1, x2, x3); // using next, even if there no next
@@ -292,7 +292,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xC3:
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
-            if (box64_dynarec_safeflags) {
+            if (BOX64ENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND); // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             fpu_purgecache(dyn, ninst, 1, x1, x2, x3); // using next, even if there no next
@@ -438,7 +438,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
-                    if ((box64_log < 2 && !cycle_log) && tmp) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
                         // GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr + 8), tmp);
                         addr += 8 + 8;
@@ -459,7 +459,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             } else {
                 INST_NAME("INT 3");
-                if (!box64_ignoreint3) {
+                if (!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
                     TABLE64(x1, (uintptr_t)my_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
@@ -613,7 +613,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (box64_dynarec_safeflags > 1)
+                    if (BOX64ENV(dynarec_safeflags) > 1)
                         MAYSETFLAGS();
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
@@ -630,7 +630,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (box64_dynarec_safeflags > 1)
+                    if (BOX64ENV(dynarec_safeflags) > 1)
                         MAYSETFLAGS();
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
@@ -647,7 +647,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (box64_dynarec_safeflags > 1)
+                    if (BOX64ENV(dynarec_safeflags) > 1)
                         MAYSETFLAGS();
                     emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
@@ -927,7 +927,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1)), dyn->insts[ninst].retn);
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
-                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {
                         // Partially support isSimpleWrapper
                         tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
                     } else
@@ -937,7 +937,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
                         // GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address
@@ -970,13 +970,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     break;
                 default:
-                    if ((box64_dynarec_safeflags > 1) || (ninst && dyn->insts[ninst - 1].x64.set_flags)) {
+                    if ((BOX64ENV(dynarec_safeflags) > 1) || (ninst && dyn->insts[ninst - 1].x64.set_flags)) {
                         READFLAGS(X_PEND); // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    /*if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                    /*if(BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock)>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -991,7 +991,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
-                    if (box64_dynarec_callret) {
+                    if (BOX64ENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
                         j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
@@ -1011,9 +1011,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                     MARK;
-                    if (box64_dynarec_callret && dyn->vector_sew != VECTOR_SEWNA)
+                    if (BOX64ENV(dynarec_callret) && dyn->vector_sew != VECTOR_SEWNA)
                         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
-                    if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         j64 = getJumpTableAddress64(addr);
                         TABLE64(x4, j64);
@@ -1265,7 +1265,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             CALL(native_div0, -1, 0, 0);
                             LOAD_XEMU_CALL();
                         } else {
-                            if (box64_dynarec_div0) {
+                            if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(x3);
@@ -1293,7 +1293,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x31
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0xD2) {
                             GETED(0);
-                            if (box64_dynarec_div0) {
+                            if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(x3);
@@ -1308,7 +1308,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MV(xRAX, x2);
                         } else {
                             GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
-                            if (box64_dynarec_div0) {
+                            if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(x3);
@@ -1335,7 +1335,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SET_DFNONE()
                     if (!rex.w) {
                         GETSED(0);
-                        if (box64_dynarec_div0) {
+                        if (BOX64ENV(dynarec_div0)) {
                             BNE_MARK3(ed, xZR);
                             GETIP_(ip);
                             STORE_XEMU_CALL(x3);
@@ -1358,7 +1358,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x48
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0x99) {
                             GETED(0);
-                            if (box64_dynarec_div0) {
+                            if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(x3);
@@ -1373,7 +1373,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MV(xRAX, x2);
                         } else {
                             GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
-                            if (box64_dynarec_div0) {
+                            if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(x3);
@@ -1466,13 +1466,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF ((box64_dynarec_safeflags > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
+                    PASS2IF ((BOX64ENV(dynarec_safeflags) > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
                         READFLAGS(X_PEND); // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to put flag in "don't care" state
                     }
                     GETEDz(0);
-                    if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
+                    if (BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock) > 1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -1480,7 +1480,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *ok = 0;
                     }
                     GETIP_(addr);
-                    if (box64_dynarec_callret) {
+                    if (BOX64ENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                         AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
@@ -1493,9 +1493,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                     MARK;
-                    if (box64_dynarec_callret && dyn->vector_sew != VECTOR_SEWNA)
+                    if (BOX64ENV(dynarec_callret) && dyn->vector_sew != VECTOR_SEWNA)
                         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
-                    if (box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         j64 = getJumpTableAddress64(addr);
                         TABLE64(x4, j64);

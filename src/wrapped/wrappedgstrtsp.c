@@ -18,7 +18,7 @@ const char* gstrtspName = "libgstrtsp-1.0.so.0";
 #define LIBNAME gstrtsp
 
 #define PRE_INIT    \
-    if(box64_nogtk) \
+    if(BOX64ENV(nogtk)) \
         return -1;
 
 #include "wrappedlib_init.h"

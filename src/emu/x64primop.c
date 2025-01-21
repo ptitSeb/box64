@@ -103,8 +103,9 @@
 
 #include "x64emu_private.h"
 #include "x64run_private.h"
+#include "env.h"
 
-extern int box64_dynarec_test;
+extern box64env_t box64env;
 
 /*------------------------- Global Variables ------------------------------*/
 
@@ -780,7 +781,7 @@ uint8_t rol8(x64emu_t *emu, uint8_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 7)) & 1, F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -805,7 +806,7 @@ uint16_t rol16(x64emu_t *emu, uint16_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 15)) & 1, F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -830,7 +831,7 @@ uint32_t rol32(x64emu_t *emu, uint32_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 31)) & 1, F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -855,7 +856,7 @@ uint64_t rol64(x64emu_t *emu, uint64_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG((d + (d >> 63)) & 1, F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -884,7 +885,7 @@ uint8_t ror8(x64emu_t *emu, uint8_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 6), F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -909,7 +910,7 @@ uint16_t ror16(x64emu_t *emu, uint16_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 14), F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -934,7 +935,7 @@ uint32_t ror32(x64emu_t *emu, uint32_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 30), F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -959,7 +960,7 @@ uint64_t ror64(x64emu_t *emu, uint64_t d, uint8_t s)
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
 	CONDITIONAL_SET_FLAG(XOR2(d >> 62), F_OF);
-	} else if(box64_dynarec_test) {
+	} else if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_OF);
 	}
 
@@ -1009,7 +1010,7 @@ uint16_t shld16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 		CLEAR_FLAG(F_OF);
 	}
-	if(box64_dynarec_test)
+	if(BOX64ENV(dynarec_test))
 		CLEAR_FLAG(F_AF);
 	return (uint16_t)res;
 }
@@ -1038,7 +1039,7 @@ uint32_t shld32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 	} else {
 		CLEAR_FLAG(F_OF);
 	}
-	if(box64_dynarec_test)
+	if(BOX64ENV(dynarec_test))
 		CLEAR_FLAG(F_AF);
 	return res;
 }
@@ -1067,7 +1068,7 @@ uint64_t shld64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	} else {
 		CLEAR_FLAG(F_OF);
 	}
-	if(box64_dynarec_test)
+	if(BOX64ENV(dynarec_test))
 		CLEAR_FLAG(F_AF);
 	return res;
 }
@@ -1122,7 +1123,7 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		CLEAR_FLAG(F_PF);
 	#endif
     }
-	if(box64_dynarec_test)
+	if(BOX64ENV(dynarec_test))
 		CLEAR_FLAG(F_AF);
 	return (uint16_t)res;
 }
@@ -1151,7 +1152,7 @@ uint32_t shrd32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 	} else {
 		CLEAR_FLAG(F_OF);
 	}
-	if(box64_dynarec_test)
+	if(BOX64ENV(dynarec_test))
 		CLEAR_FLAG(F_AF);
 	return res;
 }
@@ -1181,7 +1182,7 @@ uint64_t shrd64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	} else {
 		CLEAR_FLAG(F_OF);
 	}
-	if(box64_dynarec_test)
+	if(BOX64ENV(dynarec_test))
 		CLEAR_FLAG(F_AF);
 	return res;
 }
@@ -1345,12 +1346,12 @@ void test64(x64emu_t *emu, uint64_t d, uint64_t s)
 REMARKS:
 Implements the IDIV instruction and side effects.
 ****************************************************************************/
-extern int box64_dynarec_test;
+
 void idiv8(x64emu_t *emu, uint8_t s)
 {
     int32_t dvd, quot, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1379,7 +1380,7 @@ void idiv16(x64emu_t *emu, uint16_t s)
 {
 	int32_t dvd, quot, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1409,7 +1410,7 @@ void idiv32(x64emu_t *emu, uint32_t s)
 {
 	int64_t dvd, quot, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1439,7 +1440,7 @@ void idiv64(x64emu_t *emu, uint64_t s)
 {
 	__int128 dvd, quot, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1472,7 +1473,7 @@ void div8(x64emu_t *emu, uint8_t s)
 {
 	uint32_t dvd, div, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1500,7 +1501,7 @@ void div16(x64emu_t *emu, uint16_t s)
 {
 	uint32_t dvd, div, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1529,7 +1530,7 @@ void div32(x64emu_t *emu, uint32_t s)
 {
 	uint64_t dvd, div, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);
@@ -1558,7 +1559,7 @@ void div64(x64emu_t *emu, uint64_t s)
 {
 	__int128 dvd, div, mod;
 	RESET_FLAGS(emu);
-	if(box64_dynarec_test) {
+	if(BOX64ENV(dynarec_test)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_AF);
 		CLEAR_FLAG(F_PF);

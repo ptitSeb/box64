@@ -140,13 +140,13 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0, 0);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
             FCVTZSxwS(gd, d0);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -161,7 +161,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             GETEXSS(q0, 0, 0);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
@@ -171,7 +171,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             FRINTIS(d1, q0);
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwS(gd, d1);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -286,13 +286,13 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VCVTTPS2DQ Gx, Ex");
             nextop = F8;
             d0 = fpu_get_scratch(dyn, ninst);
-            if(!box64_dynarec_fastround) {
+            if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);
                 ORRw_mask(x4, xZR, 1, 0);    //0x80000000
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
-                if(box64_dynarec_fastround) {
+                if(BOX64ENV(dynarec_fastround)) {
                     VFCVTZSQS(v0, v1);
                 } else {
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
