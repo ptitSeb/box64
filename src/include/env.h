@@ -190,6 +190,7 @@ typedef struct box64env_s {
 
 void InitializeEnvFiles();
 void ApplyEnvFileEntry(const char* name);
+const char* GetLastApplyEntryName();
 void InitializeEnv();
 void LoadEnvVariables();
 void PrintEnvVariables();

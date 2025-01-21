@@ -19,7 +19,6 @@
 #include "wrapper.h"
 #include "x64emu.h"
 #include "signals.h"
-#include "rcfile.h"
 #include "gltools.h"
 #include "rbtree.h"
 #include "dynarec.h"
@@ -49,7 +48,6 @@ void finiAllHelpers(box64context_t* context)
     static int finied = 0;
     if(finied)
         return;
-    DeleteParams();
     fini_pthread_helper(context);
     fini_signal_helper();
     fini_bridge_helper();

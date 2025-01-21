@@ -19,6 +19,53 @@ KHASH_MAP_INIT_STR(box64env_entry, box64env_t)
 static kh_box64env_entry_t* box64env_entries = NULL;
 static kh_box64env_entry_t* box64env_entries_gen = NULL;
 
+
+static const char default_rcfile[] = 
+"[bash]\n"
+"BOX64_LOG=0\n"
+"\n"
+"[deadcells]\n"
+"BOX64_PREFER_EMULATED=1\n"
+"\n"
+"[dontstarve]\n"
+"BOX64_EMULATED_LIBS=libSDL2-2.0.so.0\n"
+"\n"
+"[dota2]\n"
+"BOX64_CRASHHANDLER=1\n"
+"BOX64_DYNAREC_STRONGMEM=1\n"
+"\n"
+"[factorio]\n"
+"BOX64_DYNAREC_FASTROUND=0\n"
+"\n"
+"[heroic]\n"
+"BOX64_NOSANDBOX=1\n"
+"BOX64_MALLOC_HACK=2\n"
+"\n"
+"[LotCG.x86_64]\n"
+"BOX64_DYNAREC_FASTROUND=0\n"
+"\n"
+"[Mini Metro]\n"
+"BOX64_ADDLIBS=stdc++.so.6\n"
+"\n"
+"[pressure-vessel-wrap]\n"
+"BOX64_NOGTK=1\n"
+"\n"
+"[ShovelKnight]\n"
+"BOX64_SDL2_JGUID=1\n"
+"\n"
+"[Soma.bin.x86_64]\n"
+"BOX64_DYNAREC_FASTROUND=0\n"
+"\n"
+"[streaming_client]\n"
+"BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0\n"
+"\n"
+"[steam-runtime-check-requirements]\n"
+"BOX64_EXIT=1\n"
+"\n"
+"[steam-runtime-launcher-service]\n"
+"BOX64_EXIT=1\n"
+;
+
 static void applyCustomRules()
 {
     if (BOX64ENV(log) == LOG_NEVER) {
@@ -95,12 +142,12 @@ static void applyCustomRules()
 
     if (box64env.exit) exit(0);
 
-    if (box64env.env) setenv("BOX64_ENV", 1, 1);
-    if (box64env.env1) setenv("BOX64_ENV1", 1, 1);
-    if (box64env.env2) setenv("BOX64_ENV2", 1, 1);
-    if (box64env.env3) setenv("BOX64_ENV3", 1, 1);
-    if (box64env.env4) setenv("BOX64_ENV4", 1, 1);
-    if (box64env.env5) setenv("BOX64_ENV5", 1, 1);
+    if (box64env.env) setenv("BOX64_ENV", "1", 1);
+    if (box64env.env1) setenv("BOX64_ENV1", "1", 1);
+    if (box64env.env2) setenv("BOX64_ENV2", "1", 1);
+    if (box64env.env3) setenv("BOX64_ENV3", "1", 1);
+    if (box64env.env4) setenv("BOX64_ENV4", "1", 1);
+    if (box64env.env5) setenv("BOX64_ENV5", "1", 1);
 }
 
 static void trimStringInplace(char* s)
@@ -145,12 +192,32 @@ static void pushNewEntry(const char* name, box64env_t* env, int gen)
     memcpy(p, env, sizeof(box64env_t));
 }
 
+#ifdef ANDROID
+static int shm_open(const char *name, int oflag, mode_t mode) {
+    return -1;
+}
+static int shm_unlink(const char *name) {
+    return -1;
+}
+#endif
+
 static void initializeEnvFile(const char* filename)
 {
     if (box64env.noenvfiles) return;
 
     FILE* f = NULL;
-    if (filename) f = fopen(filename, "r");
+    if (filename) 
+        f = fopen(filename, "r");
+    else {
+        #define TMP_MEMRCFILE  "/box64_rcfile"
+        int tmp = shm_open(TMP_MEMRCFILE, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return; // error, bye bye
+        shm_unlink(TMP_MEMRCFILE);    // remove the shm file, but it will still exist because it's currently in use
+        int dummy = write(tmp, default_rcfile, sizeof(default_rcfile));
+        (void)dummy;
+        lseek(tmp, 0, SEEK_SET);
+        f = fdopen(tmp, "r");
+    }
     if (!f) {
         printf("Error: Cannot open env file %s\n", filename);
         return;
@@ -270,6 +337,8 @@ void InitializeEnvFiles()
     else if (FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
         initializeEnvFile("/data/data/com.termux/files/usr/etc/box64.box64rc");
 #endif
+    else
+        initializeEnvFile(NULL); // load default rcfile
 
     char* p = getenv("HOME");
     if (p) {
@@ -283,7 +352,11 @@ void InitializeEnvFiles()
 }
 
 static char old_entryname[256] = "";
-void internalEnvFileEntry(const char* entryname, const box64env_t* env)
+const char* GetLastApplyEntryName()
+{
+    return old_entryname;
+}
+static void internalEnvFileEntry(const char* entryname, const box64env_t* env)
 {
 #define INTEGER(NAME, name, default, min, max) \
     if (env->is_##name##_overridden) {         \

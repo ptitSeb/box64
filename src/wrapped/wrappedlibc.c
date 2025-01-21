@@ -64,7 +64,6 @@
 #include "elfloader.h"
 #include "bridge.h"
 #include "globalsymbols.h"
-#include "rcfile.h"
 #include "env.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
@@ -3778,7 +3777,6 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
 {
     if(option==PR_SET_NAME) {
         printf_log(LOG_DEBUG, "BOX64: set process name to \"%s\"\n", (char*)arg2);
-        ApplyParams((char*)arg2);
         ApplyEnvFileEntry((char*)arg2);
         size_t l = strlen((char*)arg2);
         if(l>4 && !strcasecmp((char*)arg2+l-4, ".exe")) {

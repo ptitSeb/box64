@@ -37,7 +37,6 @@
 #include "librarian.h"
 #include "x64run.h"
 #include "symbols.h"
-#include "rcfile.h"
 #include "emu/x64run_private.h"
 #include "elfs/elfloader_private.h"
 #include "library.h"
@@ -207,7 +206,7 @@ void printf_ftrace(const char* fmt, ...)
 void my_prepare_fork()
 {
     if (ftrace_has_pid && ftrace && (ftrace != stdout) && (ftrace != stderr)) {
-        printf_log(LOG_INFO, "%04d|Closed trace file of %s at prepare\n", GetTID(), GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Closed trace file of %s at prepare\n", GetTID(), GetLastApplyEntryName());
         fclose(ftrace);
     }
 }
@@ -216,7 +215,7 @@ void my_parent_fork()
 {
     if (ftrace_has_pid) {
         openFTrace(NULL, 1);
-        printf_log(LOG_INFO, "%04d|Reopened trace file of %s at parent\n", GetTID(), GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Reopened trace file of %s at parent\n", GetTID(), GetLastApplyEntryName());
     }
 }
 
@@ -224,7 +223,7 @@ void my_child_fork()
 {
     if (ftrace_has_pid) {
         openFTrace(NULL, 0);
-        printf_log(LOG_INFO, "%04d|Created trace file of %s at child\n", GetTID(), GetLastApplyName());
+        printf_log(LOG_INFO, "%04d|Created trace file of %s at child\n", GetTID(), GetLastApplyEntryName());
     }
 }
 
@@ -858,34 +857,6 @@ static void add_argv(const char* what) {
     }
 }
 
-static void load_rcfiles()
-{
-    char* rcpath = getenv("BOX64_RCFILE");
-
-    if(rcpath && FileExist(rcpath, IS_FILE))
-    LoadRCFile(rcpath);
-    #ifndef TERMUX
-    else if(FileExist("/etc/box64.box64rc", IS_FILE))
-        LoadRCFile("/etc/box64.box64rc");
-    else if(FileExist("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc", IS_FILE))
-        LoadRCFile("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc");
-    #else
-    else if(FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
-        LoadRCFile("/data/data/com.termux/files/usr/etc/box64.box64rc");
-    #endif
-    else
-        LoadRCFile(NULL);   // load default rcfile
-
-    char* p = getenv("HOME");
-    if(p) {
-        char tmp[4096];
-        strncpy(tmp, p, 4095);
-        strncat(tmp, "/.box64rc", 4095);
-        if(FileExist(tmp, IS_FILE))
-            LoadRCFile(tmp);
-    }
-}
-
 #ifndef STATICBUILD
 void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog);
 #endif
@@ -926,9 +897,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     // check BOX64_LOG debug level
     LoadLogEnv();
-    if(!getenv("BOX64_NORCFILES")) {
-        load_rcfiles();
-    }
     char* bashpath = NULL;
     {
         char* p = BOX64ENV(bash);
@@ -1180,20 +1148,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
 
-    /*if(strstr(prgname, "awesomium_process")==prgname) {
-        printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
-        AddPath("libpng12.so.0", &my_context->box64_emulated_libs, 0);
-    }*/
-    /*if(!strcmp(prgname, "gdb")) {
-        exit(-1);
-    }*/
-    ApplyParams("*");   // [*] is a special setting for all process
-    ApplyParams(prgname);
-    if(box64_wine && wine_prog) {
-        ApplyParams(wine_prog);
-        wine_prog = NULL;
-    }
-
     ApplyEnvFileEntry(prgname);
     if (box64_wine && wine_prog) {
         ApplyEnvFileEntry(wine_prog);
@@ -1438,7 +1392,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         else
             printf_log(LOG_INFO, "Rename process to \"%s\"\n", p);
         if(strcmp(prgname, p)) {
-            ApplyParams(p);
             ApplyEnvFileEntry(p);
         }
         // and now all change the argv (so libs libs mesa find the correct program names)
