@@ -21,6 +21,7 @@ extern char* ftrace_name;
 #define ENVSUPER1()                                                          \
     STRING(BOX64_ADDLIBS, addlibs)                                           \
     BOOLEAN(BOX64_ALLOWMISSINGLIBS, allow_missing_libs, 0)                   \
+    STRING(BOX64_ARGS, args)                                                 \
     STRING(BOX64_BASH, bash)                                                 \
     BOOLEAN(BOX64_CEFDISABLEGPU, cefdisablegpu, 0)                           \
     BOOLEAN(BOX64_CEFDISABLEGPUCOMPOSITOR, cefdisablegpucompositor, 0)       \
@@ -75,7 +76,6 @@ extern char* ftrace_name;
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3)                         \
     BOOLEAN(BOX64_MALLOC_HACK, malloc_hack, 0)                               \
     INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100)                             \
-    STRING(BOX64_new_args, new_args)                                         \
     BOOLEAN(BOX64_NOBANNER, nobanner, (isatty(fileno(stdout)) ? 0 : 1))      \
     STRING(BOX64_NODYNAREC, nodynarec)                                       \
     BOOLEAN(BOX64_NOGTK, nogtk, 0)                                           \

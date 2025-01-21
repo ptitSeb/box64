@@ -433,8 +433,6 @@ void computeRDTSC()
 EXPORTDYN
 void LoadLogEnv()
 {
-    ftrace = stdout;
-
     // grab BOX64ENV(trace_file), and change %pid to actual pid is present in the name
     openFTrace(NULL, 0);
 
@@ -892,6 +890,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         exit(0);
     }
 
+    ftrace = stdout;
+
     LoadEnvVariables();
     InitializeEnvFiles();
 
@@ -1176,9 +1176,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         add_argv("-cef-disable-gpu-compositor");
     }
     // add new args only if there is no args already
-    if(BOX64ENV(new_args)) {
+    if(BOX64ENV(args)) {
         char tmp[256];
-        char* p = BOX64ENV(new_args);
+        char* p = BOX64ENV(args);
         int state = 0;
         char* p2 = p;
         if(my_context->argc==1 || (my_context->argc==2 && box64_wine))

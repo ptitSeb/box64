@@ -393,7 +393,6 @@ static void internalEnvFileEntry(const char* entryname, const box64env_t* env)
 
 void ApplyEnvFileEntry(const char* entryname)
 {
-    printf_log(LOG_INFO, "BOX64ENV: Applying [%s]\n", entryname);
     if (!entryname || !box64env_entries) return;
     if (!strcasecmp(entryname, old_entryname)) return;
 
