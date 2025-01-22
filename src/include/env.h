@@ -43,7 +43,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_DIV0, dynarec_div0, 0)                        \
     INTEGER(BOX64_DYNAREC_DUMP, dynarec_dump, 0, 0, 2)                  \
     BOOLEAN(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1)                  \
-    BOOLEAN(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 1)              \
+    INTEGER(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 1, 0, 2)        \
     BOOLEAN(BOX64_DYNAREC_FORCED, dynarec_forced, 0)                    \
     INTEGER(BOX64_DYNAREC_FORWARD, dynarec_forward, 128, 0, 1024)       \
     BOOLEAN(BOX64_DYNAREC_GDBJIT, dynarec_gdbjit, 0)                    \
