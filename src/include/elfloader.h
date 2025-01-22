@@ -69,9 +69,6 @@ int32_t GetTLSBase(elfheader_t* h);
 uint32_t GetTLSSize(elfheader_t* h);
 void* GetTLSPointer(box64context_t* context, elfheader_t* h);
 void* GetDTatOffset(box64context_t* context, unsigned long int index, unsigned long int offset);
-#ifdef DYNAREC
-dynablock_t* GetDynablocksFromAddress(box64context_t *context, uintptr_t addr);
-#endif
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box64context_t* context, int fd);
 void* GetDynamicSection(elfheader_t* h);
