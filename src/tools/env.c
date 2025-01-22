@@ -66,6 +66,23 @@ static const char default_rcfile[] =
 "BOX64_EXIT=1\n"
 ;
 
+
+static void addNewEnvVar(const char* s)
+{
+    if (!s) return;
+    char* p = box_strdup(s);
+    char* e = strchr(p, '=');
+    if (!e) {
+        printf_log(LOG_INFO, "Invalid specific env. var. '%s'\n", s);
+        box_free(p);
+        return;
+    }
+    *e = '\0';
+    ++e;
+    setenv(p, e, 1);
+    box_free(p);
+}
+
 static void applyCustomRules()
 {
     if (BOX64ENV(log) == LOG_NEVER) {
@@ -142,12 +159,12 @@ static void applyCustomRules()
 
     if (box64env.exit) exit(0);
 
-    if (box64env.env) setenv("BOX64_ENV", "1", 1);
-    if (box64env.env1) setenv("BOX64_ENV1", "1", 1);
-    if (box64env.env2) setenv("BOX64_ENV2", "1", 1);
-    if (box64env.env3) setenv("BOX64_ENV3", "1", 1);
-    if (box64env.env4) setenv("BOX64_ENV4", "1", 1);
-    if (box64env.env5) setenv("BOX64_ENV5", "1", 1);
+    if (box64env.env) addNewEnvVar(box64env.env);
+    if (box64env.env1) addNewEnvVar(box64env.env1);
+    if (box64env.env2) addNewEnvVar(box64env.env2);
+    if (box64env.env3) addNewEnvVar(box64env.env3);
+    if (box64env.env4) addNewEnvVar(box64env.env4);
+    if (box64env.env5) addNewEnvVar(box64env.env5);
 }
 
 static void trimStringInplace(char* s)

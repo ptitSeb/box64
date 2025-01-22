@@ -1451,30 +1451,6 @@ void* GetDynamicSection(elfheader_t* h)
     return box64_is32bits?((void*)h->Dynamic._32):((void*)h->Dynamic._64);
 }
 
-#ifdef DYNAREC
-dynablock_t* GetDynablocksFromAddress(box64context_t *context, uintptr_t addr)
-{
-    (void)context;
-    // if we are here, the there is not block in standard "space"
-    /*dynablocklist_t* ret = getDBFromAddress(addr);
-    if(ret) {
-        return ret;
-    }*/
-    if(BOX64ENV(dynarec_forced)) {
-        addDBFromAddressRange(addr, 1);
-        return getDB(addr);
-    }
-    //check if address is in an elf... if yes, grant a block (should I warn)
-    Dl_info info;
-    if(dladdr((void*)addr, &info)) {
-        dynarec_log(LOG_INFO, "Address %p is in a native Elf memory space (function \"%s\" in %s)\n", (void*)addr, info.dli_sname, info.dli_fname);
-        return NULL;
-    }
-    dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);
-    return NULL;
-}
-#endif
-
 typedef struct my_dl_phdr_info_s {
     void*           dlpi_addr;
     const char*     dlpi_name;
