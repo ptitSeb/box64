@@ -1,0 +1,1605 @@
+[
+  {
+    "name": "BOX64_ADDLIBS",
+    "description": "Add extras to the needed libraries list, rarely needed.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Add library XXXX to the needed libraries list.",
+        "default": false
+      },
+      {
+        "key": "XXXX:YYYY:ZZZZ",
+        "description": "Add library XXXX, YYYY and ZZZZ to the needed libraries list.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_ALLOWMISSINGLIBS",
+    "description": "Allow missing libraries to be ignored.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not allow missing libraries.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Allow missing libraries.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_ARGS",
+    "description": "Arguments to pass to the guest program, only valid if there is no existing arguments.",
+    "category": "Arguments",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Pass argument XXXX to the program.",
+        "default": false
+      },
+      {
+        "key": "XXXX YYYY ZZZZ",
+        "description": "Pass arguments XXXX, YYYY and ZZZZ to the guest program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_BASH",
+    "description": "Path to the bash executable.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Use bash executable at path XXXX.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_CEFDISABLEGPU",
+    "description": "Add -cef-disable-gpu argument to the guest program.",
+    "category": "Arguments",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Add -cef-disable-gpu argument to the guest program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_CEFDISABLEGPUCOMPOSITOR",
+    "description": "Add -cef-disable-gpu-compositor argument to the guest program.",
+    "category": "Arguments",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Add -cef-disable-gpu-compositor argument to the guest program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_CPUTYPE",
+    "description": "Specify the CPU type to emulate.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Emulate a Intel CPU Model.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Emulate a AMD CPU Model.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_CRASHHANDLER",
+    "description": "Use a dummy crash handler or not.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Use emulated crashhandler.so library if nedded.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Use an internal dummy (empty) crashhandler.so library.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DLSYM_ERROR",
+    "description": "Enable or disable the logging of dlsym errors.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable the logging of dlsym errors.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable the logging of dlsym errors.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DUMP",
+    "description": "Dump elfloader debug information.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not dump elfloader debug information.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Dump elfloader debug information.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_ALIGNED_ATOMICS",
+    "description": "Generate aligned atomics only (only available on Arm64 for now).",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Generate unaligned atomics handling code.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on aligned data addresses.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_BIGBLOCK",
+    "description": "Enable building bigger DynaRec code blocks for better performance.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Build Dynarec block as big as possible.",
+        "default": true
+      },
+      {
+        "key": "2",
+        "description": "Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory.",
+        "default": false
+      },
+      {
+        "key": "3",
+        "description": "Build Dynarec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_BLEEDING_EDGE",
+    "description": "Detect MonoBleedingEdge and apply conservative settings.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not detect MonoBleedingEdge.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Detect MonoBleedingEdge and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 when detected.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_CALLRET",
+    "description": "Optimize CALL/RET opcodes.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not optimize CALL/RET, use jump table.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Try to optimize CALL/RET, skipping the jump table when possible.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_DF",
+    "description": "Enable or disable the use of deferred flags.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable the use of deferred flags.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Enable the use of deferred flags.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_DIRTY",
+    "description": "Allow continue running a block that is unprotected and potentially dirty.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not allow continue running a block that is unprotected and potentially dirty.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_DIV0",
+    "description": "Enable or disable the generation of division-by-zero exception.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not generate thr division-by-zero exception.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Generate the division-by-zero exception.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_DUMP",
+    "description": "Enable DynaRec dump.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not dump DynaRec blocks.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Dump DynaRec blocks.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Dump DynaRec blocks with some colors.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_FASTNAN",
+    "description": "Enable or disable fast NaN handling.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Precisely emulate the -NaN generation like on x86.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Do not do anything special with -NAN generation, faster.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_FASTROUND",
+    "description": "Enable or disable fast rounding.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Generate float/double -> int rounding and use current rounding mode for float/double computation like on x86.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Do not do anything special with edge case rounding, faster.",
+        "default": true
+      },
+      {
+        "key": "2",
+        "description": "Generate float/double -> int rounding using current rounding mode for float/double computation like on x86, but use fast int -> float/double conversion.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_FORWARD",
+    "description": "Define max allowed forward value when building block.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "No forward value. When current block ends, do not try to go further even if there are previous forward jumps.",
+        "default": false
+      },
+      {
+        "key": "128",
+        "description": "Allow up to 128 bytes of gap between end of the block and the next forward jump.",
+        "default": true
+      },
+      {
+        "key": "XXXX",
+        "description": "Allow up to XXXX bytes of gap between end of the block and the next forward jump.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_GDBJIT",
+    "description": "The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Dynarec will not generate GDBJIT debuginfo.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Dynarec will generate GDBJIT debuginfo.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Dynarec will generate detailed GDBJIT debuginfo with internal state.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_LOG",
+    "description": "Disable or enable DynaRec logs.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable DynaRec logs.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable minimal DynaRec logs.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Enable debug level DynaRec logs.",
+        "default": false
+      },
+      {
+        "key": "3",
+        "description": "Enable verbose level DynaRec logs.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_MISSING",
+    "description": "Print missing opcodes.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not print the missing opcode.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Print missing opcodes.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Print the fallback to scalar opcodes, only valid on RISC-V.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_NATIVEFLAGS",
+    "description": "Enable or disable the use of native flags.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not use native flags.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Use native flags when possible.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_PAUSE",
+    "description": "Enable x86 PAUSE emulation, may help the performance of spinlocks.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Ignore x86 PAUSE instruction.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Use YIELD to emulate x86 PAUSE instruction.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Use WFI to emulate x86 PAUSE instruction.",
+        "default": false
+      },
+      {
+        "key": "3",
+        "description": "Use SEVL+WFE to emulate x86 PAUSE instruction.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_PERFMAP",
+    "description": "Generate map file for Linux perf tool.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Dynarec will not generate perf map.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Dynarec will generate perf map.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_SAFEFLAGS",
+    "description": "Behaviour of flags emulation on CALL/RET opcodes.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Treat CALL/RET as if it never needs any flags.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Most of RETs will need flags, most of CALLs will not.",
+        "default": true
+      },
+      {
+        "key": "2",
+        "description": "All CALL/RET will need flags.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_STRONGMEM",
+    "description": "Enable the emulation of x86 strong memory model.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not try anything special.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way.",
+        "default": true
+      },
+      {
+        "key": "2",
+        "description": "All in 1, plus memory barriers on SIMD instructions.",
+        "default": false
+      },
+      {
+        "key": "3",
+        "description": "All in 2, plus more memory barriers on a regular basis.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_TBB",
+    "description": "Enable or disable libtbb detection.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not detect libtbb.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Detect libtbb and apply conservative settings.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_TEST",
+    "description": "Enable DynaRec execution comparison with the interpreter, very slow, only for testing.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "No comparison.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Each opcode runs on interpreter and on Dynarec, regs and memory are compared and printed when they differ.",
+        "default": false
+      },
+      {
+        "key": "0xXXXXXXXX-0xYYYYYYYY",
+        "description": "Define the range where dynarec is tested (inclusive-exclusive).",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_TRACE",
+    "description": "Enable or disable DynaRec trace.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not trace DynaRec blocks.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Trace DynaRec blocks, will slow down the program a lot and generates huge logs.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_WAIT",
+    "description": "Wait or not for the building of a DynaRec code block to be ready.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Wait for a DynaRec code block to be ready.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_WEAKBARRIER",
+    "description": "Tweak the memory barriers to reduce the performance impact by strong memory emualtion.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Use regular safe barrier.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Use weak barriers to have more performance boost.",
+        "default": true
+      },
+      {
+        "key": "2",
+        "description": "All in 1, plus disabled the last write barriers.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_X87DOUBLE",
+    "description": "Force the use of float/double for x87 emulation.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Try to use float when possible for x87 emulation.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Only use Double for x87 emulation.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_EMULATED_LIBS",
+    "description": "Force the use of emulated libraries.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Force the use of emulated library XXXX.",
+        "default": false
+      },
+      {
+        "key": "XXXX:YYYY:ZZZZ",
+        "description": "Force the use of emulated libraries XXXX, YYYY and ZZZZ.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_ENV",
+    "description": "Add an environment variable.",
+    "category": "Environment",
+    "options": [
+      {
+        "key": "XXXX=yyyy",
+        "description": "Add environment variable XXXX with value yyyy.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_ENV[1-5]",
+    "description": "Add an environment variable.",
+    "category": "Environment",
+    "options": [
+      {
+        "key": "XXXX=yyyy",
+        "description": "Add environment variable XXXX with value yyyy.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_EXIT",
+    "description": "Just exit, do not try to run the program.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Just exit.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_FIX_64BIT_INODES",
+    "description": "Fix 64bit inodes.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not fix 64bit inodes.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Fix 64bit inodes.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_IGNOREINT3",
+    "description": "Ignore INT3 instructions.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Trigger a TRAP signal if a handler is present.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Skip the opcode silently.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_INSERT_ARGS",
+    "description": "Prepend arguments to the command line.",
+    "category": "Arguments",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Prepend argument XXXX to the program.",
+        "default": false
+      },
+      {
+        "key": "XXXX YYYY ZZZZ",
+        "description": "Prepend arguments XXXX, YYYY and ZZZZ to the guest program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_INPROCESSGPU",
+    "description": "Add --in-process-gpu argument to the guest program.",
+    "category": "Arguments",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Add --in-process-gpu argument to the guest program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_JITGDB",
+    "description": "Launch gdb or not for SIGSEGV, SIGILL, and SIGBUS.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Just print the message when the signal is caught.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Launch gdbserver when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1: 1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with `BOX64_JITGDB=1`.",
+        "default": false
+      },
+      {
+        "key": "3",
+        "description": "Launch lldb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_JVM",
+    "description": "Detect libjvm and apply conservative settings.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Detect libjvm, and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 BOX64_SSE42=0 when detected.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_LD_LIBRARY_PATH",
+    "description": "Path to look for x86_64 libraries.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Add path XXXX to the library path.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_LD_PRELOAD",
+    "description": "Force loading libraries with the binary.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Force the loading of library XXXX.",
+        "default": false
+      },
+      {
+        "key": "XXXX:YYYY",
+        "description": "Force the loading of libraries XXXX and YYYY.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_LIBCEF",
+    "description": "Detect libcef and apply BOX64_MALLOC_HACK settings.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_LIBGL",
+    "description": "Set the name for libGL.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "libXXXX",
+        "description": "Set the name for libGL to libXXXX.",
+        "default": false
+      },
+      {
+        "key": "/path/to/libXXXX",
+        "description": "Set the name and path for libGL to /path/to/libXXXX, you can also use SDL_VIDEO_GL_DRIVER.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_LOAD_ADDR",
+    "description": "Set the address where the program is loaded, only active for PIE guest programs.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0xXXXXXXXX",
+        "description": "Set the address where the program is loaded.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_LOG",
+    "description": "Enable or disable Box64 logs.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable Box64 logs.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable minimal Box64 logs.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Enable debug level Box64 logs.",
+        "default": false
+      },
+      {
+        "key": "3",
+        "description": "Enable verbose level Box64 logs.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_MALLOC_HACK",
+    "description": "Behaviour when hooking malloc operators.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Don't allow malloc operator to be redirected, rewriting code to use regular function.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Allow malloc operator to be redirected.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Like 0, but track special mmap/free (some redirected functions are inlined and cannot be redirected).",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_MAXCPU",
+    "description": "Maximum CPU cores exposed.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Use the actual number of CPU cores.",
+        "default": true
+      },
+      {
+        "key": "XXXX",
+        "description": "Use XXXX CPU cores.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOBANNER",
+    "description": "Disable the Box64 banner.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Show the Box64 banner.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not show the Box64 banner.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NODYNAREC",
+    "description": "Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0xXXXXXXXX-0xYYYYYYYY",
+        "description": "Define the range where dynablock creation is forbidden (inclusive-exclusive).",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOGTK",
+    "description": "Do not load wrapped GTK libraries.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Load wrapped GTK libraries.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not load wrapped GTK libraries.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOPULSE",
+    "description": "Do not load PulseAudio libraries (both native and x86_64).",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Load PulseAudio libraries.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not load PulseAudio libraries.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NORCFILES",
+    "description": "Do not load any rc files.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Load rc files.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not load any rc files.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOSANDBOX",
+    "description": "Add --no-sandbox argument to the guest program.",
+    "category": "Arguments",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Add --no-sandbox argument to the guest program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOSIGSEGV",
+    "description": "Disable the handling of SIGSEGV.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Let the x86 program set sighandler for SIGSEGV.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Disable the handling of SIGSEGV.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOSIGILL",
+    "description": "Disable the handling of SIGILL.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Let the x86 program set sighandler for SIGILL.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Disable the handling of SIGILL.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOVULKAN",
+    "description": "Do not load Vulkan libraries.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Load Vulkan libraries.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not load Vulkan libraries, both native and x86_64.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_PATH",
+    "description": "Path to look for x86_64 binaries.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Add path XXXX to the binary path.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_PREFER_EMULATED",
+    "description": "Prefer emulated libraries over native ones.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Prefer native libraries over emulated ones.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Prefer emulated libraries over native ones.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_PREFER_WRAPPED",
+    "description": "Prefer wrapped libs first even if the lib is specified with absolute path.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Prefer libs with absolute path over wrapped ones.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Prefer wrapped libs first even if the lib is specified with absolute path.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_RCFILE",
+    "description": "Path to the rc file to load.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Load the rc file XXXX, default rc files will not be loaded.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_RDTSC_1GHZ",
+    "description": "Use hardware counter for rdtsc if available.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Use hardware counter for rdtsc opcode if available.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Use hardware counter for rdtsc if and only if precision is at least 1GHz.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_RESERVE_HIGH",
+    "description": "Reserve high memory area for the program, always enabled on Box32.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not reserve high memory area for the program.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Reserve high memory area for the program.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_ROLLING_LOG",
+    "description": "Show last few wrapped function call when a signal is caught.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Show last 16 wrapped function call when a signal is caught.",
+        "default": false
+      },
+      {
+        "key": "XXX",
+        "description": "Show last XXX wrapped function call when a signal is caught.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SDL2_JGUID",
+    "description": "Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SHAEXT",
+    "description": "Expose SHAEXT (a.k.a. SHA_NI) capabilities.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not expose SHAEXT capabilities.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Expose SHAEXT capabilities.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SHOWBT",
+    "description": "Show native and emulated backtrace when a signal is caught.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Show native and emulated backtrace when a signal is caught.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SHOWSEGV",
+    "description": "Always show SIGSEGV signal detailes.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Always show SIGSEGV signal detailes.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SSE_FLUSHTO0",
+    "description": "Behaviour of SSE Flush to 0 flags.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Just track the flag.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Apply SSE Flush to 0 flag directly.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SSE42",
+    "description": "Expose SSE4.2 capabilities.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not expose SSE4.2 capabilities.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Expose SSE4.2 capabilities.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_SYNC_ROUNDING",
+    "description": "Synchronize rounding mode between x86 and native.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not synchronize rounding mode.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Synchronize rounding mode between x86 and native.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE_COLOR",
+    "description": "Enable or disable colored trace output.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable colored trace output.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable colored trace output.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE_EMM",
+    "description": "Enable or disable EMM (i.e. MMX) trace output.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable EMM trace output.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable EMM trace output.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE_FILE",
+    "description": "Send all log and trace to a file instead of `stdout`.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Send all log and trace to file XXXX.",
+        "default": false
+      },
+      {
+        "key": "XXXX%pid",
+        "description": "Send all log and trace to file XXXX with pid appended.",
+        "default": false
+      },
+      {
+        "key": "stderr",
+        "description": "Send all log and trace to `stderr`.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE_INIT",
+    "description": "Same as BOX64_TRACE but starts the trace immediately.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable trace output.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable trace output. Trace starts before the initialization of dependencies.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE_START",
+    "description": "Start trace after N opcodes executed.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Start trace immediately.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Start trace after 1 opcode executed.",
+        "default": false
+      },
+      {
+        "key": "XXXX",
+        "description": "Start trace after XXXX opcodes executed.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE_XMM",
+    "description": "Enable or disable XMM (i.e. SSE) trace output.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable XMM trace output.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable XMM trace output.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_TRACE",
+    "description": "Only available on box64 build with trace. Adds trace of all instructions executed, along with a register dump.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable trace output.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable trace output.",
+        "default": false
+      },
+      {
+        "key": "symbolname",
+        "description": "Enable trace output for `symbolname` only.",
+        "default": false
+      },
+      {
+        "key": "0xXXXXXXX-0xYYYYYYY",
+        "description": "Enable trace output for the range of address (inclusive-exclusive).",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_UNITYPLAYER",
+    "description": "Detect UnityPlayer and apply conservative settings.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Detect UnityPlayer, and apply BOX64_DYNAREC_STRONGMEM=1 when detected.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_WRAP_EGL",
+    "description": "Prefer wrapped libs for EGL and GLESv2.",
+    "category": "Libraries",
+    "options": [
+      {
+        "key": "0",
+        "description": "Prefer emulated libs for EGL and GLESv2.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Prefer wrapped libs for EGL and GLESv2.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_X11GLX",
+    "description": "Force Xorg GLX extension to be present.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not force Xorg GLX extension to be present.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Require Xorg GLX extension when using XQueryExtension.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_X11SYNC",
+    "description": "Force synchronized operation on X11 display.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not force synchronized operation on X11 display.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Force synchronized operation on X11 display.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_X11THREADS",
+    "description": "Call XInitThreads when loading X11. This is mostly for old Loki games with the Loki_Compat library.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not call XInitThreads.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Call XInitThreads as soon as libX11 is loaded.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_X87_NO80BITS",
+    "description": "Behavoiur of x87 80bits long double.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Try to handle 80bits long double as precise as possible.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Use 64bits double for x87.",
+        "default": false
+      }
+    ]
+  }
+]
