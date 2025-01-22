@@ -117,9 +117,9 @@ FILE* ftrace = NULL;
 char* ftrace_name = NULL;
 int ftrace_has_pid = 0;
 
-void openFTrace(const char* newtrace, int reopen)
+void openFTrace(int reopen)
 {
-    const char* p = newtrace?newtrace:BOX64ENV(trace_file);
+    const char* p = BOX64ENV(trace_file);
     #ifndef MAX_PATH
     #define MAX_PATH 4096
     #endif
@@ -217,7 +217,7 @@ void my_prepare_fork()
 void my_parent_fork()
 {
     if (ftrace_has_pid) {
-        openFTrace(NULL, 1);
+        openFTrace(1);
         printf_log(LOG_INFO, "%04d|Reopened trace file of %s at parent\n", GetTID(), GetLastApplyEntryName());
     }
 }
@@ -225,7 +225,7 @@ void my_parent_fork()
 void my_child_fork()
 {
     if (ftrace_has_pid) {
-        openFTrace(NULL, 0);
+        openFTrace(0);
         printf_log(LOG_INFO, "%04d|Created trace file of %s at child\n", GetTID(), GetLastApplyEntryName());
     }
 }
@@ -435,8 +435,7 @@ void computeRDTSC()
 
 static void displayMiscInfo()
 {
-    // grab BOX64ENV(trace_file), and change %pid to actual pid is present in the name
-    openFTrace(NULL, 0);
+    openFTrace(0);
 
     if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace==stdout)
         box64_stdout_no_w = 1;
@@ -536,23 +535,6 @@ void PrintHelp() {
     printf(" options are:\n");
     printf("    '-v'|'--version' to print box64 version and quit\n");
     printf("    '-h'|'--help' to print this and quit\n");
-}
-
-void addNewEnvVar(const char* s)
-{
-    if(!s)
-        return;
-    char* p = box_strdup(s);
-    char* e = strchr(p, '=');
-    if(!e) {
-        printf_log(LOG_INFO, "Invalid specific env. var. '%s'\n", s);
-        box_free(p);
-        return;
-    }
-    *e='\0';
-    ++e;
-    setenv(p, e, 1);
-    box_free(p);
 }
 
 static void addLibPaths(box64context_t* context)
@@ -1155,6 +1137,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         ApplyEnvFileEntry(wine_prog);
         wine_prog = NULL;
     }
+    openFTrace(0);
     PrintEnvVariables();
 
     for(int i=1; i<my_context->argc; ++i) {
