@@ -3189,7 +3189,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
                         ADDx_U12(x2, xRIP, addr-dyn->last_ip);
                     } else {
-                        TABLE64(x2, addr);
+                        MOV64x(x2, addr);
                     }
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", getBridgeName((void*)(dyn->insts[ninst].natcall-1))?:GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
