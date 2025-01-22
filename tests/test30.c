@@ -108,8 +108,19 @@ const v128 b128_32 = {.u32 = {
 const v128 b128_64 = {.u64 = {
     0x0000000000000001LL, 0x8000000000000000LL
 }};
+
+const v128 c128_8 = {.u8 = {
+    0xfe, 0x7e, 0x7f, 0x81, 0x10, 0x90, 0x0f, 0xf0,
+    0xf8, 0x77, 0x87, 0xf6, 0x03, 0xe1, 0x50, 0x21
+}};
+const v128 c128_16 = {.u16 = {
+    0x7ffe, 0x0020, 0x7f00, 0x0001, 0x8000, 0xa050, 0xfff1, 0x8008
+}};
 const v128 c128_32 = {.u32 = {
     0x00000001, 0x80000000, 0x80000005, 0x0000fffe
+}};
+const v128 c128_64 = {.u64 = {
+    0x7fffffffffffffffLL, 0x0000000000000004LL
 }};
 
 const v128 a128_pd = {.d64 = { 1.0, 2.0}};
@@ -410,6 +421,54 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2sd(A, B, b128_pd, reverse_pd(d128_pd))  \
  GO2sd(A, B, b128_pd, reverse_pd(d128_pd))
 
+ #define MULTIGO1Ci(A, S, B, I)             \
+ GO1C(A, S, B, a128_##S, I)                 \
+ GO1C(A, S, B, b128_##S, I)                 \
+ GO1C(A, S, B, b128_##S, I)                 \
+
+#define MULTIGO2i(A, S, B)                  \
+ GO2(A, S, B, a128_##S, a128_##S)           \
+ GO2(A, S, B, a128_##S, b128_##S)           \
+ GO2(A, S, B, a128_##S, c128_##S)           \
+ GO2(A, S, B, b128_##S, a128_##S)           \
+ GO2(A, S, B, b128_##S, b128_##S)           \
+ GO2(A, S, B, b128_##S, c128_##S)           \
+ GO2(A, S, B, c128_##S, a128_##S)           \
+ GO2(A, S, B, c128_##S, b128_##S)           \
+ GO2(A, S, B, c128_##S, c128_##S)           \
+
+#define MULTIGO2ui(A, S, B)                 \
+ GO2u(A, S, B, a128_##S, a128_##S)          \
+ GO2u(A, S, B, a128_##S, b128_##S)          \
+ GO2u(A, S, B, a128_##S, c128_##S)          \
+ GO2u(A, S, B, b128_##S, a128_##S)          \
+ GO2u(A, S, B, b128_##S, b128_##S)          \
+ GO2u(A, S, B, b128_##S, c128_##S)          \
+ GO2u(A, S, B, c128_##S, a128_##S)          \
+ GO2u(A, S, B, c128_##S, b128_##S)          \
+ GO2u(A, S, B, c128_##S, c128_##S)          \
+
+#define MULTIGO2fi(A, B)                    \
+ GO2f(A, B, a128_8, a128_8)                 \
+ GO2f(A, B, a128_8, b128_8)                 \
+ GO2f(A, B, a128_8, c128_8)                 \
+ GO2f(A, B, b128_8, a128_8)                 \
+ GO2f(A, B, b128_8, b128_8)                 \
+ GO2f(A, B, b128_8, c128_8)                 \
+ GO2f(A, B, c128_8, a128_8)                 \
+ GO2f(A, B, c128_8, b128_8)                 \
+ GO2f(A, B, c128_8, c128_8)                 \
+
+#define MULTIGO2Ci(A, S, B, I)              \
+ GO2C(A, S, B, a128_##S, a128_##S, I)       \
+ GO2C(A, S, B, a128_##S, b128_##S, I)       \
+ GO2C(A, S, B, a128_##S, c128_##S, I)       \
+ GO2C(A, S, B, b128_##S, a128_##S, I)       \
+ GO2C(A, S, B, b128_##S, b128_##S, I)       \
+ GO2C(A, S, B, b128_##S, c128_##S, I)       \
+ GO2C(A, S, B, c128_##S, a128_##S, I)       \
+ GO2C(A, S, B, c128_##S, b128_##S, I)       \
+ GO2C(A, S, B, c128_##S, c128_##S, I)       \
 
  GO2(shuffle, 8, pshufb, a128_8, b128_8)
  GO2(hadd, 16, phaddw, a128_16, b128_16)
@@ -440,18 +499,18 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1(cvtepu16, 32, pmovzxwd);
  GO1(cvtepu16, 64, pmovzxwq);
  GO1(cvtepu32, 64, pmovzxdq);
- GO2(min, 32, pminsd, a128_32, b128_32)
- GO2(max, 32, pmaxsd, a128_32, b128_32)
- GO2C(blend, 16, pblendw, a128_16, b128_16, 0)
- GO2C(blend, 16, pblendw, a128_16, b128_16, 0xff)
- GO2C(blend, 16, pblendw, a128_16, b128_16, 0xaa)
- GO2C(blend, 16, pblendw, a128_16, b128_16, 2)
- GO2C(alignr, 8, palignr, a128_8, b128_8, 0)
- GO2C(alignr, 8, palignr, a128_8, b128_8, 2)
- GO2C(alignr, 8, palignr, a128_8, b128_8, 7)
- GO2C(alignr, 8, palignr, a128_8, b128_8, 15)
- GO2C(alignr, 8, palignr, a128_8, b128_8, 16)
- GO2C(alignr, 8, palignr, a128_8, b128_8, 0xff)
+ MULTIGO2i(min, 32, pminsd)
+ MULTIGO2i(max, 32, pmaxsd)
+ MULTIGO2Ci(blend, 16, pblendw, 0)
+ MULTIGO2Ci(blend, 16, pblendw, 0xff)
+ MULTIGO2Ci(blend, 16, pblendw, 0xaa)
+ MULTIGO2Ci(blend, 16, pblendw, 2)
+ MULTIGO2Ci(alignr, 8, palignr, 0)
+ MULTIGO2Ci(alignr, 8, palignr, 2)
+ MULTIGO2Ci(alignr, 8, palignr, 7)
+ MULTIGO2Ci(alignr, 8, palignr, 15)
+ MULTIGO2Ci(alignr, 8, palignr, 16)
+ MULTIGO2Ci(alignr, 8, palignr, 0xff)
  GO1ipd(movemask, movmskpd, a128_64)
  GO1pd(sqrt, psqrtpd, a128_pd)
  GO1pd(sqrt, psqrtpd, b128_pd)
@@ -467,100 +526,139 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULITGO2pd(min, minpd)
  MULITGO2pd(div, divpd)
  MULITGO2pd(max, maxpd)
- GO2(unpacklo, 8, punpcklbw, a128_8, b128_8)
- GO2(unpacklo, 16, punpcklwd, a128_16, b128_16)
- GO2(unpacklo, 32, punpckldq, a128_32, b128_32)
- GO2(packs, 16, ppacksswb, a128_16, b128_16)
- GO2(cmpgt, 8, pcmpgtb, a128_8, b128_8)
- GO2(cmpgt, 16, pcmpgtw, a128_16, b128_16)
- GO2(cmpgt, 32, pcmpgtd, a128_32, b128_32)
- GO2(packus, 16, packuswb, a128_16, b128_16)
- GO2(unpackhi, 8, punpckhbw, a128_8, b128_8)
- GO2(unpackhi, 16, punpckhwd, a128_16, b128_16)
- GO2(unpackhi, 32, punpckhdq, a128_32, b128_32)
- GO2(packs, 32, ppackssdw, a128_32, b128_32)
- GO2(unpacklo, 64, punpcklqdq, a128_64, b128_64)
- GO2(unpackhi, 64, punpckhqdq, a128_64, b128_64)
- GO1C(shuffle, 32, pshufd, a128_32, 0)
- GO1C(shuffle, 32, pshufd, a128_32, 0xff)
- GO1C(shuffle, 32, pshufd, a128_32, 0xaa)
- GO1C(shuffle, 32, pshufd, a128_32, 2)
- GO1C(srli, 16, psrlw, a128_16, 0)
- GO1C(srli, 16, psrlw, a128_16, 0xff)
- GO1C(srli, 16, psrlw, a128_16, 0xaa)
- GO1C(srli, 16, psrlw, a128_16, 2)
- GO1C(srli, 32, psrld, a128_32, 0)
- GO1C(srli, 32, psrld, a128_32, 0xff)
- GO1C(srli, 32, psrld, a128_32, 0xaa)
- GO1C(srli, 32, psrld, a128_32, 2)
- GO1C(srli, 64, psrlq, a128_64, 0)
- GO1C(srli, 64, psrlq, a128_64, 0xff)
- GO1C(srli, 64, psrlq, a128_64, 0xaa)
- GO1C(srli, 64, psrlq, a128_64, 2)
- GO1C(srai, 16, psraw, a128_16, 0)
- GO1C(srai, 16, psraw, a128_16, 0xff)
- GO1C(srai, 16, psraw, a128_16, 0xaa)
- GO1C(srai, 16, psraw, a128_16, 2)
- GO1C(srai, 32, psrad, a128_32, 0)
- GO1C(srai, 32, psrad, a128_32, 0xff)
- GO1C(srai, 32, psrad, a128_32, 0xaa)
- GO1C(srai, 32, psrad, a128_32, 2)
- GO1C(slli, 16, psllw, a128_16, 0)
- GO1C(slli, 16, psllw, a128_16, 0xff)
- GO1C(slli, 16, psllw, a128_16, 0xaa)
- GO1C(slli, 16, psllw, a128_16, 2)
- GO1C(slli, 32, pslld, a128_32, 0)
- GO1C(slli, 32, pslld, a128_32, 0xff)
- GO1C(slli, 32, pslld, a128_32, 0xaa)
- GO1C(slli, 32, pslld, a128_32, 2)
- GO1C(slli, 64, psllq, a128_64, 0)
- GO1C(slli, 64, psllq, a128_64, 0xff)
- GO1C(slli, 64, psllq, a128_64, 0xaa)
- GO1C(slli, 64, psllq, a128_64, 2)
- GO2(cmpeq, 8, pcmpeqb, a128_8, b128_8)
- GO2(cmpeq, 16, pcmpeqw, a128_16, b128_16)
- GO2(cmpeq, 32, pcmpeqd, a128_32, b128_32)
+ MULITGO2pd(addsub, addsubpd)
+ MULITGO2Cpd(cmp, cmppd, 0)
+ MULITGO2Cpd(cmp, cmppd, 1)
+ MULITGO2Cpd(cmp, cmppd, 2)
+ MULITGO2Cpd(cmp, cmppd, 3)
+ MULITGO2Cpd(cmp, cmppd, 4)
+ MULITGO2Cpd(cmp, cmppd, 5)
+ MULITGO2Cpd(cmp, cmppd, 6)
+ MULITGO2Cpd(cmp, cmppd, 7)
+ MULITGO2Cpd(cmp, cmppd, 8)
+ MULITGO2Cpd(cmp, cmppd, 9)
+ MULITGO2Cpd(cmp, cmppd, 10)
+ MULITGO2Cpd(cmp, cmppd, 11)
+ MULITGO2Cpd(cmp, cmppd, 12)
+ MULITGO2Cpd(cmp, cmppd, 13)
+ MULITGO2Cpd(cmp, cmppd, 14)
+ MULITGO2Cpd(cmp, cmppd, 15)
+ MULITGO2Cpd(cmp, cmppd, 16)
+ MULITGO2Cpd(cmp, cmppd, 17)
+ MULITGO2Cpd(cmp, cmppd, 18)
+ MULITGO2Cpd(cmp, cmppd, 19)
+ MULITGO2Cpd(cmp, cmppd, 20)
+ MULITGO2Cpd(cmp, cmppd, 21)
+ MULITGO2Cpd(cmp, cmppd, 22)
+ MULITGO2Cpd(cmp, cmppd, 23)
+ MULITGO2Cpd(cmp, cmppd, 24)
+ MULITGO2Cpd(cmp, cmppd, 25)
+ MULITGO2Cpd(cmp, cmppd, 26)
+ MULITGO2Cpd(cmp, cmppd, 27)
+ MULITGO2Cpd(cmp, cmppd, 28)
+ MULITGO2Cpd(cmp, cmppd, 29)
+ MULITGO2Cpd(cmp, cmppd, 30)
+ MULITGO2Cpd(cmp, cmppd, 31)
+ MULITGO2Cpd(shuffle, shufpd, 0)
+ MULITGO2Cpd(shuffle, shufpd, 0x15)
+ MULITGO2Cpd(shuffle, shufpd, 0xff)
+ MULITGO2Cpd(shuffle, shufpd, 0x02)
+ MULTIGO2i(unpacklo, 8, punpcklbw)
+ MULTIGO2i(unpacklo, 16, punpcklwd)
+ MULTIGO2i(unpacklo, 32, punpckldq)
+ MULTIGO2i(packs, 16, ppacksswb)
+ MULTIGO2i(cmpgt, 8, pcmpgtb)
+ MULTIGO2i(cmpgt, 16, pcmpgtw)
+ MULTIGO2i(cmpgt, 32, pcmpgtd)
+ MULTIGO2i(packus, 16, packuswb)
+ MULTIGO2i(unpackhi, 8, punpckhbw)
+ MULTIGO2i(unpackhi, 16, punpckhwd)
+ MULTIGO2i(unpackhi, 32, punpckhdq)
+ MULTIGO2i(packs, 32, ppackssdw)
+ MULTIGO2i(unpacklo, 64, punpcklqdq)
+ MULTIGO2i(unpackhi, 64, punpckhqdq)
+ MULTIGO1Ci(shuffle, 32, pshufd, 0)
+ MULTIGO1Ci(shuffle, 32, pshufd, 0xff)
+ MULTIGO1Ci(shuffle, 32, pshufd, 0xaa)
+ MULTIGO1Ci(shuffle, 32, pshufd, 2)
+ MULTIGO1Ci(srli, 16, psrlw, 0)
+ MULTIGO1Ci(srli, 16, psrlw, 0xff)
+ MULTIGO1Ci(srli, 16, psrlw, 0xaa)
+ MULTIGO1Ci(srli, 16, psrlw, 2)
+ MULTIGO1Ci(srli, 32, psrld, 0)
+ MULTIGO1Ci(srli, 32, psrld, 0xff)
+ MULTIGO1Ci(srli, 32, psrld, 0xaa)
+ MULTIGO1Ci(srli, 32, psrld, 2)
+ MULTIGO1Ci(srli, 64, psrlq, 0)
+ MULTIGO1Ci(srli, 64, psrlq, 0xff)
+ MULTIGO1Ci(srli, 64, psrlq, 0xaa)
+ MULTIGO1Ci(srli, 64, psrlq, 2)
+ MULTIGO1Ci(srai, 16, psraw, 0)
+ MULTIGO1Ci(srai, 16, psraw, 0xff)
+ MULTIGO1Ci(srai, 16, psraw, 0xaa)
+ MULTIGO1Ci(srai, 16, psraw, 2)
+ MULTIGO1Ci(srai, 32, psrad, 0)
+ MULTIGO1Ci(srai, 32, psrad, 0xff)
+ MULTIGO1Ci(srai, 32, psrad, 0xaa)
+ MULTIGO1Ci(srai, 32, psrad, 2)
+ MULTIGO1Ci(slli, 16, psllw, 0)
+ MULTIGO1Ci(slli, 16, psllw, 0xff)
+ MULTIGO1Ci(slli, 16, psllw, 0xaa)
+ MULTIGO1Ci(slli, 16, psllw, 2)
+ MULTIGO1Ci(slli, 32, pslld, 0)
+ MULTIGO1Ci(slli, 32, pslld, 0xff)
+ MULTIGO1Ci(slli, 32, pslld, 0xaa)
+ MULTIGO1Ci(slli, 32, pslld, 2)
+ MULTIGO1Ci(slli, 64, psllq, 0)
+ MULTIGO1Ci(slli, 64, psllq, 0xff)
+ MULTIGO1Ci(slli, 64, psllq, 0xaa)
+ MULTIGO1Ci(slli, 64, psllq, 2)
+ MULTIGO2i(cmpeq, 8, pcmpeqb)
+ MULTIGO2i(cmpeq, 16, pcmpeqw)
+ MULTIGO2i(cmpeq, 32, pcmpeqd)
  MULITGO2pd(hadd, haddpd)
- GO2(srl, 16, psrlw, a128_16, b128_16)
- GO2(srl, 32, psrld, a128_32, b128_32)
- GO2(srl, 64, psrlq, a128_64, b128_64)
- GO2(add, 64, paddq, a128_64, b128_64)
- GO2(mullo, 16, pmullw, a128_16, b128_16)
- GO2u(subs, 8, psubusb, a128_8, b128_8)
- GO2u(subs, 16, psubusw, a128_16, b128_16)
- GO2u(min, 8, pminub, a128_8, b128_8)
- GO2f(and, pand, a128_8, b128_8)
- GO2u(adds, 8, paddusb, a128_8, b128_8)
- GO2u(adds, 16, paddusw, a128_16, b128_16)
- GO2u(max, 8, pmaxub, a128_8, b128_8)
- GO2f(andnot, pandn, a128_8, b128_8)
- GO2u(avg, 8, pavgb, a128_8, b128_8)
- GO2(sra, 16, psraw, a128_16, b128_16)
- GO2(sra, 32, psrad, a128_32, b128_32)
- GO2u(avg, 16, pavgb, a128_16, b128_16)
- GO2u(mulhi, 16, pmulhuw, a128_16, b128_16)
- GO2(mulhi, 16, pmulhw, a128_16, b128_16)
- GO2(subs, 8, psubsb, a128_8, b128_8)
- GO2(subs, 16, psubsw, a128_16, b128_16)
- GO2(min, 16, pminsw, a128_16, b128_16)
- GO2f(or, por, a128_8, b128_8)
- GO2(adds, 8, paddusb, a128_8, b128_8)
- GO2(adds, 16, paddusw, a128_16, b128_16)
- GO2(max, 16, pmaxsw, a128_16, b128_16)
- GO2f(xor, pxor, a128_8, b128_8)
- GO2(sll, 16, psllw, a128_16, b128_16)
- GO2(sll, 32, pslld, a128_32, b128_32)
- GO2(sll, 64, psllq, a128_64, b128_64)
- GO2u(mul, 32, pmuludq, a128_32, b128_32)
- GO2(madd, 16, pmaddwd, a128_16, b128_16)
- GO2u(sad, 8, psadbw, a128_8, b128_8)
- GO2(sub, 8, psubb, a128_8, b128_8)
- GO2(sub, 16, psubw, a128_16, b128_16)
- GO2(sub, 32, psubd, a128_32, b128_32)
- GO2(sub, 64, psubq, a128_64, b128_64)
- GO2(add, 8, paddb, a128_8, b128_8)
- GO2(add, 16, paddw, a128_16, b128_16)
- GO2(add, 32, paddd, a128_32, b128_32)
+ MULITGO2pd(hsub, hsubpd)
+ MULTIGO2i(srl, 16, psrlw)
+ MULTIGO2i(srl, 32, psrld)
+ MULTIGO2i(srl, 64, psrlq)
+ MULTIGO2i(add, 64, paddq)
+ MULTIGO2i(mullo, 16, pmullw)
+ MULTIGO2ui(subs, 8, psubusb)
+ MULTIGO2ui(subs, 16, psubusw)
+ MULTIGO2ui(min, 8, pminub)
+ MULTIGO2fi(and, pand)
+ MULTIGO2ui(adds, 8, paddusb)
+ MULTIGO2ui(adds, 16, paddusw)
+ MULTIGO2ui(max, 8, pmaxub)
+ MULTIGO2fi(andnot, pandn)
+ MULTIGO2ui(avg, 8, pavgb)
+ MULTIGO2i(sra, 16, psraw)
+ MULTIGO2i(sra, 32, psrad)
+ MULTIGO2ui(avg, 16, pavgb)
+ MULTIGO2ui(mulhi, 16, pmulhuw)
+ MULTIGO2i(mulhi, 16, pmulhw)
+ MULTIGO2i(subs, 8, psubsb)
+ MULTIGO2i(subs, 16, psubsw)
+ MULTIGO2i(min, 16, pminsw)
+ MULTIGO2fi(or, por)
+ MULTIGO2i(adds, 8, paddusb)
+ MULTIGO2i(adds, 16, paddusw)
+ MULTIGO2i(max, 16, pmaxsw)
+ MULTIGO2fi(xor, pxor)
+ MULTIGO2i(sll, 16, psllw)
+ MULTIGO2i(sll, 32, pslld)
+ MULTIGO2i(sll, 64, psllq)
+ MULTIGO2ui(mul, 32, pmuludq)
+ MULTIGO2i(madd, 16, pmaddwd)
+ MULTIGO2i(maddubs, 16, pmaddubsw)
+ MULTIGO2ui(sad, 8, psadbw)
+ MULTIGO2i(sub, 8, psubb)
+ MULTIGO2i(sub, 16, psubw)
+ MULTIGO2i(sub, 32, psubd)
+ MULTIGO2i(sub, 64, psubq)
+ MULTIGO2i(add, 8, paddb)
+ MULTIGO2i(add, 16, paddw)
+ MULTIGO2i(add, 32, paddd)
  GO2ps(movehl, pmovhlps, a128_ps, b128_ps)
  GO2ps(unpacklo, unpcklps, a128_ps, b128_ps)
  GO2ps(unpackhi, unpckhps, a128_ps, b128_ps)
@@ -587,6 +685,9 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULITGO2ps(min, minps)
  MULITGO2ps(div, divps)
  MULITGO2ps(max, maxps)
+ MULITGO2ps(addsub, addsubps)
+ MULITGO2ps(hadd, haddps)
+ MULITGO2ps(hsub, hsubps)
  MULITGO2Cps(cmp, cmpps, 0)
  MULITGO2Cps(cmp, cmpps, 1)
  MULITGO2Cps(cmp, cmpps, 2)
