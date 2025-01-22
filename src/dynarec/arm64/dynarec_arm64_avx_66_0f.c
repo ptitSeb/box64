@@ -1877,7 +1877,21 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0xF7:
+            INST_NAME("VMASKMOVDQU Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn, ninst);
+            VLDR128_U12(v0, xRDI, 0);
+            if(MODREG)
+                v1 = fpu_get_scratch(dyn, ninst); // need to preserve the register
+            else
+                v1 = q1;
+            VSSHRQ_8(v1, q1, 7);  // get the mask
+            VBITQ(v0, q0, v1);
+            VSTR128_U12(v0, xRDI, 0);  // put back
+            break;
         case 0xF8:
             INST_NAME("VPSUBB Gx, Vx, Ex");
             nextop = F8;

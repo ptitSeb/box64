@@ -135,15 +135,21 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(!l) {
                     GETGX_empty_EX(v0, v1, 1);
                     u8 = F8;
-                    if(v0==v1) {q1 = fpu_get_scratch(dyn, ninst); VMOVQ(q1, v1);}
                 } else {
                     GETGY_empty_EY(v0, v1);
-                    if(v0==v1) {VMOVQ(q1, v1);}
                 }
-                if(((u8>>(l*2))&1)==((u8>>(1+l*2))&1))
-                    VDUPQ_64(v0, (v0==v1)?q1:v1, ((u8>>(l*2))&1));
-                else for(int i=0; i<2; ++i)
-                    VMOVeD(v0, i, (v0==v1)?q1:v1, (u8>>(i+l*2))&1);
+                switch(((u8>>(l*2))&3)) {
+                    case 0b00:
+                    case 0b11:
+                        VDUPQ_64(v0, v1, ((u8>>(l*2))&1));
+                        break;
+                    case 0b10:
+                        if(v0!=v1) VMOVQ(v0, v1);
+                        break;
+                    case 0b01:
+                       VEXTQ_8(v0, v1, v1, 8); // invert 64bits values
+                       break;
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
@@ -308,7 +314,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else YMM0(gd);
             break;
         case 0x0D:
-            INST_NAME("VPBLENDPD Gx, Vx, Ex, Ib");
+            INST_NAME("VBLENDPD Gx, Vx, Ex, Ib");
             nextop = F8;
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(q0, q2, q1, 1); u8 = F8; } else { GETGY_empty_VYEY(q0, q2, q1); }
@@ -592,28 +598,36 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             u8 = geted_ib(dyn, addr, ninst, nextop);
             q0 = fpu_get_scratch(dyn, ninst);
             // first mask
-            wb1 = 0; // mask
-            for(int i=0; i<4; ++i)
-                if(u8&(1<<i))
-                    wb1 |= (3<<(i*2));
-            MOVI_64(q0, wb1);   // load 8bits value as a 8bytes mask
-            SXTL_16(q0, q0);    // expand 16bits to 32bits...
-            q1 = fpu_get_scratch(dyn, ninst);
-            // second mask
-            wb1 = 0; // mask
-            for(int i=0; i<4; ++i)
-                if((u8>>4)&(1<<i))
-                    wb1 |= (3<<(i*2));
-            MOVI_64(q1, wb1);   // load 8bits value as a 8bytes mask
-            SXTL_16(q1, q1);    // expand 16bits to 32bits...
+            if((u8&0x0f)!=0x0f) {
+                wb1 = 0; // mask
+                for(int i=0; i<4; ++i)
+                    if(u8&(1<<i))
+                        wb1 |= (3<<(i*2));
+                MOVI_64(q0, wb1);   // load 8bits value as a 8bytes mask
+                SXTL_16(q0, q0);    // expand 16bits to 32bits...
+            }
+            if((u8&0xf0)!=0xf0) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                // second mask
+                wb1 = 0; // mask
+                for(int i=0; i<4; ++i)
+                    if((u8>>4)&(1<<i))
+                        wb1 |= (3<<(i*2));
+                MOVI_64(q1, wb1);   // load 8bits value as a 8bytes mask
+                SXTL_16(q1, q1);    // expand 16bits to 32bits...
+            }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8; } else { GETGY_empty_VYEY(v0, v2, v1); }
                 VFMULQS(v0, v2, v1);
-                VANDQ(v0, v0, q1);  // second mask
+                if((u8&0xf0)!=0xf0) {
+                    VANDQ(v0, v0, q1);  // second mask
+                }
                 VFADDPQS(v0, v0, v0);
                 FADDPS(v0, v0);
                 VDUPQ_32(v0, v0, 0);
-                VANDQ(v0, v0, q0);  // first mask
+                if((u8&0x0f)!=0x0f) {
+                    VANDQ(v0, v0, q0);  // first mask
+                }
             }
             if(!vex.l) YMM0(gd);
             break;

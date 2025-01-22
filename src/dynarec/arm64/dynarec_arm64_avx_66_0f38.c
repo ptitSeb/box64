@@ -26,6 +26,8 @@
 
 static const float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
 static const double addsubpd[2] = {-1., 1.};
+static const float subaddps[4] = {1.f, -1.f, 1.f, -1.f};
+static const double subaddpd[2] = {1., -1.};
 
 uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
@@ -202,6 +204,109 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VTBLQ1_8(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
+            break;
+
+        case 0x0E:
+            INST_NAME("VTESTPS GX, EX");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGX(v0, 0);
+            GETEX(v1, 0, 0);
+            v2 = fpu_get_scratch(dyn, ninst);
+            if(vex.l) {
+                if(!MODREG)
+                    q1 = fpu_get_scratch(dyn, ninst);
+                q2 = fpu_get_scratch(dyn, ninst);
+                GETGY(q0, 0, MODREG?((nextop&7)+(rex.b<<3)):-1, -1, -1);
+                GETEY(q1);
+            }
+            IFX(X_CF) {
+                VBICQ(v2, v1, v0);
+                VSHRQ_32(v2, v2, 31);
+                if(vex.l) {
+                    VBICQ(q2, q1, q0);
+                    VSHRQ_32(q2, q2, 31);
+                    VORRQ(v2, v2, q2);
+                }
+                CMEQQ_0_64(v2, v2);
+                UQXTN_32(v2, v2);
+                VMOVQDto(x2, v2, 0);
+                ADDSx_U12(xZR, x2, 1);
+                CSETw(x2, cEQ);
+                BFIw(xFlags, x2, F_CF, 1);
+            }
+            IFX(X_ZF) {
+                VANDQ(v2, v0, v1);
+                VSHRQ_32(v2, v2, 31);
+                if(vex.l) {
+                    VANDQ(q2, q0, q1);
+                    VSHRQ_32(q2, q2, 31);
+                    VORRQ(v2, v2, q2);
+                }
+                CMEQQ_0_64(v2, v2);
+                UQXTN_32(v2, v2);
+                VMOVQDto(x2, v2, 0);
+                ADDSx_U12(xZR, x2, 1);
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x2, cEQ);
+                    BFIw(xFlags, x2, F_ZF, 1);
+                }
+            }
+            IFX(X_AF|X_SF|X_OF|X_PF) {
+                MOV32w(x2, (1<<F_AF) | (1<<F_OF) | (1<<F_SF) | (1<<F_PF));
+                BICw(xFlags, xFlags, x2);
+            }
+            break;
+        case 0x0F:
+            INST_NAME("VTESTPD GX, EX");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGX(v0, 0);
+            GETEX(v1, 0, 0);
+            v2 = fpu_get_scratch(dyn, ninst);
+            if(vex.l) {
+                if(!MODREG)
+                    q1 = fpu_get_scratch(dyn, ninst);
+                q2 = fpu_get_scratch(dyn, ninst);
+                GETGY(q0, 0, MODREG?((nextop&7)+(rex.b<<3)):-1, -1, -1);
+                GETEY(q1);
+            }
+            IFX(X_CF) {
+                VBICQ(v2, v1, v0);
+                VSHRQ_64(v2, v2, 63);
+                if(vex.l) {
+                    VBICQ(q2, q1, q0);
+                    VSHRQ_64(q2, q2, 63);
+                    VORRQ(v2, v2, q2);
+                }
+                CMEQQ_0_64(v2, v2);
+                UQXTN_32(v2, v2);
+                VMOVQDto(x2, v2, 0);
+                ADDSx_U12(xZR, x2, 1);
+                CSETw(x2, cEQ);
+                BFIw(xFlags, x2, F_CF, 1);
+            }
+            IFX(X_ZF) {
+                VANDQ(v2, v0, v1);
+                VSHRQ_64(v2, v2, 63);
+                if(vex.l) {
+                    VANDQ(q2, q0, q1);
+                    VSHRQ_64(q2, q2, 63);
+                    VORRQ(v2, v2, q2);
+                }
+                CMEQQ_0_64(v2, v2);
+                UQXTN_32(v2, v2);
+                VMOVQDto(x2, v2, 0);
+                ADDSx_U12(xZR, x2, 1);
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x2, cEQ);
+                    BFIw(xFlags, x2, F_ZF, 1);
+                }
+            }
+            IFX(X_AF|X_SF|X_OF|X_PF) {
+                MOV32w(x2, (1<<F_AF) | (1<<F_OF) | (1<<F_SF) | (1<<F_PF));
+                BICw(xFlags, xFlags, x2);
+            }
             break;
 
         case 0x13:
@@ -1015,6 +1120,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(!l) {
                         GETGX_empty_VX(v0, v2);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x3) {
+                            MOVx_REG(x3, ed);
+                            ed = x3;
+                        }
                         v1 = fpu_get_scratch(dyn, ninst);
                     } else {
                         GETGY_empty_VY(v0, v2, 0, -1, -1);
@@ -1028,12 +1137,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                         VMOVQDto(x4, q0, 0);
                         CBZx(x4, 4+1*4);
                         VLD1_64(v1, 0, ed);
-                        ADDx_U12(ed, ed, 4);
+                        ADDx_U12(ed, ed, 8);
                         VMOVQDto(x4, q0, 1);
                         CBZx(x4, 4+1*4);
                         VLD1_64(v1, 1, ed);
                         if(!l && vex.l)
-                            ADDx_U12(ed, ed, 4);
+                            ADDx_U12(ed, ed, 8);
                     } else {
                         VSSHRQ_32(q0, v2, 31);
                         VMOVSto(x4, q0, 0);
@@ -1503,7 +1612,29 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0xB7:
+            INST_NAME("VFMSUBADD231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            TABLE64(x2, (rex.w)?((uintptr_t)&subaddpd):((uintptr_t)&subaddps));
+            VLDR128_U12(q0, x2, 0);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_VXEX(v0, v2, v1, 0); if(v0==v2 || v0==v1) q1 = fpu_get_scratch(dyn, ninst); } else { GETGY_VYEY(v0, v2, v1); }
+                if(v0!=v1 && v0!=v2) {
+                    q1 = v0;
+                }
+                if(rex.w) {
+                    VFMULQD(q1, v0, q0);
+                    VFMLAQD(q1, v1, v2);
+                } else {
+                    VFMULQS(q1, v0, q0);
+                    VFMLAQS(q1, v1, v2);
+                }
+                if(q1!=v0)
+                    VMOVQ(v0, q1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0xB8:
             INST_NAME("VFMADD231PS/D Gx, Vx, Ex");
             nextop = F8;

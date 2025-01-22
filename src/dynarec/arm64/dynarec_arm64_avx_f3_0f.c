@@ -234,35 +234,53 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x58:
             INST_NAME("VADDSS Gx, Vx, Ex");
             nextop = F8;
-            d1 = fpu_get_scratch(dyn, ninst);
+            q2 = fpu_get_scratch(dyn, ninst);
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FMAXS(q1, v0, v1);    // propagate NAN
+                FCMEQS(q1, q1, q1);    // 0 if NAN, 1 if not NAN
+                FADDS(q2, v1, v2);  // the high part of the vector is erased...
+                FCMEQS(q0, q2, q2);    // 0 => out is NAN
+                VBIC(q0, q1, q0);      // forget it in any input was a NAN already
+                VSHL_32(q0, q0, 31);     // only keep the sign bit
+                VORR(q2, q2, q0);      // NAN -> -NAN
+            } else {
+                FADDS(q2, v1, v2);  // the high part of the vector is erased...
+            }
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FADDS(d1, v0, v1);
-            VMOVeS(v0, 0, d1, 0);
+            VMOVeS(v0, 0, q2, 0);
             YMM0(gd)
             break;
         case 0x59:
             INST_NAME("VMULSS Gx, Vx, Ex");
             nextop = F8;
-            d1 = fpu_get_scratch(dyn, ninst);
+            q2 = fpu_get_scratch(dyn, ninst);
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FMAXS(q1, v0, v1);    // propagate NAN
+                FCMEQS(q1, q1, q1);    // 0 if NAN, 1 if not NAN
+                FMULS(q2, v1, v2);  // the high part of the vector is erased...
+                FCMEQS(q0, q2, q2);    // 0 => out is NAN
+                VBIC(q0, q1, q0);      // forget it in any input was a NAN already
+                VSHL_32(q0, q0, 31);     // only keep the sign bit
+                VORR(q2, q2, q0);      // NAN -> -NAN
+            } else {
+                FMULS(q2, v1, v2);  // the high part of the vector is erased...
+            }
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FMULS(d1, v0, v1);
-            VMOVeS(v0, 0, d1, 0);
+            VMOVeS(v0, 0, q2, 0);
             YMM0(gd)
             break;
         case 0x5A:
@@ -314,14 +332,27 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5C:
             INST_NAME("VSUBSS Gx, Vx, Ex");
             nextop = F8;
-            d1 = fpu_get_scratch(dyn, ninst);
+            q2 = fpu_get_scratch(dyn, ninst);
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
-            FSUBS(d1, v2, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FMAXS(q1, v0, v1);    // propagate NAN
+                FCMEQS(q1, q1, q1);    // 0 if NAN, 1 if not NAN
+                FSUBS(q2, v2, v1);  // the high part of the vector is erased...
+                FCMEQS(q0, q2, q2);    // 0 => out is NAN
+                VBIC(q0, q1, q0);      // forget it in any input was a NAN already
+                VSHL_32(q0, q0, 31);     // only keep the sign bit
+                VORR(q2, q2, q0);      // NAN -> -NAN
+            } else {
+                FSUBS(q2, v2, v1);  // the high part of the vector is erased...
+            }
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
-            VMOVeS(v0, 0, d1, 0);
+            VMOVeS(v0, 0, q2, 0);
             YMM0(gd)
             break;
         case 0x5D:
@@ -341,14 +372,27 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5E:
             INST_NAME("VDIVSS Gx, Vx, Ex");
             nextop = F8;
-            d1 = fpu_get_scratch(dyn, ninst);
+            q2 = fpu_get_scratch(dyn, ninst);
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
-            FDIVS(d1, v2, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FMAXS(q1, v0, v1);    // propagate NAN
+                FCMEQS(q1, q1, q1);    // 0 if NAN, 1 if not NAN
+                FDIVS(q2, v2, v1);  // the high part of the vector is erased...
+                FCMEQS(q0, q2, q2);    // 0 => out is NAN
+                VBIC(q0, q1, q0);      // forget it in any input was a NAN already
+                VSHL_32(q0, q0, 31);     // only keep the sign bit
+                VORR(q2, q2, q0);      // NAN -> -NAN
+            } else {
+                FDIVS(q2, v2, v1);  // the high part of the vector is erased...
+            }
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
-            VMOVeS(v0, 0, d1, 0);
+            VMOVeS(v0, 0, q2, 0);
             YMM0(gd)
             break;
         case 0x5F:

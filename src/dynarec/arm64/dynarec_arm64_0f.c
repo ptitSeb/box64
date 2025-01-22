@@ -1136,15 +1136,41 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("ADDPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFADDQS(v0, v0, q0);
+            GETGX(q1, 1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFMAXQS(v0, q0, q1);    // propagate NAN
+                VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFADDQS(q1, q1, q0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x59:
             INST_NAME("MULPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFMULQS(v0, v0, q0);
+            GETGX(q1, 1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFMAXQS(v0, q0, q1);    // propagate NAN
+                VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFMULQS(q1, q1, q0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x5A:
             INST_NAME("CVTPS2PD Gx, Ex");
@@ -1164,8 +1190,21 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("SUBPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFSUBQS(v0, v0, q0);
+            GETGX(q1, 1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFMAXQS(v0, q0, q1);    // propagate NAN
+                VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFSUBQS(q1, q1, q0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x5D:
             INST_NAME("MINPS Gx, Ex");
@@ -1185,8 +1224,21 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFDIVQS(v0, v0, q0);
+            GETGX(q1, 1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFMAXQS(v0, q0, q1);    // propagate NAN
+                VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFDIVQS(q1, q1, q0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x5F:
             INST_NAME("MAXPS Gx, Ex");

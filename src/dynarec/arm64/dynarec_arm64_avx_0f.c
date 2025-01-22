@@ -440,22 +440,50 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x58:
             INST_NAME("VADDPS Gx, Vx, Ex");
             nextop = F8;
-            GETGX_empty_VXEX(v0, v2, v1, 0);
-            VFADDQS(v0, v2, v1);
-            if(vex.l) {
-                GETGY_empty_VYEY(v0, v2, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    // check if any input value was NAN
+                    VFMAXQS(q0, v2, v1);    // propagate NAN
+                    VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+                }
                 VFADDQS(v0, v2, v1);
-            } else YMM0(gd)
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    VFCMEQQS(q1, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
+                    VSHLQ_32(q1, q1, 31);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
+            }
+            if(!vex.l) YMM0(gd)
             break;
         case 0x59:
             INST_NAME("VMULPS Gx, Vx, Ex");
             nextop = F8;
-            GETGX_empty_VXEX(v0, v2, v1, 0);
-            VFMULQS(v0, v2, v1);
-            if(vex.l) {
-                GETGY_empty_VYEY(v0, v2, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    // check if any input value was NAN
+                    VFMAXQS(q0, v2, v1);    // propagate NAN
+                    VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+                }
                 VFMULQS(v0, v2, v1);
-            } else YMM0(gd)
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    VFCMEQQS(q1, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
+                    VSHLQ_32(q1, q1, 31);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
+            }
+            if(!vex.l) YMM0(gd)
             break;
         case 0x5A:
             INST_NAME("VCVTPS2PD Gx, Ex");
@@ -480,12 +508,26 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5C:
             INST_NAME("VSUBPS Gx, Vx, Ex");
             nextop = F8;
-            GETGX_empty_VXEX(v0, v2, v1, 0);
-            VFSUBQS(v0, v2, v1);
-            if(vex.l) {
-                GETGY_empty_VYEY(v0, v2, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    // check if any input value was NAN
+                    VFMAXQS(q0, v2, v1);    // propagate NAN
+                    VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+                }
                 VFSUBQS(v0, v2, v1);
-            } else YMM0(gd)
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    VFCMEQQS(q1, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
+                    VSHLQ_32(q1, q1, 31);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
+            }
+            if(!vex.l) YMM0(gd)
             break;
         case 0x5D:
             INST_NAME("VMINPS Gx, Vx, Ex");
@@ -508,12 +550,26 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5E:
             INST_NAME("VDIVPS Gx, Vx, Ex");
             nextop = F8;
-            GETGX_empty_VXEX(v0, v2, v1, 0);
-            VFDIVQS(v0, v2, v1);
-            if(vex.l) {
-                GETGY_empty_VYEY(v0, v2, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    // check if any input value was NAN
+                    VFMAXQS(q0, v2, v1);    // propagate NAN
+                    VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+                }
                 VFDIVQS(v0, v2, v1);
-            } else YMM0(gd)
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    VFCMEQQS(q1, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
+                    VSHLQ_32(q1, q1, 31);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
+            }
+            if(!vex.l) YMM0(gd)
             break;
         case 0x5F:
             INST_NAME("VMAXPS Gx, Vx, Ex");
@@ -634,15 +690,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             u8 = F8;
             if(v2==v1 && (u8&0x3)==((u8>>2)&3) && (u8&0xf)==((u8>>4)&0xf)) {
                 VDUPQ_32(v0, v2, u8&3);
-            } else if(v2==v1 && (u8==0xe0)) {   // easy special case
+            } else if(v2==v1 && (u8==0xe0)) {   // elements 3 2 0 0
                 VMOVQ(v0, v2);
                 VMOVeS(v0, 1, v0, 0);
-            } else if(v2==v1 && (u8==0xe5)) {   // easy special case
+            } else if(v2==v1 && (u8==0xe5)) {   // elements 3 2 1 1
                 VMOVQ(v0, v2);
                 VMOVeS(v0, 0, v0, 1);
-            } else if(MODREG && u8==0x88) {
+            } else if(v2==v1 && (u8==0xa0)) {   // elements 2 2 0 0
+                VTRNQ1_32(v0, v1, v2);
+            } else if(v2==v1 && (u8==0xf5)) {   // elements 3 3 1 1 
+                VTRNQ2_32(v0, v1, v2);
+            } else if(v2==v1 && (u8==0xb1)) {   // elements 2 3 0 1
+                VREV64Q_32(v0, v1);
+            } else if(MODREG && u8==0x88) {     // elements 2 0 2 0
                 VUZP1Q_32(v0, v2, v1);
-            } else if(MODREG && u8==0xdd) {
+            } else if(MODREG && u8==0xdd) {     // elements 3 1 3 1
                 VUZP2Q_32(v0, v2, v1);
             } else {
                 if((v0==v1) || (v0==v2)) {
@@ -674,15 +736,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 GETGY_empty_VY(v0, v2, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 if(v2==v1 && (u8&0x3)==((u8>>2)&3) && (u8&0xf)==((u8>>4)&0xf)) {
                     VDUPQ_32(v0, v2, u8&3);
-                } else if(v2==v1 && (u8==0xe0)) {
+                } else if(v2==v1 && (u8==0xe0)) {   // elements 3 2 0 0
                     VMOVQ(v0, v2);
                     VMOVeS(v0, 1, v0, 0);
-                } else if(v2==v1 && (u8==0xe5)) {
+                } else if(v2==v1 && (u8==0xe5)) {   // elements 3 2 1 1
                     VMOVQ(v0, v2);
                     VMOVeS(v0, 0, v0, 1);
-                } else if(MODREG && u8==0x88) {
+                } else if(v2==v1 && (u8==0xa0)) {   // elements 2 2 0 0
+                    VTRNQ1_32(v0, v1, v2);
+                } else if(v2==v1 && (u8==0xf5)) {   // elements 3 3 1 1 
+                    VTRNQ2_32(v0, v1, v2);
+                } else if(v2==v1 && (u8==0xb1)) {   // elements 2 3 0 1
+                    VREV64Q_32(v0, v1);
+                } else if(MODREG && u8==0x88) {     // elements 2 0 2 0
                     VUZP1Q_32(v0, v2, v1);
-                } else if(MODREG && u8==0xdd) {
+                } else if(MODREG && u8==0xdd) {     // elements 3 1 3 1
                     VUZP2Q_32(v0, v2, v1);
                 } else {
                     if(s0) d0 = v0;
