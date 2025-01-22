@@ -71,7 +71,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_IGNOREINT3, ignoreint3, 0)                            \
     STRING(BOX64_INSERT_ARGS, insert_args)                              \
     BOOLEAN(BOX64_INPROCESSGPU, inprocessgpu, 0)                        \
-    BOOLEAN(BOX64_JITGDB, jitgdb, 0)                                    \
+    INTEGER(BOX64_JITGDB, jitgdb, 0, 0, 3)                              \
     BOOLEAN(BOX64_JVM, jvm, 1)                                          \
     STRING(BOX64_LD_LIBRARY_PATH, ld_library_path)                      \
     BOOLEAN(BOX64_LIBCEF, libcef, 1)                                    \
