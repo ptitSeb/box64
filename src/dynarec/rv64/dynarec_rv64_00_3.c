@@ -392,14 +392,32 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
             } else { // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
-                i64 = F32S;
-                if (i64) {
-                    MOV64x(x3, i64);
-                    ed = x3;
-                } else
-                    ed = xZR;
-                SDxw(ed, wback, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, (1 << (2 + rex.w)) - 1, 4);
+                    i64 = F32S;
+                    if (i64) {
+                        MOV64x(x4, i64);
+                        ed = x4;
+                    } else
+                        ed = xZR;
+                    for (int i = 0; i < (1 << (2 + rex.w)); i++) {
+                        if (i == 0 || ed == xZR) {
+                            SB(ed, wback, fixedaddress + i);
+                        } else {
+                            SRLI(x3, ed, i * 8);
+                            SB(x3, wback, fixedaddress + i);
+                        }
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
+                    i64 = F32S;
+                    if (i64) {
+                        MOV64x(x3, i64);
+                        ed = x3;
+                    } else
+                        ed = xZR;
+                    SDxw(ed, wback, fixedaddress);
+                }
                 SMWRITELOCK(lock);
             }
             break;
