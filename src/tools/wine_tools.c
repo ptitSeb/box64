@@ -149,3 +149,25 @@ void dynarec_wine_prereserve()
     #endif
 }
 #endif
+
+void detect_unityplayer(int fd)
+{
+    static int unityplayer_detected = 0;
+    if (fd > 0 && BOX64ENV(unityplayer) && !unityplayer_detected) {
+        char filename[4096];
+        char buf[128];
+        sprintf(buf, "/proc/self/fd/%d", fd);
+        ssize_t r = readlink(buf, filename, sizeof(filename) - 1);
+        if (r != -1) filename[r] = 0;
+        if (r > 0 && strlen(filename) > strlen("UnityPlayer.dll") && !strcasecmp(filename + strlen(filename) - strlen("UnityPlayer.dll"), "UnityPlayer.dll")) {
+            printf_log(LOG_NONE, "Detected UnityPlayer.dll\n");
+#ifdef DYNAREC
+            if (!BOX64ENV(dynarec_strongmem)) {
+                SET_BOX64ENV(dynarec_strongmem, 1);
+                PrintEnvVariables();
+            }
+#endif
+            unityplayer_detected = 1;
+        }
+    }
+}

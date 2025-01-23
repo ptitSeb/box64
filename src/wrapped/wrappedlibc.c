@@ -65,6 +65,7 @@
 #include "bridge.h"
 #include "globalsymbols.h"
 #include "env.h"
+#include "wine_tools.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -3004,21 +3005,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
                 prot |= PROT_NEVERCLEAN;
             }
         }
-        static int unityplayer_detected = 0;
-        if(fd>0 && BOX64ENV(unityplayer) && !unityplayer_detected) {
-            char filename[4096];
-            char buf[128];
-            sprintf(buf, "/proc/self/fd/%d", fd);
-            ssize_t r = readlink(buf, filename, sizeof(filename)-1);
-            if(r!=-1) filename[r]=0;
-            if(r>0 && strlen(filename)>strlen("UnityPlayer.dll") && !strcasecmp(filename+strlen(filename)-strlen("UnityPlayer.dll"), "UnityPlayer.dll")) {
-                printf_log(LOG_INFO, "Detected UnityPlayer.dll\n");
-                #ifdef DYNAREC
-                if(!BOX64ENV(dynarec_strongmem)) SET_BOX64ENV(dynarec_strongmem, 1);
-                #endif
-                unityplayer_detected = 1;
-            }
-        }
+        detect_unityplayer(fd);
         if(emu)
             setProtection_mmap((uintptr_t)ret, length, prot);
         else
