@@ -674,6 +674,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedpangocairo.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpangoft2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpam.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedpcap.c"
     "${BOX64_ROOT}/src/wrapped/wrappedplc4.c"
     "${BOX64_ROOT}/src/wrapped/wrappedplds4.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpng16.c"

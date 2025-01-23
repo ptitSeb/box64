@@ -115,6 +115,7 @@
 #() pFA
 #() pFb
 #() SFv
+#() SFp
 #() HFi
 #() HFu
 #() HFp
@@ -363,7 +364,9 @@
 #() pFpl
 #() pFpL
 #() pFpp
+#() pFpS
 #() pFSi
+#() pFSp
 #() pFbu
 #() pFbp
 #() SFip
@@ -819,6 +822,7 @@
 #() pFppA
 #() pFpSp
 #() pFpbi
+#() pFSup
 #() pFSpl
 #() pFbuu
 #() pFbup
@@ -2187,6 +2191,7 @@
 #() iFEppppp
 #() iFiiiipp
 #() iFiiiuwp
+#() iFiippiu
 #() iFiWiipi
 #() iFiuuuup
 #() iFiuuppp
@@ -5530,6 +5535,7 @@ wrappedpangocairo:
 wrappedpangoft2:
 - pFp:
   - pango_fc_font_lock_face
+wrappedpcap:
 wrappedplc4:
 wrappedplds4:
 wrappedpng16:
