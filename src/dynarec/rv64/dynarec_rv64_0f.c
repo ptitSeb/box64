@@ -1066,8 +1066,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // GX->f[i] *= EX->f[i];
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, gback, gdoffset + i * 4);
-                FMULS(s1, s1, s0);
-                FSW(s1, gback, gdoffset + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                }
+                FMULS(s0, s0, s1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 8);
+                    FNEGS(s0, s0);
+                }
+                FSW(s0, gback, gdoffset + i * 4);
             }
             break;
         case 0x5A:
@@ -1107,8 +1118,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // GX->f[i] -= EX->f[i];
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, gback, gdoffset + i * 4);
-                FSUBS(s1, s1, s0);
-                FSW(s1, gback, gdoffset + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                }
+                FSUBS(s0, s1, s0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 8);
+                    FNEGS(s0, s0);
+                }
+                FSW(s0, gback, gdoffset + i * 4);
             }
             break;
         case 0x5D:
@@ -1146,8 +1168,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // GX->f[i] /= EX->f[i];
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, gback, gdoffset + i * 4);
-                FDIVS(s1, s1, s0);
-                FSW(s1, gback, gdoffset + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                }
+                FDIVS(s0, s1, s0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 8);
+                    FNEGS(s0, s0);
+                }
+                FSW(s0, gback, gdoffset + i * 4);
             }
             break;
         case 0x5F:

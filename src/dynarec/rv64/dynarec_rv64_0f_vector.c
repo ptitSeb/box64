@@ -395,6 +395,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VFADD_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
         case 0x59:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("MULPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -432,6 +433,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VFCVT_F_X_V(v0, q0, VECTOR_UNMASKED);
             break;
         case 0x5C:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SUBPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -458,6 +460,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x5E:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
