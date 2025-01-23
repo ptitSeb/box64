@@ -574,14 +574,17 @@ static void addLibPaths(box64context_t* context)
     loadPath(&context->box64_path, ".:bin", BOX64ENV(path));
     if(getenv("PATH"))
         AppendList(&context->box64_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
+}
 
+void setupZydis(box64context_t* context)
+{
 #ifdef HAVE_TRACE
-    if((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || (BOX64ENV(trace) && strcmp(BOX64ENV(trace), "0"))) {
+    if ((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || (BOX64ENV(trace) && strcmp(BOX64ENV(trace), "0"))) {
         context->x64trace = 1;
     }
-    if(my_context->x64trace) {
+    if (context->x64trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
-        if(InitX64Trace(my_context)) {
+        if (InitX64Trace(context)) {
             printf_log(LOG_INFO, "Zydis init failed. No x86 trace activated\n");
             context->x64trace = 0;
         }
@@ -1138,6 +1141,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         wine_prog = NULL;
     }
     openFTrace(0);
+    setupZydis(my_context);
     PrintEnvVariables();
 
     for(int i=1; i<my_context->argc; ++i) {
