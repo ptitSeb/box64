@@ -1635,7 +1635,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((BOX64ENV(dynarec_safeflags)>1) ||
+                    PASS2IF((BOX64DRENV(dynarec_safeflags)>1) ||
                         ((ninst && dyn->insts[ninst-1].x64.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
                     {
@@ -1644,7 +1644,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETED32(0);
-                    if(BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock)>1) {
+                    if(BOX64DRENV(dynarec_callret) && BOX64DRENV(dynarec_bigblock)>1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -1652,7 +1652,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                     }
                     GETIP_(addr);
-                    if(BOX64ENV(dynarec_callret)) {
+                    if(BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
@@ -1669,7 +1669,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    if(BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    if(BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);

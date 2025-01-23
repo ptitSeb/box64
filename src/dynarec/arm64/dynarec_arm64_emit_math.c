@@ -83,8 +83,7 @@ void emit_add32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
 {
     MAYUSE(s5);
-    if((s1==xRSP) && (BOX64ENV(dynarec_safeflags)<2) && (!dyn->insts || (dyn->insts[ninst].x64.gen_flags==X_PEND) || (!BOX64ENV(dynarec_df) && (dyn->insts[ninst].x64.gen_flags==X_ALL))))
-    {
+    if((s1==xRSP) && (BOX64DRENV(dynarec_safeflags)<2) && (!dyn->insts || (dyn->insts[ninst].x64.gen_flags==X_PEND) || (!BOX64ENV(dynarec_df) && (dyn->insts[ninst].x64.gen_flags==X_ALL)))) {
         // special case when doing math on ESP and only PEND is needed: ignoring it!
         if(c>=0 && c<0x1000) {
             ADDx_U12(s1, s1, c);
@@ -224,8 +223,7 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 void emit_sub32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
 {
     MAYUSE(s5);
-    if(s1==xRSP && (BOX64ENV(dynarec_safeflags)<2) && (!dyn->insts || (dyn->insts[ninst].x64.gen_flags==X_PEND) || (!BOX64ENV(dynarec_df) && (dyn->insts[ninst].x64.gen_flags==X_ALL))))
-    {
+    if(s1==xRSP && (BOX64DRENV(dynarec_safeflags)<2) && (!dyn->insts || (dyn->insts[ninst].x64.gen_flags==X_PEND) || (!BOX64ENV(dynarec_df) && (dyn->insts[ninst].x64.gen_flags==X_ALL)))) {
         // special case when doing math on RSP and only PEND is needed: ignoring it!
         if(c>=0 && c<0x1000) {
             SUBxw_U12(s1, s1, c);

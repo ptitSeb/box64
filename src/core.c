@@ -58,7 +58,6 @@ int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
 int box64_steamcmd = 0;
-int box64_wine = 0;
 int box64_musl = 0;
 char* box64_custom_gstreamer = NULL;
 int box64_tcmalloc_minimal = 0;
@@ -107,6 +106,10 @@ int la64_lamcas = 0;
 int la64_scq = 0;
 #endif
 #endif
+
+int box64_wine = 0;
+const char* box64_guest_name = NULL;
+const char* box64_wine_guest_name = NULL;
 
 #ifdef HAVE_TRACE
 uintptr_t trace_start = 0, trace_end = 0;
@@ -950,7 +953,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     #endif
     int ld_libs_args = -1;
     int is_custom_gstreamer = 0;
-    const char* wine_prog = NULL;
     // check if this is wine
     if(!strcmp(prog_, "wine64")
      || !strcmp(prog_, "wine64-development")
@@ -987,16 +989,16 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 && !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1])-4, ".exe")) {
             const char* pp = strrchr(argv[nextarg+1], '/');
             if(pp)
-                wine_prog = pp+1;
+                box64_wine_guest_name = pp + 1;
             else {
                 pp = strrchr(argv[nextarg+1], '\\');
                 if(pp)
-                    wine_prog = pp+1;
+                    box64_wine_guest_name = pp + 1;
                 else
-                    wine_prog = argv[nextarg+1];
+                    box64_wine_guest_name = argv[nextarg + 1];
             }
         }
-        if(wine_prog) printf_log(LOG_INFO, "Detected running wine with \"%s\"\n", wine_prog);
+        if (box64_wine_guest_name) printf_log(LOG_INFO, "Detected running wine with \"%s\"\n", box64_wine_guest_name);
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
         printf_log(LOG_INFO, "ld-musl detected. Trying to workaround and use system ld-linux\n");
@@ -1101,11 +1103,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
         #endif
     }
-    const char* prgname = strrchr(prog, '/');
-    if(!prgname)
-        prgname = prog;
+    box64_guest_name = strrchr(prog, '/');
+    if (!box64_guest_name)
+        box64_guest_name = prog;
     else
-        ++prgname;
+        ++box64_guest_name;
     if(box64_wine) {
         #ifdef ANDROID
             AddPath("libdl.so", &ld_preload, 0);
@@ -1114,13 +1116,13 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         #endif
     }
     // special case for zoom
-    if(strstr(prgname, "zoom")==prgname) {
+    if (strstr(box64_guest_name, "zoom") == box64_guest_name) {
         printf_log(LOG_INFO, "Zoom detected, Trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
     }
     // special case for bash
-    if(!strcmp(prgname, "bash") || !strcmp(prgname, "box64-bash")) {
-        printf_log(LOG_INFO, "bash detected, disabling banner\n");
+    if (!strcmp(box64_guest_name, "bash") || !strcmp(box64_guest_name, "box64-bash")) {
+        printf_log(LOG_INFO, "Bash detected, disabling banner\n");
         if (!BOX64ENV(nobanner)) {
             setenv("BOX86_NOBANNER", "1", 0);
             setenv("BOX64_NOBANNER", "1", 0);
@@ -1135,14 +1137,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
 
-    ApplyEnvFileEntry(prgname);
-    if (box64_wine && wine_prog) {
-        ApplyEnvFileEntry(wine_prog);
-        wine_prog = NULL;
+    ApplyEnvFileEntry(box64_guest_name);
+    if (box64_wine && box64_wine_guest_name) {
+        ApplyEnvFileEntry(box64_wine_guest_name);
+        box64_wine_guest_name = NULL;
     }
     openFTrace(0);
     setupZydis(my_context);
-    PrintEnvVariables();
+    PrintEnvVariables(&box64env, LOG_INFO);
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
@@ -1304,7 +1306,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         FreeCollection(&ld_preload);
         return -1;
     }
-    if(!strcmp(prgname, "heroic")) {
+    if (!strcmp(box64_guest_name, "heroic")) {
         // check if heroic needs patching (for the 2.15.1 version)
         uint8_t* address = GetBaseAddress(elf_header);
         if(address[0x422f6e1]==0x72 && address[0x422f6e2]==0x44 && address[0x422f6e0]==0xF8 && address[0x422f727]==0xcc) {
@@ -1380,7 +1382,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             printf_log(LOG_NONE, "Error setting process name (%s)\n", strerror(errno));
         else
             printf_log(LOG_INFO, "Rename process to \"%s\"\n", p);
-        if(strcmp(prgname, p)) {
+        if (strcmp(box64_guest_name, p)) {
             ApplyEnvFileEntry(p);
         }
         // and now all change the argv (so libs libs mesa find the correct program names)

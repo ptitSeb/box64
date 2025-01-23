@@ -1823,7 +1823,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-            if (BOX64ENV(dynarec_safeflags) > 1)
+            if (BOX64DRENV(dynarec_safeflags) > 1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
@@ -1885,7 +1885,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            if (BOX64ENV(dynarec_safeflags) > 1)
+            if (BOX64DRENV(dynarec_safeflags) > 1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);

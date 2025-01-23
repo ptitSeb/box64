@@ -60,7 +60,7 @@ void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const cha
 }
 
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
-    if(!BOX64ENV(dynarec_bigblock))
+    if (!BOX64DRENV(dynarec_bigblock))
         return;
     // exist?
     for(int i=0; i<dyn->next_sz; ++i)

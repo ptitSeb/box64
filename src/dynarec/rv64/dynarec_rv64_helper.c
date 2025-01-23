@@ -611,7 +611,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
     POP1z(xRIP);
     MVz(x1, xRIP);
     SMEND();
-    if (BOX64ENV(dynarec_callret)) {
+    if (BOX64DRENV(dynarec_callret)) {
         // pop the actual return address from RV64 stack
         LD(xRA, xSP, 0);      // native addr
         LD(x6, xSP, 8);       // x86 addr
@@ -680,7 +680,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
     }
     MVz(x1, xRIP);
     SMEND();
-    if (BOX64ENV(dynarec_callret)) {
+    if (BOX64DRENV(dynarec_callret)) {
         // pop the actual return address from RV64 stack
         LD(xRA, xSP, 0);      // native addr
         LD(x6, xSP, 8);       // x86 addr
