@@ -203,7 +203,7 @@ GO(CERT_IsCACert, iFpp)
 GO(CERT_IsCADERCert, iFpp)
 GO(CERT_IsRootDERCert, iFp)
 //DATA(CERT_IssuerAndSNTemplate, 
-//GO(CERT_IsUserCert, 
+GO(CERT_IsUserCert, iFp)
 //GO(CERT_KeyFromDERCrl, 
 GO(CERT_MakeCANickname, pFp)
 GO(CERT_MergeExtensions, iFpp)
