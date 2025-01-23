@@ -607,7 +607,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            if(BOX64ENV(dynarec_safeflags)>1) {
+            if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -623,7 +623,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            if(BOX64ENV(dynarec_safeflags)>1) {
+            if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
@@ -1263,7 +1263,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("SHL Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -1279,7 +1279,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("SHR Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -1295,7 +1295,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("SAR Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     if(rex.w) {
                         ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -1577,16 +1577,13 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((BOX64ENV(dynarec_safeflags)>1) ||
-                        ((ninst && dyn->insts[ninst-1].x64.set_flags)
-                        || ((ninst>1) && dyn->insts[ninst-2].x64.set_flags)), 1)
-                    {
+                    PASS2IF ((BOX64DRENV(dynarec_safeflags) > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETEDOz(x6, 0);
-                    if(BOX64ENV(dynarec_callret) && BOX64ENV(dynarec_bigblock)>1) {
+                    if (BOX64DRENV(dynarec_callret) && BOX64DRENV(dynarec_bigblock) > 1) {
                         BARRIER(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
@@ -1594,7 +1591,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                     }
                     GETIP_(addr);
-                    if(BOX64ENV(dynarec_callret)) {
+                    if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
@@ -1611,7 +1608,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    if(BOX64ENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);

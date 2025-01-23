@@ -5,6 +5,8 @@
 #include <unistd.h>
 
 #define BOX64ENV(name)            (box64env.name)
+#define BOX64DRENV(name) \
+    ((GetCurEnvByAddr(dyn->start) && cur_box64env->is_##name##_overridden) ? cur_box64env->name : box64env.name)
 #define SET_BOX64ENV(name, value)            \
     {                                        \
         box64env.name = (value);             \
@@ -200,6 +202,8 @@ void ApplyEnvFileEntry(const char* name);
 const char* GetLastApplyEntryName();
 void InitializeEnv();
 void LoadEnvVariables();
-void PrintEnvVariables();
+void PrintEnvVariables(box64env_t* env, int level);
+void RecordEnvMappings(uintptr_t addr, size_t length, int fd);
+box64env_t* GetCurEnvByAddr(uintptr_t addr);
 
 #endif // __ENV_H

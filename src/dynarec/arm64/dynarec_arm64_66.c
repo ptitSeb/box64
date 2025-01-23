@@ -836,7 +836,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
-                if(BOX64ENV(dynarec_safeflags)>1)
+                if(BOX64DRENV(dynarec_safeflags)>1)
                     MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
@@ -936,7 +936,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 1:
             case 2:
                 if(rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
-                if(BOX64ENV(dynarec_safeflags)>1)
+                if(BOX64DRENV(dynarec_safeflags)>1)
                     MAYSETFLAGS();
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
@@ -1167,7 +1167,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("ROL Ew, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
                         ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -1193,7 +1193,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("ROR Ew, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
                         ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -1219,7 +1219,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ew, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
@@ -1231,7 +1231,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ew, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
@@ -1243,7 +1243,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("SHL Ew, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
@@ -1256,7 +1256,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("SHR Ew, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
@@ -1269,7 +1269,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("SAR Ew, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    if(BOX64ENV(dynarec_safeflags)>1)
+                    if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {

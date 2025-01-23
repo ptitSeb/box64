@@ -3005,7 +3005,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
                 prot |= PROT_NEVERCLEAN;
             }
         }
-        detect_unityplayer(fd);
+        DetectUnityPlayer(fd);
+        RecordEnvMappings((uintptr_t)addr, length, fd);
         if(emu)
             setProtection_mmap((uintptr_t)ret, length, prot);
         else

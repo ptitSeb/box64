@@ -150,7 +150,7 @@ void dynarec_wine_prereserve()
 }
 #endif
 
-void detect_unityplayer(int fd)
+void DetectUnityPlayer(int fd)
 {
     static int unityplayer_detected = 0;
     if (fd > 0 && BOX64ENV(unityplayer) && !unityplayer_detected) {
@@ -164,7 +164,7 @@ void detect_unityplayer(int fd)
 #ifdef DYNAREC
             if (!BOX64ENV(dynarec_strongmem)) {
                 SET_BOX64ENV(dynarec_strongmem, 1);
-                PrintEnvVariables();
+                PrintEnvVariables(&box64env, LOG_INFO);
             }
 #endif
             unityplayer_detected = 1;

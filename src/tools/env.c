@@ -12,13 +12,16 @@
 #include "debug.h"
 #include "fileutils.h"
 #include "box64context.h"
+#include "rbtree.h"
 
 box64env_t box64env = { 0 };
+box64env_t* cur_box64env = NULL;
 
 KHASH_MAP_INIT_STR(box64env_entry, box64env_t)
 static kh_box64env_entry_t* box64env_entries = NULL;
 static kh_box64env_entry_t* box64env_entries_gen = NULL;
 
+static rbtree_t* envmap = NULL;
 
 static const char default_rcfile[] = 
 "[bash]\n"
@@ -379,7 +382,7 @@ const char* GetLastApplyEntryName()
 {
     return old_entryname;
 }
-static void internalEnvFileEntry(const char* entryname, const box64env_t* env)
+static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* env)
 {
 #define INTEGER(NAME, name, default, min, max) \
     if (env->is_##name##_overridden) {         \
@@ -433,13 +436,13 @@ void ApplyEnvFileEntry(const char* entryname)
         const char* k2;
         kh_foreach_ref(box64env_entries_gen, k2, env,
             if (strstr(lowercase_entryname, k2))
-                internalEnvFileEntry(entryname, env);)
+                internalApplyEnvFileEntry(entryname, env);)
             box_free(lowercase_entryname);
     }
     if (k1 == kh_end(box64env_entries)) return;
 
     box64env_t* env = &kh_value(box64env_entries, k1);
-    internalEnvFileEntry(entryname, env);
+    internalApplyEnvFileEntry(entryname, env);
     applyCustomRules();
 }
 
@@ -507,29 +510,66 @@ void LoadEnvVariables()
     applyCustomRules();
 }
 
-void PrintEnvVariables()
+void PrintEnvVariables(box64env_t* env, int level)
 {
-    if (box64env.is_any_overridden)
-        printf_log(LOG_INFO, "BOX64ENV: Variables overridden via env and/or RC file:\n");
+    if (env->is_any_overridden)
+        printf_log(level, "BOX64ENV: Variables overridden via env and/or RC file:\n");
 #define INTEGER(NAME, name, default, min, max) \
-    if (box64env.is_##name##_overridden)       \
-        printf_log_prefix(0, LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
-#define INTEGER64(NAME, name, default)   \
-    if (box64env.is_##name##_overridden) \
-        printf_log_prefix(0, LOG_INFO, "\t%s=%lld\n", #NAME, box64env.name);
-#define BOOLEAN(NAME, name, default)     \
-    if (box64env.is_##name##_overridden) \
-        printf_log_prefix(0, LOG_INFO, "\t%s=%d\n", #NAME, box64env.name);
-#define ADDRESS(NAME, name)              \
-    if (box64env.is_##name##_overridden) \
-        printf_log_prefix(0, LOG_INFO, "\t%s=%p\n", #NAME, (void*)box64env.name);
-#define STRING(NAME, name)               \
-    if (box64env.is_##name##_overridden) \
-        printf_log_prefix(0, LOG_INFO, "\t%s=%s\n", #NAME, box64env.name);
+    if (env->is_##name##_overridden)           \
+        printf_log_prefix(0, level, "\t%s=%d\n", #NAME, env->name);
+#define INTEGER64(NAME, name, default) \
+    if (env->is_##name##_overridden)   \
+        printf_log_prefix(0, level, "\t%s=%lld\n", #NAME, env->name);
+#define BOOLEAN(NAME, name, default) \
+    if (env->is_##name##_overridden) \
+        printf_log_prefix(0, level, "\t%s=%d\n", #NAME, env->name);
+#define ADDRESS(NAME, name)          \
+    if (env->is_##name##_overridden) \
+        printf_log_prefix(0, level, "\t%s=%p\n", #NAME, (void*)env->name);
+#define STRING(NAME, name)           \
+    if (env->is_##name##_overridden) \
+        printf_log_prefix(0, level, "\t%s=%s\n", #NAME, env->name);
     ENVSUPER()
 #undef INTEGER
 #undef INTEGER64
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
+}
+
+void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
+{
+    if (!envmap) { envmap = rbtree_init("envmap"); }
+
+    char* filename = NULL;
+    if (fd > 0) {
+        static char fullname[4096];
+        static char buf[128];
+        sprintf(buf, "/proc/self/fd/%d", fd);
+        ssize_t r = readlink(buf, fullname, sizeof(fullname) - 1);
+        if (r != -1) fullname[r] = 0;
+
+        filename = strrchr(fullname, '/');
+    }
+    if (!filename) return;
+
+    char* lowercase_filename = LowerCase(filename);
+
+    khint_t k = kh_get(box64env_entry, box64env_entries, lowercase_filename);
+    if (k == kh_end(box64env_entries)) return;
+
+    box64env_t* env = &kh_value(box64env_entries, k);
+    rb_set_64(envmap, addr, addr + length, (uint64_t)env);
+    printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
+    PrintEnvVariables(env, LOG_DEBUG);
+}
+
+box64env_t* GetCurEnvByAddr(uintptr_t addr)
+{
+    if (!envmap) {
+        envmap = rbtree_init("envmap");
+        return NULL;
+    }
+    cur_box64env = (box64env_t*)rb_get_64(envmap, addr);
+    return cur_box64env;
 }
