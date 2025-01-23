@@ -563,8 +563,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MULPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFMUL_S(v0, v0, q0);
+            GETGX(q1, 1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_S(v0, q0, q1, cUN);
+            }
+            VFMUL_S(q1, q1, q0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMP_S(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111100); // broadcast 0xFFFFFFFFFFFFFFFC
+                VSLLI_W(v1, v1, 20);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
             break;
         case 0x5A:
             INST_NAME("CVTPS2PD Gx, Ex");
@@ -584,8 +598,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUBPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFSUB_S(v0, v0, q0);
+            GETGX(q1, 1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_S(v0, q0, q1, cUN);
+            }
+            VFSUB_S(q1, q1, q0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMP_S(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111100); // broadcast 0xFFFFFFFFFFFFFFFC
+                VSLLI_W(v1, v1, 20);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
             break;
         case 0x5D:
             INST_NAME("MINPS Gx, Ex");
@@ -606,8 +634,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VFDIV_S(v0, v0, q0);
+            GETGX(q1, 1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_S(v0, q0, q1, cUN);
+            }
+            VFDIV_S(q1, q1, q0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMP_S(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111100); // broadcast 0xFFFFFFFFFFFFFFFC
+                VSLLI_W(v1, v1, 20);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
             break;
         case 0x5F:
             INST_NAME("MAXPS Gx, Ex");
