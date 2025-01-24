@@ -102,7 +102,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0B:
             INST_NAME("UD2");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL();
             CALL(native_ud, -1);
@@ -776,12 +780,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
-            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
-            SRLxw(x4, ed, x2);
-            if (la64_lbt)
-                X64_SET_EFLAGS(x4, X_CF);
-            else
-                BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            if (X_CF) {
+                ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+                SRLxw(x4, ed, x2);
+                if (la64_lbt)
+                    X64_SET_EFLAGS(x4, X_CF);
+                else
+                    BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            }
             break;
         case 0xA4:
             nextop = F8;

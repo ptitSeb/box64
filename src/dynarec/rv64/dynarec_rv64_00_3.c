@@ -524,7 +524,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 jump_to_epilog(dyn, 0, xRIP, ninst);
             } else if (u8 == 0x03) {
                 INST_NAME("INT 3");
-                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
                 GETIP(addr);
                 STORE_XEMU_CALL(x3);
                 CALL(native_int3, -1, 0, 0);
@@ -534,8 +538,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 *ok = 0;
             } else {
                 INST_NAME("INT n");
-                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
-                GETIP(ip);                                        // priviledged instruction, IP not updated
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip); // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(x3);
                 CALL(native_priv, -1, 0, 0);
                 LOAD_XEMU_CALL();
