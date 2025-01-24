@@ -1403,7 +1403,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x2, x2, x7);
                     if (BOX64ENV(dynarec_div0)) {
                         BNE_MARK3(ed, xZR);
-                        GETIP_(ip);
+                        GETIP_(ip, x7);
                         STORE_XEMU_CALL(x6);
                         CALL(native_div0, -1, 0, 0);
                         CLEARIP();
@@ -1424,7 +1424,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETSEW(x1, 0);
                     if (BOX64ENV(dynarec_div0)) {
                         BNE_MARK3(ed, xZR);
-                        GETIP_(ip);
+                        GETIP_(ip, x7);
                         STORE_XEMU_CALL(x6);
                         CALL(native_div0, -1, 0, 0);
                         CLEARIP();

@@ -90,13 +90,13 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 ret = xRIP;
                 *fixaddress = tmp + adj;
             } else if (i12 && (tmp >= -2048) && (tmp <= maxval)) {
-                GETIP(addr + delta);
+                GETIP(addr + delta, scratch);
                 ret = xRIP;
                 *fixaddress = tmp;
             } else if (adj && (tmp + adj >= -2048) && (tmp + adj <= maxval)) {
                 ADDI(ret, xRIP, tmp + adj);
             } else if ((tmp >= -2048) && (tmp <= maxval)) {
-                GETIP(addr + delta);
+                GETIP(addr + delta, scratch);
                 ADDI(ret, xRIP, tmp);
             } else if (tmp + addr + delta < 0x100000000LL) {
                 MOV64x(ret, tmp + addr + delta);
@@ -105,7 +105,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     MOV64x(ret, tmp + adj);
                 } else {
                     MOV64x(ret, tmp);
-                    GETIP(addr + delta);
+                    GETIP(addr + delta, scratch);
                 }
                 ADD(ret, ret, xRIP);
             }
@@ -390,7 +390,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             uint32_t tmp = F32;
             // no need to zero up, as we did it below
             rv64_move32(dyn, ninst, ret, tmp, 0);
-            GETIP(addr + delta);
+            GETIP(addr + delta, scratch);
             ADDW(ret, ret, xRIP);
             ZEROUP(ret);
             switch (lock) {
@@ -490,7 +490,7 @@ void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
             MV(xRIP, reg);
         }
     } else {
-        GETIP_(ip);
+        GETIP_(ip, x2);
     }
     TABLE64(x2, (uintptr_t)rv64_epilog);
     SMEND();
@@ -509,7 +509,7 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
             MV(xRIP, reg);
         }
     } else {
-        GETIP_(ip);
+        GETIP_(ip, x2);
     }
     TABLE64(x2, (uintptr_t)rv64_epilog_fast);
     SMEND();
@@ -590,8 +590,8 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
+        GETIP_(ip, x3);
         TABLE64(x3, p);
-        GETIP_(ip);
         LD(x2, x3, 0);
     }
     CLEARIP();
