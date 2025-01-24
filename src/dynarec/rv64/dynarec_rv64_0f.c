@@ -131,7 +131,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x09:
             INST_NAME("WBINVD");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_ud, -1, 0, 0);
@@ -143,7 +147,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x0B:
             INST_NAME("UD2");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_ud, -1, 0, 0);
@@ -1822,9 +1830,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
-            BEXT(x4, ed, gd, x2);
-            ANDI(xFlags, xFlags, ~1); // F_CF is 1
-            OR(xFlags, xFlags, x4);
+            if (X_CF) {
+                BEXT(x4, ed, gd, x2);
+                ANDI(xFlags, xFlags, ~1); // F_CF is 1
+                OR(xFlags, xFlags, x4);
+            }
             break;
         case 0xA4:
             nextop = F8;

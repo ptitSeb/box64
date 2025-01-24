@@ -285,7 +285,11 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6C:
         case 0x6D:
             INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_priv, -1, 0, 0);
@@ -297,7 +301,11 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6E:
         case 0x6F:
             INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_priv, -1, 0, 0);
