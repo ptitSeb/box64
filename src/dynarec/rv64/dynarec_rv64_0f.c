@@ -180,11 +180,33 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOVUPS Ex,Gx");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, 8);
-            LD(x3, gback, gdoffset + 0);
-            LD(x4, gback, gdoffset + 8);
-            SD(x3, wback, fixedaddress + 0);
-            SD(x4, wback, fixedaddress + 8);
+            IF_UNALIGNED(ip) {
+                GETEX(x2, 0, 15);
+                LD(x3, gback, gdoffset + 0);
+                LD(x4, gback, gdoffset + 8);
+                for (int i = 0; i < 8; i++) {
+                    if (i == 0) {
+                        SB(x3, wback, fixedaddress);
+                    } else {
+                        SRLI(x5, x3, i * 8);
+                        SB(x5, wback, fixedaddress + i);
+                    }
+                }
+                for (int i = 0; i < 8; i++) {
+                    if (i == 0) {
+                        SB(x4, wback, fixedaddress + 8);
+                    } else {
+                        SRLI(x5, x4, i * 8);
+                        SB(x5, wback, fixedaddress + i + 8);
+                    }
+                }
+            } else {
+                GETEX(x2, 0, 8);
+                LD(x3, gback, gdoffset + 0);
+                LD(x4, gback, gdoffset + 8);
+                SD(x3, wback, fixedaddress + 0);
+                SD(x4, wback, fixedaddress + 8);
+            }
             if (!MODREG)
                 SMWRITE2();
             break;

@@ -398,8 +398,30 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVDQU Ex,Gx");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, 8);
-            SSE_LOOP_MV_Q2(x3);
+            IF_UNALIGNED(ip) {
+                GETEX(x2, 0, 15);
+                LD(x3, gback, gdoffset + 0);
+                LD(x4, gback, gdoffset + 8);
+                for (int i = 0; i < 8; i++) {
+                    if (i == 0) {
+                        SB(x3, wback, fixedaddress);
+                    } else {
+                        SRLI(x5, x3, i * 8);
+                        SB(x5, wback, fixedaddress + i);
+                    }
+                }
+                for (int i = 0; i < 8; i++) {
+                    if (i == 0) {
+                        SB(x4, wback, fixedaddress + 8);
+                    } else {
+                        SRLI(x5, x4, i * 8);
+                        SB(x5, wback, fixedaddress + i + 8);
+                    }
+                }
+            } else {
+                GETEX(x2, 0, 8);
+                SSE_LOOP_MV_Q2(x3);
+            }
             if (!MODREG) SMWRITE2();
             break;
         case 0xAE:

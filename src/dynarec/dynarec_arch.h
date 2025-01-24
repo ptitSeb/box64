@@ -74,6 +74,7 @@
 #include "rv64/rv64_printer.h"
 #include "rv64/dynarec_rv64_private.h"
 #include "rv64/dynarec_rv64_functions.h"
+#include "rv64/dynarec_rv64_arch.h"
 // Limit here is unconditionnal jump, that is signed 21bits
 #define MAXBLOCK_SIZE ((1<<20)-200)
 
@@ -81,11 +82,11 @@
 #define UPDATE_SPECIFICS(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 
-#define ARCH_SIZE(A)    0
-#define ARCH_FILL(A, B)  {}
+#define ARCH_SIZE(A)    get_size_arch(A)
+#define ARCH_FILL(A, B) populate_arch(A, B)
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
-#define ARCH_UNALIGNED(A, B) 0
+#define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 #else
 #error Unsupported platform
 #endif

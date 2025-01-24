@@ -961,6 +961,7 @@ if(RV64_DYNAREC)
         ${DYNAREC_SRC}
 
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_arch.c"
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_printer.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_jmpnext.c"
         "${BOX64_ROOT}/src/rv64detect.c"

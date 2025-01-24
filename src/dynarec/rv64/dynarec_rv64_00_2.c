@@ -404,8 +404,20 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (MODREG) { // reg <= reg
                 MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
-                SDxw(gd, ed, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, (1 << (2 + rex.w)) - 1, 0);
+                    for (int i = 0; i < (1 << (2 + rex.w)); i++) {
+                        if (i == 0) {
+                            SB(gd, ed, fixedaddress);
+                        } else {
+                            SRLI(x3, gd, i * 8);
+                            SB(x3, ed, fixedaddress + i);
+                        }
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    SDxw(gd, ed, fixedaddress);
+                }
                 SMWRITELOCK(lock);
             }
             break;
