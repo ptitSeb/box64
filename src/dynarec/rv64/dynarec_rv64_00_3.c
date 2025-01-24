@@ -438,8 +438,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if ((PK64(0) == 0)) {
                     addr += 8;
                     MESSAGE(LOG_DEBUG, "Exit x64 Emu\n");
-                    // GETIP(ip+1+2);    // no use
-                    // STORE_XEMU_REGS(xRIP);    // no need, done in epilog
                     MOV64x(x1, 1);
                     SW(x1, xEmu, offsetof(x64emu_t, quit));
                     *ok = 0;
@@ -457,11 +455,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
-                        // GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr + 8), tmp);
                         addr += 8 + 8;
                     } else {
-                        GETIP(ip + 1); // read the 0xCC
+                        GETIP(ip + 1, x7); // read the 0xCC
                         STORE_XEMU_CALL(x3);
                         ADDI(x3, xRIP, 8 + 8);                            // expected return address
                         ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
@@ -484,7 +481,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ADD(x2, x2, x1);
                     LD(x3, x2, 0);
                     BEQZ_MARK(x3);
-                    GETIP(addr);
+                    GETIP(addr, x7);
                     STORE_XEMU_CALL(x3);
                     CALL(native_int3, -1, 0, 0);
                     LOAD_XEMU_CALL();
@@ -502,7 +499,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("INT 29/2c/2d");
                 // lets do nothing
                 MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
-                GETIP(ip); // priviledged instruction, IP not updated
+                GETIP(ip, x7); // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(x3);
                 MOV32w(x1, u8);
                 CALL(native_int, -1, x1, 0);
@@ -511,7 +508,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("32bits SYSCALL");
                 NOTEST(x1);
                 SMEND();
-                GETIP(addr);
+                GETIP(addr, x7);
                 STORE_XEMU_CALL(x3);
                 CALL_S(x86Syscall, -1, 0);
                 LOAD_XEMU_CALL();
@@ -529,7 +526,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
                 }
-                GETIP(addr);
+                GETIP(addr, x7);
                 STORE_XEMU_CALL(x3);
                 CALL(native_int3, -1, 0, 0);
                 LOAD_XEMU_CALL();
@@ -543,7 +540,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
                 }
-                GETIP(ip); // priviledged instruction, IP not updated
+                GETIP(ip, x7); // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(x3);
                 CALL(native_priv, -1, 0, 0);
                 LOAD_XEMU_CALL();
@@ -964,12 +961,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
-                        // GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address
                         dyn->last_ip = addr;
                     } else {
-                        GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
+                        GETIP_(dyn->insts[ninst].natcall, x7); // read the 0xCC already
                         STORE_XEMU_CALL(x3);
                         ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                         CALL_S(x64Int3, -1, x1);
@@ -1091,7 +1087,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             else
                 INST_NAME("OUT DX, EAX");
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
-            GETIP(ip);
+            GETIP(ip, x7);
             STORE_XEMU_CALL(xRIP);
             CALL(native_priv, -1, 0, 0);
             LOAD_XEMU_CALL();
@@ -1285,14 +1281,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             && *(uint32_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0) {
                             // hack for some protection that check a divide by zero actually trigger a divide by zero exception
                             MESSAGE(LOG_INFO, "Divide by 0 hack\n");
-                            GETIP(ip);
+                            GETIP(ip, x7);
                             STORE_XEMU_CALL(x3);
                             CALL(native_div0, -1, 0, 0);
                             LOAD_XEMU_CALL();
                         } else {
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
-                                GETIP_(ip);
+                                GETIP_(ip, x7);
                                 STORE_XEMU_CALL(x3);
                                 CALL(native_div0, -1, 0, 0);
                                 CLEARIP();
@@ -1320,7 +1316,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             GETED(0);
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
-                                GETIP_(ip);
+                                GETIP_(ip, x7);
                                 STORE_XEMU_CALL(x3);
                                 CALL(native_div0, -1, 0, 0);
                                 CLEARIP();
@@ -1335,7 +1331,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
-                                GETIP_(ip);
+                                GETIP_(ip, x7);
                                 STORE_XEMU_CALL(x3);
                                 CALL(native_div0, -1, 0, 0);
                                 CLEARIP();
@@ -1362,7 +1358,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         GETSED(0);
                         if (BOX64ENV(dynarec_div0)) {
                             BNE_MARK3(ed, xZR);
-                            GETIP_(ip);
+                            GETIP_(ip, x7);
                             STORE_XEMU_CALL(x3);
                             CALL(native_div0, -1, 0, 0);
                             CLEARIP();
@@ -1385,7 +1381,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             GETED(0);
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
-                                GETIP_(ip);
+                                GETIP_(ip, x7);
                                 STORE_XEMU_CALL(x3);
                                 CALL(native_div0, -1, 0, 0);
                                 CLEARIP();
@@ -1400,7 +1396,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
-                                GETIP_(ip);
+                                GETIP_(ip, x7);
                                 STORE_XEMU_CALL(x3);
                                 CALL(native_div0, -1, 0, 0);
                                 CLEARIP();
@@ -1504,7 +1500,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *need_epilog = 0;
                         *ok = 0;
                     }
-                    GETIP_(addr);
+                    GETIP_(addr, x7);
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;

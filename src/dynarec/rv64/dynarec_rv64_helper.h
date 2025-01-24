@@ -1107,26 +1107,31 @@
     dyn->vector_sew = VECTOR_SEWNA;
 
 #if STEP < 2
-#define GETIP(A)  MOV64x(xRIP, A)
-#define GETIP_(A) MOV64x(xRIP, A)
+#define GETIP(A, scratch)
+#define GETIP_(A, scratch)
 #else
-// put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
-#define GETIP(A)                                       \
-    if (dyn->last_ip && ((A) - dyn->last_ip) < 2048) { \
-        uint64_t _delta_ip = (A) - dyn->last_ip;       \
-        dyn->last_ip += _delta_ip;                     \
-        if (_delta_ip) ADDI(xRIP, xRIP, _delta_ip);    \
-    } else {                                           \
-        dyn->last_ip = (A);                            \
-        MOV64x(xRIP, (A));                             \
-    }
-#define GETIP_(A)                                      \
-    if (dyn->last_ip && ((A) - dyn->last_ip) < 2048) { \
-        int64_t _delta_ip = (A) - dyn->last_ip;        \
-        if (_delta_ip) ADDI(xRIP, xRIP, _delta_ip);    \
-    } else {                                           \
-        MOV64x(xRIP, (A));                             \
-    }
+#define GETIP_(A, scratch)                                        \
+    do {                                                          \
+        ssize_t _delta_ip = (ssize_t)(A) - (ssize_t)dyn->last_ip; \
+        if (!dyn->last_ip) {                                      \
+            MOV64x(xRIP, A);                                      \
+        } else if (_delta_ip == 0) {                              \
+        } else if (_delta_ip >= -2048 && _delta_ip < 2048) {      \
+            ADDI(xRIP, xRIP, _delta_ip);                          \
+        } else if (_delta_ip < 0 && _delta_ip >= -0xffffffff) {   \
+            MOV32w(scratch, -_delta_ip);                          \
+            SUB(xRIP, xRIP, scratch);                             \
+        } else if (_delta_ip > 0 && _delta_ip <= 0xffffffff) {    \
+            MOV32w(scratch, _delta_ip);                           \
+            ADD(xRIP, xRIP, scratch);                             \
+        } else {                                                  \
+            MOV64x(xRIP, (A));                                    \
+        }                                                         \
+    } while (0)
+#define GETIP(A, scratch) \
+    GETIP_(A, scratch);   \
+    dyn->last_ip = (A);
+
 #endif
 #define CLEARIP() dyn->last_ip = 0
 
