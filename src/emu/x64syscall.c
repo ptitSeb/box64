@@ -308,6 +308,9 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_fchmodat4
     [434] = {__NR_fchmodat4, 4},
     #endif
+    #ifdef __NR_faccessat2
+    [439] = {__NR_faccessat2, 4},
+    #endif
     #ifdef __NR_landlock_create_ruleset	
     [444] = {__NR_landlock_create_ruleset, 3},
     #endif
@@ -836,6 +839,13 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #endif
+        #ifndef __NR_faccessat2
+        case 439:
+            S_RAX = faccessat(S_EDI, (void*)R_RSI, (mode_t)R_RDX, S_R10d);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
         case 449:
             #ifdef __NR_futex_waitv
             if(BOX64ENV(futex_waitv))
@@ -1113,6 +1123,10 @@ long EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_fchmodat4
         case 434:
             return fchmodat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
+        #endif
+        #ifndef __NR_faccessat2
+        case 439:
+            return faccessat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
         #endif
         case 449:
             #ifdef __NR_futex_waitv
