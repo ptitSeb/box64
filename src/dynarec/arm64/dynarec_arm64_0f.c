@@ -1916,18 +1916,51 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
                         if(BOX64ENV(sse_flushto0)) {
-                            MRS_fpcr(x1);                   // get fpscr
+                            MRS_fpcr(x2);                   // get fpscr
                             LSRw_IMM(x3, ed, 15);           // get FZ bit
-                            BFIw(x1, x3, 24, 1);            // inject FZ bit
+                            BFIw(x2, x3, 24, 1);            // inject FZ bit
                             EORw_REG_LSR(x3, x3, ed, 1);    // FZ xor DAZ
-                            BFIw(x1, x3, 1, 1);             // inject AH bit
-                            MSR_fpcr(x1);                   // put new fpscr
+                            BFIw(x2, x3, 1, 1);             // inject AH bit
+                            MSR_fpcr(x2);                   // put new fpscr
+                        }
+                        if(BOX64ENV(sse_flushto0)) {
+                            // try to sync mxcsr with fpsr on the flag side
+                            /* mapping is 
+                                ARM -> X86
+                                0 -> 0  // Invalid operation
+                                1 -> 2  // Divide by 0
+                                2 -> 3  // Overflow
+                                3 -> 4  // underflow
+                                4 -> 5  // Inexact
+                                5 -> 1  // denormal
+                            */
+                            // doing X86 -> ARM here, 0 1 2 3 4 5 -> 0 5 1 2 3 4
+                            if(ed!=x1)
+                                MOVw_REG(x1, ed);
+                            BFXILw(x2, x1, 1, 5);   // x2 = 1 2 3 4 5 ...
+                            BFIw(x1, x2, 2, 4); // x1 = 0 1 1 2 3 4
+                            RORw(x2, x2, 4);    // x2 = 5 .... 1 2 3 4
+                            BFIw(x1, x2, 1, 1); // x1 = 0 5 1 2 3 4
+                            MRS_fpsr(x2);
+                            BFIx(x2, x1, 0, 6);
+                            MSR_fpsr(x2);
                         }
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                         LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        if(BOX64ENV(sse_flushto0)) {
+                            // sync with fpsr, with mask from mxcsr
+                            // doing ARM -> X86 here, 0 1 2 3 4 5 -> 0 2 3 4 5 1
+                            MRS_fpsr(x1);
+                            RORw(x3, x1, 2);    //x3 = 2 3 4 5 .... 0 1
+                            BFIw(x1, x3, 1, 4);
+                            RORw(x3, x3, 32-1);
+                            BFIw(x1, x3, 5, 1); // x1 is Flags
+                            //BFXILw(x3, x4, 7, 6); // this would the mask, but let's ignore that for now
+                            BFIw(x4, x1, 0, 6); // inject back the flags
+                        }
                         STW(x4, ed, fixedaddress);
                         break;
                     case 4:
