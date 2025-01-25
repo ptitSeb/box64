@@ -537,13 +537,23 @@ void PrintEnvVariables(box64env_t* env, int level)
 #undef STRING
 }
 
+typedef struct mapping_s {
+    char*       filename;
+    char*       fullname;
+    box64env_t* env;
+} mapping_t;
+
+KHASH_MAP_INIT_STR(mapping_entry, mapping_t*);
+static kh_mapping_entry_t* mapping_entries = NULL;
+
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 {
     if (!envmap) { envmap = rbtree_init("envmap"); }
+    if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
     char* filename = NULL;
+    static char fullname[4096];
     if (fd > 0) {
-        static char fullname[4096];
         static char buf[128];
         sprintf(buf, "/proc/self/fd/%d", fd);
         ssize_t r = readlink(buf, fullname, sizeof(fullname) - 1);
@@ -555,21 +565,42 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 
     char* lowercase_filename = LowerCase(filename);
 
-    khint_t k = kh_get(box64env_entry, box64env_entries, lowercase_filename);
-    if (k == kh_end(box64env_entries)) return;
+    int ret;
+    mapping_t* mapping = NULL;
+    khint_t k = kh_get(mapping_entry, mapping_entries, lowercase_filename);
+    if(k==kh_end(mapping_entries)) {
+        mapping = box_calloc(1, sizeof(mapping_t));
+        mapping->filename = box_strdup(lowercase_filename);
+        mapping->fullname = box_strdup(fullname);
+        k = kh_put(mapping_entry, mapping_entries, mapping->filename, &ret);
+        kh_value(mapping_entries, k) = mapping;
+        khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
+        if (k != kh_end(box64env_entries))
+            mapping->env = &kh_value(box64env_entries, k);
+    } else
+        mapping = kh_value(mapping_entries, k);
 
-    box64env_t* env = &kh_value(box64env_entries, k);
-    rb_set_64(envmap, addr, addr + length, (uint64_t)env);
-    printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
-    PrintEnvVariables(env, LOG_DEBUG);
+    rb_set_64(envmap, addr, addr + length, (uint64_t)mapping);
+    if(mapping->env) {
+        printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
+        PrintEnvVariables(mapping->env, LOG_DEBUG);
+    }
+}
+
+void RemoveMapping(uintptr_t addr, size_t length)
+{
+    if(!envmap) return;
+    // TODO: handling memory to free mapping_entries entry when needed
+    rb_unset(envmap, addr, addr+length);
 }
 
 box64env_t* GetCurEnvByAddr(uintptr_t addr)
 {
-    if (!envmap) {
-        envmap = rbtree_init("envmap");
-        return NULL;
-    }
-    cur_box64env = (box64env_t*)rb_get_64(envmap, addr);
+    if (!envmap) return NULL;
+    mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
+    if(!mapping) return NULL;
+    box64env_t* env = mapping->env;
+    if(!env) return NULL;
+    cur_box64env = env;
     return cur_box64env;
 }

@@ -204,6 +204,7 @@ void InitializeEnv();
 void LoadEnvVariables();
 void PrintEnvVariables(box64env_t* env, int level);
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd);
+void RemoveMapping(uintptr_t addr, size_t length);
 box64env_t* GetCurEnvByAddr(uintptr_t addr);
 
 #endif // __ENV_H
