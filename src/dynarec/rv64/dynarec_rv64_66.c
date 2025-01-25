@@ -878,7 +878,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("MOVSW");
                 GETDIR(x3, x1, 2);
                 LH(x1, xRSI, 0);
-                SH(x1, xRDI, 0);
+                IF_UNALIGNED(ip) {
+                    SB(x1, xRDI, 0);
+                    SRLI(x1, x1, 8);
+                    SB(x1, xRDI, 1);
+                } else {
+                    SH(x1, xRDI, 0);
+                }
                 ADD(xRSI, xRSI, x3);
                 ADD(xRDI, xRDI, x3);
             }
