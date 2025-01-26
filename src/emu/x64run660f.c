@@ -1725,8 +1725,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETEX(2);
             tmp8u = F8&0x3f;
             tmp8s = F8&0x3f;
-            EX->q[0]>>tmp8u;
-            EX->q[0]&=(1<<(tmp8s+1)-1);
+            EX->q[0]>>=tmp8u;
+            EX->q[0]&=((1<<(tmp8s+1))-1);
         }
         break;
     case 0x79:  /* EXTRQ Ex, Gx */
@@ -1741,8 +1741,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETEX(2);
             tmp8u = GX->ub[0]&0x3f;
             tmp8s = GX->ub[1]&0x3f;
-            EX->q[0]>>tmp8u;
-            EX->q[0]&=(1<<(tmp8s+1)-1);
+            EX->q[0]>>=tmp8u;
+            EX->q[0]&=((1<<(tmp8s+1))-1);
         }
         break;
 

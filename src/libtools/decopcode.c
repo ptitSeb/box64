@@ -148,7 +148,7 @@ int decode_opcode(uintptr_t rip, int is32bits)
             }
         }
     }
-    if((addr[idx]==0xC4 || addr[idx]==0xC5) && (!is32bits || (addr[idx+1]&0xc0!=0xc0))) {
+    if((addr[idx]==0xC4 || addr[idx]==0xC5) && (!is32bits || ((addr[idx+1]&0xc0)!=0xc0))) {
         uint8_t tmp8u;
         switch(addr[idx++]) {
             case 0xC4:
