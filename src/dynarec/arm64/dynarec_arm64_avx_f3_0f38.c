@@ -61,6 +61,35 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 
     switch(opcode) {
 
+        case 0xF5:
+            INST_NAME("PEXT Gd, Ed, Vd");
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            GETVD;
+            if(gd==ed || gd==vd) {
+                gb1 = gd;
+                gd = x4;
+            } else {
+                gb1 = 0;
+            }
+            // x3 = mask of mask, loop while not 0
+            MOV32w(gd, 0);
+            MOV64x(x3, 1LL<<(rex.w?63:31));
+            MARK;
+            TSTxw_REG(ed, x3);
+            B_MARK2(cEQ);   // mask not set
+            TSTxw_REG(vd, x3);
+            CSINCxw(gd, gd, gd, cEQ);   // return gd if TRUE, else gd+1
+            RORxw(gd, gd, 1);
+            MARK2;
+            LSRxw_IMM(x3, x3, 1);
+            CBNZxw_MARK(x3);
+            RBITxw(gd, gd);
+            if(gb1)
+                MOVxw_REG(gb1, gd);
+            break;
+
         case 0xF7:
             INST_NAME("SARX Gd, Ed, Vd");
             nextop = F8;
