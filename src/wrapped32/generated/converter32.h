@@ -174,6 +174,13 @@ typedef struct struct_Ldd_s {
 } struct_Ldd_t;
 void from_struct_Ldd(struct_Ldd_t *dest, ptr_t src);
 void to_struct_Ldd(ptr_t dest, const struct_Ldd_t *src);
+typedef struct struct_upu_s {
+	uint32_t u0;
+	void* p1;
+	uint32_t u2;
+} struct_upu_t;
+void from_struct_upu(struct_upu_t *dest, ptr_t src);
+void to_struct_upu(ptr_t dest, const struct_upu_t *src);
 typedef struct struct_LWWWcc_s {
 	unsigned long L0;
 	unsigned short W1;
@@ -270,6 +277,12 @@ typedef struct struct_pp_s {
 } struct_pp_t;
 void from_struct_pp(struct_pp_t *dest, ptr_t src);
 void to_struct_pp(ptr_t dest, const struct_pp_t *src);
+typedef struct struct_pu_s {
+	void* p0;
+	uint32_t u1;
+} struct_pu_t;
+void from_struct_pu(struct_pu_t *dest, ptr_t src);
+void to_struct_pu(ptr_t dest, const struct_pu_t *src);
 typedef struct struct_ppi_s {
 	void* p0;
 	void* p1;

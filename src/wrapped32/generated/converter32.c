@@ -346,6 +346,21 @@ void to_struct_Ldd(ptr_t d, const struct_Ldd_t *src) {
 	*(double*)dest = src->d1; dest += 8;
 	*(double*)dest = src->d2; dest += 8;
 }
+
+void from_struct_upu(struct_upu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->p1 = *(void**)src; src += 4;
+	dest->u2 = *(uint32_t*)src; src += 4;
+}
+void to_struct_upu(ptr_t d, const struct_upu_t *src) {	
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(uint32_t*)dest = src->u2; dest += 4;
+}
+
 void from_struct_LWWWcc(struct_LWWWcc_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->L0 = from_ulong(*(uint32_t*)src); src += 4;
@@ -523,6 +538,18 @@ void to_struct_pp(ptr_t d, const struct_pp_t *src) {
 	uint8_t* dest = (uint8_t*)from_ptrv(d);
 	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
 	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+}
+
+void from_struct_pu(struct_pu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+}
+void to_struct_pu(ptr_t d, const struct_pu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
 }
 
 void from_struct_ppi(struct_ppi_t *dest, ptr_t s) {

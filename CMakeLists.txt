@@ -849,6 +849,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedudev0.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedudev1.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibuuid.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedgnutls.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedtcmallocminimal.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedcairo.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibdrm.c"

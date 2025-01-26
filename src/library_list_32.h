@@ -67,6 +67,8 @@ GO("libxcb.so", libxcb)
 GO("libxcb-res.so.0", libxcbres)
 GO("libxcb-res.so", libxcbres)
 
+GO("libgnutls.so", gnutls)
+GO("libgnutls.so.30", gnutls)
 GO("libopenal.so.1", openal)
 GO("libopenal.so.0", openal)
 GO("libopenal.so", openal)
