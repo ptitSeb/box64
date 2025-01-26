@@ -3301,13 +3301,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     j64 = (uint32_t)(addr+i32);
                 else
                     j64 = addr+i32;
-
-                JUMP((uintptr_t)getAlternate((void*)j64), 0);
+                j64 = (uintptr_t)getAlternate((void*)j64);
+                JUMP(j64, 0);
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {
                     // out of the block
                     SET_NODF();
                     fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
-                    jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
+                    jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                 } else {
                     // inside the block
                     CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);

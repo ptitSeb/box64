@@ -580,7 +580,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
         NOTEST(x2);
         uintptr_t tbl = is32bits?getJumpTable32():getJumpTable64();
         MAYUSE(tbl);
-        TABLE64(x3, tbl);
+        MOV64x(x3, tbl);
         if(!is32bits) {
             #ifdef JMPTABL_SHIFT4
             UBFXx(x2, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
@@ -599,7 +599,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
         NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
-        TABLE64(x3, p);
+        MOV64x(x3, p);
         GETIP_(ip);
         LDRx_U12(x2, x3, 0);
     }
