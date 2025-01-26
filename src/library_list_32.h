@@ -89,6 +89,8 @@ GO("libvdpau.so.1", libvdpau)
 GO("libvdpau.so", libvdpau)
 GO("libnsl.so.1", nsl)
 GO("libnsl.so", nsl)
+GO("libcups.so.2", libcups)
+GO("libcups.so", libcups)
 
 //GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)
