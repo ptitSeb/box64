@@ -6191,6 +6191,8 @@ wrappedwaylandcursor:
 wrappedwaylandegl:
 wrappedxinerama:
 wrappedxkbcommon:
+- vFppp:
+  - xkb_keymap_key_for_each
 wrappedxkbcommonx11:
 wrappedxkbregistry:
 wrappedxml2:
