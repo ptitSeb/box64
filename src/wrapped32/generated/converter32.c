@@ -935,3 +935,26 @@ void to_struct_iLiiiiLiiiiLi(ptr_t d, const struct_iLiiiiLiiiiLi_t *src) {
 	*(ulong_t*)dest = to_ulong(src->L11); dest += 4;
 	*(int*)dest = src->i12; dest += 4;
 }
+
+void from_struct_pppiiip(struct_pppiiip_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->i3 = *(int*)src; src += 4;
+	dest->i4 = *(int*)src; src += 4;
+	dest->i5 = *(int*)src; src += 4;
+	dest->p6 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_pppiiip(ptr_t d, const struct_pppiiip_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+	*(int*)dest = src->i3; dest += 4;
+	*(int*)dest = src->i4; dest += 4;
+	*(int*)dest = src->i5; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p6); dest += 4;
+}
+

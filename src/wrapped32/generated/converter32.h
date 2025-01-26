@@ -472,5 +472,16 @@ typedef struct struct_iLiiiiLiiiiLi_s {
 } struct_iLiiiiLiiiiLi_t;
 void from_struct_iLiiiiLiiiiLi(struct_iLiiiiLiiiiLi_t* dest, ptr_t src);
 void to_struct_iLiiiiLiiiiLi(ptr_t dest, const struct_iLiiiiLiiiiLi_t* src);
+typedef struct struct_pppiiip_s {
+	void* p0;
+	void* p1;
+	void* p2;
+	int i3;
+	int i4;
+	int i5;
+	void* p6;
+} struct_pppiiip_t;
+void from_struct_pppiiip(struct_pppiiip_t *dest, ptr_t src);
+void to_struct_pppiiip(ptr_t dest, const struct_pppiiip_t *src);
 
 #endif // __CONVERTER_H_

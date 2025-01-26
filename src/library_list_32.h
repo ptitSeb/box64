@@ -16,6 +16,7 @@ GO("libdl.so.2", libdl)
 GO("libresolv.so.2", libresolv)
 GO("libresolv.so", libresolv)
 
+GO("ld-linux.so.3", ldlinux)
 GO("ld-linux.so.2", ldlinux)
 
 GO("libGL.so", libgl)

@@ -710,7 +710,7 @@ GO(inet_pton, iEipp)
 //GO(initgroups, iEpi)
 // init_module
 // initstate    // Weak
-//GOW(initstate_r, iEupup)
+GOW(initstate_r, iEupuBpppiiip_)
 // inl  // Weak
 GO(innetgr, iEpppp)
 GO(inotify_add_watch, iEipu)
@@ -1360,7 +1360,7 @@ GOM(qsort, vEEpLLp) //%%
 GO(raise, iEi)
 GO(rand, iEv)
 GOW(random, lEv)
-//GOW(random_r, iEpp)
+GOW(random_r, iEbpppiiip_p)
 GO(rand_r, iEp)
 GOW(rawmemchr, pEpi)
 GO(__rawmemchr, pEpi)

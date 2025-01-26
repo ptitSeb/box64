@@ -42,6 +42,7 @@ static void stSetup32(box64context_t* context)
 // don't try to load the actual ld-linux (because name is variable), just use box64 itself, as it's linked to ld-linux
 static const char* ldlinuxName = "ld-linux.so.3";
 #define LIBNAME ldlinux
+#define ALTNAME "ld-linux.so.2"
 
 // fake (ignored) _r_data structure
 EXPORT void* my32__r_debug[5];
