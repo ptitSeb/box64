@@ -2976,6 +2976,8 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     return readlinkat(fd, path, buf, bufsize);
 }
 extern int have48bits;
+void* last_mmap_addr = NULL;
+size_t last_mmap_len = 0;
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
 {
     (void)emu;
@@ -3007,7 +3009,18 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         }
         if(fd>0) {
             DetectUnityPlayer(fd);
-            RecordEnvMappings((uintptr_t)ret, length, fd);
+            // the last_mmap will allow mmap created by wine, even those that have hole, to be fully tracked as one single mmap
+            if((ret>=last_mmap_addr) && ret+length<(last_mmap_addr+last_mmap_len))
+                RecordEnvMappings((uintptr_t)last_mmap_addr, last_mmap_len, fd);
+            else
+                RecordEnvMappings((uintptr_t)ret, length, fd);
+        }
+        if((fd==-1) && (flags==(MAP_PRIVATE|MAP_ANON))) {
+            last_mmap_addr = ret;
+            last_mmap_len = length;
+        } else {
+            last_mmap_addr = NULL;
+            last_mmap_len = 0;
         }
         if(emu)
             setProtection_mmap((uintptr_t)ret, length, prot);
@@ -3083,6 +3096,8 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     }
     #endif
     if(!ret) {
+        last_mmap_addr = NULL;
+        last_mmap_len = 0;
         freeProtection((uintptr_t)addr, length);
         RemoveMapping((uintptr_t)addr, length);
     }
