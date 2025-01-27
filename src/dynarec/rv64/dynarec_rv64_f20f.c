@@ -482,15 +482,20 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
             u8 = sse_setround(dyn, ninst, x6, x4);
-            for (int i = 0; i < 2; ++i) {
-                FLD(d0, wback, fixedaddress + 8 * i);
-                FCVTLD(x3, d0, RD_DYN);
-                SEXT_W(x5, x3);
-                BEQ(x5, x3, 8);
-                LUI(x3, 0x80000); // INT32_MIN
-                SW(x3, gback, gdoffset + 4 * i);
-            }
+            FLD(d0, wback, fixedaddress + 0);
+            FLD(d1, wback, fixedaddress + 8);
+            FCVTLD(x3, d0, RD_DYN);
+            FCVTLD(x4, d1, RD_DYN);
+            SEXT_W(x5, x3);
+            SEXT_W(x6, x4);
+            BEQ(x5, x3, 8);
+            LUI(x3, 0x80000); // INT32_MIN
+            BEQ(x6, x4, 8);
+            LUI(x4, 0x80000); // INT32_MIN
+            SW(x3, gback, gdoffset + 0);
+            SW(x4, gback, gdoffset + 4);
             x87_restoreround(dyn, ninst, u8);
             SD(xZR, gback, gdoffset + 8);
             break;
