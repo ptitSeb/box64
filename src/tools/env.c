@@ -15,7 +15,6 @@
 #include "rbtree.h"
 
 box64env_t box64env = { 0 };
-box64env_t* cur_box64env = NULL;
 
 KHASH_MAP_INIT_STR(box64env_entry, box64env_t)
 static kh_box64env_entry_t* box64env_entries = NULL;
@@ -596,11 +595,10 @@ void RemoveMapping(uintptr_t addr, size_t length)
 
 box64env_t* GetCurEnvByAddr(uintptr_t addr)
 {
-    if (!envmap) return NULL;
+    if (!envmap) return &box64env;
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
-    if(!mapping) return NULL;
+    if(!mapping) return &box64env;
     box64env_t* env = mapping->env;
-    if(!env) return NULL;
-    cur_box64env = env;
-    return cur_box64env;
+    if(!env) return &box64env;
+    return env;
 }

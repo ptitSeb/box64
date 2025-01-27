@@ -5,8 +5,7 @@
 #include <unistd.h>
 
 #define BOX64ENV(name)            (box64env.name)
-#define BOX64DRENV(name) \
-    ((GetCurEnvByAddr(dyn->start) && cur_box64env->is_##name##_overridden) ? cur_box64env->name : box64env.name)
+#define BOX64DRENV(name)          (GetCurEnvByAddr(dyn->start)->name)
 #define SET_BOX64ENV(name, value)            \
     {                                        \
         box64env.name = (value);             \
