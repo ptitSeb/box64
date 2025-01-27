@@ -591,8 +591,30 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 void RemoveMapping(uintptr_t addr, size_t length)
 {
     if(!envmap) return;
-    // TODO: handling memory to free mapping_entries entry when needed
+    mapping_t* mapping = (mapping_t*)rb_get_64(envmap, addr);
     rb_unset(envmap, addr, addr+length);
+    // quick check at next address
+    if(mapping) {
+        if(mapping == (mapping_t*)rb_get_64(envmap, addr+length))
+            return; // still present, don't purge mapping
+        // Will traverse the tree to find any left over
+        uintptr_t start = rb_get_lefter(envmap);
+        uintptr_t end;
+        uint64_t val;
+        do {
+            rb_get_end_64(envmap, start, &val, &end);
+            if((mapping_t*)val==mapping)
+                return; // found more occurance, exiting
+            start = end;
+        } while(end!=UINTPTR_MAX);
+        // no occurence found, delete mapping
+        khint_t k = kh_get(mapping_entry, mapping_entries, mapping->filename);
+        if(k!=kh_end(mapping_entries))
+            kh_del(mapping_entry, mapping_entries, k);
+        box_free(mapping->filename);
+        box_free(mapping->fullname);
+        box_free(mapping);
+    }
 }
 
 box64env_t* GetCurEnvByAddr(uintptr_t addr)
@@ -603,4 +625,13 @@ box64env_t* GetCurEnvByAddr(uintptr_t addr)
     box64env_t* env = mapping->env;
     if(!env) return &box64env;
     return env;
+}
+
+int IsAddrFileMapped(uintptr_t addr)
+{
+    if(!envmap) return 0;
+    mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
+    if(!mapping) return 0;
+    if(mapping->fullname) return 1;
+    return 0;
 }

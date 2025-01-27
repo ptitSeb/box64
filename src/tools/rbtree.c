@@ -830,6 +830,20 @@ dynarec_log(LOG_DEBUG, "rb_get_righter(%s);\n", tree->name);
     return 0;
 }
 
+uintptr_t rb_get_lefter(rbtree_t* tree)
+{
+dynarec_log(LOG_DEBUG, "rb_get_lefter(%s);\n", tree->name);
+    if (!tree->root) return 0;
+
+    rbnode *node = tree->root;
+    while (node) {
+        if(!node->left)
+            return node->start;
+        node = node->left;
+    }
+    return 0;
+}
+
 #include <stdio.h>
 static void print_rbnode(const rbnode *node, unsigned depth, uintptr_t minstart, uintptr_t maxend, unsigned *bdepth) {
     if (!node) {

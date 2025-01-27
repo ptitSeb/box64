@@ -250,4 +250,14 @@ int rb_unset(rbtree_t* tree, uintptr_t start, uintptr_t end);
  */
 uintptr_t rb_get_righter(rbtree_t* tree);
 
+/**
+ * rb_get_lefter() - Retrieves the start value of the left-most node in a red-black tree.
+ * @tree: Pointer to the red-black tree whose left-most node's start value is to be retrieved.
+ *
+ * This function traverses the red-black tree from the root to the left-most node, which is the node
+ * with the lowest key value in the tree. 
+ * Return: The start value of the left-most node if the tree is not empty; otherwise, 0.
+ */
+uintptr_t rb_get_lefter(rbtree_t* tree);
+
 #endif // RBTREE_H
