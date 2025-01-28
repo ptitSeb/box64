@@ -1217,7 +1217,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x7f) == 0x17) {
         a.rd = FX(opcode, 11, 7);
         a.imm = FX(opcode, 31, 12);
-        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "AUIPC", gpr[a.rd], SIGN_EXTEND(a.imm, 20), SIGN_EXTEND(a.imm, 20));
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "AUIPC", gpr[a.rd], a.imm << 12, a.imm << 12);
         return buff;
     }
 
@@ -2233,7 +2233,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x7f) == 0x37) {
         a.rd = FX(opcode, 11, 7);
         a.imm = FX(opcode, 31, 12);
-        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "LUI", gpr[a.rd], SIGN_EXTEND(a.imm, 20), SIGN_EXTEND(a.imm, 20));
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "LUI", gpr[a.rd], a.imm << 12, a.imm << 12);
         return buff;
     }
 
