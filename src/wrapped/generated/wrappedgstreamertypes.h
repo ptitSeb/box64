@@ -49,7 +49,6 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gst_tag_list_new_valist, pFA_t) \
-	GO(_gst_debug_register_funcptr, vFpp_t) \
 	GO(gst_init, vFpp_t) \
 	GO(gst_caps_features_new_id, pFuV_t) \
 	GO(gst_caps_features_new_id_valist, pFuA_t) \
@@ -97,6 +96,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_pad_set_iterate_internal_links_function_full, vFpppp_t) \
 	GO(gst_pad_set_link_function_full, vFpppp_t) \
 	GO(gst_pad_set_query_function_full, vFpppp_t) \
+	GO(gst_iterator_find_custom, iFpppp_t) \
 	GO(gst_pad_start_task, iFpppp_t) \
 	GO(gst_iterator_fold, uFpppp_t) \
 	GO(gst_registry_feature_filter, pFppip_t) \

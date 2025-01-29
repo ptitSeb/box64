@@ -4124,7 +4124,6 @@ wrappedgstreamer:
 - pFA:
   - gst_tag_list_new_valist
 - vFpp:
-  - _gst_debug_register_funcptr
   - gst_init
 - pFuV:
   - gst_caps_features_new_id
@@ -4192,6 +4191,7 @@ wrappedgstreamer:
   - gst_pad_set_link_function_full
   - gst_pad_set_query_function_full
 - iFpppp:
+  - gst_iterator_find_custom
   - gst_pad_start_task
 - uFpppp:
   - gst_iterator_fold

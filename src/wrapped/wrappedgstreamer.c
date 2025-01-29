@@ -362,6 +362,27 @@ static void* findGstIteratorFoldFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstIteratorFoldFunction callback\n");
     return NULL;
 }
+//GCompareFunc
+#define GO(A)   \
+static uintptr_t my_GCompareFunc_fct_##A = 0;                           \
+static int my_GCompareFunc_##A(void* a, void* b)                        \
+{                                                                       \
+    return (int)RunFunctionFmt(my_GCompareFunc_fct_##A, "pp", a, b);    \
+}
+SUPER()
+#undef GO
+static void* findGCompareFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_GCompareFunc_fct_##A == (uintptr_t)fct) return my_GCompareFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCompareFunc_fct_##A == 0) {my_GCompareFunc_fct_##A = (uintptr_t)fct; return my_GCompareFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GCompareFunc callback\n");
+    return NULL;
+}
 //GCompareDataFunc
 #define GO(A)   \
 static uintptr_t my_GCompareDataFunc_fct_##A = 0;                            \
@@ -1226,6 +1247,11 @@ EXPORT int my_gst_buffer_foreach_meta(x64emu_t* emu, void* buff, void* f, void* 
 EXPORT void my_gst_mini_object_init(x64emu_t* emu, void* obj, uint32_t flags, size_t type, void* copy_f, void* disp_f, void* free_f)
 {
     my->gst_mini_object_init(obj, flags, type, findGstMiniObjectCopyFunctionFct(copy_f), findGstMiniObjectDisposeFunctionFct(disp_f), findGstMiniObjectFreeFunctionFct(free_f));
+}
+
+EXPORT int my_gst_iterator_find_custom(x64emu_t* emu, void* it, void* f, void* elem, void* data)
+{
+    return my->gst_iterator_find_custom(it, findGCompareFuncFct(f), elem, data);
 }
 
 #define PRE_INIT    \
