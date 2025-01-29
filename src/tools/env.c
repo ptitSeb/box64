@@ -540,6 +540,7 @@ typedef struct mapping_s {
     char*       filename;
     char*       fullname;
     box64env_t* env;
+    uintptr_t   start;  //lower address of the map for this file
 } mapping_t;
 
 KHASH_MAP_INIT_STR(mapping_entry, mapping_t*);
@@ -572,6 +573,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         mapping = box_calloc(1, sizeof(mapping_t));
         mapping->filename = box_strdup(lowercase_filename);
         mapping->fullname = box_strdup(fullname);
+        mapping->start = addr;
         k = kh_put(mapping_entry, mapping_entries, mapping->filename, &ret);
         kh_value(mapping_entries, k) = mapping;
         khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
@@ -580,6 +582,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     } else
         mapping = kh_value(mapping_entries, k);
 
+    if(mapping && mapping->start>addr) mapping->start = addr;
     rb_set_64(envmap, addr, addr + length, (uint64_t)mapping);
     if(mapping->env) {
         printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
@@ -627,11 +630,28 @@ box64env_t* GetCurEnvByAddr(uintptr_t addr)
     return env;
 }
 
-int IsAddrFileMapped(uintptr_t addr)
+int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start)
 {
     if(!envmap) return 0;
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
     if(!mapping) return 0;
-    if(mapping->fullname) return 1;
+    if(mapping->fullname) {
+        if(filename) *filename = mapping->fullname;
+        if(start) *start = mapping->start;
+        return 1;
+    }
+    return 0;
+}
+
+size_t SizeFileMapped(uintptr_t addr)
+{
+    if(!envmap) return 0;
+    uint64_t val = 0;
+    uintptr_t end = 0;
+    if(rb_get_end_64(envmap, addr, &val, &end)) {
+        mapping_t* mapping = (mapping_t*)val;
+        if(mapping && (mapping->start<end))
+            return end - mapping->start;
+    }
     return 0;
 }

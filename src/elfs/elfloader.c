@@ -1341,6 +1341,15 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
                 }
             }
         }
+        if(!ret) {
+            const char* filename = NULL;
+            uintptr_t start_map = 0;
+            if(IsAddrFileMapped(addr, &filename, &start_map)) {
+                if(start) *start = start_map;
+                if(sz) *sz = SizeFileMapped(addr);
+                ret = filename;
+            }
+        }
         return ret;
     }
     if(!h || h->fini_done)

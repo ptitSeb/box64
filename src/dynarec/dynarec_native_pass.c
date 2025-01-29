@@ -57,7 +57,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     ARCH_INIT();
     int reset_n = -1; // -1 no reset; -2 reset to 0; else reset to the state of reset_n
     dyn->last_ip = (alternate || (dyn->insts && dyn->insts[0].pred_sz))?0:ip;  // RIP is always set at start of block unless there is a predecessor!
-    int stopblock = 2 + ((FindElfAddress(my_context, addr) || IsAddrFileMapped(addr)) ? 0 : 1);            // if block is in elf memory or file mapped memory, it can be extended with BOX64DRENV(dynarec_bigblock)==2, else it needs 3
+    int stopblock = 2 + ((FindElfAddress(my_context, addr) || IsAddrFileMapped(addr, NULL, NULL)) ? 0 : 1);            // if block is in elf memory or file mapped memory, it can be extended with BOX64DRENV(dynarec_bigblock)==2, else it needs 3
     // ok, go now
     INIT;
     #if STEP == 0
