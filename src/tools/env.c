@@ -547,6 +547,7 @@ static kh_mapping_entry_t* mapping_entries = NULL;
 
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 {
+    #ifndef ANDROID
     if (!envmap) { envmap = rbtree_init("envmap"); }
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
@@ -584,6 +585,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
         PrintEnvVariables(mapping->env, LOG_DEBUG);
     }
+    #endif
 }
 
 void RemoveMapping(uintptr_t addr, size_t length)
