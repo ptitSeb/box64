@@ -206,4 +206,14 @@ EXPORT int my32_cupsGetDests(x64emu_t* emu, ptr_t* p)
     return ret;
 }
 
+EXPORT void* my32_cupsGetOption(x64emu_t* emu, void* name, int num_options, my_cups_option_32_t* options)
+{
+    my_cups_option_t options_l[num_options];
+    for(int i=0; i<num_options; ++i) {
+        options_l[i].name = from_ptrv(options[i].name);
+        options_l[i].value = from_ptrv(options[i].value);
+    }
+    return my->cupsGetOption(name, num_options, options_l);
+}
+
 #include "wrappedlib_init32.h"

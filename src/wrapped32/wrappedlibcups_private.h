@@ -135,7 +135,7 @@ GO(cupsGetIntegerOption, iFpibpp_)
 //GOM(cupsGetJobs, iFEbp_pii)
 //GOM(cupsGetJobs2, iFEpbp_pii)
 //GOM(cupsGetNamedDest, pFEppp)
-GO(cupsGetOption, pFpibpp_)
+GOM(cupsGetOption, pFEpip)
 //GO(_cupsGetPassword, 
 GO(cupsGetPassword, pFp)
 GO(cupsGetPassword2, pFpppp)

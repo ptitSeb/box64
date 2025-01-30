@@ -13,9 +13,11 @@
 
 typedef int32_t (*iFp_t)(void*);
 typedef void (*vFip_t)(int32_t, void*);
+typedef void* (*pFpip_t)(void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(cupsGetDests, iFp_t) \
-	GO(cupsFreeDests, vFip_t)
+	GO(cupsFreeDests, vFip_t) \
+	GO(cupsGetOption, pFpip_t)
 
 #endif // __wrappedlibcupsTYPES32_H_

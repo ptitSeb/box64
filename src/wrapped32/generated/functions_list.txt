@@ -784,7 +784,6 @@
 #() iFXLbpp_ -> iFXLB
 #() iFXbLC_i -> iFXBi
 #() uFpubpu_ -> uFpuB
-#() pFpibpp_ -> pFpiB
 #() vFLbL_bL_ -> vFLBB
 #() vFpbLdd_i -> vFpBi
 #() vFpbp_bp_ -> vFpBB
@@ -2412,6 +2411,8 @@ wrappedlibcups:
   - cupsGetDests
 - vFip:
   - cupsFreeDests
+- pFpip:
+  - cupsGetOption
 wrappedlibdl:
 - iEp:
   - dlclose
