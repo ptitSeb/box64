@@ -1031,16 +1031,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV32w(gd, 0);
             if(MODREG) {
                 // EX is an xmm reg
-                GETEX(q0, 0, 0);
+                q0 = fpu_get_scratch(dyn, ninst);
+                GETEX(v0, 0, 0);
+                SQXTN_16(q0, v0);   // reduces the 4 32bits to 4 16bits
                 VMOVQDto(x1, q0, 0);
-                LSRx(x1, x1, 31);
+                LSRx(x1, x1, 15);
                 BFIx(gd, x1, 0, 1);
-                LSRx(x1, x1, 32);
+                LSRx(x1, x1, 16);
                 BFIx(gd, x1, 1, 1);
-                VMOVQDto(x1, q0, 1);
-                LSRx(x1, x1, 31);
+                LSRx(x1, x1, 16);
                 BFIx(gd, x1, 2, 1);
-                LSRx(x1, x1, 32);
+                LSRx(x1, x1, 16);
                 BFIx(gd, x1, 3, 1);
             } else {
                 // EX is memory
@@ -1934,13 +1935,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 4 -> 5  // Inexact
                                 5 -> 1  // denormal
                             */
-                            // doing X86 -> ARM here, 0 1 2 3 4 5 -> 0 5 1 2 3 4
+                            // doing X86 -> ARM here, 0 1 2 3 4 5 -> 0 2 3 4 5 1
                             if(ed!=x1)
-                                MOVw_REG(x1, ed);
-                            BFXILw(x2, x1, 1, 5);   // x2 = 1 2 3 4 5 ...
-                            BFIw(x1, x2, 2, 4); // x1 = 0 1 1 2 3 4
-                            RORw(x2, x2, 4);    // x2 = 5 .... 1 2 3 4
-                            BFIw(x1, x2, 1, 1); // x1 = 0 5 1 2 3 4
+                                MOVw_REG(x1, ed);   // x1 = 543210
+                            RORw(x3, x1, 2);    // x3 = 10.....5432
+                            BFIw(x1, x3, 1, 4); // x1 = 54320
+                            RORw(x3, x3, 32-1); // x3 = 0.....54321
+                            BFIw(x1, x3, 5, 1); // x1 = 154320
                             MRS_fpsr(x2);
                             BFIx(x2, x1, 0, 6);
                             MSR_fpsr(x2);
@@ -1952,12 +1953,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
                         if(BOX64ENV(sse_flushto0)) {
                             // sync with fpsr, with mask from mxcsr
-                            // doing ARM -> X86 here, 0 1 2 3 4 5 -> 0 2 3 4 5 1
                             MRS_fpsr(x1);
-                            RORw(x3, x1, 2);    //x3 = 2 3 4 5 .... 0 1
-                            BFIw(x1, x3, 1, 4);
-                            RORw(x3, x3, 32-1);
-                            BFIw(x1, x3, 5, 1); // x1 is Flags
+                            // doing ARM -> X86 here,  543210 => 432150
+                            UBFXw(x2, x1, 1, 5);   // x2 = 54321
+                            BFIw(x1, x2, 2, 4); // x1 = 432110
+                            LSRw(x2, x2, 4);    // x2 = 5
+                            BFIw(x1, x2, 1, 1); // x1 = 432150
                             //BFXILw(x3, x4, 7, 6); // this would the mask, but let's ignore that for now
                             BFIw(x4, x1, 0, 6); // inject back the flags
                         }
