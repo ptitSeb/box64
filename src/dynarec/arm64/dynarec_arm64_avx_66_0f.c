@@ -454,7 +454,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                             FRINTIS(d0, d0);
                             VFCVTZSs(d0, d0);
                             MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                            TSTw_mask(x5, 0, 0);    // mask=1
+                            TSTw_mask(x5, 0, 0);    // mask=(1<<IOC)
                             FCSELS(d0, d0, d1, cEQ);
                             VMOVeS(v0, i, d0, 0);
                         }

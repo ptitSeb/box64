@@ -258,6 +258,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, q2, 0);
+            YMM0(gd);
             break;
         case 0x5A:
             INST_NAME("VCVTSD2SS Gx, Vx, Ex");
@@ -461,7 +462,11 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 if(v0==v1) {
-                    VFMLAQS(v0, v2, q0);
+                    //TODO: find a better way
+                    if(!l) q1 = fpu_get_scratch(dyn, ninst);
+                    VMOVQ(q1, v2);
+                    VFMLAQS(q1, v1, q0);
+                    VMOVQ(v0, q1);
                 } else {
                     if(v0!=v2) VMOVQ(v0, v2);
                     VFMLAQS(v0, v1, q0);
