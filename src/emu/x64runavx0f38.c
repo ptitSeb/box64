@@ -68,13 +68,9 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVD;
             if(rex.w)
                 GD->q[0] = ED->q[0] & ~VD->q[0];
-            else {
-                if(MODREG)
-                    GD->q[0] = ED->dword[0] & ~VD->dword[0];
-                else
-                    GD->dword[0] = ED->dword[0] & ~VD->dword[0];
-            }
-            CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]==0):(GD->dword[0]==0), F_ZF);
+            else
+                GD->q[0] = ED->dword[0] & ~VD->dword[0];
+            CONDITIONAL_SET_FLAG(GD->q[0]==0, F_ZF);
             CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]>>63):(GD->dword[0]>>31), F_SF);
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_OF);
@@ -93,10 +89,8 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     if(rex.w)
                         VD->q[0] = ED->q[0] & (ED->q[0]-1LL);
                     else
-                        VD->dword[0] = ED->dword[0] & (ED->dword[0]-1);
-                    if(MODREG && !rex.w)
-                        VD->dword[1] = 0;
-                    CONDITIONAL_SET_FLAG(rex.w?(VD->q[0]==0):(VD->dword[0]==0), F_ZF);
+                        VD->q[0] = ED->dword[0] & (ED->dword[0]-1);
+                    CONDITIONAL_SET_FLAG(VD->q[0]==0, F_ZF);
                     CONDITIONAL_SET_FLAG(rex.w?(VD->q[0]>>63):(VD->dword[0]>>31), F_SF);
                     CLEAR_FLAG(F_OF);
                     CLEAR_FLAG(F_AF);   // Undef
@@ -111,9 +105,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     if(rex.w)
                         VD->q[0] = ED->q[0] ^ (ED->q[0]-1LL);
                     else
-                        VD->dword[0] = ED->dword[0] ^ (ED->dword[0]-1);
-                    if(MODREG && !rex.w)
-                        VD->dword[1] = 0;
+                        VD->q[0] = ED->dword[0] ^ (ED->dword[0]-1);
                     CONDITIONAL_SET_FLAG(rex.w?(VD->q[0]>>63):(VD->dword[0]>>31), F_SF);
                     CLEAR_FLAG(F_ZF);
                     CLEAR_FLAG(F_OF);
@@ -130,7 +122,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         VD->sq[0] = ED->sq[0] & (-ED->sq[0]);
                     else
                         VD->sdword[0] = ED->sdword[0] & (-ED->sdword[0]);
-                    if(MODREG && !rex.w)
+                    if(!rex.w)
                         VD->dword[1] = 0;
                     CONDITIONAL_SET_FLAG(rex.w?(VD->q[0]==0):(VD->dword[0]==0), F_ZF);
                     CONDITIONAL_SET_FLAG(rex.w?(VD->q[0]>>63):(VD->dword[0]>>31), F_SF);
