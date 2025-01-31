@@ -194,12 +194,12 @@
       {
         "key": "1",
         "description": "Build Dynarec block as big as possible.",
-        "default": true
+        "default": false
       },
       {
         "key": "2",
         "description": "Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory.",
-        "default": false
+        "default": true
       },
       {
         "key": "3",

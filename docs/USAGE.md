@@ -542,8 +542,8 @@ Generate aligned atomics only (only available on Arm64 for now).
 Enable building bigger DynaRec code blocks for better performance.
 
  * 0: Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity. 
- * 1: Build Dynarec block as big as possible. [Default]
- * 2: Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory. 
+ * 1: Build Dynarec block as big as possible. 
+ * 2: Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory. [Default]
  * 3: Build Dynarec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs. 
 
 ### BOX64_DYNAREC_CALLRET
