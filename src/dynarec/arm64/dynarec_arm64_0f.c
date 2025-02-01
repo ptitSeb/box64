@@ -2647,50 +2647,28 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGM(d0);
             GETEM(d1, 0);
-            if(MODREG) {
-                q0 = fpu_get_scratch(dyn, ninst);
-            }
-            else {
-                q0 = d1;
-            }
-            q1 = fpu_get_scratch(dyn, ninst);
-            VMOVBto(x1, d1, 0);
-            MOVZw(x2, 16);
-            SUBSw_REG(x2, x2, x1);
-            B_MARK(cGT);
-            VMOVQDfrom(d0, 0, xZR);
-            B_NEXT_nocond;
-            MARK;
-            VDUPQS(q1, x2);
-            UXTL_16(q0, d0);
-            USHLQ_32(q0, q0, q1);
-            VUZP2Q_16(q0, q0, q0);
-            VMOVeD(d0, 0, q0, 0);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
+            UQXTN_32(v0, d1);
+            MOVI_32(v1, 16);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +15 values
+            VDUP_16(v0, v0, 0);    // only the low 8bits will be used anyway
+            NEG_16(v0, v0);
+            USHL_16(d0, d0, v0);
             break;
         case 0xD2:
             INST_NAME("PSRLD Gm, Em");
             nextop = F8;
             GETGM(d0);
             GETEM(d1, 0);
-            if(MODREG) {
-                q0 = fpu_get_scratch(dyn, ninst);
-            }
-            else {
-                q0 = d1;
-            }
-            q1 = fpu_get_scratch(dyn, ninst);
-            VMOVBto(x1, d1, 0);
-            MOVZw(x2, 32);
-            SUBSw_REG(x2, x2, x1);
-            B_MARK(cGT);
-            VMOVQDfrom(d0, 0, xZR);
-            B_NEXT_nocond;
-            MARK;
-            VDUPQD(q1, x2);
-            UXTL_32(q0, d0);
-            USHLQ_64(q0, q0, q1);
-            VUZP2Q_32(q0, q0, q0);
-            VMOVeD(d0, 0, q0, 0);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
+            UQXTN_32(v0, d1);
+            MOVI_32(v1, 32);
+            UMIN_32(v0, v0, v1);        // limit to 0 .. +31 values
+            VDUP_32(v0, v0, 0);         // only the low 8bits will be used anyway
+            NEG_32(v0, v0);
+            USHL_32(d0, d0, v0);
             break;
         case 0xD3:
             INST_NAME("PSRLQ Gm,Em");
@@ -2698,11 +2676,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGM(d0);
             GETEM(d1, 0);
             v0 = fpu_get_scratch(dyn, ninst);
-            //MOVI_64(v0, 64);  not 64!
-            MOV32w(x1, 64);
-            VMOVQDfrom(v0, 0, x1);
+            MOVI_32(v0, 64);
             UMIN_32(v0, v0, d1);    // limit to 0 .. +64 values (will force 32bits upper part to 0)
-            NEG_64(v0, v0);
+            NEG_32(v0, v0);
+            UXTL_32(v0, v0);
             USHL_R_64(d0, d0, v0);
             break;
         case 0xD4:
@@ -2926,8 +2903,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGM(d0);
             GETEM(d1, 0);
             v0 = fpu_get_scratch(dyn, ninst);
-            VMOVHto(x1, d1, 0);
-            VDUPH(v0, x1);
+            v1 = fpu_get_scratch(dyn, ninst);
+            UQXTN_32(v0, d1);
+            MOVI_32(v1, 16);
+            UMIN_32(v0, v0, v1); // limit to 0 .. +16 values
+            VDUP_16(v0, v0, 0);
             USHL_16(d0, d0, v0);
             break;
         case 0xF2:
@@ -2970,7 +2950,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             q0 = fpu_get_scratch(dyn, ninst);
             VSMULL_16(q0, v0, v1);
             VADDPQ_32(q0, q0, q0); //ADDP from Q to non-Q?
-            VMOVQ(v0, q0);
+            VMOV(v0, q0);
             break;
         case 0xF6:
             INST_NAME("PSADBW Gm, Em");
@@ -2979,10 +2959,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(q1, 0);
             d0 = fpu_get_scratch(dyn, ninst);
             d1 = fpu_get_scratch(dyn, ninst);
-            VEOR(d1, d1, d1);   // is it necessary?
-            UABDL_8(d0, q0, q1);
-            UADDLVQ_16(d1, d0);
-            VMOVeD(q0, 0, d1, 0);
+            UABDL_8(d0, q0, q1);    // 8bits absolute difference in 16bits
+            UADDLVQ_16(d1, d0); // sum accros vector on the 16bits value inside a 32bits scalar
+            UXTL_32(d1, d1);    // 32bits -> 64bits
+            VMOV(q0, d1);
             break;
         case 0xF7:
             INST_NAME("MASKMOVQ Gm, Em");
@@ -2993,9 +2973,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             d1 = fpu_get_scratch(dyn, ninst);
             VSSHR_8(d1, q1, 7); // d1 = byte slection mask
             VLDR64_U12(d0, xRDI, 0);
-            VBIC(d0, d0, d1);   // d0 = clear masked byte
-            VAND(d1, q0, d1);   // d1 = masked Gm
-            VORR(d0, d0, d1);
+            VBIT(d0, q0, d1);
             VSTR64_U12(d0, xRDI, 0);
             break;
         case 0xF8:
