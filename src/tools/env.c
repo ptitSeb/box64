@@ -567,8 +567,6 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 
     int ret;
     mapping_t* mapping = NULL;
-    if (!box64env_entries)
-        box64env_entries = kh_init(box64env_entry);
     khint_t k = kh_get(mapping_entry, mapping_entries, lowercase_filename);
     if(k == kh_end(mapping_entries)) {
         mapping = box_calloc(1, sizeof(mapping_t));
@@ -577,9 +575,11 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         mapping->start = addr;
         k = kh_put(mapping_entry, mapping_entries, mapping->filename, &ret);
         kh_value(mapping_entries, k) = mapping;
-        khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
-        if (k != kh_end(box64env_entries))
-            mapping->env = &kh_value(box64env_entries, k);
+        if (box64env_entries) {
+            khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
+            if (k != kh_end(box64env_entries))
+                mapping->env = &kh_value(box64env_entries, k);
+        }
     } else
         mapping = kh_value(mapping_entries, k);
 
