@@ -548,7 +548,6 @@ static kh_mapping_entry_t* mapping_entries = NULL;
 
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 {
-    #ifndef ANDROID
     if (!envmap) { envmap = rbtree_init("envmap"); }
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
@@ -568,8 +567,10 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 
     int ret;
     mapping_t* mapping = NULL;
+    if (!box64env_entries)
+        box64env_entries = kh_init(box64env_entry);
     khint_t k = kh_get(mapping_entry, mapping_entries, lowercase_filename);
-    if(k==kh_end(mapping_entries)) {
+    if(k == kh_end(mapping_entries)) {
         mapping = box_calloc(1, sizeof(mapping_t));
         mapping->filename = box_strdup(lowercase_filename);
         mapping->fullname = box_strdup(fullname);
@@ -588,7 +589,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
         PrintEnvVariables(mapping->env, LOG_DEBUG);
     }
-    #endif
+    box_free(lowercase_filename);
 }
 
 void RemoveMapping(uintptr_t addr, size_t length)
