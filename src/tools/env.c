@@ -548,7 +548,6 @@ static kh_mapping_entry_t* mapping_entries = NULL;
 
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 {
-    if (!box64env_entries) return;
     if (!envmap) { envmap = rbtree_init("envmap"); }
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
@@ -576,9 +575,11 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         mapping->start = addr;
         k = kh_put(mapping_entry, mapping_entries, mapping->filename, &ret);
         kh_value(mapping_entries, k) = mapping;
-        khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
-        if (k != kh_end(box64env_entries))
-            mapping->env = &kh_value(box64env_entries, k);
+        if (box64env_entries) {
+            khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
+            if (k != kh_end(box64env_entries))
+                mapping->env = &kh_value(box64env_entries, k);
+        }
     } else
         mapping = kh_value(mapping_entries, k);
 
