@@ -363,7 +363,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 	gbl      : JumbledGlobals       = {}
 	redirects: JumbledRedirects     = {}
 	filespec : JumbledFilesSpecific = {}
-	
+
 	functions: Dict[str, Filename] = {}
 	halt_required = False # Is there a GO(*, .FE*) or similar in-batch error(s)?
 	# First read the files inside the headers
@@ -1033,6 +1033,26 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		#ifndef __{filename}UNDEFS_H_
 		#define __{filename}UNDEFS_H_
 		
+		""",
+		"x64printer.c": """
+		#include <inttypes.h>
+		#include <stddef.h>
+		#include <stdio.h>
+		#include <stdlib.h>
+		#include <string.h>
+		#include "x64emu.h"
+		#include "x64emu_private.h"
+		#include "wrapper.h"
+
+		#define PRIp "p"
+		#define PRIf "f"
+		#define PRILf "Lf"
+		#define PRIs "s"
+
+		void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int tid, wrapper_t w)
+		{lbr}
+		#ifdef HAVE_TRACE
+		    if (0) {lbr}
 		"""
 	}
 	files_guard = {
@@ -1055,6 +1075,14 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		"fnundefs.h": """
 		
 		#endif // __{filename}UNDEFS_H_
+		""",
+		"x64printer.c": """
+		    else
+		#endif // HAVE_TRACE
+		    {lbr}
+		        snprintf(buff, buffsz, "%04d|%p: Calling %s(0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), func, R_RDI, R_RSI, R_RDX);
+		    {rbr}
+		{rbr}
 		"""
 	}
 	
@@ -1730,7 +1758,31 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			if k != str(Clauses()):
 				file.write("#endif\n")
 		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
-	
+	#               E          v          c     w      i      I      C     W      u      U      f    d    D     l      L      p    V    O          S          N          H      P    A    x          X          Y          b
+	formats_map = ["(error)", "(error)", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f", "f", "Lf", "i64", "u64", "p", "p", "(error)", "(error)", "(error)", "u64", "p", "p", "(error)", "(error)", "(error)", "(error)"]
+
+	# Rewrite the x64printer.c file:
+	with open(os.path.join(root, "src", "emu", "x64printer.c"), 'w') as file:
+		file.write(files_header["x64printer.c"].format(lbr="{", rbr="}", version=ver))
+		
+		signature: RedirectType = ""
+		for k in gbls:
+			if k != str(Clauses()):
+				file.write("#if {k}\n".format(k=k))
+			for signature in gbls[k]:
+				sig = signature if signature[2] != "E" else (signature[:2]+signature[3:])
+				if any(letter in sig[2:] for letter in "OSNxXYb") or signature.endswith('FE'):
+					continue
+				formats = sig[2:].replace("G", "UU")
+				params = '' if formats == "v" else ", " + function_args_systemV(formats)[:-2]
+				formats = '' if formats == "v" else ', '.join("%\" PRI{x} \"".format(x=formats_map[FunctionType(sig).get_convention().values.index(t)]) for t in formats)
+				file.write("    {rbr} else if (w == {signature}) {lbr}\n".format(signature=signature, lbr="{", rbr="}"))
+				file.write("        snprintf(buff, buffsz, \"%04d|%p: Calling %s({formats})\", tid, *(void**)(R_RSP), func{params});\n".format(formats=formats, params=params))
+			if k != str(Clauses()):
+				file.write("#endif\n")
+		file.write("    }\n")
+		file.write(files_guard["x64printer.c"].format(lbr="{", rbr="}", version=ver))
+
 	# Rewrite the *types.h files:
 	for k in conventions:
 		td_types[k][conventions[k].values.index('A')] = "va_list"
