@@ -86,6 +86,8 @@ static uint8_t Peek8(uintptr_t addr, uintptr_t offset)
     return *(uint8_t*)(addr+offset);
 }
 
+void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int tid, wrapper_t w);
+
 void x64Int3(x64emu_t* emu, uintptr_t* addr)
 {
     if(box64_is32bits) {
@@ -106,7 +108,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
             wrapper_t w = bridge->w;
             a = F64(addr);
             R_RIP = *addr;
-            /* This party can be used to trace only 1 specific lib (but it is quite slow)
+            /* This part can be used to trace only 1 specific lib (but it is quite slow)
             elfheader_t *h = FindElfAddress(my_context, *(uintptr_t*)(R_ESP));
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
@@ -318,11 +320,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     post = 7;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, 0x%X)", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_ESI);
                 } else {
-                    snprintf(buff, 256, "%04d|%p: Calling %s(0x%lX, 0x%lX, 0x%lX, ...)", tid, *(void**)(R_RSP), s, R_RDI, R_RSI, R_RDX);
+                    x64Print(emu, buff, 256, s, tid, w);
                 }
                 if(!BOX64ENV(rolling_log)) {
                     mutex_lock(&emu->context->mutex_trace);
-                    printf_log(LOG_NONE, "%s =>", buff);
+                    printf_log_prefix(0, LOG_NONE, "%s =>", buff);
                     mutex_unlock(&emu->context->mutex_trace);
                 }
                 w(emu, a);   // some function never come back, so unlock the mutex first!
@@ -376,7 +378,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buffret, 128, "0x%lX%s%s", R_RAX, buff2, buff3);
                 else {
                     mutex_lock(&emu->context->mutex_trace);
-                    printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
+                    printf_log_prefix(0, LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
                     mutex_unlock(&emu->context->mutex_trace);
                 }
             } else
