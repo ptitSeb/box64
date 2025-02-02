@@ -176,13 +176,10 @@
     } else {                                                                                            \
         SMREAD();                                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-        if (rex.is32bits)                                                                               \
-            LDRxw_REG_SXTW(x1, O, wback);                                                               \
-        else                                                                                            \
-            LDRxw_REG(x1, wback, O);                                                                    \
+        LDRxw_REGz(x1, O, wback);                                                                       \
         ed = x1;                                                                                        \
     }
-#define WBACKO(O)   if(wback) {if(rex.is32bits) STRxw_REG_SXTW(ed, O, wback); else STRxw_REG(ed, wback, O); SMWRITE2();}
+#define WBACKO(O)   if(wback) {STRxw_REGz(ed, O, wback); SMWRITE2();}
 //GETEDOx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDOx(O, D)                                                                                   \
     if (MODREG) {                                                                                       \
@@ -191,10 +188,7 @@
     } else {                                                                                            \
         SMREAD();                                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-        if (rex.is32bits)                                                                               \
-            LDRx_REG_SXTW(x1, O, wback);                                                                \
-        else                                                                                            \
-            LDRx_REG(x1, wback, O);                                                                     \
+        LDRx_REGz(x1, O, wback);                                                                        \
         ed = x1;                                                                                        \
     }
 //GETEDOz can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
@@ -205,10 +199,7 @@
     } else {                                                                                            \
         SMREAD();                                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-        if (rex.is32bits)                                                                               \
-            LDRz_REG_SXTW(x1, O, wback);                                                                \
-        else                                                                                            \
-            LDRz_REG(x1, wback, O);                                                                     \
+        LDRz_REGz(x1, O, wback);                                                                        \
         ed = x1;                                                                                        \
     }
 #define GETSEDOw(O, D)                                                                                  \
@@ -220,10 +211,7 @@
     } else {                                                                                            \
         SMREAD();                                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-        if (rex.is32bits)                                                                               \
-            LDRSW_REG_SXTW(x1, O, wback);                                                               \
-        else                                                                                            \
-            LDRSW_REG(x1, wback, O);                                                                    \
+        LDRSW_REGz(x1, O, wback);                                                                       \
         wb = ed = x1;                                                                                   \
     }
 //FAKEELike GETED, but doesn't get anything

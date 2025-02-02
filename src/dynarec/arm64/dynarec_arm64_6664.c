@@ -60,12 +60,11 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                        ADDz_REG(x4, x4, ed);
+                        ed = x4;
                         v1 = fpu_get_scratch(dyn, ninst);
-                        if(rex.is32bits)
-                            VLDR64_REG_SXTW(v1, x4, ed);
-                        else
-                            VLDR64_REG(v1, ed, x4);
+                        VLD64(v1, ed, fixedaddress);
                     }
                     FCMPD(v0, v1);
                     FCOMI(x1, x2);
@@ -81,12 +80,11 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         GETGX_empty(v0);
                         grab_segdata(dyn, addr, ninst, x4, seg);
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
                         SMREAD();
-                        if(rex.is32bits)
-                            VLDR128_REG_SXTW(v0, x4, ed);
-                        else
-                            VLDR128_REG(v0, ed, x4);
+                        ADDz_REG(x4, x4, ed);
+                        ed = x4;
+                        VLD128(v0, ed, fixedaddress);
                     }
                     break;
 
@@ -99,11 +97,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VMOVQ(v1, v0);
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        if(rex.is32bits)
-                            VSTR128_REG_SXTW(v0, x4, ed);
-                        else
-                            VSTR128_REG(v0, ed, x4);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                        ADDz_REG(x4, x4, ed);
+                        ed = x4;
+                        VST128(v0, ed, fixedaddress);
                         SMWRITE2();
                     }
                     break;
@@ -118,11 +115,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         FMOVD(v1, v0);
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        if(rex.is32bits)
-                            VSTR64_REG_SXTW(v0, x4, ed);
-                        else
-                            VSTR64_REG(v0, ed, x4);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                        ADDz_REG(x4, x4, ed);
+                        ed = x4;
+                        VST64(v0, ed, fixedaddress);
                         SMWRITE();
                     }
                     break;
@@ -234,14 +230,13 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 }
             } else {
                 grab_segdata(dyn, addr, ninst, x4, seg);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(rex.w?3:1), rex.w?7:1, rex, NULL, 0, 0);
+                ADDz_REG(x4, x4, ed);
+                ed = x4;
                 if(rex.w) {
-                    STRx_REG(gd, ed, x4);
+                    STx(gd, ed, fixedaddress);
                 } else {
-                    if(rex.is32bits)
-                        STRH_REG_SXTW(gd, x4, ed);
-                    else
-                        STRH_REG(gd, ed, x4);
+                    STH(gd, ed, fixedaddress);
                 }
                 SMWRITE();
             }
@@ -263,14 +258,13 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {                    // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(rex.w?3:1), rex.w?7:1, rex, NULL, 0, 0);
+                ADDz_REG(x4, x4, ed);
+                ed = x4;
                 if(rex.w) {
-                    LDRx_REG(gd, ed, x4);
+                    LDx(gd, ed, fixedaddress);
                 } else {
-                    if(rex.is32bits)
-                        LDRH_REG_SXTW(x1, x4, ed);
-                    else
-                        LDRH_REG(x1, ed, x4);
+                    LDH(x1, ed, fixedaddress);
                     BFIx(gd, x1, 0, 16);
                 }
             }
