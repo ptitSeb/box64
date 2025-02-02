@@ -108,8 +108,10 @@ static void applyCustomRules()
             box64env.dynarec_test_end = 0x0;
         } else if (strchr(box64env.dynarec_test_str, '-')) {
             if (sscanf(box64env.dynarec_test_str, "%ld-%ld", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2) {
-                if (sscanf(box64env.dynarec_test_str, "0x%lX-0x%lX", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2)
-                    sscanf(box64env.dynarec_test_str, "%lx-%lx", &box64env.dynarec_test_start, &box64env.dynarec_test_end);
+                if (sscanf(box64env.dynarec_test_str, "0x%lX-0x%lX", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2) {
+                    if (sscanf(box64env.dynarec_test_str, "0x%lx-0x%lx", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2)
+                        sscanf(box64env.dynarec_test_str, "%lx-%lx", &box64env.dynarec_test_start, &box64env.dynarec_test_end);
+                }
             }
             if (box64env.dynarec_test_end > box64env.dynarec_test_start) {
                 box64env.dynarec_test = 1;
@@ -123,8 +125,10 @@ static void applyCustomRules()
         if(box64env.nodynarec) {
             if (strchr(box64env.nodynarec,'-')) {
                 if(sscanf(box64env.nodynarec, "%ld-%ld", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2) {
-                    if(sscanf(box64env.nodynarec, "0x%lX-0x%lX", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2)
-                        sscanf(box64env.nodynarec, "%lx-%lx", &box64env.nodynarec_start, &box64env.nodynarec_end);
+                    if(sscanf(box64env.nodynarec, "0x%lX-0x%lX", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2) {
+                            if(sscanf(box64env.nodynarec, "0x%lx-0x%lx", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2)
+                                sscanf(box64env.nodynarec, "%lx-%lx", &box64env.nodynarec_start, &box64env.nodynarec_end);
+                    }
                 }
             }
         }
@@ -435,8 +439,10 @@ void ApplyEnvFileEntry(const char* entryname)
         const char* k2;
         kh_foreach_ref(box64env_entries_gen, k2, env,
             if (strstr(lowercase_entryname, k2))
-                internalApplyEnvFileEntry(entryname, env);)
-            box_free(lowercase_entryname);
+                internalApplyEnvFileEntry(entryname, env);
+            applyCustomRules();
+        )
+        box_free(lowercase_entryname);
     }
     if (k1 == kh_end(box64env_entries)) return;
 
@@ -534,6 +540,15 @@ void PrintEnvVariables(box64env_t* env, int level)
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
+    if(env->is_dynarec_test_str_overridden && env->dynarec_test) {
+        if(env->dynarec_test_end)
+            printf_log(level, "\tBOX64_DYNAREC_TEST on range %p-%p\n", (void*)box64env.dynarec_test_start, (void*)box64env.dynarec_test_end);
+        else
+            printf_log(level, "\tBOX64_DYNAREC_TEST activated\n");
+    }
+    if(env->is_nodynarec_overridden && env->nodynarec_end)
+        printf_log(level, "\tBOX64_NODYNAREC on range %p-%p\n", (void*)box64env.nodynarec_start, (void*)box64env.nodynarec_end);
+
 }
 
 typedef struct mapping_s {
