@@ -568,6 +568,8 @@ uint32_t rcl32(x64emu_t *emu, uint32_t d, uint8_t s)
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		if(cnt == 1)
         	CONDITIONAL_SET_FLAG((cf ^ (res >> 31)) & 0x1, F_OF);
+		else
+			CLEAR_FLAG(F_OF);	// UND, but clear for dynarec_test
 	}
 	return res;
 }
@@ -590,6 +592,8 @@ uint64_t rcl64(x64emu_t *emu, uint64_t d, uint8_t s)
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		if(cnt == 1)
         	CONDITIONAL_SET_FLAG((cf ^ (res >> 63)) & 0x1, F_OF);
+		else
+			CLEAR_FLAG(F_OF);	// UND, but clear for dynarec_test
 	}
 	return res;
 }
@@ -720,8 +724,10 @@ uint32_t rcr32(x64emu_t *emu, uint32_t d, uint8_t s)
 			ocf = ACCESS_FLAG(F_CF) != 0;
 			CONDITIONAL_SET_FLAG((ocf ^ (d >> 31)) & 0x1,
 								 F_OF);
-		} else
+		} else {
 			cf = (d >> (cnt - 1)) & 0x1;
+			CLEAR_FLAG(F_OF);	// UND, but clear for dynarec_test
+		}
 		mask = (1 << (32 - cnt)) - 1;
 		res = (d >> cnt) & mask;
 		if (cnt != 1)
@@ -749,8 +755,10 @@ uint64_t rcr64(x64emu_t *emu, uint64_t d, uint8_t s)
 			ocf = ACCESS_FLAG(F_CF) != 0;
 			CONDITIONAL_SET_FLAG((ocf ^ (d >> 63)) & 0x1,
 								 F_OF);
-		} else
+		} else {
 			cf = (d >> (cnt - 1)) & 0x1;
+			CLEAR_FLAG(F_OF);	// UND, but clear for dynarec_test
+		}
 		mask = (1LL << (64 - cnt)) - 1;
 		res = (d >> cnt) & mask;
 		if (cnt != 1)
