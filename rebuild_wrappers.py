@@ -1764,8 +1764,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	# Rewrite the x64printer.c file:
 	with open(os.path.join(root, "src", "emu", "x64printer.c"), 'w') as file:
 		file.write(files_header["x64printer.c"].format(lbr="{", rbr="}", version=ver))
-		
-		signature: RedirectType = ""
+
 		for k in gbls:
 			if k != str(Clauses()):
 				file.write("#if {k}\n".format(k=k))
@@ -1774,7 +1773,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				if any(letter in sig[2:] for letter in "OSNxXYb") or signature.endswith('FE'):
 					continue
 				formats = sig[2:].replace("G", "UU")
-				params = '' if formats == "v" else ", " + function_args_systemV(formats)[:-2]
+				params = '' if formats == "v" else ", " + function_args_systemV(FunctionType(formats))[:-2]
 				formats = '' if formats == "v" else ', '.join("%\" PRI{x} \"".format(x=formats_map[FunctionType(sig).get_convention().values.index(t)]) for t in formats)
 				file.write("    {rbr} else if (w == {signature}) {lbr}\n".format(signature=signature, lbr="{", rbr="}"))
 				file.write("        snprintf(buff, buffsz, \"%04d|%p: Calling %s({formats})\", tid, *(void**)(R_RSP), func{params});\n".format(formats=formats, params=params))
