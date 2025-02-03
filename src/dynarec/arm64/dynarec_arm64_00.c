@@ -439,7 +439,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x27:
             if(rex.is32bits) {
                 INST_NAME("DAA");
-                MESSAGE(LOG_DUMP, "Need Optimization DAA\n");
+                MESSAGE(LOG_DUMP, "Need Optimization (DAA)\n");
                 READFLAGS(X_AF|X_CF);
                 SETFLAGS(X_ALL, SF_SET_DF);
                 UXTBx(x1, xRAX);
@@ -504,7 +504,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x2F:
             if(rex.is32bits) {
                 INST_NAME("DAS");
-                MESSAGE(LOG_DUMP, "Need Optimization DAS\n");
+                MESSAGE(LOG_DUMP, "Need Optimization (DAS)\n");
                 READFLAGS(X_AF|X_CF);
                 SETFLAGS(X_ALL, SF_SET_DF);
                 UXTBx(x1, xRAX);
@@ -598,7 +598,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x37:
             if(rex.is32bits) {
                 INST_NAME("AAA");
-                MESSAGE(LOG_DUMP, "Need Optimization AAA\n");
+                MESSAGE(LOG_DUMP, "Need Optimization (AAA)\n");
                 READFLAGS(X_AF);
                 SETFLAGS(X_ALL, SF_SET_DF);
                 UXTHx(x1, xRAX);
@@ -666,7 +666,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x3F:
             if(rex.is32bits) {
                 INST_NAME("AAS");
-                MESSAGE(LOG_DUMP, "Need Optimization AAS\n");
+                MESSAGE(LOG_DUMP, "Need Optimization (AAS)\n");
                 READFLAGS(X_AF);
                 SETFLAGS(X_ALL, SF_SET_DF);
                 UXTHw(x1, xRAX);
@@ -2806,7 +2806,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Eb, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    MESSAGE(LOG_DUMP, "Need Optimization (RCL Eb, CL)\n");
                     READFLAGS(X_CF);
                     if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
@@ -2818,7 +2818,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3:
                     INST_NAME("RCR Eb, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    MESSAGE(LOG_DUMP, "Need Optimization (RCR Eb, CL)\n");
                     READFLAGS(X_CF);
                     if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
@@ -2944,7 +2944,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ed, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    MESSAGE(LOG_DUMP, "Need Optimization (RCL Ed, CL)\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     if(BOX64DRENV(dynarec_safeflags)>1)
@@ -2962,7 +2962,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    MESSAGE(LOG_DUMP, "Need Optimization (RCR Ed, CL)\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     if(BOX64DRENV(dynarec_safeflags)>1)

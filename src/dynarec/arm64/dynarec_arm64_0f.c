@@ -1898,7 +1898,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("FXSAVE Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (FXSAVE)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -1906,7 +1906,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (FXRSTOR)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -1966,7 +1966,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 4:
                         INST_NAME("XSAVE Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (XSAVE)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -1975,7 +1975,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 5:
                         INST_NAME("XRSTOR Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (XRSTOR)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -1984,7 +1984,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization?\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (CLFLUSH)?\n");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {
                             MOVx_REG(x1, ed);

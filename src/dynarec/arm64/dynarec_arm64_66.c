@@ -1227,7 +1227,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ew, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    MESSAGE(LOG_DUMP, "Need Optimization (RCL Ex, CL)\n");
                     READFLAGS(X_CF);
                     if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
@@ -1239,7 +1239,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3:
                     INST_NAME("RCR Ew, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    MESSAGE(LOG_DUMP, "Need Optimization (RCR Ew, CL)\n");
                     READFLAGS(X_CF);
                     if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
@@ -1301,7 +1301,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 switch((nextop>>3)&7) {
                     case 6:
                         INST_NAME("FNSTENV Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (FNSTENV16)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -1321,7 +1321,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 switch((nextop>>3)&7) {
                     case 4:
                         INST_NAME("FRSTOR Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (FRSTOR16)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
@@ -1329,7 +1329,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 6:
                         INST_NAME("FNSAVE Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        MESSAGE(LOG_DUMP, "Need Optimization (FNSAVE16)\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
