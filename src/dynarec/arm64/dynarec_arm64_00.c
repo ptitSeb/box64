@@ -2810,51 +2810,68 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
+                    UFLAG_DF(x2, d_none);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                    UFLAG_IF {
-                        UFLAG_DF(x2, d_none);
-                        CBZw_NEXT(x2);
-                    }
                     // get CL % 9
-                    MOV32w(x3, 0x1c71c71c); // 0x100000000 / 9
-                    UMULL(x3, x3, x2);
-                    LSRx(x3, x3, 32);   // x3 = CL / 9
+                    MOV32w(x3, 0x1c72); // 0x10000 / 9 + 1 (this is precise enough in the 0..31 range)
+                    MULw(x3, x3, x2);
+                    LSRw(x3, x3, 16);   // x3 = CL / 9
                     MOV32w(x4, 9);
                     MSUBw(x2, x3, x4, x2);  // CL mod 9
+                    CBZw_NEXT(x2);
                     GETEB(x1, 0);
                     BFIw(ed, xFlags, 8, 1); // insert CF
                     ORRw_REG_LSL(ed, ed, ed, 9);    // insert rest of ed
                     SUBw_REG(x2, x4, x2);
-                    CBZw_NEXT(x2);
                     IFX(X_OF|X_CF) {
                         SUBw_U12(x5, x2, 1);
                         LSRw_REG(x5, ed, x5);   // keep the new CF in x5
                     }
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
-                    UFLAG_IF {  // calculate flags directly
-                        IFX(X_OF) {
-                            SUBw_U12(x3, x2, 8);
-                            CBNZw_MARK(x3);
-                                EORw_REG_LSR(x2, x5, ed, 7);
-                                BFIw(xFlags, x2, F_OF, 1);
-                            MARK;
-                        }
-                        IFX(X_CF) {
-                            BFXILw(xFlags, x5, 0, 1);
-                        }
+                    IFX(X_OF) {
+                        SUBw_U12(x3, x2, 8);
+                        CBNZw_MARK(x3);
+                            EORw_REG_LSR(x2, x5, ed, 7);
+                            BFIw(xFlags, x2, F_OF, 1);
+                        MARK;
+                    }
+                    IFX(X_CF) {
+                        BFXILw(xFlags, x5, 0, 1);
                     }
                     break;
                 case 3:
                     INST_NAME("RCR Eb, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization (RCR Eb, CL)\n");
                     READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     if(BOX64DRENV(dynarec_safeflags)>1)
                         MAYSETFLAGS();
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    ANDw_mask(x2, xRCX, 0, 0b00100);
+                    UFLAG_DF(x2, d_none);
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    // get CL % 9
+                    MOV32w(x3, 0x1c72); // 0x10000 / 9 + 1
+                    MULw(x3, x3, x2);
+                    LSRw(x3, x3, 16);   // x3 = CL / 9
+                    MOV32w(x4, 9);
+                    MSUBw(x2, x3, x4, x2);  // CL mod 9
+                    CBZw_NEXT(x2);
                     GETEB(x1, 0);
-                    CALL_(rcr8, x1, x3);
+                    BFIw(ed, xFlags, 8, 1); // insert CF
+                    ORRw_REG_LSL(ed, ed, ed, 9);    // insert rest of ed
+                    IFX(X_OF|X_CF) {
+                        SUBw_U12(x4, x2, 1);
+                    }
+                    IFX(X_OF) {
+                        CBNZw_MARK(x4);
+                            EORw_REG_LSR(x5, xFlags, ed, 7);
+                            BFIw(xFlags, x5, F_OF, 1);
+                        MARK;
+                    }
+                    IFX(X_CF) {
+                        LSRw_REG(x5, ed, x4);
+                        BFIw(xFlags, x5, F_CF, 1);
+                    }
+                    LSRw_REG(ed, ed, x2);
                     EBBACK;
                     break;
                 case 4:
