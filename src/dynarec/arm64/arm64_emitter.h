@@ -713,6 +713,7 @@ int convert_bitmask(uint64_t bitmask);
 #define BFCx(Rd, lsb, width)            BFMx(Rd, xZR, ((-(lsb))%64)&0x3f, (width)-1)
 #define BFCw(Rd, lsb, width)            BFMw(Rd, xZR, ((-(lsb))%32)&0x1f, (width)-1)
 #define BFCxw(Rd, lsb, width)           BFMxw(Rd, xZR, rex.w?(((-(lsb))%64)&0x3f):(((-(lsb))%32)&0x1f), (width)-1)
+#define BFCz(Rd, lsb, width)            if(rex.is32bits) {BFCw(Rd, lsb, width);} else {BFCx(Rd, lsb, width);}
 // Insert lsb:width part of Rn into low part of Rd (leaving rest of Rd untouched)
 #define BFXILx(Rd, Rn, lsb, width)      EMIT(BFM_gen(1, 0b01, 1, (lsb), (lsb)+(width)-1, Rn, Rd))
 // Insert lsb:width part of Rn into low part of Rd (leaving rest of Rd untouched)

@@ -447,7 +447,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UFLAG_IF {
                 SET_DFNONE();
                 IFX(X_CF|X_OF) {
-                    ASRxw(x1, x2, 16);
+                    ASRw(x1, x2, 16);
                     CMPSw_REG_ASR(x1, x2, 31);
                     CSETw(x3, cNE);
                     IFX(X_CF) {
@@ -467,8 +467,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x6A:
             INST_NAME("PUSH Ib");
-            u16 = (uint16_t)F8S;
-            MOV32w(x2, u16);
+            i16 = F8S;
+            MOV32w(x2, (uint16_t)i16);
             PUSH1_16(x2);
             break;
 
@@ -736,11 +736,11 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
             SMREAD();
-            POP1_16(x1);    // probably not usefull...
+            POP1_16(x1);
+            MOV32w(x2, 0x7FD7);
+            ANDw_REG(x1, x1, x2);
+            ORRw_mask(x1, x1, 0b011111, 0);   //mask=0x00000002
             BFIw(xFlags, x1, 0, 16);
-            MOV32w(x1, 0x3F7FD7);
-            ANDw_REG(xFlags, xFlags, x1);
-            ORRw_mask(xFlags, xFlags, 0b011111, 0);   //mask=0x00000002
             SET_DFNONE();
             if(box64_wine) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
@@ -750,7 +750,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xA1:
-            INST_NAME("MOV EAX,Od");
+            INST_NAME("MOV AX,Od");
             if(rex.is32bits)
                 u64 = F32;
             else
@@ -763,7 +763,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xA3:
-            INST_NAME("MOV Od,EAX");
+            INST_NAME("MOV Od,AX");
             if(rex.is32bits)
                 u64 = F32;
             else
@@ -980,9 +980,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xBF:
             INST_NAME("MOV Reg16, Iw");
             u16 = F16;
-            MOV32w(x1, u16);
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
-            BFIz(gd, x1, 0, 16);
+            if(u16) {
+                MOV32w(x1, u16);
+                BFIz(gd, x1, 0, 16);
+            } else
+                BFCz(gd, 0, 16);
             break;
 
         case 0xC1:
@@ -1092,13 +1095,20 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 u16 = F16;
-                MOV32w(x1, u16);
-                BFIz(ed, x1, 0, 16);
+                if(u16) {
+                    MOV32w(x1, u16);
+                    BFIz(ed, x1, 0, 16);
+                } else
+                    BFCz(ed, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 2);
                 u16 = F16;
-                MOV32w(x1, u16);
-                STH(x1, ed, fixedaddress);
+                if(u16) {
+                    MOV32w(x1, u16);
+                    STH(x1, ed, fixedaddress);
+                } else {
+                    STH(xZR, ed, fixedaddress);
+                }
                 SMWRITELOCK(lock);
             }
             break;
@@ -1403,7 +1413,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UFLAG_IF {
                         SET_DFNONE();
                         IFX(X_CF|X_OF) {
-                            ASRxw(x2, x1, 16);
+                            ASRw(x2, x1, 16);
                             CMPSw_REG_ASR(x2, x1, 31);
                             CSETw(x3, cNE);
                             IFX(X_CF) {
