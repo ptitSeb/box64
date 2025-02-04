@@ -123,7 +123,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             WILLWRITE();
         }
         #endif
-        if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
+        if((dyn->insts[ninst].x64.need_before&~X_PEND) && !ninst) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
         if(BOX64ENV(dynarec_test) && (!BOX64ENV(dynarec_test_end) || (ip>=BOX64ENV(dynarec_test_start) && ip<BOX64ENV(dynarec_test_end)))) {
