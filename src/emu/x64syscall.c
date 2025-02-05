@@ -441,7 +441,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
     if(box64_wine && !box64_is32bits) {
         //64bits only here...
         uintptr_t ret_addr = R_RIP-2;
-        if(ret_addr<0x700000000000LL && (my_context->signals[SIGSYS]>2) && !FindElfAddress(my_context, ret_addr)) {
+        if(/*ret_addr<0x700000000000LL &&*/ (my_context->signals[SIGSYS]>2) && !FindElfAddress(my_context, ret_addr)) {
             // not a linux elf, not a syscall to setup x86_64 arch. Signal SIGSYS
             emit_signal(emu, SIGSYS, (void*)ret_addr, R_EAX&0xffff);  // what are the parameters?
             return;
