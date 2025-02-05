@@ -812,8 +812,10 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     uintptr_t addr = (uintptr_t)p;
 
     mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, (uintptr_t)p);
-    if(bl)
-        return *(dynablock_t**)rb_get_64(bl->tree, (uintptr_t)p);
+    if(bl) {
+        dynablock_t** ret = (dynablock_t**)rb_get_64(bl->tree, (uintptr_t)p);
+        if(ret) return *ret;
+    }
     return NULL;
 }
 
