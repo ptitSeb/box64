@@ -309,10 +309,10 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
                         // sync top
-                        s0 = x87_stackcount(dyn, ninst, x3);
+                        x87_reflectcount(dyn, ninst, x3, x4);
                         CALL(native_fld, -1);
                         // go back with the top & stack counter
-                        x87_unstackcount(dyn, ninst, x3, s0);
+                        x87_unreflectcount(dyn, ninst, x3, x4);
                     }
                 }
                 break;
@@ -327,7 +327,9 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         x87_forget(dyn, ninst, x1, x3, 0);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
+                        x87_reflectcount(dyn, ninst, x3, x4);
                         CALL(native_fstp, -1);
+                        x87_unreflectcount(dyn, ninst, x3, x4);
                     } else {
                         // Painfully long, straight conversion from the C code, shoud be optimized
                         v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);

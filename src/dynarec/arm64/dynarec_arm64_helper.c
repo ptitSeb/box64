@@ -1188,7 +1188,41 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     }
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
 }
-
+void x87_reflectcount(dynarec_arm_t* dyn, int ninst, int s1, int s2)
+{
+    // Synch top & stack counter
+    int a = dyn->n.x87stack;
+    if(a) {
+        MESSAGE(LOG_DUMP, "\tSync x87 Count of %d-----\n", a);
+        // Add x87stack to emu fpu_stack
+        LDRw_U12(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        if(a>0) {
+            ADDw_U12(s2, s2, a);
+        } else {
+            SUBw_U12(s2, s2, -a);
+        }
+        STRw_U12(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
+        if(a>0) {
+            SUBw_U12(s2, s2, a);
+        } else {
+            ADDw_U12(s2, s2, -a);
+        }
+        ANDw_mask(s2, s2, 0, 2);  //mask=7
+        STRw_U12(s2, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LDRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        if(a>0) {
+            LSLw_IMM(s1, s1, a*2);
+        } else {
+            ORRw_mask(s1, s1, 0b010000, 0b001111);  // 0xffff0000
+            LSRw_IMM(s1, s1, -a*2);
+        }
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        MESSAGE(LOG_DUMP, "\t-----Sync x87 Count\n");
+    }
+}
 static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // Synch top & stack counter
@@ -1248,7 +1282,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         }
 }
 
-static void x87_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+void x87_unreflectcount(dynarec_arm_t* dyn, int ninst, int s1, int s2)
 {
     // go back with the top & stack counter
     int a = dyn->n.x87stack;
@@ -2504,7 +2538,7 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // need to undo some things on the x87 tracking
-    x87_unreflectcache(dyn, ninst, s1, s2, s3);
+    x87_unreflectcount(dyn, ninst, s1, s2);
 }
 
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s4)

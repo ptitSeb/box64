@@ -1404,6 +1404,8 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #define mmx_purgecache  STEPNAME(mmx_purgecache)
 #define x87_purgecache  STEPNAME(x87_purgecache)
+#define x87_reflectcount STEPNAME(x87_reflectcount)
+#define x87_unreflectcount STEPNAME(x87_unreflectcount)
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache STEPNAME(fpu_unreflectcache)
 #define avx_purge_ymm   STEPNAME(avx_purge_ymm)
@@ -1641,6 +1643,11 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
 void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1);
 // purge x87 cache
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
+// temporarily set x87 stack count for C functions
+void x87_reflectcount(dynarec_arm_t* dyn, int ninst, int s1, int s2);
+// restore count after
+void x87_unreflectcount(dynarec_arm_t* dyn, int ninst, int s1, int s2);
+// global fpu helper
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07);
