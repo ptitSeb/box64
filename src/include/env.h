@@ -79,7 +79,7 @@ extern char* ftrace_name;
     STRING(BOX64_LIBGL, libgl)                                          \
     ADDRESS(BOX64_LOAD_ADDR, load_addr)                                 \
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3)                    \
-    BOOLEAN(BOX64_MALLOC_HACK, malloc_hack, 0)                          \
+    INTEGER(BOX64_MALLOC_HACK, malloc_hack, 0, 0, 2)                    \
     INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100)                        \
     BOOLEAN(BOX64_NOBANNER, nobanner, (isatty(fileno(stdout)) ? 0 : 1)) \
     STRING(BOX64_NODYNAREC, nodynarec)                                  \
