@@ -15,13 +15,41 @@ with open(usage_file, 'r') as file:
 Usage
 ----
 
-There are many environment variables to control Box64's behaviour.
+There are many environment variables to control Box64's behaviour, which will be listed below by category.
 
-## Configuration files
+### Configuration files
 
-In addition to environment variables, Box64 also looks for 2 places for rcfile: `/etc/box64.box64rc` and `~/.box64rc`, in the format of .ini files.
-Asterisks may be used to denote a substring in the application name, like `[*setup*]` that will be applied to every program containing "setup" in its name. Note that this is not a complete set of regex rules.
-Settings priority: `~/.box64rc` > `/etc/box64.box64rc` > environment variables.
+In addition to environment variables, by default, Box64 also looks for 2 places for rcfile: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
+Settings priority follows this order (from highest to lowest): `~/.box64rc` > `/etc/box64.box64rc` > environment variables.
+
+Example configuration:
+
+```
+[factorio]
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=1024
+BOX64_DYNAREC_CALLRET=1
+```
+
+This configuration will apply the specified settings application-wide to any executable named `factorio`.
+
+### Advanced usage
+
+1. **Wildcard Matching**
+
+   Asterisks (`*`) can be used for basic pattern matching in application names. For instance, `[*setup*]` will match any program containing "setup" in its name. Note this implements simple wildcard matching rather than full regex support.
+2. **Custom Configuration File**
+
+   The `BOX64_RCFILE` environment variable can specify an alternative configuration file instead of the default `/etc/box64.box64rc`.
+3. **Per-File Settings**
+
+   Sections starting with `/` apply to specific files. For example:
+   ```
+   [/d3d9.dll]
+   BOX64_DYNAREC_SAFEFLAGS=0
+   ```
+   These settings will only affect the `d3d9.dll` file. This syntax also works for **emulated** Linux libraries, e.g., `[/libstdc++.so.6]`.
 
 ----
 
