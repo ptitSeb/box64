@@ -144,6 +144,9 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 // always
 #define c__ 0b1110
 
+//FCMP type of opcode produce:
+// if any NAN: CV / v1 == v2: ZC / v1 < v2: N / v1 > v2: C
+
 int convert_bitmask(uint64_t bitmask);
 #define convert_bitmask_w(A)    convert_bitmask(((uint64_t)(A) << 32) + (uint32_t)(A))
 #define convert_bitmask_x(A)    convert_bitmask((uint64_t)A)
