@@ -100,10 +100,16 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETED(0);
             d1 = fpu_get_scratch(dyn, ninst);
+            if(BOX64ENV(dynarec_fastround)<2) {
+                u8 = sse_setround(dyn, ninst, x3, x4, x5);
+            }
             if(rex.w) {
                 SCVTFDx(d1, ed);
             } else {
                 SCVTFDw(d1, ed);
+            }
+            if(BOX64ENV(dynarec_fastround)<2) {
+                x87_restoreround(dyn, ninst, u8);
             }
             VMOVeD(v0, 0, d1, 0);
             break;
@@ -206,19 +212,23 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX(q0, 1);
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
             if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
-                FCMLTD_0(v1, d0);
-                SHL_64(v1, v1, 63);
+                // check if any input value was NAN
+                FCMEQD(v0, d0, d0);    // 0 if NAN, 1 if not NAN
                 FSQRTD(d1, d0);
-                VORR(d1, d1, v1);
+                FCMEQD(v1, d1, d1);    // 0 => out is NAN
+                VBIC(v1, v0, v1);      // forget it in any input was a NAN already
+                SHL_64(v1, v1, 63);   // only keep the sign bit
+                VORR(d1, d1, v1);      // NAN -> -NAN
             } else {
                 FSQRTD(d1, d0);
             }
-            VMOVeD(v0, 0, d1, 0);
+            VMOVeD(q0, 0, d1, 0);
             break;
 
         case 0x58:
@@ -271,7 +281,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = fpu_get_scratch(dyn, ninst);
-            if(BOX64ENV(dynarec_fastround)==2) {
+            if(BOX64ENV(dynarec_fastround)>1) {
                 FCVT_S_D(d1, d0);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
