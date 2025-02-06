@@ -561,7 +561,7 @@ typedef struct mapping_s {
 KHASH_MAP_INIT_STR(mapping_entry, mapping_t*);
 static kh_mapping_entry_t* mapping_entries = NULL;
 
-void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
+void RecordEnvMappings(uintptr_t addr, size_t length, int fd, int mainbin)
 {
     if (!envmap) { envmap = rbtree_init("envmap"); }
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
@@ -590,7 +590,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         mapping->start = addr;
         k = kh_put(mapping_entry, mapping_entries, mapping->filename, &ret);
         kh_value(mapping_entries, k) = mapping;
-        if (box64env_entries) {
+        if (box64env_entries && !mainbin) {
             khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
             if (k != kh_end(box64env_entries))
                 mapping->env = &kh_value(box64env_entries, k);

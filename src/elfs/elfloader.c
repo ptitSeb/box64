@@ -419,7 +419,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         }
     }
     // record map
-    RecordEnvMappings((uintptr_t)head->image, head->memsz, head->fileno);
+    RecordEnvMappings((uintptr_t)head->image, head->memsz, head->fileno, mainbin);
     // can close the elf file now!
     fclose(head->file);
     head->file = NULL;

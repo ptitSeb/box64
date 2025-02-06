@@ -3011,9 +3011,9 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             DetectUnityPlayer(fd);
             // the last_mmap will allow mmap created by wine, even those that have hole, to be fully tracked as one single mmap
             if((ret>=last_mmap_addr) && ret+length<(last_mmap_addr+last_mmap_len))
-                RecordEnvMappings((uintptr_t)last_mmap_addr, last_mmap_len, fd);
+                RecordEnvMappings((uintptr_t)last_mmap_addr, last_mmap_len, fd, 0);
             else
-                RecordEnvMappings((uintptr_t)ret, length, fd);
+                RecordEnvMappings((uintptr_t)ret, length, fd, 0);
         }
         // hack to capture full size of the mmap done by wine
         if(emu && (fd==-1) && (flags==(MAP_PRIVATE|MAP_ANON))) {
