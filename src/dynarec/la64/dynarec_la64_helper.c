@@ -760,11 +760,12 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     dyn->last_ip = 0;
 }
 
-void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
+void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg)
 {
     (void)addr;
     int64_t j64;
     MAYUSE(j64);
+    if (modreg) return;
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment == _FS) ? "FS" : "GS");
     int t1 = x1, t2 = x4;
     if (reg == t1) ++t1;

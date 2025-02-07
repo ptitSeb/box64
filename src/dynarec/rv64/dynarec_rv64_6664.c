@@ -55,7 +55,7 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                 }
             } else {
-                grab_segdata(dyn, addr, ninst, x4, seg);
+                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 ADDz(x4, ed, x4);
                 if (rex.w) {
@@ -84,7 +84,7 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                 }
             } else { // mem <= reg
-                grab_segdata(dyn, addr, ninst, x4, seg);
+                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 ADDz(x4, ed, x4);

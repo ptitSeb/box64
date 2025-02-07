@@ -51,7 +51,7 @@ uintptr_t dynarec64_6664(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (ed != gd) BSTRINS_D(gd, ed, 15, 0);
                 }
             } else { // mem <= reg
-                grab_segdata(dyn, addr, ninst, x4, seg);
+                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 ADDz(x4, ed, x4);
