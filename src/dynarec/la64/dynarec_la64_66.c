@@ -530,6 +530,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINSz(gd, x2, 15, 0);
             }
             break;
+        case 0x98:
+            INST_NAME("CBW");
+            SLLI_D(x1, xRAX, 56);
+            SRAI_D(x1, x1, 56);
+            BSTRINSz(xRAX, x1, 15, 0);
+            break;
         case 0xA4:
             if (rep) {
                 INST_NAME("REP MOVSB");
