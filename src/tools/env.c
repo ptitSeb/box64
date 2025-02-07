@@ -92,11 +92,17 @@ static void applyCustomRules()
         SET_BOX64ENV(dump, 1);
     }
 
-    if (BOX64ENV(rolling_log) == 1) {
-        SET_BOX64ENV(rolling_log, 16);
-    }
-    if (BOX64ENV(rolling_log) && BOX64ENV(log) > LOG_INFO) {
-        SET_BOX64ENV(rolling_log, 0);
+    if(box64env.is_cycle_log_overridden) {
+        freeCycleLog(my_context);
+        box64env.rolling_log = BOX64ENV(cycle_log);
+
+        if (BOX64ENV(rolling_log) == 1) {
+            box64env.rolling_log = 16;
+        }
+        if (BOX64ENV(rolling_log) && BOX64ENV(log) > LOG_INFO) {
+            box64env.rolling_log = 0;
+        }
+        initCycleLog(my_context);
     }
 
     if (box64env.is_dynarec_test_str_overridden) {
