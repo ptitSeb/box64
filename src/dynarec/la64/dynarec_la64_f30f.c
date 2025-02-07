@@ -87,6 +87,13 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX_empty(q0);
             VPACKEV_W(q0, q1, q1);
             break;
+        case 0x16:
+            INST_NAME("MOVSHDUP Gx, Ex");
+            nextop = F8;
+            GETEX(q1, 0, 0);
+            GETGX_empty(q0);
+            VPACKOD_W(q0, q1, q1);
+            break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
             nextop = F8;
