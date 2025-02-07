@@ -381,6 +381,18 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     XVSRLNI_H_W(v0, v0, 1);
                     XVPERMI_D(q0, v0, 0b1000);
                     break;
+                case 0x14:
+                    INST_NAME("BLENDVPS Gx,Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = sse_get_reg(dyn, ninst, x1, 0, 0); // XMM0
+                    v1 = fpu_get_scratch(dyn);
+                    if (q0 != q1) {
+                        VSRA_W(v1, v0, 31);
+                        VBITSEL_V(q0, q0, q1, v1);
+                    }
+                    break;
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
@@ -436,6 +448,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     v0 = fpu_get_scratch(dyn);
                     VXOR_V(v0, v0, v0);
                     VABSD_H(q0, q1, v0);
+                    break;
+                case 0x1E:
+                    INST_NAME("PABSD Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX_empty(q0);
+                    VSIGNCOV_W(q0, q1, q1);
                     break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex"); // SSE4 opcode!
