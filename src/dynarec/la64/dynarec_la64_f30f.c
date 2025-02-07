@@ -85,7 +85,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q1, 0, 0);
             GETGX_empty(q0);
-            VPICKEV_W(q0, q1, q1);
+            VPACKEV_W(q0, q1, q1);
             break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
