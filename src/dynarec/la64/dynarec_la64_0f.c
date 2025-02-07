@@ -1281,6 +1281,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 7: VFCMP_S(v0, v0, v1, cOR); break;  // not NaN
             }
             break;
+        case 0xC3:
+            INST_NAME("MOVNTI Ed, Gd");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                SDxw(gd, ed, fixedaddress);
+            }
+            break;
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;

@@ -853,6 +853,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define AMMIN_DB_WU(rd, rk, rj) EMIT(type_3R(0b00111000011100010, rk, rj, rd))
 #define AMMIN_DB_DU(rd, rk, rj) EMIT(type_3R(0b00111000011100011, rk, rj, rd))
 
+#define AMAND_DBxw(rd, rk, rj) EMIT(type_3R(0b00111000011010110 | rex.w, rk, rj, rd))
+
 #define FLD_D(fd, rj, imm12) EMIT(type_2RI12(0b0010101110, imm12, rj, fd))
 #define FLD_S(fd, rj, imm12) EMIT(type_2RI12(0b0010101100, imm12, rj, fd))
 #define FST_D(fd, rj, imm12) EMIT(type_2RI12(0b0010101111, imm12, rj, fd))
