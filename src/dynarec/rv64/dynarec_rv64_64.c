@@ -496,9 +496,12 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u64 = F32;
             else
                 u64 = F64;
-            // TODO: could be optimized.
-            MOV64z(x1, u64);
-            ADDz(x1, x1, x4);
+            if (u64 < 0x800) {
+                ADDIz(x1, x4, u64);
+            } else {
+                MOV64z(x1, u64);
+                ADDz(x1, x1, x4);
+            }
             LDxw(xRAX, x1, 0);
             break;
 
@@ -509,9 +512,12 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u64 = F32;
             else
                 u64 = F64;
-            // TODO: could be optimized.
-            MOV64z(x1, u64);
-            ADDz(x1, x1, x4);
+            if (u64 < 0x800) {
+                ADDIz(x1, x4, u64);
+            } else {
+                MOV64z(x1, u64);
+                ADDz(x1, x1, x4);
+            }
             SDxw(xRAX, x1, 0);
             SMWRITE2();
             break;
