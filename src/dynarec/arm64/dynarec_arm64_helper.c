@@ -858,11 +858,12 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
     //SET_NODF();
 }
 
-void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
+void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg)
 {
     (void)addr;
     int64_t j64;
     MAYUSE(j64);
+    if (modreg) return;
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment==_FS)?"FS":"GS");
     int t2 = x4;
     if(reg==t2) ++t2;
