@@ -321,6 +321,39 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
             }
             break;
+        case 0x88:
+            INST_NAME("MOV Seg:Eb, Gb");
+            nextop = F8;
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (rex.rex) {
+                gb2 = 0;
+                gb1 = TO_NAT(gd);
+            } else {
+                gb2 = ((gd & 4) << 1);
+                gb1 = TO_NAT(gd & 3);
+            }
+            if (gb2) {
+                gd = x4;
+                BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
+            } else {
+                gd = gb1;
+            }
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (rex.rex) {
+                    eb1 = TO_NAT(ed);
+                    eb2 = 0;
+                } else {
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
+                    eb2 = ((ed & 4) << 1); // L or H
+                }
+                BSTRINS_D(eb1, gd, eb2 + 7, eb2);
+            } else {
+                grab_segdata(dyn, addr, ninst, x4, seg);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                STX_B(gd, x4, wback);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Seg:Ed, Gd");
             grab_segdata(dyn, addr, ninst, x4, seg);
@@ -364,7 +397,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             u8 = (nextop & 0x38) >> 3;
-            if ((nextop & 0xC0) == 0xC0) {
+            if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
