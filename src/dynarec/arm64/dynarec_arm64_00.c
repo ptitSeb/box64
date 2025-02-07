@@ -1675,6 +1675,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("REP MOVSB");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
+                IF_UNALIGNED(ip) {} else {
+                    // special optim for large RCX value on forward case only
+                    MARK3;
+                    CMPSx_U12(xRCX, 8);
+                    B_MARK(cCC);
+                    LDRx_S9_postindex(x1, xRSI, 8);
+                    STRx_S9_postindex(x1, xRDI, 8);
+                    SUBx_U12(xRCX, xRCX, 8);
+                    CBNZx_MARK3(xRCX);
+                    CBZx_MARKLOCK(xRCX);
+                }
                 MARK;   // Part with DF==0
                 LDRB_S9_postindex(x1, xRSI, 1);
                 STRB_S9_postindex(x1, xRDI, 1);
@@ -1686,6 +1697,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRB_S9_postindex(x1, xRDI, -1);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK2(xRCX);
+                MARKLOCK;
                 // done
             } else {
                 INST_NAME("MOVSB");

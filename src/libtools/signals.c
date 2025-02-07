@@ -991,6 +991,47 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b10111111111000000000110000000000) == 0b10111000010000000000010000000000) {
+        // this is a LDR postoffset
+        int size = 1<<((opcode>>30)&3);
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest]);
+        uint64_t value = 0;
+        if(size==8 && (((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                value |= ((uint64_t)((volatile  uint32_t*)addr)[i]) << (i*32);
+        } else
+            for(int i=0; i<size; ++i)
+                value |= ((uint64_t)addr[i]) << (i*8);
+        p->uc_mcontext.regs[val] = value;
+        p->uc_mcontext.regs[dest] += offset;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+    if((opcode&0b10111111111000000000110000000000) == 0b10111000000000000000010000000000) {
+        // this is a STR postoffset
+        int size = 1<<((opcode>>30)&3);
+        int val = opcode&31;
+        int src = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[src]);
+        uint64_t value = p->uc_mcontext.regs[val];
+        if(size==8 && (((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+        } else
+            for(int i=0; i<size; ++i)
+                addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.regs[src] += offset;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
 #elif RV64
 #define GET_FIELD(v, high, low) (((v) >> low) & ((1ULL << (high - low + 1)) - 1))
 #define SIGN_EXT(val, val_sz) (((int32_t)(val) << (32 - (val_sz))) >> (32 - (val_sz)))

@@ -899,6 +899,10 @@
 #define CBNZx_MARKLOCK(reg)             \
     j64 = GETMARKLOCK-(dyn->native_size);  \
     CBNZx(reg, j64)
+// Branch to MARKLOCK if reg is 0 (use j64)
+#define CBZx_MARKLOCK(reg)             \
+    j64 = GETMARKLOCK-(dyn->native_size);  \
+    CBZx(reg, j64)
 
 #ifndef IFNATIVE
 #define IFNATIVE(A)     if(dyn->insts[ninst].need_nat_flags&(A))
