@@ -774,6 +774,11 @@
 #define BNE_MARKLOCK2(reg1, reg2) Bxx_gen(NE, MARKLOCK2, reg1, reg2)
 // Branch to MARKLOCK2 if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK2(reg) BNE_MARKLOCK2(reg, xZR)
+// Branch to MARKLOCK if reg1==reg2 (use j64)
+#define BNE_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
+// Branch to MARKLOCK if reg1==0 (use j64)
+#define BEQZ_MARKLOCK(reg) BEQ_MARKLOCK(reg, xZR)
+
 
 // Branch to NEXT if reg1==reg2 (use j64)
 #define BEQ_NEXT(reg1, reg2)                                                  \
@@ -816,6 +821,10 @@
 
 #ifndef IF_UNALIGNED
 #define IF_UNALIGNED(A)    if(is_addr_unaligned(A))
+#endif
+
+#ifndef IF_ALIGNED
+#define IF_ALIGNED(A) if (!is_addr_unaligned(A))
 #endif
 
 #define STORE_REG(A) SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))

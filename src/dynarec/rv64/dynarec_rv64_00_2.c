@@ -662,6 +662,19 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 CBZ_NEXT(xRCX);
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
+                IF_ALIGNED (ip) {
+                    // special optim for large RCX value on forward case only
+                    MARK3;
+                    ADDI(x1, xZR, 8);
+                    BLT_MARK(xRCX, x1);
+                    LD(x1, xRSI, 0);
+                    SD(x1, xRDI, 0);
+                    ADDI(xRSI, xRSI, 8);
+                    ADDI(xRDI, xRDI, 8);
+                    SUBI(xRCX, xRCX, 8);
+                    BNEZ_MARK3(xRCX);
+                    BEQZ_MARKLOCK(xRCX);
+                }
                 MARK; // Part with DF==0
                 LBU(x1, xRSI, 0);
                 SB(x1, xRDI, 0);
@@ -677,6 +690,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SUBI(xRDI, xRDI, 1);
                 SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK2(xRCX);
+                MARKLOCK;
                 // done
             } else {
                 INST_NAME("MOVSB");
