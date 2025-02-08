@@ -456,6 +456,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX_empty(q0);
                     VSIGNCOV_W(q0, q1, q1);
                     break;
+                case 0x23:
+                    INST_NAME("PMOVSXWD Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    GETEX64(q1, 0, 0);
+                    GETGX_empty(q0);
+                    VSLLWIL_W_H(q0, q1, 0);
+                    break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
@@ -840,6 +847,24 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
 
+        case 0x51:
+            INST_NAME("SQRTPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX_empty(q1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, q0, q0, cEQ);
+                VFSQRT_D(q1, q0);
+                VFCMP_D(v1, q1, q1, cEQ);
+                VANDN_V(v1, v1, v0);
+                VSLLI_D(v1, v1, 63);
+                VOR_V(q1, q1, v1);
+            } else {
+                VFSQRT_D(q1, q0);
+            }
+            break;
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;

@@ -355,6 +355,9 @@
         FLD_D(a, ed, fixedaddress);                                                          \
     }
 
+// Get Ex as 64bits, not a quad (warning, x1 get used, x2 might too)
+#define GETEX64(a, w, D) GETEXSD(a, w, D)
+
 // Get Ex as a single, not a quad (warning, x1 get used)
 #define GETEXSS(a, w, D)                                                                     \
     if (MODREG) {                                                                            \
