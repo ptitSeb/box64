@@ -1927,6 +1927,62 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xCD:
+            u8 = F8;
+            if (box64_wine && (u8 == 0x2D || u8 == 0x2C || u8 == 0x29)) {
+                INST_NAME("INT 29/2c/2d");
+                // lets do nothing
+                MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
+                GETIP(ip); // priviledged instruction, IP not updated
+                STORE_XEMU_CALL();
+                MOV32w(x1, u8);
+                CALL(native_int, -1);
+                LOAD_XEMU_CALL();
+            } else if (u8 == 0x80) {
+                INST_NAME("32bits SYSCALL");
+                NOTEST(x1);
+                SMEND();
+                GETIP(addr);
+                STORE_XEMU_CALL();
+                CALL_S(x86Syscall, -1);
+                LOAD_XEMU_CALL();
+                TABLE64(x3, addr); // expected return address
+                BNE_MARK(xRIP, x3);
+                LD_W(x1, xEmu, offsetof(x64emu_t, quit));
+                BEQ_NEXT(x1, xZR);
+                MARK;
+                LOAD_XEMU_REM();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+            } else if (u8 == 0x03) {
+                INST_NAME("INT 3");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(addr);
+                STORE_XEMU_CALL();
+                CALL(native_int3, -1);
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            } else {
+                INST_NAME("INT n");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip); // priviledged instruction, IP not updated
+                STORE_XEMU_CALL();
+                CALL(native_priv, -1);
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
+            break;
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
@@ -1985,6 +2041,22 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 7:
+                    if (opcode == 0xD0) {
+                        INST_NAME("SAR Eb, 1");
+                        GETSEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SAR Eb, CL");
+                        GETSEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
                 default:

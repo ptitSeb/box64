@@ -461,6 +461,64 @@ void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
 }
 
+// emit SAR8 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3, s4 and s5 as scratch
+void emit_sar8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    int64_t j64;
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    IFX (X_PEND) {
+        ST_B(s2, xEmu, offsetof(x64emu_t, op2));
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_sar8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_ALL) {
+            X64_SRA_B(s1, s2);
+        }
+        SRA_D(s1, s1, s2);
+        ANDI(s1, s1, 0xff);
+
+        IFX (X_PEND) {
+            ST_B(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        ADDI_D(s3, s2, -1);
+        SRA_D(s3, s1, s3);
+        ANDI(s3, s3, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s3);
+    }
+    // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
+    // OF nop
+    IFX (X_SF) {
+        // SF is the same as the original operand
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+
+    SRA_D(s1, s1, s2);
+    ANDI(s1, s1, 0xff);
+
+    IFX (X_PEND) {
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit SHR16 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3 and s4 as scratch
 void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {

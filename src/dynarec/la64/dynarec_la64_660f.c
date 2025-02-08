@@ -847,6 +847,17 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
 
+        case 0x50:
+            nextop = F8;
+            INST_NAME("PMOVMSKD Gd, Ex");
+            GETEX(q0, 0, 0);
+            GETGD;
+            VPICKVE2GR_D(x1, q0, 0);
+            VPICKVE2GR_D(gd, q0, 1);
+            SRLI_D(gd, gd, 62);
+            SRLI_D(x1, x1, 63);
+            BSTRINS_D(gd, x1, 0, 0);
+            break;
         case 0x51:
             INST_NAME("SQRTPD Gx, Ex");
             nextop = F8;
@@ -1440,6 +1451,25 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
             BSTRINS_D(gd, x1, 15, 0); // insert in Gw
+            break;
+        case 0xBA:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                    INST_NAME("BT Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8 &= rex.w ? 0x3f : 15;
+                    IFX (X_CF) {
+                        BSTRPICK_D(x3, ed, u8, u8);
+                        BSTRINS_D(xFlags, x3, 0, 0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
