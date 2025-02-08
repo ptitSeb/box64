@@ -1675,7 +1675,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("REP MOVSB");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
-                IF_UNALIGNED(ip) {} else {
+                IF_ALIGNED(ip) {
                     // special optim for large RCX value on forward case only
                     MARK3;
                     CMPSx_U12(xRCX, 8);

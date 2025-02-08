@@ -973,6 +973,10 @@
 #define IF_UNALIGNED(A)    if(is_addr_unaligned(A))
 #endif
 
+#ifndef IF_ALIGNED
+#define IF_ALIGNED(A) if (!is_addr_unaligned(A))
+#endif
+
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
