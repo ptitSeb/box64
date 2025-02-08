@@ -1675,7 +1675,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("REP MOVSB");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
-                IF_ALIGNED(ip) {
+                IF_UNALIGNED(ip) {
+                    // special optim for large RCX value on forward case only
+                    // but because it's unaligned path, check if a byte per byt is needed, and do 4-bytes per 4-bytes only instead
+                    ORRw_REG(x1, xRSI, xRDI);
+                    ANDw_mask(x1, x1, 0, 1);    //mask = 3
+                    CBNZw_MARK(x1);
+                    MARK3;
+                    CMPSx_U12(xRCX, 4);
+                    B_MARK(cCC);
+                    LDRw_S9_postindex(x1, xRSI, 4);
+                    STRw_S9_postindex(x1, xRDI, 4);
+                    SUBx_U12(xRCX, xRCX, 4);
+                    CBNZx_MARK3(xRCX);
+                    CBZx_MARKLOCK(xRCX);
+                } else {
                     // special optim for large RCX value on forward case only
                     MARK3;
                     CMPSx_U12(xRCX, 8);
