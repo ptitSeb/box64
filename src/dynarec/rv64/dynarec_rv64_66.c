@@ -1284,6 +1284,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ANDI(x2, xRCX, 0x1f);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
                     CALL_(rol16, x1, x3, x1, x2);
                     EWBACK;
@@ -1293,6 +1294,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ANDI(x2, xRCX, 0x1f);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
                     CALL_(ror16, x1, x3, x1, x2);
                     EWBACK;
@@ -1303,6 +1305,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
                     CALL_(rcl16, x1, x3, x1, x2);
                     EWBACK;
@@ -1313,6 +1316,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
                     CALL_(rcr16, x1, x3, x1, x2);
                     EWBACK;
@@ -1322,8 +1326,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ANDI(x2, xRCX, 0x1f);
                     BEQ_NEXT(x2, xZR);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1)
-                        MAYSETFLAGS();
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 0);
                     emit_shr16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
@@ -1334,8 +1337,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ANDI(x2, xRCX, 0x1f);
                     BEQ_NEXT(x2, xZR);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1)
-                        MAYSETFLAGS();
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 0);
                     emit_shl16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
@@ -1345,8 +1347,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ANDI(x2, xRCX, 0x1f);
                     BEQ_NEXT(x2, xZR);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1)
-                        MAYSETFLAGS();
+                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETSEW(x1, 0);
                     emit_sar16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
