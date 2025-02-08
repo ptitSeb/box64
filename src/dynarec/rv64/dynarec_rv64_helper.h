@@ -775,7 +775,7 @@
 // Branch to MARKLOCK2 if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK2(reg) BNE_MARKLOCK2(reg, xZR)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
-#define BNE_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
+#define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BEQ_MARKLOCK(reg, xZR)
 
