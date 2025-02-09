@@ -851,11 +851,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         for(int i=0; i<helper.size; ++i) {
             printf_log(LOG_NONE, "%s%p:", (helper.insts[i].size2!=helper.insts[i].size)?"=====> ":"", dump);
             for(; dump<(uint8_t*)helper.insts[i+1].x64.addr; ++dump)
-                printf_log(LOG_NONE, " %02X", *dump);
-            printf_log(LOG_NONE, "\t%d -> %d", helper.insts[i].size2, helper.insts[i].size);
+                printf_log_prefix(0, LOG_NONE, " %02X", *dump);
+            printf_log_prefix(0, LOG_NONE, "\t%d -> %d", helper.insts[i].size2, helper.insts[i].size);
             if(helper.insts[i].ymm0_pass2 || helper.insts[i].ymm0_pass3)
-                printf_log(LOG_NONE, "\t %04x -> %04x", helper.insts[i].ymm0_pass2, helper.insts[i].ymm0_pass3);
-            printf_log(LOG_NONE, "\n");
+                printf_log_prefix(0, LOG_NONE, "\t %04x -> %04x", helper.insts[i].ymm0_pass2, helper.insts[i].ymm0_pass3);
+            printf_log_prefix(0, LOG_NONE, "\n");
         }
         printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);
         printf_log(LOG_NONE, " ------------\n");
