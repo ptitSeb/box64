@@ -88,6 +88,18 @@
         LDxw(hint, wback, fixedaddress);                                                                                                \
         ed = hint;                                                                                                                      \
     }
+// GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
+#define GETEDW(hint, ret, D)                                                                                                            \
+    if (MODREG) {                                                                                                                       \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                       \
+        MV(ret, ed);                                                                                                                    \
+        wback = 0;                                                                                                                      \
+    } else {                                                                                                                            \
+        SMREAD();                                                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &wback, (hint == x2) ? x1 : x2, (hint == x1) ? x1 : x3, &fixedaddress, rex, NULL, 0, D); \
+        ed = ret;                                                                                                                       \
+        LDxw(ed, wback, fixedaddress);                                                                                                  \
+    }
 // GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D)                                                                       \
     if (MODREG) {                                                                             \

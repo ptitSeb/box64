@@ -1165,6 +1165,40 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xBB:
+            INST_NAME("BTC Ed, Gd");
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                wback = 0;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAIxw(x1, gd, 5 + rex.w);
+                ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+                wback = x3;
+            }
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+            SRL_D(x4, ed, x2);
+            if (la64_lbt)
+                X64_SET_EFLAGS(x4, X_CF);
+            else
+                BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            ADDI_D(x4, xZR, 1);
+            SLL_D(x4, x4, x2);
+            XOR(ed, ed, x4);
+            if (wback) {
+                SDxw(ed, wback, fixedaddress);
+                SMWRITE();
+            } else if (!rex.w) {
+                ZEROUP(ed);
+            }
+            break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
             SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
