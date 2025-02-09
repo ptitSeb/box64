@@ -39,6 +39,7 @@
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
+        if(ninst) {dyn->insts[ninst-1].x64.size = ip - dyn->insts[ninst-1].x64.addr;}   \
         if(BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing)==1) \
         if(!dyn->size || BOX64ENV(dynarec_log)>LOG_INFO || BOX64ENV(dynarec_dump)) {\
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \

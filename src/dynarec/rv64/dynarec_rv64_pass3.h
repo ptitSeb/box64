@@ -1,7 +1,7 @@
 #define INIT
-#define FINI                                                                                              \
-    if (ninst)                                                                                            \
-        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst].x64.size, dyn->insts[ninst].size / 4); \
+#define FINI                                                                                                \
+    if (ninst)                                                                                              \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
     addInst(dyn->instsize, &dyn->insts_size, 0, 0);
 #define EMIT(A)                                                        \
     do {                                                               \
