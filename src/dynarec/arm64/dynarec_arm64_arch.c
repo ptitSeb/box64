@@ -381,6 +381,8 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
 
 int arch_unaligned(dynablock_t* db, uintptr_t x64pc)
 {
+    if(!db)
+        return 0;
     if(!db->arch_size || !db->arch)
         return 0;
     int ninst = getX64AddressInst(db, x64pc);
