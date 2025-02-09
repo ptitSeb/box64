@@ -1419,6 +1419,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0xA3:
+            INST_NAME("BT Ew, Gw");
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            ANDI(gd, gd, 15);
+            SRL_D(x4, ed, gd);
+            if (la64_lbt)
+                X64_SET_EFLAGS(x4, X_CF);
+            else
+                BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
