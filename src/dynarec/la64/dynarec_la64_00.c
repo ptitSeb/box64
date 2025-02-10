@@ -1291,6 +1291,20 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 CBZ_NEXT(xRCX);
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
+                // special optim for large RCX value on forward case only
+                OR(x1, xRSI, xRDI);
+                ANDI(x1, x1, 7);
+                BNEZ_MARK(x1);
+                ADDI_D(x6, xZR, 8);
+                MARK3;
+                BLT_MARK(xRCX, x6);
+                LD_D(x1, xRSI, 0);
+                ST_D(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, 8);
+                ADDI_D(xRDI, xRDI, 8);
+                ADDI_D(xRCX, xRCX, -8);
+                BNEZ_MARK3(xRCX);
+                B_NEXT_nocond;
                 MARK; // Part with DF==0
                 LD_BU(x1, xRSI, 0);
                 ST_B(x1, xRDI, 0);
