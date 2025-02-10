@@ -462,6 +462,43 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SMDMB();
             break;
+
+        case 0x66:
+            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+
+        case 0x80:
+            nextop = F8;
+            SMDMB();
+            switch ((nextop >> 3) & 7) {
+                case 1: // OR
+                    INST_NAME("LOCK OR Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (MODREG) {
+                        GETEB(x1, 1);
+                        u8 = F8;
+                        emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        EBBACK();
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, x1, &fixedaddress, rex, LOCK_LOCK, 0, 1);
+                        u8 = F8;
+                        ANDI(x2, wback, 3);
+                        SLLI_D(x2, x2, 3);   // offset in bits
+                        ANDI(x3, wback, ~3); // aligned addr
+                        ADDI_D(x1, xZR, u8);
+                        SLL_D(x1, x1, x2); // Ib << offset
+                        AMOR_DB_W(x4, x1, x3);
+                        IFXORNAT (X_ALL | X_PEND) {
+                            SRL_D(x1, x4, x2);
+                            ANDI(x1, x1, 0xFF);
+                            emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            SMDMB();
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;

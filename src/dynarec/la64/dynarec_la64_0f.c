@@ -416,6 +416,32 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             break;
                     }
                     break;
+                case 0xF0:
+                    INST_NAME("MOVBE Gd, Ed");
+                    nextop = F8;
+                    GETGD;
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LDxw(gd, ed, fixedaddress);
+                    if (rex.w) {
+                        REVB_D(gd, gd);
+                    } else {
+                        REVB_2W(gd, gd);
+                        ZEROUP(gd);
+                    }
+                    break;
+                case 0xF1:
+                    INST_NAME("MOVBE Ed, Gd");
+                    nextop = F8;
+                    GETGD;
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    if (rex.w)
+                        REVB_D(x1, gd);
+                    else
+                        REVB_2W(x1, gd);
+                    SDxw(x1, wback, fixedaddress);
+                    break;
                 default:
                     DEFAULT;
             }
