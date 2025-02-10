@@ -3496,25 +3496,23 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UXTBw(x2, xRAX);
                     MULw(x1, x2, x1);
                     BFIx(xRAX, x1, 0, 16);
-                    UFLAG_IF {
-                        SET_DFNONE();
-                        IFX(X_CF|X_OF) {
-                            CMPSw_REG_LSR(xZR, x1, 8);
-                            CSETw(x3, cNE);
-                            IFX(X_CF) {
-                                BFIw(xFlags, x3, F_CF, 1);
-                            }
-                            IFX(X_OF) {
-                                BFIw(xFlags, x3, F_OF, 1);
-                            }
+                    SET_DFNONE();
+                    IFX(X_CF|X_OF) {
+                        CMPSw_REG_LSR(xZR, x1, 8);
+                        CSETw(x3, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x3, F_CF, 1);
                         }
-                        IFX(X_AF | X_PF | X_ZF | X_SF)
-                            if (BOX64ENV(dynarec_test)) {
-                                // to avoid noise during test
-                                MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                                BICw(xFlags, xFlags, x3);
-                            }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x3, F_OF, 1);
+                        }
                     }
+                    IFX(X_AF | X_PF | X_ZF | X_SF)
+                        if (BOX64ENV(dynarec_test)) {
+                            // to avoid noise during test
+                            MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                            BICw(xFlags, xFlags, x3);
+                        }
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
@@ -3523,26 +3521,24 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SXTBw(x2, xRAX);
                     MULw(x1, x2, x1);
                     BFIx(xRAX, x1, 0, 16);
-                    UFLAG_IF {
-                        SET_DFNONE();
-                        IFX(X_CF|X_OF) {
-                            ASRxw(x2, x1, 8);
-                            CMPSw_REG_ASR(x2, x1, 16);
-                            CSETw(x3, cNE);
-                            IFX(X_CF) {
-                                BFIw(xFlags, x3, F_CF, 1);
-                            }
-                            IFX(X_OF) {
-                                BFIw(xFlags, x3, F_OF, 1);
-                            }
+                    SET_DFNONE();
+                    IFX(X_CF|X_OF) {
+                        ASRxw(x2, x1, 8);
+                        CMPSw_REG_ASR(x2, x1, 16);
+                        CSETw(x3, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x3, F_CF, 1);
                         }
-                        IFX(X_AF | X_PF | X_ZF | X_SF)
-                            if (BOX64ENV(dynarec_test)) {
-                                // to avoid noise during test
-                                MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                                BICw(xFlags, xFlags, x3);
-                            }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x3, F_OF, 1);
+                        }
                     }
+                    IFX(X_AF | X_PF | X_ZF | X_SF)
+                        if (BOX64ENV(dynarec_test)) {
+                            // to avoid noise during test
+                            MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                            BICw(xFlags, xFlags, x3);
+                        }
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
