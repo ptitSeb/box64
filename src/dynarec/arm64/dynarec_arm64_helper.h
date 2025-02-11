@@ -891,6 +891,10 @@
 #define B_MARKLOCK(cond)    \
     j64 = GETMARKLOCK-(dyn->native_size);   \
     Bcond(cond, j64)
+// Branch to MARKLOCK unconditional (use j64)
+#define B_MARKLOCK_nocond    \
+    j64 = GETMARKLOCK-(dyn->native_size);   \
+    B(j64)
 // Branch to MARKLOCK if reg is not 0 (use j64)
 #define CBNZw_MARKLOCK(reg)             \
     j64 = GETMARKLOCK-(dyn->native_size);  \

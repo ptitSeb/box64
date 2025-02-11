@@ -1678,6 +1678,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 IF_UNALIGNED(ip) {
                     // special optim for large RCX value on forward case only
                     // but because it's unaligned path, check if a byte per byt is needed, and do 4-bytes per 4-bytes only instead
+                    if(BOX64DRENV(dynarec_safeflags)>1) {
+                        SUBx_REG(x2, xRDI, xRSI);
+                        CMPSx_U12(x2, 4);
+                        B_MARK(cCC);
+                    }
                     ORRw_REG(x1, xRSI, xRDI);
                     ANDw_mask(x1, x1, 0, 1);    //mask = 3
                     CBNZw_MARK(x1);
@@ -1690,6 +1695,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     CBNZx_MARK3(xRCX);
                     CBZx_MARKLOCK(xRCX);
                 } else {
+                    if(BOX64DRENV(dynarec_safeflags)>1) {
+                        SUBx_REG(x2, xRDI, xRSI);
+                        CMPSx_U12(x2, 8);
+                        B_MARK(cCC);
+                    }
                     // special optim for large RCX value on forward case only
                     MARK3;
                     CMPSx_U12(xRCX, 8);
@@ -1705,7 +1715,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRB_S9_postindex(x1, xRDI, 1);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
-                B_NEXT_nocond;
+                B_MARKLOCK_nocond;
                 MARK2;  // Part with DF==1
                 LDRB_S9_postindex(x1, xRSI, -1);
                 STRB_S9_postindex(x1, xRDI, -1);
