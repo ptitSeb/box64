@@ -184,6 +184,19 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FSQRT_S(d1, d0);
             VEXTRINS_W(v0, d1, 0);
             break;
+        case 0x52:
+             INST_NAME("RSQRTSS Gx, Ex");
+             nextop = F8;
+             GETGX(v0, 1);
+             GETEXSS(v1, 0, 0);
+             q0 = fpu_get_scratch(dyn);
+             q1 = fpu_get_scratch(dyn);
+             LU12I_W(x3, 0x3f800); // 1.0f
+             MOVGR2FR_W(q0, x3);
+             FSQRT_S(q1, v1);
+             FDIV_S(q0, q0, q1);
+             VEXTRINS_W(v0, q0, 0);
+             break;
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
