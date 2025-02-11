@@ -1,4 +1,5 @@
 // build with  gcc -O0 -g -msse -msse2 -mssse3 -msse4.1 -mavx test30.c -o test30
+#define __USE_GNU
 #include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
