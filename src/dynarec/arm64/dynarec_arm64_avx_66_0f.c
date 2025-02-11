@@ -1792,12 +1792,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
+            GETEX(v1, 0, 0);
+            UQXTN_32(q0, v1);
             MOVI_32(q1, 16);
+            UMIN_32(q0, q0, q1);    // limit to 0 .. +16 values
+            VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to 0 .. +16 values
-                VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VX(v0, v2); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
                 USHLQ_16(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
@@ -1807,12 +1808,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
+            GETEX(v1, 0, 0);
+            UQXTN_32(q0, v1);
             MOVI_32(q1, 32);
+            UMIN_32(q0, q0, q1);    // limit to 0 .. +32 values
+            VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to 0 .. +32 values
-                VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VX(v0, v2); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
                 USHLQ_32(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
@@ -1822,12 +1824,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
+            GETEX(v1, 0, 0);
+            UQXTN_32(q0, v1);
             MOVI_32(q1, 64);
+            UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
+            VDUPQ_64(q0, q0, 0);    // only the low 8bits will be used anyway
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
-                VDUPQ_64(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VX(v0, v2); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
                 USHLQ_64(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
