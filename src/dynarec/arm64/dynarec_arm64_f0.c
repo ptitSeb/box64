@@ -354,15 +354,17 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 if(arm64_atomics) {
                                     UFLAG_IF {
                                         MOVxw_REG(x1, xRAX);
-                                        CASALxw(xRAX, gd, wback);
+                                        CASALxw(x1, gd, wback);
                                         SMDMB();
-                                        emit_cmp32(dyn, ninst, rex, x1, xRAX, x3, x4, x5);
+                                        if(!ALIGNED_ATOMICxw) {
+                                            B_MARK_nocond;
+                                        }
                                     } else {
                                         CASALxw(xRAX, gd, wback);
                                         SMDMB();
-                                    }
-                                    if(!ALIGNED_ATOMICxw) {
-                                        B_NEXT_nocond;
+                                        if(!ALIGNED_ATOMICxw) {
+                                            B_NEXT_nocond;
+                                        }
                                     }
                                 } else {
                                     MARKLOCK;
@@ -391,11 +393,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     STRxw_U12(gd, wback, 0);
                                     SMDMB();
                                 }
-                                if(!ALIGNED_ATOMICxw || !arm64_atomics) {
-                                    MARK;
-                                    // Common part (and fallback for EAX != Ed)
-                                    UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
-                                    MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
+                                MARK;
+                                // Common part (and fallback for EAX != Ed)
+                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5); MOVxw_REG(xRAX, x1);}
+                                else {
+                                    if(!ALIGNED_ATOMICxw || !arm64_atomics)
+                                        MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
                                 }
                             }
                             break;
