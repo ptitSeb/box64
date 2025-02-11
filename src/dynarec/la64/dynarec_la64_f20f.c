@@ -315,6 +315,17 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VPICKOD_W(v1, q1, q0);
             VFADD_S(q0, v0, v1);
             break;
+        case 0x7D:
+            INST_NAME("HSUBPS Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 1);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            VPICKEV_W(v0, q1, q0);
+            VPICKOD_W(v1, q1, q0);
+            VFSUB_S(q0, v0, v1);
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
