@@ -986,7 +986,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             }
         }
         // Try to get the name of the exe being run, to ApplyEnvFileEntry laters
-        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 && !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1])-4, ".exe")) {
+        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 /*&& !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1])-4, ".exe")*/) {
             const char* pp = strrchr(argv[nextarg+1], '/');
             if(pp)
                 box64_wine_guest_name = pp + 1;
