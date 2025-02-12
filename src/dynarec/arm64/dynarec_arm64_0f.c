@@ -1859,7 +1859,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             if(BOX64DRENV(dynarec_safeflags)>1)
                 MAYSETFLAGS();
             GETGD;
