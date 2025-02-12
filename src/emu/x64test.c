@@ -30,6 +30,7 @@ void print_banner(x64emu_t* ref)
         ((uint8_t*)ref->old_ip)[0], ((uint8_t*)ref->old_ip)[1], ((uint8_t*)ref->old_ip)[2], ((uint8_t*)ref->old_ip)[3],
         ((uint8_t*)ref->old_ip)[4], ((uint8_t*)ref->old_ip)[5], ((uint8_t*)ref->old_ip)[6], ((uint8_t*)ref->old_ip)[7]
     );
+    //printf_log(LOG_NONE, "%s\n", DumpCPURegs(ref, ref->old_ip, ref->segs[_CS]==0x23));
     printf_log(LOG_NONE, "DIFF: Dynarec |  Interpreter\n----------------------\n");
 }
 #define BANNER if(!banner) {banner=1; print_banner(ref);}
