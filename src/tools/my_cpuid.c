@@ -200,6 +200,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     int ncpu = getNCpu();
     if(!ncpu) ncpu = 1;
     int ncluster = 1;
+    static int warned = 10;
     if(BOX64ENV(cputype)) {
         while(ncpu>256) {
             ncluster++; // do cluster of 256 cpus...
@@ -695,7 +696,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         default:
-            printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
+            if(warned) {
+                printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
+                --warned;
+                if(!warned)
+                    printf_log(LOG_INFO, "Stopped logging CPUID issues\n");
+            }
             R_EAX = 0;
             R_EBX = 0;
             R_ECX = 0;
