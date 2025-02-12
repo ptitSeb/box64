@@ -692,15 +692,49 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x2D:
             INST_NAME("VMASKMOVPD Gx, Vx, Ex");
             nextop = F8;
-            GETGX_empty_VXEX(v0, v2, v1, 0);
+            GETVX(v2, 0);
+            GETGX_empty(v0);
             q0 = fpu_get_scratch(dyn, ninst);
             // create mask
             VSSHRQ_64(q0, v2, 63);
-            VANDQ(v0, v1, q0);
-            if(vex.l) {
-                GETGY_empty_VYEY(v0, v2, v1);
-                VSSHRQ_64(q0, v2, 63);
+            VEORQ(v0, v0, v0);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x3, (nextop & 7) + (rex.b << 3), 0);
                 VANDQ(v0, v1, q0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                EORx_REG(x4, x4, x4);
+                VMOVQDto(x4, q0, 0);
+                CBZx(x4, 4+1*4);
+                VLD1_64(v0, 0, ed);
+                ADDx_U12(ed, ed, 8);
+                VMOVQDto(x4, q0, 1);
+                CBZx(x4, 4+1*4);
+                VLD1_64(v0, 1, ed);
+                if(vex.l)
+                    ADDx_U12(ed, ed, 8);
+            }
+            if(vex.l) {
+                v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                VSSHRQ_64(q0, v2, 63);
+                VEORQ(v0, v0, v0);
+                if(MODREG)
+                {
+                    v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);
+                    VANDQ(v0, v1, q0);
+                }
+                else
+                {
+                    VMOVQDto(x4, q0, 0);
+                    CBZx(x4, 4+1*4);
+                    VLD1_64(v0, 0, ed);
+                    ADDx_U12(ed, ed, 8);
+                    VMOVQDto(x4, q0, 1);
+                    CBZx(x4, 4+1*4);
+                    VLD1_64(v0, 1, ed);
+                }
             } else YMM0(gd);
             break;
         case 0x2E:
