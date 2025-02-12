@@ -1278,31 +1278,65 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) {
-                    GETGX(v0, 0); GETVX(v2, 0);
-                    if(MODREG) {
+                if(MODREG) {
+                    if(!l) {
+                        GETGX(v0, 0); GETVX(v2, 0);
                         s0 = (nextop&7)+(rex.b<<3);
                         v1 = sse_get_reg_empty(dyn, ninst, x1, s0);
                     } else {
+                        GETGY(v0, 0, vex.v, s0, -1); v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1);
+                        v1 = ymm_get_reg_empty(dyn, ninst, x1, s0, gd, vex.v, -1);
+                    }
+                    if(rex.w)
+                        VSSHRQ_64(q0, v2, 63);
+                    else
+                        VSSHRQ_32(q0, v2, 31);
+                    VBITQ(v1, v0, q0);
+                } else {
+                    if(!l) {
+                        GETGX(v0, 0); GETVX(v2, 0);
                         s0 = -1;
                         v1 = fpu_get_scratch(dyn, ninst);
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
-                        VLDR128_U12(v1, ed, fixedaddress);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        EORx_REG(x4, x4, x4);
+                    } else {
+                        GETGY(v0, 0, vex.v, s0, -1); v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1);
                     }
-                } else {
-                    GETGY(v0, 0, vex.v, s0, -1); v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1);
-                    if(MODREG)
-                        v1 = ymm_get_reg_empty(dyn, ninst, x1, s0, gd, vex.v, -1);
+                    if(rex.w)
+                    {
+                        VSSHRQ_64(q0, v2, 63);
+                        VMOVQDto(x4, q0, 0);
+                        CBZx(x4, 4+1*4);
+                        VST1_64(v0, 0, ed);
+                        ADDx_U12(ed, ed, 8);
+                        VMOVQDto(x4, q0, 1);
+                        CBZx(x4, 4+1*4);
+                        VST1_64(v0, 1, ed);
+                        if(!l && vex.l)
+                            ADDx_U12(ed, ed, 8);
+                    }
                     else
-                        VLDR128_U12(v1, ed, fixedaddress+16);
+                    {
+                        VSSHRQ_32(q0, v2, 31);
+                        VMOVSto(x4, q0, 0);
+                        CBZx(x4, 4+1*4);
+                        VST1_32(v0, 0, ed);
+                        ADDx_U12(ed, ed, 4);
+                        VMOVSto(x4, q0, 1);
+                        CBZx(x4, 4+1*4);
+                        VST1_32(v0, 1, ed);
+                        ADDx_U12(ed, ed, 4);
+                        VMOVSto(x4, q0, 2);
+                        CBZx(x4, 4+1*4);
+                        VST1_32(v0, 2, ed);
+                        ADDx_U12(ed, ed, 4);
+                        VMOVSto(x4, q0, 3);
+                        CBZx(x4, 4+1*4);
+                        VST1_32(v0, 3, ed);
+                        if(!l && vex.l)
+                            ADDx_U12(ed, ed, 4);
+                    }
                 }
-                if(rex.w)
-                    VSSHRQ_64(q0, v2, 63);
-                else
-                    VSSHRQ_32(q0, v2, 31);
-                VBITQ(v1, v0, q0);
-                if(!MODREG)
-                    VSTR128_U12(v1, ed, fixedaddress+16*l);
             }
             // no raz of upper ymm
             break;
