@@ -1,4 +1,4 @@
-// build with  gcc -O0 -g -msse -msse2 -mssse3 -msse4.1 -mavx test30.c -o test30
+// build with  gcc -O0 -g -msse -msse2 -mssse3 -msse4.1 -mavx test30.c -o test30 -march=native
 #include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
@@ -8,6 +8,8 @@
 #include <math.h>
 #include <pmmintrin.h>
 #include <immintrin.h> 
+#include <sys/mman.h>
+#include <unistd.h>
 
 typedef unsigned char u8x16 __attribute__ ((vector_size (16)));
 typedef unsigned short u16x8 __attribute__ ((vector_size (16)));
@@ -15,6 +17,9 @@ typedef unsigned int  u32x4 __attribute__ ((vector_size (16)));
 typedef unsigned long int  u64x2 __attribute__ ((vector_size (16)));
 typedef float  f32x4 __attribute__ ((vector_size (16)));
 typedef double d64x2 __attribute__ ((vector_size (16)));
+int testVPMASKMOV();
+int testVMASKMOVP();
+static int ACCESS_TEST = 1;
 
 typedef union {
         __m128i mm;
@@ -736,7 +741,255 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULITGO2Cps(dp, dpps, 0x3f)
  MULITGO2Cps(dp, dpps, 0xf3)
  MULITGO2Cps(dp, dpps, 0x53)
+// open this test must update test30 and ref30.txt
+//  ACCESS_TEST = 2;
+//  testVPMASKMOV();
+//  testVMASKMOVP();
+//  ACCESS_TEST = 1;
+//  testVPMASKMOV();
+//  testVMASKMOVP();
 
  return 0;
 }
 
+__m256i m256_setr_epi64x(long long a, long long b, long long c, long long d)
+{
+    union {
+        long long q[4];
+        int r[8];
+    } u;
+    u.q[0] = a; u.q[1] = b; u.q[2] = c; u.q[3] = d;
+    return _mm256_setr_epi32(u.r[0], u.r[1], u.r[2], u.r[3], u.r[4], u.r[5], u.r[6], u.r[7]);
+}
+
+__m128i m128_setr_epi64x(long long a, long long b)
+{
+    union {
+        long long q[2];
+        int r[4];
+    } u;
+    u.q[0] = a; u.q[1] = b;
+    return _mm_setr_epi32(u.r[0], u.r[1], u.r[2], u.r[3]);
+}
+
+int testVPMASKMOV() {
+    long pageSize = sysconf(_SC_PAGESIZE);
+
+    void *baseAddress = mmap(NULL, pageSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (baseAddress == MAP_FAILED) {
+        printf("mmap failed\n");
+        return 1;
+    }
+    void *resultAddress = mmap(NULL, pageSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (resultAddress == MAP_FAILED) {
+        printf("mmap failed\n");
+        return 1;
+    }
+
+    int *intData = (int *)((char *)baseAddress + pageSize - 4 * ACCESS_TEST * sizeof(int)); // 32 bytes for 8 integers
+    int *intResult = (int *)((char *)resultAddress + pageSize - 4 * ACCESS_TEST * sizeof(int)); // 32 bytes for 8 integers
+
+    for (int i = 0; i < 4 * ACCESS_TEST; i++) {
+        intData[i] = i + 1;
+    }
+
+    __m256i mask256_int = _mm256_setr_epi32(-1, -1, -1, -1, 1 - ACCESS_TEST, 0, 1 - ACCESS_TEST, 0); // 32-bit mask
+    __m128i mask128_int = _mm_setr_epi32(-1, -1, 1 - ACCESS_TEST, 0); // 32-bit mask
+    __m256i mask256_long = m256_setr_epi64x(-1, -1, 1 - ACCESS_TEST, 0); // 64-bit mask
+    __m128i mask128_long = m128_setr_epi64x(-1, 0); // 64-bit mask
+    // ************************************************************** _mm256_maskload_epi32
+    __m256i loaded_int256 = _mm256_maskload_epi32(intData, mask256_int);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 8; i++) {
+        printf("%d ", ((int*)&loaded_int256)[i]);
+    }
+    printf("\n");
+
+    memset(resultAddress, 0, pageSize);
+    _mm256_maskstore_epi32(intResult, mask256_int, loaded_int256);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 4 * ACCESS_TEST; i++) {
+        printf("%d ", intResult[i]);
+    }
+    printf("\n");
+
+    // ************************************************************** _mm_maskload_epi32
+    __m128i loaded_int128 = _mm_maskload_epi32(intData, mask128_int);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 4; i++) {
+        printf("%d ", ((int*)&loaded_int128)[i]);
+    }
+    printf("\n");
+
+    memset(resultAddress, 0, pageSize);
+    _mm_maskstore_epi32(intResult, mask128_int, loaded_int128);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        printf("%d ", intResult[i]);
+    }
+    printf("\n");
+
+    long long *longData = (long long *)((char *)baseAddress + pageSize - 2 * ACCESS_TEST * sizeof(long long)); // 32 bytes for 4 long integers
+    long long *longResult = (long long *)((char *)resultAddress + pageSize - 2 * ACCESS_TEST * sizeof(long long)); // 32 bytes for 8 integers
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        longData[i] = i + 1;
+    }
+
+    // ************************************************************** _mm256_maskload_epi64
+    __m256i loaded_long256 = _mm256_maskload_epi64(longData, mask256_long);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 4; i++) {
+        printf("%lld ", ((long long*)&loaded_long256)[i]);
+    }
+    printf("\n");
+
+    memset(resultAddress, 0, pageSize);
+    _mm256_maskstore_epi64(longResult, mask256_long, loaded_long256);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        printf("%lld ", longResult[i]);
+    }
+    printf("\n");
+
+    // ************************************************************** _mm_maskload_epi64
+    __m128i loaded_long128 = _mm_maskload_epi64(longData, mask128_long);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 2; i++) {
+        printf("%lld ", ((long long*)&loaded_long128)[i]);
+    }
+    printf("\n");
+
+    //  _mm_maskstore_epi64
+    memset(resultAddress, 0, pageSize);
+    _mm_maskstore_epi64(longResult, mask128_long, loaded_long128);
+    printf("VPMASKMOV ");
+    for (int i = 0; i < 1 * ACCESS_TEST; i++) {
+        printf("%lld ", longResult[i]);
+    }
+    printf("\n");
+
+    munmap(baseAddress, pageSize);
+    munmap(resultAddress, pageSize);
+
+    return 0;
+}
+
+int testVMASKMOVP() {
+    long pageSize = sysconf(_SC_PAGESIZE);
+
+    void *baseAddress = mmap(NULL, pageSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (baseAddress == MAP_FAILED) {
+        perror("mmap failed");
+        return 1;
+    }
+    void *destAddress = mmap(NULL, pageSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (destAddress == MAP_FAILED) {
+        perror("mmap failed");
+        return 1;
+    }
+
+    float *floatData = (float *)((char *)baseAddress + pageSize - 16 * ACCESS_TEST); // 16 bytes for 4 floats
+    float *floatDest = (float *)((char *)destAddress + pageSize - 16 * ACCESS_TEST); // 16 bytes for 4 floats
+
+    int mask_data[8] = { -1, 0, -1, -1, 0, 1 - ACCESS_TEST, 0, 0 };  // -1 的二进制表示是 0xFFFFFFFF（最高位为 1）
+    __m256i mask256ps = _mm256_loadu_si256((__m256i const *)mask_data);
+    __m256i mask256pd = _mm256_setr_epi64x(-1, -1, 0, 1 - ACCESS_TEST);
+    __m128i mask128 = _mm_setr_epi32(-1, -1, 0, 1 - ACCESS_TEST);
+
+    //=================================================================================
+    //  _mm256_maskload_ps
+    for (int i = 0; i < 4 * ACCESS_TEST; i++) {
+        floatData[i] = (float)(i + 1);
+    }
+
+    __m256 floatVec = _mm256_maskload_ps(floatData, mask256ps);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 8; i++) {
+        printf("%f ", ((float*)&floatVec)[i]);
+    }
+    printf("\n");
+
+    //  _mm256_maskstore_ps
+    memset(destAddress, 0, pageSize);
+    _mm256_maskstore_ps(floatDest, mask256ps, floatVec);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 4 * ACCESS_TEST; i++) {
+        printf("%f ", floatDest[i]);
+    }
+    printf("\n");
+
+    //=================================================================================
+    for (int i = 0; i < 4 * ACCESS_TEST; i++) {
+        floatData[i] = (float)(i + 10);
+    }
+
+    //  _mm_maskload_ps
+    __m128 floatVec128 = _mm_maskload_ps(floatData, mask128);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 4; i++) {
+        printf("%f ", ((float*)&floatVec128)[i]);
+    }
+    printf("\n");
+
+    //  _mm_maskstore_ps
+    memset(destAddress, 0, pageSize);
+    _mm_maskstore_ps(floatDest, mask128, floatVec128);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        printf("%f ", floatDest[i]);
+    }
+    printf("\n");
+
+    //=================================================================================
+    double *doubleData = (double *)((char *)baseAddress + pageSize - 16 * ACCESS_TEST); // 16 bytes for 2 doubles
+    double *doubleDest = (double *)((char *)destAddress + pageSize - 16 * ACCESS_TEST); // 16 bytes for 2 doubles
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        doubleData[i] = (double)(i + 20);
+    }
+
+    //  _mm256_maskload_pd
+    __m256d doubleVec = _mm256_maskload_pd(doubleData, mask256pd);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 4; i++) {
+        printf("%lf ", ((double *)&doubleVec)[i]);
+    }
+    printf("\n");
+
+    //  _mm256_maskstore_pd
+    memset(destAddress, 0, pageSize);
+    _mm256_maskstore_pd(doubleDest, mask256pd, doubleVec);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        printf("%f ", doubleDest[i]);
+    }
+    printf("\n");
+
+    //=================================================================================
+    for (int i = 0; i < 2 * ACCESS_TEST; i++) {
+        doubleData[i] = (double)(i + 30);
+    }
+
+    //  _mm_maskload_pd
+    __m128d doubleVec128 = _mm_maskload_pd(doubleData, mask128);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 2; i++) {
+        printf("%lf ", ((double *)&doubleVec128)[i]);
+    }
+    printf("\n");
+
+    //  _mm_maskstore_pd
+    memset(destAddress, 0, pageSize);
+    _mm_maskstore_pd(doubleDest, mask128, doubleVec128);
+    printf("VMASKMOVP ");
+    for (int i = 0; i < 1 * ACCESS_TEST; i++) {
+        printf("%f ", doubleDest[i]);
+    }
+    printf("\n");
+
+    //=================================================================================
+
+    munmap(baseAddress, pageSize);
+    munmap(destAddress, pageSize);
+
+    return 0;
+}
