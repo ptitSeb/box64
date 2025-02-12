@@ -2041,12 +2041,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MULxw(gd, gd, ed);
                 }
             }
-            IFX(X_AF | X_PF | X_ZF | X_SF)
-                if (BOX64ENV(dynarec_test)) {
-                    // to avoid noise during test
-                    MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                    BICw(xFlags, xFlags, x1);
-                }
+            IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+            IFX(X_ZF) {BFCw(xFlags, F_ZF, 1);}
+            IFX(X_SF) {
+                LSRxw(x3, gd, rex.w?63:31);
+                BFIw(xFlags, x3, F_SF, 1);
+            }
+            IFX(X_PF) emit_pf(dyn, ninst, gd, x3);
             break;
 
         case 0xB1:

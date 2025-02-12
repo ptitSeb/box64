@@ -2494,26 +2494,25 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETSGW(x2);
             MULw(x2, x2, x1);
             GWBACK;
-            UFLAG_IF {
-                SET_DFNONE();
-                IFX(X_CF|X_OF) {
-                    ASRw(x1, x2, 16);
-                    CMPSw_REG_ASR(x1, x2, 31);
-                    CSETw(x3, cNE);
-                    IFX(X_CF) {
-                        BFIw(xFlags, x3, F_CF, 1);
-                    }
-                    IFX(X_OF) {
-                        BFIw(xFlags, x3, F_OF, 1);
-                    }
+            SET_DFNONE();
+            IFX(X_CF|X_OF) {
+                ASRw(x1, x2, 16);
+                CMPSw_REG_ASR(x1, x2, 31);
+                CSETw(x3, cNE);
+                IFX(X_CF) {
+                    BFIw(xFlags, x3, F_CF, 1);
                 }
-                IFX(X_AF | X_PF | X_ZF | X_SF)
-                    if (BOX64ENV(dynarec_test)) {
-                        // to avoid noise during test
-                        MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                        BICw(xFlags, xFlags, x3);
-                    }
+                IFX(X_OF) {
+                    BFIw(xFlags, x3, F_OF, 1);
+                }
             }
+            IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+            IFX(X_ZF) {BFCw(xFlags, F_ZF, 1);}
+            IFX(X_SF) {
+                LSRxw(x3, gd, 15);
+                BFIw(xFlags, x3, F_SF, 1);
+            }
+            IFX(X_PF) emit_pf(dyn, ninst, gd, x3);
             break;
 
         case 0xB3:

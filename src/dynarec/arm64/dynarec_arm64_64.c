@@ -319,12 +319,13 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     MULxw(gd, gd, ed);
                                 }
                             }
-                            IFX(X_AF | X_PF | X_ZF | X_SF)
-                                if (BOX64ENV(dynarec_test)) {
-                                    // to avoid noise during test
-                                    MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                                    BICw(xFlags, xFlags, x1);
-                                }
+                            IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+                            IFX(X_ZF) {BFCw(xFlags, F_ZF, 1);}
+                            IFX(X_SF) {
+                                LSRxw(x3, gd, rex.w?63:31);
+                                BFIw(xFlags, x3, F_SF, 1);
+                            }
+                            IFX(X_PF) emit_pf(dyn, ninst, gd, x3);
                             break;
                         default:
                             DEFAULT;
@@ -549,10 +550,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
                     SET_DFNONE();
-                    IFX(X_ZF | X_PF | X_AF | X_SF) {
-                        MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                        BICw(xFlags, xFlags, x1);
-                    }
                     IFX(X_CF | X_OF) {
                         ASRx(x4, gd, 63);
                         CMPSx_REG(x3, x4);
@@ -574,10 +571,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
                     SET_DFNONE();
-                    IFX(X_ZF | X_PF | X_AF | X_SF) {
-                        MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                        BICw(xFlags, xFlags, x1);
-                    }
                     IFX(X_CF | X_OF) {
                         ASRw(x4, gd, 31);
                         CMPSw_REG(x3, x4);
@@ -593,6 +586,13 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MULxw(gd, ed, x4);
                 }
             }
+            IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+            IFX(X_ZF) {BFCw(xFlags, F_ZF, 1);}
+            IFX(X_SF) {
+                LSRxw(x3, gd, rex.w?63:31);
+                BFIw(xFlags, x3, F_SF, 1);
+            }
+            IFX(X_PF) emit_pf(dyn, ninst, gd, x3);
             break;
 
         case 0x6C:
@@ -1342,26 +1342,25 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(xRAX, xRDX);
                         LSRx(xRDX, xRDX, 32);
                     }
-                    UFLAG_IF {
-                        SET_DFNONE();
-                        IFX(X_CF|X_OF) {
-                            ASRxw(x4, xRAX, rex.w?63:31);
-                            CMPSxw_REG(xRDX, x4);
-                            CSETw(x3, cNE);
-                            IFX(X_CF) {
-                                BFIw(xFlags, x3, F_CF, 1);
-                            }
-                            IFX(X_OF) {
-                                BFIw(xFlags, x3, F_OF, 1);
-                            }
+                    SET_DFNONE();
+                    IFX(X_CF|X_OF) {
+                        ASRxw(x4, xRAX, rex.w?63:31);
+                        CMPSxw_REG(xRDX, x4);
+                        CSETw(x3, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x3, F_CF, 1);
                         }
-                        IFX(X_AF | X_PF | X_ZF | X_SF)
-                            if (BOX64ENV(dynarec_test)) {
-                                // to avoid noise during test
-                                MOV32w(x3, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
-                                BICw(xFlags, xFlags, x3);
-                            }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x3, F_OF, 1);
+                        }
                     }
+                    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+                    IFX(X_ZF) {BFCw(xFlags, F_ZF, 1);}
+                    IFX(X_SF) {
+                        LSRxw(x3, xRAX, rex.w?63:31);
+                        BFIw(xFlags, x3, F_SF, 1);
+                    }
+                    IFX(X_PF) emit_pf(dyn, ninst, xRAX, x3);
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
