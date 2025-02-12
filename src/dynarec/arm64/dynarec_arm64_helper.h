@@ -1086,14 +1086,15 @@
 #endif
 
 #define SET_DFNONE()                                     \
-    do {                                                 \
+    if(!dyn->insts[ninst].x64.may_set) {                 \
         dyn->f.dfnone_here = 1;                          \
         if (!dyn->f.dfnone) {                            \
             STRw_U12(wZR, xEmu, offsetof(x64emu_t, df)); \
             dyn->f.dfnone = 1;                           \
         }                                                \
-    } while (0);
+    }
 #define SET_DF(S, N)                                                                                                            \
+    if(!dyn->insts[ninst].x64.may_set) {                                                                                        \
     if ((N) != d_none) {                                                                                                        \
         MOVZw(S, (N));                                                                                                          \
         STRw_U12(S, xEmu, offsetof(x64emu_t, df));                                                                              \
@@ -1104,7 +1105,8 @@
         }                                                                                                                       \
         dyn->f.dfnone = 0;                                                                                                      \
     } else                                                                                                                      \
-        SET_DFNONE()
+        SET_DFNONE();                                                                                                           \
+    }
 #ifndef SET_NODF
 #define SET_NODF()          dyn->f.dfnone = 0
 #endif
