@@ -158,6 +158,8 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             MARK3;
                             LDRH_U12(x1, wback, 0);
                             LDAXRB(x3, wback); // dummy read, to arm the write...
+                            SUBw_UXTB(x3, x3, x1);
+                            CBNZw_MARK3(x3);
                             CMPSw_REG(x6, x1);
                             B_MARK(cNE);
                             // EAX == Ed
@@ -166,8 +168,8 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             STRH_U12(gd, wback, 0);
                         }
                     }
-                    SMDMB();
                     MARK;
+                    SMDMB();
                     // Common part (and fallback for EAX != Ed)
                     UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
                     BFIx(xRAX, x1, 0, 16);
@@ -295,29 +297,35 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             }
                         }
                         if(arm64_atomics) {
-                            LDADDALH(x5, x1, wback);
                             UFLAG_IF {
-                                emit_add16(dyn, ninst, x1, x5, x3, x4);    
+                                LDADDALH(x5, x1, wback);
+                            } else {
+                                STADDLH(x5, wback);
                             }
                         } else {
                             MARKLOCK;
                             LDAXRH(x1, wback);
-                            emit_add16(dyn, ninst, x1, x5, x3, x4);
-                            STLXRH(x3, x1, wback);
+                            ADDw_REG(x4, x1, x5);
+                            STLXRH(x3, x4, wback);
                             CBNZx_MARKLOCK(x3);
                         }
                         SMDMB();
                         if(!ALIGNED_ATOMICH) {
-                            B_NEXT_nocond;
+                            B_MARK2_nocond;
                             MARK;   // unaligned! also, not enough
                             LDRH_U12(x1, wback, 0);
                             LDAXRB(x4, wback);
-                            BFIw(x1, x4, 0, 8); // re-inject
-                            emit_add16(dyn, ninst, x1, x5, x3, x4);
-                            STLXRB(x3, x1, wback);
+                            SUBw_UXTB(x4, x4, x1);
+                            CBNZw_MARK(x4);
+                            ADDw_REG(x4, x1, x5);
+                            STLXRB(x3, x4, wback);
                             CBNZx_MARK(x3);
-                            STRH_U12(x1, wback, 0);    // put the whole value
+                            STRH_U12(x4, wback, 0);    // put the whole value
                             SMDMB();
+                        }
+                        MARK2;
+                        UFLAG_IF {
+                            emit_add16(dyn, ninst, x1, x5, x3, x4);
                         }
                     }
                     break;
@@ -472,29 +480,33 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             NEGw_REG(x4, x5);
                             UFLAG_IF {
                                 LDADDALH(x4, x1, wback);
-                                emit_sub16(dyn, ninst, x1, x5, x3, x4);
                             } else {
                                 STADDLH(x4, wback);
                             }
                         } else {
                             MARKLOCK;
                             LDAXRH(x1, wback);
-                            emit_sub16(dyn, ninst, x1, x5, x3, x4);
+                            SUBw_REG(x4, x1, x5);
                             STLXRH(x3, x1, wback);
                             CBNZx_MARKLOCK(x3);
                         }
                         SMDMB();
                         if(!ALIGNED_ATOMICH) {
-                            B_NEXT_nocond;
+                            B_MARK2_nocond;
                             MARK;   // unaligned! also, not enough
                             LDRH_U12(x1, wback, 0);
                             LDAXRB(x4, wback);
-                            BFIw(x1, x4, 0, 8); // re-inject
-                            emit_sub16(dyn, ninst, x1, x5, x3, x4);
-                            STLXRB(x3, x1, wback);
+                            SUBw_UXTB(x4, x4, x1);
+                            CBNZw_MARK(x4);
+                            SUBw_REG(x4, x1, x5);
+                            STLXRB(x3, x4, wback);
                             CBNZx_MARK(x3);
-                            STRH_U12(x1, wback, 0);    // put the whole value
+                            STRH_U12(x4, wback, 0);    // put the whole value
                             SMDMB();
+                        }
+                        MARK2;
+                        UFLAG_IF {
+                            emit_sub16(dyn, ninst, x1, x5, x3, x4);
                         }
                     }
                     break;

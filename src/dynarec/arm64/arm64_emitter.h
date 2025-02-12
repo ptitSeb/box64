@@ -262,6 +262,7 @@ int convert_bitmask(uint64_t bitmask);
 
 #define SUB_ext(sf, op, S, Rm, option, imm3, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b01011<<24 | 1<<21 | (Rm)<<16 | (option)<<13 | (imm3)<<10 | (Rn)<<5 | (Rd))
 #define SUBxw_UXTB(Rd, Rn, Rm)      EMIT(SUB_ext(rex.w, 1, 0, Rm, 0b000, 0, Rn, Rd))
+#define SUBw_UXTB(Rd, Rn, Rm)       EMIT(SUB_ext(0, 1, 0, Rm, 0b000, 0, Rn, Rd))
 
 // CCMP compare if cond is true, set nzcv if false
 #define CCMP_reg(sf, Rm, cond, Rn, nzcv)    ((sf)<<31 | 1<<30 | 1<<29 | 0b11010010<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | (nzcv))
