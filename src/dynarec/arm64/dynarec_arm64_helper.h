@@ -796,6 +796,10 @@
 #define CBNZx_MARK2(reg)                \
     j64 = GETMARK2-(dyn->native_size);  \
     CBNZx(reg, j64)
+// Branch to MARK2 if reg is not 0 (use j64)
+#define CBNZw_MARK2(reg)                \
+    j64 = GETMARK2-(dyn->native_size);  \
+    CBNZw(reg, j64)
 #define CBNZxw_MARK2(reg)               \
     j64 = GETMARK2-(dyn->native_size);  \
     CBNZxw(reg, j64)

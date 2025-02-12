@@ -260,6 +260,9 @@ int convert_bitmask(uint64_t bitmask);
 #define SBCSw_REG(Rd, Rn, Rm)      FEMIT(ADDSUBC_gen(0, 1, 1, Rm, Rn, Rd))
 #define SBCSxw_REG(Rd, Rn, Rm)     FEMIT(ADDSUBC_gen(rex.w, 1, 1, Rm, Rn, Rd))
 
+#define SUB_ext(sf, op, S, Rm, option, imm3, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b01011<<24 | 1<<21 | (Rm)<<16 | (option)<<13 | (imm3)<<10 | (Rn)<<5 | (Rd))
+#define SUBxw_UXTB(Rd, Rn, Rm)      EMIT(SUB_ext(rex.w, 1, 0, Rm, 0b000, 0, Rn, Rd))
+
 // CCMP compare if cond is true, set nzcv if false
 #define CCMP_reg(sf, Rm, cond, Rn, nzcv)    ((sf)<<31 | 1<<30 | 1<<29 | 0b11010010<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | (nzcv))
 #define CCMPw(Wn, Wm, nzcv, cond)  FEMIT(CCMP_reg(0, Wm, cond, Wn, nzcv))
