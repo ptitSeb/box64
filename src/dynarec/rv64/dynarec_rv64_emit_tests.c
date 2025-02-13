@@ -333,6 +333,42 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 }
 
+// emit TEST8 instruction, from test s1, c, using s3, s4 and s5 as scratch
+void emit_test8c(dynarec_rv64_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4, int s5)
+{
+    CLEAR_FLAGS();
+    IFX_PENDOR0 {
+        SET_DF(s3, d_tst8);
+    } else {
+        SET_DFNONE();
+    }
+
+    ANDI(s3, s1, c); // res = s1 & c
+
+    IFX_PENDOR0 {
+        SD(s3, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
+
+    IFX (X_SF) {
+        SRLI(s4, s3, 7);
+        SET_FLAGS_NEZ(s4, F_SF, s5);
+    }
+    IFX (X_ZF) {
+        SET_FLAGS_EQZ(s3, F_ZF, s5);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s3, s4, s5);
+    }
+
+    NAT_FLAGS_ENABLE_SIGN();
+    if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
+        SLLI(s3, s3, 56);
+        SRAI(s3, s3, 56);
+    }
+}
+
 // emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
 void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
@@ -387,8 +423,6 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
     IFX (X_SF | X_ZF) {
         if (!rex.w) ZEROUP(s3);
-    } else if (dyn->insts[ninst].nat_flags_fusion) {
-        if (!rex.w) ZEROUP(s3);
     }
 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
@@ -407,10 +441,11 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
         if (dyn->insts[ninst].nat_flags_needsign) {
-            SLLI(s3, s3, 32);
-            SRAI(s3, s3, 32);
+            SEXT_W(s3, s3);
         } else {
-            ZEROUP(s3);
+            IFX (X_SF | X_ZF) {
+            } else
+                ZEROUP(s3);
         }
     }
 }
@@ -427,12 +462,13 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 
     if (c >= -2048 && c <= 2047) {
         ANDI(s3, s1, c);
-        IFX (X_SF | X_ZF) {
-            if (!rex.w && c < 0) ZEROUP(s3);
-        }
     } else {
         MOV64xw(s3, c);
         AND(s3, s1, s3); // res = s1 & s2
+    }
+
+    IFX (X_SF | X_ZF) {
+        if (!rex.w && c < 0) ZEROUP(s3);
     }
 
     IFX_PENDOR0 {
@@ -455,10 +491,11 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
         if (dyn->insts[ninst].nat_flags_needsign) {
-            SLLI(s3, s3, 32);
-            SRAI(s3, s3, 32);
+            SEXT_W(s3, s3);
         } else {
-            ZEROUP(s3);
+            IFX (X_SF | X_ZF) {
+            } else if (c < 0)
+                ZEROUP(s3);
         }
     }
 }
