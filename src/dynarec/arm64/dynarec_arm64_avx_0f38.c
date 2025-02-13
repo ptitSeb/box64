@@ -151,7 +151,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             GETVD;
             UXTBw(x1, vd);
             CMPSw_U12(x1, rex.w?64:32);
-            CSETxw(x2, cPL);
+            CSETMxw(x2, cPL);
             IFX(F_CF) {
                 BFIw(xFlags, x2, F_CF, 1);
             }
