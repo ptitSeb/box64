@@ -782,17 +782,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "f0110100iiiiiiiiiiiiiiiiiiittttt", &a)) {
         int offset = signExtend(imm, 19)<<2;
-        snprintf(buff, sizeof(buff), "CBZ %s, #%+di\t; %p", Xt[Rt], offset>>2, (void*)(addr + offset));
+        snprintf(buff, sizeof(buff), "CBZ %s, #%+di\t; %p", sf?Xt[Rt]:Wt[Rt], offset>>2, (void*)(addr + offset));
         return buff;
     }
     if(isMask(opcode, "f0110101iiiiiiiiiiiiiiiiiiittttt", &a)) {
         int offset = signExtend(imm, 19)<<2;
-        snprintf(buff, sizeof(buff), "CBNZ %s, #%+di\t; %p", Xt[Rt], offset>>2, (void*)(addr + offset));
-        return buff;
-    }
-    if(isMask(opcode, "f0110100iiiiiiiiiiiiiiiiiiittttt", &a)) {
-        int offset = signExtend(imm, 19)<<2;
-        snprintf(buff, sizeof(buff), "CBZ %s, #%+di\t; %p", Xt[Rt], offset>>2, (void*)(addr + offset));
+        snprintf(buff, sizeof(buff), "CBNZ %s, #%+di\t; %p", sf?Xt[Rt]:Wt[Rt], offset>>2, (void*)(addr + offset));
         return buff;
     }
     if(isMask(opcode, "s0110110sssssiiiiiiiiiiiiiittttt", &a)) {
@@ -1594,12 +1589,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     
     // LD1/ST1 single structure
-    if(isMask(opcode, "0Q0011010L000000cc0Sffnnnnnttttt", &a)) {
+    if(isMask(opcode, "0Q0011010Lo00000cc0Sffnnnnnttttt", &a)) {
         int scale = a.c;
         int idx = 0;
         const char* Y[] = {"B", "H", "S", "D"};
         switch(scale) {
-            case 3: scale = sf; /* rep = 1; */ break;
+            case 3: scale = sf; /* rep = 1; */ idx=(8*(a.Q+1))>>scale; break;
             case 0: idx = (a.Q<<3) | (a.S<<2) | sf; break;
             case 1: idx = (a.Q<<2) | (a.S<<1) | (sf>>1); break;
             case 2: if(!(sf&1))
@@ -1610,7 +1605,10 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
                     }
                     break;
         }
-        snprintf(buff, sizeof(buff), "%s1 {V%d.%s}[%d], [%s]", a.L?"LD":"ST", Rt, Y[scale], idx, XtSp[Rn]);
+        if(!option && a.L && scale==3)
+            snprintf(buff, sizeof(buff), "LD1R {V%d.%d%s}, [%s]", Rt, idx, Y[scale], XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "%s1 {V%d.%s}[%d], [%s]", a.L?"LD":"ST", Rt, Y[scale], idx, XtSp[Rn]);
         return buff;
     }
     // LDUR/STUR
