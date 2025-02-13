@@ -633,28 +633,31 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETGX_empty(v0);
             q0 = fpu_get_scratch(dyn, ninst);
             VSSHRQ_32(q0, v2, 31);
-            VEORQ(v0, v0, v0);
             if (MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x3, (nextop & 7) + (rex.b << 3), 0);
                 VANDQ(v0, v1, q0);
             } else {
+                VEORQ(v0, v0, v0);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                EORx_REG(x4, x4, x4);
+                if(ed!=x3) {
+                    MOVz_REG(x3, ed);
+                    ed = x3;
+                }
                 VMOVSto(x4, q0, 0);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VLD1_32(v0, 0, ed);
                 ADDx_U12(ed, ed, 4);
                 VMOVSto(x4, q0, 1);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VLD1_32(v0, 1, ed);
                 ADDx_U12(ed, ed, 4);
                 VMOVSto(x4, q0, 2);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VLD1_32(v0, 2, ed);
                 ADDx_U12(ed, ed, 4);
                 VMOVSto(x4, q0, 3);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VLD1_32(v0, 3, ed);
                 if(vex.l)
                     ADDx_U12(ed, ed, 4);
@@ -663,28 +666,25 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 VSSHRQ_32(q0, v2, 31);
-                VEORQ(v0, v0, v0);
-                if(MODREG)
-                {
+                if(MODREG) {
                     v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);
                     VANDQ(v0, v1, q0);
-                }
-                else
-                {
+                } else {
+                    VEORQ(v0, v0, v0);
                     VMOVSto(x4, q0, 0);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VLD1_32(v0, 0, ed);
                     ADDx_U12(ed, ed, 4);
                     VMOVSto(x4, q0, 1);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VLD1_32(v0, 1, ed);
                     ADDx_U12(ed, ed, 4);
                     VMOVSto(x4, q0, 2);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VLD1_32(v0, 2, ed);
                     ADDx_U12(ed, ed, 4);
                     VMOVSto(x4, q0, 3);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VLD1_32(v0, 3, ed);
                 }
             } else YMM0(gd);
@@ -704,7 +704,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                EORx_REG(x4, x4, x4);
+                if(ed!=x3) {
+                    MOVz_REG(x3, ed);
+                    ed = x3;
+                }
                 VMOVQDto(x4, q0, 0);
                 CBZx(x4, 4+1*4);
                 VLD1_64(v0, 0, ed);
@@ -749,23 +752,26 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VBITQ(v1, v0, q0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(ed!=x3) {
+                    MOVz_REG(x3, ed);
+                    ed = x3;
+                }
                 // check if mask as anything, else skip the whole read/write to avoid a SEGFAULT.
                 // TODO: let a segfault trigger and check if the mask is null instead and ignore the segfault / actually triger: needs to implement SSE reg tracking first!
-                EORx_REG(x4, x4, x4);
                 VMOVSto(x4, q0, 0);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VST1_32(v0, 0, ed);
                 ADDx_U12(ed, ed, 4);
                 VMOVSto(x4, q0, 1);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VST1_32(v0, 1, ed);
                 ADDx_U12(ed, ed, 4);
                 VMOVSto(x4, q0, 2);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VST1_32(v0, 2, ed);
                 ADDx_U12(ed, ed, 4);
                 VMOVSto(x4, q0, 3);
-                CBZx(x4, 4+1*4);
+                CBZw(x4, 4+1*4);
                 VST1_32(v0, 3, ed);
                 if(vex.l)
                     ADDx_U12(ed, ed, 4);
@@ -781,19 +787,19 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 else {
                     VMOVSto(x4, q0, 0);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VST1_32(v0, 0, ed);
                     ADDx_U12(ed, ed, 4);
                     VMOVSto(x4, q0, 1);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VST1_32(v0, 1, ed);
                     ADDx_U12(ed, ed, 4);
                     VMOVSto(x4, q0, 2);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VST1_32(v0, 2, ed);
                     ADDx_U12(ed, ed, 4);
                     VMOVSto(x4, q0, 3);
-                    CBZx(x4, 4+1*4);
+                    CBZw(x4, 4+1*4);
                     VST1_32(v0, 3, ed);
                 }
             }
@@ -810,11 +816,14 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VBITQ(v1, v0, q0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(ed!=x3) {
+                    MOVz_REG(x3, ed);
+                    ed = x3;
+                }
                 unscaled = 0;
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if mask as anything, else skip the whole read/write to avoid a SEGFAULT.
                 // TODO: let a segfault trigger and check if the mask is null instead and ignore the segfault / actually triger: needs to implement SSE reg tracking first!
-                EORx_REG(x4, x4, x4);
                 VMOVQDto(x4, q0, 0);
                 CBZx(x4, 4+1*4);
                 VST1_64(v0, 0, ed);
