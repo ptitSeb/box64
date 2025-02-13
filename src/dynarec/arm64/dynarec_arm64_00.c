@@ -1676,7 +1676,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 IF_UNALIGNED(ip) {
                     // special optim for large RCX value on forward case only
                     // but because it's unaligned path, check if a byte per byt is needed, and do 4-bytes per 4-bytes only instead
-                    if(BOX64DRENV(dynarec_safeflags)>1) {
+                    if(BOX64DRENV(dynarec_safeflags)) {
                         SUBx_REG(x2, xRDI, xRSI);
                         CMPSx_U12(x2, 4);
                         B_MARK(cCC);
@@ -1693,7 +1693,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     CBNZx_MARK3(xRCX);
                     CBZx_MARKLOCK(xRCX);
                 } else {
-                    if(BOX64DRENV(dynarec_safeflags)>1) {
+                    if(BOX64DRENV(dynarec_safeflags)) {
                         SUBx_REG(x2, xRDI, xRSI);
                         CMPSx_U12(x2, 8);
                         B_MARK(cCC);
