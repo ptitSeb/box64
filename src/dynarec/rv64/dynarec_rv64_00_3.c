@@ -794,9 +794,21 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 6:
                     INST_NAME("SHL Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (!dyn->insts[ninst].x64.gen_flags) {
+                        GETED(0);
+                        SLL(ed, ed, xRCX);
+                        if (dyn->insts[ninst].nat_flags_fusion) {
+                            if (!rex.w) ZEROUP(ed);
+                            NAT_FLAGS_OPS(ed, xZR);
+                        } else if (!rex.w && MODREG) {
+                            ZEROUP(ed);
+                        }
+                        WBACK;
+                        break;
+                    }
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
-                    if (!rex.w && MODREG) { ZEROUP(ed); }
+                    if (!rex.w && MODREG) ZEROUP(ed);
                     CBZ_NEXT(x3);
                     emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
@@ -804,6 +816,18 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 5:
                     INST_NAME("SHR Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (!dyn->insts[ninst].x64.gen_flags) {
+                        GETED(0);
+                        SRL(ed, ed, xRCX);
+                        if (dyn->insts[ninst].nat_flags_fusion) {
+                            if (!rex.w) ZEROUP(ed);
+                            NAT_FLAGS_OPS(ed, xZR);
+                        } else if (!rex.w && MODREG) {
+                            ZEROUP(ed);
+                        }
+                        WBACK;
+                        break;
+                    }
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
                     if (!rex.w && MODREG) { ZEROUP(ed); }
