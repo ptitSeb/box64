@@ -260,6 +260,41 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
             break;
 
+        case 0xF7:
+            INST_NAME("BEXTR Gd, Ed, Vd");
+            nextop = F8;
+            SETFLAGS(X_ALL, SF_SET);
+            GETGD;
+            GETED(0);
+            GETVD;
+            MOV64xw(x1, 0);
+            UXTBw(x2, vd);          // start
+            BFXILw(x3, vd, 8, 8);   // length
+            TSTw_REG(x3, x3);
+            B_MARK(cEQ);
+            LSRxw_REG(x1, ed, x2);
+            CMPSw_U12(x3, rex.w?64:32);
+            B_MARK(cGE);
+            MOV32w(x2, rex.w?64:32);
+            SUBw_REG(x2, x2, x3);
+            LSLxw_REG(x1, x1, x2);
+            LSRxw_REG(x1, x1, x2);
+            TSTxw_REG(x1, x1);
+            MARK;
+            MOVxw_REG(gd, x1);
+            IFX(X_ZF) {
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x3, cEQ);
+                    BFIw(xFlags, x3, F_ZF, 1);
+                }
+            }
+            IFX(X_AF) BFCw(xFlags, F_AF, 1);
+            IFX(X_PF) BFCw(xFlags, F_PF, 1);
+            IFX(X_CF) BFCw(xFlags, F_CF, 1);
+            IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+            IFX(X_SF) IFNATIVE(NF_SF) {} else {BFCw(xFlags, F_SF, 1);}
+            break;
+
         default:
             DEFAULT;
     }
