@@ -584,10 +584,10 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             if (i64) {
-                MOV64xw(x2, i64);
+                MOV64xws(x2, i64);
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
             } else
-                emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
+                emit_cmp32_0(dyn, ninst, rex, nextop, xRAX, x3, x4, x5);
             break;
 
         default:

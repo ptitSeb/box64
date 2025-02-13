@@ -23,6 +23,15 @@
             MOV32w(A, B); \
         }                 \
     } while (0)
+// sign extended 32bits if !rex.w
+#define MOV64xws(A, B)                        \
+    do {                                      \
+        if (rex.w) {                          \
+            MOV64x(A, B);                     \
+        } else {                              \
+            rv64_move32(dyn, ninst, A, B, 0); \
+        }                                     \
+    } while (0)
 #define MOV64z(A, B)        \
     do {                    \
         if (rex.is32bits) { \

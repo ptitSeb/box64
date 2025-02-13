@@ -253,15 +253,10 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     else
                         i64 = F8S;
                     if (i64) {
-                        MOV64xw(x2, i64);
+                        MOV64xws(x2, i64);
                         emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
-                    } else {
-                        if (!rex.w && MODREG) {
-                            ZEXTW2(x1, ed);
-                            ed = x1;
-                        }
-                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
-                    }
+                    } else
+                        emit_cmp32_0(dyn, ninst, rex, nextop, ed, x3, x4, x5);
                     break;
             }
             break;
