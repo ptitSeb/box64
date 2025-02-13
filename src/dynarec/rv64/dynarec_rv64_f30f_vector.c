@@ -107,7 +107,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 q1 = fpu_get_scratch(dyn);
-                VLE32_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             GETGX_empty_vector(q0);
             ADDI(x4, xZR, 32);
@@ -126,7 +126,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 q1 = fpu_get_scratch(dyn);
-                VLE32_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             GETGX_empty_vector(q0);
             ADDI(x4, xZR, 32);
