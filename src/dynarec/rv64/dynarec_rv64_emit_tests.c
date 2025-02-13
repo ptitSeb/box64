@@ -255,7 +255,7 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 }
 
 // emit CMP32 instruction, from cmp s1, 0, using s3 and s4 as scratch
-void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
+void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, uint8_t nextop, int s1, int s3, int s4, int s5)
 {
     CLEAR_FLAGS();
     IFX_PENDOR0 {
@@ -275,11 +275,18 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
             SET_FLAGS_NEZ(s3, F_SF, s4);
         }
     }
+    int res = s1;
+    IFX (X_ZF | X_PF) {
+        if (!rex.w && MODREG) {
+            ZEXTW2(s5, s1);
+            res = s5;
+        }
+    }
     IFX (X_ZF) {
-        SET_FLAGS_EQZ(s1, F_ZF, s3);
+        SET_FLAGS_EQZ(res, F_ZF, s3);
     }
     IFX (X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, res, s3, s4);
     }
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
@@ -289,10 +296,13 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
         else {
             if (dyn->insts[ninst].nat_flags_needsign) {
                 SEXT_W(s3, s1);
+                NAT_FLAGS_OPS(s3, xZR);
+            } else if (res == s5) { // zero-up'd case
+                NAT_FLAGS_OPS(s5, xZR);
             } else {
                 ZEXTW2(s3, s1);
+                NAT_FLAGS_OPS(s3, xZR);
             }
-            NAT_FLAGS_OPS(s3, xZR);
         }
     }
 }
