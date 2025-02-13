@@ -582,7 +582,7 @@ int convert_bitmask(uint64_t bitmask);
 #define CSINV_gen(sf, Rm, cond, Rn, Rd)     ((sf)<<31 | 1<<30 | 0b11010100<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | (Rd))
 #define CSINVx(Rd, Rn, Rm, cond)            EMIT(CSINV_gen(1, Rm, cond, Rn, Rd))
 #define CSINVw(Rd, Rn, Rm, cond)            EMIT(CSINV_gen(0, Rm, cond, Rn, Rd))
-#define CSINVxw(Rd, Rn, Rm, cond)           EMIT(CSINV_gen(rex.w?, Rm, cond, Rn, Rd))
+#define CSINVxw(Rd, Rn, Rm, cond)           EMIT(CSINV_gen(rex.w, Rm, cond, Rn, Rd))
 #define CINVx(Rd, Rn, cond)                 CSINVx(Rd, Rn, Rn, invertCond(cond))
 #define CINVw(Rd, Rn, cond)                 CSINVw(Rd, Rn, Rn, invertCond(cond))
 #define CINVxw(Rd, Rn, cond)                CSINVxw(Rd, Rn, Rn, invertCond(cond))
