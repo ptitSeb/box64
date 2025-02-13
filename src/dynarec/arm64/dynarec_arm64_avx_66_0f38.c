@@ -346,6 +346,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VLDR128_U12(d0, ed, fixedaddress);
                 VLDR128_U12(d1, ed, fixedaddress+16);
             }
+            MOV32w(x3, 0x03020100);
+            VDUPQS(q1, x3);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { 
                     GETVX(v2, 0);
@@ -358,14 +360,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 MOVIQ_32(q0, 7); // index and 7
                 VANDQ(q0, v2, q0);
                 SQXTN_16(q0, q0);   // index in 16bits
-                VSHL_16(q0, q0, 1); // double the index
                 VZIP1Q_16(q0, q0, q0);   // repeat the index by pair
-                MOVIQ_32_lsl(q1, 1, 2);    // q1 as 16bits is 0 / 1
-                VADDQ_16(q0, q0, q1);
                 SQXTN_8(q0, q0);   // index in 8bits
-                VSHL_8(q0, q0, 1); // double the index
+                VSHL_8(q0, q0, 2); // quadruple the indexes
                 VZIP1Q_8(q0, q0, q0);   // repeat the index by pair
-                MOVIQ_16(q1, 1, 1);
                 VADDQ_8(q0, q0, q1);
                 // fetch the datas
                 VTBLQ2_8(v0, d0, q0);
@@ -424,16 +422,16 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                v1 = fpu_get_scratch(dyn, ninst);
-                VLD32(v1, ed, fixedaddress);
-            }
-            GETGX_empty(v0);
-            VDUPQ_32(v0, v1, 0);
-            if(vex.l) {
-                GETGY_empty(v0, -1, -1, -1);
+                GETGX_empty(v0);
                 VDUPQ_32(v0, v1, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                GETGX_empty(v0);
+                VLDQ1R_32(v0, ed);
+            }
+            if(vex.l) {
+                GETGY_empty(v1, -1, -1, -1);
+                VMOVQ(v1, v0);
             } else YMM0(gd);
             break;
         case 0x19:
@@ -441,16 +439,16 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
-                v1 = fpu_get_scratch(dyn, ninst);
-                VLD64(v1, ed, fixedaddress);
-            }
-            GETGX_empty(v0);
-            VDUPQ_64(v0, v1, 0);
-            if(vex.l) {
-                GETGY_empty(v0, -1, -1, -1);
+                GETGX_empty(v0);
                 VDUPQ_64(v0, v1, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                GETGX_empty(v0);
+                VLDQ1R_64(v0, ed);
+            }
+            if(vex.l) {
+                GETGY_empty(v1, -1, -1, -1);
+                VMOVQ(v1, v0);
             } else YMM0(gd);
             break;
         case 0x1A:
