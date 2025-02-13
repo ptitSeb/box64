@@ -938,11 +938,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     if (MODREG) {                                                                                \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                \
         if (dyn->insts[ninst].nat_flags_fusion) {                                                \
-            NATIVEJUMP(NATNO, 8);                                                                \
+            NATIVEJUMP(NATNO, (rex.w || rv64_xtheadbb || rv64_zba) ? 8 : 12);                    \
         } else {                                                                                 \
-            B##NO(tmp1, 8);                                                                      \
+            B##NO(tmp1, (rex.w || rv64_xtheadbb || rv64_zba) ? 8 : 12);                          \
         }                                                                                        \
-        MV(gd, ed);                                                                              \
+        if (rex.w)                                                                               \
+            MV(gd, ed);                                                                          \
+        else {                                                                                   \
+            if (rv64_zba) {                                                                      \
+                ZEXTW(gd, ed);                                                                   \
+            } else if (rv64_xtheadbb) {                                                          \
+                TH_EXTU(gd, ed, 31, 0);                                                          \
+            } else {                                                                             \
+                SLLI(gd, ed, 32);                                                                \
+                SRLI(gd, gd, 32);                                                                \
+            }                                                                                    \
+        }                                                                                        \
     } else {                                                                                     \
         addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \
         if (dyn->insts[ninst].nat_flags_fusion) {                                                \
@@ -951,8 +962,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             B##NO(tmp1, 8);                                                                      \
         }                                                                                        \
         LDxw(gd, ed, fixedaddress);                                                              \
-    }                                                                                            \
-    if (!rex.w) ZEROUP(gd);
+    }
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
 #undef GO
