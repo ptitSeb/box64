@@ -137,6 +137,82 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                         IFX(X_PF) BFCw(xFlags, F_PF, 1);
                     }
                     break;
+
+                case 2:
+                    INST_NAME("BLSMSK Vd, Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED(0);
+                    GETVD;
+                    IFX(X_CF) {
+                        TSTxw_REG(ed, ed);
+                        CSETMw(x3, cEQ);
+                        BFIw(xFlags, x3, F_CF, 1);
+                    }
+                    SUBxw_U12(x3, ed, 1);
+                    need_tst = 0;
+                    IFX(X_ZF) need_tst = 1;
+                    IFXNATIVE(X_SF, NF_SF) need_tst = 1;
+                    IFXNATIVE(X_OF, NF_VF) need_tst = 1;
+                    EORxw_REG(vd, ed, x3);
+                    if(need_tst)
+                        TSTxw_REG(vd, vd);
+                    IFX(X_ZF) {
+                        IFNATIVE(NF_EQ) {} else {
+                            CSETMw(x3, cEQ);
+                            BFIw(xFlags, x3, F_ZF, 1);
+                        }
+                    }
+                    IFX(X_SF) {
+                        IFNATIVE(NF_SF) {} else {
+                            LSRxw(x3, vd, rex.w?63:31);
+                            BFIw(xFlags, x3, F_SF, 1);
+                        }
+                    }
+                    IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+                    if (BOX64ENV(dynarec_test)) {
+                        IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                        IFX(X_PF) BFCw(xFlags, F_PF, 1);
+                    }
+                    break;
+
+                case 3:
+                    INST_NAME("BLSI Vd, Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED(0);
+                    GETVD;
+                    IFX(X_CF) {
+                        TSTxw_REG(ed, ed);
+                        CSETMw(x3, cEQ);
+                        BFIw(xFlags, x3, F_CF, 1);
+                    }
+                    NEGxw_REG(x3, ed);
+                    need_tst = 0;
+                    IFX(X_ZF) need_tst = 1;
+                    IFXNATIVE(X_SF, NF_SF) need_tst = 1;
+                    IFXNATIVE(X_OF, NF_VF) need_tst = 1;
+                    if(need_tst)
+                        ANDSxw_REG(vd, ed, x3);
+                    else
+                        ANDxw_REG(vd, ed, x3);
+                    IFX(X_ZF) {
+                        IFNATIVE(NF_EQ) {} else {
+                            CSETMw(x3, cEQ);
+                            BFIw(xFlags, x3, F_ZF, 1);
+                        }
+                    }
+                    IFX(X_SF) {
+                        IFNATIVE(NF_SF) {} else {
+                            LSRxw(x3, vd, rex.w?63:31);
+                            BFIw(xFlags, x3, F_SF, 1);
+                        }
+                    }
+                    IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+                    if (BOX64ENV(dynarec_test)) {
+                        IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                        IFX(X_PF) BFCw(xFlags, F_PF, 1);
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
