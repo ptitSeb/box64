@@ -24,14 +24,21 @@
 
 void print_banner(x64emu_t* ref)
 {
-    printf_log(LOG_NONE, "Warning, difference between %s Interpreter and Dynarec in %p (%02x %02x %02x %02x %02x %02x %02x %02x)\n"\
-        "=======================================\n",
-        (ref->segs[_CS]==0x23)?"x86":"x64" ,(void*)ref->old_ip,
-        ((uint8_t*)ref->old_ip)[0], ((uint8_t*)ref->old_ip)[1], ((uint8_t*)ref->old_ip)[2], ((uint8_t*)ref->old_ip)[3],
-        ((uint8_t*)ref->old_ip)[4], ((uint8_t*)ref->old_ip)[5], ((uint8_t*)ref->old_ip)[6], ((uint8_t*)ref->old_ip)[7]
-    );
-    //printf_log(LOG_NONE, "%s\n", DumpCPURegs(ref, ref->old_ip, ref->segs[_CS]==0x23));
-    printf_log(LOG_NONE, "DIFF: Dynarec |  Interpreter\n----------------------\n");
+    zydis_dec_t* dec = (ref->segs[_CS] == 0x23) ? my_context->dec32 : my_context->dec;
+
+    printf_log(LOG_NONE, "Warning, difference between %s Interpreter and Dynarec in %p",
+        (ref->segs[_CS] == 0x23) ? "x86" : "x64", (void*)ref->old_ip);
+    if (dec) {
+        printf_log_prefix(0, LOG_NONE, " (%s)\n", DecodeX64Trace(dec, ref->old_ip, 1));
+    } else {
+        printf_log_prefix(0, LOG_NONE, "(%02x %02x %02x %02x %02x %02x %02x %02x)\n",
+            ((uint8_t*)ref->old_ip)[0], ((uint8_t*)ref->old_ip)[1], ((uint8_t*)ref->old_ip)[2], ((uint8_t*)ref->old_ip)[3],
+            ((uint8_t*)ref->old_ip)[4], ((uint8_t*)ref->old_ip)[5], ((uint8_t*)ref->old_ip)[6], ((uint8_t*)ref->old_ip)[7]);
+    }
+    printf_log(LOG_NONE, "------------------------------------------------\n");
+    printf_log(LOG_NONE, "DIFF: Dynarec |  Interpreter\n");
+    printf_log(LOG_NONE, "------------------------------------------------\n");
+    // printf_log(LOG_NONE, "%s\n", DumpCPURegs(ref, ref->old_ip, ref->segs[_CS]==0x23));
 }
 #define BANNER if(!banner) {banner=1; print_banner(ref);}
 void x64test_check(x64emu_t* ref, uintptr_t ip)
