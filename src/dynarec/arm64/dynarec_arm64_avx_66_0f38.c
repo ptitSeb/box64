@@ -1866,6 +1866,23 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0xDB:
+            INST_NAME("VAESIMC Gx, Ex");
+            nextop = F8;
+            GETGX_empty_EX(v0, v1, 0);
+            if(arm64_aes) {
+                AESIMC(v0, v1);
+            } else {
+                if(v0!=v1) {
+                    VMOVQ(v0, v1);
+                }
+                sse_forget_reg(dyn, ninst, gd);
+                MOV32w(x1, gd);
+                CALL(native_aesimc, -1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0xDC:
             INST_NAME("VAESENC Gx, Vx, Ex");  // AES-NI
             nextop = F8;
