@@ -632,6 +632,26 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x41:
+            INST_NAME("VDPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v1, v2, 0);
+            u8 = F8;
+            VFMULQD(v0, v1, v2);
+            // mask some, duplicate all, mask some
+            for(int i=0; i<2; ++i)
+                if(!(u8&(1<<(4+i)))) {
+                    VMOVQDfrom(v0, i, xZR);
+                }
+            FADDPD(v0, v0);
+            VDUPQ_64(v0, v0, 0);
+            for(int i=0; i<2; ++i)
+                if(!(u8&(1<<i))) {
+                    VMOVQDfrom(v0, i, xZR);
+                }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x44:
             INST_NAME("PCLMULQDQ Gx, Vx, Ex, Ib");
             nextop = F8;
