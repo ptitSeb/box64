@@ -1238,6 +1238,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                     break;
 
+                case 0x41:
+                    INST_NAME("DPPD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 1);
+                    u8 = F8;
+                    v0 = fpu_get_scratch(dyn, ninst);
+                    VFMULQD(v0, q0, q1);
+                    // mask some, duplicate all, mask some
+                    for(int i=0; i<2; ++i)
+                        if(!(u8&(1<<(4+i)))) {
+                            VMOVQDfrom(v0, i, xZR);
+                        }
+                    FADDPD(v0, v0);
+                    VDUPQ_64(q0, v0, 0);
+                    for(int i=0; i<2; ++i)
+                        if(!(u8&(1<<i))) {
+                            VMOVQDfrom(q0, i, xZR);
+                        }
+                    break;
+
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;

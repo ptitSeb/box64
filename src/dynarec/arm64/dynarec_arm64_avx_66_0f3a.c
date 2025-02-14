@@ -632,6 +632,26 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x41:
+            INST_NAME("VDPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v1, v2, 0);
+            u8 = F8;
+            VFMULQD(v0, v1, v2);
+            // mask some, duplicate all, mask some
+            for(int i=0; i<2; ++i)
+                if(!(u8&(1<<(4+i)))) {
+                    VMOVQDfrom(v0, i, xZR);
+                }
+            FADDPD(v0, v0);
+            VDUPQ_64(v0, v0, 0);
+            for(int i=0; i<2; ++i)
+                if(!(u8&(1<<i))) {
+                    VMOVQDfrom(v0, i, xZR);
+                }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x44:
             INST_NAME("PCLMULQDQ Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -781,6 +801,30 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     VBITQ(v0, v1, q0);
                 }
             }
+            if(!vex.l) YMM0(gd);
+            break;
+
+       case 0xDF:
+            INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib");
+            nextop = F8;
+            GETG;
+            sse_forget_reg(dyn, ninst, gd);
+            MOV32w(x1, gd); // gx
+            if(MODREG) {
+                ed = (nextop&7)+(rex.b<<3);
+                sse_forget_reg(dyn, ninst, ed);
+                MOV32w(x2, ed);
+                MOV32w(x3, 0);  //p = NULL
+            } else {
+                MOV32w(x2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                if(ed!=x3) {
+                    MOVx_REG(x3, ed);
+                }
+            }
+            u8 = F8;
+            MOV32w(x4, u8);
+            CALL(native_aeskeygenassist, -1);
             if(!vex.l) YMM0(gd);
             break;
 

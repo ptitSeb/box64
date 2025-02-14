@@ -55,6 +55,59 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
     #endif
 
     switch(opcode) {
+        case 0xB8:
+            INST_NAME("POPCNT Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            v1 = fpu_get_scratch(dyn, ninst);
+            VEORQ(v1, v1, v1);
+            VMOVQDfrom(v1, 0, ed);
+            CNT_8(v1, v1);
+            UADDLV_8(v1, v1);
+            VMOVHto(gd, v1, 0);
+            IFX(X_ALL) {
+                IFX(X_AF|X_PF|X_SF|X_OF|X_CF) {
+                    MOV32w(x1, (1<<F_OF) | (1<<F_SF) | (1<<F_ZF) | (1<<F_AF) | (1<<F_CF) | (1<<F_PF));
+                    BICw(xFlags, xFlags, x1);
+                }
+                IFX(X_ZF) {
+                    CMPSw_U12(gd, 0);
+                    IFNATIVE(NF_EQ) {}
+                    else {
+                        CSETw(x1, cEQ);
+                        BFIw(xFlags, x1, F_ZF, 1);
+                    }
+                }
+            }
+            GWBACK;
+            break;
+
+        case 0xBC:
+            INST_NAME("TZCNT Gw, Ew");
+            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            TSTxw_REG(ed, ed);
+            IFX(X_CF) {
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
+            }
+            RBITw(x3, ed);   // reverse
+            CLZw(gd, x3);    // x2 gets leading 0 == TZCNT
+            MOV32w(x3, 16);
+            CSELw(gd, x3, gd, cEQ); // if src is zero, use bit width as res
+            IFX(X_ZF) {
+                TSTxw_REG(gd, gd);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            }
+            GWBACK;
+            break;
 
         case 0xBD:
             INST_NAME("LZCNT Gw, Ew");
@@ -68,14 +121,14 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
             }
-            LSLw_IMM(ed, ed, 16);
             CLZw(gd, ed);
+            SUBw_U12(gd, gd, 16);   // sub zero cnt of high word
             IFX(X_ZF) {
                 TSTxw_REG(gd, gd);
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
             }
-            EWBACK;
+            GWBACK;
             break;
 
         default:
