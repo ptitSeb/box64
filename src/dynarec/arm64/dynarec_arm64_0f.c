@@ -2322,7 +2322,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
-            SETFLAGS(X_ZF, SF_SET_DF);
+            SETFLAGS(X_ZF, SF_SET);
             SET_DFNONE();
             nextop = F8;
             GETED(0);
@@ -2345,7 +2345,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
-            SETFLAGS(X_ZF, SF_SET_DF);
+            SETFLAGS(X_ZF, SF_SET);
             SET_DFNONE();
             nextop = F8;
             GETED(0);
@@ -2550,7 +2550,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) switch((nextop>>3)&7) {
             case 6:
                 INST_NAME("RDRAND Ed");
-                SETFLAGS(X_ALL, SF_SET_DF);
+                SETFLAGS(X_ALL, SF_SET);
                 SET_DFNONE();
                 GETED(0);
                 IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
@@ -2610,7 +2610,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 break;
             case 6:
                 INST_NAME("RDRAND Ed");
-                SETFLAGS(X_ALL, SF_SET_DF);
+                SETFLAGS(X_ALL, SF_SET);
                 SET_DFNONE();
                 IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
                     MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
