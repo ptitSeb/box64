@@ -1771,9 +1771,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(BOX64DRENV(dynarec_safeflags)>1)
-                MAYSETFLAGS();
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_ALL);
+                SETFLAGS(X_ALL, SF_SET);
+            } else
+                SETFLAGS(X_ALL, SF_SET_PENDING);
             GETGD;
             GETED(0);
             if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
@@ -1859,9 +1861,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            if(BOX64DRENV(dynarec_safeflags)>1)
-                MAYSETFLAGS();
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_ALL);
+                SETFLAGS(X_ALL, SF_SET);
+            } else
+                SETFLAGS(X_ALL, SF_SET_PENDING);
             GETGD;
             GETED(0);
             if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}

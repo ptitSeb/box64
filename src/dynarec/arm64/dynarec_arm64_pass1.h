@@ -2,7 +2,6 @@
 #define FINI
 #define MESSAGE(A, ...) do {} while (0)
 #define EMIT(A) do {} while (0)
-#define MAYSETFLAGS()   dyn->insts[ninst].x64.may_set = 1
 #define SET_NODF()      \
         if(!dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].x64.use_flags)   \
                 propagate_nodf(dyn, ninst);     \

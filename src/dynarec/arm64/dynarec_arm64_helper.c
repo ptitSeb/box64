@@ -809,6 +809,42 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     //SET_NODF();
 }
 
+void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
+{
+    MAYUSE(fnc);
+    #if STEP == 0
+    dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
+    #endif
+    STPx_S7_preindex(x6, x7, xSP, -16);
+    STPx_S7_preindex(x4, x5, xSP, -16);
+    STPx_S7_preindex(x2, x3, xSP, -16);
+    STPx_S7_preindex(xEmu, x1, xSP, -16);   // ARM64 stack needs to be 16byte aligned
+    STPx_S7_offset(xRAX, xRCX, xEmu, offsetof(x64emu_t, regs[_AX]));    // x9..x15, x16,x17,x18 those needs to be saved by caller
+    STPx_S7_offset(xRDX, xRBX, xEmu, offsetof(x64emu_t, regs[_DX]));
+    STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
+    STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
+    STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
+    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
+    fpu_pushcache(dyn, ninst, x7, 0);
+
+    TABLE64(x7, (uintptr_t)fnc);
+    BLR(x7);
+    LDPx_S7_postindex(xEmu, x1, xSP, 16);
+    LDPx_S7_postindex(x2, x3, xSP, 16);
+    LDPx_S7_postindex(x4, x5, xSP, 16);
+    #define GO(A, B) LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
+    GO(RAX, RCX);
+    GO(RDX, RBX);
+    GO(RSP, RBP);
+    GO(RSI, RDI);
+    GO(R8, R9);
+    #undef GO
+    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
+    fpu_popcache(dyn, ninst, x7, 0);   // savereg will not be used
+    LDPx_S7_postindex(x6, x7, xSP, 16);
+    //SET_NODF();
+}
+
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);

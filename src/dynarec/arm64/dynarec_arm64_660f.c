@@ -2395,9 +2395,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ew, Gw, CL");
-            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(BOX64DRENV(dynarec_safeflags)>1)
-                MAYSETFLAGS();
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_ALL);
+                SETFLAGS(X_ALL, SF_SET);
+            } else
+                SETFLAGS(X_ALL, SF_SET_PENDING);
             GETGW(x2);
             GETEW(x1, 0);
             ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -2463,9 +2465,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, CL");
-            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(BOX64DRENV(dynarec_safeflags)>1)
-                MAYSETFLAGS();
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_ALL);
+                SETFLAGS(X_ALL, SF_SET);
+            } else
+                SETFLAGS(X_ALL, SF_SET_PENDING);
             GETGW(x2);
             GETEW(x1, 0);
             ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
