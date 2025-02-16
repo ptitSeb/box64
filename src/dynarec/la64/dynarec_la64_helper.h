@@ -835,17 +835,18 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define native_pass STEPNAME(native_pass)
 
-#define dynarec64_00   STEPNAME(dynarec64_00)
-#define dynarec64_0F   STEPNAME(dynarec64_0F)
-#define dynarec64_64   STEPNAME(dynarec64_64)
-#define dynarec64_66   STEPNAME(dynarec64_66)
-#define dynarec64_6664 STEPNAME(dynarec64_6664)
-#define dynarec64_67   STEPNAME(dynarec64_67)
-#define dynarec64_F30F STEPNAME(dynarec64_F30F)
-#define dynarec64_660F STEPNAME(dynarec64_660F)
-#define dynarec64_66F0 STEPNAME(dynarec64_66F0)
-#define dynarec64_F0   STEPNAME(dynarec64_F0)
-#define dynarec64_F20F STEPNAME(dynarec64_F20F)
+#define dynarec64_00     STEPNAME(dynarec64_00)
+#define dynarec64_0F     STEPNAME(dynarec64_0F)
+#define dynarec64_64     STEPNAME(dynarec64_64)
+#define dynarec64_66     STEPNAME(dynarec64_66)
+#define dynarec64_6664   STEPNAME(dynarec64_6664)
+#define dynarec64_67     STEPNAME(dynarec64_67)
+#define dynarec64_F30F   STEPNAME(dynarec64_F30F)
+#define dynarec64_660F   STEPNAME(dynarec64_660F)
+#define dynarec64_66F0   STEPNAME(dynarec64_66F0)
+#define dynarec64_66F20F STEPNAME(dynarec64_66F20F)
+#define dynarec64_F0     STEPNAME(dynarec64_F0)
+#define dynarec64_F20F   STEPNAME(dynarec64_F20F)
 
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
@@ -1093,6 +1094,7 @@ uintptr_t dynarec64_6664(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_66F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 

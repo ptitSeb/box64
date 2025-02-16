@@ -1170,6 +1170,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x8E:
+            INST_NAME("MOV Seg, Ew");
+            nextop = F8;
+            u8 = (nextop & 0x38) >> 3;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LD_HU(x1, wback, fixedaddress);
+                ed = x1;
+            }
+            ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
+            break;
         case 0x8F:
             INST_NAME("POP Ed");
             nextop = F8;
@@ -1478,6 +1493,27 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETDIR(x3, x1, rex.w ? 8 : 4);
                 SDxw(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
+            }
+            break;
+        case 0xAC:
+            if (rep) {
+                DEFAULT;
+            } else {
+                INST_NAME("LODSB");
+                GETDIR(x1, x2, 1);
+                LD_BU(x2, xRSI, 0);
+                ADD_D(xRSI, xRSI, x1);
+                BSTRINS_D(xRAX, x2, 7, 0);
+            }
+            break;
+        case 0xAD:
+            if (rep) {
+                DEFAULT;
+            } else {
+                INST_NAME("LODSD");
+                GETDIR(x1, x2, rex.w ? 8 : 4);
+                LDxw(xRAX, xRSI, 0);
+                ADD_D(xRSI, xRSI, x1);
             }
             break;
         case 0xAE:
@@ -2443,6 +2479,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xF5:
+            INST_NAME("CMC");
+            READFLAGS(X_CF);
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            if (la64_lbt) {
+                X64_GET_EFLAGS(x3, X_CF);
+                XORI(x3, x3, 1 << F_CF);
+                X64_SET_EFLAGS(x3, X_CF);
+            } else {
+                XORI(xFlags, xFlags, 1 << F_CF);
+            }
+            break;
         case 0xF6:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
@@ -2662,6 +2710,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 X64_SET_EFLAGS(xZR, X_CF);
             else
                 BSTRINS_D(xFlags, xZR, F_CF, F_CF);
+            break;
+        case 0xF9:
+            INST_NAME("STC");
+            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            if (la64_lbt) {
+                ORI(x3, xZR, 1 << F_CF);
+                X64_SET_EFLAGS(x3, X_CF);
+            } else {
+                ORI(xFlags, xFlags, 1 << F_CF);
+            }
             break;
         case 0xFC:
             INST_NAME("CLD");

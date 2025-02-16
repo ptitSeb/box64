@@ -799,6 +799,15 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define LDX_HU(rd, rj, rk) EMIT(type_3R(0b00111000001001000, rk, rj, rd))
 #define LDX_WU(rd, rj, rk) EMIT(type_3R(0b00111000001010000, rk, rj, rd))
 
+#define CRC_W_B_W(rd, rk, rj)   EMIT(type_3R(0b00000000001001000, rk, rj, rd))
+#define CRC_W_H_W(rd, rk, rj)   EMIT(type_3R(0b00000000001001001, rk, rj, rd))
+#define CRC_W_W_W(rd, rk, rj)   EMIT(type_3R(0b00000000001001010, rk, rj, rd))
+#define CRC_W_D_W(rd, rk, rj)   EMIT(type_3R(0b00000000001001011, rk, rj, rd))
+#define CRCC_W_B_W(rd, rk, rj)  EMIT(type_3R(0b00000000001001100, rk, rj, rd))
+#define CRCC_W_H_W(rd, rk, rj)  EMIT(type_3R(0b00000000001001101, rk, rj, rd))
+#define CRCC_W_W_W(rd, rk, rj)  EMIT(type_3R(0b00000000001001110, rk, rj, rd))
+#define CRCC_W_D_W(rd, rk, rj)  EMIT(type_3R(0b00000000001001111, rk, rj, rd))
+
 // Beware the position of rj and rk are swapped in atomic instructions.
 #define AMCAS_B(rd, rk, rj)     EMIT(type_3R(0b00111000010110000, rk, rj, rd))
 #define AMCAS_H(rd, rk, rj)     EMIT(type_3R(0b00111000010110001, rk, rj, rd))
@@ -1902,6 +1911,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VPICKVE2GR_HU(rd, vj, imm3)  EMIT(type_2RI3(0b0111001011110011110, imm3, vj, rd))
 #define VPICKVE2GR_WU(rd, vj, imm2)  EMIT(type_2RI2(0b01110010111100111110, imm2, vj, rd))
 #define VPICKVE2GR_DU(rd, vj, imm1)  EMIT(type_2RI1(0b011100101111001111110, imm1, vj, rd))
+#define VFRINT_S(vd, vj)             EMIT(type_2R(0b0111001010011101001101, vj, vd))
 #define VFRINT_D(vd, vj)             EMIT(type_2R(0b0111001010011101001110, vj, vd))
 #define VFRINTRRD_D(vd, vj, imm4)    EMIT(type_2RI4(0b011100101001110101, imm4, vj, vd))
 #define VREPLGR2VR_B(vd, rj)         EMIT(type_2R(0b0111001010011111000000, rj, vd))
