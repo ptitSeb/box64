@@ -248,6 +248,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FAKEED;
                 }
             break;
+        case 0x19:
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;

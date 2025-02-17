@@ -283,6 +283,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x19:
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             FAKEED(0);
