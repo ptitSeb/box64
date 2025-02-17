@@ -494,7 +494,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             else                                                                                 \
                 B##NO(tmp1, 8);                                                                  \
         }                                                                                        \
-        MV(gd, ed);                                                                              \
+        if (rex.w)                                                                               \
+            MV(gd, ed);                                                                          \
+        else                                                                                     \
+            ZEROUP2(gd, ed);                                                                     \
     } else {                                                                                     \
         addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \
         if (dyn->insts[ninst].nat_flags_fusion) {                                                \
@@ -506,8 +509,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 B##NO(tmp1, 8);                                                                  \
         }                                                                                        \
         LDxw(gd, ed, fixedaddress);                                                              \
-    }                                                                                            \
-    if (!rex.w) ZEROUP(gd);
+    }
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
 
