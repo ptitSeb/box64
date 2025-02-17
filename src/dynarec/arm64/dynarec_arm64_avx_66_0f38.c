@@ -99,7 +99,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0x03:
+            INST_NAME("VPHADDSW Gx, Vx, Ex");
+            nextop = F8;
+            v0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(q0, q2, q1, 0); } else { GETGY_empty_VYEY(q0, q2, q1); }
+                VUZP2Q_16(v0, q2, q1);
+                VUZP1Q_16(q0, q2, q1);
+                SQADDQ_16(q0, q0, v0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x04:
             INST_NAME("PMADDUBSW Gx, Vx, Ex");
             nextop = F8;
@@ -126,7 +137,42 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd); 
             break;
-
+        case 0x05:
+            INST_NAME("VPHSUBW Gx, Vx, Ex");
+            nextop = F8;
+            v0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(q0, q2, q1, 0); } else { GETGY_empty_VYEY(q0, q2, q1); }
+                VUZP2Q_16(v0, q2, q1);
+                VUZP1Q_16(q0, q2, q1);
+                VSUBQ_16(q0, q0, v0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x06:
+            INST_NAME("VPHSUBD Gx, Vx, Ex");
+            nextop = F8;
+            v0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(q0, q2, q1, 0); } else { GETGY_empty_VYEY(q0, q2, q1); }
+                VUZP2Q_32(v0, q2, q1);
+                VUZP1Q_32(q0, q2, q1);
+                VSUBQ_32(q0, q0, v0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x7:
+            INST_NAME("VPHSUBSW Gx, Vx, Ex");
+            nextop = F8;
+            v0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(q0, q2, q1, 0); } else { GETGY_empty_VYEY(q0, q2, q1); }
+                VUZP2Q_16(v0, q2, q1);
+                VUZP1Q_16(q0, q2, q1);
+                SQSUBQ_16(q0, q0, v0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x08:
             INST_NAME("VPSIGNB Gx, Vx, Ex");
             nextop = F8;
@@ -599,7 +645,15 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0x2A:
+            INST_NAME("VMOVNTDQA Gx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
+                VMOVQ(v0, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x2B:
             INST_NAME("VPACKUSDW Gx, Ex, Vx");
             nextop = F8;

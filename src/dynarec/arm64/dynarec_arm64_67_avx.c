@@ -126,6 +126,20 @@ uintptr_t dynarec64_67_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 }
                 break;
 
+            case 0x6E:
+                INST_NAME("VMOVD Gx, Ed");
+                nextop = F8;
+                GETGX_empty(v0);
+                GETED(0);
+                VEORQ(v0, v0, v0); // RAZ vector
+                if(rex.w) {
+                    FMOVDx(v0, ed);
+                } else {
+                    FMOVSw(v0, ed);
+                }
+                YMM0(gd);
+                break;
+
             default:
                 DEFAULT;
         }
