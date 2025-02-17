@@ -190,6 +190,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SD(x5, ed, fixedaddress);
             SMWRITE2();
             break;
+        case 0x19:
         case 0x1F:
             return 0;
         case 0x28:
