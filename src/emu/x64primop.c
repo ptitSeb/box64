@@ -521,9 +521,12 @@ uint8_t rcl8(x64emu_t *emu, uint8_t d, uint8_t s)
 		CONDITIONAL_SET_FLAG(cf, F_CF);
         /* OVERFLOW is set *IFF* cnt==1, then it is the 
            xor of CF and the most significant bit.  Blecck. */
-		CONDITIONAL_SET_FLAG((cf ^ (res >> 7)) & 0x1, F_OF);
-
-    }
+		if(BOX64ENV(cputype))
+		   CONDITIONAL_SET_FLAG((cf ^ (res >> 7)) & 0x1, F_OF);
+	   else
+		   CONDITIONAL_SET_FLAG((XOR2(d >> 6)), F_OF);
+    } else if(s && BOX64ENV(cputype))
+		CONDITIONAL_SET_FLAG((ACCESS_FLAG(F_CF) ^ (res >> 7)) & 0x1, F_OF);
 	return (uint8_t)res;
 }
 
@@ -547,7 +550,8 @@ uint16_t rcl16(x64emu_t *emu, uint16_t d, uint8_t s)
 			CONDITIONAL_SET_FLAG((cf ^ (res >> 15)) & 0x1, F_OF);
 		else
 			CONDITIONAL_SET_FLAG((XOR2(d >> 14)), F_OF);
-	}
+	} else if(s && BOX64ENV(cputype))
+		CONDITIONAL_SET_FLAG((ACCESS_FLAG(F_CF) ^ (res >> 15)) & 0x1, F_OF);
 	return (uint16_t)res;
 }
 
@@ -679,9 +683,9 @@ uint8_t rcr8(x64emu_t *emu, uint8_t d, uint8_t s)
         /* set the new carry flag, based on the variable "cf" */
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 
-		if(BOX64ENV(cputype))
-			CONDITIONAL_SET_FLAG((XOR2(res >> 6)), F_OF);
 	}
+	if(s && BOX64ENV(cputype))
+		CONDITIONAL_SET_FLAG((XOR2(res >> 6)), F_OF);
 	return (uint8_t)res;
 }
 
@@ -709,9 +713,9 @@ uint16_t rcr16(x64emu_t *emu, uint16_t d, uint8_t s)
 			res |= 1 << (16 - cnt);
 		}
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-		if(BOX64ENV(cputype))
-			CONDITIONAL_SET_FLAG((XOR2(res >> 14)), F_OF);
 	}
+	if(s && BOX64ENV(cputype))
+		CONDITIONAL_SET_FLAG((XOR2(res >> 14)), F_OF);
 	return (uint16_t)res;
 }
 
@@ -741,9 +745,9 @@ uint32_t rcr32(x64emu_t *emu, uint32_t d, uint8_t s)
 			res |= 1 << (32 - cnt);
 		}
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-		if(BOX64ENV(cputype))
-			CONDITIONAL_SET_FLAG((XOR2(res >> 30)), F_OF);
 	}
+	if(s && BOX64ENV(cputype))
+		CONDITIONAL_SET_FLAG((XOR2(res >> 30)), F_OF);
 	return res;
 }
 
@@ -773,9 +777,9 @@ uint64_t rcr64(x64emu_t *emu, uint64_t d, uint8_t s)
 			res |= 1LL << (64 - cnt);
 		}
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-		if(BOX64ENV(cputype))
-			CONDITIONAL_SET_FLAG((XOR2(res >> 62)), F_OF);
 	}
+	if(s && BOX64ENV(cputype))
+		CONDITIONAL_SET_FLAG((XOR2(res >> 62)), F_OF);
 	return res;
 }
 /****************************************************************************

@@ -1996,7 +1996,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
-            if(BOX64ENV(dynarec_safeflags)>1 && BOX64ENV(cputype)) {
+            if(BOX64ENV(dynarec_safeflags) && BOX64ENV(cputype)) {
                 SETFLAGS(X_OF|X_CF, SF_SET);
             } else {
                 SETFLAGS(X_ALL, SF_SET);
