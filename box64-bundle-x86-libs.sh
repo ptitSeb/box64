@@ -26,8 +26,7 @@ extract_pkg_auto() {
         echo "XBPS (Void Linux) package detected."
         tar --extract --file "$(basename "${1}")"
     else
-        echo "Unknown package."
-        echo "Unsupported package type."
+        echo "Unsupported package type detected."
         exit 1
     fi
 }
