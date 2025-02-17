@@ -113,7 +113,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(vex.l) {
                     GETGY_empty(v0, -1, -1, -1);
                     ADDx_U12(x3, ed, 16);
-                    VLDQ1R_64(v0, ed);
+                    VLDQ1R_64(v0, x3);
                 }
             }
             if(!vex.l) YMM0(gd);

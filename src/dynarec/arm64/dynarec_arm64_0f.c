@@ -2816,7 +2816,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(d1, 0);
             URHADD_16(d0, d0, d1);
             break;
-
+        case 0xE4:
+            INST_NAME("PMULHUW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
+            VUMULL_16(q0, v0, v1);
+            VUMULL2_16(q1, v0, v1);
+            UQSHRN_16(v0, q0, 16);
+            UQSHRN2_16(v0, q1, 16);
+            break;
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");
             nextop = F8;
