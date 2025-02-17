@@ -146,6 +146,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LD(x3, gback, gdoffset + 8);
             SD(x3, wback, fixedaddress);
             break;
+        case 0x18:
         case 0x19:
         case 0x1F:
             INST_NAME("NOP (multibyte)");
