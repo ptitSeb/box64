@@ -34,24 +34,26 @@
         if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH && !dyn->insts[ninst].set_nat_flags)       \
                 dyn->insts[ninst].nat_flags_op=NAT_FLAG_OP_UNUSABLE;                                    \
         dyn->insts[ninst].x64.has_next = (ok>0)?1:0;
-#define INST_NAME(name) 
-#define DEFAULT                         \
-        --dyn->size;                    \
-        *ok = -1;                       \
-        if(ninst) {dyn->insts[ninst-1].x64.size = ip - dyn->insts[ninst-1].x64.addr;}   \
-        if(BOX64ENV(dynarec_log)>=LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing)==1) \
-        if(!dyn->size || BOX64ENV(dynarec_log)>LOG_INFO || BOX64ENV(dynarec_dump)) {\
-        dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
-        (void*)ip, rex.is32bits?"x86 ":"x64 ",\
-        PKip(0),                        \
-        PKip(1), PKip(2), PKip(3),      \
-        PKip(4), PKip(5), PKip(6),      \
-        PKip(7), PKip(8), PKip(9),      \
-        PKip(10),PKip(11),PKip(12),     \
-        PKip(13),PKip(14));             \
-        printFunctionAddr(ip, " => ");  \
-        dynarec_log_prefix(0, LOG_NONE, "\n"); \
+#define INST_NAME(name)
+#define DEFAULT                                                                                                               \
+    --dyn->size;                                                                                                              \
+    *ok = -1;                                                                                                                 \
+    if (ninst) { dyn->insts[ninst - 1].x64.size = ip - dyn->insts[ninst - 1].x64.addr; }                                      \
+    if (BOX64ENV(dynarec_log) >= LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_missing) == 1)                        \
+        if (!dyn->size || BOX64ENV(dynarec_log) > LOG_INFO || BOX64ENV(dynarec_dump)) {                                       \
+            dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %s Opcode ", (void*)ip, rex.is32bits ? "x86" : "x64");      \
+            zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;                                            \
+            if (dec) {                                                                                                        \
+                dynarec_log_prefix(0, LOG_NONE, "%s", DecodeX64Trace(dec, dyn->insts[ninst].x64.addr, 1));                    \
+            } else {                                                                                                          \
+                dynarec_log_prefix(0, LOG_NONE, "%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
+                    PKip(0), PKip(1), PKip(2), PKip(3), PKip(4), PKip(5), PKip(6), PKip(7), PKip(8), PKip(9),                 \
+                    PKip(10), PKip(11), PKip(12), PKip(13), PKip(14));                                                        \
+            }                                                                                                                 \
+            printFunctionAddr(ip, " => ");                                                                                    \
+            dynarec_log_prefix(0, LOG_NONE, "\n");                                                                            \
         }
+
 
 #define FEMIT(A)        dyn->insts[ninst].nat_flags_op = dyn->insts[ninst].x64.set_flags?NAT_FLAG_OP_TOUCH:NAT_FLAG_OP_UNUSABLE
 #define IFNATIVE(A)     if(mark_natflag(dyn, ninst, A, 0))
