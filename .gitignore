@@ -73,3 +73,17 @@ backup/
 
 # macOS
 .DS_Store
+
+# Archives
+*.7z
+*.deb
+*.eopkg
+*.gz
+*.rar
+*.rpm
+*.tar*
+*.xbps
+*.xz
+*.zip
+*.zst
+*.zstd
