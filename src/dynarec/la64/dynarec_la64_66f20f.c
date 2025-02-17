@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -58,6 +59,7 @@ uintptr_t dynarec64_66F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     GETEW(x1, 0);
                     GETGD;
                     CRCC_W_H_W(gd, gd, ed);
+                    ZEROUP(gd);
                     break;
                 default:
                     DEFAULT;

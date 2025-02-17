@@ -180,6 +180,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEB(x1, 0);
                     GETGD;
                     CRCC_W_B_W(gd, gd, ed);
+                    ZEROUP(gd);
                     break;
                 case 0xF1:
                     INST_NAME("CRC32 Gd, Ed");
@@ -191,6 +192,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         CRCC_W_W_W(gd, gd, ed);
                     }
+                    ZEROUP(gd);
                     break;
                 default:
                     DEFAULT;
