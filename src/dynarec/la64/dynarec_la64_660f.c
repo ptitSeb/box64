@@ -172,6 +172,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VSTELM_D(v0, ed, 0, 1);
             SMWRITE2();
             break;
+        case 0x19:
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -484,7 +485,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q1, 0, 0);
                     GETGX_empty(q0);
                     VSEQ_D(q0, q0, q1);
-                    break;                
+                    break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
