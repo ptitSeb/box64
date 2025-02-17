@@ -563,6 +563,38 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "LDX.WU", Xt[Rd], Xt[Rj], Xt[Rk]);
         return buff;
     }
+    if (isMask(opcode, "00000000001001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRC.W.B.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRC.W.H.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRC.W.W.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRC.W.D.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRCC.W.B.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRCC.W.H.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRCC.W.W.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CRCC.W.D.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
     if (isMask(opcode, "0010101110iiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "FLD.D", Ft[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;

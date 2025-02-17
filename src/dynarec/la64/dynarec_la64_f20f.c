@@ -170,6 +170,34 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+
+        case 0x38: // these are some more SSSE4.2+ opcodes
+            opcode = F8;
+            switch (opcode) {
+                case 0xF0:
+                    INST_NAME("CRC32 Gd, Eb");
+                    nextop = F8;
+                    GETEB(x1, 0);
+                    GETGD;
+                    CRCC_W_B_W(gd, gd, ed);
+                    ZEROUP(gd);
+                    break;
+                case 0xF1:
+                    INST_NAME("CRC32 Gd, Ed");
+                    nextop = F8;
+                    GETED(0);
+                    GETGD;
+                    if (rex.w) {
+                        CRCC_W_D_W(gd, gd, ed);
+                    } else {
+                        CRCC_W_W_W(gd, gd, ed);
+                    }
+                    ZEROUP(gd);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
@@ -348,6 +376,17 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOVGR2FR_D(q1, x2);
             VEXTRINS_D(v0, q1, 0);
             break;
+        case 0xD0:
+            INST_NAME("ADDSUBPS Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            VFSUB_S(v0, q0, q1);
+            VFADD_S(q0, q0, q1);
+            VEXTRINS_W(q0, v0, 0);
+            VEXTRINS_W(q0, v0, 0b00100010);
+            break;
         case 0xE6: // TODO: !fastround
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;
@@ -357,6 +396,22 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VFTINT_W_D(v0, v1, v1);
             x87_restoreround(dyn, ninst, u8);
             VINSGR2VR_D(v0, xZR, 1);
+            break;
+        case 0xF0:
+            INST_NAME("LDDQU Gx, Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VOR_V(v0, v1, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VLD(v0, ed, fixedaddress);
+            }
             break;
         default:
             DEFAULT;

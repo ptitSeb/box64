@@ -115,6 +115,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             switch (rep) {
                 case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+                case 1: addr = dynarec64_66F20F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
                 default:
                     DEFAULT;
             }
@@ -610,6 +611,60 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ST_H(x1, xRDI, 0);
                 ADD_D(xRSI, xRSI, x3);
                 ADD_D(xRDI, xRDI, x3);
+            }
+            break;
+        case 0xA7:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) {
+                        INST_NAME("REPNZ CMPSW");
+                    } else {
+                        INST_NAME("REPZ CMPSW");
+                    }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    CBZ_NEXT(xRCX);
+                    ANDI(x1, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x1);
+                    MARK; // DF==0
+                    LD_HU(x1, xRSI, 0);
+                    LD_HU(x2, xRDI, 0);
+                    ADDI_D(xRSI, xRSI, 2);
+                    ADDI_D(xRDI, xRDI, 2);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2); // REPNZ
+                    } else {
+                        BNE_MARK3(x1, x2); // REPZ
+                    }
+                    BNEZ_MARK(xRCX);
+                    B_MARK3_nocond;
+                    MARK2; // DF=1
+                    LD_HU(x1, xRSI, 0);
+                    LD_HU(x2, xRDI, 0);
+                    ADDI_D(xRSI, xRSI, -2);
+                    ADDI_D(xRDI, xRDI, -2);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2); // REPNZ
+                    } else {
+                        BNE_MARK3(x1, x2); // REPZ
+                    }
+                    BNEZ_MARK2(xRCX);
+                    MARK3; // end
+                    emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("CMPSW");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    GETDIR(x3, x1, 2);
+                    LD_HU(x1, xRSI, 0);
+                    LD_HU(x2, xRDI, 0);
+                    ADD_D(xRSI, xRSI, x3);
+                    ADD_D(xRDI, xRDI, x3);
+                    emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
             }
             break;
         case 0xA9:

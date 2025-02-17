@@ -412,7 +412,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BCEQZ_MARK(fcc0);
                         if (la64_lbt) {
                             ADDI_D(x3, xZR, 1 << F_ZF);
-                            X64_SET_EFLAGS(x3, X_ALL);
+                            X64_SET_EFLAGS(x3, X_ZF);
                         } else {
                             ORI(xFlags, xFlags, 1 << F_ZF);
                         }
@@ -424,7 +424,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BCEQZ_MARK2(fcc0);
                         if (la64_lbt) {
                             ADDI_D(x3, xZR, 1 << F_CF);
-                            X64_SET_EFLAGS(x3, X_ALL);
+                            X64_SET_EFLAGS(x3, X_ZF);
                         } else {
                             ORI(xFlags, xFlags, 1 << F_CF);
                         }
@@ -1559,6 +1559,28 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 1);
             u8 = F8;
             VSHUF4I_D(v0, v1, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
+            break;
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:
+            INST_NAME("BSWAP Reg");
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
+            REVBxw(gd, gd);
+            break;
+        case 0xD0:
+            INST_NAME("ADDSUBPD Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            VFSUB_D(v0, q0, q1);
+            VFADD_D(q0, q0, q1);
+            VEXTRINS_D(q0, v0, 0);
             break;
         case 0xD1:
             INST_NAME("PSRLW Gx,Ex");
