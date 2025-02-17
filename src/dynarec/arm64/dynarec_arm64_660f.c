@@ -2351,8 +2351,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xA3:
             INST_NAME("BT Ew, Gw");
-            SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE();
+            if(!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+            } else {
+                SETFLAGS(X_CF, SF_SUBSET);
+            }
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2369,12 +2372,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
                 LSRw_REG(x1, ed, x2);
                 BFIw(xFlags, x1, F_CF, 1);
-            }
-            if (BOX64ENV(dynarec_test)) {
-                IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
             }
             break;
         case 0xA4:
@@ -2413,8 +2410,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
-            SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE();
+            if(!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+            } else {
+                SETFLAGS(X_CF, SF_SUBSET);
+            }
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2439,12 +2439,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(wback) {
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
-            }
-            if (BOX64ENV(dynarec_test)) {
-                IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
             }
             break;
         case 0xAC:
@@ -2514,7 +2508,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
-            SETFLAGS(X_ALL, SF_SET);
+            if(BOX64ENV(dynarec_safeflags) && BOX64ENV(cputype)) {
+                SETFLAGS(X_OF|X_CF, SF_SET);
+            } else {
+                SETFLAGS(X_ALL, SF_SET);
+            }
             nextop = F8;
             GETSEW(x1, 0);
             GETSGW(x2);
@@ -2522,7 +2520,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GWBACK;
             SET_DFNONE();
             IFX(X_CF|X_OF) {
-                ASRw(x1, x2, 16);
+                ASRw(x1, x2, 15);
                 CMPSw_REG_ASR(x1, x2, 31);
                 CSETw(x3, cNE);
                 IFX(X_CF) {
@@ -2532,19 +2530,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     BFIw(xFlags, x3, F_OF, 1);
                 }
             }
-            IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-            IFX(X_ZF) {BFCw(xFlags, F_ZF, 1);}
-            IFX(X_SF) {
+            IFX2(X_AF, && !BOX64ENV(cputype)) {BFCw(xFlags, F_AF, 1);}
+            IFX2(X_ZF, && !BOX64ENV(cputype)) {BFCw(xFlags, F_ZF, 1);}
+            IFX2(X_SF, && !BOX64ENV(cputype)) {
                 LSRxw(x3, gd, 15);
                 BFIw(xFlags, x3, F_SF, 1);
             }
-            IFX(X_PF) emit_pf(dyn, ninst, gd, x3);
+            IFX2(X_PF, && !BOX64ENV(cputype)) emit_pf(dyn, ninst, gd, x3);
             break;
 
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
-            SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE();
+            if(!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+            } else {
+                SETFLAGS(X_CF, SF_SUBSET);
+            }
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2568,12 +2569,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(wback) {
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
-            }
-            if (BOX64ENV(dynarec_test)) {
-                IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
             }
             break;
 
@@ -2619,8 +2614,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             switch((nextop>>3)&7) {
                 case 4:
                     INST_NAME("BT Ew, Ib");
-                    SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE();
+                    if(!BOX64ENV(dynarec_safeflags)) {
+                        SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SUBSET);
+                    }
                     gd = x2;
                     GETEW(x1, 1);
                     u8 = F8;
@@ -2628,17 +2626,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    if (BOX64ENV(dynarec_test)) {
-                        IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                        IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                        IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                        IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
-                    }
                     break;
                 case 5:
                     INST_NAME("BTS Ew, Ib");
-                    SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE();
+                    if(!BOX64ENV(dynarec_safeflags)) {
+                        SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SUBSET);
+                    }
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
@@ -2648,17 +2643,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     mask = convert_bitmask_xw(1<<u8);
                     ORRxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
-                    if (BOX64ENV(dynarec_test)) {
-                        IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                        IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                        IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                        IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
-                    }
                     break;
                 case 6:
                     INST_NAME("BTR Ew, Ib");
-                    SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE();
+                    if(!BOX64ENV(dynarec_safeflags)) {
+                        SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SUBSET);
+                    }
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
@@ -2667,17 +2659,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     BFCxw(ed, u8, 1);
                     EWBACK;
-                    if (BOX64ENV(dynarec_test)) {
-                        IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                        IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                        IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                        IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
-                    }
                     break;
                 case 7:
                     INST_NAME("BTC Ew, Ib");
-                    SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-                    SET_DFNONE();
+                    if(!BOX64ENV(dynarec_safeflags)) {
+                        SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SUBSET);
+                    }
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
@@ -2687,12 +2676,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     mask = convert_bitmask_xw(1<<u8);
                     EORxw_mask(ed, ed, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
                     EWBACK;
-                    if (BOX64ENV(dynarec_test)) {
-                        IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                        IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                        IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                        IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
-                    }
                     break;
                 default:
                     DEFAULT;
@@ -2700,8 +2683,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
-            SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
-            SET_DFNONE();
+            if(!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
+            } else {
+                SETFLAGS(X_CF, SF_SUBSET);
+            }
             nextop = F8;
             gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); // GETGD
             if(MODREG) {
@@ -2727,12 +2713,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(wback) {
                 STH(ed, wback, fixedaddress);
                 SMWRITE();
-            }
-            if (BOX64ENV(dynarec_test)) {
-                IFX(X_OF) {BFCw(xFlags, F_OF, 1);}
-                IFX(X_SF) {BFCw(xFlags, F_SF, 1);}
-                IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
-                IFX(X_PF) {BFCw(xFlags, F_PF, 1);}
             }
             break;
         case 0xBC:

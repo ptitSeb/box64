@@ -79,10 +79,12 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
             BFIw(xFlags, s4, F_ZF, 1);
         }
     }
-    if (BOX64ENV(dynarec_test))
-        IFX(X_AF) {
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
             BFCw(xFlags, F_AF, 1);
-        }
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -145,7 +147,10 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             BFIw(xFlags, s4, F_OF, 1);
         }
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         if(c>7) {
@@ -176,13 +181,17 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         LSRxw_REG(s3, s1, s3);
         BFIw(xFlags, s3, 0, 1);
     }
-    IFX(X_OF) {
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
         LSRxw(s4, s1, rex.w?63:31);
         BFIw(xFlags, s4, F_OF, 1);
     }
     LSRxw_REG(s1, s1, s2);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRxw(s4, s1, rex.w?62:30);
+        BFIw(xFlags, s4, F_OF, 1);
     }
     int need_tst = 0;
     IFX(X_ZF) need_tst = 1;
@@ -201,7 +210,10 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         }
     }
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -229,13 +241,17 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             BFIw(xFlags, s3, 0, 1);
         }
     }
-    IFX(X_OF) {
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
         LSRxw(s4, s1, rex.w?63:31);
         BFIw(xFlags, s4, F_OF, 1);
     }
     LSRxw(s1, s1, c);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRxw(s4, s1, rex.w?62:30);
+        BFIw(xFlags, s4, F_OF, 1);
     }
     int need_tst = 0;
     IFX(X_ZF) need_tst = 1;
@@ -254,7 +270,10 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         }
     }
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -304,7 +323,10 @@ void emit_sar32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         }
     }
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -352,7 +374,10 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         BFCw(xFlags, F_OF, 1);
     }
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -405,7 +430,10 @@ void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     COMP_ZFSF(s1, 8)
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -453,7 +481,10 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
             BFIw(xFlags, s4, F_OF, 1);
         }
     IFX (X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -489,7 +520,10 @@ void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     COMP_ZFSF(s1, 8)
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -526,7 +560,10 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     }
     COMP_ZFSF(s1, 8)
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -556,10 +593,12 @@ void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_OF) {
         BFCw(xFlags, F_OF, 1);
     }
-    if (BOX64ENV(dynarec_test))
-        IFX(X_AF) {
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
             BFCw(xFlags, F_AF, 1);
-        }
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -607,10 +646,12 @@ void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
             }
         }
     }
-    if (BOX64ENV(dynarec_test))
-        IFX(X_AF) {
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
             BFCw(xFlags, F_AF, 1);
-        }
+    }
 }
 
 // emit SHL16 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch. s3 can be same as s2
@@ -655,7 +696,10 @@ void emit_shl16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     COMP_ZFSF(s1, 16)
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -676,7 +720,7 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     }
     if(BOX64ENV(cputype)) {
         IFX(X_CF|X_OF) {
-            LSRw(s3, s1, 16-c);
+            LSRw(s3, s1, (c>16)?16:(16-c));
             BFIw(xFlags, s3, F_CF, 1);
         }
     } else {
@@ -702,7 +746,10 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             BFIw(xFlags, s4, F_OF, 1);
         }
     IFX (X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         if(c>7) {
@@ -728,7 +775,7 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         LSRw_REG(s4, s1, s4);
         BFIw(xFlags, s4, 0, 1);
     }
-    IFX(X_OF) {
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
         LSRw(s4, s1, 15);
         BFIw(xFlags, s4, F_OF, 1);
     }
@@ -736,11 +783,17 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRw(s4, s1, 14);
+        BFIw(xFlags, s4, F_OF, 1);
+    }
     COMP_ZFSF(s1, 16)
-    if (BOX64ENV(dynarec_test))
-        IFX(X_AF) {
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
             BFCw(xFlags, F_AF, 1);
-        }
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -767,7 +820,7 @@ void emit_shr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             BFIw(xFlags, s3, 0, 1);
         }
     }
-    IFX(X_OF) {
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
         LSRw(s4, s1, 15);
         BFIw(xFlags, s4, F_OF, 1);
     }
@@ -775,9 +828,16 @@ void emit_shr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRw(s4, s1, 14);
+        BFIw(xFlags, s4, F_OF, 1);
+    }
     COMP_ZFSF(s1, 16)
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -808,7 +868,10 @@ void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     COMP_ZFSF(s1, 16)
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -840,7 +903,10 @@ void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         BFCw(xFlags, F_OF, 1);
     }
     IFX(X_AF) {
-        BFCw(xFlags, F_AF, 1);
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -1059,12 +1125,20 @@ void emit_rcl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
 
-    if (!(c%17)) return;
+    if (!(c%17) && !BOX64ENV(cputype)) return;
 
     c%=17;
-    BFIw(s1, xFlags, 16, 1); // insert cf
-    IFX(X_OF|X_CF) {
-        BFXILw(xFlags, s1, 16-c, 1);
+    if(c) {
+        BFIw(s1, xFlags, 16, 1); // insert cf
+        if(BOX64ENV(cputype)) {
+            IFX(X_OF|X_CF) {
+                BFXILw(xFlags, s1, 16-c, 1);
+            }
+        } else {
+            IFX(X_CF) {
+                BFXILw(xFlags, s1, 16-c, 1);
+            }
+        }
     }
     if(!BOX64ENV(cputype))
         IFX(X_OF) {
@@ -1072,8 +1146,10 @@ void emit_rcl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             EORw_REG_LSR(s3, s3, s3, 1);
             BFIw(xFlags, s3, F_OF, 1);
         }
-    ORRx_REG_LSL(s1, s1, s1, 17);    // insert s1 again
-    LSRx_IMM(s1, s1, 17-c); // do the rcl
+    if(c) {
+        ORRx_REG_LSL(s1, s1, s1, 17);    // insert s1 again
+        LSRx_IMM(s1, s1, 17-c); // do the rcl
+    }
     if(BOX64ENV(cputype))
         IFX(X_OF) {
             EORw_REG_LSR(s3, xFlags, s1, 15);
@@ -1086,21 +1162,28 @@ void emit_rcr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
 
-    if (!(c%17)) return;
+    if (!(c%17) && !BOX64ENV(cputype)) return;
 
     c%=17;
-    BFIw(s1, xFlags, 16, 1); // insert cf
-    IFX(X_OF) {
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
         EORw_REG_LSR(s3, xFlags, s1, 15);
         BFIw(xFlags, s3, F_OF, 1);
     }
-    IFX(X_CF) {
-        BFXILx(xFlags, s1, c-1, 1);
+    if(c) {
+        BFIw(s1, xFlags, 16, 1); // insert cf
+        IFX(X_CF) {
+            BFXILx(xFlags, s1, c-1, 1);
+        }
+        if(c>1) {
+            ORRx_REG_LSL(s1, s1, s1, 17);    // insert s1 again
+        }
+        LSRx_IMM(s1, s1, c); // do the rcr
     }
-    if(c>1) {
-        ORRx_REG_LSL(s1, s1, s1, 17);    // insert s1 again
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRw(s4, s1, 14);
+        EORw_REG_LSR(s4, s4, s4, 1);
+        BFIw(xFlags, s4, F_OF, 1);
     }
-    LSRx_IMM(s1, s1, c); // do the rcr
 }
 
 // emit RCL32/RCL64 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
@@ -1110,9 +1193,21 @@ void emit_rcl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 
     if(!c) return;
 
-    IFX(X_OF|X_CF) {
-        LSRxw_IMM(s3, s1, (rex.w?64:32)-c);
+    if(BOX64ENV(cputype)) {
+        IFX(X_OF|X_CF) {
+            LSRxw_IMM(s3, s1, (rex.w?64:32)-c);
+        }
+    } else {
+        IFX(X_CF) {
+            LSRxw_IMM(s3, s1, (rex.w?64:32)-c);
+        }
     }
+    if(!BOX64ENV(cputype))
+        IFX(X_OF) {
+            LSRxw(s4, s1, rex.w?62:30);
+            EORw_REG_LSR(s4, s4, s4, 1);
+            BFIw(xFlags, s4, F_OF, 1);
+        }
     if(c==1) {
         LSLxw(s1, s1, 1);
         BFIxw(s1, xFlags, 0, 1);
@@ -1124,7 +1219,7 @@ void emit_rcl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
     IFX(X_CF) {
         BFIw(xFlags, s3, F_CF, 1);
     }
-    IFX(X_OF) {
+    IFX2(X_OF, && BOX64ENV(cputype)) {
         EORxw_REG_LSR(s3, s3, s1, rex.w?63:31);
         BFIw(xFlags, s3, F_OF, 1);
     }
@@ -1136,7 +1231,7 @@ void emit_rcr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 
     if(!c) return;
 
-    IFX(X_OF) {
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
         EORxw_REG_LSR(s3, xFlags, s1, rex.w?63:31);
         BFIw(xFlags, s3, F_OF, 1);
     }
@@ -1153,6 +1248,11 @@ void emit_rcr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
     }
     IFX(X_CF) {
         BFIw(wFlags, s3, 0, 1);
+    }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRxw(s4, s1, rex.w?62:30);
+        EORw_REG_LSR(s4, s4, s4, 1);
+        BFIw(xFlags, s4, F_OF, 1);
     }
 }
 
@@ -1174,16 +1274,14 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         EORx_REG_LSR(s3, s2, s1, rex.w?63:31);   // OF is set if sign changed
         BFIw(xFlags, s3, F_OF, 1);
     }
-    IFX2(X_OF, && BOX64ENV(cputype)) {
-        LSRxw(s4, s1, rex.w?63:31);
-    }
     EXTRxw(s1, s2, s1, c);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX2(X_OF, && BOX64ENV(cputype)) {
-        EORx_REG_LSR(s3, s4, s1, rex.w?63:31);   // OF is set if sign changed
-        BFIw(xFlags, s3, F_OF, 1);
+        LSRxw(s4, s1, rex.w?62:30);
+        EORx_REG_LSR(s4, s4, s4, 1);   // OF is set if sign changed
+        BFIw(xFlags, s4, F_OF, 1);
     }
     int need_tst = 0;
     IFX(X_ZF) need_tst = 1;
@@ -1201,7 +1299,12 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
             BFIx(xFlags, s4, F_SF, 1);
         }
     }
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1217,11 +1320,14 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
     } else {
         SET_DFNONE();
     }
-    IFX(X_CF) {
-        BFXILx(xFlags, s1, (rex.w?64:32)-c, 1);
-    }
-    IFX2(X_OF, && BOX64ENV(cputype)) {
-        LSRxw(s4, s1, rex.w?63:31);
+    if(BOX64ENV(cputype)) {
+        IFX(X_CF|X_OF) {
+            BFXILx(xFlags, s1, (rex.w?64:32)-c, 1);
+        }
+    } else {
+        IFX(X_CF) {
+            BFXILx(xFlags, s1, (rex.w?64:32)-c, 1);
+        }
     }
     IFX2(X_OF, && !BOX64ENV(cputype)) {
         LSRxw(s3, s1, rex.w?62:30);
@@ -1234,7 +1340,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX2(X_OF, && BOX64ENV(cputype)) {
-        EORx_REG_LSR(s3, s4, s1, rex.w?63:31);   // OF is set if sign changed
+        EORx_REG_LSR(s3, xFlags, s1, rex.w?63:31);   // OF is set if sign changed
         BFIw(xFlags, s3, F_OF, 1);
     }
     int need_tst = 0;
@@ -1253,7 +1359,12 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
             BFIx(xFlags, s4, F_SF, 1);
         }
     }
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1279,9 +1390,6 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         EORx_REG_LSR(s3, s2, s1, rex.w?63:31);   // OF is set if sign changed
         BFIw(xFlags, s3, F_OF, 1);
     }
-    IFX2(X_OF, && BOX64ENV(cputype)) {
-        LSRxw(s4, s1, rex.w?63:31);
-    }
     if(s1==s2) {
         RORxw_REG(s1, s1, s5);
     } else {
@@ -1295,8 +1403,9 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX2(X_OF, && BOX64ENV(cputype)) {
-        EORxw_REG_LSR(s3, s4, s1, rex.w?63:31);   // OF is set if sign changed
-        BFIw(xFlags, s3, F_OF, 1);
+        LSRxw(s4, s1, rex.w?62:30);
+        EORx_REG_LSR(s4, s4, s4, 1);   // OF is set if sign changed
+        BFIw(xFlags, s4, F_OF, 1);
     }
     int need_tst = 0;
     IFX(X_ZF) need_tst = 1;
@@ -1314,7 +1423,12 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             BFIx(xFlags, s4, F_SF, 1);
         }
     }
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1331,12 +1445,16 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     MOV32w(s3, (rex.w?64:32));
     SUBw_REG(s3, s3, s5);
-    IFX(X_CF) {
-        LSRxw_REG(s4, s1, s3);
-        BFIxw(xFlags, s4, F_CF, 1);
-    }
-    IFX2(X_OF, && BOX64ENV(cputype)) {
-        LSRxw(s4, s1, rex.w?63:31);
+    if(BOX64ENV(cputype)) {
+        IFX(X_CF|X_OF) {
+            LSRxw_REG(s4, s1, s3);
+            BFIxw(xFlags, s4, F_CF, 1);
+        }
+    } else {
+        IFX(X_CF) {
+            LSRxw_REG(s4, s1, s3);
+            BFIxw(xFlags, s4, F_CF, 1);
+        }
     }
     IFX2(X_OF, && !BOX64ENV(cputype)) {
         LSRxw(s4, s1, rex.w?62:30);
@@ -1355,7 +1473,7 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX2(X_OF, && BOX64ENV(cputype)) {
-        EORx_REG_LSR(s3, s4, s1, rex.w?63:31);   // OF is set if sign changed
+        EORx_REG_LSR(s3, xFlags, s1, rex.w?63:31);   // OF is set if sign changed
         BFIw(xFlags, s3, F_OF, 1);
     }
     int need_tst = 0;
@@ -1374,7 +1492,12 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             BFIx(xFlags, s4, F_SF, 1);
         }
     }
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1412,7 +1535,12 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         BFIw(xFlags, s3, F_OF, 1);
     }
     COMP_ZFSF(s1, 16)
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1451,7 +1579,12 @@ void emit_shrd16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
         BFIw(xFlags, s3, F_OF, 1);
     }
     COMP_ZFSF(s1, 16)
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1469,33 +1602,45 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         SET_DFNONE();
     }
     BFIw(s1, s2, 16, 16);   // create concat first
-    IFX(X_CF) {
-        if(c<=16)
-            LSRw(s3, s1, 16-c);
-        else
-            LSRw(s3, s2, 32-c);
-        BFIw(xFlags, s3, F_CF, 1);
+    if(BOX64ENV(cputype)) {
+        IFX(X_CF|X_OF) {
+            if(c<=16)
+                BFXILw(xFlags, s1, 16-c, 1);
+            else
+                BFCw(xFlags, F_CF, 1);
+        }
+    } else {
+        IFX(X_CF) {
+            if(c<=16)
+                BFXILw(xFlags, s1, 16-c, 1);
+            else
+                BFXILw(xFlags, s2, 32-c, 1);
+        }
+        IFX(X_OF) {
+            LSRw(s4, s1, 14);
+            EORw_REG_LSR(s4, s4, s4, 1);   // OF is set if sign changed
+            BFIw(xFlags, s4, F_OF, 1);
+        }
     }
+    RORw(s1, s1, 32-c);
     IFX2(X_OF, && BOX64ENV(cputype)) {
-        LSRw(s4, s1, 15);
+        if(c>15)
+            BFIw(xFlags, xFlags, F_OF, 1);    // copy CF
+        else {
+            EORw_REG_LSR(s4, xFlags, s1, 15);
+            BFIw(xFlags, s4, F_OF, 1);
+        }
     }
-    IFX2(X_OF, && !BOX64ENV(cputype)) {
-        LSRw(s4, s1, 14);
-        EORw_REG_LSR(s4, s4, s4, 1);   // OF is set if sign changed
-        BFIw(xFlags, s4, F_OF, 1);
-    }
-    if(c)
-        RORw(s1, s1, 32-c);
-
+    COMP_ZFSF(s1, 16)
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
-    COMP_ZFSF(s1, 16)
-    IFX2(X_OF, && BOX64ENV(cputype)) {
-        EORw_REG_LSR(s3, s4, s1, 15);   // OF is set if sign changed
-        BFIw(xFlags, s3, F_OF, 1);
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
     }
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
@@ -1538,7 +1683,12 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
         BFIw(xFlags, s3, F_OF, 1);
     }
     COMP_ZFSF(s1, 16)
-    IFX(X_AF) {BFCw(xFlags, F_AF, 1);}
+    IFX(X_AF) {
+        if(BOX64ENV(cputype))
+            ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        else
+            BFCw(xFlags, F_AF, 1);
+    }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
     }
