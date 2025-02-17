@@ -79,6 +79,20 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEDO(x4, 0);
             emit_or32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x0F:
+            opcode = F8;
+            switch (opcode) {
+                case 0x18:
+                case 0x19:
+                case 0x1F:
+                    INST_NAME("NOP (multibyte)");
+                    nextop = F8;
+                    FAKEED;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
