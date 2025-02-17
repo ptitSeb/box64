@@ -178,6 +178,13 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             return 0;
                     }
                     break;
+
+                case 0x18:
+                case 0x19:
+                case 0x1F: /* NOP (multi-byte) */
+                    nextop = F8;
+                    FAKEED(0);
+                    break;
                 case 0x28:
                     switch(rep) {
                         case 0: /* MOVAPS Gx, FS:Ex */
