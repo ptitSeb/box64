@@ -63,4 +63,4 @@ Once the package name is found, find the exact URL for downloading it.
 
 Download the package and then find the checksum with the `sha256sum` command.
 
-Major Linux distributions such as AlmaLinux and Debian provide archives of packages. Rolling distributions such as Arch Linux, Solus, and Void Linux do not. In those cases, use the [Internet Archive](https://web.archive.org/) to archive any rolling release package used by Box by using the "Save Page Now" feature. If the error "Save Page Now browser crashed" appears, it can be safely ignored. The archive will still have been saved.
+Major Linux distributions such as AlmaLinux and Debian provide archives of packages. Rolling distributions such as Solus and Void Linux do not. In those cases, use the [Internet Archive](https://web.archive.org/) to archive any rolling release package used by Box by using the "Save Page Now" feature. If the error "Save Page Now browser crashed" appears, it can be safely ignored. The archive will still have been saved.
