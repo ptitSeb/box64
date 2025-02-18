@@ -779,6 +779,8 @@
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BEQ_MARKLOCK(reg, xZR)
 
+// Branch to MARKLOCK instruction unconditionnal (use j64)
+#define B_MARKLOCK_nocond Bxx_gen(__, MARKLOCK, 0, 0)
 
 // Branch to NEXT if reg1==reg2 (use j64)
 #define BEQ_NEXT(reg1, reg2)                                                  \
