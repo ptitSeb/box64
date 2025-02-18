@@ -478,19 +478,20 @@ static void hookMangoHud()
     if (FileExist("/etc/MangoHud.conf", IS_FILE)) return;
     const char* configdir = getenv("XDG_CONFIG_HOME");
     const char* homedir = getenv("HOME");
-    if (!homedir) homedir = getpwuid(getuid())->pw_dir;
+    homedir = homedir ? homedir : getpwuid(getuid())->pw_dir;
     if (!homedir) return;
-    const char* p = configdir ? configdir : homedir;
-    static char buf[512] = {};
-    memcpy(buf, p, strlen(p));
-    if (!configdir) strcat(buf, "/.config");
-    strcat(buf, "/MangoHud/MangoHud.conf");
-    if (FileExist(buf, IS_FILE)) return;
 
-    memcpy(buf, p, strlen(p));
-    if (!configdir) strcat(buf, "/.config");
-    strcat(buf, "/MangoHud/box64.conf");
-    if (FileExist(buf, IS_FILE)) return;
+    static char config_base[512];
+    snprintf(config_base, sizeof(config_base), "%s%s",
+        configdir ? configdir : homedir,
+        configdir ? "" : "/.config");
+
+    const char* files[] = { "MangoHud.conf", "box64.conf" };
+    for (int i = 0; i < 2; i++) {
+        static char path[512];
+        snprintf(path, sizeof(path), "%s/MangoHud/%s", config_base, files[i]);
+        if (FileExist(path, IS_FILE)) return;
+    }
     setenv("MANGOHUD_CONFIG", "legacy_layout=0,custom_text_center=" BOX64_BUILD_INFO_STRING ",gpu_stats=1,cpu_stats=1,fps=1,frame_timing=1", 0);
 }
 
