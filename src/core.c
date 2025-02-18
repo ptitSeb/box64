@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <pwd.h>
 #include <signal.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
@@ -469,6 +470,30 @@ static void displayMiscInfo()
     computeRDTSC();
 }
 
+static void hookMangoHud()
+{
+    const char* config = getenv("MANGOHUD_CONFIG");
+    const char* configfile = getenv("MANGOHUD_CONFIGFILE");
+    if (config || configfile) return;
+    if (FileExist("/etc/MangoHud.conf", IS_FILE)) return;
+    const char* configdir = getenv("XDG_CONFIG_HOME");
+    const char* homedir = getenv("HOME");
+    if (!homedir) homedir = getpwuid(getuid())->pw_dir;
+    if (!homedir) return;
+    const char* p = configdir ? configdir : homedir;
+    static char buf[512] = {};
+    memcpy(buf, p, strlen(p));
+    if (!configdir) strcat(buf, "/.config");
+    strcat(buf, "/MangoHud/MangoHud.conf");
+    if (FileExist(buf, IS_FILE)) return;
+
+    memcpy(buf, p, strlen(p));
+    if (!configdir) strcat(buf, "/.config");
+    strcat(buf, "/MangoHud/box64.conf");
+    if (FileExist(buf, IS_FILE)) return;
+    setenv("MANGOHUD_CONFIG", "legacy_layout=0,custom_text_center=" BOX64_BUILD_INFO_STRING ",gpu_stats=1,cpu_stats=1,fps=1,frame_timing=1", 0);
+}
+
 static void loadPath(path_collection_t *col, const char* defpath, const char* path)
 {
     if(path) {
@@ -850,7 +875,6 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 #endif
 extern char** environ;
 
-
 int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec)
 {
     #ifndef STATICBUILD
@@ -886,6 +910,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     InitializeEnvFiles();
 
     displayMiscInfo();
+
+    hookMangoHud();
 
     char* bashpath = NULL;
     {
