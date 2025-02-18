@@ -16,6 +16,7 @@
 #include "librarian.h"
 #include "callback.h"
 #include "myalign.h"
+#include "build_info.h"
 
 //extern char* libvulkan;
 
@@ -232,6 +233,18 @@ typedef struct my_VkXcbSurfaceCreateInfoKHR_s {
     void**      connection;
     int         window;
 } my_VkXcbSurfaceCreateInfoKHR_t;
+
+#define VK_MAX_DRIVER_NAME_SIZE 256
+#define VK_MAX_DRIVER_INFO_SIZE 256
+
+typedef struct my_VkPhysicalDeviceVulkan12Properties_s {
+    int   sType;
+    void* pNext;
+    int   driverID;
+    char  driverName[VK_MAX_DRIVER_NAME_SIZE];
+    char  driverInfo[VK_MAX_DRIVER_INFO_SIZE];
+    uint32_t __others[49];
+} my_VkPhysicalDeviceVulkan12Properties_t;
 
 typedef struct my_VkStruct_s {
     int         sType;
@@ -799,3 +812,19 @@ EXPORT void my_vkDestroyDebugReportCallbackEXT(x64emu_t* emu, void* instance, vo
 }
 
 CREATE(vkCreateHeadlessSurfaceEXT)
+
+EXPORT void my_vkGetPhysicalDeviceProperties2(x64emu_t* emu, void* device, void* pProps)
+{
+    my->vkGetPhysicalDeviceProperties2(device, pProps);
+    my_VkStruct_t *p = pProps;
+    while (p != NULL) {
+        // find VkPhysicalDeviceVulkan12Properties
+        // VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES = 52
+        if(p->sType == 52) {
+            my_VkPhysicalDeviceVulkan12Properties_t *pp = (my_VkPhysicalDeviceVulkan12Properties_t*)p;
+            strncat(pp->driverInfo, " with " BOX64_BUILD_INFO_STRING, VK_MAX_DRIVER_INFO_SIZE - strlen(pp->driverInfo) - 1);
+            break;
+        }
+        p = p->pNext;
+    }
+}

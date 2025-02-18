@@ -32,6 +32,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkDestroyInstance, vFpp_t) \
 	GO(vkGetPhysicalDeviceMemoryProperties, vFpp_t) \
 	GO(vkGetPhysicalDeviceProperties, vFpp_t) \
+	GO(vkGetPhysicalDeviceProperties2, vFpp_t) \
 	GO(vkGetDeviceProcAddr, pFpp_t) \
 	GO(vkGetInstanceProcAddr, pFpp_t) \
 	GO(vkDestroyAccelerationStructureKHR, vFpUp_t) \

@@ -200,7 +200,7 @@ GO(vkGetPhysicalDeviceFeatures2, vFpp)
 GO(vkGetPhysicalDeviceFormatProperties2, vFpip)
 GO(vkGetPhysicalDeviceImageFormatProperties2, iFppp)
 GO(vkGetPhysicalDeviceMemoryProperties2, vFpp)
-GO(vkGetPhysicalDeviceProperties2, vFpp)
+GOM(vkGetPhysicalDeviceProperties2, vFEpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)    //VkQueueFamilyProperties2 seems OK
 GO(vkGetPhysicalDeviceSparseImageFormatProperties2, vFpppp) //VkSparseImageFormatProperties2 seems OK
 GO(vkGetPhysicalDeviceToolProperties, iFppp)

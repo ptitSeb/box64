@@ -6058,6 +6058,7 @@ wrappedvulkan:
   - vkDestroyInstance
   - vkGetPhysicalDeviceMemoryProperties
   - vkGetPhysicalDeviceProperties
+  - vkGetPhysicalDeviceProperties2
 - pFpp:
   - vkGetDeviceProcAddr
   - vkGetInstanceProcAddr
