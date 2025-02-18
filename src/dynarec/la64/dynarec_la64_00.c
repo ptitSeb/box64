@@ -2191,7 +2191,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     if (!dyn->insts[ninst].x64.gen_flags) {
                         GETED(0);
-                        SLL_D(ed, ed, xRCX);
+                        SLLxw(ed, ed, xRCX);
                         if (dyn->insts[ninst].nat_flags_fusion) {
                             if (!rex.w) ZEROUP(ed);
                             NAT_FLAGS_OPS(ed, xZR);
@@ -2213,7 +2213,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     if (!dyn->insts[ninst].x64.gen_flags) {
                         GETED(0);
-                        SRL_D(ed, ed, xRCX);
+                        SRLxw(ed, ed, xRCX);
                         if (dyn->insts[ninst].nat_flags_fusion) {
                             if (!rex.w) ZEROUP(ed);
                             NAT_FLAGS_OPS(ed, xZR);
