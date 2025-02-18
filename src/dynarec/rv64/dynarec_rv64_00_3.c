@@ -1385,7 +1385,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("IDIV Ed");
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-                    SET_DFNONE()
+                    SET_DFNONE();
                     if (!rex.w) {
                         GETSED(0);
                         if (BOX64ENV(dynarec_div0)) {

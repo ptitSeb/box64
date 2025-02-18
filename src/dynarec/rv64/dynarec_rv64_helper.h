@@ -860,12 +860,14 @@
 
 #define SET_DFNONE()                               \
     do {                                           \
-        dyn->f.dfnone_here = 1;                    \
         if (!dyn->f.dfnone) {                      \
             SW(xZR, xEmu, offsetof(x64emu_t, df)); \
+        }                                          \
+        if (!dyn->insts[ninst].x64.may_set) {      \
+            dyn->f.dfnone_here = 1;                \
             dyn->f.dfnone = 1;                     \
         }                                          \
-    } while (0);
+    } while (0)
 
 #define SET_DF(S, N)                                                                                                            \
     if ((N) != d_none) {                                                                                                        \
@@ -1092,7 +1094,7 @@
 #define UFLAG_RES(A) \
     if (dyn->insts[ninst].x64.gen_flags) { SDxw(A, xEmu, offsetof(x64emu_t, res)); }
 #define UFLAG_DF(r, A) \
-    if (dyn->insts[ninst].x64.gen_flags) { SET_DF(r, A) }
+    if (dyn->insts[ninst].x64.gen_flags) { SET_DF(r, A); }
 #define UFLAG_IF if (dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT \

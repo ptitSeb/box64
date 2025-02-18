@@ -2684,7 +2684,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     // TODO: handle zero divisor
                     if (!rex.w) {
-                        SET_DFNONE()
+                        SET_DFNONE();
                         GETSED(0);
                         SLLI_D(x3, xRDX, 32);
                         ZEROUP2(x2, xRAX);
@@ -2698,7 +2698,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             && dyn->insts[ninst - 1].x64.addr
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x48
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0x99) {
-                            SET_DFNONE()
+                            SET_DFNONE();
                             GETED(0);
                             DIV_D(x2, xRAX, ed);
                             MOD_D(xRDX, xRAX, ed);
@@ -2721,7 +2721,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DIV_D(x2, xRAX, ed);
                             MOD_D(xRDX, xRAX, ed);
                             MV(xRAX, x2);
-                            SET_DFNONE()
+                            SET_DFNONE();
                         }
                     }
                     break;
