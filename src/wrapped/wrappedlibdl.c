@@ -358,14 +358,14 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     if(handle==NULL) {
         // special case, look globably
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
             pthread_mutex_unlock(&mutex);
             return (void*)start;
         }
         if(!dl->last_error)
             dl->last_error = box_calloc(1, 129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
-        printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
         pthread_mutex_unlock(&mutex);
         return NULL;
     }
@@ -526,13 +526,13 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     if(handle==NULL) {
         // special case, look globably
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername, 0, NULL)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
         if(!dl->last_error)
             dl->last_error = box_calloc(1, 129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
-            printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
         return NULL;
     }
     if(handle==(void*)~0LL) {
