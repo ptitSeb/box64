@@ -469,6 +469,14 @@ static void displayMiscInfo()
     computeRDTSC();
 }
 
+static void hookMangoHud()
+{
+    const char* config = getenv("MANGOHUD_CONFIG");
+    const char* configfile = getenv("MANGOHUD_CONFIGFILE");
+    if (config || configfile) return;
+    setenv("MANGOHUD_CONFIG", "legacy_layout=0,custom_text_center=" BOX64_BUILD_INFO_STRING ",gpu_stats=1,cpu_stats=1,fps=1,frame_timing=1", 0);
+}
+
 static void loadPath(path_collection_t *col, const char* defpath, const char* path)
 {
     if(path) {
@@ -850,7 +858,6 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 #endif
 extern char** environ;
 
-
 int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec)
 {
     #ifndef STATICBUILD
@@ -886,6 +893,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     InitializeEnvFiles();
 
     displayMiscInfo();
+
+    hookMangoHud();
 
     char* bashpath = NULL;
     {
