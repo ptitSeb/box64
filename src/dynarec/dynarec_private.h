@@ -51,6 +51,4 @@ typedef struct instruction_x64_s {
     uint8_t     need_after; // calculated
 } instruction_x64_t;
 
-void printf_x64_instruction(zydis_dec_t* dec, instruction_x64_t* inst, const char* name);
-
 #endif //__DYNAREC_PRIVATE_H_
