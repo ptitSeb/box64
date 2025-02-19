@@ -1278,8 +1278,8 @@ void inplace_FT_FaceRec_shrink(void* a)
     dst->charmap = to_ptrv(src->charmap);
     dst->driver = to_ptrv(src->driver);
     dst->memory = to_ptrv(src->memory);
-    ((FT_StreamDesc_32_t*)src->stream)->value = to_long(src->stream->value);
-    ((FT_StreamDesc_32_t*)src->stream)->pointer = to_ptrv(src->stream->pointer);
+    //((FT_StreamDesc_32_t*)src->stream)->value = to_long(src->stream->value);
+    //((FT_StreamDesc_32_t*)src->stream)->pointer = to_ptrv(src->stream->pointer);
     dst->stream = to_ptrv(src->stream);
     dst->sizes_list.head = to_ptrv(src->sizes_list.head);
     dst->sizes_list.tail = to_ptrv(src->sizes_list.tail);
@@ -1305,8 +1305,8 @@ void inplace_FT_FaceRec_enlarge(void* a)
     dst->sizes_list.tail = from_ptrv(src->sizes_list.tail);
     dst->sizes_list.head = from_ptrv(src->sizes_list.head);
     dst->stream = from_ptrv(src->stream);
-    dst->stream->pointer = from_ptrv(((FT_StreamDesc_32_t*)dst->stream)->pointer);
-    dst->stream->value = from_long(((FT_StreamDesc_32_t*)dst->stream)->value);
+    //dst->stream->pointer = from_ptrv(((FT_StreamDesc_32_t*)dst->stream)->pointer);
+    //dst->stream->value = from_long(((FT_StreamDesc_32_t*)dst->stream)->value);
     dst->memory = from_ptrv(src->memory);
     dst->driver = from_ptrv(src->driver);
     dst->charmap = from_ptrv(src->charmap);
