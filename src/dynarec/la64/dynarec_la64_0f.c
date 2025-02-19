@@ -495,10 +495,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             else                                                                                 \
                 B##NO(tmp1, 8);                                                                  \
         }                                                                                        \
-        if (rex.w)                                                                               \
-            MV(gd, ed);                                                                          \
-        else                                                                                     \
-            ZEROUP2(gd, ed);                                                                     \
+        MV(gd, ed);                                                                              \
+        if (!rex.w) ZEROUP(gd);                                                                  \
     } else {                                                                                     \
         addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \
         if (dyn->insts[ninst].nat_flags_fusion) {                                                \
