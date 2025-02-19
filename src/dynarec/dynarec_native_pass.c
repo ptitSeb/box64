@@ -232,7 +232,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #else
         // check if block need to be stopped, because it's a 00 00 opcode (unreadeable is already checked earlier)
         if((ok>0) && !dyn->forward && !(*(uint32_t*)addr)) {
-            if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, "Next opcode is 00 00 00 00");
+            if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, "Next opcode is 00 00 00 00");
             ok = 0;
             need_epilog = 1;
             dyn->insts[ninst].x64.need_after |= X_PEND;
@@ -241,7 +241,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
                 reset_n = get_first_jump_addr(dyn, addr);
-                if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
+                if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
                 if(dyn->insts[dyn->forward_ninst].x64.has_callret && !dyn->insts[dyn->forward_ninst].x64.has_next)
                     dyn->insts[dyn->forward_ninst].x64.has_next = 1;  // this block actually continue
                 dyn->forward = 0;
@@ -251,7 +251,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 ok = 1; // in case it was 0
             } else if ((dyn->forward_to < addr) || ok<=0) {
                 // something when wrong! rollback
-                if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "Could not forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
+                if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "Could not forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
                 ok = 0;
                 dyn->size = dyn->forward_size;
                 ninst = dyn->forward_ninst;
@@ -277,7 +277,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                         // and pred table is not ready yet
                         reset_n = get_first_jump(dyn, next);
                     }
-                    if(BOX64ENV(dynarec_dump)) dynarec_log(LOG_NONE, "Extend block %p, %s%p -> %p (ninst=%d, jump from %d)\n", dyn, dyn->insts[ninst].x64.has_callret?"(opt. call) ":"", (void*)addr, (void*)next, ninst+1, dyn->insts[ninst].x64.has_callret?ninst:reset_n);
+                    if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "Extend block %p, %s%p -> %p (ninst=%d, jump from %d)\n", dyn, dyn->insts[ninst].x64.has_callret?"(opt. call) ":"", (void*)addr, (void*)next, ninst+1, dyn->insts[ninst].x64.has_callret?ninst:reset_n);
                 } else if (next && (int)(next - addr) < BOX64ENV(dynarec_forward) && (getProtection(next) & PROT_READ) /*BOX64DRENV(dynarec_bigblock)>=stopblock*/) {
                     if (!((BOX64DRENV(dynarec_bigblock) < stopblock) && !isJumpTableDefault64((void*)next))) {
                         if(dyn->forward) {
@@ -345,7 +345,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             #endif
             MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size);
-            if(!BOX64ENV(dynarec_dump) && addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end))
+            if(!BOX64DRENV(dynarec_dump) && addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end))
                 dynarec_log(LOG_INFO, "Stopping block in no-dynarec zone\n");
             --ninst;
             if(!dyn->insts[ninst].x64.barrier) {
