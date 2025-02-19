@@ -799,7 +799,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         if (rex.w)
                             SLL(ed, ed, xRCX);
                         else
-                            SLL_W(ed, ed, xRCX);
+                            SLLW(ed, ed, xRCX);
                         if (dyn->insts[ninst].nat_flags_fusion) {
                             if (!rex.w) ZEROUP(ed);
                             NAT_FLAGS_OPS(ed, xZR);
@@ -824,7 +824,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         if (rex.w)
                             SRL(ed, ed, xRCX);
                         else
-                            SRL_W(ed, ed, xRCX);
+                            SRLW(ed, ed, xRCX);
                         if (dyn->insts[ninst].nat_flags_fusion) {
                             if (!rex.w) ZEROUP(ed);
                             NAT_FLAGS_OPS(ed, xZR);
