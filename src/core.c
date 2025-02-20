@@ -912,6 +912,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     ftrace = stdout;
 
+    LoadEnvVariables();
+    InitializeEnvFiles();
+
     if (!BOX64ENV(nobanner)) PrintBox64Version();
 
 
@@ -939,9 +942,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf("[BOX64] Nothing to run\n");
         exit(0);
     }
-
-    LoadEnvVariables();
-    InitializeEnvFiles();
 
     displayMiscInfo();
 
