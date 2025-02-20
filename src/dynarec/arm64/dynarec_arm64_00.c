@@ -2885,14 +2885,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    CBZw_NEXT(x2);
                     // get CL % 9
                     MOV32w(x3, 0x1c72); // 0x10000 / 9 + 1 (this is precise enough in the 0..31 range)
                     MULw(x3, x3, x2);
                     LSRw(x3, x3, 16);   // x3 = CL / 9
                     MOV32w(x4, 9);
                     MSUBw(x2, x3, x4, x2);  // CL mod 9
-                    CBZw_NEXT(x2);
                     GETEB(x1, 0);
+                    CBZw_MARK(x2);
                     IFX2(X_OF, && !BOX64ENV(cputype)) {
                         LSRw(x5, ed, 6);
                         EORw_REG_LSR(x5, x5, x5, 1);
@@ -2907,12 +2908,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
-                    IFX2(X_OF, && BOX64ENV(cputype)) {
-                        EORw_REG_LSR(x2, x5, ed, 7);
-                        BFIw(xFlags, x2, F_OF, 1);
-                    }
-                    IFX(X_CF) {
+                    u8 = X_CF;
+                    if(BOX64ENV(cputype)) u8 |= X_OF;
+                    IFX(u8) {
                         BFXILw(xFlags, x5, 0, 1);
+                    }
+                    MARK;
+                    IFX2(X_OF, && BOX64ENV(cputype)) {
+                        EORw_REG_LSR(x2, xFlags, ed, 7);
+                        BFIw(xFlags, x2, F_OF, 1);
                     }
                     break;
                 case 3:
@@ -2924,17 +2928,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    CBZw_NEXT(x2);
                     // get CL % 9
                     MOV32w(x3, 0x1c72); // 0x10000 / 9 + 1
                     MULw(x3, x3, x2);
                     LSRw(x3, x3, 16);   // x3 = CL / 9
                     MOV32w(x4, 9);
                     MSUBw(x2, x3, x4, x2);  // CL mod 9
-                    CBZw_NEXT(x2);
                     GETEB(x1, 0);
+                    CBZw_MARK(x2);
                     BFIw(ed, xFlags, 8, 1); // insert CF
                     ORRw_REG_LSL(ed, ed, ed, 9);    // insert rest of ed
-                    IFX(X_OF) {
+                    IFX2(X_OF, && !BOX64ENV(cputype)) {
                         EORw_REG_LSR(x5, xFlags, ed, 7);
                         BFIw(xFlags, x5, F_OF, 1);
                     }
@@ -2945,6 +2950,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
+                    MARK;
+                    IFX2(X_OF, && BOX64ENV(cputype)) {
+                        LSRw(x4, ed, 6);
+                        EORw_REG_LSR(x4, x4, x4, 1);
+                        BFIw(xFlags, x4, F_OF, 1);
+                    }
                     break;
                 case 4:
                 case 6:
