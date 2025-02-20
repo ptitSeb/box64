@@ -695,6 +695,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     UFLAG_IF {
                                         B_MARK2_nocond;
                                     } else {
+                                        if(!arm64_atomics) MOVxw_REG(gd, x1);
                                         B_NEXT_nocond;
                                     }
                                     MARK;
