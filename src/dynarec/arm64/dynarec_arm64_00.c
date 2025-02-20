@@ -821,13 +821,36 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0x62:
-            if(rex.is32bits) {
-                // BOUND here
-                DEFAULT;
+            INST_NAME("BOUND Gd, Ed");
+            nextop = F8;
+            if(rex.is32bits && MODREG) {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                LDRxw_U12(x2, wback, 0);
+                LDRxw_U12(x3, wback, 4+(rex.w*4));
+                GETGD;
+                GETIP(ip);
+                CMPSxw_REG(gd, x2);
+                B_MARK(cLT);
+                CMPSxw_REG(gd, x3);
+                B_MARK(cGT);
+                B_NEXT_nocond;
+                MARK;
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_br, -1);
+                LOAD_XEMU_CALL(xRIP);
             } else {
-                INST_NAME("BOUND Gd, Ed");
-                nextop = F8;
-                FAKEED;
+                if(BOX64DRENV(dynarec_safeflags)>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_ud, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
             }
             break;
         case 0x63:

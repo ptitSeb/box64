@@ -189,6 +189,13 @@ void native_ud(x64emu_t* emu)
     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
 }
 
+void native_br(x64emu_t* emu)
+{
+    if(BOX64ENV(dynarec_test))
+        emu->test.test = 0;
+    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xb09d);
+}
+
 void native_priv(x64emu_t* emu)
 {
     emu->test.test = 0;

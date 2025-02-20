@@ -1241,6 +1241,10 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
                 if(!mmapped) info2->si_code = 1;
                 info2->si_errno = 0;
+            } else if (info->si_errno==0xb09d) {
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 5;
+                info2->si_errno = 0;
             }else {
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0x14|((sysmapped && !(real_prot&PROT_READ))?0:1);
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
@@ -2088,6 +2092,9 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     } else if(sig==SIGSEGV && code==0xecec) {
         info.si_errno = 0xecec;
         info.si_code = SEGV_ACCERR;
+    } else if (sig==SIGSEGV && code==0xb09d) {
+        info.si_errno = 0xb09d;
+        info.si_code = 0;
     }
     info.si_addr = addr;
     const char* x64name = NULL;

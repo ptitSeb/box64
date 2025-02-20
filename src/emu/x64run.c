@@ -432,9 +432,12 @@ x64emurun:
             }
             break;
         case 0x62:                  /* BOUND Gd, Ed */
-            if(rex.is32bits) {
-                nextop = F8;
-                FAKEED(0);
+            nextop = F8;
+            if(rex.is32bits && MODREG) {
+                GETGD;
+                int* bounds = (int*)GETEA(0);
+                if(bounds[0]<GD->dword[0] || bounds[1]>GD->dword[0])
+                    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xb09d);
             } else {
                 unimp = 1;
                 goto fini;
