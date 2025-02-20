@@ -1107,8 +1107,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
     }
     // print PATH and LD_LIB used
-    PrintCollection(&my_context->box64_ld_lib, "BOX64 LIB PATH");
-    PrintCollection(&my_context->box64_path, "BOX64 BIN PATH");
+    PrintCollection(&my_context->box64_ld_lib, "Library search path");
+    PrintCollection(&my_context->box64_path, "Binary search path");
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
     if(strchr(prog, '/'))
