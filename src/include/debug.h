@@ -70,9 +70,9 @@ extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 
 void printf_ftrace(int prefix, const char* fmt, ...);
 
-#define printf_log_prefix(prefix, L, ...)                                 \
-    do {                                                                  \
-        if ((L) <= BOX64ENV(log)) { printf_ftrace(prefix, __VA_ARGS__); } \
+#define printf_log_prefix(prefix, L, ...)                                                               \
+    do {                                                                                                \
+        if ((L) <= BOX64ENV(log)) { printf_ftrace(prefix + (prefix && (L) == LOG_NONE), __VA_ARGS__); } \
     } while (0)
 
 #define printf_log(L, ...) printf_log_prefix(1, L, __VA_ARGS__)

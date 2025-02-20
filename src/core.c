@@ -201,7 +201,12 @@ void printf_ftrace(int prefix, const char* fmt, ...)
     va_list args;
     va_start(args, fmt);
     if (prefix && ftrace == stdout) {
-        fprintf(ftrace, box64_is32bits ? "[BOX32] " : "[BOX64] ");
+        if (prefix > 1) {
+            fprintf(ftrace, "[\033[31m%s\033[0m] ",
+                box64_is32bits ? "BOX32" : "BOX64");
+        } else {
+            fprintf(ftrace, box64_is32bits ? "[BOX32] " : "[BOX64] ");
+        }
     }
     vfprintf(ftrace, fmt, args);
 
