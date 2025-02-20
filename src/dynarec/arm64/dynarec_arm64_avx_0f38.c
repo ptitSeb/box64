@@ -228,7 +228,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             UXTBw(x1, vd);
             CMPSw_U12(x1, rex.w?64:32);
             CSETMxw(x2, cPL);
-            IFX(F_CF) {
+            IFX(X_CF) {
                 BFIw(xFlags, x2, F_CF, 1);
             }
             MVNxw_REG(x2, x2); //prepare mask

@@ -1454,7 +1454,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                     CSETw(x5, cLT);
                                     BFIw(xFlags, x5, F_ZF, 1);
                                 }
-                                IFX(F_SF) {
+                                IFX(X_SF) {
                                     CMPSw_REG(x2, x4);
                                     CSETw(x5, cLT);
                                     BFIw(xFlags, x5, F_SF, 1);
