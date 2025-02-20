@@ -564,11 +564,11 @@ void AddNewLibs(const char* list)
 }
 
 void PrintHelp() {
-    printf("This is Box64, the Linux x86_64 emulator with a twist.\n");
-    printf("\nUsage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
-    printf(" options are:\n");
-    printf("    '-v'|'--version' to print box64 version and quit\n");
-    printf("    '-h'|'--help' to print this and quit\n");
+    printf_ftrace(1, "This is Box64, the Linux x86_64 emulator with a twist.\n");
+    printf_ftrace(1, "Usage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
+    printf_ftrace(1, " options are:\n");
+    printf_ftrace(1, "    '-v'|'--version' to print box64 version and quit\n");
+    printf_ftrace(1, "    '-h'|'--help' to print this and quit\n");
 }
 
 static void addLibPaths(box64context_t* context)
@@ -912,6 +912,34 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     ftrace = stdout;
 
+    if (!BOX64ENV(nobanner)) PrintBox64Version();
+
+
+    const char* prog = argv[1];
+    int nextarg = 1;
+    // check if some options are passed
+    while(prog && prog[0]=='-') {
+        if(!strcmp(prog, "-v") || !strcmp(prog, "--version")) {
+            if (BOX64ENV(nobanner)) PrintBox64Version();
+            exit(0);
+        }
+        if(!strcmp(prog, "-h") || !strcmp(prog, "--help")) {
+            PrintHelp();
+            exit(0);
+        }
+        // other options?
+        if(!strcmp(prog, "--")) {
+            prog = argv[++nextarg];
+            break;
+        }
+        printf("Warning, Unrecognized option '%s'\n", prog);
+        prog = argv[++nextarg];
+    }
+    if(!prog || nextarg==argc) {
+        printf("[BOX64] Nothing to run\n");
+        exit(0);
+    }
+
     LoadEnvVariables();
     InitializeEnvFiles();
 
@@ -932,31 +960,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
     }
 
-    const char* prog = argv[1];
-    int nextarg = 1;
-    // check if some options are passed
-    while(prog && prog[0]=='-') {
-        if(!strcmp(prog, "-v") || !strcmp(prog, "--version")) {
-            PrintBox64Version();
-            exit(0);
-        }
-        if(!strcmp(prog, "-h") || !strcmp(prog, "--help")) {
-            PrintHelp();
-            exit(0);
-        }
-        // other options?
-        if(!strcmp(prog, "--")) {
-            prog = argv[++nextarg];
-            break;
-        }
-        printf("Warning, Unrecognized option '%s'\n", prog);
-        prog = argv[++nextarg];
-    }
-    if(!prog || nextarg==argc) {
-        printf("[BOX64] Nothing to run\n");
-        exit(0);
-    }
-    if (!BOX64ENV(nobanner)) PrintBox64Version();
     // precheck, for win-preload
     const char* prog_ = strrchr(prog, '/');
     if(!prog_) prog_ = prog; else ++prog_;

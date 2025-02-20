@@ -9,7 +9,7 @@
 
 void PrintBox64Version()
 {
-    printf_log(LOG_NONE, "Box64%s%s v%d.%d.%d %s built on %s %s\n", 
+    printf_ftrace(1, "Box64%s%s v%d.%d.%d %s built on %s %s\n",
     #ifdef HAVE_TRACE
         " with trace",
     #else
