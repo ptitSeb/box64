@@ -29,8 +29,8 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     uint8_t opcode = F8;
     uint8_t nextop;
-    uint8_t gd, ed, wback, wb, wb1, wb2, gb, gb1, gb2, eb1, eb2;
-    int64_t fixedaddress;
+    uint8_t gd, ed, wback, wb, wb1, wb2, gback, gb, gb1, gb2, eb1, eb2;
+    int64_t fixedaddress, gdoffset;
     int unscaled;
     int8_t i8;
     uint8_t u8;
@@ -136,6 +136,23 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             opcode = F8;
             switch (opcode) {
+                case 0x11:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("MOVUPS Ex, Gx");
+                            nextop = F8;
+                            GETGX();
+                            GETEX32(x2, 0, 8);
+                            LD(x3, gback, gdoffset + 0);
+                            LD(x4, gback, gdoffset + 8);
+                            SD(x3, wback, fixedaddress + 0);
+                            SD(x4, wback, fixedaddress + 8);
+                            if (!MODREG) SMWRITE2();
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0x2E:
                     // no special check...
                 case 0x2F:

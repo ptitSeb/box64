@@ -474,6 +474,17 @@
         ed = 16;                                                                                 \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
+#define GETEX32(a, D, I12)                                                                         \
+    if (MODREG) {                                                                                  \
+        ed = (nextop & 7) + (rex.b << 3);                                                          \
+        sse_forget_reg(dyn, ninst, x3, ed);                                                        \
+        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                                \
+        wback = xEmu;                                                                              \
+    } else {                                                                                       \
+        SMREAD();                                                                                  \
+        ed = 16;                                                                                   \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
+    }
 
 // Get GX as a quad (might use x1)
 #define GETGX_vector(a, w, sew)                 \
