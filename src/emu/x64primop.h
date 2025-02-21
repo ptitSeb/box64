@@ -533,12 +533,14 @@ static inline uint64_t xor64(x64emu_t *emu, uint64_t d, uint64_t s)
 
 static inline void imul8(x64emu_t *emu, uint8_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul8;
 	R_AX = emu->res.u16 = ((int16_t)(int8_t)R_AL) * (int8_t)s;
 }
 
 static inline void imul16_eax(x64emu_t *emu, uint16_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul16;
 	emu->res.u32 = ((int32_t)(int16_t)R_AX) * (int16_t)s;
 	R_AX = (uint16_t)emu->res.u32;
@@ -547,6 +549,7 @@ static inline void imul16_eax(x64emu_t *emu, uint16_t s)
 
 static inline uint16_t imul16(x64emu_t *emu, uint16_t op1, uint16_t op2)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul16;
 	emu->res.u32 = ((int32_t)(int16_t)op1) * (int16_t)op2;
 	return emu->res.u16;
@@ -562,6 +565,7 @@ static inline void imul32_direct(uint32_t *res_lo, uint32_t* res_hi,uint32_t d, 
 
 static inline uint32_t imul32(x64emu_t *emu, uint32_t op1, uint32_t op2)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul32;
 	uint32_t _res, _op1;
 	imul32_direct(&_res,&_op1,op1,op2);
@@ -572,6 +576,7 @@ static inline uint32_t imul32(x64emu_t *emu, uint32_t op1, uint32_t op2)
 
 static inline void imul32_eax(x64emu_t *emu, uint32_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul32;
 	imul32_direct(&emu->res.u32,&emu->op1.u32,R_EAX,s);
 	R_EAX = emu->res.u32;
@@ -588,6 +593,7 @@ static inline void imul64_direct(uint64_t *res_lo, uint64_t* res_hi,uint64_t d, 
 
 static inline uint64_t imul64(x64emu_t *emu, uint64_t op1, uint64_t op2)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul64;
 	imul64_direct(&emu->res.u64,&emu->op1.u64,op1,op2);
 	return emu->res.u64;
@@ -595,6 +601,7 @@ static inline uint64_t imul64(x64emu_t *emu, uint64_t op1, uint64_t op2)
 
 static inline void imul64_rax(x64emu_t *emu, uint64_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_imul64;
 	imul64_direct(&emu->res.u64,&emu->op1.u64,R_RAX,s);
 	R_RAX = emu->res.u64;
@@ -603,12 +610,14 @@ static inline void imul64_rax(x64emu_t *emu, uint64_t s)
 
 static inline void mul8(x64emu_t *emu, uint8_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_mul8;
 	R_AX = emu->res.u16 = (uint16_t)(R_AL) * s;
 }
 
 static inline void mul16(x64emu_t *emu, uint16_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_mul16;
 	emu->res.u32 = (uint32_t)R_AX * s;
 	R_AX = (uint16_t)emu->res.u32;
@@ -617,6 +626,7 @@ static inline void mul16(x64emu_t *emu, uint16_t s)
 
 static inline void mul32_eax(x64emu_t *emu, uint32_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_mul32;
 	uint64_t res = (uint64_t)R_EAX * s;
 	emu->res.u32 = R_EAX = (uint32_t)res;
@@ -625,6 +635,7 @@ static inline void mul32_eax(x64emu_t *emu, uint32_t s)
 
 static inline void mul64_rax(x64emu_t *emu, uint64_t s)
 {
+	if (BOX64ENV(cputype)) CHECK_FLAGS(emu);
 	emu->df = d_mul64;
 	unsigned __int128 res = (unsigned __int128)R_RAX * s;
 	emu->res.u64 = R_RAX = (uint64_t)res;
