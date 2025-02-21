@@ -400,6 +400,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
                     VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
                     break;
+                case 0x10:
+                    INST_NAME("PBLENDVB Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW8);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    v0 = sse_get_reg_vector(dyn, ninst, x4, 0, 0, VECTOR_SEW8);
+                    VMSLT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                    VADD_VX(q0, q1, xZR, VECTOR_MASKED);
+                    break;
                 case 0x14:
                     INST_NAME("PBLENDVPS Gx, Ex");
                     nextop = F8;
@@ -588,6 +598,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VWMUL_VV(v0, d1, d0, VECTOR_UNMASKED);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     if (v0 != q0) VMV_V_V(q0, v0);
+                    break;
+                case 0x29:
+                    INST_NAME("PCMPEQQ Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+                    GETGX_vector(q0, 1, VECTOR_SEW64);
+                    VMSEQ_VV(VMASK, q0, q1, VECTOR_UNMASKED);
+                    VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                    VMERGE_VIM(q0, q0, 0b11111);
                     break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex");

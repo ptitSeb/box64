@@ -66,7 +66,28 @@ uintptr_t dynarec64_67_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             opcode = F8;
             switch (opcode) {
                 case 0x11:
-                    DEFAULT_VECTOR;
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("MOVUPS Ex,Gx");
+                            nextop = F8;
+                            if (MODREG) {
+                                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+                                GETGX_vector(v0, 0, dyn->vector_eew);
+                                ed = (nextop & 7) + (rex.b << 3);
+                                v1 = sse_get_reg_empty_vector(dyn, ninst, x1, ed);
+                                VMV_V_V(v1, v0);
+                            } else {
+                                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
+                                GETGX_vector(v0, 0, dyn->vector_eew);
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                                VSE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0x2E:
                 case 0x2F:
                     DEFAULT_VECTOR;
