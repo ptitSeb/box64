@@ -289,6 +289,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x2E:
+        case 0x2F:
+            return 0;
         case 0x50:
             INST_NAME("MOVMSKPS Gd, Ex");
             nextop = F8;
@@ -683,13 +686,105 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_S_X(v0, x4);
             }
             break;
+        case 0x71:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLW Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETEM_vector(q0, 1);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    } else if (u8) {
+                        MOV64x(x4, u8);
+                        VSRL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETEM_vector(q0, 1);
+                    u8 = F8;
+                    if (u8 > 15) u8 = 15;
+                    if (u8) {
+                        MOV64x(x4, u8);
+                        VSRA_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETEM_vector(q0, 1);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    } else if (u8) {
+                        MOV64x(x4, u8);
+                        VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                default: DEFAULT_VECTOR;
+            }
+            break;
+        case 0x72:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLD Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETEM_vector(q0, 1);
+                    u8 = F8;
+                    if (u8 > 31) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    } else if (u8) {
+                        MOV64x(x4, u8);
+                        VSRL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAD Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETEM_vector(q0, 1);
+                    u8 = F8;
+                    if (u8 > 31) u8 = 31;
+                    if (u8) {
+                        MOV64x(x4, u8);
+                        VSRA_VX(q0, q0, x4, VECTOR_UNMASKED);
+                    }
+                    PUTEM_vector(q0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLD Em, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETEM_vector(q0, 1);
+                    u8 = F8;
+                    if (u8 > 31) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    } else if (u8) {
+                        MOV64x(x4, u8);
+                        VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
+                        PUTEM_vector(q0);
+                    }
+                    break;
+                default: DEFAULT_VECTOR;
+            }
+            break;
         case 0x73:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 2:
                     INST_NAME("PSRLQ Em, Ib");
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-                    GETEM_vector(q0, 0);
+                    GETEM_vector(q0, 1);
                     u8 = F8;
                     if (u8) {
                         if (u8 > 63) {
@@ -704,7 +799,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 6:
                     INST_NAME("PSLLQ Em, Ib");
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-                    GETEM_vector(q0, 0);
+                    GETEM_vector(q0, 1);
                     u8 = F8;
                     if (u8) {
                         if (u8 > 63) {
@@ -861,7 +956,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_X_S(x4, v1);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, v1, x3, &fixedaddress, rex, NULL, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, x3, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, wback, fixedaddress);
             }
             SET_ELEMENT_WIDTH(x1, u8, 1);
@@ -961,6 +1056,17 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VMULH_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
+        case 0xE7:
+            INST_NAME("MOVNTQ Em, Gm");
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                GETGM_vector(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                PUTEM_vector(v0);
+            }
+            break;
         case 0xE8:
             INST_NAME("PSUBSB Gm, Em");
             nextop = F8;
@@ -1046,7 +1152,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VMV_X_S(x4, v1);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, v1, x3, &fixedaddress, rex, NULL, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, x3, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, wback, fixedaddress);
             }
             SET_ELEMENT_WIDTH(x1, u8, 1);
