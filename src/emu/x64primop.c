@@ -796,6 +796,7 @@ uint8_t rol8(x64emu_t *emu, uint8_t d, uint8_t s)
 
 	s = s&0x1f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d>>6), F_OF);
@@ -803,7 +804,6 @@ uint8_t rol8(x64emu_t *emu, uint8_t d, uint8_t s)
 	if((cnt = s % 8) != 0) {
 	d = (d << cnt) + ((d >> (8 - cnt)) & ((1 << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG((d + (d >> 7)) & 1, F_OF);
 
@@ -819,12 +819,12 @@ uint16_t rol16(x64emu_t *emu, uint16_t d, uint8_t s)
 
 	s = s&0x1f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d>>14), F_OF);
 	if((cnt = s % 16) != 0) {
 	d = (d << cnt) + ((d >> (16 - cnt)) & ((1 << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG((d + (d >> 15)) & 1, F_OF);
 
@@ -839,12 +839,12 @@ uint32_t rol32(x64emu_t *emu, uint32_t d, uint8_t s)
 
 	s = s&0x1f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d>>30), F_OF);
 	if((cnt = s % 32) != 0) {
 	d = (d << cnt) + ((d >> (32 - cnt)) & ((1 << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG((d + (d >> 31)) & 1, F_OF);
 
@@ -859,12 +859,12 @@ uint64_t rol64(x64emu_t *emu, uint64_t d, uint8_t s)
 
 	s = s&0x3f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d>>62), F_OF);
 	if((cnt = s % 64) != 0) {
 	d = (d << cnt) + ((d >> (64 - cnt)) & ((1L << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG((d + (d >> 63)) & 1, F_OF);
 
@@ -883,13 +883,13 @@ uint8_t ror8(x64emu_t *emu, uint8_t d, uint8_t s)
 
 	s = s&0x1f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(((d >> 7)^d)&1, F_OF);
 
 	if((cnt = s % 8) != 0) {
 		d = (d << (8 - cnt)) + ((d >> (cnt)) & ((1 << (8 - cnt)) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d >> 6), F_OF);
 
@@ -905,13 +905,13 @@ uint16_t ror16(x64emu_t *emu, uint16_t d, uint8_t s)
 
 	s = s&0x1f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(((d >> 15)^d)&1, F_OF);
 
 	if((cnt = s % 16) != 0) {
 		d = (d << (16 - cnt)) + ((d >> (cnt)) & ((1 << (16 - cnt)) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d >> 14), F_OF);
 
@@ -927,13 +927,13 @@ uint32_t ror32(x64emu_t *emu, uint32_t d, uint8_t s)
 
 	s = s&0x1f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(((d >> 31)^d)&1, F_OF);
 
 	if((cnt = s % 32) != 0) {
 		d = (d << (32 - cnt)) + ((d >> (cnt)) & ((1 << (32 - cnt)) - 1));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d >> 30), F_OF);
 
@@ -949,13 +949,13 @@ uint64_t ror64(x64emu_t *emu, uint64_t d, uint8_t s)
 
 	s = s&0x3f;
 	if(!s) return d;
+	CHECK_FLAGS(emu);
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(((d >> 63)^d)&1, F_OF);
 
 	if((cnt = s % 64) != 0) {
 		d = (d << (64 - cnt)) + ((d >> (cnt)) & ((1L << (64 - cnt)) - 1L));
 	}
-	CHECK_FLAGS(emu);
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d >> 62), F_OF);
 
