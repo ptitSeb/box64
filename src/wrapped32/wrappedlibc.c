@@ -3212,7 +3212,7 @@ EXPORT void* my32_shmat(x64emu_t*emu, int shmid, void* shmaddr, int flags)
         if(shmctl(shmid, IPC_STAT, &ds)>=0)
             sz = ds.shm_segsz;
     }
-    if(!shmaddr) {
+    if(!shmaddr && sz) {
         shmaddr = find31bitBlockNearHint(shmaddr, sz, 0);
     }
     void* ret = shmat(shmid, shmaddr, flags);
