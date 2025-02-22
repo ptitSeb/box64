@@ -21,4 +21,5 @@ override_dh_shlibdeps:
 	--exclude=libcrypto.so.1.1 \
 	--exclude=libmbedx509.so.1 \
 	--exclude=libcrypto.so.1.0.0 \
-	--exclude=libssl.1.0.0
+	--exclude=libssl.so.1.0.0 \
+	--exclude=box64-bash
