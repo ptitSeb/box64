@@ -40,8 +40,7 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <regex.h>
-//#ifndef ANDROID
-#if 0
+#ifndef ANDROID
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #endif
@@ -3206,8 +3205,7 @@ EXPORT void my32_regfree(x64emu_t* emu, void* p)
     regfree(&p_l);
 }
 
-//#ifndef ANDROID
-#if 0
+#ifndef ANDROID
 EXPORT void* my32_shmat(x64emu_t*emu, int shmid, void* shmaddr, int flags)
 {
     size_t sz = 0;

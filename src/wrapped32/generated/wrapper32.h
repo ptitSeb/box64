@@ -2053,12 +2053,11 @@ void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFXpuiiiiipuiiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fnc);
 
-//#if defined(ANDROID)
+#ifdef ANDROID
 void pEipi_32(x64emu_t *emu, uintptr_t fnc);
-//#endif
+#endif
 
-//#if !defined(ANDROID)
-#if 0
+#ifndef ANDROID
 void pEEipi_32(x64emu_t *emu, uintptr_t fnc);
 #endif
 

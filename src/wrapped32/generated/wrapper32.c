@@ -2106,12 +2106,11 @@ typedef void (*vFuuuuiiiiuuiiiiiii_t)(uint32_t, uint32_t, uint32_t, uint32_t, in
 typedef void (*vFXpuiiiiipuiiiiiiii_t)(void*, void*, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 typedef uint32_t (*uFippuuuuiiiiuuiiiiiiiipp_t)(int32_t, void*, void*, uint32_t, uint32_t, uint32_t, uint32_t, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
 
-//#if defined(ANDROID)
+#ifdef ANDROID
 typedef void* (*pEipi_t)(int32_t, void*, int32_t);
-//#endif
+#endif
 
-//#if !defined(ANDROID)
-#if 0
+#ifndef ANDROID
 typedef void* (*pEEipi_t)(x64emu_t*, int32_t, void*, int32_t);
 #endif
 
@@ -4147,12 +4146,11 @@ void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fcn) { vFuuuuiiiiuuiiiiiii_
 void vFXpuiiiiipuiiiiiiii_32(x64emu_t *emu, uintptr_t fcn) { vFXpuiiiiipuiiiiiiii_t fn = (vFXpuiiiiipuiiiiiiii_t)fcn; fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptriv(R_ESP + 8), from_ptri(uint32_t, R_ESP + 12), from_ptri(int32_t, R_ESP + 16), from_ptri(int32_t, R_ESP + 20), from_ptri(int32_t, R_ESP + 24), from_ptri(int32_t, R_ESP + 28), from_ptri(int32_t, R_ESP + 32), from_ptriv(R_ESP + 36), from_ptri(uint32_t, R_ESP + 40), from_ptri(int32_t, R_ESP + 44), from_ptri(int32_t, R_ESP + 48), from_ptri(int32_t, R_ESP + 52), from_ptri(int32_t, R_ESP + 56), from_ptri(int32_t, R_ESP + 60), from_ptri(int32_t, R_ESP + 64), from_ptri(int32_t, R_ESP + 68), from_ptri(int32_t, R_ESP + 72)); }
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fcn) { uFippuuuuiiiiuuiiiiiiiipp_t fn = (uFippuuuuiiiiuuiiiiiiiipp_t)fcn; R_EAX = (uint32_t)fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptri(uint32_t, R_ESP + 16), from_ptri(uint32_t, R_ESP + 20), from_ptri(uint32_t, R_ESP + 24), from_ptri(uint32_t, R_ESP + 28), from_ptri(int32_t, R_ESP + 32), from_ptri(int32_t, R_ESP + 36), from_ptri(int32_t, R_ESP + 40), from_ptri(int32_t, R_ESP + 44), from_ptri(uint32_t, R_ESP + 48), from_ptri(uint32_t, R_ESP + 52), from_ptri(int32_t, R_ESP + 56), from_ptri(int32_t, R_ESP + 60), from_ptri(int32_t, R_ESP + 64), from_ptri(int32_t, R_ESP + 68), from_ptri(int32_t, R_ESP + 72), from_ptri(int32_t, R_ESP + 76), from_ptri(int32_t, R_ESP + 80), from_ptri(int32_t, R_ESP + 84), from_ptriv(R_ESP + 88), from_ptriv(R_ESP + 92)); }
 
-//#if defined(ANDROID)
+#ifdef ANDROID
 void pEipi_32(x64emu_t *emu, uintptr_t fcn) { pEipi_t fn = (pEipi_t)fcn; errno = emu->libc_err; R_EAX = to_ptrv(fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); emu->libc_err = errno; }
-//#endif
+#endif
 
-//#if !defined(ANDROID)
-#if 0
+#ifndef ANDROID
 void pEEipi_32(x64emu_t *emu, uintptr_t fcn) { pEEipi_t fn = (pEEipi_t)fcn; errno = emu->libc_err; R_EAX = to_ptrv(fn(emu, from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); emu->libc_err = errno; }
 #endif
 
