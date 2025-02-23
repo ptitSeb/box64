@@ -3205,6 +3205,7 @@ EXPORT void my32_regfree(x64emu_t* emu, void* p)
     regfree(&p_l);
 }
 
+#ifndef WINLATOR_GLIBC
 EXPORT void* my32_shmat(x64emu_t*emu, int shmid, void* shmaddr, int flags)
 {
     size_t sz = 0;
@@ -3229,6 +3230,7 @@ EXPORT int my32_shmdt(x64emu_t* emu, void* addr)
 {
     return shmdt(addr);
 }
+#endif
 
 #if 0
 #ifndef __NR_memfd_create
