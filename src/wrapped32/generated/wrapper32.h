@@ -1106,7 +1106,6 @@ void LEppLa_32(x64emu_t *emu, uintptr_t fnc);
 void LFXCii_32(x64emu_t *emu, uintptr_t fnc);
 void LFXLuu_32(x64emu_t *emu, uintptr_t fnc);
 void LFXpLp_32(x64emu_t *emu, uintptr_t fnc);
-void pEEipi_32(x64emu_t *emu, uintptr_t fnc);
 void pFEupi_32(x64emu_t *emu, uintptr_t fnc);
 void pFEupp_32(x64emu_t *emu, uintptr_t fnc);
 void pEEpii_32(x64emu_t *emu, uintptr_t fnc);
@@ -2053,6 +2052,15 @@ void vFfffffffffffffff_32(x64emu_t *emu, uintptr_t fnc);
 void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFXpuiiiiipuiiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fnc);
+
+//#if defined(ANDROID)
+void pEipi_32(x64emu_t *emu, uintptr_t fnc);
+//#endif
+
+//#if !defined(ANDROID)
+#if 0
+void pEEipi_32(x64emu_t *emu, uintptr_t fnc);
+#endif
 
 #if defined(HAVE_LD80BITS)
 void DED_32(x64emu_t *emu, uintptr_t fnc);
