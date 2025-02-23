@@ -1554,7 +1554,7 @@ GOW(setvbuf, iESpiL)
 GO(setxattr, iEpppLi)
 // sgetspent
 // sgetspent_r  // Weak
-#ifdef ANDROID
+#ifdef WINLATOR_GLIBC
 GOW(shmat, pEipi)
 GOW(shmdt, iEp)
 #else

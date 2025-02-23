@@ -2053,11 +2053,11 @@ void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFXpuiiiiipuiiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fnc);
 
-#ifdef ANDROID
+#ifdef WINLATOR_GLIBC
 void pEipi_32(x64emu_t *emu, uintptr_t fnc);
 #endif
 
-#ifndef ANDROID
+#ifndef WINLATOR_GLIBC
 void pEEipi_32(x64emu_t *emu, uintptr_t fnc);
 #endif
 
