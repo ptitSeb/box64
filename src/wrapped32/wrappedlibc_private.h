@@ -1554,11 +1554,11 @@ GOW(setvbuf, iESpiL)
 GO(setxattr, iEpppLi)
 // sgetspent
 // sgetspent_r  // Weak
-//#ifdef ANDROID
+#ifdef ANDROID
 GOW(shmat, pEipi)
 GOW(shmdt, iEp)
-//#else
-#if 0
+#endif
+#ifndef ANDROID
 GOWM(shmat, pEEipi)
 GOWM(shmdt, iEEp)
 #endif
