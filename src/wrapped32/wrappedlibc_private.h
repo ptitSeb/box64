@@ -1554,9 +1554,15 @@ GOW(setvbuf, iESpiL)
 GO(setxattr, iEpppLi)
 // sgetspent
 // sgetspent_r  // Weak
+//#ifdef ANDROID
+GOW(shmat, pEipi)
+GOW(shmdt, iEp)
+//#else
+#if 0
 GOWM(shmat, pEEipi)
-GOW(shmctl, iEiip)
 GOWM(shmdt, iEEp)
+#endif
+GOW(shmctl, iEiip)
 GOW(shmget, iEiLi)
 GOW(shutdown, iEii)
 GOWM(sigaction, iEEipp)    //%%
