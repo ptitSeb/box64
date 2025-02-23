@@ -879,7 +879,7 @@ if(BOX32)
             OUTPUT "${BOX64_ROOT}/src/wrapped32/generated/functions_list.txt"
             COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers_32.py"
             "${BOX64_ROOT}"
-            "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "STATICBUILD" "--"
+            "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "WINLATOR_GLIBC" "STATICBUILD" "--"
             ${WRAPPEDS32_HEAD}
             MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers_32.py"
             DEPENDS ${WRAPPEDS32} ${WRAPPEDS32_HEAD}
