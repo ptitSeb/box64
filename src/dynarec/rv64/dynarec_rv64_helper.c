@@ -2389,19 +2389,16 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t* 
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
 // There is no swap instruction in RV64 to swap 2 float registers!
 // so use a scratch...
-#define SCRATCH 2
-    if (i_single)
+#define SCRATCH 0 // f0 is not used anywhere else
+    if (i_single) {
         FMVS(SCRATCH, reg_i);
-    else
-        FMVD(SCRATCH, reg_i);
-    if (j_single)
         FMVS(reg_i, reg_j);
-    else
-        FMVD(reg_i, reg_j);
-    if (i_single)
         FMVS(reg_j, SCRATCH);
-    else
+    } else {
+        FMVD(SCRATCH, reg_i);
+        FMVD(reg_i, reg_j);
         FMVD(reg_j, SCRATCH);
+    }
 #undef SCRATCH
     tmp.v = cache->extcache[i].v;
     cache->extcache[i].v = cache->extcache[j].v;
