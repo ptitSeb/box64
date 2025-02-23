@@ -1557,8 +1557,7 @@ GO(setxattr, iEpppLi)
 #ifdef ANDROID
 GOW(shmat, pEipi)
 GOW(shmdt, iEp)
-#endif
-#ifndef ANDROID
+#else
 GOWM(shmat, pEEipi)
 GOWM(shmdt, iEEp)
 #endif
