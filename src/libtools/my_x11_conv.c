@@ -33,7 +33,7 @@ void* getDisplay(void* d)
         if(((&my32_Displays_32[i])==d) || (my32_Displays_64[i]==d)) {
             return my32_Displays_64[i];
         }
-        printf_log(LOG_INFO, "BOX32: Warning, 32bits Display %p not found\n", d);
+    printf_log(LOG_INFO, "BOX32: Warning, 32bits Display %p not found\n", d);
     return d;
 }
 
