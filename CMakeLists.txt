@@ -30,6 +30,7 @@ option(LX2160A "Set to ON if targeting an LX2160A based device" ${LX2160A})
 option(ARM64 "Set to ON if targeting a generic ARM64 based device" ${ARM64})
 option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
 option(TERMUX "Set to ON if targeting an Android device with Termux" ${TERMUX})
+option(WINLATOR_GLIBC "Set to ON if targeting an Android device with Winlator Glibc" ${WINLATOR_GLIBC})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(SAVE_MEM "Set to ON to build dynarec with some slower memory saving optimizations" ${SAVE_MEM})
@@ -255,6 +256,9 @@ if(ANDROID)
 endif()
 if(TERMUX)
     add_definitions(-DTERMUX)
+endif()
+if(WINLATOR_GLIBC)
+    add_definitions(-DWINLATOR_GLIBC)
 endif()
 if(BAD_SIGNAL)
     add_definitions(-DBAD_SIGNAL)
@@ -875,7 +879,7 @@ if(BOX32)
             OUTPUT "${BOX64_ROOT}/src/wrapped32/generated/functions_list.txt"
             COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers_32.py"
             "${BOX64_ROOT}"
-            "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "STATICBUILD" "--"
+            "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "WINLATOR_GLIBC" "STATICBUILD" "--"
             ${WRAPPEDS32_HEAD}
             MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers_32.py"
             DEPENDS ${WRAPPEDS32} ${WRAPPEDS32_HEAD}
