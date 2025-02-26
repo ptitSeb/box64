@@ -2011,8 +2011,6 @@
 #() vFuuuuiiiiuuiiiiiii -> vFuuuuiiiiuuiiiiiii
 #() vFXpuiiiiipuiiiiiiii -> vFXpuiiiiipuiiiiiiii
 #() uFippuuuuiiiiuuiiiiiiiipp -> uFippuuuuiiiiuuiiiiiiiipp
-#defined(WINLATOR_GLIBC) pEipi -> pEipi
-#!defined(WINLATOR_GLIBC) pEEipi -> pEEipi
 #defined(HAVE_LD80BITS) DED -> DED
 #defined(HAVE_LD80BITS) DFDi -> DFDi
 #defined(HAVE_LD80BITS) DEDD -> DEDD
@@ -2025,6 +2023,8 @@
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
 #!defined(HAVE_LD80BITS) KEKp -> KEKp
 #!defined(HAVE_LD80BITS) KEpBp_a -> KEpBa
+#defined(WINLATOR_GLIBC) pEipi -> pEipi
+#!defined(WINLATOR_GLIBC) pEEipi -> pEEipi
 #() UEsvvs -> UEss
 wrappedcairo:
 - pFp:

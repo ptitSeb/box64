@@ -2053,14 +2053,6 @@ void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFXpuiiiiipuiiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fnc);
 
-#ifdef WINLATOR_GLIBC
-void pEipi_32(x64emu_t *emu, uintptr_t fnc);
-#endif
-
-#ifndef WINLATOR_GLIBC
-void pEEipi_32(x64emu_t *emu, uintptr_t fnc);
-#endif
-
 #if defined(HAVE_LD80BITS)
 void DED_32(x64emu_t *emu, uintptr_t fnc);
 void DFDi_32(x64emu_t *emu, uintptr_t fnc);
@@ -2077,6 +2069,14 @@ void KEKK_32(x64emu_t *emu, uintptr_t fnc);
 void KFKp_32(x64emu_t *emu, uintptr_t fnc);
 void KEKp_32(x64emu_t *emu, uintptr_t fnc);
 void KEpBp_a_32(x64emu_t *emu, uintptr_t fnc);
+#endif
+
+#if defined(WINLATOR_GLIBC)
+void pEipi_32(x64emu_t *emu, uintptr_t fnc);
+#endif
+
+#if !defined(WINLATOR_GLIBC)
+void pEEipi_32(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 void UEsvvs_32(x64emu_t *emu, uintptr_t fnc);
