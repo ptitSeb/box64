@@ -483,7 +483,9 @@ static void hookMangoHud()
     if (FileExist("/etc/MangoHud.conf", IS_FILE)) return;
     const char* configdir = getenv("XDG_CONFIG_HOME");
     const char* homedir = getenv("HOME");
+#ifndef ANDROID
     homedir = homedir ? homedir : getpwuid(getuid())->pw_dir;
+#endif
     if (!homedir) return;
 
     static char config_base[512];
