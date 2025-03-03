@@ -789,7 +789,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (BOX64DRENV(dynarec_dump)>1)?"\e[m":"");
     }
-    if (BOX64ENV(dynarec_gdbjit)) {
+    if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
         GdbJITNewBlock(helper.gdbjit_block, (GDB_CORE_ADDR)block->actual_block, (GDB_CORE_ADDR)block->actual_block + native_size, helper.start);
     }
     int oldtable64size = helper.table64size;
@@ -834,7 +834,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     //block->x64_addr = (void*)start;
     block->x64_size = end-start;
     // all done...
-    if (BOX64ENV(dynarec_gdbjit)) {
+    if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
         GdbJITBlockReady(helper.gdbjit_block);
     }
     ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...

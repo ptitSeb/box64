@@ -46,7 +46,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1)                  \
     INTEGER(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 1, 0, 2)        \
     INTEGER(BOX64_DYNAREC_FORWARD, dynarec_forward, 128, 0, 1024)       \
-    INTEGER(BOX64_DYNAREC_GDBJIT, dynarec_gdbjit, 0, 0, 2)              \
+    STRING(BOX64_DYNAREC_GDBJIT, dynarec_gdbjit_str)                    \
     INTEGER(BOX64_DYNAREC_LOG, dynarec_log, 0, 0, 3)                    \
     INTEGER(BOX64_DYNAREC_MISSING, dynarec_missing, 0, 0, 2)            \
     BOOLEAN(BOX64_DYNAREC_NATIVEFLAGS, dynarec_nativeflags, 1)          \
@@ -96,7 +96,7 @@ extern char* ftrace_name;
     STRING(BOX64_RCFILE, envfile)                                       \
     BOOLEAN(BOX64_RDTSC_1GHZ, rdtsc_1ghz, 0)                            \
     BOOLEAN(BOX64_RESERVE_HIGH, reserve_high, 0)                        \
-    BOOLEAN(BOX64_ROLLING_LOG, cycle_log, 0)                          \
+    BOOLEAN(BOX64_ROLLING_LOG, cycle_log, 0)                            \
     BOOLEAN(BOX64_SDL2_JGUID, sdl2_jguid, 0)                            \
     BOOLEAN(BOX64_SHAEXT, shaext, 1)                                    \
     BOOLEAN(BOX64_SHOWBT, showbt, 0)                                    \
@@ -187,11 +187,14 @@ typedef struct box64env_s {
     int dynarec_test;
     int avx2;
     int rolling_log;
+    int dynarec_perf_map_fd;
+    int dynarec_gdbjit;
     uintptr_t dynarec_test_start;
     uintptr_t dynarec_test_end;
     uintptr_t nodynarec_start;
     uintptr_t nodynarec_end;
-    int dynarec_perf_map_fd;
+    uintptr_t dynarec_gdbjit_start;
+    uintptr_t dynarec_gdbjit_end;
 
     uint64_t is_any_overridden : 1;
     uint64_t is_dynarec_perf_map_fd_overridden : 1;

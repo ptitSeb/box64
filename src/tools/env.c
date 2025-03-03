@@ -127,6 +127,28 @@ static void applyCustomRules()
         }
     }
 
+    if (box64env.is_dynarec_gdbjit_str_overridden) {
+        if (strlen(box64env.dynarec_gdbjit_str) == 1) {
+            if (box64env.dynarec_gdbjit_str[0] >= '0' && box64env.dynarec_gdbjit_str[0] <= '2')
+                box64env.dynarec_gdbjit = box64env.dynarec_gdbjit_str[0] - '0';
+
+            box64env.dynarec_gdbjit_start = 0x0;
+            box64env.dynarec_gdbjit_end = 0x0;
+        } else if (strchr(box64env.dynarec_gdbjit_str, '-')) {
+            if (sscanf(box64env.dynarec_gdbjit_str, "%ld-%ld", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end) != 2) {
+                if (sscanf(box64env.dynarec_gdbjit_str, "0x%lX-0x%lX", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end) != 2) {
+                    if (sscanf(box64env.dynarec_gdbjit_str, "0x%lx-0x%lx", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end) != 2)
+                        sscanf(box64env.dynarec_gdbjit_str, "%lx-%lx", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end);
+                }
+            }
+            if (box64env.dynarec_gdbjit_end > box64env.dynarec_gdbjit_start) {
+                box64env.dynarec_gdbjit = 2;
+            } else {
+                box64env.dynarec_gdbjit = 0;
+            }
+        }
+    }
+
     if (box64env.is_nodynarec_overridden) {
         if(box64env.nodynarec) {
             if (strchr(box64env.nodynarec,'-')) {
