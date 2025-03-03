@@ -48,9 +48,9 @@ EXPORT gdbjit_descriptor_t __jit_debug_descriptor = { 1, GDBJIT_NOACTION, NULL, 
 
 void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR end, uintptr_t x64start)
 {
-    if (!block)
-        return;
+    if (!block) return;
 
+    size_t alloced = block->alloced;
     memset(block, 0, sizeof(gdbjit_block_t));
 
     strcpy(block->filename, "/tmp/box64gdbjit-XXXXXX.S");
@@ -60,13 +60,13 @@ void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR en
     block->start = start;
     block->end = end;
     block->x64start = x64start;
-    block->alloced = block->nlines = 0;
+    block->alloced = alloced;
+    block->nlines = 0;
 }
 
 static size_t GdbJITLinesAvailable(gdbjit_block_t* block)
 {
-    if (!block)
-        return 0;
+    if (!block) return 0;
 
     return block->alloced > block->nlines;
 }
@@ -88,10 +88,10 @@ static gdbjit_block_t* GdbJITMakeRoom(gdbjit_block_t* block)
 
 gdbjit_block_t* GdbJITBlockAddLine(gdbjit_block_t* block, GDB_CORE_ADDR addr, const char* line)
 {
+    if (!block || !block->file) return NULL;
+
     block->nlines++;
     block = GdbJITMakeRoom(block);
-    if (!block) return NULL;
-
     block->lines[block->nlines-1].pc = addr;
     block->lines[block->nlines-1].line = block->nlines;
     fprintf(block->file, "%s\n", line);
@@ -104,14 +104,12 @@ void GdbJITBlockReady(gdbjit_block_t* block)
 
     if (block->nlines == 0) {
         fclose(block->file);
-        box_free(block);
         return;
     }
 
     gdbjit_code_entry_t* entry = (gdbjit_code_entry_t*)box_malloc(sizeof(gdbjit_code_entry_t));
     if (!entry) {
         fclose(block->file);
-        box_free(block);
         return;
     }
 

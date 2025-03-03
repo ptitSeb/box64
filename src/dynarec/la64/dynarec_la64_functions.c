@@ -335,7 +335,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
 {
     if (!BOX64DRENV(dynarec_dump) && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
-    static char buf[512];
+    static char buf[256];
     int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d)",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,

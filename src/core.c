@@ -486,7 +486,7 @@ static void hookMangoHud()
     homedir = homedir ? homedir : getpwuid(getuid())->pw_dir;
     if (!homedir) return;
 
-    static char config_base[512];
+    static char config_base[256];
     snprintf(config_base, sizeof(config_base), "%s%s",
         configdir ? configdir : homedir,
         configdir ? "" : "/.config");
