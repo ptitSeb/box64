@@ -498,12 +498,13 @@ void LoadEnvVariables()
         box64env.is_##name##_overridden = 1; \
         box64env.is_any_overridden = 1;      \
     }
-#define ADDRESS(NAME, name)                  \
-    p = getenv(#NAME);                       \
-    if (p) {                                 \
-        box64env.name = (uintptr_t)atoll(p); \
-        box64env.is_##name##_overridden = 1; \
-        box64env.is_any_overridden = 1;      \
+#define ADDRESS(NAME, name)                                \
+    p = getenv(#NAME);                                     \
+    if (p) {                                               \
+        char* endptr;                                      \
+        box64env.name = (uintptr_t)strtoll(p, &endptr, 0); \
+        box64env.is_##name##_overridden = 1;               \
+        box64env.is_any_overridden = 1;                    \
     }
 #define STRING(NAME, name)                   \
     p = getenv(#NAME);                       \
