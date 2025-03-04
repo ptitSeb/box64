@@ -300,10 +300,12 @@ GO(epoll_create1, iFO)
 #ifdef NOALIGN
 GO(epoll_ctl, iFiiip)
 GO(epoll_pwait, iFipiip)
+GO(epoll_pwait2, iFipipp)
 GO(epoll_wait, iFipii)
 #else
 GOM(epoll_ctl, iFEiiip)
 GOM(epoll_pwait, iFEipiip)
+GOM(epoll_pwait2, iFEipipp)
 GOM(epoll_wait, iFEipii)
 #endif
 GO(erand48, dFp)

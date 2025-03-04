@@ -3400,11 +3400,13 @@
 #() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) iFipiip
+#defined(NOALIGN) iFipipp
 #!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEipiip
+#!defined(NOALIGN) iFEipipp
 #!defined(STATICBUILD) lFiN
 #!defined(STATICBUILD) iFlip
 #!defined(STATICBUILD) iFLLi
@@ -4722,6 +4724,8 @@ wrappedlibc:
   - epoll_pwait
 - iFipiup:
   - statx
+- iFipipp:
+  - epoll_pwait2
 - iFipppp:
   - getopt_long
   - getopt_long_only

@@ -3439,6 +3439,7 @@ void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(NOALIGN)
 void iFipiip(x64emu_t *emu, uintptr_t fnc);
+void iFipipp(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(NOALIGN)
@@ -3447,6 +3448,7 @@ void iFEppu(x64emu_t *emu, uintptr_t fnc);
 void iFEiiip(x64emu_t *emu, uintptr_t fnc);
 void iFEipii(x64emu_t *emu, uintptr_t fnc);
 void iFEipiip(x64emu_t *emu, uintptr_t fnc);
+void iFEipipp(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(STATICBUILD)

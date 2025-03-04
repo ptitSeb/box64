@@ -3481,6 +3481,7 @@ typedef void (*vFppippDpDc_t)(void*, void*, int32_t, void*, void*, double, void*
 
 #if defined(NOALIGN)
 typedef int32_t (*iFipiip_t)(int32_t, void*, int32_t, int32_t, void*);
+typedef int32_t (*iFipipp_t)(int32_t, void*, int32_t, void*, void*);
 #endif
 
 #if !defined(NOALIGN)
@@ -3489,6 +3490,7 @@ typedef int32_t (*iFEppu_t)(x64emu_t*, void*, void*, uint32_t);
 typedef int32_t (*iFEiiip_t)(x64emu_t*, int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFEipii_t)(x64emu_t*, int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iFEipiip_t)(x64emu_t*, int32_t, void*, int32_t, int32_t, void*);
+typedef int32_t (*iFEipipp_t)(x64emu_t*, int32_t, void*, int32_t, void*, void*);
 #endif
 
 #if !defined(STATICBUILD)
@@ -6960,6 +6962,7 @@ void vFppippDpDc(x64emu_t *emu, uintptr_t fcn) { vFppippDpDc_t fn = (vFppippDpDc
 
 #if defined(NOALIGN)
 void iFipiip(x64emu_t *emu, uintptr_t fcn) { iFipiip_t fn = (iFipiip_t)fcn; R_RAX=(uint32_t)fn((int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (void*)R_R8); }
+void iFipipp(x64emu_t *emu, uintptr_t fcn) { iFipipp_t fn = (iFipipp_t)fcn; R_RAX=(uint32_t)fn((int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (void*)R_RCX, (void*)R_R8); }
 #endif
 
 #if !defined(NOALIGN)
@@ -6968,6 +6971,7 @@ void iFEppu(x64emu_t *emu, uintptr_t fcn) { iFEppu_t fn = (iFEppu_t)fcn; R_RAX=(
 void iFEiiip(x64emu_t *emu, uintptr_t fcn) { iFEiiip_t fn = (iFEiiip_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (int32_t)R_RSI, (int32_t)R_RDX, (void*)R_RCX); }
 void iFEipii(x64emu_t *emu, uintptr_t fcn) { iFEipii_t fn = (iFEipii_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX); }
 void iFEipiip(x64emu_t *emu, uintptr_t fcn) { iFEipiip_t fn = (iFEipiip_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (void*)R_R8); }
+void iFEipipp(x64emu_t *emu, uintptr_t fcn) { iFEipipp_t fn = (iFEipipp_t)fcn; R_RAX=(uint32_t)fn(emu, (int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (void*)R_RCX, (void*)R_R8); }
 #endif
 
 #if !defined(STATICBUILD)
@@ -8999,6 +9003,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &lFpLppdddddd) return 7;
 #if defined(NOALIGN)
 	if (fun == &iFipiip) return 1;
+	if (fun == &iFipipp) return 1;
 #endif
 #if !defined(STATICBUILD)
 	if (fun == &iFlip) return 1;
@@ -11016,6 +11021,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &lFpLppdddddd) return 7;
 #if defined(NOALIGN)
 	if (fun == &iFipiip) return 209;
+	if (fun == &iFipipp) return 81;
 #endif
 #if !defined(STATICBUILD)
 	if (fun == &iFlip) return 33;

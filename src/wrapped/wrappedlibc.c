@@ -2199,6 +2199,15 @@ EXPORT int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t
         UnalignEpollEvent(events, _events, ret);
     return ret;
 }
+EXPORT int my_epoll_pwait2(int epfd, void* events, int maxevents, const struct timespec *timeout, const sigset_t * sigmask)
+{
+    struct epoll_event _events[maxevents];
+    //AlignEpollEvent(_events, events, maxevents);
+    int32_t ret = epoll_pwait2(epfd, events?_events:NULL, maxevents, timeout, sigmask);
+    if(ret>0)
+        UnalignEpollEvent(events, _events, ret);
+    return ret;
+}
 #endif
 
 #ifndef ANDROID
