@@ -2204,10 +2204,10 @@ EXPORT int my_epoll_pwait2(int epfd, void* events, int maxevents, const struct t
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
     #ifdef ANDROID
-    // epoll_pwait2 doesn't exist, to tranforming timeout to int...
+    // epoll_pwait2 doesn't exist, to tranforming timeout to int, and from nanosecods to milliseconds...
     int tout = -1;
     if(timeout) {
-        int64_t tmp = timeout->tv_nsec + timeout->tv_sec*1000000000LL;
+        int64_t tmp = (timeout->tv_nsec + timeout->tv_sec*1000000000LL)/1000000LL;
         if(tmp>1<<31) tmp = 1<<31;
         tout = tmp;
     }
