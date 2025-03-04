@@ -2203,7 +2203,18 @@ EXPORT int my_epoll_pwait2(int epfd, void* events, int maxevents, const struct t
 {
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
+    #ifdef ANDROID
+    // epoll_pwait2 doesn't exist, to tranforming timeout to int...
+    int tout = -1;
+    if(timeout) {
+        int64_t tmp = timeout->tv_nsec + timeout->tv_sec*1000000000LL;
+        if(tmp>1<<31) tmp = 1<<31;
+        tout = tmp;
+    }
+    int32_t ret = epoll_pwait(epfd, events?_events:NULL, maxevents, tout, sigmask);
+    #else
     int32_t ret = epoll_pwait2(epfd, events?_events:NULL, maxevents, timeout, sigmask);
+    #endif
     if(ret>0)
         UnalignEpollEvent(events, _events, ret);
     return ret;
