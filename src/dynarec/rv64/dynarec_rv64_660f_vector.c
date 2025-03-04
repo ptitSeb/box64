@@ -917,21 +917,18 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGD;
             GETEX_vector(q0, 0, 0, VECTOR_SEW64);
-            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             ADDI(x4, xZR, 63);
-            VSRL_VX(v0, q0, x4, VECTOR_UNMASKED);
             if (rv64_xtheadvector) {
                 // Force the mask element width to 32
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 1);
-            }
-            VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-            if (rv64_xtheadvector) {
+                VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                 VMV_X_S(x4, VMASK);
                 ANDI(gd, x4, 1);
                 SRLI(x4, x4, 31);
                 OR(gd, gd, x4);
             } else {
+                VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
                 VMV_X_S(x4, VMASK);
                 ANDI(gd, x4, 0b11);
             }
@@ -1863,13 +1860,11 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             GETGD;
             GETEX_vector(q0, 0, 0, VECTOR_SEW8);
-            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
-            VSRL_VI(v0, q0, 7, VECTOR_UNMASKED);
             if (rv64_xtheadvector) {
                 // Force the element width to 1bit
                 vector_vsetvli(dyn, ninst, x4, VECTOR_SEW8, VECTOR_LMUL8, 1);
             }
-            VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+            VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             VMV_X_S(gd, VMASK);
             if (!rv64_xtheadvector) { ZEXTH(gd, gd); }
