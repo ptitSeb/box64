@@ -62,6 +62,9 @@ cp --archive "${dir_tmp_local}"/usr/lib/x86_64-linux-gnu/*.so* "${dir_tmp_local}
 # Copy Fedora family libraries.
 cp --archive "${dir_tmp_local}"/usr/lib/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-i386-linux-gnu"
 cp --archive "${dir_tmp_local}"/usr/lib64/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-x86_64-linux-gnu"
+## This location is used by a few special packages such as "glibc".
+cp --archive "${dir_tmp_local}"/lib/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-i386-linux-gnu"
+cp --archive "${dir_tmp_local}"/lib64/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-x86_64-linux-gnu"
 # Copy Solus and Void Linux family libraries.
 cp --archive "${dir_tmp_local}"/usr/lib32/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-i386-linux-gnu"
 
