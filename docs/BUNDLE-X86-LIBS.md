@@ -62,6 +62,7 @@ Once the package name is found, find the exact URL for downloading it.
     - https://cdn.getsol.us/repo/shannon/
 - RPM = Navigate to the "`<MAJOR>.<MINOR>`" version directory first. Then explore "AppStream" and "BaseOS". Use the "x86_64.rpm" and "i686.rpm" packages.
     - https://repo.almalinux.org/almalinux/
+    - Enterprise Linux (EL) distributions, such as AlamaLinux, sometimes are missing 32-bit packages. Use the Fedora 34 [update](https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/) and [release](https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/) archives for compatible packages with EL 9.
 - XBPS = There are too many files in the repository to display on a web browser. Use pkgs.org instead to find the exact URL for downloading it.
     - https://repo-default.voidlinux.org/current/
 
