@@ -13,6 +13,10 @@ Install required dependencies for the bundle script.
     sudo apt-get update
     sudo apt-get install coreutils curl binutils rpm2cpio tar zstd
     ```
+- Fedora
+    ```
+    sudo dnf install coreutils curl binutils tar zstd
+    ```
 
 Run `box64-bundle-x86-libs.sh`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
