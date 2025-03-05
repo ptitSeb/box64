@@ -491,11 +491,30 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     VMOVQ(v1, v0);
                 } // no ymm raz here it seems
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
-                VSTR128_U12(v0, ed, fixedaddress);
-                if(vex.l) {
-                    GETGY(v0, 0, -1, -1, -1);
-                    VSTR128_U12(v0, ed, fixedaddress+16);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                    if(wback!=x1) {
+                        MOVx_REG(x1, wback);
+                        wback = x1;
+                    }
+                    for(int i=0; i<16; ++i) {
+                        VST1_8(v0, i, wback);
+                        ADDx_U12(wback, wback, 1);
+                    }
+                    if(vex.l) {
+                        GETGY(v0, 0, -1, -1, -1);
+                        for(int i=0; i<16; ++i) {
+                            VST1_8(v0, i, wback);
+                            ADDx_U12(wback, wback, 1);
+                        }
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                    VSTR128_U12(v0, ed, fixedaddress);
+                    if(vex.l) {
+                        GETGY(v0, 0, -1, -1, -1);
+                        VSTR128_U12(v0, ed, fixedaddress+16);
+                    }
                 }
                 SMWRITE2();
             }
