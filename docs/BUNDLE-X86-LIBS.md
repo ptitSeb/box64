@@ -51,7 +51,7 @@ For finding package names that contian a specific library file, use the [pkgs.or
 - EOPKG
     - Does not support file search. Use pkgs.org instead.
 - RPM
-    - `dnf provides <LIBRARY_FILE>`
+    - `dnf provides "*/<LIBRARY_FILE>*"`
 - XBPS
     - `xbps-query --repository --ownedby <LIBRARY_FILE>`
 
