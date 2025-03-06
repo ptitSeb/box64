@@ -538,12 +538,12 @@
       {
         "key": "0",
         "description": "Do not try anything special.",
-        "default": false
+        "default": true
       },
       {
         "key": "1",
         "description": "Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way.",
-        "default": true
+        "default": false
       },
       {
         "key": "2",

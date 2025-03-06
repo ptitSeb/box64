@@ -646,8 +646,8 @@ Behaviour of flags emulation on CALL/RET opcodes.
 
 Enable the emulation of x86 strong memory model.
 
- * 0: Do not try anything special. 
- * 1: Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way. [Default]
+ * 0: Do not try anything special. [Default]
+ * 1: Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way. 
  * 2: All in 1, plus memory barriers on SIMD instructions. 
  * 3: All in 2, plus more memory barriers on a regular basis. 
 
