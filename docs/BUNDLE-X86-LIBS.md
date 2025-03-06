@@ -45,6 +45,8 @@ Preference of operating system packages that provide a library:
 4. XBPS from Void Linux provide updated variants of obscure 32-bit libraries.
 5. Other (whereever a library is packaged)
 
+Some essential library files will never be emulated (only wrapped) and should not be bundled. This includes glibc, OpenGL, Vulkan, and X11/Xorg libraries. The full list can be found [here](https://github.com/ptitSeb/box64/blob/v0.3.2/src/librarian/library.c#L427). Other libraries with lots of dependencies, such as GTK, require all dependencies to be installed for emulation to work. This becomes dependency hell and should be avoided.
+
 For finding package names that contian a specific library file, use the [pkgs.org](https://pkgs.org/) website. Otherwise, use one of these package manager commands on a x86_64 Linux distribution:
 - DEB
     - `apt-file <LIBRARY_FILE>`
