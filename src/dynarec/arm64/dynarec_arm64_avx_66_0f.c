@@ -1186,11 +1186,11 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     VMOVQ(v1, v0);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
-                VSTR128_U12(v0, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VST128(v0, ed, fixedaddress);
                 if(vex.l) {
                     GETGY(v0, 0, -1, -1, -1);
-                    VSTR128_U12(v0, ed, fixedaddress+16);
+                    VST128(v0, ed, fixedaddress+16);
                 }
                 SMWRITE2();
             }
