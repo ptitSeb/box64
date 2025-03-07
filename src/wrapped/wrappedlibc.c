@@ -2199,22 +2199,22 @@ EXPORT int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t
         UnalignEpollEvent(events, _events, ret);
     return ret;
 }
-EXPORT int my_epoll_pwait2(int epfd, void* events, int maxevents, const struct timespec *timeout, const sigset_t * sigmask)
+EXPORT int my_epoll_pwait2(int epfd, void* events, int maxevents, struct timespec *timeout, sigset_t * sigmask)
 {
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
-    #if defined(ANDROID) || defined(LA64_ABI_1)
-    // epoll_pwait2 doesn't exist, to tranforming timeout to int, and from nanosecods to milliseconds...
-    int tout = -1;
-    if(timeout) {
-        int64_t tmp = (timeout->tv_nsec + timeout->tv_sec*1000000000LL)/1000000LL;
-        if(tmp>1<<31) tmp = 1<<31;
-        tout = tmp;
-    }
-    int32_t ret = epoll_pwait(epfd, events?_events:NULL, maxevents, tout, sigmask);
-    #else
-    int32_t ret = epoll_pwait2(epfd, events?_events:NULL, maxevents, timeout, sigmask);
-    #endif
+    int ret = 0;
+    if(!my->epoll_pwait2) {
+        // epoll_pwait2 doesn't exist, to tranforming timeout to int, and from nanosecods to milliseconds...
+        int tout = -1;
+        if(timeout) {
+            int64_t tmp = (timeout->tv_nsec + timeout->tv_sec*1000000000LL)/1000000LL;
+            if(tmp>1<<31) tmp = 1<<31;
+            tout = tmp;
+        }
+        ret = epoll_pwait(epfd, events?_events:NULL, maxevents, tout, sigmask);
+    } else
+        ret = my->epoll_pwait2(epfd, events?_events:NULL, maxevents, timeout, sigmask);
     if(ret>0)
         UnalignEpollEvent(events, _events, ret);
     return ret;
