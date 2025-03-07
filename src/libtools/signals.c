@@ -2161,7 +2161,7 @@ void check_exec(x64emu_t* emu, uintptr_t addr)
 {
     if(box64_pagesize!=4096)
         return; //disabling the test, 4K pagesize simlation isn't good enough for this
-    while((getProtection(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ)) {
+    while((getProtection_fast(addr)&(PROT_EXEC|PROT_READ))!=(PROT_EXEC|PROT_READ)) {
         R_RIP = addr;   // incase there is a slight difference
         emit_signal(emu, SIGSEGV, (void*)addr, 0xecec);
     }
