@@ -299,9 +299,11 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGD;
             GETEX_vector(q0, 0, 0, VECTOR_SEW32);
             if (rv64_xtheadvector) {
+                v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
+                VSRL_VI(v0, q0, 31, VECTOR_UNMASKED);
                 // Force the element width to 4bit
                 vector_vsetvli(dyn, ninst, x4, VECTOR_SEW32, VECTOR_LMUL8, 1);
-                VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
+                VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
                 vector_vsetvli(dyn, ninst, x4, VECTOR_SEW32, VECTOR_LMUL1, 1);
                 VMV_X_S(x4, VMASK);
                 BEXTI(gd, x4, 12);
