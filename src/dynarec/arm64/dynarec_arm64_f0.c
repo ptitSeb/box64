@@ -1714,6 +1714,34 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("LOCK NOT Ed");
+                    if(MODREG) {
+                        GETED(x1);
+                        MVNw_REG(x1, x1);
+                        EBBACK;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                        if(arm64_atomics) {
+                            MOV64x(x1, ~0LL);
+                            STEORLxw(x1, wback);
+                        } else {
+                            MARKLOCK;
+                            LDAXRxw(x1, wback);
+                            MVNw_REG(x1, x1);
+                            STLXRxw(x3, x1, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
+                        SMDMB();
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
 
         case 0xFE:
             nextop = F8;
