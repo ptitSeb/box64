@@ -1809,13 +1809,13 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
             static uintptr_t old_addr = 0;
             #ifdef DYNAREC
-            if((prot==(PROT_READ|PROT_WRITE|PROT_EXEC)) && isDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize)) {
-                printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p with DynaBlock(s) in range, db=%p, Lock=0x%x)\n", tid, pc, addr, db, Locks);
-                cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
-                refreshProtection((uintptr_t)addr);
-                relockMutex(Locks);
-                return;
-            }
+            if(prot==(PROT_READ|PROT_WRITE|PROT_EXEC))
+                if(cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0)) {
+                    printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p with DynaBlock(s) in range, db=%p, Lock=0x%x)\n", tid, pc, addr, db, Locks);
+                    refreshProtection((uintptr_t)addr);
+                    relockMutex(Locks);
+                    return;
+                }
             #endif
             printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p%s, db=%p, prot=0x%x (old_addr=%p, Lock=0x%x)\n", tid, pc, addr, mapped?" mapped":"", db, prot, (void*)old_addr, Locks);
             if(!(old_addr==(uintptr_t)addr && old_prot==prot) || mapped) {
