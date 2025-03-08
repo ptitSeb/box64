@@ -481,10 +481,10 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 sprintf(tmp, "\e[1;35m%s=%08x\e[m ", regname32[i], emu->regs[i].dword[0]);
                 emu->oldregs[i].q[0] = emu->regs[i].dword[0];
             } else {
-                sprintf(tmp, "%s=%08x ", regname32[i], emu->regs[i].dword[0]);
+                sprintf(tmp, "%s%s=%08x ", emu->regs[i].dword[1]?"*":"", regname32[i], emu->regs[i].dword[0]);
             }
 #else
-            sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
+            sprintf(tmp, "%s%s=%08x ", emu->regs[i].dword[1]?"*":"", regname[i], emu->regs[i].dword[0]);
 #endif
             strcat(buff, tmp);
 
