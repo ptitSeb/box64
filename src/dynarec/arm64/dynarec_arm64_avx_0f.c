@@ -302,7 +302,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 // EX is an xmm reg
                 q0 = fpu_get_scratch(dyn, ninst);
                 for(int l=0; l<1+vex.l; ++l) {
-                    if(!l) { GETEX(v0, 0, 0); } else { GETEY(v0); }
+                    if(!l) { GETEX_Y(v0, 0, 0); } else { GETEY(v0); }
                     SQXTN_16(q0, v0);   // reduces the 4 32bits to 4 16bits
                     VMOVQDto(x1, q0, 0);
                     LSRx(x1, x1, 15);
