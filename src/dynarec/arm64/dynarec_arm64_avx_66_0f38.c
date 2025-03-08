@@ -257,7 +257,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGX(v0, 0);
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             v2 = fpu_get_scratch(dyn, ninst);
             if(vex.l) {
                 if(!MODREG)
@@ -308,7 +308,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGX(v0, 0);
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             v2 = fpu_get_scratch(dyn, ninst);
             if(vex.l) {
                 if(!MODREG)
@@ -421,7 +421,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGX(v0, 0);
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             v2 = fpu_get_scratch(dyn, ninst);
             if(vex.l) {
                 if(!MODREG)
@@ -544,7 +544,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x20:
             INST_NAME("VPMOVSXBW Gx, Ex");
             nextop = F8;
-            if(vex.l) {GETEX(q1, 0, 0);} else {GETEX64(q1, 0, 0);}
+            if(vex.l) {GETEX(q1, 0, 0);} else {GETEX64(q1, 0, 0);}  //no GETEY
             GETGX_empty(q0);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
@@ -583,7 +583,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x23:
             INST_NAME("VPMOVSXWD Gx, Ex");
             nextop = F8;
-            if(vex.l) {GETEX(q1, 0, 0);} else {GETEX64(q1, 0, 0);}
+            if(vex.l) {GETEX(q1, 0, 0);} else {GETEX64(q1, 0, 0);}  //no GETEY
             GETGX_empty(q0);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
@@ -607,7 +607,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x25:
             INST_NAME("VPMOVSXDQ Gx, Ex");
             nextop = F8;
-            if(vex.l) {GETEX(q1, 0, 0);} else {GETEX64(q1, 0, 0);}
+            if(vex.l) {GETEX(q1, 0, 0);} else {GETEX64(q1, 0, 0);}  //no GETEY
             GETGX_empty(q0);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
@@ -910,7 +910,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VPMOVZXBW Gx, Ex");
             nextop = F8;
             GETG;
-            if(vex.l) { GETEX(q1, 0, 0); } else { GETEX64(q1, 0, 0); YMM0(gd); }
+            if(vex.l) { GETEX(q1, 0, 0); } else { GETEX64(q1, 0, 0); YMM0(gd); }    //no GETEY
             GETGX_empty(q0);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
@@ -952,7 +952,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VPMOVZXWD Gx, Ex");
             nextop = F8;
             GETG;
-            if(vex.l) { GETEX(q1, 0, 0); } else { GETEX64(q1, 0, 0); YMM0(gd); }
+            if(vex.l) { GETEX(q1, 0, 0); } else { GETEX64(q1, 0, 0); YMM0(gd); }    //no GETEY
             GETGX_empty(q0);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
@@ -978,7 +978,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VPMOVZXDQ Gx, Ex");
             nextop = F8;
             GETG;
-            if(vex.l) { GETEX(q1, 0, 0); } else { GETEX64(q1, 0, 0); YMM0(gd); }
+            if(vex.l) { GETEX(q1, 0, 0); } else { GETEX64(q1, 0, 0); YMM0(gd); }    //no GETEY
             GETGX_empty(q0);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
@@ -1078,9 +1078,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
         case 0x41:
-            INST_NAME("PHMINPOSUW Gx, Ex");
+            INST_NAME("VPHMINPOSUW Gx, Ex");
             nextop = F8;
-            GETEX(v1, 0, 0);
+            GETEX(v1, 0, 0);    //no vex.l case
             GETGX_empty(v0);
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);

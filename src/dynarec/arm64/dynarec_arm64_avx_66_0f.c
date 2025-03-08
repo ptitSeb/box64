@@ -407,7 +407,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5A:
             INST_NAME("VCVTPD2PS Gx, Ex");
             nextop = F8;
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             GETGX_empty(v0);
             if(BOX64ENV(dynarec_fastround)==2) {
                 FCVTXN(v0, v1);
@@ -437,7 +437,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 MOVI_32_lsl(d1, 0x80, 3);
             }
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETEX(v1, 0, 0); GETGX_empty(v0); } else { GETGY_empty_EY(v0, v1); }
+                if(!l) { GETEX_Y(v1, 0, 0); GETGX_empty(v0); } else { GETGY_empty_EY(v0, v1); }
                 if(BOX64ENV(dynarec_fastround)) {
                     VFRINTISQ(v0, v1);
                     VFCVTZSQS(v0, v0);
@@ -1251,7 +1251,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             if(MODREG) {
-                GETEX(v0, 0, 1);
+                GETEX(v0, 0, 1);    // no vex.l case
                 u8 = (F8)&7;
                 VMOVHto(gd, v0, u8);
             } else {
@@ -1792,7 +1792,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             UQXTN_32(q0, v1);
             MOVI_32(q1, 16);
             UMIN_32(q0, q0, q1);    // limit to 0 .. +16 values
@@ -1808,7 +1808,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             UQXTN_32(q0, v1);
             MOVI_32(q1, 32);
             UMIN_32(q0, q0, q1);    // limit to 0 .. +32 values
@@ -1824,7 +1824,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
-            GETEX(v1, 0, 0);
+            GETEX_Y(v1, 0, 0);
             UQXTN_32(q0, v1);
             MOVI_32(q1, 64);
             UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
@@ -1884,7 +1884,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VMASKMOVDQU Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
-            GETEX(q1, 0, 0);
+            GETEX(q1, 0, 0);    //no vex.l case
             v0 = fpu_get_scratch(dyn, ninst);
             VLDR128_U12(v0, xRDI, 0);
             if(MODREG)
