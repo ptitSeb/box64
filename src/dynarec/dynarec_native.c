@@ -508,7 +508,8 @@ static instruction_native_t static_insts[MAX_INSTS+2] = {0};
 
 void ClearCache(void* start, size_t len)
 {
-#if defined(ARM64)
+// disabled for now, seems to not clear some page correctly (happens with Celeste64 or CivBE for example)
+#if 0//defined(ARM64)
     // manually clear cache, I have issue with regular function on Ampere with kernel 6.12.4
     uintptr_t xstart = (uintptr_t)start;
     uintptr_t xend = (uintptr_t)start + len;
@@ -831,6 +832,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     *(dynablock_t**)next = block;
     *(void**)(next+3*sizeof(void*)) = native_next;
     CreateJmpNext(block->jmpnext, next+3*sizeof(void*));
+    ClearCache(block->jmpnext, 4*sizeof(void*));
     //block->x64_addr = (void*)start;
     block->x64_size = end-start;
     // all done...
