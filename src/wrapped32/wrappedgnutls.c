@@ -19,13 +19,9 @@
 #include "callback.h"
 #include "converter32.h"
 
-static const char* gnutlsName = 
-#if ANDROID
-    "libgnutls.so"
-#else
-    "libgnutls.so.30"
-#endif
-    ;
+static const char* gnutlsName = "libgnutls.so.30";
+#define ALTNAME "libgnutls.so"
+
 #define LIBNAME gnutls
 
 #include "generated/wrappedgnutlstypes32.h"
@@ -69,7 +65,8 @@ static void* find_gnutls_log_Fct(void* fct)
 static uintptr_t my_pullpush_fct_##A = 0;                                         \
 static long my_pullpush_##A(void* p, void* d, size_t l)                           \
 {                                                                                 \
-    return (long)RunFunctionFmt(my_pullpush_fct_##A, "ppL", p, d, l);         \
+    long_t ret = (long_t)RunFunctionFmt(my_pullpush_fct_##A, "ppL", p, d, l);     \
+    return from_long(ret);\
 }
 SUPER()
 #undef GO
@@ -126,12 +123,12 @@ EXPORT void* my32_gnutls_certificate_get_peers(x64emu_t* emu, void* session, int
     if(size) *size = num;
     if(!ret) return NULL;
     static datum_32_t res[128];
-    if(num>128) {printf_log(LOG_NONE, "BOX32: Warning, return buffer for gnutls_certificate_get_peers too small: %d\n", size); num=128;}
+    if(num>128) {printf_log(LOG_NONE, "BOX32: Warning, return buffer for gnutls_certificate_get_peers too small: %d\n", num); num=128;}
     for(int i=0; i<num; ++i) {
         res[i].data = to_ptrv(ret[i].p0);
         res[i].size = ret[i].u1;
     }
-    return ret;
+    return res;
 }
 
 EXPORT void my32_gnutls_global_set_log_function(x64emu_t* emu, void* f)
