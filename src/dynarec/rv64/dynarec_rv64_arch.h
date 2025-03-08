@@ -12,7 +12,7 @@
 // get size of arch specific info (can be 0)
 size_t get_size_arch(dynarec_rv64_t* dyn);
 //populate the array
-void populate_arch(dynarec_rv64_t* dyn, void* p);
+void* populate_arch(dynarec_rv64_t* dyn, void* p, size_t sz);
 //adjust flags and more
 void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc);
 // get if instruction can be regenerated for unaligned access

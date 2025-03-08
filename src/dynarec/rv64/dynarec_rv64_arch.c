@@ -144,7 +144,7 @@ static int sizeof_arch(arch_arch_t* arch)
     return sz;
 }
 
-void populate_arch(dynarec_rv64_t* dyn, void* p)
+void* populate_arch(dynarec_rv64_t* dyn, void* p, size_t sz)
 {
     arch_build_t build = {0};
     arch_build_t previous = {0};
@@ -166,6 +166,7 @@ void populate_arch(dynarec_rv64_t* dyn, void* p)
             next = (arch_arch_t*)((uintptr_t)arch+sz);
         }
     }
+    return p;
 }
 
 int getX64AddressInst(dynablock_t* db, uintptr_t x64pc); // define is signal.c

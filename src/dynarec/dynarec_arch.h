@@ -26,7 +26,7 @@
 #define PREUPDATE_SPECIFICS(A)
 
 #define ARCH_SIZE(A)    get_size_arch(A)
-#define ARCH_FILL(A, B) populate_arch(A, B)
+#define ARCH_FILL(A, B, C) populate_arch(A, B, C)
 #define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B)   A->insts[B].nat_flags_op = NAT_FLAG_OP_UNUSABLE
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
@@ -53,7 +53,7 @@
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 
 #define ARCH_SIZE(A)    0
-#define ARCH_FILL(A, B)  {}
+#define ARCH_FILL(A, B, C)  {}
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) 0
@@ -83,7 +83,7 @@
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 
 #define ARCH_SIZE(A)    get_size_arch(A)
-#define ARCH_FILL(A, B) populate_arch(A, B)
+#define ARCH_FILL(A, B, C) populate_arch(A, B, C)
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)

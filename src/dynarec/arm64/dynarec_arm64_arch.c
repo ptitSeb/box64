@@ -13,6 +13,7 @@
 #include "dynarec/dynablock_private.h"
 #include "dynarec_arm64_arch.h"
 #include "dynarec_arm64_functions.h"
+#include "dynarec_native.h"
 
 //order might be important, so define SUPER for the right one
 #define SUPER() \
@@ -80,6 +81,8 @@ typedef struct arch_build_s
     SUPER()
     #undef GO
 } arch_build_t;
+
+static arch_build_t static_build[MAX_INSTS+2] = {0};
 
 static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
 {
@@ -158,28 +161,43 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
     return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
 }
 
+static int sizeof_arch(arch_arch_t* arch)
+{
+    int sz = sizeof(arch_arch_t);
+    #define GO(A)   if(arch->A) sz+=sizeof(arch_##A##_t);
+    SUPER()
+    #undef GO
+    return sz;
+}
+
+static int sizeof_arch_build(arch_build_t* build)
+{
+    int sz = sizeof(arch_arch_t);
+    #define GO(A)   if(build->A) sz+=sizeof(arch_##A##_t);
+    SUPER()
+    #undef GO
+    return sz;
+}
+
 size_t get_size_arch(dynarec_arm_t* dyn)
 {
-    arch_build_t build = {0};
-    arch_build_t previous = {0};
+    arch_build_t* previous = NULL;
     size_t sz = 0;
     int seq = 0;
     int nseq = 0;
     int last = 0;
     if(!dyn->size) return 0;
     for(int i=0; i<dyn->size; ++i) {
-        last = arch_build(dyn, i, &build);
-        if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
+        arch_build_t* build = static_build+i;
+        last = arch_build(dyn, i, build);
+        if(i && (!memcmp(build, previous, sizeof(arch_build_t))) && (seq<((1<<10)-1))) {
             // same sequence, increment
             ++seq;
         } else {
             seq = 0;
             ++nseq;
-            memcpy(&previous, &build, sizeof(arch_build_t));
-            sz+=sizeof(arch_arch_t);
-            #define GO(A) if(build.A) sz+=sizeof(arch_##A##_t);
-            SUPER()
-            #undef GO
+            previous = build;
+            sz += sizeof_arch_build(build);
         }
     }
     if(nseq==1 && !last)
@@ -196,45 +214,43 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     arch->seq = 0;
     void* p = ((void*)arch)+sizeof(arch_arch_t);
     #define GO(A)                                           \
-    if(arch->A) {                                           \
-        memcpy(p, &build->A##_, sizeof(arch_ ##A##_t));     \
+    if(build->A) {                                          \
+        memcpy(p, &(build->A##_), sizeof(arch_ ##A##_t));   \
         p+=sizeof(arch_##A##_t);                            \
     }
     SUPER()
     #undef GO
 }
 
-static int sizeof_arch(arch_arch_t* arch)
+void* populate_arch(dynarec_arm_t* dyn, void* p, size_t tot_sz)
 {
-    int sz = sizeof(arch_arch_t);
-    #define GO(A)   if(arch->A) sz+=sizeof(arch_##A##_t);
-    SUPER()
-    #undef GO
-    return sz;
-}
-
-void populate_arch(dynarec_arm_t* dyn, void* p)
-{
-    arch_build_t build = {0};
-    arch_build_t previous = {0};
+    arch_build_t* previous = NULL;
     arch_arch_t* arch = p;
     arch_arch_t* next = p;
     int seq = 0;
+    size_t total = 0;
+    if(!tot_sz) return NULL;
     for(int i=0; i<dyn->size; ++i) {
-        arch_build(dyn, i, &build);
-        if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
+        arch_build_t* build = static_build+i;
+        if(i && (!memcmp(build, previous, sizeof(arch_build_t))) && (seq<((1<<10)-1))) {
             // same sequence, increment
             seq++;
             arch->seq = seq;
         } else {
+            int sz = sizeof_arch_build(build);
+            if(total+sz>tot_sz) {
+                printf_log(LOG_INFO, "Warning: populate_arch oversized\n");
+                return NULL;
+            }
             arch = next;
-            build_next(arch, &build);
+            build_next(arch, build);
             seq = 0;
-            memcpy(&previous, &build, sizeof(arch_build_t));
-            int sz = sizeof_arch(arch);
+            previous = build;
+            total += sz;
             next = (arch_arch_t*)((uintptr_t)arch+sz);
         }
     }
+    return p;
 }
 
 int getX64AddressInst(dynablock_t* db, uintptr_t x64pc); // define is signal.c

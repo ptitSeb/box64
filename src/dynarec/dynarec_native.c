@@ -821,9 +821,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     block->dirty = block->always_test;
     block->is32bits = is32bits;
     if(arch_size) {
-        block->arch = arch;
         block->arch_size = arch_size;
-        ARCH_FILL(&helper, arch);
+        block->arch = ARCH_FILL(&helper, arch, arch_size);
+        if(!block->arch) block->arch_size = 0;
     } else {
         block->arch = NULL;
         block->arch_size = arch_size;
