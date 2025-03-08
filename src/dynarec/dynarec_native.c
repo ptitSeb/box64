@@ -508,7 +508,6 @@ static instruction_native_t static_insts[MAX_INSTS+2] = {0};
 
 void ClearCache(void* start, size_t len)
 {
-// disabled for now, seems to not clear some page correctly (happens with Celeste64 or CivBE for example)
 #if defined(ARM64)
     // manually clear cache, I have issue with regular function on Ampere with kernel 6.12.4
     uintptr_t xstart = (uintptr_t)start;
