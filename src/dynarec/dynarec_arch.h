@@ -53,7 +53,7 @@
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 
 #define ARCH_SIZE(A)    0
-#define ARCH_FILL(A, B, C)  {}
+#define ARCH_FILL(A, B, C)  NULL
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) 0
