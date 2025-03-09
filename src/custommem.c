@@ -1523,7 +1523,8 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         rb_get_end(memprot, cur, &oprot, &bend);
         if(bend>end) bend = end;
         uint32_t dyn=(oprot&PROT_DYN);
-        if(!(dyn&PROT_NEVERPROT)) {
+        uint32_t never = dyn&PROT_NEVERPROT;
+        if(!(never)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
                 int ret = mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
@@ -1532,7 +1533,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
                 dyn = PROT_DYNAREC_R;
             }
         }
-        uint32_t new_prot = prot?(prot|dyn):prot;
+        uint32_t new_prot = prot?(prot|dyn):(prot|never);
         if (new_prot != oprot)
             rb_set(memprot, cur, bend, new_prot);
         cur = bend;
