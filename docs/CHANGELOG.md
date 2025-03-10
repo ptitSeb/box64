@@ -1,3 +1,39 @@
+v0.3.4
+======
+* This version is Faster and more compatible:
+    => The RV64 backend got faster and more stable, with lots of RVV 1.0 / xThreadVector support to emulate SSE/SSE2+ opcode (no AVX yet)
+    => On ARM64, Box64 now support more DRM types than before.
+    => BOX32 can run steam now. At least on ARM64 backend, it's still not working on RV64 and LA64 for now.
+* Added support to emulate Windows Syscall (needs Proton and a 48bits address space for now)
+* Added BOX64_DYNAREC_DIRTY to have a faster (but less safe) way to handle code that write in it's current page
+* Added a few rarely used opcodes
+* Added experimental support for GDBJIT, that allow an x86/x86_64 program to be debugged on ARM/RV64/LA64 platform with x86 regs and opcode view (might generate a lot of file tho)
+* Added support for Perf tools in a similar way if GDBJIT, to have an x86 fine view of the performances
+* Reworked undefined flags for common operations, to be similar to real CPU
+* Reworked cpuid handling, adding BOX64_CPUTYPE support to select Intel/AMD emulation (no 3DNow! support on AMD for now)
+* Reworked ucontext link to be closer to the real thing (and make it more simple)
+* Improved memory traking, file descriptor backed memory map, and detect wine loaded dll
+* Introduced settings per library and dll (mostly for Dynarec)
+* Wrapper: More functions addes, and some fixes too
+* BOX32: Many fixes around pthreads wrapping
+* BOX32: More functions wrapped.
+* BOX32: More libraies wrapped.
+* BOX32: Some reworks on how high memory (higher than 32bits) is masked, and can be used for Dynarec blocks.
+* Dynarec: The usual batch of fixes, improvments and opcodes additions on all 3 supported backend
+* Dynarec: Some fixes to NativeFlags handling, both on ARM64 and RV64
+* Dynarec: Added optimized REP MOVSB (expected for default CPUTYPE=0, according to new cpuid return)
+* Dynarec: LA64: more opcoded addes, using hardware extensions like AES
+* Dynarec: RV64: More work on using RVV 1.0 and xTheadVector extension to emulate SSE/SSE2+ opcodes
+* Dynarec: RV64: Added informations on flags when building blocks, to be used when a signal happens to rebuild a x86 context more accurate
+* Dynarec: ARM64: Reworked undefined flags for common operations, to be similar to real CPU
+* Dynarec: ARM64: Added informations on flags and xmm/ymm/x87 register when building blocks, to be used when a signal happens to rebuild a x86 context 100% accurate
+* TRACE: Reworked how trace for wrapped function call is printed.
+* TRACE: Reworked logs to prefix each line with a (optionaly colored) BOX32 or BOX64
+* COSIM: Some rework on cosim to limit false negative, especialy when handling x87 operations
+* LA64: Added limited support for ABI 1.0
+* CI: github CI now also generate MiceWine .rat archive, along with Winlator .wcp archive and regular linux builds.
+* RCFile: Added many new games profiles (both for speed improvment or for compatibilty)
+
 v0.3.2
 ======
 * Introduced Box32 to run 32bits apps on 64bits OS

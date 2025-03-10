@@ -1,3 +1,13 @@
+box64 (0.3.4) unstable; urgency=low
+
+* This version is Faster and more compatible
+*    => The RV64 backend got faster and more stable, with lots of RVV 1.0 / xThreadVector support to emulate SSE/SSE2+ opcode (no AVX yet)
+*    => On ARM64, Box64 now support more DRM types than before.
+*    => BOX32 can run steam now. At least on ARM64 backend, it's still not working on RV64 and LA64 for now.
+* Please check CHAGELOG.md for more details
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2025 10:30:33 -0100
+
 box64 (0.3.2) unstable; urgency=low
 
 * Introduced Box32 to run 32bits apps on 64bits OS
