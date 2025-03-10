@@ -1474,7 +1474,7 @@ static int hotpage_cnt = 0;
 static int repeated_count = 0;
 static uintptr_t repeated_page = 0;
 #define HOTPAGE_MARK 64
-#define HOTPAGE_DIRTY 8
+#define HOTPAGE_DIRTY 2
 void SetHotPage(uintptr_t addr)
 {
     hotpage = addr&~(box64_pagesize-1);
