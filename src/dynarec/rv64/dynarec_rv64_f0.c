@@ -415,8 +415,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     BNEZ_MARK2(x4);
 
                                     SMDMB();
-                                    LD(x3, wback, 8);
                                     MARKLOCK;
+                                    LD(x3, wback, 8);
                                     LR_D(x2, wback, 1, 1);
                                     BNE_MARK(x2, xRAX);
                                     BNE_MARK(x3, xRDX);
