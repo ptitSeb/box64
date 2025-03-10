@@ -191,6 +191,72 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 4: // AND
+                    if (opcode == 0x81) {
+                        INST_NAME("LOCK AND Ew, Iw");
+                    } else {
+                        INST_NAME("LOCK AND Ew, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (MODREG) {
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MOV64x(x5, u64);
+                        ZEXTH(x6, ed);
+                        emit_and16(dyn, ninst, x6, x5, x3, x4);
+                        SRLI(ed, ed, 16);
+                        SLLI(ed, ed, 16);
+                        OR(ed, ed, x6);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        MOV64x(x5, u64);
+
+                        ANDI(x3, wback, 0b10);
+                        BNEZ_MARK(x3);
+
+                        // lower 16 bits
+                        MARKLOCK;
+                        LR_W(x1, wback, 1, 1);
+                        SRLIW(x3, x1, 16);
+                        SLLIW(x3, x3, 16);
+                        AND(x4, x1, x5);
+                        OR(x4, x4, x3);
+                        SC_W(x3, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                        IFXORNAT (X_ALL | X_PEND) {
+                            SLLIW(x1, x1, 16);
+                            SRLIW(x1, x1, 16);
+                        }
+                        B_MARK3_nocond;
+
+                        MARK;
+                        // upper 16 bits
+                        XORI(wback, wback, 0b10);
+                        MARK2;
+                        LR_W(x1, wback, 1, 1);
+                        SLLIW(x3, x1, 16);
+                        SRLIW(x3, x3, 16);
+                        SRLIW(x1, x1, 16);
+                        AND(x4, x1, x5);
+                        SLLIW(x4, x4, 16);
+                        OR(x4, x4, x3);
+                        SC_W(x3, x4, wback, 1, 1);
+                        BNEZ_MARK2(x3);
+
+                        MARK3;
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_and16(dyn, ninst, x1, x5, x3, x4);
+                        }
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
