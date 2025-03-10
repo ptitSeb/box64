@@ -67,7 +67,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP == 0
         if(cur_page != ((addr)&~(box64_pagesize-1))) {
             cur_page = (addr)&~(box64_pagesize-1);
-            if(!(getProtection(addr)&PROT_READ)) {
+            if(!(getProtection(addr)&PROT_READ) || checkInHotPage(addr)) {
                 need_epilog = 1;
                 break;
             }
