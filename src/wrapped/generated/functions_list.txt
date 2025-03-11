@@ -6086,10 +6086,13 @@ wrappedvulkan:
   - vkDestroyFramebuffer
   - vkDestroyImage
   - vkDestroyImageView
+  - vkDestroyIndirectCommandsLayoutEXT
   - vkDestroyIndirectCommandsLayoutNV
+  - vkDestroyIndirectExecutionSetEXT
   - vkDestroyMicromapEXT
   - vkDestroyOpticalFlowSessionNV
   - vkDestroyPipeline
+  - vkDestroyPipelineBinaryKHR
   - vkDestroyPipelineCache
   - vkDestroyPipelineLayout
   - vkDestroyPrivateDataSlot
@@ -6116,6 +6119,7 @@ wrappedvulkan:
   - vkCreateDeferredOperationKHR
   - vkCreateInstance
   - vkGetPhysicalDeviceDisplayPropertiesKHR
+  - vkReleaseCapturedPipelineDataKHR
 - iFpUup:
   - vkGetDisplayPlaneCapabilitiesKHR
 - iFpppp:
@@ -6144,9 +6148,12 @@ wrappedvulkan:
   - vkCreateHeadlessSurfaceEXT
   - vkCreateImage
   - vkCreateImageView
+  - vkCreateIndirectCommandsLayoutEXT
   - vkCreateIndirectCommandsLayoutNV
+  - vkCreateIndirectExecutionSetEXT
   - vkCreateMicromapEXT
   - vkCreateOpticalFlowSessionNV
+  - vkCreatePipelineBinariesKHR
   - vkCreatePipelineCache
   - vkCreatePipelineLayout
   - vkCreatePrivateDataSlot

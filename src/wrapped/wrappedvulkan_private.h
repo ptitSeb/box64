@@ -1000,3 +1000,27 @@ GO(wine_vkReleaseKeyedMutex, iFpUU)
 
 // VK_NV_cooperative_matrix2
 GO(vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV, iFppp)
+
+// VK_AMD_anti_lag
+GO(vkAntiLagUpdateAMD, vFpp)
+
+// VK_EXT_device_generated_commands
+GO(vkCmdExecuteGeneratedCommandsEXT, vFpup)
+GO(vkCmdPreprocessGeneratedCommandsEXT, vFppp)
+GOM(vkCreateIndirectCommandsLayoutEXT, iFEpppp)
+GOM(vkCreateIndirectExecutionSetEXT, iFEpppp)
+GOM(vkDestroyIndirectCommandsLayoutEXT, vFEpUp)
+GOM(vkDestroyIndirectExecutionSetEXT, vFEpUp)
+GO(vkGetGeneratedCommandsMemoryRequirementsEXT, vFppp)
+GO(vkUpdateIndirectExecutionSetPipelineEXT, vFpUup)
+GO(vkUpdateIndirectExecutionSetShaderEXT, vFpUup)
+
+// VK_KHR_pipeline_binary
+GOM(vkCreatePipelineBinariesKHR, iFEpppp)
+GOM(vkDestroyPipelineBinaryKHR, vFEpUp)
+GO(vkGetPipelineBinaryDataKHR, iFppppp)
+GO(vkGetPipelineKeyKHR, iFppp)
+GOM(vkReleaseCapturedPipelineDataKHR, iFEppp)
+
+// VK_EXT_depth_clamp_control
+GO(vkCmdSetDepthClampRangeEXT, vFpup)

@@ -54,10 +54,13 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkDestroyFramebuffer, vFpUp_t) \
 	GO(vkDestroyImage, vFpUp_t) \
 	GO(vkDestroyImageView, vFpUp_t) \
+	GO(vkDestroyIndirectCommandsLayoutEXT, vFpUp_t) \
 	GO(vkDestroyIndirectCommandsLayoutNV, vFpUp_t) \
+	GO(vkDestroyIndirectExecutionSetEXT, vFpUp_t) \
 	GO(vkDestroyMicromapEXT, vFpUp_t) \
 	GO(vkDestroyOpticalFlowSessionNV, vFpUp_t) \
 	GO(vkDestroyPipeline, vFpUp_t) \
+	GO(vkDestroyPipelineBinaryKHR, vFpUp_t) \
 	GO(vkDestroyPipelineCache, vFpUp_t) \
 	GO(vkDestroyPipelineLayout, vFpUp_t) \
 	GO(vkDestroyPrivateDataSlot, vFpUp_t) \
@@ -81,6 +84,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateDeferredOperationKHR, iFppp_t) \
 	GO(vkCreateInstance, iFppp_t) \
 	GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t) \
+	GO(vkReleaseCapturedPipelineDataKHR, iFppp_t) \
 	GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t) \
 	GO(vkAllocateMemory, iFpppp_t) \
 	GO(vkCreateAccelerationStructureKHR, iFpppp_t) \
@@ -107,9 +111,12 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateHeadlessSurfaceEXT, iFpppp_t) \
 	GO(vkCreateImage, iFpppp_t) \
 	GO(vkCreateImageView, iFpppp_t) \
+	GO(vkCreateIndirectCommandsLayoutEXT, iFpppp_t) \
 	GO(vkCreateIndirectCommandsLayoutNV, iFpppp_t) \
+	GO(vkCreateIndirectExecutionSetEXT, iFpppp_t) \
 	GO(vkCreateMicromapEXT, iFpppp_t) \
 	GO(vkCreateOpticalFlowSessionNV, iFpppp_t) \
+	GO(vkCreatePipelineBinariesKHR, iFpppp_t) \
 	GO(vkCreatePipelineCache, iFpppp_t) \
 	GO(vkCreatePipelineLayout, iFpppp_t) \
 	GO(vkCreatePrivateDataSlot, iFpppp_t) \

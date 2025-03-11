@@ -828,3 +828,12 @@ EXPORT void my_vkGetPhysicalDeviceProperties2(x64emu_t* emu, void* device, void*
         p = p->pNext;
     }
 }
+
+CREATE(vkCreateIndirectCommandsLayoutEXT)
+CREATE(vkCreateIndirectExecutionSetEXT)
+DESTROY64(vkDestroyIndirectCommandsLayoutEXT)
+DESTROY64(vkDestroyIndirectExecutionSetEXT)
+
+CREATE(vkCreatePipelineBinariesKHR)
+DESTROY64(vkDestroyPipelineBinaryKHR)
+DESTROY(vkReleaseCapturedPipelineDataKHR)
