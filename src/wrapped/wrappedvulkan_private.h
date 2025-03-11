@@ -459,7 +459,9 @@ GO(vkReleaseProfilingLockKHR, vFp)
 GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesNV, iFppp)
 
 // VK_NV_cooperative_vector
-GO(vkGetPhysicalDeviceCooperativeVectorPropertiesNV, iFpp)
+GO(vkCmdConvertCooperativeVectorMatrixNV, vFpup)
+GO(vkConvertCooperativeVectorMatrixNV, iFpp)
+GO(vkGetPhysicalDeviceCooperativeVectorPropertiesNV, iFppp)
 
 // VK_KHR_fragment_shading_rate
 GO(vkCmdSetFragmentShadingRateKHR, vFppp)
