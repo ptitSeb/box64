@@ -60,7 +60,7 @@ static symbol1_t* getWrappedSymbol(x64emu_t* emu, const char* rname, int warning
     }
     if(k==kh_end(emu->context->vkwrappers)) {
         if(warning) {
-            printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+            printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
             printf_dlsym(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         }
         return NULL;
@@ -79,7 +79,7 @@ static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname)
         s->resolved = 1;
     }
     void* ret = (void*)s->addr;
-    printf_dlsym(LOG_DEBUG, "%p (%p)\n", ret, symbol);
+    printf_dlsym_prefix(0, LOG_DEBUG, "%p (%p)\n", ret, symbol);
     return ret;
 }
 
@@ -94,7 +94,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
     symbol1_t* s = getWrappedSymbol(emu, rname, 0);
     if(s && s->resolved) {
         void* ret = (void*)s->addr;
-        printf_dlsym(LOG_DEBUG, "%p (cached)\n", ret);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
         return ret;
     }
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
@@ -112,7 +112,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
         #undef GO
     }
     if(!symbol) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     return resolveSymbol(emu, symbol, rname);
@@ -133,7 +133,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     symbol1_t* s = getWrappedSymbol(emu, rname, 0);
     if(s && s->resolved) {
         void* ret = (void*)s->addr;
-        printf_dlsym(LOG_DEBUG, "%p (cached)\n", ret);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
         return ret;
     }
     // check if vkprocaddress is filled, and search for lib and fill it if needed
@@ -142,7 +142,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
     void* symbol = my_context->vkprocaddress(instance, rname);
     if(!symbol) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     if(is_my) {
@@ -170,7 +170,7 @@ void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
     symbol1_t* s = getWrappedSymbol(emu, rname, 0);
     if(s && s->resolved) {
         void* ret = (void*)s->addr;
-        printf_dlsym(LOG_DEBUG, "%p (cached)\n", ret);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
         return ret;
     }
     // check if vkprocaddress is filled, and search for lib and fill it if needed
