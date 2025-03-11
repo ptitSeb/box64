@@ -25,6 +25,11 @@ sudo systemctl restart systemd-binfmt
 - You can use `make -j1`, `make -j2` with less jobs to prevent running out of memory
 - You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on a Linux Kernel mixed with Android, like on RK3588.
 
+### What about BOX32
+
+if you want to build Box64 with the Box32 option, you will need to add `-DBOX32=ON` to the cmake command. That will enable 32bits process to be run with Box64.
+If you also want binfmt integration on 32bits binaries, you also need to add `-DBOX32_BINFMT=ON` to the cmake command.
+
 #### Example of generic ARM64 build for linux platforms
 
 ```
@@ -35,6 +40,18 @@ make -j4
 sudo make install
 sudo systemctl restart systemd-binfmt
 ```
+
+#### Example of generic ARM64 build for linux platforms with full box32 integration
+
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -D ARM_DYNAREC=ON -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BOX32=ON -D BOX32_BINFMT=ON
+make -j4
+sudo make install
+sudo systemctl restart systemd-binfmt
+```
+
 ----
 
 #### for RK3399
