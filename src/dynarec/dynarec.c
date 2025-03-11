@@ -32,19 +32,20 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
     int is32bits = (R_CS == 0x23);
     #ifdef HAVE_TRACE
+    uintptr_t new_addr = (uintptr_t)getAlternate((void*)addr);
     if(!addr) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
         printf_log(LOG_INFO, "Warning, jumping to NULL address from %p (db=%p, x64addr=%p/%s)\n", x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
-    } else if(addr<0x10000) {
+    } else if(new_addr<0x10000) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-        printf_log(LOG_INFO, "Warning, jumping to low address %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
+        printf_log(LOG_INFO, "Warning, jumping to low address %p->%p from %p (db=%p, x64addr=%p/%s)\n", (void*)new_addr, (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     #ifdef BOX32
     } else if(emu->segs[_CS]==0x23 && addr>0x100000000LL) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
         printf_log(LOG_INFO, "Warning, jumping to high address %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
-    } else if(!memExist(addr)) {
+    } else if(!memExist(new_addr)) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-        printf_log(LOG_INFO, "Warning, jumping to an unmapped address %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
+        printf_log(LOG_INFO, "Warning, jumping to an unmapped address %p->%p from %p (db=%p, x64addr=%p/%s)\n", (void*)new_addr, (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     #endif
     }
     #endif

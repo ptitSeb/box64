@@ -450,7 +450,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
     int log = 0;
     char t_buff[256] = "\0";
     char t_buffret[128] = "\0";
-    char buff2[64] = "\0";
+    char buff2[128] = "\0";
     char* buff = NULL;
     char* buffret = NULL;
     if(BOX64ENV(log) >= LOG_DEBUG || BOX64ENV(rolling_log)) {
@@ -470,8 +470,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
         switch(syscallwrap[s].nbpars) {
             case 0: S_RAX = syscall(sc); break;
             case 1: S_RAX = syscall(sc, R_RDI); break;
-            case 2: if(s==33) {if(log) snprintf(buff2, 63, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
-            case 3: if(s==42) {if(log) snprintf(buff2, 63, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 63, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
+            case 2: if(s==33) {if(log) snprintf(buff2, 127, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
+            case 3: if(s==42) {if(log) snprintf(buff2, 127, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 127, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
             case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
             case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
             case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
@@ -498,7 +498,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         case 2: // sys_open
-            if(s==5) {if (log) snprintf(buff2, 63, " [sys_open(\"%s\", %d, %d)]", (char*)R_RDI, of_convert(R_ESI), R_EDX);};
+            if (log) snprintf(buff2, 127, "[sys_open \"%s\", 0x%x]", (char*)R_RDI, of_convert(R_ESI));
             //S_RAX = open((void*)R_EDI, of_convert(R_ESI), R_EDX);
             S_RAX = my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
             if(S_RAX==-1)
@@ -782,6 +782,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         #endif
         #ifndef NOALIGN
         case 257:
+            if (log) snprintf(buff2, 127, "[sys_openat %d, \"%s\", 0x%x]", S_EDI, (char*)R_RSI, of_convert(R_EDX));
             S_RAX = syscall(__NR_openat, S_EDI, (void*)R_RSI, of_convert(S_EDX), R_R10d);
             if(S_RAX==-1)
                 S_RAX = -errno;
@@ -860,8 +861,12 @@ void EXPORT x64Syscall(x64emu_t *emu)
             emu->error |= ERR_UNIMPL;
             return;
     }
-    if(log) snprintf(buffret, 127, "0x%lx%s", R_RAX, buff2);
-    if(log && !BOX64ENV(rolling_log)) printf_log(LOG_NONE, "=> %s\n", buffret);
+    if(log) {
+        if(BOX64ENV(rolling_log))
+            snprintf(buffret, 127, "0x%lx%s", R_RAX, buff2);
+        else
+            printf_log_prefix(0, LOG_NONE, "=> 0x%lx%s\n", R_RAX, buff2);
+    }
 }
 
 #define stack(n) (R_RSP+8+n)
