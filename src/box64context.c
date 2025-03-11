@@ -192,7 +192,7 @@ void freeCycleLog(box64context_t* ctx)
 }
 void initCycleLog(box64context_t* context)
 {
-    if(BOX64ENV(rolling_log)) {
+    if(context && BOX64ENV(rolling_log)) {
         context->log_call = (char**)box_calloc(BOX64ENV(rolling_log), sizeof(char*));
         context->log_ret = (char**)box_calloc(BOX64ENV(rolling_log), sizeof(char*));
         for(int i=0; i<BOX64ENV(rolling_log); ++i) {
