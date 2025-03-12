@@ -67,10 +67,13 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP == 0
         if(cur_page != ((addr)&~(box64_pagesize-1))) {
             cur_page = (addr)&~(box64_pagesize-1);
-            if(!(getProtection(addr)&PROT_READ) || checkInHotPage(addr)) {
+            uint32_t prot = getProtection(addr);
+            if(!(prot&PROT_READ) || checkInHotPage(addr)) {
                 need_epilog = 1;
                 break;
             }
+            if(prot&PROT_NEVERCLEAN)
+                dyn->always_test = 1;
         }
         // This test is here to prevent things like TABLE64 to be out of range
         // native_size is not exact at this point, but it should be larger, not smaller, and not by a huge margin anyway

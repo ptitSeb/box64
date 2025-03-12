@@ -273,6 +273,11 @@
         "key": "1",
         "description": "Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes.",
         "default": false
+      },
+      {
+        "key": "2",
+        "description": "Will also, when it detect an HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but Block build from that page will always be tested. It can be faster that way (but soem SMC case might not be trapped).",
+        "default": false
       }
     ]
   },

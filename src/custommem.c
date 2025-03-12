@@ -1446,6 +1446,47 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
     }
     UNLOCK_PROT();
 }
+// Add the NEVERCLEAN flag for an adress range, mark all block as dirty, and lift write protection if needed
+void neverprotectDB(uintptr_t addr, size_t size, int mark)
+{
+    dynarec_log(LOG_DEBUG, "neverprotectDB %p -> %p (mark=%d)\n", (void*)addr, (void*)(addr+size-1), mark);
+
+    uintptr_t cur = addr&~(box64_pagesize-1);
+    uintptr_t end = ALIGN(addr+size);
+
+    LOCK_PROT();
+    while(cur!=end) {
+        uint32_t prot = 0, oprot;
+        uintptr_t bend = 0;
+        if (!rb_get_end(memprot, cur, &prot, &bend)) {
+            if(bend>=end) break;
+            else {
+                cur = bend;
+                continue;
+            }
+        }
+        oprot = prot;
+        if(bend>end)
+            bend = end;
+        if(!(prot&PROT_NEVERPROT)) {
+            if(prot&PROT_DYNAREC) {
+                prot&=~PROT_DYN;
+                if(mark)
+                    cleanDBFromAddressRange(cur, bend-cur, 0);
+                mprotect((void*)cur, bend-cur, prot);
+            } else if(prot&PROT_DYNAREC_R) {
+                if(mark)
+                    cleanDBFromAddressRange(cur, bend-cur, 0);
+                prot &= ~PROT_DYN;
+            }
+            prot |= PROT_NEVERCLEAN;
+        }
+        if (prot != oprot)
+            rb_set(memprot, cur, bend, prot);
+        cur = bend;
+    }
+    UNLOCK_PROT();
+}
 
 int isprotectedDB(uintptr_t addr, size_t size)
 {
@@ -1484,8 +1525,13 @@ void CheckHotPage(uintptr_t addr)
 {
     uintptr_t page = (uintptr_t)addr&~(box64_pagesize-1);
     if(repeated_count==1 && repeated_page==page) {
-        dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
-        SetHotPage(repeated_page);
+        if(BOX64ENV(dynarec_dirty)>1) {
+            dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (%d), marking page as NEVERCLEAN\n", (void*)repeated_page, repeated_count);
+            neverprotectDB(repeated_page, box64_pagesize, 1);
+        } else {
+            dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
+            SetHotPage(repeated_page);
+        }
         repeated_count = 0;
         repeated_page = 0;
     } else {
