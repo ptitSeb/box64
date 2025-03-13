@@ -69,9 +69,7 @@ uintptr_t RunAVX_F20F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GD->q[0] = (ED->q[0] << (64 - u8)) + ((ED->q[0] >> (u8)) & ((1L << (64 - u8)) - 1L));
             } else {
                 u8 &= 0x1f;
-                ED->dword[0] = (ED->dword[0] << (32 - u8)) + ((ED->dword[0] >> (u8)) & ((1 << (32 - u8)) - 1));
-                if(MODREG)
-                    ED->dword[1] = 0;
+                GD->q[0] = (ED->dword[0] << (32 - u8)) + ((ED->dword[0] >> (u8)) & ((1 << (32 - u8)) - 1));
             }
             break;
 
