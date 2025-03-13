@@ -13,6 +13,10 @@ Install required dependencies for the bundle script.
     sudo apt-get update
     sudo apt-get install coreutils curl binutils rpm2cpio tar zstd
     ```
+- Fedora
+    ```
+    sudo dnf install coreutils curl binutils tar zstd
+    ```
 
 Run `box64-bundle-x86-libs.sh`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
@@ -41,13 +45,15 @@ Preference of operating system packages that provide a library:
 4. XBPS from Void Linux provide updated variants of obscure 32-bit libraries.
 5. Other (whereever a library is packaged)
 
+Some essential library files will never be emulated (only wrapped) and should not be bundled. This includes glibc, OpenGL, Vulkan, and X11/Xorg libraries. The full list can be found [here](https://github.com/ptitSeb/box64/blob/v0.3.2/src/librarian/library.c#L427). Other libraries with lots of dependencies, such as GTK, require all dependencies to be installed for emulation to work. This becomes dependency hell and should be avoided.
+
 For finding package names that contian a specific library file, use the [pkgs.org](https://pkgs.org/) website. Otherwise, use one of these package manager commands on a x86_64 Linux distribution:
 - DEB
     - `apt-file <LIBRARY_FILE>`
 - EOPKG
     - Does not support file search. Use pkgs.org instead.
 - RPM
-    - `dnf provides <LIBRARY_FILE>`
+    - `dnf provides "*/<LIBRARY_FILE>*"`
 - XBPS
     - `xbps-query --repository --ownedby <LIBRARY_FILE>`
 
@@ -58,9 +64,10 @@ Once the package name is found, find the exact URL for downloading it.
     - https://cdn.getsol.us/repo/shannon/
 - RPM = Navigate to the "`<MAJOR>.<MINOR>`" version directory first. Then explore "AppStream" and "BaseOS". Use the "x86_64.rpm" and "i686.rpm" packages.
     - https://repo.almalinux.org/almalinux/
+    - Enterprise Linux (EL) distributions, such as AlamaLinux, sometimes are missing 32-bit packages. Use the Fedora 34 [update](https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/) and [release](https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/) archives for compatible packages with EL 9.
 - XBPS = There are too many files in the repository to display on a web browser. Use pkgs.org instead to find the exact URL for downloading it.
     - https://repo-default.voidlinux.org/current/
 
 Download the package and then find the checksum with the `sha256sum` command.
 
-Major Linux distributions such as AlmaLinux and Debian provide archives of packages. Rolling distributions such as Arch Linux, Solus, and Void Linux do not. In those cases, use the [Internet Archive](https://web.archive.org/) to archive any rolling release package used by Box by using the "Save Page Now" feature. If the error "Save Page Now browser crashed" appears, it can be safely ignored. The archive will still have been saved.
+Major Linux distributions such as AlmaLinux and Debian provide archives of packages. Rolling distributions such as Solus and Void Linux do not. In those cases, use the [Internet Archive](https://web.archive.org/) to archive any rolling release package used by Box by using the "Save Page Now" feature. If the error "Save Page Now browser crashed" appears, it can be safely ignored. The archive will still have been saved.

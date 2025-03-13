@@ -26,8 +26,7 @@ extract_pkg_auto() {
         echo "XBPS (Void Linux) package detected."
         tar --extract --file "$(basename "${1}")"
     else
-        echo "Unknown package."
-        echo "Unsupported package type."
+        echo "Unsupported package type detected."
         exit 1
     fi
 }
@@ -63,6 +62,9 @@ cp --archive "${dir_tmp_local}"/usr/lib/x86_64-linux-gnu/*.so* "${dir_tmp_local}
 # Copy Fedora family libraries.
 cp --archive "${dir_tmp_local}"/usr/lib/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-i386-linux-gnu"
 cp --archive "${dir_tmp_local}"/usr/lib64/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-x86_64-linux-gnu"
+## This location is used by a few special packages such as "glibc".
+cp --archive "${dir_tmp_local}"/lib/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-i386-linux-gnu"
+cp --archive "${dir_tmp_local}"/lib64/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-x86_64-linux-gnu"
 # Copy Solus and Void Linux family libraries.
 cp --archive "${dir_tmp_local}"/usr/lib32/*.so* "${dir_tmp_local}/bundle-libs/usr/lib/box64-i386-linux-gnu"
 
@@ -84,6 +86,7 @@ done
 mv "${dir_tmp_local}"/*.deb "${dir_tmp_local}/bundle-pkgs/"
 mv "${dir_tmp_local}"/*.eopkg "${dir_tmp_local}/bundle-pkgs/"
 mv "${dir_tmp_local}"/*.rpm "${dir_tmp_local}/bundle-pkgs/"
+mv "${dir_tmp_local}"/*.xbps "${dir_tmp_local}/bundle-pkgs/"
 
 tar --directory "${dir_tmp_local}/bundle-libs" --create --file "${box64_dir}/box64-bundle-x86-libs.tar.gz" .
 tar --directory "${dir_tmp_local}/bundle-pkgs" --create --file "${box64_dir}/box64-bundle-x86-pkgs.tar.gz" .
