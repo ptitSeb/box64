@@ -672,11 +672,11 @@
 // Convert from Single to signed 32bits (truncated)
 #define FCVTWS(rd, frs1, rm) EMIT(R_type(0b1100000, 0b00000, frs1, rm, rd, 0b1010011))
 
-#define FADDS(frd, frs1, frs2) EMIT(R_type(0b0000000, frs2, frs1, 0b000, frd, 0b1010011))
-#define FSUBS(frd, frs1, frs2) EMIT(R_type(0b0000100, frs2, frs1, 0b000, frd, 0b1010011))
-#define FMULS(frd, frs1, frs2) EMIT(R_type(0b0001000, frs2, frs1, 0b000, frd, 0b1010011))
-#define FDIVS(frd, frs1, frs2) EMIT(R_type(0b0001100, frs2, frs1, 0b000, frd, 0b1010011))
-#define FSQRTS(frd, frs1)      EMIT(R_type(0b0101100, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FADDS(frd, frs1, frs2) EMIT(R_type(0b0000000, frs2, frs1, 0b111, frd, 0b1010011))
+#define FSUBS(frd, frs1, frs2) EMIT(R_type(0b0000100, frs2, frs1, 0b111, frd, 0b1010011))
+#define FMULS(frd, frs1, frs2) EMIT(R_type(0b0001000, frs2, frs1, 0b111, frd, 0b1010011))
+#define FDIVS(frd, frs1, frs2) EMIT(R_type(0b0001100, frs2, frs1, 0b111, frd, 0b1010011))
+#define FSQRTS(frd, frs1)      EMIT(R_type(0b0101100, 0b00000, frs1, 0b111, frd, 0b1010011))
 #define FMINS(frd, frs1, frs2) EMIT(R_type(0b0010100, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMAXS(frd, frs1, frs2) EMIT(R_type(0b0010100, frs2, frs1, 0b001, frd, 0b1010011))
 
@@ -703,9 +703,9 @@
 // store double precision frs2 to rs1+imm12
 #define FSD(frs2, rs1, imm12) EMIT(S_type(imm12, frs2, rs1, 0b011, 0b0100111))
 // Convert Double frs1 to Single frd
-#define FCVTSD(frd, frs1) EMIT(R_type(0b0100000, 0b00001, frs1, 0b000, frd, 0b1010011))
+#define FCVTSD(frd, frs1) EMIT(R_type(0b0100000, 0b00001, frs1, 0b111, frd, 0b1010011))
 // Convert Single frs1 to Double frd
-#define FCVTDS(frd, frs1) EMIT(R_type(0b0100001, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FCVTDS(frd, frs1) EMIT(R_type(0b0100001, 0b00000, frs1, 0b111, frd, 0b1010011))
 // Convert from Double to signed 32bits
 #define FCVTWD(rd, frs1, rm) EMIT(R_type(0b1100001, 0b00000, frs1, rm, rd, 0b1010011))
 // Convert from Double to unsigned 32bits
@@ -729,11 +729,11 @@
 #define FLTD(rd, frs1, frs2) EMIT(R_type(0b1010001, frs2, frs1, 0b001, rd, 0b1010011))
 #define FLED(rd, frs1, frs2) EMIT(R_type(0b1010001, frs2, frs1, 0b000, rd, 0b1010011))
 
-#define FADDD(frd, frs1, frs2) EMIT(R_type(0b0000001, frs2, frs1, 0b000, frd, 0b1010011))
-#define FSUBD(frd, frs1, frs2) EMIT(R_type(0b0000101, frs2, frs1, 0b000, frd, 0b1010011))
-#define FMULD(frd, frs1, frs2) EMIT(R_type(0b0001001, frs2, frs1, 0b000, frd, 0b1010011))
-#define FDIVD(frd, frs1, frs2) EMIT(R_type(0b0001101, frs2, frs1, 0b000, frd, 0b1010011))
-#define FSQRTD(frd, frs1)      EMIT(R_type(0b0101101, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FADDD(frd, frs1, frs2) EMIT(R_type(0b0000001, frs2, frs1, 0b111, frd, 0b1010011))
+#define FSUBD(frd, frs1, frs2) EMIT(R_type(0b0000101, frs2, frs1, 0b111, frd, 0b1010011))
+#define FMULD(frd, frs1, frs2) EMIT(R_type(0b0001001, frs2, frs1, 0b111, frd, 0b1010011))
+#define FDIVD(frd, frs1, frs2) EMIT(R_type(0b0001101, frs2, frs1, 0b111, frd, 0b1010011))
+#define FSQRTD(frd, frs1)      EMIT(R_type(0b0101101, 0b00000, frs1, 0b111, frd, 0b1010011))
 #define FMIND(frd, frs1, frs2) EMIT(R_type(0b0010101, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMAXD(frd, frs1, frs2) EMIT(R_type(0b0010101, frs2, frs1, 0b001, frd, 0b1010011))
 
