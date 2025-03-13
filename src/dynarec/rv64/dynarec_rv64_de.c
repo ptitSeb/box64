@@ -31,6 +31,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     uint8_t nextop = F8;
     uint8_t wback;
+    uint8_t u8;
     int64_t fixedaddress;
     int v1, v2;
 
@@ -49,11 +50,13 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FADDP STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
             if (ST_IS_F(0)) {
                 FADDS(v1, v1, v2);
             } else {
                 FADDD(v1, v1, v2);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xC8:
@@ -67,11 +70,13 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FMULP STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
             if (ST_IS_F(0)) {
                 FMULS(v1, v1, v2);
             } else {
                 FMULD(v1, v1, v2);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD0:
@@ -90,6 +95,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 FCOMD(v1, v2, x1, x2, x3, x4, x5);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD9:
@@ -101,6 +107,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 FCOMD(v1, v2, x1, x2, x3, x4, x5);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -115,11 +122,13 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FSUBRP STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
             if (ST_IS_F(0)) {
                 FSUBS(v1, v2, v1);
             } else {
                 FSUBD(v1, v2, v1);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE8:
@@ -133,11 +142,13 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FSUBP STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
             if (ST_IS_F(0)) {
                 FSUBS(v1, v1, v2);
             } else {
                 FSUBD(v1, v1, v2);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xF0:
@@ -151,11 +162,13 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FDIVRP STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
             if (ST_IS_F(0)) {
                 FDIVS(v1, v2, v1);
             } else {
                 FDIVD(v1, v2, v1);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xF8:
@@ -169,11 +182,13 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FDIVP STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
             if (ST_IS_F(0)) {
                 FDIVS(v1, v1, v2);
             } else {
                 FDIVD(v1, v1, v2);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD8:

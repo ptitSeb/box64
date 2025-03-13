@@ -242,7 +242,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADD(x5, x5, x4);
                             SD(x1, x5, 8); // ll
                         }
-                        FCVTDL(v1, x1, RD_RTZ);
+                        FCVTDL(v1, x1, RD_DYN);
                         if (rex.is32bits) {
                             FSD(v1, x5, 0); // ref
                         }

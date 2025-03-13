@@ -28,6 +28,7 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t nextop = F8;
     int64_t j64;
     uint8_t ed;
+    uint8_t u8;
     uint8_t wback;
     int v1, v2;
     int d0;
@@ -153,7 +154,9 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                     FADDD(v1, v1, v2);
+                    if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                     break;
                 case 1:
                     INST_NAME("FIMUL ST0, Ed");
@@ -162,7 +165,9 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                     FMULD(v1, v1, v2);
+                    if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                     break;
                 case 2:
                     INST_NAME("FICOM ST0, Ed");
@@ -190,7 +195,9 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                     FSUBD(v1, v1, v2);
+                    if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                     break;
                 case 5:
                     INST_NAME("FISUBR ST0, Ed");
@@ -199,7 +206,9 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                     FSUBD(v1, v2, v1);
+                    if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                     break;
                 case 6:
                     INST_NAME("FIDIV ST0, Ed");
@@ -208,7 +217,9 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                     FDIVD(v1, v1, v2);
+                    if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                     break;
                 case 7:
                     INST_NAME("FIDIVR ST0, Ed");
@@ -217,7 +228,9 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                     FDIVD(v1, v2, v1);
+                    if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                     break;
             }
     }
