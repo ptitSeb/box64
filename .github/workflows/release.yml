@@ -257,7 +257,7 @@ jobs:
 
             BOX64_DYNAREC=0 ctest $CTEST_OPTIONS
             ctest $CTEST_OPTIONS
-          elif [[ ${{ matrix.platform }} == 'ARM64' && ${{matrix.type}} == 'Box32' ]]; then
+          elif [[ ${{matrix.type}} == 'Box32' ]]; then
             ctest $CTEST_OPTIONS
           else
             ctest -j$(nproc)
