@@ -450,6 +450,7 @@ typedef void* (*SEip_t)(int32_t, void*);
 typedef void* (*SEpp_t)(void*, void*);
 typedef char* (*tEip_t)(int32_t, void*);
 typedef char* (*tEia_t)(int32_t, void*);
+typedef char* (*tFuu_t)(uint32_t, uint32_t);
 typedef char* (*tEpL_t)(void*, uintptr_t);
 typedef char* (*tEpp_t)(void*, void*);
 typedef void (*vFuBp__t)(uint32_t, struct_p_t*);
@@ -2490,6 +2491,7 @@ void SEip_32(x64emu_t *emu, uintptr_t fcn) { SEip_t fn = (SEip_t)fcn; errno = em
 void SEpp_32(x64emu_t *emu, uintptr_t fcn) { SEpp_t fn = (SEpp_t)fcn; errno = emu->libc_err; R_EAX = to_ptrv(io_convert_from(fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8)))); emu->libc_err = errno; }
 void tEip_32(x64emu_t *emu, uintptr_t fcn) { tEip_t fn = (tEip_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8))); emu->libc_err = errno; }
 void tEia_32(x64emu_t *emu, uintptr_t fcn) { tEia_t fn = (tEia_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptri(int32_t, R_ESP + 4), from_locale(from_ptri(ptr_t, R_ESP + 8)))); emu->libc_err = errno; }
+void tFuu_32(x64emu_t *emu, uintptr_t fcn) { tFuu_t fn = (tFuu_t)fcn; R_EAX = to_cstring(fn(from_ptri(uint32_t, R_ESP + 4), from_ptri(uint32_t, R_ESP + 8))); }
 void tEpL_32(x64emu_t *emu, uintptr_t fcn) { tEpL_t fn = (tEpL_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptriv(R_ESP + 4), from_ulong(from_ptri(ulong_t, R_ESP + 8)))); emu->libc_err = errno; }
 void tEpp_32(x64emu_t *emu, uintptr_t fcn) { tEpp_t fn = (tEpp_t)fcn; errno = emu->libc_err; R_EAX = to_cstring(fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8))); emu->libc_err = errno; }
 void vFuBp__32(x64emu_t *emu, uintptr_t fcn) { vFuBp__t fn = (vFuBp__t)fcn; struct_p_t arg_8={0}; fn(from_ptri(uint32_t, R_ESP + 4), *(ptr_t*)(from_ptr((R_ESP + 8))) ? &arg_8 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 8)))) to_struct_p(*(ptr_t*)(from_ptr((R_ESP + 8))), &arg_8); }

@@ -397,6 +397,7 @@ void SEip_32(x64emu_t *emu, uintptr_t fnc);
 void SEpp_32(x64emu_t *emu, uintptr_t fnc);
 void tEip_32(x64emu_t *emu, uintptr_t fnc);
 void tEia_32(x64emu_t *emu, uintptr_t fnc);
+void tFuu_32(x64emu_t *emu, uintptr_t fnc);
 void tEpL_32(x64emu_t *emu, uintptr_t fnc);
 void tEpp_32(x64emu_t *emu, uintptr_t fnc);
 void vFuBp__32(x64emu_t *emu, uintptr_t fnc);
