@@ -488,7 +488,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     if(p) {
         pc = (void*)p->uc_mcontext.pc;
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.regs[10+_SP];
+            frame = from_ptr((ptr_t)p->uc_mcontext.regs[10+_SP]);
     }
 #elif defined(LA64)
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
@@ -497,7 +497,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     if(p) {
         pc = (void*)p->uc_mcontext.__pc;
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.__gregs[12+_SP];
+            frame = from_ptr((ptr_t)p->uc_mcontext.__gregs[12+_SP]);
     }
 #elif defined(RV64)
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
@@ -506,7 +506,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     if(p) {
         pc = (void*)p->uc_mcontext.__gregs[0];
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.__gregs[9];
+            frame = from_ptr((ptr_t)p->uc_mcontext.__gregs[9]);
     }
 #else
 #error Unsupported architecture
@@ -523,9 +523,9 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = ((uintptr_t)emu->regs[_SP].q[0] - 128) & ~0x0f;
+            frame = from_ptr(((ptr_t)emu->regs[_SP].q[0] - 128) & ~0x0f);
         } else {
-            frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
+            frame = from_ptr(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
