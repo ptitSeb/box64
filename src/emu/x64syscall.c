@@ -876,10 +876,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -ENOSYS;
             break;
         default:
-            printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
-            emu->quit = 1;
-            emu->error |= ERR_UNIMPL;
-            return;
+            printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
+            S_RAX = -ENOSYS;
+            break;
     }
     if(log) {
         if(BOX64ENV(rolling_log))
