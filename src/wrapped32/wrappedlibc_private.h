@@ -176,7 +176,7 @@ GOW(creat, iEpu)
 GO(creat64, iEpu)
 // create_module    // Weak
 GO(ctermid, tEp)
-GOM(ctime, pEErl_)
+GOM(ctime, pErl_)   //%noE
 GO(ctime_r, pErl_p)
 DATAM(__ctype_b, 4)
 GOM(__ctype_b_loc, pEEv)
