@@ -84,9 +84,10 @@
 
 #else
 
-// An opcode writes guest memory, this need to be put after the STORE instruction manually.
+// An opcode writes guest memory, this need to be put after the STORE instruction manually. It will also end the SEQ automaticaly on last_write immediatly
 #define SMWRITE()                                                     \
     do {                                                              \
+        if(dyn->insts[ninst].last_write) {SMEND();} else {            \
         /* Put a barrier at every third memory write. */              \
         if (BOX64DRENV(dynarec_strongmem) >= STRONGMEM_SEQ_WRITE) {   \
             if (++dyn->smwrite >= 3 /* Every third memory write */) { \
@@ -96,7 +97,7 @@
         } else {                                                      \
             /* Mark that current sequence writes to guest memory. */  \
             dyn->smwrite = 1;                                         \
-        }                                                             \
+        } }                                                           \
     } while (0)
 
 // Similar to SMWRITE, but checks lock.
