@@ -855,6 +855,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     VST1_32(v0, 3, ed);
                 }
             }
+            if(!MODREG) {SMWRITE2();}
             break;
         case 0x2F:
             INST_NAME("VMASKMOVPD Ex, Gx, Vx");
@@ -905,6 +906,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     VST1_64(v0, 1, ed);
                 }
             }
+            if(!MODREG) {SMWRITE2();}
             break;
         case 0x30:
             INST_NAME("VPMOVZXBW Gx, Ex");
@@ -1399,6 +1401,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     }
                 }
             }
+            if(!MODREG) {SMWRITE2();}
             // no raz of upper ymm
             break;
 

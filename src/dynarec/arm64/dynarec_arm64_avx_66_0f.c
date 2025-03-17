@@ -1383,6 +1383,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff<<3, 7, rex, NULL, 0, 0);
                 VSTR64_U12(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0xD7:

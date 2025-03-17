@@ -384,6 +384,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             VMOVBto(ed, v0, u8&0x0f);
             if(!MODREG) {
                 STB(ed, wback, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x15:
@@ -401,6 +402,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             VMOVHto(ed, v0, u8&7);
             if(!MODREG) {
                 STH(ed, wback, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x16:
@@ -422,6 +424,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!MODREG) {
                 STxw(ed, wback, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x17:
@@ -439,6 +442,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             VMOVSto(ed, v0, u8&3);
             if(!MODREG) {
                 STW(ed, wback, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x18:
@@ -485,6 +489,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 1);
                 VST128(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             F8; // read u8, but it's been already handled
             break;
