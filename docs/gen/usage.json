@@ -400,6 +400,11 @@
         "key": "2",
         "description": "Dynarec will generate detailed GDBJIT debuginfo with internal state.",
         "default": false
+      },
+      {
+        "key": "0xXXXXXXX-0xYYYYYYY",
+        "description": "Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state.",
+        "default": false
       }
     ]
   },
