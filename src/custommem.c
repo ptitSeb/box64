@@ -835,32 +835,6 @@ size_t customGetUsableSize(void* p)
     return 0;
 }
 
-#ifdef DYNAREC
-#define NCHUNK          64
-typedef struct mapchunk_s {
-    blocklist_t         chunk;
-    rbtree_t*           tree;
-} mapchunk_t;
-typedef struct mmaplist_s {
-    mapchunk_t          chunks[NCHUNK];
-    mmaplist_t*         next;
-} mmaplist_t;
-
-dynablock_t* FindDynablockFromNativeAddress(void* p)
-{
-    if(!p)
-        return NULL;
-    
-    uintptr_t addr = (uintptr_t)p;
-
-    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, (uintptr_t)p);
-    if(bl) {
-        dynablock_t** ret = (dynablock_t**)rb_get_64(bl->tree, (uintptr_t)p);
-        if(ret) return *ret;
-    }
-    return NULL;
-}
-
 void* box32_dynarec_mmap(size_t size)
 {
 #ifdef BOX32
@@ -885,6 +859,32 @@ void* box32_dynarec_mmap(size_t size)
     }
 #endif
     return MAP_FAILED;
+}
+
+#ifdef DYNAREC
+#define NCHUNK          64
+typedef struct mapchunk_s {
+    blocklist_t         chunk;
+    rbtree_t*           tree;
+} mapchunk_t;
+typedef struct mmaplist_s {
+    mapchunk_t          chunks[NCHUNK];
+    mmaplist_t*         next;
+} mmaplist_t;
+
+dynablock_t* FindDynablockFromNativeAddress(void* p)
+{
+    if(!p)
+        return NULL;
+    
+    uintptr_t addr = (uintptr_t)p;
+
+    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, (uintptr_t)p);
+    if(bl) {
+        dynablock_t** ret = (dynablock_t**)rb_get_64(bl->tree, (uintptr_t)p);
+        if(ret) return *ret;
+    }
+    return NULL;
 }
 
 #ifdef TRACE_MEMSTAT
