@@ -40,8 +40,13 @@ typedef struct bridge_s {
 brick_t* NewBrick(void* old)
 {
     brick_t* ret = (brick_t*)box_calloc(1, sizeof(brick_t));
-    if(old)
-        old = old + NBRICK * sizeof(onebridge_t);
+    static void* load_addr_32bits = NULL;
+    if(box64_is32bits)
+        old = load_addr_32bits;
+    else {
+        if(old)
+            old = old + NBRICK * sizeof(onebridge_t);
+    }
     void* ptr = box_mmap(old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!box64_is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
     if(ptr == MAP_FAILED)
         ptr = box_mmap(NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!box64_is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0);
@@ -50,6 +55,7 @@ brick_t* NewBrick(void* old)
     }
     setProtection((uintptr_t)ptr, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC | PROT_NOPROT);
     dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%zx)\n", ptr, NBRICK*sizeof(onebridge_t));
+    if(box64_is32bits) load_addr_32bits = ptr + NBRICK*sizeof(onebridge_t);
     ret->b = ptr;
     return ret;
 }
