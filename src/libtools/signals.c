@@ -1889,21 +1889,13 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
 
         if((BOX64ENV(showbt) || sig==SIGABRT) && log_minimum<=BOX64ENV(log)) {
             // show native bt
+            showNativeBT(log_minimum);
+
             #define BT_BUF_SIZE 100
             int nptrs;
             void *buffer[BT_BUF_SIZE];
             char **strings;
 
-#ifndef ANDROID
-            nptrs = backtrace(buffer, BT_BUF_SIZE);
-            strings = backtrace_symbols(buffer, nptrs);
-            if(strings) {
-                for (int j = 0; j < nptrs; j++)
-                    printf_log(log_minimum, "NativeBT: %s\n", strings[j]);
-                free(strings);
-            } else
-                printf_log(log_minimum, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
-#endif
             extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
             extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
             // save and set real RIP/RSP
@@ -2590,6 +2582,36 @@ EXPORT int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2)
     my_setcontext(emu, ucp2);
     return 0;
 }
+
+void showNativeBT(int log_minimum)
+{
+#ifndef ANDROID
+    // grab current name
+    // and temporarily rename binary to original box64
+    // to get exact backtrace
+    size_t boxpath_lenth = strlen(my_context->box64path)+1;
+    char current_name[boxpath_lenth];
+    memcpy(current_name, my_context->orig_argv[0], boxpath_lenth);
+    memcpy(my_context->orig_argv[0], my_context->box64path, boxpath_lenth);
+    // show native bt
+    #define BT_BUF_SIZE 100
+    int nptrs;
+    void *buffer[BT_BUF_SIZE];
+    char **strings;
+
+    nptrs = backtrace(buffer, BT_BUF_SIZE);
+    strings = backtrace_symbols(buffer, nptrs);
+    if(strings) {
+        for (int j = 0; j < nptrs; j++)
+            printf_log(log_minimum, "NativeBT: %s\n", strings[j]);
+        free(strings);
+    } else
+        printf_log(log_minimum, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
+    // restore modified name
+    memcpy(my_context->box64path, my_context->orig_argv[0], boxpath_lenth);
+#endif
+}
+
 #ifdef USE_SIGNAL_MUTEX
 static void atfork_child_dynarec_prot(void)
 {
