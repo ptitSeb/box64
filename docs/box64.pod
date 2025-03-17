@@ -222,13 +222,14 @@ Define max allowed forward value when building block.
  * XXXX : Allow up to XXXX bytes of gap between end of the block and the next forward jump. 
 
 
-=item B<BOX64_DYNAREC_GDBJIT> =I<0|1|2>
+=item B<BOX64_DYNAREC_GDBJIT> =I<0|1|2|0xXXXXXXX-0xYYYYYYY>
 
 The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
 
  * 0 : Dynarec will not generate GDBJIT debuginfo. [Default]
  * 1 : Dynarec will generate GDBJIT debuginfo. 
  * 2 : Dynarec will generate detailed GDBJIT debuginfo with internal state. 
+ * 0xXXXXXXX-0xYYYYYYY : Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state. 
 
 
 =item B<BOX64_DYNAREC_LOG> =I<0|1|2|3>

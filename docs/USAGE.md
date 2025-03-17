@@ -396,6 +396,7 @@ The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable
  * 0: Dynarec will not generate GDBJIT debuginfo. [Default]
  * 1: Dynarec will generate GDBJIT debuginfo. 
  * 2: Dynarec will generate detailed GDBJIT debuginfo with internal state. 
+ * 0xXXXXXXX-0xYYYYYYY: Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state. 
 
 ### BOX64_DYNAREC_LOG
 
