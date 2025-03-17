@@ -770,6 +770,13 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "BLR %s", Xt[Rn]);
         return buff;
     }
+    if(isMask(opcode, "1101011001011111000000nnnnn00000", &a)) {
+        if(Rn==30)
+            snprintf(buff, sizeof(buff), "RET");
+        else
+            snprintf(buff, sizeof(buff), "RET %s", Xt[Rn]);
+        return buff;
+    }
     if(isMask(opcode, "01010100iiiiiiiiiiiiiiiiiii0cccc", &a)) {
         int offset = signExtend(imm, 19)<<2;
         snprintf(buff, sizeof(buff), "B.%s #+%di\t; %p", conds[cond], offset>>2, (void*)(addr + offset));
