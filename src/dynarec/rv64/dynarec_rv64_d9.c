@@ -152,17 +152,6 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ADDI(x5, x5, i2);
                         ANDI(x5, x5, 7); // (emu->top + i)&7
                     }
-                    // load tag
-                    LHU(x3, xEmu, offsetof(x64emu_t, fpu_tags));
-                    if (i2 < 0) {
-                        SLLI(x3, x3, -i2 * 2);
-                    } else if (i2 > 0) {
-                        LUI(x2, 0xffff0);
-                        OR(x3, x3, x2);
-                        SRLI(x3, x3, i2 * 2);
-                    }
-                    ANDI(x2, x3, 0b11);
-                    BNEZ_MARK3(x2); // empty: C3,C2,C0 = 101
                     // load x2 with ST0 anyway, for sign extraction
                     if (rv64_zba)
                         SH3ADD(x1, x5, xEmu);
@@ -171,6 +160,17 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ADD(x1, xEmu, x5);
                     }
                     LD(x2, x1, offsetof(x64emu_t, x87));
+                    // load tag
+                    if (i2 >= 0) {
+                        LHU(x3, xEmu, offsetof(x64emu_t, fpu_tags));
+                        if (i2 > 0) {
+                            LUI(x5, 0xffff0);
+                            OR(x3, x3, x5);
+                            SRLI(x3, x3, i2 * 2);
+                        }
+                        ANDI(x3, x3, 0b11);
+                        BNEZ_MARK3(x3); // empty: C3,C2,C0 = 101
+                    }
                 }
             } else {
                 // simply move from cache reg to x2
@@ -312,7 +312,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xF4:
             INST_NAME("FXTRACT");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
+            X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
             CALL(native_fxtract, -1, 0, 0);
@@ -376,7 +376,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xFB:
             INST_NAME("FSINCOS");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
+            X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
             x87_forget(dyn, ninst, x1, x2, 1);
             s0 = x87_stackcount(dyn, ninst, x3);
             if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
