@@ -589,6 +589,10 @@ void adjustregs(x64emu_t* emu) {
         R_RSI-=step;
         return;
     }
+    if(mem[idx+0]==0x8F && (mem[idx+1]&0xc0)!=0xc0) {
+        // POP Ed, issue on write address, restore RSP as in before the pop
+        R_RSP -= is66?2:(rex.is32bits?4:8);
+    }
 #elif defined(LA64)
 #elif defined(RV64)
 #else

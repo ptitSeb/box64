@@ -1559,15 +1559,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
                 POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
-                if(ed==xRSP) {
-                    STz(x2, ed, fixedaddress);
-                } else {
-                    // complicated to just allow a segfault that can be recovered correctly
-                    SUBz_U12(xRSP, xRSP, rex.is32bits?4:8);
-                    STz(x2, ed, fixedaddress);
-                    ADDz_U12(xRSP, xRSP, rex.is32bits?4:8);
-                }
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<(2+rex.is32bits), (1<<(2+rex.is32bits))-1, rex, NULL, 0, 0);
+                STz(x2, ed, fixedaddress);
+                SMWRITE();
             }
             break;
         case 0x90:
