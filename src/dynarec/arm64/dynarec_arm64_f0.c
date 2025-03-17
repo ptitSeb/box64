@@ -375,7 +375,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     // EAX == Ed
                                     STLXRxw(x4, gd, wback);
                                     CBNZx_MARKLOCK(x4);
-                                    SMDMB();
                                     // done
                                     if(!ALIGNED_ATOMICxw) {
                                         B_MARK_nocond;
@@ -394,9 +393,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     STLXRB(x4, gd, wback);
                                     CBNZx_MARK3(x4);
                                     STRxw_U12(gd, wback, 0);
-                                    SMDMB();
                                 }
                                 MARK;
+                                SMDMB();
                                 // Common part (and fallback for EAX != Ed)
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5); MOVxw_REG(xRAX, x1);}
                                 else {
@@ -1368,22 +1367,27 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
-                        if(arm64_atomics) {
-                            MOV64xw(x5, i64);
-                            UFLAG_IF {
-                                LDSETALxw(x5, x1, wback);
-                                emit_or32(dyn, ninst, rex, x1, x5, x3, x4);
-                            } else {
-                                STSETLxw(x5, wback);
-                            }
+                        if(wback==xRSP && !i64) {
+                            // this is __faststorefence
+                            DMB_ST();
                         } else {
-                            MARKLOCK;
-                            LDAXRxw(x1, wback);
-                            emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
-                            STLXRxw(x3, x1, wback);
-                            CBNZx_MARKLOCK(x3);
+                            if(arm64_atomics) {
+                                MOV64xw(x5, i64);
+                                UFLAG_IF {
+                                    LDSETALxw(x5, x1, wback);
+                                    emit_or32(dyn, ninst, rex, x1, x5, x3, x4);
+                                } else {
+                                    STSETLxw(x5, wback);
+                                }
+                            } else {
+                                MARKLOCK;
+                                LDAXRxw(x1, wback);
+                                emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
+                                STLXRxw(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
+                            SMDMB();
                         }
-                        SMDMB();
                     }
                     break;
                 case 2: //ADC
