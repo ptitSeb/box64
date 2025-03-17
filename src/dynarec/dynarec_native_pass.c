@@ -118,7 +118,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(!ninst) {
             GOTEST(x1, x2);
         }
-        if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
+        if(dyn->insts[ninst].pred_sz>1) {SMEND();}
         #if STEP > 1
         if (dyn->insts[ninst].lock) {
             WILLWRITELOCK(dyn->insts[ninst].lock);
