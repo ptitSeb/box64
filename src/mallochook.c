@@ -192,6 +192,9 @@ void* box32_calloc(size_t n, size_t s)
     if(ret<SPACE32) return ret;
     box_free(ret);
     malloc_trim(0);
+    ret = box_calloc(n, s);
+    if(ret<SPACE32) return ret;
+    box_free(ret);
     return customCalloc32(n, s);
 }
 void* box32_malloc(size_t s)
@@ -200,6 +203,9 @@ void* box32_malloc(size_t s)
     if(ret<SPACE32) return ret;
     box_free(ret);
     malloc_trim(0);
+    ret = box_malloc(s);
+    if(ret<SPACE32) return ret;
+    box_free(ret);
     return customMalloc32(s);
 }
 void* box32_realloc(void* p, size_t s)

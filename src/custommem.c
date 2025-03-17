@@ -377,20 +377,36 @@ void testAllBlocks()
     size_t total = 0;
     size_t fragmented_free = 0;
     size_t max_free = 0;
+    size_t total32 = 0;
+    size_t fragmented_free32 = 0;
+    size_t max_free32 = 0;
+    int n_blocks32 = 0;
     for(int i=0; i<n_blocks; ++i) {
-        if(!printBlockCoherent(i))
-            printBlock(p_blocks[i].block, p_blocks[i].first);
-        total += p_blocks[i].size;
-        if(max_free<p_blocks[i].maxfree)
-            max_free = p_blocks[i].maxfree;
-        blockmark_t* m = (blockmark_t*)p_blocks[i].block;
-        while(m->next.x32) {
-            if(!m->next.fill)
-                fragmented_free += SIZE_BLOCK(m->next);
-            m = NEXT_BLOCK(m);
+        // just silently skip blocks with 0 size, as they are not finished and so might be not coherent
+        if(p_blocks[i].size) {
+            int is32bits = (box64_is32bits && p_blocks[i].block<(void*)0x100000000LL);
+            if(is32bits) ++n_blocks32;
+            if(!printBlockCoherent(i))
+                printBlock(p_blocks[i].block, p_blocks[i].first);
+            total += p_blocks[i].size;
+            if(is32bits) total32 += p_blocks[i].size;
+            if(max_free<p_blocks[i].maxfree)
+                max_free = p_blocks[i].maxfree;
+            if(is32bits && max_free32<p_blocks[i].maxfree)
+                max_free32 = p_blocks[i].maxfree;
+            blockmark_t* m = (blockmark_t*)p_blocks[i].block;
+            while(m->next.x32) {
+                if(!m->next.fill)
+                    fragmented_free += SIZE_BLOCK(m->next);
+                if(is32bits && !m->next.fill)
+                    fragmented_free32 += SIZE_BLOCK(m->next);
+                m = NEXT_BLOCK(m);
+            }
         }
     }
-    printf_log(LOG_NONE, "CustomMem: Total %d blocks, for %zd allocated memory, max_free %zd, total fragmented free %zd\n", n_blocks, total, max_free, fragmented_free);
+    printf_log(LOG_NONE, "CustomMem: Total %d blocks, for %zd (0x%zx) allocated memory, max_free %zd (0x%zx), total fragmented free %zd (0x%zx)\n", n_blocks, total, total, max_free, max_free, fragmented_free, fragmented_free);
+    if(box64_is32bits)
+        printf_log(LOG_NONE, "   32bits: Total %d blocks, for %zd (0x%zx) allocated memory, max_free %zd (0x%zx), total fragmented free %zd (0x%zx)\n", n_blocks32, total32, total32, max_free32, max_free32, fragmented_free32, fragmented_free32);
 }
 
 static size_t roundSize(size_t size)
@@ -419,6 +435,7 @@ blocklist_t* findBlock(uintptr_t addr)
     }
     return NULL;
 }
+void* box32_dynarec_mmap(size_t size);
 #ifdef BOX32
 int isCustomAddr(void* p)
 {
@@ -482,7 +499,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     size_t fullsize = size+2*sizeof(blockmark_t);
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if(p_blocks[i].block && p_blocks[i].maxfree>=init_size && ((!is32bits) || (p_blocks[i].block<(void*)0x100000000LL))) {
+        if(p_blocks[i].block && p_blocks[i].maxfree>=init_size && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
             size_t rsize = 0;
             sub = getFirstBlock(p_blocks[i].block, init_size, &rsize, p_blocks[i].first);
             if(sub) {
@@ -501,11 +518,12 @@ void* internal_customMalloc(size_t size, int is32bits)
     // add a new block
     int i = n_blocks++;
     if(n_blocks>c_blocks) {
-        c_blocks += box64_is32bits?8:256;
+        c_blocks += box64_is32bits?256:8;
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
     allocsize = (allocsize+box64_pagesize-1)&~(box64_pagesize-1);
+    if(is32bits) allocsize = (allocsize+0xffffLL)&~(0xffffLL);
     p_blocks[i].block = NULL;   // incase there is a re-entrance
     p_blocks[i].first = NULL;
     p_blocks[i].size = 0;
@@ -513,7 +531,7 @@ void* internal_customMalloc(size_t size, int is32bits)
         mutex_unlock(&mutex_blocks);
     void* p = is32bits
                 ?box_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_32BIT, -1, 0)
-                :internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+                :(box64_is32bits?box32_dynarec_mmap(allocsize):internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0));
     if(is32bits)
         mutex_lock(&mutex_blocks);
 #ifdef TRACE_MEMSTAT
@@ -530,6 +548,30 @@ void* internal_customMalloc(size_t size, int is32bits)
     blockmark_t* n = NEXT_BLOCK(m);
     n->next.x32 = 0;
     n->prev.x32 = m->next.x32;
+    if(is32bits && p>(void*)0xffffffffLL) {
+        printf_log(LOG_INFO, "Warning: failled to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+        // failled to allocate memory
+        if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
+            // mask size from this block
+            p_blocks[i].size = 0;
+            showNativeBT(LOG_NONE);
+            testAllBlocks();
+            if(BOX64ENV(log)>=LOG_DEBUG) {
+                printf_log(LOG_NONE, "Used 32bits address space map:\n");
+                uintptr_t addr = rb_get_lefter(mapallmem);
+                while(addr<0x100000000LL) {
+                    uintptr_t bend;
+                    uint32_t val;
+                    if(rb_get_end(mapallmem, addr, &val, &bend))
+                        printf_log(LOG_NONE, "\t%p - %p\n", (void*)addr, (void*)bend);
+                    addr = bend;
+                }
+            }
+            p_blocks[i].size = allocsize;
+        }
+        p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
+        return NULL;
+    }
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
@@ -819,9 +861,9 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     return NULL;
 }
 
-#ifdef BOX32
 void* box32_dynarec_mmap(size_t size)
 {
+#ifdef BOX32
     // find a block that was prereserve before and big enough
     size = (size+box64_pagesize-1)&~(box64_pagesize-1);
     uint32_t flag;
@@ -841,9 +883,9 @@ void* box32_dynarec_mmap(size_t size)
         }
         cur = bend;
     }
+#endif
     return MAP_FAILED;
 }
-#endif
 
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
@@ -1992,20 +2034,6 @@ void my_reserveHighMem()
     #ifdef BOX32
     if(box64_is32bits) {
         reverveHigMem32();
-        // now reserve some memory in low address (because wine tend to allocate everything for itself)
-        void* p[20];
-        #define SZ 2*1024*1024
-        size_t n = sizeof(p)/sizeof(p[0]);
-        for(size_t i=0; i<n; ++i)
-            p[i] = box32_malloc(SZ-128);
-        if (BOX64ENV(log)>=LOG_DEBUG) {
-            printf_log(LOG_DEBUG, "Reserved %u MB of low memory [", (SZ)*n);
-            for(size_t i=0; i<n; ++i)
-                printf_log(LOG_DEBUG, "%p%s", p[i], (i==(n-1))?"]\n":", ");
-        }
-        for(size_t i=0; i<n; ++i)
-            box32_free(p[i]);
-        #undef SZ
         return;
     }
     #endif
