@@ -1166,6 +1166,35 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
 }
 
+
+void x87_reflectcount(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
+{
+    // Synch top and stack count
+    int a = dyn->e.x87stack;
+    if (a) {
+        MESSAGE(LOG_DUMP, "\tSync x87 Count of %d-----\n", a);
+        // Add x87stack to emu fpu_stack
+        LW(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        ADDI(s2, s2, a);
+        SW(s2, xEmu, offsetof(x64emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LW(s2, xEmu, offsetof(x64emu_t, top));
+        SUBI(s2, s2, a);
+        ANDI(s2, s2, 7);
+        SW(s2, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LH(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        if (a > 0) {
+            SLLI(s1, s1, a * 2);
+        } else {
+            MOV32w(s2, 0xffff0000);
+            OR(s1, s1, s2);
+            SRLI(s1, s1, -a * 2);
+        }
+        SH(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+    }
+}
+
 static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // Sync top and stack count
@@ -1221,7 +1250,7 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
         }
 }
 
-static void x87_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+void x87_unreflectcount(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
 {
     // revert top and stack count
     int a = dyn->e.x87stack;
@@ -1238,8 +1267,8 @@ static void x87_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, i
         // update tags
         LH(s1, xEmu, offsetof(x64emu_t, fpu_tags));
         if (a > 0) {
-            MOV32w(s3, 0xffff0000);
-            OR(s1, s1, s3);
+            MOV32w(s2, 0xffff0000);
+            OR(s1, s1, s2);
             SRLI(s1, s1, a * 2);
         } else {
             SLLI(s1, s1, -a * 2);
@@ -2847,7 +2876,7 @@ void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // need to undo the top and stack tracking that must not be reflected permanently yet
-    x87_unreflectcache(dyn, ninst, s1, s2, s3);
+    x87_unreflectcount(dyn, ninst, s1, s2);
 }
 
 void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)

@@ -45,14 +45,7 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     if (MODREG)
         switch (nextop) {
-            case 0xC0:
-            case 0xC1:
-            case 0xC2:
-            case 0xC3:
-            case 0xC4:
-            case 0xC5:
-            case 0xC6:
-            case 0xC7:
+            case 0xC0 ... 0xC7:
                 INST_NAME("FCMOVB ST0, STx");
                 READFLAGS(X_CF);
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
@@ -64,14 +57,7 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 else
                     FMVD(v1, v2);
                 break;
-            case 0xC8:
-            case 0xC9:
-            case 0xCA:
-            case 0xCB:
-            case 0xCC:
-            case 0xCD:
-            case 0xCE:
-            case 0xCF:
+            case 0xC8 ... 0xCF:
                 INST_NAME("FCMOVE ST0, STx");
                 READFLAGS(X_ZF);
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
@@ -83,14 +69,7 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 else
                     FMVD(v1, v2);
                 break;
-            case 0xD0:
-            case 0xD1:
-            case 0xD2:
-            case 0xD3:
-            case 0xD4:
-            case 0xD5:
-            case 0xD6:
-            case 0xD7:
+            case 0xD0 ... 0xD7:
                 INST_NAME("FCMOVBE ST0, STx");
                 READFLAGS(X_CF | X_ZF);
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
@@ -102,14 +81,7 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 else
                     FMVD(v1, v2);
                 break;
-            case 0xD8:
-            case 0xD9:
-            case 0xDA:
-            case 0xDB:
-            case 0xDC:
-            case 0xDD:
-            case 0xDE:
-            case 0xDF:
+            case 0xD8 ... 0xDF:
                 INST_NAME("FCMOVU ST0, STx");
                 READFLAGS(X_PF);
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
