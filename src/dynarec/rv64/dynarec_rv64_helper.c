@@ -1023,8 +1023,6 @@ void x87_do_push_empty(dynarec_rv64_t* dyn, int ninst, int s1)
         MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
         dyn->abort = 1;
     }
-    if (s1)
-        x87_stackcount(dyn, ninst, s1);
 }
 static void internal_x87_dopop(dynarec_rv64_t* dyn)
 {
@@ -1083,11 +1081,7 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         // Sub x87stack to top, with and 7
         LW(s2, xEmu, offsetof(x64emu_t, top));
         // update tags (and top at the same time)
-        if (a > 0) {
-            SUBI(s2, s2, a);
-        } else {
-            ADDI(s2, s2, -a);
-        }
+        SUBI(s2, s2, a);
         ANDI(s2, s2, 7);
         SW(s2, xEmu, offsetof(x64emu_t, top));
         // update tags (and top at the same time)
@@ -1095,7 +1089,7 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         if (a > 0) {
             SLLI(s1, s1, a * 2);
         } else {
-            MOV32w(s3, 0xffff0000);
+            LUI(s3, 0xffff0);
             OR(s1, s1, s3);
             SRLI(s1, s1, -a * 2);
         }

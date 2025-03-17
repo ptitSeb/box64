@@ -243,14 +243,14 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 5:
                     INST_NAME("FLD tbyte");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 8, 0);
-                    if ((PK(0) == 0xDB && ((PK(1) >> 3) & 7) == 7) || (PK(0) >= 0x40 && PK(0) <= 0x4f && PK(1) == 0xDB && ((PK(2) >> 3) & 7) == 7)) {
+                    if ((PK(0) == 0xDB && ((PK(1) >> 3) & 7) == 7) || (!rex.is32bits && PK(0) >= 0x40 && PK(0) <= 0x4f && PK(1) == 0xDB && ((PK(2) >> 3) & 7) == 7)) {
                         // the FLD is immediatly followed by an FSTP
                         LD(x5, ed, fixedaddress + 0);
                         LH(x6, ed, fixedaddress + 8);
                         // no persistant scratch register, so unrool both instruction here...
                         MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
                         nextop = F8; // 0xDB or rex
-                        if (nextop >= 0x40 && nextop <= 0x4f) {
+                        if (!rex.is32bits && nextop >= 0x40 && nextop <= 0x4f) {
                             rex.rex = nextop;
                             nextop = F8; // 0xDB
                         } else
@@ -266,7 +266,11 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         } else {
                             ADDI(x1, ed, fixedaddress);
                             X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
+                            // sync top
+                            s0 = x87_stackcount(dyn, ninst, x3);
                             CALL(native_fld, -1, x1, 0);
+                            // go back with the top & stack counter
+                            x87_unstackcount(dyn, ninst, x3, s0);
                         }
                     }
                     break;
