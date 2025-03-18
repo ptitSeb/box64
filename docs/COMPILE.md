@@ -30,6 +30,15 @@ sudo systemctl restart systemd-binfmt
 if you want to build Box64 with the Box32 option, you will need to add `-DBOX32=ON` to the cmake command. That will enable 32bits process to be run with Box64.
 If you also want binfmt integration on 32bits binaries, you also need to add `-DBOX32_BINFMT=ON` to the cmake command.
 
+### note about binfmt_misc
+
+[binfmt_misc](https://en.wikipedia.org/wiki/Binfmt_misc) is a capability of the Linux kernel which allows arbitrary executable file formats to be recognized and passed to certain user space applications such as box64 usually used with systemd but systems like android can't run/use systemd so you will need to register box64 manually, this will also work inside a CHRoot.
+```
+sudo mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+sudo echo ':box64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00:\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/local/bin/box64:' | sudo tee /proc/sys/fs/binfmt_misc/register
+```
+
+
 #### Example of generic ARM64 build for linux platforms
 
 ```
