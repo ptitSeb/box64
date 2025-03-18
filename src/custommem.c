@@ -858,7 +858,8 @@ void* box32_dynarec_mmap(size_t size)
         cur = bend;
     }
 #endif
-    return MAP_FAILED;
+    //printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", "fallback to internal mmap");
+    return internal_mmap((void*)0x100000000LL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);;
 }
 
 #ifdef DYNAREC
@@ -1971,50 +1972,21 @@ void reverveHigMem32(void)
         cur = internal_mmap(NULL, cur_size, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         if((cur==MAP_FAILED) || (cur<(void*)0x100000000LL)) {
             if(cur!=MAP_FAILED) {
-                //printf_log(LOG_DEBUG, " Failed to reserve high %p (%zx)\n", cur, cur_size);
+                //printf_log(LOG_INFO, " Failed to reserve high %p (%zx)\n", cur, cur_size);
                 internal_munmap(cur, cur_size);
             } //else 
-              //  printf_log(LOG_DEBUG, " Failed to reserve %zx sized block\n", cur_size);
+                //printf_log(LOG_INFO, " Failed to reserve %zx sized block\n", cur_size);
             cur_size>>=1;
         } else {
             rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+cur_size, 2);
-            //printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, cur_size);
-        }
-    }
-    // try again, but specifying a high address, just in case
-    if(0)
-    {
-        uintptr_t cur = 0xffff00000000LL;
-        uintptr_t bend = 0;
-        uint32_t prot;
-        while (bend!=0xffffffffffffffffLL) {
-            if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
-                // create a border at 48bits
-                if(cur<(1ULL<<48) && bend>(1ULL<<48))
-                    bend = 1ULL<<48;
-                cur = (cur+0xffffLL)&~0xffffLL; // round to 64K page size
-                if(bend>cur) {
-                    void* p = internal_mmap((void*)cur, bend-cur, 0, MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-                    if((p==MAP_FAILED) || (p<(void*)0x100000000LL)) {
-                        if(p!=MAP_FAILED) {
-                            printf_log(LOG_DEBUG, " Failed to reserve high %p (%zx) => %p\n", (void*)cur, bend-cur, p);
-                            internal_munmap(p, bend-cur);
-                        } else 
-                        printf_log(LOG_DEBUG, " Failed to reserve %zx sized block (%s)\n", bend-cur, strerror(errno));
-                    } else {
-                        rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)bend, 2);
-                        printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, bend-cur);
-                    }
-                }
-            }
-            cur = bend;
+            //printf_log(LOG_INFO, "Reserved high %p (%zx)\n", cur, cur_size);
         }
     }
     printf_log(LOG_INFO, "Memory higher than 32bits reserved\n");
     if (BOX64ENV(log)>=LOG_DEBUG) {
         uintptr_t start=0x100000000LL;
         int prot;
-        uintptr_t bend;
+        uintptr_t bend = start;
         while (bend!=0xffffffffffffffffLL) {
             if(rb_get_end(mapallmem, start, &prot, &bend)) {
                 printf_log(LOG_NONE, " Reserved: %p - %p (%d)\n", (void*)start, (void*)bend, prot);
