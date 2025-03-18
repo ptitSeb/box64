@@ -52,6 +52,59 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     GETREX();
 
     switch (opcode) {
+        case 0x0F:
+            opcode = F8;
+            switch (opcode) {
+                case 0xB1:
+                    INST_NAME("LOCK CMPXCHG Ew, Gw");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    nextop = F8;
+                    GETGD;
+                    ZEXTH(x6, xRAX);
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        wback = 0;
+                        ZEXTH(x1, ed);
+                        BNE_MARK(x6, x1);
+                        INSH(ed, gd, x2, x3, 1, 1);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        ANDI(x5, wback, 0b10);
+                        BNEZ_MARK2(x5);
+
+                        // lower 16 bits
+                        MARKLOCK;
+                        LR_W(x2, wback, 1, 1);
+                        ZEXTH(x1, x2);
+                        BNE_MARK(x6, x1);
+                        INSH(x2, gd, x5, x4, 1, 1);
+                        SC_W(x5, x2, wback, 1, 1);
+                        BNEZ_MARKLOCK(x5);
+                        B_MARK_nocond;
+
+                        MARK2;
+                        // upper 16 bits
+                        XORI(wback, wback, 0b10);
+                        MARKLOCK2;
+                        LR_W(x2, wback, 1, 1);
+                        SRLIW(x1, x2, 16);
+                        BNE_MARK(x6, x1);
+                        SLLIW(x2, x2, 16);
+                        SRLIW(x2, x2, 16);
+                        SLLIW(x5, gd, 16);
+                        OR(x2, x2, x5);
+                        SC_W(x5, x2, wback, 1, 1);
+                        BNEZ_MARKLOCK2(x5);
+                    }
+                    MARK;
+                    SMDMB();
+                    UFLAG_IF { emit_cmp16(dyn, ninst, x6, x7, x2, x3, x4, x5); }
+                    INSH(xRAX, x1, x2, x3, 1, 0);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
