@@ -1398,11 +1398,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 0);
                     ZEXTH(x2, xRAX);
                     MULW(x1, x2, x1);
+                    ZEROUP(x1);
                     UFLAG_RES(x1);
                     INSHz(xRAX, x1, x4, x5, 1, 1);
                     SRLI(xRDX, xRDX, 16);
                     SLLI(xRDX, xRDX, 16);
-                    SRLI(x1, x1, 48);
+                    SRLI(x1, x1, 16);
                     OR(xRDX, xRDX, x1);
                     UFLAG_DF(x1, d_mul16);
                     break;
@@ -1413,11 +1414,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SLLI(x2, xRAX, 16);
                     SRAIW(x2, x2, 16);
                     MULW(x1, x2, x1);
+                    ZEROUP(x1);
                     UFLAG_RES(x1);
                     INSHz(xRAX, x1, x4, x5, 1, 1);
                     SRLI(xRDX, xRDX, 16);
                     SLLI(xRDX, xRDX, 16);
-                    SRLI(x1, x1, 48);
+                    SRLI(x1, x1, 16);
                     OR(xRDX, xRDX, x1);
                     UFLAG_DF(x1, d_imul16);
                     break;
