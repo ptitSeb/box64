@@ -193,9 +193,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEDW(x4, x1, 0);
                     u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                     MOV32w(x2, u8);
-                    GETEDW(x4, x1, 0);
                     CALL_(rex.w ? ((void*)rcl64) : ((void*)rcl32), ed, x4, x1, x2);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
@@ -205,9 +205,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEDW(x4, x1, 0);
                     u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                     MOV32w(x2, u8);
-                    GETEDW(x4, x1, 0);
                     CALL_(rex.w ? ((void*)rcr64) : ((void*)rcr32), ed, x4, x1, x2);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
@@ -1366,7 +1366,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             REMU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
                         } else {
-                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            GETEDH(x4, x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip, x7);
@@ -1431,7 +1431,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             REM(xRDX, xRAX, ed);
                             MV(xRAX, x2);
                         } else {
-                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            GETEDH(x4, x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             if (BOX64ENV(dynarec_div0)) {
                                 BNE_MARK3(ed, xZR);
                                 GETIP_(ip, x7);

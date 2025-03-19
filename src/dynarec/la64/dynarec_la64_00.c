@@ -2672,7 +2672,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             MOD_DU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
                         } else {
-                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            GETEDH(x4, x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             BEQ_MARK(xRDX, xZR);
                             if (ed != x1) { MV(x1, ed); }
                             CALL(div64, -1);
@@ -2710,7 +2710,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             MOD_D(xRDX, xRAX, ed);
                             MV(xRAX, x2);
                         } else {
-                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            GETEDH(x4, x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             // need to see if RDX == 0 and RAX not signed
                             // or RDX == -1 and RAX signed
                             BNE_MARK2(xRDX, xZR);
