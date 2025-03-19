@@ -139,7 +139,6 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                             nextop = F8;
                             ANDI(x6, xRAX, 0xff); // AL
-                            SMDMB();
                             if (MODREG) {
                                 if (rex.rex) {
                                     wback = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -161,19 +160,20 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5, x1);
                                 }
                                 BNE_MARK2(x6, x2);
-                                if (wb2) {
-                                    SRLI(wback, x2, wb2);
-                                    ANDI(wback, wback, 0xff);
-                                } else {
-                                    ANDI(wback, x2, 0xff);
-                                }
                                 GETGB(x5);
-                                MV(ed, gd);
+                                if (wb2) {
+                                    MOV64x(x4, ~0xff00);
+                                    AND(wback, wback, x4);
+                                    SLLI(gd, gd, 8);
+                                } else {
+                                    ANDI(wback, wback, ~0xff);
+                                }
+                                OR(wback, wback, gd);
                                 MARK2;
                                 ANDI(xRAX, xRAX, ~0xff);
                                 OR(xRAX, xRAX, x2);
-                                B_NEXT_nocond;
                             } else {
+                                SMDMB();
                                 if (rex.rex) {
                                     gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
                                     gb2 = 0;
@@ -187,8 +187,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SLLI(x5, x5, 3); // shamt
                                 MARKLOCK;
                                 ANDI(x2, wback, ~0b11); // align to 32bit
-                                LWU(x1, x2, 0);
                                 LR_W(x4, x2, 1, 1);
+                                MV(x1, x4);
                                 SRL(x4, x4, x5);
                                 ANDI(x4, x4, 0xff);
                                 BNE_MARK(x6, x4); // compare AL with m8
@@ -214,8 +214,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 // load m8 into AL
                                 ANDI(xRAX, xRAX, ~0xff);
                                 OR(xRAX, xRAX, x4);
+                                SMDMB();
                             }
-                            SMDMB();
                             break;
                         default:
                             DEFAULT;
@@ -233,9 +233,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 wback = 0;
                                 UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5, x6); }
                                 MV(x1, ed); // save value
-                                SUB(x2, x1, xRAX);
+                                SUBxw(x2, ed, xRAX);
                                 BNE_MARK2(x2, xZR);
-                                MV(ed, gd);
+                                MVxw(ed, gd);
                                 MARK2;
                                 MVxw(xRAX, x1);
                             } else {

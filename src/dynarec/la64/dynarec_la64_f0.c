@@ -106,7 +106,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                             nextop = F8;
                             ANDI(x6, xRAX, 0xff); // AL
-                            SMDMB();
                             if (MODREG) {
                                 if (rex.rex) {
                                     wback = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -123,13 +122,12 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5, x1);
                                 }
                                 BNE_MARK2(x6, x2);
-                                BSTRPICK_D(wback, x2, wb2 + 7, wb2);
                                 GETGB(x1);
-                                MV(ed, gd);
+                                BSTRINS_D(wback, gd, wb2 + 7, wb2);
                                 MARK2;
                                 BSTRINS_D(xRAX, x2, 7, 0);
-                                B_NEXT_nocond;
                             } else {
+                                SMDMB();
                                 if (rex.rex) {
                                     gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
                                     gb2 = 0;
@@ -144,8 +142,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 MARKLOCK;
                                 ADDI_D(x7, xZR, ~0b11);
                                 AND(x7, wback, x7); // align to 32bit
-                                LD_WU(x1, x7, 0);
                                 LL_W(x4, x7, 0);
+                                MV(x1, x4);
                                 SRL_D(x4, x4, x5);
                                 ANDI(x4, x4, 0xff);
                                 BNE_MARK(x6, x4); // compare AL with m8
@@ -163,8 +161,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 MARK;
                                 UFLAG_IF { emit_cmp8(dyn, ninst, x6, x4, x1, x2, x3, x5); }
                                 BSTRINS_D(xRAX, x4, 7, 0);
+                                SMDMB();
                             }
-                            SMDMB();
                             break;
                         default:
                             DEFAULT;
@@ -182,9 +180,9 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 wback = 0;
                                 UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5, x6); }
                                 MV(x1, ed); // save value
-                                SUB_D(x2, x1, xRAX);
+                                SUBxw(x2, x1, xRAX);
                                 BNE_MARK2(x2, xZR);
-                                MV(ed, gd);
+                                MVxw(ed, gd);
                                 MARK2;
                                 MVxw(xRAX, x1);
                             } else {
@@ -206,14 +204,14 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 // Unaligned
                                 ADDI_D(x5, xZR, -(1 << (rex.w + 2)));
                                 AND(x5, x5, wback);
-                                MARK2;
+                                MARKLOCK2;
                                 LDxw(x1, wback, 0);
                                 LLxw(x6, x5, 0);
                                 SUBxw(x3, x1, xRAX);
                                 BNEZ_MARK(x3);
                                 // EAX == Ed
                                 SCxw(x6, x5, 0);
-                                BEQZ_MARK2(x6);
+                                BEQZ_MARKLOCK2(x6);
                                 SDxw(gd, wback, 0);
                                 MARK;
                                 UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6); }
