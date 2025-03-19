@@ -285,11 +285,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 UFLAG_IF {emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5);}
                                 SUBxw_REG(x6, x6, x2);
                                 CBNZxw_MARK2(x6);
-                                BFIx(wback, x2, wb2, 8);
-                                MOVxw_REG(ed, gd);
+                                BFIx(wback, gd, wb2, 8);
                                 MARK2;
                                 BFIx(xRAX, x2, 0, 8);
-                                B_NEXT_nocond;
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                                 if(arm64_atomics) {
