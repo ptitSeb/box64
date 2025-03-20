@@ -182,6 +182,9 @@ static void applyCustomRules()
         snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
         SET_BOX64ENV(dynarec_perf_map_fd, open(pathname, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR));
     }
+    if (box64env.emulated_libs) {
+        AppendList(&my_context->box64_emulated_libs, box64env.emulated_libs, 0);
+    }
     if (!box64env.libgl) {
         const char *p = getenv("SDL_VIDEO_GL_DRIVER");
         if(p) SET_BOX64ENV(libgl, box_strdup(p));
