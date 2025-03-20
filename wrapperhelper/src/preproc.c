@@ -499,6 +499,7 @@ static VECTOR(preproc) *preproc_solve_macro(loginfo_t *li,
 					return NULL;
 				}
 			}
+			vector_pop_nodel_slice(preprocs, margs, vector_size(preprocs, margs) - m->nargs - 1);
 		}
 	}
 	// Avoid 0-allocations
