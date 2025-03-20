@@ -4073,3 +4073,10 @@ GO(glGetInteger64vEXT, vFup)
 GO(glGetBufferPointervOES, vFuup)
 GO(glMapBufferOES, pFuu)
 GO(glUnmapBufferOES, iFu)
+
+// GLX_NV_copy_buffer
+GO(glXCopyBufferSubDataNV, vFpppuulll)
+GO(glXNamedCopyBufferSubDataNV, vFpppuulll)
+
+// GLX_NV_delay_before_swap
+GO(glXDelayBeforeSwapNV, iFppf)
