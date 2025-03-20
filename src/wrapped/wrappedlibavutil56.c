@@ -1,9 +1,16 @@
+<<<<<<< Updated upstream
+=======
+#include <stdio.h>
+>>>>>>> Stashed changes
 #include <stdlib.h>
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+<<<<<<< Updated upstream
 #include <stdarg.h>
 #include <stdio.h>
+=======
+>>>>>>> Stashed changes
 
 #include "wrappedlibs.h"
 
@@ -20,6 +27,7 @@
 #include "myalign.h"
 
 const char* libavutil56Name = "libavutil.so.56";
+<<<<<<< Updated upstream
 
 #define LIBNAME libavutil56
 
@@ -28,6 +36,17 @@ const char* libavutil56Name = "libavutil.so.56";
 #include "generated/wrappedlibavutil56types.h"
 
 #include "wrappercallback.h"
+=======
+#define ALTNAME "libavutil.so"
+
+#define LIBNAME libavutil56
+
+//#define ADDED_FUNCTIONS()                   \
+
+//#include "generated/wrappedlibcupstypes.h"
+
+//#include "wrappercallback.h"
+>>>>>>> Stashed changes
 
 #define SUPER() \
 GO(0)   \
@@ -36,6 +55,7 @@ GO(2)   \
 GO(3)   \
 GO(4)
 
+<<<<<<< Updated upstream
 // log_callback ...
 #define GO(A)   \
 static uintptr_t my_log_callback_fct_##A = 0;                                   \
@@ -70,4 +90,6 @@ EXPORT void my_av_log_set_callback(x64emu_t* emu, void* f)
     my->av_log_set_callback(find_log_callback_Fct(f));
 }
 
+=======
+>>>>>>> Stashed changes
 #include "wrappedlib_init.h"
