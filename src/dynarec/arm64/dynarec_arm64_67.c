@@ -30,7 +30,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
     uint8_t opcode = F8;
     uint8_t nextop;
-    uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2, eb1, eb2;
+    uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2, eb1, eb2, q0, q1;
     int64_t fixedaddress;
     int unscaled;
     int8_t  i8;
@@ -748,6 +748,20 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             break;
 
+                        case 0x76:
+                            INST_NAME("PCMPEQD Gx,Ex");
+                            nextop = F8;
+                            GETGX(v0, 1);
+                            if(MODREG) {
+                                q0 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                            } else {
+                                q0 = fpu_get_scratch(dyn, ninst);
+                                addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                VLD128(q0, ed, fixedaddress);
+                            }
+                            VCMEQQ_32(v0, v0, q0);
+                            break;
+
                         case 0x7E:
                             INST_NAME("MOVD Ed,Gx");
                             nextop = F8;
@@ -784,6 +798,27 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                                 VST64(v0, ed, fixedaddress);
                                 SMWRITE2();
+                            }
+                            break;
+
+                        case 0xEF:
+                            INST_NAME("PXOR Gx,Ex");
+                            nextop = F8;
+                            GETG;
+                            if(MODREG && ((nextop&7)+(rex.b<<3)==gd)) {
+                                // special case for PXOR Gx, Gx
+                                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                VEORQ(q0, q0, q0);
+                            } else {
+                                q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                                if(MODREG) {
+                                    q1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                                } else {
+                                    q1 = fpu_get_scratch(dyn, ninst);
+                                    addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                    VLD128(q1, ed, fixedaddress);
+                                }
+                                VEORQ(q0, q0, q1);
                             }
                             break;
 
