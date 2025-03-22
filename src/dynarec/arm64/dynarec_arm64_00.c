@@ -1442,6 +1442,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else {                    // mem <= reg
                 IF_UNALIGNED(ip) {
+                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, &lock, 0, 0);
                     if(gd==wback) {
                         MOVx_REG(x2, wback);
@@ -1699,6 +1700,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
                 IF_UNALIGNED(ip) {
+                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
                     // special optim for large RCX value on forward case only
                     // but because it's unaligned path, check if a byte per byt is needed, and do 4-bytes per 4-bytes only instead
                     if(BOX64DRENV(dynarec_safeflags)) {
@@ -2457,6 +2459,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOV64xw(ed, i64);
             } else {                    // mem <= i32
                 IF_UNALIGNED(ip) {
+                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, &lock, 0, 4);
                     i64 = F32S;
                     if(i64) {

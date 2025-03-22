@@ -492,6 +492,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 } // no ymm raz here it seems
             } else {
                 IF_UNALIGNED(ip) {
+                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(wback!=x1) {
                         MOVx_REG(x1, wback);
