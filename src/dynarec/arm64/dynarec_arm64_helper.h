@@ -981,11 +981,11 @@
     SET_DFNONE();                                                           \
 
 #ifndef IF_UNALIGNED
-#define IF_UNALIGNED(A)    if(is_addr_unaligned(A))
+#define IF_UNALIGNED(A)    if(dyn->insts[ninst].unaligned)
 #endif
 
 #ifndef IF_ALIGNED
-#define IF_ALIGNED(A) if (!is_addr_unaligned(A))
+#define IF_ALIGNED(A) if (!dyn->insts[ninst].unaligned)
 #endif
 
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
