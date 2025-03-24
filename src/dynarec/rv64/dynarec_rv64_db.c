@@ -183,7 +183,6 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FSFLAGSI(0); // reset all bits
                 }
                 FCVTWD(x4, v1, RD_DYN);
-                x87_restoreround(dyn, ninst, u8);
                 if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, 1 << FR_NV);
