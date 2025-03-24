@@ -159,7 +159,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             case 2:
                 INST_NAME("FIST Ew, ST0");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
-                u8 = x87_setround(dyn, ninst, x1, x2);
+                u8 = x87_setround(dyn, ninst, x1, x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // reset all bits
@@ -186,7 +186,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             case 3:
                 INST_NAME("FISTP Ew, ST0");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
-                u8 = x87_setround(dyn, ninst, x1, x2);
+                u8 = x87_setround(dyn, ninst, x1, x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // reset all bits
@@ -260,7 +260,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("FISTP i64, ST0");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_I64);
                 if (!ST_IS_I64(0)) {
-                    u8 = x87_setround(dyn, ninst, x1, x2);
+                    u8 = x87_setround(dyn, ninst, x1, x5);
                 }
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
 

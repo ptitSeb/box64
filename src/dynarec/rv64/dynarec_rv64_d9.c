@@ -470,7 +470,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 if (!ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
+                    if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x3);
                     FCVTSD(v1, v1);
                     if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 }

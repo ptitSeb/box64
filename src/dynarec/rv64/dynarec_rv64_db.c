@@ -176,7 +176,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             case 3:
                 INST_NAME("FISTP Ed, ST0");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
-                u8 = x87_setround(dyn, ninst, x1, x2);
+                u8 = x87_setround(dyn, ninst, x1, x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 v2 = fpu_get_scratch(dyn);
                 if (!BOX64ENV(dynarec_fastround)) {
