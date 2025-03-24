@@ -553,10 +553,10 @@ void CancelBlock64(int need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
 }
 
-uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits);
-uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits);
-uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits);
-uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits);
+uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
+uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
+uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
+uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 
 void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr, int is32bits) {
     block->isize = 0;
@@ -582,7 +582,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr, int is32bits) {
     return block;
 }
 
-void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bits) {
+void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bits, int inst_max) {
     /*
         A Block must have this layout:
 
@@ -626,7 +626,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.table64 = static_table64;
     helper.table64cap = sizeof(static_table64)/sizeof(uint64_t);
     // pass 0, addresses, x64 jump addresses, overall size of the block
-    uintptr_t end = native_pass0(&helper, addr, alternate, is32bits);
+    uintptr_t end = native_pass0(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
         if(BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
         CancelBlock64(0);
@@ -741,7 +741,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
 
 
     // pass 1, float optimizations, first pass for flags
-    native_pass1(&helper, addr, alternate, is32bits);
+    native_pass1(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
         if(BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
         CancelBlock64(0);
@@ -749,16 +749,30 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     
     // pass 2, instruction size
-    native_pass2(&helper, addr, alternate, is32bits);
+    native_pass2(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
         if(BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
         CancelBlock64(0);
         return NULL;
     }
     // keep size of instructions for signal handling
+    size_t native_size = (helper.native_size+7)&~7;   // round the size...
+    // check if size is overlimit
+    if((inst_max==MAX_INSTS) && (native_size>MAXBLOCK_SIZE)) {
+        int imax = 0;
+        size_t max_size = 0;
+        while((max_size<MAXBLOCK_SIZE) && (imax<helper.size)) {
+            max_size += helper.insts[imax].size;
+            ++imax;
+        }
+        if(!imax) return NULL; //that should never happens
+        --imax;
+        if(BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Dynablock oversized, with %zu (max=%zd), recomputing cutting at %d from %d\n", native_size, MAXBLOCK_SIZE, imax, helper.size);
+        CancelBlock64(0);
+        return FillBlock64(block, addr, alternate, is32bits, imax);
+    }
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
-    size_t native_size = (helper.native_size+7)&~7;   // round the size...
     size_t arch_size = ARCH_SIZE(&helper);
     // ok, now allocate mapped memory, with executable flag on
     size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size;
@@ -799,7 +813,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.native_size = 0;
     helper.table64size = 0; // reset table64 (but not the cap)
     helper.insts_size = 0;  // reset
-    native_pass3(&helper, addr, alternate, is32bits);
+    native_pass3(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
         if(BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
         CancelBlock64(0);
