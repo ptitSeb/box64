@@ -2976,7 +2976,9 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, f
     uint32_t vl = (int)((float)(16 >> sew) * multiple);
     uint32_t vtypei = (sew << (3 - !!rv64_xtheadvector)) | vlmul;
     if (dyn->inst_sew == VECTOR_SEWNA || dyn->inst_vl == 0 || dyn->inst_sew != sew || dyn->inst_vl != vl || dyn->inst_vlmul != vlmul) {
-        if (vl <= 31 && !rv64_xtheadvector) {
+        if (vl == (rv64_vlen >> (3 + sew - vlmul))) {
+            VSETVLI(s1, xZR, vtypei);
+        } else if (vl <= 31 && !rv64_xtheadvector) {
             VSETIVLI(xZR, vl, vtypei);
         } else {
             ADDI(s1, xZR, vl);
