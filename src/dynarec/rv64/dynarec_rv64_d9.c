@@ -114,7 +114,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("FXAM");
 #if 1
                 i1 = x87_get_current_cache(dyn, ninst, 0, EXT_CACHE_ST_D);
-                // value put in x14
+                // value put in x4
                 if (i1 == -1) {
                     if (fpu_is_st_freed(dyn, ninst, 0)) {
                         MOV32w(x4, 0b100000100000000);
@@ -124,7 +124,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i2 = -dyn->e.x87stack;
                         LWU(x3, xEmu, offsetof(x64emu_t, fpu_stack));
                         if (i2) {
-                            ADDI(x3, x3, i2);
+                            SUBI(x3, x3, i2);
                         }
                         MOV32w(x4, 0b100000100000000); // empty: C3,C2,C0 = 101
                         BGE_MARK3(xZR, x3);
@@ -179,7 +179,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BEQZ_MARK3(x3);
                 MOV32w(x4, 0b000000100000000); // NaN: C3,C2,C0 = 001
                 MARK3;
-                // Extract signa & Update SW
+                // Extract sign & Update SW
                 SRLI(x1, x2, 63);
                 SLLI(x1, x1, 9);
                 OR(x4, x4, x1); // C1
