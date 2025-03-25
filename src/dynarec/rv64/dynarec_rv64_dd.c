@@ -180,6 +180,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 AND(x3, x3, x5);          // mask out TOP
                 SLLI(x2, x2, 11);         // shift TOP to bit 11
                 OR(x3, x3, x2);           // inject TOP
+                SH(x3, xEmu, offsetof(x64emu_t, sw));
                 SH(x3, ed, fixedaddress); // store whole sw flags
                 break;
             default:
