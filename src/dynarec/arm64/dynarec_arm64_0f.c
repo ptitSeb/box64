@@ -1216,11 +1216,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEX(v1, 0, 0);
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
-            VFMINQS(v0, v0, v1);
-            if(!BOX64ENV(dynarec_fastnan) && (v0!=v1)) {
+            if(BOX64ENV(dynarec_fastnan)) {
+                VFMINQS(v0, v0, v1);
+            } else {
                 q0 = fpu_get_scratch(dyn, ninst);
-                VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
-                VBIFQ(v0, v1, q0);   // copy dest where source is NaN
+                VFCMGTQS(q0, v1, v0);   // 0 is NaN or v1 GT v0, so invert mask for copy
+                VBIFQ(v0, v1, q0);
             }
             break;
         case 0x5E:
@@ -1249,12 +1250,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
-            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
-            VFMAXQS(v0, v0, v1);
-            if(!BOX64ENV(dynarec_fastnan) && (v0!=v1)) {
+            // but x86 will copy if either v0[x] or v1[x] is NaN, or if values are equals, so lets force a copy if source is NaN
+            if(BOX64ENV(dynarec_fastnan)) {
+                VFMAXQS(v0, v0, v1);
+            } else {
                 q0 = fpu_get_scratch(dyn, ninst);
-                VFCMEQQS(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
-                VBIFQ(v0, v1, q0);   // copy dest where source is NaN
+                VFCMGTQS(q0, v0, v1);   // 0 is NaN or v0 GT v1, so invert mask for copy
+                VBIFQ(v0, v1, q0);
             }
             break;
         case 0x60:

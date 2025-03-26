@@ -497,10 +497,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 // FMIN/FMAX wll not copy a NaN if either is NaN
                 // but x86 will copy src2 if either value is NaN, so lets force a copy of Src2 (Ex) if result is NaN
-                VFMINQD(v0, v2, v1);
-                if(!BOX64ENV(dynarec_fastnan) && (v2!=v1)) {
-                    VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
-                    VBIFQ(v0, v1, q0);   // copy dest where source is NaN
+                if(BOX64ENV(dynarec_fastnan)) {
+                    VFMINQD(v0, v2, v1);
+                } else {
+                    VFCMGTQD(q0, v1, v2);   // 0 if NaN or v1 GT v2, so invert mask for copy
+                    if(v0!=v1) VBIFQ(v0, v1, q0);
+                    if(v0!=v2) VBITQ(v0, v2, q0);
                 }
             }
             if(!vex.l) YMM0(gd);
@@ -532,17 +534,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5F:
             INST_NAME("VMAXPD Gx, Vx, Ex");
             nextop = F8;
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if(!BOX64ENV(dynarec_fastnan))
                 q0 = fpu_get_scratch(dyn, ninst);
-            }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 // FMIN/FMAX wll not copy a NaN if either is NaN
                 // but x86 will copy src2 if either value is NaN, so lets force a copy of Src2 (Ex) if result is NaN
-                VFMAXQD(v0, v2, v1);
-                if(!BOX64ENV(dynarec_fastnan) && (v2!=v1)) {
-                    VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
-                    VBIFQ(v0, v1, q0);   // copy dest where source is NaN
+                if(BOX64ENV(dynarec_fastnan)) {
+                    VFMAXQD(v0, v2, v1);
+                } else {
+                    VFCMGTQD(q0, v2, v1);   // 0 if NaN or v2 GT v1, so invert mask for copy
+                    if(v0!=v1) VBIFQ(v0, v1, q0);
+                    if(v0!=v2) VBITQ(v0, v2, q0);
                 }
             }
             if(!vex.l) YMM0(gd);
