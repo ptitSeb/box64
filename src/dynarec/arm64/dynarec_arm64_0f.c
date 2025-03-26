@@ -1065,8 +1065,20 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("SQRTPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
-            GETGX_empty(v0);
-            VFSQRTQS(v0, q0);
+            GETGX_empty(q1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFCMEQQS(v0, q0, q0);    // 0 if NAN, 1 if not NAN
+                VFSQRTQS(q1, q0);
+                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            } else {
+                VFSQRTQS(q1, q0);
+            }
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");

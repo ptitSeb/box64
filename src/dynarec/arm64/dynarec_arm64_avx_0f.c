@@ -337,9 +337,23 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("VSQRTPS Gx, Ex");
             nextop = F8;
             SKIPTEST(x1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn, ninst);
+                d1 = fpu_get_scratch(dyn, ninst);
+            }
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_EX(q0, q1, 0); } else { GETGY_empty_EY(q0, q1); }
-                VFSQRTQS(q0, q1);
+                if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    // check if any input value was NAN
+                    VFCMEQQS(d0, v1, v1);    // 0 if NAN, 1 if not NAN
+                    VFSQRTQS(v0, v1);
+                    VFCMEQQS(d1, v0, v0);    // 0 => out is NAN
+                    VBICQ(d1, d0, d1);      // forget it in any input was a NAN already
+                    VSHLQ_32(d1, d1, 31);   // only keep the sign bit
+                    VORRQ(v0, v0, d1);      // NAN -> -NAN
+                } else {
+                    VFSQRTQS(v0, v1);
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
