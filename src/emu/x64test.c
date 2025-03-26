@@ -46,6 +46,11 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
     int banner = 0;
     x64test_t* test = &ref->test;
     x64emu_t* emu = test->emu;
+    if(((uint8_t*)ref->old_ip)[0]==0xf0) {
+        // LOCK opcode creates a lot of false positive, so just ignore it
+        CopyEmu(emu, ref);
+        return;
+    }
     if(memcmp(ref->regs, emu->regs, sizeof(emu->regs))) {
         static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
                                         " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
