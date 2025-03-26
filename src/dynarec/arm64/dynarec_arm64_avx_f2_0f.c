@@ -427,22 +427,25 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VHSUBPS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
-            if(MODREG || (v1==v2)) {
+            if(!BOX64ENV(dynarec_fastnan))
                 q1 = fpu_get_scratch(dyn, ninst);
-            } else 
-                q1 = v1;
-            if(vex.l)
-                q2 = fpu_get_scratch(dyn, ninst);
-            else
-                q2 = q0;
-            // q0 will contains -1 / 0 / -1 / 0
-            MOVIQ_64(q0, 0xf0);
-            VSHLQ_32(q0, q0, 31);   // keep sign bit
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                VEORQ(q1, v1, q0);
-                VEORQ(q2, v2, q0);
-                VFADDPQS(v0, q2, q1);
+                VUZP1Q_32(q0, v2, v1);
+                VUZP2Q_32(v0, v2, v1);
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    // check if any input value was NAN
+                    // but need to mix low/high part
+                    VFMAXQS(q1, v0, q0);    // propagate NAN
+                    VFCMEQQS(q1, q1, q1);    // 0 if NAN, 1 if not NAN
+                }
+                VFSUBQS(v0, q0, v0);
+                if(!BOX64ENV(dynarec_fastnan)) {
+                    VFCMEQQS(q0, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q1, q0);      // forget it in any input was a NAN already
+                    VSHLQ_32(q1, q1, 31);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
