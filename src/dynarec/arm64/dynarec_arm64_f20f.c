@@ -433,7 +433,20 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             d0 = fpu_get_scratch(dyn, ninst);
             VUZP1Q_32(d0, v0, v1);
             VUZP2Q_32(v0, v0, v1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                d1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                // but need to mix low/high part
+                VFMAXQS(d1, v0, d0);    // propagate NAN
+                VFCMEQQS(d1, d1, d1);    // 0 if NAN, 1 if not NAN
+            }
             VFSUBQS(v0, d0, v0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(d0, v0, v0);    // 0 => out is NAN
+                VBICQ(d1, d1, d0);      // forget it in any input was a NAN already
+                VSHLQ_32(d1, d1, 31);   // only keep the sign bit
+                VORRQ(v0, v0, d1);      // NAN -> -NAN
+            }
             break;
 
         #define GO(GETFLAGS, NO, YES, F)   \
