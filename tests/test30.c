@@ -163,7 +163,7 @@ void print_64(v128 v) {
 void print_ps(v128 v) {
     for(int i=0; i<4; ++i)
         if(isnanf(v.f32[i]))
-            printf("nan ");
+            printf("%cnan ", (v.u32[i]&0x80000000)?'-':'+');
         else
             printf("%g ", v.f32[i]);
 }
@@ -380,7 +380,14 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2pd(A, B, a128_pd, d128_pd)  \
  GO2pd(A, B, b128_pd, d128_pd)  \
  GO2pd(A, B, c128_pd, d128_pd)  \
- GO2pd(A, B, d128_pd, d128_pd)
+ GO2pd(A, B, d128_pd, d128_pd)  \
+ GO2pd(A, B, a128_pd, reverse_pd(b128_pd))  \
+ GO2pd(A, B, b128_pd, reverse_pd(c128_pd))  \
+ GO2pd(A, B, a128_pd, reverse_pd(d128_pd))  \
+ GO2pd(A, B, b128_pd, reverse_pd(d128_pd))  \
+ GO2pd(A, B, c128_pd, reverse_pd(d128_pd))  \
+ GO2pd(A, B, d128_pd, reverse_pd(d128_pd))
+
 
  #define MULITGO2Cpd(A, B, I)       \
  GO2Cpd(A, B, a128_pd, b128_pd, I)  \
@@ -405,12 +412,39 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1ps2dq(A, B, d128_ps)
 
  #define MULITGO2Cps(A, B, I)       \
+ GO2Cps(A, B, a128_ps, a128_ps, I)  \
  GO2Cps(A, B, a128_ps, b128_ps, I)  \
- GO2Cps(A, B, b128_ps, c128_ps, I)  \
+ GO2Cps(A, B, a128_ps, c128_ps, I)  \
  GO2Cps(A, B, a128_ps, d128_ps, I)  \
+ GO2Cps(A, B, b128_ps, a128_ps, I)  \
+ GO2Cps(A, B, b128_ps, b128_ps, I)  \
+ GO2Cps(A, B, b128_ps, c128_ps, I)  \
  GO2Cps(A, B, b128_ps, d128_ps, I)  \
+ GO2Cps(A, B, c128_ps, a128_ps, I)  \
+ GO2Cps(A, B, c128_ps, b128_ps, I)  \
+ GO2Cps(A, B, c128_ps, c128_ps, I)  \
  GO2Cps(A, B, c128_ps, d128_ps, I)  \
- GO2Cps(A, B, d128_ps, d128_ps, I)
+ GO2Cps(A, B, d128_ps, a128_ps, I)  \
+ GO2Cps(A, B, d128_ps, b128_ps, I)  \
+ GO2Cps(A, B, d128_ps, c128_ps, I)  \
+ GO2Cps(A, B, d128_ps, d128_ps, I)  \
+
+ #define MULITGO2Cps_nan(A, B, I)   \
+ GO2Cps(A, B, a128_ps, a128_ps, I)  \
+ GO2Cps(A, B, a128_ps, b128_ps, I)  \
+ GO2Cps(A, B, a128_ps, c128_ps, I)  \
+ GO2Cps(A, B, b128_ps, a128_ps, I)  \
+ GO2Cps(A, B, b128_ps, b128_ps, I)  \
+ GO2Cps(A, B, b128_ps, c128_ps, I)  \
+ GO2Cps(A, B, c128_ps, a128_ps, I)  \
+ GO2Cps(A, B, c128_ps, b128_ps, I)  \
+ GO2Cps(A, B, c128_ps, c128_ps, I)
+
+ #define MULITGO2Cps_naninf(A, B, I)\
+ GO2Cps(A, B, a128_ps, a128_ps, I)  \
+ GO2Cps(A, B, a128_ps, b128_ps, I)  \
+ GO2Cps(A, B, b128_ps, a128_ps, I)  \
+ GO2Cps(A, B, b128_ps, b128_ps, I)  \
 
  #define MULTIGO2sd(A, B)                   \
  GO2sd(A, B, a128_pd, a128_pd)              \
@@ -737,10 +771,11 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULTIGO2sd(div, divsd)
  MULTIGO2sd(max, maxsd)
  MULTIGO1ps2dq(cvtps, cvtps2dq)
- MULITGO2Cps(dp, dpps, 0xff)
- MULITGO2Cps(dp, dpps, 0x3f)
- MULITGO2Cps(dp, dpps, 0xf3)
- MULITGO2Cps(dp, dpps, 0x53)
+ // disabling NAN and INF for DPPS on purpose, it's not implemented
+ MULITGO2Cps_naninf(dp, dpps, 0xff)
+ MULITGO2Cps_naninf(dp, dpps, 0x3f)
+ MULITGO2Cps_naninf(dp, dpps, 0xf3)
+ MULITGO2Cps_naninf(dp, dpps, 0x53)
 // open this test must update test30 and ref30.txt
 //  ACCESS_TEST = 2;
 //  testVPMASKMOV();
