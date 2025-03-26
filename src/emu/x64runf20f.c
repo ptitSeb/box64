@@ -41,6 +41,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opgm;
     #ifndef NOALIGN
+    int nan_mask[4];
     int is_nan;
     #endif
     #ifdef TEST_INTERPRETER
@@ -351,27 +352,59 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         _GETEX(0);
         GETGX;
+        #ifndef NOALIGN
+        nan_mask[0] = isnanf(GX->f[0]) || isnanf(GX->f[1]);
+        nan_mask[1] = isnanf(GX->f[2]) || isnanf(GX->f[3]);
+        #endif
         GX->f[0] += GX->f[1];
         GX->f[1] = GX->f[2] + GX->f[3];
         if(EX==GX) {
             GX->q[1] = GX->q[0];
+            #ifndef NOALIGN
+            nan_mask[2] = nan_mask[0];
+            nan_mask[3] = nan_mask[1];
+            #endif
         } else {
+            #ifndef NOALIGN
+            nan_mask[2] = isnanf(EX->f[0]) || isnanf(EX->f[1]);
+            nan_mask[3] = isnanf(EX->f[2]) || isnanf(EX->f[3]);
+            #endif
             GX->f[2] = EX->f[0] + EX->f[1];
             GX->f[3] = EX->f[2] + EX->f[3];
         }
+        #ifndef NOALIGN
+        for(int i=0; i<4; ++i)
+            if(!nan_mask[i] && isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+        #endif
         break;
     case 0x7D:  /* HSUBPS Gx, Ex */
         nextop = F8;
         _GETEX(0);
         GETGX;
+        #ifndef NOALIGN
+        nan_mask[0] = isnanf(GX->f[0]) || isnanf(GX->f[1]);
+        nan_mask[1] = isnanf(GX->f[2]) || isnanf(GX->f[3]);
+        #endif
         GX->f[0] -= GX->f[1];
         GX->f[1] = GX->f[2] - GX->f[3];
         if(EX==GX) {
             GX->q[1] = GX->q[0];
+            #ifndef NOALIGN
+            nan_mask[2] = nan_mask[0];
+            nan_mask[3] = nan_mask[1];
+            #endif
         } else {
+            #ifndef NOALIGN
+            nan_mask[2] = isnanf(EX->f[0]) || isnanf(EX->f[1]);
+            nan_mask[3] = isnanf(EX->f[2]) || isnanf(EX->f[3]);
+            #endif
             GX->f[2] = EX->f[0] - EX->f[1];
             GX->f[3] = EX->f[2] - EX->f[3];
         }
+        #ifndef NOALIGN
+        for(int i=0; i<4; ++i)
+            if(!nan_mask[i] && isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+        #endif
         break;
 
     GOCOND(0x80
