@@ -587,8 +587,8 @@ void neoncacheUnwind(neoncache_t* cache)
                     reg = reg - 8 + SCRATCH0;
                 else
                     reg = reg + EMM0;
-                if(cache->neoncache[reg].v)
-                    printf_log(LOG_INFO, "Warning, recreating YMM%d on non empty slot %s", i, getCacheName(cache->neoncache[reg].t, cache->neoncache[reg].n));
+                //if(cache->neoncache[reg].v)   // this is normal when a ymm is purged to make space for another one
+                //    printf_log(LOG_INFO, "Warning, recreating YMM%d on non empty slot %s", i, getCacheName(cache->neoncache[reg].t, cache->neoncache[reg].n));
                 cache->neoncache[reg].t = (cache->ymm_write&(1<<i))?NEON_CACHE_YMMW:NEON_CACHE_YMMR;
                 cache->neoncache[reg].n = i;
             }
