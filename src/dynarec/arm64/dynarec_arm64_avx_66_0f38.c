@@ -1866,9 +1866,17 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VFNMSUB231PS/D Gx, Vx, Ex");
             nextop = F8;
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_VXEX(v0, v2, v1, 0); } else { GETGY_VYEY(v0, v2, v1); }
-                if(rex.w) VFMLSQD(v0, v1, v2); else VFMLSQS(v0, v1, v2);
-                if(rex.w) VFNEGQD(v0, v0); else VFNEGQS(v0, v0);
+                if(!l) { 
+                    GETGX_VXEX(v0, v2, v1, 0); 
+                    if(v0==v1 || v0==v2) q0 = fpu_get_scratch(dyn, ninst); else q0 = v0;
+                } else { 
+                    GETGY_VYEY(v0, v2, v1); 
+                    if(!(v0==v1 || v0==v2)) q0 = v0;
+                }
+                // chenge to get sign of zero correct
+                if(rex.w) VFNEGQD(q0, v0); else VFNEGQS(q0, v0);
+                if(rex.w) VFMLAQD(q0, v1, v2); else VFMLAQS(q0, v1, v2);
+                if(q0!=v0) VMOVQ(v0, q0);
             }
             if(!vex.l) YMM0(gd);
             break;
