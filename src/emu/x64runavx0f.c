@@ -368,7 +368,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
+                maskps[i] = isnanf(VX->f[i]) || isnanf(EX->f[i]);
                 GX->f[i] = VX->f[i] + EX->f[i];
                 if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
             }
@@ -376,7 +376,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    maskps[i] = isnanf(GY->f[i]) || isnanf(EY->f[i]);
+                    maskps[i] = isnanf(VY->f[i]) || isnanf(EY->f[i]);
                     GY->f[i] = VY->f[i] + EY->f[i];
                     if(isnanf(GY->f[i]) && !maskps[i]) GY->ud[i] |= 0x80000000;
                 }
@@ -390,7 +390,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
+                maskps[i] = isnanf(VX->f[i]) || isnanf(EX->f[i]);
                 GX->f[i] = VX->f[i] * EX->f[i];
                 if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
             }
@@ -398,7 +398,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    maskps[i] = isnanf(GY->f[i]) || isnanf(EY->f[i]);
+                    maskps[i] = isnanf(VY->f[i]) || isnanf(EY->f[i]);
                     GY->f[i] = VY->f[i] * EY->f[i];
                     if(isnanf(GY->f[i]) && !maskps[i]) GY->ud[i] |= 0x80000000;
                 }
@@ -444,7 +444,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
+                maskps[i] = isnanf(VX->f[i]) || isnanf(EX->f[i]);
                 GX->f[i] = VX->f[i] - EX->f[i];
                 if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
             }
@@ -452,7 +452,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    maskps[i] = isnanf(GY->f[i]) || isnanf(EY->f[i]);
+                    maskps[i] = isnanf(VY->f[i]) || isnanf(EY->f[i]);
                     GY->f[i] = VY->f[i] - EY->f[i];
                     if(isnanf(GY->f[i]) && !maskps[i]) GY->ud[i] |= 0x80000000;
                 }
@@ -488,7 +488,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
+                maskps[i] = isnanf(VX->f[i]) || isnanf(EX->f[i]);
                 GX->f[i] = VX->f[i] / EX->f[i];
                 if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
             }
@@ -496,7 +496,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    maskps[i] = isnanf(GY->f[i]) || isnanf(EY->f[i]);
+                    maskps[i] = isnanf(VY->f[i]) || isnanf(EY->f[i]);
                     GY->f[i] = VY->f[i] / EY->f[i];
                     if(isnanf(GY->f[i]) && !maskps[i]) GY->ud[i] |= 0x80000000;
                 }
