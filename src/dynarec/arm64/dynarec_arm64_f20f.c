@@ -34,7 +34,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     int32_t i32, i32_;
     int cacheupd = 0;
     int v0, v1;
-    int q0;
+    int q0, q1;
     int d0, d1;
     int64_t fixedaddress;
     int unscaled;
@@ -42,6 +42,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(d0);
     MAYUSE(d1);
     MAYUSE(q0);
+    MAYUSE(q1);
     MAYUSE(v0);
     MAYUSE(v1);
 
@@ -404,9 +405,25 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x7C:
             INST_NAME("HADDPS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
-            GETEX(v1, 0, 1);
-            VFADDPQS(v0, v0, v1);
+            GETGX(q1, 1);
+            GETEX(q0, 0, 0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                // but need to mix low/high part
+                VUZP1Q_32(v0, q0, q1);
+                VUZP2Q_32(v1, q0, q1);
+                VFMAXQS(v0, v0, v1);    // propagate NAN
+                VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+            }
+            VFADDPQS(q1, q1, q0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
+                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, v1);      // NAN -> -NAN
+            }
             break;
         case 0x7D:
             INST_NAME("HSUBPS Gx, Ex");
