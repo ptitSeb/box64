@@ -71,18 +71,19 @@ void** my_GetGTKDisplay()
 }
 
 // **************** NCurses ****************
-EXPORT int COLS;
-EXPORT int LINES;
-EXPORT int TABSIZE;
-EXPORT void* curscr;
-EXPORT void* newscr;
-EXPORT void* stdscr;
-EXPORT void* acs_map[128];
-EXPORT void* UP;
-EXPORT void* BC;
-EXPORT uint8_t PC;
-EXPORT uint16_t ospeed;
-EXPORT void* ttytype;
+EXPORT int COLS = 0;
+EXPORT int LINES = 0;
+EXPORT int TABSIZE = 0;
+EXPORT void* curscr = NULL;
+EXPORT void* newscr = NULL;
+EXPORT void* stdscr = NULL;
+EXPORT void* acs_map[64] = {0};
+EXPORT void* UP = NULL;
+EXPORT void* BC = NULL;
+EXPORT uint8_t PC = 0;
+EXPORT uint16_t ospeed = 0;
+EXPORT void* ttytype[32] = {0};
+EXPORT void* cur_term = NULL;
 
 void my_checkGlobalTInfo()
 {
@@ -99,6 +100,7 @@ void my_checkGlobalTInfo()
     GLOB(PC, NULL)
     GLOB(ospeed, NULL)
     GLOB(ttytype, NULL)
+    GLOB(cur_term, NULL)
 }
 
 void my_updateGlobalTInfo()
@@ -116,6 +118,7 @@ void my_updateGlobalTInfo()
     TOGLOB(PC, NULL)
     TOGLOB(ospeed, NULL)
     TOGLOB(ttytype, NULL)
+    TOGLOB(cur_term, NULL)
 }
 
 // **************** getopts ****************

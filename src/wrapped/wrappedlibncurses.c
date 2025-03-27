@@ -83,6 +83,7 @@ EXPORT int my_mvprintw(x64emu_t* emu, int x, int y, void* fmt, void* b)
 
 EXPORT void* my_initscr()
 {
+    my_updateGlobalTInfo();
     void* ret = my->initscr();
     my_checkGlobalTInfo();
     return ret;

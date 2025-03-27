@@ -44,7 +44,7 @@ extern int TABSIZE;
 extern void* curscr;
 extern void* newscr;
 extern void* stdscr;
-extern void* acs_map[128];
+extern void* acs_map[64];
 extern void* UP;
 extern void* BC;
 extern uint8_t PC;

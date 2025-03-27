@@ -73,6 +73,7 @@ EXPORT int myw6_mvprintw(x64emu_t* emu, int x, int y, void* fmt, void* b)
 
 EXPORT void* myw6_initscr()
 {
+    my_updateGlobalTInfo();
     void* ret = my->initscr();
     my_checkGlobalTInfo();
     return ret;
