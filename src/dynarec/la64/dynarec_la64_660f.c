@@ -1113,6 +1113,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VOR_V(q1, v0, v1);
             }
             break;
+        case 0x5D:
+            INST_NAME("MINPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            if(BOX64ENV(dynarec_fastnan)) {
+                VFMIN_D(v0, v0, v1);
+            } else {
+                q0 = fpu_get_scratch(dyn);
+                VFCMP_D(q0, v0, v1, sLT);
+                VAND_V(v0, v0, q0);
+                VANDN_V(q0, q0, v1);
+                VOR_V(v0, v0, q0);
+            }
+            break;
         case 0x5E:
             INST_NAME("DIVPD Gx, Ex");
             nextop = F8;
@@ -1132,6 +1147,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VAND_V(v1, v0, v1);
                 VANDN_V(v0, v0, q1);
                 VOR_V(q1, v0, v1);
+            }
+            break;
+        case 0x5F:
+            INST_NAME("MAXPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            if(BOX64ENV(dynarec_fastnan)) {
+                VFMAX_D(v0, v0, v1);
+            } else {
+                q0 = fpu_get_scratch(dyn);
+                VFCMP_D(q0, v1, v0, sLT);
+                VAND_V(v0, v0, q0);
+                VANDN_V(q0, q0, v1);
+                VOR_V(v0, v0, q0);
             }
             break;
         case 0x60:
