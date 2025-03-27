@@ -49,9 +49,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
     int is_nan;
-    #ifndef NOALIGN
     int nan_mask[4];
-    #endif
 
 
 #ifdef TEST_INTERPRETER
@@ -336,62 +334,46 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 eax1 = *EX;
                 EX = &eax1;
             }
-            #ifndef NOALIGN
             nan_mask[0] = isnanf(VX->f[0]) || isnanf(VX->f[1]);
             nan_mask[1] = isnanf(VX->f[2]) || isnanf(VX->f[3]);
-            #endif
-            GX->f[0] = VX->f[0] + VX->f[1];
-            GX->f[1] = VX->f[2] + VX->f[3];
+            GX->f[0] = isnan(VX->f[0]) ? VX->f[0] : (isnan(VX->f[1]) ? VX->f[1] : (VX->f[0] + VX->f[1]));
+            GX->f[1] = isnan(VX->f[2]) ? VX->f[2] : (isnan(VX->f[3]) ? VX->f[3] : (VX->f[2] + VX->f[3]));
             if(EX==VX) {
                 GX->f[2] = GX->f[0];
                 GX->f[3] = GX->f[1];
-                #ifndef NOALIGN
                 nan_mask[2] = nan_mask[0];
                 nan_mask[3] = nan_mask[1];
-                #endif
             } else {
-                #ifndef NOALIGN
                 nan_mask[2] = isnanf(EX->f[0]) || isnanf(EX->f[1]);
                 nan_mask[3] = isnanf(EX->f[2]) || isnanf(EX->f[3]);
-                #endif
-                GX->f[2] = EX->f[0] + EX->f[1];
-                GX->f[3] = EX->f[2] + EX->f[3];
+                GX->f[2] = isnan(EX->f[0]) ? EX->f[0] : (isnan(EX->f[1]) ? EX->f[1] : (EX->f[0] + EX->f[1]));
+                GX->f[3] = isnan(EX->f[2]) ? EX->f[2] : (isnan(EX->f[3]) ? EX->f[3] : (EX->f[2] + EX->f[3]));
             }
-            #ifndef NOALIGN
             for(int i=0; i<4; ++i)
-                if(!nan_mask[i] && isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
-            #endif
+                if (!nan_mask[i] && isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
             if(vex.l) {
                 if(GY==EY) {
                     eay1 = *EY;
                     EY = &eay1;
                 }
                 GETVY;
-                #ifndef NOALIGN
                 nan_mask[0] = isnanf(VY->f[0]) || isnanf(VY->f[1]);
                 nan_mask[1] = isnanf(VY->f[2]) || isnanf(VY->f[3]);
-                #endif
-                GY->f[0] = VY->f[0] + VY->f[1];
-                GY->f[1] = VY->f[2] + VY->f[3];
+                GY->f[0] = isnan(VY->f[0]) ? VY->f[0] : (isnan(VY->f[1]) ? VY->f[1] : (VY->f[0] + VY->f[1]));
+                GY->f[1] = isnan(VY->f[2]) ? VY->f[2] : (isnan(VY->f[3]) ? VY->f[3] : (VY->f[2] + VY->f[3]));
                 if(EY==VY) {
                     GY->f[2] = GY->f[0];
                     GY->f[3] = GY->f[1];
-                    #ifndef NOALIGN
                     nan_mask[2] = nan_mask[0];
                     nan_mask[3] = nan_mask[1];
-                    #endif
                 } else {
-                    #ifndef NOALIGN
                     nan_mask[2] = isnanf(EY->f[0]) || isnanf(EY->f[1]);
                     nan_mask[3] = isnanf(EY->f[2]) || isnanf(EY->f[3]);
-                    #endif
-                    GY->f[2] = EY->f[0] + EY->f[1];
-                    GY->f[3] = EY->f[2] + EY->f[3];
+                    GY->f[2] = isnan(EY->f[0]) ? EY->f[0] : (isnan(EY->f[1]) ? EY->f[1] : (EY->f[0] + EY->f[1]));
+                    GY->f[3] = isnan(EY->f[2]) ? EY->f[2] : (isnan(EY->f[3]) ? EY->f[3] : (EY->f[2] + EY->f[3]));
                 }
-                #ifndef NOALIGN
                 for(int i=0; i<4; ++i)
-                    if(!nan_mask[i] && isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
-                #endif
+                    if (!nan_mask[i] && isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
             } else
                 GY->u128 = 0;
             break;
@@ -402,66 +384,53 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             GETEY;
-            if(GX==EX) {
+            if (GX == EX) {
                 eax1 = *EX;
                 EX = &eax1;
             }
-            #ifndef NOALIGN
             nan_mask[0] = isnanf(VX->f[0]) || isnanf(VX->f[1]);
             nan_mask[1] = isnanf(VX->f[2]) || isnanf(VX->f[3]);
-            #endif
-            GX->f[0] = VX->f[0] - VX->f[1];
-            GX->f[1] = VX->f[2] - VX->f[3];
-            if(EX==VX) {
+            GX->f[0] = isnan(VX->f[0]) ? VX->f[0] : (isnan(VX->f[1]) ? VX->f[1] : (VX->f[0] - VX->f[1]));
+            GX->f[1] = isnan(VX->f[2]) ? VX->f[2] : (isnan(VX->f[3]) ? VX->f[3] : (VX->f[2] - VX->f[3]));
+            if (EX == VX) {
                 GX->f[2] = GX->f[0];
                 GX->f[3] = GX->f[1];
-                #ifndef NOALIGN
                 nan_mask[2] = nan_mask[0];
                 nan_mask[3] = nan_mask[1];
-                #endif
             } else {
-                #ifndef NOALIGN
                 nan_mask[2] = isnanf(EX->f[0]) || isnanf(EX->f[1]);
                 nan_mask[3] = isnanf(EX->f[2]) || isnanf(EX->f[3]);
-                #endif
-                GX->f[2] = EX->f[0] - EX->f[1];
-                GX->f[3] = EX->f[2] - EX->f[3];
+                GX->f[2] = isnan(EX->f[0]) ? EX->f[0] : (isnan(EX->f[1]) ? EX->f[1] : (EX->f[0] - EX->f[1]));
+                GX->f[3] = isnan(EX->f[2]) ? EX->f[2] : (isnan(EX->f[3]) ? EX->f[3] : (EX->f[2] - EX->f[3]));
             }
-            if(vex.l) {
-                if(GY==EY) {
+            for (int i = 0; i < 4; ++i)
+                if (!nan_mask[i] && isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+            if (vex.l) {
+                if (GY == EY) {
                     eay1 = *EY;
                     EY = &eay1;
                 }
                 GETVY;
-                #ifndef NOALIGN
                 nan_mask[0] = isnanf(VY->f[0]) || isnanf(VY->f[1]);
                 nan_mask[1] = isnanf(VY->f[2]) || isnanf(VY->f[3]);
-                #endif
-                GY->f[0] = VY->f[0] - VY->f[1];
-                GY->f[1] = VY->f[2] - VY->f[3];
-                if(EY==VY) {
+                GY->f[0] = isnan(VY->f[0]) ? VY->f[0] : (isnan(VY->f[1]) ? VY->f[1] : (VY->f[0] - VY->f[1]));
+                GY->f[1] = isnan(VY->f[2]) ? VY->f[2] : (isnan(VY->f[3]) ? VY->f[3] : (VY->f[2] - VY->f[3]));
+                if (EY == VY) {
                     GY->f[2] = GY->f[0];
                     GY->f[3] = GY->f[1];
-                    #ifndef NOALIGN
                     nan_mask[2] = nan_mask[0];
                     nan_mask[3] = nan_mask[1];
-                    #endif
                 } else {
-                    #ifndef NOALIGN
                     nan_mask[2] = isnanf(EY->f[0]) || isnanf(EY->f[1]);
                     nan_mask[3] = isnanf(EY->f[2]) || isnanf(EY->f[3]);
-                    #endif
-                    GY->f[2] = EY->f[0] - EY->f[1];
-                    GY->f[3] = EY->f[2] - EY->f[3];
+                    GY->f[2] = isnan(EY->f[0]) ? EY->f[0] : (isnan(EY->f[1]) ? EY->f[1] : (EY->f[0] - EY->f[1]));
+                    GY->f[3] = isnan(EY->f[2]) ? EY->f[2] : (isnan(EY->f[3]) ? EY->f[3] : (EY->f[2] - EY->f[3]));
                 }
-                #ifndef NOALIGN
-                for(int i=0; i<4; ++i)
-                    if(!nan_mask[i] && isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
-                #endif
+                for (int i = 0; i < 4; ++i)
+                    if (!nan_mask[i] && isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
             } else
                 GY->u128 = 0;
             break;
-
         case 0xC2:  /* VCMPSD Gx, Vx, Ex, Ib */
             nextop = F8;
             GETEX(1);
@@ -501,17 +470,17 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            GX->f[0] = VX->f[0] - EX->f[0];
-            GX->f[1] = VX->f[1] + EX->f[1];
-            GX->f[2] = VX->f[2] - EX->f[2];
-            GX->f[3] = VX->f[3] + EX->f[3];
+            GX->f[0] = isnan(VX->f[0]) ? VX->f[0] : (isnan(EX->f[0]) ? EX->f[0] : (VX->f[0] - EX->f[0]));
+            GX->f[1] = isnan(VX->f[1]) ? VX->f[1] : (isnan(EX->f[1]) ? EX->f[1] : (VX->f[1] + EX->f[1]));
+            GX->f[2] = isnan(VX->f[2]) ? VX->f[2] : (isnan(EX->f[2]) ? EX->f[2] : (VX->f[2] - EX->f[2]));
+            GX->f[3] = isnan(VX->f[3]) ? VX->f[3] : (isnan(EX->f[3]) ? EX->f[3] : (VX->f[3] + EX->f[3]));
             if(vex.l) {
                 GETEY;
                 GETVY;
-                GY->f[0] = VY->f[0] - EY->f[0];
-                GY->f[1] = VY->f[1] + EY->f[1];
-                GY->f[2] = VY->f[2] - EY->f[2];
-                GY->f[3] = VY->f[3] + EY->f[3];
+                GY->f[0] = isnan(VY->f[0]) ? VY->f[0] : (isnan(EY->f[0]) ? EY->f[0] : (VY->f[0] - EY->f[0]));
+                GY->f[1] = isnan(VY->f[1]) ? VY->f[1] : (isnan(EY->f[1]) ? EY->f[1] : (VY->f[1] + EY->f[1]));
+                GY->f[2] = isnan(VY->f[2]) ? VY->f[2] : (isnan(EY->f[2]) ? EY->f[2] : (VY->f[2] - EY->f[2]));
+                GY->f[3] = isnan(VY->f[3]) ? VY->f[3] : (isnan(EY->f[3]) ? EY->f[3] : (VY->f[3] + EY->f[3]));
             } else
                 GY->u128 = 0;
             break;
