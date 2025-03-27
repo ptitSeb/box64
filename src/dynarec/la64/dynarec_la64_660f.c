@@ -839,6 +839,53 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VINSGR2VR_W(q0, ed, (u8 & 3));
                     }
                     break;
+                case 0x40:
+                    INST_NAME("DPPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 1);
+                    u8 = F8;
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VXOR_V(v0, v0, v0);
+                    VXOR_V(v1, v1, v1);
+                    if(u8 & 0x10){
+                        VEXTRINS_W(v0, q0, 0x00);
+                        VEXTRINS_W(v1, q1, 0x00);
+                    }
+                    if(u8 & 0x20){
+                        VEXTRINS_W(v0, q0, 0x11);
+                        VEXTRINS_W(v1, q1, 0x11);
+                    }
+                    if(u8 & 0x40){
+                        VEXTRINS_W(v0, q0, 0x22);
+                        VEXTRINS_W(v1, q1, 0x22);
+                    }
+                    if(u8 & 0x80){
+                        VEXTRINS_W(v0, q0, 0x33);
+                        VEXTRINS_W(v1, q1, 0x33);
+                    }
+                    VFMUL_S(v0, v0, v1);
+                    VPACKOD_W(v1, v0, v0);
+                    VPACKEV_W(v0, v0, v0);
+                    VFADD_S(v0, v0, v1);
+                    VPACKOD_D(v1, v0, v0);
+                    VPACKEV_D(v0, v0, v0);
+                    VFADD_S(v0, v0, v1);
+                    VXOR_V(q0, q0, q0);
+                    if(u8 & 0x1){
+                        VEXTRINS_W(q0, v0, 0x00);
+                    }
+                    if(u8 & 0x2){
+                        VEXTRINS_W(q0, v0, 0x11);
+                    }
+                    if(u8 & 0x4){
+                        VEXTRINS_W(q0, v0, 0x22);
+                    }
+                    if(u8 & 0x8){
+                        VEXTRINS_W(q0, v0, 0x33);
+                    }
+                    break;
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
@@ -1511,6 +1558,30 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VSEQ_W(v0, v0, q0);
+            break;
+        case 0x7C:
+            INST_NAME("HADDPD Gx, Ex");
+            nextop = F8;
+            GETGX(q1, 1);
+            GETEX(q0, 0, 0);
+            d0 = fpu_get_scratch(dyn);
+            VPICKEV_D(d0, q0, q1);
+            VPICKOD_D(q1, q0, q1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, d0, q1, cUN);
+            }
+            VFADD_D(q1, d0, q1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMP_D(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
+                VSLLI_D(v1, v1, 48);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
             break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
