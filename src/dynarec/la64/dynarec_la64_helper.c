@@ -530,7 +530,7 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
 
-    if(is32bits)
+    if (is32bits)
         ip &= 0xffffffffLL;
 
     if (reg) {
@@ -584,7 +584,7 @@ void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
     SMEND();
     if (BOX64DRENV(dynarec_callret)) {
         // pop the actual return address from RV64 stack
-        LD_D(xRA, xSP, 0);     // native addr
+        LD_D(xRA, xSP, 0);    // native addr
         LD_D(x6, xSP, 8);     // x86 addr
         ADDI_D(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
@@ -629,7 +629,7 @@ void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n)
     SMEND();
     if (BOX64DRENV(dynarec_callret)) {
         // pop the actual return address from RV64 stack
-        LD_D(xRA, xSP, 0);     // native addr
+        LD_D(xRA, xSP, 0);    // native addr
         LD_D(x6, xSP, 8);     // x86 addr
         ADDI_D(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
@@ -820,6 +820,12 @@ int sse_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2)
     return s2;
 }
 
+
+void x87_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3)
+{
+    // TODO
+}
+
 // Restore round flag
 void x87_restoreround(dynarec_la64_t* dyn, int ninst, int s1)
 {
@@ -827,6 +833,69 @@ void x87_restoreround(dynarec_la64_t* dyn, int ninst, int s1)
     MAYUSE(ninst);
     MAYUSE(s1);
     MOVGR2FCSR(FCSR3, s1);
+}
+
+// MMX helpers
+static int isx87Empty(dynarec_la64_t* dyn)
+{
+    for (int i = 0; i < 8; ++i)
+        if (dyn->lsx.x87cache[i] != -1)
+            return 0;
+    return 1;
+}
+
+// get neon register for a MMX reg, create the entry if needed
+int mmx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a)
+{
+    if (!dyn->lsx.x87stack && isx87Empty(dyn))
+        x87_purgecache(dyn, ninst, 0, s1, s2, s3);
+    if (dyn->lsx.mmxcache[a] != -1)
+        return dyn->lsx.mmxcache[a];
+    ++dyn->lsx.mmxcount;
+    int ret = dyn->lsx.mmxcache[a] = fpu_get_reg_emm(dyn, a);
+    FLD_D(ret, xEmu, offsetof(x64emu_t, mmx[a]));
+    return ret;
+}
+// get neon register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a)
+{
+    if (!dyn->lsx.x87stack && isx87Empty(dyn))
+        x87_purgecache(dyn, ninst, 0, s1, s2, s3);
+    if (dyn->lsx.mmxcache[a] != -1)
+        return dyn->lsx.mmxcache[a];
+    ++dyn->lsx.mmxcount;
+    int ret = dyn->lsx.mmxcache[a] = fpu_get_reg_emm(dyn, a);
+    return ret;
+}
+// purge the MMX cache only
+void mmx_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
+{
+    if (!dyn->lsx.mmxcount) return;
+    if (!next) dyn->lsx.mmxcount = 0;
+    int old = -1;
+    for (int i = 0; i < 8; ++i)
+        if (dyn->lsx.mmxcache[i] != -1) {
+            if (old == -1) {
+                MESSAGE(LOG_DUMP, "\tPurge %sMMX Cache ------\n", next ? "locally " : "");
+                ++old;
+            }
+            FST_D(dyn->lsx.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
+            if (!next) {
+                fpu_free_reg(dyn, dyn->lsx.mmxcache[i]);
+                dyn->lsx.mmxcache[i] = -1;
+            }
+        }
+    if (old != -1) {
+        MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
+    }
+}
+
+static void mmx_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
+{
+    for (int i = 0; i < 8; ++i)
+        if (dyn->lsx.mmxcache[i] != -1) {
+            FST_D(dyn->lsx.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
+        }
 }
 
 // SSE / SSE2 helpers
@@ -927,8 +996,8 @@ static void sse_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
 
 static void sse_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 {
-    for (int i=0; i<16; ++i)
-        if(dyn->lsx.ssecache[i].v!=-1 && dyn->lsx.ssecache[i].write) {
+    for (int i = 0; i < 16; ++i)
+        if (dyn->lsx.ssecache[i].v != -1 && dyn->lsx.ssecache[i].write) {
             VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
 }
@@ -971,9 +1040,8 @@ void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
 
 void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
-    // TODO: x87_purgecache(dyn, ninst, next, s1, s2, s3);
-    // TODO: mmx_purgecache(dyn, ninst, next, s1);
-
+    x87_purgecache(dyn, ninst, next, s1, s2, s3);
+    mmx_purgecache(dyn, ninst, next, s1);
     sse_purgecache(dyn, ninst, next, s1);
     if (!next)
         fpu_reset_reg(dyn);
@@ -982,7 +1050,7 @@ void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, in
 void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // TODO: x87_reflectcache(dyn, ninst, s1, s2, s3);
-    // TODO: mmx_reflectcache(dyn, ninst, s1);
+    mmx_reflectcache(dyn, ninst, s1);
     sse_reflectcache(dyn, ninst, s1);
 }
 
@@ -1330,37 +1398,37 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
 {
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
-    if(jmp<0)
+    if (jmp < 0)
         return;
-    if(dyn->f.dfnone)  // flags are fully known, nothing we can do more
+    if (dyn->f.dfnone) // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
+    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone) ? 1 : 0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
         case SF_SET:
-            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING)
+            if (dyn->f.pending != SF_SET && dyn->f.pending != SF_SET_PENDING)
                 go = 1;
             break;
         case SF_SET_PENDING:
-            if(dyn->f.pending!=SF_SET
-            && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING)
+            if (dyn->f.pending != SF_SET
+                && dyn->f.pending != SF_SET_PENDING
+                && dyn->f.pending != SF_PENDING)
                 go = 1;
             break;
         case SF_PENDING:
-            if(dyn->f.pending!=SF_SET
-            && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING)
+            if (dyn->f.pending != SF_SET
+                && dyn->f.pending != SF_SET_PENDING
+                && dyn->f.pending != SF_PENDING)
                 go = 1;
-            else if (dyn->insts[jmp].f_entry.dfnone !=dyn->f.dfnone)
+            else if (dyn->insts[jmp].f_entry.dfnone != dyn->f.dfnone)
                 go = 1;
             break;
     }
-    if(go) {
-        if(dyn->f.pending!=SF_PENDING) {
+    if (go) {
+        if (dyn->f.pending != SF_PENDING) {
             LD_W(s1, xEmu, offsetof(x64emu_t, df));
-            j64 = (GETMARKF2)-(dyn->native_size);
+            j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
         CALL_(UpdateFlags, -1, 0);
@@ -1368,10 +1436,11 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
     }
 }
 
-void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
-    if(cacheupd&2)
+void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
+{
+    if (cacheupd & 2)
         fpuCacheTransform(dyn, ninst, s1, s2, s3);
-    if(cacheupd&1)
+    if (cacheupd & 1)
         flagsCacheTransform(dyn, ninst, s1);
 }
 

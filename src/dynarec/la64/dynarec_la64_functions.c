@@ -52,7 +52,16 @@ void fpu_free_reg(dynarec_la64_t* dyn, int reg)
     if (dyn->lsx.lsxcache[reg].t != LSX_CACHE_ST_F && dyn->lsx.lsxcache[reg].t != LSX_CACHE_ST_D && dyn->lsx.lsxcache[reg].t != LSX_CACHE_ST_I64)
         dyn->lsx.lsxcache[reg].v = 0;
 }
-
+// Get an MMX double reg
+int fpu_get_reg_emm(dynarec_la64_t* dyn, int emm)
+{
+    int ret = EMM0 + emm;
+    dyn->lsx.fpuused[ret] = 1;
+    dyn->lsx.lsxcache[ret].t = LSX_CACHE_MM;
+    dyn->lsx.lsxcache[ret].n = emm;
+    dyn->lsx.news |= (1 << (ret));
+    return ret;
+}
 // Get an XMM quad reg
 int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm)
 {
@@ -188,11 +197,23 @@ void lsxcacheUnwind(lsxcache_t* cache)
             }
         }
         cache->x87stack -= cache->stack_push;
+        cache->tags >>= (cache->stack_push * 2);
         cache->stack -= cache->stack_push;
+        if (cache->pushed >= cache->stack_push)
+            cache->pushed -= cache->stack_push;
+        else
+            cache->pushed = 0;
         cache->stack_push = 0;
     }
     cache->x87stack += cache->stack_pop;
     cache->stack_next = cache->stack;
+    if (cache->stack_pop) {
+        if (cache->poped >= cache->stack_pop)
+            cache->poped -= cache->stack_pop;
+        else
+            cache->poped = 0;
+        cache->tags <<= (cache->stack_pop * 2);
+    }
     cache->stack_pop = 0;
     cache->barrier = 0;
     // And now, rebuild the x87cache info with lsxcache
@@ -407,52 +428,52 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
 // will go badly if address is unaligned
 static uint8_t extract_byte(uint32_t val, void* address)
 {
-    int idx = (((uintptr_t)address)&3)*8;
-    return (val>>idx)&0xff;
+    int idx = (((uintptr_t)address) & 3) * 8;
+    return (val >> idx) & 0xff;
 }
 
 static uint32_t insert_byte(uint32_t val, uint8_t b, void* address)
 {
-    int idx = (((uintptr_t)address)&3)*8;
-    val&=~(0xff<<idx);
-    val|=(((uint32_t)b)<<idx);
+    int idx = (((uintptr_t)address) & 3) * 8;
+    val &= ~(0xff << idx);
+    val |= (((uint32_t)b) << idx);
     return val;
 }
 
 static uint16_t extract_half(uint32_t val, void* address)
 {
-    int idx = (((uintptr_t)address)&3)*8;
-    return (val>>idx)&0xffff;
+    int idx = (((uintptr_t)address) & 3) * 8;
+    return (val >> idx) & 0xffff;
 }
 
 static uint32_t insert_half(uint32_t val, uint16_t h, void* address)
 {
-    int idx = (((uintptr_t)address)&3)*8;
-    val&=~(0xffff<<idx);
-    val|=(((uint32_t)h)<<idx);
+    int idx = (((uintptr_t)address) & 3) * 8;
+    val &= ~(0xffff << idx);
+    val |= (((uint32_t)h) << idx);
     return val;
 }
 
 uint8_t la64_lock_xchg_b_slow(void* addr, uint8_t val)
 {
     uint32_t ret;
-    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
+    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
     do {
         ret = *aligned;
-    } while(la64_lock_cas_d(aligned, ret, insert_byte(ret, val, addr)));
+    } while (la64_lock_cas_d(aligned, ret, insert_byte(ret, val, addr)));
     return extract_byte(ret, addr);
 }
 
 int la64_lock_cas_b_slow(void* addr, uint8_t ref, uint8_t val)
 {
-    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
+    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
     uint32_t tmp = *aligned;
     return la64_lock_cas_d(aligned, ref, insert_byte(tmp, val, addr));
 }
 
 int la64_lock_cas_h_slow(void* addr, uint16_t ref, uint16_t val)
 {
-    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
+    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
     uint32_t tmp = *aligned;
     return la64_lock_cas_d(aligned, ref, insert_half(tmp, val, addr));
 }
@@ -460,6 +481,36 @@ int la64_lock_cas_h_slow(void* addr, uint16_t ref, uint16_t val)
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 {
     dynarec_log_prefix(0, LOG_NONE, "\t%08x\t%s\n", opcode, la64_print(opcode, (uintptr_t)dyn->block));
+}
+
+static void x87_reset(lsxcache_t* lsx)
+{
+    for (int i = 0; i < 8; ++i)
+        lsx->x87cache[i] = -1;
+    lsx->tags = 0;
+    lsx->x87stack = 0;
+    lsx->stack = 0;
+    lsx->stack_next = 0;
+    lsx->stack_pop = 0;
+    lsx->stack_push = 0;
+    lsx->combined1 = lsx->combined2 = 0;
+    lsx->swapped = 0;
+    lsx->barrier = 0;
+    lsx->pushed = 0;
+    lsx->poped = 0;
+
+    for (int i = 0; i < 24; ++i)
+        if (lsx->lsxcache[i].t == LSX_CACHE_ST_F
+            || lsx->lsxcache[i].t == LSX_CACHE_ST_D
+            || lsx->lsxcache[i].t == LSX_CACHE_ST_I64)
+            lsx->lsxcache[i].v = 0;
+}
+
+static void mmx_reset(lsxcache_t* lsx)
+{
+    lsx->mmxcount = 0;
+    for (int i = 0; i < 8; ++i)
+        lsx->mmxcache[i] = -1;
 }
 
 static void sse_reset(lsxcache_t* lsx)
@@ -470,7 +521,8 @@ static void sse_reset(lsxcache_t* lsx)
 
 void fpu_reset(dynarec_la64_t* dyn)
 {
-    // TODO: x87 and mmx
+    x87_reset(&dyn->lsx);
+    mmx_reset(&dyn->lsx);
     sse_reset(&dyn->lsx);
     fpu_reset_reg(dyn);
 }
