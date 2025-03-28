@@ -697,6 +697,25 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             VFMAX_S(v0, v0, v1);
             break;
+        case 0x6F:
+            INST_NAME("MOVQ Gm, Em");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, nextop & 7);
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+                FMOV_D(v0, v1);
+            } else {
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                FLD_D(v0, wback, fixedaddress);
+            }
+            break;
+        case 0x77:
+            INST_NAME("EMMS");
+            // empty MMX, FPU now usable
+            mmx_purgecache(dyn, ninst, 0, x1);
+            break;
 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                          \
     READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \

@@ -18,6 +18,8 @@ int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm);
 void fpu_free_reg(dynarec_la64_t* dyn, int reg);
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_la64_t* dyn);
+// Get an MMX double reg
+int fpu_get_reg_emm(dynarec_la64_t* dyn, int emm);
 
 // FPU Cache transformation (for loops) // Specific, need to be written by backend
 int fpuCacheNeedsTransform(dynarec_la64_t* dyn, int ninst);

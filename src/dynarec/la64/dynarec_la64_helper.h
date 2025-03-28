@@ -952,6 +952,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define x87_restoreround  STEPNAME(x87_restoreround)
 #define sse_setround      STEPNAME(sse_setround)
+#define mmx_get_reg       STEPNAME(mmx_get_reg)
+#define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define x87_forget        STEPNAME(x87_forget)
 #define sse_purge07cache  STEPNAME(sse_purge07cache)
 #define sse_get_reg       STEPNAME(sse_get_reg)
@@ -964,6 +966,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_reset_cache     STEPNAME(fpu_reset_cache)
 #define fpu_propagate_stack STEPNAME(fpu_propagate_stack)
 #define fpu_purgecache      STEPNAME(fpu_purgecache)
+#define mmx_purgecache      STEPNAME(mmx_purgecache)
+#define x87_purgecache      STEPNAME(x87_purgecache)
 #define fpu_reflectcache    STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
 
@@ -1065,10 +1069,10 @@ void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 // common coproc helpers
 // reset the cache with n
 void fpu_reset_cache(dynarec_la64_t* dyn, int ninst, int reset_n);
-// propagate stack state
 void fpu_propagate_stack(dynarec_la64_t* dyn, int ninst);
-// purge the FPU cache (needs 3 scratch registers)
 void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3);
+void mmx_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1);
+void x87_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3);
 void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
@@ -1091,6 +1095,13 @@ int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a);
 void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a);
 // Push current value to the cache
 void sse_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
+
+// MMX helpers
+//  get lsx register for a MMX reg, create the entry if needed
+int mmx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+// get lsx register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a);
+
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
