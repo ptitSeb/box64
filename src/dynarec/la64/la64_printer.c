@@ -691,6 +691,14 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCOPYSIGN.D", Ft[Rd], Ft[Rj], Ft[Rk]);
         return buff;
     }
+    if (isMask(opcode, "0000000100010100100101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FMOV.S", Ft[Rd], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100010100100110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FMOV.D", Ft[Rd], Ft[Rj]);
+        return buff;
+    }
     if (isMask(opcode, "0000000100010100101001jjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVGR2FR.W", Ft[Rd], Xt[Rj]);
         return buff;

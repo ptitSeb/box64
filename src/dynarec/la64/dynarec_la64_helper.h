@@ -395,6 +395,22 @@
         MOVGR2FR_D(a, x2);                                                                   \
     }
 
+// Get GM, might use x1, x2 and x3
+#define GETGM(a)                 \
+    gd = ((nextop & 0x38) >> 3); \
+    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
+
+// Get EM, might use x1, x2 and x3
+#define GETEM(a, D)                                                                          \
+    if (MODREG) {                                                                            \
+        a = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop & 7));                               \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        FLD_D(a, ed, fixedaddress);                                                          \
+    }
+
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK() BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 
