@@ -72,10 +72,12 @@ typedef struct neoncache_s {
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
     int8_t              fpu_reg;        // x87/sse/mmx reg counter
+    uint16_t            xmm_write;      // 1bit of xmmXX removed write
+    uint16_t            xmm_removed;    // 1bit if xmmXX was removed
     uint16_t            ymm_used;       // mask of the ymm regs used in this opcode
+    uint16_t            ymm_write;      // 1bit of ymmXX removed write
+    uint16_t            ymm_removed;    // 1bit if ymmXX was removed
     uint64_t            ymm_regs;       // 4bits (0-15) position of 16 ymmXX regs removed
-    uint16_t            ymm_write;      // 1bits of ymmXX removed write
-    uint16_t            ymm_removed;    // 1bits if ymmXX was removed
 } neoncache_t;
 
 typedef struct flagcache_s {
