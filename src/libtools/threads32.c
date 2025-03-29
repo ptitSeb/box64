@@ -592,7 +592,12 @@ EXPORT int my32_pthread_cond_timedwait_old(x64emu_t* emu, pthread_cond_2_0_t* co
 {
 	pthread_mutex_t* m = getAlignedMutex((pthread_mutex_t*)mutex);
 	pthread_cond_t * c = get_cond_old(cond);
-	return pthread_cond_timedwait(c, m, (const struct timespec*)abstime);
+	struct timespec* atime = abstime;
+	while(atime->tv_nsec>1000000000LL) {
+		atime->tv_nsec-=1000000000LL;
+		++atime->tv_sec;
+	}
+	return pthread_cond_timedwait(c, m, atime);
 }
 EXPORT int my32_pthread_cond_wait_old(x64emu_t* emu, pthread_cond_2_0_t* cond, void* mutex)
 {
@@ -605,7 +610,12 @@ EXPORT int my32_pthread_cond_timedwait(x64emu_t* emu, void* cond, void* mutex, v
 {
 	pthread_mutex_t* m = getAlignedMutex((pthread_mutex_t*)mutex);
 	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_timedwait(c, m, (const struct timespec*)abstime);
+	struct timespec* atime = abstime;
+	while(atime->tv_nsec>1000000000LL) {
+		atime->tv_nsec-=1000000000LL;
+		++atime->tv_sec;
+	}
+	return pthread_cond_timedwait(c, m, atime);
 }
 EXPORT int my32_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex)
 {
