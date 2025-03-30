@@ -29,30 +29,39 @@ extern int arm64_lock_write_dq(uint64_t a, uint64_t b, void* addr);
 
 // Atomically exchange value at [p] with val, return old p
 extern uintptr_t arm64_lock_xchg_dd(void* p, uintptr_t val);
+extern uintptr_t arm64_atomic_xchg_dd(void* p, uintptr_t val);
 
 // Atomically exchange value at [p] with val, return old p
 extern uint32_t arm64_lock_xchg_d(void* p, uint32_t val);
+extern uint32_t arm64_atomic_xchg_d(void* p, uint32_t val);
 
 // Atomically exchange value at [p] with val, return old p
 extern uint32_t arm64_lock_xchg_h(void* p, uint32_t val);
+extern uint32_t arm64_atomic_xchg_h(void* p, uint32_t val);
 
 // Atomically exchange value at [p] with val, return old p
 extern uint32_t arm64_lock_xchg_b(void* p, uint32_t val);
+extern uint32_t arm64_atomic_xchg_b(void* p, uint32_t val);
 
 // Atomically store value to [p] only if [p] is NULL. Return old [p] value
 extern uint32_t arm64_lock_storeifnull_d(void*p, uint32_t val);
+extern uint32_t arm64_atomic_storeifnull_d(void*p, uint32_t val);
 
 // Atomically store value to [p] only if [p] is NULL. Return old [p] value
 extern void* arm64_lock_storeifnull(void*p, void* val);
+extern void* arm64_atomic_storeifnull(void*p, void* val);
 
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern void* arm64_lock_storeifref(void*p, void* val, void* ref);
+extern void* arm64_atomic_storeifref(void*p, void* val, void* ref);
 
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern uint32_t arm64_lock_storeifref_d(void*p, uint32_t val, uint32_t ref);
+extern uint32_t arm64_atomic_storeifref_d(void*p, uint32_t val, uint32_t ref);
 
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern uint32_t arm64_lock_storeifref2_d(void*p, uint32_t val, uint32_t ref);
+extern uint32_t arm64_atomic_storeifref2_d(void*p, uint32_t val, uint32_t ref);
 
 // decrement atomically the byte at [p] (but only if p not 0)
 extern void arm64_lock_decifnot0b(void*p);
