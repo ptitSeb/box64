@@ -142,67 +142,52 @@ if(RPI3ARM64)
     add_definitions(-DRPI)
     add_definitions(-DRPI3ARM64)
     add_definitions(-pipe -march=armv8-a+crc -mtune=cortex-a53)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc -mtune=cortex-a53")
 elseif(RPI4ARM64)
     add_definitions(-DRPI)
     add_definitions(-DRPI4ARM64)
     add_definitions(-pipe -march=armv8-a+crc -mtune=cortex-a72)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc -mtune=cortex-a72")
 elseif(RPI5ARM64)
     add_definitions(-DRPI)
     add_definitions(-DRPI5ARM64)
     add_definitions(-pipe -march=armv8.2-a+crc+crypto+fp16+rcpc+dotprod -mtune=cortex-a76)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.2-a+crc+crypto+fp16+rcpc+dotprod -mtune=cortex-a76")
 elseif(RK3326)
     add_definitions(-DRK3326)
     add_definitions(-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a35+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a35+crypto")
 elseif(RK3399)
     add_definitions(-DRK3399)
     add_definitions(-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a72.cortex-a53+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a72.cortex-a53+crypto")
 elseif(RK3588)
     add_definitions(-DRK3588)
     add_definitions(-pipe -mcpu=cortex-a76.cortex-a55+crypto)
     add_definitions(-DBAD_SIGNAL)
-    set(CMAKE_ASM_FLAGS  "-pipe -mcpu=cortex-a76.cortex-a55+crypto")
 elseif(ODROIDN2)
     add_definitions(-DODROIDN2)
     add_definitions(-march=armv8-a+crc+simd+crypto -mcpu=cortex-a73.cortex-a53+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a73.cortex-a53+crypto")
 elseif(TEGRAX1)
     add_definitions(-DTEGRAX1)
     add_definitions(-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a57+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto -mcpu=cortex-a57+crypto")
 elseif(TEGRA_T194)
     add_definitions(-DTEGRA_T194)
     add_definitions(-pipe -march=armv8.2-a+fp16+simd+crypto+predres -mcpu=cortex-a76+crypto -mtune=cortex-a76)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.2-a+fp16+simd+crypto+predres -mcpu=cortex-a76+crypto -mtune=cortex-a76")
 elseif(TEGRA_T234)
     add_definitions(-DTEGRA_T234)
     add_definitions(-pipe -march=armv8.2-a+fp16+simd+crypto+predres -mcpu=cortex-a78ae+crypto -mtune=cortex-a78ae)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.2-a+fp16+simd+crypto+predres -mcpu=cortex-a78ae+crypto -mtune=cortex-a78ae")
 elseif(PHYTIUM)
     add_definitions(-DPHYTIUM)
     add_definitions(-pipe -march=armv8.1-a+crc+simd+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.1-a+crc+simd+crypto+aes")
 elseif(SD845)
     add_definitions(-DSD845)
     add_definitions(-pipe -march=armv8.2-a+simd+crypto -mtune=cortex-a75.cortex-a55)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.2-a+simd+crypto -mtune=cortex-a75.cortex-a55")
 elseif(SD865)
     add_definitions(-DSD865)
     #note that cortex-a77.cortex-a55 is not supported, so fall back to a76 instead
     add_definitions(-pipe -march=armv8.2-a+simd+crypto -mtune=cortex-a76.cortex-a55)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.2-a+simd+crypto -mtune=cortex-a76.cortex-a55")
 elseif(SD888)
     add_definitions(-DSD888)
     add_definitions(-pipe -march=armv8.4-a+simd+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.4-a+simd+crypto")
 elseif(SD8G2)
     add_definitions(-DSD8G2)
     add_definitions(-pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2")
 elseif(SDORYON1)
     add_definitions(-DSDORYON1)
     # NOTE
@@ -220,15 +205,12 @@ elseif(SDORYON1)
     #  * the 6th positional argument is represented as the "cost"
     #  I've chosen the a57 because I don't know if I should choose the a72
     add_definitions(-pipe -march=armv8.6-a+crypto+sm4+sha3+fp16 -mtune=cortex-a57)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.6-a+crypto+sm4+sha3+fp16 -mtune=cortex-a57")
 elseif(ADLINK)
     add_definitions(-DADLINK)
     add_definitions(-pipe -mcpu=neoverse-n1 -fuse-ld=gold -fuse-linker-plugin)
-    set(CMAKE_ASM_FLAGS  "-pipe -mcpu=neoverse-n1")
 elseif(M1)
     add_definitions(-DM1)
     add_definitions(-pipe -march=armv8.5-a+simd+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.5-a+simd+crypto")
 elseif(LARCH64)
     add_definitions(-DLA64)
     add_definitions(-pipe -march=loongarch64)
@@ -242,14 +224,13 @@ elseif(PPC64LE)
 elseif(LX2160A)
     add_definitions(-DLX2160A)
     add_definitions(-pipe -march=armv8-a+crypto+crc -mcpu=cortex-a72+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crypto+crc -mcpu=cortex-a72+crypto")
 elseif(SW64)
     add_definitions(-DSW64)
 elseif(ARM64)
     #add_definitions(-pipe -march=native)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+simd")
-elseif(ARM_DYNAREC)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto")
+endif()
+if(ARM_DYNAREC)
+    set(CMAKE_ASM_FLAGS  "-pipe -mcpu=generic-armv8-a+lse+rdma+crc+crypto")
 endif()
 if(ANDROID)
     add_definitions(-DANDROID)
@@ -914,7 +895,9 @@ if(ARM_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
-
+    )
+    set(DYNAREC_ASM
+        ${DYNAREC_ASM}
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_prolog.S"
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_epilog.S"
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_next.S"
@@ -975,7 +958,9 @@ if(RV64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_printer.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_jmpnext.c"
         "${BOX64_ROOT}/src/rv64detect.c"
-
+        )
+    set(DYNAREC_ASM
+        ${DYNAREC_ASM}
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_prolog.S"
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_epilog.S"
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_next.S"
@@ -1033,7 +1018,9 @@ if(LARCH64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_functions.c"
         "${BOX64_ROOT}/src/dynarec/la64/la64_printer.c"
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_jmpnext.c"
-
+    )
+    set(DYNAREC_ASM
+        ${DYNAREC_ASM}
         "${BOX64_ROOT}/src/dynarec/la64/la64_prolog.S"
         "${BOX64_ROOT}/src/dynarec/la64/la64_epilog.S"
         "${BOX64_ROOT}/src/dynarec/la64/la64_next.S"
@@ -1078,18 +1065,18 @@ if(DYNAREC)
         )
     endif()
 
-    add_library(dynarec_native OBJECT ${DYNAREC_SRC})
+    add_library(dynarec_native OBJECT ${DYNAREC_SRC} ${DYNAREC_ASM})
 
     add_library(native_pass0 OBJECT ${DYNAREC_PASS})
-    set_target_properties(native_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
+    set_target_properties(native_pass0 PROPERTIES COMPILE_DEFINITIONS "STEP=0")
     add_library(native_pass1 OBJECT ${DYNAREC_PASS})
-    set_target_properties(native_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
+    set_target_properties(native_pass1 PROPERTIES COMPILE_DEFINITIONS "STEP=1")
     add_library(native_pass2 OBJECT ${DYNAREC_PASS})
-    set_target_properties(native_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
+    set_target_properties(native_pass2 PROPERTIES COMPILE_DEFINITIONS "STEP=2")
     add_library(native_pass3 OBJECT ${DYNAREC_PASS})
-    set_target_properties(native_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    set_target_properties(native_pass3 PROPERTIES COMPILE_DEFINITIONS "STEP=3")
     add_library(test_interpreter OBJECT ${INTERPRETER})
-    set_target_properties(test_interpreter PROPERTIES COMPILE_FLAGS "-DTEST_INTERPRETER")
+    set_target_properties(test_interpreter PROPERTIES COMPILE_DEFINITIONS "TEST_INTERPRETER")
     add_dependencies(native_pass0 WRAPPERS)
     add_dependencies(native_pass1 WRAPPERS)
     add_dependencies(native_pass2 WRAPPERS)
