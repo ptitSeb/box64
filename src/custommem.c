@@ -78,6 +78,7 @@ typedef struct blocklist_s {
     size_t              maxfree;
     size_t              size;
     void*               first;
+    uint32_t            lowest;
     uint8_t             type;
 } blocklist_t;
 
@@ -503,12 +504,13 @@ void* map128_customMalloc(size_t size, int is32bits)
         if(p_blocks[i].block && (p_blocks[i].type==BTYPE_MAP) && p_blocks[i].maxfree>=128 && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
             // look for a free block
             uint8_t* map = p_blocks[i].first;
-            for(uint32_t idx=0; idx<(p_blocks[i].size>>7); ++idx) {
+            for(uint32_t idx=p_blocks[i].lowest; idx<(p_blocks[i].size>>7); ++idx) {
                 if(!(idx&7) && map[idx>>3]==0xff)
                     idx+=7;
                 else if(!(map[idx>>3]&(1<<(idx&7)))) {
                     map[idx>>3] |= 1<<(idx&7);
                     p_blocks[i].maxfree -= 128;
+                    p_blocks[i].lowest = idx+1;
                     mutex_unlock(&mutex_blocks);
                     return p_blocks[i].block+(idx<<7);
                 }
@@ -574,7 +576,8 @@ void* map128_customMalloc(size_t size, int is32bits)
     // alloc 1st block
     void* ret = p_blocks[i].block;
     map[0] |= 1;
-    p_blocks[i].maxfree = allocsize - mapsize;
+    p_blocks[i].lowest = 1;
+    p_blocks[i].maxfree = allocsize - (mapsize+128);
     mutex_unlock(&mutex_blocks);
     if(blockstree)
         rb_set(blockstree, (uintptr_t)p, (uintptr_t)p+allocsize-mapsize, i);
@@ -792,6 +795,8 @@ void internal_customFree(void* p, int is32bits)
                 map[idx>>3] ^= (1<<(idx&7));
                 l->maxfree += 128;
             }   // warn if double free?
+            if(l->lowest>idx)
+                l->lowest = idx;
             mutex_unlock(&mutex_blocks);
             return;
         }
