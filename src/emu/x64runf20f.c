@@ -325,7 +325,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(2);
             tmp8u = F8&0x3f;
             tmp8s = F8&0x3f;
-            tmp64u = (1<<(tmp8s+1)-1);
+            tmp64u = (1<<(tmp8s+1))-1;
             EX->q[0] &=~(tmp64u<<tmp8u);
             EX->q[0] |= (GX->q[0]&tmp64u)<<tmp8u;
         }
@@ -342,7 +342,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(2);
             tmp8u = GX->ub[8]&0x3f;
             tmp8s = GX->ub[9]&0x3f;
-            tmp64u = (1<<(tmp8s+1)-1);
+            tmp64u = (1<<(tmp8s+1))-1;
             EX->q[0] &=~(tmp64u<<tmp8u);
             EX->q[0] |= (GX->q[0]&tmp64u)<<tmp8u;
         }
