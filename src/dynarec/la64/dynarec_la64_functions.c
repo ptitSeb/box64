@@ -468,14 +468,14 @@ int la64_lock_cas_b_slow(void* addr, uint8_t ref, uint8_t val)
 {
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
     uint32_t tmp = *aligned;
-    return la64_lock_cas_d(aligned, ref, insert_byte(tmp, val, addr));
+    return la64_lock_cas_d(aligned, insert_byte(tmp, ref, addr), insert_byte(tmp, val, addr));
 }
 
 int la64_lock_cas_h_slow(void* addr, uint16_t ref, uint16_t val)
 {
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
     uint32_t tmp = *aligned;
-    return la64_lock_cas_d(aligned, ref, insert_half(tmp, val, addr));
+    return la64_lock_cas_d(aligned, insert_half(tmp, ref, addr), insert_half(tmp, val, addr));
 }
 
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
