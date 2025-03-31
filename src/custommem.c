@@ -392,18 +392,25 @@ void testAllBlocks()
                 printBlock(p_blocks[i].block, p_blocks[i].first);
             total += p_blocks[i].size;
             if(is32bits) total32 += p_blocks[i].size;
-            if(max_free<p_blocks[i].maxfree)
-                max_free = p_blocks[i].maxfree;
-            if(is32bits && max_free32<p_blocks[i].maxfree)
-                max_free32 = p_blocks[i].maxfree;
             if(p_blocks[i].type==BTYPE_LIST) {
-            blockmark_t* m = (blockmark_t*)p_blocks[i].block;
+                if(max_free<p_blocks[i].maxfree)
+                    max_free = p_blocks[i].maxfree;
+                if(is32bits && max_free32<p_blocks[i].maxfree)
+                    max_free32 = p_blocks[i].maxfree;
+                blockmark_t* m = (blockmark_t*)p_blocks[i].block;
                 while(m->next.x32) {
                     if(!m->next.fill)
                         fragmented_free += SIZE_BLOCK(m->next);
                     if(is32bits && !m->next.fill)
                         fragmented_free32 += SIZE_BLOCK(m->next);
                     m = NEXT_BLOCK(m);
+                }
+            } else {
+                if(p_blocks[i].maxfree) {
+                    if(max_free<128) max_free=128;
+                    if(is32bits && max_free32<128) max_free32=128;
+                    fragmented_free += p_blocks[i].maxfree;
+                    if(is32bits) fragmented_free32 += p_blocks[i].maxfree;
                 }
             }
         }
