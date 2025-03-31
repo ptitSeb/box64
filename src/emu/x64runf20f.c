@@ -412,6 +412,14 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         , addr += tmp32s;
         ,,STEP3
     )                               /* 0x80 -> 0x8F Jxx */
+
+    case 0xA5:  // ignore F2 prefix
+        #ifdef TEST_INTERPRETER 
+        return Test0F(test, rex, addr-1, step);
+        #else
+        return Run0F(emu, rex, addr-1, step);
+        #endif
+
         
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
         nextop = F8;
