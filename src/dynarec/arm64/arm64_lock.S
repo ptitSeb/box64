@@ -34,6 +34,7 @@
 .global arm64_lock_get_b
 .global arm64_lock_get_d
 .global arm64_lock_get_dd
+.global arm64_crc
 
 arm64_lock_read_b:
     dmb     ish
@@ -394,4 +395,25 @@ arm64_lock_get_d:
 
 arm64_lock_get_dd:
     ldaxr   x0, [x0]
+    ret
+
+arm64_crc:
+    //x0 is address, w1 is len
+    mov     x2, x0  // address is x2 now
+    mov     w0, wzr // crc is w0
+1:
+    cmp     w1, #8
+    blo     2f
+    ldr     x3, [x2], #8
+    crc32x  w0, w0, x3
+    subs    w1, w1, #8
+    bne     1b
+2:
+    cbz     w1, 4f
+3:
+    ldrb    w3, [x2], #1
+    crc32b  w0, w0, w3
+    subs    w1, w1, #1
+    bne     3b
+4:
     ret

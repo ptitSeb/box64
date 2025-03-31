@@ -22,6 +22,7 @@
 #include "signals.h"
 
 #include "dynarec_native.h"
+#include "dynarec_arch.h"
 #include "native_lock.h"
 
 #include "custommem.h"
@@ -31,6 +32,9 @@
 uint32_t X31_hash_code(void* addr, int len)
 {
     if(!len) return 0;
+    #ifdef ARCH_CRC
+    ARCH_CRC(addr, len);
+    #endif
     uint8_t* p = (uint8_t*)addr;
     int32_t h = *p;
     for (--len, ++p; len; --len, ++p) h = (h << 5) - h + (int32_t)*p;
