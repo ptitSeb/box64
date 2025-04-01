@@ -30,4 +30,7 @@ const char* getBridgeName(void* addr);
 void init_bridge_helper(void);
 void fini_bridge_helper(void);
 
+// Is what pointed at addr a native call? And if yes, to what function?
+int isNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
+
 #endif //__BRIDGE_H_

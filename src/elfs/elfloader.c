@@ -45,6 +45,8 @@ void* my__IO_2_1_stderr_ = (void*)1;
 void* my__IO_2_1_stdin_  = (void*)2;
 void* my__IO_2_1_stdout_ = (void*)3;
 
+uintptr_t pltResolver64 = ~0LL;
+
 // return the index of header (-1 if it doesn't exist)
 static int getElfIndex(box64context_t* ctx, elfheader_t* head) {
     for (int i=0; i<ctx->elfsize; ++i)
@@ -1840,7 +1842,6 @@ void* GetNativeSymbolUnversioned(void* lib, const char* name)
     return s.addr;
 }
 
-uintptr_t pltResolver64 = ~0LL;
 EXPORT void PltResolver64(x64emu_t* emu)
 {
     uintptr_t addr = Pop64(emu);

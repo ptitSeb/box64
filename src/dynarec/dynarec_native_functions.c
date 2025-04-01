@@ -619,35 +619,6 @@ uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 }
 #undef F8
 
-int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
-{
-    (void)dyn;
-    if(is32bits)
-        addr &= 0xFFFFFFFFLL;
-
-#define PK(a)       *(uint8_t*)(addr+a)
-#define PK32(a)     *(int32_t*)(addr+a)
-
-    if(!addr || !getProtection(addr))
-        return 0;
-    if(PK(0)==0xff && PK(1)==0x25) {            // "absolute" jump, maybe the GOT (well, RIP relative in fact)
-        uintptr_t a1 = addr + 6 + (PK32(2));    // need to add a check to see if the address is from the GOT !
-        addr = (uintptr_t)getAlternate(*(void**)a1);
-    }
-    if(!addr || !getProtection(addr))
-        return 0;
-    onebridge_t *b = (onebridge_t*)(addr);
-    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver64) {
-        // found !
-        if(retn) *retn = (b->C3==0xC2)?b->N:0;
-        if(calladdress) *calladdress = addr+1;
-        return 1;
-    }
-    return 0;
-#undef PK32
-#undef PK
-}
-
 // AVX
 void avx_mark_zero(dynarec_native_t* dyn, int ninst, int reg)
 {
