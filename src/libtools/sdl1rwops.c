@@ -11,7 +11,6 @@
 #include "sdl1align32.h"
 #endif
 #include "box64context.h"
-#include "x64run.h"
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
 #include "librarian/library_private.h"

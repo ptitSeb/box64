@@ -29,6 +29,7 @@
 #include "box64stack.h"
 #include "callback.h"
 #include "box64stack.h"
+#include "box64cpu_util.h"
 #include "wine_tools.h"
 #include "dictionnary.h"
 #include "symbols.h"

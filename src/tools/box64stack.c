@@ -6,6 +6,7 @@
 
 #include "box64stack.h"
 #include "box64context.h"
+#include "box64cpu_util.h"
 #include "elfloader.h"
 #include "debug.h"
 #include "emu/x64emu_private.h"

@@ -6,7 +6,7 @@
 
 #include "x64emu.h"
 #include "box64context.h"
-#include "dynarec.h"
+#include "box64cpu.h"
 #include "dynarec_arm64_private.h"
 
 // get size of arch specific info (can be 0)

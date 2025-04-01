@@ -5,7 +5,6 @@
 #include "regs.h"
 #include "x64emu_private.h"
 #include "box64context.h"
-typedef struct x64emu_s x64emu_t;
 
 typedef struct rex_s {
     union {
@@ -37,79 +36,6 @@ typedef struct vex_s {
     uint16_t    m:5;    // opcode map
 } vex_t;
 
-static inline uint8_t Peek(x64emu_t *emu, int offset){return *(uint8_t*)(R_RIP + offset);}
-
-#ifdef TEST_INTERPRETER
-#define Push16(E, V)  do{E->regs[_SP].q[0] -=2; test->memsize = 2; *(uint16_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
-#define Push32(E, V)  do{E->regs[_SP].q[0] -=4; test->memsize = 4; *(uint32_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
-#define Push64(E, V)  do{E->regs[_SP].q[0] -=8; test->memsize = 8; *(uint64_t*)test->mem = (V); test->memaddr = E->regs[_SP].q[0];}while(0)
-#else
-static inline void Push16(x64emu_t *emu, uint16_t v)
-{
-    R_RSP -= 2;
-    *((uint16_t*)R_RSP) = v;
-}
-
-static inline void Push_32(x64emu_t *emu, uint32_t v)
-{
-    R_ESP -= 4;
-    *((uint32_t*)(uintptr_t)R_ESP) = v;
-}
-
-static inline void Push32(x64emu_t *emu, uint32_t v)
-{
-    R_RSP -= 4;
-    *((uint32_t*)R_RSP) = v;
-}
-
-static inline void Push64(x64emu_t *emu, uint64_t v)
-{
-    R_RSP -= 8;
-    *((uint64_t*)R_RSP) = v;
-}
-#endif
-
-static inline uint16_t Pop16(x64emu_t *emu)
-{
-    uint16_t* st = (uint16_t*)R_RSP;
-    R_RSP += 2;
-    return *st;
-}
-
-static inline uint32_t Pop_32(x64emu_t *emu)
-{
-    uint32_t* st = (uint32_t*)(uintptr_t)R_RSP;
-    R_ESP += 4;
-    return *st;
-}
-
-static inline uint32_t Pop32(x64emu_t *emu)
-{
-    uint32_t* st = (uint32_t*)R_RSP;
-    R_RSP += 4;
-    return *st;
-}
-
-static inline uint64_t Pop64(x64emu_t *emu)
-{
-    uint64_t* st = (uint64_t*)R_RSP;
-    R_RSP += 8;
-    return *st;
-}
-
-static inline void PushExit(x64emu_t* emu)
-{
-    R_RSP -= 8;
-    *((uint64_t*)R_RSP) = my_context->exit_bridge;
-}
-
-#ifdef BOX32
-static inline void PushExit_32(x64emu_t* emu)
-{
-    R_ESP -= 4;
-    *((ptr_t*)(uintptr_t)R_ESP) = my_context->exit_bridge;
-}
-#endif
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
 reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta);
