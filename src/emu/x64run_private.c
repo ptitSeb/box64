@@ -9,6 +9,7 @@
 #include <sys/syscall.h>
 #endif
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
