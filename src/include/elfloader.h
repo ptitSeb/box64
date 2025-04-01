@@ -96,4 +96,7 @@ void* GetNativeSymbolUnversioned(void* lib, const char* name);
 
 void AddMainElfToLinkmap(elfheader_t* lib);
 
+void PltResolver32(x64emu_t* emu);
+void PltResolver64(x64emu_t* emu);
+
 #endif //__ELF_LOADER_H_

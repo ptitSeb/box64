@@ -74,9 +74,6 @@ uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 // return Ib on a mod/rm opcode without emitting anything
 uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
-// Is what pointed at addr a native call? And if yes, to what function?
-int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
-
 // AVX utilities
 void avx_mark_zero(dynarec_native_t* dyn, int ninst, int reg);
 int is_avx_zero(dynarec_native_t* dyn, int ninst, int reg);
