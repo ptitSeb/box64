@@ -18,6 +18,7 @@
 #include "dynarec_native.h"
 #include "custommem.h"
 #include "elfloader.h"
+#include "x64test.h"
 
 #include "dynarec_arch.h"
 #include "dynarec_helper.h"

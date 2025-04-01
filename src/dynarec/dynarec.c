@@ -20,6 +20,7 @@
 #include "bridge.h"
 #include "dynarec_next.h"
 #include "custommem.h"
+#include "x64test.h"
 #endif
 #ifdef HAVE_TRACE
 #include "elfloader.h"
