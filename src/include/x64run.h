@@ -8,6 +8,4 @@ int Run(x64emu_t *emu, int step); // 0 if run was successfull, 1 if error in x86
 int RunTest(x64test_t *test);
 void DynaRun(x64emu_t *emu);
 
-int GetTID(void);
-
 #endif //__X64RUN_H_

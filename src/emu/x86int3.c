@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <signal.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"

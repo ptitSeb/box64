@@ -6,7 +6,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/syscall.h>
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
@@ -14,6 +13,7 @@
 #include <sys/wait.h>
 #include <elf.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
@@ -399,11 +399,6 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
         R_RIP = *addr;
     }
     //emu->quit = 1;
-}
-
-int GetTID()
-{
-    return syscall(SYS_gettid);
 }
 
 void print_rolling_log(int loglevel) {

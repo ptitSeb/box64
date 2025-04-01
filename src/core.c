@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #endif
 
+#include "os.h"
 #include "build_info.h"
 #include "debug.h"
 #include "fileutils.h"

@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <sys/mman.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"

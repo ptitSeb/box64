@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <setjmp.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64context.h"
 #include "dynarec.h"

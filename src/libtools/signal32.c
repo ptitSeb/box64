@@ -17,6 +17,7 @@
 #include <execinfo.h>
 #endif
 
+#include "os.h"
 #include "box32context.h"
 #include "debug.h"
 #include "x64emu.h"
