@@ -26,7 +26,7 @@
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
-#include "x64run.h"
+#include "box64cpu.h"
 #include "x64emu_private.h"
 #include "x64run_private.h"
 //#include "x64primop.h"

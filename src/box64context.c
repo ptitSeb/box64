@@ -21,7 +21,7 @@
 #include "signals.h"
 #include "gltools.h"
 #include "rbtree.h"
-#include "dynarec.h"
+#include "box64cpu.h"
 #ifdef BOX32
 #include "box32.h"
 #endif

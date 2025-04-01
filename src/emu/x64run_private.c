@@ -12,11 +12,11 @@
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
-#include "x64run.h"
+#include "box64cpu.h"
+#include "box64cpu_util.h"
 #include "x64run_private.h"
 #include "x64emu_private.h"
 #include "box64context.h"
-#include "x64run.h"
 #include "librarian.h"
 #include "elfloader.h"
 #ifdef HAVE_TRACE

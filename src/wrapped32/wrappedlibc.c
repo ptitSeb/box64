@@ -50,6 +50,7 @@
 
 #include "box64stack.h"
 #include "x64emu.h"
+#include "box64cpu.h"
 #include "debug.h"
 #include "wrapper32.h"
 #include "bridge.h"

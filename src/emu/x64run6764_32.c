@@ -10,8 +10,8 @@
 
 #include "debug.h"
 #include "box64stack.h"
+#include "box64cpu_util.h"
 #include "x64emu.h"
-#include "x64run.h"
 #include "x64emu_private.h"
 #include "x64run_private.h"
 #include "x64primop.h"
