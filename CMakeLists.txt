@@ -342,6 +342,10 @@ set_source_files_properties(
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
 
+set(OS_LINUX_SRC
+    "${BOX64_ROOT}/src/os/os_linux.c"
+)
+
 set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/main.c"
     "${BOX64_ROOT}/src/core.c"
@@ -1107,7 +1111,7 @@ if(DYNAREC)
     endif()
 endif()
 
-set_source_files_properties(${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS} ${WRAPPEDS32} PROPERTIES COMPILE_OPTIONS "${CFLAGS}")
+set_source_files_properties(${OS_LINUX_SRC} ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS} ${WRAPPEDS32} PROPERTIES COMPILE_OPTIONS "${CFLAGS}")
 
 # creates git_head.h
 if(DYNAREC)
@@ -1126,7 +1130,7 @@ endif()
 
 add_library(interpreter OBJECT ${INTERPRETER})
 
-add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} ${WRAPPEDS32} "${BOX64_ROOT}/src/git_head.h")
+add_executable(${BOX64} ${OS_LINUX_SRC} ${ELFLOADER_SRC} ${WRAPPEDS} ${WRAPPEDS32} "${BOX64_ROOT}/src/git_head.h")
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
 if(BOX32)

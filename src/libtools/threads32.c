@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <dlfcn.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box32context.h"
 #include "threads.h"

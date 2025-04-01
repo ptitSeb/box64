@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64context.h"
 #include "custommem.h"

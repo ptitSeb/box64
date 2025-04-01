@@ -4,6 +4,7 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64context.h"
 #include "dynarec.h"
