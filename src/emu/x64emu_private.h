@@ -2,6 +2,7 @@
 #define __X86EMU_PRIVATE_H_
 
 #include "regs.h"
+#include "os.h"
 
 typedef struct box64context_s box64context_t;
 typedef struct x64_ucontext_s x64_ucontext_t;
@@ -50,13 +51,6 @@ typedef struct emu_flags_s {
     uint32_t    longjmp:1;        // if quit because of longjmp
     uint32_t    jmpbuf_ready:1;   // the jmpbuf in the emu is ok and don't need refresh
 } emu_flags_t;
-
-#ifdef ANDROID
-#include <setjmp.h>
-#define JUMPBUFF sigjmp_buf
-#else
-#define JUMPBUFF struct __jmp_buf_tag
-#endif
 
 #define N_SCRATCH 200
 

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <setjmp.h>
-#include <sys/mman.h>
 
 #include "os.h"
 #include "debug.h"
@@ -182,17 +180,11 @@ dynablock_t *AddNewDynablock(uintptr_t addr)
     return block;
 }
 
-//TODO: move this to dynrec_arm.c and track allocated structure to avoid memory leak
-static __thread JUMPBUFF dynarec_jmpbuf;
-#ifdef ANDROID
-#define DYN_JMPBUF dynarec_jmpbuf
-#else
-#define DYN_JMPBUF &dynarec_jmpbuf
-#endif
+NEW_JUMPBUFF(dynarec_jmpbuf);
 
 void cancelFillBlock()
 {
-    longjmp(DYN_JMPBUF, 1);
+    LongJmp(GET_JUMPBUFF(dynarec_jmpbuf), 1);
 }
 
 /* 
@@ -235,7 +227,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
 
     // fill the block
     block->x64_addr = (void*)addr;
-    if(sigsetjmp(DYN_JMPBUF, 1)) {
+    if (SigSetJmp(GET_JUMPBUFF(dynarec_jmpbuf), 1)) {
         printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, canceling\n", (void*)addr);
         FreeDynablock(block, 0);
         if(need_lock)
@@ -280,8 +272,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
         return NULL;
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1, is32bits);
     if(db && db->done && db->block && getNeedTest(addr)) {
-        if(db->always_test)
-            sched_yield();  // just calm down...
+        if (db->always_test) SchedYield(); // just calm down...
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
         int need_lock = mutex_trylock(&my_context->mutex_dyndump);
         if(hash!=db->hash) {
@@ -318,8 +309,7 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr,
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, 1, is32bits);
     if(db && db->done && db->block && getNeedTest(filladdr)) {
-        if(db->always_test)
-            sched_yield();  // just calm down...
+        if (db->always_test) SchedYield(); // just calm down...
         int need_lock = mutex_trylock(&my_context->mutex_dyndump);
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
         if(hash!=db->hash) {

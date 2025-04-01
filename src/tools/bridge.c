@@ -7,7 +7,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-#include <wrappedlibs.h>
+#include "os.h"
+#include "wrappedlibs.h"
 #include "custommem.h"
 #include "bridge.h"
 #include "bridge_private.h"

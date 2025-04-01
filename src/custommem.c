@@ -9,6 +9,7 @@
 #include <syscall.h>
 #include <sys/personality.h>
 
+#include "os.h"
 #include "box64context.h"
 #include "elfloader.h"
 #include "debug.h"

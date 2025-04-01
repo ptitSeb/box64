@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <setjmp.h>
 
 #include "os.h"
 #include "debug.h"
@@ -168,9 +167,9 @@ void DynaRun(x64emu_t* emu)
             #endif
             emu->flags.jmpbuf_ready = 1;
             #ifdef ANDROID
-            if((skip=sigsetjmp(*(JUMPBUFF*)emu->jmpbuf, 1)))
+            if ((skip = SigSetJmp(*(JUMPBUFF*)emu->jmpbuf, 1)))
             #else
-            if((skip=sigsetjmp(emu->jmpbuf, 1)))
+            if ((skip = SigSetJmp(emu->jmpbuf, 1)))
             #endif
             {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);

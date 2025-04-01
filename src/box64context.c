@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 
+#include "os.h"
 #include "box64context.h"
 #include "debug.h"
 #include "elfloader.h"
