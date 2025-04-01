@@ -481,7 +481,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         u8 = F8;
                         ANDI(x2, wback, 3);
                         SLLI_D(x2, x2, 3);   // offset in bits
-                        ANDI(x3, wback, ~3); // aligned addr
+                        MV(x3, wback); // aligned addr
+                        BSTRINS_D(x3, xZR, 1, 0);
                         ADDI_D(x1, xZR, u8);
                         SLL_D(x1, x1, x2); // Ib << offset
                         AMOR_DB_W(x4, x1, x3);
