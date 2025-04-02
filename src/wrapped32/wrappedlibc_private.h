@@ -2048,7 +2048,7 @@ GO(wctob, iEu)
 // wctrans  // Weak
 // __wctrans_l
 // wctrans_l    // Weak
-//GOW(wctype, uEp)
+GOW(wctype, uEp)
 GO(__wctype_l, hEpa)
 GOW(wctype_l, hEpa)
 GO(wcwidth, iEu)
