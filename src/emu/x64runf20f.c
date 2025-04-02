@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
@@ -317,7 +318,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
             GETGX;
@@ -334,7 +335,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
             GETGX;
