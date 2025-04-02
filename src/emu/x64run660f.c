@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
@@ -708,7 +709,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETED(0);
                 // this is a privilege opcode...
                 #ifndef TEST_INTERPRETER
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
                 #endif
                 break;
 
@@ -1720,7 +1721,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         if(!BOX64ENV(cputype) || (nextop&0xC0)>>3) {
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
             GETEX(2);
@@ -1735,7 +1736,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
             GETGX;

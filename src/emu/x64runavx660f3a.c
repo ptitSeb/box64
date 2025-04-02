@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
@@ -98,7 +99,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETEY;
             u8 = F8;
-            if(!vex.l)  emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l)  EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
@@ -183,7 +184,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             u8 = F8;
-            if(!vex.l) emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
@@ -776,7 +777,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             u8 = F8;
-            if(!vex.l) emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;

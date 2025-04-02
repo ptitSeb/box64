@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "box64cpu_util.h"
@@ -94,19 +95,19 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 case 0xC8:  /* MONITOR */
                     // this is a privilege opcode...
                     #ifndef TEST_INTERPRETER
-                    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
                     #endif
                     break;
                 case 0xC9:  /* MWAIT */
                     // this is a privilege opcode...
                     #ifndef TEST_INTERPRETER
-                    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+                    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
                     #endif
                     break;
                 case 0xD0:
                     if(R_RCX) {
                         #ifndef TEST_INTERPRETER
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                        EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
                         #endif
                     } else {
                         R_RAX = 0b111;   // x87 & SSE & AVX for now
@@ -169,7 +170,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x06:                      /* CLTS */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
             #endif
             break;
 
@@ -177,13 +178,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x09:                      /* WBINVD */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
             #endif
             break;
 
         case 0x0B:                      /* UD2 */
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
             break;
 
@@ -206,7 +207,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0x0E:                      /* FEMMS */
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
             break;
 
@@ -294,7 +295,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x23:                      /* MOV drX, REG */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
             #endif
             break;
 
@@ -395,7 +396,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x30:                      /* WRMSR */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0);
             #endif
             break;
         case 0x31:                   /* RDTSC */
@@ -408,20 +409,20 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x32:                   /* RDMSR */
             // priviledge instruction
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
 
         case 0x34:                  /* SYSENTER */
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
         case 0x35:                  /* SYSEXIT */
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -695,7 +696,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
         case 0x3F:
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
             break;
         GOCOND(0x40

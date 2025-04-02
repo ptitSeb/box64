@@ -825,12 +825,12 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     break;
                 case 6:                 /* DIV Eb */
                     if(!EB->byte[0])
-                        emit_div0(emu, (void*)R_RIP, 1);
+                        EmitDiv0(emu, (void*)R_RIP, 1);
                     div8(emu, EB->byte[0]);
                     break;
                 case 7:                 /* IDIV Eb */
                     if(!EB->byte[0])
-                        emit_div0(emu, (void*)R_RIP, 1);
+                        EmitDiv0(emu, (void*)R_RIP, 1);
                     idiv8(emu, EB->byte[0]);
                     break;
             }

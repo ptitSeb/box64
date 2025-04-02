@@ -55,7 +55,6 @@ void native_clflush(x64emu_t* emu, void* p);
 void native_ud(x64emu_t* emu);
 void native_br(x64emu_t* emu);
 void native_priv(x64emu_t* emu);
-void native_singlestep(x64emu_t* emu);
 void native_int3(x64emu_t* emu);
 void native_int(x64emu_t* emu, int num);
 void native_div0(x64emu_t* emu);

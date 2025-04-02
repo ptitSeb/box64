@@ -1,6 +1,9 @@
 #ifndef __SIGNALS_H__
 #define __SIGNALS_H__
+#include <stdint.h>
 #include <signal.h>
+
+#include "box64context.h"
 
 typedef void (*sighandler_t)(int);
 

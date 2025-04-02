@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64context.h"
 #include "box64cpu.h"
@@ -185,42 +186,37 @@ void native_ud(x64emu_t* emu)
 {
     if(BOX64ENV(dynarec_test))
         emu->test.test = 0;
-    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+    EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
 }
 
 void native_br(x64emu_t* emu)
 {
     if(BOX64ENV(dynarec_test))
         emu->test.test = 0;
-    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xb09d);
+    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xb09d);
 }
 
 void native_priv(x64emu_t* emu)
 {
     emu->test.test = 0;
-    emit_signal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
 }
 
 void native_int(x64emu_t* emu, int num)
 {
     emu->test.test = 0;
-    emit_interruption(emu, num, (void*)R_RIP);
-}
-
-void native_singlestep(x64emu_t* emu)
-{
-    emit_signal(emu, SIGTRAP, (void*)R_RIP, 1);
+    EmitInterruption(emu, num, (void*)R_RIP);
 }
 
 void native_int3(x64emu_t* emu)
 {
-    emit_signal(emu, SIGTRAP, NULL, 3);
+    EmitSignal(emu, SIGTRAP, NULL, 3);
 }
 
 void native_div0(x64emu_t* emu)
 {
     emu->test.test = 0;
-    emit_div0(emu,  (void*)R_RIP, 1);
+    EmitDiv0(emu, (void*)R_RIP, 1);
 }
 
 void native_fsave(x64emu_t* emu, uint8_t* ed)
