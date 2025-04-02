@@ -1023,11 +1023,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 1);
                     u8 = F8&0b1111;
-                    if(u8==0b0011) {
+                    if((u8&0b0011)==0b0011) {
                         VMOVeD(q0, 0, q1, 0);
                         u8&=~0b0011;
                     }
-                    if(u8==0b1100) {
+                    if((u8&0b1100)==0b1100) {
                         VMOVeD(q0, 1, q1, 1);
                         u8&=~0b1100;
                     }
