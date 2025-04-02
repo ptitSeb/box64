@@ -279,11 +279,15 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else {
                 if(q0!=q2)
                     VMOVQ(q0, q2);
-                if((u8&15)==0b0011) {
+                if((u8&0b0011)==0b0011) {
                     VMOVeD(q0, 0, q1, 0);
-                } else if((u8&15)==0b1100) {
+                    u8&=~0b0011;
+                } 
+                if((u8&0b1100)==0b1100) {
                     VMOVeD(q0, 1, q1, 1);
-                } else for(int i=0; i<4; ++i)
+                    u8&=~0b1100;
+                } 
+                for(int i=0; i<4; ++i)
                     if(u8&(1<<i)) {
                         VMOVeS(q0, i, q1, i);
                     }
@@ -301,11 +305,15 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 } else {
                     if(q0!=q2)
                         VMOVQ(q0, q2);
-                    if((u8>>4)==0b0011) {
+                    if(((u8>>4)&0b0011)==0b0011) {
                         VMOVeD(q0, 0, q1, 0);
-                    } else if((u8>>4)==0b1100) {
+                        u8&=~0b00110000;
+                    } 
+                    if(((u8>>4)&0b1100)==0b1100) {
                         VMOVeD(q0, 1, q1, 1);
-                    } else for(int i=0; i<4; ++i)
+                        u8&=~0b11000000;
+                    }
+                    for(int i=0; i<4; ++i)
                         if(u8&(1<<(i+4))) {
                             VMOVeS(q0, i, q1, i);
                         }
