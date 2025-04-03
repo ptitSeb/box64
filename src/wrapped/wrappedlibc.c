@@ -47,6 +47,7 @@
 
 #include "wrappedlibs.h"
 
+#include "os.h"
 #include "box64stack.h"
 #include "x64emu.h"
 #include "box64cpu.h"
@@ -3540,7 +3541,7 @@ EXPORT int my_backtrace_ip(x64emu_t* emu, void** buffer, int size)
             if (++idx < size) buffer[idx] = (void*)ret_addr;
         } else if (!success) {
             if(getProtection((uintptr_t)addr)&(PROT_READ)) {
-                if(getProtection((uintptr_t)addr-19) && *(uint8_t*)(addr-19)==0xCC && *(uint8_t*)(addr-19+1)=='S' && *(uint8_t*)(addr-19+2)=='C') {
+                if (getProtection((uintptr_t)addr - 19) && *(uint8_t*)(addr - 19) == 0xCC && IsBridgeSignature(*(uint8_t*)(addr - 19 + 1), *(uint8_t*)(addr - 19 + 2))) {
                     buffer[idx-1] = (void*)(addr-19);
                     success = 2;
                     if(idx==1)

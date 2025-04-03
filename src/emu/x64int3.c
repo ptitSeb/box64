@@ -20,6 +20,7 @@
 #include "box64cpu.h"
 #include "x64emu_private.h"
 #include "x64run_private.h"
+#include "x64int_private.h"
 #include "x87emu_private.h"
 #include "x64primop.h"
 #include "x64trace.h"
@@ -95,8 +96,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
         return;
     }
     onebridge_t* bridge = (onebridge_t*)(*addr-1);
-    if(bridge->S=='S' && bridge->C=='C') // Signature for "Out of x86 door"
-    {
+    if (IsBridgeSignature(bridge->S, bridge->C)) { // Signature for "Out of x86 door"
         *addr += 2;
         uintptr_t a = F64(addr);
         if(a==0) {

@@ -178,12 +178,6 @@ uintptr_t TestAVX_F20F3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F30F38(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F30F3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 
-void x64Syscall(x64emu_t *emu);
-void x64Int3(x64emu_t* emu, uintptr_t* addr);
-x64emu_t* x64emu_fork(x64emu_t* e, int forktype);
-void x86Syscall(x64emu_t *emu); //32bits syscall
-void x86Int3(x64emu_t* emu, uintptr_t* addr);
-
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 #define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)
 #define GetFSBaseEmu(emu)    GetSegmentBaseEmu(emu, _FS)

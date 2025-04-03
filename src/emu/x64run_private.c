@@ -1260,7 +1260,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
             mutex_unlock(&my_context->mutex_trace);
             return;
         }
-        if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
+        if (PK(0) == 0xcc && IsBridgeSignature(PK(1), PK(2))) {
             uint64_t a = *(uint64_t*)(ip+3);
             if(a==0) {
                 printf_log(LOG_NONE, "%p: Exit x86emu\n", (void*)ip);

@@ -4,11 +4,11 @@
 #include <errno.h>
 #include <signal.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64context.h"
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
-#include "emu/x64run_private.h"
 #include "la64_emitter.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -1921,7 +1921,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             SKIPTEST(x1);
-            if (PK(0) == 'S' && PK(1) == 'C') {
+            if (IsBridgeSignature(PK(0), PK(1))) {
                 addr += 2;
                 BARRIER(BARRIER_FLOAT);
                 INST_NAME("Special Box64 instruction");
@@ -1942,7 +1942,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETIP(ip + 1); // read the 0xCC
                     STORE_XEMU_CALL();
                     ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                    CALL_S(x64Int3, -1);
+                    CALL_S(EmuInt3, -1);
                     LOAD_XEMU_CALL();
                     addr += 8 + 8;
                     TABLE64(x3, addr); // expected return address
@@ -1988,7 +1988,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMEND();
                 GETIP(addr);
                 STORE_XEMU_CALL();
-                CALL_S(x86Syscall, -1);
+                CALL_S(EmuX86Syscall, -1);
                 LOAD_XEMU_CALL();
                 TABLE64(x3, addr); // expected return address
                 BNE_MARK(xRIP, x3);
@@ -2329,7 +2329,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #endif
             }
 #if STEP < 2
-            if (!rex.is32bits && isNativeCall(addr + i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+            if (!rex.is32bits && IsNativeCall(addr + i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else
                 tmp = dyn->insts[ninst].pass2choice = 0;
@@ -2369,7 +2369,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
                         STORE_XEMU_CALL();
                         ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                        CALL_S(x64Int3, -1);
+                        CALL_S(EmuInt3, -1);
                         LOAD_XEMU_CALL();
                         TABLE64(x3, dyn->insts[ninst].natcall);
                         ADDI_D(x3, x3, 2 + 8 + 8);

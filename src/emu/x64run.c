@@ -27,11 +27,6 @@
 
 #include "modrm.h"
 
-int my_setcontext(x64emu_t* emu, void* ucp);
-#ifdef BOX32
-int my32_setcontext(x64emu_t* emu, void* ucp);
-#endif
-
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
 #else
@@ -1529,7 +1524,7 @@ x64emurun:
         case 0xCC:                      /* INT 3 */
             R_RIP = addr;   // update RIP
             #ifndef TEST_INTERPRETER
-            x64Int3(emu, &addr);
+            EmuInt3(emu, &addr);
             if(emu->quit) goto fini;    // R_RIP is up to date when returning from x64Int3
             addr = R_RIP;
             #endif
@@ -1554,7 +1549,7 @@ x64emurun:
                     tf_next = 1;
                 // 32bits syscall
                 #ifndef TEST_INTERPRETER
-                x86Syscall(emu);
+                EmuX86Syscall(emu);
                 STEP2;
                 #endif
             } else if (tmp8u==0x03) {
@@ -2303,7 +2298,7 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
         int forktype = emu->fork;
         emu->quit = 0;
         emu->fork = 0;
-        emu = x64emu_fork(emu, forktype);
+        emu = EmuFork(emu, forktype);
         if(step)
             return 0;
         goto x64emurun;
