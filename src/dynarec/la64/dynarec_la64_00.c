@@ -1942,7 +1942,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETIP(ip + 1); // read the 0xCC
                     STORE_XEMU_CALL();
                     ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                    CALL_S(NativeCall, -1);
+                    CALL_S(EmuInt3, -1);
                     LOAD_XEMU_CALL();
                     addr += 8 + 8;
                     TABLE64(x3, addr); // expected return address
@@ -2369,7 +2369,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
                         STORE_XEMU_CALL();
                         ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                        CALL_S(NativeCall, -1);
+                        CALL_S(EmuInt3, -1);
                         LOAD_XEMU_CALL();
                         TABLE64(x3, dyn->insts[ninst].natcall);
                         ADDI_D(x3, x3, 2 + 8 + 8);

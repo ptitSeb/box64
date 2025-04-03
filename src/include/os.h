@@ -9,14 +9,15 @@ void EmitSignal(void* emu, int sig, void* addr, int code);
 void EmitDiv0(void* emu, void* addr, int code);
 void EmitInterruption(void* emu, int num, void* addr);
 
-// These functions only applies to Linux
-int IsBridgeSignature(char s, char c);
-int IsNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
-void NativeCall(void* emu, void* addr);
-void* EmuFork(void* emu, int forktype);
-
 void EmuX64Syscall(void* emu);
 void EmuX86Syscall(void* emu);
+
+// These functions only applies to Linux --------------------------
+int IsBridgeSignature(char s, char c);
+int IsNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
+void EmuInt3(void* emu, void* addr);
+void* EmuFork(void* emu, int forktype);
+// ----------------------------------------------------------------
 
 #ifndef _WIN32
 #include <setjmp.h>

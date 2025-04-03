@@ -38,7 +38,7 @@ int IsBridgeSignature(char s, char c)
     return s == 'S' && c == 'C';
 }
 
-void NativeCall(void* emu, void* addr)
+void EmuInt3(void* emu, void* addr)
 {
     return x64Int3((x64emu_t*)emu, (uintptr_t*)addr);
 }

@@ -2578,7 +2578,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STORE_XEMU_CALL(xRIP);
                         ADDx_U12(x3, xRIP, 8+8);    // expected return address
                         ADDx_U12(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                        CALL_(NativeCall, -1, x3);
+                        CALL_(EmuInt3, -1, x3);
                         SMWRITE2();
                         LOAD_XEMU_CALL(xRIP);
                         addr+=8+8;
@@ -3346,7 +3346,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
                         STORE_XEMU_CALL(xRIP);
                         ADDx_U12(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                        CALL_S(NativeCall, -1);
+                        CALL_S(EmuInt3, -1);
                         SMWRITE2();
                         LOAD_XEMU_CALL(xRIP);
                         MOV64x(x3, dyn->insts[ninst].natcall);

@@ -1524,7 +1524,7 @@ x64emurun:
         case 0xCC:                      /* INT 3 */
             R_RIP = addr;   // update RIP
             #ifndef TEST_INTERPRETER
-            NativeCall(emu, &addr);
+            EmuInt3(emu, &addr);
             if(emu->quit) goto fini;    // R_RIP is up to date when returning from x64Int3
             addr = R_RIP;
             #endif
