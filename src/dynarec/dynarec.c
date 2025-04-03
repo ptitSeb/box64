@@ -18,6 +18,7 @@
 #include "dynablock.h"
 #include "dynablock_private.h"
 #include "bridge.h"
+#include "alternate.h"
 #include "dynarec_next.h"
 #include "custommem.h"
 #include "x64test.h"

@@ -382,6 +382,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
     "${BOX64_ROOT}/src/tools/bridge.c"
+    "${BOX64_ROOT}/src/tools/alternate.c"
     "${BOX64_ROOT}/src/tools/callback.c"
     "${BOX64_ROOT}/src/tools/gdbjit.c"
     "${BOX64_ROOT}/src/tools/my_cpuid.c"

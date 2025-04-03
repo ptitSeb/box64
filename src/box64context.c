@@ -15,6 +15,7 @@
 #include "threads.h"
 #include "x64trace.h"
 #include "bridge.h"
+#include "alternate.h"
 #include "librarian.h"
 #include "library.h"
 #include "wrapper.h"

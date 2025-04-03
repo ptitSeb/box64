@@ -18,6 +18,7 @@
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "custommem.h"
+#include "alternate.h"
 
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"

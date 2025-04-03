@@ -7,6 +7,7 @@
 #include "wrappedlibs.h"
 
 #include "bridge.h"
+#include "alternate.h"
 #include "debug.h"
 #include "callback.h"
 #include "librarian.h"
