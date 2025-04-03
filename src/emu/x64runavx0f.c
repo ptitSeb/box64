@@ -385,17 +385,29 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                nanmask[i] = isnan(VX->f[i]) || isnan(EX->f[i]);
+                if (isnan(VX->f[i]) || isnan(EX->f[i])) {
+                    if (isnan(VX->f[i]))
+                        GX->f[i] = VX->f[i];
+                    else
+                        GX->f[i] = EX->f[i];
+                    continue;
+                }
                 GX->f[i] = VX->f[i] + EX->f[i];
-                if(!nanmask[i] && isnan(GX->f[i])) GX->f[i] = -NAN;
+                if(isnan(GX->f[i])) GX->f[i] = -NAN;
             }
             if(vex.l) {
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    nanmask[i] = isnan(VY->f[i]) || isnan(EY->f[i]);
+                    if (isnan(VY->f[i]) || isnan(EY->f[i])) {
+                        if (isnan(VY->f[i]))
+                            GY->f[i] = VY->f[i];
+                        else
+                            GY->f[i] = EY->f[i];
+                        continue;
+                    }
                     GY->f[i] = VY->f[i] + EY->f[i];
-                    if(!nanmask[i] && isnan(GY->f[i])) GY->f[i] = -NAN;
+                    if(isnan(GY->f[i])) GY->f[i] = -NAN;
                 }
             } else
                 GY->u128 = 0;
