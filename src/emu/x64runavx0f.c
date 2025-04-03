@@ -53,6 +53,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
     uint8_t maskps[4];
+    uint8_t nanmask[4];
 
 #ifdef TEST_INTERPRETER
     x64emu_t *emu = test->emu;
@@ -384,29 +385,17 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                if (isnan(VX->f[i]) || isnan(EX->f[i])) {
-                    if (isnan(VX->f[i]))
-                        GX->f[i] = VX->f[i];
-                    else
-                        GX->f[i] = EX->f[i];
-                    continue;
-                }
+                nanmask[i] = isnan(VX->f[i]) || isnan(EX->f[i]);
                 GX->f[i] = VX->f[i] + EX->f[i];
-                if (isnan(GX->f[i])) GX->ud[i] |= 0x80000000;
+                if(!nanmask[i] && isnan(GX->f[i])) GX->f[i] = -NAN;
             }
             if(vex.l) {
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    if (isnan(VY->f[i]) || isnan(EY->f[i])) {
-                        if (isnan(VY->f[i]))
-                            GY->f[i] = VY->f[i];
-                        else
-                            GY->f[i] = EY->f[i];
-                        continue;
-                    }
+                    nanmask[i] = isnan(VY->f[i]) || isnan(EY->f[i]);
                     GY->f[i] = VY->f[i] + EY->f[i];
-                    if (isnan(GY->f[i])) GY->ud[i] |= 0x80000000;
+                    if(!nanmask[i] && isnan(GY->f[i])) GY->f[i] = -NAN;
                 }
             } else
                 GY->u128 = 0;

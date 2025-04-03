@@ -49,6 +49,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
     int is_nan;
+    int mask_nan[4];
 
 
 #ifdef TEST_INTERPRETER
@@ -220,22 +221,18 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX; GETGY;
             for (int i=0; i<2; ++i) {
-                #ifndef NOALIGN
                 if(EX->d[i]<0.0)        // on x86, default nan are negative
                     GX->d[i] = -NAN;    // but input NAN are not touched (so sqrt(+nan) -> +nan)
                 else
-                #endif
-                GX->d[i] = sqrt(EX->d[i]);
+                    GX->d[i] = sqrt(EX->d[i]);
             }
             if(vex.l) {
                 GETEY;
                 for (int i=0; i<2; ++i) {
-                    #ifndef NOALIGN
                     if(EY->d[i]<0.0)
                         GY->d[i] = -NAN;
                     else
-                    #endif
-                    GY->d[i] = sqrt(EY->d[i]);
+                        GY->d[i] = sqrt(EY->d[i]);
                 }
             } else
                 GY->u128 = 0;
@@ -306,14 +303,20 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETVX;
-            GX->d[0] = VX->d[0] + EX->d[0];
-            GX->d[1] = VX->d[1] + EX->d[1];
+            MARK_NAN_VD_2(VX, EX);
+            for(int i=0; i<2; ++i) {
+                GX->d[i] = VX->d[i] + EX->d[i];
+            }
+            CHECK_NAN_VD(GX);
             GETGY;
             if(vex.l) {
                 GETEY;
                 GETVY;
-                GY->d[0] = VY->d[0] + EY->d[0];
-                GY->d[1] = VY->d[1] + EY->d[1];
+                MARK_NAN_VD_2(VY, EY);
+                for(int i=0; i<2; ++i) {
+                    GY->d[i] = VY->d[i] + EY->d[i];
+                }
+                CHECK_NAN_VD(GY);
             } else {
                 GY->u128 = 0;
             }
@@ -324,27 +327,19 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
+            MARK_NAN_VD_2(VX, EX);
             for(int i=0; i<2; ++i) {
-                #ifndef NOALIGN
-                    // mul generate a -NAN only if doing (+/-)inf * (+/-)0
-                    if((isinf(VX->d[i]) && EX->d[i]==0.0) || (isinf(EX->d[i]) && VX->d[i]==0.0))
-                        GX->d[i] = -NAN;
-                    else
-                #endif
                 GX->d[i] = VX->d[i] * EX->d[i];
             }
+            CHECK_NAN_VD(GX);
             if(vex.l) {
                 GETEY;
                 GETVY;
+                MARK_NAN_VD_2(VY, EY);
                 for(int i=0; i<2; ++i) {
-                    #ifndef NOALIGN
-                        // mul generate a -NAN only if doing (+/-)inf * (+/-)0
-                        if((isinf(VY->d[i]) && EY->d[i]==0.0) || (isinf(EY->d[i]) && VY->d[i]==0.0))
-                            GY->d[i] = -NAN;
-                        else
-                    #endif
                     GY->d[i] = VY->d[i] * EY->d[i];
                 }
+                CHECK_NAN_VD(GY);
             } else
                 GY->u128 = 0;
             break;
@@ -474,29 +469,19 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
+            MARK_NAN_VD_2(VX, EX);
             for (int i=0; i<2; ++i) {
-                #ifndef NOALIGN
-                is_nan = isnan(VX->d[i]) || isnan(EX->d[i]);
-                #endif
                 GX->d[i] = VX->d[i] / EX->d[i];
-                #ifndef NOALIGN
-                if(!is_nan && isnan(GX->d[i]))
-                    GX->d[i] = -NAN;
-                #endif
             }
+            CHECK_NAN_VD(GX);
             if(vex.l) {
                 GETEY;
                 GETVY;
+                MARK_NAN_VD_2(VY, EY);
                 for (int i=0; i<2; ++i) {
-                    #ifndef NOALIGN
-                    is_nan = isnan(VY->d[i]) || isnan(EY->d[i]);
-                    #endif
                     GY->d[i] = VY->d[i] / EY->d[i];
-                    #ifndef NOALIGN
-                    if(!is_nan && isnan(GY->d[i]))
-                        GY->d[i] = -NAN;
-                    #endif
                 }
+                CHECK_NAN_VD(GY);
             } else
                 GY->u128 = 0;
             break;
@@ -1107,25 +1092,17 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 eax1 = *EX;
                 EX = &eax1;
             }
-            #ifndef NOALIGN
             is_nan = isnan(VX->d[0]) || isnan(VX->d[1]);
-            #endif
             GX->d[0] = VX->d[0] + VX->d[1];
-            #ifndef NOALIGN
             if(!is_nan && isnan(GX->d[0]))
                 GX->d[0] = -NAN;
-            #endif
             if(EX==VX) {
                 GX->d[1] = GX->d[0];
             } else {
-                #ifndef NOALIGN
                 is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
-                #endif
                 GX->d[1] = EX->d[0] + EX->d[1];
-                #ifndef NOALIGN
                 if(!is_nan && isnan(GX->d[1]))
                     GX->d[1] = -NAN;
-                #endif
             }
             if(vex.l) {
                 if(GY==EY) {
@@ -1133,25 +1110,17 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     EY = &eay1;
                 }
                 GETVY;
-                #ifndef NOALIGN
                 is_nan = isnan(VY->d[0]) || isnan(VY->d[1]);
-                #endif
                 GY->d[0] = VY->d[0] + VY->d[1];
-                #ifndef NOALIGN
                 if(!is_nan && isnan(GY->d[0]))
                     GY->d[0] = -NAN;
-                #endif
                 if(EY==VY) {
                     GY->d[1] = GY->d[0];
                 } else {
-                    #ifndef NOALIGN
                     is_nan = isnan(EY->d[0]) || isnan(EY->d[1]);
-                    #endif
                     GY->d[1] = EY->d[0] + EY->d[1];
-                    #ifndef NOALIGN
                     if(!is_nan && isnan(GY->d[1]))
                         GY->d[1] = -NAN;
-                    #endif
                 }
             } else
                 GY->u128 = 0;
@@ -1167,25 +1136,17 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 eax1 = *EX;
                 EX = &eax1;
             }
-            #ifndef NOALIGN
             is_nan = isnan(VX->d[0]) || isnan(VX->d[1]);
-            #endif
             GX->d[0] = VX->d[0] - VX->d[1];
-            #ifndef NOALIGN
             if(!is_nan && isnan(GX->d[0]))
                 GX->d[0] = -NAN;
-            #endif
             if(EX==VX) {
                 GX->d[1] = GX->d[0];
             } else {
-                #ifndef NOALIGN
                 is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
-                #endif
                 GX->d[1] = EX->d[0] - EX->d[1];
-                #ifndef NOALIGN
                 if(!is_nan && isnan(GX->d[1]))
                     GX->d[1] = -NAN;
-                #endif
             }
             if(vex.l) {
                 if(GY==EY) {
@@ -1193,25 +1154,17 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     EY = &eay1;
                 }
                 GETVY;
-                #ifndef NOALIGN
                 is_nan = isnan(VY->d[0]) || isnan(VY->d[1]);
-                #endif
                 GY->d[0] = VY->d[0] - VY->d[1];
-                #ifndef NOALIGN
                 if(!is_nan && isnan(GY->d[0]))
                     GY->d[0] = -NAN;
-                #endif
                 if(EY==VY) {
                     GY->d[1] = GY->d[0];
                 } else {
-                    #ifndef NOALIGN
                     is_nan = isnan(EY->d[0]) || isnan(EY->d[1]);
-                    #endif
                     GY->d[1] = EY->d[0] - EY->d[1];
-                    #ifndef NOALIGN
                     if(!is_nan && isnan(GY->d[1]))
                         GY->d[1] = -NAN;
-                    #endif
                 }
             } else
                 GY->u128 = 0;
@@ -1347,13 +1300,17 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
+            MARK_NAN_VD_2(VX, EX);
             GX->d[0] = VX->d[0] - EX->d[0];
             GX->d[1] = VX->d[1] + EX->d[1];
+            CHECK_NAN_VD(GX);
             if(vex.l) {
                 GETEY;
                 GETVY;
+                MARK_NAN_VD_2(VY, EY);
                 GY->d[0] = VY->d[0] - EY->d[0];
                 GY->d[1] = VY->d[1] + EY->d[1];
+                CHECK_NAN_VD(GY);
             } else
                 GY->u128 = 0;
             break;

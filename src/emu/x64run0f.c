@@ -752,15 +752,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX;
-            for(int i=0; i<4; ++i)
-                GX->ud[i] &= EX->ud[i];
+            GX->u128 &= EX->u128;
             break;
         case 0x55:                      /* ANDNPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
-            for(int i=0; i<4; ++i)
-                GX->ud[i] = (~GX->ud[i]) & EX->ud[i];
+            GX->u128 = (~GX->u128) & EX->u128;
             break;
         case 0x56:                      /* ORPS Gx, Ex */
             nextop = F8;

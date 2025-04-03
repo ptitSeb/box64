@@ -43,6 +43,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
     #ifdef TEST_INTERPRETER
     x64emu_t* emu = test->emu;
     #endif
+    int is_nan;
     uintptr_t tlsdata = GetSegmentBaseEmu(emu, seg);
 
     opcode = F8;
@@ -217,8 +218,10 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             nextop = F8;
                             GETEX_OFFS(0, tlsdata);
                             GETGX;
+                            is_nan = isnanf(GX->f[0]) || isnanf(EX->f[0]);
                             NAN_PROPAGATION(GX->f[0], EX->f[0], break);
                             GX->f[0] += EX->f[0];
+                            if(!is_nan && isnanf(GX->f[0])) GX->f[0] = -NAN;
                             break;
 
                         default:
