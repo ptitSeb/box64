@@ -837,7 +837,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             u8 = F8;
             MOV32w(x4, u8);
             CALL(native_aeskeygenassist, -1);
-            if(!vex.l) YMM0(gd);
+            YMM0(gd);
             break;
 
         default:

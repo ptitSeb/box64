@@ -1944,7 +1944,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 MOV32w(x1, gd);
                 CALL(native_aesimc, -1);
             }
-            if(!vex.l) YMM0(gd);
+            YMM0(gd);
             break;
 
         case 0xDC:
@@ -1984,7 +1984,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(vex.l) {
                     GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
                     VEORQ(v0, v0, (d0==-1)?v1:d0);
-                } else YMM0(gd);
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
@@ -2024,7 +2024,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(vex.l) {
                     GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
                     VEORQ(v0, v0, (d0==-1)?v1:d0);
-                } else YMM0(gd);
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
@@ -2065,7 +2065,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(vex.l) {
                     GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
                     VEORQ(v0, v0, (d0==-1)?v1:d0);
-                } else YMM0(gd);
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
@@ -2105,7 +2105,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(vex.l) {
                     GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
                     VEORQ(v0, v0, (d0==-1)?v1:d0);
-                } else YMM0(gd);
+                }
             }
             if(!vex.l) YMM0(gd);
             break;
