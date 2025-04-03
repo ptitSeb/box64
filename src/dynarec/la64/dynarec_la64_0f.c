@@ -687,10 +687,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (!BOX64ENV(dynarec_fastnan) && v0 != v1) {
                 q0 = fpu_get_scratch(dyn);
                 q1 = fpu_get_scratch(dyn);
-                VFCMP_S(q0, v1, v0, cUEQ); // un eq , if either v0/v1=nan ,choose v1. if eq either is ok,but when +0.0 == -0.0 x86 sse choose v1
-                VFCMP_S(q1, v0, v1, cLT);
-                VOR_V(q0, q0, q1);
-                VBITSEL_V(v0, v0, v1, q0);
+                VFCMP_S(q0, v1, v0, cLT);  // ~cLT = un ge eq, if either v0/v1=nan ,choose v1. if eq either is ok,but when +0.0 == -0.0 x86 sse choose v1
+                VBITSEL_V(v0, v1, v0, q0); // swap v0 v1 => v1 v0 for ~cLT
             } else {
                 VFMAX_S(v0, v0, v1);
             }
