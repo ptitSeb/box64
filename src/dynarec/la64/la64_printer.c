@@ -2204,6 +2204,98 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "VST", Vt[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
     }
+    if (isMask(opcode, "000011010001aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VBITSEL.V", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CAF.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SAF.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CLT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SLT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CLE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SLE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUN.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUN.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CULT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SULT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CULE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SULE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.COR.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SOR.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
     if (isMask(opcode, "00000000000000001000000000101000", &a)) {
         snprintf(buff, sizeof(buff), "X64CLRSM");
         return buff;

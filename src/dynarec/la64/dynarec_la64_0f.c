@@ -652,13 +652,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(v1, 0, 0);
             if (!BOX64ENV(dynarec_fastnan) && v0 != v1) {
                 q0 = fpu_get_scratch(dyn);
-                // always copy from v1 if any oprand is NaN
-                VFCMP_S(q0, v0, v1, cUN);
-                VANDN_V(v0, q0, v0);
-                VAND_V(q0, q0, v1);
-                VOR_V(v0, v0, q0);
+                VFCMP_S(q0, v1, v0, cULE);
+                VBITSEL_V(v0, v0, v1, q0);
+            } else {
+                VFMIN_S(v0, v0, v1);
             }
-            VFMIN_S(v0, v0, v1);
             break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
@@ -688,13 +686,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(v1, 0, 0);
             if (!BOX64ENV(dynarec_fastnan) && v0 != v1) {
                 q0 = fpu_get_scratch(dyn);
-                // always copy from v1 if any oprand is NaN
-                VFCMP_S(q0, v0, v1, cUN);
-                VANDN_V(v0, q0, v0);
-                VAND_V(q0, q0, v1);
-                VOR_V(v0, v0, q0);
+                q1 = fpu_get_scratch(dyn);
+                VFCMP_S(q0, v1, v0, cUEQ); // un eq , if either v0/v1=nan ,choose v1. if eq either is ok,but when +0.0 == -0.0 x86 sse choose v1
+                VFCMP_S(q1, v0, v1, cLT);
+                VOR_V(q0, q0, q1);
+                VBITSEL_V(v0, v0, v1, q0);
+            } else {
+                VFMAX_S(v0, v0, v1);
             }
-            VFMAX_S(v0, v0, v1);
             break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
