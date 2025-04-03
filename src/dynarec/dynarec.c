@@ -229,7 +229,7 @@ void DynaRun(x64emu_t* emu)
                 int forktype = emu->fork;
                 emu->quit = 0;
                 emu->fork = 0;
-                emu = x64emu_fork(emu, forktype);
+                emu = EmuFork(emu, forktype);
             }
         }
 #endif

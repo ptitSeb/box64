@@ -239,7 +239,7 @@ const char* getBridgeName(void* addr)
     if(!(getProtection((uintptr_t)addr)&PROT_READ))
         return NULL;
     onebridge_t* one = (onebridge_t*)(((uintptr_t)addr&~(sizeof(onebridge_t)-1)));   // align to start of bridge
-    if(one->C3==0xC3 && one->S=='S' && one->C=='C') {
+    if (one->C3 == 0xC3 && IsBridgeSignature(one->S, one->C)) {
         if(one->w==NULL)
             return "ExitEmulation";
         else
@@ -302,7 +302,7 @@ void fini_bridge_helper()
     cleanAlternate();
 }
 
-int isNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
+int isNativeCallInternal(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
 {
     if (is32bits)
         addr &= 0xFFFFFFFFLL;
@@ -319,7 +319,7 @@ int isNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t*
     if (!addr || !getProtection(addr))
         return 0;
     onebridge_t* b = (onebridge_t*)(addr);
-    if (b->CC == 0xCC && b->S == 'S' && b->C == 'C' && b->w != (wrapper_t)0 && b->f != (uintptr_t)PltResolver64) {
+    if (b->CC == 0xCC && IsBridgeSignature(b->S, b->C) && b->w != (wrapper_t)0 && b->f != (uintptr_t)PltResolver64) {
         // found !
         if (retn) *retn = (b->C3 == 0xC2) ? b->N : 0;
         if (calladdress) *calladdress = addr + 1;

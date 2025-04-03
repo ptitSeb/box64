@@ -164,7 +164,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x05:                      /* SYSCALL */
             #ifndef TEST_INTERPRETER
             R_RIP = addr;
-            x64Syscall(emu);
+            EmuX64Syscall(emu);
             #endif
             break;
         case 0x06:                      /* CLTS */

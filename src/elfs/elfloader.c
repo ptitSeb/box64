@@ -14,6 +14,7 @@
 #include <dlfcn.h>
 #endif
 
+#include "os.h"
 #include "custommem.h"
 #include "box64version.h"
 #include "elfloader.h"
@@ -1334,7 +1335,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     if(!h) {
         if(getProtection((uintptr_t)p)&(PROT_READ)) {
             uintptr_t adj_p = ((uintptr_t)p)&~(sizeof(onebridge_t)-1);
-            if(*(uint8_t*)(adj_p)==0xCC && *(uint8_t*)(adj_p+1)=='S' && *(uint8_t*)(adj_p+2)=='C') {
+            if (*(uint8_t*)(adj_p) == 0xCC && IsBridgeSignature(*(uint8_t*)(adj_p + 1), *(uint8_t*)(adj_p + 2))) {
                 ret = getBridgeName((void*)adj_p);
                 if(ret) {
                     if(start)

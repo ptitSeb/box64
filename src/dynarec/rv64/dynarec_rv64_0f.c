@@ -7,7 +7,6 @@
 #include "box64context.h"
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
-#include "emu/x64run_private.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -117,7 +116,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SMEND();
             GETIP(addr, x7);
             STORE_XEMU_CALL(x3);
-            CALL_S(x64Syscall, -1, 0);
+            CALL_S(EmuX64Syscall, -1, 0);
             LOAD_XEMU_CALL();
             TABLE64(x3, addr); // expected return address
             BNE_MARK(xRIP, x3);

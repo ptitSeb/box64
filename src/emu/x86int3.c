@@ -47,8 +47,7 @@ extern int errno;
 void x86Int3(x64emu_t* emu, uintptr_t* addr)
 {
     onebridge_t* bridge = (onebridge_t*)(*addr-1);
-    if(Peek8(*addr, 0)=='S' && Peek8(*addr, 1)=='C') // Signature for "Out of x86 door"
-    {
+    if (IsBridgeSignature(Peek8(*addr, 0), Peek8(*addr, 1))) { // Signature for "Out of x86 door"
         *addr += 2;
         uintptr_t a = F64(addr);
         if(a==0) {

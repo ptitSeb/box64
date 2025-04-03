@@ -27,7 +27,7 @@
 
 void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction_x64_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
-    if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
+    if (ip[0] == 0xcc && IsBridgeSignature(ip[1], ip[2])) {
         uintptr_t a = *(uintptr_t*)(ip+3);
         if(a==0) {
             dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (BOX64DRENV(dynarec_dump)>1)?"\e[01;33m":"", (void*)ip, (BOX64DRENV(dynarec_dump)>1)?"\e[m":"");

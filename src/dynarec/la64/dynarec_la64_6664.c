@@ -7,7 +7,6 @@
 #include "box64context.h"
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
-#include "emu/x64run_private.h"
 #include "la64_emitter.h"
 #include "x64emu.h"
 #include "box64stack.h"
