@@ -27,11 +27,6 @@
 
 #include "modrm.h"
 
-int my_setcontext(x64emu_t* emu, void* ucp);
-#ifdef BOX32
-int my32_setcontext(x64emu_t* emu, void* ucp);
-#endif
-
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
 #else

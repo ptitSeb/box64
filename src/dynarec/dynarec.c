@@ -143,10 +143,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
-int my_setcontext(x64emu_t* emu, void* ucp);
-#ifdef BOX32
-int my32_setcontext(x64emu_t* emu, void* ucp);
-#endif
 extern int running32bits;
 void DynaRun(x64emu_t* emu)
 {
