@@ -70,8 +70,8 @@ jobs:
             sudo apt-get -y install git cmake make python3 patchelf
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               sudo apt-get -y install p7zip
-              wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
-              unzip android-ndk-r26b-linux.zip
+              wget -q https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
+              unzip -qq android-ndk-r26b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r26b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
               git clone https://github.com/termux/termux-docker.git
@@ -88,7 +88,7 @@ jobs:
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
             fi
             if [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
-              wget https://mirrors.utermux.dev/termux/termux-main/pool/main/liba/libandroid-sysv-semaphore/libandroid-sysv-semaphore_0.1_aarch64.deb
+              wget https://packages.termux.dev/apt/termux-main/pool/main/liba/libandroid-sysv-semaphore/libandroid-sysv-semaphore_0.1_aarch64.deb
               7z x libandroid-sysv-semaphore_0.1_aarch64.deb
               tar -xf data.tar.xz
               sudo cp -rf data /
