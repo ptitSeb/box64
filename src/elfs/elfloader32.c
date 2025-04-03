@@ -22,6 +22,7 @@
 #include "elfloader_private.h"
 #include "librarian.h"
 #include "bridge.h"
+#include "alternate.h"
 #include "wrapper.h"
 #include "box64context.h"
 #include "library.h"

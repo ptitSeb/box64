@@ -20,11 +20,6 @@ void* GetNativeOrAlt(void* fnc, void* alt);
 
 uintptr_t AddVSyscall(bridge_t* bridge, int num);
 
-int hasAlternate(void* addr);
-void* getAlternate(void* addr);
-void addAlternate(void* addr, void* alt);
-void addCheckAlternate(void* addr, void* alt);
-void cleanAlternate(void);
 const char* getBridgeName(void* addr);
 
 void init_bridge_helper(void);

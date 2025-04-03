@@ -16,8 +16,8 @@
 #include "dynablock_private.h"
 #include "dynarec_private.h"
 #include "elfloader.h"
-#include "bridge.h"
 #include "signals.h"
+#include "alternate.h"
 
 #include "dynarec_native.h"
 #include "dynarec_arch.h"

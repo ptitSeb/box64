@@ -15,6 +15,7 @@
 #include "elfs/elfloader_private.h"
 #include "custommem.h"
 #include "symbols.h"
+#include "alternate.h"
 
 /*
     This file here is for handling overriding of malloc functions

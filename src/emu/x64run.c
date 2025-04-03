@@ -19,7 +19,7 @@
 #include "x64trace.h"
 #include "x87emu_private.h"
 #include "box64context.h"
-#include "bridge.h"
+#include "alternate.h"
 #include "signals.h"
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
