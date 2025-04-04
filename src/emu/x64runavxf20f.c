@@ -116,7 +116,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x2C:  /* VCVTTSD2SI Gd, Ex */
             nextop = F8;
-            GETEX(0);
+            _GETEX(0);
             GETGD;
             if(rex.w)
                 if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL)
@@ -133,7 +133,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x2D:  /* VCVTSD2SI Gd, Ex */
             nextop = F8;
-            GETEX(0);
+            _GETEX(0);
             GETGD;
             if(rex.w) {
                 if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL)
@@ -197,7 +197,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x58:  /* VADDSD Gx, Vx, Ex */
             nextop = F8;
-            GETEX(0);
+            _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
@@ -209,7 +209,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x59:  /* VMULSD Gx, Vx, Ex */
             nextop = F8;
-            GETEX(0);
+            _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
@@ -223,7 +223,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x5A:  /* VCVTSD2SS Gx, Vx, Ex */
             nextop = F8;
-            GETEX(0);
+            _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
@@ -235,7 +235,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x5C:  /* VSUBSD Gx, Vx, Ex */
             nextop = F8;
-            GETEX(0);
+            _GETEX(0);
             GETGX;
             GETVX;
             GETGY;

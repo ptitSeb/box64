@@ -437,7 +437,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
     case 0xE6:  /* CVTDQ2PD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX8(0);
         GETGX;
         GX->d[1] = EX->sd[1];
         GX->d[0] = EX->sd[0];
