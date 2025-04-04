@@ -1787,8 +1787,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     for(int i=0; i<4; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         MSR_fpsr(x5);
-                        VMOVeS(d0, 0, v1, i);
-                        FRINTIS(d0, d0);
+                        if(i) {
+                            VMOVeS(d0, 0, v1, i);
+                            FRINTIS(d0, d0);
+                        } else {
+                            FRINTIS(d0, v1);
+                        }
                         VFCVTZSs(d0, d0);
                         MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                         TBZ(x5, FPSR_IOC, 4+4);
@@ -2820,22 +2824,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0: VFCMEQQD(v0, v0, v1); break;   // Equal
                 case 1: VFCMGTQD(v0, v1, v0); break;   // Less than
                 case 2: VFCMGEQD(v0, v1, v0); break;   // Less or equal
-                case 3: VFCMEQQD(v0, v0, v0);
-                        if(v0!=v1) {
+                case 3: if(v0!=v1) {
                             q0 = fpu_get_scratch(dyn, ninst);
-                            VFCMEQQD(q0, v1, v1);
-                            VANDQ(v0, v0, q0);
+                            VFMAXQD(q0, v0, v1);    // propagate NAN
+                            VFCMEQQD(v0, q0, q0);
+                        } else {
+                            VFCMEQQD(v0, v0, v0);
                         }
                         VMVNQ(v0, v0);
                         break;   // NaN (NaN is not equal to himself)
                 case 4: VFCMEQQD(v0, v0, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: VFCMGTQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or equal or unordered
                 case 6: VFCMGEQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
-                case 7: VFCMEQQD(v0, v0, v0);
-                        if(v0!=v1) {
+                case 7: if(v0!=v1) {
                             q0 = fpu_get_scratch(dyn, ninst);
-                            VFCMEQQD(q0, v1, v1);
-                            VANDQ(v0, v0, q0);
+                            VFMAXQD(q0, v0, v1);    // propagate NAN
+                            VFCMEQQD(v0, q0, q0);
+                        } else {
+                            VFCMEQQD(v0, v0, v0);
                         }
                         break;   // not NaN
             }
@@ -3146,8 +3152,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
                 } else {
                     MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
                     ORRw_mask(x4, xZR, 1, 0);    //0x80000000
                     d0 = fpu_get_scratch(dyn, ninst);
                     for(int i=0; i<2; ++i) {

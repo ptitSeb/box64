@@ -123,10 +123,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETGX_empty_VX(v0, v1);
             GETED(0);
             d1 = fpu_get_scratch(dyn, ninst);
+            if(BOX64ENV(dynarec_fastround)<2) {
+                u8 = sse_setround(dyn, ninst, x3, x4, x5);
+            }
             if(rex.w) {
                 SCVTFDx(d1, ed);
             } else {
                 SCVTFDw(d1, ed);
+            }
+            if(BOX64ENV(dynarec_fastround)<2) {
+                x87_restoreround(dyn, ninst, u8);
             }
             if(v0!=v1) VMOVQ(v0, v1);
             VMOVeD(v0, 0, d1, 0);
@@ -138,13 +144,23 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             GETEXSD(q0, 0, 0);
-            if(!BOX64ENV(dynarec_fastround)) {
+            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
-            FCVTZSxwD(gd, q0);
-            if(!BOX64ENV(dynarec_fastround)) {
+            if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                if(rex.w) {
+                    FRINT64ZD(v0, q0);
+                } else {
+                    FRINT32ZD(v0, q0);
+                }
+                FCVTZSxwD(gd, v0);
+            } else {
+                FCVTZSxwD(gd, q0);
+            }
+            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -159,17 +175,25 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             GETEXSD(q0, 0, 0);
-            if(!BOX64ENV(dynarec_fastround)) {
+            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
             d1 = fpu_get_scratch(dyn, ninst);
-            FRINTID(d1, q0);
+            if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
+                if(rex.w) {
+                    FRINT64XD(d1, q0);
+                } else {
+                    FRINT32XD(d1, q0);
+                }
+            } else {
+                FRINTID(d1, q0);
+            }
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwD(gd, d1);
-            if(!BOX64ENV(dynarec_fastround)) {
+            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -449,22 +473,36 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
 
         case 0xC2:
-            INST_NAME("CMPSD Gx, Ex, Ib");
+            INST_NAME("VCMPSD Gx, Ex, Ib");
             nextop = F8;
             GETEXSD(v1, 0, 1);
             GETGX_empty_VX(v0, v2);
             u8 = F8;
-            FCMPD(v2, v1);
+            if(((u8&15)!=0x0b) && ((u8&15)!=0x0f)) {
+                if((u8&15)>7)
+                    FCMPD(v1, v2);
+                else
+                    FCMPD(v2, v1);
+            }
+            // TODO: create a test for this one, there might be an issue with cases 9, 10 and 13
             if(v0!=v2) VMOVQ(v0, v2);
-            switch(u8&7) {
-                case 0: CSETMx(x2, cEQ); break;   // Equal
-                case 1: CSETMx(x2, cCC); break;   // Less than
-                case 2: CSETMx(x2, cLS); break;   // Less or equal
-                case 3: CSETMx(x2, cVS); break;   // NaN
-                case 4: CSETMx(x2, cNE); break;   // Not Equal or unordered
-                case 5: CSETMx(x2, cCS); break;   // Greater or equal or unordered
-                case 6: CSETMx(x2, cHI); break;   // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
-                case 7: CSETMx(x2, cVC); break;   // not NaN
+            switch(u8&15) {
+                case 0x00: CSETMx(x2, cEQ); break;  // Equal
+                case 0x01: CSETMx(x2, cCC); break;  // Less than
+                case 0x02: CSETMx(x2, cLS); break;  // Less or equal
+                case 0x03: CSETMx(x2, cVS); break;  // NaN
+                case 0x04: CSETMx(x2, cNE); break;  // Not Equal or unordered
+                case 0x05: CSETMx(x2, cCS); break;  // Greater or equal or unordered
+                case 0x06: CSETMx(x2, cHI); break;  // Greater or unordered
+                case 0x07: CSETMx(x2, cVC); break;  // not NaN
+                case 0x08: CSETMx(x2, cEQ); CSETMx(x3, cVS); ORRx_REG(x2, x2, x3); break;  // Equal or unordered
+                case 0x09: CSETMx(x2, cHI); break;  // Less than or unordered
+                case 0x0a: CSETMx(x2, cCS); break;  // Less or equal or unordered
+                case 0x0b: MOV32w(x2, 0); break;    // false
+                case 0x0c: CSETMw(x2, cNE); CSETMx(x3, cVS); BICx(x2, x2, x3); break;  // Not Equal not unordered
+                case 0x0d: CSETMw(x2, cLS); break;  // Greater or equal not unordered
+                case 0x0e: CSETMw(x2, cCC); break;  // Greater not unordered
+                case 0x0f: MOV64x(x2, 0xffffffffffffffffLL); break; // true
             }
             VMOVQDfrom(v0, 0, x2);
             YMM0(gd);
@@ -515,28 +553,35 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     else
                         SQXTN2_32(v0, d0);   // convert int64 -> int32 with saturation in higher part
                 } else {
-                    if(!l) {
-                        MRS_fpsr(x5);
-                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                        MSR_fpsr(x5);
-                        ORRw_mask(x4, xZR, 1, 0);    //0x80000000
-                    }
-                    for(int i=0; i<2; ++i) {
-                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                        MSR_fpsr(x5);
-                        if(i) {
-                            VMOVeD(d0, 0, v1, i);
-                            FRINTID(d0, d0);
-                        } else {
-                            FRINTID(d0, v1);
+                    if(arm64_frintts) {
+                        VFRINT32XDQ(l?d0:v0, v1);    // round, handling of overflow and Nan to 0x80000000
+                        VFCVTNSQD(l?d0:v0, l?d0:v0);  // convert double -> int64
+                        if(!l)
+                            SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+                        else
+                            SQXTN2_32(v0, d0);   // convert int64 -> int32 with saturation in higher part
+                    } else {
+                        if(!l) {
+                            MRS_fpsr(x5);
+                            ORRw_mask(x4, xZR, 1, 0);    //0x80000000
                         }
-                        FCVTZSwD(x1, d0);
-                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                        TSTw_mask(x5, 0, 0);    // mask = 1 = FPSR_IOC
-                        CSELx(x1, x1, x4, cEQ);
-                        VMOVQSfrom(v0, i+l*2, x1);
+                        for(int i=0; i<2; ++i) {
+                            BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                            MSR_fpsr(x5);
+                            if(i) {
+                                VMOVeD(d0, 0, v1, i);
+                                FRINTID(d0, d0);
+                            } else {
+                                FRINTID(d0, v1);
+                            }
+                            FCVTZSwD(x1, d0);
+                            MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                            TSTw_mask(x5, 0, 0);    // mask = 1 = FPSR_IOC
+                            CSELx(x1, x1, x4, cEQ);
+                            VMOVQSfrom(v0, i+l*2, x1);
+                        }
+                        if(!vex.l && !l) VMOVQDfrom(v0, 1, xZR);
                     }
-                    if(!vex.l && !l) VMOVQDfrom(v0, 1, xZR);
                 }
             }
             x87_restoreround(dyn, ninst, u8);
