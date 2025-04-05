@@ -1057,6 +1057,7 @@ GO(llistxattr, iEppL)
 // loc2 // type B
 GOWM(localeconv, pEEv)
 GOM(localtime, pEEp)
+GOM(__localtime64, pEEp)
 GOWM(localtime_r, pEEpp)
 GO(lockf, iEiil)
 GO(lockf64, iEiiI)
@@ -1835,6 +1836,7 @@ GO(tempnam, pEpp)
 GOW(textdomain, tEp)
 // tfind    // Weak
 GO(time, LEBL_)
+GO2(__time64, IEp, time)
 GOM(timegm, lEEriiiiiiiiilt_)   //%%
 // timelocal    // Weak
 GO(timerfd_create, iEii)
