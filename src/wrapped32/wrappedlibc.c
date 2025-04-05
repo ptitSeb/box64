@@ -2140,6 +2140,13 @@ EXPORT int my32_setrlimit(x64emu_t* emu, int what, uint32_t* pr)
     return setrlimit64(what, &l);
 }
 
+EXPORT void* my32___localtime64(x64emu_t* emu, void* t)
+{
+    static struct tm l = {};
+    l = *localtime(t);
+    return &l;
+}
+
 EXPORT void* my32_localtime(x64emu_t* emu, void* t)
 {
     struct_L_t t_ = {0};
