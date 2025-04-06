@@ -20,6 +20,7 @@ typedef int32_t (*iEi_t)(int32_t);
 typedef int32_t (*iEL_t)(uintptr_t);
 typedef int32_t (*iEp_t)(void*);
 typedef int32_t (*iEO_t)(int32_t);
+typedef int64_t (*IEp_t)(void*);
 typedef uint32_t (*uEp_t)(void*);
 typedef uint32_t (*uES_t)(void*);
 typedef uint64_t (*UEp_t)(void*);
@@ -151,6 +152,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(__close_nocancel, iEi_t) \
 	GO(shmdt, iEp_t) \
 	GO(sysinfo, iEp_t) \
+	GO(__time64, IEp_t) \
 	GO(getwc, uES_t) \
 	GO(__sysconf, lEi_t) \
 	GO(sysconf, lEi_t) \
@@ -168,6 +170,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(_ZGTtnaj, pFu_t) \
 	GO(_ZGTtnaX, pFL_t) \
 	GO(_ZGTtnam, pFL_t) \
+	GO(__localtime64, pEp_t) \
 	GO(getgrnam, pEp_t) \
 	GO(getprotobyname, pEp_t) \
 	GO(getpwnam, pEp_t) \

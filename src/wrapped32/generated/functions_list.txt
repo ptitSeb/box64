@@ -2186,6 +2186,8 @@ wrappedlibc:
   - shmdt
   - sysinfo
 - iEO:
+- IEp:
+  - __time64
 - uEp:
 - uES:
   - getwc
@@ -2217,6 +2219,7 @@ wrappedlibc:
   - _ZGTtnaX
   - _ZGTtnam
 - pEp:
+  - __localtime64
   - getgrnam
   - getprotobyname
   - getpwnam
