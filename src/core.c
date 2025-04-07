@@ -1477,7 +1477,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if(!ElfGetGlobalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
             if(!ElfGetWeakSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
                 ElfGetLocalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt);
-        if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
+        if(!wineinfo) {printf_log(LOG_DEBUG, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();
             printf_log(LOG_DEBUG, "WINE wine_main_preload_info found and updated %p -> %p\n", get_wine_prereserve(), *(void**)wineinfo);
