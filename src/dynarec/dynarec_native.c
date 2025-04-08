@@ -654,8 +654,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         uintptr_t j = helper.insts[i].x64.jmp;
         helper.insts[i].x64.jmp_insts = -1;
         if(j<start || j>=end || j==helper.insts[i].x64.addr) {
-            if(j==helper.insts[i].x64.addr) // if there is a loop on some opcode, make the block "always to tested"
-                helper.always_test = 1;
             helper.insts[i].x64.need_after |= X_PEND;
         } else {
             // find jump address instruction
@@ -700,9 +698,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             }
         }
     }
-    // no need for next anymore
-    helper.next_sz = helper.next_cap = 0;
-    helper.next = NULL;
     // fill predecessors with the jump address
     int alloc_size = sizePredecessors(&helper);
     helper.predecessor = (int*)alloca(alloc_size*sizeof(int));
@@ -738,7 +733,16 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     updateYmm0s(&helper, 0, 0);
     UPDATE_SPECIFICS(&helper);
-
+    // check for still valid close loop
+    for(int ii=0; ii<helper.jmp_sz && !helper.always_test; ++ii) {
+        int i = helper.jmps[ii];
+        if(helper.insts[i].x64.alive && (helper.insts[i].x64.jmp==helper.insts[i].x64.addr)) {
+            helper.always_test = 1;
+        }
+    }
+    // no need for next anymore
+    helper.next_sz = helper.next_cap = 0;
+    helper.next = NULL;
 
     // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits, inst_max);
