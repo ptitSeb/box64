@@ -68,6 +68,7 @@ extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 #define LOG_NEVER 3
 #define LOG_VERBOSE 3
 
+#ifndef _WIN32 // TODO: better wow64 support?
 void printf_ftrace(int prefix, const char* fmt, ...);
 
 #define printf_log_prefix(prefix, L, ...)                                                               \
@@ -98,6 +99,18 @@ void printf_ftrace(int prefix, const char* fmt, ...);
 
 #define dynarec_log(L, ...) dynarec_log_prefix(1, L, __VA_ARGS__)
 
+#else
+#define printf_log_prefix(prefix, L, ...)
+#define printf_log(L, ...)
+#define printf_dump_prefix(prefix, L, ...)
+#define printf_dump(L, ...)
+#define printf_dlsym_prefix(prefix, L, ...)
+#define printf_dlsym(L, ...)
+#define dynarec_log_prefix(prefix, L, ...)
+#define dynarec_log(L, ...)
+#endif
+
+
 #define EXPORT __attribute__((visibility("default")))
 #ifdef BUILD_DYNAMIC
 #define EXPORTDYN __attribute__((visibility("default")))
@@ -105,6 +118,7 @@ void printf_ftrace(int prefix, const char* fmt, ...);
 #define EXPORTDYN
 #endif
 
+#ifndef _WIN32 // TODO: better wow64 support?
 #ifndef STATICBUILD
 void init_malloc_hook(void);
 #endif
@@ -130,6 +144,12 @@ extern void* __libc_memalign(size_t, size_t);
 #define box_memalign    __libc_memalign
 extern char* box_strdup(const char* s);
 extern char* box_realpath(const char* path, char* ret);
+#endif
+#else
+#define box_malloc  WinMalloc
+#define box_realloc WinRealloc
+#define box_calloc  WinCalloc
+#define box_free    WinFree
 #endif
 
 //use actual_XXXX for internal memory that should be in 32bits space when box32 is active

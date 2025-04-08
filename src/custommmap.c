@@ -24,8 +24,8 @@ extern void* mapallmem;
 extern int box64_is32bits;
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
-void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
-int internal_munmap(void* addr, unsigned long length);
+void* InternalMmap(void* addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+int InternalMunmap(void* addr, unsigned long length);
 void* box_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
 
 void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
@@ -39,7 +39,7 @@ EXPORT void* mmap64(void *addr, unsigned long length, int prot, int flags, int f
     if(!addr && ((running32bits && BOX64ENV(mmap32)) || (flags&MAP_32BIT) || box64_is32bits))
         ret = box_mmap(addr, length, prot, flags | MAP_32BIT, fd, offset);
     else
-        ret = internal_mmap(addr, length, prot, flags, fd, offset);
+        ret = InternalMmap(addr, length, prot, flags, fd, offset);
     if(ret!=MAP_FAILED && mapallmem)
         setProtection((uintptr_t)ret, length, prot);
     return ret;
@@ -48,7 +48,7 @@ EXPORT void* mmap(void *addr, unsigned long length, int prot, int flags, int fd,
 
 EXPORT int munmap(void* addr, unsigned long length)
 {
-    int ret = internal_munmap(addr, length);
+    int ret = InternalMunmap(addr, length);
     if(!ret && mapallmem) {
         freeProtection((uintptr_t)addr, length);
     }

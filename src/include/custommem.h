@@ -138,13 +138,9 @@ int checkInHotPage(uintptr_t addr);
 #endif
 
 // this will simulate an x86_64 version of the function (no tracking will done, but tracking will be used)
-void* box_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+void* box_mmap(void* addr, size_t length, int prot, int flags, int fd, ssize_t offset);
 // this will simulate an x86_64 version of the function (no tracking will done)
-int box_munmap(void* addr, unsigned long length);
-// this will call the syscall directly
-void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
-// this will call the syscall directly
-int internal_munmap(void* addr, unsigned long length);
+int box_munmap(void* addr, size_t length);
 
 void reserveHighMem();
 
