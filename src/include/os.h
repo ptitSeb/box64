@@ -2,6 +2,37 @@
 #define __OS_H_
 
 #include <stdint.h>
+#include <sys/types.h>
+
+#ifndef _WIN32
+#include <dlfcn.h>
+#include <sys/mman.h>
+#else
+typedef __int64 ssize_t;
+
+#define PROT_READ  0x1
+#define PROT_WRITE 0x2
+#define PROT_EXEC  0x4
+
+#define MAP_FAILED    ((void*)-1)
+#define MAP_PRIVATE   0x02
+#define MAP_FIXED     0x10
+#define MAP_ANONYMOUS 0x20
+#define MAP_32BIT     0x40
+#define MAP_NORESERVE 0
+
+void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset);
+int munmap(void* addr, size_t length);
+int mprotect(void* addr, size_t len, int prot);
+
+void* WinMalloc(size_t size);
+void* WinRealloc(void* ptr, size_t size);
+void* WinCalloc(size_t nmemb, size_t size);
+void WinFree(void* ptr);
+#endif
+
+void* InternalMmap(void* addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+int InternalMunmap(void* addr, unsigned long length);
 
 int GetTID(void);
 int SchedYield(void);
@@ -17,6 +48,8 @@ int IsBridgeSignature(char s, char c);
 int IsNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
 void EmuInt3(void* emu, void* addr);
 void* EmuFork(void* emu, int forktype);
+
+void PersonalityAddrLimit32Bit(void);
 // ----------------------------------------------------------------
 
 #ifndef _WIN32
