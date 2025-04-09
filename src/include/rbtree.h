@@ -248,6 +248,29 @@ int rb_unset(rbtree_t* tree, uintptr_t start, uintptr_t end);
  * with the highest key value in the tree. 
  * Return: The start value of the right-most node if the tree is not empty; otherwise, 0.
  */
+
+uint64_t rb_inc(rbtree_t* tree, uintptr_t start, uintptr_t end);
+
+/**
+ * rb_inc() - Increment by 1 an address range in a red-black tree. Create the node if needed.
+ * @tree: Pointer to the red-black tree where the address range will be set.
+ * @start: The starting address of the range to be set.
+ * @end: The ending address of the range to be set.
+ *
+ * Returns the new value for the node
+ */
+
+ uint64_t rb_dec(rbtree_t* tree, uintptr_t start, uintptr_t end);
+
+/**
+ * rb_dec() - Decrement by 1 an address range in a red-black tree. Do not create the node not existant. Delete the node if data == 0.
+ * @tree: Pointer to the red-black tree where the address range will be set.
+ * @start: The starting address of the range to be set.
+ * @end: The ending address of the range to be set.
+ *
+ * Returns the new value for the node (or 0 if non-existant / removed)
+ */
+
 uintptr_t rb_get_righter(rbtree_t* tree);
 
 /**

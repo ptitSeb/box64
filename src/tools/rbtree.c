@@ -816,6 +816,316 @@ dynarec_log(LOG_DEBUG, "unset: %s 0x%lx, 0x%lx);\n", tree->name, start, end);
     return 0;
 }
 
+uint64_t rb_inc(rbtree_t *tree, uintptr_t start, uintptr_t end) {
+    // printf("rb_inc( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx);\n", start, end); fflush(stdout);
+    dynarec_log(LOG_DEBUG, "inc %s: 0x%lx, 0x%lx\n", tree->name, start, end);
+    if (!tree->root) {
+        add_range(tree, start, end, 1);
+        return 1;
+    }
+    
+    rbnode *node = tree->root, *prev = NULL, *last = NULL;
+    while (node) {
+        if (node->start < start) {
+            prev = node;
+            node = node->right;
+        } else if (node->start == start) {
+            if (node->left) {
+                prev = node->left;
+                while (prev->right) prev = prev->right;
+            }
+            if (node->right) {
+                last = node->right;
+                while (last->left) last = last->left;
+            }
+            break;
+        } else {
+            last = node;
+            node = node->left;
+        }
+    }
+
+    // prev is the largest node starting strictly before start, or NULL if there is none
+    // node is the node starting exactly at start, or NULL if there is none
+    // last is the smallest node starting strictly after start, or NULL if there is none
+    // Note that prev may contain start
+
+    uint64_t data = (node?node->data:0)+1;
+
+    if (prev && (prev->end >= start) && (prev->data == data)) {
+        // Merge with prev
+        if (end <= prev->end) return data; // Nothing to do!
+        
+        if (node && (node->end > end)) {
+            node->start = end;
+            prev->end = end;
+            return data;
+        } else if (node && (node->end == end)) {
+            remove_node(tree, node);
+            prev->end = end;
+            return data;
+        } else if (node) {
+            remove_node(tree, node);
+        }
+        while (last && (last->start < end) && (last->end <= end)) {
+            // Remove the entire node
+            node = last;
+            last = succ_node(last);
+            remove_node(tree, node);
+        }
+        if (last && (last->start <= end) && (last->data == data)) {
+            // Merge node and last
+            prev->end = last->end;
+            remove_node(tree, last);
+            return data;
+        }
+        if (last && (last->start < end)) last->start = end;
+        prev->end = end;
+        return data;
+    } else if (prev && (prev->end > start)) {
+        if (prev->end > end) {
+            // Split in three
+            // Note that here, succ(prev) = last and node = NULL
+            int ret;
+            ret = add_range_next_to(tree, prev->right ? last : prev, end, prev->end, prev->data);
+            ret = ret ? ret : add_range_next_to(tree, prev->right ? succ_node(prev) : prev, start, end, data);
+            prev->end = start;
+            return ret;
+        }
+        // Cut prev and continue
+        prev->end = start;
+    }
+
+    if (node) {
+        // Change node
+        if (node->end >= end) {
+            if (node->data == data) return 0; // Nothing to do!
+            // Cut node
+            if (node->end > end) {
+                int ret = add_range_next_to(tree, node->right ? last : node, end, node->end, node->data);
+                node->end = end;
+                node->data = data;
+                return ret;
+            }
+            // Fallthrough
+        }
+        
+        // Overwrite and extend node
+        while (last && (last->start < end) && (last->end <= end)) {
+            // Remove the entire node
+            prev = last;
+            last = succ_node(last);
+            remove_node(tree, prev);
+        }
+        if (last && (last->start <= end) && (last->data == data)) {
+            // Merge node and last
+            remove_node(tree, node);
+            last->start = start;
+            return data;
+        }
+        if (last && (last->start < end)) last->start = end;
+        if (node->end < end) node->end = end;
+        node->data = data;
+        return data;
+    }
+
+    while (last && (last->start < end) && (last->end <= end)) {
+        // Remove the entire node
+        node = last;
+        last = succ_node(last);
+        remove_node(tree, node);
+    }
+    if (!last) {
+        // Add a new node next to prev, the largest node of the tree
+        // It exists since the tree is nonempty
+        return add_range_next_to(tree, prev, start, end, data);
+    }
+    if ((last->start <= end) && (last->data == data)) {
+        // Extend
+        last->start = start;
+        return data;
+    } else if (last->start < end) {
+        // Cut
+        last->start = end;
+    }
+    // Probably 'last->left ? prev : last' is enough
+    add_range_next_to(tree, last->left ? pred_node(last) : last, start, end, data);
+    return data;
+}
+
+uint64_t rb_dec(rbtree_t *tree, uintptr_t start, uintptr_t end) {
+    // printf("rb_dec( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx);\n", start, end); fflush(stdout);
+    dynarec_log(LOG_DEBUG, "dec %s: 0x%lx, 0x%lx\n", tree->name, start, end);
+    if (!tree->root) {
+        return 0;
+    }
+    
+    rbnode *node = tree->root, *prev = NULL, *last = NULL;
+    while (node) {
+        if (node->start < start) {
+            prev = node;
+            node = node->right;
+        } else if (node->start == start) {
+            if (node->left) {
+                prev = node->left;
+                while (prev->right) prev = prev->right;
+            }
+            if (node->right) {
+                last = node->right;
+                while (last->left) last = last->left;
+            }
+            break;
+        } else {
+            last = node;
+            node = node->left;
+        }
+    }
+
+    // prev is the largest node starting strictly before start, or NULL if there is none
+    // node is the node starting exactly at start, or NULL if there is none
+    // last is the smallest node starting strictly after start, or NULL if there is none
+    // Note that prev may contain start
+
+    uint64_t data = (node?node->data:0);
+    if(!data) return data;
+    --data;
+    if(!data) {
+        // delete the node...
+        if (node) {
+            if (node->end > end) {
+                node->start = end;
+                return 0;
+            } else if (node->end == end) {
+                remove_node(tree, node);
+                return 0;
+            } else {
+                remove_node(tree, node);
+            }
+        } else if (prev && (prev->end > start)) {
+            if (prev->end > end) {
+                // Split prev
+                int ret = add_range_next_to(tree, prev->right ? last : prev, end, prev->end, prev->data);
+                prev->end = start;
+                return ret;
+            } else if (prev->end == end) {
+                prev->end = start;
+                return 0;
+            } // else fallthrough
+        }
+        while (last && (last->start < end) && (last->end <= end)) {
+            // Remove the entire node
+            node = last;
+            last = succ_node(last);
+            remove_node(tree, node);
+        }
+        if (last && (last->start < end)) {
+            // last->end > end: cut the node
+            last->start = end;
+        }
+        return 0;
+    }
+
+    if (prev && (prev->end >= start) && (prev->data == data)) {
+        // Merge with prev
+        if (end <= prev->end) return data; // Nothing to do!
+        
+        if (node && (node->end > end)) {
+            node->start = end;
+            prev->end = end;
+            return data;
+        } else if (node && (node->end == end)) {
+            remove_node(tree, node);
+            prev->end = end;
+            return data;
+        } else if (node) {
+            remove_node(tree, node);
+        }
+        while (last && (last->start < end) && (last->end <= end)) {
+            // Remove the entire node
+            node = last;
+            last = succ_node(last);
+            remove_node(tree, node);
+        }
+        if (last && (last->start <= end) && (last->data == data)) {
+            // Merge node and last
+            prev->end = last->end;
+            remove_node(tree, last);
+            return data;
+        }
+        if (last && (last->start < end)) last->start = end;
+        prev->end = end;
+        return data;
+    } else if (prev && (prev->end > start)) {
+        if (prev->end > end) {
+            // Split in three
+            // Note that here, succ(prev) = last and node = NULL
+            int ret;
+            ret = add_range_next_to(tree, prev->right ? last : prev, end, prev->end, prev->data);
+            ret = ret ? ret : add_range_next_to(tree, prev->right ? succ_node(prev) : prev, start, end, data);
+            prev->end = start;
+            return ret;
+        }
+        // Cut prev and continue
+        prev->end = start;
+    }
+
+    if (node) {
+        // Change node
+        if (node->end >= end) {
+            if (node->data == data) return 0; // Nothing to do!
+            // Cut node
+            if (node->end > end) {
+                int ret = add_range_next_to(tree, node->right ? last : node, end, node->end, node->data);
+                node->end = end;
+                node->data = data;
+                return ret;
+            }
+            // Fallthrough
+        }
+        
+        // Overwrite and extend node
+        while (last && (last->start < end) && (last->end <= end)) {
+            // Remove the entire node
+            prev = last;
+            last = succ_node(last);
+            remove_node(tree, prev);
+        }
+        if (last && (last->start <= end) && (last->data == data)) {
+            // Merge node and last
+            remove_node(tree, node);
+            last->start = start;
+            return data;
+        }
+        if (last && (last->start < end)) last->start = end;
+        if (node->end < end) node->end = end;
+        node->data = data;
+        return data;
+    }
+
+    while (last && (last->start < end) && (last->end <= end)) {
+        // Remove the entire node
+        node = last;
+        last = succ_node(last);
+        remove_node(tree, node);
+    }
+    if (!last) {
+        // Add a new node next to prev, the largest node of the tree
+        // It exists since the tree is nonempty
+        return add_range_next_to(tree, prev, start, end, data);
+    }
+    if ((last->start <= end) && (last->data == data)) {
+        // Extend
+        last->start = start;
+        return data;
+    } else if (last->start < end) {
+        // Cut
+        last->start = end;
+    }
+    // Probably 'last->left ? prev : last' is enough
+    add_range_next_to(tree, last->left ? pred_node(last) : last, start, end, data);
+    return data;
+}
+
 uintptr_t rb_get_righter(rbtree_t* tree)
 {
 dynarec_log(LOG_DEBUG, "rb_get_righter(%s);\n", tree->name);

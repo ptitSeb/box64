@@ -59,15 +59,10 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
         }
         #endif
         if(db_size && my_context) {
-            uint32_t n = rb_get(my_context->db_sizes, db_size);
-            if(n>1)
-                rb_set(my_context->db_sizes, db_size, db_size+1, n-1);
-            else {
-                rb_unset(my_context->db_sizes, db_size, db_size+1);
-                if(db_size == my_context->max_db_size) {
-                    my_context->max_db_size = rb_get_righter(my_context->db_sizes);
-                    dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
-                }
+            uint32_t n = rb_dec(my_context->db_sizes, db_size, db_size+1);
+            if(!n && (db_size >= my_context->max_db_size)) {
+                my_context->max_db_size = rb_get_righter(my_context->db_sizes);
+                dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
             }
         }
         if(need_lock)
@@ -106,12 +101,8 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         db->gone = 1;
         uintptr_t db_size = db->x64_size;
         if(db_size && my_context) {
-            uint32_t n = rb_get(my_context->db_sizes, db_size);
-            if(n>1)
-                rb_set(my_context->db_sizes, db_size, db_size+1, n-1);
-            else
-                rb_unset(my_context->db_sizes, db_size, db_size+1);
-            if(db_size == my_context->max_db_size) {
+            uint32_t n = rb_dec(my_context->db_sizes, db_size, db_size+1);
+            if(!n && (db_size >= my_context->max_db_size)) {
                 my_context->max_db_size = rb_get_righter(my_context->db_sizes);
                 dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
             }
@@ -268,7 +259,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
                     dynarec_log(LOG_INFO, "BOX64 Dynarec: higher max_db=%d\n", my_context->max_db_size);
                 }
                 block->done = 1;    // don't validate the block if the size is null, but keep the block
-                rb_set(my_context->db_sizes, block->x64_size, block->x64_size+1, rb_get(my_context->db_sizes, block->x64_size)+1);
+                rb_inc(my_context->db_sizes, block->x64_size, block->x64_size+1);
             }
         }
     }
