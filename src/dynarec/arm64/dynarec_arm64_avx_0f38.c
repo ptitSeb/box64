@@ -129,7 +129,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                             BFIw(xFlags, x3, F_SF, 1);
                         }
                     }
-                    IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+                    IFX(X_OF) {
+                        IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
+                    }
                     if (BOX64ENV(dynarec_test)) {
                         IFX(X_AF) BFCw(xFlags, F_AF, 1);
                         IFX(X_PF) BFCw(xFlags, F_PF, 1);
@@ -166,7 +168,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                             BFIw(xFlags, x3, F_SF, 1);
                         }
                     }
-                    IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+                    IFX(X_OF) {
+                        IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
+                    }
                     if (BOX64ENV(dynarec_test)) {
                         IFX(X_AF) BFCw(xFlags, F_AF, 1);
                         IFX(X_PF) BFCw(xFlags, F_PF, 1);
@@ -204,7 +208,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                             BFIw(xFlags, x3, F_SF, 1);
                         }
                     }
-                    IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+                    IFX(X_OF) {
+                        IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
+                    }
                     if (BOX64ENV(dynarec_test)) {
                         IFX(X_AF) BFCw(xFlags, F_AF, 1);
                         IFX(X_PF) BFCw(xFlags, F_PF, 1);
@@ -255,7 +261,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             }
             IFX(X_AF) BFCw(xFlags, F_AF, 1);
             IFX(X_PF) BFCw(xFlags, F_PF, 1);
-            IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
+            IFX(X_OF) {
+                IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
+            }
             break;
 
         case 0xF7:
@@ -289,8 +297,12 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             IFX(X_AF) BFCw(xFlags, F_AF, 1);
             IFX(X_PF) BFCw(xFlags, F_PF, 1);
             IFX(X_CF) BFCw(xFlags, F_CF, 1);
-            IFX(X_OF) IFNATIVE(NF_VF) {} else {BFCw(xFlags, F_OF, 1);}
-            IFX(X_SF) IFNATIVE(NF_SF) {} else {BFCw(xFlags, F_SF, 1);}
+            IFX(X_OF) {
+                IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
+            }
+            IFX(X_SF) {
+                IFNATIVE(NF_SF) {} else { BFCw(xFlags, F_SF, 1); }
+            }
             break;
 
         default:
