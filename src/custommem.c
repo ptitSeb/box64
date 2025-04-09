@@ -1016,10 +1016,26 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     
     uintptr_t addr = (uintptr_t)p;
 
-    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, (uintptr_t)p);
+    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, addr);
     if(bl) {
-        dynablock_t** ret = (dynablock_t**)rb_get_64(bl->tree, (uintptr_t)p);
+        // search in the rbtree first
+        dynablock_t** ret = (dynablock_t**)rb_get_64(bl->tree, addr);
         if(ret) return *ret;
+        // browse the map allocation as a fallback
+        blockmark_t* sub = (blockmark_t*)bl->chunk.block;
+        while((uintptr_t)sub<addr) {
+            blockmark_t* n = NEXT_BLOCK(sub);
+            if((uintptr_t)n>addr) {
+                // found it!
+                if(!sub->next.fill) return NULL; // empty space?
+                // self is the field of a block
+                ret = (dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
+                // add it to the rbtree for later fast retreival
+                rb_set_64(bl->tree, (uintptr_t)*ret, (uintptr_t)ret+SIZE_BLOCK(sub->next), (uintptr_t)*ret);
+                return *ret;
+            }
+            sub = n;
+        }
     }
     return NULL;
 }
@@ -1049,7 +1065,7 @@ uintptr_t AllocDynarecMap(size_t size)
                 void* ret = allocBlock(list->chunks[i].chunk.block, sub, size, &list->chunks[i].chunk.first);
                 if(rsize==list->chunks[i].chunk.maxfree)
                     list->chunks[i].chunk.maxfree = getMaxFreeBlock(list->chunks[i].chunk.block, list->chunks[i].chunk.size, list->chunks[i].chunk.first);
-                rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
+                //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
                 return (uintptr_t)ret;
             }
         }
@@ -1106,7 +1122,7 @@ uintptr_t AllocDynarecMap(size_t size)
             list->chunks[i].chunk.maxfree = getMaxFreeBlock(list->chunks[i].chunk.block, list->chunks[i].chunk.size, list->chunks[i].chunk.first);
             if(list->chunks[i].chunk.maxfree)
                 list->chunks[i].chunk.first = getNextFreeBlock(m);
-            rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
+            //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
             return (uintptr_t)ret;
         }
         // next chunk...
