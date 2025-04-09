@@ -10,6 +10,8 @@
 #else
 typedef __int64 ssize_t;
 
+#define dlsym(a, b) NULL
+
 #define PROT_READ  0x1
 #define PROT_WRITE 0x2
 #define PROT_EXEC  0x4
@@ -59,21 +61,6 @@ void PersonalityAddrLimit32Bit(void);
 #else
 #define LongJmp(a, b)
 #define SigSetJmp(a, b) 0
-#endif
-
-#ifndef USE_CUSTOM_MUTEX
-#define mutex_lock(A)    pthread_mutex_lock(A)
-#define mutex_trylock(A) pthread_mutex_trylock(A)
-#define mutex_unlock(A)  pthread_mutex_unlock(A)
-#else
-#define mutex_lock(A)                             \
-    do {                                          \
-        uint32_t tid = (uint32_t)GetTID();        \
-        while (native_lock_storeifnull_d(A, tid)) \
-            sched_yield();                        \
-    } while (0)
-#define mutex_trylock(A) native_lock_storeifnull_d(A, (uint32_t)GetTID())
-#define mutex_unlock(A)  native_lock_storeifref_d(A, 0, (uint32_t)GetTID())
 #endif
 
 #ifndef _WIN32
