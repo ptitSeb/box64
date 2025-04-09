@@ -27,7 +27,7 @@
 #include "wrapper.h"
 #include "box64context.h"
 #include "librarian.h"
-#include "signals.h"
+#include "emit_signals.h"
 #include "tools/bridge_private.h"
 
 #include <elf.h>

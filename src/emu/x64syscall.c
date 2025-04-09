@@ -35,6 +35,7 @@
 #include "box64context.h"
 #include "callback.h"
 #include "signals.h"
+#include "emit_signals.h"
 #include "x64tls.h"
 #include "elfloader.h"
 

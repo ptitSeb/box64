@@ -20,7 +20,7 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "alternate.h"
-#include "signals.h"
+#include "emit_signals.h"
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
@@ -67,7 +67,7 @@ int Run(x64emu_t *emu, int step)
 #ifdef TEST_INTERPRETER
     test->memsize = 0;
 #else
-    check_exec(emu, R_RIP);
+    CheckExec(emu, R_RIP);
 x64emurun:
     while(1) 
 #endif

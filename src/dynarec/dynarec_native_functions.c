@@ -21,6 +21,7 @@
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "signals.h"
+#include "emit_signals.h"
 #include "dynarec_native.h"
 #include "custommem.h"
 #include "bridge.h"

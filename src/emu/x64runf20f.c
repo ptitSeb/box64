@@ -20,7 +20,7 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
-#include "signals.h"
+#include "emit_signals.h"
 
 #include "modrm.h"
 
