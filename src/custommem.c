@@ -16,12 +16,11 @@
 #include "callback.h"
 #include "threads.h"
 #include "x64trace.h"
-#include "signals.h"
-#include <sys/mman.h>
 #include "custommem.h"
 #include "khash.h"
 #include "threads.h"
 #include "rbtree.h"
+#include "mysignal.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/dynablock_private.h"
@@ -2185,9 +2184,7 @@ void init_custommem_helper(box64context_t* ctx)
         return;
     inited = 1;
 
-#ifndef _WIN32 // TODO: better wow64 support?
     cur_brk = dlsym(RTLD_NEXT, "__curbrk");
-#endif
     blockstree = rbtree_init("blockstree");
     // if there is some blocks already
     if(n_blocks)
@@ -2217,9 +2214,7 @@ void init_custommem_helper(box64context_t* ctx)
     lockaddress = kh_init(lockaddress);
     rbt_dynmem = rbtree_init("rbt_dynmem");
 #endif
-#ifndef _WIN32 // TODO: better wow64 support?
     pthread_atfork(NULL, NULL, atfork_child_custommem);
-#endif
     // init mapallmem list
     mapallmem = rbtree_init("mapallmem");
     // init mmapmem list
@@ -2325,7 +2320,7 @@ void fini_custommem_helper(box64context_t *ctx)
     for(int i=0; i<n_blocks; ++i)
         InternalMunmap(p_blocks[i].block, p_blocks[i].size);
     box_free(p_blocks);
-#if !defined(USE_CUSTOM_MUTEX) && !defined(_WIN32) // TODO: better wow64 support?
+#if !defined(USE_CUSTOM_MUTEX)
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
 #endif

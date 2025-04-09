@@ -46,6 +46,7 @@ target_include_directories(wowbox64 PRIVATE
 
 # always enable DynaRec, only supports ARM64 for now.
 target_compile_definitions(wowbox64 PRIVATE DYNAREC ARM64)
+target_link_libraries(wowbox64 PRIVATE winpthread)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
