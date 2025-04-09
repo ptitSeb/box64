@@ -38,7 +38,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_ALIGNED_ATOMICS, dynarec_aligned_atomics, 0)  \
     INTEGER(BOX64_DYNAREC_BIGBLOCK, dynarec_bigblock, 2, 0, 3)          \
     BOOLEAN(BOX64_DYNAREC_BLEEDING_EDGE, dynarec_bleeding_edge, 1)      \
-    BOOLEAN(BOX64_DYNAREC_CALLRET, dynarec_callret, 0)                  \
+    INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 2)            \
     BOOLEAN(BOX64_DYNAREC_DF, dynarec_df, 1)                            \
     INTEGER(BOX64_DYNAREC_DIRTY, dynarec_dirty, 0, 0, 2)                \
     BOOLEAN(BOX64_DYNAREC_DIV0, dynarec_div0, 0)                        \

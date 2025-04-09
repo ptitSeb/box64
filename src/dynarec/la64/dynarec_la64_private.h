@@ -68,6 +68,8 @@ typedef struct flagcache_s {
     uint8_t             dfnone_here;// defered flags is cleared in this opcode
 } flagcache_t;
 
+typedef struct callret_s callret_t;
+
 typedef struct instruction_la64_s {
     instruction_x64_t   x64;
     uintptr_t           address;    // (start) address of the arm emitted instruction
@@ -134,6 +136,8 @@ typedef struct dynarec_la64_s {
     dynablock_t*         dynablock;
     instsize_t*          instsize;
     size_t               insts_size; // size of the instruction size array (calculated)
+    int                  callret_size;   // size of the array
+    callret_t*           callrets;   // arrey of callret return, with NOP / UDF depending if the block is clean or dirty
     uintptr_t            forward;    // address of the last end of code while testing forward
     uintptr_t            forward_to; // address of the next jump to (to check if everything is ok)
     int32_t              forward_size;   // size at the forward point

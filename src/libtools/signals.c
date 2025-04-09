@@ -1616,6 +1616,80 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             return;
         }
     }
+    #ifdef ARCH_NOP
+    if(sig==SIGILL) {
+        db = FindDynablockFromNativeAddress(pc);
+        if(db)
+            x64pc = getX64Address(db, (uintptr_t)pc);   // this will be incorect in the case of the callret!
+        db_searched = 1;
+        if(db && db->callret_size) {
+            int is_callrets = 0;
+            int type_callret = 0;
+            for(int i=0; i<db->callret_size && !is_callrets; ++i)
+                if(pc==(db->block+db->callrets[i].offs)) {
+                    is_callrets = 1;
+                    type_callret = db->callrets[i].type;
+                }
+            if(is_callrets) {
+                if(!type_callret) {
+                    // adjust x64pc for "ret" type
+                    #ifdef __aarch64__
+                    x64pc = p->uc_mcontext.regs[27];
+                    #elif defined(LA64)
+                    x64pc = p->uc_mcontext.__gregs[20];
+                    #elif defined(RV64)
+                    x64pc = p->uc_mcontext.__gregs[22];
+                    #endif
+                }
+                // check if block is still valid
+                int is_hotpage = checkInHotPage(x64pc);
+                uint32_t hash = (db->gone || is_hotpage)?0:X31_hash_code(db->x64_addr, db->x64_size);
+                if(!db->gone && !is_hotpage && hash==db->hash) {
+                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, always_test=%d) is clean, %s continuing at %p (%p)!\n", db, db->x64_addr, db->always_test, type_callret?"self-loop":"ret from callret", (void*)x64pc, (void*)addr);
+                    // it's good! go next opcode
+                    #ifdef __aarch64__
+                    p->uc_mcontext.pc+=4;
+                    #elif defined(LA64)
+                    p->uc_mcontext.__pc+=4;
+                    #elif defined(RV64)
+                    p->uc_mcontext.__gregs[REG_PC]+=4;
+                    #endif
+                    if(db->always_test)
+                        protectDB((uintptr_t)db->x64_addr, 1);
+                    else {
+                        if(db->callret_size) {
+                            // mark all callrets to NOP
+                            for(int i=0; i<db->callret_size; ++i)
+                                *(uint32_t*)(db->block+db->callrets[i].offs) = ARCH_NOP;
+                            ClearCache(db->block, db->size);
+                        }
+                        protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
+                    }
+                    return;
+                } else {
+                    // dynablock got dirty! need to get out of it!!!
+                    if(emu->jmpbuf) {
+                        copyUCTXreg2Emu(emu, p, x64pc);
+                        // only copy as it's a return address, so there is just the "epilog" to mimic here on "ret" type. "loop" type need everything
+                        if(type_callret) {
+                            adjustregs(emu);
+                            if(db && db->arch_size)
+                                ARCH_ADJUST(db, emu, p, x64pc);
+                        }
+                        dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty",(void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
+                        emu->test.clean = 0;
+                        #ifdef ANDROID
+                        siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
+                        #else
+                        siglongjmp(emu->jmpbuf, 2);
+                        #endif
+                    }
+                    dynarec_log(LOG_INFO, "Warning, Dirty %s (%p for db %p/%p) detected, but jmpbuffer not ready!\n", type_callret?"self-loop":"ret from callret", (void*)addr, db, (void*)db->x64_addr);
+                }
+            }
+        }
+    }
+    #endif
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
     #ifdef BAD_SIGNAL
@@ -1737,7 +1811,10 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             glitch_pc = NULL;
             glitch_addr = NULL;
             glitch_prot = 0;
-        }
+            relockMutex(Locks);
+            unlock_signal();
+            return; // try again
+    }
         if(addr && pc && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
             static void* glitch2_pc = NULL;
             static void* glitch2_addr = NULL;

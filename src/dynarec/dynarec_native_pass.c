@@ -14,6 +14,7 @@
 #include "x64trace.h"
 #include "dynablock.h"
 #include "dynarec_native.h"
+#include "dynablock_private.h"
 #include "custommem.h"
 #include "elfloader.h"
 #include "x64test.h"
@@ -114,6 +115,10 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         dyn->f.dfnone_here = 0;
         NEW_INST;
         MESSAGE(LOG_DUMP, "New Instruction %s:%p, native:%p\n", is32bits?"x86":"x64",(void*)addr, (void*)dyn->block);
+        #ifdef ARCH_NOP
+        if(dyn->insts[ninst].x64.alive && dyn->insts[ninst].x64.self_loop)
+            CALLRET_LOOP();
+        #endif
         if(!ninst) {
             GOTEST(x1, x2);
         }

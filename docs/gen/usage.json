@@ -239,6 +239,11 @@
         "key": "1",
         "description": "Try to optimize CALL/RET, skipping the jump table when possible.",
         "default": false
+      },
+      {
+        "key": "2",
+        "description": "Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block.",
+        "default": false
       }
     ]
   },

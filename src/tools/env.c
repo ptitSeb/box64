@@ -627,6 +627,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
             if (k != kh_end(box64env_entries))
                 mapping->env = &kh_value(box64env_entries, k);
         }
+        dynarec_log(LOG_INFO, "Mapping %s (%s) in %p-%p\n", fullname, lowercase_filename, (void*)addr, (void*)(addr+length));
     } else
         mapping = kh_value(mapping_entries, k);
 
@@ -659,6 +660,7 @@ void RemoveMapping(uintptr_t addr, size_t length)
             start = end;
         } while(end!=UINTPTR_MAX);
         // no occurence found, delete mapping
+        dynarec_log(LOG_INFO, "Delete Mapping %s (%s) in %p(%p)-%p\n", mapping->fullname, mapping->filename, (void*)addr, (void*)mapping->start, (void*)(addr+length));
         khint_t k = kh_get(mapping_entry, mapping_entries, mapping->filename);
         if(k!=kh_end(mapping_entries))
             kh_del(mapping_entry, mapping_entries, k);

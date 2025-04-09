@@ -16,6 +16,7 @@
 #include "bridge.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
+#include "../dynablock_private.h"
 #include "custommem.h"
 #include "alternate.h"
 
@@ -3386,11 +3387,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
-                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
-                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         }
@@ -3404,6 +3411,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     else
                         j64 = addr+i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
+                    if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
                     if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
@@ -4046,7 +4054,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
-                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
@@ -4058,6 +4069,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
                     if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;

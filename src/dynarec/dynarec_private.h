@@ -41,6 +41,7 @@ typedef struct instruction_x64_s {
     uint8_t     has_next:1;   // does this opcode can continue to the next?
     uint8_t     has_callret:1;    // this instruction have an optimized call setup
     uint8_t     alive:1;    // this opcode gets executed (0 if dead code in that block)
+    uint8_t     self_loop:1;    // this is a landing address for a self-loop (loop on itslef with no exit)
     uint8_t     barrier;    // next instruction is a jump point, so no optim allowed
     uint8_t     state_flags;// One of SF_XXX state
     uint8_t     use_flags;  // 0 or combination of X_?F

@@ -154,12 +154,13 @@ Detect MonoBleedingEdge and apply conservative settings.
  * 1 : Detect MonoBleedingEdge and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 when detected. [Default]
 
 
-=item B<BOX64_DYNAREC_CALLRET> =I<0|1>
+=item B<BOX64_DYNAREC_CALLRET> =I<0|1|2>
 
 Optimize CALL/RET opcodes.
 
  * 0 : Do not optimize CALL/RET, use jump table. [Default]
  * 1 : Try to optimize CALL/RET, skipping the jump table when possible. 
+ * 2 : Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. 
 
 
 =item B<BOX64_DYNAREC_DF> =I<0|1>

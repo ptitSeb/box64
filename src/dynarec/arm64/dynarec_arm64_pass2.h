@@ -17,3 +17,5 @@
 #define INST_NAME(name) 
 #define TABLE64(A, V)   {Table64(dyn, (V), 2); EMIT(0);}
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; Table64(dyn, v.q, 2); EMIT(0);}
+#define CALLRET_RET()   do {dyn->callrets[dyn->callret_size].type = 0; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP); } while(0)
+#define CALLRET_LOOP()   do {dyn->callrets[dyn->callret_size].type = 1; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP); } while(0)

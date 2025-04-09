@@ -581,6 +581,7 @@ Optimize CALL/RET opcodes.
 
  * 0: Do not optimize CALL/RET, use jump table. [Default]
  * 1: Try to optimize CALL/RET, skipping the jump table when possible. 
+ * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. 
 
 ### BOX64_DYNAREC_DF
 

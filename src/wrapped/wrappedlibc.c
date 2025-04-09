@@ -3029,13 +3029,6 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     }
     #endif
     if(ret!=MAP_FAILED) {
-        if((flags&MAP_SHARED) && (fd>0)) {
-            uint32_t flags = fcntl(fd, F_GETFL);
-            if((flags&O_ACCMODE)==O_RDWR) {
-                if((BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
-                prot |= PROT_NEVERCLEAN;
-            }
-        }
         if(emu && !(flags&MAP_ANONYMOUS) && (fd>0)) {
             DetectUnityPlayer(fd);
             // the last_mmap will allow mmap created by wine, even those that have hole, to be fully tracked as one single mmap
@@ -3043,6 +3036,13 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
                 RecordEnvMappings((uintptr_t)last_mmap_addr, last_mmap_len, fd);
             else
                 RecordEnvMappings((uintptr_t)ret, length, fd);
+        }
+        if((flags&MAP_SHARED) && (fd>0)) {
+            uint32_t flags = fcntl(fd, F_GETFL);
+            if((flags&O_ACCMODE)==O_RDWR) {
+                if((BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
+                prot |= PROT_NEVERCLEAN;
+            }
         }
         // hack to capture full size of the mmap done by wine
         if(emu && (fd==-1) && (flags==(MAP_PRIVATE|MAP_ANON))) {

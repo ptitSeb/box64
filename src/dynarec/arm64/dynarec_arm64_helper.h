@@ -988,6 +988,16 @@
 #define IF_ALIGNED(A) if (!dyn->insts[ninst].unaligned)
 #endif
 
+#ifndef CALLRET_RET
+#define CALLRET_RET()   NOP
+#endif
+#ifndef CALLRET_GETRET
+#define CALLRET_GETRET()    (dyn->callrets?(dyn->callrets[dyn->callret_size].offs-dyn->native_size):0)
+#endif
+#ifndef CALLRET_LOOP
+#define CALLRET_LOOP()  NOP
+#endif
+
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))

@@ -47,6 +47,7 @@ typedef union sse_cache_s {
         uint8_t write:1;
     };
 } sse_cache_t;
+typedef struct callret_s callret_t;
 typedef struct neoncache_s {
     // Neon cache
     neon_cache_t        neoncache[32];
@@ -157,6 +158,8 @@ typedef struct dynarec_arm_s {
     dynablock_t*        dynablock;
     instsize_t*         instsize;
     size_t              insts_size; // size of the instruction size array (calculated)
+    int                 callret_size;   // size of the array
+    callret_t*          callrets;   // arrey of callret return, with NOP / UDF depending if the block is clean or dirty
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
     int32_t             forward_size;   // size at the forward point
