@@ -11,9 +11,9 @@
 #define F64S    *(int64_t*)(addr+=8, addr-8)
 #define PK(a)   *(uint8_t*)(addr+a)
 #ifdef DYNAREC
-#define STEP  check_exec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) return 0;
-#define STEP2 check_exec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) {R_RIP = addr; return 0;}
-#define STEP3 check_exec(emu, addr); if(*step) (*step)++;
+#define STEP  CheckExec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) return 0;
+#define STEP2 CheckExec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) {R_RIP = addr; return 0;}
+#define STEP3 CheckExec(emu, addr); if(*step) (*step)++;
 #else
 #define STEP
 #define STEP2

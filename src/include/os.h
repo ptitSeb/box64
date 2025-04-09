@@ -36,9 +36,6 @@ int InternalMunmap(void* addr, unsigned long length);
 
 int GetTID(void);
 int SchedYield(void);
-void EmitSignal(void* emu, int sig, void* addr, int code);
-void EmitDiv0(void* emu, void* addr, int code);
-void EmitInterruption(void* emu, int num, void* addr);
 
 void EmuX64Syscall(void* emu);
 void EmuX86Syscall(void* emu);

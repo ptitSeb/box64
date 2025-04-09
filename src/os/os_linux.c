@@ -19,21 +19,6 @@ int SchedYield(void)
     return sched_yield();
 }
 
-void EmitSignal(void* emu, int sig, void* addr, int code)
-{
-    return emit_signal((x64emu_t*)emu, sig, addr, code);
-}
-
-void EmitDiv0(void* emu, void* addr, int code)
-{
-    return emit_div0((x64emu_t*)emu, addr, code);
-}
-
-void EmitInterruption(void* emu, int num, void* addr)
-{
-    return emit_interruption((x64emu_t*)emu, num, addr);
-}
-
 int IsBridgeSignature(char s, char c)
 {
     return s == 'S' && c == 'C';

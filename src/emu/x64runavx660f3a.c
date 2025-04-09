@@ -21,7 +21,7 @@
 #include "box64context.h"
 #include "my_cpuid.h"
 #include "bridge.h"
-#include "signals.h"
+#include "emit_signals.h"
 #include "x64shaext.h"
 #include "x64compstrings.h"
 #ifdef DYNAREC
