@@ -347,6 +347,7 @@ set_source_files_properties(
     HEADER_FILE_ONLY TRUE)
 
 set(OS_LINUX_SRC
+    "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/os_linux.c"
 )
 

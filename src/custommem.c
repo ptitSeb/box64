@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 #include <errno.h>
 
 #include "os.h"
+#include "backtrace.h"
 #include "box64context.h"
 #include "debug.h"
 #include "x64trace.h"
@@ -557,7 +557,7 @@ void* map128_customMalloc(size_t size, int is32bits)
             // mask size from this block
             p_blocks[i].size = 0;
             mutex_unlock(&mutex_blocks);
-            showNativeBT(LOG_NONE);
+            ShowNativeBT(LOG_NONE);
             testAllBlocks();
             if(BOX64ENV(log)>=LOG_DEBUG) {
                 printf_log(LOG_NONE, "Used 32bits address space map:\n");
@@ -663,7 +663,7 @@ void* internal_customMalloc(size_t size, int is32bits)
             // mask size from this block
             p_blocks[i].size = 0;
             mutex_unlock(&mutex_blocks);
-            showNativeBT(LOG_NONE);
+            ShowNativeBT(LOG_NONE);
             testAllBlocks();
             if(BOX64ENV(log)>=LOG_DEBUG) {
                 printf_log(LOG_NONE, "Used 32bits address space map:\n");
