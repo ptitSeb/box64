@@ -1280,11 +1280,11 @@ GO(posix_spawnattr_destroy, iFp)
 // posix_spawnattr_getsigdefault
 // posix_spawnattr_getsigmask
 GO(posix_spawnattr_init, iFp)
-// posix_spawnattr_setflags
+GOW(posix_spawnattr_setflags, iFpw)
 // posix_spawnattr_setpgroup
 // posix_spawnattr_setschedparam
 // posix_spawnattr_setschedpolicy
-// posix_spawnattr_setsigdefault
+GOW(posix_spawnattr_setsigdefault, iFpp)
 // posix_spawnattr_setsigmask
 GOM(posix_spawn_file_actions_addclose, iEEpi)   //%%
 GOM(posix_spawn_file_actions_adddup2, iEEpii)   //%%
