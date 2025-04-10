@@ -262,7 +262,7 @@ int getX64AddressInst(dynablock_t* db, uintptr_t x64pc); // define is signal.c
 // NZCV V
 #define NZCV_V      28
 
-#ifndef _WIN32
+#ifndef _WIN32 // TODO: Implemented this for Win32
 void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
 {
     if(!db->arch_size || !db->arch)
