@@ -86,39 +86,6 @@ void free_tlsdatasize(void* p)
 void x64Syscall(x64emu_t *emu);
 void x86Syscall(x64emu_t *emu);
 
-int unlockMutex()
-{
-    int ret = unlockCustommemMutex();
-    int i;
-    #ifdef USE_CUSTOM_MUTEX
-    uint32_t tid = (uint32_t)GetTID();
-    #define GO(A, B)                    \
-        i = (native_lock_storeifref2_d(&A, 0, tid)==tid); \
-        if(i) {                         \
-            ret|=(1<<B);                \
-        }
-    #else
-        #define GO(A, B)                \
-        i = checkUnlockMutex(&A);       \
-        if(i) {                         \
-            ret|=(1<<B);                \
-        }
-    #endif
-
-    GO(my_context->mutex_trace, 7)
-    #ifdef DYNAREC
-    GO(my_context->mutex_dyndump, 8)
-    #else
-    GO(my_context->mutex_lock, 8)
-    #endif
-    GO(my_context->mutex_tls, 9)
-    GO(my_context->mutex_thread, 10)
-    GO(my_context->mutex_bridge, 11)
-    #undef GO
-
-    return ret;
-}
-
 void relockMutex(int locks)
 {
     relockCustommemMutex(locks);

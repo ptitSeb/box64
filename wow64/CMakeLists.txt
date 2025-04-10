@@ -25,13 +25,16 @@ set_source_files_properties(${DYNAREC_ASM_SRC} PROPERTIES COMPILE_OPTIONS "-mcpu
 
 set(BOX64CPU_SRC
     "${BOX64_ROOT}/src/custommem.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
+    "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/dynarec/dynablock.c"
+    "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native.c"
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/os_wine.c"
+    "${BOX64_ROOT}/src/os/symbolfuncs_wine.c"
     "${BOX64_ROOT}/src/tools/alternate.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
-    "${BOX64_ROOT}/src/libtools/threads.c"
 )
 
 add_library(wowbox64 SHARED ${MAIN_SRC} ${BOX64CPU_SRC} ${DYNAREC_ASM_SRC})

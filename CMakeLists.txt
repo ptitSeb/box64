@@ -230,7 +230,7 @@ elseif(ARM64)
     #add_definitions(-pipe -march=native)
 endif()
 if(ARM_DYNAREC)
-    if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.0") 
+    if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "9.0")
         set(ASMFLAGS  -pipe -march=armv8.2-a+crc+simd+crypto)
     else()
         #putting a random cpu that have 8.2 architecture so assembly can be build. the use of the feature are conditionnal anyway
@@ -350,6 +350,7 @@ set(OS_LINUX_SRC
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/emit_signals_linux.c"
     "${BOX64_ROOT}/src/os/os_linux.c"
+    "${BOX64_ROOT}/src/os/symbolfuncs_linux.c"
 )
 
 set(ELFLOADER_SRC
@@ -868,7 +869,7 @@ if(BOX32)
         set(WRAPPEDS32_HEAD ${WRAPPEDS32_HEAD} ${B})
         set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
     endforeach()
-    
+
     set(WRAPPER32 "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c" "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.h")
 
     if(NOT CI)
@@ -1814,13 +1815,13 @@ if(BOX32)
             -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
     endforeach()
 
-    #add_test(NAME sse_optimized_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test17_o2 -D TEST_OUTPUT=tmpfile32_17_o2.txt 
+    #add_test(NAME sse_optimized_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test17_o2 -D TEST_OUTPUT=tmpfile32_17_o2.txt
     #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref17_o2.txt
     #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    #set_tests_properties(sse_optimized_32bits PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0")    
-        
+    #set_tests_properties(sse_optimized_32bits PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0")
+
     add_test(bswap_32bits ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
             -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test23 -D TEST_OUTPUT=tmpfile32_23.txt
             -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref23.txt

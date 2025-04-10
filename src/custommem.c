@@ -45,15 +45,15 @@ static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
 #ifdef USE_CUSTOM_MUTEX
-static uint32_t            mutex_prot;
-static uint32_t            mutex_blocks;
+uint32_t            mutex_prot;
+uint32_t            mutex_blocks;
 #else
-static pthread_mutex_t     mutex_prot;
-static pthread_mutex_t     mutex_blocks;
+pthread_mutex_t     mutex_prot;
+pthread_mutex_t     mutex_blocks;
 #endif
 #else
-static pthread_mutex_t     mutex_prot;
-static pthread_mutex_t     mutex_blocks;
+pthread_mutex_t     mutex_prot;
+pthread_mutex_t     mutex_blocks;
 #endif
 //#define TRACE_MEMSTAT
 rbtree_t* memprot = NULL;
@@ -1859,6 +1859,7 @@ uintptr_t old_brk = 0;
 uintptr_t* cur_brk = NULL;
 void loadProtectionFromMap()
 {
+#ifndef _WIN32 // TODO: Should this be implemented on Win32?
     if(box64_mapclean)
         return;
     char buf[500];
@@ -1893,6 +1894,7 @@ void loadProtectionFromMap()
     }
     fclose(f);
     box64_mapclean = 1;
+#endif
 }
 
 void freeProtection(uintptr_t addr, size_t size)
@@ -2056,30 +2058,6 @@ int isBlockFree(void* hint, size_t size)
             return 1;
     }
     return 0;
-}
-
-int unlockCustommemMutex()
-{
-    int ret = 0;
-    int i = 0;
-    #ifdef USE_CUSTOM_MUTEX
-    uint32_t tid = (uint32_t)GetTID();
-    #define GO(A, B)                    \
-        i = (native_lock_storeifref2_d(&A, 0, tid)==tid); \
-        if(i) {                         \
-            ret|=(1<<B);                \
-        }
-    #else
-    #define GO(A, B)                    \
-        i = checkUnlockMutex(&A);       \
-        if(i) {                         \
-            ret|=(1<<B);                \
-        }
-    #endif
-    GO(mutex_blocks, 0)
-    GO(mutex_prot, 1) // See also signals.c
-    #undef GO
-    return ret;
 }
 
 void relockCustommemMutex(int locks)

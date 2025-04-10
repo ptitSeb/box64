@@ -46,11 +46,11 @@ void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction
         // print Call function name if possible
         if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
             uintptr_t nextaddr = (uintptr_t)ip + 5 + *((int32_t*)(ip+1));
-            printFunctionAddr(nextaddr, "=> ");
+            PrintFunctionAddr(nextaddr, "=> ");
         } else if(ip[0]==0xFF) {
             if(ip[1]==0x25) {
                 uintptr_t nextaddr = (uintptr_t)ip + 6 + *((int32_t*)(ip+2));
-                printFunctionAddr(nextaddr, "=> ");
+                PrintFunctionAddr(nextaddr, "=> ");
             }
         }
         // end of line and colors
@@ -235,7 +235,7 @@ int next_instruction(dynarec_native_t *dyn, uintptr_t addr)
         case 0xF3:
             nextop = PK(1);
             switch(nextop) {
-                case 0x90: 
+                case 0x90:
                     return 2;
                 default: break;
             }
@@ -279,7 +279,7 @@ void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size)
         toadd = 1 + native_size/15;
     while(toadd) {
         if(x64_size>15)
-            insts[*size].x64 = 15;    
+            insts[*size].x64 = 15;
         else
             insts[*size].x64 = x64_size;
         x64_size -= insts[*size].x64;
@@ -764,7 +764,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         CancelBlock64(0);
         return NULL;
     }
-    
+
     // pass 2, instruction size
     helper.callrets = static_callrets;
     native_pass2(&helper, addr, alternate, is32bits, inst_max);
@@ -824,7 +824,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // pass 3, emit (log emit native opcode)
     if(BOX64DRENV(dynarec_dump)) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu, callrets=%zu)", (BOX64DRENV(dynarec_dump)>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size, callret_size);
-        printFunctionAddr(helper.start, " => ");
+        PrintFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (BOX64DRENV(dynarec_dump)>1)?"\e[m":"");
     }
     if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {

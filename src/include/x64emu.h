@@ -34,7 +34,6 @@ long double LD2localLD(void* ld);        // long double (80bits pointer) -> long
 void LD2D(void* ld, void* d);   // long double (80bits) -> double (64bits)
 void D2LD(void* d, void* ld);   // double (64bits) -> long double (64bits)
 
-int printFunctionAddr(uintptr_t nextaddr, const char* text); // 0 if nothing was found
 const char* getAddrFunctionName(uintptr_t addr);
 
 #endif //__X86EMU_H_

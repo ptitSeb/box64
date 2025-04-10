@@ -12,6 +12,11 @@ int SchedYield(void)
     return SwitchToThread();
 }
 
+int IsBridgeSignature(char s, char c)
+{
+    return FALSE;
+}
+
 void PersonalityAddrLimit32Bit(void) { }
 
 ULONG_PTR default_zero_bits32 = 0x7fffffff;

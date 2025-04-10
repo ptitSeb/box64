@@ -20,7 +20,7 @@
 #include "emu/x64run_private.h"
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
-#include "signals.h"
+#include "mysignal.h"
 #include "emit_signals.h"
 #include "dynarec_native.h"
 #include "custommem.h"
@@ -629,7 +629,7 @@ int is_avx_zero_unset(dynarec_native_t* dyn, int ninst, int reg)
 {
     if((dyn->ymm_zero>>reg)&1) {
         dyn->ymm_zero &= ~(1<<reg);
-        return 1;    
+        return 1;
     }
     return 0;
 }
@@ -651,7 +651,7 @@ void propagate_nodf(dynarec_native_t* dyn, int ninst)
         if(dyn->insts[ninst].x64.gen_flags || dyn->insts[ninst].x64.use_flags)
             return; // flags are use, so maybe it's needed
         dyn->insts[ninst].df_notneeded = 1;
-        --ninst;       
+        --ninst;
     }
 }
 
