@@ -25,6 +25,7 @@
 #include "custommem.h"
 #include "bridge.h"
 #include "gdbjit.h"
+#include "perfmap.h"
 
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)

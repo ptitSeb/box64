@@ -7,8 +7,6 @@
 #include <signal.h>
 #include <errno.h>
 #include <setjmp.h>
-#include <sys/mman.h>
-#include <dlfcn.h>
 
 #include "os.h"
 #include "debug.h"
@@ -67,9 +65,6 @@ typedef struct x64_unwind_buff_s {
 typedef void(*vFv_t)();
 
 KHASH_MAP_INIT_INT64(threadstack, threadstack_t*)
-#ifndef ANDROID
-KHASH_MAP_INIT_INT64(cancelthread, __pthread_unwind_buf_t*)
-#endif
 
 void CleanStackSize(box64context_t* context)
 {

@@ -27,6 +27,7 @@
 #include "bridge.h"
 #include "rv64_lock.h"
 #include "gdbjit.h"
+#include "perfmap.h"
 
 #define XMM0 0
 #define X870 XMM0 + 16

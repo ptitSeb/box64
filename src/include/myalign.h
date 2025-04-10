@@ -2,6 +2,8 @@
 #define __MY_ALIGN__H_
 #include <stdint.h>
 
+#include "mysignal.h"
+
 typedef struct x64_va_list_s {
    unsigned int gp_offset;
    unsigned int fp_offset;
