@@ -467,6 +467,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
 }
 
 void relockMutex(int locks);
+int unlockMutex();
 
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 #define is_memprot_locked (1<<1)
