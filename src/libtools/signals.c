@@ -1790,9 +1790,9 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
-        if(db) CheckHotPage((uintptr_t)addr);
-        int db_need_test = db?getNeedTest((uintptr_t)db->x64_addr):0;
-        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || (db_need_test && !BOX64ENV(dynarec_dirty)))) {
+        CheckHotPage((uintptr_t)addr);
+        int db_need_test = (db && !BOX64ENV(dynarec_dirty))?getNeedTest((uintptr_t)db->x64_addr):0;
+        if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
             emu = getEmuSignal(emu, p, db);
             // dynablock got auto-dirty! need to get out of it!!!
             if(emu->jmpbuf) {

@@ -273,12 +273,15 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
 
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 {
-    if(isInHotPage(addr))
+    int is_inhotpage = isInHotPage(addr);
+    if(is_inhotpage && !BOX64ENV(dynarec_dirty))
         return NULL;
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1, is32bits);
     if(db && db->done && db->block && getNeedTest(addr)) {
         if (db->always_test) SchedYield(); // just calm down...
         uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
+        if(is_inhotpage && hash!=db->hash)
+            return NULL;    // will be handle when hotpage is over
         int need_lock = mutex_trylock(&my_context->mutex_dyndump);
         if(hash!=db->hash) {
             db->done = 0;   // invalidating the block
@@ -294,19 +297,23 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
             } else
                 FreeInvalidDynablock(old, need_lock);
         } else {
-            dynarec_log(LOG_DEBUG, "Validating block %p from %p:%p (hash:%X, always_test:%d) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, db->always_test, (void*)addr);
-            if(db->always_test)
-                protectDB((uintptr_t)db->x64_addr, db->x64_size);
-            else {
-                #ifdef ARCH_NOP
-                if(db->callret_size) {
-                    // mark all callrets to UDF
-                    for(int i=0; i<db->callret_size; ++i)
-                        *(uint32_t*)(db->block+db->callrets[i].offs) = ARCH_NOP;
-                    ClearCache(db->block, db->size);
+            if(is_inhotpage) {
+                // log?
+            } else {
+                dynarec_log(LOG_DEBUG, "Validating block %p from %p:%p (hash:%X, always_test:%d) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, db->always_test, (void*)addr);
+                if(db->always_test)
+                    protectDB((uintptr_t)db->x64_addr, db->x64_size);
+                else {
+                    #ifdef ARCH_NOP
+                    if(db->callret_size) {
+                        // mark all callrets to UDF
+                        for(int i=0; i<db->callret_size; ++i)
+                            *(uint32_t*)(db->block+db->callrets[i].offs) = ARCH_NOP;
+                        ClearCache(db->block, db->size);
+                    }
+                    #endif
+                    protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
                 }
-                #endif
-                protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
             }
         }
         if(!need_lock)

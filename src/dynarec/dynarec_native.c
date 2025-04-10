@@ -605,6 +605,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock at %p as another one is going on\n", (void*)addr);
         return NULL;
     }
+    if(checkInHotPage(addr)) {
+        dynarec_log(LOG_DEBUG, "Not creating dynablock at %p as in a HotPage\n", (void*)addr);
+        return NULL;
+    }
     // protect the 1st page
     protectDB(addr, 1);
     // init the helper
