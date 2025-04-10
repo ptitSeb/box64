@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <env.h>
 
+#include "os.h"
+
 typedef struct box64context_s box64context_t;
 extern box64env_t box64env;
 extern box64env_t* cur_box64env;

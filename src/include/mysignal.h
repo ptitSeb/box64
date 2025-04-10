@@ -11,6 +11,8 @@ typedef struct {
 typedef sigset_t __sigset_t;
 
 #define sigfillset(x)
+
+#define SIGTRAP 5
 #endif
 
 #endif // __MYSIGNAL_H_

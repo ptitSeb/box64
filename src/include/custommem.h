@@ -118,8 +118,6 @@ void* find47bitBlockElf(size_t size, int mainbin, uintptr_t mask);
 void* find31bitBlockElf(size_t size, int mainbin, uintptr_t mask);
 int isBlockFree(void* hint, size_t size);
 
-// unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
-int unlockCustommemMutex(void);
 // relock the muxtex that were unlocked
 void relockCustommemMutex(int locks);
 

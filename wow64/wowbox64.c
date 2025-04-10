@@ -5,6 +5,36 @@
 
 #include "os.h"
 #include "custommem.h"
+#include "env.h"
+#include "box64context.h"
+
+uintptr_t box64_pagesize = 4096;
+
+int box64_is32bits = 0;
+int box64_wine = 0; // this is for the emulated x86 Wine.
+
+box64env_t box64env = { 0 }; // FIXME: add real env support.
+
+box64env_t* GetCurEnvByAddr(uintptr_t addr) {
+    return &box64env;
+}
+
+int arm64_asimd = 0;
+int arm64_aes = 0;
+int arm64_pmull = 0;
+int arm64_crc32 = 0;
+int arm64_atomics = 0;
+int arm64_sha1 = 0;
+int arm64_sha2 = 0;
+int arm64_uscat = 0;
+int arm64_flagm = 0;
+int arm64_flagm2 = 0;
+int arm64_frintts = 0;
+int arm64_afp = 0;
+int arm64_rndr = 0;
+
+static box64context_t box64_context;
+box64context_t *my_context = &box64_context;
 
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {

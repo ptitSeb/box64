@@ -5,6 +5,7 @@
 #include "regs.h"
 #include "x64emu_private.h"
 #include "box64context.h"
+#include "symbolfuncs.h"
 
 typedef struct rex_s {
     union {
