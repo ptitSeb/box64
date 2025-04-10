@@ -7,6 +7,11 @@ int GetTID(void)
     return GetCurrentThreadId();
 }
 
+int SchedYield(void)
+{
+    return SwitchToThread();
+}
+
 void PersonalityAddrLimit32Bit(void) { }
 
 ULONG_PTR default_zero_bits32 = 0x7fffffff;

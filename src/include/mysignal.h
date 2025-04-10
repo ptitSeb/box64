@@ -8,8 +8,9 @@ typedef struct {
     int a;
 } sigset_t;
 
+typedef sigset_t __sigset_t;
+
 #define sigfillset(x)
-#define pthread_sigmask(a, b, c)
 #endif
 
 #endif // __MYSIGNAL_H_

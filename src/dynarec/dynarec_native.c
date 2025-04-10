@@ -18,7 +18,6 @@
 #include "x64trace.h"
 #include "dynablock.h"
 #include "dynablock_private.h"
-#include "elfloader.h"
 
 #include "dynarec_native.h"
 #include "dynarec_arch.h"
@@ -932,14 +931,4 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     current_helper = NULL;
     //block->done = 1;
     return (void*)block;
-}
-
-void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, const char* inst_name)
-{
-    char pbuf[128];
-    uint64_t sz = 0;
-    uintptr_t start = 0;
-    const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, func_addr), (void*)func_addr, &start, &sz);
-    snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s:%s\n", code_addr, code_size, symbname, inst_name);
-    write(BOX64ENV(dynarec_perf_map_fd), pbuf, strlen(pbuf));
 }

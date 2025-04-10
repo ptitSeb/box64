@@ -90,9 +90,6 @@ static void del_attr(void* attr);
 typedef void(*vFv_t)();
 
 KHASH_MAP_INIT_INT(threadstack, threadstack_t)
-#ifndef ANDROID
-KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
-#endif
 
 void CleanStackSize(box64context_t* context);
 void FreeStackSize(uintptr_t attr);

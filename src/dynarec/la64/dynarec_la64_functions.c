@@ -25,6 +25,7 @@
 #include "custommem.h"
 #include "bridge.h"
 #include "gdbjit.h"
+#include "perfmap.h"
 #include "elfloader.h"
 
 #define XMM0 0

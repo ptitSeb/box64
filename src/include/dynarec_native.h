@@ -26,6 +26,4 @@ void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size);
 void CancelBlock64(int need_lock);
 void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bits, int inst_max);
 
-void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, const char* inst_name);
-
 #endif //__DYNAREC_ARM_H_
