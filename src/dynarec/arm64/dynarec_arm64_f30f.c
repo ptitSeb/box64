@@ -143,9 +143,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 if(rex.w) {
-                    FRINT64ZS(v0, q0);
+                    FRINT64ZS(v0, d0);
                 } else {
-                    FRINT32ZS(v0, q0);
+                    FRINT32ZS(v0, d0);
                 }
                 FCVTZSxwS(gd, v0);
             } else {

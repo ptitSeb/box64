@@ -152,9 +152,9 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 if(rex.w) {
-                    FRINT64ZS(v0, q0);
+                    FRINT64ZS(v0, d0);
                 } else {
-                    FRINT32ZS(v0, q0);
+                    FRINT32ZS(v0, d0);
                 }
                 FCVTZSxwS(gd, v0);
             } else {
@@ -334,13 +334,15 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                         VFRINT32ZSQ(v0, v1);
                         VFCVTZSQS(v0, v0);
                     } else {
-                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                        MSR_fpsr(x5);
                         for(int i=0; i<4; ++i) {
                             BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                             MSR_fpsr(x5);
-                            VMOVeS(d0, 0, v1, i);
-                            VFCVTZSs(d0, d0);
+                            if(i) {
+                                VMOVeS(d0, 0, v1, i);
+                                VFCVTZSs(d0, d0);
+                            } else {
+                                VFCVTZSs(d0, v1);
+                            }
                             MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                             TBZ(x5, FPSR_IOC, 4+4);
                             VMOVQSfrom(d0, 0, x4);

@@ -416,8 +416,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(vex.l) {
                 GETEY(v1);
-                FCVTXN2(v0, v1);
-                if(BOX64ENV(dynarec_fastround)<2) {
+                if(BOX64ENV(dynarec_fastround)==2) {
+                    FCVTXN2(v0, v1);
+                } else {
+                    FCVTN2(v0, v1);
                     x87_restoreround(dyn, ninst, u8);
                 }
             }
