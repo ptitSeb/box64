@@ -14,9 +14,9 @@
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "my_cpuid.h"
+#include "freq.h"
 #include "emu/x87emu_private.h"
 #include "emu/x64shaext.h"
-
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
@@ -1938,7 +1938,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                         if(BOX64ENV(sse_flushto0)) {
                             // try to sync mxcsr with fpsr on the flag side
-                            /* mapping is 
+                            /* mapping is
                                 ARM -> X86
                                 0 -> 0  // Invalid operation
                                 1 -> 2  // Divide by 0

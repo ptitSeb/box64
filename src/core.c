@@ -45,6 +45,8 @@
 #include "library.h"
 #include "core.h"
 #include "env.h"
+#include "cleanup.h"
+#include "freq.h"
 
 box64context_t *my_context = NULL;
 extern box64env_t box64env;

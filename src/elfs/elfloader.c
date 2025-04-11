@@ -36,6 +36,7 @@
 #include "wine_tools.h"
 #include "dictionnary.h"
 #include "symbols.h"
+#include "cleanup.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -68,12 +69,12 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         h->path = (char*)box_malloc(1);
         h->path[0] = '\0';
     }
-    
+
     h->refcnt = 0;
 
     h->file = f;
     h->fileno = fileno(f);
-    
+
     return h;
 }
 
@@ -127,7 +128,7 @@ int CalcLoadAddr(elfheader_t* head)
                     head->vaddr = (uintptr_t)head->PHEntries._64[i].p_vaddr;
             }
     }
-    
+
     if(head->vaddr==~(uintptr_t)0 || head->paddr==~(uintptr_t)0) {
         printf_log(LOG_NONE, "Error: v/p Addr for Elf Load not set\n");
         return 1;
@@ -223,7 +224,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
     uintptr_t max_align = head->align-1;
-    for (size_t i=0; i<head->numPHEntries; ++i) 
+    for (size_t i=0; i<head->numPHEntries; ++i)
         if(head->PHEntries._64[i].p_type == PT_LOAD && head->PHEntries._64[i].p_flags) {
             ++head->multiblock_n;
         }
@@ -314,8 +315,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             if(try_mmap) {
                 printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
-                    (void*)head->multiblocks[n].paddr, 
-                    head->multiblocks[n].size, 
+                    (void*)head->multiblocks[n].paddr,
+                    head->multiblocks[n].size,
                     prot,
                     MAP_PRIVATE|MAP_FIXED, //((prot&PROT_WRITE)?MAP_SHARED:MAP_PRIVATE)|MAP_FIXED,
                     head->fileno,
@@ -373,7 +374,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                             p = (void*)paddr;
                     } else {
                         p = (void*)paddr;
-                        printf_dump(log_level, "Will read 0x%zx @%p for Elf \"%s\"\n", e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);    
+                        printf_dump(log_level, "Will read 0x%zx @%p for Elf \"%s\"\n", e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                     }
                 }
                 if(p==MAP_FAILED || p!=(void*)paddr) {
@@ -489,7 +490,7 @@ static elfheader_t* FindElfSymbol(box64context_t *context, Elf64_Sym* sym)
     for (int i=0; i<context->elfsize; ++i)
         if(IsSymInElfSpace(context->elfs[i], sym))
             return context->elfs[i];
-    
+
     return NULL;
 }
 
@@ -685,8 +686,8 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
             case R_X86_64_GLOB_DAT:
                 if(GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt)) {
                     globp = (uint64_t*)globoffs;
-                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%zd on sym=%s (%sver=%d/%s) \n", 
-                        BindSym(bind), p, globp, (void*)(p?(*p):0), 
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%zd on sym=%s (%sver=%d/%s) \n",
+                        BindSym(bind), p, globp, (void*)(p?(*p):0),
                         (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, veropt?"opt":"", version, vername?vername:"(none)");
                     sym_elf = my_context->elfs[0];
                     *p = globoffs;
@@ -704,9 +705,9 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
             case R_X86_64_JUMP_SLOT:
                 // apply immediatly for gobject closure marshal or for LOCAL binding. Also, apply immediatly if it doesn't jump in the got
                 tmp = (uintptr_t)(*p);
-                if (bind==STB_LOCAL 
-                  || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) 
-                  || ((symname && strstr(symname, "__pthread_unwind_next")==symname)) 
+                if (bind==STB_LOCAL
+                  || ((symname && strstr(symname, "g_cclosure_marshal_")==symname))
+                  || ((symname && strstr(symname, "__pthread_unwind_next")==symname))
                   || !tmp
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
                   || !need_resolv
@@ -722,7 +723,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                         // return -1;
                     } else {
                         if(p) {
-                            printf_dump(LOG_NEVER, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p / %s (%sver=%d / %s))\n", 
+                            printf_dump(LOG_NEVER, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p / %s (%sver=%d / %s))\n",
                                 BindSym(bind), p, symname, *(void**)p, (void*)(offs+rela[i].r_addend), sym_elf?sym_elf->name:"native", veropt?"opt":"", version, vername?vername:"(none)");
                             *p = offs + rela[i].r_addend;
                             if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
@@ -731,7 +732,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                         }
                     }
                 } else {
-                    printf_dump(LOG_NEVER, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n", 
+                    printf_dump(LOG_NEVER, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n",
                         BindSym(bind), p, *p, *p+head->delta, symname, rela[i].r_addend);
                     *p += head->delta;
                     *need_resolv = 1;
@@ -750,7 +751,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                     if(bind==STB_GLOBAL)
                         ret_ok = 1;
                 } else {
-                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%sver=%d/%s) addend=0x%lx (%p -> %p)\n", 
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%sver=%d/%s) addend=0x%lx (%p -> %p)\n",
                         BindSym(bind), p, symname, veropt?"opt":"", version, vername?vername:"(none)", rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
                     *p /*+*/= offs+rela[i].r_addend;
                     if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
@@ -933,7 +934,7 @@ int RelocateElfPlt64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbi
             }
         }
     }
-   
+
     return 0;
 }
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
@@ -1310,7 +1311,7 @@ int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr)
         uintptr_t end = (uintptr_t)h->multiblocks[i].p + h->multiblocks[i].asize - 1;
         if(base && addr>=base && addr<=end)
             return 1;
-        
+
     }
     return 0;
 }
@@ -1319,7 +1320,7 @@ elfheader_t* FindElfAddress(box64context_t *context, uintptr_t addr)
     for (int i=0; i<context->elfsize; ++i)
         if(IsAddressInElfSpace(context->elfs[i], addr))
             return context->elfs[i];
-    
+
     return NULL;
 }
 
@@ -1518,7 +1519,7 @@ EXPORT int my32_dl_iterate_phdr(x64emu_t *emu, void* F, void *data)
 #ifdef BOX32
 ;
 #else
-{ 
+{
     return -1;
 }
 #endif
@@ -1836,9 +1837,9 @@ void* GetNativeSymbolUnversioned(void* lib, const char* name)
     search_symbol_t s;
     s.name = name;
     s.addr = NULL;
-    if(lib) 
+    if(lib)
         s.lib = lib;
-    else 
+    else
         s.lib = my_context->box64lib;
     printf_log(LOG_INFO, "Look for %s in loaded elfs\n", name);
     dl_iterate_phdr(dl_iterate_phdr_findsymbol, &s);

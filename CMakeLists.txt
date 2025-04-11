@@ -349,6 +349,7 @@ set_source_files_properties(
 set(OS_LINUX_SRC
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/emit_signals_linux.c"
+    "${BOX64_ROOT}/src/os/freq_linux.c"
     "${BOX64_ROOT}/src/os/os_linux.c"
     "${BOX64_ROOT}/src/os/symbolfuncs_linux.c"
 )
@@ -391,6 +392,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/bridge.c"
     "${BOX64_ROOT}/src/tools/alternate.c"
     "${BOX64_ROOT}/src/tools/callback.c"
+    "${BOX64_ROOT}/src/tools/cleanup.c"
     "${BOX64_ROOT}/src/tools/gdbjit.c"
     "${BOX64_ROOT}/src/tools/perfmap.c"
     "${BOX64_ROOT}/src/tools/my_cpuid.c"
