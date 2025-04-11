@@ -68,6 +68,7 @@
 #include "globalsymbols.h"
 #include "box32.h"
 #include "converter32.h"
+#include "cleanup.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -498,8 +499,8 @@ EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
 #ifdef ANDROID
 void my32___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) , int (*main)(int, char**, char**), void const * const structors );
 #else
-int32_t my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), 
-    int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
+int32_t my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *),
+    int argc, char * * ubp_av, void (*init) (void), void (*fini) (void),
     void (*rtld_fini) (void), void (* stack_end)); // implemented in x64run_private.c
 #endif
 
@@ -586,7 +587,7 @@ pid_t EXPORT my32_fork(x64emu_t* emu)
     if(v<0) {
         printf_log(LOG_NONE, "BOX32: Warning, fork errored... (%d)\n", v);
         // error...
-    } else if(v>0) {  
+    } else if(v>0) {
         // execute atforks parent functions
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].parent)
@@ -1540,7 +1541,7 @@ EXPORT ssize_t my32_read(int fd, void* buf, size_t count)
             unprotectDB((uintptr_t)p, count-ret, 1);
             int l;
             do {
-                l = read(fd, p, count-ret); 
+                l = read(fd, p, count-ret);
                 if(l>0) {
                     p+=l; ret+=l;
                 }
@@ -2003,7 +2004,7 @@ EXPORT int my32_posix_spawn_file_actions_destroy(x64emu_t* emu, posix_spawn_file
     return ret;
 }
 
-EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath, 
+EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
 {
     posix_spawn_file_actions_t actions_l = {0};
@@ -2052,7 +2053,7 @@ EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     return posix_spawn(pid, fullpath, actions, attrp, newargv, newenvp);
 }
 
-EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
+EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
 {
     posix_spawn_file_actions_t actions_l = {0};
@@ -2457,8 +2458,8 @@ EXPORT int32_t my32_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     int ret = fcntl(a, b, d1);
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert32(ret);
-    
-    return ret;    
+
+    return ret;
 }
 EXPORT int32_t my32___fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my32_fcntl")));
 #if 0
@@ -2685,10 +2686,10 @@ void InitCpuModel()
     my32___cpu_model.__cpu_vendor = VENDOR_INTEL;
     my32___cpu_model.__cpu_type = INTEL_PENTIUM_M;
     my32___cpu_model.__cpu_subtype = 0; // N/A
-    my32___cpu_model.__cpu_features[0] = (1<<FEATURE_CMOV) 
-                                     | (1<<FEATURE_MMX) 
-                                     | (1<<FEATURE_SSE) 
-                                     | (1<<FEATURE_SSE2) 
+    my32___cpu_model.__cpu_features[0] = (1<<FEATURE_CMOV)
+                                     | (1<<FEATURE_MMX)
+                                     | (1<<FEATURE_SSE)
+                                     | (1<<FEATURE_SSE2)
                                      | (1<<FEATURE_SSE3)
                                      | (1<<FEATURE_SSSE3)
                                      | (1<<FEATURE_MOVBE)

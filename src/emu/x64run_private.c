@@ -1221,7 +1221,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
     if(!BOX64ENV(start_cnt) && my_context->dec && (
             (trace_end == 0)
             || ((ip >= trace_start) && (ip < trace_end))) ) {
-        int tid = syscall(SYS_gettid);
+        int tid = GetTID();
         mutex_lock(&my_context->mutex_trace);
 #ifdef DYNAREC
         if((my_context->trace_tid != tid) || (my_context->trace_dynarec!=dynarec)) {

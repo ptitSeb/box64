@@ -26,6 +26,7 @@ set_source_files_properties(${DYNAREC_ASM_SRC} PROPERTIES COMPILE_OPTIONS "-mcpu
 set(BOX64CPU_SRC
     "${BOX64_ROOT}/src/custommem.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
+    "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/dynarec/dynablock.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"

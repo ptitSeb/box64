@@ -68,6 +68,7 @@
 #include "globalsymbols.h"
 #include "env.h"
 #include "wine_tools.h"
+#include "cleanup.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -1782,9 +1783,9 @@ void CreateCPUInfoFile(int fd)
         sprintf(buff, "bogomips\t: %g\n", getBogoMips());
         P;
         sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fxsr cpuid pclmulqdq cx16 aes movbe pni "\
-                      "sse4_1%s%s%s lzcnt popcnt%s%s%s%s%s%s%s%s%s\n", 
-                      BOX64ENV(sse42)?" sse4_2":"", BOX64ENV(avx)?" avx":"", BOX64ENV(shaext)?"sha_ni":"", 
-                      BOX64ENV(avx)?" bmi1":"", BOX64ENV(avx2)?" avx2":"", BOX64ENV(avx)?" bmi2":"", 
+                      "sse4_1%s%s%s lzcnt popcnt%s%s%s%s%s%s%s%s%s\n",
+                      BOX64ENV(sse42)?" sse4_2":"", BOX64ENV(avx)?" avx":"", BOX64ENV(shaext)?"sha_ni":"",
+                      BOX64ENV(avx)?" bmi1":"", BOX64ENV(avx2)?" avx2":"", BOX64ENV(avx)?" bmi2":"",
                       BOX64ENV(avx2)?" vaes":"", BOX64ENV(avx2)?" fma":"",
                       BOX64ENV(avx)?" xsave":"", BOX64ENV(avx)?" f16c":"", BOX64ENV(avx2)?" randr":"",
                       BOX64ENV(avx2)?" adx":""

@@ -18,7 +18,7 @@
 #include "emu/x87emu_private.h"
 #include "emu/x64shaext.h"
 #include "bitutils.h"
-
+#include "freq.h"
 #include "la64_printer.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"

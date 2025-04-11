@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/time.h>
-#include <sys/mman.h>
 
 #include "os.h"
 #include "debug.h"
@@ -19,7 +16,6 @@
 #include "x64run_private.h"
 #include "callback.h"
 #include "bridge.h"
-#include "elfs/elfloader_private.h"
 #ifdef HAVE_TRACE
 #include "x64trace.h"
 #endif
@@ -31,12 +27,6 @@
 #else
 #warning Architecture cannot follow SSE Flush to 0 flag
 #endif
-
-typedef struct cleanup_s {
-    void*       f;
-    int         arg;
-    void*       a;
-} cleanup_t;
 
 static uint32_t x86emu_parity_tab[8] =
 {
@@ -111,7 +101,7 @@ x64emu_t *NewX64EmuFromStack(x64emu_t* emu, box64context_t *context, uintptr_t s
     printf_log(LOG_DEBUG, "New X86_64 Emu from stack, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
 
     internalX64Setup(emu, context, start, stack, stacksize, 0);
-    
+
     return emu;
 }
 
@@ -146,61 +136,6 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
     trace_end = end;
 }
 #endif
-
-void AddCleanup(x64emu_t *emu, void *p)
-{
-    (void)emu;
-    
-    if(my_context->clean_sz == my_context->clean_cap) {
-        my_context->clean_cap += 32;
-        my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
-    }
-    my_context->cleanups[my_context->clean_sz].arg = 0;
-    my_context->cleanups[my_context->clean_sz].a = NULL;
-    my_context->cleanups[my_context->clean_sz++].f = p;
-}
-
-void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, elfheader_t* h)
-{
-    (void)emu;
-    if(!h)
-        return;
-    
-    if(h->clean_sz == h->clean_cap) {
-        h->clean_cap += 32;
-        h->cleanups = (cleanup_t*)box_realloc(h->cleanups, sizeof(cleanup_t)*h->clean_cap);
-    }
-    h->cleanups[h->clean_sz].arg = 1;
-    h->cleanups[h->clean_sz].a = a;
-    h->cleanups[h->clean_sz++].f = p;
-}
-
-void CallCleanup(x64emu_t *emu, elfheader_t* h)
-{
-    printf_log(LOG_DEBUG, "Calling atexit registered functions for elf: %p/%s\n", h, h?h->name:"(nil)");
-    if(!h)
-        return;
-    for(int i=h->clean_sz-1; i>=0; --i) {
-        printf_log(LOG_DEBUG, "Call cleanup #%d (args:%d, arg:%p)\n", i, h->cleanups[i].arg, h->cleanups[i].a);
-        RunFunctionWithEmu(emu, 0, (uintptr_t)(h->cleanups[i].f), h->cleanups[i].arg, h->cleanups[i].a );
-        // now remove the cleanup
-        if(i!=h->clean_sz-1)
-            memmove(h->cleanups+i, h->cleanups+i+1, (h->clean_sz-i-1)*sizeof(cleanup_t));
-        --h->clean_sz;
-    }
-}
-
-void CallAllCleanup(x64emu_t *emu)
-{
-    printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
-    for(int i=my_context->clean_sz-1; i>=0; --i) {
-        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-        --my_context->clean_sz;
-        RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
-    }
-    box_free(my_context->cleanups);
-    my_context->cleanups = NULL;
-}
 
 static void internalFreeX64(x64emu_t* emu)
 {
@@ -534,7 +469,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 } else {
                     strcat(buff, "\n");
                 }
-            } 
+            }
     }
     if(is32bits)
         sprintf(tmp, "EIP=%08lx ", ip);
@@ -584,8 +519,8 @@ void UnimpOpcode(x64emu_t* emu, int is32bits)
 {
     R_RIP = emu->old_ip;
 
-    int tid = syscall(SYS_gettid);
-    printf_log(LOG_INFO, "%04d|%p: Unimplemented %sOpcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", 
+    int tid = GetTID();
+    printf_log(LOG_INFO, "%04d|%p: Unimplemented %sOpcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
         tid, (void*)emu->old_ip, is32bits?"32bits ":"",
         Peek(emu, -4), Peek(emu, -3), Peek(emu, -2), Peek(emu, -1),
         Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
@@ -643,133 +578,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
         R_RSP = old_rsp;
         R_RIP = old_rip;  // and set back instruction pointer
     }
-}
-
-#if defined(RV64)
-static size_t readBinarySizeFromFile(const char* fname)
-{
-    if (access(fname, R_OK) != 0) return -1;
-    FILE* fp = fopen(fname, "r");
-    if (fp == NULL) return -1;
-
-    char b[sizeof(uint64_t)] = { 0 }, tmp;
-    ssize_t n = fread(b, 1, sizeof(b), fp);
-    if (n <= 0) return -1;
-
-    for (ssize_t i = 0; i < n / 2; i++) {
-        tmp = b[n - i - 1];
-        b[n - i - 1] = b[i];
-        b[i] = tmp;
-    }
-    return *(uint64_t*)b;
-}
-
-static inline uint64_t readCycleCounter()
-{
-    uint64_t val;
-    asm volatile("rdtime %0"
-                 : "=r"(val));
-    return val;
-}
-
-static inline uint64_t readFreq()
-{
-    static size_t val = -1;
-
-    val = readBinarySizeFromFile("/sys/firmware/devicetree/base/cpus/timebase-frequency");
-    if (val != (size_t)-1) return val;
-
-    // fallback to rdtime + sleep
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 50000000; // 50 milliseconds
-    uint64_t cycles = readCycleCounter();
-    nanosleep(&ts, NULL);
-    // round to MHz
-    val = (size_t)round(((double)(readCycleCounter() - cycles) * 20) / 1e6) * 1e6;
-    return (uint64_t)val;
-}
-#elif defined(ARM64)
-static inline uint64_t readCycleCounter()
-{
-    uint64_t val;
-    asm volatile("mrs %0, cntvct_el0"
-                 : "=r"(val));
-    return val;
-}
-static inline uint64_t readFreq()
-{
-    uint64_t val;
-    asm volatile("mrs %0, cntfrq_el0"
-                 : "=r"(val));
-    return val;
-}
-#elif defined(LA64)
-static inline uint64_t readCycleCounter()
-{
-    uint64_t val;
-    asm volatile("rdtime.d %0, %1"
-                 : "=r"(val) : "r"(0));
-    return val;
-}
-
-static inline uint64_t readFreq()
-{
-    static size_t val = -1;
-
-    FILE* f = popen("cat /proc/cpuinfo | grep -i \"CPU MHz\" | head -n 1 | sed -r 's/CPU MHz.+:\\s{1,}//g'", "r");
-    if(f) {
-        char tmp[200] = "";
-        ssize_t s = fread(tmp, 1, 200, f);
-        pclose(f);
-        if (s > 0) return (uint64_t)atof(tmp) * 1e6;
-    }
-    
-    // fallback to rdtime + sleep
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 50000000; // 50 milliseconds
-    uint64_t cycles = readCycleCounter();
-    nanosleep(&ts, NULL);
-    // round to MHz
-    val = (size_t)round(((double)(readCycleCounter() - cycles) * 20) / 1e6) * 1e6;
-    return (uint64_t)val;
-}
-#endif
-
-uint64_t ReadTSC(x64emu_t* emu)
-{
-    (void)emu;
-    
-    // Hardware counter, per architecture
-#if defined(ARM64) || defined(RV64) || defined(LA64)
-    if (!box64_rdtsc) return readCycleCounter();
-#endif
-    // fall back to gettime...
-#if !defined(NOGETCLOCK)
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
-    return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
-#else
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
-#endif
-}
-
-uint64_t ReadTSCFrequency(x64emu_t* emu)
-{
-    (void)emu;
-    // Hardware counter, per architecture
-#if defined(ARM64) || defined(RV64) || defined(LA64)
-    if (!box64_rdtsc) return readFreq();
-#endif
-    // fall back to get time
-#if !defined(NOGETCLOCK)
-    return 1000000000LL;
-#else
-    return 1000000;
-#endif
 }
 
 void ResetSegmentsCache(x64emu_t *emu)
