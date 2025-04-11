@@ -29,9 +29,8 @@
 #include "elfloader.h"
 
 #define XMM0 0
-#define XMM8 16
-#define X870 8
-#define EMM0 8
+#define X870 16
+#define EMM0 16
 
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_la64_t* dyn)
@@ -66,11 +65,8 @@ int fpu_get_reg_emm(dynarec_la64_t* dyn, int emm)
 int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm)
 {
     int i;
-    if (xmm > 7) {
-        i = XMM8 + xmm - 8;
-    } else {
-        i = XMM0 + xmm;
-    }
+    i = XMM0 + xmm;
+
     dyn->lsx.fpuused[i] = 1;
     dyn->lsx.lsxcache[i].t = t;
     dyn->lsx.lsxcache[i].n = xmm;
