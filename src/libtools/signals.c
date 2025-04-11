@@ -226,7 +226,11 @@ typedef struct x64_mcontext_s
 } x64_mcontext_t;
 
 // /!\ signal sig_set is different than glibc __sig_set
-#define _NSIG_WORDS (128 / sizeof(unsigned long int))
+#ifdef ANDROID
+#define _NSIG_WORDS (64 / (sizeof(unsigned long int)*8))
+#else
+#define _NSIG_WORDS (1024 / (sizeof(unsigned long int)*8))
+#endif
 
 typedef struct {
     unsigned long int sig[_NSIG_WORDS];
@@ -240,7 +244,9 @@ typedef struct x64_ucontext_s
     x64_mcontext_t          uc_mcontext;
     x64_sigset_t            uc_sigmask;
     struct x64_libc_fpstate xstate;
+    #ifndef ANDROID
     uint64_t                ssp[4];
+    #endif
 } x64_ucontext_t;
 
 typedef struct x64_sigframe_s {
