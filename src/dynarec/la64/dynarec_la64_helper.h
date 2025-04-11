@@ -24,7 +24,7 @@
 #define F16S    *(int16_t*)(addr += 2, addr - 2)
 #define F32     *(uint32_t*)(addr += 4, addr - 4)
 #define F32S    *(int32_t*)(addr += 4, addr - 4)
-#define F32S64  (uint64_t)(int64_t) F32S
+#define F32S64  (uint64_t)(int64_t)F32S
 #define F64     *(uint64_t*)(addr += 8, addr - 8)
 #define PK(a)   *(uint8_t*)(addr + a)
 #define PK16(a) *(uint16_t*)(addr + a)
@@ -411,6 +411,13 @@
         FLD_D(a, ed, fixedaddress);                                                          \
     }
 
+// Put Back Em if it was a memory and not an emm register
+#define PUTEM(a)                    \
+    if (!MODREG) {                  \
+        FST_D(a, ed, fixedaddress); \
+        SMWRITE2();                 \
+    }
+
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK() BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 
@@ -505,6 +512,8 @@
 #define BEQZ_MARK(reg) BxxZ_gen(EQ, MARK, reg)
 // Branch to MARK2 if reg1==0 (use j64)
 #define BEQZ_MARK2(reg) BxxZ_gen(EQ, MARK2, reg)
+// Branch to MARK3 if reg1==0 (use j64)
+#define BEQZ_MARK3(reg) BxxZ_gen(EQ, MARK3, reg)
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BxxZ_gen(EQ, MARKLOCK, reg)
 // Branch to MARKLOCK2 if reg1==0 (use j64)
