@@ -1465,4 +1465,11 @@ typedef struct my_XFixesCursorImage_s {
     void*           name;                  /* Version >= 2 only */
 } my_XFixesCursorImage_t;
 
+typedef struct my_XFilters_s {
+    int nfilter;
+    char **filter;
+    int nalias;
+    short *alias;
+} my_XFilters_t;
+
 #endif//MY_X11_DEFS

@@ -3035,6 +3035,8 @@ wrappedlibxrandr:
 wrappedlibxrender:
 - pFXi:
   - XRenderFindStandardFormat
+- pFXL:
+  - XRenderQueryFilters
 - pFXp:
   - XRenderFindVisualFormat
 - pFXLrLiiwwwwwwwwL_i:

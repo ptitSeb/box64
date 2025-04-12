@@ -1407,3 +1407,35 @@ void* inplace_XDeviceInfo_enlarge(void* a)
     }
     return a;
 }
+
+
+void* inplace_XFilters_shrink(void* a)
+{
+    if(a) {
+        my_XFilters_t* src = a;
+        my_XFilters_32_t* dst = a;
+        dst->nfilter = src->nfilter;
+        char** filter = src->filter;
+        dst->filter = to_ptrv(filter);
+        dst->nalias = src->nalias;
+        dst->alias = to_ptrv(src->alias);
+        for(int i=0; i<dst->nfilter; ++i)
+            ((ptr_t*)(filter))[i] = to_ptrv(filter[i]);
+    }
+    return a;
+}
+void* inplace_XFilters_enlarge(void* a)
+{
+    if(a) {
+        my_XFilters_t* dst = a;
+        my_XFilters_32_t* src = a;
+        dst->alias = from_ptrv(src->alias);
+        dst->nalias = src->nalias;
+        dst->filter = from_ptrv(src->filter);
+        dst->nfilter = src->nfilter;
+        char** filter = dst->filter;
+        for(int i=dst->nfilter-1; i>=0; --i)
+            filter[i] = from_ptrv(((ptr_t*)(filter))[i]);
+    }
+    return a;
+}

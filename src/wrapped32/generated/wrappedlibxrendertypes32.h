@@ -12,11 +12,13 @@
 #endif
 
 typedef void* (*pFXi_t)(void*, int32_t);
+typedef void* (*pFXL_t)(void*, uintptr_t);
 typedef void* (*pFXp_t)(void*, void*);
 typedef void* (*pFXLrLiiwwwwwwwwL_i_t)(void*, uintptr_t, struct_LiiwwwwwwwwL_t*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XRenderFindStandardFormat, pFXi_t) \
+	GO(XRenderQueryFilters, pFXL_t) \
 	GO(XRenderFindVisualFormat, pFXp_t) \
 	GO(XRenderFindFormat, pFXLrLiiwwwwwwwwL_i_t)
 

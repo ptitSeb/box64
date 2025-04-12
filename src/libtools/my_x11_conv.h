@@ -113,4 +113,7 @@ void* inplace_XAnyClassInfo_enlarge(void* a);
 void* inplace_XDeviceInfo_shrink(void* a, int n);
 void* inplace_XDeviceInfo_enlarge(void* a);
 
+void* inplace_XFilters_shrink(void* a);
+void* inplace_XFilters_enlarge(void* a);
+
 #endif//MY_X11_CONV

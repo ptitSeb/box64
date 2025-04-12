@@ -1407,4 +1407,11 @@ typedef struct my_XFixesCursorImage_32_s {
     ptr_t           name;                  /* Version >= 2 only */
 } my_XFixesCursorImage_32_t;
 
+typedef struct my_XFilters_32_s {
+    int nfilter;
+    ptr_t filter;   //char **
+    int nalias;
+    ptr_t alias;    //short *
+} my_XFilters_32_t;
+
 #endif//MY_X11_DEFS_32

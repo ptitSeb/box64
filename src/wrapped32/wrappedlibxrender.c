@@ -86,6 +86,13 @@ EXPORT void* my32_XRenderFindVisualFormat(x64emu_t* emu, void* dpy, void* visual
     kh_value(hash_picformat, k) = res;
     return res;
 }
+
+EXPORT void* my32_XRenderQueryFilters(x64emu_t* emu, void* dpy, unsigned long drawable)
+{
+    void* ret = my->XRenderQueryFilters(dpy, drawable);
+    return inplace_XFilters_shrink(ret);
+}
+
 #define CUSTOM_INIT                                     \
     hash_picformat = kh_init(picformat);                \
 
