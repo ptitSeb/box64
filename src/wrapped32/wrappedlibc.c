@@ -3327,11 +3327,17 @@ EXPORT ptr_t my32_stderr = 0;
 
 EXPORT int __libc_enable_secure = 1;
 
+EXPORT ptr_t my32_tzname[2];
+
 EXPORT long_t my32_timezone = 0;
+EXPORT long_t my32___timezone = 0;
 EXPORT void my32_tzset()
 {
     tzset();
     my32_timezone = to_long(timezone);  // this might not be usefull, and we can probably just redirect to the original symbol
+    my32___timezone = to_long(timezone);
+    my32_tzname[0] = to_cstring(tzname[0]);
+    my32_tzname[1] = to_cstring(tzname[1]);
 }
 
 EXPORT int my32___libc_single_threaded = 0;
@@ -3387,6 +3393,8 @@ void libc32_net_init();
     my32___progname_full = my32_program_invocation_name = box64->argv[0];   \
     my32___progname = my32_program_invocation_short_name =                  \
         strrchr(box64->argv[0], '/');                                       \
+    my32_tzname[0] = to_cstring(tzname[0]);                                 \
+    my32_tzname[1] = to_cstring(tzname[1]);                                 \
     my32_stdin = to_ptrv(my__IO_2_1_stdin_);                                \
     my32_stdout = to_ptrv(my__IO_2_1_stdout_);                              \
     my32_stderr = to_ptrv(my__IO_2_1_stderr_);

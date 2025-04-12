@@ -104,7 +104,7 @@ GOWM(backtrace_symbols, pEEpi)
 //GO(__backtrace_symbols_fd, vEpii)
 //GOW(backtrace_symbols_fd, vEpii)
 GO(basename, pEp)
-//GOW(bcmp, iEppL)
+GOW(bcmp, iEppL)
 //GO(bcopy, vEppL)
 // bdflush
 GOW(bind, iEipu)
@@ -1844,7 +1844,7 @@ GO(timerfd_create, iEii)
 GO(timerfd_settime, iEiirLL_BLL_)
 GOW(times, iEBllll_)
 DATAM(timezone, 4)
-//DATAB(__timezone, 4)   // type B
+DATAM(__timezone, 4)   // type B
 GO(tmpfile, pEv)
 GO(tmpfile64, pEv)
 GO(tmpnam, pEp)
@@ -1878,7 +1878,7 @@ GO(truncate64, iESU)
 // __ttyname_r_chk
 // ttyslot
 // twalk    // Weak
-//DATAV(tzname, 4)
+DATAM(tzname, 4)
 //DATA(__tzname, 4)
 GOWM(tzset, vEv)    //%%,noE
 // ualarm
