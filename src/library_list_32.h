@@ -31,6 +31,8 @@ GO("libasound.so.2", libasound)
 GO("libasound.so", libasound)
 GO("libfreetype.so.6", freetype)
 GO("libfontconfig.so.1", fontconfig)
+GO("libEGL.so", libegl)
+GO("libEGL.so.1", libegl)
 
 GO("libX11.so", libx11)
 GO("libXdamage.so", libxdamage)

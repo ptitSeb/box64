@@ -629,8 +629,10 @@
 #() uFpuU -> uFpuU
 #() uEpup -> uEpup
 #() uFpup -> uFpup
+#() uFppi -> uFppi
 #() uFppu -> uFppu
 #() uEppL -> uEppL
+#() uFppL -> uFppL
 #() uFppp -> uFppp
 #() uFXuu -> uFXuu
 #() UEppi -> UEppi
@@ -765,7 +767,9 @@
 #() lEpBp_i -> lEpBi
 #() lFpbp_L -> lFpBL
 #() LEpBp_i -> LEpBi
+#() pFuXbl_ -> pFuXB
 #() pFpibp_ -> pFpiB
+#() pFpubl_ -> pFpuB
 #() pEppbp_ -> pEppB
 #() pEppBp_ -> pEppB
 #() pFppbp_ -> pFppB
@@ -1046,9 +1050,11 @@
 #() uFuuuu -> uFuuuu
 #() uFuppd -> uFuppd
 #() uFpCCC -> uFpCCC
+#() uFppii -> uFppii
 #() uFppip -> uFppip
 #() uFpppi -> uFpppi
 #() uFpppd -> uFpppd
+#() uFpppp -> uFpppp
 #() lEEipi -> lEEipi
 #() lEEppL -> lEEppL
 #() lEiipL -> lEiipL
@@ -1101,6 +1107,7 @@
 #() pEpLpL -> pEpLpL
 #() pFpLpL -> pFpLpL
 #() pEppLL -> pEppLL
+#() pFppLp -> pFppLp
 #() pFpppi -> pFpppi
 #() pFpppL -> pFpppL
 #() pFpppp -> pFpppp
@@ -1138,11 +1145,14 @@
 #() IEpBp_ii -> IEpBii
 #() IEpBp_ia -> IEpBia
 #() uFppibp_ -> uFppiB
+#() uFppibl_ -> uFppiB
+#() uFpbp_ip -> uFpBip
 #() UEpBp_ii -> UEpBii
 #() UEpBp_ia -> UEpBia
 #() lEiibl_L -> lEiiBL
 #() LEpBp_ii -> LEpBii
 #() LEpbp_Lp -> LEpBLp
+#() pFpppbl_ -> pFpppB
 #() vFpibpp_i -> vFpiBi
 #() iEEpprLL_ -> iEEppB
 #() iFuubpu_u -> iFuuBu
@@ -1423,6 +1433,7 @@
 #() pFpuiii -> pFpuiii
 #() pFpuuip -> pFpuuip
 #() pFpuuuu -> pFpuuuu
+#() pFpuppp -> pFpuppp
 #() pFpdddd -> pFpdddd
 #() pFppipi -> pFppipi
 #() pFppuup -> pFppuup
@@ -1451,9 +1462,11 @@
 #() iFXiibL_i -> iFXiiBi
 #() iFXCupbL_ -> iFXCupB
 #() iFXLbL_ii -> iFXLBii
+#() uFppbp_ip -> uFppBip
 #() LEpbp_LLp -> LEpBLLp
 #() LEpBp_LLp -> LEpBLLp
 #() pFpipibp_ -> pFpipiB
+#() pFppupbl_ -> pFppupB
 #() pFppLbp_p -> pFppLBp
 #() iEippprLL_ -> iEipppB
 #() iFpuibpu_p -> iFpuiBp
@@ -2452,6 +2465,9 @@ wrappedlibdrm:
   - drmFreeVersion
 - pFi:
   - drmGetVersion
+wrappedlibegl:
+- pFp:
+  - eglGetProcAddress
 wrappedlibgl:
 - iFi:
   - glXSwapIntervalMESA
