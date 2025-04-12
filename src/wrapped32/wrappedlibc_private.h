@@ -1312,7 +1312,7 @@ DATAM(__progname, 4)
 DATAM(__progname_full, 4)
 DATAM(program_invocation_name, 4)
 DATAM(program_invocation_short_name, 4)
-//GOW(pselect, iEippppp)
+GOW(pselect, iEippprLL_p)
 // psignal
 //GO(ptrace, iEiupp)  // will that work???
 //GO(ptsname, pEi)

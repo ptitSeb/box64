@@ -1700,6 +1700,7 @@ void iFXbL_upip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEppibp_p_32(x64emu_t *emu, uintptr_t fnc);
 void pEEppbL_Lp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEipuurLL__32(x64emu_t *emu, uintptr_t fnc);
+void iEippprLL_p_32(x64emu_t *emu, uintptr_t fnc);
 void iFupupLbpu__32(x64emu_t *emu, uintptr_t fnc);
 void iFppppibpp__32(x64emu_t *emu, uintptr_t fnc);
 void iFpppbpu_uu_32(x64emu_t *emu, uintptr_t fnc);
