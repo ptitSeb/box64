@@ -21,7 +21,14 @@
 static const char* gbmName = "libgbm.so.1";
 #define LIBNAME gbm
 
+typedef union my_gbm_bo_handle_s {
+    uint64_t        data;
+} my_gbm_bo_handle_t;
+
+typedef my_gbm_bo_handle_t (*zFpp_t)(void*, void*);
+
 #define ADDED_FUNCTIONS()                   \
+GO(gbm_bo_get_handle, zFpp_t)               \
 
 #include "generated/wrappedgbmtypes32.h"
 
@@ -64,6 +71,12 @@ static void* find_destroy_user_data_Fct(void* fct)
 EXPORT void my32_gbm_bo_set_user_data(x64emu_t* emu, void* bo, void* data, void *f)
 {
     my->gbm_bo_set_user_data(bo, data, find_destroy_user_data_Fct(f));
+}
+
+EXPORT void* my32_gbm_bo_get_handle(x64emu_t* emu, my_gbm_bo_handle_t* ret, void* a, void* b)
+{
+    *ret = my->gbm_bo_get_handle(a, b);
+    return ret;
 }
 
 #include "wrappedlib_init32.h"

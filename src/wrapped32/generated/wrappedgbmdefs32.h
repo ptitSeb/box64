@@ -4,5 +4,7 @@
 #ifndef __wrappedgbmDEFS32_H_
 #define __wrappedgbmDEFS32_H_
 
+#define zFEpp pFEppp
+#define zFEpp_32 pFEppp_32
 
 #endif // __wrappedgbmDEFS32_H_

@@ -2,6 +2,8 @@
 #error Meh...
 #endif
 
+//%S z my_gbm_bo_handle_t U
+
 GO(gbm_bo_create, pFpuuuu)
 GO(gbm_bo_create_with_modifiers, pFpuuupu)
 GO(gbm_bo_create_with_modifiers2, pFpuuupuu)
@@ -11,7 +13,7 @@ GO(gbm_bo_get_device, pFp)
 GO(gbm_bo_get_fd, iFp)
 GO(gbm_bo_get_fd_for_plane, iFpi)
 GO(gbm_bo_get_format, uFp)
-//GOS(gbm_bo_get_handle, pFpp)
+GOS(gbm_bo_get_handle, zFEpp)   //%%
 //GOS(gbm_bo_get_handle_for_plane, pFppi)
 GO(gbm_bo_get_height, uFp)
 GO(gbm_bo_get_modifier, UFp)
