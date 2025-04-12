@@ -33,6 +33,8 @@ GO("libfreetype.so.6", freetype)
 GO("libfontconfig.so.1", fontconfig)
 GO("libEGL.so", libegl)
 GO("libEGL.so.1", libegl)
+GO("libGLX.so", libglx)
+GO("libGLX.so.0", libglx)
 
 GO("libX11.so", libx11)
 GO("libXdamage.so", libxdamage)

@@ -2525,6 +2525,19 @@ wrappedlibglu:
   - gluNurbsCallback
   - gluQuadricCallback
   - gluTessCallback
+wrappedlibglx:
+- pFp:
+  - glXGetProcAddress
+  - glXGetProcAddressARB
+- pFXp:
+  - glXGetVisualFromFBConfig
+- pFXip:
+  - glXChooseVisual
+  - glXGetFBConfigs
+- pFXipp:
+  - glXChooseFBConfig
+- pFXppi:
+  - glXCreateContext
 wrappedlibm:
 - UEs:
   - cacosf

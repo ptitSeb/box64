@@ -863,6 +863,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibcups.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedgbm.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibegl.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibglx.c"
     )
     endif()
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
