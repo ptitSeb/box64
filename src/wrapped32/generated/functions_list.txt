@@ -666,6 +666,7 @@
 #() LFXpi -> LFXpi
 #() LFXpp -> LFXpp
 #() pFEii -> pFEii
+#() pFEiu -> pFEiu
 #() pEEip -> pEEip
 #() pFEiV -> pFEiV
 #() pEEpi -> pEEpi
@@ -2463,8 +2464,16 @@ wrappedlibdl:
 wrappedlibdrm:
 - vFp:
   - drmFreeVersion
+  - drmModeFreeConnector
+  - drmModeFreeResources
 - pFi:
   - drmGetVersion
+  - drmModeGetResources
+- iFip:
+  - drmHandleEvent
+- pFiu:
+  - drmModeGetConnector
+  - drmModeGetConnectorCurrent
 wrappedlibegl:
 - pFp:
   - eglGetProcAddress

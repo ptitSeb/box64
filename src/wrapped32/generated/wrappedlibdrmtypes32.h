@@ -13,9 +13,17 @@
 
 typedef void (*vFp_t)(void*);
 typedef void* (*pFi_t)(int32_t);
+typedef int32_t (*iFip_t)(int32_t, void*);
+typedef void* (*pFiu_t)(int32_t, uint32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(drmFreeVersion, vFp_t) \
-	GO(drmGetVersion, pFi_t)
+	GO(drmModeFreeConnector, vFp_t) \
+	GO(drmModeFreeResources, vFp_t) \
+	GO(drmGetVersion, pFi_t) \
+	GO(drmModeGetResources, pFi_t) \
+	GO(drmHandleEvent, iFip_t) \
+	GO(drmModeGetConnector, pFiu_t) \
+	GO(drmModeGetConnectorCurrent, pFiu_t)
 
 #endif // __wrappedlibdrmTYPES32_H_

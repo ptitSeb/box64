@@ -707,6 +707,7 @@ void LFXLC_32(x64emu_t *emu, uintptr_t fnc);
 void LFXpi_32(x64emu_t *emu, uintptr_t fnc);
 void LFXpp_32(x64emu_t *emu, uintptr_t fnc);
 void pFEii_32(x64emu_t *emu, uintptr_t fnc);
+void pFEiu_32(x64emu_t *emu, uintptr_t fnc);
 void pEEip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEiV_32(x64emu_t *emu, uintptr_t fnc);
 void pEEpi_32(x64emu_t *emu, uintptr_t fnc);
