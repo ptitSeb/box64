@@ -985,20 +985,25 @@ EXPORT int my32_vasprintf(x64emu_t* emu, ptr_t* strp, void* fmt, void* b)
     *strp = to_ptrv(res);
     return r;
 }
-EXPORT int my32___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt, void* b)
+EXPORT int my32___vasprintf_chk(x64emu_t* emu, ptr_t* strp, int flags, void* fmt, void* b)
 {
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    int r = vasprintf(strp, fmt, VARARGS_32);
+    char* p = NULL;
+    int r = vasprintf(&p, fmt, VARARGS_32);
+    *strp = to_ptrv(p);
     return r;
 }
 
-EXPORT int my32___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* fmt, void* b)
+EXPORT int my32___asprintf_chk(x64emu_t* emu, ptr_t* result_ptr, int flags, void* fmt, void* b)
 {
     myStackAlign32((const char*)fmt, b, emu->scratch);
+    char* p = NULL;
     PREPARE_VALIST_32;
-    return vasprintf(result_ptr, fmt, VARARGS_32);
+    int ret = vasprintf(&p, fmt, VARARGS_32);
+    *result_ptr = to_ptrv(p);
+    return ret;
 }
 
 EXPORT int my32_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint32_t * b) {
