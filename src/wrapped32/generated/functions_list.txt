@@ -1095,6 +1095,7 @@
 #() pFpipi -> pFpipi
 #() pFpipp -> pFpipp
 #() pFpuii -> pFpuii
+#() pFpupu -> pFpupu
 #() pFpupp -> pFpupp
 #() pEpLiS -> pEpLiS
 #() pEpLpL -> pEpLpL
@@ -1421,6 +1422,7 @@
 #() pFpippp -> pFpippp
 #() pFpuiii -> pFpuiii
 #() pFpuuip -> pFpuuip
+#() pFpuuuu -> pFpuuuu
 #() pFpdddd -> pFpdddd
 #() pFppipi -> pFppipi
 #() pFppuup -> pFppuup
@@ -1642,6 +1644,7 @@
 #() pFpipipL -> pFpipipL
 #() pFpipipp -> pFpipipp
 #() pFpipuii -> pFpipuii
+#() pFpuuupu -> pFpuuupu
 #() XFpppppp -> XFpppppp
 #() iFpupupbL_ -> iFpupupB
 #() iFpupbL_pp -> iFpupBpp
@@ -1785,6 +1788,7 @@
 #() pEEpLiiil -> pEEpLiiil
 #() pFEpXppip -> pFEpXppip
 #() pFpipiupp -> pFpipiupp
+#() pFpuuupuu -> pFpuuupuu
 #() pFppppiii -> pFppppiii
 #() vFXLLiiibl_ -> vFXLLiiiB
 #() iFppppppbp_ -> iFppppppB
@@ -1856,6 +1860,7 @@
 #() pFEXpLLppp -> pFEXpLLppp
 #() iFXLLiippBL_ -> iFXLLiippB
 #() iFXLpppbL_pp -> iFXLpppBpp
+#() pFpuuuuupbp_ -> pFpuuuuupB
 #() iFppppubpu_Iu -> iFppppuBIu
 #() iFpppbpu_ppuu -> iFpppBppuu
 #() vFppibLdd_ipiu -> vFppiBipiu
@@ -2147,6 +2152,9 @@ wrappedfreetype:
   - FT_Load_Sfnt_Table
 - iFppllp:
   - FT_New_Memory_Face
+wrappedgbm:
+- vFppp:
+  - gbm_bo_set_user_data
 wrappedgnutls:
 - vFp:
   - gnutls_global_set_log_function

@@ -91,6 +91,8 @@ GO("libnsl.so.1", nsl)
 GO("libnsl.so", nsl)
 GO("libcups.so.2", libcups)
 GO("libcups.so", libcups)
+GO("libgbm.so.1", gbm)
+GO("libgbm.so", gbm)
 
 //GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)
