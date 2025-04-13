@@ -1586,28 +1586,25 @@ x64emurun:
             {
                 addr = (!rex.w)?Pop32(emu):Pop64(emu);
                 uint32_t new_cs = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff; 
-                uint32_t new_ss = 0;
-                uintptr_t new_sp = 0;
-                emu->eflags.x64 = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
-                if(!is32bits || (is32bits && new_cs!=0x23)) {
-                    new_sp = (!rex.w)?Pop32(emu):Pop64(emu);
-                    new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
-                    emu->segs_serial[_SS] = 0;
-                } else {
-                    // no change
-                    new_ss = emu->segs[_SS];
-                    new_sp = R_RSP;
-                }
-                RESET_FLAGS(emu);
                 #ifndef TEST_INTERPRETER
-                if((new_cs&3)!=3)
+                if((new_cs&3)!=3) {
+                    printf_log(LOG_NONE, "Warning, unexpected new_cs=0x%x\n", new_cs);
+                    R_RSP-=(rex.w?4:8)*2;
                     EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0); // GP if trying to change priv level
+                }
                 #endif
+                RESET_FLAGS(emu);
+                emu->eflags.x64 = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+                if(!is32bits || (is32bits && (new_cs!=0x23))) {
+                    uintptr_t new_sp = (!rex.w)?Pop32(emu):Pop64(emu);
+                    uint32_t new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
+                    R_RSP = new_sp;
+                    emu->segs[_SS] = new_sp;
+                    emu->segs_serial[_SS] = 0;
+                }
                 emu->segs[_CS] = new_cs;
                 emu->segs_serial[_CS] = 0;
                 R_RIP = addr;
-                R_RSP = new_sp;
-                emu->segs[_SS] = new_sp;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
                     if(is32bits) {
