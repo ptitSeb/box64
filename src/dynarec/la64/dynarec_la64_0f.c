@@ -692,6 +692,29 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 VFMAX_S(v0, v0, v1);
             }
             break;
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            GETG;
+            v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+            if (MODREG) {
+                ed = TO_NAT(nextop & 7);
+                if (rex.w) {
+                    MOVGR2FR_D(v0, ed);
+                } else {
+                    MOVGR2FR_W(v0, ed);
+                    MOVGR2FRH_W(v0, xZR);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                if (rex.w) {
+                    FLD_D(v0, wback, fixedaddress);
+                } else {
+                    FLD_S(v0, wback, fixedaddress);
+                    MOVGR2FRH_W(v0, xZR);
+                }
+            }
+            break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
             nextop = F8;
@@ -1489,6 +1512,16 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(q1, 0);
             VMUL_H(q0, q0, q1);
             break;
+        case 0xD7:
+            nextop = F8;
+            INST_NAME("PMOVMSKB Gd, Em");
+            GETGD;
+            v0 = fpu_get_scratch(dyn);
+            GETEM(v1, 0);
+            VMSKLTZ_B(v0, v1);
+            MOVFR2GR_D(x1, v0);
+            BSTRPICK_D(gd, x1, 7, 0);
+            break;
         case 0xD8:
             INST_NAME("PSUBUSB Gm, Em");
             nextop = F8;
@@ -1537,6 +1570,19 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM(v0);
             GETEM(v1, 0);
             VMUH_H(v0, v0, v1);
+            break;
+        case 0xE7:
+            INST_NAME("MOVNTQ Em, Gm");
+            nextop = F8;
+            GETGM(v0);
+            if (MODREG) {
+                v1 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, nextop & 7);
+                FMOV_D(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, 0);
+                FST_D(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
             break;
         case 0xE8:
             INST_NAME("PSUBSB Gm,Em");
@@ -1625,6 +1671,18 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VMADDWEV_W_H(q0, v0, v1);
             VMADDWOD_W_H(q0, v0, v1);
             VBSLL_V(v0, q0, 0);
+            break;
+        case 0xF7:
+            INST_NAME("MASKMOVQ Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VSLTI_B(q1, v1, 0); // q1 = byte selection mask
+            FLD_D(q0, xRDI, 0);
+            VBITSEL_V(q0, q0, v0, q1); // sel v0 if mask is 1
+            FST_D(q0, xRDI, 0);
             break;
         case 0xF8:
             INST_NAME("PSUBB Gm, Em");

@@ -390,7 +390,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGM(v0);
             GETEXSD(v1, 0, 0);
-            VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(0, 0));
+            FMOV_D(v0, v1);
             break;
         case 0xE6: // TODO: !fastround
             INST_NAME("CVTPD2DQ Gx, Ex");
