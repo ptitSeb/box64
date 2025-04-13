@@ -729,6 +729,134 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FLD_D(v0, wback, fixedaddress);
             }
             break;
+        case 0x70:
+            INST_NAME("PSHUFW Gm,Em,Ib");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 1);
+            u8 = F8;
+            VSHUF4I_H(v0, v1, u8);
+            break;
+        case 0x71:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLW Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 15) {
+                            VXOR_V(v0, v0, v0);
+                        } else if (u8) {
+                            VSRLI_H(v0, v0, u8);
+                        }
+                        PUTEM(v0);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8 > 15) u8 = 15;
+                    if (u8) {
+                        VSRAI_H(v0, v0, u8);
+                    }
+                    PUTEM(v0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 15) {
+                            VXOR_V(v0, v0, v0);
+                        } else {
+                            VSLLI_H(v0, v0, u8);
+                        }
+                        PUTEM(v0);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+        case 0x72:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLD Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 31) {
+                            VXOR_V(v0, v0, v0);
+                        } else if (u8) {
+                            VSRLI_W(v0, v0, u8);
+                        }
+                        PUTEM(v0);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAD Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8 > 31) u8 = 31;
+                    if (u8) {
+                        VSRAI_W(v0, v0, u8);
+                    }
+                    PUTEM(v0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLD Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 31) {
+                            VXOR_V(v0, v0, v0);
+                        } else {
+                            VSLLI_W(v0, v0, u8);
+                        }
+                        PUTEM(v0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0x73:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLQ Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            VXOR_V(v0, v0, v0);
+                        } else if (u8) {
+                            VSRLI_D(v0, v0, u8);
+                        }
+                        PUTEM(v0);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Em, Ib");
+                    GETEM(v0, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            VXOR_V(v0, v0, v0);
+                        } else {
+                            VSLLI_D(v0, v0, u8);
+                        }
+                        PUTEM(v0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
@@ -1563,6 +1691,26 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM(v0);
             GETEM(v1, 0);
             VANDN_V(v0, v0, v1);
+            break;
+        case 0xE1:
+            INST_NAME("PSRAW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VMINI_HU(q0, v1, 15);
+            VREPLVEI_H(q0, q0, 0);
+            VSRA_H(v0, v0, q0);
+            break;
+        case 0xE2:
+            INST_NAME("PSRAD Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VMINI_WU(q0, v1, 31);
+            VREPLVEI_W(q0, q0, 0);
+            VSRA_W(v0, v0, q0);
             break;
         case 0xE5:
             INST_NAME("PMULHW Gm, Em");
