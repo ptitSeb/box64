@@ -283,6 +283,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITE2();
             }
             break;
+        case 0x2A:
+            INST_NAME("CVTPI2PS Gx,Em");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x1, x2);
+            VFFINT_S_W(q0, v1);
+            x87_restoreround(dyn, ninst, u8);
+            VEXTRINS_D(v0, q0, VEXTRINS_IMM_4_0(0, 0));
+            break;
         case 0x2B:
             INST_NAME("MOVNTPS Ex,Gx");
             nextop = F8;
@@ -296,6 +307,73 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
             }
+            break;
+        case 0x2C:
+            INST_NAME("CVTTPS2PI Gm,Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEX(v1, 0, 0);
+            if (BOX64ENV(dynarec_fastround)) {
+                VFTINTRZ_W_S(v0, v1);
+            } else {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+                VFTINTRZ_W_S(v0, v1);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                BEQZ_MARK3(x5); // no fp exception, work done.
+
+                // check +/-Nan, +overlow ,replace with 0x80000000
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn); // mask
+                d0 = fpu_get_scratch(dyn);
+                VLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
+                VLDI(d0, (0b10011 << 8) | 0x4f);
+                VFCMP_S(q1, d0, v1, cULE); // get Nan,+overflow mark
+                VBITSEL_V(v0, v0, q0, q1);
+
+                MARK3;
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTPS2PI Gm, Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEX(v1, 0, 0);
+            u8 = sse_setround(dyn, ninst, x4, x6);
+            if (BOX64ENV(dynarec_fastround)) {
+                VFTINTRZ_W_S(v0, v1);
+            } else {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+                VFTINT_W_S(v0, v1);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                BEQZ_MARK3(x5); // no fp exception, work done, fast path.
+
+                // check +/-Nan, +overlow ,replace with 0x80000000
+                /* LoongArch follow IEEE754-2008,
+                   if val < -2147483648.0f got -2147483648 match sse
+                   if var >  2147483648.0f got  2147483647 need mask
+                   but lucky _Float32 is not accurate:
+                   -2147483648.0f is 0xcf000000 (_Float32)
+                   -2147483520.0f is 0xceffffff (_Float32)
+                    2147483648.0f is 0x4f000000 (_Float32)
+                    2147483520.0f is 0x4effffff (_Float32)
+                   combine (unorder || gt 0x4f000000)
+                   use cULE  for (unodered || 0x4f000000 <= v1[x])
+                */
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn); // mask
+                d0 = fpu_get_scratch(dyn);
+                VLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
+                VLDI(d0, (0b10011 << 8) | 0x4f);
+                VFCMP_S(q1, d0, v1, cULE); // get Nan,+overflow mark
+                VBITSEL_V(v0, v0, q0, q1);
+
+                MARK3;
+            }
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...
