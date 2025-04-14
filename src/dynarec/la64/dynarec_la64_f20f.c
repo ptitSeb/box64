@@ -385,6 +385,13 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VEXTRINS_W(q0, v0, 0);
             VEXTRINS_W(q0, v0, 0b00100010);
             break;
+        case 0xD6:
+            INST_NAME("MOVDQ2Q Gm, Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEXSD(v1, 0, 0);
+            FMOV_D(v0, v1);
+            break;
         case 0xE6: // TODO: !fastround
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;

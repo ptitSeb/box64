@@ -51,7 +51,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSS Gx, Ex");
             nextop = F8;
             GETG;
-            if(MODREG) {
+            if (MODREG) {
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
             } else {
@@ -104,7 +104,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(0);
             d1 = fpu_get_scratch(dyn);
             MOVGR2FR_D(d1, ed);
-            if(rex.w) {
+            if (rex.w) {
                 FFINT_S_L(d1, d1);
             } else {
                 FFINT_S_W(d1, d1);
@@ -183,18 +183,18 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x52:
-             INST_NAME("RSQRTSS Gx, Ex");
-             nextop = F8;
-             GETGX(v0, 1);
-             GETEXSS(v1, 0, 0);
-             q0 = fpu_get_scratch(dyn);
-             q1 = fpu_get_scratch(dyn);
-             LU12I_W(x3, 0x3f800); // 1.0f
-             MOVGR2FR_W(q0, x3);
-             FSQRT_S(q1, v1);
-             FDIV_S(q0, q0, q1);
-             VEXTRINS_W(v0, q0, 0);
-             break;
+            INST_NAME("RSQRTSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEXSS(v1, 0, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            LU12I_W(x3, 0x3f800); // 1.0f
+            MOVGR2FR_W(q0, x3);
+            FSQRT_S(q1, v1);
+            FDIV_S(q0, q0, q1);
+            VEXTRINS_W(v0, q0, 0);
+            break;
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
@@ -358,7 +358,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVDQU Ex,Gx");
             nextop = F8;
             GETGX(v0, 0);
-            if(MODREG) {
+            if (MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
                 VOR_V(v1, v0, v0);
             } else {
@@ -479,6 +479,14 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             q1 = fpu_get_scratch(dyn);
             MOVGR2FR_W(q1, x2);
             VEXTRINS_W(v0, q1, 0);
+            break;
+        case 0xD6:
+            INST_NAME("MOVQ2DQ Gx, Em");
+            nextop = F8;
+            GETGX_empty(v0);
+            GETEM(v1, 0);
+            VXOR_V(v0, v0, v0);
+            VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(0, 0));
             break;
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
