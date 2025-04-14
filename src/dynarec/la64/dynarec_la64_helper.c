@@ -798,19 +798,12 @@ int sse_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2)
     MAYUSE(s1);
     MAYUSE(s2);
     LD_W(s1, xEmu, offsetof(x64emu_t, mxcsr));
-    SRLI_D(s1, s1, 13);
-    ANDI(s1, s1, 0b11);
+    BSTRPICK_W(s1, s1, 14, 13);
     // MMX/x87 Round mode: 0..3: Nearest, Down, Up, Chop
     // LA64: 0..3: Nearest, TowardZero, TowardsPositive, TowardsNegative
     // 0->0, 1->3, 2->2, 3->1
-    BEQ(s1, xZR, 4 + 4 * 8); // done + 4
-    ADDI_D(s2, xZR, 2);
-    BEQ(s1, s2, 4 + 4 * 5); // done
-    ADDI_D(s2, xZR, 3);
-    BEQ(s1, s2, 4 + 4 * 2);
-    ADDI_D(s1, xZR, 3);
-    B(8);
-    ADDI_D(s1, xZR, 1);
+    SUB_W(s1, xZR, s1);
+    ANDI(s1, s1, 3);
     // done
     SLLI_D(s1, s1, 8);
     MOVFCSR2GR(s2, FCSR3);
