@@ -1918,3 +1918,30 @@ EXPORT void PltResolver64(x64emu_t* emu)
     // jmp to function
     R_RIP = offs;
 }
+
+const char* getAddrFunctionName(uintptr_t addr)
+{
+    static char rets[8][1000];
+    static int idx = 0;
+    char* ret = rets[idx];
+    idx = (idx + 1) & 7;
+    uint64_t sz = 0;
+    uintptr_t start = 0;
+    elfheader_t* elf = FindElfAddress(my_context, addr);
+    const char* symbname = FindNearestSymbolName(elf, (void*)addr, &start, &sz);
+    if (!sz) sz = 0x100; // arbitrary value...
+    if (symbname && addr >= start && (addr < (start + sz) || !sz)) {
+        if (symbname[0] == '\0')
+            sprintf(ret, "%s + 0x%lx + 0x%lx", ElfName(elf), start - (uintptr_t)GetBaseAddress(elf), addr - start);
+        else if (addr == start)
+            sprintf(ret, "%s/%s", ElfName(elf), symbname);
+        else
+            sprintf(ret, "%s/%s + 0x%lx", ElfName(elf), symbname, addr - start);
+    } else {
+        if (elf) {
+            sprintf(ret, "%s + 0x%lx", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));
+        } else
+            sprintf(ret, "???");
+    }
+    return ret;
+}

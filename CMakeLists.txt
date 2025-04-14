@@ -351,7 +351,9 @@ set(OS_LINUX_SRC
     "${BOX64_ROOT}/src/os/emit_signals_linux.c"
     "${BOX64_ROOT}/src/os/freq_linux.c"
     "${BOX64_ROOT}/src/os/os_linux.c"
+    "${BOX64_ROOT}/src/os/perfmap.c"
     "${BOX64_ROOT}/src/os/symbolfuncs_linux.c"
+    "${BOX64_ROOT}/src/os/my_cpuid_linux.c"
 )
 
 set(ELFLOADER_SRC
@@ -367,6 +369,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/elfs/elfhash.c"
     "${BOX64_ROOT}/src/elfs/elfload_dump.c"
     "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"
+    "${BOX64_ROOT}/src/emu/entrypoint.c"
     "${BOX64_ROOT}/src/emu/x64compstrings.c"
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64printer.c"
@@ -394,8 +397,6 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/callback.c"
     "${BOX64_ROOT}/src/tools/cleanup.c"
     "${BOX64_ROOT}/src/tools/gdbjit.c"
-    "${BOX64_ROOT}/src/tools/perfmap.c"
-    "${BOX64_ROOT}/src/tools/my_cpuid.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"

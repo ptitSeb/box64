@@ -41,6 +41,9 @@ int SchedYield(void);
 void EmuX64Syscall(void* emu);
 void EmuX86Syscall(void* emu);
 
+void* GetSeg43Base();
+void* GetSegmentBase(uint32_t desc);
+
 // These functions only applies to Linux --------------------------
 int IsBridgeSignature(char s, char c);
 int IsNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
@@ -50,6 +53,7 @@ void* EmuFork(void* emu, int forktype);
 void PersonalityAddrLimit32Bit(void);
 
 int IsAddrElfOrFileMapped(uintptr_t addr);
+const char* GetNativeName(void* p);
 // ----------------------------------------------------------------
 
 #ifndef _WIN32
@@ -86,7 +90,7 @@ int IsAddrElfOrFileMapped(uintptr_t addr);
 extern int isinff(float);
 extern int isnanf(float);
 #elif defined(_WIN32)
-#define isnanf _isnanf
+#define isnanf isnan
 #define isinff isinf
 #endif
 

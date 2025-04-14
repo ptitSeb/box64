@@ -63,6 +63,7 @@ set(DYNAREC_PASS_SRC
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f0.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f20f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f30f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_helper.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native_pass.c"
 )
 
@@ -120,9 +121,9 @@ set_target_properties(test_interpreter PROPERTIES COMPILE_DEFINITIONS "TEST_INTE
 
 set(BOX64CPU_SRC
     "${BOX64_ROOT}/src/custommem.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_arch.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
-    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_helper.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
     "${BOX64_ROOT}/src/dynarec/dynablock.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
@@ -132,11 +133,17 @@ set(BOX64CPU_SRC
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64primop.c"
     "${BOX64_ROOT}/src/emu/x64shaext.c"
+    "${BOX64_ROOT}/src/emu/x64test.c"
     "${BOX64_ROOT}/src/emu/x64trace.c"
+    "${BOX64_ROOT}/src/emu/x64run_private.c"
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/os_wine.c"
+    "${BOX64_ROOT}/src/os/freq_wine.c"
     "${BOX64_ROOT}/src/os/symbolfuncs_wine.c"
+    "${BOX64_ROOT}/src/os/emit_signal_wine.c"
+    "${BOX64_ROOT}/src/os/perfmap.c"
+    "${BOX64_ROOT}/src/os/my_cpuid_wine.c"
     "${BOX64_ROOT}/src/tools/alternate.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
 )

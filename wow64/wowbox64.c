@@ -10,6 +10,11 @@
 
 uintptr_t box64_pagesize = 4096;
 
+uint32_t default_gs = 0x2b;
+uint32_t default_fs = 0;
+
+int box64_rdtsc = 0;
+uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 
@@ -17,6 +22,23 @@ box64env_t box64env = { 0 }; // FIXME: add real env support.
 
 box64env_t* GetCurEnvByAddr(uintptr_t addr) {
     return &box64env;
+}
+
+int is_addr_unaligned(uintptr_t addr)
+{
+    // FIXME
+    return 0;
+}
+
+typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
+int isSimpleWrapper(wrapper_t fun)
+{
+    return 0;
+}
+
+int isRetX87Wrapper(wrapper_t fun)
+{
+    return 0;
 }
 
 int arm64_asimd = 0;

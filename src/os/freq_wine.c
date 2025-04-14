@@ -1,4 +1,4 @@
-#incldue "freq.h"
+#include "freq.h"
 
 // TODO: box64_rdtsc?
 

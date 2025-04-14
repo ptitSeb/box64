@@ -99,4 +99,6 @@ void AddMainElfToLinkmap(elfheader_t* lib);
 void PltResolver32(x64emu_t* emu);
 void PltResolver64(x64emu_t* emu);
 
+const char* getAddrFunctionName(uintptr_t addr);
+
 #endif //__ELF_LOADER_H_
