@@ -306,10 +306,6 @@ typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
     } _sifields;
 } my_siginfo32_t;
 
-#ifdef DYNAREC
-uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
-#endif
-
 x64_stack_t* sigstack_getstack();
 int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
 EXPORT int my32_sigaltstack(x64emu_t* emu, const i386_stack_t* ss, i386_stack_t* oss)

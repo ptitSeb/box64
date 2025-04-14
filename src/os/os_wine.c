@@ -19,6 +19,11 @@ int IsBridgeSignature(char s, char c)
 
 void PersonalityAddrLimit32Bit(void) { }
 
+int IsAddrElfOrFileMapped(uintptr_t addr)
+{
+    return 0;
+}
+
 ULONG_PTR default_zero_bits32 = 0x7fffffff;
 
 static uint32_t prot_unix_to_win32(uint32_t unx)
