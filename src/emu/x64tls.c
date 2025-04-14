@@ -140,7 +140,6 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
     return 0;
 }
 
-static void* GetSeg43Base();
 static const char* arch_prctl_param(int code)
 {
     static char ret[10] = {0};
@@ -374,35 +373,5 @@ tlsdatasize_t* getTLSData(box64context_t *context)
         }
     if(ptr->tlssize != context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
-    return ptr;
-}
-
-static void* GetSeg43Base()
-{
-    tlsdatasize_t* ptr = getTLSData(my_context);
-    return ptr->data;
-}
-
-void* GetSegmentBase(uint32_t desc)
-{
-    if(!desc) {
-        printf_log(LOG_NONE, "Warning, accessing segment NULL\n");
-        return NULL;
-    }
-    int base = desc>>3;
-    if(!box64_is32bits && base==0x8 && !my_context->segtls[base].key_init)
-        return GetSeg43Base();
-    if(box64_is32bits && (base==0x6))
-        return GetSeg43Base();
-    if(base>15) {
-        printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
-        return NULL;
-    }
-    if(my_context->segtls[base].key_init) {
-        void* ptr = pthread_getspecific(my_context->segtls[base].key);
-        return ptr;
-    }
-    
-    void* ptr = (void*)my_context->segtls[base].base;
     return ptr;
 }

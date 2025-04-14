@@ -6,6 +6,7 @@
 #include "x64emu_private.h"
 #include "box64context.h"
 #include "symbolfuncs.h"
+#include "x64emu.h"
 
 typedef struct rex_s {
     union {
@@ -92,8 +93,6 @@ mmx87_regs_t* TestEm32O(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, 
 sse_regs_t* GetGx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 sse_regs_t* GetGy(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 
-void UpdateFlags(x64emu_t *emu);
-
 #define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
 #define RESET_FLAGS(emu) emu->df = d_none
 
@@ -178,14 +177,6 @@ uintptr_t TestAVX_F20F38(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F20F3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F30F38(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F30F3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
-
-uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
-#define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)
-#define GetFSBaseEmu(emu)    GetSegmentBaseEmu(emu, _FS)
-#define GetESBaseEmu(emu)    GetSegmentBaseEmu(emu, _ES)
-#define GetDSBaseEmu(emu)    GetSegmentBaseEmu(emu, _DS)
-
-const char* GetNativeName(void* p);
 
 #ifdef HAVE_TRACE
 void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec);

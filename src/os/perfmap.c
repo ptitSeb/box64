@@ -4,10 +4,13 @@
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "debug.h"
 #include "box64context.h"
 #include "perfmap.h"
+
+#ifndef _WIN32
 #include "elfloader.h"
 
 void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, const char* inst_name)
@@ -19,3 +22,6 @@ void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, co
     snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s:%s\n", code_addr, code_size, symbname, inst_name);
     write(BOX64ENV(dynarec_perf_map_fd), pbuf, strlen(pbuf));
 }
+#else
+void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, const char* inst_name) { }
+#endif

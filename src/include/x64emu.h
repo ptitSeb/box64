@@ -1,6 +1,8 @@
 #ifndef __X86EMU_H_
 #define __X86EMU_H_
 
+#include <stdint.h>
+
 typedef struct x64emu_s x64emu_t;
 typedef struct box64context_s box64context_t;
 typedef struct elfheader_s elfheader_t;
@@ -27,6 +29,7 @@ long double LD2localLD(void* ld);        // long double (80bits pointer) -> long
 void LD2D(void* ld, void* d);   // long double (80bits) -> double (64bits)
 void D2LD(void* d, void* ld);   // double (64bits) -> long double (64bits)
 
-const char* getAddrFunctionName(uintptr_t addr);
+uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
+void UpdateFlags(x64emu_t* emu);
 
 #endif //__X86EMU_H_

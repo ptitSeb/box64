@@ -17,12 +17,52 @@ int IsBridgeSignature(char s, char c)
     return FALSE;
 }
 
-void PersonalityAddrLimit32Bit(void) { }
+void* GetSeg43Base()
+{
+    return NULL;
+}
+
+void* GetSegmentBase(uint32_t desc)
+{
+    // FIXME
+    return NULL;
+}
+
+void EmuInt3(void* emu, void* addr) { }
+void* EmuFork(void* emu, int forktype) { return NULL; }
+
+
+void EmuX64Syscall(void* emu)
+{
+    // FIXME
+}
+
+void EmuX86Syscall(void* emu)
+{
+    // FIXME
+}
+
+const char* GetNativeName(void* p)
+{
+    return NULL;
+}
+
+
+void PersonalityAddrLimit32Bit(void)
+{
+}
 
 int IsAddrElfOrFileMapped(uintptr_t addr)
 {
     return 0;
 }
+
+
+int IsNativeCall(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
+{
+    return 0;
+}
+
 
 ULONG_PTR default_zero_bits32 = 0x7fffffff;
 

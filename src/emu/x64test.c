@@ -20,7 +20,6 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
-#include "signals.h"
 
 void print_banner(x64emu_t* ref)
 {
