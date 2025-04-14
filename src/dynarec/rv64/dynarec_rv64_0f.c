@@ -3071,7 +3071,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x5, 0, 7);
             for (int i = 0; i < 8; i++) {
                 LB(x1, wback, fixedaddress + i);
-                BLT(xZR, x1, 4 * 3);
+                BLE(xZR, x1, 4 * 3);
                 LB(x2, gback, gdoffset + i);
                 SB(x2, xRDI, i);
             }
