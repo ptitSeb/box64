@@ -13,8 +13,10 @@
         dyn->insts[ninst].size2 += 4;                                          \
     } while (0)
 
-#define MESSAGE(A, ...) \
-    if (BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__)
+#define MESSAGE(A, ...)                                                   \
+    do {                                                                  \
+        if (BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__); \
+    } while (0)
 #define NEW_INST \
     if (ninst) {  \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \

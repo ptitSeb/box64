@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <signal.h>
-#include <ucontext.h>
 #include <string.h>
 
 #include "debug.h"
@@ -155,7 +154,7 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
         arch->x87 = 1;
         arch->x87_.delta = dyn->insts[ninst].n.x87stack;
     }
-    // opcode can handle unaligned 
+    // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
     return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
 }
@@ -250,8 +249,6 @@ void* populate_arch(dynarec_arm_t* dyn, void* p, size_t tot_sz)
     }
     return p;
 }
-
-int getX64AddressInst(dynablock_t* db, uintptr_t x64pc); // define is signal.c
 
 // NZCV N
 #define NZCV_N      31

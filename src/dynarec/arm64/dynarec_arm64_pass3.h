@@ -1,4 +1,4 @@
-#define INIT    
+#define INIT
 #define FINI        \
     if(ninst)       \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
@@ -12,14 +12,17 @@
         dyn->insts[ninst].size2 += 4;                   \
     }while(0)
 
-#define MESSAGE(A, ...)  if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__)
+#define MESSAGE(A, ...)                                                   \
+    do {                                                                  \
+        if (BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__); \
+    } while (0)
 #define NEW_INST        \
     if(ninst) {                                                  \
         if(dyn->insts[ninst].address!=(uintptr_t)dyn->block-(uintptr_t)dyn->native_start) dyn->abort = 1;   \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;   \
     }
-#define INST_EPILOG     
+#define INST_EPILOG
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 #define TABLE64(A, V)   {int val64offset = Table64(dyn, (V), 3); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); LDRx_literal(A, val64offset);}
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); VLDR64_literal(A, val64offset);}

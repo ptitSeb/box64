@@ -28,8 +28,6 @@
 #endif
 
 #ifdef DYNAREC
-uintptr_t getX64Address(dynablock_t* db, uintptr_t arm_addr);
-
 void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
     int is32bits = (R_CS == 0x23);

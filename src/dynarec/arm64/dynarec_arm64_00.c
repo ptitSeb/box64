@@ -19,7 +19,7 @@
 #include "../dynablock_private.h"
 #include "custommem.h"
 #include "alternate.h"
-
+#include "mysignal.h"
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"

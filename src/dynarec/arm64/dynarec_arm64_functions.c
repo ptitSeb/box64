@@ -18,7 +18,6 @@
 #include "emu/x64run_private.h"
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
-#include "signals.h"
 #include "dynarec_native.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
@@ -1046,7 +1045,7 @@ static uint8_t getNativeFlagsUsed(dynarec_arm_t* dyn, int start, uint8_t flags)
             return 0;
         // update used flags
         //used_flags |= (flag2native(dyn->insts[ninst].x64.need_after)&flags);
-        
+
         // go next
         if(!dyn->insts[ninst].x64.has_next) {
             // check if it's a jump to an opcode with only 1 preds, then just follow the jump
@@ -1152,7 +1151,7 @@ int nativeFlagsNeedsTransform(dynarec_arm_t* dyn, int ninst)
     flags_x86 &= ~flags_after;
     if((flags_before&NF_CF) && (flags_after&NF_CF) && (nc_before!=nc_after))
         return 1;
-    // all flags_after should be present and none remaining flags_x86 
+    // all flags_after should be present and none remaining flags_x86
     if(((flags_before&flags_after)!=flags_after) || (flags_before&flags_x86))
         return 1;
     return 0;

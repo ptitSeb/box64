@@ -12,8 +12,10 @@
         dyn->insts[ninst].size2 += 4;                                        \
     } while (0)
 
-#define MESSAGE(A, ...) \
-    if (BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__)
+#define MESSAGE(A, ...)                                                   \
+    do {                                                                  \
+        if (BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, __VA_ARGS__); \
+    } while (0)
 #define NEW_INST                                                                                                  \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                         \
     dyn->inst_sew = dyn->vector_sew;                                                                              \

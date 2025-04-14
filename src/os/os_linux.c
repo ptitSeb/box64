@@ -8,6 +8,8 @@
 #include "signals.h"
 #include "emu/x64int_private.h"
 #include "bridge.h"
+#include "elfloader.h"
+#include "env.h"
 
 int GetTID(void)
 {
@@ -52,6 +54,11 @@ void EmuX86Syscall(void* emu)
 void PersonalityAddrLimit32Bit(void)
 {
     personality(ADDR_LIMIT_32BIT);
+}
+
+int IsAddrElfOrFileMapped(uintptr_t addr)
+{
+    return FindElfAddress(my_context, addr) || IsAddrFileMapped(addr, NULL, NULL);
 }
 
 void* InternalMmap(void* addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)

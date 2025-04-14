@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
@@ -20,7 +21,6 @@
 #include "box64context.h"
 #include "my_cpuid.h"
 #include "bridge.h"
-#include "signals.h"
 #include "x64shaext.h"
 #ifdef DYNAREC
 #include "custommem.h"
@@ -28,11 +28,6 @@
 #endif
 
 #include "modrm.h"
-
-#ifdef __clang__
-extern int isinff(float);
-extern int isnanf(float);
-#endif
 
 #ifdef TEST_INTERPRETER
 uintptr_t TestAVX_F30F(x64test_t *test, vex_t vex, uintptr_t addr, int *step)

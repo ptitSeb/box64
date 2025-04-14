@@ -30,11 +30,6 @@
 
 #include "modrm.h"
 
-#ifdef __clang__
-extern int isinff(float);
-extern int isnanf(float);
-#endif
-
 #ifdef TEST_INTERPRETER
 uintptr_t TestAVX_0F(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 #else
@@ -149,7 +144,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
         case 0x16:
-            nextop = F8;               
+            nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;

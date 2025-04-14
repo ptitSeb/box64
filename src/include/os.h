@@ -9,7 +9,6 @@
 #include <sys/mman.h>
 #else
 typedef __int64 ssize_t;
-
 #define dlsym(a, b) NULL
 
 #define PROT_READ  0x1
@@ -49,6 +48,8 @@ void EmuInt3(void* emu, void* addr);
 void* EmuFork(void* emu, int forktype);
 
 void PersonalityAddrLimit32Bit(void);
+
+int IsAddrElfOrFileMapped(uintptr_t addr);
 // ----------------------------------------------------------------
 
 #ifndef _WIN32
@@ -80,5 +81,13 @@ void PersonalityAddrLimit32Bit(void);
 #define PROT_READ  0x1
 #define PROT_WRITE 0x2
 #define PROT_EXEC  0x4
+
+#if defined(__clang__) && !defined(_WIN32)
+extern int isinff(float);
+extern int isnanf(float);
+#elif defined(_WIN32)
+#define isnanf _isnanf
+#define isinff isinf
+#endif
 
 #endif //__OS_H_

@@ -21,6 +21,7 @@
 #include "box64context.h"
 #include "alternate.h"
 #include "emit_signals.h"
+#include "mysignal.h"
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
@@ -1375,7 +1376,7 @@ x64emurun:
             if(rex.is32bits && !(MODREG)) {
                 GETED(0);
                 GETGD;
-                emu->segs[_ES] = *(__uint16_t*)(((char*)ED)+4);
+                emu->segs[_ES] = *(uint16_t*)(((char*)ED) + 4);
                 emu->segs_serial[_ES] = 0;
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
@@ -1410,7 +1411,7 @@ x64emurun:
             if(rex.is32bits && !(MODREG)) {
                 GETED(0);
                 GETGD;
-                emu->segs[_DS] = *(__uint16_t*)(((char*)ED)+4);
+                emu->segs[_DS] = *(uint16_t*)(((char*)ED) + 4);
                 emu->segs_serial[_DS] = 0;
                 GD->dword[0] = *(uint32_t*)ED;
             } else {

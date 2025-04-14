@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "os.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "x64emu.h"
@@ -43,11 +44,6 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
     int is_nan;
 
-    #ifdef __clang__
-    extern int isinff(float);
-    extern int isnanf(float);
-    #endif
-
     opcode = F8;
 
     switch(opcode) {
@@ -75,7 +71,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GX->ud[1] = GX->ud[0] = EX->ud[0];
         GX->ud[3] = GX->ud[2] = EX->ud[2];
         break;
-    
+
     case 0x16:  /* MOVSHDUP Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -176,7 +172,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GD->dword[1] = 0;
         }
         break;
-    
+
     case 0x38:  /* MAP 0F38 */
         opcode = F8;
         switch(opcode) {
