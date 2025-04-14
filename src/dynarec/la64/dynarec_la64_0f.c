@@ -1633,6 +1633,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VSRL_D(d0, d0, d1);
             VAND_V(d0, d0, v0);
             break;
+        case 0xD4:
+            INST_NAME("PADDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VADD_D(v0, v0, v1);
+            break;
         case 0xD5:
             INST_NAME("PMULLW Gm, Em");
             nextop = F8;
@@ -1664,6 +1671,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(q1, 0);
             VSSUB_HU(q0, q0, q1);
             break;
+        case 0xDA:
+            INST_NAME("PMINUB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VMIN_BU(v0, v0, v1);
+            break;
         case 0xDB:
             INST_NAME("PAND Gm, Em");
             nextop = F8;
@@ -1684,6 +1698,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM(q0);
             GETEM(q1, 0);
             VSADD_HU(q0, q0, q1);
+            break;
+        case 0xDE:
+            INST_NAME("PMAXUB Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            VMAX_BU(d0, d0, d1);
             break;
         case 0xDF:
             INST_NAME("PANDN Gm, Em");
@@ -1711,6 +1732,25 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VMINI_WU(q0, v1, 31);
             VREPLVEI_W(q0, q0, 0);
             VSRA_W(v0, v0, q0);
+            break;
+        case 0xE0:
+            INST_NAME("PAVGB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VAVGR_BU(v0, v0, v1);
+            break;
+        case 0xE3:
+            INST_NAME("PAVGW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VAVG_HU(v0, v0, v1);
+            break;
+        case 0xE4:
+            INST_NAME("PMULHUW Gm,Em");
+            q1 = fpu_get_scratch(dyn);
+            VMUH_HU(q0, v0, v1);
             break;
         case 0xE5:
             INST_NAME("PMULHW Gm, Em");
@@ -1746,6 +1786,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(q0, 0);
             VSSUB_H(v0, v0, q0);
             break;
+        case 0xEA:
+            INST_NAME("PMINSW Gx,Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VMIN_H(v0, v0, v1);
+            break;
         case 0xEB:
             INST_NAME("POR Gm, Em");
             nextop = F8;
@@ -1766,6 +1813,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM(d0);
             GETEM(d1, 0);
             VSADD_H(d0, d0, d1);
+            break;
+        case 0xEE:
+            INST_NAME("PMAXSW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VMAX_H(v0, v0, v1);
             break;
         case 0xEF:
             INST_NAME("PXOR Gm, Em");
@@ -1809,6 +1863,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VSLL_D(d0, d0, d1);
             VAND_V(d0, d0, v0);
             break;
+        case 0xF4:
+            INST_NAME("PMULUDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VMULWEV_D_WU(v0, v0, v1);
+            break;
         case 0xF5:
             INST_NAME("PMADDWD Gm, Em");
             nextop = F8;
@@ -1819,6 +1880,16 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VMADDWEV_W_H(q0, v0, v1);
             VMADDWOD_W_H(q0, v0, v1);
             VBSLL_V(v0, q0, 0);
+            break;
+        case 0xF6:
+            INST_NAME("PSADBW Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VABSD_BU(v0, v0, v1);
+            VHADDW_HU_BU(v0, v0, v0);
+            VHADDW_WU_HU(v0, v0, v0);
+            VHADDW_DU_WU(v0, v0, v0);
             break;
         case 0xF7:
             INST_NAME("MASKMOVQ Gm, Em");
