@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
+#include <inttypes.h>
 
 #include "box64version.h"
 #include "elfloader.h"
@@ -16,7 +17,7 @@ static const char* DumpSection(Elf64_Shdr *s, char* SST) {
             return "SHT_NULL";
         #define GO(A) \
         case A:     \
-            sprintf(buff, #A " Name=\"%s\"(%d) off=0x%llX, size=%lld, attr=0x%04llX, addr=%p(%02llX), link/info=%d/%d", \
+            sprintf(buff, #A " Name=\"%s\"(%d) off=0x%" PRIX64 ", size=%" PRId64 ", attr=0x%04" PRIX64 ", addr=%p(%02" PRIX64 "), link/info=%d/%d", \
                 SST+s->sh_name, s->sh_name, s->sh_offset, s->sh_size, s->sh_flags, (void*)s->sh_addr, s->sh_addralign, s->sh_link, s->sh_info); \
             break
         GO(SHT_PROGBITS);
@@ -67,7 +68,7 @@ static const char* DumpDynamic(Elf64_Dyn *s) {
             return "DT_NULL: End Dynamic Section";
         #define GO(A, Add) \
         case A:     \
-            sprintf(buff, #A " %s=0x%llX", (Add)?"Addr":"Val", (Add)?s->d_un.d_ptr:s->d_un.d_val); \
+            sprintf(buff, #A " %s=0x%" PRIX64, (Add)?"Addr":"Val", (Add)?s->d_un.d_ptr:s->d_un.d_val); \
             break
             GO(DT_NEEDED, 0);
             GO(DT_PLTRELSZ, 0);
@@ -139,7 +140,7 @@ static const char* DumpDynamic(Elf64_Dyn *s) {
             #endif
         #undef GO
         default:
-            sprintf(buff, "0x%llX unknown type", s->d_tag);
+            sprintf(buff, "0x%" PRIX64 " unknown type", s->d_tag);
     }
     return buff;
 }
@@ -150,7 +151,7 @@ static const char* DumpPHEntry(Elf64_Phdr *e)
     memset(buff, 0, sizeof(buff));
     switch(e->p_type) {
         case PT_NULL: sprintf(buff, "type: %s", "PT_NULL"); break;
-        #define GO(T) case T: sprintf(buff, "type: %s, Off=%llx vaddr=%p paddr=%p filesz=%llu memsz=%llu flags=%x align=%llu", #T, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break
+        #define GO(T) case T: sprintf(buff, "type: %s, Off=%" PRIx64 " vaddr=%p paddr=%p filesz=%" PRIu64 " memsz=%" PRIu64 " flags=%x align=%" PRIu64, #T, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break
         GO(PT_LOAD);
         GO(PT_DYNAMIC);
         GO(PT_INTERP);
@@ -166,7 +167,7 @@ static const char* DumpPHEntry(Elf64_Phdr *e)
         GO(PT_GNU_RELRO);
         #endif
         #undef GO
-        default: sprintf(buff, "type: %x, Off=%llx vaddr=%p paddr=%p filesz=%llu memsz=%llu flags=%x align=%llu", e->p_type, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break;
+        default: sprintf(buff, "type: %x, Off=%" PRIx64 " vaddr=%p paddr=%p filesz=%" PRIu64 " memsz=%" PRIu64 " flags=%x align=%" PRIu64, e->p_type, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break;
     }
     return buff;
 }
@@ -233,7 +234,7 @@ static const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
     const char* vername = (version==-1)?"(none)":((version==0)?"*local*":((version==1)?"*global*":GetSymbolVersion(h, version)));
     int veropt = GetSymbolVersionFlag(h, version)?0:1;
     memset(buff, 0, sizeof(buff));
-    sprintf(buff, "\"%s\", value=%p, size=%lld, info/other=%d/%d index=%d (%sver=%d/%s)", 
+    sprintf(buff, "\"%s\", value=%p, size=%" PRIi64 ", info/other=%d/%d index=%d (%sver=%d/%s)", 
         h->DynStr+sym->st_name, (void*)sym->st_value, sym->st_size,
         sym->st_info, sym->st_other, sym->st_shndx, veropt?"opt":"", version, vername);
     return buff;

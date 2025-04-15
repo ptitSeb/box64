@@ -1770,7 +1770,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				file.write("#if {k}\n".format(k=k))
 			for signature in gbls[k]:
 				sig = signature if signature[2] != "E" else (signature[:2]+signature[3:])
-				if any(letter in sig[2:] for letter in "OSNxXYb") or signature.endswith('FE'):
+				if any(letter in sig[2:] for letter in "OSNHxXYb") or signature.endswith('FE') or signature[1] == 'W':
 					continue
 				formats = sig[2:].replace("G", "UU")
 				params = '' if formats == "v" else ", " + function_args_systemV(FunctionType(formats))[:-2]

@@ -3,6 +3,7 @@
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <stdarg.h>
+#define __STDC_WANT_LIB_EXT2__ 1 // for vasprintf
 #include <stdio.h>
 
 #include "wrappedlibs.h"
@@ -38,12 +39,12 @@ GO(4)
 
 // log_callback ...
 #define GO(A)   \
-static uintptr_t my_log_callback_fct_##A = 0;                                   \
-static void my_log_callback_##A(void* a, int b, void* c, va_list d)                   \
+static uintptr_t my_log_callback_fct_##A = 0;                           \
+static void my_log_callback_##A(void* a, int b, void* c, va_list d)     \
 {                                                                       \
     x64_va_list_t null_va = {0};                                        \
     char* p = NULL;                                                     \
-    vasprintf(&p, c, d);                                                \
+    (void)!vasprintf(&p, c, d);                                         \
     RunFunctionFmt(my_log_callback_fct_##A, "pipp", a, b, d, null_va);  \
     free(p);                                                            \
 }

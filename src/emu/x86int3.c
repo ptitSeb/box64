@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
+#include <inttypes.h>
 
 #include "os.h"
 #include "debug.h"
@@ -232,16 +233,16 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strncmp")==s || strstr(s, "__strncmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %lu)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), *(ulong_t*)from_ptr(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %" PRIu32 ")", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), *(ulong_t*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strncasecmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %lu)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), *(ulong_t*)from_ptr(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %" PRIu32 ")", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), *(ulong_t*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strtol")==s || strstr(s, "strtoul")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %p, %d)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), *(int*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "memcmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %lu)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), from_ptri(ulong_t, R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %" PRIu32 ")", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), from_ptri(ulong_t, R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strstr")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%.127s\", \"%.127s\")", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8));
@@ -254,7 +255,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "__vsnprintf_chk")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %d, %d, %08X...)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16),from_ptriv(R_ESP+20));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %u, %d, %d, %p...)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16),from_ptriv(R_ESP+20));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = pu32?3:0;
                 } else  if(strstr(s, "vsprintf")==s) {
@@ -266,11 +267,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "__snprintf_chk")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %d, \"%s\", %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(ulong_t, R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), (char*)from_ptriv(R_ESP+20), *(void**)from_ptr(R_ESP+24));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %d, \"%s\", %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(size_t, R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), (char*)from_ptriv(R_ESP+20), *(void**)from_ptr(R_ESP+24));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "snprintf")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\", ...)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(ulong_t, R_ESP+8), (char*)from_ptriv(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\", ...)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(size_t, R_ESP+8), (char*)from_ptriv(R_ESP+12));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "sprintf")==s) {
@@ -340,7 +341,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if(strstr(s, "XRRSetScreenSize")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %u, %d, %d, %d, %d)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), from_ptri(ulong_t, R_ESP+8), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16), from_ptri(int, R_ESP+20), from_ptri(int, R_ESP+24));
                 } else if(strstr(s, "XextAddDisplay")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, \'%s\', %p, %d, %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptriv(R_ESP+8), from_ptriv(R_ESP+12), from_ptriv(R_ESP+16), from_ptri(int, R_ESP+20), from_ptriv(R_ESP+24));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, \'%s\', %p, %d, %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptriv(R_ESP+8), (char *)from_ptriv(R_ESP+12), from_ptriv(R_ESP+16), from_ptri(int, R_ESP+20), from_ptriv(R_ESP+24));
                 } else if(strstr(s, "_XGetRequest")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %hhu, %u)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(uint8_t, R_ESP+8), from_ptri(ulong_t, R_ESP+12));
                 } else if(strstr(s, "_XReply")==s) {
@@ -385,16 +386,16 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, 0x%x, %d)", tid, from_ptriv(R_ESP), (char *)s, from_ptri(int, R_ESP+4), from_ptriv(R_ESP+8), from_ptri(uint32_t, R_ESP+12), from_ptri(int, R_ESP+16));
                     post = 13;
                 } else if(!strcmp(s, "fnmatch")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%s\", %p\"%s\", %d)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptriv(R_ESP+4), from_ptriv(R_ESP+8), from_ptriv(R_ESP+8), from_ptri(int, R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%s\", %p\"%s\", %d)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+4), from_ptriv(R_ESP+8), (char *)from_ptriv(R_ESP+8), from_ptri(int, R_ESP+12));
                     post = 13;
                 } else  if(!strcmp(s, "syscall")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, from_ptriv(R_ESP), (char *)s, *(int32_t*)from_ptr(R_ESP+4), from_ptriv(R_ESP+8), from_ptriv(R_ESP+12), from_ptriv(R_ESP+16));
                     perr = 1;
                 } else  if(!strcmp(s, "snd_device_name_get_hint")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptriv(R_ESP+8));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8));
                     post = 2;
                 } else  if(!strcmp(s, "getaddrinfo")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %p, %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptriv(R_ESP+8), from_ptriv(R_ESP+12), from_ptriv(R_ESP+16));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %p, %p)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), from_ptriv(R_ESP+12), from_ptriv(R_ESP+16));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptriv(R_ESP), (char *)s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                 }
