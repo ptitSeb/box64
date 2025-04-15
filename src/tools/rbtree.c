@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #ifdef RBTREE_TEST
 #define rbtreeMalloc malloc
@@ -1183,7 +1184,7 @@ static void print_rbnode(const rbnode *node, unsigned depth, uintptr_t minstart,
     } else {
         print_rbnode(node->left, depth + ((node->meta & IS_BLACK) ? 1 : 0), minstart, node->start, bdepth);
     }
-    printf(", (%c/%p) %lx-%lx: %llu, ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
+    printf(", (%c/%p) %lx-%lx: %" PRIu64 ", ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
     if (node->right && (node->right->meta & IS_LEFT)) {
         printf("<invalid meta>");
     } else if (node->right && (node->right->parent != node)) {

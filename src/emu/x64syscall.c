@@ -810,7 +810,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #endif
         case 267:   // sys_readlinkat
-            if(log) snprintf(buff2, 127, " [sys_readlinkat(%d, \"%s\"...]", S_EDI, (void*)R_RSI);
+            if(log) snprintf(buff2, 127, " [sys_readlinkat(%d, \"%s\"...]", S_EDI, (char*)R_RSI);
             S_RAX = my_readlinkat(emu, S_EDI, (void*)R_RSI, (void*)R_RDX, R_R10); 
             if(S_RAX==-1)
                 S_RAX = -errno;
