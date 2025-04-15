@@ -692,6 +692,27 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 VFMAX_S(v0, v0, v1);
             }
             break;
+        case 0x64:
+            INST_NAME("PCMPGTB Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VSLT_B(v0, v1, v0);
+            break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VSLT_H(v0, v1, v0);
+            break;
+        case 0x66:
+            INST_NAME("PCMPGTD Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VSLT_W(v0, v1, v0);
+            break;
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
@@ -856,6 +877,26 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     DEFAULT;
             }
+        case 0x74:
+            INST_NAME("PCMPEQB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            VSEQ_B(d0, d0, d1);
+            break;
+        case 0x75:
+            INST_NAME("PCMPEQW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(q0, 0);
+            VSEQ_H(v0, v0, q0);
+            break;
+        case 0x76:
+            INST_NAME("PCMPEQD Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VSEQ_W(v0, v0, v1);
             break;
         case 0x77:
             INST_NAME("EMMS");
