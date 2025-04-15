@@ -197,6 +197,22 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0x29:
+                    INST_NAME("MOVAPS Ex,Gx");
+                    nextop = F8;
+                    GETG;
+                    v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3);
+                        v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                        VMOVQ(v1, v0);
+                    } else {
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                        VST128(v0, ed, fixedaddress);
+                        SMWRITE2();
+                    }
+                    break;
+        
                 case 0x2E:
                     // no special check...
                 case 0x2F:

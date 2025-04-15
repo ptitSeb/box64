@@ -59,6 +59,31 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
     switch(opcode) {
         
+        case 0x0F:
+            opcode=F8;
+            switch(opcode) {
+
+                case 0x29:
+                    INST_NAME("MOVAPS Ex,Gx");
+                    nextop = F8;
+                    GETG;
+                    v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3);
+                        v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                        VMOVQ(v1, v0);
+                    } else {
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, 0);
+                        VST128(v0, ed, fixedaddress);
+                        SMWRITE2();
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 64:
             addr = dynarec64_6764_32(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
             break;
