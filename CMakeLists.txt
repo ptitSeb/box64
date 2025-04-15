@@ -44,6 +44,7 @@ option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" 
 option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
 option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LARCH64_ABI_1})
 option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
+option(WOW64 "Set to ON if you want a WOW64 PE build in addition")
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -1314,6 +1315,26 @@ if(NOT TARGET uninstall)
 
     add_custom_target(uninstall
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
+string(REPLACE ";" "," DYNAREC_ASM_STR "${DYNAREC_ASM}")
+string(REPLACE ";" "," DYNAREC_PASS_STR "${DYNAREC_PASS}")
+string(REPLACE ";" "," INTERPRETER_STR "${INTERPRETER}")
+
+if(WOW64 AND ARM_DYNAREC)
+    include(ExternalProject)
+    ExternalProject_Add(
+        wowbox64
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wow64"
+        CMAKE_ARGS 
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wow64/toolchain_mingw.cmake
+            -DDYNAREC_PASS_STR=${DYNAREC_PASS_STR}
+            -DDYNAREC_ASM_STR=${DYNAREC_ASM_STR}
+            -DINTERPRETER_STR=${INTERPRETER_STR}
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+        BUILD_ALWAYS ON
+    )
 endif()
 
 set(CPACK_GENERATOR "DEB")
