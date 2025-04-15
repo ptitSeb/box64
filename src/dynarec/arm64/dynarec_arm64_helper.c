@@ -1307,7 +1307,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         if(dyn->n.x87cache[i]!=-1) {
             ADDw_U12(s3, s2, dyn->n.x87cache[i]);
             ANDw_mask(s3, s3, 0, 2); // mask=7   // (emu->top + i)&7
-            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
+            if(neoncache_get_current_st_f(dyn, dyn->n.x87cache[i])>=0) {
                 int scratch = fpu_get_scratch(dyn, ninst);
                 FCVT_D_S(scratch, dyn->n.x87reg[i]);
                 VSTR64_REG_LSL3(scratch, s1, s3);
