@@ -799,12 +799,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "s0110110sssssiiiiiiiiiiiiiittttt", &a)) {
         int offset = signExtend(imm, 14)<<2;
-        snprintf(buff, sizeof(buff), "TBZ %s, 0x%x, #%+di\t; %p", (imms<31)?Xt[Rt]:Wt[Rt], imms, offset>>2, (void*)(addr + offset));
+        snprintf(buff, sizeof(buff), "TBZ %s, %d, #%+di\t; %p", (imms<31)?Xt[Rt]:Wt[Rt], imms, offset>>2, (void*)(addr + offset));
         return buff;
     }
     if(isMask(opcode, "s0110111sssssiiiiiiiiiiiiiittttt", &a)) {
         int offset = signExtend(imm, 14)<<2;
-        snprintf(buff, sizeof(buff), "TBNZ %s, 0x%x, #%+di\t; %p", (imms<31)?Xt[Rt]:Wt[Rt], imms, offset>>2, (void*)(addr + offset));
+        snprintf(buff, sizeof(buff), "TBNZ %s, %d, #%+di\t; %p", (imms<31)?Xt[Rt]:Wt[Rt], imms, offset>>2, (void*)(addr + offset));
         return buff;
     }
 
