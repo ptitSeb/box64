@@ -1787,7 +1787,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     if (u8) {
                         if (u8 > 15) {
-                            XVOR_V(q0, q0, q0);
+                            VXOR_V(q0, q0, q0);
                         } else {
                             VBSRL_V(q0, q0, u8);
                         }
@@ -1859,6 +1859,30 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VFCMP_D(v0, d0, q1, cUN);
             }
             VFADD_D(q1, d0, q1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMP_D(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
+                VSLLI_D(v1, v1, 48);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
+            break;
+        case 0x7D:
+            INST_NAME("HSUBPD Gx, Ex");
+            nextop = F8;
+            GETGX(q1, 1);
+            GETEX(q0, 0, 0);
+            d0 = fpu_get_scratch(dyn);
+            VPICKEV_D(d0, q0, q1);
+            VPICKOD_D(q1, q0, q1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, d0, q1, cUN);
+            }
+            VFSUB_D(q1, d0, q1);
             if (!BOX64ENV(dynarec_fastnan)) {
                 VFCMP_D(v1, q1, q1, cUN);
                 VANDN_V(v0, v0, v1);
@@ -2245,7 +2269,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            VMINI_HU(v0, q1, 15);
+            VMINI_DU(v0, q1, 15);
             VREPLVEI_H(v0, v0, 0);
             VSRA_H(q0, q0, v0);
             break;
@@ -2446,27 +2470,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             VABSD_BU(q0, q0, q1);
-
-            // 8bit -> 16bit merge
-            VPICKEV_B(d0, q0, q0);
-            VPICKOD_B(d1, q0, q0);
-            VEXTH_HU_BU(d0, d0);
-            VEXTH_HU_BU(d1, d1);
-            VADD_H(q0, d0, d1);
-
-            // 16bit to 32bit merge
-            VPICKEV_H(d0, q0, q0);
-            VPICKOD_H(d1, q0, q0);
-            VEXTH_WU_HU(d0, d0);
-            VEXTH_WU_HU(d1, d1);
-            VADD_W(q0, d0, d1);
-
-            // 32bit to 64bit merge
-            VPICKEV_W(d0, q0, q0);
-            VPICKOD_W(d1, q0, q0);
-            VEXTH_DU_WU(d0, d0);
-            VEXTH_DU_WU(d1, d1);
-            VADD_D(q0, d0, d1);
+            VHADDW_HU_BU(q0, q0, q0);
+            VHADDW_WU_HU(q0, q0, q0);
+            VHADDW_DU_WU(q0, q0, q0);
+            break;
+        case 0xF7:
+            INST_NAME("MASKMOVDQU Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VSLTI_B(q1, v1, 0); // q1 = byte selection mask
+            VLD(q0, xRDI, 0);
+            VBITSEL_V(q0, q0, v0, q1); // sel v0 if mask is 1
+            VST(q0, xRDI, 0);
             break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");

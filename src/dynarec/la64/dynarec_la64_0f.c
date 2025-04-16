@@ -526,6 +526,24 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x3A: // more SSE3 opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x0F:
+                    INST_NAME("PALIGNR Gm, Em, Ib");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 1);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_V(q0, q0, q0);
+                    } else if (!u8) {
+                        VEXTRINS_D(q0, q1, VEXTRINS_IMM_4_0(0, 0));
+                    } else {
+                        d0 = fpu_get_scratch(dyn);
+                        VOR_V(d0, q0, q0);
+                        VSHUF4I_D(d0, q1, 0b00010010);
+                        VBSRL_V(d0, d0, u8);
+                        VEXTRINS_D(q0, d0, 0);
+                    }
+                    break;
                 case 0xCC:
                     INST_NAME("SHA1RNDS4 Gx, Ex, Ib");
                     nextop = F8;
@@ -1917,7 +1935,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM(v0);
             GETEM(v1, 0);
             q0 = fpu_get_scratch(dyn);
-            VMINI_HU(q0, v1, 15);
+            VMINI_DU(q0, v1, 15);
             VREPLVEI_H(q0, q0, 0);
             VSRA_H(v0, v0, q0);
             break;
