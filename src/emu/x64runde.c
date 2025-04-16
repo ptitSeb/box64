@@ -48,6 +48,7 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xC6:
         case 0xC7:
             ST(nextop&7).d += ST0.d;
+            if(!emu->cw.f.C87_PC) ST(nextop&7).d = (float)ST(nextop&7).d;
             fpu_do_pop(emu);
             break;
         case 0xC8:  /* FMULP STx, ST0 */
@@ -59,6 +60,7 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xCE:
         case 0xCF:
             ST(nextop&7).d *= ST0.d;
+            if(!emu->cw.f.C87_PC) ST(nextop&7).d = (float)ST(nextop&7).d;
             fpu_do_pop(emu);
             break;
         case 0xD0:
@@ -91,6 +93,7 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xE6:
         case 0xE7:
             ST(nextop&7).d = ST0.d - ST(nextop&7).d;
+            if(!emu->cw.f.C87_PC) ST(nextop&7).d = (float)ST(nextop&7).d;
             fpu_do_pop(emu);
             break;
         case 0xE8:  /* FSUBP STx, ST0 */
@@ -102,6 +105,7 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xEE:
         case 0xEF:
             ST(nextop&7).d -= ST0.d;
+            if(!emu->cw.f.C87_PC) ST(nextop&7).d = (float)ST(nextop&7).d;
             fpu_do_pop(emu);
             break;
         case 0xF0:  /* FDIVRP STx, ST0 */
@@ -113,6 +117,7 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xF6:
         case 0xF7:
             ST(nextop&7).d = ST0.d / ST(nextop&7).d;
+            if(!emu->cw.f.C87_PC) ST(nextop&7).d = (float)ST(nextop&7).d;
             fpu_do_pop(emu);
             break;
         case 0xF8:  /* FDIVP STx, ST0 */
@@ -124,6 +129,7 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xFE:
         case 0xFF:
             ST(nextop&7).d /= ST0.d;
+            if(!emu->cw.f.C87_PC) ST(nextop&7).d = (float)ST(nextop&7).d;
             fpu_do_pop(emu);
             break;
 
@@ -135,26 +141,32 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 0:     /* FIADD ST0, Ew int */
                 GETEW(0);
                 ST0.d += EW->sword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 1:     /* FIMUL ST0, Ew int */
                 GETEW(0);
                 ST0.d *= EW->sword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 4:     /* FISUB ST0, Ew int */
                 GETEW(0);
                 ST0.d -= EW->sword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 5:     /* FISUBR ST0, Ew int */
                 GETEW(0);
                 ST0.d = (double)EW->sword[0] - ST0.d;
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 6:     /* FIDIV ST0, Ew int */
                 GETEW(0);
                 ST0.d /= EW->sword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 7:     /* FIDIVR ST0, Ew int */
                 GETEW(0);
                 ST0.d = (double)EW->sword[0] / ST0.d;
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
            default:
                 fesetround(oldround);

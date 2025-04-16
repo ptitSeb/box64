@@ -230,6 +230,7 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs)
         case 0xFA:  /* FSQRT */
             oldround = fpu_setround(emu);
             ST0.d = sqrt(ST0.d);
+            if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
             fesetround(oldround);
             break;
         case 0xFB:  /* FSINCOS */

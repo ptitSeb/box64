@@ -245,6 +245,12 @@ typedef union {
     } f;
     uint16_t    x16;
 } x87control_t;
+/*
+Precision Controls: 00b = 24bits, 01b=reserved, 10b=53bits and 11b=64bits
+The precision-control bits only affect the results of the following floating-point instructions: FADD, FADDP, FIADD, 
+FSUB, FSUBP, FISUB, FSUBR, FSUBRP, FISUBR, FMUL, FMULP, FIMUL, FDIV, FDIVP, FIDIV, FDIVR, FDIVRP, FIDIVR, 
+and FSQRT.
+*/
 
 typedef union {
 	struct __attribute__ ((__packed__)) {

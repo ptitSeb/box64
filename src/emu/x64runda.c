@@ -101,10 +101,12 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 0:     /* FIADD ST0, Ed int */
                 GETE4(0);
                 ST0.d += ED->sdword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 1:     /* FIMUL ST0, Ed int */
                 GETE4(0);
                 ST0.d *= ED->sdword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 2:     /* FICOM ST0, Ed int */
                 GETE4(0);
@@ -118,18 +120,22 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 4:     /* FISUB ST0, Ed int */
                 GETE4(0);
                 ST0.d -= ED->sdword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 5:     /* FISUBR ST0, Ed int */
                 GETE4(0);
                 ST0.d = (double)ED->sdword[0] - ST0.d;
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 6:     /* FIDIV ST0, Ed int */
                 GETE4(0);
                 ST0.d /= ED->sdword[0];
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
             case 7:     /* FIDIVR ST0, Ed int */
                 GETE4(0);
                 ST0.d = (double)ED->sdword[0] / ST0.d;
+                if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
         }
         fesetround(oldround);
