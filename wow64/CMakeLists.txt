@@ -55,16 +55,41 @@ add_library(wowbox64 SHARED ${WOW64_MAIN_SRC} ${WOW64_BOX64CPU_SRC} ${INTERPRETE
     $<TARGET_OBJECTS:wow64_dynarec_pass1>
     $<TARGET_OBJECTS:wow64_dynarec_pass2>
     $<TARGET_OBJECTS:wow64_dynarec_pass3>
-    $<TARGET_OBJECTS:wow64_test_interpreter>)
+    $<TARGET_OBJECTS:wow64_test_interpreter>
+    "${BOX64_ROOT}/wow64/wowbox64.def")
 
 include_directories(
     "${BOX64_ROOT}/src/include"
     "${BOX64_ROOT}/src"
+    "${BOX64_ROOT}/wow64/include"
 )
+
+set(DLLTOOL aarch64-w64-mingw32-dlltool)
+
+function(import_dll name)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${name}.a
+        COMMAND ${DLLTOOL} 
+            -D ${name}.dll
+            -d ${BOX64_ROOT}/wow64/${name}.def
+            -l ${CMAKE_CURRENT_BINARY_DIR}/${name}.a
+            -k
+        DEPENDS ${BOX64_ROOT}/wow64/${name}.def
+        COMMENT "Generating import library ${name}.a from ${name}.def"
+    )
+    add_custom_target(generate_${name}_import_lib DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.a)
+    add_dependencies(wowbox64 generate_${name}_import_lib)
+    target_link_libraries(wowbox64 PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${name}.a)
+endfunction()
+
+
+import_dll(ntdll)
+import_dll(wow64)
 
 # always enable DynaRec, only supports ARM64 for now.
 add_compile_definitions(DYNAREC ARM64)
-target_link_libraries(wowbox64 PRIVATE winpthread)
 
+# FIXME: Cannot link with winpthread!
+target_link_options(wowbox64 PRIVATE "-Wl,-Bstatic" "-lwinpthread" "-Wl,-Bdynamic")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

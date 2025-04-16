@@ -7,6 +7,7 @@
 #include "custommem.h"
 #include "env.h"
 #include "box64context.h"
+#include "wine/debug.h"
 
 uintptr_t box64_pagesize = 4096;
 
@@ -58,14 +59,21 @@ int arm64_rndr = 0;
 static box64context_t box64_context;
 box64context_t *my_context = &box64_context;
 
+
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
     // NYI
     // invalidate all paged interleaved with this range.
-    // unprotectDB((uintptr_t)addr, (size_t)size, 1);
+    unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void* WINAPI BTCpuGetBopCode(void)
+{
+    // NYI
+    return (UINT32*)NULL;
+}
+
+void* WINAPI __wine_get_unix_opcode(void)
 {
     // NYI
     return (UINT32*)NULL;
