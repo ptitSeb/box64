@@ -562,6 +562,8 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("FLDCW Ew");
                 GETEW(x1, 0);
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, cw));    // hopefully cw is not too far for an imm8
+                if(dyn->need_x87check)
+                    UBFXw(x87pc, x1, 8, 2);
                 break;
             case 6:
                 INST_NAME("FNSTENV Ed");
