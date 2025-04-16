@@ -1621,10 +1621,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     #ifdef ARCH_NOP
     if(sig==SIGILL) {
-        db = FindDynablockFromNativeAddress(pc);
-        if(db)
-            x64pc = getX64Address(db, (uintptr_t)pc);   // this will be incorect in the case of the callret!
-        db_searched = 1;
+        if(!db_searched) {
+            db = FindDynablockFromNativeAddress(pc);
+            if(db)
+                x64pc = getX64Address(db, (uintptr_t)pc);   // this will be incorect in the case of the callret!
+            db_searched = 1;
+        }
         if(db && db->callret_size) {
             int is_callrets = 0;
             int type_callret = 0;
