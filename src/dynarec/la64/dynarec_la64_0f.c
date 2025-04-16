@@ -692,6 +692,35 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 VFMAX_S(v0, v0, v1);
             }
             break;
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VILVL_B(v0, v1, v0);
+            break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VILVL_H(v0, v1, v0);
+            break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VEXTRINS_W(v0, v1, VEXTRINS_IMM_4_0(1, 0));
+            break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VPACKEV_D(v0, v1, v0);
+            VSSRANI_B_H(v0, v0, 0);
+            break;
         case 0x64:
             INST_NAME("PCMPGTB Gm,Em");
             nextop = F8;
@@ -712,6 +741,48 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM(v0);
             GETEM(v1, 0);
             VSLT_W(v0, v1, v0);
+            break;
+        case 0x67:
+            INST_NAME("PACKUSWB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VPACKEV_D(v0, v1, v0);
+            VSSRANI_BU_H(v0, v0, 0);
+            break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VILVL_B(v0, v1, v0);
+            VEXTRINS_D(v0, v0, VEXTRINS_IMM_4_0(0, 1));
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VILVL_H(v0, v1, v0);
+            VEXTRINS_D(v0, v0, VEXTRINS_IMM_4_0(0, 1));
+            break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VILVL_W(v0, v1, v0);
+            VEXTRINS_D(v0, v0, VEXTRINS_IMM_4_0(0, 1));
+            break;
+        case 0x6B:
+            INST_NAME("PACKSSDW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            d0 = fpu_get_scratch(dyn);
+            VPACKEV_D(v0, v1, v0);
+            VSSRANI_H_W(v0, v0, 0);
             break;
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
@@ -877,6 +948,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     DEFAULT;
             }
+            break;
         case 0x74:
             INST_NAME("PCMPEQB Gm,Em");
             nextop = F8;
@@ -1754,6 +1826,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(v1, 0);
             VANDN_V(v0, v0, v1);
             break;
+        case 0xE0:
+            INST_NAME("PAVGB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VAVGR_BU(v0, v0, v1);
+            break;
         case 0xE1:
             INST_NAME("PSRAW Gm,Em");
             nextop = F8;
@@ -1774,13 +1853,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VREPLVEI_W(q0, q0, 0);
             VSRA_W(v0, v0, q0);
             break;
-        case 0xE0:
-            INST_NAME("PAVGB Gm, Em");
-            nextop = F8;
-            GETGM(v0);
-            GETEM(v1, 0);
-            VAVGR_BU(v0, v0, v1);
-            break;
         case 0xE3:
             INST_NAME("PAVGW Gm,Em");
             nextop = F8;
@@ -1790,8 +1862,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xE4:
             INST_NAME("PMULHUW Gm,Em");
-            q1 = fpu_get_scratch(dyn);
-            VMUH_HU(q0, v0, v1);
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1, 0);
+            VMUH_HU(v0, v0, v1);
             break;
         case 0xE5:
             INST_NAME("PMULHW Gm, Em");
