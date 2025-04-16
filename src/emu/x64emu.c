@@ -393,14 +393,14 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         int stack = emu->fpu_stack;
         if(stack>8) stack = 8;
         for (int i=0; i<stack; i++) {
-            sprintf(tmp, "ST%d=%f", i, ST(i).d);
+            sprintf(tmp, "ST%d=%f(0x%llx)", i, ST(i).d, ST(i).q);
             strcat(buff, tmp);
-            int c = 10-strlen(tmp);
+            int c = 20-strlen(tmp);
             if(c<1) c=1;
             while(c--) strcat(buff, " ");
             if(i==3) strcat(buff, "\n");
         }
-        sprintf(tmp, " C3210 = %d%d%d%d", emu->sw.f.F87_C3, emu->sw.f.F87_C2, emu->sw.f.F87_C1, emu->sw.f.F87_C0);
+        sprintf(tmp, " C3210 = %d%d%d%d CW=%x", emu->sw.f.F87_C3, emu->sw.f.F87_C2, emu->sw.f.F87_C1, emu->sw.f.F87_C0, emu->cw.x16);
         strcat(buff, tmp);
         strcat(buff, "\n");
     }
