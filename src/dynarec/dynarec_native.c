@@ -636,6 +636,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         CancelBlock64(0);
         return NULL;
     }
+    #ifdef ARCH_PRECISION
+    if(BOX64ENV(dynarec_x87double)==2) {
+        helper.need_x87check = 1;
+    }
+    #endif
     // basic checks
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
@@ -768,6 +773,12 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         CancelBlock64(0);
         return NULL;
     }
+    #ifdef ARCH_PRECISION
+    if(BOX64ENV(dynarec_x87double)==2) {
+        if(helper.need_x87check==1)
+            helper.need_x87check = 0;
+    }
+    #endif
 
     // pass 2, instruction size
     helper.callrets = static_callrets;
@@ -796,7 +807,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
     size_t arch_size = ARCH_SIZE(&helper);
-    size_t callret_size = helper.callret_size*4;
+    size_t callret_size = helper.callret_size*sizeof(callret_t);
     // ok, now allocate mapped memory, with executable flag on
     size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size;
     //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets

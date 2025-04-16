@@ -72,3 +72,6 @@
 // mark opcode as "unaligned" possible only if the current address is not marked as already unaligned
 #define IF_UNALIGNED(A) if((dyn->insts[ninst].unaligned=is_addr_unaligned(A)))
 #define IF_ALIGNED(A)   if(!(dyn->insts[ninst].unaligned=is_addr_unaligned(A)))
+
+#define ARM64_CHECK_PRECISION()
+#define X87_CHECK_PRECISION(A)

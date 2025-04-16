@@ -430,6 +430,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FSQRTS(v1, v1);
             } else {
                 FSQRTD(v1, v1);
+                X87_CHECK_PRECISION(v1);
             }
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
@@ -509,7 +510,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         switch((nextop>>3)&7) {
             case 0:
                 INST_NAME("FLD ST0, float[ED]");
-                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, BOX64ENV(dynarec_x87double)?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, (BOX64ENV(dynarec_x87double)==1)?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                 VLD32(v1, ed, fixedaddress);
                 if(!ST_IS_F(0)) {

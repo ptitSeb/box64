@@ -218,6 +218,7 @@ Force the use of float/double for x87 emulation.
 
  * 0: Try to use float when possible for x87 emulation. [Default]
  * 1: Only use Double for x87 emulation. 
+ * 2: Check Precision Control low precision on x87 emulation. 
 
 ### BOX64_EXIT
 

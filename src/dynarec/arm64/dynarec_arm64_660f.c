@@ -1420,8 +1420,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         CSELw(x2, x2, x3, cLT); // x2 is min(lmem, lreg)
                         // x2 is min length 0-n_packed
                         MVNw_REG(x4, xZR);
-                        LSLw_REG(x7, x4, x2);
-                        BICw_REG(x1, x1, x7);
+                        LSLw_REG(x87pc, x4, x2);
+                        BICw_REG(x1, x1, x87pc);
                         LSLw_REG(x4, x4, x5);
                         ORRw_REG(x1, x1, x4);
                         ANDw_mask(x1, x1, 0, (u8&1)?7:15);
@@ -1474,6 +1474,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 BFCw(xFlags, F_PF, 1);
                             }
                         }
+                        ARM64_CHECK_PRECISION();    // to regen x87 if it has been used
                     } else {
                         SETFLAGS(X_ALL, SF_SET_DF);
                         if(gd>7)    // no need to reflect cache as xmm0-xmm7 will be saved before the function call anyway

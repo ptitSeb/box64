@@ -339,12 +339,13 @@ Tweak the memory barriers to reduce the performance impact by strong memory emua
  * 2 : All in 1, plus disabled the last write barriers. 
 
 
-=item B<BOX64_DYNAREC_X87DOUBLE> =I<0|1>
+=item B<BOX64_DYNAREC_X87DOUBLE> =I<0|1|2>
 
 Force the use of float/double for x87 emulation.
 
  * 0 : Try to use float when possible for x87 emulation. [Default]
  * 1 : Only use Double for x87 emulation. 
+ * 2 : Check Precision Control low precision on x87 emulation. 
 
 
 =item B<BOX64_EMULATED_LIBS> =I<XXXX|XXXX:YYYY:ZZZZ>

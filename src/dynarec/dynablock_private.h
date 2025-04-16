@@ -24,11 +24,11 @@ typedef struct dynablock_s {
     uint8_t         dirty;      // if need to be tested as soon as it's created
     uint8_t         always_test:1;
     uint8_t         is32bits:1;
+    int             callret_size;   // size of the array
     int             isize;
+    size_t          arch_size;  // size of of arch dependant infos
     instsize_t*     instsize;
     void*           arch;       // arch dependant per inst info (can be NULL)
-    size_t          arch_size;  // size of of arch dependant infos
-    int             callret_size;   // size of the array
     callret_t*      callrets;   // array of callret return, with NOP / UDF depending if the block is clean or dirty
     void*           jmpnext;    // a branch jmpnext code when block is marked
 } dynablock_t;

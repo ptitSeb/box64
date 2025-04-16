@@ -22,3 +22,8 @@
         dyn->insts[ninst].f_exit = dyn->f
 
 #define INST_NAME(name)  
+
+#define ARM64_CHECK_PRECISION()
+#define X87_CHECK_PRECISION(A)          \
+        if(dyn->need_x87check)          \
+                dyn->need_x87check=2

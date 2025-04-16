@@ -35,6 +35,7 @@ extern uint32_t arm64_crc(void* p, uint32_t len);
 
 #define ARCH_NOP    0b11010101000000110010000000011111
 #define ARCH_UDF    0xcafe
+#define ARCH_PRECISION()   ARM64_CHECK_PRECISION()
 #elif defined(LA64)
 
 #define instruction_native_t        instruction_la64_t

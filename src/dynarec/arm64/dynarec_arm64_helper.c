@@ -766,7 +766,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
     #endif
     if(savereg==0)
-        savereg = 7;
+        savereg = x87pc;
     if(saveflags) {
         STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
@@ -804,6 +804,9 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
+    if(reg==x87pc && savereg!=x87pc && dyn->need_x87check) {
+        ARM64_CHECK_PRECISION();    // regen x87 mask
+    }
     //SET_NODF();
 }
 
@@ -813,7 +816,7 @@ void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
     #endif
-    STPx_S7_preindex(x6, x7, xSP, -16);
+    STPx_S7_preindex(x6, x87pc, xSP, -16);
     STPx_S7_preindex(x4, x5, xSP, -16);
     STPx_S7_preindex(x2, x3, xSP, -16);
     STPx_S7_preindex(xEmu, x1, xSP, -16);   // ARM64 stack needs to be 16byte aligned
@@ -823,10 +826,10 @@ void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
     STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
     STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    fpu_pushcache(dyn, ninst, x7, 0);
+    fpu_pushcache(dyn, ninst, x87pc, 0);
 
-    TABLE64(x7, (uintptr_t)fnc);
-    BLR(x7);
+    TABLE64(x87pc, (uintptr_t)fnc);
+    BLR(x87pc);
     LDPx_S7_postindex(xEmu, x1, xSP, 16);
     LDPx_S7_postindex(x2, x3, xSP, 16);
     LDPx_S7_postindex(x4, x5, xSP, 16);
@@ -838,8 +841,8 @@ void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
     GO(R8, R9);
     #undef GO
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    fpu_popcache(dyn, ninst, x7, 0);   // savereg will not be used
-    LDPx_S7_postindex(x6, x7, xSP, 16);
+    fpu_popcache(dyn, ninst, x87pc, 0);   // savereg will not be used
+    LDPx_S7_postindex(x6, x87pc, xSP, 16);
     //SET_NODF();
 }
 
@@ -859,12 +862,12 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
     if(abs(w)>1) {
         MESSAGE(LOG_DUMP, "Getting %d XMM args\n", abs(w)-1);
         for(int i=0; i<abs(w)-1; ++i) {
-            sse_get_reg(dyn, ninst, x7, i, w);
+            sse_get_reg(dyn, ninst, x3, i, w);
         }
     }
     if(w<0) {
         MESSAGE(LOG_DUMP, "Return in XMM0\n");
-        sse_get_reg_empty(dyn, ninst, x7, 0);
+        sse_get_reg_empty(dyn, ninst, x3, 0);
     }
     // prepare regs for native call
     MOVx_REG(0, xRDI);

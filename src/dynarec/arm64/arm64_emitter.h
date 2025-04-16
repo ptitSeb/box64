@@ -89,7 +89,8 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define x4      4
 #define x5      5
 #define x6      6
-#define x7      7
+#define x87pc   7
+// x87 can be a scratch, but check if it's used as x87 PC and restore if needed in that case
 // 32bits version of scratch
 #define w1      x1
 #define w2      x2
@@ -97,7 +98,7 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define w4      x4
 #define w5      x5
 #define w6      x6
-#define w7      x7
+#define w87pc   x87pc
 // emu is r0
 #define xEmu    0
 // ARM64 LR
