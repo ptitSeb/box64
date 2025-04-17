@@ -208,6 +208,14 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0x2A:
+            INST_NAME("CVTPI2PD Gx,Em");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEM(v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFFINTL_D_W(v0, v1);
+            break;
         case 0x2B:
             INST_NAME("MOVNTPD Ex,Gx");
             nextop = F8;
@@ -221,6 +229,86 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
             }
+            break;
+        case 0x2C:
+            INST_NAME("CVTTPD2PI Gm,Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEX(v1, 0, 0);
+            if (BOX64ENV(dynarec_fastround)) {
+                VFTINTRZ_W_D(v0, v1, v1);
+            } else {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+                VFTINTRZ_W_D(v0, v1, v1);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                BEQZ_MARK3(x5); // no fp exception, work done.
+
+                q0 = fpu_get_scratch(dyn);
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+                FTINTRZ_W_D(v0, v1);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                AND(x5, x5, x3);
+                BEQZ_MARK(x5);
+                MOV32w(x1, 0x80000000);
+                MOVGR2FR_W(v0, x1);
+                MARK;
+
+                MOVGR2FCSR(FCSR2, xZR);    // reset all bits
+                VSHUF4I_W(q0, v1, 0b1110); // get v1 high 64bits
+                FTINTRZ_W_D(q0, q0);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                AND(x5, x5, x3);
+                BEQZ_MARK2(x5);
+                MOV32w(x1, 0x80000000);
+                MOVGR2FRH_W(v0, x1);
+                B_MARK3_nocond;
+                MARK2;
+                VEXTRINS_W(v0, q0, VEXTRINS_IMM_4_0(1, 0));
+                MARK3;
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTPD2PI Gm,Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEX(v1, 0, 0);
+            u8 = sse_setround(dyn, ninst, x4, x6);
+            if (BOX64ENV(dynarec_fastround)) {
+                VFTINT_W_D(v0, v1, v1);
+            } else {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+                VFTINT_W_D(v0, v1, v1);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                BEQZ_MARK3(x5); // no fp exception, work done.
+
+                q0 = fpu_get_scratch(dyn);
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+                FTINT_W_D(v0, v1);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                AND(x5, x5, x3);
+                BEQZ_MARK(x5);
+                MOV32w(x1, 0x80000000);
+                MOVGR2FR_W(v0, x1);
+                MARK;
+
+                MOVGR2FCSR(FCSR2, xZR);    // reset all bits
+                VSHUF4I_W(q0, v1, 0b1110); // get v1 high 64bits
+                FTINT_W_D(q0, q0);
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                AND(x5, x5, x3);
+                BEQZ_MARK2(x5);
+                MOV32w(x1, 0x80000000);
+                MOVGR2FRH_W(v0, x1);
+                B_MARK3_nocond;
+                MARK2;
+                VEXTRINS_W(v0, q0, VEXTRINS_IMM_4_0(1, 0));
+                MARK3;
+            }
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...
