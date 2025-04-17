@@ -1,7 +1,8 @@
 #ifndef __BOX64CONTEXT_H_
 #define __BOX64CONTEXT_H_
 #include <stdint.h>
-#include <pthread.h>
+
+#include "mypthread.h"
 #include "pathcoll.h"
 #include "dictionnary.h"
 #ifdef DYNAREC

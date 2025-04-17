@@ -8,7 +8,32 @@ string(REPLACE "," ";" DYNAREC_PASS "${DYNAREC_PASS_STR}")
 string(REPLACE "," ";" INTERPRETER "${INTERPRETER_STR}")
 
 set(WOW64_MAIN_SRC
+    "${BOX64_ROOT}/wow64/crt.c"
     "${BOX64_ROOT}/wow64/wowbox64.c"
+)
+
+set(MUSL_SRC
+    "${BOX64_ROOT}/external/musl/__cos.c"
+    "${BOX64_ROOT}/external/musl/__math_divzero.c"
+    "${BOX64_ROOT}/external/musl/__math_invalid.c"
+    "${BOX64_ROOT}/external/musl/__rem_pio2_large.c"
+    "${BOX64_ROOT}/external/musl/__rem_pio2.c"
+    "${BOX64_ROOT}/external/musl/__sin.c"
+    "${BOX64_ROOT}/external/musl/cos.c"
+    "${BOX64_ROOT}/external/musl/exp_data.c"
+    "${BOX64_ROOT}/external/musl/exp2.c"
+    "${BOX64_ROOT}/external/musl/expm1.c"
+    "${BOX64_ROOT}/external/musl/frexp.c"
+    "${BOX64_ROOT}/external/musl/ldexp.c"
+    "${BOX64_ROOT}/external/musl/log1p.c"
+    "${BOX64_ROOT}/external/musl/log2_data.c"
+    "${BOX64_ROOT}/external/musl/log2.c"
+    "${BOX64_ROOT}/external/musl/scalbn.c"
+    "${BOX64_ROOT}/external/musl/sin.c"
+    "${BOX64_ROOT}/external/musl/sincos.c"
+    "${BOX64_ROOT}/external/musl/sqrt_data.c"
+    "${BOX64_ROOT}/external/musl/sqrt.c"
+    "${BOX64_ROOT}/external/musl/sqrtf.c"
 )
 
 set_source_files_properties(${DYNAREC_ASM} PROPERTIES COMPILE_OPTIONS "-mcpu=cortex-a76")
@@ -50,7 +75,7 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/tools/rbtree.c"
 )
 
-add_library(wowbox64 SHARED ${WOW64_MAIN_SRC} ${WOW64_BOX64CPU_SRC} ${INTERPRETER} ${DYNAREC_ASM}
+add_library(wowbox64 SHARED ${WOW64_MAIN_SRC} ${MUSL_SRC} ${WOW64_BOX64CPU_SRC} ${INTERPRETER} ${DYNAREC_ASM}
     $<TARGET_OBJECTS:wow64_dynarec_pass0>
     $<TARGET_OBJECTS:wow64_dynarec_pass1>
     $<TARGET_OBJECTS:wow64_dynarec_pass2>
@@ -62,6 +87,8 @@ include_directories(
     "${BOX64_ROOT}/src/include"
     "${BOX64_ROOT}/src"
     "${BOX64_ROOT}/wow64/include"
+    "${BOX64_ROOT}/external/musl"
+    "${BOX64_ROOT}/external/musl/internal"
 )
 
 set(DLLTOOL aarch64-w64-mingw32-dlltool)
@@ -89,7 +116,6 @@ import_dll(wow64)
 # always enable DynaRec, only supports ARM64 for now.
 add_compile_definitions(DYNAREC ARM64)
 
-# FIXME: Cannot link with winpthread!
-target_link_options(wowbox64 PRIVATE "-Wl,-Bstatic" "-lwinpthread" "-Wl,-Bdynamic")
+target_link_options(wowbox64 PRIVATE -nostdlib -nodefaultlibs -lclang_rt.builtins-aarch64)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

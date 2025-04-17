@@ -103,6 +103,7 @@ void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
 NTSTATUS WINAPI BTCpuProcessInit(void)
 {
     // NYI
+    __wine_dbg_output("[BOX64] BTCpuProcessInit\n");
     return STATUS_SUCCESS;
 }
 
@@ -133,4 +134,12 @@ NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
 {
     // NYI
     return STATUS_SUCCESS;
+}
+
+NTSTATUS WINAPI LdrDisableThreadCalloutsForDll(HMODULE);
+
+BOOL WINAPI DllMainCRTStartup(HINSTANCE inst, DWORD reason, void* reserved)
+{
+    if (reason == DLL_PROCESS_ATTACH) LdrDisableThreadCalloutsForDll(inst);
+    return TRUE;
 }
