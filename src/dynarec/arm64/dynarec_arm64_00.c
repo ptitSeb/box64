@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <errno.h>
-#include <signal.h>
 
 #include "os.h"
 #include "debug.h"

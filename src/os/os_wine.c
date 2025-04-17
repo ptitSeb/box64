@@ -6,6 +6,14 @@
 
 #define HandleToULong(h) ((ULONG)(ULONG_PTR)(h))
 
+NTSTATUS WINAPI NtYieldExecution(void);
+
+static HANDLE myGetProcessHeap(void)
+{
+    return ((HANDLE**)NtCurrentTeb())[12][6];
+}
+
+
 int GetTID(void)
 {
     return HandleToULong(((HANDLE*)NtCurrentTeb())[9]);
@@ -13,7 +21,7 @@ int GetTID(void)
 
 int SchedYield(void)
 {
-    return SwitchToThread();
+    return (NtYieldExecution() != STATUS_NO_YIELD_PERFORMED);
 }
 
 int IsBridgeSignature(char s, char c)
@@ -151,7 +159,7 @@ int InternalMunmap(void* addr, unsigned long length)
 void* WinMalloc(size_t size)
 {
     void* ret;
-    ret = RtlAllocateHeap(GetProcessHeap(), 0, size);
+    ret = RtlAllocateHeap(myGetProcessHeap(), 0, size);
     return ret;
 }
 
@@ -160,18 +168,23 @@ void* WinRealloc(void* ptr, size_t size)
     void* ret;
     if (!ptr)
         return WinMalloc(size);
-    ret = RtlReAllocateHeap(GetProcessHeap(), HEAP_ZERO_MEMORY, ptr, size);
+    ret = RtlReAllocateHeap(myGetProcessHeap(), HEAP_ZERO_MEMORY, ptr, size);
     return ret;
 }
 
 void* WinCalloc(size_t nmemb, size_t size)
 {
     void* ret;
-    ret = RtlAllocateHeap(GetProcessHeap(), HEAP_ZERO_MEMORY, nmemb * size);
+    ret = RtlAllocateHeap(myGetProcessHeap(), HEAP_ZERO_MEMORY, nmemb * size);
     return ret;
 }
 
 void WinFree(void* ptr)
 {
-    RtlFreeHeap(GetProcessHeap(), 0, ptr);
+    RtlFreeHeap(myGetProcessHeap(), 0, ptr);
+}
+
+void free(void* ptr)
+{
+    RtlFreeHeap(myGetProcessHeap(), 0, ptr);
 }

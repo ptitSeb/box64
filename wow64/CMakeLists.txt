@@ -8,6 +8,28 @@ string(REPLACE "," ";" DYNAREC_PASS "${DYNAREC_PASS_STR}")
 string(REPLACE "," ";" INTERPRETER "${INTERPRETER_STR}")
 
 set(WOW64_MAIN_SRC
+    "${BOX64_ROOT}/wow64/crt.c"
+    "${BOX64_ROOT}/wow64/musl/__cos.c"
+    "${BOX64_ROOT}/wow64/musl/__math_divzero.c"
+    "${BOX64_ROOT}/wow64/musl/__math_invalid.c"
+    "${BOX64_ROOT}/wow64/musl/__rem_pio2_large.c"
+    "${BOX64_ROOT}/wow64/musl/__rem_pio2.c"
+    "${BOX64_ROOT}/wow64/musl/__sin.c"
+    "${BOX64_ROOT}/wow64/musl/cos.c"
+    "${BOX64_ROOT}/wow64/musl/exp_data.c"
+    "${BOX64_ROOT}/wow64/musl/exp2.c"
+    "${BOX64_ROOT}/wow64/musl/expm1.c"
+    "${BOX64_ROOT}/wow64/musl/frexp.c"
+    "${BOX64_ROOT}/wow64/musl/ldexp.c"
+    "${BOX64_ROOT}/wow64/musl/log1p.c"
+    "${BOX64_ROOT}/wow64/musl/log2_data.c"
+    "${BOX64_ROOT}/wow64/musl/log2.c"
+    "${BOX64_ROOT}/wow64/musl/scalbn.c"
+    "${BOX64_ROOT}/wow64/musl/sin.c"
+    "${BOX64_ROOT}/wow64/musl/sincos.c"
+    "${BOX64_ROOT}/wow64/musl/sqrt_data.c"
+    "${BOX64_ROOT}/wow64/musl/sqrt.c"
+    "${BOX64_ROOT}/wow64/musl/sqrtf.c"
     "${BOX64_ROOT}/wow64/wowbox64.c"
 )
 
@@ -62,6 +84,8 @@ include_directories(
     "${BOX64_ROOT}/src/include"
     "${BOX64_ROOT}/src"
     "${BOX64_ROOT}/wow64/include"
+    "${BOX64_ROOT}/wow64/musl"
+    "${BOX64_ROOT}/wow64/musl/internal"
 )
 
 set(DLLTOOL aarch64-w64-mingw32-dlltool)
@@ -89,7 +113,6 @@ import_dll(wow64)
 # always enable DynaRec, only supports ARM64 for now.
 add_compile_definitions(DYNAREC ARM64)
 
-# FIXME: Cannot link with winpthread!
-target_link_options(wowbox64 PRIVATE "-Wl,-Bstatic" "-lwinpthread" "-Wl,-Bdynamic")
+target_link_options(wowbox64 PRIVATE -nostdlib -nodefaultlibs -lclang_rt.builtins-aarch64)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
