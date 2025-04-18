@@ -266,7 +266,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if(need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
 
-    dynarec_log(LOG_DEBUG, "%04d| --- DynaRec Block created @%p:%p (%p, 0x%x bytes)\n", GetTID(), (void*)addr, (void*)(addr+((block)?block->x64_size:1)-1), (block)?block->block:0, (block)?block->size:0);
+    dynarec_log(LOG_DEBUG, "%04d| --- DynaRec Block %p created @%p:%p (%p, 0x%x bytes)\n", GetTID(), block, (void*)addr, (void*)(addr+((block)?block->x64_size:1)-1), (block)?block->block:0, (block)?block->size:0);
 
     return block;
 }
@@ -373,7 +373,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t native_addr)
 {
     uintptr_t x64addr = (uintptr_t)db->x64_addr;
     uintptr_t armaddr = (uintptr_t)db->block;
-    if (native_addr < (uintptr_t)db->block || native_addr > (uintptr_t)db->block + db->size)
+    if ((native_addr < (uintptr_t)db->block) || (native_addr > (uintptr_t)db->actual_block + db->size))
         return 0;
     int i = 0;
     do {
