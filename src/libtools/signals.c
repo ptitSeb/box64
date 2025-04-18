@@ -1683,10 +1683,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                         }
                         dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty",(void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
                         emu->test.clean = 0;
+                        // use "3" to regen a dynablock at current pc (else it will first do an interp run)
                         #ifdef ANDROID
-                        siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
+                        siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 3);
                         #else
-                        siglongjmp(emu->jmpbuf, 2);
+                        siglongjmp(emu->jmpbuf, 3);
                         #endif
                     }
                     dynarec_log(LOG_INFO, "Warning, Dirty %s (%p for db %p/%p) detected, but jmpbuffer not ready!\n", type_callret?"self-loop":"ret from callret", (void*)addr, db, (void*)db->x64_addr);

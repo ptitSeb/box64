@@ -175,6 +175,8 @@ void DynaRun(x64emu_t* emu)
                     emu->test.clean = 0;
                 }
                 #endif
+                if(skip==3)
+                    skip = 0;
             }
         }
         if(emu->flags.need_jmpbuf)
