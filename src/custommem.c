@@ -710,14 +710,14 @@ void* customCalloc(size_t n, size_t size)
 {
     size_t newsize = roundSize(n*size);
     void* ret = internal_customMalloc(newsize, 0);
-    memset(ret, 0, newsize);
+    if(ret) memset(ret, 0, newsize);
     return ret;
 }
 void* customCalloc32(size_t n, size_t size)
 {
     size_t newsize = roundSize(n*size);
     void* ret = internal_customMalloc(newsize, 1);
-    memset(ret, 0, newsize);
+    if(ret) memset(ret, 0, newsize);
     return ret;
 }
 
@@ -726,7 +726,7 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
 {
     if(!p)
         return internal_customMalloc(size, is32bits);
-    size = roundSize(size);
+    //size = roundSize(size);
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
     blocklist_t* l = findBlock(addr);
@@ -1019,8 +1019,8 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, addr);
     if(bl) {
         // search in the rbtree first
-        dynablock_t** ret = (dynablock_t**)rb_get_64(bl->tree, addr);
-        if(ret) return *ret;
+        dynablock_t* ret = (dynablock_t*)rb_get_64(bl->tree, addr);
+        if(ret) return ret;
         // browse the map allocation as a fallback
         blockmark_t* sub = (blockmark_t*)bl->chunk.block;
         while((uintptr_t)sub<addr) {
@@ -1029,7 +1029,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
                 // found it!
                 if(!sub->next.fill) return NULL; // empty space?
                 // self is the field of a block
-                ret = (dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
+                dynablock_t** ret = (dynablock_t**)((uintptr_t)sub+sizeof(blockmark_t));
                 // add it to the rbtree for later fast retreival
                 rb_set_64(bl->tree, (uintptr_t)*ret, (uintptr_t)ret+SIZE_BLOCK(sub->next), (uintptr_t)*ret);
                 return *ret;
@@ -1113,7 +1113,7 @@ uintptr_t AllocDynarecMap(size_t size)
             blockmark_t* m = (blockmark_t*)p;
             m->prev.x32 = 0;
             m->next.fill = 0;
-            m->next.offs = allocsize-2*sizeof(blockmark_t);
+            m->next.offs = allocsize-sizeof(blockmark_t);
             blockmark_t* n = NEXT_BLOCK(m);
             n->next.x32 = 0;
             n->prev.x32 = m->next.x32;
