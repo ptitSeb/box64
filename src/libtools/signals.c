@@ -1476,6 +1476,11 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(R15);
     GO(RIP);
     #undef GO
+    x64flags_t old_eflags;
+    deferred_flags_t old_df;
+    multiuint_t old_op1;
+    multiuint_t old_op2;
+    multiuint_t old_res;
     sse_regs_t old_xmm[16];
     sse_regs_t old_ymm[16];
     mmx87_regs_t old_mmx[8];
@@ -1485,6 +1490,13 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     memcpy(old_ymm, emu->ymm, sizeof(old_ymm));
     memcpy(old_mmx, emu->mmx, sizeof(old_mmx));
     memcpy(old_x87, emu->x87, sizeof(old_x87));
+    #define GO(A) old_##A = emu->A
+    GO(eflags);
+    GO(df);
+    GO(op1);
+    GO(op2);
+    GO(res);
+    #undef GO
     #ifdef DYNAREC
     dynablock_t* db = cur_db;
     if(db) {
@@ -1518,6 +1530,13 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(R14);
     GO(R15);
     GO(RIP);
+    #undef GO
+    #define GO(A) emu->A = old_##A
+    GO(eflags);
+    GO(df);
+    GO(op1);
+    GO(op2);
+    GO(res);
     #undef GO
     memcpy(emu->xmm, old_xmm, sizeof(old_xmm));
     memcpy(emu->ymm, old_ymm, sizeof(old_ymm));
@@ -2157,7 +2176,16 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     uintptr_t x64pc = R_RIP;
     if(db)
         x64pc = getX64Address(db, (uintptr_t)pc);
-    if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p\n", sig, pc, x64pc, db);
+    if(db && !x64pc) {
+        printf_log(LOG_INFO, "Warning, ingnoring incoherent dynablock found for address %p (opcode=%x). db=%p(x64_addr=%p-%p, block:%p-%p)\n", pc, *(uint32_t*)pc, db, (void*)db->x64_addr, (void*)db->x64_addr+db->x64_size, db->actual_block, db->actual_block+db->size);
+        db = NULL;
+        x64pc = R_RIP;
+    }
+    if(BOX64ENV(showsegv)) {
+        printf_log(LOG_INFO, "%04d|sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p%s", GetTID(), sig, pc, x64pc, db, db?"":"\n");
+        if(db)
+            printf_log_prefix(0, LOG_INFO, "(x64_addr=%p-%p, block:%p-%p)\n", (void*)db->x64_addr, (void*)db->x64_addr+db->x64_size, db->actual_block, db->actual_block+db->size);
+    }
     my_sigactionhandler_oldcode(emu, sig, 0, info, ucntx, NULL, db, x64pc);
 }
 
