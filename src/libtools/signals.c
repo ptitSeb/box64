@@ -2176,11 +2176,13 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     uintptr_t x64pc = R_RIP;
     if(db)
         x64pc = getX64Address(db, (uintptr_t)pc);
+    #ifdef DYNAREC
     if(db && !x64pc) {
         printf_log(LOG_INFO, "Warning, ingnoring incoherent dynablock found for address %p (opcode=%x). db=%p(x64_addr=%p-%p, block:%p-%p)\n", pc, *(uint32_t*)pc, db, (void*)db->x64_addr, (void*)db->x64_addr+db->x64_size, db->actual_block, db->actual_block+db->size);
         db = NULL;
         x64pc = R_RIP;
     }
+    #endif
     if(BOX64ENV(showsegv)) {
         printf_log(LOG_INFO, "%04d|sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p%s", GetTID(), sig, pc, x64pc, db, db?"":"\n");
         #ifdef DYNAREC
