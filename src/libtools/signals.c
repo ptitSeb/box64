@@ -2183,8 +2183,10 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     if(BOX64ENV(showsegv)) {
         printf_log(LOG_INFO, "%04d|sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p%s", GetTID(), sig, pc, x64pc, db, db?"":"\n");
+        #ifdef DYNAREC
         if(db)
             printf_log_prefix(0, LOG_INFO, "(x64_addr=%p-%p, block:%p-%p)\n", (void*)db->x64_addr, (void*)db->x64_addr+db->x64_size, db->actual_block, db->actual_block+db->size);
+        #endif
     }
     my_sigactionhandler_oldcode(emu, sig, 0, info, ucntx, NULL, db, x64pc);
 }
