@@ -496,5 +496,13 @@ typedef struct struct_pppiiip_s {
 } struct_pppiiip_t;
 void from_struct_pppiiip(struct_pppiiip_t *dest, ptr_t src);
 void to_struct_pppiiip(ptr_t dest, const struct_pppiiip_t *src);
+typedef struct struct_LWww_s {
+	unsigned long L0;
+	unsigned short W1;
+	short W2;
+	short W3;
+} struct_LWww_t;
+void from_struct_LWww(struct_LWww_t *dest, ptr_t src);
+void to_struct_LWww(ptr_t dest, const struct_LWww_t *src);
 
 #endif // __CONVERTER_H_

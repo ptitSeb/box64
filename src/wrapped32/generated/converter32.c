@@ -985,3 +985,18 @@ void to_struct_pppiiip(ptr_t d, const struct_pppiiip_t *src) {
 	*(ptr_t*)dest = to_ptrv(src->p6); dest += 4;
 }
 
+void from_struct_LWww(struct_LWww_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(uint32_t*)src); src += 4;
+	dest->W1 = *(uint16_t*)src; src += 2;
+	dest->W2 = *(int16_t*)src; src += 2;
+	dest->W3 = *(int16_t*)src; src += 2;
+}
+void to_struct_LWww(ptr_t d, const struct_LWww_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = to_ulong(src->L0); dest += 4;
+	*(uint16_t*)dest = src->W1; dest += 2;
+	*(int16_t*)dest = src->W2; dest += 2;
+	*(int16_t*)dest = src->W3; dest += 2;
+}

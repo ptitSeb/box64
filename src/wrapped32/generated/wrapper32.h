@@ -183,6 +183,7 @@ void lFrll__32(x64emu_t *emu, uintptr_t fnc);
 void vFbpii__32(x64emu_t *emu, uintptr_t fnc);
 void vFbLdd__32(x64emu_t *emu, uintptr_t fnc);
 void vFbupi__32(x64emu_t *emu, uintptr_t fnc);
+void iErLWww__32(x64emu_t *emu, uintptr_t fnc);
 void iEBllll__32(x64emu_t *emu, uintptr_t fnc);
 void vFbuuipWCCp__32(x64emu_t *emu, uintptr_t fnc);
 void vFbWWpWpWpWp__32(x64emu_t *emu, uintptr_t fnc);

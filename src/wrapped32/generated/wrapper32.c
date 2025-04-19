@@ -236,6 +236,7 @@ typedef intptr_t (*lFrll__t)(struct_ll_t*);
 typedef void (*vFbpii__t)(struct_pii_t*);
 typedef void (*vFbLdd__t)(struct_Ldd_t*);
 typedef void (*vFbupi__t)(struct_upi_t*);
+typedef int32_t (*iErLWww__t)(struct_LWww_t*);
 typedef int32_t (*iEBllll__t)(struct_llll_t*);
 typedef void (*vFbuuipWCCp__t)(struct_uuipWCCp_t*);
 typedef void (*vFbWWpWpWpWp__t)(struct_WWpWpWpWp_t*);
@@ -2336,6 +2337,7 @@ void lFrll__32(x64emu_t *emu, uintptr_t fcn) { lFrll__t fn = (lFrll__t)fcn; stru
 void vFbpii__32(x64emu_t *emu, uintptr_t fcn) { vFbpii__t fn = (vFbpii__t)fcn; struct_pii_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_pii(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_pii(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
 void vFbLdd__32(x64emu_t *emu, uintptr_t fcn) { vFbLdd__t fn = (vFbLdd__t)fcn; struct_Ldd_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_Ldd(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_Ldd(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
 void vFbupi__32(x64emu_t *emu, uintptr_t fcn) { vFbupi__t fn = (vFbupi__t)fcn; struct_upi_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_upi(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_upi(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
+void iErLWww__32(x64emu_t *emu, uintptr_t fcn) { iErLWww__t fn = (iErLWww__t)fcn; errno = emu->libc_err; struct_LWww_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_LWww(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); R_EAX = fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); emu->libc_err = errno; }
 void iEBllll__32(x64emu_t *emu, uintptr_t fcn) { iEBllll__t fn = (iEBllll__t)fcn; errno = emu->libc_err; struct_llll_t arg_4={0}; R_EAX = fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_llll(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); emu->libc_err = errno; }
 void vFbuuipWCCp__32(x64emu_t *emu, uintptr_t fcn) { vFbuuipWCCp__t fn = (vFbuuipWCCp__t)fcn; struct_uuipWCCp_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_uuipWCCp(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_uuipWCCp(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
 void vFbWWpWpWpWp__32(x64emu_t *emu, uintptr_t fcn) { vFbWWpWpWpWp__t fn = (vFbWWpWpWpWp__t)fcn; struct_WWpWpWpWp_t arg_4={0}; if (*(ptr_t*)(from_ptr((R_ESP + 4)))) from_struct_WWpWpWpWp(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_WWpWpWpWp(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
