@@ -59,9 +59,13 @@ pthread_mutex_t     mutex_blocks;
 rbtree_t* memprot = NULL;
 int have48bits = 0;
 static int inited = 0;
-
+typedef enum {
+    MEM_UNUSED = 0,
+    MEM_ALLOCATED = 1,
+    MEM_RESERVED = 2,
+    MEM_MMAP = 3
+} mem_flag_t;
 rbtree_t*  mapallmem = NULL;
-static rbtree_t*  mmapmem = NULL;
 static rbtree_t*  blockstree = NULL;
 
 #define BTYPE_MAP   1
@@ -980,10 +984,10 @@ void* box32_dynarec_mmap(size_t size)
     uintptr_t bend = 0;
     while(bend<0x800000000000LL) {
         if(rb_get_end(mapallmem, cur, &flag, &bend)) {
-            if(flag==2 && bend-cur>=size) {
+            if(flag == MEM_RESERVED && bend-cur>=size) {
                 void* ret = InternalMmap((void*)cur, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
                 if(ret!=MAP_FAILED)
-                    rb_set(mapallmem, cur, cur+size, 1);    // mark as allocated
+                    rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);    // mark as allocated
                 else
                     printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", strerror(errno));
                 cur = cur+size;
@@ -1757,7 +1761,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     LOCK_PROT();
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
-    rb_set(mapallmem, cur, cur+size, 1);
+    rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);
     while (cur < end) {
         uintptr_t bend;
         uint32_t oprot;
@@ -1789,7 +1793,7 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
     ++setting_prot;
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
-    rb_set(mapallmem, cur, end, 1);
+    rb_set(mapallmem, cur, end, MEM_ALLOCATED);
     rb_set(memprot, cur, end, prot);
     --setting_prot;
     UNLOCK_PROT();
@@ -1801,15 +1805,22 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
         return;
     addr &= ~(box64_pagesize-1);
     size = ALIGN(size);
-    LOCK_PROT();
-    rb_set(mmapmem, addr, addr+size, 1);
     if(!prot) {
-        rb_set(mapallmem, addr, addr+size, 1);
+        LOCK_PROT();
+        rb_set(mapallmem, addr, addr+size, MEM_MMAP);
         rb_unset(memprot, addr, addr+size);
+        UNLOCK_PROT();
     }
-    UNLOCK_PROT();
-    if(prot)
-        setProtection(addr, size, prot);
+    else{//SetProtection
+        LOCK_PROT();
+        ++setting_prot;
+        uintptr_t cur = addr & ~(box64_pagesize-1);
+        uintptr_t end = ALIGN(cur+size);
+        rb_set(mapallmem, cur, end, MEM_MMAP);
+        rb_set(memprot, cur, end, prot);
+        --setting_prot;
+        UNLOCK_PROT();
+    }
 }
 
 void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
@@ -1820,7 +1831,7 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
         setProtection(addr, size, prot);
     else {
         LOCK_PROT();
-        rb_set(mapallmem, addr, addr+size, 1);
+        rb_set(mapallmem, addr, addr+size, MEM_ALLOCATED);
         rb_unset(memprot, addr, addr+size);
         UNLOCK_PROT();
     }
@@ -1849,7 +1860,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     int there = rb_get_end(mapallmem, addr, &val, &endb);
     // block is here or absent, no half-block handled..
     if(!there)
-        rb_set(mapallmem, addr, addr+size, 1);
+        rb_set(mapallmem, addr, addr+size, MEM_ALLOCATED);
     UNLOCK_PROT();
     // don't need to add precise tracking probably
 }
@@ -1904,7 +1915,6 @@ void freeProtection(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     LOCK_PROT();
     rb_unset(mapallmem, addr, addr+size);
-    rb_unset(mmapmem, addr, addr+size);
     rb_unset(memprot, addr, addr+size);
     UNLOCK_PROT();
 }
@@ -1927,7 +1937,7 @@ uint32_t getProtection_fast(uintptr_t addr)
 
 int getMmapped(uintptr_t addr)
 {
-    return rb_get(mmapmem, addr);
+    return rb_get(mapallmem, addr) == MEM_MMAP;
 }
 
 int memExist(uintptr_t addr)
@@ -2108,7 +2118,7 @@ void reverveHigMem32(void)
                 //printf_log(LOG_INFO, " Failed to reserve %zx sized block\n", cur_size);
             cur_size>>=1;
         } else {
-            rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+cur_size, 2);
+            rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+cur_size, MEM_RESERVED);
             //printf_log(LOG_INFO, "Reserved high %p (%zx)\n", cur, cur_size);
         }
     }
@@ -2156,7 +2166,7 @@ void my_reserveHighMem()
             void* ret = InternalMmap((void*)cur, bend - cur, 0, MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, 0);
             printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, (ret==MAP_FAILED)?strerror(errno):"ok");
             if(ret!=(void*)-1) {
-                rb_set(mapallmem, cur, bend, 1);
+                rb_set(mapallmem, cur, bend, MEM_ALLOCATED);
             }
         }
         cur = bend;
@@ -2211,8 +2221,6 @@ void init_custommem_helper(box64context_t* ctx)
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapallmem list
     mapallmem = rbtree_init("mapallmem");
-    // init mmapmem list
-    mmapmem = rbtree_init("mapmem");
     // Load current MMap
     loadProtectionFromMap();
     reserveHighMem();
@@ -2304,8 +2312,6 @@ void fini_custommem_helper(box64context_t *ctx)
 #endif
     rbtree_delete(memprot);
     memprot = NULL;
-    rbtree_delete(mmapmem);
-    mmapmem = NULL;
     rbtree_delete(mapallmem);
     mapallmem = NULL;
     rbtree_delete(blockstree);
