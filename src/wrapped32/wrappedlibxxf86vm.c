@@ -44,7 +44,6 @@ EXPORT int my32_XF86VidModeGetAllModeLines(x64emu_t* emu, void* dpy, int screen,
     my_XF86VidModeModeInfo_t** infos_l;
     int ret = my->XF86VidModeGetAllModeLines(dpy, screen, num, &infos_l);
     if(*num>0) {
-printf_log(LOG_INFO, "XF86VidModeGetAllModeLines return %d, with *num=%d\n", ret, *num);
         *infos = to_ptrv(infos_l);
         ptr_t* small = from_ptrv(*infos);
         // shrink the array, the structure is fine
