@@ -1940,8 +1940,11 @@ const char* getAddrFunctionName(uintptr_t addr)
     } else {
         if (elf) {
             sprintf(ret, "%s + 0x%lx", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));
-        } else
+        } else if(IsAddrFileMapped(addr, &symbname, &start)) {
+            sprintf(ret, "%s+0x%lx", symbname, addr-start);
+        } else {
             sprintf(ret, "???");
+        }
     }
     return ret;
 }

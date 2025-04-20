@@ -1798,7 +1798,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // done
         if((prot&PROT_WRITE)/*|| (prot&PROT_DYNAREC)*/) {
             unlock_signal();
-            dynarec_log(LOG_INFO, "Writting from %p(%s) to %p!\n", (void*)R_RIP, getAddrFunctionName(R_RIP), (void*)addr);
+            dynarec_log(LOG_INFO, "Writting from %04d|%p(%s, native=%s) to %p!\n", GetTID(), (void*)x64pc, getAddrFunctionName(x64pc), db?"Dynablock":GetNativeName(pc),(void*)addr);
             // if there is no write permission, don't return and continue to program signal handling
             relockMutex(Locks);
             return;
