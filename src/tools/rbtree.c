@@ -20,8 +20,6 @@
 #endif
 #endif
 
-static void rbtree_print(const rbtree_t* tree);
-
 typedef struct rbnode {
     struct rbnode *left, *right, *parent;
     uintptr_t start, end;
@@ -1156,64 +1154,70 @@ dynarec_log(LOG_DEBUG, "rb_get_lefter(%s);\n", tree->name);
 }
 
 #include <stdio.h>
+#if 0
+#define printf_log(L, ...) printf(__VA_ARGS__)
+#define LOG_NONE    0
+#endif
 static void print_rbnode(const rbnode *node, unsigned depth, uintptr_t minstart, uintptr_t maxend, unsigned *bdepth) {
     if (!node) {
         if (!*bdepth || *bdepth == depth + 1) {
             *bdepth = depth + 1;
-            printf("[%u]", depth);
+            printf_log(LOG_NONE, "[%u]", depth);
         } else
-            printf("<invalid black depth %u>", depth);
+            printf_log(LOG_NONE, "<invalid black depth %u>", depth);
         return;
     }
     if (node->start < minstart) {
-        printf("<invalid start>");
+        printf_log(LOG_NONE, "<invalid start>");
         return;
     }
     if (node->end > maxend) {
-        printf("<invalid end>");
+        printf_log(LOG_NONE, "<invalid end>");
         return;
     }
-    printf("(");
+    printf_log(LOG_NONE, "(");
     if (node->left && !(node->left->meta & IS_LEFT)) {
-        printf("<invalid meta>");
+        printf_log(LOG_NONE, "<invalid meta>");
     } else if (node->left && (node->left->parent != node)) {
-        printf("<invalid parent %p instead of %p>", node->left->parent, node);
+        printf_log(LOG_NONE, "<invalid parent %p instead of %p>", node->left->parent, node);
     } else if (node->left && !(node->meta & IS_BLACK) && !(node->left->meta & IS_BLACK)) {
-        printf("<invalid red-red node> ");
+        printf_log(LOG_NONE, "<invalid red-red node> ");
         print_rbnode(node->left, depth + ((node->meta & IS_BLACK) ? 1 : 0), minstart, node->start, bdepth);
     } else {
         print_rbnode(node->left, depth + ((node->meta & IS_BLACK) ? 1 : 0), minstart, node->start, bdepth);
     }
-    printf(", (%c/%p) %lx-%lx: %" PRIu64 ", ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
+    printf_log(LOG_NONE, ", (%c/%p) %lx-%lx: %" PRIu64 ", ", node->meta & IS_BLACK ? 'B' : 'R', node, node->start, node->end, node->data);
     if (node->right && (node->right->meta & IS_LEFT)) {
-        printf("<invalid meta>");
+        printf_log(LOG_NONE, "<invalid meta>");
     } else if (node->right && (node->right->parent != node)) {
-        printf("<invalid parent %p instead of %p>", node->right->parent, node);
+        printf_log(LOG_NONE, "<invalid parent %p instead of %p>", node->right->parent, node);
     } else if (node->right && !(node->meta & IS_BLACK) && !(node->right->meta & IS_BLACK)) {
-        printf("<invalid red-red node> ");
+        printf_log(LOG_NONE, "<invalid red-red node> ");
         print_rbnode(node->right, depth + ((node->meta & IS_BLACK) ? 1 : 0), node->end, maxend, bdepth);
     } else {
         print_rbnode(node->right, depth + ((node->meta & IS_BLACK) ? 1 : 0), node->end, maxend, bdepth);
     }
-    printf(")");
+    printf_log(LOG_NONE, ")");
 }
 
-static void rbtree_print(const rbtree_t *tree) {
+void rbtree_print(const rbtree_t *tree) {
     if (!tree) {
-        printf("<NULL>\n");
+        printf_log(LOG_NONE, "<NULL>\n");
         return;
     }
+    if(tree->name)
+        printf_log(LOG_NONE, "tree name: %s\n", tree->name);
     if (tree->root && tree->root->parent) {
-        printf("Root has parent\n");
+        printf_log(LOG_NONE, "Root has parent\n");
         return;
     }
     if (tree->root && !(tree->root->meta & IS_BLACK)) {
-        printf("Root is red\n");
+        printf_log(LOG_NONE, "Root is red\n");
         return;
     }
     unsigned bdepth = 0;
     print_rbnode(tree->root, 0, 0, (uintptr_t)-1, &bdepth);
-    printf("\n");
+    printf_log(LOG_NONE, "\n");
 }
 
 #ifdef RBTREE_TEST

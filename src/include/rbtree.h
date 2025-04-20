@@ -283,4 +283,11 @@ uintptr_t rb_get_righter(rbtree_t* tree);
  */
 uintptr_t rb_get_lefter(rbtree_t* tree);
 
+/**
+ * @brief Print a rbtree (for debugging purpose)
+ * 
+ * @param tree 
+ */
+void rbtree_print(const rbtree_t* tree);
+
 #endif // RBTREE_H
