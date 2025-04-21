@@ -804,7 +804,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
-    if(reg==x87pc && savereg!=x87pc && dyn->need_x87check) {
+    if(savereg!=x87pc && dyn->need_x87check) {
         ARM64_CHECK_PRECISION();    // regen x87 mask
     }
     //SET_NODF();
