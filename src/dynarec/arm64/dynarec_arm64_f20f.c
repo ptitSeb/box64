@@ -427,10 +427,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                // but need to mix low/high part
-                VUZP1Q_32(v0, q0, q1);
-                VUZP2Q_32(v1, q0, q1);
-                VFMAXQS(v0, v0, v1);    // propagate NAN
+                VFMAXPQS(v0, q1, q0);    // propagate NAN
                 VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFADDPQS(q1, q1, q0);
@@ -452,8 +449,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastnan)) {
                 d1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                // but need to mix low/high part
-                VFMAXQS(d1, v0, d0);    // propagate NAN
+                VFMAXQS(d1, d0, v0);    // propagate NAN
                 VFCMEQQS(d1, d1, d1);    // 0 if NAN, 1 if not NAN
             }
             VFSUBQS(v0, d0, v0);

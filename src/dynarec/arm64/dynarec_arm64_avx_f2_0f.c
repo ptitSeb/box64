@@ -429,10 +429,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 if(!BOX64ENV(dynarec_fastnan)) {
                     // check if any input value was NAN
-                    // but need to mix low/high part
-                    VUZP1Q_32(q0, v2, v1);
-                    VUZP2Q_32(q1, v2, v1);
-                    VFMAXQS(q0, q0, q1);    // propagate NAN
+                    VFMAXPQS(q0, v2, v1);    // propagate NAN
                     VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFADDPQS(v0, v2, v1);

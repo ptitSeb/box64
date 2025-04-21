@@ -1362,18 +1362,18 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "F%s %c%d, %c%d, %c%d", (option==3)?"MINNM":((option==2)?"MAXNM":((!option)?"MAX":"MIN")), s, Rd, s, Rn, s, Rm);
         return buff;
     }
-    if(isMask(opcode, "0Q001110of1mmmmm110001nnnnnddddd", &a)) {
+    if(isMask(opcode, "0QU01110of1mmmmm110001nnnnnddddd", &a)) {
         char s = (sf==0)?'S':((sf==1)?'D':'?');
         int n = (sf==0)?2:1;
         n *= a.Q?2:1;
-        snprintf(buff, sizeof(buff), "F%sNM%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
+        snprintf(buff, sizeof(buff), "F%sNM%s%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.U?"P":"", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
         return buff;
     }
-    if(isMask(opcode, "0Q001110of1mmmmm111101nnnnnddddd", &a)) {
+    if(isMask(opcode, "0QU01110of1mmmmm111101nnnnnddddd", &a)) {
         char s = (sf==0)?'S':((sf==1)?'D':'?');
         int n = (sf==0)?2:1;
         n *= a.Q?2:1;
-        snprintf(buff, sizeof(buff), "F%s%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
+        snprintf(buff, sizeof(buff), "F%s%s%s V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"MIN":"MAX", a.U?"P":"", a.Q?"Q":"", Rd, n, s, Rn, n, s, Rm, n, s);
         return buff;
     }
     // FMADD

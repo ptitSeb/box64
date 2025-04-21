@@ -1570,6 +1570,12 @@ int convert_bitmask(uint64_t bitmask);
 #define VFMAXQS(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 0, 0, Vm, Vn, Vd))
 #define VFMINQD(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 1, 1, Vm, Vn, Vd))
 #define VFMAXQD(Vd, Vn, Vm)         EMIT(FMINMAX_vector(1, 0, 0, 1, Vm, Vn, Vd))
+#define VFMINPS(Vd, Vn, Vm)         EMIT(FMINMAX_vector(0, 1, 1, 0, Vm, Vn, Vd))
+#define VFMAXPS(Vd, Vn, Vm)         EMIT(FMINMAX_vector(0, 1, 0, 0, Vm, Vn, Vd))
+#define VFMINPQS(Vd, Vn, Vm)        EMIT(FMINMAX_vector(1, 1, 1, 0, Vm, Vn, Vd))
+#define VFMAXPQS(Vd, Vn, Vm)        EMIT(FMINMAX_vector(1, 1, 0, 0, Vm, Vn, Vd))
+#define VFMINPQD(Vd, Vn, Vm)        EMIT(FMINMAX_vector(1, 1, 1, 1, Vm, Vn, Vd))
+#define VFMAXPQD(Vd, Vn, Vm)        EMIT(FMINMAX_vector(1, 1, 0, 1, Vm, Vn, Vd))
 
 #define FMINMAX_scalar(type, Rm, op, Rn, Rd)        (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b01<<14 | (op)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define FMINS(Sd, Sn, Sm)           EMIT(FMINMAX_scalar(0b00, Sm, 0b01, Sn, Sd))

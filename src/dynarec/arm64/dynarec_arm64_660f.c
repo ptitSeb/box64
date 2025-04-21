@@ -2289,10 +2289,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                // but need to mix low/high part
-                VTRNQ1_64(v0, q1, q0);
-                VTRNQ2_64(v1, q1, q0);
-                VFMAXQD(v0, v0, v1);    // propagate NAN
+                VFMAXPQD(v0, q1, q0);    // propagate NAN
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFADDPQD(q1, q1, q0);
@@ -2311,7 +2308,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             v0 = fpu_get_scratch(dyn, ninst);
             VUZP1Q_64(v0, q0, q1);
             VUZP2Q_64(q0, q0, q1);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFMAXQD(v1, v0, q0);    // propagate NAN
+                VFCMEQQD(v1, v1, v1);    // 0 if NAN, 1 if not NAN
+            }
             VFSUBQD(q0, v0, q0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQD(v0, q0, q0);    // 0 => out is NAN
+                VBICQ(v1, v1, v0);      // forget it in any input was a NAN alreavy
+                VSHLQ_64(v1, v1, 63);   // only keep the sign bit
+                VORRQ(q0, q0, v1);      // NAN -> -NAN
+            }
             break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
