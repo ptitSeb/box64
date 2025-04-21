@@ -685,18 +685,8 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 tmpd += VX->d[1]*EX->d[1];
             GX->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
             GX->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
-            if(vex.l) {
-                GETEY;
-                GETVY;
-                tmpd = 0.0;
-                if(tmp8u&(1<<(4+0)))
-                    tmpd += VY->d[0]*EY->d[0];
-                if(tmp8u&(1<<(4+1)))
-                    tmpd += VY->d[1]*EY->d[1];
-                GY->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
-                GY->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
-            } else
-                GY->u128 = 0;
+            // no 256bits form, for some reason
+            GY->u128 = 0;
             break;
         case 0x42:  /* VMPSADBW Gx, Vx, Ex, Ib */
             nextop = F8;
