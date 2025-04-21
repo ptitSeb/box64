@@ -434,6 +434,168 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // SSE3
             nextop = F8;
             switch (nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn);
+                    VLDI(v0, 0b0000010000111); // broadcast 0b10000111 as byte
+                    VAND_V(v0, v0, q1);
+                    VMINI_BU(v0, v0, 0x1f);
+                    VXOR_V(v1, v1, v1);
+                    VSHUF_B(q0, v1, q0, v0);
+                    break;
+                case 0x01:
+                    INST_NAME("PHADDW Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VPICKEV_H(v0, q1, q0);
+                    VPICKOD_H(v1, q1, q0);
+                    VADD_H(q0, v1, v0);
+                    VSHUF4I_W(q0, q0, 0b11011000);
+                    break;
+                case 0x2:
+                    INST_NAME("PHADDD Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VPICKEV_W(v0, q1, q0);
+                    VPICKOD_W(v1, q1, q0);
+                    VADD_W(q0, v0, v1);
+                    VSHUF4I_W(q0, q0, 0b11011000);
+                    break;
+                case 0x03:
+                    INST_NAME("PHADDSW Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VPICKEV_H(v0, q1, q0);
+                    VPICKOD_H(v1, q1, q0);
+                    VSADD_H(q0, v0, v1);
+                    VSHUF4I_W(q0, q0, 0b11011000);
+                    break;
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VEXT2XV_HU_BU(v0, q0);
+                    VEXT2XV_H_B(v1, q1);
+                    XVMUL_H(v0, v0, v1);
+                    VPICKEV_H(q0, v1, v0);
+                    VPICKOD_H(v0, v1, v0);
+                    VSADD_H(q0, v0, q0);
+                    break;
+                case 0x05:
+                    INST_NAME("PHSUBW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VPICKEV_H(v0, q1, q0);
+                    VPICKOD_H(v1, q1, q0);
+                    VSUB_H(q0, v0, v1);
+                    VSHUF4I_W(q0, q0, 0b11011000);
+                    break;
+                case 0x06:
+                    INST_NAME("PHSUBD Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VPICKEV_W(v0, q1, q0);
+                    VPICKOD_W(v1, q1, q0);
+                    VSUB_W(q0, v0, v1);
+                    VSHUF4I_W(q0, q0, 0b11011000);
+                    break;
+                case 0x07:
+                    INST_NAME("PHSUBSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VPICKEV_H(v0, q1, q0);
+                    VPICKOD_H(v1, q1, q0);
+                    VSSUB_H(q0, v0, v1);
+                    VSHUF4I_W(q0, q0, 0b11011000);
+                    break;
+                case 0x08:
+                    INST_NAME("PSIGNB Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    VSIGNCOV_B(q0, q1, q0);
+                    break;
+                case 0x09:
+                    INST_NAME("PSIGNW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    VSIGNCOV_H(q0, q1, q0);
+                    break;
+                case 0x0A:
+                    INST_NAME("PSIGND Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    VSIGNCOV_W(q0, q1, q0);
+                    break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VEXT2XV_W_H(v0, q0);
+                    VEXT2XV_W_H(v1, q1);
+                    XVMUL_W(v0, v0, v1);
+                    VSRLI_W(v0, v0, 14);
+                    VADDI_WU(v0, v0, 1);
+                    VSRLNI_H_W(q0, v0, 1);               
+                    break;
+                case 0x1C:
+                    INST_NAME("PABSB Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VXOR_V(v0, v0, v0);
+                    VABSD_B(q0, q1, v0);
+                    break;
+                case 0x1D:
+                    INST_NAME("PABSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VXOR_V(v0, v0, v0);
+                    VABSD_H(q0, q1, v0);
+                    break;
+                case 0x1E:
+                    INST_NAME("PABSD Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VXOR_V(v0, v0, v0);
+                    VABSD_W(q0, q1, v0);
+                    break;
                 case 0xC8 ... 0xCD:
                     u8 = nextop;
                     switch (u8) {
