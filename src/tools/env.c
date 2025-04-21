@@ -165,7 +165,8 @@ static void applyCustomRules()
     if (box64env.dynarec_test) {
         SET_BOX64ENV(dynarec_fastnan, 0);
         SET_BOX64ENV(dynarec_fastround, 0);
-        SET_BOX64ENV(dynarec_x87double, 1);
+        if (BOX64ENV(dynarec_x87double) == 0)
+            SET_BOX64ENV(dynarec_x87double, 1);
         SET_BOX64ENV(dynarec_div0, 1);
         SET_BOX64ENV(dynarec_callret, 0);
 #if defined(RV64) || defined(LA64)
