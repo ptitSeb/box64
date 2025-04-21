@@ -1162,13 +1162,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         u8 = F8&0b11;
-                        MOVx_REG(ed, xZR);
-                        VMOVSto(ed, q0, u8);
+                        VMOVSto(ed, q0, u8);    // will zero extend
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
                         u8 = F8&0b11;
                         VMOVSto(x1, q0, u8);
                         STW(x1, wback, fixedaddress);
+                        SMWRITE2();
                     }
                     break;
                 case 0x20:
