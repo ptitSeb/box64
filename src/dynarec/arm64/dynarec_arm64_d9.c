@@ -557,6 +557,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 MOV32w(x2, 0);
                 CALL(fpu_loadenv, -1);
+                NATIVE_RESTORE_X87PC();
                 break;
             case 5:
                 INST_NAME("FLDCW Ew");
