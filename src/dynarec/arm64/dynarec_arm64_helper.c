@@ -892,6 +892,7 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 
     fpu_popcache(dyn, ninst, x3, 1);
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
+    ARM64_CHECK_PRECISION();    // restore x87pc if needed
     //SET_NODF();
 }
 

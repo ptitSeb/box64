@@ -96,7 +96,6 @@ uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FCMPS(v1, v2);
             } else {
                 FCMPD(v1, v2);
-                X87_CHECK_PRECISION(v1);
             }
             FCOM(x1, x2, x3);
             break;
@@ -115,7 +114,6 @@ uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FCMPS(v1, v2);
             } else {
                 FCMPD(v1, v2);
-                X87_CHECK_PRECISION(v1);
             }
             FCOM(x1, x2, x3);
             X87_POP_OR_FAIL(dyn, ninst, x3);
