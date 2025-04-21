@@ -1700,7 +1700,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                             if(db && db->arch_size)
                                 ARCH_ADJUST(db, emu, p, x64pc);
                         }
-                        dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty",(void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
+                        dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty", getAddrFunctionName(R_RIP), (void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
                         emu->test.clean = 0;
                         // use "3" to regen a dynablock at current pc (else it will first do an interp run)
                         #ifdef ANDROID
