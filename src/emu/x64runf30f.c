@@ -288,8 +288,10 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
+        MARK_NAN_F_2(GX, EX);
         NAN_PROPAGATION(GX->f[0], EX->f[0], break);
         GX->f[0] /= EX->f[0];
+        CHECK_NAN_F(GX);
         break;
     case 0x5F:  /* MAXSS Gx, Ex */
         nextop = F8;

@@ -349,11 +349,13 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
+            MARK_NAN_F_2(VX, EX);
             GX->f[0] = VX->f[0] / EX->f[0];
             if(GX!=VX) {
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
             }
+            CHECK_NAN_F(GX);
             GY->u128 = 0;
             break;
         case 0x5F:  /* VMAXSS Gx, Vx, Ex */

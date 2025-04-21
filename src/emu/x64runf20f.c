@@ -266,6 +266,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         _GETEX(0);
         GETGX;
         MARK_NAN_D_2(GX, EX);
+        NAN_PROPAGATION(GX->d[0], EX->d[0], break);
         GX->d[0] /= EX->d[0];
         CHECK_NAN_D(GX);
         break;
