@@ -29,3 +29,4 @@
         if (dyn->need_x87check)     \
             dyn->need_x87check = 2; \
     } while (0)
+#define MARK_X87PC()   if(dyn->need_x87check) dyn->insts[ninst].x87precision = 1

@@ -126,6 +126,7 @@ typedef struct instruction_arm64_s {
     unsigned            invert_carry:1; // this opcode force an inverted carry
     unsigned            df_notneeded:1;
     unsigned            unaligned:1;    // this opcode can be re-generated for unaligned special case
+    unsigned            x87precision:1; // this opcode can handle x87pc
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

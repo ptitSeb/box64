@@ -432,6 +432,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FSQRTD(v1, v1);
                 X87_CHECK_PRECISION(v1);
             }
+            MARK_X87PC();
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             break;

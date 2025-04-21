@@ -298,6 +298,7 @@ static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int
         //if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "neoncache_promote_double_combined, ninst=%d combined%c %d i=%d (stack:%d/%d)\n", ninst, (a == dyn->insts[ninst].n.combined2)?'2':'1', a ,i, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
         if(i>=0) {
             dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
+            if(dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
             if(!dyn->insts[ninst].n.barrier)
                 neoncache_promote_double_internal(dyn, ninst-1, maxinst, a-dyn->insts[ninst].n.stack_push);
             // go forward is combined is not pop'd
@@ -315,6 +316,7 @@ static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int
         //if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d, a=%d st=%d:%d, i=%d\n", ninst, a, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
         if(i<0) return;
         dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
+        if(dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
         // check combined propagation too
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2) {
             if(dyn->insts[ninst].n.swapped) {
@@ -350,6 +352,7 @@ static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int 
         //if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d, a=%d st=%d:%d(%d/%d), i=%d\n", ninst, a, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop, i);
         if(i<0) return;
         dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
+        if(dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
         // check combined propagation too
         if((dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2) && !dyn->insts[ninst].n.swapped) {
             //if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d combined %d/%d vs %d with st %d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, dyn->insts[ninst].n.stack);
@@ -372,6 +375,7 @@ void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a)
     if(i<0) return;
     dyn->n.neoncache[i].t = NEON_CACHE_ST_D;
     dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
+    if(dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
     // check combined propagation too
     if(dyn->n.combined1 || dyn->n.combined2) {
         if(dyn->n.swapped) {
