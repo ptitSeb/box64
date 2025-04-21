@@ -660,7 +660,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(!(u8&(1<<i))) {
                     VMOVQDfrom(v0, i, xZR);
                 }
-            if(!vex.l) YMM0(gd);
+            YMM0(gd);
             break;
 
         case 0x44:
