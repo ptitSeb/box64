@@ -35,7 +35,6 @@ extern uint32_t arm64_crc(void* p, uint32_t len);
 
 #define ARCH_NOP    0b11010101000000110010000000011111
 #define ARCH_UDF    0xcafe
-#define ARCH_PRECISION()   ARM64_CHECK_PRECISION()
 #elif defined(LA64)
 
 #define instruction_native_t        instruction_la64_t
@@ -63,6 +62,9 @@ extern uint32_t arm64_crc(void* p, uint32_t len);
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) 0
+
+// NYI
+#define NATIVE_RESTORE_X87PC()
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t

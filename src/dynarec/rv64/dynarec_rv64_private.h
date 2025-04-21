@@ -187,6 +187,7 @@ typedef struct dynarec_rv64_s {
     uint8_t             inst_vl;        // vl inside current instruction, for vsetvli elimination
     uint8_t             inst_vlmul;     // vlmul inside current instruction
     void*               gdbjit_block;
+    uint32_t            need_x87check; // x87 low precision check
 } dynarec_rv64_t;
 
 // v0 is hardware wired to vector mask register, which should be always reserved

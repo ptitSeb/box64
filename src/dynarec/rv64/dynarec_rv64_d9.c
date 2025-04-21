@@ -92,6 +92,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FNEGS(v1, v1);
                 } else {
                     FNEGD(v1, v1);
+                    X87_CHECK_PRECISION(v1);
                 }
                 break;
             case 0xE1:
@@ -101,6 +102,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FABSS(v1, v1);
                 } else {
                     FABSD(v1, v1);
+                    X87_CHECK_PRECISION(v1);
                 }
                 break;
 
@@ -349,6 +351,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSQRTS(v1, v1);
             } else {
                 FSQRTD(v1, v1);
+                X87_CHECK_PRECISION(v1);
             }
             if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             break;

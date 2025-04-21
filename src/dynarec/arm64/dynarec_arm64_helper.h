@@ -998,8 +998,8 @@
 #define CALLRET_LOOP()  NOP
 #endif
 
-#ifndef ARM64_CHECK_PRECISION
-#define ARM64_CHECK_PRECISION()                         \
+#ifndef NATIVE_RESTORE_X87PC
+#define NATIVE_RESTORE_X87PC()                          \
     if(dyn->need_x87check) {                            \
         LDRH_U12(x87pc, xEmu, offsetof(x64emu_t, cw));  \
         UBFXw(x87pc, x87pc, 8, 2);                      \

@@ -636,11 +636,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         CancelBlock64(0);
         return NULL;
     }
-    #ifdef ARCH_PRECISION
     if(BOX64ENV(dynarec_x87double)==2) {
         helper.need_x87check = 1;
     }
-    #endif
     // basic checks
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
@@ -773,13 +771,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         CancelBlock64(0);
         return NULL;
     }
-    #ifdef ARCH_PRECISION
     if(BOX64ENV(dynarec_x87double)==2) {
         if(helper.need_x87check==1)
             helper.need_x87check = 0;
     }
-    #endif
-
     // pass 2, instruction size
     helper.callrets = static_callrets;
     native_pass2(&helper, addr, alternate, is32bits, inst_max);

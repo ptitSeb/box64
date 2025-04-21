@@ -134,7 +134,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization (FNINIT)\n");
             x87_purgecache(dyn, ninst, 0, x1, x2, x3);
             CALL(reset_fpu, -1);
-            ARM64_CHECK_PRECISION();
+            NATIVE_RESTORE_X87PC();
             break;
         case 0xE8:
         case 0xE9:
