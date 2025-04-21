@@ -296,7 +296,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         }
         break;
 
-    case 0x78:  /* INSERTQ Ex, Gx, ib, ib */
+    case 0x78:  /* INSERTQ Gx, Ex, ib, ib */
         // AMD only
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
@@ -304,16 +304,17 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
+            //TODO: test /r
             GETGX;
             GETEX(2);
-            tmp8u = F8&0x3f;
             tmp8s = F8&0x3f;
+            tmp8u = F8&0x3f;
             tmp64u = (1<<(tmp8s+1))-1;
-            EX->q[0] &=~(tmp64u<<tmp8u);
-            EX->q[0] |= (GX->q[0]&tmp64u)<<tmp8u;
+            GX->q[0] &=~(tmp64u<<tmp8u);
+            GX->q[0] |= (EX->q[0]&tmp64u)<<tmp8u;
         }
         break;
-    case 0x79:  /* INSERTQ Ex, Gx */
+    case 0x79:  /* INSERTQ Gx, Ex */
         // AMD only
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
@@ -321,13 +322,14 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
+            //TODO: test /r
             GETGX;
             GETEX(2);
-            tmp8u = GX->ub[8]&0x3f;
-            tmp8s = GX->ub[9]&0x3f;
+            tmp8u = EX->ub[8]&0x3f;
+            tmp8s = EX->ub[9]&0x3f;
             tmp64u = (1<<(tmp8s+1))-1;
-            EX->q[0] &=~(tmp64u<<tmp8u);
-            EX->q[0] |= (GX->q[0]&tmp64u)<<tmp8u;
+            GX->q[0] &=~(tmp64u<<tmp8u);
+            GX->q[0] |= (EX->q[0]&tmp64u)<<tmp8u;
         }
         break;
 

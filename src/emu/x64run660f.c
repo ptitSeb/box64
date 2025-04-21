@@ -1705,6 +1705,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
+            //TODO: test /0
             GETEX(2);
             tmp8s = F8&0x3f;
             tmp8u = F8&0x3f;
@@ -1720,12 +1721,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
+            //TODO: test/r
             GETGX;
             GETEX(2);
-            tmp8s = GX->ub[0]&0x3f;
-            tmp8u = GX->ub[1]&0x3f;
-            EX->q[0]>>=tmp8u;
-            EX->q[0]&=((1<<(tmp8s+1))-1);
+            tmp8s = EX->ub[0]&0x3f;
+            tmp8u = EX->ub[1]&0x3f;
+            GX->q[0]>>=tmp8u;
+            GX->q[0]&=((1<<(tmp8s+1))-1);
         }
         break;
 
