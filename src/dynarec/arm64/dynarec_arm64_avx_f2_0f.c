@@ -586,7 +586,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
 
         case 0xF0:
-            INST_NAME("LDDQU Gx,Ex");
+            INST_NAME("VLDDQU Gx,Ex");
             nextop = F8;
             GETG;
             if(MODREG) {
@@ -600,7 +600,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 7, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
                 VLDR128_U12(v0, ed, fixedaddress);
                 v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
                 VLDR128_U12(v0, ed, fixedaddress+16);
