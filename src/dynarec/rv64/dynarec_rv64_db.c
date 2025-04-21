@@ -112,6 +112,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MESSAGE(LOG_DUMP, "Need Optimization\n");
                 x87_purgecache(dyn, ninst, 0, x1, x2, x3);
                 CALL(reset_fpu, -1, 0, 0);
+                NATIVE_RESTORE_X87PC();
                 break;
             case 0xE8 ... 0xEF:
                 INST_NAME("FUCOMI ST0, STx");

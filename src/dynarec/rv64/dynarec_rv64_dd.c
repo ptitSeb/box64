@@ -162,6 +162,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
                 CALL(native_fsave, -1, ed, 0);
                 CALL(reset_fpu, -1, 0, 0);
+                NATIVE_RESTORE_X87PC();
                 break;
             case 7:
                 INST_NAME("FNSTSW m2byte");
