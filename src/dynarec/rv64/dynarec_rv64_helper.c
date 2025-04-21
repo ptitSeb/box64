@@ -1243,7 +1243,7 @@ static void x87_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
                 SLLI(s1, s3, 3);
                 ADD(s1, xEmu, s1);
             }
-            if (extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i]) >= 0) {
+            if (extcache_get_current_st_f(dyn, dyn->e.x87cache[i]) >= 0) {
                 FCVTDS(SCRATCH0, dyn->e.x87reg[i]);
                 FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
             } else
