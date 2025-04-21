@@ -1918,7 +1918,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
             nextop = F8;
-            GETGX(q0, 1);
+            GETGX(q0, 0);
             GETEX(q1, 0, 0);    //no vex.l case
             v0 = fpu_get_scratch(dyn, ninst);
             VLDR128_U12(v0, xRDI, 0);

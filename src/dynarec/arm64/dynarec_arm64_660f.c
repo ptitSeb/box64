@@ -3335,7 +3335,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xF7:
             INST_NAME("MASKMOVDQU Gx, Ex");
             nextop = F8;
-            GETGX(q0, 1);
+            GETGX(q0, 0);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn, ninst);
             VLDR128_U12(v0, xRDI, 0);
@@ -3344,10 +3344,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             else
                 v1 = q1;
             VSSHRQ_8(v1, q1, 7);  // get the mask
-            VBICQ(v0, v0, v1);  // mask destination
-            VANDQ(v1, q0, v1);  // mask source
-            VORRQ(v1, v1, v0);  // combine
-            VSTR128_U12(v1, xRDI, 0);  // put back
+            VBITQ(v0, q0, v1);
+            VSTR128_U12(v0, xRDI, 0);  // put back
             break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
