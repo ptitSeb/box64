@@ -1474,7 +1474,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 BFCw(xFlags, F_PF, 1);
                             }
                         }
-                        ARM64_CHECK_PRECISION();    // to regen x87 if it has been used
+                        NATIVE_RESTORE_X87PC();
                     } else {
                         SETFLAGS(X_ALL, SF_SET_DF);
                         if(gd>7)    // no need to reflect cache as xmm0-xmm7 will be saved before the function call anyway

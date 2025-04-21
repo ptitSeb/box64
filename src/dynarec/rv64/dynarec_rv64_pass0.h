@@ -100,3 +100,6 @@
 // mark opcode as "unaligned" possible only if the current address is not marked as already unaligned
 #define IF_UNALIGNED(A) if ((dyn->insts[ninst].unaligned = (is_addr_unaligned(A) ? 0 : 1)))
 #define IF_ALIGNED(A)   if ((dyn->insts[ninst].unaligned = (is_addr_unaligned(A) ? 1 : 0)))
+
+#define NATIVE_RESTORE_X87PC()
+#define X87_CHECK_PRECISION(A)

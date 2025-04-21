@@ -840,6 +840,23 @@
 #define IF_ALIGNED(A) if (!is_addr_unaligned(A))
 #endif
 
+#ifndef NATIVE_RESTORE_X87PC
+#define NATIVE_RESTORE_X87PC()                   \
+    if (dyn->need_x87check) {                    \
+        LD(x87pc, xEmu, offsetof(x64emu_t, cw)); \
+        SRLI(x87pc, x87pc, 8);                   \
+        ANDI(x87pc, x87pc, 0b11);                \
+    }
+#endif
+#ifndef X87_CHECK_PRECISION
+#define X87_CHECK_PRECISION(A) \
+    if (dyn->need_x87check) {  \
+        BNEZ(x87pc, 4 + 8);    \
+        FCVTSD(A, A);          \
+        FCVTDS(A, A);          \
+    }
+#endif
+
 #define STORE_REG(A) SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 

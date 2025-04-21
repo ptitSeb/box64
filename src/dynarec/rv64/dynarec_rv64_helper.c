@@ -779,7 +779,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
 {
     MAYUSE(fnc);
     if (savereg == 0)
-        savereg = x6;
+        savereg = x87pc;
     if (saveflags) {
         FLAGS_ADJUST_TO11(xFlags, xFlags, reg);
         SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
@@ -834,6 +834,8 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
         FLAGS_ADJUST_FROM11(xFlags, xFlags, reg);
     }
+    if (savereg != x87pc && dyn->need_x87check)
+        NATIVE_RESTORE_X87PC();
     // SET_NODF();
     CLEARIP();
 }
@@ -867,6 +869,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
 
     fpu_popcache(dyn, ninst, x3, 1);
+    NATIVE_RESTORE_X87PC();
     // SET_NODF();
 }
 

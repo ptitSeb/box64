@@ -83,11 +83,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             break;
         }
         #endif
-        #ifdef ARCH_PRECISION
         if(!ninst && dyn->need_x87check) {
-            ARCH_PRECISION();
+            NATIVE_RESTORE_X87PC();
         }
-        #endif
         fpu_propagate_stack(dyn, ninst);
         ip = addr;
         if (reset_n!=-1) {

@@ -206,7 +206,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(ed!=x1) {MOVx_REG(x1, ed);}
                 CALL(native_fsave, -1);
                 CALL(reset_fpu, -1);
-                ARM64_CHECK_PRECISION();
+                NATIVE_RESTORE_X87PC();
                 break;
             case 7:
                 INST_NAME("FNSTSW m2byte");

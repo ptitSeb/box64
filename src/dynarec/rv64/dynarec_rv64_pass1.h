@@ -24,3 +24,11 @@
     dyn->insts[ninst].vector_sew_exit = dyn->vector_sew;
 
 #define INST_NAME(name)
+
+
+#define NATIVE_RESTORE_X87PC()
+#define X87_CHECK_PRECISION(A)      \
+    do {                            \
+        if (dyn->need_x87check)     \
+            dyn->need_x87check = 2; \
+    } while (0)

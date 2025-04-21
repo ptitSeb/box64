@@ -48,6 +48,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FADDS(v1, v1, v2);
                 } else {
                     FADDD(v1, v1, v2);
+                    X87_CHECK_PRECISION(v1);
                 }
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -60,6 +61,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FMULS(v1, v1, v2);
                 } else {
                     FMULD(v1, v1, v2);
+                    X87_CHECK_PRECISION(v1);
                 }
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -93,6 +95,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FSUBS(v1, v2, v1);
                 } else {
                     FSUBD(v1, v2, v1);
+                    X87_CHECK_PRECISION(v1);
                 }
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -105,6 +108,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FSUBS(v1, v1, v2);
                 } else {
                     FSUBD(v1, v1, v2);
+                    X87_CHECK_PRECISION(v1);
                 }
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -117,6 +121,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FDIVS(v1, v2, v1);
                 } else {
                     FDIVD(v1, v2, v1);
+                    X87_CHECK_PRECISION(v1);
                 }
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -129,6 +134,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FDIVS(v1, v1, v2);
                 } else {
                     FDIVD(v1, v1, v2);
+                    X87_CHECK_PRECISION(v1);
                 }
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;

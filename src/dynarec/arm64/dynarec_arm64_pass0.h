@@ -73,5 +73,5 @@
 #define IF_UNALIGNED(A) if((dyn->insts[ninst].unaligned=is_addr_unaligned(A)))
 #define IF_ALIGNED(A)   if(!(dyn->insts[ninst].unaligned=is_addr_unaligned(A)))
 
-#define ARM64_CHECK_PRECISION()
+#define NATIVE_RESTORE_X87PC()
 #define X87_CHECK_PRECISION(A)
