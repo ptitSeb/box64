@@ -331,9 +331,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            if (VX->f[0] == 0.0 && EX->f[0]  == 0.0)
-                GX->f[0] = EX->f[0];
-            else if (isnan(VX->f[0]) || isnan(EX->f[0]) || isgreater(VX->f[0], EX->f[0]))
+            if (isnan(VX->f[0]) || isnan(EX->f[0]) || islessequal(EX->f[0], VX->f[0]))
                 GX->f[0] = EX->f[0];
             else
                 GX->f[0] = VX->f[0];
@@ -364,9 +362,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            if (VX->f[0] == 0.0 && EX->f[0]  == 0.0)
-                GX->f[0] = EX->f[0];
-            else if (isnan(VX->f[0]) || isnan(EX->f[0]) || isgreater(EX->f[0], VX->f[0]))
+            if (isnan(VX->f[0]) || isnan(EX->f[0]) || isgreaterequal(EX->f[0], VX->f[0]))
                 GX->f[0] = EX->f[0];
             else
                 GX->f[0] = VX->f[0];

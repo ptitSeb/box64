@@ -190,6 +190,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETGY;
                 EY->q[0] = GY->q[0];
                 EY->q[1] = GY->q[1];
+            } else if(MODREG) {
+                GETEY;
+                EY->u128 = 0;
             }
             break;
 
@@ -514,7 +517,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i)
-                if (isnanf(VX->f[i]) || isnanf(EX->f[i]) || isgreater(VX->f[i], EX->f[i]))
+                if (isnanf(VX->f[i]) || isnanf(EX->f[i]) || islessequal(EX->f[i], VX->f[i]))
                     GX->f[i] = EX->f[i];
                 else
                     GX->f[i] = VX->f[i];
@@ -522,7 +525,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i)
-                    if (isnanf(VY->f[i]) || isnanf(EY->f[i]) || isgreater(VY->f[i], EY->f[i]))
+                    if (isnanf(VY->f[i]) || isnanf(EY->f[i]) || islessequal(EY->f[i], VY->f[i]))
                         GY->f[i] = EY->f[i];
                     else
                         GY->f[i] = VY->f[i];
@@ -570,7 +573,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i)
-                if (isnanf(VX->f[i]) || isnanf(EX->f[i]) || isgreater(EX->f[i], VX->f[i]))
+                if (isnanf(VX->f[i]) || isnanf(EX->f[i]) || isgreaterequal(EX->f[i], VX->f[i]))
                     GX->f[i] = EX->f[i];
                 else
                     GX->f[i] = VX->f[i];
@@ -578,7 +581,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i)
-                    if (isnanf(VY->f[i]) || isnanf(EY->f[i]) || isgreater(EY->f[i], VY->f[i]))
+                    if (isnanf(VY->f[i]) || isnanf(EY->f[i]) || isgreaterequal(EY->f[i], VY->f[i]))
                         GY->f[i] = EY->f[i];
                     else
                         GY->f[i] = VY->f[i];

@@ -448,7 +448,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<2; ++i)
-                if (isnan(VX->d[i]) || isnan(EX->d[i]) || !isgreater(EX->d[i], VX->d[i]))
+                if (isnan(VX->d[i]) || isnan(EX->d[i]) || islessequal(EX->d[i], VX->d[i]))
                     GX->d[i] = EX->d[i];
                 else
                     GX->d[i] = VX->d[i];
@@ -456,7 +456,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<2; ++i)
-                    if (isnan(VY->d[i]) || isnan(EY->d[i]) || !isgreater(EY->d[i], VY->d[i]))
+                    if (isnan(VY->d[i]) || isnan(EY->d[i]) || islessequal(EY->d[i], VY->d[i]))
                         GY->d[i] = EY->d[i];
                     else
                         GY->d[i] = VY->d[i];
@@ -492,7 +492,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<2; ++i)
-                if (isnan(VX->d[i]) || isnan(EX->d[i]) || !isgreater(VX->d[i], EX->d[i]))
+                if (isnan(VX->d[i]) || isnan(EX->d[i]) || isgreaterequal(EX->d[i], VX->d[i]))
                     GX->d[i] = EX->d[i];
                 else
                     GX->d[i] = VX->d[i];
@@ -500,7 +500,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<2; ++i)
-                    if (isnan(VY->d[i]) || isnan(EY->d[i]) || !isgreater(VY->d[i], EY->d[i]))
+                    if (isnan(VY->d[i]) || isnan(EY->d[i]) || isgreaterequal(EY->d[i], VY->d[i]))
                         GY->d[i] = EY->d[i];
                     else
                         GY->d[i] = VY->d[i];

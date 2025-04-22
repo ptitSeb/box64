@@ -826,7 +826,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i) {
-                if (isnan(GX->f[i]) || isnan(EX->f[i]) || isless(EX->f[i], GX->f[i]))
+                if (isnan(GX->f[i]) || isnan(EX->f[i]) || islessequal(EX->f[i], GX->f[i]))
                     GX->f[i] = EX->f[i];
             }
             break;
@@ -845,7 +845,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i) {
-                if (isnan(GX->f[i]) || isnan(EX->f[i]) || isgreater(EX->f[i], GX->f[i]))
+                if (isnan(GX->f[i]) || isnan(EX->f[i]) || isgreaterequal(EX->f[i], GX->f[i]))
                     GX->f[i] = EX->f[i];
             }
             break;
