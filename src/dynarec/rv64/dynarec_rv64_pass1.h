@@ -27,11 +27,11 @@
 
 
 #define NATIVE_RESTORE_X87PC()
-#define X87_CHECK_PRECISION(A)      \
-    do {                            \
-        if (dyn->need_x87check)     \
-            dyn->need_x87check = 2; \
+#define X87_CHECK_PRECISION(A)                  \
+    do {                                        \
+        if (dyn->need_x87check) {               \
+            dyn->insts[ninst].x87precision = 1; \
+            if (!ST_IS_F(0))                    \
+                dyn->need_x87check = 2;         \
+        }                                       \
     } while (0)
-
-#define MARK_X87PC() \
-    if (dyn->need_x87check) dyn->insts[ninst].x87precision = 1

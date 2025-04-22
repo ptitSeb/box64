@@ -349,9 +349,8 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSQRTS(v1, v1);
             } else {
                 FSQRTD(v1, v1);
-                X87_CHECK_PRECISION(v1);
             }
-            MARK_X87PC();
+            X87_CHECK_PRECISION(v1);
             if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             break;
         case 0xFB:
