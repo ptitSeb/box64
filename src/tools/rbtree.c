@@ -31,6 +31,10 @@ struct rbtree {
     rbnode *root;
     const char* name;
     bool is_unstable;
+    // Cache 
+    rbnode *righter; 
+    rbnode *lefter;
+    // TODO: Refine the naming scheme
 };
 
 rbtree_t* rbtree_init(const char* name) {
@@ -38,6 +42,8 @@ rbtree_t* rbtree_init(const char* name) {
     tree->root = NULL;
     tree->is_unstable = false;
     tree->name = name?name:"(rbtree)";
+    tree->righter = NULL;
+    tree->lefter = NULL;
     return tree;
 }
 
@@ -77,8 +83,16 @@ static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uint
         node->meta = IS_BLACK;
         tree->root = node;
         tree->is_unstable = false;
+        tree->lefter = node;
+        tree->righter = node;
         return 0;
     }
+    
+    // Update cache
+    if (start < tree->lefter->start) // new left most
+        tree->lefter = node;
+    else if (start > tree->righter->start) // new right most
+        tree->righter = node;
 
     node->parent = prev;
     if (prev->start < start) {
@@ -232,17 +246,6 @@ static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uint
     return -1; // unreachable
 }
 
-static int add_range(rbtree_t *tree, uintptr_t start, uintptr_t end, uint64_t data) {
-// printf("add_range\n");
-    rbnode *cur = tree->root, *prev = NULL;
-    while (cur) {
-        prev = cur;
-        if (cur->start < start) cur = cur->right;
-        else cur = cur->left;
-    }
-    return add_range_next_to(tree, prev, start, end, data);
-}
-
 static rbnode *find_addr(rbtree_t *tree, uintptr_t addr) {
     rbnode *node = tree->root;
     while (node) {
@@ -253,6 +256,8 @@ static rbnode *find_addr(rbtree_t *tree, uintptr_t addr) {
     return NULL;
 }
 
+static rbnode *succ_node(rbnode *node);
+static rbnode *pred_node(rbnode *node);
 // node must be a valid node in the tree
 static int remove_node(rbtree_t *tree, rbnode *node) {
 // printf("Removing %p\n", node); rbtree_print(tree); fflush(stdout);
@@ -260,7 +265,12 @@ static int remove_node(rbtree_t *tree, rbnode *node) {
         printf_log(LOG_NONE, "Warning, unstable Red-Black tree; trying to add a node anyways\n");
     }
     tree->is_unstable = true;
-
+    // Update cache
+    if (node == tree->lefter)
+        tree->lefter = succ_node(node);
+    else if (node == tree->righter)
+        tree->righter = pred_node(node);
+    
     if (node->left && node->right) {
         // Swap node and its successor
         // Do NOT free the successor as a reference to it can exist
@@ -622,7 +632,7 @@ int rb_set_64(rbtree_t *tree, uintptr_t start, uintptr_t end, uint64_t data) {
 // printf("rb_set( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx, %hhu);\n", start, end, data); fflush(stdout);
 dynarec_log(LOG_DEBUG, "set %s: 0x%lx, 0x%lx, 0x%x\n", tree->name, start, end, data);
     if (!tree->root) {
-        return add_range(tree, start, end, data);
+        return add_range_next_to(tree, NULL, start, end, data);
     }
     
     rbnode *node = tree->root, *prev = NULL, *last = NULL;
@@ -819,7 +829,7 @@ uint64_t rb_inc(rbtree_t *tree, uintptr_t start, uintptr_t end) {
     // printf("rb_inc( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx);\n", start, end); fflush(stdout);
     dynarec_log(LOG_DEBUG, "inc %s: 0x%lx, 0x%lx\n", tree->name, start, end);
     if (!tree->root) {
-        add_range(tree, start, end, 1);
+        add_range_next_to(tree, NULL, start, end, 1);
         return 1;
     }
     
@@ -1129,28 +1139,14 @@ uintptr_t rb_get_righter(rbtree_t* tree)
 {
 dynarec_log(LOG_DEBUG, "rb_get_righter(%s);\n", tree->name);
     if (!tree->root) return 0;
-
-    rbnode *node = tree->root;
-    while (node) {
-        if(!node->right)
-            return node->start;
-        node = node->right;
-    }
-    return 0;
+    return tree->righter->start;
 }
 
 uintptr_t rb_get_lefter(rbtree_t* tree)
 {
 dynarec_log(LOG_DEBUG, "rb_get_lefter(%s);\n", tree->name);
     if (!tree->root) return 0;
-
-    rbnode *node = tree->root;
-    while (node) {
-        if(!node->left)
-            return node->start;
-        node = node->left;
-    }
-    return 0;
+    return tree->lefter->start;
 }
 
 #include <stdio.h>
@@ -1200,12 +1196,38 @@ static void print_rbnode(const rbnode *node, unsigned depth, uintptr_t minstart,
     printf_log(LOG_NONE, ")");
 }
 
+static void cache_check(const rbtree_t *tree) {
+    if (!tree || !tree->root)
+        return;
+    // find right most
+    rbnode *right_node = tree->root;
+    while (right_node->right)
+        right_node = right_node->right;
+
+    if (tree->righter != right_node){
+        printf_log(LOG_NONE, "<invalid rightmost node>\n");
+        return;
+    }
+
+    // find left most
+    rbnode *left_node = tree->root;
+    while (left_node->left)
+        left_node = left_node->left;
+
+    if (tree->lefter != left_node){
+        printf_log(LOG_NONE, "<invalid leftmost node>\n");
+        return;
+    }
+
+    printf_log(LOG_NONE, "<valid cached node> \n");
+}
+
 void rbtree_print(const rbtree_t *tree) {
     if (!tree) {
         printf_log(LOG_NONE, "<NULL>\n");
         return;
     }
-    if(tree->name)
+    if (tree->name)
         printf_log(LOG_NONE, "tree name: %s\n", tree->name);
     if (tree->root && tree->root->parent) {
         printf_log(LOG_NONE, "Root has parent\n");
@@ -1215,6 +1237,7 @@ void rbtree_print(const rbtree_t *tree) {
         printf_log(LOG_NONE, "Root is red\n");
         return;
     }
+    cache_check(tree);
     unsigned bdepth = 0;
     print_rbnode(tree->root, 0, 0, (uintptr_t)-1, &bdepth);
     printf_log(LOG_NONE, "\n");
