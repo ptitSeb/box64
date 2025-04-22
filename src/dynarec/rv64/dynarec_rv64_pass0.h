@@ -103,3 +103,5 @@
 
 #define NATIVE_RESTORE_X87PC()
 #define X87_CHECK_PRECISION(A)
+#define MARK_X87PC() \
+    if (dyn->need_x87check) dyn->insts[ninst].x87precision = 1

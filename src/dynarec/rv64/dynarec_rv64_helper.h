@@ -856,6 +856,9 @@
         FCVTDS(A, A);          \
     }
 #endif
+#ifndef MARK_X87PC
+#define MARK_X87PC()
+#endif
 
 #define STORE_REG(A) SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
