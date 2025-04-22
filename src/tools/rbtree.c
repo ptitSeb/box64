@@ -246,17 +246,6 @@ static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uint
     return -1; // unreachable
 }
 
-static int add_range(rbtree_t *tree, uintptr_t start, uintptr_t end, uint64_t data) {
-// printf("add_range\n");
-    rbnode *cur = tree->root, *prev = NULL;
-    while (cur) {
-        prev = cur;
-        if (cur->start < start) cur = cur->right;
-        else cur = cur->left;
-    }
-    return add_range_next_to(tree, prev, start, end, data);
-}
-
 static rbnode *find_addr(rbtree_t *tree, uintptr_t addr) {
     rbnode *node = tree->root;
     while (node) {
@@ -643,7 +632,7 @@ int rb_set_64(rbtree_t *tree, uintptr_t start, uintptr_t end, uint64_t data) {
 // printf("rb_set( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx, %hhu);\n", start, end, data); fflush(stdout);
 dynarec_log(LOG_DEBUG, "set %s: 0x%lx, 0x%lx, 0x%x\n", tree->name, start, end, data);
     if (!tree->root) {
-        return add_range(tree, start, end, data);
+        return add_range_next_to(tree, NULL, start, end, data);
     }
     
     rbnode *node = tree->root, *prev = NULL, *last = NULL;
@@ -840,7 +829,7 @@ uint64_t rb_inc(rbtree_t *tree, uintptr_t start, uintptr_t end) {
     // printf("rb_inc( "); rbtree_print(tree); printf(" , 0x%lx, 0x%lx);\n", start, end); fflush(stdout);
     dynarec_log(LOG_DEBUG, "inc %s: 0x%lx, 0x%lx\n", tree->name, start, end);
     if (!tree->root) {
-        add_range(tree, start, end, 1);
+        add_range_next_to(tree, NULL, start, end, 1);
         return 1;
     }
     
