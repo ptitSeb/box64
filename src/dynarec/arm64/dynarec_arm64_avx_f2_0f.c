@@ -336,7 +336,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETGX_empty_VX(v0, v2);
             // VMINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
             FCMPD(v2, v1);
-            FCSELD(d1, v1, v2, cCS);
+            FCSELD(d1, v1, v2, cCS);    //CS: NAN or == or Vx > Ex
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
@@ -376,7 +376,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETEXSD(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
             FCMPD(v1, v2);
-            FCSELD(d1, v1, v2, cCS);
+            FCSELD(d1, v1, v2, cCS);    //CS: NAN or == or Ex > Vx
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }

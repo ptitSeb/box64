@@ -386,7 +386,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
             FCMPS(v2, v1);
-            FCSELS(d1, v1, v2, cCS);
+            FCSELS(d1, v1, v2, cCS);    //CS: NAN or == or Ex > Vx
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
@@ -426,7 +426,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
             FCMPS(v1, v2);
-            FCSELS(d1, v1, v2, cCS);
+            FCSELS(d1, v1, v2, cCS);    //CS: NAN or == or Ex > Vx
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }

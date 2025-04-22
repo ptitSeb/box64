@@ -374,15 +374,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEXSS(v1, 0, 0);
             // MINSS: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
-            #if 0
-            d0 = fpu_get_scratch(dyn, ninst);
-            FMINNMS(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
-            VMOVeS(v0, 0, d0, 0);   // to not erase uper part
-            #else
             FCMPS(v0, v1);
-            B_NEXT(cCC);    //Less than
+            B_NEXT(cCC);    //CC invert of CS: NAN or == or Gx > Ex
             VMOVeS(v0, 0, v1, 0);   // to not erase uper part
-            #endif
             break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
@@ -412,15 +406,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEXSS(v1, 0, 0);
             // MAXSS: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
-            #if 0
-            d0 = fpu_get_scratch(dyn, ninst);
-            FMAXNMS(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
-            VMOVeS(v0, 0, d0, 0);   // to not erase uper part
-            #else
-            FCMPS(v0, v1);
-            B_NEXT(cGT);    //Greater than
+            FCMPS(v1, v0);
+            B_NEXT(cCC);    //CC: invert of CS: NAN or == or Ex > Gx
             VMOVeS(v0, 0, v1, 0);   // to not erase uper part
-            #endif
             break;
 
         case 0x6F:

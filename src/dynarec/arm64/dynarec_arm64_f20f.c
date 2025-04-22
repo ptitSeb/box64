@@ -336,15 +336,9 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEXSD(v1, 0, 0);
             // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
-            #if 0
-            d0 = fpu_get_scratch(dyn, ninst);
-            FMINNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
-            VMOVeD(v0, 0, d0, 0);   // to not erase uper part
-            #else
             FCMPD(v0, v1);
-            B_NEXT(cCC);    //Less than
+            B_NEXT(cCC);    //CC invert of CS: NAN or == or Gx > Ex
             VMOVeD(v0, 0, v1, 0);   // to not erase uper part
-            #endif
             break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
@@ -374,15 +368,9 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEXSD(v1, 0, 0);
             // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
-            #if 0
-            d0 = fpu_get_scratch(dyn, ninst);
-            FMAXNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
-            VMOVeD(v0, 0, d0, 0);   // to not erase uper part
-            #else
-            FCMPD(v0, v1);
-            B_NEXT(cGT);    //Greater than
+            FCMPD(v1, v0);
+            B_NEXT(cCC);    //CC invert of CS: NAN or == or Ex > Gx
             VMOVeD(v0, 0, v1, 0);   // to not erase uper part
-            #endif
             break;
 
         case 0x70:
