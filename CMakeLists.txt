@@ -1555,6 +1555,13 @@ add_test(fpu_rounding ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX
 
 set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
 
+add_test(x87pc ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test32 -D TEST_OUTPUT=tmpfile32.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref32.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(x87pc PROPERTIES ENVIRONMENT "BOX64_DYNAREC_X87DOUBLE=2")
+
 else()
 
 add_test(bootSyscall ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}

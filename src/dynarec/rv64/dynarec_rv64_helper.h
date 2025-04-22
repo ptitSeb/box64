@@ -849,15 +849,12 @@
     }
 #endif
 #ifndef X87_CHECK_PRECISION
-#define X87_CHECK_PRECISION(A) \
-    if (dyn->need_x87check) {  \
-        BNEZ(x87pc, 4 + 8);    \
-        FCVTSD(A, A);          \
-        FCVTDS(A, A);          \
+#define X87_CHECK_PRECISION(A)               \
+    if (!ST_IS_F(0) && dyn->need_x87check) { \
+        BNEZ(x87pc, 4 + 8);                  \
+        FCVTSD(A, A);                        \
+        FCVTDS(A, A);                        \
     }
-#endif
-#ifndef MARK_X87PC
-#define MARK_X87PC()
 #endif
 
 #define STORE_REG(A) SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))

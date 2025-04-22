@@ -1006,16 +1006,14 @@
     }
 #endif
 #ifndef X87_CHECK_PRECISION
-#define X87_CHECK_PRECISION(A)                      \
-    if(dyn->need_x87check) {                        \
-        CBNZw(x87pc, 4+8);                          \
-        FCVT_S_D(A, A);                             \
-        FCVT_D_S(A, A);                             \
+#define X87_CHECK_PRECISION(A)               \
+    if (!ST_IS_F(0) && dyn->need_x87check) { \
+        CBNZw(x87pc, 4 + 8);                 \
+        FCVT_S_D(A, A);                      \
+        FCVT_D_S(A, A);                      \
     }
 #endif
-#ifndef MARK_X87PC
-#define MARK_X87PC()
-#endif
+
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))

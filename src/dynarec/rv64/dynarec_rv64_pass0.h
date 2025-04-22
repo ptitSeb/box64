@@ -102,6 +102,7 @@
 #define IF_ALIGNED(A)   if ((dyn->insts[ninst].unaligned = (is_addr_unaligned(A) ? 1 : 0)))
 
 #define NATIVE_RESTORE_X87PC()
-#define X87_CHECK_PRECISION(A)
-#define MARK_X87PC() \
-    if (dyn->need_x87check) dyn->insts[ninst].x87precision = 1
+#define X87_CHECK_PRECISION(A)                                      \
+    do {                                                            \
+        if (dyn->need_x87check) dyn->insts[ninst].x87precision = 1; \
+    } while (0)
