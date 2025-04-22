@@ -810,7 +810,9 @@ dynarec_log(LOG_DEBUG, "unset: %s 0x%lx, 0x%lx);\n", tree->name, start, end);
         } else if (prev->end == end) {
             prev->end = start;
             return 0;
-        } // else fallthrough
+        } else {
+            prev->end = start;
+        }
     }
     while (next && (next->start < end) && (next->end <= end)) {
         // Remove the entire node
