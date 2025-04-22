@@ -1008,6 +1008,38 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 0x14:
+                    INST_NAME("PEXTRB Ed, Gx, Ib");
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        u8 = (F8) & 15;
+                        VPICKVE2GR_BU(ed, q0, u8);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);
+                        u8 = (F8) & 15;
+                        VPICKVE2GR_BU(x1, q0, u8);
+                        ST_B(x1, wback, fixedaddress);
+                    }
+                    break;
+                case 0x15:
+                    INST_NAME("PEXTRW Ed, Gx, Ib");
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        u8 = (F8) & 7;
+                        VPICKVE2GR_HU(ed, q0, u8);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);
+                        u8 = (F8) & 7;
+                        VPICKVE2GR_HU(x1, q0, u8);
+                        ST_H(x1, wback, fixedaddress);
+                    }
+                    break;
                 case 0x16:
                     if (rex.w) {
                         INST_NAME("PEXTRQ Ed, Gx, Ib");
@@ -1021,12 +1053,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         u8 = F8;
                         if (rex.w) {
-                            VBSRL_V(d0, q0, (u8 & 1) * 8);
-                            MOVFR2GR_D(ed, d0);
+                            VPICKVE2GR_D(ed, q0, (u8&1));
                         } else {
-                            VBSRL_V(d0, q0, (u8 & 3) * 4);
-                            MOVFR2GR_S(ed, d0);
-                            ZEROUP(ed);
+                            VPICKVE2GR_W(ed, q0, (u8&3));
                         }
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 1, 1);
@@ -2059,9 +2088,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = x3;
                 LD_HU(ed, wback, fixedaddress);
             }
-            d0 = fpu_get_scratch(dyn);
-            MOVGR2FR_D(d0, ed);
-            VEXTRINS_H(v0, d0, (u8 << 4));
+            VINSGR2VR_H(v0, ed, u8);
             break;
         case 0xC5:
             INST_NAME("PEXTRW Gd, Ex, Ib");
@@ -2071,9 +2098,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(v0, 0, 1);
                 u8 = (F8) & 7;
                 v1 = fpu_get_scratch(dyn);
-                VBSRL_V(v1, v0, (u8 << 1));
-                MOVFR2GR_D(gd, v1);
-                BSTRPICK_D(gd, gd, 15, 0);
+                VPICKVE2GR_HU(gd, v0, u8);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);
