@@ -220,6 +220,7 @@ static void extcache_promote_double_combined(dynarec_rv64_t* dyn, int ninst, int
         // if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "extcache_promote_double_combined, ninst=%d combined%c %d i=%d (stack:%d/%d)\n", ninst, (a == dyn->insts[ninst].e.combined2)?'2':'1', a ,i, dyn->insts[ninst].e.stack_push, -dyn->insts[ninst].e.stack_pop);
         if (i >= 0) {
             dyn->insts[ninst].e.extcache[i].t = EXT_CACHE_ST_D;
+            if (dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
             if (!dyn->insts[ninst].e.barrier)
                 extcache_promote_double_internal(dyn, ninst - 1, maxinst, a - dyn->insts[ninst].e.stack_push);
             // go forward is combined is not pop'd
@@ -239,6 +240,7 @@ static void extcache_promote_double_internal(dynarec_rv64_t* dyn, int ninst, int
         // if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "extcache_promote_double_internal, ninst=%d, a=%d st=%d:%d, i=%d\n", ninst, a, dyn->insts[ninst].e.stack, dyn->insts[ninst].e.stack_next, i);
         if (i < 0) return;
         dyn->insts[ninst].e.extcache[i].t = EXT_CACHE_ST_D;
+        if (dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
         // check combined propagation too
         if (dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2) {
             if (dyn->insts[ninst].e.swapped) {
@@ -274,6 +276,7 @@ static void extcache_promote_double_forward(dynarec_rv64_t* dyn, int ninst, int 
         // if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "extcache_promote_double_forward, ninst=%d, a=%d st=%d:%d(%d/%d), i=%d\n", ninst, a, dyn->insts[ninst].e.stack, dyn->insts[ninst].e.stack_next, dyn->insts[ninst].e.stack_push, -dyn->insts[ninst].e.stack_pop, i);
         if (i < 0) return;
         dyn->insts[ninst].e.extcache[i].t = EXT_CACHE_ST_D;
+        if (dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
         // check combined propagation too
         if ((dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2) && !dyn->insts[ninst].e.swapped) {
             // if(BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "extcache_promote_double_forward, ninst=%d combined %d/%d vs %d with st %d\n", ninst, dyn->insts[ninst].e.combined1 ,dyn->insts[ninst].e.combined2, a, dyn->insts[ninst].e.stack);
@@ -296,6 +299,7 @@ void extcache_promote_double(dynarec_rv64_t* dyn, int ninst, int a)
     if (i < 0) return;
     dyn->e.extcache[i].t = EXT_CACHE_ST_D;
     dyn->insts[ninst].e.extcache[i].t = EXT_CACHE_ST_D;
+    if (dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
     // check combined propagation too
     if (dyn->e.combined1 || dyn->e.combined2) {
         if (dyn->e.swapped) {
