@@ -137,15 +137,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x12:                      /* MOVLPD Gx, Eq */
         nextop = F8;
-        GETE8(0);
-        GETGX;
-        GX->q[0] = ED->q[0];
+        if(!MODREG) {
+            GETE8(0);
+            GETGX;
+            GX->q[0] = ED->q[0];
+        }
         break;
     case 0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
-        GETE8(0);
-        GETGX;
-        ED->q[0] = GX->q[0];
+        if(!MODREG) {
+            GETE8(0);
+            GETGX;
+            ED->q[0] = GX->q[0];
+        }
         break;
     case 0x14:                      /* UNPCKLPD Gx, Ex */
         nextop = F8;
@@ -162,15 +166,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x16:                      /* MOVHPD Gx, Ed */
         nextop = F8;
-        GETE8(0);
-        GETGX;
-        GX->q[1] = ED->q[0];
+        if(!MODREG) {
+            GETE8(0);
+            GETGX;
+            GX->q[1] = ED->q[0];
+        }
         break;
     case 0x17:                      /* MOVHPD Ed, Gx */
         nextop = F8;
-        GETE8(0);
-        GETGX;
-        ED->q[0] = GX->q[1];
+        if(!MODREG) {
+            GETE8(0);
+            GETGX;
+            ED->q[0] = GX->q[1];
+        }
         break;
 
     case 0x18:

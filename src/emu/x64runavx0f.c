@@ -105,9 +105,11 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x13:                      /* VMOVLPS Ex, Gx */
             nextop = F8;
-            GETEX(0);
-            GETGX;
-            EX->q[0] = GX->q[0];
+            if(!MODREG) {
+                GETEX(0);
+                GETGX;
+                EX->q[0] = GX->q[0];
+            }
             break;
         case 0x14:  /* VUNPCKLPS Gx, Vx, Ex */
             nextop = F8;
@@ -155,7 +157,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(MODREG) {                /* VMOVLHPS Gx, Vx, Ex */
                 GX->q[1] = EX->q[0];
             } else {
-                GX->q[1] = EX->q[0];    /* MOVHPS Gx,Ex */
+                GX->q[1] = EX->q[0];    /* VMOVHPS Gx, Vx, Ex */
             }
             GX->q[0] = VX->q[0];
             GY->u128 = 0;
@@ -165,6 +167,10 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             EX->q[0] = GX->q[1];
+            if(MODREG) {
+                GETEY;
+                EY->u128 = 0;
+            }
             break;
 
         case 0x28:  /* VMOVAPS Gx, Ex */

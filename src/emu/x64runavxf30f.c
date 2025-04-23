@@ -432,7 +432,10 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETGY;
                 GETEY;
                 memcpy(EY, GY, 16);
-            } // no ymm raz here it seems
+            } else if(MODREG) {
+                GETEY;
+                EY->u128 = 0;
+            }
             break;
 
         case 0xC2:  /* VCMPSS Gx, Vx, Ex, Ib */
