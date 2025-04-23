@@ -909,7 +909,7 @@ int convert_bitmask(uint64_t bitmask);
 #define FCSELS(Sd, Sn, Sm, cond)        EMIT(FCSEL_scalar(0b00, Sm, cond, Sn, Sd))
 #define FCSELD(Dd, Dn, Dm, cond)        EMIT(FCSEL_scalar(0b01, Dm, cond, Dn, Dd))
  
-// VLDR
+// VLDR/VSTR
 #define VMEM_gen(size, opc, imm12, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | 0b01<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
 // imm13 must be 1-aligned
 #define VLDR16_U12(Ht, Rn, imm13)           EMIT(VMEM_gen(0b01, 0b01, ((uint32_t)((imm13)>>1))&0xfff, Rn, Ht))
@@ -927,6 +927,15 @@ int convert_bitmask(uint64_t bitmask);
 #define VSTR128_U12(Qt, Rn, imm16)          EMIT(VMEM_gen(0b00, 0b10, ((uint32_t)((imm16)>>4))&0xfff, Rn, Qt))
 // (imm13) must be 1-aligned
 #define VSTR16_U12(Ht, Rn, imm13)           EMIT(VMEM_gen(0b01, 0b00, ((uint32_t)((imm13)>>1))&0xfff, Rn, Ht))
+
+//VLDP/VSTP
+#define VMEMP_vector(opc, L, imm7, Rt2, Rn, Rt) ((opc)<<30 | 0b101<<27 | 1<<26 | 0b010<<23 | (L)<<22 | (imm7)<<15 | (Rt2)<<10 | (Rn)<<5 | (Rt))
+#define VLDP32_I7(Rt1, Rt2, Rn, imm9)       EMIT(VMEMP_vector(0b00, 1, (((int64_t)(imm9))>>2)&0x7f, Rt2, Rn, Rt1))
+#define VLDP64_I7(Rt1, Rt2, Rn, imm10)      EMIT(VMEMP_vector(0b01, 1, (((int64_t)(imm10))>>3)&0x7f, Rt2, Rn, Rt1))
+#define VLDP128_I7(Rt1, Rt2, Rn, imm11)     EMIT(VMEMP_vector(0b10, 1, (((int64_t)(imm11))>>4)&0x7f, Rt2, Rn, Rt1))
+#define VSTP32_I7(Rt1, Rt2, Rn, imm9)       EMIT(VMEMP_vector(0b00, 0, (((int64_t)(imm9))>>2)&0x7f, Rt2, Rn, Rt1))
+#define VSTP64_I7(Rt1, Rt2, Rn, imm10)      EMIT(VMEMP_vector(0b01, 0, (((int64_t)(imm10))>>3)&0x7f, Rt2, Rn, Rt1))
+#define VSTP128_I7(Rt1, Rt2, Rn, imm11)     EMIT(VMEMP_vector(0b10, 0, (((int64_t)(imm11))>>4)&0x7f, Rt2, Rn, Rt1))
 
 #define VMEMUR_vector(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (Rn)<<5 | (Rt))
 // signed offset, no alignement!

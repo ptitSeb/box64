@@ -217,7 +217,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 SMREAD();
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
                                 ADDz_REG(x4, x4, ed);
-                                VLD128(v0, ed, fixedaddress);
+                                VLD128(v0, x4, fixedaddress);
                             }
                             break;
                         default:

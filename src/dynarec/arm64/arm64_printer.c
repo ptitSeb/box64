@@ -1644,6 +1644,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "%sR %s%d, [%s, %+d]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn], imm);
         return buff;
     }
+    // LDP/STP vector
+    if(isMask(opcode, "ff1011010Liiiiiii22222nnnnnttttt", &a)) {
+        const char* Y[] = {"S", "D", "Q", "?"};
+        int sz = sf;
+        int offset = signExtend(imm, 7)<<(2+sz);
+        if(!offset)
+            snprintf(buff, sizeof(buff), "%sP %s%d, %s%d, [%s]", a.L?"LD":"ST", Y[sz], Rt, Y[sz], Rt2, XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "%sP %s%d, %s%d, [%s, %s0x%x]", a.L?"LD":"ST", Y[sz], Rt, Y[sz], Rt2, XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
 
     // (S/U)QXT(U)N
     if(isMask(opcode, "0Q101110ff100001001010nnnnnddddd", &a)) {

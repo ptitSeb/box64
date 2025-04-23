@@ -386,9 +386,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 v1 = ymm_get_reg(dyn, ninst, x3, s0, 0, gd, vex.v, -1);
                 VMOVQ(d1, v1);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
-                VLDR128_U12(d0, ed, fixedaddress);
-                VLDR128_U12(d1, ed, fixedaddress+16);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0x3f<<4, 15, rex, NULL, 1, 0);
+                VLDP128_I7(d0, d1, ed, fixedaddress);
             }
             MOV32w(x3, 0x03020100);
             VDUPQS(q1, x3);
