@@ -85,6 +85,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETGY;
                 EY->q[0] = GY->q[0];
                 EY->q[1] = GY->q[1];
+            } else if(MODREG) {
+                GETEY;
+                EY->u128 = 0;
             }
             break;
         case 0x12:
