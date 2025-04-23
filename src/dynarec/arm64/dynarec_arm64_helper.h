@@ -760,6 +760,10 @@
     j64 = GETMARK-(dyn->native_size);   \
     CBZw(reg, j64)
 // Branch to MARK if reg is 0 (use j64)
+#define CBZx_MARK(reg)                  \
+    j64 = GETMARK-(dyn->native_size);   \
+    CBZx(reg, j64)
+// Branch to MARK if reg is 0 (use j64)
 #define CBZxw_MARK(reg)                 \
     j64 = GETMARK-(dyn->native_size);   \
     CBZxw(reg, j64)

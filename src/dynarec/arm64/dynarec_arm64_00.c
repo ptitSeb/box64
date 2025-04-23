@@ -1893,16 +1893,46 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("REP STOSB");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
+                IF_UNALIGNED(ip) {
+                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
+                    // special optim for large RCX value on forward case only
+                    // but because it's unaligned path, check if a byte per byt is needed, and do 4-bytes per 4-bytes only instead
+                    ANDw_mask(x1, xRDI, 0, 1);    //mask = 3
+                    CBNZw_MARK(x1);
+                    UXTBw(x3, xRAX);    // prepare x3
+                    ORRw_REG_LSL(x3, x3, x3, 8);
+                    ORRw_REG_LSL(x3, x3, x3, 16);   // 4bytes ready
+                    MARK3;
+                    ANDx_mask(x1, xRCX, 1, 0b111110, 0b111101); // mask=0xfffffffffffffffc, so ~3LL
+                    CBZx_MARK(x1);  // xRCX<4
+                    STRw_S9_postindex(x3, xRDI, 4);
+                    SUBx_U12(xRCX, xRCX, 4);
+                    CBNZx_MARK3(xRCX);
+                    CBZx_MARKLOCK(xRCX);
+                } else {
+                    // special optim for large RCX value on forward case only
+                    UXTBw(x3, xRAX);    // prepare x3
+                    ORRw_REG_LSL(x3, x3, x3, 8);
+                    ORRw_REG_LSL(x3, x3, x3, 16);
+                    ORRx_REG_LSL(x3, x3, x3, 32);   // 8 bytes...
+                    MARK3;
+                    ANDx_mask(x1, xRCX, 1, 0b111101, 0b111100); // mask=0xfffffffffffffff8, so ~7LL
+                    CBZx_MARK(x1);  // xRCX<8
+                    STRx_S9_postindex(x3, xRDI, 8);
+                    SUBx_U12(xRCX, xRCX, 8);
+                    CBNZx_MARK3(xRCX);
+                    CBZx_MARKLOCK(xRCX);
+                }
                 MARK;   // Part with DF==0
                 STRB_S9_postindex(xRAX, xRDI, 1);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
-                B_MARK3_nocond;
+                B_MARKLOCK_nocond;
                 MARK2;  // Part with DF==1
                 STRB_S9_postindex(xRAX, xRDI, -1);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK2(xRCX);
-                MARK3;
+                MARKLOCK;
                 // done
             } else {
                 INST_NAME("STOSB");
