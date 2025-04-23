@@ -19,7 +19,10 @@ void writePerfMap(uintptr_t func_addr, uintptr_t code_addr, size_t code_size, co
     uint64_t sz = 0;
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, func_addr), (void*)func_addr, &start, &sz);
-    snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s:%s\n", code_addr, code_size, symbname, inst_name);
+    if(!symbname || !strcmp(symbname, "???"))
+        snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %p:%s\n", code_addr, code_size, func_addr, inst_name);
+    else
+        snprintf(pbuf, sizeof(pbuf), "0x%lx %ld %s:%s\n", code_addr, code_size, symbname, inst_name);
     (void)!write(BOX64ENV(dynarec_perf_map_fd), pbuf, strlen(pbuf));
 }
 #else
