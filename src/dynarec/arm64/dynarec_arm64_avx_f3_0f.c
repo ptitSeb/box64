@@ -438,13 +438,10 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VMOVDQU Gx, Ex");// no alignment constraint on NEON here, so same as MOVDQA
             nextop = F8;
             if(MODREG) {
-                ed = (nextop&7)+(rex.b<<3);
-                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
-                GETGX_empty(v0);
+                GETGX_empty_EX(v0, v1, 0);
                 VMOVQ(v0, v1);
                 if(vex.l) {
-                    v1 = ymm_get_reg(dyn, ninst, x1, ed, 0, gd, -1, -1);
-                    GETGY_empty(v0, ed, -1, -1);
+                    GETGY_empty_EY(v0, v1);
                     VMOVQ(v0, v1);
                 }
             } else {
@@ -522,19 +519,15 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 IF_UNALIGNED(ip) {
                     MESSAGE(LOG_DEBUG, "\tUnaligned path");
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    if(wback!=x1) {
-                        MOVx_REG(x1, wback);
-                        wback = x1;
-                    }
                     for(int i=0; i<16; ++i) {
-                        VST1_8(v0, i, wback);
-                        ADDx_U12(wback, wback, 1);
+                        VST1_8(v0, i, i?x1:wback);
+                        ADDx_U12(x1, i?x1:wback, 1);
                     }
                     if(vex.l) {
                         GETGY(v0, 0, -1, -1, -1);
                         for(int i=0; i<16; ++i) {
-                            VST1_8(v0, i, wback);
-                            ADDx_U12(wback, wback, 1);
+                            VST1_8(v0, i, x1);
+                            ADDx_U12(x1, x1, 1);
                         }
                     }
                 } else {

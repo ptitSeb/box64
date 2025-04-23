@@ -279,12 +279,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x12:
             nextop = F8;
             if(MODREG) {
-                INST_NAME("MOVHLPS Gx,Ex");
+                INST_NAME("MOVHLPS Gx, Ex");
                 GETGX(v0, 1);
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
                 VMOVeD(v0, 0, v1, 1);
             } else {
-                INST_NAME("MOVLPS Gx,Ex");
+                INST_NAME("MOVLPS Gx, Ex");
                 GETGX(v0, 1);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
@@ -293,11 +293,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x13:
             nextop = F8;
-            INST_NAME("MOVLPS Ex,Gx");
+            INST_NAME("MOVLPS Ex, Gx");
             GETGX(v0, 0);
             if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
-                VMOVeD(v1, 0, v0, 0);
+                DEFAULT;
+                return addr;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 VST1_64(v0, 0, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
@@ -321,12 +321,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x16:
             nextop = F8;
             if(MODREG) {
-                INST_NAME("MOVLHPS Gx,Ex");
+                INST_NAME("MOVLHPS Gx, Ex");
                 GETGX(v0, 1);
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
                 VMOVeD(v0, 1, v1, 0);
             } else {
-                INST_NAME("MOVHPS Gx,Ex");
+                INST_NAME("MOVHPS Gx, Ex");
                 SMREAD();
                 GETGX(v0, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
@@ -335,7 +335,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x17:
             nextop = F8;
-            INST_NAME("MOVHPS Ex,Gx");
+            INST_NAME("MOVHPS Ex, Gx");
             GETGX(v0, 0);
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);

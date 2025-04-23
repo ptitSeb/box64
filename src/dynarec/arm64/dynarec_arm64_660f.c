@@ -87,12 +87,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x12:
             INST_NAME("MOVLPD Gx, Eq");
             nextop = F8;
-            GETGX(v0, 1);
             if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
             }
+            GETGX(v0, 1);
             SMREAD();
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
             VLD1_64(v0, 0, ed);
@@ -100,12 +100,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x13:
             INST_NAME("MOVLPD Eq, Gx");
             nextop = F8;
-            GETGX(v0, 0);
             if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
             }
+            GETGX(v0, 0);
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
             VST1_64(v0, 0, ed);
             SMWRITE2();

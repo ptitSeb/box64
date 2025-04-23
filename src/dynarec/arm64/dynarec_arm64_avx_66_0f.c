@@ -121,14 +121,11 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 return addr;
             }
             GETGX_empty_VX(v0, v2);
-            if(v0==v2) {
-                q0 = fpu_get_scratch(dyn, ninst);
-                VMOVQ(q0, v2);
-            }
             SMREAD();
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
             VLD1_64(v0, 0, ed);
-            VMOVeD(v0, 1, (v0==v2)?q0:v2, 1);
+            if(v0!=v2)
+                VMOVeD(v0, 1, v2, 1);
             YMM0(gd);
             break;
         case 0x13:
@@ -171,25 +168,22 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 return addr;
             }
             GETGX_empty_VX(v0, v2);
-            if(v0==v2) {
-                q0 = fpu_get_scratch(dyn, ninst);
-                VMOVQ(q0, v2);
-            }
             SMREAD();
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
             VLD1_64(v0, 1, ed);
-            VMOVeD(v0, 0, (v0==v2)?q0:v2, 0);
+            if(v0!=v2)
+                VMOVeD(v0, 0, v2, 0);
             YMM0(gd);
             break;
         case 0x17:
             INST_NAME("VMOVHPD Eq, Gx");
             nextop = F8;
-            GETGX(v0, 0);
             if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
             }
+            GETGX(v0, 0);
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
             VST1_64(v0, 1, ed);
             SMWRITE2();
@@ -788,8 +782,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VMOVDQA Gx, Ex");
             nextop = F8;
             if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-                GETGX_empty(v0);
+                GETGX_empty_EX(v0, v1, 0);
                 VMOVQ(v0, v1);
                 if(vex.l) {
                     GETGY_empty_EY(v0, v1);

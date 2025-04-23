@@ -81,8 +81,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
                         SMREAD();
                         ADDz_REG(x4, x4, ed);
-                        ed = x4;
-                        VLD128(v0, ed, fixedaddress);
+                        VLD128(v0, x4, fixedaddress);
                     }
                     break;
 
@@ -97,8 +96,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
                         ADDz_REG(x4, x4, ed);
-                        ed = x4;
-                        VST128(v0, ed, fixedaddress);
+                        VST128(v0, x4, fixedaddress);
                         SMWRITE2();
                     }
                     break;

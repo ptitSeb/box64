@@ -141,17 +141,14 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             break;
         case 0x13:
             nextop = F8;
-            INST_NAME("VMOVLPS Ex, Vx, Gx");
+            INST_NAME("VMOVLPS Ex, Gx");
             GETGX(v0, 0);
-            GETVX(v2, 0);
-            if(v1!=v2)
-                VMOVQ(v0, v2);
             if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
-                if(v0!=v1) VMOVeD(v1, 0, v0, 0);
+                DEFAULT;
+                return addr;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                VST1_64(v0, 0, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+                VST1_64(v0, 0, ed);
                 SMWRITE2();
             }
             break;
@@ -199,12 +196,14 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             YMM0(gd);
             break;
         case 0x17:
-            INST_NAME("VMOVHPS Ex,Gx");
+            INST_NAME("VMOVHPS Ex, Gx");
             nextop = F8;
             GETGX(v0, 0);
             if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                ed = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 1);
                 VMOVeD(v1, 0, v0, 1);
+                YMM0(ed);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 VST1_64(v0, 1, ed);

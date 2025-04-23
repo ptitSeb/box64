@@ -415,8 +415,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("MOVDQU Gx,Ex");// no alignment constraint on NEON here, so same as MOVDQA
             nextop = F8;
             if(MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-                GETGX_empty(v0);
+                GETGX_empty_EX(v0, v1, 0);
                 VMOVQ(v0, v1);
             } else {
                 GETGX_empty(v0);
@@ -476,13 +475,9 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 IF_UNALIGNED(ip) {
                     MESSAGE(LOG_DEBUG, "\tUnaligned path");
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    if(wback!=x1) {
-                        MOVx_REG(x1, wback);
-                        wback = x1;
-                    }
                     for(int i=0; i<16; ++i) {
-                        VST1_8(v0, i, wback);
-                        ADDx_U12(wback, wback, 1);
+                        VST1_8(v0, i, i?x1:wback);
+                        ADDx_U12(x1, i?x1:wback, 1);
                     }
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
