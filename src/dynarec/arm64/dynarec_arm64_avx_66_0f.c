@@ -291,10 +291,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 GETEY(q0);
                 VMOVQDto(x1, q0, 0);
                 VMOVQDto(x2, q0, 1);
-                LSRx(x1, x1, 63);
-                LSRx(x2, x2, 63);
-                BFIx(gd, x1, 2, 1);
-                BFIx(gd, x2, 3, 1);
+                BFIx(x1, x2, 63, 1);
+                RORx(x2, x1, 63);
+                BFIx(gd, x2, 2, 2);
             }
             break;
         case 0x51:

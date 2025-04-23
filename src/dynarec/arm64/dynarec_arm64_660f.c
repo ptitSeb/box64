@@ -1649,7 +1649,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0x50:
             nextop = F8;
-            INST_NAME("PMOVMSKD Gd, Ex");
+            INST_NAME("MOVMSKPD Gd, Ex");
             GETEX(q0, 0, 0);
             GETGD;
             VMOVQDto(x1, q0, 0);

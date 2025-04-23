@@ -1025,7 +1025,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
         case 0x50:
-            INST_NAME("MOVMSPKPS Gd, Ex");
+            INST_NAME("MOVMSKPS Gd, Ex");
             nextop = F8;
             GETGD;
             MOV32w(gd, 0);
@@ -1046,14 +1046,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 // EX is memory
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, (0xfff<<3)-8, 7, rex, NULL, 0, 0);
-                LDRx_U12(x1, ed, fixedaddress+0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0x3f<<3, 7, rex, NULL, 1, 0);
+                LDPx_S7_offset(x1, x2, ed, fixedaddress);
                 LSRx(x1, x1, 31);
                 BFIx(gd, x1, 0, 1);
                 LSRx(x1, x1, 32);
                 BFIx(gd, x1, 1, 1);
-                LDRx_U12(x1, ed, fixedaddress+8);
-                LSRx(x1, x1, 31);
+                LSRx(x1, x2, 31);
                 BFIx(gd, x1, 2, 1);
                 LSRx(x1, x1, 32);
                 BFIx(gd, x1, 3, 1);

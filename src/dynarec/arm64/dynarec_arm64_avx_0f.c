@@ -302,7 +302,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             break;
 
         case 0x50:
-            INST_NAME("VMOVMSPKPS Gd, Ex");
+            INST_NAME("VMOVMSKPS Gd, Ex");
             nextop = F8;
             GETGD;
             MOV32w(gd, 0);
@@ -325,15 +325,14 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             } else {
                 // EX is memory
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, (0xfff<<3)-24, 7, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, (0x3f<<3)-16, 7, rex, NULL, 1, 0);
                 for(int l=0; l<1+vex.l; ++l) {
-                    LDRx_U12(x1, ed, fixedaddress+16*l);
+                    LDPx_S7_offset(x1, x2, ed, fixedaddress+16*l);
                     LSRx(x1, x1, 31);
                     BFIx(gd, x1, 0+(l*4), 1);
                     LSRx(x1, x1, 32);
                     BFIx(gd, x1, 1+(l*4), 1);
-                    LDRx_U12(x1, ed, fixedaddress+8+16*l);
-                    LSRx(x1, x1, 31);
+                    LSRx(x1, x2, 31);
                     BFIx(gd, x1, 2+(l*4), 1);
                     LSRx(x1, x1, 32);
                     BFIx(gd, x1, 3+(l*4), 1);
