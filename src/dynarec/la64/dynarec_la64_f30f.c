@@ -445,17 +445,43 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ZEROUP2(x4, ed);
                 ed = x4;
             }
-            RESTORE_EFLAGS(x1);
-            ANDI(xFlags, xFlags, ~((1 << F_ZF) | (1 << F_CF)));
-            BNE_MARK(ed, xZR);
-            ORI(xFlags, xFlags, 1 << F_CF);
-            MOV32w(gd, rex.w ? 64 : 32);
-            SPILL_EFLAGS();
-            B_NEXT_nocond;
-            MARK;
+            RESTORE_EFLAGS(x6);
+            /*
+                ZF is set if gd is zero, unset non-zero.
+                CF is set if ed is zero, unset non-zero.
+                OF, SF, PF, and AF flags are undefined
+            */
+            CLEAR_FLAGS(x2);
             CTZxw(gd, ed);
             BNE(gd, xZR, 4 + 4);
             ORI(xFlags, xFlags, 1 << F_ZF);
+            SRLI_W(x5, gd, rex.w ? 6 : 5); // maximum value is 64/32, F_CF = 0
+            OR(xFlags, xFlags, x5);
+            SPILL_EFLAGS();
+            break;
+        case 0xBD:
+            INST_NAME("LZCNT Gd, Ed");
+            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if (!rex.w && MODREG) {
+                ZEROUP2(x4, ed);
+                ed = x4;
+            }
+            RESTORE_EFLAGS(x6);
+            /*
+                ZF is set if gd is zero, unset non-zero.
+                CF is set if ed is zero, unset non-zero.
+                OF, SF, PF, and AF flags are undefined
+            */
+            CLEAR_FLAGS(x2);
+            CLZxw(gd, ed);
+            BNE(gd, xZR, 4 + 4);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+            SRLI_W(x5, gd, rex.w ? 6 : 5); // maximum value is 64/32, F_CF = 0
+            OR(xFlags, xFlags, x5);
             SPILL_EFLAGS();
             break;
         case 0xC2:

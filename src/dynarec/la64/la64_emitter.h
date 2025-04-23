@@ -540,6 +540,14 @@ f24-f31  fs0-fs7   Static registers                Callee
         }                  \
     } while (0)
 
+#define CLZxw(rd, rj)      \
+    do {                   \
+        if (rex.w) {       \
+            CLZ_D(rd, rj); \
+        } else {           \
+            CLZ_W(rd, rj); \
+        }                  \
+    } while (0)
 
 // GR[rd] = SignExtend(GR[rj][7:0], GRLEN)
 #define EXT_W_B(rd, rj) EMIT(type_2R(0b0000000000000000010111, rj, rd))
