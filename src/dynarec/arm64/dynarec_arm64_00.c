@@ -1712,8 +1712,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ANDw_mask(x1, x1, 0, 1);    //mask = 3
                     CBNZw_MARK(x1);
                     MARK3;
-                    CMPSx_U12(xRCX, 4);
-                    B_MARK(cCC);
+                    ANDx_mask(x1, xRCX, 1, 0b111110, 0b111101); // mask=0xfffffffffffffffc, so ~3LL
+                    CBZx_MARK(x1);  // xRCX<4
                     LDRw_S9_postindex(x1, xRSI, 4);
                     STRw_S9_postindex(x1, xRDI, 4);
                     SUBx_U12(xRCX, xRCX, 4);
@@ -1727,8 +1727,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     // special optim for large RCX value on forward case only
                     MARK3;
-                    CMPSx_U12(xRCX, 8);
-                    B_MARK(cCC);
+                    ANDx_mask(x1, xRCX, 1, 0b111101, 0b111100); // mask=0xfffffffffffffff8, so ~7LL
+                    CBZx_MARK(x1);  // xRCX<8
                     LDRx_S9_postindex(x1, xRSI, 8);
                     STRx_S9_postindex(x1, xRDI, 8);
                     SUBx_U12(xRCX, xRCX, 8);
