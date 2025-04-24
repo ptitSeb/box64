@@ -85,6 +85,16 @@ static void addNewEnvVar(const char* s)
     box_free(p);
 }
 
+static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
+{
+    if (!s) return;
+    if (!strchr(s, '-')) return;
+    if (sscanf(s, "%ld-%ld", start, end) == 2) return;
+    if (sscanf(s, "0x%lX-0x%lX", start, end) == 2) return;
+    if (sscanf(s, "0x%lx-0x%lx", start, end) == 2) return;
+    sscanf(s, "%lx-%lx", start, end);
+}
+
 static void applyCustomRules()
 {
     if (BOX64ENV(log) == LOG_NEVER) {
@@ -113,12 +123,7 @@ static void applyCustomRules()
             box64env.dynarec_test_start = 0x0;
             box64env.dynarec_test_end = 0x0;
         } else if (strchr(box64env.dynarec_test_str, '-')) {
-            if (sscanf(box64env.dynarec_test_str, "%ld-%ld", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2) {
-                if (sscanf(box64env.dynarec_test_str, "0x%lX-0x%lX", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2) {
-                    if (sscanf(box64env.dynarec_test_str, "0x%lx-0x%lx", &box64env.dynarec_test_start, &box64env.dynarec_test_end) != 2)
-                        sscanf(box64env.dynarec_test_str, "%lx-%lx", &box64env.dynarec_test_start, &box64env.dynarec_test_end);
-                }
-            }
+            parseRange(box64env.dynarec_test_str, &box64env.dynarec_test_start, &box64env.dynarec_test_end);
             if (box64env.dynarec_test_end > box64env.dynarec_test_start) {
                 box64env.dynarec_test = 1;
             } else {
@@ -135,12 +140,7 @@ static void applyCustomRules()
             box64env.dynarec_gdbjit_start = 0x0;
             box64env.dynarec_gdbjit_end = 0x0;
         } else if (strchr(box64env.dynarec_gdbjit_str, '-')) {
-            if (sscanf(box64env.dynarec_gdbjit_str, "%ld-%ld", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end) != 2) {
-                if (sscanf(box64env.dynarec_gdbjit_str, "0x%lX-0x%lX", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end) != 2) {
-                    if (sscanf(box64env.dynarec_gdbjit_str, "0x%lx-0x%lx", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end) != 2)
-                        sscanf(box64env.dynarec_gdbjit_str, "%lx-%lx", &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end);
-                }
-            }
+            parseRange(box64env.dynarec_gdbjit_str, &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end);
             if (box64env.dynarec_gdbjit_end > box64env.dynarec_gdbjit_start) {
                 box64env.dynarec_gdbjit = 2;
             } else {
@@ -149,18 +149,11 @@ static void applyCustomRules()
         }
     }
 
-    if (box64env.is_nodynarec_overridden) {
-        if(box64env.nodynarec) {
-            if (strchr(box64env.nodynarec,'-')) {
-                if(sscanf(box64env.nodynarec, "%ld-%ld", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2) {
-                    if(sscanf(box64env.nodynarec, "0x%lX-0x%lX", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2) {
-                            if(sscanf(box64env.nodynarec, "0x%lx-0x%lx", &box64env.nodynarec_start, &box64env.nodynarec_end)!=2)
-                                sscanf(box64env.nodynarec, "%lx-%lx", &box64env.nodynarec_start, &box64env.nodynarec_end);
-                    }
-                }
-            }
-        }
-    }
+    if (box64env.is_nodynarec_overridden)
+        parseRange(box64env.nodynarec, &box64env.nodynarec_start, &box64env.nodynarec_end);
+
+    if (box64env.is_dynarec_dump_range_overridden)
+        parseRange(box64env.dynarec_dump_range, &box64env.dynarec_dump_range_start, &box64env.dynarec_dump_range_end);
 
     if (box64env.dynarec_test) {
         SET_BOX64ENV(dynarec_fastnan, 0);

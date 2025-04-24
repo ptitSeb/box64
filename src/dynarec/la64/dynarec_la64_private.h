@@ -148,6 +148,7 @@ typedef struct dynarec_la64_s {
     uint8_t              abort;
     void*               gdbjit_block;
     uint32_t            need_x87check; // x87 low precision check
+    uint32_t            need_dump;     // need to dump the block
 } dynarec_la64_t;
 
 void add_next(dynarec_la64_t *dyn, uintptr_t addr);

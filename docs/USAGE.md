@@ -390,6 +390,12 @@ Enable DynaRec dump.
  * 1: Dump DynaRec blocks. 
  * 2: Dump DynaRec blocks with some colors. 
 
+### BOX64_DYNAREC_DUMP_RANGE
+
+Dump DynaRec blocks in the specified range.
+
+ * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynablock gets dumped (inclusive-exclusive). 
+
 ### BOX64_DYNAREC_GDBJIT
 
 The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.

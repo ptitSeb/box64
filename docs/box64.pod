@@ -197,6 +197,13 @@ Enable DynaRec dump.
  * 2 : Dump DynaRec blocks with some colors. 
 
 
+=item B<BOX64_DYNAREC_DUMP_RANGE> =I<0xXXXXXXXX-0xYYYYYYYY>
+
+Dump DynaRec blocks in the specified range.
+
+ * 0xXXXXXXXX-0xYYYYYYYY : Define the range where dynablock gets dumped (inclusive-exclusive). 
+
+
 =item B<BOX64_DYNAREC_FASTNAN> =I<0|1>
 
 Enable or disable fast NaN handling.

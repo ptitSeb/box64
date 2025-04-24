@@ -173,6 +173,7 @@ typedef struct dynarec_arm_s {
     uint8_t             abort;      // abort the creation of the block
     void*               gdbjit_block;
     uint32_t            need_x87check;  // needs x87 precision control check if non-null, or 0 if not
+    uint32_t            need_dump;     // need to dump the block
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);
