@@ -830,7 +830,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x4C:      /* VBLENDPVB Gx, Vx, Ex, XMM/u8 */
+        case 0x4C:      /* VPBLENDVB Gx, Vx, Ex, XMM/u8 */
             nextop = F8;
             GETEX(1);
             GETGX;
