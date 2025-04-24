@@ -576,7 +576,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GETEM(0);
                     GETGM;
                     for (int i=0; i<8; ++i) {
-                        GM->sb[i] = abs(EM->sb[i]);
+                        GM->ub[i] = abs(EM->sb[i]);
                     }
                     break;
                 case 0x1D:  /* PABSW Gm, Em */
@@ -584,7 +584,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GETEM(0);
                     GETGM;
                     for (int i=0; i<4; ++i) {
-                        GM->sw[i] = abs(EM->sw[i]);
+                        GM->uw[i] = abs(EM->sw[i]);
                     }
                     break;
                 case 0x1E:  /* PABSD Gm, Em */
@@ -592,7 +592,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GETEM(0);
                     GETGM;
                     for (int i=0; i<2; ++i) {
-                        GM->sd[i] = abs(EM->sd[i]);
+                        GM->ud[i] = abs(EM->sd[i]);
                     }
                     break;
 
