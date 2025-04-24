@@ -207,15 +207,17 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x2B:                      /* VMOVNTPS Ex,Gx */
             nextop = F8;
-            GETEX(0);
-            GETGX;
-            EX->q[0] = GX->q[0];
-            EX->q[1] = GX->q[1];
-            if(vex.l) {
-                GETEY;
-                GETGY;
-                EY->q[0] = GY->q[0];
-                EY->q[1] = GY->q[1];
+            if(!MODREG) {
+                GETEX(0);
+                GETGX;
+                EX->q[0] = GX->q[0];
+                EX->q[1] = GX->q[1];
+                if(vex.l) {
+                    GETEY;
+                    GETGY;
+                    EY->q[0] = GY->q[0];
+                    EY->q[1] = GY->q[1];
+                }
             }
             break;
 

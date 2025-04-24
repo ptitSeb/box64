@@ -90,9 +90,11 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x2B:  /* MOVNTSD Ex, Gx */
         nextop = F8;
-        GETEX8(0);
-        GETGX;
-        EX->q[0] = GX->q[0];
+        if(!MODREG) {
+            GETEX8(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+        }
         break;
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
         nextop = F8;

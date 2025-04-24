@@ -211,10 +211,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x2B:                      /* MOVNTPD Ex, Gx */
         nextop = F8;
-        GETEX(0);
-        GETGX;
-        EX->q[0] = GX->q[0];
-        EX->q[1] = GX->q[1];
+        if(!MODREG) {
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+        }
         break;
     case 0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
@@ -554,10 +556,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 0x2A:  /* MOVNTDQA Gx, Ex */
                 nextop = F8;
-                GETEX(0);
-                GETGX;
-                GX->q[0] = EX->q[0];
-                GX->q[1] = EX->q[1];
+                if(!MODREG) {
+                    GETEX(0);
+                    GETGX;
+                    GX->q[0] = EX->q[0];
+                    GX->q[1] = EX->q[1];
+                }
                 break;
             case 0x2B:  /* PACKUSDW Gx, Ex */
                 nextop = F8;
@@ -2454,10 +2458,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0xE7:   /* MOVNTDQ Ex, Gx */
         nextop = F8;
-        GETEX(0);
-        GETGX;
-        EX->q[0] = GX->q[0];
-        EX->q[1] = GX->q[1];
+        if(!MODREG) {
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+        }
         break;
     case 0xE8:  /* PSUBSB Gx,Ex */
         nextop = F8;
