@@ -660,7 +660,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
 
         case 0x44:
-            INST_NAME("PCLMULQDQ Gx, Vx, Ex, Ib");
+            INST_NAME("VPCLMULQDQ Gx, Vx, Ex, Ib");
             nextop = F8;
             if(arm64_pmull) {
                 d0 = fpu_get_scratch(dyn, ninst);
@@ -689,34 +689,24 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     }
                 }
             } else {
-                for(int l=0; l<1+vex.l; ++l) {
-                    if(!l) {
-                        GETG;
-                        sse_forget_reg(dyn, ninst, gd);
-                        sse_reflect_reg(dyn, ninst, vex.v);
+                GETG;
+                sse_forget_reg(dyn, ninst, gd);
+                sse_reflect_reg(dyn, ninst, vex.v);
+                MOV32w(x1, gd); // gx
+                MOV32w(x2, vex.v); // vx
+                if(MODREG) {
+                    ed = (nextop&7)+(rex.b<<3);
+                    sse_forget_reg(dyn, ninst, ed);
+                    MOV32w(x3, ed);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                    if(ed!=x3) {
+                        MOVx_REG(x3, ed);
                     }
-                    MOV32w(x1, gd); // gx
-                    MOV32w(x2, vex.v); // vx
-                    if(MODREG) {
-                        if(!l) {
-                            ed = (nextop&7)+(rex.b<<3);
-                            sse_forget_reg(dyn, ninst, ed);
-                        }
-                        MOV32w(x3, ed);
-                    } else {
-                        if(!l) {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
-                            if(ed!=x3) {
-                                MOVx_REG(x3, ed);
-                            }
-                        } else {
-                            ADDx_U12(x3, ed, 16);
-                        }
-                    }
-                    if(!l) u8 = F8;
-                    MOV32w(x4, u8);
-                    CALL_(l?native_pclmul_y:native_pclmul_x, -1, x3);
                 }
+                u8 = F8;
+                MOV32w(x4, u8);
+                CALL_(vex.l?native_pclmul_y:native_pclmul_x, -1, x3);
             }
             if(!vex.l) YMM0(gd);
             break;
