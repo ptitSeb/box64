@@ -488,7 +488,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
 
         case 0x7E:
-            INST_NAME("MOVQ Gx, Ex");
+            INST_NAME("VMOVQ Gx, Ex");
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);

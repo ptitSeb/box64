@@ -113,8 +113,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                         ADDz_REG(x4, x4, ed);
-                        ed = x4;
-                        VST64(v0, ed, fixedaddress);
+                        VST64(v0, x4, fixedaddress);
                         SMWRITE();
                     }
                     break;
