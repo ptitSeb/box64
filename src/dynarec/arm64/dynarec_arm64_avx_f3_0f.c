@@ -106,7 +106,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
 
         case 0x16:
-            INST_NAME("MOVSHDUP Gx, Ex");
+            INST_NAME("VMOVSHDUP Gx, Ex");
             nextop = F8;
             GETEX_Y(q1, 0, 0);
             GETGX_empty(q0);

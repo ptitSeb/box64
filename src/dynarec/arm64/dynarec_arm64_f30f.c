@@ -77,30 +77,14 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x12:
             INST_NAME("MOVSLDUP Gx, Ex");
             nextop = F8;
-            if(MODREG) {
-                q1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
-                q1 = fpu_get_scratch(dyn, ninst);
-                VLD128(q1, ed, fixedaddress);
-            }
-            GETGX_empty(q0);
+            GETGX_empty_EX(q0, q1, 0);
             VTRNQ1_32(q0, q1, q1);
             break;
 
         case 0x16:
             INST_NAME("MOVSHDUP Gx, Ex");
             nextop = F8;
-            if(MODREG) {
-                q1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
-                q1 = fpu_get_scratch(dyn, ninst);
-                VLD128(q1, ed, fixedaddress);
-            }
-            GETGX_empty(q0);
+            GETGX_empty_EX(q0, q1, 0);
             VTRNQ2_32(q0, q1, q1);
             break;
 
