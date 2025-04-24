@@ -466,9 +466,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     v1 = fpu_get_scratch(dyn, ninst);
                     if(q0!=q1) {
                         VSSHRQ_8(v1, v0, 7);    // bit[7]-> bit[7..0]
-                        VBICQ(q0, q0, v1);
-                        VANDQ(v1, q1, v1);
-                        VORRQ(q0, q0, v1);
+                        VBITQ(q0, q1, v1);
                     }
                     break;
 
@@ -1050,38 +1048,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0x0E:
                     INST_NAME("PBLENDW Gx, Ex, Ib");
                     nextop = F8;
-                    GETGX(q0, 1);
-                    GETEX(q1, 0, 1);
+                    GETGX(v0, 1);
+                    GETEX(v1, 0, 1);
                     u8 = F8;
-                    i32 = 0;
-                    if(q0!=q1)
-                        while(u8) {
-                            if(u8&1) {
-                                if(!(i32&1) && u8&2) {
-                                    if(!(i32&3) && (u8&0xf)==0xf) {
-                                        // whole 64bits
-                                        VMOVeD(q0, i32>>2, q1, i32>>2);
-                                        i32+=4;
-                                        u8>>=4;
-                                    } else {
-                                        // 32bits
-                                        VMOVeS(q0, i32>>1, q1, i32>>1);
-                                        i32+=2;
-                                        u8>>=2;
-                                    }
-                                } else {
-                                    // 16 bits
-                                    VMOVeH(q0, i32, q1, i32);
-                                    i32++;
-                                    u8>>=1;
-                                }
-                            } else {
-                                // nope
-                                i32++;
-                                u8>>=1;
-                            }
-
-                        }
+                    q0 = fpu_get_scratch(dyn, ninst);
+                    MOVI_64(q0, u8);
+                    SXTL_8(q0, q0);    // expand 8bits to 16bits...
+                    VBITQ(v0, v1, q0);
                     break;
                 case 0x0F:
                     INST_NAME("PALIGNR Gx, Ex, Ib");
