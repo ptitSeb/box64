@@ -567,7 +567,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     XVMUL_W(v0, v0, v1);
                     VSRLI_W(v0, v0, 14);
                     VADDI_WU(v0, v0, 1);
-                    VSRLNI_H_W(q0, v0, 1);               
+                    VSRLNI_H_W(q0, v0, 1);
                     break;
                 case 0x1C:
                     INST_NAME("PABSB Gm,Em");
@@ -1920,6 +1920,37 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 SDxw(gd, ed, fixedaddress);
+            }
+            break;
+        case 0xC4:
+            INST_NAME("PINSRW Gm,Ed,Ib");
+            nextop = F8;
+            GETGM(v0);
+            if (MODREG) {
+                u8 = (F8) & 3;
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);
+                u8 = (F8) & 3;
+                ed = x3;
+                LD_HU(ed, wback, fixedaddress);
+            }
+            VINSGR2VR_H(v0, ed, u8);
+            break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Em,Ib");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                GETEM(v0, 1);
+                u8 = (F8) & 3;
+                VPICKVE2GR_HU(gd, v0, u8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 0, 1);
+                u8 = (F8) & 3;
+                LD_HU(gd, wback, (u8 << 1));
             }
             break;
         case 0xC6:
