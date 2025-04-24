@@ -414,7 +414,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
-        case 0x7E:  /* MOVQ Gx, Ex */
+        case 0x7E:  /* VMOVQ Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
