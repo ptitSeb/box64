@@ -756,6 +756,14 @@
 // Convert from Double to unsigned integer
 #define FCVTLUDxw(rd, frs1, rm) EMIT(R_type(0b1100001, 0b00001 + (rex.w ? 0b10 : 0b00), frs1, rm, rd, 0b1010011))
 
+#define FMV(frd, frs1, single) \
+    do {                       \
+        if (single)            \
+            FMVS(frd, frs1);   \
+        else                   \
+            FMVD(frd, frs1);   \
+    } while (0)
+
 // Zba
 //  Add unsigned word (Wz(rs1) + X(rs2))
 #define ADDUW(rd, rs1, rs2) EMIT(R_type(0b0000100, rs2, rs1, 0b000, rd, 0b0111011))
