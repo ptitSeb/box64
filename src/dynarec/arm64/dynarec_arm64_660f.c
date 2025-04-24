@@ -637,16 +637,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX(q0, 1);
-                    v0 = fpu_get_scratch(dyn, ninst);
-                    v1 = fpu_get_scratch(dyn, ninst);
-                    VEORQ(v0, v0, v0);
-                    SMAXQ_32(v1, v0, q0);    // values < 0 => 0
-                    UQXTN_16(q0, v1);
+                    SQXTUN_16(q0, q0);
                     if(q0==q1) {
                         VMOVeD(q0, 1, q0, 0);
                     } else {
-                        SMAXQ_32(v0, v0, q1);
-                        UQXTN2_16(q0, v0);
+                        SQXTUN2_16(q0, q1);
                     }
                     break;
 
