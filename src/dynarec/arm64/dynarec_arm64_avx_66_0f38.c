@@ -645,11 +645,21 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x2A:
             INST_NAME("VMOVNTDQA Gx, Ex");
             nextop = F8;
-            for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
-                VMOVQ(v0, v1);
+            GETG;
+            if(MODREG) {
+                DEFAULT;
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                if(vex.l) {
+                    GETGY_empty(v1, -1, -1, -1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0x3f<<4, 15, rex, NULL, 1, 0);
+                    VLDP128_I7(v0, v1, ed, fixedaddress);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                    VLD128(v0, ed, fixedaddress);
+                    YMM0(gd);
+                }
             }
-            if(!vex.l) YMM0(gd);
             break;
         case 0x2B:
             INST_NAME("VPACKUSDW Gx, Ex, Vx");
