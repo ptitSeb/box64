@@ -925,7 +925,7 @@ EXPORT void* my_gst_plugin_load_file(x64emu_t* emu, const char* filename, void**
 static void register_plugins_from_folder(x64emu_t* emu, const char* folder)
 {
     if(!folder) {
-        printf_log(/*LOG_DEBUG*/LOG_INFO, "BOX64 didn't detect any custom gstreamer-1.0 folder");
+        printf_log(/*LOG_DEBUG*/ LOG_INFO, "BOX64 didn't detect any custom gstreamer-1.0 folder\n");
         return;
     }
     DIR *d;
@@ -938,7 +938,7 @@ static void register_plugins_from_folder(x64emu_t* emu, const char* folder)
         char* p = strrchr(native_folder, '/');
         *p = '\0';
         strcat(native_folder, "/gstreamer-1.0/");
-        printf_log(/*LOG_DEBUG*/LOG_INFO, "BOX64 Will look for native gstreamer plugin in %s", native_folder);
+        printf_log(/*LOG_DEBUG*/ LOG_INFO, "BOX64 Will look for native gstreamer plugin in %s\n", native_folder);
     }
     d = opendir(folder);
     if(!d)
