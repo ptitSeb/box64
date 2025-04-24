@@ -43,6 +43,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_DIRTY, dynarec_dirty, 0, 0, 2)                \
     BOOLEAN(BOX64_DYNAREC_DIV0, dynarec_div0, 0)                        \
     INTEGER(BOX64_DYNAREC_DUMP, dynarec_dump, 0, 0, 2)                  \
+    STRING(BOX64_DYNAREC_DUMP_RANGE, dynarec_dump_range)                \
     BOOLEAN(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1)                  \
     INTEGER(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 1, 0, 2)        \
     INTEGER(BOX64_DYNAREC_FORWARD, dynarec_forward, 128, 0, 1024)       \
@@ -195,6 +196,8 @@ typedef struct box64env_s {
     uintptr_t nodynarec_end;
     uintptr_t dynarec_gdbjit_start;
     uintptr_t dynarec_gdbjit_end;
+    uintptr_t dynarec_dump_range_start;
+    uintptr_t dynarec_dump_range_end;
 
     uint64_t is_any_overridden : 1;
     uint64_t is_dynarec_perf_map_fd_overridden : 1;

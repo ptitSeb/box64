@@ -326,6 +326,18 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_DUMP_RANGE",
+    "description": "Dump DynaRec blocks in the specified range.",
+    "category": "Debugging",
+    "options": [
+      {
+        "key": "0xXXXXXXXX-0xYYYYYYYY",
+        "description": "Define the range where dynablock gets dumped (inclusive-exclusive).",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_FASTNAN",
     "description": "Enable or disable fast NaN handling.",
     "category": "Performance",

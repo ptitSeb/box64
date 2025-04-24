@@ -2913,10 +2913,10 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
 #endif
     extcacheUnwind(&dyn->e);
 #if STEP == 0
-    if (BOX64DRENV(dynarec_dump)) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->e.x87stack);
+    if (dyn->need_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->e.x87stack);
 #endif
 #if defined(HAVE_TRACE) && (STEP > 2)
-    if (BOX64DRENV(dynarec_dump))
+    if (dyn->need_dump)
         if (memcmp(&dyn->e, &dyn->insts[reset_n].e, sizeof(ext_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in extcache: reset=");
             for (int i = 0; i < 24; ++i)

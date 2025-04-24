@@ -55,7 +55,7 @@
     --dyn->size;                                                                                                          \
     *ok = -1;                                                                                                             \
     if (ninst) { dyn->insts[ninst - 1].x64.size = ip - dyn->insts[ninst - 1].x64.addr; }                                  \
-    if (BOX64ENV(dynarec_log) >= LOG_INFO || BOX64DRENV(dynarec_dump) || BOX64ENV(dynarec_missing) == 1) {                \
+    if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 1) {                \
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %s Opcode ", (void*)ip, rex.is32bits ? "x86" : "x64");      \
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;                                            \
         if (dec) {                                                                                                        \
