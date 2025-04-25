@@ -2972,23 +2972,27 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
         case 0xD7:
             nextop = F8;
-            INST_NAME("PMOVMSKB Gd, Ex");
-            v0 = fpu_get_scratch(dyn, ninst);
-            v1 = fpu_get_scratch(dyn, ninst);
-            q1 = fpu_get_scratch(dyn, ninst);
-            GETEX(q0, 0, 0);
-            GETGD;
-            TABLE64(x2, 0x0706050403020100LL);
-            VDUPQD(v0, x2);
-            VSHRQ_8(q1, q0, 7);
-            USHLQ_8(q1, q1, v0); // shift
-            UADDLV_8(v1, q1);   // accumalte
-            VMOVBto(gd, v1, 0);
-            // and now the high part
-            VMOVeD(q1, 0, q1, 1);
-            UADDLV_8(q1, q1);   // accumalte
-            VMOVBto(x2, q1, 0);
-            BFIw(gd, x2, 8, 8);
+            if(MODREG) {
+                INST_NAME("PMOVMSKB Gd, Ex");
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+                GETEX(q0, 0, 0);
+                GETGD;
+                TABLE64(x2, 0x0706050403020100LL);
+                VDUPQD(v0, x2);
+                VSHRQ_8(q1, q0, 7);
+                USHLQ_8(q1, q1, v0); // shift
+                UADDLV_8(v1, q1);   // accumalte
+                VMOVBto(gd, v1, 0);
+                // and now the high part
+                VMOVeD(q1, 0, q1, 1);
+                UADDLV_8(q1, q1);   // accumalte
+                VMOVBto(x2, q1, 0);
+                BFIw(gd, x2, 8, 8);
+            } else {
+                DEFAULT;
+            }
             break;
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
