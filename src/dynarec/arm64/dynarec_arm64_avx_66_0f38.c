@@ -554,12 +554,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             if(vex.l) {GETEX64(q1, 0, 0);} else {GETEX32(q1, 0, 0);}
             GETGX_empty(q0);
+            SXTL_8(q0, q1);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
-                SXTL_8(v0, q1);
-                SXTL2_16(v0, v0);
+                SXTL2_16(v0, q0);
             } else YMM0(gd);
-            SXTL_8(q0, q1);
             SXTL_16(q0, q0);
             break;
         case 0x22:
@@ -567,14 +566,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             if(vex.l) {GETEX32(q1, 0, 0);} else {GETEX16(q1, 0, 0);}
             GETGX_empty(q0);
-            if(vex.l) {
-                GETGY_empty(v0, -1, -1, -1);
-                SXTL_8(v0, q1);
-                SXTL_16(v0, v0);
-                SXTL2_32(v0, v0);
-            } else YMM0(gd);
             SXTL_8(q0, q1);
             SXTL_16(q0, q0);
+            if(vex.l) {
+                GETGY_empty(v0, -1, -1, -1);
+                SXTL2_32(v0, q0);
+            } else YMM0(gd);
             SXTL_32(q0, q0);
             break;
         case 0x23:
@@ -593,12 +590,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             if(vex.l) {GETEX64(q1, 0, 0);} else {GETEX32(q1, 0, 0);}
             GETGX_empty(q0);
+            SXTL_16(q0, q1);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
-                SXTL_16(v0, q1);
-                SXTL2_32(v0, v0);
+                SXTL2_32(v0, q0);
             } else YMM0(gd);
-            SXTL_16(q0, q1);
             SXTL_32(q0, q0);
             break;
         case 0x25:
@@ -928,12 +924,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETG;
             if(vex.l) { GETEX64(q1, 0, 0); } else { GETEX32(q1, 0, 0); YMM0(gd); }
             GETGX_empty(q0);
+            UXTL_8(q0, q1);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
-                UXTL_8(v0, q1);
-                UXTL2_16(v0, v0);
+                UXTL2_16(v0, q0);
             }
-            UXTL_8(q0, q1); 
             UXTL_16(q0, q0);
             break;
         case 0x32:
@@ -942,14 +937,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETG;
             if(vex.l) { GETEX32(q1, 0, 0); } else { GETEX16(q1, 0, 0); YMM0(gd); }
             GETGX_empty(q0);
-            if(vex.l) {
-                GETGY_empty(v0, -1, -1, -1);
-                UXTL_8(v0, q1);
-                UXTL_16(v0, v0);
-                UXTL2_32(v0, v0);
-            }
             UXTL_8(q0, q1);
             UXTL_16(q0, q0);
+            if(vex.l) {
+                GETGY_empty(v0, -1, -1, -1);
+                UXTL2_32(v0, q0);
+            }
             UXTL_32(q0, q0);
             break;
         case 0x33:
@@ -970,12 +963,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETG;
             if(vex.l) { GETEX64(q1, 0, 0); } else { GETEX32(q1, 0, 0); YMM0(gd); }
             GETGX_empty(q0);
+            UXTL_16(q0, q1);
             if(vex.l) {
                 GETGY_empty(v0, -1, -1, -1);
-                UXTL_16(v0, q1);
-                UXTL2_32(v0, v0);
+                UXTL2_32(v0, q0);
             }
-            UXTL_16(q0, q1);
             UXTL_32(q0, q0);
             break;
         case 0x35:
