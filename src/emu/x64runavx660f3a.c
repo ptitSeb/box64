@@ -865,8 +865,8 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else {
                 emu->xmm[0].q[1] = emu->xmm[0].q[0] = 0;
                 emu->xmm[0].uw[0] = tmp32u;
-                emu->ymm[0].u128 = 0;
             }
+            emu->ymm[0].u128 = 0;
             break;
         case 0x61:  /* VPCMPESTRI */
             nextop = F8;
@@ -895,8 +895,8 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else {
                 emu->xmm[0].q[1] = emu->xmm[0].q[0] = 0;
                 emu->xmm[0].uw[0] = tmp32u;
-                emu->ymm[0].u128 = 0;
             }
+            emu->ymm[0].u128 = 0;
             break;
         case 0x63:  /* VPCMPISTRI */
             nextop = F8;
