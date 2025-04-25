@@ -1155,7 +1155,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x41:  /* PHMINPOSUW Gx, Ex */
+        case 0x41:  /* VPHMINPOSUW Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
