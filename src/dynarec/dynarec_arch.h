@@ -18,8 +18,10 @@
 #include "arm64/dynarec_arm64_private.h"
 #include "arm64/dynarec_arm64_functions.h"
 #include "arm64/dynarec_arm64_arch.h"
-// Limit here is defined by LD litteral, that is 19bits
-#define MAXBLOCK_SIZE ((1<<19)-200)
+// TBZ/TBNZ is signed 14bits shifted by 2, but not use to jump from opcode to opcode
+// Limit here is defined by LD litteral, that is 19bits signed ledt shifted by 2. So 20bits (positive/negative) address space (used for TABLE64)
+// C.cond is also signed 19bits shifted by 2
+#define MAXBLOCK_SIZE ((1<<20)-200)
 
 #define RAZ_SPECIFIC(A, N)      rasNativeState(A, N)
 #define UPDATE_SPECIFICS(A)     updateNativeFlags(A)

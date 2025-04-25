@@ -340,7 +340,7 @@ int convert_bitmask(uint64_t bitmask);
 #define LDRSW_REGz(Rt, Rn, Rm)          EMIT(LDRS_REG_gen(0b10, Rm, rex.is32bits?0b110:0b011, 0, Rn, Rt))
 
 #define LDR_PC_gen(opc, imm19, Rt)      ((opc)<<30 | 0b011<<27 | (imm19)<<5 | (Rt))
-#define LDRx_literal(Rt, imm19)         EMIT(LDR_PC_gen(0b01, ((imm19)>>2)&0x7FFFF, Rt))
+#define LDRx_literal(Rt, imm21)         EMIT(LDR_PC_gen(0b01, (((int64_t)(imm21))>>2)&0x7FFFF, Rt))
 
 #define LDU_gen(size, opc, imm9, Rn, Rt)  ((size)<<30 | 0b111<<27 | (opc)<<22 | ((imm9)&0x1ff)<<12 | (Rn)<<5 | (Rt))
 #define LDURx_I9(Rt, Rn, imm9)            EMIT(LDU_gen(0b11, 0b01, imm9, Rn, Rt))
