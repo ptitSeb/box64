@@ -1587,6 +1587,28 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%cRHADD V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', Rd, Vd, Rn, Vd, Rm, Vd);
         return buff;
     }
+    //S/URSHR
+    if(isMask(opcode, "0QU011110iiiiiii001001nnnnnddddd", &a)) {
+        int shft = 0;
+        int sz = 0;
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        if(imm&0b1000000) {
+            sz = 3;
+            shft = imm&0b111111;
+        } else if(imm&0b100000) {
+            sz = 2;
+            shft = imm&0b1111;
+        } else if(imm&0b10000) {
+            sz = 1;
+            shft = imm&0b111;
+        } else if(imm&0b1000) {
+            sz = 0;
+            shft = imm&0b111;
+        }
+        const char* Vd = Y[(sz<<1) | a.Q];
+        snprintf(buff, sizeof(buff), "%cRSHR V%d.%s, V%d.%s, #%d", a.U?'U':'S', Rd, Vd, Rn, Vd, shft);
+        return buff;
+    }
     //SQ(R)DMULH
     if(isMask(opcode, "0QU01110ff1mmmmm101101nnnnnddddd", &a)) {
         const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "???"};
@@ -1760,6 +1782,26 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         const char* Vn = Y[(sz<<1)|a.Q];
         const char* Vd = Z[sz];
         snprintf(buff, sizeof(buff), "PMULL%s V%d.%s, V%d.%s, V%d.%s", a.Q?"2":"", Rd, Vd, Rn, Vn, Rm, Vn);   
+        return buff;
+    }
+    // [S/U]MULL
+    if(isMask(opcode, "0QU01110ff1mmmmm110000nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "??"};
+        const char* Z[] = {"8H", "4S", "2D", "??"};
+        int sz = sf;
+        const char* Vn = Y[(sz<<1)|a.Q];
+        const char* Vd = Z[sz];
+        snprintf(buff, sizeof(buff), "%cMULL%s V%d.%s, V%d.%s, V%d.%s", a.U?'U':'S', a.Q?"2":"", Rd, Vd, Rn, Vn, Rm, Vn);   
+        return buff;
+    }
+    //XTN(2)
+    if(isMask(opcode, "0Q001110ff100001001010nnnnnddddd", &a)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "??"};
+        const char* Z[] = {"8H", "4S", "2D", "??"};
+        int sz = sf;
+        const char* Vd = Y[(sz<<1)|a.Q];
+        const char* Vn = Z[sz];
+        snprintf(buff, sizeof(buff), "XTN%s V%d.%s, V%d.%s", a.Q?"2":"", Rd, Vd, Rn, Vn);   
         return buff;
     }
 

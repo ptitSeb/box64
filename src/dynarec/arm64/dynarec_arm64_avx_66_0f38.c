@@ -219,10 +219,17 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x0B:
             INST_NAME("VPMULHRSW Gx,Vx, Ex");
             nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                SQRDMULHQ_16(v0, v2, v1);
-            }
+                VSMULL_16(q0, v1, v2);
+                VSMULL2_16(q1, v1, v2);
+                SRSHRQ_32(q0, q0, 15);
+                SRSHRQ_32(q1, q1, 15);
+                XTN_16(v0, q0);
+                XTN2_16(v0, q1);
+        }
             if(!vex.l) YMM0(gd);
             break;
         case 0x0C:

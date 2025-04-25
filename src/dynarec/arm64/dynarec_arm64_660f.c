@@ -454,7 +454,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    SQRDMULHQ_16(q0, q0, q1);
+                    v0 = fpu_get_scratch(dyn, ninst);
+                    v1 = fpu_get_scratch(dyn, ninst);
+                    VSMULL_16(v0, q0, q1);
+                    VSMULL2_16(v1, q0, q1);
+                    SRSHRQ_32(v0, v0, 15);
+                    SRSHRQ_32(v1, v1, 15);
+                    XTN_16(q0, v0);
+                    XTN2_16(q0, v1);
                     break;
 
                 case 0x10:

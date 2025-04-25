@@ -2166,6 +2166,10 @@ int convert_bitmask(uint64_t bitmask);
 #define URHADDQ_16(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 1, 0b01, Vm, Vn, Vd))
 #define URHADDQ_32(Vd, Vn, Vm)      EMIT(RHADD_vector(1, 1, 0b10, Vm, Vn, Vd))
 
+//SRSHR/URSHR
+#define RSHR(Q, U, immh, immb, Rn, Rd)      ((Q)<<30 | (U)<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 1<<13 | 0<<12 | 1<<10 | (Rn)<<5 | (Rd))
+#define SRSHRQ_32(Vd, Vn, shift)    EMIT(RSHR(1, 0, 0b0100 | (((32-(shift))>>3)&0b11), (32-(shift))&0b111, Vn, Vd))
+
 // QRDMULH Signed saturating (Rounding) Doubling Multiply returning High half
 #define QDMULH_vector(Q, U, size, Rm, Rn, Rd)   ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10110<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define SQRDMULH_8(Vd, Vn, Vm)      EMIT(QDMULH_vector(0, 1, 0b00, Vm, Vn, Vd))

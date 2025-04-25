@@ -677,7 +677,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
-                    SQRDMULH_16(q0, q0, q1);
+                    v0 = fpu_get_scratch(dyn, ninst);
+                    VSMULL_16(v0, q0, q1);
+                    SRSHRQ_32(v0, v0, 15);
+                    XTN_16(q0, v0);
                     break;
                 case 0x1C:
                     INST_NAME("PABSB Gm,Em");
