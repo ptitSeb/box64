@@ -623,6 +623,22 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
     my->g_input_stream_read_async(stream, buffer, count, io_prio, cancel, findGAsyncReadyCallbackFct(f), data);
 }
 
+EXPORT void my_g_dbus_method_invocation_return_error_valist(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    my->g_dbus_method_invocation_return_error_valist(invocation, domain, code, fmt, VARARGS);
+}
+
+EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, uintptr_t* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
+    my->g_dbus_method_invocation_return_error(invocation, domain, code, fmt, VARARGS);
+}
+
 #define PRE_INIT    \
     if(BOX64ENV(nogtk)) \
         return -1;

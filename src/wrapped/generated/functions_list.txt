@@ -1601,6 +1601,8 @@
 #() vFpuiip
 #() vFpuill
 #() vFpuipp
+#() vFpuipV
+#() vFpuipA
 #() vFpuuuu
 #() vFpuuup
 #() vFpuupp
@@ -3820,9 +3822,11 @@ wrappedgio2:
 - vFpippp:
   - g_async_initable_init_async
 - vFpuipV:
+  - g_dbus_method_invocation_return_error
   - g_simple_async_result_set_error
   - g_task_return_new_error
 - vFpuipA:
+  - g_dbus_method_invocation_return_error_valist
   - g_simple_async_result_set_error_va
 - pFLpppV:
   - g_initable_new
