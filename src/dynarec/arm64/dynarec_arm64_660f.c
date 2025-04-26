@@ -2008,39 +2008,92 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x70:
             INST_NAME("PSHUFD Gx, Ex,Ib");
             nextop = F8;
-            i32 = -1;
             if(MODREG) {
-                u8 = F8;
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
-                GETGX_empty(v0);
-                if(u8==0x4E) {
-                    if(v0==v1) {
-                        VEXTQ_8(v0, v0, v0, 8); // Swap Up/Lower 64bits parts
-                    } else {
-                        VMOVeD(v0, 0, v1, 1);
-                        VMOVeD(v0, 1, v1, 0);
-                    }
-                } else if(u8==0x00) {
-                    // duplicate lower 32bits to all spot
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                v1 = fpu_get_scratch(dyn, ninst);      
+            }
+            u8 = F8;
+            GETGX_empty(v0);
+            switch(u8) {
+            case 0x4E: // Swap Up/Lower 64bits parts
+                if(!MODREG)
+                    VLDR128_U12(v1, wback, 0);
+                VEXTQ_8(v0, v1, v1, 8);
+                break;
+            case 0x00: // duplicate lower 32bits to all spot
+                if(MODREG)
                     VDUPQ_32(v0, v1, 0);
-                } else if(u8==0x55) {
-                    // duplicate slot 1 to all spot
+                else
+                    VLDQ1R_32(v0, wback);
+                break;
+            case 0x55: // duplicate slot 1 to all spot
+                if(MODREG)
                     VDUPQ_32(v0, v1, 1);
-                } else if(u8==0xAA) {
-                    // duplicate slot 2 to all spot
+                else {
+                    ADDx_U12(x2, wback, 4);
+                    VLDQ1R_32(v0, x2);
+                }
+                break;
+            case 0xAA: // duplicate slot 2 to all spot
+                if(MODREG)
                     VDUPQ_32(v0, v1, 2);
-                } else if(u8==0xFF) {
-                    // duplicate slot 3 to all spot
+                else {
+                    ADDx_U12(x2, wback, 8);
+                    VLDQ1R_32(v0, x2);
+                }
+                break;
+            case 0xFF: // duplicate slot 3 to all spot
+                if(MODREG)
                     VDUPQ_32(v0, v1, 3);
-                } else if(u8==0x44) {
-                    // duplicate slot 0/1 to all spot
+                else {
+                    ADDx_U12(x2, wback, 12);
+                    VLDQ1R_32(v0, x2);
+                }
+                break;
+            case 0x44: // duplicate slot 0/1 to all spot
+                if(MODREG)
                     VDUPQ_64(v0, v1, 0);
-                } else if(u8==0xEE) {
-                    // duplicate slot 2/3 to all spot
+                else
+                    VLDQ1R_64(v0, wback);
+                break;
+            case 0xEE: // duplicate slot 2/3 to all spot
+                if(MODREG)
                     VDUPQ_64(v0, v1, 1);
-                } else if(u8==0xB1) {
-                    // invert 0/1 and 2/3
-                    VREV64Q_32(v0, v1);
+                else {
+                    ADDx_U12(x2, wback, 8);
+                    VLDQ1R_64(v0, x2);
+                }
+                break;
+            case 0xB1: // invert 0/1 and 2/3
+                if(!MODREG)
+                    VLDR128_U12(v1, wback, 0);
+                VREV64Q_32(v0, v1);
+                break;
+            case 0x39: // 0 3 2 1: ror 32 bits
+                if(!MODREG)
+                    VLDR128_U12(v1, wback, 0);
+                VEXTQ_8(v0, v1, v1, 4);
+                break;
+            case 0x93: // 2 1 0 3: 0 3 2 1: ror 32 bits then invert low/high 64bits
+                if(!MODREG)
+                    VLDR128_U12(v1, wback, 0);
+                VEXTQ_8(v0, v1, v1, 4);
+                VEXTQ_8(v0, v0, v0, 8);
+                break;
+            default:
+                if(!MODREG) {
+                    i32 = -1;
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            ADDx_U12(x2, wback, idx*4);
+                            i32 = idx;
+                        }
+                        VLD1_32(v0, i, x2);
+                    }
                 } else if(v0!=v1) {
                     VMOVeS(v0, 0, v1, (u8>>(0*2))&3);
                     VMOVeS(v0, 1, v1, (u8>>(1*2))&3);
@@ -2065,23 +2118,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VMOVQDfrom(d0, 1, x3);
                     }
                     VTBLQ1_8(v0, v1, d0);
-                }
-            } else {
-                GETGX_empty(v0);
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
-                u8 = F8;
-                if (u8) {
-                    for (int i=0; i<4; ++i) {
-                        int32_t idx = (u8>>(i*2))&3;
-                        if(idx!=i32) {
-                            ADDx_U12(x2, ed, idx*4);
-                            i32 = idx;
-                        }
-                        VLD1_32(v0, i, x2);
-                    }
-                } else {
-                    VLDQ1R_32(v0, ed);
                 }
             }
             break;
