@@ -2814,8 +2814,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(v1, 0);
             q0 = fpu_get_scratch(dyn, ninst);
             VUMULL_16(q0, v0, v1);
-            VSHRQ_32(q0, q0, 16);
-            XTN_16(v0, q0);
+            UQSHRN_16(v0, q0, 16);  // saturation will never happens as only 16bits remain and fits in 16bits
             break;
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");

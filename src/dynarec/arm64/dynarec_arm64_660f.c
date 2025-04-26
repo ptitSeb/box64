@@ -3108,10 +3108,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             q1 = fpu_get_scratch(dyn, ninst);
             VUMULL_16(q0, v0, v1);
             VUMULL2_16(q1, v0, v1);
-            VSHRQ_32(q0, q0, 16);
-            VSHRQ_32(q1, q1, 16);
-            XTN_16(v0, q0);
-            XTN2_16(v0, q1);
+            UQSHRN_16(v0, q0, 16);  // 16bits->16bits: no saturation
+            UQSHRN2_16(v0, q1, 16);
             break;
         case 0xE5:
             INST_NAME("PMULHW Gx, Ex");

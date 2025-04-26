@@ -1626,10 +1626,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 VUMULL_16(q0, v2, v1);
                 VUMULL2_16(q1, v2, v1);
-                VSHRQ_32(q0, q0, 16);
-                VSHRQ_32(q1, q1, 16);
-                XTN_16(v0, q0);
-                XTN2_16(v0, q1);
+                UQSHRN_16(v0, q0, 16);  // 16bits->16bits: no saturation
+                UQSHRN2_16(v0, q1, 16);
             }
             if(!vex.l) YMM0(gd);
             break;
