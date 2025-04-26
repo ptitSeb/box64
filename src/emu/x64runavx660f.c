@@ -862,7 +862,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for (int i=0; i<4; ++i)
                     GY->ud[i] = EY->ud[(tmp8u>>(i*2))&3];
             } else 
-                memset(GY, 0, 16);
+                GY->u128 = 0;
             if(EX==GX) {eax1 = *GX; EX = &eax1;}   // copy is needed
             for (int i=0; i<4; ++i)
                 GX->ud[i] = EX->ud[(tmp8u>>(i*2))&3];
