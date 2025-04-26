@@ -3499,6 +3499,10 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
     dwarf_unwind_t *unwind = init_dwarf_unwind_registers(emu);
     int idx = 0;
     char success = 0;
+    if(!(getProtection_fast(R_RSP)&PROT_READ))
+        return 0;
+    if(!(getProtection_fast((uintptr_t)buffer)&PROT_READ))
+        return 0;
     uintptr_t addr = *(uintptr_t*)R_RSP;
     buffer[0] = (void*)addr;
     while (++idx < size) {
@@ -3509,6 +3513,8 @@ EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
             success = 2;
             // See elfdwarf_private.c for the register mapping
             unwind->regs[7] = unwind->regs[6]; // mov rsp, rbp
+            if(!(getProtection_fast(unwind->regs[7])&PROT_READ))
+                return idx-1;
             unwind->regs[6] = *(uint64_t*)unwind->regs[7]; // pop rbp
             unwind->regs[7] += 8;
             ret_addr = *(uint64_t*)unwind->regs[7]; // ret
