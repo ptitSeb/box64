@@ -640,11 +640,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 0);
                     v0 = fpu_get_scratch(dyn, ninst);
                     v1 = fpu_get_scratch(dyn, ninst);
-                    CMGT_0_8(v0, q1);
-                    VAND(v0, v0, q0);
-                    CMLT_0_8(v1, q1);
-                    VMUL_8(q0, q0, v1);
-                    VORR(q0, q0, v0);
+                    NEG_8(v0, q0);     // get NEG
+                    CMLT_0_8(v1, q1);  // calculate mask
+                    VBIF(v0, q0, v1);  // put back positive values
+                    CMEQ_0_8(v1, q1);  // handle case where Ex is 0
+                    VBIC(q0, v0, v1);
                     break;
                 case 0x09:
                     INST_NAME("PSIGNW Gm,Em");
@@ -653,11 +653,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 0);
                     v0 = fpu_get_scratch(dyn, ninst);
                     v1 = fpu_get_scratch(dyn, ninst);
-                    CMGT_0_16(v0, q1);
-                    VAND(v0, v0, q0);
-                    CMLT_0_16(v1, q1);
-                    VMUL_16(q0, q0, v1);
-                    VORR(q0, q0, v0);
+                    NEG_16(v0, q0);     // get NEG
+                    CMLT_0_16(v1, q1);  // calculate mask
+                    VBIF(v0, q0, v1);   // put back positive values
+                    CMEQ_0_16(v1, q1);  // handle case where Ex is 0
+                    VBIC(q0, v0, v1);
                     break;
                 case 0x0A:
                     INST_NAME("PSIGND Gm,Em");
@@ -666,11 +666,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 0);
                     v0 = fpu_get_scratch(dyn, ninst);
                     v1 = fpu_get_scratch(dyn, ninst);
-                    CMGT_0_32(v0, q1);
-                    VAND(v0, v0, q0);
-                    CMLT_0_32(v1, q1);
-                    VMUL_32(q0, q0, v1);
-                    VORR(q0, q0, v0);
+                    NEG_32(v0, q0);     // get NEG
+                    CMLT_0_32(v1, q1);  // calculate mask
+                    VBIF(v0, q0, v1);   // put back positive values
+                    CMEQ_0_32(v1, q1);  // handle case where Ex is 0
+                    VBIC(q0, v0, v1);
                     break;
                 case 0x0B:
                     INST_NAME("PMULHRSW Gm,Em");
