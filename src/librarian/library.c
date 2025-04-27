@@ -286,13 +286,13 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
             linkmap_t *lm = addLinkMapLib(lib);
             if(!lm) {
                 // Crashed already
-                printf_dump(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
+                printf_dlsym_dump(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
                 break;
             }
             struct link_map real_lm;
             #ifndef ANDROID
             if(dlinfo(lib->w.lib, RTLD_DI_LINKMAP, &real_lm)) {
-                printf_dump(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
+                printf_dlsym_dump(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
             }
             #endif
             lm->l_addr = real_lm.l_addr;
@@ -314,7 +314,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         }
         elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
         if(!elf_header) {
-            printf_dump(LOG_DEBUG, "Error: reading elf header of %s\n", libname);    // this one can be too alarming...
+            printf_dlsym_dump(LOG_DEBUG, "Error: reading elf header of %s\n", libname);    // this one can be too alarming...
             fclose(f);
             return 0;
         }
@@ -463,7 +463,7 @@ static size_t lib_cap = 0;
 
 library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* verneeded)
 {
-    printf_dump(LOG_DEBUG, "Trying to load \"%s\"\n", path);
+    printf_dlsym_dump(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     //library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
     if(cur_lib==lib_cap) {
         lib_brick_t *new_brick = box_calloc(1, sizeof(lib_brick_t));
@@ -488,7 +488,7 @@ library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* ve
         lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = LIB_UNNKNOW;
-    printf_dump(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
+    printf_dlsym_dump(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(BOX64ENV(nopulse)) {
         if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
             box_free(lib->name);
@@ -618,7 +618,7 @@ void Free1Library(library_t **the_lib, x64emu_t* emu)
 
     FiniLibrary(lib, emu);
 
-    printf_dump(LOG_DEBUG, "Free1Library %s\n", lib->name?:"???");
+    printf_dlsym_dump(LOG_DEBUG, "Free1Library %s\n", lib->name?:"???");
     // remove lib from maplib/local_maplib...
     if(my_context) {
         MapLibRemoveLib(my_context->maplib, lib);

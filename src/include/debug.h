@@ -89,6 +89,13 @@ void printf_ftrace(int prefix, const char* fmt, ...);
 
 #define printf_dlsym_prefix(prefix, L, ...)                                                          \
     do {                                                                                             \
+        if (BOX64ENV(dlsym_error) || BOX64ENV(dump) || ((L) <= BOX64ENV(log))) { printf_ftrace(prefix, __VA_ARGS__); } \
+    } while (0)
+
+#define printf_dlsym_dump(L, ...) printf_dlsym_dump_prefix(1, L, __VA_ARGS__)
+
+#define printf_dlsym_dump_prefix(prefix, L, ...)                                                          \
+    do {                                                                                             \
         if (BOX64ENV(dlsym_error) || ((L) <= BOX64ENV(log))) { printf_ftrace(prefix, __VA_ARGS__); } \
     } while (0)
 
