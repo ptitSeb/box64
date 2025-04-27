@@ -2742,7 +2742,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
         case 0xBC:
             INST_NAME("BSF Gw,Ew");
-            SETFLAGS(X_ZF, SF_SUBSET);
+            if(!BOX64ENV(dynarec_safeflags) || BOX64ENV(cputype)) {
+                SETFLAGS(X_ZF, SF_SUBSET);
+            } else {
+                SETFLAGS(X_ALL, SF_SET);
+            }
             SET_DFNONE();
             nextop = F8;
             GETGD;
@@ -2754,19 +2758,30 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 CBZw_MARK(x1);
             }
             RBITw(x1, x1);   // reverse
-            CLZw(x2, x1);    // x2 gets leading 0 == BSF
-            BFIx(gd, x2, 0, 16);
+            CLZw(x1, x1);    // x2 gets leading 0 == BSF
             MARK;
+            BFIx(gd, x1, 0, 16);
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
-                    CSETw(x1, cEQ);    //ZF not set
-                    BFIw(xFlags, x1, F_ZF, 1);
+                    CSETw(x2, cEQ);    //ZF not set
+                    BFIw(xFlags, x2, F_ZF, 1);
                 }
+            }
+            if(BOX64ENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+                IFX(X_CF) BFCw(xFlags, F_CF, 1);
+                IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                IFX(X_SF) BFCw(xFlags, F_SF, 1);
+                IFX(X_OF) BFCw(xFlags, F_OF, 1);
+                IFX(X_PF) emit_pf(dyn, ninst, x1, x2);
             }
             break;
         case 0xBD:
             INST_NAME("BSR Gw,Ew");
-            SETFLAGS(X_ZF, SF_SUBSET);
+            if(!BOX64ENV(dynarec_safeflags) || BOX64ENV(cputype)) {
+                SETFLAGS(X_ZF, SF_SUBSET);
+            } else {
+                SETFLAGS(X_ALL, SF_SET);
+            }
             SET_DFNONE();
             nextop = F8;
             GETGD;
@@ -2780,14 +2795,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             LSLw(x1, x1, 16);   // put bits on top
             CLZw(x2, x1);       // x2 gets leading 0
             SUBw_U12(x2, x2, 15);
-            NEGw_REG(x2, x2);   // complement
-            BFIx(gd, x2, 0, 16);
+            NEGw_REG(x1, x2);   // complement
             MARK;
+            BFIx(gd, x1, 0, 16);
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
-                    CSETw(x1, cEQ);    //ZF not set
-                    BFIw(xFlags, x1, F_ZF, 1);
+                    CSETw(x2, cEQ);    //ZF not set
+                    BFIw(xFlags, x2, F_ZF, 1);
                 }
+            }
+            if(BOX64ENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+                IFX(X_CF) BFCw(xFlags, F_CF, 1);
+                IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                IFX(X_SF) BFCw(xFlags, F_SF, 1);
+                IFX(X_OF) BFCw(xFlags, F_OF, 1);
+                IFX(X_PF) emit_pf(dyn, ninst, x1, x2);
             }
             break;
         case 0xBE:
