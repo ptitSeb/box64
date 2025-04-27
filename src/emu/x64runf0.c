@@ -39,6 +39,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int64_t tmp64s;
     uint64_t tmp64u, tmp64u2;
     reg64_t *oped, *opgd;
+    x64flags_t eflags;
     #ifdef USE_CAS
     uint64_t tmpcas;
     #endif
@@ -60,12 +61,14 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
     switch(opcode) {
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-        #define GO(B, OP)                                           \
+        #define GO(B, OP, F)                                        \
         case B+0:                                                   \
             nextop = F8;                                            \
             GETEB(0);                                               \
             GETGB;                                                  \
+            if(F) {CHECK_FLAGS(emu); eflags=emu->eflags;}           \
             do {                                                    \
+                if(F) emu->eflags = eflags;                         \
                 tmp8u = native_lock_read_b(EB);                     \
                 tmp8u = OP##8(emu, tmp8u, GB);                      \
             } while (native_lock_write_b(EB, tmp8u));               \
@@ -74,9 +77,11 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             nextop = F8;                                            \
             GETED(0);                                               \
             GETGD;                                                  \
+            if(F) {CHECK_FLAGS(emu); eflags=emu->eflags;}           \
             if(((uintptr_t)ED)&(3<<rex.w)) {                        \
                 if(rex.w) {                                             \
                     do {                                                \
+                        if(F) emu->eflags = eflags;                     \
                         tmp8u = native_lock_read_b(ED);                 \
                         tmp64u = ED->q[0];                              \
                         tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
@@ -84,6 +89,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     ED->q[0] = tmp64u;                                  \
                 } else {                                                \
                     do {                                                \
+                        if(F) emu->eflags = eflags;                     \
                         tmp8u = native_lock_read_b(ED);                 \
                         tmp32u = ED->dword[0];                          \
                         tmp32u = OP##32(emu, tmp32u, GD->dword[0]);     \
@@ -95,11 +101,13 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             } else {                                                \
             if(rex.w) {                                             \
                 do {                                                \
+                    if(F) emu->eflags = eflags;                     \
                     tmp64u = native_lock_read_dd(ED);               \
                     tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
                 } while (native_lock_write_dd(ED, tmp64u));         \
             } else {                                                \
                 do {                                                \
+                    if(F) emu->eflags = eflags;                     \
                     tmp32u = native_lock_read_d(ED);                \
                     tmp32u = OP##32(emu, tmp32u, GD->dword[0]);     \
                 } while (native_lock_write_d(ED, tmp32u));          \
@@ -133,7 +141,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 R_RAX = OP##32(emu, R_EAX, F32);                    \
             break;
 #else
-        #define GO(B, OP)                                           \
+        #define GO(B, OP, F)                                        \
         case B+0:                                                   \
             nextop = F8;                                            \
             GETEB(0);                                               \
@@ -189,13 +197,13 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             pthread_mutex_unlock(&my_context->mutex_lock);        \
             break;
 #endif
-        GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
-        GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
-        GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
-        GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
-        GO(0x20, and)                   /* AND 0x20 -> 0x25 */
-        GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
-        GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
+        GO(0x00, add, 0)                   /* ADD 0x00 -> 0x05 */
+        GO(0x08, or, 0)                    /*  OR 0x08 -> 0x0D */
+        GO(0x10, adc, 1)                   /* ADC 0x10 -> 0x15 */
+        GO(0x18, sbb, 1)                   /* SBB 0x18 -> 0x1D */
+        GO(0x20, and, 0)                   /* AND 0x20 -> 0x25 */
+        GO(0x28, sub, 0)                   /* SUB 0x28 -> 0x2D */
+        GO(0x30, xor, 0)                   /* XOR 0x30 -> 0x35 */
         #undef GO
         case 0x0f:
             opcode = F8;
@@ -938,8 +946,8 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             switch((nextop>>3)&7) {
                 case 0: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = add8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
                 case 1: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 =  or8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
-                case 2: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = adc8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
-                case 3: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = sbb8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 2: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp8u2 = native_lock_read_b(EB); tmp8u2 = adc8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
+                case 3: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp8u2 = native_lock_read_b(EB); tmp8u2 = sbb8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
                 case 4: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = and8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
                 case 5: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = sub8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
                 case 6: do { tmp8u2 = native_lock_read_b(EB); tmp8u2 = xor8(emu, tmp8u2, tmp8u);} while(native_lock_write_b(EB, tmp8u2)); break;
@@ -974,8 +982,8 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 switch((nextop>>3)&7) {
                     case 0: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = add64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
                     case 1: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 =  or64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
-                    case 2: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = adc64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
-                    case 3: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = sbb64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 2: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp64u2 = native_lock_read_dd(ED); tmp64u2 = adc64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
+                    case 3: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp64u2 = native_lock_read_dd(ED); tmp64u2 = sbb64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
                     case 4: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = and64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
                     case 5: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = sub64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
                     case 6: do { tmp64u2 = native_lock_read_dd(ED); tmp64u2 = xor64(emu, tmp64u2, tmp64u);} while(native_lock_write_dd(ED, tmp64u2)); break;
@@ -1001,8 +1009,8 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 } else {
                                 do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = add32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break; }
                         case 1: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 =  or32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
-                        case 2: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = adc32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
-                        case 3: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = sbb32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 2: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp32u2 = native_lock_read_d(ED); tmp32u2 = adc32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
+                        case 3: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp32u2 = native_lock_read_d(ED); tmp32u2 = sbb32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
                         case 4: do { tmp32u2 = native_lock_read_d(ED); tmp32u2 = and32(emu, tmp32u2, tmp64u);} while(native_lock_write_d(ED, tmp32u2)); break;
                         case 5: if(((uintptr_t)ED)&3) {
                                     // unaligned case
