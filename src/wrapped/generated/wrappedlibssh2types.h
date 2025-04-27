@@ -11,7 +11,13 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFppup_t)(void*, void*, uint32_t, void*);
+typedef void* (*pFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppupup_t)(void*, void*, uint32_t, void*, uint32_t, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(libssh2_userauth_keyboard_interactive_ex, iFppup_t) \
+	GO(libssh2_session_init_ex, pFpppp_t) \
+	GO(libssh2_userauth_password_ex, iFppupup_t)
 
 #endif // __wrappedlibssh2TYPES_H_
