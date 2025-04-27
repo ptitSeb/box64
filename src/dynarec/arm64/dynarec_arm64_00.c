@@ -3684,7 +3684,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(!BOX64ENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL, SF_SET);
                     } else if(BOX64ENV(cputype)) {
-                        SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SET);
+                        SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SUBSET);
                     }
                     GETSEB(x1, 0);
                     if(BOX64ENV(dynarec_div0)) {
