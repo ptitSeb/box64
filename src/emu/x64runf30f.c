@@ -388,7 +388,12 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GD->q[0] = 32;
             }
         }
-        break;
+        CLEAR_FLAG(F_AF);
+        CLEAR_FLAG(F_SF);
+        CLEAR_FLAG(F_PF);
+        if(!BOX64ENV(cputype))
+            CLEAR_FLAG(F_OF);
+    break;
     case 0xBD:  /* LZCNT Ed,Gd */
         CHECK_FLAGS(emu);
         nextop = F8;
@@ -406,6 +411,11 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             CONDITIONAL_SET_FLAG(tmp8u==32, F_CF);
         }
         GD->q[0] = tmp8u;
+        CLEAR_FLAG(F_PF);
+        CLEAR_FLAG(F_AF);
+        CLEAR_FLAG(F_SF);
+        if(!BOX64ENV(cputype))
+            CLEAR_FLAG(F_OF);
         break;
 
     case 0xC2:  /* CMPSS Gx, Ex, Ib */

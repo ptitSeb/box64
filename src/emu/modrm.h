@@ -10,6 +10,8 @@
 #define F64     *(uint64_t*)(addr+=8, addr-8)
 #define F64S    *(int64_t*)(addr+=8, addr-8)
 #define PK(a)   *(uint8_t*)(addr+a)
+#define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
+
 #ifdef DYNAREC
 #define STEP  CheckExec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) return 0;
 #define STEP2 CheckExec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) {R_RIP = addr; return 0;}
