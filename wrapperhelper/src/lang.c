@@ -900,7 +900,7 @@ int type_copy_into(type_t *dest, const type_t *ref) {
 		if (ref->val.fun.nargs != (size_t)-1) {
 			if (!ref->val.fun.args) {
 				dest->typ = TYPE_BUILTIN;
-				return 0;
+				return 1;
 			}
 			type_t **args = malloc(sizeof *args * ref->val.fun.nargs);
 			if (!args) {
