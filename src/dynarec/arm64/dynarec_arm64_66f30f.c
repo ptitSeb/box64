@@ -85,7 +85,15 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
 
         case 0xBC:
             INST_NAME("TZCNT Gw, Ew");
-            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            if(!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            } else {
+                if(BOX64ENV(cputype)) {
+                    SETFLAGS(X_ALL&~X_OF, SF_SUBSET);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET);
+                }
+            }
             SET_DFNONE();
             nextop = F8;
             GETEW(x1, 0);
@@ -104,12 +112,26 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
             }
+            if(BOX64ENV(dynarec_safeflags)) {
+                IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                IFX(X_PF) BFCw(xFlags, F_PF, 1);
+                IFX(X_SF) BFCw(xFlags, F_SF, 1);
+                IFX2(X_OF, && !BOX64ENV(cputype)) BFCw(xFlags, F_OF, 1);
+            }
             GWBACK;
             break;
 
         case 0xBD:
             INST_NAME("LZCNT Gw, Ew");
-            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            if(!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            } else {
+                if(BOX64ENV(cputype)) {
+                    SETFLAGS(X_ALL&~X_OF, SF_SUBSET);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET);
+                }
+            }
             SET_DFNONE();
             nextop = F8;
             GETEW(x1, 0);
@@ -125,6 +147,12 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 TSTxw_REG(gd, gd);
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            }
+            if(BOX64ENV(dynarec_safeflags)) {
+                IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                IFX(X_PF) BFCw(xFlags, F_PF, 1);
+                IFX(X_SF) BFCw(xFlags, F_SF, 1);
+                IFX2(X_OF, && !BOX64ENV(cputype)) BFCw(xFlags, F_OF, 1);
             }
             GWBACK;
             break;
