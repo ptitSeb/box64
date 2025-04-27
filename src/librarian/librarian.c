@@ -354,12 +354,6 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_lib
             printf_log(LOG_INFO, "Error initializing needed lib %s\n", needed->names[i]);
             ret = 1;
         }
-    // error while loadind lib, unload...
-    if(ret) {
-        int n = needed->size;
-        for (int i=0; i<n; ++i)
-            DecRefCount(&needed->libs[n-i-1], emu);
-    }
     // all done
     if(BOX64ENV(allow_missing_libs)) return 0;
     return ret;
