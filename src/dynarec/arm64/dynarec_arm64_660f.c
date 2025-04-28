@@ -2985,7 +2985,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOVI_32(v1, 32);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +32 values
             NEG_32(v0, v0);         // neg to do shr
-            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
+            VDUPQ_32(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_32(q0, q0, v0);   // SHR x4
             break;
         case 0xD3:
@@ -2999,7 +2999,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             MOVI_32(v1, 64);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +64 values
             NEG_32(v0, v0);         // neg to do shr
-            VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
+            VDUPQ_32(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_64(q0, q0, v0);
             break;
         case 0xD4:
