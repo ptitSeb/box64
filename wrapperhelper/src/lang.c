@@ -899,8 +899,7 @@ int type_copy_into(type_t *dest, const type_t *ref) {
 		++ref->val.fun.ret->nrefs;
 		if (ref->val.fun.nargs != (size_t)-1) {
 			if (!ref->val.fun.args) {
-				dest->typ = TYPE_BUILTIN;
-				return 1;
+				break;
 			}
 			type_t **args = malloc(sizeof *args * ref->val.fun.nargs);
 			if (!args) {
