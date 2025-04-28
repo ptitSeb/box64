@@ -186,7 +186,7 @@ void openFTrace(int reopen)
                     printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
                     box64_stdout_no_w = 1;
                 }
-                PrintBox64Version();
+                PrintBox64Version(0);
             }
         }
     }
@@ -570,11 +570,11 @@ void AddNewLibs(const char* list)
 }
 
 void PrintHelp() {
-    printf_ftrace(1, "This is Box64, the Linux x86_64 emulator with a twist.\n");
-    printf_ftrace(1, "Usage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
-    printf_ftrace(1, " options are:\n");
-    printf_ftrace(1, "    '-v'|'--version' to print box64 version and quit\n");
-    printf_ftrace(1, "    '-h'|'--help' to print this and quit\n");
+    printf_ftrace(0, "This is Box64, the Linux x86_64 emulator with a twist.\n");
+    printf_ftrace(0, "Usage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
+    printf_ftrace(0, " options are:\n");
+    printf_ftrace(0, "    '-v'|'--version' to print box64 version and quit\n");
+    printf_ftrace(0, "    '-h'|'--help' to print this and quit\n");
 }
 
 static void addLibPaths(box64context_t* context)
@@ -895,12 +895,12 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     init_auxval(argc, argv, environ?environ:env);
     // analogue to QEMU_VERSION in qemu-user-mode emulation
     if(getenv("BOX64_VERSION")) {
-        PrintBox64Version();
+        PrintBox64Version(0);
         exit(0);
     }
     // trying to open and load 1st arg
     if(argc==1) {
-        /*PrintBox64Version();
+        /*PrintBox64Version(1);
         PrintHelp();
         return 1;*/
         printf("[BOX64] Missing operand after 'box64'\n");
@@ -921,15 +921,12 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     LoadEnvVariables();
     InitializeEnvFiles();
 
-    if (!BOX64ENV(nobanner)) PrintBox64Version();
-
-
     const char* prog = argv[1];
     int nextarg = 1;
     // check if some options are passed
     while(prog && prog[0]=='-') {
         if(!strcmp(prog, "-v") || !strcmp(prog, "--version")) {
-            if (BOX64ENV(nobanner)) PrintBox64Version();
+            PrintBox64Version(0);
             exit(0);
         }
         if(!strcmp(prog, "-h") || !strcmp(prog, "--help")) {
@@ -948,6 +945,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf("[BOX64] Nothing to run\n");
         exit(0);
     }
+
+    if (!BOX64ENV(nobanner)) PrintBox64Version(1);
 
     displayMiscInfo();
 

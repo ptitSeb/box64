@@ -1,27 +1,25 @@
 #include <stdio.h>
 #include "debug.h"
 #include "box64version.h"
-#ifdef NOGIT
-#define GITREV "nogit"
+#include "build_info.h"
+
+#if defined(DYNAREC)
+#define WITH_DYNAREC_STR " with Dynarec"
 #else
-#include "git_head.h"
+#define WITH_DYNAREC_STR ""
 #endif
 
-void PrintBox64Version()
+#ifdef HAVE_TRACE
+#define WITH_TRACE_STR " with trace"
+#else
+#define WITH_TRACE_STR ""
+#endif
+
+void PrintBox64Version(int prefix)
 {
-    printf_ftrace(1, "Box64%s%s v%d.%d.%d %s built on %s %s\n",
-    #ifdef HAVE_TRACE
-        " with trace",
-    #else
-        "",
-    #endif
-    #ifdef DYNAREC
-        " with Dynarec",
-    #else
-        "",
-    #endif
-        BOX64_MAJOR, BOX64_MINOR, BOX64_REVISION,
-        GITREV,
+    printf_ftrace(prefix, BOX64_BUILD_INFO_STRING WITH_DYNAREC_STR WITH_TRACE_STR " built on %s %s\n",
         __DATE__, __TIME__);
 }
 
+#undef WITH_TRACE
+#undef WITH_DYNAREC
