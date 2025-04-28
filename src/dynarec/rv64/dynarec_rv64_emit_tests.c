@@ -315,29 +315,29 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
 
-    AND(s3, s1, s2); // res = s1 & s2
+    if (s1 != s2) AND(s1, s1, s2); // res = s1 & s2
 
     IFX_PENDOR0 {
-        SD(s3, xEmu, offsetof(x64emu_t, res));
+        SD(s1, xEmu, offsetof(x64emu_t, res));
     }
 
-    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
 
     IFX (X_SF) {
-        SRLI(s4, s3, 7);
+        SRLI(s4, s1, 7);
         SET_FLAGS_NEZ(s4, F_SF, s5);
     }
     IFX (X_ZF) {
-        SET_FLAGS_EQZ(s3, F_ZF, s5);
+        SET_FLAGS_EQZ(s1, F_ZF, s5);
     }
     IFX (X_PF) {
-        emit_pf(dyn, ninst, s3, s4, s5);
+        emit_pf(dyn, ninst, s1, s4, s5);
     }
 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
-        SLLI(s3, s3, 56);
-        SRAI(s3, s3, 56);
+        SLLI(s1, s1, 56);
+        SRAI(s1, s1, 56);
     }
 }
 
