@@ -1971,14 +1971,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEM(0);
             GETGM;
-            if(EM->q>31) {
-                for(int i=0; i<2; ++i)
-                    GM->sd[i] = (GM->sd[i]<0)?-1:0;
-            } else {
+            if(EM->q>31)
+                tmp8u = 31;
+            else
                 tmp8u = EM->ub[0];
-                for(int i=0; i<2; ++i)
-                    GM->sd[i] >>= tmp8u;
-            }
+            for(int i=0; i<2; ++i)
+                GM->sd[i] >>= tmp8u;
             break;
         case 0xE3:                   /* PAVGW Gm, Em */
             nextop = F8;
@@ -2085,7 +2083,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             else {
                 tmp8u = EM->ub[0];
                 for(int i=0; i<4; ++i)
-                    GM->sw[i] <<= tmp8u;
+                    GM->uw[i] <<= tmp8u;
             }
             break;
         case 0xF2:                   /* PSLLD Gm, Em */
@@ -2097,7 +2095,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             else {
                 tmp8u = EM->ub[0];
                 for(int i=0; i<2; ++i)
-                    GM->sd[i] <<= tmp8u;
+                    GM->ud[i] <<= tmp8u;
             }
             break;
         case 0xF3:                   /* PSLLQ Gm, Em */

@@ -977,29 +977,17 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 case 3:                 /* VPSRLDQ Vx, Ex, Ib */
                     tmp8u = F8;
                     if(tmp8u>15) VX->u128 = 0;
-                    else if (tmp8u!=0) {
-                        u8=tmp8u*8;
-                        if (u8 < 64) {
-                            VX->q[0] = (EX->q[0] >> u8) | (EX->q[1] << (64 - u8));
-                            VX->q[1] = (EX->q[1] >> u8);
-                        } else {
-                            VX->q[0] = EX->q[1] >> (u8 - 64);
-                            VX->q[1] = 0;
-                        }
-                    } else VX->u128 = EX->u128;
+                    else if (tmp8u)
+                        VX->u128 = EX->u128 >> (tmp8u<<3);
+                    else 
+                        VX->u128 = EX->u128;
                     if(vex.l) {
                         GETEY;
                         if(tmp8u>15) VY->u128 = 0;
-                        else if (tmp8u!=0) {
-                            u8=tmp8u*8;
-                            if (u8 < 64) {
-                                VY->q[0] = (EY->q[0] >> u8) | (EY->q[1] << (64 - u8));
-                                VY->q[1] = (EY->q[1] >> u8);
-                            } else {
-                                VY->q[0] = EY->q[1] >> (u8 - 64);
-                                VY->q[1] = 0;
-                            }
-                        } else VY->u128 = EY->u128;
+                        else if (tmp8u)
+                            VY->u128 = EY->u128 >> (tmp8u<<3);
+                        else
+                            VY->u128 = EY->u128;
                     }
                     break;
                 case 6:                 /* VPSLLQ Vx, Ex, Ib */
@@ -1017,30 +1005,16 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 case 7:                 /* VPSLLDQ Vx, Ex, Ib */
                     tmp8u = F8;
                     if(tmp8u>15) VX->u128 = 0;
-                    else if (tmp8u!=0) {
-                        u8=tmp8u<<3;
-                        if (u8 < 64) {
-                            VX->q[1] = (EX->q[1] << u8) | (EX->q[0] >> (64 - u8));
-                            VX->q[0] = (EX->q[0] << u8);
-                        } else {
-                            VX->q[1] = EX->q[0] << (u8 - 64);
-                            VX->q[0] = 0;
-                        }
-                    } else
+                    else if (tmp8u!=0)
+                        VX->u128 = EX->u128 << (tmp8u<<3);
+                    else
                         VX->u128 = EX->u128;
                     if(vex.l) {
                         GETEY;
                         if(tmp8u>15) VY->u128 = 0;
-                        else if (tmp8u!=0) {
-                            u8=tmp8u<<3;
-                            if (u8 < 64) {
-                                VY->q[1] = (EY->q[1] << u8) | (EY->q[0] >> (64 - u8));
-                                VY->q[0] = (EY->q[0] << u8);
-                            } else {
-                                VY->q[1] = EY->q[0] << (u8 - 64);
-                                VY->q[0] = 0;
-                            }
-                        } else
+                        else if (tmp8u)
+                            VY->u128 = EY->u128 << (tmp8u<<3);
+                        else
                             VY->u128 = EY->u128;
                     }
                     break;
@@ -1343,7 +1317,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else
                 {tmp8u=tmp64u; for (int i=0; i<8; ++i) GX->uw[i] = VX->uw[i] >> tmp8u;}
             if(vex.l) {
-                GETEY; GETVY;
+                GETVY;
                 if(tmp64u>15) GY->u128 = 0;
                 else
                     {tmp8u=tmp64u; for (int i=0; i<8; ++i) GY->uw[i] = VY->uw[i] >> tmp8u;}
@@ -1360,7 +1334,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else
                 {tmp8u=tmp64u; for (int i=0; i<4; ++i) GX->ud[i] = VX->ud[i] >> tmp8u;}
             if(vex.l) {
-                GETEY; GETVY;
+                GETVY;
                 if(tmp64u>31) GY->u128 = 0;
                 else
                     {tmp8u=tmp64u; for (int i=0; i<4; ++i) GY->ud[i] = VY->ud[i] >> tmp8u;}
@@ -1377,7 +1351,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else
                 {tmp8u=tmp64u; for (int i=0; i<2; ++i) GX->q[i] = VX->q[i] >> tmp8u;}
             if(vex.l) {
-                GETEY; GETVY;
+                GETVY;
                 if(tmp64u>63) GY->u128 = 0;
                 else
                     {tmp8u=tmp64u; for (int i=0; i<2; ++i) GY->q[i] = VY->q[i] >> tmp8u;}
@@ -1614,7 +1588,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             for (int i=0; i<8; ++i)
                 GX->sw[i] = VX->sw[i] >> tmp8u;
             if(vex.l) {
-                GETEY; GETVY;
+                GETVY;
                 for (int i=0; i<8; ++i)
                     GY->sw[i] = VY->sw[i] >> tmp8u;
             } else
@@ -1880,11 +1854,11 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else
                 {tmp8u=EX->ub[0]; for (int i=0; i<8; ++i) GX->uw[i] = VX->uw[i]<<tmp8u;}
             if(vex.l) {
-                GETEY; GETVY;
-                if(EY->q[0]>15)
+                GETVY;
+                if(EX->q[0]>15)
                     GY->u128 = 0;
                 else
-                    {tmp8u=EY->ub[0]; for (int i=0; i<8; ++i) GY->uw[i] = VY->uw[i]<<tmp8u;}
+                    {for (int i=0; i<8; ++i) GY->uw[i] = VY->uw[i]<<tmp8u;}
             } else
                 GY->u128 = 0;
             break;
@@ -1897,11 +1871,11 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else
                 {tmp8u=EX->ub[0]; for (int i=0; i<4; ++i) GX->ud[i] = VX->ud[i]<<tmp8u;}
             if(vex.l) {
-                GETEY; GETVY;
-                if(EY->q[0]>31)
+                GETVY;
+                if(EX->q[0]>31)
                     GY->u128 = 0;
                 else
-                    {tmp8u=EY->ub[0]; for (int i=0; i<4; ++i) GY->ud[i] = VY->ud[i]<<tmp8u;}
+                    {for (int i=0; i<4; ++i) GY->ud[i] = VY->ud[i]<<tmp8u;}
             } else
                 GY->u128 = 0;
             break;
@@ -1914,11 +1888,11 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else
                 {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX->q[i] = VX->q[i]<<tmp8u;}
             if(vex.l) {
-                GETEY; GETVY;
-                if(EY->q[0]>63)
+                GETVY;
+                if(EX->q[0]>63)
                     GY->u128 = 0;
                 else
-                    {tmp8u=EY->ub[0]; for (int i=0; i<2; ++i) GY->q[i] = VY->q[i]<<tmp8u;}
+                    {for (int i=0; i<2; ++i) GY->q[i] = VY->q[i]<<tmp8u;}
             } else
                 GY->u128 = 0;
             break;

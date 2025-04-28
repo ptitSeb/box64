@@ -1649,17 +1649,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 3:                 /* PSRLDQ Ex, Ib */
                 tmp8u = F8;
                 if(tmp8u>15)
-                    {EX->q[0] = EX->q[1] = 0;}
-                else if (tmp8u!=0) {
-                    tmp8u*=8;
-                    if (tmp8u < 64) {
-                        EX->q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
-                        EX->q[1] = (EX->q[1] >> tmp8u);
-                    } else {
-                        EX->q[0] = EX->q[1] >> (tmp8u - 64);
-                        EX->q[1] = 0;
-                    }
-                }
+                    EX->u128 = 0;
+                else if (tmp8u)
+                    EX->u128 >>= (tmp8u<<3);
                 break;
             case 6:                 /* PSLLQ Ex, Ib */
                 tmp8u = F8;
@@ -1671,17 +1663,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 7:                 /* PSLLDQ Ex, Ib */
                 tmp8u = F8;
                 if(tmp8u>15)
-                    {EX->q[0] = EX->q[1] = 0;}
-                else if (tmp8u!=0) {
-                    tmp8u*=8;
-                    if (tmp8u < 64) {
-                        EX->q[1] = (EX->q[1] << tmp8u) | (EX->q[0] >> (64 - tmp8u));
-                        EX->q[0] = (EX->q[0] << tmp8u);
-                    } else {
-                        EX->q[1] = EX->q[0] << (tmp8u - 64);
-                        EX->q[0] = 0;
-                    }
-                }
+                    EX->u128 = 0;
+                else if (tmp8u)
+                    EX->u128 <<= (tmp8u<<3);
                 break;
             default:
                 return 0;
