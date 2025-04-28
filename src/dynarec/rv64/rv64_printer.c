@@ -948,7 +948,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     }
 
     // MV
-    if ((opcode & 0x0000007f) == 0x00000013) {
+    if ((opcode & 0xfff0707f) == 0x00000013) {
         a.rd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
         snprintf(buff, sizeof(buff), "%-15s %s, %s", "MV", gpr[a.rd], gpr[a.rs1]);
