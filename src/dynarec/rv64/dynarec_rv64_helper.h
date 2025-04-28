@@ -394,6 +394,7 @@
         OR(wback, wback, ed);             \
     }
 
+#define GB_EQ_EB() (MODREG && ((nextop & 0x38) >> 3) == (nextop & 7) && (rex.r == rex.b))
 
 #define YMM0(a) ymm_mark_zero(dyn, ninst, a);
 

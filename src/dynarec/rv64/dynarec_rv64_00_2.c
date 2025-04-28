@@ -263,8 +263,13 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETEB(x1, 0);
-            GETGB(x2);
-            emit_test8(dyn, ninst, x1, x2, x6, x4, x5);
+            if (GB_EQ_EB())
+                u8 = x1;
+            else {
+                GETGB(x2);
+                u8 = x2;
+            }
+            emit_test8(dyn, ninst, x1, u8, x6, x4, x5);
             break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");
@@ -845,10 +850,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            ANDI(x1, xRAX, 0xff);
             u8 = F8;
-            MOV32w(x2, u8);
-            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            ADDI(x2, xZR, u8);
+            emit_test8(dyn, ninst, x2, xRAX, x3, x4, x5);
             break;
         case 0xA9:
             INST_NAME("TEST EAX, Id");
