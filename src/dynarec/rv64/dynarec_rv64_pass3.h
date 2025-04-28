@@ -46,7 +46,7 @@
     }
 
 #define DEFAULT_VECTOR                                                                                                                  \
-    if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 2) {                              \
+    if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 2) {                                        \
         dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %s Opcode ", (void*)ip, rex.is32bits ? "x86" : "x64"); \
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;                                                          \
         if (dec) {                                                                                                                      \
