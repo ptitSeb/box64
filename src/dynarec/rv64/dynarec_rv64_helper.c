@@ -223,8 +223,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
             } else {
                 if (sib_reg != 4) {
                     if ((sib >> 6)) {
-                        SLLI(ret, TO_NAT(sib_reg), (sib >> 6));
-                        ADDW(ret, ret, TO_NAT(sib_reg2));
+                        SLLI(scratch, TO_NAT(sib_reg), (sib >> 6));
+                        ADDW(ret, scratch, TO_NAT(sib_reg2));
                     } else {
                         ADDW(ret, TO_NAT(sib_reg2), TO_NAT(sib_reg));
                     }
@@ -266,8 +266,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
                     if (sib >> 6) {
-                        SLLI(ret, TO_NAT(sib_reg), (sib >> 6));
-                        ADDW(ret, ret, TO_NAT(sib_reg2));
+                        SLLI(scratch, TO_NAT(sib_reg), (sib >> 6));
+                        ADDW(ret, scratch, TO_NAT(sib_reg2));
                     } else {
                         ADDW(ret, TO_NAT(sib_reg2), TO_NAT(sib_reg));
                     }
