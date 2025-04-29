@@ -1701,7 +1701,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             }
             break;
-        case 0xE8:  /* VSUBSB Gx, Vx, Ex */
+        case 0xE8:  /* VPSUBSB Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -1963,7 +1963,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             // no raz of upper ymm
             break;
-        case 0xF8:  /* VSUBB Gx, Vx, Ex */
+        case 0xF8:  /* VPSUBB Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
