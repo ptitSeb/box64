@@ -221,8 +221,16 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
-        GX->f[0] = 1.0f/sqrtf(EX->f[0]);
+        if(EX->f[0]==0)
+            GX->f[0] = 1.0f/EX->f[0];
+        else if (EX->f[0]<0)
+            GX->f[0] = -NAN;
+        else if (isnan(EX->f[0]))
+            GX->f[0] = EX->f[0];
+        else if (isinf(EX->f[0]))
+            GX->f[0] = 0.0;
+        else
+            GX->f[0] = 1.0f/sqrtf(EX->f[0]);
         break;
     case 0x53:  /* RCPSS Gx, Ex */
         nextop = F8;
