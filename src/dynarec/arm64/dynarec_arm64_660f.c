@@ -500,24 +500,28 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
                     SETFLAGS(X_ALL, SF_SET);
-                    GETGX(q0, 0);
-                    GETEX(q1, 0, 0);
-                    v1 = fpu_get_scratch(dyn, ninst);
-                    IFX(X_ZF) {
-                        VANDQ(v1, q1, q0);
-                        CMEQQ_0_64(v1, v1);
-                        UADDLVQ_32(v1, v1);
-                        VMOVQDto(x1, v1, 0);
-                        UBFXx(x1, x1, 33, 1);   // bit33 will only be set if all bits are 1
-                        BFIw(xFlags, x1, F_ZF, 1);
-                    }
+                    GETGX(v0, 0);
+                    GETEX(v1, 0, 0);
+                    q0 = fpu_get_scratch(dyn, ninst);
                     IFX(X_CF) {
-                        VBICQ(v1, q1, q0);
-                        CMEQQ_0_64(v1, v1);
-                        UADDLVQ_32(v1, v1);
-                        VMOVQDto(x1, v1, 0);
-                        UBFXx(x1, x1, 33, 1);
-                        BFIw(xFlags, x1, F_CF, 1);
+                        VBICQ(q0, v1, v0);
+                        CMEQQ_0_64(q0, q0);
+                        UQXTN_32(q0, q0);
+                        VMOVQDto(x2, q0, 0);
+                        ADDSx_U12(xZR, x2, 1);
+                        CSETw(x2, cEQ);
+                        BFIw(xFlags, x2, F_CF, 1);
+                    }
+                    IFX(X_ZF) {
+                        VANDQ(q0, v0, v1);
+                        CMEQQ_0_64(q0, q0);
+                        UQXTN_32(q0, q0);
+                        VMOVQDto(x2, q0, 0);
+                        ADDSx_U12(xZR, x2, 1);
+                        IFNATIVE(NF_EQ) {} else {
+                            CSETw(x2, cEQ);
+                            BFIw(xFlags, x2, F_ZF, 1);
+                        }
                     }
                     IFX(X_PF|X_AF|X_OF|X_SF) {
                         MOV32w(x1, (1<<F_PF)|(1<<F_AF)|(1<<F_OF)|(1<<F_SF));
