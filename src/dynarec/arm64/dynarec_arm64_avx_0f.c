@@ -684,6 +684,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                         INST_NAME("VSTMXCSR Md");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                         LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        STW(x4, ed, fixedaddress);
                         if(BOX64ENV(sse_flushto0)) {
                             // sync with fpsr, with mask from mxcsr
                             MRS_fpsr(x1);
@@ -695,7 +696,6 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                             //BFXILw(x3, x4, 7, 6); // this would the mask, but let's ignore that for now
                             BFIw(x4, x1, 0, 6); // inject back the flags
                         }
-                        STW(x4, ed, fixedaddress);
                         break;
                     default:
                         DEFAULT;
