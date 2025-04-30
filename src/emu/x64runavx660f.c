@@ -445,14 +445,18 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETVX;
+            MARK_NAN_VD_2(VX, EX);
             GX->d[0] = VX->d[0] - EX->d[0];
             GX->d[1] = VX->d[1] - EX->d[1];
+            CHECK_NAN_VD(GX);
             GETGY;
             if(vex.l) {
                 GETEY;
                 GETVY;
+                MARK_NAN_VD_2(VY, EY);
                 GY->d[0] = VY->d[0] - EY->d[0];
                 GY->d[1] = VY->d[1] - EY->d[1];
+                CHECK_NAN_VD(GY);
             } else {
                 GY->u128 = 0;
             }
