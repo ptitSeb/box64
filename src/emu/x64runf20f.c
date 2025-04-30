@@ -209,6 +209,8 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETGX;
         if(EX->d[0]<0.0 )
             GX->d[0] = -NAN;
+        else if(isnan(EX->d[0]))
+            GX->d[0] = EX->d[0];
         else
             GX->d[0] = sqrt(EX->d[0]);
         break;

@@ -210,6 +210,8 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX; GETVX; GETGY;
             if(EX->f[0]<0.0 )
                 GX->f[0] = -NAN;
+            else if(isnanf(EX->f[0]))
+                GX->f[0] = EX->f[0];
             else
                 GX->f[0] = sqrt(EX->f[0]);
             if(GX!=VX) {

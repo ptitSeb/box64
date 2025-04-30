@@ -188,6 +188,8 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX; GETVX; GETGY;
             if(EX->d[0]<0.0 )
                 GX->d[0] = -NAN;
+            else if(isnan(EX->d[0]))
+                GX->d[0] = EX->d[0];
             else
                 GX->d[0] = sqrt(EX->d[0]);
             GX->q[1] = VX->q[1];
