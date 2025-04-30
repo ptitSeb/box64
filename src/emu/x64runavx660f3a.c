@@ -535,7 +535,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->u128 = VY->u128;
             }
             break;
-        case 0x19:  /* VEXTRACT128 Ex, Gx, imm8 */
+        case 0x19:  /* VEXTRACTF128 Ex, Gx, imm8 */
             nextop = F8;
             GETEX(1);
             GETGX;
