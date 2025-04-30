@@ -1287,8 +1287,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for (int i=0; i<2; ++i) {
-            if(EX->d[i]<0.0)        // on x86, default nan are negative
-                GX->d[i] = -NAN;    // but input NAN are not touched (so sqrt(+nan) -> +nan)
+            if(EX->d[i]<0.0)            // on x86, default nan are negative
+                GX->d[i] = -NAN;        // but input NAN are not touched (so sqrt(+nan) -> +nan)
+            else if(isnan(EX->d[i]))
+                GX->d[i] = EX->d[i];
             else
                 GX->d[i] = sqrt(EX->d[i]);
         }
