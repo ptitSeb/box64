@@ -205,12 +205,24 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
 
         case 0x51:
-            INST_NAME("SQRTSS Gx, Ex");
+            INST_NAME("VSQRTSS Gx, Ex");
             nextop = F8;
             GETEXSS(d0, 0, 0);
             GETGX_empty_VX(v0, v2);
             d1 = fpu_get_scratch(dyn, ninst);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FCMEQS(q0, v1, v1);    // 0 if NAN, 1 if not NAN
+            }
             FSQRTS(d1, d0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                FCMEQS(q1, d1, d1);    // 0 => out is NAN
+                VBIC(q1, q0, q1);      // forget it in any input was a NAN already
+                VSHL_32(q1, q1, 31);   // only keep the sign bit
+                VORR(d1, d1, q1);      // NAN -> -NAN
+            }
             if(v0!=v2) VMOVQ(v0, v2);
             VMOVeS(v0, 0, d1, 0);
             YMM0(gd);

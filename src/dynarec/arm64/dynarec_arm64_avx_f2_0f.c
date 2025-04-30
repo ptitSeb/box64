@@ -220,7 +220,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!BOX64ENV(dynarec_fastnan)) {
                 FCMEQD(q1, d1, d1);    // 0 => out is NAN
                 VBIC(q1, q0, q1);      // forget it in any input was a NAN already
-                VSHLQ_64(q1, q1, 63);   // only keep the sign bit
+                SHL_64(q1, q1, 63);   // only keep the sign bit
                 VORR(d1, d1, q1);      // NAN -> -NAN
             }
             if(v0!=v2) {

@@ -218,7 +218,19 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSS(d0, 0, 0);
-            FSQRTS(d1, d0);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FCMEQS(v0, d0, d0);    // 0 if NAN, 1 if not NAN
+                FSQRTS(d1, d0);
+                FCMEQS(v1, d1, d1);    // 0 => out is NAN
+                VBIC(v1, v0, v1);      // forget it in any input was a NAN already
+                VSHL_32(v1, v1, 31);   // only keep the sign bit
+                VORR(d1, d1, v1);      // NAN -> -NAN
+            } else {
+                FSQRTS(d1, d0);
+            }
             VMOVeS(v0, 0, d1, 0);
             break;
         case 0x52:
