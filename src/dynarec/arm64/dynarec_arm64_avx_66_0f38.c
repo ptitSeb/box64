@@ -1404,7 +1404,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETG;
             u8 = F8; //SIB
             if((u8&0x7)==0x5 && !(nextop&0xC0)) {
-                MOV64x(x5, F32S64);
+                int64_t i64 = F32S64;
+                MOV64x(x5, i64);
                 eb1 = x5;
             } else
                 eb1 = TO_NAT((u8 & 0x7) + (rex.b << 3)); // base
@@ -1463,7 +1464,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETG;
             u8 = F8; //SIB
             if((u8&0x7)==0x5 && !(nextop&0xC0)) {
-                MOV64x(x5, F32S64);
+                int64_t i64 = F32S64;
+                MOV64x(x5, i64);
                 eb1 = x5;
             } else
                 eb1 = TO_NAT((u8 & 0x7) + (rex.b << 3)); // base
