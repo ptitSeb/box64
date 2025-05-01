@@ -177,7 +177,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VMOVQ(q1, v1);
                 v1 = q1;
             }
-            switch(u8&0x0f) {
+            switch(u8&0b1011) {
                 case 0: if(v0!=v2) VMOVQ(v0, v2); break;
                 case 1: d2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1); VMOVQ(v0, d2); break;
                 case 2: if(MODREG) { if(v0!=v1) VMOVQ(v0, v1); } else { VLDR128_U12(v0, ed, fixedaddress); } break;
@@ -187,7 +187,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if((u8&0xf0)==0x10) { if((u8&0x0f)!=1) d2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1); }
             if(MODREG && ((u8&0xf0)==0x30)) { if((u8&0x0f)!=3) d1 = ymm_get_reg(dyn, ninst, x1, s0, 0, gd, vex.v, -1); }
             v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, s0, -1);
-            switch((u8>>4)&0x0f) {
+            switch((u8>>4)&0b1011) {
                 case 0: VMOVQ(v0, v2); break;
                 case 1: if(v0!=d2) VMOVQ(v0, d2); break;
                 case 2: if(MODREG) { if(v0!=v1) VMOVQ(v0, v1); } else { VLDR128_U12(v0, ed, fixedaddress); } break;
