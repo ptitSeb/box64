@@ -1384,7 +1384,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
-        case 0x90:  /* VPGATHERDD Gx, VSIB, Vx */
+        case 0x90:  /* VPGATHERDD/VPGATHERDQ Gx, VSIB, Vx */
         case 0x92:  /* VGATHERDPD/VGATHERDPS Gx, VSIB, Vx */
             nextop = F8;
             if(((nextop&7)!=4) || MODREG) {
@@ -1451,7 +1451,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x91:  /* VPGATHERQD Gx, VSIB, Vx */
+        case 0x91:  /* VPGATHERQD/VPGATHERQQ Gx, VSIB, Vx */
         case 0x93:  /* VGATHERQPD/VGATHERQPS Gx, VSIB, Vx */
             nextop = F8;
             if(((nextop&7)!=4) || MODREG) {
