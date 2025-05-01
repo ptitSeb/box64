@@ -1074,7 +1074,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 if(!MODREG) q0 = v1;
                 if(rex.w) {
-                    VEORQ(q1, q1, q1);
                     MOVI_32(q1, 64);
                     // no 64bits vmin/vmax
                     UQXTN_32(q0, v1);
@@ -1083,7 +1082,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     NEGQ_64(q0, q0);
                     USHLQ_64(v0, v2, q0); 
                 } else {
-                    VEORQ(q1, q1, q1);
                     MOVIQ_32(q1, 32);
                     UMINQ_32(q0, v1, q1);
                     NEGQ_32(q0, q0);
@@ -1093,29 +1091,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
         case 0x46:
-            INST_NAME("VPSRAVD/Q Gx, Vx, Ex");
+            INST_NAME("VPSRAVD Gx, Vx, Ex");
             nextop = F8;
+            if(rex.w) {DEFAULT; return addr;}
             if(MODREG) q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 if(!MODREG) q0 = v1;
-                if(rex.w) {
-                    VEORQ(q1, q1, q1);
-                    MOVI_32(q1, 64);
-                    // no 64bits vmin/vmax
-                    UQXTN_32(q0, v1);
-                    UMIN_32(q0, q0, q1);
-                    UXTL_32(q0, q0);
-                    NEGQ_64(q0, q0);
-                    SSHLQ_64(v0, v2, q0); 
-                } else {
-                    VEORQ(q1, q1, q1);
-                    MOVIQ_32(q1, 32);
-                    UMINQ_32(q0, v1, q1);
-                    NEGQ_32(q0, q0);
-                    SSHLQ_32(v0, v2, q0);
-                }
+                MOVIQ_32(q1, 32);
+                UMINQ_32(q0, v1, q1);
+                NEGQ_32(q0, q0);
+                SSHLQ_32(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
             break;
@@ -1128,7 +1115,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
                 if(!MODREG) q0 = v1;
                 if(rex.w) {
-                    VEORQ(q1, q1, q1);
                     MOVI_32(q1, 64);
                     // no 64bits vmin/vmax
                     UQXTN_32(q0, v1);
@@ -1136,7 +1122,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     UXTL_32(q0, q0);
                     USHLQ_64(v0, v2, q0); 
                 } else {
-                    VEORQ(q1, q1, q1);
                     MOVIQ_32(q1, 32);
                     UMINQ_32(q0, v1, q1);
                     USHLQ_32(v0, v2, q0);
