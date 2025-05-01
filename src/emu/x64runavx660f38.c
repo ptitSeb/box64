@@ -827,6 +827,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x2C:  /*VMASKMOVPS Gx, Vx, Ex */
             nextop = F8;
+            if(MODREG)
+                return 0;
             GETEX(0);
             GETGX;
             GETVX;
@@ -843,6 +845,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x2D:  /*VMASKMOVPD Gx, Vx, Ex */
             nextop = F8;
+            if(MODREG)
+                return 0;
             GETEX(0);
             GETGX;
             GETVX;
@@ -859,6 +863,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x2E:  /*VMASKMOVPS Ex, Vx, Gx */
             nextop = F8;
+            if(MODREG)
+                return 0;
             GETEX(0);
             GETGX;
             GETVX;
@@ -879,6 +885,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x2F:  /*VMASKMOVPD Ex, Vx, Gx */
             nextop = F8;
+            if(MODREG)
+                return 0;
             GETEX(0);
             GETGX;
             GETVX;
