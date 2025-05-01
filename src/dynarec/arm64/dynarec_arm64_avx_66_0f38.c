@@ -1361,7 +1361,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 
         case 0x90:
         case 0x92:
-            if(opcode==0x90) {INST_NAME("VPGATHERDD Gx, VSIB, Vx");} else {INST_NAME("VGATHERDPD/VGATHERDPS Gx, VSIB, Vx");}
+            if(opcode==0x90) {INST_NAME("VPGATHERDD/VPGATHERDQ Gx, VSIB, Vx");} else {INST_NAME("VGATHERDPD/VGATHERDPS Gx, VSIB, Vx");}
             nextop = F8;
             if(((nextop&7)!=4) || MODREG) {UDF(0);}
             GETG;
@@ -1421,7 +1421,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
         case 0x91:
         case 0x93:
-            if(opcode==0x91) {INST_NAME("VPGATHERQD Gx, VSIB, Vx");} else {INST_NAME("VGATHERQPD/VGATHERQPS Gx, VSIB, Vx");}
+            if(opcode==0x91) {INST_NAME("VPGATHERQD/VPGATHERQQ Gx, VSIB, Vx");} else {INST_NAME("VGATHERQPD/VGATHERQPS Gx, VSIB, Vx");}
             nextop = F8;
             if(((nextop&7)!=4) || MODREG) {UDF(0);}
             GETG;
