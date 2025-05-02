@@ -215,7 +215,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGX(q0, 1);
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSS(d0, 0, 0);
             if(!BOX64ENV(dynarec_fastnan)) {
@@ -231,7 +231,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 FSQRTS(d1, d0);
             }
-            VMOVeS(v0, 0, d1, 0);
+            VMOVeS(q0, 0, d1, 0);
             break;
         case 0x52:
             INST_NAME("RSQRTSS Gx, Ex");
