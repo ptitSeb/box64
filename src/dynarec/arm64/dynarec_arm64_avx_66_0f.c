@@ -912,7 +912,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                                 (8)|(9<<8)|(10<<16)|(11<<24),
                                 (12)|(13<<8)|(14<<16)|(15<<24)
                             };
-                            d0 = fpu_get_scratch(dyn, ninst);
+                            if(!l) d0 = fpu_get_scratch(dyn, ninst);
                             tmp64u = swp[(u8>>(0*2))&3] | (swp[(u8>>(1*2))&3]<<32);
                             MOV64x(x2, tmp64u);
                             VMOVQDfrom(d0, 0, x2);
