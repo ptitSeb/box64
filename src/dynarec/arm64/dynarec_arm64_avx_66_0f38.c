@@ -1185,7 +1185,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(vex.l) {
                 GETGY_empty(v1, -1, -1, -1);
-                VMOVQ(v0, v1);
+                VMOVQ(v1, v0);
             } else YMM0(gd);
             break;
         case 0x79:
@@ -1202,7 +1202,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(vex.l) {
                 GETGY_empty(v1, -1, -1, -1);
-                VMOVQ(v0, v1);
+                VMOVQ(v1, v0);
             } else  YMM0(gd);
             break;
 
