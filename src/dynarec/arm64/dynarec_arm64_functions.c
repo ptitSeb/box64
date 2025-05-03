@@ -30,7 +30,11 @@
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch++;
-    if(dyn->n.ymm_used) printf_log(LOG_INFO, "Warning, getting a scratch register after getting some YMM at inst=%d\n", ninst);
+    if(dyn->n.ymm_used) {
+        printf_log(LOG_INFO, "Warning, getting a scratch register after getting some YMM at inst=%d", ninst);
+        uint8_t* addr = (uint8_t*)dyn->insts[ninst].x64.addr;
+        printf_log_prefix(0, LOG_INFO, "(%hhX %hhX %hhX %hhX %hhX %hhX %hhX %hhX)\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
+    }
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
         dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
@@ -42,7 +46,11 @@ int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch;
-    if(dyn->n.ymm_used) printf_log(LOG_INFO, "Warning, getting a double scratch register after getting some YMM at inst=%d\n", ninst);
+    if(dyn->n.ymm_used) {
+        printf_log(LOG_INFO, "Warning, getting a double scratch register after getting some YMM at inst=%d", ninst);
+        uint8_t* addr = (uint8_t*)dyn->insts[ninst].x64.addr;
+        printf_log_prefix(0, LOG_INFO, "(%hhX %hhX %hhX %hhX %hhX %hhX %hhX %hhX)\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
+    }
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
         dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
