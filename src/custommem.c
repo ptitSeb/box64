@@ -1969,7 +1969,7 @@ uint32_t getProtection_fast(uintptr_t addr)
 
 int getMmapped(uintptr_t addr)
 {
-    return rb_get(mapallmem, addr) == MEM_MMAP;
+    return (rb_get(mapallmem, addr)&MEM_ALLOCATED); // will be ok for both MEM_ALLOCATED & MEM_MMAP
 }
 
 int memExist(uintptr_t addr)
