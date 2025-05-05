@@ -95,6 +95,8 @@ static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
     sscanf(s, "%lx-%lx", start, end);
 }
 
+void AddNewLibs(const char* list);
+
 static void applyCustomRules()
 {
     if (BOX64ENV(log) == LOG_NEVER) {
@@ -196,6 +198,8 @@ static void applyCustomRules()
     if (box64env.env3) addNewEnvVar(box64env.env3);
     if (box64env.env4) addNewEnvVar(box64env.env4);
     if (box64env.env5) addNewEnvVar(box64env.env5);
+
+    if (box64env.addlibs) AddNewLibs(box64env.addlibs);
 }
 
 static void trimStringInplace(char* s)
