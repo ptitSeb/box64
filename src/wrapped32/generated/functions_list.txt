@@ -1140,7 +1140,6 @@
 #() pFpppp -> pFpppp
 #() pFXiii -> pFXiii
 #() pFXiip -> pFXiip
-#() pFXCip -> pFXCip
 #() pFXLpp -> pFXLpp
 #() pFXppp -> pFXppp
 #() vFuibp_i -> vFuiBi
@@ -1453,6 +1452,7 @@
 #() pFEpnuu -> pFEpnuu
 #() pFEpnup -> pFEpnup
 #() pFEXipp -> pFEXipp
+#() pFEXCip -> pFEXCip
 #() pFEXlpp -> pFEXlpp
 #() pFEXpip -> pFEXpip
 #() pFEXppi -> pFEXppi
@@ -2916,6 +2916,8 @@ wrappedlibx11:
   - XIfEvent
 - LFXLpi:
   - XCreateColormap
+- pFXCip:
+  - XGetKeyboardMapping
 - pFXlpp:
   - XGetVisualInfo
 - pFXpip:

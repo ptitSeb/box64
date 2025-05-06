@@ -389,7 +389,7 @@ GOM(XGetImage, pFEXLiiuuLi)     // return an XImage with callbacks that needs wr
 GOM(XGetIMValues, pFEpV)
 GO(XGetInputFocus, iFXBL_p)
 GO(XGetKeyboardControl, iFXbiiuuLip_)
-GO(XGetKeyboardMapping, pFXCip) // return a KeySym*, so an unsigned long*
+GOM(XGetKeyboardMapping, pFEXCip) // return a KeySym*, so an unsigned long*
 //GO(_XGetLCValues, 
 GOM(XGetModifierMapping, pFEX)
 GOM(XGetMotionEvents, pFEXLLLp)

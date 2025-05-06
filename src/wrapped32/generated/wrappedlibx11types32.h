@@ -52,6 +52,7 @@ typedef int32_t (*iFXLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFXpii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFXLpi_t)(void*, uintptr_t, void*, int32_t);
+typedef void* (*pFXCip_t)(void*, uint8_t, int32_t, void*);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
 typedef void* (*pFXpip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFXbpLiL_pp_t)(void*, struct_pLiL_t*, void*, void*);
@@ -165,6 +166,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
 	GO(XCreateColormap, LFXLpi_t) \
+	GO(XGetKeyboardMapping, pFXCip_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
 	GO(XListFonts, pFXpip_t) \
 	GO(XmbTextPropertyToTextList, iFXbpLiL_pp_t) \

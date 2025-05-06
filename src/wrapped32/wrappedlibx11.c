@@ -1805,6 +1805,19 @@ EXPORT int my32_XRefreshKeyboardMapping(x64emu_t* emu, my_XMappingEvent_32_t* ev
     return my->XRefreshKeyboardMapping(&event);
 }
 
+EXPORT void* my32_XGetKeyboardMapping(x64emu_t* emu, void* dpy, uint8_t first, int count, int* ret_count)
+{
+    unsigned long* ret = my->XGetKeyboardMapping(dpy, first, count, ret_count);
+    if(ret) {
+        //inplace reduction of ulong...
+        int cnt = count * *ret_count;
+        ulong_t* ret_s = (ulong_t*)ret;
+        for(int i=0; i<cnt; ++i)
+            ret_s[i] = to_ulong(ret[i]);
+    }
+    return ret;
+}
+
 EXPORT unsigned long my32_XLookupKeysym(x64emu_t* emu, my_XEvent_32_t* evt, int index)
 {
     my_XEvent_t event = {0};
