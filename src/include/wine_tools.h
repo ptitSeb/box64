@@ -10,6 +10,6 @@ void* get_wine_prereserve(void);
 void dynarec_wine_prereserve(void);
 #endif
 
-void DetectUnityPlayer(int fd);
+void DetectUnityPlayer(char* filename);
 
 #endif //__WINE_TOOLS_H__
