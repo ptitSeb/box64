@@ -35,6 +35,10 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
     MAYUSE(ninst);
     MAYUSE(delta);
 
+    if (l == LOCK_LOCK) {
+        dyn->insts[ninst].lock_prefixed = 1;
+    }
+
     if (rex.is32bits)
         return geted_32(dyn, addr, ninst, nextop, ed, hint, scratch, fixaddress, l, i12);
 
@@ -572,7 +576,7 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     JIRL((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x2, 0x0); // save LR...
 }
 
-void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
+void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
@@ -611,7 +615,7 @@ void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
     CLEARIP();
 }
 
-void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n)
+void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
@@ -656,7 +660,7 @@ void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n)
     CLEARIP();
 }
 
-void iret_to_epilog(dynarec_la64_t* dyn, int ninst, int is64bits)
+void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
 {
     // #warning TODO: is64bits
     MAYUSE(ninst);

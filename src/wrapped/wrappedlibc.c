@@ -3033,14 +3033,16 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     #endif
     if(ret!=MAP_FAILED) {
         if(emu && !(flags&MAP_ANONYMOUS) && (fd>0)) {
-            char filename[4096];
-            char buf[128];
-            sprintf(buf, "/proc/self/fd/%d", fd);
-            ssize_t r = readlink(buf, filename, sizeof(filename) - 1);
-            if (r != -1) filename[r] = 0;
+            if ((box64_wine && BOX64ENV(dynarec_volatile_metadata)) || BOX64ENV(unityplayer)) {
+                char filename[4096];
+                char buf[128];
+                sprintf(buf, "/proc/self/fd/%d", fd);
+                ssize_t r = readlink(buf, filename, sizeof(filename) - 1);
+                if (r != -1) filename[r] = 0;
 
-            DetectUnityPlayer(filename);
-            // ParseVolatileMetadata(filename, addr);
+                if (BOX64ENV(unityplayer)) DetectUnityPlayer(filename);
+                if (box64_wine && BOX64ENV(dynarec_volatile_metadata)) ParseVolatileMetadata(filename, addr);
+            }
             // the last_mmap will allow mmap created by wine, even those that have hole, to be fully tracked as one single mmap
             if((ret>=last_mmap_addr[0]) && ret+length<(last_mmap_addr[0]+last_mmap_len[0]))
                 RecordEnvMappings((uintptr_t)last_mmap_addr[0], last_mmap_len[0], fd);

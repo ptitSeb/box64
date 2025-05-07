@@ -641,6 +641,23 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_VOLATILE_METADATA",
+    "description": "Use volatile metadata parsed from PE files, only valid for 64bit Windows games.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not use volatile metadata.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Use volatile metadata, which will guide Box64 for better strong memory emulation.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_WAIT",
     "description": "Wait or not for the building of a DynaRec code block to be ready.",
     "category": "Performance",

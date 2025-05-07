@@ -1479,9 +1479,9 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 // generic x64 helper
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
-void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex);
-void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n);
-void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is32bits, int is64bits);
+void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex);
+void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
+void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void call_i(dynarec_arm_t* dyn, int ninst, void* fnc);
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w);

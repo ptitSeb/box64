@@ -329,6 +329,14 @@ Enable or disable DynaRec trace.
  * 1 : Trace DynaRec blocks, will slow down the program a lot and generates huge logs. 
 
 
+=item B<BOX64_DYNAREC_VOLATILE_METADATA> =I<0|1>
+
+Use volatile metadata parsed from PE files, only valid for 64bit Windows games.
+
+ * 0 : Do not use volatile metadata. [Default]
+ * 1 : Use volatile metadata, which will guide Box64 for better strong memory emulation. 
+
+
 =item B<BOX64_DYNAREC_WAIT> =I<0|1>
 
 Wait or not for the building of a DynaRec code block to be ready.

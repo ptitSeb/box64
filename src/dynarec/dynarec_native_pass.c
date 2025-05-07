@@ -18,6 +18,7 @@
 #include "dynablock_private.h"
 #include "custommem.h"
 #include "x64test.h"
+#include "pe_tools.h"
 
 #include "dynarec_arch.h"
 #include "dynarec_helper.h"
@@ -132,6 +133,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         } else if (dyn->insts[ninst].will_write) {
             WILLWRITE();
         }
+
+        int is_opcode_volatile = box64_wine && VolatileRangesContains(ip);
+        if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed) {
+            if (dyn->insts[ninst].will_write)
+                DMB_ISH();
+            else if (dyn->insts[ninst].will_read)
+                DMB_ISHLD();
+        }
         #endif
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !ninst) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
@@ -149,7 +158,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if (BOX64DRENV(dynarec_dump) && (!BOX64ENV(dynarec_dump_range_end) || (ip >= BOX64ENV(dynarec_dump_range_start) && ip < BOX64ENV(dynarec_dump_range_end)))) {
             dyn->need_dump = BOX64DRENV(dynarec_dump);
         }
-#ifdef HAVE_TRACE
+        #ifdef HAVE_TRACE
         else if(my_context->dec && BOX64ENV(dynarec_trace)) {
         if((trace_end == 0)
             || ((ip >= trace_start) && (ip < trace_end)))  {
@@ -160,7 +169,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }
-#endif
+        #endif
 
         rep = 0;
         uint8_t pk = PK(0);
@@ -187,6 +196,16 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->abort)
             return ip;
         INST_EPILOG;
+
+        #if STEP > 1
+        if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed) {
+            if (dyn->insts[ninst].will_write)
+                DMB_ISHST();
+            else if (dyn->insts[ninst].will_read)
+                DMB_ISHLD();
+        }
+        #endif
+
         fpu_reset_scratch(dyn);
         int next = ninst+1;
         #if STEP > 0
