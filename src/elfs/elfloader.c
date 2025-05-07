@@ -299,8 +299,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             uint8_t prot = ((e->p_flags & PF_R)?PROT_READ:0)|((e->p_flags & PF_W)?PROT_WRITE:0)|((e->p_flags & PF_X)?PROT_EXEC:0);
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
-            if(balign<4095) balign = 4095;
-            head->multiblocks[n].asize = (e->p_memsz+(e->p_paddr&balign)+4095)&~4095;
+            if (balign < (box64_pagesize - 1)) balign = box64_pagesize - 1;
+            head->multiblocks[n].asize = (e->p_memsz + (e->p_paddr & balign) + (box64_pagesize - 1)) & ~(box64_pagesize - 1);
             int try_mmap = 1;
             if(e->p_paddr&balign)
                 try_mmap = 0;
