@@ -661,6 +661,13 @@ Enable the emulation of x86 strong memory model.
  * 2: All in 1, plus memory barriers on SIMD instructions. 
  * 3: All in 2, plus more memory barriers on a regular basis. 
 
+### BOX64_DYNAREC_VOLATILE_METADATA
+
+Use volatile metadata parsed from PE files, only valid for 64bit Windows games.
+
+ * 0: Do not use volatile metadata. [Default]
+ * 1: Use volatile metadata, which will guide Box64 for better strong memory emulation. 
+
 ### BOX64_DYNAREC_WAIT
 
 Wait or not for the building of a DynaRec code block to be ready.

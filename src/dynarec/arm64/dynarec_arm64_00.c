@@ -2387,7 +2387,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
             i32 = F16;
-            retn_to_epilog(dyn, ninst, rex, i32);
+            retn_to_epilog(dyn, ip, ninst, rex, i32);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -2398,7 +2398,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
-            ret_to_epilog(dyn, ninst, rex);
+            ret_to_epilog(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -2724,7 +2724,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET_NODF);    // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
-            iret_to_epilog(dyn, ninst, rex.is32bits, rex.w);
+            iret_to_epilog(dyn, ip, ninst, rex.is32bits, rex.w);
             *need_epilog = 0;
             *ok = 0;
             break;

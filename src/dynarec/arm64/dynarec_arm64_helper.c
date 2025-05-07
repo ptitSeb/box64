@@ -30,7 +30,10 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
-    if(l==LOCK_LOCK) { /*SMDMB();*/DMB_ISH(); }
+    if (l == LOCK_LOCK) {
+        dyn->insts[ninst].lock_prefixed = 1;
+        DMB_ISH();
+    }
 
     if(rex.is32bits)
         return geted_32(dyn, addr, ninst, nextop, ed, hint, fixaddress, unscaled, absmax, mask, l, s);
@@ -617,7 +620,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     #endif
 }
 
-void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
+void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Ret to epilog\n");
@@ -658,7 +661,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     CLEARIP();
 }
 
-void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
+void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Retn to epilog\n");
@@ -705,7 +708,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     CLEARIP();
 }
 
-void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is32bits, int is64bits)
+void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
 {
     int64_t j64;
     //#warning TODO: is64bits

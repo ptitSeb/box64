@@ -6,6 +6,8 @@
 #include <stddef.h>
 
 #include "debug.h"
+#include "khash.h"
+#include "rbtree.h"
 
 typedef uint8_t BYTE;
 typedef uint16_t WORD;
@@ -182,6 +184,14 @@ typedef struct _IMAGE_VOLATILE_RANGE_METADATA {
     ULONG Size;
 } IMAGE_VOLATILE_RANGE_METADATA, *PIMAGE_VOLATILE_RANGE_METADATA;
 
+KHASH_SET_INIT_STR(string);
+KHASH_SET_INIT_INT64(volatileopcode);
+
+static kh_string_t* dllNames = NULL;                // never freed
+static kh_volatileopcode_t* volatileOpcodes = NULL; // never freed
+
+static rbtree_t* volatileRanges = NULL; // never freed
+
 static int HasSuffix(const char* str, const char* suffix)
 {
     size_t lenstr = strlen(str);
@@ -210,6 +220,22 @@ void ParseVolatileMetadata(char* filename, void* addr)
     if (!HasSuffix(filename, ".dll")) {
         return;
     }
+
+    if (!dllNames) dllNames = kh_init(string);
+    if (!volatileOpcodes) volatileOpcodes = kh_init(volatileopcode);
+    if (!volatileRanges) volatileRanges = rbtree_init("volatileRanges");
+
+    char* baseName = strrchr(filename, '/');
+    if (!baseName)
+        return;
+    else
+        baseName++;
+
+    khint_t k = kh_get(string, dllNames, baseName);
+    if (k != kh_end(dllNames)) return;
+
+    int ret;
+    k = kh_put(string, dllNames, strdup(baseName), &ret);
 
     FILE* file = fopen(filename, "rb");
     if (!file) return;
@@ -280,7 +306,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
 
     PIMAGE_VOLATILE_METADATA volatileMetadata = (PIMAGE_VOLATILE_METADATA)(buffer + volatileMetadataOffset);
     if (volatileMetadata->VolatileAccessTable && volatileMetadata->VolatileAccessTableSize) {
-        printf_log(LOG_INFO, "Parsing volatile metadata of file: %s\n", filename);
+        printf_log(LOG_INFO, "Parsing volatile metadata of file %s loaded at %p\n", baseName, addr);
 
         DWORD volatileAccessTableOffset = RVAToFileOffset(sectionHeaders, numberOfSections, volatileMetadata->VolatileAccessTable, (BYTE*)buffer, ntHeaders64->OptionalHeader.SizeOfImage);
         if (volatileAccessTableOffset == 0) {
@@ -292,8 +318,10 @@ void ParseVolatileMetadata(char* filename, void* addr)
         PIMAGE_VOLATILE_RVA_METADATA volatileAccessTable = (PIMAGE_VOLATILE_RVA_METADATA)(buffer + volatileAccessTableOffset);
 
         for (DWORD i = 0; i < numEntries; i++) {
-            ULONG entry = volatileAccessTable[i].Rva;
-            printf_log(LOG_INFO, "Volatile Access Table Entry %d: %08X\n", i, entry);
+            ULONGLONG entry = volatileAccessTable[i].Rva + (ULONGLONG)addr;
+            int ret;
+            khint_t _ = kh_put(volatileopcode, volatileOpcodes, entry, &ret);
+            printf_log(LOG_DEBUG, "Volatile access table [%d]: %08lX\n", i, entry);
         }
     }
 
@@ -308,9 +336,22 @@ void ParseVolatileMetadata(char* filename, void* addr)
         PIMAGE_VOLATILE_RANGE_METADATA volatileRangeMetadata = (PIMAGE_VOLATILE_RANGE_METADATA)(buffer + volatileInfoRangeTableOffset);
 
         for (DWORD i = 0; i < numEntries; i++) {
-            ULONG Rva = volatileRangeMetadata[i].Rva;
-            ULONG Size = volatileRangeMetadata[i].Size;
-            printf_log(LOG_INFO, "Volatile Range Metadata Entry %d: %08X Size: %08X\n", i, Rva, Size);
+            ULONGLONG rva = volatileRangeMetadata[i].Rva + (ULONGLONG)addr;
+            ULONGLONG size = volatileRangeMetadata[i].Size;
+            rb_set(volatileRanges, rva, rva + size, i);
+            printf_log(LOG_DEBUG, "Volatile range metadata [%d]: %08lX-%08lX\n", i, rva, rva + size);
         }
     }
+}
+
+int VolatileRangesContains(uintptr_t addr)
+{
+    if (!volatileRanges) return 0;
+    return rb_get(volatileRanges, addr) != 0;
+}
+
+int VolatileOpcodesHas(uintptr_t addr)
+{
+    if (!volatileOpcodes) return 0;
+    return kh_get(volatileopcode, volatileOpcodes, addr) != kh_end(volatileOpcodes);
 }
