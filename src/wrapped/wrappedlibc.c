@@ -2992,9 +2992,9 @@ EXPORT void* my_realpath(x64emu_t* emu, void* path, void* resolved_path)
 
 EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bufsize)
 {
-    if(isProcSelf(path, "exe")) {
-        strncpy(buf, emu->context->fullpath, bufsize);
-        size_t l = strlen(emu->context->fullpath);
+    if((fd==AT_FDCWD) && isProcSelf(path, "exe")) {
+        strncpy(buf, my_context->fullpath, bufsize);
+        size_t l = strlen(my_context->fullpath);
         return (l>bufsize)?bufsize:(l+1);
     }
     return readlinkat(fd, path, buf, bufsize);
@@ -3870,6 +3870,13 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 // ignoring this for now
 EXPORT char my___libc_single_threaded = 0;
+
+EXPORT char* secure_getenv(const char* name)
+{
+    // ignoring the "secure" part for now
+    //TODO: better handling of user and process ID
+    return getenv(name);
+}
 
 #ifdef STATICBUILD
 uint32_t get_random32();
