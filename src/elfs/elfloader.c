@@ -1908,7 +1908,8 @@ EXPORT void PltResolver64(x64emu_t* emu)
 
         if(p) {
             printf_dump(LOG_DEBUG, "            Apply %s R_X86_64_JUMP_SLOT %p with sym=%s(%sver %d: %s%s%s) (%p -> %p / %s)\n", BindSym(bind), p, symname, veropt?"opt":"", version, symname, vername?"@":"", vername?vername:"",*(void**)p, (void*)offs, ElfName(sym_elf));
-            *p = offs;
+            if (isWritableFromMap((uintptr_t)p))
+                *p = offs;
             if(sym_elf && sym_elf!=h) checkElfLib(h, sym_elf->lib);
         } else {
             printf_log(LOG_NONE, "PltResolver: Warning, Symbol %s(%sver %d: %s%s%s) found, but Jump Slot Offset is NULL \n", symname, veropt?"opt":"", version, symname, vername?"@":"", vername?vername:"");

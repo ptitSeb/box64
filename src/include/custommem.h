@@ -103,6 +103,7 @@ uint32_t getProtection_fast(uintptr_t addr);
 int getMmapped(uintptr_t addr);
 int memExist(uintptr_t addr);
 void loadProtectionFromMap(void);
+int isWritableFromMap(uintptr_t addr);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
 void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref);

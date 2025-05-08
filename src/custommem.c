@@ -1940,6 +1940,29 @@ void loadProtectionFromMap()
 #endif
 }
 
+int isWritableFromMap(uintptr_t addr)
+{
+#ifndef _WIN32 // TODO: Should this be implemented on Win32?
+    char buf[500];
+    FILE* f = fopen("/proc/self/maps", "r");
+    if (!f)
+        return 0;
+    while (!feof(f)) {
+        char* ret = fgets(buf, sizeof(buf), f);
+        (void)ret;
+        char r, w, x;
+        uintptr_t s, e;
+        if (sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x) == 5) {
+            int prot = ((r == 'r') ? PROT_READ : 0) | ((w == 'w') ? PROT_WRITE : 0) | ((x == 'x') ? PROT_EXEC : 0);
+            if (addr >= s && addr <= e)
+                return prot > PROT_READ;
+        }
+    }
+    fclose(f);
+#endif
+    return 0;
+}
+
 void freeProtection(uintptr_t addr, size_t size)
 {
     size = ALIGN(size);
