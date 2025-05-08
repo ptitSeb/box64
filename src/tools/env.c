@@ -617,7 +617,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     khint_t k = kh_get(mapping_entry, mapping_entries, lowercase_filename);
     if(k == kh_end(mapping_entries)) {
         // First time we see this file
-        if (box64_wine && BOX64ENV(unityplayer)) DetectUnityPlayer(lowercase_filename);
+        if (box64_wine && BOX64ENV(unityplayer)) DetectUnityPlayer(lowercase_filename+1);
         if (box64_wine && BOX64ENV(dynarec_volatile_metadata)) ParseVolatileMetadata(fullname, (void*)addr);
 
         mapping = box_calloc(1, sizeof(mapping_t));
