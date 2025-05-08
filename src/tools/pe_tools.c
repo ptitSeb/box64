@@ -187,18 +187,8 @@ typedef struct _IMAGE_VOLATILE_RANGE_METADATA {
 KHASH_SET_INIT_STR(string);
 KHASH_SET_INIT_INT64(volatileopcode);
 
-static kh_string_t* dllNames = NULL;                // never freed
 static kh_volatileopcode_t* volatileOpcodes = NULL; // never freed
-
 static rbtree_t* volatileRanges = NULL; // never freed
-
-static int HasSuffix(const char* str, const char* suffix)
-{
-    size_t lenstr = strlen(str);
-    size_t lensuffix = strlen(suffix);
-    if (lensuffix > lenstr) return 0;
-    return strcmp(str + lenstr - lensuffix, suffix) == 0;
-}
 
 DWORD RVAToFileOffset(PIMAGE_SECTION_HEADER sections, DWORD numberOfSections, DWORD rva, BYTE* fileBuffer, size_t fileSize)
 {
@@ -216,12 +206,6 @@ DWORD RVAToFileOffset(PIMAGE_SECTION_HEADER sections, DWORD numberOfSections, DW
 
 void ParseVolatileMetadata(char* filename, void* addr)
 {
-    if (!filename) return;
-    if (!HasSuffix(filename, ".dll")) {
-        return;
-    }
-
-    if (!dllNames) dllNames = kh_init(string);
     if (!volatileOpcodes) volatileOpcodes = kh_init(volatileopcode);
     if (!volatileRanges) volatileRanges = rbtree_init("volatileRanges");
 
@@ -231,14 +215,31 @@ void ParseVolatileMetadata(char* filename, void* addr)
     else
         baseName++;
 
-    khint_t k = kh_get(string, dllNames, baseName);
-    if (k != kh_end(dllNames)) return;
+    IMAGE_DOS_HEADER* dosHeader = (IMAGE_DOS_HEADER*)addr;
+    if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) return;
 
-    int ret;
-    k = kh_put(string, dllNames, strdup(baseName), &ret);
+    PIMAGE_NT_HEADERS64 ntHeaders64 = (PIMAGE_NT_HEADERS64)(addr + dosHeader->e_lfanew);
+    if (ntHeaders64->Signature != IMAGE_NT_SIGNATURE || ntHeaders64->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) return;
+
+    int numberOfSections = ntHeaders64->FileHeader.NumberOfSections;
+    if (numberOfSections <= 0) {
+        return;
+    }
+    IMAGE_DATA_DIRECTORY loadConfigDir = ntHeaders64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG];
+    if (loadConfigDir.VirtualAddress == 0 || loadConfigDir.Size == 0) {
+        return;
+    }
+
+    PIMAGE_SECTION_HEADER sectionHeaders = (PIMAGE_SECTION_HEADER)((void*)ntHeaders64 + sizeof(IMAGE_NT_HEADERS64)); // immediately follows the optional header, if any.
+    DWORD loadConfigOffset = RVAToFileOffset(sectionHeaders, numberOfSections, loadConfigDir.VirtualAddress, (BYTE*)addr, ntHeaders64->OptionalHeader.SizeOfImage);
+    if (loadConfigOffset == 0) {
+        return;
+    }
 
     FILE* file = fopen(filename, "rb");
-    if (!file) return;
+    if (!file) {
+        return;
+    }
 
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
@@ -256,36 +257,6 @@ void ParseVolatileMetadata(char* filename, void* addr)
         return;
     }
     fclose(file);
-
-    IMAGE_DOS_HEADER* dosHeader = (IMAGE_DOS_HEADER*)buffer;
-    if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
-        free(buffer);
-        return;
-    }
-
-    PIMAGE_NT_HEADERS64 ntHeaders64 = (PIMAGE_NT_HEADERS64)(buffer + dosHeader->e_lfanew);
-    if (ntHeaders64->Signature != IMAGE_NT_SIGNATURE || ntHeaders64->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
-        free(buffer);
-        return;
-    }
-
-    int numberOfSections = ntHeaders64->FileHeader.NumberOfSections;
-    if (numberOfSections <= 0) {
-        free(buffer);
-        return;
-    }
-    IMAGE_DATA_DIRECTORY loadConfigDir = ntHeaders64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG];
-    if (loadConfigDir.VirtualAddress == 0 || loadConfigDir.Size == 0) {
-        free(buffer);
-        return;
-    }
-
-    PIMAGE_SECTION_HEADER sectionHeaders = (PIMAGE_SECTION_HEADER)((void*)ntHeaders64 + sizeof(IMAGE_NT_HEADERS64)); // immediately follows the optional header, if any.
-    DWORD loadConfigOffset = RVAToFileOffset(sectionHeaders, numberOfSections, loadConfigDir.VirtualAddress, (BYTE*)buffer, ntHeaders64->OptionalHeader.SizeOfImage);
-    if (loadConfigOffset == 0) {
-        free(buffer);
-        return;
-    }
 
     PIMAGE_LOAD_CONFIG_DIRECTORY64 loadConfig = (PIMAGE_LOAD_CONFIG_DIRECTORY64)(buffer + loadConfigOffset);
     if (loadConfig->Size < offsetof(IMAGE_LOAD_CONFIG_DIRECTORY64, VolatileMetadataPointer) + sizeof(ULONGLONG)) {
@@ -342,6 +313,8 @@ void ParseVolatileMetadata(char* filename, void* addr)
             printf_log(LOG_DEBUG, "Volatile range metadata [%d]: %08lX-%08lX\n", i, rva, rva + size);
         }
     }
+    free(buffer);
+    return;
 }
 
 int VolatileRangesContains(uintptr_t addr)
