@@ -1000,8 +1000,10 @@ size_t customGetUsableSize(void* p)
     mutex_lock(&mutex_blocks);
     blocklist_t* l = findBlock(addr);
     if(l) {
-        if(l->type==BTYPE_MAP)
+        if(l->type==BTYPE_MAP) {
+            mutex_unlock(&mutex_blocks);
             return 128;
+        }
         blockmark_t* sub = (void*)(addr-sizeof(blockmark_t));
 
         size_t size = SIZE_BLOCK(sub->next);
