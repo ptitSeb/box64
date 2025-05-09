@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <windows.h>
 #include <ntstatus.h>
+#include <winternl.h>
 #include <winnt.h>
 
+#include "compiler.h"
 #include "os.h"
 #include "custommem.h"
 #include "env.h"
@@ -81,8 +83,7 @@ void* WINAPI __wine_get_unix_opcode(void)
 
 NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
-    // NYI
-    return STATUS_SUCCESS;
+    return NtQueryInformationThread( thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL );
 }
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
@@ -115,8 +116,7 @@ NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 
 NTSTATUS WINAPI BTCpuSetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
-    // NYI
-    return STATUS_SUCCESS;
+    return NtSetInformationThread( thread, ThreadWow64Context, ctx, sizeof(*ctx) );
 }
 
 void WINAPI BTCpuSimulate(void)
