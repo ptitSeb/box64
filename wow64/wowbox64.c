@@ -14,6 +14,7 @@
 #include "env.h"
 #include "emu/x64emu_private.h"
 #include "emu/x87emu_private.h"
+#include "x64trace.h"
 #include "box64context.h"
 #include "wine/debug.h"
 
@@ -38,6 +39,12 @@ static uint32_t x86emu_parity_tab[8] =
     0x96696996,
     0x69969669,
 };
+
+static UINT16 DECLSPEC_ALIGN(4096) bopcode[4096/sizeof(UINT16)];
+static UINT16 DECLSPEC_ALIGN(4096) unxcode[4096/sizeof(UINT16)];
+
+typedef UINT64 unixlib_handle_t;
+NTSTATUS (WINAPI *__wine_unix_call_dispatcher)( unixlib_handle_t, unsigned int, void * );
 
 int is_addr_unaligned(uintptr_t addr)
 {
@@ -83,14 +90,12 @@ void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 
 void* WINAPI BTCpuGetBopCode(void)
 {
-    // NYI
-    return (UINT32*)NULL;
+    return (UINT32*)&bopcode;
 }
 
 void* WINAPI __wine_get_unix_opcode(void)
 {
-    // NYI
-    return (UINT32*)NULL;
+    return (UINT32*)&unxcode;
 }
 
 NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
@@ -115,8 +120,41 @@ void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
 
 NTSTATUS WINAPI BTCpuProcessInit(void)
 {
-    // NYI
+    HMODULE module;
+    UNICODE_STRING str;
+    void **p__wine_unix_call_dispatcher;
     __wine_dbg_output("[BOX64] BTCpuProcessInit\n");
+
+    LoadEnvVariables();
+
+    memset(bopcode, 0xc3, sizeof(bopcode));
+    memset(unxcode, 0xc3, sizeof(unxcode));
+    bopcode[0] = 0x2ecd;
+    unxcode[0] = 0x2ecd;
+
+    init_custommem_helper(&box64_context);
+
+    if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32)
+    {
+        __wine_dbg_output( "box64cpu loaded above 4G, disabling\n" );
+        return STATUS_INVALID_ADDRESS;
+    }
+
+    RtlInitUnicodeString( &str, L"ntdll.dll" );
+    LdrGetDllHandle( NULL, 0, &str, &module );
+    p__wine_unix_call_dispatcher = RtlFindExportedRoutineByName( module, "__wine_unix_call_dispatcher" );
+    __wine_unix_call_dispatcher = *p__wine_unix_call_dispatcher;
+
+    RtlInitializeCriticalSection(&box64_context.mutex_dyndump);
+    RtlInitializeCriticalSection(&box64_context.mutex_trace);
+    RtlInitializeCriticalSection(&box64_context.mutex_tls);
+    RtlInitializeCriticalSection(&box64_context.mutex_thread);
+    RtlInitializeCriticalSection(&box64_context.mutex_bridge);
+    RtlInitializeCriticalSection(&box64_context.mutex_lock);
+
+    InitX64Trace(&box64_context);
+
+    __wine_dbg_output("[BOX64] BTCpuProcessInit done\n");
     return STATUS_SUCCESS;
 }
 
