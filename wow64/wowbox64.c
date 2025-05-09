@@ -21,11 +21,6 @@ uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 
-box64env_t box64env = { 0 }; // FIXME: add real env support.
-
-box64env_t* GetCurEnvByAddr(uintptr_t addr) {
-    return &box64env;
-}
 
 int is_addr_unaligned(uintptr_t addr)
 {
