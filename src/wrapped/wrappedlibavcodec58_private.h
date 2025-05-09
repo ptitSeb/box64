@@ -42,7 +42,7 @@ GO(avcodec_descriptor_next, pFp)
 DATA(av_codec_ffversion, 8) // Warning: failed to confirm
 GO(avcodec_fill_audio_frame, iFpiipii)
 GO(avcodec_find_best_pix_fmt_of_list, iFpiip)
-//GOM(avcodec_find_decoder, pFEu)
+GO(avcodec_find_decoder, pFu)
 //GOM(avcodec_find_decoder_by_name, pFEp)
 //GOM(avcodec_find_encoder, pFEu)
 //GOM(avcodec_find_encoder_by_name, pFEp)
