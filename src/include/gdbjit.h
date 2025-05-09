@@ -21,12 +21,14 @@ typedef struct gdbjit_block_s {
 void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR end, uintptr_t x64start);
 gdbjit_block_t* GdbJITBlockAddLine(gdbjit_block_t* block, GDB_CORE_ADDR addr, const char* line);
 void GdbJITBlockReady(gdbjit_block_t* block);
+void GdbJITBlockCleanup(gdbjit_block_t* block);
 
 #else
 
 #define GdbJITNewBlock(a, b, c, d)
 #define GdbJITBlockAddLine(a, b, c) NULL
 #define GdbJITBlockReady(a)
+#define GdbJITBlockCleanup(a)
 
 #endif
 

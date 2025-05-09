@@ -98,22 +98,21 @@ gdbjit_block_t* GdbJITBlockAddLine(gdbjit_block_t* block, GDB_CORE_ADDR addr, co
     return block;
 }
 
+void GdbJITBlockCleanup(gdbjit_block_t* block) {
+    if (block && block->file) {
+        fclose(block->file);
+        block->file = NULL;
+    }
+}
+
 void GdbJITBlockReady(gdbjit_block_t* block)
 {
     if (!block) return;
 
-    if (block->nlines == 0) {
-        fclose(block->file);
-        return;
-    }
+    if (block->nlines == 0) return;
 
     gdbjit_code_entry_t* entry = (gdbjit_code_entry_t*)box_malloc(sizeof(gdbjit_code_entry_t));
-    if (!entry) {
-        fclose(block->file);
-        return;
-    }
-
-    fclose(block->file);
+    if (!entry) return;
 
     entry->symfile_addr = (const char*)block;
     entry->symfile_size = sizeof(gdbjit_block_t) + block->nlines * sizeof(struct gdb_line_mapping);

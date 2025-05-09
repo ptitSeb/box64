@@ -886,7 +886,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     block->x64_size = end-start;
     // all done...
     if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
-        GdbJITBlockReady(helper.gdbjit_block);
+        if (BOX64ENV(dynarec_gdbjit) != 3) GdbJITBlockReady(helper.gdbjit_block);
+        GdbJITBlockCleanup(helper.gdbjit_block);
+        #ifdef GDBJIT
+        block->gdbjit_block = helper.gdbjit_block;
+        #endif
     }
     ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);

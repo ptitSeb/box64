@@ -40,6 +40,7 @@
 #include "../dynarec/dynablock_private.h"
 #include "dynarec_native.h"
 #include "dynarec/dynarec_arch.h"
+#include "gdbjit.h"
 #endif
 
 
@@ -2064,6 +2065,9 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
             int shown_regs = 0;
 #ifdef DYNAREC
+            #ifdef GDBJIT
+            if(db && BOX64ENV(dynarec_gdbjit) == 3) GdbJITBlockReady(db->gdbjit_block);
+            #endif
             uint32_t hash = 0;
             if(db)
                 hash = X31_hash_code(db->x64_addr, db->x64_size);

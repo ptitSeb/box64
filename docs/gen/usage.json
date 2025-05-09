@@ -419,6 +419,11 @@
         "default": false
       },
       {
+        "key": "3",
+        "description": "Dynarec will register detailed GDBJIT debuginfo only for dynablocks that the guest program trap into, greatly improving performance.",
+        "default": false
+      },
+      {
         "key": "0xXXXXXXX-0xYYYYYYY",
         "description": "Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state.",
         "default": false

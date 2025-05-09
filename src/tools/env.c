@@ -138,7 +138,7 @@ static void applyCustomRules()
 
     if (box64env.is_dynarec_gdbjit_str_overridden) {
         if (strlen(box64env.dynarec_gdbjit_str) == 1) {
-            if (box64env.dynarec_gdbjit_str[0] >= '0' && box64env.dynarec_gdbjit_str[0] <= '2')
+            if (box64env.dynarec_gdbjit_str[0] >= '0' && box64env.dynarec_gdbjit_str[0] <= '3')
                 box64env.dynarec_gdbjit = box64env.dynarec_gdbjit_str[0] - '0';
 
             box64env.dynarec_gdbjit_start = 0x0;
