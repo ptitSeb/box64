@@ -1,3 +1,7 @@
+/*
+ * Copyright 2022-2025 André Zwing
+ * Copyright 2023 Alexandre Julliard
+ */
 #include <stdio.h>
 #include <windows.h>
 #include <ntstatus.h>
@@ -8,6 +12,8 @@
 #include "os.h"
 #include "custommem.h"
 #include "env.h"
+#include "emu/x64emu_private.h"
+#include "emu/x87emu_private.h"
 #include "box64context.h"
 #include "wine/debug.h"
 
@@ -21,6 +27,17 @@ uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 
+static uint32_t x86emu_parity_tab[8] =
+{
+    0x96696996,
+    0x69969669,
+    0x69969669,
+    0x96696996,
+    0x69969669,
+    0x96696996,
+    0x96696996,
+    0x69969669,
+};
 
 int is_addr_unaligned(uintptr_t addr)
 {
@@ -121,7 +138,22 @@ void WINAPI BTCpuSimulate(void)
 
 NTSTATUS WINAPI BTCpuThreadInit(void)
 {
-    // NYI
+    WOW64_CONTEXT *ctx;
+    x64emu_t *emu = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*emu) );
+    __wine_dbg_output("[BOX64] BTCpuThreadInit\n");
+
+    RtlWow64GetCurrentCpuArea( NULL, (void **)&ctx, NULL );
+    emu->context = &box64_context;
+
+    // setup cpu helpers
+    for (int i=0; i<16; ++i)
+        emu->sbiidx[i] = &emu->regs[i];
+    emu->sbiidx[4] = &emu->zero;
+    emu->x64emu_parity_tab = x86emu_parity_tab;
+
+    reset_fpu(emu);
+
+    NtCurrentTeb()->TlsSlots[0] = emu;  // FIXME
     return STATUS_SUCCESS;
 }
 
