@@ -90,7 +90,7 @@ GO(FcFontSetSort, pFppipipp)
 GO(FcFontSetSortDestroy, vFp)
 GO(FcFontSort, pFppipp)
 GO(FcFreeTypeCharIndex, uFpu)
-//GO(FcFreeTypeCharSet, 
+GO(FcFreeTypeCharSet, pFpp)
 //GO(FcFreeTypeCharSetAndSpacing, 
 GO(FcFreeTypeQuery, pFpupp)
 GO(FcFreeTypeQueryFace, pFppip)
