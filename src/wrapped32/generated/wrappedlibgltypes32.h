@@ -43,7 +43,9 @@ typedef void (*vFupupip_t)(uint32_t, void*, uint32_t, void*, int32_t, void*);
 	GO(glDebugMessageCallbackARB, vFpp_t) \
 	GO(glDebugMessageCallbackKHR, vFpp_t) \
 	GO(eglDebugMessageControlKHR, iFpp_t) \
+	GO(glXGetFBConfigFromVisualSGIX, pFXp_t) \
 	GO(glXGetVisualFromFBConfig, pFXp_t) \
+	GO(glXGetVisualFromFBConfigSGIX, pFXp_t) \
 	GO(glProgramCallbackMESA, vFipp_t) \
 	GO(eglSetBlobCacheFuncsANDROID, vFppp_t) \
 	GO(glXSwapIntervalEXT, vFXpi_t) \
@@ -57,6 +59,7 @@ typedef void (*vFupupip_t)(uint32_t, void*, uint32_t, void*, int32_t, void*);
 	GO(glShaderSource, vFuipp_t) \
 	GO(glShaderSourceARB, vFuipp_t) \
 	GO(glXChooseFBConfig, pFXipp_t) \
+	GO(glXChooseFBConfigSGIX, pFXipp_t) \
 	GO(glXCreateContext, pFXppi_t) \
 	GO(glBindVertexBuffers, vFuippp_t) \
 	GO(glMultiDrawElements, vFupupi_t) \

@@ -1476,6 +1476,7 @@
 #() pFppppi -> pFppppi
 #() pFXLipp -> pFXLipp
 #() pFXpipi -> pFXpipi
+#() pFXpuup -> pFXpuup
 #() pFXppip -> pFXppip
 #() tEpppLi -> tEpppLi
 #() vFiuibp_i -> vFiuiBi
@@ -2539,7 +2540,9 @@ wrappedlibgl:
 - iFpp:
   - eglDebugMessageControlKHR
 - pFXp:
+  - glXGetFBConfigFromVisualSGIX
   - glXGetVisualFromFBConfig
+  - glXGetVisualFromFBConfigSGIX
 - vFipp:
   - glProgramCallbackMESA
 - vFppp:
@@ -2561,6 +2564,7 @@ wrappedlibgl:
   - glShaderSourceARB
 - pFXipp:
   - glXChooseFBConfig
+  - glXChooseFBConfigSGIX
 - pFXppi:
   - glXCreateContext
 - vFuippp:

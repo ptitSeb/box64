@@ -484,6 +484,35 @@ static void* find_glXChooseFBConfig_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXChooseFBConfig callback\n");
     return NULL;
 }
+// glXChooseFBConfigSGIX ...
+#define GO(A)                                                                                               \
+static pFpipp_t my32_glXChooseFBConfigSGIX_fct_##A = NULL;                                                      \
+static void* my32_glXChooseFBConfigSGIX_##A(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)     \
+{                                                                                                           \
+    if(!my32_glXChooseFBConfigSGIX_fct_##A)                                                                     \
+        return NULL;                                                                                        \
+    void** res = my32_glXChooseFBConfigSGIX_fct_##A (dpy, screen, list, nelement);                              \
+    if(!res)                                                                                                \
+        return NULL;                                                                                        \
+    ptr_t* fbconfig = (ptr_t*)res;                                                                          \
+    for(int i=0; i<*nelement; ++i)                                                                          \
+        fbconfig[i] = to_ptrv(res[i]);                                                                      \
+    return res;                                                                                             \
+}
+SUPER()
+#undef GO
+static void* find_glXChooseFBConfigSGIX_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXChooseFBConfigSGIX_fct_##A == (pFpipp_t)fct) return my32_glXChooseFBConfigSGIX_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXChooseFBConfigSGIX_fct_##A == 0) {my32_glXChooseFBConfigSGIX_fct_##A = (pFpipp_t)fct; return my32_glXChooseFBConfigSGIX_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXChooseFBConfigSGIX callback\n");
+    return NULL;
+}
 // glXGetVisualFromFBConfig ...
 #define GO(A)                                                                                               \
 static pFpp_t my32_glXGetVisualFromFBConfig_fct_##A = NULL;                                                 \
@@ -510,6 +539,34 @@ static void* find_glXGetVisualFromFBConfig_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXGetVisualFromFBConfig callback\n");
+    return NULL;
+}
+// glXGetVisualFromFBConfigSGIX ...
+#define GO(A)                                                                                           \
+static pFpp_t my32_glXGetVisualFromFBConfigSGIX_fct_##A = NULL;                                         \
+static void* my32_glXGetVisualFromFBConfigSGIX_##A(x64emu_t* emu, void* dpy, void* config)              \
+{                                                                                                       \
+    if(!my32_glXGetVisualFromFBConfigSGIX_fct_##A)                                                      \
+        return NULL;                                                                                    \
+    void* res = my32_glXGetVisualFromFBConfigSGIX_fct_##A (dpy, config);                                \
+    if(!res)                                                                                            \
+        return NULL;                                                                                    \
+    my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;                                             \
+    convert_XVisualInfo_to_32(dpy, vinfo, res);                                                         \
+    return vinfo;                                                                                       \
+}
+SUPER()
+#undef GO
+static void* find_glXGetVisualFromFBConfigSGIX_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXGetVisualFromFBConfigSGIX_fct_##A == (pFpp_t)fct) return my32_glXGetVisualFromFBConfigSGIX_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXGetVisualFromFBConfigSGIX_fct_##A == 0) {my32_glXGetVisualFromFBConfigSGIX_fct_##A = (pFpp_t)fct; return my32_glXGetVisualFromFBConfigSGIX_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXGetVisualFromFBConfigSGIX callback\n");
     return NULL;
 }
 // glXChooseVisual ...
@@ -563,6 +620,31 @@ static void* find_glXCreateContext_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXCreateContext callback\n");
+    return NULL;
+}
+// glXGetFBConfigFromVisualSGIX ...
+#define GO(A)                                                                                           \
+static pFpp_t my32_glXGetFBConfigFromVisualSGIX_fct_##A = NULL;                                       \
+static void* my32_glXGetFBConfigFromVisualSGIX_##A(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info) \
+{                                                                                                       \
+    if(!my32_glXGetFBConfigFromVisualSGIX_fct_##A)                                                      \
+        return NULL;                                                                                    \
+    my_XVisualInfo_t info_l = {0};                                                                      \
+    convert_XVisualInfo_to_64(dpy, &info_l, info);                                                      \
+    return my32_glXGetFBConfigFromVisualSGIX_fct_##A (dpy, &info_l);                                    \
+}
+SUPER()
+#undef GO
+static void* find_glXGetFBConfigFromVisualSGIX_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXGetFBConfigFromVisualSGIX_fct_##A == (pFpp_t)fct) return my32_glXGetFBConfigFromVisualSGIX_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXGetFBConfigFromVisualSGIX_fct_##A == 0) {my32_glXGetFBConfigFromVisualSGIX_fct_##A = (pFpp_t)fct; return my32_glXGetFBConfigFromVisualSGIX_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXGetFBConfigFromVisualSGIX callback\n");
     return NULL;
 }
 // glMultiDrawElements ...
@@ -945,9 +1027,29 @@ EXPORT void* my32_glXChooseFBConfig(x64emu_t* emu, void* dpy, int screen, int* l
     return res;
 }
 
+EXPORT void* my32_glXChooseFBConfigSGIX(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)
+{
+    void** res = my->glXChooseFBConfigSGIX(dpy, screen, list, nelement);
+    if(!res)
+        return NULL;
+    ptr_t *fbconfig = (ptr_t*)res;
+    for(int i=0; i<*nelement; ++i)
+        fbconfig[i] = to_ptrv(res[i]);
+    return res;
+}
+
 EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* config)
 {
     void* res = my->glXGetVisualFromFBConfig(dpy, config);
+    if(!res) return NULL;
+    my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;
+    convert_XVisualInfo_to_32(dpy, vinfo, res);
+    return vinfo;
+}
+
+EXPORT void* my32_glXGetVisualFromFBConfigSGIX(x64emu_t* emu, void* dpy, void* config)
+{
+    void* res = my->glXGetVisualFromFBConfigSGIX(dpy, config);
     if(!res) return NULL;
     my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;
     convert_XVisualInfo_to_32(dpy, vinfo, res);
@@ -968,6 +1070,13 @@ EXPORT void* my32_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t
     my_XVisualInfo_t info_l = {0};
     convert_XVisualInfo_to_64(dpy, &info_l, info);
     return my->glXCreateContext(dpy, &info_l, shared, direct);
+}
+
+EXPORT void* my32_glXGetFBConfigFromVisualSGIX(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info)
+{
+    my_XVisualInfo_t info_l = {0};
+    convert_XVisualInfo_to_64(dpy, &info_l, info);
+    return my->glXGetFBConfigFromVisualSGIX(dpy, &info_l);
 }
 
 EXPORT void my32_glMultiDrawElements(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount)
@@ -1079,9 +1188,12 @@ EXPORT void my32_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, pt
  GO(vFuipp_t, glShaderSource)                   \
  GO(vFuipp_t, glShaderSourceARB)                \
  GO(pFpipp_t, glXChooseFBConfig)                \
+ GO(pFpipp_t, glXChooseFBConfigSGIX)            \
  GO(pFpp_t, glXGetVisualFromFBConfig)           \
+ GO(pFpp_t, glXGetVisualFromFBConfigSGIX)       \
  GO(pFpp_t, glXChooseVisual)                    \
- GO(pFpp_t, glXCreateContext)                   \
+ GO(pFpppi_t, glXCreateContext)                 \
+ GO(pFpp_t, glXGetFBConfigFromVisualSGIX)       \
  GO(vFupupi_t, glMultiDrawElements)             \
  GO(vFuipu_t, glTransformFeedbackVaryings)      \
  GO(vFuuippp_t, glBindBuffersRange)             \

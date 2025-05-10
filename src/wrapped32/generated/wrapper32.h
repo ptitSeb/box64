@@ -1517,6 +1517,7 @@ void pFpppii_32(x64emu_t *emu, uintptr_t fnc);
 void pFppppi_32(x64emu_t *emu, uintptr_t fnc);
 void pFXLipp_32(x64emu_t *emu, uintptr_t fnc);
 void pFXpipi_32(x64emu_t *emu, uintptr_t fnc);
+void pFXpuup_32(x64emu_t *emu, uintptr_t fnc);
 void pFXppip_32(x64emu_t *emu, uintptr_t fnc);
 void tEpppLi_32(x64emu_t *emu, uintptr_t fnc);
 void vFiuibp_i_32(x64emu_t *emu, uintptr_t fnc);
