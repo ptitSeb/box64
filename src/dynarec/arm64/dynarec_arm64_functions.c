@@ -605,6 +605,9 @@ void neoncacheUnwind(neoncache_t* cache)
                 int reg = (i<8)?(XMM0+i):(XMM8+i-8);
                 cache->neoncache[reg].t = (cache->xmm_write&(1<<i))?NEON_CACHE_XMMW:NEON_CACHE_XMMR;
                 cache->neoncache[reg].n = i;
+                cache->ssecache[i].reg = reg;
+                cache->ssecache[i].write = (cache->xmm_write&(1<<i))?1:0;
+                ++cache->fpu_reg;
             }
         cache->xmm_write = cache->xmm_removed = 0;
     }
