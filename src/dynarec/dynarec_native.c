@@ -23,6 +23,7 @@
 #include "dynarec_arch.h"
 #include "dynarec_next.h"
 #include "gdbjit.h"
+#include "elfs/elfloader_private.h"
 
 void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction_x64_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -651,8 +652,27 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return NULL;
     }
     // protect the block of it goes over the 1st page
-    if((addr&~(box64_pagesize-1))!=(end&~(box64_pagesize-1))) // need to protect some other pages too
-        protectDB(addr, end-addr);  //end is 1byte after actual end
+    if ((addr & ~(box64_pagesize - 1)) != (end & ~(box64_pagesize - 1))) { // need to protect some other pages too
+        for (int i = 0; i < my_context->elfsize; ++i) {
+            elfheader_t* head = my_context->elfs[i];
+            if (head->pltrel == DT_RELA && head->rela) {
+                int cnt = head->pltsz / head->pltent;
+                Elf64_Rela* rela = (Elf64_Rela*)(head->jmprel + head->delta);
+                for (int j = 0; j < cnt; ++j) {
+                    int t = ELF64_R_TYPE(rela[j].r_info);
+                    if (t == R_X86_64_JUMP_SLOT) {
+                        uintptr_t slot = (uintptr_t)(rela[j].r_offset + head->delta);
+                        if ((addr + box64_pagesize) <= slot && slot <= (end + box64_pagesize)) {
+                            printf_log(LOG_DEBUG, "%s slot: 0x%lx in the range [0x%lx, 0x%lx]\n", ElfName(head), slot, addr + box64_pagesize, end + box64_pagesize);
+                            end = ALIGN(slot - box64_pagesize); // adjust the end when R_X86_64_JUMP_SLOT in the range of addr and end plus with pagesize
+                            printf_log(LOG_DEBUG, "    Adjust end to 0x%lx\n", end);
+                        }
+                    }
+                }
+            }
+        }
+        protectDB(addr, end - addr); // end is 1byte after actual end
+    }
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // calculate barriers
