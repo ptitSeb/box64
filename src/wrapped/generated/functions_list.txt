@@ -30,6 +30,7 @@
 #() iFC
 #() iFW
 #() iFu
+#() iFU
 #() iFf
 #() iFd
 #() iFD
@@ -207,6 +208,7 @@
 #() iFuu
 #() iFuL
 #() iFup
+#() iFUU
 #() iFUp
 #() iFli
 #() iFlp
@@ -335,6 +337,7 @@
 #() LFpL
 #() LFpp
 #() pFEi
+#() pFEl
 #() pFEL
 #() pFEp
 #() pFii
@@ -569,6 +572,7 @@
 #() iFpil
 #() iFpiL
 #() iFpip
+#() iFpIi
 #() iFpIp
 #() iFpCu
 #() iFpCp
@@ -622,6 +626,7 @@
 #() iFbpp
 #() IFiIi
 #() IFIII
+#() IFIUU
 #() IFUUU
 #() IFpIi
 #() IFppi
@@ -759,6 +764,7 @@
 #() pFEuA
 #() pFEpi
 #() pFEpu
+#() pFEpL
 #() pFEpp
 #() pFEpV
 #() pFEpA
@@ -957,6 +963,7 @@
 #() vFpwwu
 #() vFpiii
 #() vFpiiu
+#() vFpiiU
 #() vFpiid
 #() vFpiip
 #() vFpiui
@@ -1909,6 +1916,7 @@
 #() lFppLpL
 #() lFppLpp
 #() LFELppu
+#() LFEpLpV
 #() LFEppLL
 #() LFEpppp
 #() LFuuuuu
@@ -2437,6 +2445,7 @@
 #() pFELpppV
 #() pFELpApp
 #() pFEpiupp
+#() pFEpippi
 #() pFEpippp
 #() pFEpuipp
 #() pFEpuupp
@@ -3255,6 +3264,7 @@
 #() iFEpiiiiippp
 #() iFEpupppLppL
 #() iFEppppppipp
+#() iFEpppppppip
 #() iFuiiiuuiiip
 #() iFpiiLiiipip
 #() iFpiLLiiipip
@@ -4511,6 +4521,30 @@ wrappedlibavformat58:
 wrappedlibavutil56:
 - vFp:
   - av_log_set_callback
+- pFl:
+  - av_malloc_tracked
+- pFL:
+  - av_mallocz_tracked
+- pFip:
+  - av_buffer_pool_init
+- pFpL:
+  - av_realloc_tracked
+- pFpV:
+  - av_asprintf
+- vFppV:
+  - av_bprintf
+- vFppA:
+  - av_vbprintf
+- vFpipV:
+  - av_log
+- LFpLpV:
+  - av_strlcatf
+- iFppppi:
+  - avpriv_slicethread_create
+- pFpippi:
+  - av_buffer_create
+- iFpppppppip:
+  - av_expr_parse
 wrappedlibbsd:
 wrappedlibc:
 - vFv:

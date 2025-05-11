@@ -20,7 +20,7 @@ GO(av_aes_ctr_set_random_iv, vFp)
 GO(av_aes_init, iFppii)
 DATA(av_aes_size, 4)
 GO(av_append_path_component, pFpp)
-//GOM(av_asprintf, pFEpV)
+GOM(av_asprintf, pFEpV)
 GO(av_assert0_fpu, vFv)
 GO(av_audio_fifo_alloc, pFiii)
 GO(av_audio_fifo_drain, iFpi)
@@ -46,7 +46,7 @@ GO(av_bprint_append_data, vFppu)
 GO(av_bprint_chars, vFpcu)
 GO(av_bprint_clear, vFp)
 GO(av_bprint_escape, vFpppui)
-//GOM(av_bprintf, vFEppV)
+GOM(av_bprintf, vFEppV)
 GO(av_bprint_finalize, iFpp)
 GO(av_bprint_get_buffer, vFpupp)
 GO(av_bprint_init, vFpuu)
@@ -54,7 +54,7 @@ GO(av_bprint_init_for_buffer, vFppu)
 GO(av_bprint_strftime, vFppp)
 GO(av_buffer_alloc, pFL)
 GO(av_buffer_allocz, pFL)
-//GOM(av_buffer_create, pFEpLppi)
+GOM(av_buffer_create, pFEpippi)
 GO(av_buffer_default_free, vFpp)
 GO(av_buffer_get_opaque, pFp)
 GO(av_buffer_get_ref_count, iFp)
@@ -62,7 +62,7 @@ GO(av_buffer_is_writable, iFp)
 GO(av_buffer_make_writable, iFp)
 GO(av_buffer_pool_buffer_get_opaque, pFp)
 GO(av_buffer_pool_get, pFp)
-//GOM(av_buffer_pool_init, pFELp)
+GOM(av_buffer_pool_init, pFEip)
 //GOM(av_buffer_pool_init2, pFELppp)
 GO(av_buffer_pool_uninit, vFp)
 GO(av_buffer_realloc, iFpL)
@@ -143,7 +143,7 @@ GO(av_expr_count_func, iFppii)
 GO(av_expr_count_vars, iFppi)
 GO(av_expr_eval, dFppp)
 GO(av_expr_free, vFp)
-//GOM(av_expr_parse, iFEpppppppip)
+GOM(av_expr_parse, iFEpppppppip)
 //GOM(av_expr_parse_and_eval, iFEpppppppppip)
 GO(av_fast_malloc, vFppL)
 GO(av_fast_mallocz, vFppL)
@@ -222,15 +222,15 @@ GO(av_get_alt_sample_fmt, iFii)
 GO(av_get_bits_per_pixel, iFp)
 GO(av_get_bytes_per_sample, iFi)
 //GO(av_get_channel_description, 
-//GO(av_get_channel_layout, 
-//GO(av_get_channel_layout_channel_index, 
-//GO(av_get_channel_layout_nb_channels, 
-//GO(av_get_channel_layout_string, 
-//GO(av_get_channel_name, 
+GO(av_get_channel_layout, UFp)
+GO(av_get_channel_layout_channel_index, iFUU)
+GO(av_get_channel_layout_nb_channels, iFU)
+GO(av_get_channel_layout_string, vFpiiU)
+GO(av_get_channel_name, pFU)
 //GO(av_get_colorspace_name, 
 GO(av_get_cpu_flags, iFv)
-//GO(av_get_default_channel_layout, 
-//GO(av_get_extended_channel_layout, 
+GO(av_get_default_channel_layout, UFi)
+GO(av_get_extended_channel_layout, iFppp)
 GO(av_get_known_color_name, pFip)
 GO(av_get_media_type_string, pFi)
 GO(av_get_packed_sample_fmt, iFi)
@@ -307,7 +307,7 @@ GO(av_image_get_linesize, iFiii)
 GO(av_int_list_length_for_size, uFupU)
 GO(av_lfg_init, vFpu)
 GO(av_lfg_init_from_data, iFppu)
-//GOM(av_log, vFEpipV)
+GOM(av_log, vFEpipV)
 GO(av_log2, iFu)
 GO(av_log2_16bit, iFu)
 //GO(av_log2_i, 
@@ -322,9 +322,11 @@ GO(av_log_set_flags, vFi)
 GO(av_log_set_level, vFi)
 //GO(av_lzo1x_decode, 
 GO(av_malloc, pFL)
+GOM(av_malloc_tracked, pFEl)
 GO(av_malloc_array, pFLL)
 GO(av_mallocz, pFL)
-//GO(av_mallocz_array, 
+GOM(av_mallocz_tracked, pFEL)   // not wlways defined
+GO(av_mallocz_array, pFLL)
 GO(av_mastering_display_metadata_alloc, pFv)
 GO(av_mastering_display_metadata_create_side_data, pFp)
 GO(av_match_list, iFppc)
@@ -422,10 +424,10 @@ GO(av_pix_fmt_swap_endianness, iFi)
 //GO(avpriv_report_missing_feature, 
 //GO(avpriv_request_sample, 
 //GO(avpriv_scalarproduct_float_c, 
-//GO(avpriv_set_systematic_pal2, 
-//GO(avpriv_slicethread_create, 
-//GO(avpriv_slicethread_execute, 
-//GO(avpriv_slicethread_free, 
+GO(avpriv_set_systematic_pal2, iFpu)
+GOM(avpriv_slicethread_create, iFEppppi)
+GO(avpriv_slicethread_execute, vFpii)
+GO(avpriv_slicethread_free, vFp)
 //GO(avpriv_solve_lls, 
 //GO(avpriv_tempfile, 
 //DATA(avpriv_vga16_font, 
@@ -438,12 +440,13 @@ GO(av_read_image_line2, vFppppiiiiii)
 GO(av_realloc, pFpL)
 GO(av_realloc_array, pFpLL)
 GO(av_realloc_f, pFpLL)
+GOM(av_realloc_tracked, pFEpL)  //not always defined
 GO(av_reallocp, iFpL)
 GO(av_reallocp_array, iFpLL)
 GO(av_reduce, iFppIII)
 GO(av_rescale, IFIII)
 //GO(av_rescale_delta, 
-//GO(av_rescale_q, 
+GO(av_rescale_q, IFIUU)    // Both U are AVRationnal: struct with 2 ints
 GO(av_rescale_q_rnd, IFIUUu)    // Both U are AVRationnal: struct with 2 ints
 GO(av_rescale_rnd, IFIIIu)
 GO(av_ripemd_alloc, pFv)
@@ -488,7 +491,7 @@ GO(av_strireplace, pFppp)
 GO(av_stristart, iFppp)
 GO(av_stristr, pFpp)
 GO(av_strlcat, LFppL)
-//GOM(av_strlcatf, LFEpLpV)
+GOM(av_strlcatf, LFEpLpV)
 GO(av_strlcpy, LFppL)
 GO(av_strncasecmp, iFppL)
 GO(av_strndup, pFpL)
@@ -542,7 +545,7 @@ GO(avutil_configuration, pFv)
 DATA(av_util_ffversion, 8) // Warning: failed to confirm
 GO(avutil_license, pFv)
 GO(avutil_version, uFv)
-//GOM(av_vbprintf, vFEppA)
+GOM(av_vbprintf, vFEppA)
 GO(av_version_info, pFv)
 GO(av_video_enc_params_alloc, pFiup)
 GO(av_video_enc_params_create_side_data, pFpiu)

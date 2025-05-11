@@ -12,8 +12,32 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef void* (*pFl_t)(intptr_t);
+typedef void* (*pFL_t)(uintptr_t);
+typedef void* (*pFip_t)(int32_t, void*);
+typedef void* (*pFpL_t)(void*, uintptr_t);
+typedef void* (*pFpV_t)(void*, ...);
+typedef void (*vFppV_t)(void*, void*, ...);
+typedef void (*vFppA_t)(void*, void*, va_list);
+typedef void (*vFpipV_t)(void*, int32_t, void*, ...);
+typedef uintptr_t (*LFpLpV_t)(void*, uintptr_t, void*, ...);
+typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
+typedef void* (*pFpippi_t)(void*, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFpppppppip_t)(void*, void*, void*, void*, void*, void*, void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(av_log_set_callback, vFp_t)
+	GO(av_log_set_callback, vFp_t) \
+	GO(av_malloc_tracked, pFl_t) \
+	GO(av_mallocz_tracked, pFL_t) \
+	GO(av_buffer_pool_init, pFip_t) \
+	GO(av_realloc_tracked, pFpL_t) \
+	GO(av_asprintf, pFpV_t) \
+	GO(av_bprintf, vFppV_t) \
+	GO(av_vbprintf, vFppA_t) \
+	GO(av_log, vFpipV_t) \
+	GO(av_strlcatf, LFpLpV_t) \
+	GO(avpriv_slicethread_create, iFppppi_t) \
+	GO(av_buffer_create, pFpippi_t) \
+	GO(av_expr_parse, iFpppppppip_t)
 
 #endif // __wrappedlibavutil56TYPES_H_
