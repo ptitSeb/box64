@@ -70,6 +70,7 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
