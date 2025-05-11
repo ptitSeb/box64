@@ -259,9 +259,9 @@ To have a trace enabled build (***the interpreter will be slightly slower***), a
 
 #### Build DynaRec
 
-Add `-D ARM_DYNAREC=ON` option to enable DynaRec on ARM machines.
-Add `-D RV64_DYNAREC=ON` option to enable DynaRec on RV64 machines.
-Add `-D LARCH64_DYNAREC=ON` option to enable DynaRec on LARCH64 machines.
+Add `-D ARM_DYNAREC=ON` option to enable DynaRec on ARM machines.  
+Add `-D RV64_DYNAREC=ON` option to enable DynaRec on RV64 machines.  
+Add `-D LARCH64_DYNAREC=ON` option to enable DynaRec on LARCH64 machines.  
 
 #### Save memory at run time
 
