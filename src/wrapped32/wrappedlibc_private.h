@@ -1432,7 +1432,7 @@ GO(rewinddir, vEp)
 // rexec
 // rexec_af
 // rexecoptions // type B
-//GOW(rindex, pEpi)
+GOW(rindex, pEpi)
 GOW(rmdir, iEp)
 GO(readdir64_r, iEppBp_)
 // rpc_createerr    // type B
