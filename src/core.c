@@ -1023,6 +1023,12 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             // check if it exist
             if(FileExist(tmp, 0)) {
                 box64_custom_gstreamer = box_strdup(tmp);
+            } else {
+                *pp = '\0';
+                strcat(tmp, "/../lib/x86_64-linux-gnu/gstreamer-1.0");
+                if(FileExist(tmp, 0)) {
+                   box64_custom_gstreamer = box_strdup(tmp);
+                }
             }
         }
         // Try to get the name of the exe being run, to ApplyEnvFileEntry laters
