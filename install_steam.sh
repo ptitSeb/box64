@@ -22,6 +22,12 @@ echo '#!/bin/bash
 export STEAMOS=1
 export STEAM_RUNTIME=1
 export DBUS_FATAL_WARNINGS=0
+
+# Attempt to prioritize native aarch64 libraries for Box64/Box32 themselves
+# and ensure native Vulkan ICDs are found.
+export LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH}"
+export VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json:/usr/share/vulkan/icd.d/lvp_icd.aarch64.json${VK_ICD_FILENAMES:+:}${VK_ICD_FILENAMES}"
+
 ~/steam/bin/steam $@' > steam
 
 # make script executable and move
