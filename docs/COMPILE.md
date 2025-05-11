@@ -257,9 +257,11 @@ Add `-DCMAKE_BUILD_TYPE=RelWithDebInfo` option for an optimized build with debug
 
 To have a trace enabled build (***the interpreter will be slightly slower***), add `-DHAVE_TRACE=1`. You will need the [Zydis library](https://github.com/zyantific/zydis) in your `LD_LIBRARY_PATH` or in the system library folders at runtime to get x86 trace. Use version v3.2.1, as later versions have changed the API and no longer work with box64.
 
-#### Build ARM DynaRec
+#### Build DynaRec
 
-Add `-DARM_DYNAREC=1` option to enable DynaRec on ARM machines.
+Add `-D ARM_DYNAREC=ON` option to enable DynaRec on ARM machines.
+Add `-D RV64_DYNAREC=ON` option to enable DynaRec on RV64 machines.
+Add `-D LARCH64_DYNAREC=ON` option to enable DynaRec on LARCH64 machines.
 
 #### Save memory at run time
 
