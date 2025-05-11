@@ -21,8 +21,14 @@
     STRING(NAME, name)
 */
 
+#ifdef _WIN32
+#define DEFAULT_LOG_LEVEL (LOG_INFO)
+#define BOX64_NOBANNER_DEFAULT (1)
+#else
 extern char* ftrace_name;
 #define DEFAULT_LOG_LEVEL (ftrace_name ? LOG_INFO : (isatty(fileno(stdout)) ? LOG_INFO : LOG_NONE))
+#define BOX64_NOBANNER_DEFAULT (isatty(fileno(stdout)) ? 0 : 1)
+#endif
 
 #define ENVSUPER1()                                                        \
     STRING(BOX64_ADDLIBS, addlibs)                                         \
@@ -83,7 +89,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3)                       \
     INTEGER(BOX64_MALLOC_HACK, malloc_hack, 0, 0, 2)                       \
     INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100)                           \
-    BOOLEAN(BOX64_NOBANNER, nobanner, (isatty(fileno(stdout)) ? 0 : 1))    \
+    BOOLEAN(BOX64_NOBANNER, nobanner, BOX64_NOBANNER_DEFAULT)    \
     STRING(BOX64_NODYNAREC, nodynarec)                                     \
     BOOLEAN(BOX64_NOGTK, nogtk, 0)                                         \
     BOOLEAN(BOX64_NOPULSE, nopulse, 0)                                     \

@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <windows.h>
 #include <ntstatus.h>
+#include <winternl.h>
 #include <winnt.h>
 
+#include "compiler.h"
 #include "os.h"
 #include "custommem.h"
 #include "env.h"
@@ -19,11 +21,6 @@ uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 
-box64env_t box64env = { 0 }; // FIXME: add real env support.
-
-box64env_t* GetCurEnvByAddr(uintptr_t addr) {
-    return &box64env;
-}
 
 int is_addr_unaligned(uintptr_t addr)
 {
@@ -81,8 +78,7 @@ void* WINAPI __wine_get_unix_opcode(void)
 
 NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
-    // NYI
-    return STATUS_SUCCESS;
+    return NtQueryInformationThread( thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL );
 }
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
@@ -115,8 +111,7 @@ NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 
 NTSTATUS WINAPI BTCpuSetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
-    // NYI
-    return STATUS_SUCCESS;
+    return NtSetInformationThread( thread, ThreadWow64Context, ctx, sizeof(*ctx) );
 }
 
 void WINAPI BTCpuSimulate(void)

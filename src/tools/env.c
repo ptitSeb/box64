@@ -2,8 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#ifndef _WIN32
 #include <sys/mman.h>
 #include <sys/stat.h>
+#else
+#include <winternl.h>
+#endif
 #include <fcntl.h>
 #include <string.h>
 
@@ -73,6 +77,7 @@ static const char default_rcfile[] =
 
 static void addNewEnvVar(const char* s)
 {
+#ifndef _WIN32
     if (!s) return;
     char* p = box_strdup(s);
     char* e = strchr(p, '=');
@@ -85,6 +90,7 @@ static void addNewEnvVar(const char* s)
     ++e;
     setenv(p, e, 1);
     box_free(p);
+#endif
 }
 
 static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
@@ -106,6 +112,7 @@ static void applyCustomRules()
         SET_BOX64ENV(dump, 1);
     }
 
+#ifndef _WIN32
     if(box64env.is_cycle_log_overridden) {
         freeCycleLog(my_context);
         box64env.rolling_log = BOX64ENV(cycle_log);
@@ -158,6 +165,7 @@ static void applyCustomRules()
 
     if (box64env.is_dynarec_dump_range_overridden)
         parseRange(box64env.dynarec_dump_range, &box64env.dynarec_dump_range_start, &box64env.dynarec_dump_range_end);
+#endif
 
     if (box64env.dynarec_test) {
         SET_BOX64ENV(dynarec_fastnan, 0);
@@ -175,6 +183,7 @@ static void applyCustomRules()
         box64env.maxcpu = box64env.new_maxcpu;
     }
 
+#ifndef _WIN32
     if (box64env.dynarec_perf_map) {
         char pathname[32];
         snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
@@ -187,12 +196,16 @@ static void applyCustomRules()
         const char *p = getenv("SDL_VIDEO_GL_DRIVER");
         if(p) SET_BOX64ENV(libgl, box_strdup(p));
     }
+#endif
+
     if (box64env.avx == 2) {
         box64env.avx = 1;
         box64env.avx2 = 1;
     }
 
+#ifndef _WIN32
     if (box64env.exit) exit(0);
+#endif
 
     if (box64env.env) addNewEnvVar(box64env.env);
     if (box64env.env1) addNewEnvVar(box64env.env1);
@@ -201,7 +214,9 @@ static void applyCustomRules()
     if (box64env.env4) addNewEnvVar(box64env.env4);
     if (box64env.env5) addNewEnvVar(box64env.env5);
 
+#ifndef _WIN32
     if (box64env.addlibs) AddNewLibs(box64env.addlibs);
+#endif
 }
 
 static void trimStringInplace(char* s)
@@ -259,6 +274,7 @@ static void initializeEnvFile(const char* filename)
 {
     if (box64env.noenvfiles) return;
 
+#ifndef _WIN32
     FILE* f = NULL;
     if (filename) 
         f = fopen(filename, "r");
@@ -381,11 +397,13 @@ static void initializeEnvFile(const char* filename)
     }
     box_free(line);
     fclose(f);
+#endif
 }
 
 
 void InitializeEnvFiles()
 {
+#ifndef _WIN32
     if (BOX64ENV(envfile) && FileExist(BOX64ENV(envfile), IS_FILE))
         initializeEnvFile(BOX64ENV(envfile));
 #ifndef TERMUX
@@ -409,6 +427,7 @@ void InitializeEnvFiles()
             initializeEnvFile(tmp);
         }
     }
+#endif
 }
 
 static char old_entryname[256] = "";
@@ -458,6 +477,7 @@ static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* e
 
 void ApplyEnvFileEntry(const char* entryname)
 {
+#ifndef _WIN32
     if (!entryname || !box64env_entries) return;
     if (!strcasecmp(entryname, old_entryname)) return;
 
@@ -480,6 +500,7 @@ void ApplyEnvFileEntry(const char* entryname)
     box64env_t* env = &kh_value(box64env_entries, k1);
     internalApplyEnvFileEntry(entryname, env);
     applyCustomRules();
+#endif
 }
 
 void LoadEnvVariables()
@@ -496,6 +517,7 @@ void LoadEnvVariables()
 #undef ADDRESS
 #undef STRING
 
+#ifndef _WIN32
     char* p;
     // load env vars from getenv()
 #define INTEGER(NAME, name, default, min, max)            \
@@ -544,6 +566,61 @@ void LoadEnvVariables()
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
+#else /* _WIN32 */
+    char buffer[1024];
+    DWORD len;
+    // load env vars from getenv()
+#define INTEGER(NAME, name, default, min, max)                      \
+    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
+    if (len) {                                                      \
+        box64env.name = atoi(buffer);                               \
+        if (box64env.name < min || box64env.name > max) {           \
+            box64env.name = default;                                \
+        } else {                                                    \
+            box64env.is_##name##_overridden = 1;                    \
+            box64env.is_any_overridden = 1;                         \
+        }                                                           \
+    }
+#define INTEGER64(NAME, name, default)                              \
+    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
+    if (len) {                                                      \
+        ULONG tmp; /* FIXME: only positive 32-bit */                \
+        RtlCharToInteger(buffer, 10, &tmp);                         \
+        box64env.name = tmp;                                        \
+        box64env.is_##name##_overridden = 1;                        \
+        box64env.is_any_overridden = 1;                             \
+    }
+#define BOOLEAN(NAME, name, default)                                \
+    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
+    if (len) {                                                      \
+        box64env.name = buffer[0] != '0';                           \
+        box64env.is_##name##_overridden = 1;                        \
+        box64env.is_any_overridden = 1;                             \
+    }
+#define ADDRESS(NAME, name)                                         \
+    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
+    if (len) {                                                      \
+        ULONG tmp; /* FIXME: only positive 32-bit */                \
+        RtlCharToInteger(buffer, 10, &tmp);                         \
+        box64env.name = (uintptr_t)tmp;                             \
+        box64env.is_##name##_overridden = 1;                        \
+        box64env.is_any_overridden = 1;                             \
+    }
+#define STRING(NAME, name)                                                      \
+    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));               \
+    if (len) {                                                                  \
+        box64env.name = (char*)RtlAllocateHeap(GetProcessHeap(), 0, len + 1);   \
+        if (box64env.name) strcpy(box64env.name, buffer);                       \
+        box64env.is_##name##_overridden = 1;                                    \
+        box64env.is_any_overridden = 1;                                         \
+    }
+    ENVSUPER()
+#undef INTEGER
+#undef INTEGER64
+#undef BOOLEAN
+#undef ADDRESS
+#undef STRING
+#endif /* _WIN32 */
     applyCustomRules();
 }
 
@@ -595,6 +672,7 @@ static kh_mapping_entry_t* mapping_entries = NULL;
 
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 {
+#ifndef _WIN32
     if (!envmap) { envmap = rbtree_init("envmap"); }
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
@@ -642,6 +720,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         PrintEnvVariables(mapping->env, LOG_DEBUG);
     }
     box_free(lowercase_filename);
+#endif
 }
 
 void RemoveMapping(uintptr_t addr, size_t length)

@@ -188,3 +188,8 @@ void free(void* ptr)
 {
     RtlFreeHeap(myGetProcessHeap(), 0, ptr);
 }
+
+int VolatileRangesContains(uintptr_t addr)
+{
+    return 0;
+}
