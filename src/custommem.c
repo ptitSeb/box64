@@ -2223,6 +2223,7 @@ void init_custommem_helper(box64context_t* ctx)
     inited = 1;
 
     cur_brk = dlsym(RTLD_NEXT, "__curbrk");
+    init_mutexes();
     blockstree = rbtree_init("blockstree");
     // if there is some blocks already
     if(n_blocks)
@@ -2230,7 +2231,6 @@ void init_custommem_helper(box64context_t* ctx)
             rb_set(blockstree, (uintptr_t)p_blocks[i].block, (uintptr_t)p_blocks[i].block+p_blocks[i].size, i);
     memprot = rbtree_init("memprot");
     sigfillset(&critical_prot);
-    init_mutexes();
 #ifdef DYNAREC
     if(BOX64ENV(dynarec)) {
         #ifdef JMPTABL_SHIFT4
