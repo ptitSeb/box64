@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC]
+        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC, WOW64]
         type: [Release, Trace, StaticBuild, Box32]
         os: [ubuntu-latest, ubuntu-22.04-arm]
         exclude:
@@ -57,6 +57,14 @@ jobs:
             os: ubuntu-22.04-arm
           - platform: ANDROID_GLIBC
             os: ubuntu-latest
+          - platform: WOW64
+            os: ubuntu-latest
+          - platform: WOW64
+            type: Trace
+          - platform: WOW64
+            type: StaticBuild
+          - platform: WOW64
+            type: Box32
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -82,6 +90,14 @@ jobs:
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-DARM64=1 -DWINLATOR_GLIBC=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+            elif [[ ${{ matrix.platform }} == 'WOW64' ]]; then
+              sudo apt-get -y install git gcc-aarch64-linux-gnu
+              echo "BOX64_PLATFORM_MARCRO=-DWOW64=1 -DARM_DYNAREC=1" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+              export LLVM_MINGW_VERSION=20250430
+              wget -q https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
+              tar -xf llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
+              echo "MINGW_COMPILER_PATH=$PWD/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64/bin" >> $GITHUB_ENV
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
@@ -193,6 +209,7 @@ jobs:
 
       - name: "Build Box64"
         run: |
+          export PATH=$PATH:${{ env.MINGW_COMPILER_PATH }}
           mkdir build
           cd build
           cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }}\
