@@ -29,8 +29,9 @@ typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 
 #include "generated/wrappedvulkantypes.h"
 
+// track current instance and device.
 #define ADDED_STRUCT()                              \
-    void* currentInstance;  // track current instance. If using multiple instance, that will be a mess!
+    void* currentInstance;
 
 #define ADDED_SUPER 1
 #include "wrappercallback.h"
@@ -91,12 +92,15 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
     printf_dlsym(LOG_DEBUG, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
+    // not caching Device functions
+    /*
     symbol1_t* s = getWrappedSymbol(emu, rname, 0);
     if(s && s->resolved) {
         void* ret = (void*)s->addr;
         printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
         return ret;
     }
+    */
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
     void* symbol = my->vkGetDeviceProcAddr(device, name);
@@ -127,6 +131,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
     if(instance!=my->currentInstance) {
+        printf_dlsym(LOG_DEBUG, "(switch instance from %p to %p) ", my->currentInstance, instance);
         my->currentInstance = instance;
         updateInstance(emu, my);
     }
