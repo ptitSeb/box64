@@ -19,6 +19,7 @@
 
 const char* openclName = "libOpenCL.so.1";
 #define LIBNAME opencl
+#define ALTNAME "libOpenCL.so"
 
 #include "generated/wrappedopencltypes.h"
 
