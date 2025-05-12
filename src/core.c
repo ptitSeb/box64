@@ -192,30 +192,33 @@ void openFTrace(int reopen)
     }
 }
 
+static void check_ftrace()
+{
+    int fd = fileno(ftrace);
+    if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1) {
+        ftrace=fopen(ftrace_name, "a");
+        printf_log(LOG_INFO, "%04d|Recreated trace because fd was invalid\n", GetTID());
+    }
+}
 void printf_ftrace(int prefix, const char* fmt, ...)
 {
     if(ftrace_name) {
-        int fd = fileno(ftrace);
-        if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1) {
-            ftrace=fopen(ftrace_name, "a");
-            printf_log(LOG_INFO, "%04d|Recreated trace because fd was invalid\n", GetTID());
-        }
+        check_ftrace();
     }
 
-    va_list args;
-    va_start(args, fmt);
+    static const char* names[2] = {"BOX64", "BOX32"};
+
     if (prefix && ftrace == stdout) {
         if (prefix > 1) {
-            fprintf(ftrace, "[\033[31m%s\033[0m] ",
-                box64_is32bits ? "BOX32" : "BOX64");
+            fprintf(ftrace, "[\033[31m%s\033[0m] ", names[box64_is32bits]);
         } else {
-            fprintf(ftrace, box64_is32bits ? "[BOX32] " : "[BOX64] ");
+            fprintf(ftrace, "[%s] ", names[box64_is32bits]);
         }
     }
+    va_list args;
+    va_start(args, fmt);
     vfprintf(ftrace, fmt, args);
-
     fflush(ftrace);
-
     va_end(args);
 }
 
