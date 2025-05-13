@@ -1019,6 +1019,46 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             VXOR_VI(v0, v0, 0x1F, VECTOR_MASKED);
             break;
+        case 0xC4:
+            INST_NAME("PINSRW Gm, Ed, Ib");
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            if (MODREG) {
+                u8 = (F8) & 3;
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 1);
+                u8 = (F8) & 3;
+                LHU(x4, ed, fixedaddress);
+                ed = x4;
+            }
+            VECTOR_LOAD_VMASK((1 << u8), x5, 1);
+            v0 = fpu_get_scratch(dyn);
+            VMERGE_VXM(v0, q0, ed); // uses VMASK
+            VMV_V_V(q0, v0);
+            break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd, Em, Ib");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETEM_vector(q0, 1);
+                u8 = (F8) & 3;
+                v0 = fpu_get_scratch(dyn);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                VSLIDEDOWN_VI(v0, q0, u8, VECTOR_UNMASKED);
+                VMV_X_S(gd, v0);
+                ZEXTH(gd, gd);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+                u8 = (F8) & 3;
+                LHU(gd, ed, u8 * 2);
+            }
+            break;
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
@@ -1372,7 +1412,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x7E:
         case 0x80 ... 0xBF:
         case 0xC0 ... 0xC1:
-        case 0xC3 ... 0xC5:
+        case 0xC3:
         case 0xC7 ... 0xCF:
             return 0;
         default:
