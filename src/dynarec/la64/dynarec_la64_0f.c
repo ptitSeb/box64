@@ -460,7 +460,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VADD_H(q0, v1, v0);
                     VSHUF4I_W(q0, q0, 0b11011000);
                     break;
-                case 0x2:
+                case 0x02:
                     INST_NAME("PHADDD Gm, Em");
                     nextop = F8;
                     GETGM(q0);
