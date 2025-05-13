@@ -496,7 +496,7 @@ Show last few wrapped function call when a signal is caught.
 
  * 0: Does nothing. [Default]
  * 1: Show last 16 wrapped function call when a signal is caught. 
- * XXX: Show last XXX wrapped function call when a signal is caught. 
+ * XXXX: Show last XXXX wrapped function call when a signal is caught. 
 
 ### BOX64_SHOWBT
 

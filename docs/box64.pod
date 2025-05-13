@@ -626,13 +626,13 @@ Reserve high memory area for the program, always enabled on Box32.
  * 1 : Reserve high memory area for the program. 
 
 
-=item B<BOX64_ROLLING_LOG> =I<0|1|XXX>
+=item B<BOX64_ROLLING_LOG> =I<0|1|XXXX>
 
 Show last few wrapped function call when a signal is caught.
 
  * 0 : Does nothing. [Default]
  * 1 : Show last 16 wrapped function call when a signal is caught. 
- * XXX : Show last XXX wrapped function call when a signal is caught. 
+ * XXXX : Show last XXXX wrapped function call when a signal is caught. 
 
 
 =item B<BOX64_SDL2_JGUID> =I<0|1>
