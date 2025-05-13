@@ -293,6 +293,21 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x38:
             nextop = F8;
             switch (nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gm, Em");
+                    nextop = F8;
+                    GETGM_vector(q0);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETEM_vector(q1, 0);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    ADDI(x4, xZR, 0b000010000111);
+                    VMV_V_X(v0, x4); // broadcast the mask
+                    VAND_VV(v0, q1, v0, VECTOR_UNMASKED);
+                    VRGATHER_VV(v1, q0, v0, VECTOR_UNMASKED); // registers cannot be overlapped!!
+                    VMV_V_V(q0, v1);
+                    break;
                 case 0x01:
                     INST_NAME("PHADDW Gm, Em");
                     nextop = F8;
@@ -412,6 +427,55 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED);
                     VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
                     VSSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
+                    break;
+                case 0x08 ... 0x0A:
+                    if (nextop == 0x08) {
+                        INST_NAME("PSIGNB Gm, Em");
+                        i32 = 7;
+                        nextop = F8;
+                        GETGM_vector(q0);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                        GETEM_vector(q1, 0);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    } else if (nextop == 0x09) {
+                        INST_NAME("PSIGNW Gm, Em");
+                        i32 = 15;
+                        nextop = F8;
+                        GETGM_vector(q0);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                        GETEM_vector(q1, 0);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    } else {
+                        INST_NAME("PSIGND Gm, Em");
+                        i32 = 31;
+                        nextop = F8;
+                        GETGM_vector(q0);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                        GETEM_vector(q1, 0);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    }
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                    VRSUB_VX(q0, q0, xZR, VECTOR_MASKED);
+                    VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                    VXOR_VV(q0, q0, q0, VECTOR_MASKED);
+                    break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gm, Em");
+                    nextop = F8;
+                    GETGM_vector(q0);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETEM_vector(q1, 0);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    fpu_get_scratch(dyn);
+                    VWMUL_VV(v0, q1, q0, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                    VSRL_VI(v0, v0, 14, VECTOR_UNMASKED);
+                    VADD_VI(v0, v0, 1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
                     break;
                 default:
                     DEFAULT;
