@@ -1290,8 +1290,8 @@
         "default": false
       },
       {
-        "key": "XXX",
-        "description": "Show last XXX wrapped function call when a signal is caught.",
+        "key": "XXXX",
+        "description": "Show last XXXX wrapped function call when a signal is caught.",
         "default": false
       }
     ]
