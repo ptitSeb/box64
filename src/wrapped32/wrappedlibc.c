@@ -633,7 +633,7 @@ int EXPORT my32_uname(struct utsname *buf)
 #define X86_O_NONBLOCK     0x800    // octal    04000
 #define X86_O_SYNC         0x101000 // octal 04010000
 #define X86_O_DSYNC        0x1000   // octal   010000
-#define X86_O_RSYNC        O_SYNC
+#define X86_O_RSYNC        X86_O_SYNC
 #define X86_FASYNC         020000
 #define X86_O_DIRECT       040000
 #define X86_O_LARGEFILE    0100000
@@ -695,7 +695,10 @@ int of_unconvert32(int a)
     #define GO(A) if((a&A)==A) {a&=~A; b|=X86_##A;}
     SUPER();
     #undef GO
-    if(a) {
+    int missing = 0;
+    if(!O_NOFOLLOW) missing |= X86_O_NOFOLLOW;
+    if(!O_LARGEFILE) missing |= X86_O_LARGEFILE;
+    if(a && (a&~missing)) {
         printf_log(LOG_NONE, "Warning, of_unconvert32(...) left over 0x%x, converted 0x%x\n", a, b);
     }
     return a|b;
