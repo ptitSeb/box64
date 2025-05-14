@@ -73,6 +73,15 @@ Arguments to pass to the guest program, only valid if there is no existing argum
  * XXXX YYYY ZZZZ : Pass arguments XXXX, YYYY and ZZZZ to the guest program. 
 
 
+=item B<BOX64_AVX> =I<0|1|2>
+
+Expose AVX extension to CPUID and cpuinfo file.
+
+ * 0 : Do not expose AVX capabilities. 
+ * 1 : Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file. 
+ * 2 : All in 1, plus AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND extensions. 
+
+
 =item B<BOX64_BASH> =I<XXXX>
 
 Path to the bash executable.
@@ -126,6 +135,14 @@ Dump elfloader debug information.
 
  * 0 : Do not dump elfloader debug information. [Default]
  * 1 : Dump elfloader debug information. 
+
+
+=item B<BOX64_DYNAREC> =I<0|1>
+
+Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1 if it's enabled in the build options for a supported architecture.
+
+ * 0 : Disable DynaRec. 
+ * 1 : Enable DynaRec. 
 
 
 =item B<BOX64_DYNAREC_ALIGNED_ATOMICS> =I<0|1>
@@ -484,9 +501,9 @@ Set the address where the program is loaded, only active for PIE guest programs.
 
 =item B<BOX64_LOG> =I<0|1|2|3>
 
-Enable or disable Box64 logs.
+Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 otherwise.
 
- * 0 : Disable Box64 logs. [Default]
+ * 0 : Disable Box64 logs. 
  * 1 : Enable minimal Box64 logs. 
  * 2 : Enable debug level Box64 logs. 
  * 3 : Enable verbose level Box64 logs. 
@@ -509,11 +526,19 @@ Maximum CPU cores exposed.
  * XXXX : Use XXXX CPU cores. 
 
 
+=item B<BOX64_MMAP32> =I<0|1>
+
+Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.
+
+ * 0 : Do not force 32-bit memory mappings. 
+ * 1 : Force 32-bit memory mappings. [Default]
+
+
 =item B<BOX64_NOBANNER> =I<0|1>
 
 Disable the Box64 banner.
 
- * 0 : Show the Box64 banner. [Default]
+ * 0 : Show the Box64 banner. 
  * 1 : Do not show the Box64 banner. 
 
 
