@@ -653,12 +653,12 @@
       {
         "key": "0",
         "description": "Do not use volatile metadata.",
-        "default": true
+        "default": false
       },
       {
         "key": "1",
         "description": "Use volatile metadata, which will guide Box64 for better strong memory emulation.",
-        "default": false
+        "default": true
       }
     ]
   },

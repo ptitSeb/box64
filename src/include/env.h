@@ -64,7 +64,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_TBB, dynarec_tbb, 1)                             \
     STRING(BOX64_DYNAREC_TEST, dynarec_test_str)                           \
     BOOLEAN(BOX64_DYNAREC_TRACE, dynarec_trace, 0)                         \
-    BOOLEAN(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 0) \
+    BOOLEAN(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1) \
     BOOLEAN(BOX64_DYNAREC_WAIT, dynarec_wait, 1)                           \
     INTEGER(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 1, 0, 2)       \
     INTEGER(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 0, 0, 2)           \

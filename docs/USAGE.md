@@ -666,8 +666,8 @@ Enable the emulation of x86 strong memory model.
 
 Use volatile metadata parsed from PE files, only valid for 64bit Windows games.
 
- * 0: Do not use volatile metadata. [Default]
- * 1: Use volatile metadata, which will guide Box64 for better strong memory emulation. 
+ * 0: Do not use volatile metadata. 
+ * 1: Use volatile metadata, which will guide Box64 for better strong memory emulation. [Default]
 
 ### BOX64_DYNAREC_WAIT
 
