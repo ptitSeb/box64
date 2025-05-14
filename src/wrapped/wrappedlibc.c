@@ -652,9 +652,13 @@ int of_unconvert(int a)
     SUPER();
     #undef GO
     int missing = 0;
-    if(!O_NOFOLLOW) missing |= X86_O_NOFOLLOW;
+    #ifdef ARM64
+    if(!O_LARGEFILE) {
+        if((a&(0400000))==(0400000)) {a&=~(0400000); b|=(X86_O_LARGEFILE);}
+    }
+    #else
     if(!O_LARGEFILE) missing |= X86_O_LARGEFILE;
-    // flags 0x20000 unknown?!
+    #endif
     if(a && (a&~missing)) {
         printf_log(LOG_NONE, "Warning, of_unconvert(...) left over 0x%x, converted 0x%x\n", a, b);
     }
