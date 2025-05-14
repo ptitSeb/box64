@@ -143,19 +143,10 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC, dynarec, 0)
 #endif
 
-#ifdef BAD_SIGNAL
-#define ENVSUPER4() \
-    BOOLEAN(BOX64_FUTEX_WAITV, futex_waitv, 0)
-#else
-#define ENVSUPER4() \
-    BOOLEAN(BOX64_FUTEX_WAITV, futex_waitv, 1)
-#endif
-
 #define ENVSUPER() \
     ENVSUPER1()    \
     ENVSUPER2()    \
-    ENVSUPER3()    \
-    ENVSUPER4()
+    ENVSUPER3()
 
 typedef struct box64env_s {
 #define INTEGER(NAME, name, default, min, max) int name;
