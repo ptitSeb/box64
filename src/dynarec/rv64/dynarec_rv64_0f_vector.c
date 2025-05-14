@@ -478,7 +478,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
                     break;
                 default:
-                    DEFAULT;
+                    DEFAULT_VECTOR;
             }
             break;
         case 0x50:
