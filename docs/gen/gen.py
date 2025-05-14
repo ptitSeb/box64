@@ -186,19 +186,21 @@ with open(env_file, "r") as file:
 
                 if t not in matches:
                     matches[t] = {}
-                matches[t][m.group("define")] = m
-                break
+                if (m.group("define") in matches[t]):
+                    # multiple definitions, no default
+                    matches[t][m.group("define")]['no_default'] = True
+                    break
+                matches[t][m.group("define")] = m.groupdict()
+                matches[t][m.group("define")]['no_default'] = False
 
 for define, m in matches["INTEGER"].items():
-    name = m.group("name")
-    default = (
-        0 if m.group("default") == "DEFAULT_LOG_LEVEL" else int(m.group("default"))
-    )
-    min = int(m.group("min"))
-    max = int(m.group("max"))
+    name = m["name"]
+    default = None if m["no_default"] or not m["default"].isdigit() else int(m["default"])
+    min = int(m["min"])
+    max = int(m["max"])
 
     # Check default in valid range
-    if default < min or default > max:
+    if default and (default < min or default > max):
         print(f"{define:<{PADDING}}: default lays outside of min/max range")
 
     # Check consistency with usage.json
@@ -231,15 +233,15 @@ for define, m in matches["INTEGER"].items():
                 print(
                     f"{define:<{PADDING}}: max value mismatch: env.h={max}, usage.json={max2}{(' (possible false positive)' if blank else '')}"
                 )
-        if default2 and default2 != default:
+        if default2 != default:
             print(
                 f"{define:<{PADDING}}: default value mismatch: env.h={default}, usage.json={default2}"
             )
 
 for define, m in matches["INTEGER64"].items():
     # similar to INTEGER but without min/max
-    name = m.group("name")
-    default = int(m.group("default"))
+    name = m["name"]
+    default = None if m["no_default"] or not m["default"].isdigit() else int(m["default"])
 
     # Check consistency with usage.json
     if e := get_usage_entry(data, define):
@@ -253,14 +255,14 @@ for define, m in matches["INTEGER64"].items():
             if o["default"]:
                 default2 = val
 
-        if default2 and default2 != default:
+        if default2 != default:
             print(
                 f"{define:<{PADDING}}: default value mismatch: env.h={default}, usage.json={default2}"
             )
 
 for define, m in matches["BOOLEAN"].items():
-    name = m.group("name")
-    default = bool(m.group("default"))
+    name = m["name"]
+    default = None if m["no_default"] or m["default"] not in ["0", "1"] else bool(m["default"])
 
     # Check consistency with usage.json
     if e := get_usage_entry(data, define):
@@ -274,7 +276,7 @@ for define, m in matches["BOOLEAN"].items():
             if o["default"]:
                 default2 = val
 
-        if default2 and default2 != default:
+        if default2 != default:
             print(
                 f"{define:<{PADDING}}: default value mismatch: env.h={default}, usage.json={default2}"
             )

@@ -40,7 +40,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_CPUTYPE, cputype, 0, 0, 1)                               \
     BOOLEAN(BOX64_CRASHHANDLER, dummy_crashhandler, 1)                     \
     BOOLEAN(BOX64_DLSYM_ERROR, dlsym_error, 0)                             \
-    INTEGER(BOX64_DUMP, dump, 0, 0, 2)                                     \
+    BOOLEAN(BOX64_DUMP, dump, 0)                                           \
     BOOLEAN(BOX64_DYNAREC_ALIGNED_ATOMICS, dynarec_aligned_atomics, 0)     \
     INTEGER(BOX64_DYNAREC_BIGBLOCK, dynarec_bigblock, 2, 0, 3)             \
     BOOLEAN(BOX64_DYNAREC_BLEEDING_EDGE, dynarec_bleeding_edge, 1)         \
@@ -89,7 +89,8 @@ extern char* ftrace_name;
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3)                       \
     INTEGER(BOX64_MALLOC_HACK, malloc_hack, 0, 0, 2)                       \
     INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100)                           \
-    BOOLEAN(BOX64_NOBANNER, nobanner, BOX64_NOBANNER_DEFAULT)    \
+    BOOLEAN(BOX64_MMAP32, mmap32, 1)                                       \
+    BOOLEAN(BOX64_NOBANNER, nobanner, BOX64_NOBANNER_DEFAULT)              \
     STRING(BOX64_NODYNAREC, nodynarec)                                     \
     BOOLEAN(BOX64_NOGTK, nogtk, 0)                                         \
     BOOLEAN(BOX64_NOPULSE, nopulse, 0)                                     \
@@ -142,28 +143,10 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC, dynarec, 0)
 #endif
 
-#ifdef BAD_SIGNAL
-#define ENVSUPER4() \
-    BOOLEAN(BOX64_FUTEX_WAITV, futex_waitv, 0)
-#else
-#define ENVSUPER4() \
-    BOOLEAN(BOX64_FUTEX_WAITV, futex_waitv, 1)
-#endif
-
-#if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
-#define ENVSUPER5() \
-    BOOLEAN(BOX64_MMAP32, mmap32, 1)
-#else
-#define ENVSUPER5() \
-    BOOLEAN(BOX64_MMAP32, mmap32, 0)
-#endif
-
 #define ENVSUPER() \
     ENVSUPER1()    \
     ENVSUPER2()    \
-    ENVSUPER3()    \
-    ENVSUPER4()    \
-    ENVSUPER5()
+    ENVSUPER3()
 
 typedef struct box64env_s {
 #define INTEGER(NAME, name, default, min, max) int name;

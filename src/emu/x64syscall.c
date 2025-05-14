@@ -870,12 +870,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #endif
         case 449:
-            #ifdef __NR_futex_waitv
-            if(BOX64ENV(futex_waitv))
-                S_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
-            else
+            #if defined(__NR_futex_waitv) && !defined(BAD_SIGNAL)
+            S_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
+            #else
+            S_RAX = -ENOSYS;
             #endif
-                S_RAX = -ENOSYS;
             break;
         default:
             printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
@@ -1156,16 +1155,12 @@ long EXPORT my_syscall(x64emu_t *emu)
             return faccessat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
         #endif
         case 449:
-            #ifdef __NR_futex_waitv
-            if(BOX64ENV(futex_waitv))
-                return syscall(__NR_futex_waitv, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
-            else
+            #if defined(__NR_futex_waitv) && !defined(BAD_SIGNAL)
+            return syscall(__NR_futex_waitv, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
+            #else
+            errno = ENOSYS;
+            return -1;
             #endif
-                {
-                    errno = ENOSYS;
-                    return -1;
-                }
-            break;
         default:
             if(!(warned&(1<<s))) {
                 printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);

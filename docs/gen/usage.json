@@ -51,6 +51,28 @@
     ]
   },
   {
+    "name": "BOX64_AVX",
+    "description": "Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise.",
+    "category": "Compatibility",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not expose AVX capabilities.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file.",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "All in 1, plus AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND extensions.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_BASH",
     "description": "Path to the bash executable.",
     "category": "Compatibility",
@@ -160,6 +182,23 @@
       {
         "key": "1",
         "description": "Dump elfloader debug information.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC",
+    "description": "Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1 if it's enabled in the build options for a supported architecture.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable DynaRec.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Enable DynaRec.",
         "default": false
       }
     ]
@@ -970,13 +1009,13 @@
   },
   {
     "name": "BOX64_LOG",
-    "description": "Enable or disable Box64 logs.",
+    "description": "Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 otherwise.",
     "category": "Debugging",
     "options": [
       {
         "key": "0",
         "description": "Disable Box64 logs.",
-        "default": true
+        "default": false
       },
       {
         "key": "1",
@@ -1035,6 +1074,23 @@
     ]
   },
   {
+    "name": "BOX64_MMAP32",
+    "description": "Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.",
+    "category": "Performance",
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not force 32-bit memory mappings.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Force 32-bit memory mappings.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "BOX64_NOBANNER",
     "description": "Disable the Box64 banner.",
     "category": "Debugging",
@@ -1042,7 +1098,7 @@
       {
         "key": "0",
         "description": "Show the Box64 banner.",
-        "default": true
+        "default": false
       },
       {
         "key": "1",
