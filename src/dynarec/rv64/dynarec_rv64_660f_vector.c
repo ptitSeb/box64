@@ -373,15 +373,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     }
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    // absolute
-                    VSRA_VI(v0, q1, i32, VECTOR_UNMASKED);
-                    VXOR_VV(v1, q0, v0, VECTOR_UNMASKED);
-                    VSUB_VV(v1, v1, v0, VECTOR_UNMASKED);
-                    // handle zeroing
-                    VMSEQ_VI(VMASK, q1, 0, VECTOR_UNMASKED);
-                    VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                    VADC_VIM(v0, v0, 0x1f); // implies VMASK
-                    VAND_VV(q0, v0, v1, VECTOR_UNMASKED);
+                    VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                    VRSUB_VX(q0, q0, xZR, VECTOR_MASKED);
+                    VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                    VXOR_VV(q0, q0, q0, VECTOR_MASKED);
                     break;
                 case 0x0B:
                     INST_NAME("PMULHRSW Gx, Ex");
