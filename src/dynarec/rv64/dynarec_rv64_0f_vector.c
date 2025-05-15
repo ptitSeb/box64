@@ -1191,10 +1191,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, u8, 1);
             SLTIU(x3, x4, i32);
             SUB(x3, xZR, x3);
-            NOT(x3, x3); // mask
             VSRL_VX(v0, v0, x4, VECTOR_UNMASKED);
-            VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
-            VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
+            VAND_VX(v0, v0, x3, VECTOR_UNMASKED);
+            break;
+        case 0xD4:
+            INST_NAME("PADDQ Gm, Em");
+            nextop = F8;
+            GETGM_vector(q0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q1, 0);
+            VADD_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xD5:
             INST_NAME("PMULLW Gm, Em");
@@ -1393,7 +1399,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 i32 = 64;
             }
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
             GETGM_vector(v0);
             if (MODREG) {
                 v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, (nextop & 7));
@@ -1407,10 +1412,19 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, u8, 1);
             SLTIU(x3, x4, i32);
             SUB(x3, xZR, x3);
-            NOT(x3, x3); // mask
             VSLL_VX(v0, v0, x4, VECTOR_UNMASKED);
-            VAND_VX(q0, v0, x3, VECTOR_UNMASKED);
-            VXOR_VV(v0, v0, q0, VECTOR_UNMASKED);
+            VAND_VX(v0, v0, x3, VECTOR_UNMASKED);
+            break;
+        case 0xF4:
+            INST_NAME("PMULUDQ Gx, Ex");
+            nextop = F8;
+            GETGM_vector(v0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(v1, 0);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VWMULU_VV(d0, v0, v1, VECTOR_UNMASKED);
+            VMV_V_V(v0, d0);
             break;
         case 0xF5:
             INST_NAME("PMADDWD Gm, Em");
