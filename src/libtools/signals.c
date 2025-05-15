@@ -2196,7 +2196,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
         x64pc = R_RIP;
     }
     #endif
-    if(BOX64ENV(showsegv)) {
+    if(BOX64ENV(showsegv) && (sig!=10 || BOX64ENV(log)>LOG_INFO)) {
         printf_log(LOG_INFO, "%04d|sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p%s", GetTID(), sig, pc, x64pc, db, db?"":"\n");
         #ifdef DYNAREC
         if(db)

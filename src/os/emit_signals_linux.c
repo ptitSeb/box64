@@ -75,7 +75,7 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
                 printf_log(LOG_INFO, "EmulatedBT: none\n");
         }
         printf_log(LOG_NONE, DumpCPURegs(emu, R_RIP, emu->segs[_CS] == 0x23));
-        printf_log(LOG_NONE, "Emu Stack: %p 0x%lx%s\n", emu->init_stack, emu->size_stack, emu->stack2free ? " owned" : "");
+        printf_log_prefix(0, LOG_NONE, "Emu Stack: %p 0x%lx%s\n", emu->init_stack, emu->size_stack, emu->stack2free ? " owned" : "");
         // if(!elf) {
         //     FILE* f = fopen("/proc/self/maps", "r");
         //     if(f) {
