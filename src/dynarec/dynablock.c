@@ -198,7 +198,7 @@ void cancelFillBlock()
 */
 static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int create, int need_lock, int is32bits)
 {
-    if(hasAlternate((void*)addr))
+    if (hasAlternate((void*)filladdr))
         return NULL;
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
     dynablock_t* block = getDB(addr);
