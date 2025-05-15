@@ -101,6 +101,20 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v0, x4);
             }
             break;
+        case 0x13:
+            INST_NAME("MOVLPD Eq, Gx");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGX_vector(v0, 0, VECTOR_SEW64);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            VMV_X_S(x4, v0);
+            SD(x4, ed, fixedaddress);
+            SMWRITE2();
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
@@ -907,6 +921,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, VECTOR_SEW32);
                     VMUL_VV(q0, q1, q0, VECTOR_UNMASKED);
                     break;
+                case 0xDB ... 0xDF:
+                    return 0;
                 default:
                     DEFAULT_VECTOR;
             }
@@ -1049,7 +1065,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VECTOR_LOAD_VMASK((u8 & 0xf), x4, 1);
                     VMERGE_VVM(q0, v1, d0);
                     break;
-                case 0x63: return 0;
+                case 0x44:
+                case 0x63:
+                case 0xDF: return 0;
                 default: DEFAULT_VECTOR;
             }
             break;
