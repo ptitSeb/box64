@@ -1814,12 +1814,16 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 // Dummy macros
 #define B__safe(a, b, c) XOR(xZR, xZR, xZR)
 #define B_(a, b, c)      XOR(xZR, xZR, xZR)
+#define S_(a, b, c)      XOR(xZR, xZR, xZR)
 
 #define NATIVEJUMP_safe(COND, val) \
     B##COND##_safe(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
 
 #define NATIVEJUMP(COND, val) \
     B##COND(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
+
+#define NATIVESET(COND, rd) \
+    S##COND(rd, dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2);
 
 #define NOTEST(s1)                                     \
     if (BOX64ENV(dynarec_test)) {                      \
