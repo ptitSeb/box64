@@ -200,6 +200,57 @@
 #define BGTU(rs1, rs2, imm13) BLTU(rs2, rs1, imm13)
 #define BLEU(rs1, rs2, imm13) BGEU(rs2, rs1, imm13)
 
+#define SEQ(rd, rs1, rs2)        \
+    do {                         \
+        if (rs1 == xZR) {        \
+            SEQZ(rd, rs2);       \
+        } else if (rs2 == xZR) { \
+            SEQZ(rd, rs1);       \
+        } else {                 \
+            XOR(rd, rs1, rs2);   \
+            SEQZ(rd, rd);        \
+        }                        \
+    } while (0)
+
+#define SNE(rd, rs1, rs2)        \
+    do {                         \
+        if (rs1 == xZR) {        \
+            SNEZ(rd, rs2);       \
+        } else if (rs2 == xZR) { \
+            SNEZ(rd, rs1);       \
+        } else {                 \
+            XOR(rd, rs1, rs2);   \
+            SNEZ(rd, rd);        \
+        }                        \
+    } while (0)
+
+#define SGE(rd, rs1, rs2)      \
+    do {                       \
+        if (rs1 == xZR) {      \
+            SLTI(rd, rs2, 1);  \
+        } else {               \
+            SLT(rd, rs1, rs2); \
+            XORI(rd, rd, 1);   \
+        }                      \
+    } while (0)
+
+#define SGEU(rd, rs1, rs2)       \
+    do {                         \
+        if (rs1 == xZR) {        \
+            SEQZ(rd, rs2);       \
+        } else if (rs2 == xZR) { \
+            ADDI(rd, xZR, 1);    \
+        } else {                 \
+            SLTU(rd, rs1, rs2);  \
+            XORI(rd, rd, 1);     \
+        }                        \
+    } while (0)
+
+#define SGT(rd, rs1, rs2)  SLT(rd, rs2, rs1);
+#define SLE(rd, rs1, rs2)  SGE(rd, rs2, rs1);
+#define SGTU(rd, rs1, rs2) SLTU(rd, rs2, rs1);
+#define SLEU(rd, rs1, rs2) SGEU(rd, rs2, rs1);
+
 #define BEQ_safe(rs1, rs2, imm)              \
     if ((imm) > -0x1000 && (imm) < 0x1000) { \
         BEQ(rs1, rs2, imm);                  \
