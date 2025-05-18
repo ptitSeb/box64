@@ -1083,24 +1083,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            #if 0
-            SKIPTEST(x1);
             v0 = fpu_get_scratch(dyn, ninst);
-            // more precise
-            if(q1==q0)
-                v1 = fpu_get_scratch(dyn, ninst);
-            else
-                v1 = q1;
-            VFRSQRTEQS(v0, q0);
-            VFMULQS(v1, v0, q0);
-            VFRSQRTSQS(v1, v1, v0);
-            VFMULQS(q1, v1, v0);
-            #else
-            v0 = fpu_get_scratch(dyn, ninst);
+            if(!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn, ninst);
+                d1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                VFCMEQQS(d0, q0, q0);    // 0 if NAN, 1 if not NAN
+            }
             VFMOVSQ_8(v0, 0b01110000);    //1.0f
             VFSQRTQS(q1, q0);
             VFDIVQS(q1, v0, q1);
-            #endif
+            if(!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(d1, q1, q1);    // 0 => out is NAN
+                VBICQ(d1, d0, d1);      // forget it in any input was a NAN already
+                VSHLQ_32(d1, d1, 31);   // only keep the sign bit
+                VORRQ(q1, q1, d1);      // NAN -> -NAN
+            }
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");

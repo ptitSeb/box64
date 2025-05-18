@@ -1341,7 +1341,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     //FCMEQ
-    if(isMask(opcode, "000111100f1mmmmm111001nnnnnddddd", &a)) {
+    if(isMask(opcode, "010111100f1mmmmm111001nnnnnddddd", &a)) {
         char s = (sf==0)?'S':'D';
         snprintf(buff, sizeof(buff), "FCMEQ %c%d, %c%d, %c%d", s, Rd, s, Rn, s, Rm);
         return buff;
