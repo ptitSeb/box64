@@ -423,8 +423,9 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
         type = V[idx*2+1];
         idx++;
     }
-    int count = idx*2+2;
+    int count = idx*2;
     void* array[count + nstr];
+    memset(array, 0, sizeof(void*)*(count+nstr));
     type = arg;
     idx = 0;
     nstr = 0;
@@ -433,7 +434,8 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
         void* value = from_ptrv(V[idx*2]);
         if(type == ((int)'s')) {
             array[count + nstr] = from_ptrv(*(ptr_t*)value);
-            array[idx*2+0] = &array[count + nstr++];
+            array[idx*2+0] = &array[count + nstr];
+            ++nstr;
         } else {
             array[idx*2+0] = value;
         }
@@ -443,7 +445,7 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
         ++idx;
     }
     CREATE_SYSV_VALIST_32(array);
-    uint32_t ret = my->dbus_message_get_args(message, e, arg, VARARGS_32);
+    uint32_t ret = my->dbus_message_get_args_valist(message, e, arg, VARARGS_32);
     // fill back the pointers for strings
     if(nstr) {
         type = arg;
@@ -476,8 +478,9 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
         type = V[idx*2+1];
         idx++;
     }
-    int count = idx*2+2;
+    int count = idx*2;
     void* array[count + nstr];
+    memset(array, 0, sizeof(void*)*(count+nstr));
     type = arg;
     idx = 0;
     nstr = 0;
@@ -496,7 +499,7 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
         ++idx;
     }
     CREATE_SYSV_VALIST_32(array);
-    return my->dbus_message_append_args(message, arg, VARARGS_32);
+    return my->dbus_message_append_args_valist(message, arg, VARARGS_32);
 }
 EXPORT int my32_dbus_message_append_args_valist(x64emu_t* emu, void* message, int arg, ptr_t* b) __attribute__((alias("my32_dbus_message_append_args")));
 
