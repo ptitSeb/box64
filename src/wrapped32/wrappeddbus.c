@@ -442,7 +442,7 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
         array[idx*2+1] = (void*)(uintptr_t)type;
         ++idx;
     }
-    CONVERT_VALIST_32(array);
+    CREATE_SYSV_VALIST_32(array);
     uint32_t ret = my->dbus_message_get_args(message, e, arg, VARARGS_32);
     // fill back the pointers for strings
     if(nstr) {
@@ -495,7 +495,7 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
         array[idx*2+1] = (void*)(uintptr_t)type;
         ++idx;
     }
-    CONVERT_VALIST_32(array);
+    CREATE_SYSV_VALIST_32(array);
     return my->dbus_message_append_args(message, arg, VARARGS_32);
 }
 EXPORT int my32_dbus_message_append_args_valist(x64emu_t* emu, void* message, int arg, ptr_t* b) __attribute__((alias("my32_dbus_message_append_args")));
