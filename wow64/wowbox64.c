@@ -234,7 +234,7 @@ NTSTATUS WINAPI BTCpuThreadInit(void)
 
 NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
 {
-    // NYI
+    if (enable) return STATUS_NOT_SUPPORTED;
     return STATUS_SUCCESS;
 }
 
