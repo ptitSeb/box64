@@ -124,6 +124,9 @@ typedef struct x64emu_s {
     uintptr_t   old_savedsp;
     #endif
 
+    #ifdef _WIN32
+    uint64_t    win64_teb;
+    #endif
     int         type;       // EMUTYPE_xxx define
     #ifdef BOX32
     int         libc_err;   // copy of errno from libc

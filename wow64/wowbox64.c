@@ -2,6 +2,7 @@
  * Copyright 2022-2025 André Zwing
  * Copyright 2023 Alexandre Julliard
  */
+#include <stddef.h>
 #include <stdio.h>
 #include <windows.h>
 #include <ntstatus.h>
@@ -16,6 +17,7 @@
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "box64context.h"
+#include "box64cpu.h"
 #include "wine/debug.h"
 
 uintptr_t box64_pagesize = 4096;
@@ -125,6 +127,11 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     void **p__wine_unix_call_dispatcher;
     __wine_dbg_output("[BOX64] BTCpuProcessInit\n");
 
+#define STATIC_ASSERT(COND, MSG) typedef char static_assertion_##MSG[(!!(COND))*2-1]
+/* otherwise adjust arm64_epilog.S and arm64_next.S */
+STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
+#undef STATIC_ASSERT
+
     LoadEnvVariables();
 
     memset(bopcode, 0xc3, sizeof(bopcode));
@@ -171,7 +178,37 @@ NTSTATUS WINAPI BTCpuSetContext(HANDLE thread, HANDLE process, void* unknown, WO
 
 void WINAPI BTCpuSimulate(void)
 {
-    // NYI
+    WOW64_CPURESERVED *cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
+    x64emu_t *emu = NtCurrentTeb()->TlsSlots[0]; // FIXME
+    WOW64_CONTEXT *ctx = (WOW64_CONTEXT *)(cpu + 1);
+    CONTEXT entry_context;
+
+    RtlCaptureContext(&entry_context);
+    NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER] = &entry_context;
+
+    R_EAX = ctx->Eax;
+    R_EBX = ctx->Ebx;
+    R_ECX = ctx->Ecx;
+    R_EDX = ctx->Edx;
+    R_ESI = ctx->Esi;
+    R_EDI = ctx->Edi;
+    R_EBP = ctx->Ebp;
+    R_RIP = ctx->Eip;
+    R_ESP = ctx->Esp;
+    R_CS  = ctx->SegCs & 0xffff;
+    R_DS  = ctx->SegDs & 0xffff;
+    R_ES  = ctx->SegEs & 0xffff;
+    R_FS  = ctx->SegFs & 0xffff;
+    R_GS  = ctx->SegGs & 0xffff;
+    R_SS  = ctx->SegSs & 0xffff;
+    emu->eflags.x64 = ctx->EFlags;
+    emu->segs_offs[_FS] = calculate_fs();
+    emu->win64_teb = (uint64_t)NtCurrentTeb();
+
+    if (box64env.dynarec)
+        DynaRun(emu);
+    else
+        Run(emu, 0);
 }
 
 NTSTATUS WINAPI BTCpuThreadInit(void)
@@ -197,7 +234,7 @@ NTSTATUS WINAPI BTCpuThreadInit(void)
 
 NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
 {
-    // NYI
+    if (enable) return STATUS_NOT_SUPPORTED;
     return STATUS_SUCCESS;
 }
 
