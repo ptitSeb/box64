@@ -333,6 +333,8 @@ typedef struct struct_ppup_s {
 	uint32_t u2;
 	void* p3;
 } struct_ppup_t;
+void from_struct_ppup(struct_ppup_t *dest, ptr_t src);
+void to_struct_ppup(ptr_t dest, const struct_ppup_t *src);
 typedef struct struct_ipip_s {
 	int i0;
 	void* p1;
@@ -341,8 +343,6 @@ typedef struct struct_ipip_s {
 } struct_ipip_t;
 void from_struct_ipip(struct_ipip_t *dest, ptr_t src);
 void to_struct_ipip(ptr_t dest, const struct_ipip_t *src);
-void from_struct_ppup(struct_ppup_t *dest, ptr_t src);
-void to_struct_ppup(ptr_t dest, const struct_ppup_t *src);
 typedef struct struct_iiiiiLi_s {
 	int i0;
 	int i1;
@@ -504,5 +504,46 @@ typedef struct struct_LWww_s {
 } struct_LWww_t;
 void from_struct_LWww(struct_LWww_t *dest, ptr_t src);
 void to_struct_LWww(ptr_t dest, const struct_LWww_t *src);
+typedef struct struct_ppuuuuup_s {
+	void* p0;
+	void* p1;
+	uint32_t u2;
+	uint32_t u3;
+	uint32_t u4;
+	uint32_t u5;
+	uint32_t u6;
+	void* p7;
+} struct_ppuuuuup_t;
+void from_struct_ppuuuuup(struct_ppuuuuup_t *dest, ptr_t src);
+void to_struct_ppuuuuup(ptr_t dest, const struct_ppuuuuup_t *src);
+typedef struct struct_ppuii_s {
+	void* p0;
+	void* p1;
+	uint32_t u2;
+	int32_t i3;
+	int32_t i4;
+} struct_ppuii_t;
+void from_struct_ppuii(struct_ppuii_t *dest, ptr_t src);
+void to_struct_ppuii(ptr_t dest, const struct_ppuii_t *src);
+void from_struct_ppuuuuup(struct_ppuuuuup_t *dest, ptr_t src);
+void to_struct_ppuuuuup(ptr_t dest, const struct_ppuuuuup_t *src);
+typedef struct struct_ppuiiiiiiiiipp_s {
+	void* p0;
+	void* p1;
+	uint32_t u2;
+	int32_t i3;
+	int32_t i4;
+	int32_t i5;
+	int32_t i6;
+	int32_t i7;
+	int32_t i8;
+	int32_t i9;
+	int32_t i10;
+	int32_t i11;
+	void* p12;
+	void* p13;
+} struct_ppuiiiiiiiiipp_t;
+void from_struct_ppuiiiiiiiiipp(struct_ppuiiiiiiiiipp_t *dest, ptr_t src);
+void to_struct_ppuiiiiiiiiipp(ptr_t dest, const struct_ppuiiiiiiiiipp_t *src);
 
 #endif // __CONVERTER_H_
