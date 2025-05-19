@@ -534,7 +534,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     size = 128;
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if(p_blocks[i].block && (p_blocks[i].type==BTYPE_MAP) && p_blocks[i].maxfree>=128 && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
+        if(p_blocks[i].block && (p_blocks[i].type==BTYPE_MAP) && p_blocks[i].maxfree && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
             // look for a free block
             uint8_t* map = p_blocks[i].first;
             for(uint32_t idx=p_blocks[i].lowest; idx<(p_blocks[i].size>>7); ++idx) {
@@ -548,6 +548,9 @@ void* map128_customMalloc(size_t size, int is32bits)
                     return p_blocks[i].block+(idx<<7);
                 }
             }
+            #ifdef TRACE_MEMSTAT
+            printf_log(LOG_INFO, "Warning, customme p_block[%d] MAP has maxfree=%d and lowest=%d but not free block found\n", i, p_blocks[i].maxfree, p_blocks[i].lowest);
+            #endif
         }
     }
     // add a new block
@@ -608,7 +611,7 @@ void* map128_customMalloc(size_t size, int is32bits)
         return NULL;
     }
     #ifdef TRACE_MEMSTAT
-    printf_log(LOG_INFO, "Custommem: allocation %p-%p for 128byte MAP Alloc p_blocks[%d]\n", p, p+allocsize, i);
+    printf_log(LOG_INFO, "Custommem: allocation %p-%p for %dbits 128byte MAP Alloc p_blocks[%d]\n", p, p+allocsize, is32bits?32:64, i);
     #endif
     // alloc 1st block
     void* ret = p_blocks[i].block;
@@ -719,7 +722,7 @@ void* internal_customMalloc(size_t size, int is32bits)
         return NULL;
     }
     #ifdef TRACE_MEMSTAT
-    printf_log(LOG_INFO, "Custommem: allocation %p-%p for LIST Alloc p_blocks[%d]\n", p, p+allocsize, i);
+    printf_log(LOG_INFO, "Custommem: allocation %p-%p for %dbits LIST Alloc p_blocks[%d]\n", p, p+allocsize, is32bits?32:64, i);
     #endif
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
@@ -836,6 +839,9 @@ void internal_customFree(void* p, int is32bits)
                 map[idx>>3] ^= (1<<(idx&7));
                 l->maxfree += 128;
             }   // warn if double free?
+            #ifdef TRACE_MEMSTAT
+            else printf_log(LOG_INFO, "Warning, customme free(%p) from MAP block %p, but not found as allocated\n", p, l);
+            #endif
             if(l->lowest>idx)
                 l->lowest = idx;
             mutex_unlock(&mutex_blocks);
