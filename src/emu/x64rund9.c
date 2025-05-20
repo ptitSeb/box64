@@ -168,48 +168,14 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs)
             }
             break;
 
-        case 0xF8:  /* FPREM */
-            {
-                int e0, e1;
-                frexp(ST0.d, &e0);
-                frexp(ST1.d, &e1);
-                tmp32s = e0 - e1;
-            }
-            if(tmp32s<64)
-            {
-                ll = (int64_t)floor(ST0.d/ST1.d);
-                ST0.d = ST0.d - (ST1.d*ll);
-                emu->sw.f.F87_C2 = 0;
-                emu->sw.f.F87_C1 = (ll&1)?1:0;
-                emu->sw.f.F87_C3 = (ll&2)?1:0;
-                emu->sw.f.F87_C0 = (ll&4)?1:0;
-            } else {
-                ll = (int64_t)(floor((ST0.d/ST1.d))/exp2(tmp32s - 32));
-                ST0.d = ST0.d - ST1.d*ll*exp2(tmp32s - 32);
-                emu->sw.f.F87_C2 = 1;
-            }
-            break;
         case 0xF5:  /* FPREM1 */
             // get exponant(ST(0))-exponant(ST(1)) in temp32s
-            {
-                int e0, e1;
-                frexp(ST0.d, &e0);
-                frexp(ST1.d, &e1);
-                tmp32s = e0 - e1;
-            }
-            if(tmp32s<64)
-            {
-                ll = (int64_t)round(ST0.d/ST1.d);
-                ST0.d = ST0.d - (ST1.d*ll);
-                emu->sw.f.F87_C2 = 0;
-                emu->sw.f.F87_C1 = (ll&1)?1:0;
-                emu->sw.f.F87_C3 = (ll&2)?1:0;
-                emu->sw.f.F87_C0 = (ll&4)?1:0;
-            } else {
-                ll = (int64_t)(trunc((ST0.d/ST1.d))/exp2(tmp32s - 32));
-                ST0.d = ST0.d - ST1.d*ll*exp2(tmp32s - 32);
-                emu->sw.f.F87_C2 = 1;
-            }
+            ll = (int64_t)round(ST0.d/ST1.d);
+            ST0.d = ST0.d - (ST1.d*ll);
+            emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C1 = (ll&1)?1:0;
+            emu->sw.f.F87_C3 = (ll&2)?1:0;
+            emu->sw.f.F87_C0 = (ll&4)?1:0;
             break;
         case 0xF6:  /* FDECSTP */
             emu->top=(emu->top-1)&7;    // this will probably break a few things
@@ -219,6 +185,14 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr, uintptr_t offs)
                 fpu_do_pop(emu);
             else
                 emu->top=(emu->top+1)&7;    // this will probably break a few things
+            break;
+        case 0xF8:  /* FPREM */
+            ll = (int64_t)trunc(ST0.d/ST1.d);
+            ST0.d = ST0.d - (ST1.d*ll);
+            emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C1 = (ll&1)?1:0;
+            emu->sw.f.F87_C3 = (ll&2)?1:0;
+            emu->sw.f.F87_C0 = (ll&4)?1:0;
             break;
         case 0xF9:  /* FYL2XP1 */
             // Using the log1p instead of log2(ST0+1) can avoid losing precision much,
