@@ -788,9 +788,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 GETGD;
                 GETED(0);
-                MV(x1, gd);
+                MV(x5, gd);
                 MV(gd, ed);
-                MV(ed, x1);
+                MV(ed, x5);
             } else {
                 SMDMB();
                 GETGD;

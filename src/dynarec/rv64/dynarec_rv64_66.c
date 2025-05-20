@@ -623,9 +623,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 GETGD;
                 GETED(0);
-                MV(x1, gd);
+                MV(x5, gd);
                 INSHz(gd, ed, x3, x4, 1, 1);
-                INSHz(ed, x1, x3, x4, 0, 1);
+                INSHz(ed, x5, x3, x4, 0, 1);
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);

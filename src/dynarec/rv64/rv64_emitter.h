@@ -862,8 +862,8 @@
             u8 = rd;                         \
         else                                 \
             u8 = s1;                         \
-        ADDI(u8, xZR, rex.w ? 63 : 31);      \
-        if (rex.w) {                         \
+        ADDI(u8, xZR, x ? 63 : 31);          \
+        if (x) {                             \
             MV(s2, rs);                      \
             SRLI(s3, s2, 32);                \
             BEQZ(s3, 4 + 2 * 4);             \
