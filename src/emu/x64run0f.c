@@ -385,7 +385,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX;
-            if(isnan(GX->f[0]) || isnan(EX->f[0])) {
+            if(isnanf(GX->f[0]) || isnanf(EX->f[0])) {
                 SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
             } else if(isgreater(GX->f[0], EX->f[0])) {
                 CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
@@ -1127,7 +1127,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
             , addr += tmp32s;
-            ,,
+            ,,STEP3
         )                               /* 0x80 -> 0x8F Jxx */ //STEP3
         GOCOND(0x90
             , nextop = F8; CHECK_FLAGS(emu);
