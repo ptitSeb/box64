@@ -2149,6 +2149,8 @@ wrappedcairo:
   - cairo_xlib_surface_create_for_bitmap
 wrappedcrashhandler:
 wrappeddbus:
+- vFp:
+  - dbus_free_string_array
 - vFppp:
   - dbus_connection_remove_filter
   - dbus_timeout_set_data

@@ -411,6 +411,28 @@ EXPORT void my32_dbus_connection_remove_filter(x64emu_t* emu, void* connection, 
     my->dbus_connection_remove_filter(connection, find_DBusHandleMessageFunction_Fct(fnc), data);
 }
 
+static void* inplace_shrink_arraystring(void* a, int n)
+{
+    if(!a || !n) return a;
+    void** src = a;
+    ptr_t* dst = a;
+    for(int i=0; i<=n; ++i) // convert last NULL value
+        dst[i] = to_ptrv(src[i]);
+}
+
+static void* inplace_expand_arraystring(void* a)
+{
+    if(!a) return a;
+    void** dst = a;
+    ptr_t* src = a;
+    // need to find n first
+    int n = 0;
+    while(src[n]) ++n;
+    for(int i=n; i>=0; --i) //expand, including final NULL
+        dst[i] = from_ptrv(src[i]);
+    return a;
+}
+
 EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int arg, ptr_t* V)
 {
     (void)emu;
@@ -419,8 +441,9 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
     int nstr = 0;
     // count
     while(type) {
-        if(type == ((int)'s')) nstr++;
+        if(type == ((int)'a')) {idx++; nstr++;}
         type = V[idx*2+1];
+        nstr++;
         idx++;
     }
     int count = idx*2;
@@ -431,13 +454,16 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
     nstr = 0;
     // prepare the array
     while(type) {
-        void* value = from_ptrv(V[idx*2]);
-        if(type == ((int)'s')) {
-            array[count + nstr] = from_ptrv(*(ptr_t*)value);
-            array[idx*2+0] = &array[count + nstr];
+        if(type == ((int)'a')) {
+            array[idx*2+0] = from_ptrv(V[idx*2+0]);
+            array[idx*2+1] = &array[count + nstr];
             ++nstr;
+            array[idx*2+2] = &array[count + nstr];   // size of the array
+            ++nstr;
+            ++idx;
         } else {
-            array[idx*2+0] = value;
+            array[idx*2+0] = &array[count+nstr];
+            ++nstr;
         }
         //go next
         type = V[idx*2+1];
@@ -453,7 +479,15 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
         nstr = 0;
         // done
         while(type) {
-            if(type == ((int)'s')) {
+            if(type == ((int)'a')) {
+                int subtype = V[idx*2];
+                void* value = array[count + nstr++];
+                V[idx*2] = to_ptrv(value);
+                int* n = array[count + nstr++];
+                V[idx*2] = to_ptrv(n);
+                if(subtype==(int)'s') inplace_shrink_arraystring(value, *n);
+                ++idx;
+            } else {
                 void* value = array[count + nstr++];
                 V[idx*2] = to_ptrv(value);
             }
@@ -475,6 +509,15 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
     // count
     while(type) {
         if(type == ((int)'s')) nstr++;
+        else if(type == ((int)'a')) {
+            nstr++; 
+            type = V[idx*2+0];
+            if(type == ((int)'s')) {
+                int n = V[idx*2+2];
+                nstr += n;
+            }
+            idx++;
+        }
         type = V[idx*2+1];
         idx++;
     }
@@ -487,9 +530,27 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
     // fill the array
     while(type) {
         void* value = from_ptrv(V[idx*2]);
-        if(type == ((int)'s')) {
+        if((type == (int)'s')) {
             array[count + nstr] = from_ptrv(*(ptr_t*)value);
             array[idx*2+0] = &array[count + nstr++];
+        } else if(type == ((int)'a')) {
+            array[idx*2+0] = value;
+            int subtype = (int)(uintptr_t)value;
+            value = from_ptrv(V[idx*2+1]);  // array pointer
+            array[count + nstr] = from_ptrv(*(ptr_t*)value);
+            array[idx*2+1] = &array[count + nstr];
+            ++nstr;
+            int n = V[idx*2+2];
+            array[idx*2+2] = from_ptrv(n); // size of the array
+            if(subtype==(int)'s') {
+                // expand string array
+                ptr_t* pvalue = value;
+                for(int i=0; i<n; ++i)
+                    array[count + nstr + i] = from_ptrv(pvalue[i]);
+                array[count + nstr -1] = &array[count + nstr];
+                nstr += n;
+            }
+            ++idx;
         } else {
             array[idx*2+0] = value;
         }
@@ -651,6 +712,11 @@ printf_log(LOG_INFO, "  string is %p\n", str);
         value_l = &str;
     }
     return my->dbus_message_iter_append_basic(iter, type, &value_l);
+}
+
+EXPORT void my32_dbus_free_string_array(x64emu_t* emu, void* l)
+{
+    my->dbus_free_string_array(inplace_expand_arraystring(l));
 }
 
 #include "wrappedlib_init32.h"

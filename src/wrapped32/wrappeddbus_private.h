@@ -85,7 +85,7 @@ GO(dbus_error_has_name, uFbppuuuuup_p)
 GO(dbus_error_init, vFbppuuuuup_)
 GO(dbus_error_is_set, uFbppuuuuup_)
 GO(dbus_free, vFp)
-GO(dbus_free_string_array, vFbp_)
+GOM(dbus_free_string_array, vFEp)
 GO(dbus_get_local_machine_id, pFv)
 GO(dbus_get_version, vFppp)
 //GO(dbus_internal_do_not_use_create_uuid, 

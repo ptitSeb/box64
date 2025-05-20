@@ -11,6 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFpip_t)(void*, int32_t, void*);
 typedef uint32_t (*uFpiV_t)(void*, int32_t, ...);
@@ -24,6 +25,7 @@ typedef uint32_t (*uFppppbppuuuuup__t)(void*, void*, void*, void*, struct_ppuuuu
 typedef uint32_t (*uFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(dbus_free_string_array, vFp_t) \
 	GO(dbus_connection_remove_filter, vFppp_t) \
 	GO(dbus_timeout_set_data, vFppp_t) \
 	GO(dbus_watch_set_data, vFppp_t) \
