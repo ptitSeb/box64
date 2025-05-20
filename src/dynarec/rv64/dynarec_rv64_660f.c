@@ -1226,7 +1226,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEW(x1, 0);
             GETGW(x2);
             ANDI(gd, gd, 15);
-            BEXT(x4, ed, gd, x3); // F_CF is 1
+            BEXT(x4, ed, gd, x5); // F_CF is 1
             ANDI(xFlags, xFlags, ~1);
             OR(xFlags, xFlags, x4);
             ADDI(x4, xZR, 1);

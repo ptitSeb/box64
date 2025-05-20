@@ -814,6 +814,10 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         MV(ret, A0);
     }
 
+    // reinitialize sew
+    if (dyn->vector_sew != VECTOR_SEWNA)
+        vector_vsetvli(dyn, ninst, savereg, dyn->vector_sew, VECTOR_LMUL1, 1);
+
     LD(savereg, xSP, 0);
     ADDI(xSP, xSP, 16);
 #define GO(A) \
@@ -828,10 +832,6 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
 #undef GO
     if (ret != xRIP)
         LD(xRIP, xEmu, offsetof(x64emu_t, ip));
-
-    // reinitialize sew
-    if (dyn->vector_sew != VECTOR_SEWNA)
-        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
 
     fpu_popcache(dyn, ninst, reg, 0);
     if (saveflags) {
