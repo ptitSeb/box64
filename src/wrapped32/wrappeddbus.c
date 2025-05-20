@@ -411,11 +411,14 @@ EXPORT void my32_dbus_connection_remove_filter(x64emu_t* emu, void* connection, 
     my->dbus_connection_remove_filter(connection, find_DBusHandleMessageFunction_Fct(fnc), data);
 }
 
-static void* inplace_shrink_arraystring(void* a, int n)
+static void* inplace_shrink_arraystring(void* a)
 {
-    if(!a || !n) return a;
+    if(!a) return a;
     void** src = a;
     ptr_t* dst = a;
+    // need to find n first
+    int n = 0;
+    while(src[n]) ++n;
     for(int i=0; i<=n; ++i) // convert last NULL value
         dst[i] = to_ptrv(src[i]);
 }
@@ -485,7 +488,8 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
                 V[idx*2] = to_ptrv(value);
                 int* n = array[count + nstr++];
                 V[idx*2] = to_ptrv(n);
-                if(subtype==(int)'s') inplace_shrink_arraystring(value, *n);
+                if((subtype==(int)'s') || subtype==(int)'o' || (subtype==(int)'g')) 
+                    inplace_shrink_arraystring(value);
                 ++idx;
             } else {
                 void* value = array[count + nstr++];
@@ -512,7 +516,7 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
         else if(type == ((int)'a')) {
             nstr++; 
             type = V[idx*2+0];
-            if(type == ((int)'s')) {
+            if((type == ((int)'s')) || (type == ((int)'o')) || (type == ((int)'g'))) {
                 int n = V[idx*2+2];
                 nstr += n;
             }
@@ -542,7 +546,7 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
             ++nstr;
             int n = V[idx*2+2];
             array[idx*2+2] = from_ptrv(n); // size of the array
-            if(subtype==(int)'s') {
+            if((subtype==(int)'s') || (subtype==(int)'o') || (subtype==(int)'g')) {
                 // expand string array
                 ptr_t* pvalue = value;
                 for(int i=0; i<n; ++i)
