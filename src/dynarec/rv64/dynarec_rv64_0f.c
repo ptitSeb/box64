@@ -2257,7 +2257,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             B_NEXT_nocond;
             MARK;
             // gd is undefined if ed is all zeros, don't worry.
-            CTZxw(gd, ed, rex.w, x1, x2);
+            CTZxw(gd, ed, rex.w, x3, x5);
             ANDI(xFlags, xFlags, ~(1 << F_ZF));
             break;
         case 0xBD:
@@ -2276,9 +2276,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             B_NEXT_nocond;
             MARK;
             ANDI(xFlags, xFlags, ~(1 << F_ZF));
-            CLZxw(gd, ed, rex.w, x1, x2, x3);
-            ADDI(x1, xZR, rex.w ? 63 : 31);
-            SUB(gd, x1, gd);
+            CLZxw(gd, ed, rex.w, x3, x5, x7);
+            ADDI(x3, xZR, rex.w ? 63 : 31);
+            SUB(gd, x3, gd);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");

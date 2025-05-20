@@ -469,26 +469,87 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rv64_zbb) {
                 CPOPxw(gd, ed);
             } else {
-                TABLE64(x1, 0x5555555555555555uLL);
-                SRLI(x5, ed, 1);
-                AND(x5, x5, x1);
-                SUB(x5, ed, x5);
-                TABLE64(x3, 0x3333333333333333uLL);
-                SRLI(x1, x5, 2);
-                AND(x1, x1, x3);
-                AND(x5, x5, x3);
-                ADD(x5, x5, x1);
-                TABLE64(x3, 0x0F0F0F0F0F0F0F0FuLL);
-                SRLI(x1, x5, 4);
-                ADD(x5, x5, x1);
-                AND(x5, x5, x3);
-                SRLI(x1, x5, 32);
-                ADDW(x5, x5, x1);
-                SRLIW(x1, x5, 16);
-                ADDW(x5, x5, x1);
-                SRLIW(x1, x5, 8);
-                ADDW(x5, x5, x1);
-                ANDI(gd, x5, 0x7F);
+                if (rex.w) {
+                    // x7 = 0x5555555555555555
+                    LUI(x7, 0x55555);
+                    ADDIW(x7, x7, 0x555);
+                    SLLI(x6, x7, 32);
+                    ADD(x7, x7, x6);
+
+                    // v = v - ((v >> 1) & x7)
+                    SRLI(x5, ed, 1);
+                    AND(x5, x5, x7);
+                    SUB(x5, ed, x5);
+
+                    // x3 = 0x3333333333333333
+                    LUI(x3, 0x33333);
+                    ADDIW(x3, x3, 0x333);
+                    SLLI(x6, x3, 32);
+                    ADD(x3, x3, x6);
+
+                    // v = (v & x3) + ((v >> 2) & x3);
+                    SRLI(x7, x5, 2);
+                    AND(x7, x7, x3);
+                    AND(x5, x5, x3);
+                    ADD(x5, x5, x7);
+
+                    // x3 = 0x0F0F0F0F0F0F0F0F
+                    LUI(x3, 0xF0F1);
+                    ADDIW(x3, x3, 0xF0F);
+                    SLLI(x6, x3, 32);
+                    ADD(x3, x3, x6);
+
+                    // v = (v + (v >> 4) & x3)
+                    SRLI(x7, x5, 4);
+                    ADD(x5, x5, x7);
+                    AND(x5, x5, x3);
+
+                    // x3 = 0x0101010101010101
+                    LUI(x3, 0x1010);
+                    ADDIW(x3, x3, 0x101);
+                    SLLI(x6, x3, 32);
+                    ADD(x3, x3, x6);
+
+                    // count = (v * x3) >> 56
+                    MUL(gd, x5, x3);
+                    SRLI(gd, gd, 56);
+                } else {
+                    // x7 = 0x55555555uLL
+                    LUI(x7, 0x55555);
+                    ADDIW(x7, x7, 0x555);
+
+                    // v = v - ((v >> 1) & x7)
+                    SRLI(x5, ed, 1);
+                    AND(x5, x5, x7);
+                    SUB(x5, ed, x5);
+
+                    // x3 = 0x33333333uLL
+                    LUI(x3, 0x33333);
+                    ADDIW(x3, x3, 0x333);
+
+                    // v = (v & x3) + ((v >> 2) & x3);
+                    SRLI(x7, x5, 2);
+                    AND(x7, x7, x3);
+                    AND(x5, x5, x3);
+                    ADD(x5, x5, x7);
+
+                    // x3 = 0x0F0F0F0FuLL
+                    LUI(x3, 0xF0F1);
+                    ADDIW(x3, x3, 0xF0F);
+
+                    // v = (v + (v >> 4) & x3)
+                    SRLI(x7, x5, 4);
+                    ADD(x5, x5, x7);
+                    AND(x5, x5, x3);
+
+                    // x3 = 01010101uLL
+                    LUI(x3, 0x1010);
+                    ADDIW(x3, x3, 0x101);
+
+                    // count = (v * x3) >> 24
+                    MULW(gd, x5, x3);
+                    SRLIW(gd, gd, 24);
+                }
             }
             break;
         case 0xBC:
@@ -508,7 +569,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV32w(gd, rex.w ? 64 : 32);
             B_NEXT_nocond;
             MARK;
-            CTZxw(gd, ed, rex.w, x1, x2);
+            CTZxw(gd, ed, rex.w, x3, x5);
             BNE(gd, xZR, 4 + 4);
             ORI(xFlags, xFlags, 1 << F_ZF);
             break;
@@ -529,7 +590,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ORI(xFlags, xFlags, 1 << F_CF);
             B_NEXT_nocond;
             MARK;
-            CLZxw(gd, ed, rex.w, x1, x2, x3);
+            CLZxw(gd, ed, rex.w, x5, x2, x3);
             ANDI(xFlags, xFlags, ~((1 << F_ZF) | (1 << F_CF)));
             BNE(gd, xZR, 4 + 4);
             ORI(xFlags, xFlags, 1 << F_ZF);
