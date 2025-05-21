@@ -692,7 +692,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 
     int ret;
     mapping_t* mapping = NULL;
-    khint_t k = kh_get(mapping_entry, mapping_entries, lowercase_filename);
+    khint_t k = kh_get(mapping_entry, mapping_entries, fullname);
     if(k == kh_end(mapping_entries)) {
         // First time we see this file
         if (box64_wine && BOX64ENV(unityplayer)) DetectUnityPlayer(lowercase_filename+1);
@@ -702,7 +702,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         mapping->filename = box_strdup(lowercase_filename);
         mapping->fullname = box_strdup(fullname);
         mapping->start = addr;
-        k = kh_put(mapping_entry, mapping_entries, mapping->filename, &ret);
+        k = kh_put(mapping_entry, mapping_entries, mapping->fullname, &ret);
         kh_value(mapping_entries, k) = mapping;
         if (box64env_entries) {
             khint_t k = kh_get(box64env_entry, box64env_entries, mapping->filename);
@@ -713,7 +713,10 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     } else
         mapping = kh_value(mapping_entries, k);
 
-    if(mapping && mapping->start>addr) mapping->start = addr;
+    if(mapping && mapping->start>addr) { 
+        dynarec_log(LOG_INFO, "Mapping %s (%s) adjusted start: %p from %p\n", fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
+        mapping->start = addr;
+    }
     rb_set_64(envmap, addr, addr + length, (uint64_t)mapping);
     if(mapping->env) {
         printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
@@ -744,7 +747,7 @@ void RemoveMapping(uintptr_t addr, size_t length)
         } while(end!=UINTPTR_MAX);
         // no occurence found, delete mapping
         dynarec_log(LOG_INFO, "Delete Mapping %s (%s) in %p(%p)-%p\n", mapping->fullname, mapping->filename, (void*)addr, (void*)mapping->start, (void*)(addr+length));
-        khint_t k = kh_get(mapping_entry, mapping_entries, mapping->filename);
+        khint_t k = kh_get(mapping_entry, mapping_entries, mapping->fullname);
         if(k!=kh_end(mapping_entries))
             kh_del(mapping_entry, mapping_entries, k);
         box_free(mapping->filename);
