@@ -96,7 +96,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     MARK;
                     SMDMB();
-                    UFLAG_IF { emit_cmp16(dyn, ninst, x6, x7, x2, x3, x4, x5); }
+                    UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x2, x3, x4, x5); }
                     INSH(xRAX, x1, x2, x3, 1, 0);
                     break;
                 default:
