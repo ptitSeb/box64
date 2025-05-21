@@ -851,13 +851,26 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                        MARKLOCK;
-                        LRxw(x1, wback, 1, 1);
+                        ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
+                        BNEZ_MARK3(x1);
+                        // Aligned
+                        ADDIxw(x4, xZR, 1); 
+                        AMOADDxw(x1, x4, wback, 1, 1);
+                        B_MARK_nocond;
+                        MARK3;
+                        // Unaligned
+                        ANDI(x5, wback, -(1 << (rex.w + 2)));
+                        MARKLOCK2;
+                        LDxw(x1, wback, 0);
+                        LRxw(x6, x5, 1, 1);
                         ADDIxw(x4, x1, 1);
-                        SCxw(x3, x4, wback, 1, 1);
-                        BNEZ_MARKLOCK(x3);
+                        SCxw(x3, x6, x5, 1, 1);
+                        BNEZ_MARKLOCK2(x3);
+                        SDxw(x4, wback, 0);
+                        MARK;
                         IFXORNAT (X_ALL | X_PEND)
                             emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                        SMDMB();
                     }
                     break;
                 case 1: // DEC Ed
@@ -869,13 +882,26 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                        MARKLOCK;
-                        LRxw(x1, wback, 1, 1);
+                        ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
+                        BNEZ_MARK3(x1);
+                        // Aligned
+                        ADDIxw(x4, xZR, -1); 
+                        AMOADDxw(x1, x4, wback, 1, 1);
+                        B_MARK_nocond;
+                        MARK3;
+                        // Unaligned
+                        ANDI(x5, wback, -(1 << (rex.w + 2)));
+                        MARKLOCK2;
+                        LDxw(x1, wback, 0);
+                        LRxw(x6, x5, 1, 1);
                         ADDIxw(x4, x1, -1);
-                        SCxw(x3, x4, wback, 1, 1);
-                        BNEZ_MARKLOCK(x3);
+                        SCxw(x3, x6, x5, 1, 1);
+                        BNEZ_MARKLOCK2(x3);
+                        SDxw(x4, wback, 0);
+                        MARK;
                         IFXORNAT (X_ALL | X_PEND)
                             emit_dec32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                        SMDMB();
                     }
                     break;
                 default:
