@@ -1226,10 +1226,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(!l) {
                         GETGX_empty_VX(v0, v2);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        if(ed!=x3) {
-                            MOVx_REG(x3, ed);
-                            ed = x3;
-                        }
                         v1 = fpu_get_scratch(dyn, ninst);
                     } else {
                         GETGY_empty_VY(v0, v2, 0, -1, -1);
@@ -1243,7 +1239,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                         VMOVQDto(x4, q0, 0);
                         CBZx(x4, 4+1*4);
                         VLD1_64(v1, 0, ed);
-                        ADDx_U12(ed, ed, 8);
+                        ADDx_U12(x3, ed, 8);
+                        if(ed!=x3) ed=x3;
                         VMOVQDto(x4, q0, 1);
                         CBZx(x4, 4+1*4);
                         VLD1_64(v1, 1, ed);
@@ -1254,7 +1251,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                         VMOVSto(x4, q0, 0);
                         CBZx(x4, 4+1*4);
                         VLD1_32(v1, 0, ed);
-                        ADDx_U12(ed, ed, 4);
+                        ADDx_U12(x3, ed, 4);
+                        if(ed!=x3) ed=x3;
                         VMOVSto(x4, q0, 1);
                         CBZx(x4, 4+1*4);
                         VLD1_32(v1, 1, ed);
@@ -1310,7 +1308,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                         VMOVQDto(x4, q0, 0);
                         CBZx(x4, 4+1*4);
                         VST1_64(v0, 0, ed);
-                        ADDx_U12(ed, ed, 8);
+                        ADDx_U12(x3, ed, 8);
+                        if(ed!=x3) ed=x3;
                         VMOVQDto(x4, q0, 1);
                         CBZx(x4, 4+1*4);
                         VST1_64(v0, 1, ed);
@@ -1323,7 +1322,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                         VMOVSto(x4, q0, 0);
                         CBZx(x4, 4+1*4);
                         VST1_32(v0, 0, ed);
-                        ADDx_U12(ed, ed, 4);
+                        ADDx_U12(x3, ed, 4);
+                        if(ed!=x3) ed=x3;
                         VMOVSto(x4, q0, 1);
                         CBZx(x4, 4+1*4);
                         VST1_32(v0, 1, ed);
