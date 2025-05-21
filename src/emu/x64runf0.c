@@ -1311,9 +1311,20 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 tmp64u = native_lock_read_dd(ED);
                             } while(native_lock_write_dd(ED, dec64(emu, tmp64u)));
                     else {
-                        do {
-                            tmp32u = native_lock_read_d(ED);
-                        } while(native_lock_write_d(ED, dec32(emu, tmp32u)));
+                        if((uintptr_t)ED&3) { 
+                            //meh.
+                            do {
+                                tmp32u = ED->dword[0];
+                                tmp32u &=~0xff;
+                                tmp32u |= native_lock_read_b(ED);
+                                tmp32u = dec32(emu, tmp32u);
+                            } while(native_lock_write_b(ED, tmp32u&0xff));
+                            ED->dword[0] = tmp32u;
+                        } else {
+                            do {
+                                tmp32u = native_lock_read_d(ED);
+                            } while(native_lock_write_d(ED, dec32(emu, tmp32u)));
+                        }
                         if(MODREG) ED->dword[1] = 0;
                     }
 #else
