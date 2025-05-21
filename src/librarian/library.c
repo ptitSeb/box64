@@ -356,15 +356,18 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         }
 
         printf_dump(LOG_INFO, "Using emulated %s\n", libname);
+        int env_changed = 0;
         #ifdef DYNAREC
         if(libname && BOX64ENV(dynarec_bleeding_edge) && strstr(libname, "libmonobdwgc-2.0.so")) {
             printf_dump(LOG_INFO, "MonoBleedingEdge detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
             SET_BOX64ENV(dynarec_bigblock, 0);
             SET_BOX64ENV(dynarec_strongmem, 1);
+            env_changed = 1;
         }
         if(libname && BOX64ENV(dynarec_tbb) && strstr(libname, "libtbb.so")) {
             printf_dump(LOG_INFO, "libtbb detected, enable Dynarec StrongMem\n");
             SET_BOX64ENV(dynarec_strongmem, 1);
+            env_changed = 1;
         }
         #endif
         if(libname && BOX64ENV(jvm) && strstr(libname, "libjvm.so")) {
@@ -376,11 +379,14 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             printf_dump(LOG_INFO, "libjvm detected, hide SSE 4.2\n");
             #endif
             SET_BOX64ENV(sse42, 0);
+            env_changed = 1;
         }
         if(libname && BOX64ENV(libcef) && strstr(libname, "libcef.so")) {
-            printf_dump(LOG_INFO, "libcef detected, using malloc_hack_2\n");
+            printf_dump(LOG_INFO, "libcef detected, using malloc_hack=2\n");
             SET_BOX64ENV(malloc_hack, 2);
+            env_changed = 1;
         }
+        if (env_changed) PrintEnvVariables(&box64env, LOG_INFO);
         return 1;
     }
     return 0;
