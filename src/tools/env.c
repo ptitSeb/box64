@@ -626,8 +626,7 @@ void LoadEnvVariables()
 
 void PrintEnvVariables(box64env_t* env, int level)
 {
-    if (env->is_any_overridden)
-        printf_log(level, "BOX64ENV: Variables overridden via env and/or RC file:\n");
+    if (env->is_any_overridden) printf_log(level, "BOX64ENV: Variables overridden:\n");
 #define INTEGER(NAME, name, default, min, max) \
     if (env->is_##name##_overridden)           \
         printf_log_prefix(0, level, "\t%s=%d\n", #NAME, env->name);
