@@ -223,11 +223,13 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
             return block;
         }
     }
+#ifndef _WIN32
     if((getProtection_fast(addr)&req_prot)!=req_prot) {// cannot be run, get out of the Dynarec
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
         return NULL;
     }
+#endif
     block = AddNewDynablock(addr);
 
     // fill the block

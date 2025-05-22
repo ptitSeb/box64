@@ -26,6 +26,8 @@ void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
 int munmap(void* addr, size_t length);
 int mprotect(void* addr, size_t len, int prot);
 
+void x86Int(void* emu, int code);
+
 void* WinMalloc(size_t size);
 void* WinRealloc(void* ptr, size_t size);
 void* WinCalloc(size_t nmemb, size_t size);

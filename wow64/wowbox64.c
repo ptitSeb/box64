@@ -18,6 +18,8 @@
 #include "x64trace.h"
 #include "box64context.h"
 #include "box64cpu.h"
+#include "box64cpu_util.h"
+#include "rbtree.h"
 #include "wine/debug.h"
 
 uintptr_t box64_pagesize = 4096;
@@ -125,7 +127,6 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     HMODULE module;
     UNICODE_STRING str;
     void **p__wine_unix_call_dispatcher;
-    __wine_dbg_output("[BOX64] BTCpuProcessInit\n");
 
 #define STATIC_ASSERT(COND, MSG) typedef char static_assertion_##MSG[(!!(COND))*2-1]
 /* otherwise adjust arm64_epilog.S and arm64_next.S */
@@ -140,6 +141,7 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
     unxcode[0] = 0x2ecd;
 
     init_custommem_helper(&box64_context);
+    box64_context.db_sizes = rbtree_init("db_sizes");
 
     if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32)
     {
@@ -161,7 +163,6 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
 
     InitX64Trace(&box64_context);
 
-    __wine_dbg_output("[BOX64] BTCpuProcessInit done\n");
     return STATUS_SUCCESS;
 }
 
@@ -215,7 +216,6 @@ NTSTATUS WINAPI BTCpuThreadInit(void)
 {
     WOW64_CONTEXT *ctx;
     x64emu_t *emu = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*emu) );
-    __wine_dbg_output("[BOX64] BTCpuThreadInit\n");
 
     RtlWow64GetCurrentCpuArea( NULL, (void **)&ctx, NULL );
     emu->context = &box64_context;
@@ -236,6 +236,92 @@ NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
 {
     if (enable) return STATUS_NOT_SUPPORTED;
     return STATUS_SUCCESS;
+}
+
+void x86IntImpl(x64emu_t *emu, int code)
+{
+    int inst_off = box64env.dynarec ? 2 : 0;
+
+    if (code == 0x2e)  /* NT syscall */
+    {
+        WOW64_CPURESERVED *cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
+        WOW64_CONTEXT *ctx = (WOW64_CONTEXT *)(cpu + 1);
+        int id = R_EAX;
+        BOOL is_unix_call = FALSE;
+
+        if (ULongToPtr(R_RIP-inst_off) == &unxcode)
+            is_unix_call = TRUE;
+        else if (ULongToPtr(R_RIP-inst_off) != &bopcode)
+            return;
+
+        R_RIP = Pop32(emu);
+        ctx->Eip = R_RIP;
+        ctx->Esp = R_ESP;
+        ctx->Ebx = R_EBX;
+        ctx->Esi = R_ESI;
+        ctx->Edi = R_EDI;
+        ctx->Ebp = R_EBP;
+        ctx->EFlags = emu->eflags.x64;
+        cpu->Flags = 0;
+
+        if (is_unix_call)
+        {
+            uintptr_t handle_low = Pop32(emu);
+            uintptr_t handle_high = Pop32(emu);
+            unsigned int code = Pop32(emu);
+            uintptr_t args = Pop32(emu);
+
+            ctx->Esp = R_ESP;
+            R_EAX = __wine_unix_call_dispatcher( handle_low | (handle_high << 32), code, (void *)args );
+        }
+        else
+        {
+            R_EAX = Wow64SystemServiceEx( id, ULongToPtr(ctx->Esp+4) );
+        }
+
+        R_EBX = ctx->Ebx;
+        R_ESI = ctx->Esi;
+        R_EDI = ctx->Edi;
+        R_EBP = ctx->Ebp;
+        R_ESP = ctx->Esp;
+        R_RIP = ctx->Eip;
+        if (cpu->Flags & WOW64_CPURESERVED_FLAG_RESET_STATE)
+        {
+            cpu->Flags &= ~WOW64_CPURESERVED_FLAG_RESET_STATE;
+            R_EAX = ctx->Eax;
+            R_ECX = ctx->Ecx;
+            R_EDX = ctx->Edx;
+            R_FS  = ctx->SegFs & 0xffff;
+            emu->segs_offs[_FS] = calculate_fs();
+            emu->eflags.x64 = ctx->EFlags;
+        }
+    }
+    else
+    {
+        RtlRaiseStatus( STATUS_ACCESS_VIOLATION );
+    }
+}
+
+/* Calls a 2-argument function `Func` setting the parent unwind frame information to the given SP and PC */
+static void __attribute__((naked)) SEHFrameTrampoline2Args(void* Arg0, int Arg1, void* Func, uint64_t Sp, uint64_t Pc)
+{
+    asm( ".seh_proc SEHFrameTrampoline2Args\n\t"
+         "stp x3, x4, [sp, #-0x10]!\n\t"
+         ".seh_pushframe\n\t"
+         "stp x29, x30, [sp, #-0x10]!\n\t"
+         ".seh_save_fplr_x 16\n\t"
+         ".seh_endprologue\n\t"
+         "blr x2\n\t"
+         "ldp x29, x30, [sp], 0x20\n\t"
+         "ret\n\t"
+         ".seh_endproc" );
+}
+
+void x86Int(void* emu, int code)
+{
+    CONTEXT *entry_context = NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER];
+    SEHFrameTrampoline2Args(emu, code, (void*)x86IntImpl, entry_context->Sp, entry_context->Pc);
+    NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER] = entry_context;
 }
 
 NTSTATUS WINAPI LdrDisableThreadCalloutsForDll(HMODULE);
