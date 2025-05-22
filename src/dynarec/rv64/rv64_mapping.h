@@ -65,6 +65,7 @@ x31     t6     x6           Temporary                       Scratch             
 
 // convert a x86 register to native according to the register mapping
 #define TO_NAT(A) (((uint8_t[]) { 16, 13, 12, 24, 9, 8, 11, 10, 14, 15, 26, 27, 18, 19, 20, 21 })[(A)])
+#define IS_GPR(A) (((uint8_t[]) { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0 })[(A)])
 
 #define x1   6
 #define x2   7

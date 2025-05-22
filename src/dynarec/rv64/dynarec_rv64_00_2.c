@@ -400,6 +400,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
+                SCRATCH_USAGE(0);
                 MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 IF_UNALIGNED(ip) {
@@ -413,6 +414,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                 } else {
+                    SCRATCH_USAGE(0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                     SDxw(gd, ed, fixedaddress);
                 }
@@ -464,6 +466,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOV Gd, Ed");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) {
                 MVxw(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
@@ -476,6 +479,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOV Ed, Seg");
             nextop = F8;
             if (MODREG) {
+                SCRATCH_USAGE(0);
                 LHU(TO_NAT((nextop & 7) + (rex.b << 3)), xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -1042,6 +1046,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xB3:
             INST_NAME("MOV xL, Ib");
             u8 = F8;
+            SCRATCH_USAGE(0);
             if (rex.rex)
                 gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
             else
@@ -1078,6 +1083,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xBF:
             INST_NAME("MOV Reg, Id");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
+            SCRATCH_USAGE(0);
             if (rex.w) {
                 u64 = F64;
                 MOV64x(gd, u64);

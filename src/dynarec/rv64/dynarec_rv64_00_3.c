@@ -373,9 +373,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ORI(eb1, eb1, u8);
                 }
             } else { // mem <= u8
+                SCRATCH_USAGE(0);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 1);
                 u8 = F8;
                 if (u8) {
+                    SCRATCH_USAGE(1);
                     ADDI(x3, xZR, u8);
                     ed = x3;
                 } else
@@ -388,6 +390,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOV Ed, Id");
             nextop = F8;
             if (MODREG) { // reg <= i32
+                SCRATCH_USAGE(0);
                 i64 = F32S;
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
@@ -409,9 +412,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                 } else {
+                    SCRATCH_USAGE(0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
                     i64 = F32S;
                     if (i64) {
+                        SCRATCH_USAGE(1);
                         MOV64x(x3, i64);
                         ed = x3;
                     } else
@@ -802,7 +807,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SLLW(ed, ed, xRCX);
                         if (dyn->insts[ninst].nat_flags_fusion) {
                             if (!rex.w) ZEROUP(ed);
-                            NAT_FLAGS_OPS(ed, xZR);
+                            NAT_FLAGS_OPS(ed, xZR, x5, xZR);
                         } else if (!rex.w && MODREG) {
                             ZEROUP(ed);
                         }
@@ -827,7 +832,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SRLW(ed, ed, xRCX);
                         if (dyn->insts[ninst].nat_flags_fusion) {
                             if (!rex.w) ZEROUP(ed);
-                            NAT_FLAGS_OPS(ed, xZR);
+                            NAT_FLAGS_OPS(ed, xZR, x5, xZR);
                         } else if (!rex.w && MODREG) {
                             ZEROUP(ed);
                         }
