@@ -127,7 +127,6 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     HMODULE module;
     UNICODE_STRING str;
     void **p__wine_unix_call_dispatcher;
-    __wine_dbg_output("[BOX64] BTCpuProcessInit\n");
 
 #define STATIC_ASSERT(COND, MSG) typedef char static_assertion_##MSG[(!!(COND))*2-1]
 /* otherwise adjust arm64_epilog.S and arm64_next.S */
@@ -164,7 +163,6 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
 
     InitX64Trace(&box64_context);
 
-    __wine_dbg_output("[BOX64] BTCpuProcessInit done\n");
     return STATUS_SUCCESS;
 }
 
@@ -218,7 +216,6 @@ NTSTATUS WINAPI BTCpuThreadInit(void)
 {
     WOW64_CONTEXT *ctx;
     x64emu_t *emu = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*emu) );
-    __wine_dbg_output("[BOX64] BTCpuThreadInit\n");
 
     RtlWow64GetCurrentCpuArea( NULL, (void **)&ctx, NULL );
     emu->context = &box64_context;
