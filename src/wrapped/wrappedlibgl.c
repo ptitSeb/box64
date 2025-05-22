@@ -545,13 +545,13 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
     } else
         symbol = procaddr(rname);
     if(!symbol) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     // check if alread bridged
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
     if(ret) {
-        printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", (void*)ret);
         return (void*)ret; // already bridged
     }
     // get wrapper
@@ -571,8 +571,8 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
         k = kh_get(symbolmap, wrappers->glwrappers, tmp);
     }
     if(k==kh_end(wrappers->glwrappers)) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
-        printf_dlsym(LOG_INFO, "Warning, no wrapper for %s\n", rname);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym_prefix(2, LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
     symbol1_t* s = &kh_value(wrappers->glwrappers, k);
@@ -583,6 +583,6 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
         s->resolved = 1;
     }
     ret = s->addr;
-    printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
+    printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", (void*)ret);
     return (void*)ret;
 }
