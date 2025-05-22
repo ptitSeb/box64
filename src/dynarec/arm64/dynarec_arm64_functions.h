@@ -85,4 +85,8 @@ void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
 
 // is st freed
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
+
+// propage the uneeded flags on XMM/YMM regs (done between step 0 and step 1)
+void updateUneeded(dynarec_arm_t* dyn);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

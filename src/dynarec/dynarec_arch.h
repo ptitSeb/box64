@@ -26,7 +26,7 @@
 #define RAZ_SPECIFIC(A, N)      rasNativeState(A, N)
 #define UPDATE_SPECIFICS(A)     updateNativeFlags(A)
 #define PREUPDATE_SPECIFICS(A)
-
+#define POSTUPDATE_SPECIFICS(A) updateUneeded(A)
 #define ARCH_SIZE(A)    get_size_arch(A)
 #define ARCH_FILL(A, B, C) populate_arch(A, B, C)
 #define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
@@ -58,6 +58,7 @@ extern uint32_t arm64_crc(void* p, uint32_t len);
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
+#define POSTUPDATE_SPECIFICS(A)
 
 #define ARCH_SIZE(A)    0
 #define ARCH_FILL(A, B, C)  NULL
@@ -91,6 +92,7 @@ extern uint32_t arm64_crc(void* p, uint32_t len);
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
+#define POSTUPDATE_SPECIFICS(A)
 
 #define ARCH_SIZE(A)    get_size_arch(A)
 #define ARCH_FILL(A, B, C) populate_arch(A, B, C)

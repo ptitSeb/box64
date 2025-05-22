@@ -775,6 +775,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         if(helper.need_x87check==1)
             helper.need_x87check = 0;
     }
+    POSTUPDATE_SPECIFICS(&helper);
     // pass 2, instruction size
     helper.callrets = static_callrets;
     native_pass2(&helper, addr, alternate, is32bits, inst_max);

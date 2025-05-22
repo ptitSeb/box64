@@ -73,6 +73,9 @@ void fpu_reset_scratch(dynarec_arm_t* dyn)
     dyn->n.ymm_write = 0;
     dyn->n.ymm_removed = 0;
     dyn->n.xmm_write = 0;
+    dyn->n.xmm_used = 0;
+    dyn->n.xmm_unneeded = 0;
+    dyn->n.ymm_unneeded = 0;
     dyn->n.xmm_removed = 0;
 }
 // Get a x87 double reg
@@ -846,8 +849,11 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             }
         length += sprintf(buf + length, ")%s", (dyn->need_dump > 1) ? "\e[0;32m" : "");
     }
-    if (dyn->insts[ninst].n.ymm_used) {
-        length += sprintf(buf + length, " ymmUsed=%04x", dyn->insts[ninst].n.ymm_used);
+    if (dyn->insts[ninst].n.xmm_used || dyn->insts[ninst].n.xmm_unneeded) {
+        length += sprintf(buf + length, " xmmUsed=%04x/unneeded=%04x", dyn->insts[ninst].n.xmm_used, dyn->insts[ninst].n.xmm_unneeded);
+    }
+    if (dyn->insts[ninst].n.ymm_used || dyn->insts[ninst].n.ymm_unneeded) {
+        length += sprintf(buf + length, " ymmUsed=%04x/unneeded=%04x", dyn->insts[ninst].n.ymm_used, dyn->insts[ninst].n.ymm_unneeded);
     }
     if (dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub || dyn->insts[ninst].ymm0_out) {
         length += sprintf(buf + length, " ymm0=(%04x/%04x+%04x-%04x=%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_in, dyn->insts[ninst].ymm0_add, dyn->insts[ninst].ymm0_sub, dyn->insts[ninst].ymm0_out);
@@ -1180,4 +1186,46 @@ void fpu_save_and_unwind(dynarec_arm_t* dyn, int ninst, neoncache_t* cache)
 void fpu_unwind_restore(dynarec_arm_t* dyn, int ninst, neoncache_t* cache)
 {
     memcpy(&dyn->insts[ninst].n, cache, sizeof(neoncache_t));
+}
+
+static void propagateXMMUneeded(dynarec_arm_t* dyn, int ninst, int a)
+{
+    if(!ninst) return;
+    ninst = getNominalPred(dyn, ninst);
+    while(ninst>=0) {
+        if(dyn->insts[ninst].n.xmm_used&(1<<a)) return; // used, value is needed
+        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) return; // barrier, value is needed
+        if(dyn->insts[ninst].n.xmm_unneeded&(1<<a)) return; // already handled
+        if(dyn->insts[ninst].x64.jmp) return;   // stop when a jump is detected, that gets too complicated
+        dyn->insts[ninst].n.xmm_unneeded |= (1<<a); // flags
+        ninst = getNominalPred(dyn, ninst); // continue
+    }
+}
+
+static void propagateYMMUneeded(dynarec_arm_t* dyn, int ninst, int a)
+{
+    if(!ninst) return;
+    ninst = getNominalPred(dyn, ninst);
+    while(ninst>=0) {
+        if(dyn->insts[ninst].n.ymm_used&(1<<a)) return; // used, value is needed
+        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) return; // barrier, value is needed
+        if(dyn->insts[ninst].n.ymm_unneeded&(1<<a)) return; // already handled
+        if(dyn->insts[ninst].x64.jmp) return;   // stop when a jump is detected, that gets too complicated
+        dyn->insts[ninst].n.ymm_unneeded |= (1<<a); // flags
+        ninst = getNominalPred(dyn, ninst); // continue
+    }
+}
+
+void updateUneeded(dynarec_arm_t* dyn)
+{
+    for(int ninst=0; ninst<dyn->size; ++ninst) {
+        if(dyn->insts[ninst].n.xmm_unneeded)
+            for(int i=0; i<16; ++i)
+                if(dyn->insts[ninst].n.xmm_unneeded&(1<<i))
+                    propagateXMMUneeded(dyn, ninst, i);
+        if(dyn->insts[ninst].n.ymm_unneeded)
+            for(int i=0; i<16; ++i)
+                if(dyn->insts[ninst].n.ymm_unneeded&(1<<i))
+                    propagateYMMUneeded(dyn, ninst, i);
+    }
 }
