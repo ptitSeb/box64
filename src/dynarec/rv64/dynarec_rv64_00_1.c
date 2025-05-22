@@ -86,6 +86,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
+            SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             PUSH1z(gd);
             break;
@@ -98,6 +99,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
+            SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
@@ -151,6 +153,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;
                 GETGD;
+                SCRATCH_USAGE(0);
                 if (rex.w) {
                     if (MODREG) { // reg <= reg
                         ADDIW(gd, TO_NAT((nextop & 7) + (rex.b << 3)), 0);

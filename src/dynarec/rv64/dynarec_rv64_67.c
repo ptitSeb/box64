@@ -206,6 +206,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("MOVXZ Gd, Eb");
                     nextop = F8;
                     GETGD;
+                    SCRATCH_USAGE(0);
                     if (MODREG) {
                         if (rex.rex) {
                             eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -231,6 +232,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("MOVZX Gd, Ew");
                     nextop = F8;
                     GETGD;
+                    SCRATCH_USAGE(0);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         ZEXTH(gd, ed);
@@ -482,6 +484,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOVSXD Gd, Ed");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (rex.w) {
                 if (MODREG) { // reg <= reg
                     ADDIW(gd, TO_NAT((nextop & 7) + (rex.b << 3)), 0);
@@ -516,6 +519,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             OR(ed, ed, x2);
                         }
                     } else {
+                        SCRATCH_USAGE(0);
                         addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                         SH(gd, ed, fixedaddress);
                         SMWRITELOCK(lock);
@@ -706,6 +710,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
@@ -718,6 +723,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Gd, Ed");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) {
                 MVxw(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
@@ -770,6 +776,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ed, Id");
             nextop = F8;
             if (MODREG) { // reg <= i32
+                SCRATCH_USAGE(0);
                 i64 = F32S;
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);

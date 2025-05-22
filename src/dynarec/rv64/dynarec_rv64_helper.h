@@ -1066,10 +1066,18 @@
     READFLAGS(A)
 #endif
 
-#define NAT_FLAGS_OPS(op1, op2)                    \
-    do {                                           \
-        dyn->insts[ninst + 1].nat_flags_op1 = op1; \
-        dyn->insts[ninst + 1].nat_flags_op2 = op2; \
+#define NAT_FLAGS_OPS(op1, op2, s1, s2)                                     \
+    do {                                                                    \
+        dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = op1;    \
+        dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = op2;    \
+        if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op1)) {        \
+            MV(s1, op1);                                                    \
+            dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = s1; \
+        }                                                                   \
+        if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op2)) {        \
+            MV(s2, op2);                                                    \
+            dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = s2; \
+        }                                                                   \
     } while (0)
 
 #define NAT_FLAGS_ENABLE_CARRY() dyn->insts[ninst].nat_flags_carry = 1
@@ -1951,7 +1959,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         }                                                                            \
         if (dyn->insts[ninst].nat_flags_fusion) {                                    \
             ANDI(s1, dst, 0xff);                                                     \
-            NAT_FLAGS_OPS(s1, xZR);                                                  \
+            NAT_FLAGS_OPS(s1, xZR, xZR, xZR);                                        \
         }                                                                            \
         break;                                                                       \
     }
@@ -1974,7 +1982,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         }                                                                            \
         if (dyn->insts[ninst].nat_flags_fusion) {                                    \
             ZEXTH(s1, dst);                                                          \
-            NAT_FLAGS_OPS(s1, xZR);                                                  \
+            NAT_FLAGS_OPS(s1, xZR, xZR, xZR);                                        \
         }                                                                            \
         break;                                                                       \
     }
@@ -1993,5 +2001,10 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 
 #define VECTOR_LOAD_VMASK(mask, s1, multiple) \
     vector_loadmask(dyn, ninst, VMASK, mask, s1, multiple)
+
+#define SCRATCH_USAGE(usage)                         \
+    do {                                             \
+        dyn->insts[ninst].no_scratch_usage = !usage; \
+    } while (0)
 
 #endif //__DYNAREC_RV64_HELPER_H__
