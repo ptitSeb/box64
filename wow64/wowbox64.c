@@ -18,6 +18,7 @@
 #include "x64trace.h"
 #include "box64context.h"
 #include "box64cpu.h"
+#include "rbtree.h"
 #include "wine/debug.h"
 
 uintptr_t box64_pagesize = 4096;
@@ -140,6 +141,7 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
     unxcode[0] = 0x2ecd;
 
     init_custommem_helper(&box64_context);
+    box64_context.db_sizes = rbtree_init("db_sizes");
 
     if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32)
     {
