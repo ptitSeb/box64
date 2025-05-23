@@ -1058,14 +1058,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("PCMPEQB Gx,Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, 15);
-            for (int i = 0; i < 16; ++i) {
-                LBU(x3, gback, gdoffset + i);
-                LBU(x4, wback, fixedaddress + i);
-                SUB(x3, x3, x4);
-                SEQZ(x3, x3);
-                NEG(x3, x3);
-                SB(x3, gback, gdoffset + i);
+            if (rv64_xtheadbb) {
+                GETEX(x2, 0, 8);
+                SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4); TH_TSTNBZ(x3, x3););
+            } else {
+                GETEX(x2, 0, 15);
+                for (int i = 0; i < 16; ++i) {
+                    LBU(x3, gback, gdoffset + i);
+                    LBU(x4, wback, fixedaddress + i);
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
+                    SB(x3, gback, gdoffset + i);
+                }
             }
             break;
         case 0x75:

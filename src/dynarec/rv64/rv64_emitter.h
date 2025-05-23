@@ -1178,7 +1178,7 @@
 //     reg[rd][i] := 0xff
 //   else
 //     reg[rd][i] := 0
-#define TH_TSTNBZ(rd, rs1) EMIT(I_type(0b1000000000000, rs1, 0b001, rd, 0b0001011))
+#define TH_TSTNBZ(rd, rs1) EMIT(I_type(0b100000000000, rs1, 0b001, rd, 0b0001011))
 
 // XTheadBs - Single-bit instructions
 

@@ -1666,14 +1666,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("PCMPEQB Gm,Em");
             nextop = F8;
             GETGM();
-            GETEM(x2, 0, 7);
-            for (int i = 0; i < 8; ++i) {
-                LBU(x3, gback, gdoffset + i);
-                LBU(x4, wback, fixedaddress + i);
-                SUB(x3, x3, x4);
-                SEQZ(x3, x3);
-                NEG(x3, x3);
-                SB(x3, gback, gdoffset + i);
+            if (rv64_xtheadbb) {
+                GETEM(x2, 0, 0);
+                LD(x3, gback, gdoffset);
+                LD(x4, wback, fixedaddress);
+                XOR(x3, x3, x4);
+                TH_TSTNBZ(x3, x3);
+                SD(x3, gback, gdoffset);
+            } else {
+                GETEM(x2, 0, 7);
+                for (int i = 0; i < 8; ++i) {
+                    LBU(x3, gback, gdoffset + i);
+                    LBU(x4, wback, fixedaddress + i);
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
+                    SB(x3, gback, gdoffset + i);
+                }
             }
             break;
         case 0x75:
