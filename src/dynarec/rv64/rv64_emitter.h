@@ -934,22 +934,26 @@
 // Sign-extend half-word
 #define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word
-#define SEXTH(rd, rs)     \
-    if (rv64_zbb)         \
-        SEXTH_(rd, rs);   \
-    else {                \
-        SLLI(rd, rs, 48); \
-        SRAI(rd, rd, 48); \
+#define SEXTH(rd, rs)          \
+    if (rv64_zbb)              \
+        SEXTH_(rd, rs);        \
+    else if (rv64_xtheadbb)    \
+        TH_EXT(rd, rs, 15, 0); \
+    else {                     \
+        SLLI(rd, rs, 48);      \
+        SRAI(rd, rd, 48);      \
     }
 // Zero-extend half-word
 #define ZEXTH_(rd, rs) EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011))
 // Zero-extend half-word
-#define ZEXTH(rd, rs)     \
-    if (rv64_zbb)         \
-        ZEXTH_(rd, rs);   \
-    else {                \
-        SLLI(rd, rs, 48); \
-        SRLI(rd, rd, 48); \
+#define ZEXTH(rd, rs)           \
+    if (rv64_zbb)               \
+        ZEXTH_(rd, rs);         \
+    else if (rv64_xtheadbb)     \
+        TH_EXTU(rd, rs, 15, 0); \
+    else {                      \
+        SLLI(rd, rs, 48);       \
+        SRLI(rd, rd, 48);       \
     }
 
 // Insert low 16bits in rs to low 16bits of rd
@@ -1174,7 +1178,7 @@
 //     reg[rd][i] := 0xff
 //   else
 //     reg[rd][i] := 0
-#define TH_TSTNBZ(rd, rs1) EMIT(I_type(0b1000000000000, rs1, 0b001, rd, 0b0001011))
+#define TH_TSTNBZ(rd, rs1) EMIT(I_type(0b100000000000, rs1, 0b001, rd, 0b0001011))
 
 // XTheadBs - Single-bit instructions
 
