@@ -934,22 +934,26 @@
 // Sign-extend half-word
 #define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word
-#define SEXTH(rd, rs)     \
-    if (rv64_zbb)         \
-        SEXTH_(rd, rs);   \
-    else {                \
-        SLLI(rd, rs, 48); \
-        SRAI(rd, rd, 48); \
+#define SEXTH(rd, rs)          \
+    if (rv64_zbb)              \
+        SEXTH_(rd, rs);        \
+    else if (rv64_xtheadbb)    \
+        TH_EXT(rd, rs, 16, 0); \
+    else {                     \
+        SLLI(rd, rs, 48);      \
+        SRAI(rd, rd, 48);      \
     }
 // Zero-extend half-word
 #define ZEXTH_(rd, rs) EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011))
 // Zero-extend half-word
-#define ZEXTH(rd, rs)     \
-    if (rv64_zbb)         \
-        ZEXTH_(rd, rs);   \
-    else {                \
-        SLLI(rd, rs, 48); \
-        SRLI(rd, rd, 48); \
+#define ZEXTH(rd, rs)           \
+    if (rv64_zbb)               \
+        ZEXTH_(rd, rs);         \
+    else if (rv64_xtheadbb)     \
+        TH_EXTU(rd, rs, 16, 0); \
+    else {                      \
+        SLLI(rd, rs, 48);       \
+        SRLI(rd, rd, 48);       \
     }
 
 // Insert low 16bits in rs to low 16bits of rd
