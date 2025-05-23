@@ -1426,8 +1426,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             B_NEXT_nocond;
             MARK;
             ANDI(xFlags, xFlags, ~(1 << F_ZF));
-            CLZxw(gd, ed, 0, x1, x2, x6);
-            ADDI(x1, xZR, rex.w ? 63 : 31);
+            CLZxw(gd, ed, 1, x1, x2, x6);
+            ADDI(x1, xZR, 63);
             SUB(gd, x1, gd);
             GWBACK;
             break;
