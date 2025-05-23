@@ -851,44 +851,52 @@
 // Count leading zero bits in word
 #define CLZW(rd, rs) EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, 0b0011011))
 // Count leading zero bits
-#define CLZxw(rd, rs, x, s1, s2, s3)         \
-    if (rv64_zbb) {                          \
-        if (x)                               \
-            CLZ(rd, rs);                     \
-        else                                 \
-            CLZW(rd, rs);                    \
-    } else {                                 \
-        if (rs != rd)                        \
-            u8 = rd;                         \
-        else                                 \
-            u8 = s1;                         \
-        ADDI(u8, xZR, x ? 63 : 31);          \
-        if (x) {                             \
-            MV(s2, rs);                      \
-            SRLI(s3, s2, 32);                \
-            BEQZ(s3, 4 + 2 * 4);             \
-            SUBI(u8, u8, 32);                \
-            MV(s2, s3);                      \
-        } else {                             \
-            ZEXTW2(s2, rs);                  \
-        }                                    \
-        SRLI(s3, s2, 16);                    \
-        BEQZ(s3, 4 + 2 * 4);                 \
-        SUBI(u8, u8, 16);                    \
-        MV(s2, s3);                          \
-        SRLI(s3, s2, 8);                     \
-        BEQZ(s3, 4 + 2 * 4);                 \
-        SUBI(u8, u8, 8);                     \
-        MV(s2, s3);                          \
-        SRLI(s3, s2, 4);                     \
-        BEQZ(s3, 4 + 2 * 4);                 \
-        SUBI(u8, u8, 4);                     \
-        MV(s2, s3);                          \
-        ANDI(s2, s2, 0b1111);                \
-        TABLE64(s3, (uintptr_t) & lead0tab); \
-        ADD(s3, s3, s2);                     \
-        LBU(s2, s3, 0);                      \
-        SUB(rd, u8, s2);                     \
+#define CLZxw(rd, rs, x, s1, s2, s3)       \
+    if (rv64_zbb) {                        \
+        if (x)                             \
+            CLZ(rd, rs);                   \
+        else                               \
+            CLZW(rd, rs);                  \
+    } else if (rv64_xtheadbb) {            \
+        if (x) {                           \
+            TH_FF1(rd, rs);                \
+        } else {                           \
+            ZEXTW2(rd, rs);                \
+            TH_FF1(rd, rd);                \
+            SUBI(rd, rd, 32);              \
+        }                                  \
+    } else {                               \
+        if (rs != rd)                      \
+            u8 = rd;                       \
+        else                               \
+            u8 = s1;                       \
+        ADDI(u8, xZR, x ? 63 : 31);        \
+        if (x) {                           \
+            MV(s2, rs);                    \
+            SRLI(s3, s2, 32);              \
+            BEQZ(s3, 4 + 2 * 4);           \
+            SUBI(u8, u8, 32);              \
+            MV(s2, s3);                    \
+        } else {                           \
+            ZEXTW2(s2, rs);                \
+        }                                  \
+        SRLI(s3, s2, 16);                  \
+        BEQZ(s3, 4 + 2 * 4);               \
+        SUBI(u8, u8, 16);                  \
+        MV(s2, s3);                        \
+        SRLI(s3, s2, 8);                   \
+        BEQZ(s3, 4 + 2 * 4);               \
+        SUBI(u8, u8, 8);                   \
+        MV(s2, s3);                        \
+        SRLI(s3, s2, 4);                   \
+        BEQZ(s3, 4 + 2 * 4);               \
+        SUBI(u8, u8, 4);                   \
+        MV(s2, s3);                        \
+        ANDI(s2, s2, 0b1111);              \
+        TABLE64(s3, (uintptr_t)&lead0tab); \
+        ADD(s3, s3, s2);                   \
+        LBU(s2, s3, 0);                    \
+        SUB(rd, u8, s2);                   \
     }
 
 // Count trailing zero bits
