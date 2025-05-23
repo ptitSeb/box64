@@ -938,7 +938,7 @@
     if (rv64_zbb)              \
         SEXTH_(rd, rs);        \
     else if (rv64_xtheadbb)    \
-        TH_EXT(rd, rs, 16, 0); \
+        TH_EXT(rd, rs, 15, 0); \
     else {                     \
         SLLI(rd, rs, 48);      \
         SRAI(rd, rd, 48);      \
@@ -950,7 +950,7 @@
     if (rv64_zbb)               \
         ZEXTH_(rd, rs);         \
     else if (rv64_xtheadbb)     \
-        TH_EXTU(rd, rs, 16, 0); \
+        TH_EXTU(rd, rs, 15, 0); \
     else {                      \
         SLLI(rd, rs, 48);       \
         SRLI(rd, rd, 48);       \
