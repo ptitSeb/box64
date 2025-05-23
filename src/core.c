@@ -12,7 +12,9 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <sys/prctl.h>
+#include <sys/stat.h>
 #include <stdarg.h>
+#include <ctype.h>
 #ifdef DYNAREC
 #ifdef ARM64
 #include <linux/auxvec.h>
@@ -578,6 +580,64 @@ void PrintHelp() {
     printf_ftrace(0, " options are:\n");
     printf_ftrace(0, "    '-v'|'--version' to print box64 version and quit\n");
     printf_ftrace(0, "    '-h'|'--help' to print this and quit\n");
+    printf_ftrace(0, "    '-k'|'--kill-all' to kill all box64 instances\n");
+}
+
+void KillAllInstances()
+{
+
+    struct dirent* entry;
+    ssize_t len;
+    char proc_path[PATH_MAX];
+    char exe_path[PATH_MAX];
+    char exe_target[PATH_MAX];
+    char self_name[PATH_MAX];
+    char self_name_with_deleted[PATH_MAX];
+
+    DIR* proc_dir = opendir("/proc");
+    if (proc_dir == NULL) {
+        perror("opendir(/proc)");
+        return;
+    }
+
+    ssize_t self_len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (self_len == -1) {
+        perror("readlink(/proc/self/exe)");
+        closedir(proc_dir);
+        return;
+    }
+    exe_path[self_len] = '\0';
+
+    char* base_name_self = strrchr(exe_path, '/');
+    base_name_self = base_name_self ? base_name_self + 1 : exe_path;
+    strncpy(self_name, base_name_self, sizeof(self_name));
+    self_name[sizeof(self_name) - 1] = '\0';
+
+    snprintf(self_name_with_deleted, sizeof(self_name_with_deleted), "%s (deleted)", self_name);
+
+    const pid_t self = getpid();
+    while (entry = readdir(proc_dir)) {
+        const pid_t pid = atoi(entry->d_name);
+        if (!pid || pid == self) continue;
+
+        snprintf(proc_path, sizeof(proc_path), "/proc/%s", entry->d_name);
+        struct stat statbuf;
+        if (stat(proc_path, &statbuf) == -1 || !S_ISDIR(statbuf.st_mode)) continue;
+        snprintf(exe_path, sizeof(exe_path), "%s/exe", proc_path);
+        ssize_t len = readlink(exe_path, exe_target, sizeof(exe_target) - 1);
+        if (len == -1) continue;
+        exe_target[len] = '\0';
+        char* base_name = strrchr(exe_target, '/');
+        base_name = base_name ? base_name + 1 : exe_target;
+        if (strcmp(base_name, self_name) != 0 && strcmp(base_name, self_name_with_deleted) != 0) continue;
+
+        if (!kill(pid, SIGKILL)) {
+            printf_log(LOG_INFO, "Killed box64 process %d\n", pid);
+        } else {
+            printf_log(LOG_INFO, "Failed to kill box64 process %d: %s\n", pid, strerror(errno));
+        }
+    }
+    closedir(proc_dir);
 }
 
 static void addLibPaths(box64context_t* context)
@@ -936,12 +996,16 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             PrintHelp();
             exit(0);
         }
+        if (!strcmp(prog, "-k") || !strcmp(prog, "--kill-all")) {
+            KillAllInstances();
+            exit(0);
+        }
         // other options?
         if(!strcmp(prog, "--")) {
             prog = argv[++nextarg];
             break;
         }
-        printf("Warning, Unrecognized option '%s'\n", prog);
+        printf("Warning, unrecognized option '%s'\n", prog);
         prog = argv[++nextarg];
     }
     if(!prog || nextarg==argc) {
