@@ -2904,15 +2904,19 @@ void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
+    if (rv64_zbb) {
+        ANDI(s3, s1, 0xFF);
+        CPOPW(s3, s3);
+    } else {
+        SRLI(s3, s1, 4);
+        XOR(s3, s3, s1);
 
-    SRLI(s3, s1, 4);
-    XOR(s3, s3, s1);
+        SRLI(s4, s3, 2);
+        XOR(s4, s3, s4);
 
-    SRLI(s4, s3, 2);
-    XOR(s4, s3, s4);
-
-    SRLI(s3, s4, 1);
-    XOR(s3, s3, s4);
+        SRLI(s3, s4, 1);
+        XOR(s3, s3, s4);
+    }
 
     ANDI(s3, s3, 1);
     XORI(s3, s3, 1);
