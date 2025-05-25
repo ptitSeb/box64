@@ -7,7 +7,8 @@ NTSYSAPI ULONG NTAPI RtlRandom(ULONG *seed);
 
 const char* getBoxCpuName()
 {
-    return NULL;
+    static char branding[] = "libwowbox64.dll";
+    return branding;
 }
 
 void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
