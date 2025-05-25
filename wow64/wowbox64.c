@@ -12,6 +12,7 @@
 #include "compiler.h"
 #include "os.h"
 #include "custommem.h"
+#include "dynablock.h"
 #include "env.h"
 #include "emu/x64emu_private.h"
 #include "emu/x87emu_private.h"
@@ -166,9 +167,40 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
     return STATUS_SUCCESS;
 }
 
+static uint8_t box64_is_addr_in_jit(void* addr)
+{
+    if (!addr)
+        return FALSE;
+    return !!FindDynablockFromNativeAddress(addr);
+}
+
 NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 {
-    // NYI
+    x64emu_t *emu = NtCurrentTeb()->TlsSlots[0];  // FIXME
+    EXCEPTION_RECORD *rec = ptrs->ExceptionRecord;
+    CONTEXT *ctx = ptrs->ContextRecord;
+
+    if (rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+    {
+        dynablock_t *db = NULL;
+        void* addr = NULL;
+        uint32_t prot;
+
+        if (rec->NumberParameters == 2 && rec->ExceptionInformation[0] == 1)
+            addr = ULongToPtr(rec->ExceptionInformation[1]);
+
+        if (addr)
+        {
+            unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+            NtContinue(ctx, FALSE);
+        }
+    }
+
+    if (!box64_is_addr_in_jit(ULongToPtr(ctx->Pc)))
+        return STATUS_SUCCESS;
+
+    /* Replace the host context with one captured before JIT entry so host code can unwind */
+    memcpy(ctx, NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER], sizeof(*ctx));
     return STATUS_SUCCESS;
 }
 
