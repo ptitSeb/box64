@@ -1,19 +1,31 @@
 #include <windows.h>
 
 #include "my_cpuid.h"
+#include "debug.h"
 
 NTSYSAPI ULONG WINAPI NtGetTickCount(VOID);
 NTSYSAPI ULONG NTAPI RtlRandom(ULONG *seed);
+
+static int nCPU = 0;
+
+void grabNCpu() {
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    nCPU = sysinfo.dwNumberOfProcessors;
+}
+int getNCpu()
+{
+    if(!nCPU)
+        grabNCpu();
+    if(BOX64ENV(maxcpu) && nCPU>BOX64ENV(maxcpu))
+        return BOX64ENV(maxcpu);
+    return nCPU;
+}
 
 const char* getBoxCpuName()
 {
     static char branding[] = "libwowbox64.dll";
     return branding;
-}
-
-void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
-{
-    // FIXME
 }
 
 uint32_t helper_getcpu(x64emu_t* emu) {
