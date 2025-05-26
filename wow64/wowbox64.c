@@ -86,6 +86,44 @@ static box64context_t box64_context;
 box64context_t *my_context = &box64_context;
 
 
+void fpu_to_box(WOW64_CONTEXT *ctx, x64emu_t *emu)
+{
+    XMM_SAVE_AREA32 *fpu = (XMM_SAVE_AREA32 *)ctx->ExtendedRegisters;
+
+    emu->mxcsr.x32 = fpu->MxCsr;
+    emu->cw.x16 = fpu->ControlWord;
+    emu->sw.x16 = fpu->StatusWord;
+
+    LD2D(&ctx->FloatSave.RegisterArea[ 0], &emu->x87[0]);
+    LD2D(&ctx->FloatSave.RegisterArea[10], &emu->x87[1]);
+    LD2D(&ctx->FloatSave.RegisterArea[20], &emu->x87[2]);
+    LD2D(&ctx->FloatSave.RegisterArea[30], &emu->x87[3]);
+    LD2D(&ctx->FloatSave.RegisterArea[40], &emu->x87[4]);
+    LD2D(&ctx->FloatSave.RegisterArea[50], &emu->x87[5]);
+    LD2D(&ctx->FloatSave.RegisterArea[60], &emu->x87[6]);
+    LD2D(&ctx->FloatSave.RegisterArea[70], &emu->x87[7]);
+    memcpy(emu->xmm, fpu->XmmRegisters, sizeof(emu->xmm));
+}
+
+void box_to_fpu(WOW64_CONTEXT *ctx, x64emu_t *emu)
+{
+    XMM_SAVE_AREA32 *fpu = (XMM_SAVE_AREA32 *)ctx->ExtendedRegisters;
+
+    fpu->MxCsr = emu->mxcsr.x32;
+    fpu->ControlWord = emu->cw.x16;
+    fpu->StatusWord  = emu->sw.x16;
+
+    D2LD(&emu->x87[0], &ctx->FloatSave.RegisterArea[ 0]);
+    D2LD(&emu->x87[1], &ctx->FloatSave.RegisterArea[10]);
+    D2LD(&emu->x87[2], &ctx->FloatSave.RegisterArea[20]);
+    D2LD(&emu->x87[3], &ctx->FloatSave.RegisterArea[30]);
+    D2LD(&emu->x87[4], &ctx->FloatSave.RegisterArea[40]);
+    D2LD(&emu->x87[5], &ctx->FloatSave.RegisterArea[50]);
+    D2LD(&emu->x87[6], &ctx->FloatSave.RegisterArea[60]);
+    D2LD(&emu->x87[7], &ctx->FloatSave.RegisterArea[70]);
+    memcpy(fpu->XmmRegisters, emu->xmm, sizeof(emu->xmm));
+}
+
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
     // NYI
@@ -238,6 +276,8 @@ void WINAPI BTCpuSimulate(void)
     emu->segs_offs[_FS] = calculate_fs();
     emu->win64_teb = (uint64_t)NtCurrentTeb();
 
+    fpu_to_box(ctx, emu);
+
     if (box64env.dynarec)
         DynaRun(emu);
     else
@@ -296,6 +336,8 @@ void x86IntImpl(x64emu_t *emu, int code)
         ctx->EFlags = emu->eflags.x64;
         cpu->Flags = 0;
 
+        box_to_fpu(ctx, emu);
+
         if (is_unix_call)
         {
             uintptr_t handle_low = Pop32(emu);
@@ -310,6 +352,8 @@ void x86IntImpl(x64emu_t *emu, int code)
         {
             R_EAX = Wow64SystemServiceEx( id, ULongToPtr(ctx->Esp+4) );
         }
+
+        fpu_to_box(ctx, emu);
 
         R_EBX = ctx->Ebx;
         R_ESI = ctx->Esi;

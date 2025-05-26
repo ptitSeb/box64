@@ -15,6 +15,25 @@ typedef struct _WOW64_CPURESERVED
     USHORT Machine;
 } WOW64_CPURESERVED;
 
+typedef struct _XMM_SAVE_AREA32 {
+    WORD  ControlWord;
+    WORD  StatusWord;
+    BYTE  TagWord;
+    BYTE  Reserved1;
+    WORD  ErrorOpcode;
+    DWORD ErrorOffset;
+    WORD  ErrorSelector;
+    WORD  Reserved2;
+    DWORD DataOffset;
+    WORD  DataSelector;
+    WORD  Reserved3;
+    DWORD MxCsr;
+    DWORD MxCsr_Mask;
+    M128A FloatRegisters[8];
+    M128A XmmRegisters[16];
+    BYTE  Reserved4[96];
+} XMM_SAVE_AREA32;
+
 NTSTATUS WINAPI RtlWow64GetCurrentCpuArea(USHORT *, void **, void **);
 NTSTATUS  WINAPI Wow64SystemServiceEx(UINT, UINT*);
 NTSYSAPI NTSTATUS WINAPI LdrGetDllHandle(LPCWSTR, ULONG, const UNICODE_STRING*, HMODULE*);
