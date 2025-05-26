@@ -1154,6 +1154,8 @@ endif()
 add_custom_target(generate_git_head_target
   DEPENDS "${BOX64_ROOT}/src/git_head.h"
 )
+add_custom_target(functions_list DEPENDS "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt" "${BOX64_ROOT}/src/wrapped32/generated/functions_list.txt")
+add_dependencies(generate_git_head_target functions_list)
 
 add_library(interpreter OBJECT ${INTERPRETER})
 
