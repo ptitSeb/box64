@@ -739,6 +739,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) { // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else { // mem <= reg
+                SCRATCH_USAGE(0);
                 addr = geted32(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
                 ZEXTW2(gd, ed);
             }
