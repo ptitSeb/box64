@@ -1309,6 +1309,11 @@
 // mem[rs1+7:rs1] := rd
 #define TH_SDIB(rd, rs1, imm5, imm2) EMIT(I_type(0b011010000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b101, rd, 0b0001011))
 
+// Load indexed word.
+// addr := rs1 + (rs2 << imm2)
+// rd := sign_extend(mem[addr+7:addr])
+#define TH_LRD(rd, rs1, rs2, imm2) EMIT(R_type(0b0110000 | ((imm2) & 0b11), rs2, rs1, 0b100, rd, 0b0001011))
+
 // TODO
 // th.lbib rd, (rs1), imm5, imm2 Load indexed byte
 // th.lbuia rd, (rs1), imm5, imm2 Load indexed unsigned byte
@@ -1333,7 +1338,6 @@
 // th.lrhu rd, rs1, rs2, imm2 Load indexed unsigned half-word
 // th.lrw rd, rs1, rs2, imm2 Load indexed word
 // th.lrwu rd, rs1, rs2, imm2 Load indexed unsigned word
-// th.lrd rd, rs1, rs2, imm2 Load indexed double-word
 // th.srb rd, rs1, rs2, imm2 Store indexed byte
 // th.srh rd, rs1, rs2, imm2 Store indexed half-word
 // th.srw rd, rs1, rs2, imm2 Store indexed word
