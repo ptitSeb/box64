@@ -51,6 +51,10 @@ static UINT16 DECLSPEC_ALIGN(4096) unxcode[4096/sizeof(UINT16)];
 typedef UINT64 unixlib_handle_t;
 NTSTATUS (WINAPI *__wine_unix_call_dispatcher)( unixlib_handle_t, unsigned int, void * );
 
+#define ROUND_ADDR(addr,mask) ((void *)((UINT_PTR)(addr) & ~(UINT_PTR)(mask)))
+#define ROUND_SIZE(addr,size) (((SIZE_T)(size) + ((UINT_PTR)(addr) & page_mask) + page_mask) & ~page_mask)
+static const UINT_PTR page_mask = 0xfff;
+
 int is_addr_unaligned(uintptr_t addr)
 {
     // FIXME
@@ -172,7 +176,10 @@ NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WO
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
 {
-    // NYI
+    if (!size)
+        invalidate_mapped_section( addr );
+    else if (free_type & MEM_DECOMMIT)
+        unprotectDB((uintptr_t)ROUND_ADDR( addr, page_mask ), (DWORD64)ROUND_SIZE( addr, size ), 1);
 }
 
 void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
