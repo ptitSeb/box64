@@ -303,6 +303,146 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
             return buff;
         }
 
+        // rv_xtheadmemidx, TH.LRB
+        if ((opcode & 0xf800707f) == 0x400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRB", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LRBU
+        if ((opcode & 0xf800707f) == 0x8000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRBU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LRD
+        if ((opcode & 0xf800707f) == 0x6000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LRH
+        if ((opcode & 0xf800707f) == 0x2000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRH", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LRHU
+        if ((opcode & 0xf800707f) == 0xa000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRHU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LRW
+        if ((opcode & 0xf800707f) == 0x4000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LRWU
+        if ((opcode & 0xf800707f) == 0xc000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LRWU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURB
+        if ((opcode & 0xf800707f) == 0x1000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURB", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURBU
+        if ((opcode & 0xf800707f) == 0x9000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURBU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURD
+        if ((opcode & 0xf800707f) == 0x7000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURH
+        if ((opcode & 0xf800707f) == 0x3000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURH", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURHU
+        if ((opcode & 0xf800707f) == 0xb000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURHU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURW
+        if ((opcode & 0xf800707f) == 0x5000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.LURWU
+        if ((opcode & 0xf800707f) == 0xd000400b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.LURWU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
         // rv_xtheadmempair, TH.LWD
         if ((opcode & 0xf800707f) == 0xe000400b) {
             a.rd = FX(opcode, 11, 7);
@@ -417,6 +557,36 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
             return buff;
         }
 
+        // rv_xtheadmemidx, TH.SRB
+        if ((opcode & 0xf800707f) == 0x500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SRB", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SRD
+        if ((opcode & 0xf800707f) == 0x6000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SRD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SRH
+        if ((opcode & 0xf800707f) == 0x2000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SRH", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
         // rv_xtheadbb, TH.SRRI
         if ((opcode & 0xfc00707f) == 0x1000100b) {
             a.rd = FX(opcode, 11, 7);
@@ -432,6 +602,56 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
             a.rs1 = FX(opcode, 19, 15);
             a.imm = FX(opcode, 24, 20);
             snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "TH.SRRIW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SRW
+        if ((opcode & 0xf800707f) == 0x4000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SRW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SURB
+        if ((opcode & 0xf800707f) == 0x1000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SURB", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SURD
+        if ((opcode & 0xf800707f) == 0x7000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SURD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SURH
+        if ((opcode & 0xf800707f) == 0x3000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SURH", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
+            return buff;
+        }
+
+        // rv_xtheadmemidx, TH.SURW
+        if ((opcode & 0xf800707f) == 0x5000500b) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            a.imm2 = FX(opcode, 26, 25);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, 0x%x(%d)", "TH.SURW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], a.imm2, a.imm2);
             return buff;
         }
 
