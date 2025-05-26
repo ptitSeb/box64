@@ -153,7 +153,9 @@ void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
 
 void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 {
-    // NYI
+    if (!(new_protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+        return;
+    unprotectDB((uintptr_t)addr, size, 1);
 }
 
 void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
