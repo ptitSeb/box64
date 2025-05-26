@@ -40,6 +40,7 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <regex.h>
+#include <sys/prctl.h>
 #ifndef WINLATOR_GLIBC
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -2211,6 +2212,17 @@ EXPORT void* my32_gmtime(x64emu_t* emu, void* t)
     return NULL;
 }
 
+EXPORT void* my32___gmtime64(x64emu_t* emu, void* t)
+{
+    static struct_iiiiiiiiilt_t res_ = {0};
+    void* ret = gmtime(t);
+    if(ret) {
+        to_struct_iiiiiiiiilt(to_ptrv(&res_), ret);
+        return &res_;
+    }
+    return NULL;
+}
+
 EXPORT void* my32_gmtime_r(x64emu_t* emu, void* t, void* res)
 {
     struct_L_t t_ = {0};
@@ -2430,6 +2442,7 @@ EXPORT int32_t my32_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, ui
         int ret = fcntl(a, b, &fl);
         UnalignFlock_32(from_ptrv(d1), &fl);
         return ret;
+        //TODO: there might be some time related wells that need wrapping too
     }
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
@@ -3367,6 +3380,44 @@ EXPORT int my32_waitid(x64emu_t* emu, uint32_t idtype, uint32_t id, void* siginf
     int ret = waitid(idtype, id, siginfo?(&siginfo_l):NULL, options);
     convert_siginfo_to_32(siginfo, &siginfo_l, SIGCHLD);
     return ret;
+}
+
+EXPORT int my32___prctl_time64(x64emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
+{
+    if(option==PR_SET_NAME) {
+        printf_log(LOG_DEBUG, "set process name to \"%s\"\n", (char*)arg2);
+        ApplyEnvFileEntry((char*)arg2);
+        size_t l = strlen((char*)arg2);
+        if(l>4 && !strcasecmp((char*)arg2+l-4, ".exe")) {
+            printf_log(LOG_DEBUG, "hacking orig command line to \"%s\"\n", (char*)arg2);
+            strcpy(my_context->orig_argv[0], (char*)arg2);
+        }
+    }
+    if(option==PR_SET_SECCOMP) {
+        printf_log(LOG_INFO, "ignoring prctl(PR_SET_SECCOMP, ...)\n");
+        return 0;
+    }
+    return prctl(option, arg2, arg3, arg4, arg5);
+}
+
+EXPORT int my32_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
+{
+    // PR_GET_TID_ADDRESS has int** as arg2
+    // is there a call that have a time arg?
+    if(option==PR_SET_NAME) {
+        printf_log(LOG_DEBUG, "set process name to \"%s\"\n", (char*)arg2);
+        ApplyEnvFileEntry((char*)arg2);
+        size_t l = strlen((char*)arg2);
+        if(l>4 && !strcasecmp((char*)arg2+l-4, ".exe")) {
+            printf_log(LOG_DEBUG, "hacking orig command line to \"%s\"\n", (char*)arg2);
+            strcpy(my_context->orig_argv[0], (char*)arg2);
+        }
+    }
+    if(option==PR_SET_SECCOMP) {
+        printf_log(LOG_INFO, "ignoring prctl(PR_SET_SECCOMP, ...)\n");
+        return 0;
+    }
+    return prctl(option, arg2, arg3, arg4, arg5);
 }
 
 #undef HAS_MY

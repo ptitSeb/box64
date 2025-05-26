@@ -25,8 +25,10 @@ GO(aio_suspend64, iEpip)
 GO(aio_write64, iEp)
 GO(clock_getcpuclockid, iEup)
 GO(clock_getres, iEuBLL_)
+GO2(__clock_getres64, iEup, clock_getres)
 GO(clock_gettime, iEuBLL_)   // *timespec
 GO2(__clock_gettime, iEuBLL_, clock_gettime)
+GO2(__clock_gettime64, iEup, clock_gettime)
 GO(clock_nanosleep, iEuirLL_BLL_)
 //GO(clock_settime, iEup)
 // lio_listio

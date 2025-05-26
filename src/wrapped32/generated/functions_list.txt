@@ -555,6 +555,7 @@
 #() iEiip -> iEiip
 #() iFiip -> iFiip
 #() iEiiO -> iEiiO
+#() iEiiN -> iEiiN
 #() iEiII -> iEiII
 #() iFiui -> iFiui
 #() iEiuu -> iEiuu
@@ -679,6 +680,7 @@
 #() dEddp -> dEddp
 #() lEEuV -> lEEuV
 #() lEili -> lEili
+#() lEipi -> lEipi
 #() lEipL -> lEipL
 #() lFlll -> lFlll
 #() lElpi -> lElpi
@@ -1426,7 +1428,6 @@
 #() iFiuuuu -> iFiuuuu
 #() iFiuuuU -> iFiuuuU
 #() iFiuuup -> iFiuuup
-#() iEiLLLL -> iEiLLLL
 #() iFipiip -> iFipiip
 #() iEipLLi -> iEipLLi
 #() iFippuu -> iFippuu
@@ -1663,6 +1664,7 @@
 #() vFXLiipi -> vFXLiipi
 #() vFXLpppi -> vFXLpppi
 #() iEEiippi -> iEEiippi
+#() iEEiLLLL -> iEEiLLLL
 #() iEEipiup -> iEEipiup
 #() iEEuppLp -> iEEuppLp
 #() iEEpiipi -> iEEpiipi
@@ -2340,6 +2342,8 @@ wrappedlibc:
 - lES:
   - ftell
 - LEL:
+- LEp:
+  - __mktime64
 - pEv:
   - __ctype_b_loc
   - __ctype_tolower_loc
@@ -2359,6 +2363,8 @@ wrappedlibc:
   - _ZGTtnaX
   - _ZGTtnam
 - pEp:
+  - __ctime64
+  - __gmtime64
   - __localtime64
   - getgrnam
   - getprotobyname
@@ -2384,7 +2390,9 @@ wrappedlibc:
 - vEpu:
 - vEpp:
 - iFip:
+  - __fstat64_time64
 - iEip:
+  - __futimens64
   - fstatvfs
   - fstatvfs64
   - futimens
@@ -2396,6 +2404,9 @@ wrappedlibc:
   - backtrace
 - iEpL:
 - iEpp:
+  - __gettimeofday64
+  - __lstat64_time64
+  - __stat64_time64
   - alphasort64
   - statvfs
   - statvfs64
@@ -2435,6 +2446,9 @@ wrappedlibc:
 - vEppu:
 - iEiip:
 - iEiiN:
+  - __fcntl_time64
+- iEiLp:
+  - __ioctl_time64
 - iEipp:
 - iEipV:
 - iEpii:
@@ -2454,6 +2468,8 @@ wrappedlibc:
   - __isoc99_fscanf
   - fscanf
 - lEipi:
+  - __recvmsg64
+  - __sendmsg64
   - readv
   - recvmsg
   - sendmsg
@@ -2497,6 +2513,7 @@ wrappedlibc:
 - iEipup:
   - __xmknod
 - iEippi:
+  - __fstatat64_time64
   - utimensat
 - iEippL:
   - readlinkat
@@ -2515,10 +2532,18 @@ wrappedlibc:
 - uEippu:
   - regerror
 - LEpBp_ii:
+- iEiiipu:
+  - __setsockopt64
+- iEiiipp:
+  - __getsockopt64
 - iEiippi:
+- iEiLLLL:
+  - __prctl_time64
+  - prctl
 - iEipiup:
   - statx
 - iEipppp:
+  - __select64
   - getopt_long
 - iEuppLp:
   - getgrgid_r
@@ -2860,6 +2885,9 @@ wrappedlibresolv:
   - __res_nquery
   - __res_nsearch
 wrappedlibrt:
+- iEup:
+  - __clock_getres64
+  - __clock_gettime64
 - iEuBLL_:
   - __clock_gettime
 wrappedlibuuid:

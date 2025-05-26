@@ -177,6 +177,7 @@ GO(creat64, iEpu)
 // create_module    // Weak
 GO(ctermid, tEp)
 GOM(ctime, pErl_)   //%noE
+GO2(__ctime64, pEp, ctime)
 GO(ctime_r, pErl_p)
 DATAM(__ctype_b, 4)
 GOM(__ctype_b_loc, pEEv)
@@ -314,6 +315,7 @@ GO(fclose, iES)
 GOW(fcloseall, iEv)
 GOM(fcntl, iEEiiN)   //%% this also use a vararg for 3rd argument
 GOM(__fcntl, iEEiiN) //%%
+GO2(__fcntl_time64, iEiiN, my_fcntl)
 GOM(fcntl64, iEEiiN) //%%
 //GO(fcvt, pEdipp)
 //GO(fcvt_r, iEdipppL)
@@ -420,6 +422,8 @@ GO(__fsetlocking, iESi)
 //GO(fsetpos64, iEpp)
 GO(fsetxattr, iEippLi)
 GOM(fstat, iFip)    //%%,noE
+GO2(__fstat64_time64, iFip, fstat)
+GO2(__fstatat64_time64, iEippi, fstatat)
 GOWM(fstatfs, iEip) //%%,noE
 GOWM(fstatfs64, iEip)    //%%,noE
 GOM(fstatvfs, iEEip)
@@ -442,6 +446,7 @@ GOW(ftruncate64, iEiI)
 GOM(ftw64, iEEppi)       //%%
 GOW(funlockfile, vFS)
 GOM(futimens, iEEip)
+GO2(__futimens64, iEip, futimens)
 GOWM(futimes, iEEip)
 //GO(futimesat, iEippp)
 // fwide
@@ -594,7 +599,8 @@ GOM(getservbyname, pEEpp)
 //GO(getservent_r, iEppup)
 GO(getsid, iEi)
 GOW(getsockname, iEipp)
-GOW(getsockopt, iEiiipp)
+GOW(getsockopt, iEiiipp)    // might need wrapping!
+GO2(__getsockopt64, iEiiipp, getsockopt)
 // getsourcefilter
 //GO(getspent, pEv)
 // getspent_r
@@ -605,6 +611,7 @@ GOW(gettext, pEp)
 GOW(gettid, iEv)
 GOW(gettimeofday, iEBll_p)
 //GO(__gettimeofday, iEpp)
+GO2(__gettimeofday64, iEpp, gettimeofday)
 // getttyent
 // getttynam
 GOW(getuid, uEv)
@@ -634,6 +641,7 @@ GO(globfree, vEp)
 //GO(globfree64, vEp)
 // glob_pattern_p   // Weak
 GOM(gmtime, pEEp)
+GOM(__gmtime64, pEEp)
 GO2(__gmtime_r, pEpp, my32_gmtime_r)
 GOWM(gmtime_r, pEEpp)
 GO(gnu_dev_major, uEU)
@@ -728,6 +736,7 @@ GO(inotify_rm_watch, iEii)
 //GO(_IO_adjust_column, uEupi)
 // _IO_adjust_wcolumn
 GO(ioctl, iEiLp)   //the vararg is just to have optional arg of various type, but only 1 arg
+GO2(__ioctl_time64, iEiLp, ioctl)
 //GO(_IO_default_doallocate, iES)
 //GO(_IO_default_finish, vESi)
 //GO(_IO_default_pbackfail, iESi)
@@ -1139,6 +1148,7 @@ GO(mkstemp, iEp)
 GO(mkstemp64, iEp)
 //GO(mktemp, pEp)
 GO(mktime, LEbiiiiiiiiilt_)
+GO2(__mktime64, LEp, mktime)
 GO(mlock, iEpL)
 GO(mlockall, iEi)
 GOM(mmap, pEEpLiiil)    //%%
@@ -1294,7 +1304,8 @@ GOM(posix_spawn_file_actions_init, iEEp)    //%%
 GOM(posix_spawnp, iEEpppppp) //%%
 GO(ppoll, iEpurLL_p)
 GO(__ppoll_chk, iEpurLL_pL)
-GOW(prctl, iEiLLLL)
+GOWM(prctl, iEEiLLLL)
+GOWM(__prctl_time64, iEEiLLLL)
 GOW(pread, lEipLl)
 GOW(pread64, lEipLI)
 // __pread64    // Weak
@@ -1394,6 +1405,7 @@ GOW(recvfrom, lEipLipp)
 // __recvfrom_chk
 GOM(recvmmsg, iEEipuurLL_)
 GOWM(recvmsg, lEEipi)
+GO2(__recvmsg64, lEipi, recvmsg)
 // re_exec  // Weak
 GOWM(regcomp, iEEppi)
 GOWM(regerror, uEEippu)
@@ -1483,6 +1495,7 @@ GO(secure_getenv, tEp)
 //GO(seekdir, vEpi)
 GOW(select, iEippprLL_)
 GO(__select, iEippprLL_)
+GO2(__select64, iEipppp, select)
 GO(semctl, iEiiiN)
 GOW(semget, iEiii)
 GOW(semop, iEipL)
@@ -1492,6 +1505,7 @@ GOW(send, lEipLi)
 GO(sendfile, lEiibl_L)
 GO(sendfile64, lEiipL)
 GOWM(sendmsg, lEEipi)
+GO2(__sendmsg64, lEipi, sendmsg)
 GOM(sendmmsg, iEEipuu)
 GOW(sendto, lEipLipu)
 // setaliasent
@@ -1541,6 +1555,7 @@ GO(setrlimit64, iEup)
 // setservent
 GOW(setsid, iEv)
 GOW(setsockopt, iEiiipu)
+GO2(__setsockopt64, iEiiipu, setsockopt)
 // setsourcefilter
 GO(setspent, vEv)
 // setstate // Weak
@@ -1627,7 +1642,9 @@ GOM(sscanf, iEEppV) //%%
 // sstk
 GOM(__stack_chk_fail, vEEv) //%%
 //GOM(lstat64, iEpp)	//%%,noE
+GO2(__lstat64_time64, iEEpp, my_lstat64)
 //GOM(stat64, iEpp)	//%%,noE
+GO2(__stat64_time64, iEEpp, my_stat64)
 GOM(stat, iFpp) //%%,noE
 GOWM(statfs, iEpp)  //%%,noE
 // __statfs
