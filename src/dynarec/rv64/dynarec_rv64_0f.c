@@ -937,11 +937,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     if (MODREG) {                                                                                \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                \
         if (dyn->insts[ninst].nat_flags_fusion) {                                                \
-            NATIVEJUMP(NATNO, 8);                                                                \
+            NATIVEMV(NATYES, gd, ed);                                                            \
         } else {                                                                                 \
-            B##NO(tmp1, 8);                                                                      \
+            MV##YES(gd, ed, tmp1);                                                               \
         }                                                                                        \
-        MV(gd, ed);                                                                              \
         if (!rex.w) ZEROUP(gd);                                                                  \
     } else {                                                                                     \
         addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \

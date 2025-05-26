@@ -251,6 +251,48 @@
 #define SGTU(rd, rs1, rs2) SLTU(rd, rs2, rs1);
 #define SLEU(rd, rs1, rs2) SGEU(rd, rs2, rs1);
 
+#define MVEQ(rd, rs1, rs2, rs3)                             \
+    if (rv64_xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
+        TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));      \
+    } else {                                                \
+        BNE(rs2, rs3, 8);                                   \
+        MV(rd, rs1);                                        \
+    }
+#define MVNE(rd, rs1, rs2, rs3)                             \
+    if (rv64_xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
+        TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));      \
+    } else {                                                \
+        BEQ(rs2, rs3, 8);                                   \
+        MV(rd, rs1);                                        \
+    }
+#define MVLT(rd, rs1, rs2, rs3) \
+    BGE(rs2, rs3, 8);           \
+    MV(rd, rs1);
+#define MVGE(rd, rs1, rs2, rs3) \
+    BLT(rs2, rs3, 8);           \
+    MV(rd, rs1);
+#define MVLTU(rd, rs1, rs2, rs3) \
+    BGEU(rs2, rs3, 8);           \
+    MV(rd, rs1);
+#define MVGEU(rd, rs1, rs2, rs3) \
+    BLTU(rs2, rs3, 8);           \
+    MV(rd, rs1);
+#define MVGT(rd, rs1, rs2, rs3) \
+    BGEU(rs3, rs2, 8);          \
+    MV(rd, rs1);
+#define MVLE(rd, rs1, rs2, rs3) \
+    BLT(rs3, rs2, 8);           \
+    MV(rd, rs1);
+#define MVGTU(rd, rs1, rs2, rs3) \
+    BGEU(rs3, rs2, 8);           \
+    MV(rd, rs1);
+#define MVLEU(rd, rs1, rs2, rs3) \
+    BLTU(rs3, rs2, 8);           \
+    MV(rd, rs1);
+
+#define MVEQZ(rd, rs1, rs2) MVEQ(rd, rs1, rs2, xZR)
+#define MVNEZ(rd, rs1, rs2) MVNE(rd, rs1, rs2, xZR)
+
 #define BEQ_safe(rs1, rs2, imm)              \
     if ((imm) > -0x1000 && (imm) < 0x1000) { \
         BEQ(rs1, rs2, imm);                  \
