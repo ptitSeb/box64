@@ -51,6 +51,10 @@ static UINT16 DECLSPEC_ALIGN(4096) unxcode[4096/sizeof(UINT16)];
 typedef UINT64 unixlib_handle_t;
 NTSTATUS (WINAPI *__wine_unix_call_dispatcher)( unixlib_handle_t, unsigned int, void * );
 
+#define ROUND_ADDR(addr,mask) ((void *)((UINT_PTR)(addr) & ~(UINT_PTR)(mask)))
+#define ROUND_SIZE(addr,size) (((SIZE_T)(size) + ((UINT_PTR)(addr) & page_mask) + page_mask) & ~page_mask)
+static const UINT_PTR page_mask = 0xfff;
+
 int is_addr_unaligned(uintptr_t addr)
 {
     // FIXME
@@ -86,6 +90,68 @@ static box64context_t box64_context;
 box64context_t *my_context = &box64_context;
 
 
+void fpu_to_box(WOW64_CONTEXT *ctx, x64emu_t *emu)
+{
+    XMM_SAVE_AREA32 *fpu = (XMM_SAVE_AREA32 *)ctx->ExtendedRegisters;
+
+    emu->mxcsr.x32 = fpu->MxCsr;
+    emu->cw.x16 = fpu->ControlWord;
+    emu->sw.x16 = fpu->StatusWord;
+
+    LD2D(&ctx->FloatSave.RegisterArea[ 0], &emu->x87[0]);
+    LD2D(&ctx->FloatSave.RegisterArea[10], &emu->x87[1]);
+    LD2D(&ctx->FloatSave.RegisterArea[20], &emu->x87[2]);
+    LD2D(&ctx->FloatSave.RegisterArea[30], &emu->x87[3]);
+    LD2D(&ctx->FloatSave.RegisterArea[40], &emu->x87[4]);
+    LD2D(&ctx->FloatSave.RegisterArea[50], &emu->x87[5]);
+    LD2D(&ctx->FloatSave.RegisterArea[60], &emu->x87[6]);
+    LD2D(&ctx->FloatSave.RegisterArea[70], &emu->x87[7]);
+    memcpy(emu->xmm, fpu->XmmRegisters, sizeof(emu->xmm));
+}
+
+void box_to_fpu(WOW64_CONTEXT *ctx, x64emu_t *emu)
+{
+    XMM_SAVE_AREA32 *fpu = (XMM_SAVE_AREA32 *)ctx->ExtendedRegisters;
+
+    fpu->MxCsr = emu->mxcsr.x32;
+    fpu->ControlWord = emu->cw.x16;
+    fpu->StatusWord  = emu->sw.x16;
+
+    D2LD(&emu->x87[0], &ctx->FloatSave.RegisterArea[ 0]);
+    D2LD(&emu->x87[1], &ctx->FloatSave.RegisterArea[10]);
+    D2LD(&emu->x87[2], &ctx->FloatSave.RegisterArea[20]);
+    D2LD(&emu->x87[3], &ctx->FloatSave.RegisterArea[30]);
+    D2LD(&emu->x87[4], &ctx->FloatSave.RegisterArea[40]);
+    D2LD(&emu->x87[5], &ctx->FloatSave.RegisterArea[50]);
+    D2LD(&emu->x87[6], &ctx->FloatSave.RegisterArea[60]);
+    D2LD(&emu->x87[7], &ctx->FloatSave.RegisterArea[70]);
+    memcpy(fpu->XmmRegisters, emu->xmm, sizeof(emu->xmm));
+}
+
+static NTSTATUS invalidate_mapped_section( PVOID addr )
+{
+    MEMORY_BASIC_INFORMATION mem_info;
+    SIZE_T size;
+    void* base;
+
+    NTSTATUS ret = NtQueryVirtualMemory( NtCurrentProcess(), addr, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL );
+
+    if (!NT_SUCCESS(ret))
+        return ret;
+
+    base = mem_info.AllocationBase;
+    size = (char*)mem_info.BaseAddress + mem_info.RegionSize - (char*)base;
+
+    while (!NtQueryVirtualMemory( NtCurrentProcess(), (char*)base + size, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL) &&
+           mem_info.AllocationBase == base)
+    {
+        size += mem_info.RegionSize;
+    }
+
+    unprotectDB((uintptr_t)base, (DWORD64)size, 1);
+    return STATUS_SUCCESS;
+}
+
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
     // NYI
@@ -110,17 +176,22 @@ NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WO
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
 {
-    // NYI
+    if (!size)
+        invalidate_mapped_section( addr );
+    else if (free_type & MEM_DECOMMIT)
+        unprotectDB((uintptr_t)ROUND_ADDR( addr, page_mask ), (DWORD64)ROUND_SIZE( addr, size ), 1);
 }
 
 void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 {
-    // NYI
+    if (!(new_protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+        return;
+    unprotectDB((uintptr_t)addr, size, 1);
 }
 
 void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
 {
-    // NYI
+    invalidate_mapped_section( addr );
 }
 
 NTSTATUS WINAPI BTCpuProcessInit(void)
@@ -238,6 +309,8 @@ void WINAPI BTCpuSimulate(void)
     emu->segs_offs[_FS] = calculate_fs();
     emu->win64_teb = (uint64_t)NtCurrentTeb();
 
+    fpu_to_box(ctx, emu);
+
     if (box64env.dynarec)
         DynaRun(emu);
     else
@@ -296,6 +369,8 @@ void x86IntImpl(x64emu_t *emu, int code)
         ctx->EFlags = emu->eflags.x64;
         cpu->Flags = 0;
 
+        box_to_fpu(ctx, emu);
+
         if (is_unix_call)
         {
             uintptr_t handle_low = Pop32(emu);
@@ -310,6 +385,8 @@ void x86IntImpl(x64emu_t *emu, int code)
         {
             R_EAX = Wow64SystemServiceEx( id, ULongToPtr(ctx->Esp+4) );
         }
+
+        fpu_to_box(ctx, emu);
 
         R_EBX = ctx->Ebx;
         R_ESI = ctx->Esi;
