@@ -124,6 +124,30 @@ void box_to_fpu(WOW64_CONTEXT *ctx, x64emu_t *emu)
     memcpy(fpu->XmmRegisters, emu->xmm, sizeof(emu->xmm));
 }
 
+static NTSTATUS invalidate_mapped_section( PVOID addr )
+{
+    MEMORY_BASIC_INFORMATION mem_info;
+    SIZE_T size;
+    void* base;
+
+    NTSTATUS ret = NtQueryVirtualMemory( NtCurrentProcess(), addr, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL );
+
+    if (!NT_SUCCESS(ret))
+        return ret;
+
+    base = mem_info.AllocationBase;
+    size = (char*)mem_info.BaseAddress + mem_info.RegionSize - (char*)base;
+
+    while (!NtQueryVirtualMemory( NtCurrentProcess(), (char*)base + size, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL) &&
+           mem_info.AllocationBase == base)
+    {
+        size += mem_info.RegionSize;
+    }
+
+    unprotectDB((uintptr_t)base, (DWORD64)size, 1);
+    return STATUS_SUCCESS;
+}
+
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
     // NYI
@@ -160,7 +184,7 @@ void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 
 void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
 {
-    // NYI
+    invalidate_mapped_section( addr );
 }
 
 NTSTATUS WINAPI BTCpuProcessInit(void)
