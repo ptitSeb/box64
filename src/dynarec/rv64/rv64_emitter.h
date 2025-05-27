@@ -278,7 +278,7 @@
     BLTU(rs2, rs3, 8);           \
     MV(rd, rs1);
 #define MVGT(rd, rs1, rs2, rs3) \
-    BGEU(rs3, rs2, 8);          \
+    BGE(rs3, rs2, 8);           \
     MV(rd, rs1);
 #define MVLE(rd, rs1, rs2, rs3) \
     BLT(rs3, rs2, 8);           \

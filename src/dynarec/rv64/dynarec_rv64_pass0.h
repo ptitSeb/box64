@@ -111,3 +111,8 @@
     do {                                                            \
         if (dyn->need_x87check) dyn->insts[ninst].x87precision = 1; \
     } while (0)
+
+#define SCRATCH_USAGE(usage)                         \
+    do {                                             \
+        dyn->insts[ninst].no_scratch_usage = !usage; \
+    } while (0)

@@ -2006,9 +2006,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 #define VECTOR_LOAD_VMASK(mask, s1, multiple) \
     vector_loadmask(dyn, ninst, VMASK, mask, s1, multiple)
 
-#define SCRATCH_USAGE(usage)                         \
-    do {                                             \
-        dyn->insts[ninst].no_scratch_usage = !usage; \
-    } while (0)
+#ifndef SCRATCH_USAGE
+#define SCRATCH_USAGE(usage)
+#endif
 
 #endif //__DYNAREC_RV64_HELPER_H__
