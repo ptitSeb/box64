@@ -2336,7 +2336,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         MESSAGE(LOG_DUMP, "\t- YMM Zero %04x / %04x\n", dyn->ymm_zero, (dyn->insts[i2].purge_ymm|to_purge));
         for(int i=0; i<16; ++i)
             if(is_avx_zero(dyn, ninst, i) && (dyn->insts[i2].purge_ymm|to_purge)&(1<<i)) {
-                if(!dyn->insts[i2].n.ymm_unneeded&(1<<i)) {
+                if(!(dyn->insts[i2].n.ymm_unneeded&(1<<i))) {
                     if(s3_top) {
                         ADDx_U12(s3, xEmu,offsetof(x64emu_t, ymm[0]));
                         s3_top = 0;
