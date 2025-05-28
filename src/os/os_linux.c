@@ -7,6 +7,7 @@
 #include <dlfcn.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "os.h"
 #include "signals.h"
@@ -201,4 +202,9 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
     vfprintf(ftrace, fmt, args);
     fflush(ftrace);
     va_end(args);
+}
+
+void* GetEnv(const char* name)
+{
+    return getenv(name);
 }

@@ -5,12 +5,11 @@
 #ifndef _WIN32
 #include <sys/mman.h>
 #include <sys/stat.h>
-#else
-#include <winternl.h>
 #endif
 #include <fcntl.h>
 #include <string.h>
 
+#include "os.h"
 #include "env.h"
 #include "khash.h"
 #include "debug.h"
@@ -517,11 +516,10 @@ void LoadEnvVariables()
 #undef ADDRESS
 #undef STRING
 
-#ifndef _WIN32
     char* p;
-    // load env vars from getenv()
+    // load env vars from GetEnv()
 #define INTEGER(NAME, name, default, min, max)            \
-    p = getenv(#NAME);                                    \
+    p = GetEnv(#NAME);                                    \
     if (p) {                                              \
         box64env.name = atoi(p);                          \
         if (box64env.name < min || box64env.name > max) { \
@@ -532,21 +530,21 @@ void LoadEnvVariables()
         }                                                 \
     }
 #define INTEGER64(NAME, name, default)       \
-    p = getenv(#NAME);                       \
+    p = GetEnv(#NAME);                       \
     if (p) {                                 \
         box64env.name = atoll(p);            \
         box64env.is_##name##_overridden = 1; \
         box64env.is_any_overridden = 1;      \
     }
 #define BOOLEAN(NAME, name, default)         \
-    p = getenv(#NAME);                       \
+    p = GetEnv(#NAME);                       \
     if (p) {                                 \
         box64env.name = p[0] != '0';         \
         box64env.is_##name##_overridden = 1; \
         box64env.is_any_overridden = 1;      \
     }
 #define ADDRESS(NAME, name)                                \
-    p = getenv(#NAME);                                     \
+    p = GetEnv(#NAME);                                     \
     if (p) {                                               \
         char* endptr;                                      \
         box64env.name = (uintptr_t)strtoll(p, &endptr, 0); \
@@ -554,7 +552,7 @@ void LoadEnvVariables()
         box64env.is_any_overridden = 1;                    \
     }
 #define STRING(NAME, name)                   \
-    p = getenv(#NAME);                       \
+    p = GetEnv(#NAME);                       \
     if (p) {                                 \
         box64env.name = strdup(p);           \
         box64env.is_##name##_overridden = 1; \
@@ -566,61 +564,6 @@ void LoadEnvVariables()
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
-#else /* _WIN32 */
-    char buffer[1024];
-    DWORD len;
-    // load env vars from getenv()
-#define INTEGER(NAME, name, default, min, max)                      \
-    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
-    if (len) {                                                      \
-        box64env.name = atoi(buffer);                               \
-        if (box64env.name < min || box64env.name > max) {           \
-            box64env.name = default;                                \
-        } else {                                                    \
-            box64env.is_##name##_overridden = 1;                    \
-            box64env.is_any_overridden = 1;                         \
-        }                                                           \
-    }
-#define INTEGER64(NAME, name, default)                              \
-    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
-    if (len) {                                                      \
-        ULONG tmp; /* FIXME: only positive 32-bit */                \
-        RtlCharToInteger(buffer, 10, &tmp);                         \
-        box64env.name = tmp;                                        \
-        box64env.is_##name##_overridden = 1;                        \
-        box64env.is_any_overridden = 1;                             \
-    }
-#define BOOLEAN(NAME, name, default)                                \
-    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
-    if (len) {                                                      \
-        box64env.name = buffer[0] != '0';                           \
-        box64env.is_##name##_overridden = 1;                        \
-        box64env.is_any_overridden = 1;                             \
-    }
-#define ADDRESS(NAME, name)                                         \
-    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));   \
-    if (len) {                                                      \
-        ULONG tmp; /* FIXME: only positive 32-bit */                \
-        RtlCharToInteger(buffer, 10, &tmp);                         \
-        box64env.name = (uintptr_t)tmp;                             \
-        box64env.is_##name##_overridden = 1;                        \
-        box64env.is_any_overridden = 1;                             \
-    }
-#define STRING(NAME, name)                                                      \
-    len = GetEnvironmentVariableA(#NAME, buffer, sizeof(buffer));               \
-    if (len) {                                                                  \
-        box64env.name = (char*)RtlAllocateHeap(GetProcessHeap(), 0, len + 1);   \
-        if (box64env.name) strcpy(box64env.name, buffer);                       \
-        box64env.is_##name##_overridden = 1;                                    \
-        box64env.is_any_overridden = 1;                                         \
-    }
-    ENVSUPER()
-#undef INTEGER
-#undef INTEGER64
-#undef BOOLEAN
-#undef ADDRESS
-#undef STRING
-#endif /* _WIN32 */
     applyCustomRules();
 }
 
