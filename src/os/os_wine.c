@@ -218,3 +218,10 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
     va_end(args);
     __wine_dbg_output(p);
 }
+
+void* GetEnv(const char* name)
+{
+    static char buf[1024] = { 0 };
+    int len = GetEnvironmentVariableA(name, buf, sizeof(buf));
+    return len ? buf : NULL;
+}

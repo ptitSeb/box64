@@ -99,3 +99,30 @@ int snprintf(char* restrict s, size_t n, const char* restrict fmt, ...)
     va_end(args);
     return result;
 }
+
+char* strdup(const char* s)
+{
+    char* buf = (char*)RtlAllocateHeap(GetProcessHeap(), 0, strlen(s) + 1);
+    if (buf) strcpy(buf, s);
+    return buf;
+}
+
+long long atoll(const char* str)
+{
+    ULONG tmp;
+    RtlCharToInteger(str, 10, &tmp);
+    return (LONGLONG)tmp;
+}
+
+long long strtoll(const char* restrict str, char** restrict str_end, int base)
+{
+    // FIXME: it kinda work, but not identical to the C version.
+    ULONG tmp;
+    if (base == 0) {
+        NTSTATUS status = RtlCharToInteger(str, 10, &tmp);
+        if (status != STATUS_SUCCESS) RtlCharToInteger(str, 16, &tmp);
+    } else {
+        RtlCharToInteger(str, base, &tmp);
+    }
+    return (LONGLONG)tmp;
+}

@@ -99,4 +99,6 @@ extern int isnanf(float);
 
 void PrintfFtrace(int prefix, const char* fmt, ...);
 
+void* GetEnv(const char* name);
+
 #endif //__OS_H_
