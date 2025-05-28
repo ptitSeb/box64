@@ -49,6 +49,7 @@ set_target_properties(wow64_test_interpreter PROPERTIES COMPILE_DEFINITIONS "TES
 set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/custommem.c"
     "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_arch.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"

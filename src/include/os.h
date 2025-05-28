@@ -56,6 +56,7 @@ void PersonalityAddrLimit32Bit(void);
 
 int IsAddrElfOrFileMapped(uintptr_t addr);
 const char* GetNativeName(void* p);
+const char* GetBridgeName(void* p);
 // ----------------------------------------------------------------
 
 #ifndef _WIN32
@@ -95,5 +96,7 @@ extern int isnanf(float);
 #define isnanf isnan
 #define isinff isinf
 #endif
+
+void PrintfFtrace(int prefix, const char* fmt, ...);
 
 #endif //__OS_H_
