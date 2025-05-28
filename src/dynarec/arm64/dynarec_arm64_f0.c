@@ -329,12 +329,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 wback = 0;
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
                                 MOVxw_REG(x1, ed);  // save value
-                                SUBxw_REG(x3, xRAX, x1);
-                                CBNZxw_MARK2(x3);
-                                MOVxw_REG(ed, gd);
-                                MARK2;
+                                CMPSxw_REG(xRAX, x1);
+                                CSELxw(ed, gd, ed, cEQ);
                                 MOVxw_REG(xRAX, x1);
-                                B_NEXT_nocond;
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                                 if(!ALIGNED_ATOMICxw) {
