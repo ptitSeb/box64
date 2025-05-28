@@ -326,9 +326,26 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VFRINT32ZSQ(v0, v1);
                     VFCVTZSQS(v0, v0);
                 } else {
+                    // try to transform the 4 values first, then fall back to 1 at time if needed
                     MRS_fpsr(x5);
-                    ORRw_mask(x4, xZR, 1, 0);    //0x80000000
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
                     d0 = fpu_get_scratch(dyn, ninst);
+                    if(v0!=v1) {
+                        VFCVTZSQS(v0, v1);
+                    } else {
+                        VFCVTZSQS(d0, v1);
+                    }
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    if(v0!=v1) {
+                        TBZ_NEXT(x5, FPSR_IOC);
+                    } else {
+                        TBNZ_MARK(x5, FPSR_IOC);
+                        VMOVQ(v0, d0);
+                        B_NEXT_nocond;
+                        MARK;
+                    }
+                    ORRw_mask(x4, xZR, 1, 0);    //0x80000000
                     for(int i=0; i<4; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         MSR_fpsr(x5);
