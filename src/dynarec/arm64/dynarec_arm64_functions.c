@@ -454,11 +454,13 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
             return 1;
         for(int i=0; i<32 && !ret; ++i)
             if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
+                int t = dyn->insts[ninst].n.neoncache[i].t;
+                int n = dyn->insts[ninst].n.neoncache[i].n;
                 if(!(
-                (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
-                || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D
-                || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64)
-                && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
+                (t==NEON_CACHE_ST_F
+                || t==NEON_CACHE_ST_D
+                || t==NEON_CACHE_ST_I64)
+                && n<dyn->insts[ninst].n.stack_pop))
                     ret = 1;
             }
         return ret;
@@ -474,15 +476,20 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
 
     for(int i=0; i<32; ++i) {
         if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
+            int t = dyn->insts[ninst].n.neoncache[i].t;
+            int n = dyn->insts[ninst].n.neoncache[i].n;
             if(!cache_i2.neoncache[i].v) {    // but there is nothing at i2 for i
+                if(((t==NEON_CACHE_XMMR) || (t==NEON_CACHE_XMMW)) && (cache_i2.xmm_unneeded&(1<<n))) { /* nothing*/}
+                else if(((t==NEON_CACHE_YMMR) || (t==NEON_CACHE_YMMW)) && (cache_i2.ymm_unneeded&(1<<n))) { /* nothing*/}
+                else 
                 ret = 1;
             } else if(dyn->insts[ninst].n.neoncache[i].v!=cache_i2.neoncache[i].v) {  // there is something different
-                if(dyn->insts[ninst].n.neoncache[i].n!=cache_i2.neoncache[i].n) {   // not the same x64 reg
+                if(n!=cache_i2.neoncache[i].n) {   // not the same x64 reg
                     ret = 1;
                 }
-                else if(dyn->insts[ninst].n.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
+                else if((t == NEON_CACHE_XMMR) && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
                     {/* nothing */ }
-                else if(dyn->insts[ninst].n.neoncache[i].t == NEON_CACHE_YMMR && cache_i2.neoncache[i].t == NEON_CACHE_YMMW)
+                else if((t == NEON_CACHE_YMMR) && cache_i2.neoncache[i].t == NEON_CACHE_YMMW)
                     {/* nothing */ }
                 else
                     ret = 1;

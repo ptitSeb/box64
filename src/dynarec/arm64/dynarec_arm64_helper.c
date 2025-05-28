@@ -1811,7 +1811,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
             if(next) dyn->n.xmm_used |= (1<<i);
             if(dyn->n.ssecache[i].write) {
                 if (old==-1) {
-                    MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next?"locally ":"");
+                    MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next?"localy ":"");
                     ++old;
                 }
                 VSTR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
@@ -2314,8 +2314,19 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     neoncacheUnwind(&cache_i2);
 
     if(!cache_i2.stack) {
-        int purge = 1;
-        for (int i=0; i<24 && purge; ++i)
+        int purge = 0;  // default to purge if there is any regs that are not needed at jump
+        // but first check if there is regs that can be discarded because unneeded at jump point
+        for(int i=0; i<32 && !purge; ++i) {
+            if(dyn->insts[ninst].n.neoncache[i].v) {
+                int t = dyn->insts[ninst].n.neoncache[i].t;
+                int n = dyn->insts[ninst].n.neoncache[i].n;
+                if(((t==NEON_CACHE_XMMR) || (t==NEON_CACHE_XMMW)) && (cache_i2.xmm_unneeded&(1<<n))) {/* nothing */}
+                else if(((t==NEON_CACHE_YMMR) || (t==NEON_CACHE_YMMW)) && (cache_i2.ymm_unneeded&(1<<n))) {/* nothing */}
+                else ++purge;
+            }
+        }
+        // Now check if there is any regs at jump point
+        for (int i=0; i<32 && purge; ++i)
             if(cache_i2.neoncache[i].v)
                 purge = 0;
         if(purge) {
