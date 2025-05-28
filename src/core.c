@@ -194,36 +194,6 @@ void openFTrace(int reopen)
     }
 }
 
-static void check_ftrace()
-{
-    int fd = fileno(ftrace);
-    if(fd<0 || lseek(fd, 0, SEEK_CUR)==(off_t)-1) {
-        ftrace=fopen(ftrace_name, "a");
-        printf_log(LOG_INFO, "%04d|Recreated trace because fd was invalid\n", GetTID());
-    }
-}
-void printf_ftrace(int prefix, const char* fmt, ...)
-{
-    if(ftrace_name) {
-        check_ftrace();
-    }
-
-    static const char* names[2] = {"BOX64", "BOX32"};
-
-    if (prefix && ftrace == stdout) {
-        if (prefix > 1) {
-            fprintf(ftrace, "[\033[31m%s\033[0m] ", names[box64_is32bits]);
-        } else {
-            fprintf(ftrace, "[%s] ", names[box64_is32bits]);
-        }
-    }
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(ftrace, fmt, args);
-    fflush(ftrace);
-    va_end(args);
-}
-
 void my_prepare_fork()
 {
     if (ftrace_has_pid && ftrace && (ftrace != stdout) && (ftrace != stderr)) {
@@ -575,12 +545,12 @@ void AddNewLibs(const char* list)
 }
 
 void PrintHelp() {
-    printf_ftrace(0, "This is Box64, the Linux x86_64 emulator with a twist.\n");
-    printf_ftrace(0, "Usage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
-    printf_ftrace(0, " options are:\n");
-    printf_ftrace(0, "    '-v'|'--version' to print box64 version and quit\n");
-    printf_ftrace(0, "    '-h'|'--help' to print this and quit\n");
-    printf_ftrace(0, "    '-k'|'--kill-all' to kill all box64 instances\n");
+    PrintfFtrace(0, "This is Box64, the Linux x86_64 emulator with a twist.\n");
+    PrintfFtrace(0, "Usage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
+    PrintfFtrace(0, " options are:\n");
+    PrintfFtrace(0, "    '-v'|'--version' to print box64 version and quit\n");
+    PrintfFtrace(0, "    '-h'|'--help' to print this and quit\n");
+    PrintfFtrace(0, "    '-k'|'--kill-all' to kill all box64 instances\n");
 }
 
 void KillAllInstances()

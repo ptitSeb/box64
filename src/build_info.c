@@ -17,7 +17,7 @@
 
 void PrintBox64Version(int prefix)
 {
-    printf_ftrace(prefix, BOX64_BUILD_INFO_STRING WITH_DYNAREC_STR WITH_TRACE_STR " built on %s %s\n",
+    PrintfFtrace(prefix, BOX64_BUILD_INFO_STRING WITH_DYNAREC_STR WITH_TRACE_STR " built on %s %s\n",
         __DATE__, __TIME__);
 }
 

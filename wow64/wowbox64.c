@@ -10,6 +10,7 @@
 #include <winnt.h>
 
 #include "compiler.h"
+#include "debug.h"
 #include "os.h"
 #include "custommem.h"
 #include "dynablock.h"
@@ -207,6 +208,8 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
 
     LoadEnvVariables();
 
+    printf_log(LOG_INFO, "libwowbox64.dll process initializing.\n");
+
     memset(bopcode, 0xc3, sizeof(bopcode));
     memset(unxcode, 0xc3, sizeof(unxcode));
     bopcode[0] = 0x2ecd;
@@ -217,7 +220,7 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
 
     if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32)
     {
-        __wine_dbg_output( "box64cpu loaded above 4G, disabling\n" );
+        printf_log(LOG_NONE, "box64cpu loaded above 4G, disabling\n");
         return STATUS_INVALID_ADDRESS;
     }
 

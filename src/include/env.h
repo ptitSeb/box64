@@ -23,7 +23,7 @@
 
 #ifdef _WIN32
 #define DEFAULT_LOG_LEVEL (LOG_INFO)
-#define BOX64_NOBANNER_DEFAULT (1)
+#define BOX64_NOBANNER_DEFAULT (0)
 #else
 extern char* ftrace_name;
 #define DEFAULT_LOG_LEVEL (ftrace_name ? LOG_INFO : (isatty(fileno(stdout)) ? LOG_INFO : LOG_NONE))

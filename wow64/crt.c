@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <stdint.h>
 #include <windows.h>
@@ -83,4 +84,18 @@ ldiv_t __cdecl ldiv(long num, long denom)
 void _assert (const char *_Message, const char *_File, unsigned _Line)
 {
     // NYI
+}
+
+char* strerror(int e)
+{
+    return "error";
+}
+
+int snprintf(char* restrict s, size_t n, const char* restrict fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int result = _vsnprintf(s, n, fmt, args);
+    va_end(args);
+    return result;
 }

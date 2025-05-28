@@ -1,8 +1,11 @@
+#include <stdio.h>
+#include <string.h>
 #include <windows.h>
 #include <ntstatus.h>
 #include <winternl.h>
 
 #include "os.h"
+#include "wine/debug.h"
 
 #define HandleToULong(h) ((ULONG)(ULONG_PTR)(h))
 
@@ -54,11 +57,20 @@ void EmuX86Syscall(void* emu)
     // FIXME
 }
 
+const char* GetBridgeName(void* p)
+{
+    return NULL;
+}
+
 const char* GetNativeName(void* p)
 {
     return NULL;
 }
 
+void* GetNativeFnc(uintptr_t fnc)
+{
+    return NULL;
+}
 
 void PersonalityAddrLimit32Bit(void)
 {
@@ -192,4 +204,17 @@ void free(void* ptr)
 int VolatileRangesContains(uintptr_t addr)
 {
     return 0;
+}
+
+void PrintfFtrace(int prefix, const char* fmt, ...)
+{
+    static char buf[1024] = { 0 };
+
+    char* p = buf;
+    strcpy(p, prefix > 1 ? "[\033[31mBOX64\033[0m] " : "[BOX64] ");
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(p + strlen(p), fmt, args);
+    va_end(args);
+    __wine_dbg_output(p);
 }
