@@ -327,9 +327,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             if(MODREG) {
                                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                                 wback = 0;
-                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
-                                MOVxw_REG(x1, ed);  // save value
-                                CMPSxw_REG(xRAX, x1);
+                                UFLAG_IF {
+                                    emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);
+                                } else {
+                                    CMPSxw_REG(xRAX, ed);
+                                }
+                                MOVxw_REG(x1, ed); // save value
                                 CSELxw(ed, gd, ed, cEQ);
                                 MOVxw_REG(xRAX, x1);
                             } else {

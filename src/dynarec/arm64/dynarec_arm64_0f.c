@@ -2086,9 +2086,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 wback = 0;
-                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
-                MOVxw_REG(x1, ed);  // save value
-                CMPSxw_REG(xRAX, ed);
+                UFLAG_IF {
+                    emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);
+                } else {
+                    CMPSxw_REG(xRAX, ed);
+                }
+                MOVxw_REG(x1, ed); // save value
                 CSELxw(ed, gd, ed, cEQ);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
