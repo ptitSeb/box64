@@ -199,7 +199,20 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             else
                 GD->sdword[0] = ED->sdword[0];  // meh?
         break;
-
+    case 0x64:                      /* FS: prefix */
+        #ifdef TEST_INTERPRETER
+        return Test6764(test, rex, rep, _FS, addr);
+        #else
+        return Run6764(emu, rex, rep, _FS, addr);
+        #endif
+        break;
+    case 0x65:                      /* GS: prefix */
+        #ifdef TEST_INTERPRETER
+        return Test6764(test, rex, rep, _GS, addr);
+        #else
+        return Run6764(emu, rex, rep, _GS, addr);
+        #endif
+        break;
     case 0x66:
         #ifdef TEST_INTERPRETER
         return Test6766(test, rex, rep, addr);

@@ -465,6 +465,7 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64run66dd.c"
     "${BOX64_ROOT}/src/emu/x64run66f0.c"
     "${BOX64_ROOT}/src/emu/x64run67.c"
+    "${BOX64_ROOT}/src/emu/x64run6764.c"
     "${BOX64_ROOT}/src/emu/x64run67avx.c"
     "${BOX64_ROOT}/src/emu/x64run67_32.c"
     "${BOX64_ROOT}/src/emu/x64run6764_32.c"
