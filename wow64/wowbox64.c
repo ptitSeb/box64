@@ -348,7 +348,7 @@ NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
     return STATUS_SUCCESS;
 }
 
-void x86IntImpl(x64emu_t *emu, int code)
+void EmitInterruptionImpl(x64emu_t *emu, int code)
 {
     int inst_off = box64env.dynarec ? 2 : 0;
 
@@ -434,7 +434,7 @@ static void __attribute__((naked)) SEHFrameTrampoline2Args(void* Arg0, int Arg1,
 void EmitInterruption(x64emu_t* emu, int num, void* addr)
 {
     CONTEXT *entry_context = NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER];
-    SEHFrameTrampoline2Args(emu, num, (void*)x86IntImpl, entry_context->Sp, entry_context->Pc);
+    SEHFrameTrampoline2Args(emu, num, (void*)EmitInterruptionImpl, entry_context->Sp, entry_context->Pc);
     NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER] = entry_context;
 }
 

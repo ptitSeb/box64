@@ -32,22 +32,22 @@ typedef struct _WOW64_CPURESERVED {
 } WOW64_CPURESERVED;
 
 typedef struct _XMM_SAVE_AREA32 {
-    WORD ControlWord;
-    WORD StatusWord;
-    BYTE TagWord;
-    BYTE Reserved1;
-    WORD ErrorOpcode;
+    WORD  ControlWord;
+    WORD  StatusWord;
+    BYTE  TagWord;
+    BYTE  Reserved1;
+    WORD  ErrorOpcode;
     DWORD ErrorOffset;
-    WORD ErrorSelector;
-    WORD Reserved2;
+    WORD  ErrorSelector;
+    WORD  Reserved2;
     DWORD DataOffset;
-    WORD DataSelector;
-    WORD Reserved3;
+    WORD  DataSelector;
+    WORD  Reserved3;
     DWORD MxCsr;
     DWORD MxCsr_Mask;
     M128A FloatRegisters[8];
     M128A XmmRegisters[16];
-    BYTE Reserved4[96];
+    BYTE  Reserved4[96];
 } XMM_SAVE_AREA32;
 
 #define NtCurrentProcess() ((HANDLE)(LONG_PTR) - 1)

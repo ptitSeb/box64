@@ -4,9 +4,7 @@
  */
 #include <signal.h>
 #include <windows.h>
-#include <ntstatus.h>
 #include <winternl.h>
-#include <winnt.h>
 
 #include "x64emu.h"
 #include "debug.h"
