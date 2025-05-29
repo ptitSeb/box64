@@ -47,6 +47,7 @@ add_library(wow64_test_interpreter OBJECT ${INTERPRETER})
 set_target_properties(wow64_test_interpreter PROPERTIES COMPILE_DEFINITIONS "TEST_INTERPRETER")
 
 set(WOW64_BOX64CPU_SRC
+    "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
     "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
     "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"

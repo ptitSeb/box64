@@ -1350,6 +1350,7 @@ if(WOW64 AND ARM_DYNAREC)
         TEST_COMMAND ""
         BUILD_ALWAYS ON
     )
+    add_dependencies(wowbox64 generate_git_head_target)
 endif()
 
 set(CPACK_GENERATOR "DEB")

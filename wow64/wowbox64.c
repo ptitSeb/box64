@@ -20,6 +20,7 @@
 #include "box64context.h"
 #include "box64cpu.h"
 #include "box64cpu_util.h"
+#include "build_info.h"
 #include "rbtree.h"
 #include "wine/compiler.h"
 #include "wine/debug.h"
@@ -207,9 +208,7 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
 #undef STATIC_ASSERT
 
     LoadEnvVariables();
-
-    printf_log(LOG_INFO, "libwowbox64.dll process initializing.\n");
-
+    if (!BOX64ENV(nobanner)) PrintBox64Version(1);
     PrintEnvVariables(&box64env, LOG_INFO);
 
     memset(bopcode, 0xc3, sizeof(bopcode));
