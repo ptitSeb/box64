@@ -782,6 +782,9 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
         fpu_pushcache(dyn, ninst, savereg, 0);
     }
+    #ifdef _WIN32
+    LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
+    #endif
     TABLE64(reg, (uintptr_t)fnc);
     BLR(reg);
     if(ret>=0) {
@@ -831,6 +834,9 @@ void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_pushcache(dyn, ninst, x87pc, 0);
 
+    #ifdef _WIN32
+    LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
+    #endif
     TABLE64(x87pc, (uintptr_t)fnc);
     BLR(x87pc);
     LDPx_S7_postindex(xEmu, x1, xSP, 16);

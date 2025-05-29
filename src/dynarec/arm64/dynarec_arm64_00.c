@@ -2652,7 +2652,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETIP(addr);
             STORE_XEMU_CALL(xRIP);
             MOV32w(x1, u8);
-            LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
             CALL_S(native_int, -1);
             LOAD_XEMU_CALL(xRIP);
             TABLE64(x3, addr); // expected return address

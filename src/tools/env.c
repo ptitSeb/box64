@@ -125,6 +125,24 @@ static void applyCustomRules()
         initCycleLog(my_context);
     }
 
+    if (box64env.is_dynarec_gdbjit_str_overridden) {
+        if (strlen(box64env.dynarec_gdbjit_str) == 1) {
+            if (box64env.dynarec_gdbjit_str[0] >= '0' && box64env.dynarec_gdbjit_str[0] <= '3')
+                box64env.dynarec_gdbjit = box64env.dynarec_gdbjit_str[0] - '0';
+
+            box64env.dynarec_gdbjit_start = 0x0;
+            box64env.dynarec_gdbjit_end = 0x0;
+        } else if (strchr(box64env.dynarec_gdbjit_str, '-')) {
+            parseRange(box64env.dynarec_gdbjit_str, &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end);
+            if (box64env.dynarec_gdbjit_end > box64env.dynarec_gdbjit_start) {
+                box64env.dynarec_gdbjit = 2;
+            } else {
+                box64env.dynarec_gdbjit = 0;
+            }
+        }
+    }
+#endif
+
     if (box64env.is_dynarec_test_str_overridden) {
         if (strlen(box64env.dynarec_test_str) == 1) {
             if (box64env.dynarec_test_str[0] >= '0' && box64env.dynarec_test_str[0] <= '1')
@@ -142,29 +160,11 @@ static void applyCustomRules()
         }
     }
 
-    if (box64env.is_dynarec_gdbjit_str_overridden) {
-        if (strlen(box64env.dynarec_gdbjit_str) == 1) {
-            if (box64env.dynarec_gdbjit_str[0] >= '0' && box64env.dynarec_gdbjit_str[0] <= '3')
-                box64env.dynarec_gdbjit = box64env.dynarec_gdbjit_str[0] - '0';
-
-            box64env.dynarec_gdbjit_start = 0x0;
-            box64env.dynarec_gdbjit_end = 0x0;
-        } else if (strchr(box64env.dynarec_gdbjit_str, '-')) {
-            parseRange(box64env.dynarec_gdbjit_str, &box64env.dynarec_gdbjit_start, &box64env.dynarec_gdbjit_end);
-            if (box64env.dynarec_gdbjit_end > box64env.dynarec_gdbjit_start) {
-                box64env.dynarec_gdbjit = 2;
-            } else {
-                box64env.dynarec_gdbjit = 0;
-            }
-        }
-    }
-
     if (box64env.is_nodynarec_overridden)
         parseRange(box64env.nodynarec, &box64env.nodynarec_start, &box64env.nodynarec_end);
 
     if (box64env.is_dynarec_dump_range_overridden)
         parseRange(box64env.dynarec_dump_range, &box64env.dynarec_dump_range_start, &box64env.dynarec_dump_range_end);
-#endif
 
     if (box64env.dynarec_test) {
         SET_BOX64ENV(dynarec_fastnan, 0);

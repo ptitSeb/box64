@@ -211,7 +211,8 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
     static char buf[1024] = { 0 };
 
     char* p = buf;
-    strcpy(p, prefix > 1 ? "[\033[31mBOX64\033[0m] " : "[BOX64] ");
+    p[0] = '\0';
+    if (prefix) strcpy(p, prefix > 1 ? "[\033[31mBOX64\033[0m] " : "[BOX64] ");
     va_list args;
     va_start(args, fmt);
     vsprintf(p + strlen(p), fmt, args);
