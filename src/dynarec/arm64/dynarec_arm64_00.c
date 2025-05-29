@@ -2646,14 +2646,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xCD:
             u8 = F8;
-#ifdef _WIN32
+            #ifdef _WIN32
             NOTEST(x1);
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL(xRIP);
             MOV32w(x1, u8);
             LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
-            CALL_S(x86Int, -1);
+            CALL_S(native_int, -1);
             LOAD_XEMU_CALL(xRIP);
             TABLE64(x3, addr); // expected return address
             CMPSx_REG(xRIP, x3);
@@ -2664,7 +2664,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             break;
-#endif
+            #endif
             if(box64_wine && (u8==0x2D || u8==0x2C || u8==0x29)) {
                 INST_NAME("INT 29/2c/2d");
                 // lets do nothing
