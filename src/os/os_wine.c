@@ -5,6 +5,7 @@
 #include <winternl.h>
 
 #include "os.h"
+#include "debug.h"
 #include "wine/debug.h"
 
 #define HandleToULong(h) ((ULONG)(ULONG_PTR)(h))
@@ -39,22 +40,21 @@ void* GetSeg43Base()
 
 void* GetSegmentBase(uint32_t desc)
 {
-    // FIXME
+    printf_log(LOG_NONE, "GetSegmentBase NYI\n");
     return NULL;
 }
 
-void EmuInt3(void* emu, void* addr) { }
 void* EmuFork(void* emu, int forktype) { return NULL; }
 
 
 void EmuX64Syscall(void* emu)
 {
-    // FIXME
+    printf_log(LOG_NONE, "EmuX64Syscall NYI\n");
 }
 
 void EmuX86Syscall(void* emu)
 {
-    // FIXME
+    printf_log(LOG_NONE, "EmuX86Syscall NYI\n");
 }
 
 const char* GetBridgeName(void* p)

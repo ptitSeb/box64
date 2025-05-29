@@ -1531,6 +1531,11 @@ x64emurun:
             break;
         case 0xCD:                      /* INT n */
             tmp8u = F8;
+            #ifdef _WIN32
+            EmitInterruption(emu, tmp8u, (void*)R_RIP);
+            STEP;
+            addr = R_RIP;
+            #else
             // this is a privilege opcode...
             if(box64_wine && tmp8u==0x2D) {
                 // lets ignore the INT 2D
@@ -1567,6 +1572,7 @@ x64emurun:
                 STEP2;
                 #endif
             }
+            #endif
             break;
         case 0xCE:                      /* INTO */
             if(!rex.is32bits) {
