@@ -188,7 +188,7 @@ static void applyCustomRules()
         snprintf(pathname, sizeof(pathname), "/tmp/perf-%d.map", getpid());
         SET_BOX64ENV(dynarec_perf_map_fd, open(pathname, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR));
     }
-    if (box64env.emulated_libs) {
+    if (box64env.emulated_libs && my_context) {
         AppendList(&my_context->box64_emulated_libs, box64env.emulated_libs, 0);
     }
     if (!box64env.libgl) {
