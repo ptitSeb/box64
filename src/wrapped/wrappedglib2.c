@@ -1115,7 +1115,7 @@ EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_
     #else
       #if defined(__loongarch64) || defined(__riscv)
         va_list sysv_varargs;
-        myStackAlignGVariantNew(emu, fmt, emu->scratch, b);
+        myStackAlignGVariantNewVa(emu, fmt, emu->scratch, b);
         sysv_varargs = (va_list)emu->scratch;
       #else
         CREATE_VALIST_FROM_VALIST(*b, emu->scratch);
@@ -1126,7 +1126,12 @@ EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_
 
 EXPORT void* my_g_variant_new(x64emu_t* emu, char* fmt, uint64_t* V)
 {
+#if defined(__loongarch64) || defined(__riscv)
+    myStackAlignGVariantNew(emu, fmt, V, emu->scratch, R_EAX);
+    PREPARE_VALIST;
+#else
     CREATE_VALIST_FROM_VAARG(V, emu->scratch, 1);
+#endif
     return my->g_variant_new_va(fmt, NULL, &VARARGS);
 }
 
