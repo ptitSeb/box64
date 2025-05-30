@@ -2647,9 +2647,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xCD:
             u8 = F8;
             #ifdef _WIN32
+            INST_NAME("INT n");
             NOTEST(x1);
             SMEND();
-            GETIP(addr);
+            GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             MOV32w(x1, u8);
             CALL_S(native_int, -1);
@@ -2660,7 +2661,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
             CBZw_NEXT(w1);
             MARK;
-            LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             #else
             if(box64_wine && (u8==0x2E || u8==0x2D || u8==0x2C || u8==0x29)) {
