@@ -207,13 +207,13 @@ void native_int(x64emu_t* emu, int num)
     emu->test.test = 0;
     EmitInterruption(emu, num, (void*)R_RIP);
 }
-
+#ifndef _WIN32
 void native_wineint(x64emu_t* emu, int num)
 {
     emu->test.test = 0;
     EmitWineInt(emu, num, (void*)R_RIP);
 }
-
+#endif
 void native_int3(x64emu_t* emu)
 {
     EmitSignal(emu, SIGTRAP, NULL, 3);
