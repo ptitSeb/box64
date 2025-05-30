@@ -836,7 +836,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     if(dyn->need_dump) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu, callrets=%zu)", (dyn->need_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size, callret_size);
         PrintFunctionAddr(helper.start, " => ");
-        dynarec_log(LOG_NONE, "%s\n", (dyn->need_dump>1)?"\e[m":"");
+        dynarec_log_prefix(0, LOG_NONE, "%s\n", (dyn->need_dump>1)?"\e[m":"");
     }
     if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
         GdbJITNewBlock(helper.gdbjit_block, (GDB_CORE_ADDR)block->actual_block, (GDB_CORE_ADDR)block->actual_block + native_size, helper.start);
