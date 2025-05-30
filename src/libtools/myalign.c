@@ -1197,7 +1197,7 @@ void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack,
     }
 }
 
-void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* scratch, x64_va_list_t* b)
+void myStackAlignGVariantNewVa(x64emu_t* emu, const char* fmt, uint64_t* scratch, x64_va_list_t* b)
 {
     uint64_t* grp = (uint64_t*)((*b)->reg_save_area);
     uint64_t* frp = (uint64_t*)((*b)->reg_save_area + X64_VA_MAX_REG);
@@ -1231,6 +1231,48 @@ void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* scratch, 
                     scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
                 else
                     scratch[idx++] = grp[gr_offs++];
+                break;
+            default:
+                break;
+        }
+        pfmt++;
+    }
+}
+
+void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm)
+{
+    int x = 0;
+    int pos = 1;
+    const char* pfmt = fmt;
+    while (*pfmt) {
+        switch (*pfmt) {
+            case 'd': // double
+                if (xmm) {
+                    *mystack = emu->xmm[x++].q[0];
+                    --xmm;
+                    mystack++;
+                } else {
+                    *mystack = *st;
+                    st++;
+                    mystack++;
+                }
+                break;
+            case 'b':
+            case 'y':
+            case 'n':
+            case 'q':
+            case 'i':
+            case 'h':
+            case 'u':
+            case 'x':
+            case 't':
+                if (pos < 6)
+                    *mystack = emu->regs[regs_abi[pos++]].q[0];
+                else {
+                    *mystack = *st;
+                    ++st;
+                }
+                ++mystack;
                 break;
             default:
                 break;
