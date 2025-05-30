@@ -704,7 +704,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
 {
     if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
-    static char buf[256];
+    static char buf[2048];
     int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
@@ -780,6 +780,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (BOX64ENV(dynarec_perf_map) && BOX64ENV(dynarec_perf_map_fd) != -1) {
         writePerfMap(dyn->insts[ninst].x64.addr, dyn->native_start + dyn->insts[ninst].address, dyn->insts[ninst].size / 4, name);
     }
+    if (length > sizeof(buf)) printf_log(LOG_NONE, "Warning: buf to small in inst_name_pass3 (%d vs %zd)\n", length, sizeof(buf));
 }
 
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
