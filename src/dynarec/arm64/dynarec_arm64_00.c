@@ -2649,7 +2649,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             #ifdef _WIN32
             NOTEST(x1);
             SMEND();
-            GETIP(addr);
+            GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             MOV32w(x1, u8);
             CALL_S(native_int, -1);
