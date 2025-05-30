@@ -2672,13 +2672,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOV32w(x1, u8);
                 CALL(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
+                LOAD_XEMU_REM();
                 TABLE64(x3, addr); // expected return address
                 CMPSx_REG(xRIP, x3);
                 B_MARK(cNE);
                 LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
                 CBZw_NEXT(w1);
                 MARK;
-                LOAD_XEMU_REM();
                 jump_to_epilog(dyn, 0, xRIP, ninst);
             } else if (u8==0x80) {
                 INST_NAME("32bits SYSCALL");

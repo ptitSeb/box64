@@ -1,11 +1,16 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <ucontext.h>
+#include <setjmp.h>
+#include <signal.h>
 #ifndef ANDROID
 #include <execinfo.h>
 #endif
+
 
 #include "box64context.h"
 #include "custommem.h"
@@ -13,9 +18,11 @@
 #include "elfloader.h"
 #include "emit_signals.h"
 #include "emu/x64emu_private.h"
+#include "emu/x87emu_private.h"
 #include "regs.h"
-#include "signals.h"
 #include "x64emu.h"
+#include "signals.h"
+#include "libtools/signal_private.h"
 
 void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc);
 void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
@@ -142,3 +149,141 @@ void EmitDiv0(x64emu_t* emu, void* addr, int code)
     }
     my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
 }
+
+void EmitWineInt(x64emu_t* emu, int num, void* addr)
+{
+    siginfo_t info = { 0 };
+    info.si_signo = SIGSEGV;
+    info.si_errno = 0xdead;
+    info.si_code = num;
+    info.si_addr = NULL; // addr;
+    const char* x64name = NULL;
+    const char* elfname = NULL;
+    if (BOX64ENV(log) > LOG_INFO || BOX64ENV(dynarec_dump) || BOX64ENV(showsegv)) {
+        x64name = getAddrFunctionName(R_RIP);
+        elfheader_t* elf = FindElfAddress(my_context, R_RIP);
+        if (elf)
+            elfname = ElfName(elf);
+        printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr);
+    }
+    if(box64_is32bits)
+        my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
+    else {
+        uintptr_t frame = R_RSP;
+        int sig = SIGSEGV;
+        // stack tracking
+        x64_stack_t *new_ss = my_context->onstack[sig]?sigstack_getstack():NULL;
+        int used_stack = 0;
+        if(new_ss) {
+            if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
+                frame = ((uintptr_t)emu->regs[_SP].q[0] - 128) & ~0x0f;
+            } else {
+                frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
+                used_stack = 1;
+                new_ss->ss_flags = SS_ONSTACK;
+            }
+        } else {
+            frame -= 0x200; // redzone
+        }
+
+        // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
+        // setup stack frame
+        frame -= 512+64+16*16;
+        void* xstate = (void*)frame;
+        frame -= sizeof(siginfo_t);
+        siginfo_t* info2 = (siginfo_t*)frame;
+        memcpy(info2, &info, sizeof(siginfo_t));
+        // try to fill some sigcontext....
+        frame -= sizeof(x64_ucontext_t);
+        x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
+        // get general register
+        sigcontext->uc_mcontext.gregs[X64_R8] = R_R8;
+        sigcontext->uc_mcontext.gregs[X64_R9] = R_R9;
+        sigcontext->uc_mcontext.gregs[X64_R10] = R_R10;
+        sigcontext->uc_mcontext.gregs[X64_R11] = R_R11;
+        sigcontext->uc_mcontext.gregs[X64_R12] = R_R12;
+        sigcontext->uc_mcontext.gregs[X64_R13] = R_R13;
+        sigcontext->uc_mcontext.gregs[X64_R14] = R_R14;
+        sigcontext->uc_mcontext.gregs[X64_R15] = R_R15;
+        sigcontext->uc_mcontext.gregs[X64_RAX] = R_RAX;
+        sigcontext->uc_mcontext.gregs[X64_RCX] = R_RCX;
+        sigcontext->uc_mcontext.gregs[X64_RDX] = R_RDX;
+        sigcontext->uc_mcontext.gregs[X64_RDI] = R_RDI;
+        sigcontext->uc_mcontext.gregs[X64_RSI] = R_RSI;
+        sigcontext->uc_mcontext.gregs[X64_RBP] = R_RBP;
+        sigcontext->uc_mcontext.gregs[X64_RSP] = R_RSP;
+        sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
+        sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
+        // flags
+        ResetFlags(emu);
+        sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
+        // get segments
+        sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
+        if(R_CS==0x23) {
+            // trucate regs to 32bits, just in case
+            #define GO(R)   sigcontext->uc_mcontext.gregs[X64_R##R]&=0xFFFFFFFF
+            GO(AX);
+            GO(CX);
+            GO(DX);
+            GO(DI);
+            GO(SI);
+            GO(BP);
+            GO(SP);
+            GO(BX);
+            GO(IP);
+            #undef GO
+        }
+        // get FloatPoint status
+        sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
+        fpu_xsave_mask(emu, xstate, 0, 0b111);
+        memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
+        ((struct x64_fpstate*)xstate)->res[12] = 0x46505853;   // magic number to signal an XSTATE type of fpregs
+        ((struct x64_fpstate*)xstate)->res[13] = 0; // offset to xstate after this?
+        // get signal mask
+        if(new_ss) {
+            sigcontext->uc_stack.ss_sp = new_ss->ss_sp;
+            sigcontext->uc_stack.ss_size = new_ss->ss_size;
+            sigcontext->uc_stack.ss_flags = new_ss->ss_flags;
+        } else
+            sigcontext->uc_stack.ss_flags = SS_DISABLE;        
+        // prepare info2
+        info2->si_errno = 0;
+        info2->si_code = 128;
+        info2->si_addr = NULL;
+        sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
+        sigcontext->uc_mcontext.gregs[X64_ERR] = 0x02|(num<<3);
+        int exits = 0;
+        int ret;
+        ret = RunFunctionHandler(emu, &exits, 2, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
+        if(used_stack)  // release stack
+            new_ss->ss_flags = 0;
+        // restore values
+        // general regs
+        R_R8 = sigcontext->uc_mcontext.gregs[X64_R8];
+        R_R9 = sigcontext->uc_mcontext.gregs[X64_R9];
+        R_R10 = sigcontext->uc_mcontext.gregs[X64_R10];
+        R_R11 = sigcontext->uc_mcontext.gregs[X64_R11];
+        R_R12 = sigcontext->uc_mcontext.gregs[X64_R12];
+        R_R13 = sigcontext->uc_mcontext.gregs[X64_R13];
+        R_R14 = sigcontext->uc_mcontext.gregs[X64_R14];
+        R_R15 = sigcontext->uc_mcontext.gregs[X64_R15];
+        R_RAX = sigcontext->uc_mcontext.gregs[X64_RAX];
+        R_RCX = sigcontext->uc_mcontext.gregs[X64_RCX];
+        R_RDX = sigcontext->uc_mcontext.gregs[X64_RDX];
+        R_RDI = sigcontext->uc_mcontext.gregs[X64_RDI];
+        R_RSI = sigcontext->uc_mcontext.gregs[X64_RSI];
+        R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
+        R_RSP = sigcontext->uc_mcontext.gregs[X64_RSP];
+        R_RBX = sigcontext->uc_mcontext.gregs[X64_RBX];
+        R_RIP = sigcontext->uc_mcontext.gregs[X64_RIP];
+        // flags
+        emu->eflags.x64 = sigcontext->uc_mcontext.gregs[X64_EFL];
+        // get segments
+        R_CS = sigcontext->uc_mcontext.gregs[X64_CSGSFS]&0xffff;
+        R_GS = (sigcontext->uc_mcontext.gregs[X64_CSGSFS]>>16)&0xffff;
+        R_FS = (sigcontext->uc_mcontext.gregs[X64_CSGSFS]>>32)&0xffff;
+        // fpu
+        fpu_xrstor_mask(emu, xstate, 0, 0b111);
+    }
+}
+

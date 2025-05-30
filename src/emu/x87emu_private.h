@@ -219,6 +219,7 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed);
 void fpu_xsave(x64emu_t* emu, void* ed, int is32bits);
 void fpu_xsave_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask);
 void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits);
+void fpu_xrstor_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask);
 
 uint32_t cvtf16_32(uint16_t v);
 uint16_t cvtf32_16(uint32_t v, uint8_t rounding);

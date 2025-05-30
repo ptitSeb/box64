@@ -57,6 +57,7 @@ void native_br(x64emu_t* emu);
 void native_priv(x64emu_t* emu);
 void native_int3(x64emu_t* emu);
 void native_int(x64emu_t* emu, int num);
+void native_wineint(x64emu_t* emu, int num);
 void native_div0(x64emu_t* emu);
 
 // Caches transformation (for loops) // Specific, need to be written par backend

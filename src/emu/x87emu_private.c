@@ -476,10 +476,14 @@ void fpu_xsave(x64emu_t* emu, void* ed, int is32bits)
 
 void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
 {
+    uint64_t mask = R_EAX | (((uint64_t)R_EDX)<<32);
+    return fpu_xrstor_mask(emu, ed, is32bits, mask);
+}
+
+void fpu_xrstor_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask) {
     xsave64_t *p = (xsave64_t*)ed;
     xsaveheader_t *h = (xsaveheader_t*)(p+1);
     int compressed = (h->xcomp_bv>>63);
-    uint64_t mask = R_EAX | (((uint64_t)R_EDX)<<32);
     uint32_t rfbm = (0b111&mask);
     uint32_t to_restore = rfbm & h->xstate_bv;
     uint32_t to_init = rfbm & ~h->xstate_bv;
