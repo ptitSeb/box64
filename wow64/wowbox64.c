@@ -349,8 +349,6 @@ NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
 
 void EmitInterruptionImpl(x64emu_t *emu, int code)
 {
-    int inst_off = box64env.dynarec ? 2 : 0;
-
     if (code == 0x2e)  /* NT syscall */
     {
         WOW64_CPURESERVED *cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
@@ -358,9 +356,9 @@ void EmitInterruptionImpl(x64emu_t *emu, int code)
         int id = R_EAX;
         BOOL is_unix_call = FALSE;
 
-        if (ULongToPtr(R_RIP-inst_off) == &unxcode)
+        if (ULongToPtr(R_RIP) == &unxcode)
             is_unix_call = TRUE;
-        else if (ULongToPtr(R_RIP-inst_off) != &bopcode)
+        else if (ULongToPtr(R_RIP) != &bopcode)
             return;
 
         R_RIP = Pop32(emu);

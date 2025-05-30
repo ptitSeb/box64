@@ -1532,9 +1532,11 @@ x64emurun:
         case 0xCD:                      /* INT n */
             tmp8u = F8;
             #ifdef _WIN32
+            #ifndef TEST_INTERPRETER
             EmitInterruption(emu, tmp8u, (void*)R_RIP);
             STEP;
             addr = R_RIP;
+            #endif
             #else
             // this is a privilege opcode...
             if(box64_wine && tmp8u==0x2D) {
