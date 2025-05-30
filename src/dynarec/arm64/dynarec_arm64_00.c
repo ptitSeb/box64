@@ -2662,17 +2662,24 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MARK;
             LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
-            break;
-            #endif
-            if(box64_wine && (u8==0x2D || u8==0x2C || u8==0x29)) {
-                INST_NAME("INT 29/2c/2d");
+            #else
+            if(box64_wine && (u8==0x2E || u8==0x2D || u8==0x2C || u8==0x29)) {
+                INST_NAME("INT 29/2c/2d/2e");
                 // lets do nothing
-                MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
+                MESSAGE(LOG_INFO, "INT 29/2c/2d/2e Windows interruption\n");
                 GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(xRIP);
                 MOV32w(x1, u8);
                 CALL(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
+                TABLE64(x3, addr); // expected return address
+                CMPSx_REG(xRIP, x3);
+                B_MARK(cNE);
+                LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
+                CBZw_NEXT(w1);
+                MARK;
+                LOAD_XEMU_REM();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
             } else if (u8==0x80) {
                 INST_NAME("32bits SYSCALL");
                 NOTEST(x1);
@@ -2723,6 +2730,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 *need_epilog = 0;
                 *ok = 0;
             }
+            #endif
             break;
         case 0xCE:
             if(!rex.is32bits) {
