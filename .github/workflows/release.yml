@@ -325,12 +325,6 @@ jobs:
 
           7z -tzip -mx=5 a box64-latest.rat files pkg-header
 
-      - name: "Upload Artifact"
-        uses: actions/upload-artifact@v4
-        with:
-          name: box64-${{ matrix.platform }}-${{ matrix.type }}
-          path: build/box64
-
       - name: "Upload WCP file"
         if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild'
         uses: actions/upload-artifact@v4
