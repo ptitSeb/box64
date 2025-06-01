@@ -344,3 +344,10 @@ jobs:
         with:
           name: box64-MiceWine-${{ matrix.type }}
           path: build/box64-latest.rat
+
+      - name: "Upload WowBox64 file"
+        if: matrix.platform == 'WOW64' && matrix.type == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wowbox64-${{ matrix.type }}
+          path: build/wowbox64-prefix/src/wowbox64-build/libwowbox64.dll
