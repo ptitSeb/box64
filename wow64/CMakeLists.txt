@@ -1,6 +1,22 @@
 cmake_minimum_required(VERSION 3.13)
 project(wowbox64 C ASM)
 
+if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
+    find_package(PythonInterp 3)
+    if(NOT PYTHONINTERP_FOUND)
+        message( FATAL_ERROR "You need a Python interpreter, CMake will exit." )
+    endif()
+    if(${PYTHON_VERSION_MAJOR} LESS 3)
+        message( FATAL_ERROR "You need a Python 3 interpreter, CMake will exit." )
+    endif()
+else()
+    find_package(Python3)
+    if(NOT Python3_Interpreter_FOUND)
+        message( FATAL_ERROR "You need a Python interpreter, CMake will exit." )
+    endif()
+    set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE} CACHE INTERNAL "The Python3 executable" FORCE)
+endif()
+
 set(BOX64_ROOT "${CMAKE_SOURCE_DIR}/..")
 
 string(REPLACE "," ";" DYNAREC_ASM "${DYNAREC_ASM_STR}")
@@ -121,5 +137,10 @@ import_dll(wow64)
 add_compile_definitions(DYNAREC ARM64)
 
 target_link_options(wowbox64 PRIVATE -nostdlib -nodefaultlibs -lclang_rt.builtins-aarch64 -Wl,--image-base,0x004c0000)
+
+add_custom_command(
+    TARGET wowbox64 POST_BUILD
+    COMMAND "${PYTHON_EXECUTABLE}" ${CMAKE_SOURCE_DIR}/override_wine_builtin.py $<TARGET_FILE:wowbox64>
+)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
