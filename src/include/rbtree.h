@@ -1,25 +1,58 @@
 /*
- * The primary function of red-black trees in Box64 is to provide a fast and efficient method (O(log(n))) for managing memory mappings. 
- * Each red-black tree node includes two additional pointers, "start" and "end," to denote a specific memory range. 
- * When a range of memory is mapped from the system, it is recorded in red-black trees based on the type and characteristics of that memory range.
+ * The primary function of red-black trees in Box64 is to provide an O(log n) method for managing memory mappings.
+ * This provides a mechanism that allows retrieving the memory range or associated data based on an address.
+ * Unlike standard red-black trees, each node here includes two additional fields, "start" and "end," to denote a specific memory range.
  *
- * Box64 utilizes four red-black trees, each serving distinct purposes:
- * 1. memprot: Manages memory protection settings where each node's data field represents the permissions of the memory range. 
- *    The "rb_set" function within this tree can set or change permissions for a specified range.
- * 2. mapallmem: Tracks all memory mappings. Its nodes' data field can indicate whether the memory is included in this mapping.
- * 3. mmapmem: Similar to "mapallmem" but specifically for memory mapped through the mmap system call. 
- *    The nodes' data fields here differentiate whether the memory is exclusively mapped by mmap.
- * 4. blockstree: Specifically contains memory ranges for blocks, where each node represents a different block. 
- *    The "data" field in this tree represents the index of the block in the "blocklist_s" array "p_blocks".
- *
- * Currently, there is an overlap between "mapallmem" and "mmapmem", where if memory is mapped in "mmapmem", it is also considered mapped in "mapallmem". 
- * If "mapallmem" and "mmapmem" were to be merged in the future, the "data" field could then take values indicating:
- * - 0: Memory is not mapped.
- * - 1: Memory is only mapped in "mapallmem".
- * - 2: Memory is mapped in both "mapallmem" and "mmapmem".
+ * Box64 currently uses seven red-black trees, each serving distinct purposes:
+ * 1. memprot: 
+ *    Manages memory protection settings. Each node's data field represents the permissions of its memory range.
+ *    
+ * 2. mapallmem: 
+ *    Mirrors what’s in `/proc/self/maps`. The data field in each node can be:
+ *      - MEM_ALLOCATED
+ *      - MEM_RESERVED (reserved for box32_dynarec_mmap)
+ *      - MEM_MMAP (indicating the range is mapped via mmap)
  * 
+ * 3. blockstree: 
+ *    Contains memory ranges for a free-list (blocklist_s). Each node represents a different free-list.
+ *    The data field stores the index of that free-list in the array `p_blocks` (i.e., the array that holds each free-list pointer).
+ * 
+ *     ┌────────┬────────┬───────────────────────────────┬────────┬────────┐
+ *     │ m.prev │ m.next │            PAYLOAD            │ n.prev │ n.next │
+ *     │ 0      │ offs   │  (allocsize - 2·sizeof(mark)) │  offs  │  0     │
+ *     └────────┴────────┴───────────────────────────────┴────────┴────────┘
+ *     ↑                                                                   ↑
+ *     p (free-list start)                                      p + allocsize (free-list end)
+ * 
+ * 4. db_sizes:
+ *    Tracks, for each dynablock size, how many dynablocks of exactly that size currently exist (per-size count).
+ * 
+ * 5. envmap:
+ *    Maps each live memory range to its mapping_t, which contains:
+ *      - the file’s lowercase name,
+ *      - a pointer to that file’s per-file box64env_t,
+ *      - and the base address;
+ *    indicating which module owns that range.
+ * 
+ * 6. rbt_dynmem: 
+ *    Contains memory ranges for a different free-list (chunks) used by dynamic blocks. Each node represents one chunk.
+ *    The data field stores the index of that chunk in the array mmaplist_t.
+ *    
+ *    [ mmaplist0 ] → [ mmaplist1 ] → [ mmaplist2 ] → …  
+ *          │              │              │  
+ *      chunks[0]      chunks[0]      chunks[0]    (each chunk[i] is a blocklist_t)  
+ *      chunks[1]      chunks[1]      chunks[1]  
+ *        ...            ...            ...  
+ *      chunks[63]     chunks[63]     chunks[63]  
+ * 
+ * 7. volatileRanges: 
+ *    Tracks every “volatile” region inside a loaded PE module. 
+ *
  * Before the introduction of the red-black tree in Box64, the rationale for memory management was a sparse array, which takes O(n) complexity for accessing data.
  * After transitioning from a sparse array to a red-black tree, the memory usage has decreased slightly for processes that consumed a lot of RAM (for example, Steam uses about 100 MB less memory, and each Wine process uses about 15 MB less).
+ *
+ * Note that each rbnode is allocated by a bitmap allocator (map128_customMalloc), which provides 128 bytes of space for any request <128 bytes.
+ * Since each rbtree node is 56 bytes, this results in 72 bytes of internal fragmentation per node. There is therefore a trade-off when using rbtree.
  */
 
 #ifndef RBTREE_H
