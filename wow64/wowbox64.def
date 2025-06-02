@@ -8,7 +8,6 @@ EXPORTS
   BTCpuResetToConsistentState
   BTCpuSetContext
   BTCpuSimulate
-  BTCpuTurboThunkControl
   BTCpuNotifyUnmapViewOfSection
   BTCpuNotifyMemoryFree
   BTCpuNotifyMemoryProtect

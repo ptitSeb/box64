@@ -153,7 +153,6 @@ static NTSTATUS invalidate_mapped_section(PVOID addr)
 
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
-    // NYI
     // invalidate all paged interleaved with this range.
     unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
@@ -332,12 +331,6 @@ NTSTATUS WINAPI BTCpuThreadInit(void)
     reset_fpu(emu);
 
     NtCurrentTeb()->TlsSlots[0] = emu; // FIXME
-    return STATUS_SUCCESS;
-}
-
-NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
-{
-    if (enable) return STATUS_NOT_SUPPORTED;
     return STATUS_SUCCESS;
 }
 
