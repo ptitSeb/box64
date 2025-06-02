@@ -202,7 +202,7 @@ x64emu_t* thread_get_emu()
 			stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
 		else
             stack = InternalMmap(NULL, stacksize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_GROWSDOWN, -1, 0);
-                if(stack!=MAP_FAILED)
+		if(stack!=MAP_FAILED)
 			setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		x64emu_t *emu = NewX64Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
 		SetupX64Emu(emu, NULL);
