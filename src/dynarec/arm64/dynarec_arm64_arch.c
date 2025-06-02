@@ -285,7 +285,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     while(i<ninst-1) {
         arch = next;
         i += 1+arch->seq;
-        dynarec_log_prefix(0, LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
+        dynarec_log_prefix(0, (i<ninst-1)?LOG_DEBUG:LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     int sz = sizeof(arch_arch_t);
