@@ -2,8 +2,10 @@ LIBRARY libwowbox64.dll
 
 EXPORTS
   BTCpuFlushInstructionCache2
+  BTCpuFlushInstructionCacheHeavy
   BTCpuGetBopCode
   BTCpuGetContext
+  BTCpuNotifyMemoryDirty
   BTCpuNotifyMemoryFree
   BTCpuNotifyMemoryProtect
   BTCpuNotifyUnmapViewOfSection

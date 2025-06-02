@@ -153,7 +153,11 @@ static NTSTATUS invalidate_mapped_section(PVOID addr)
 
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
-    // invalidate all paged interleaved with this range.
+    unprotectDB((uintptr_t)addr, (size_t)size, 1);
+}
+
+void WINAPI BTCpuFlushInstructionCacheHeavy(LPCVOID addr, SIZE_T size)
+{
     unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
@@ -170,6 +174,11 @@ void* WINAPI __wine_get_unix_opcode(void)
 NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
     return NtQueryInformationThread(thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL);
+}
+
+void WINAPI BTCpuNotifyMemoryDirty(PVOID addr, SIZE_T size)
+{
+    unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
