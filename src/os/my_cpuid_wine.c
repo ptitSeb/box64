@@ -2,6 +2,7 @@
 
 #include "my_cpuid.h"
 #include "debug.h"
+#include "build_info.h"
 
 NTSYSAPI ULONG WINAPI NtGetTickCount(VOID);
 NTSYSAPI ULONG NTAPI RtlRandom(ULONG *seed);
@@ -24,8 +25,7 @@ int getNCpu()
 
 const char* getBoxCpuName()
 {
-    static char branding[] = "libwowbox64.dll";
-    return branding;
+    return BOX64_STR;
 }
 
 uint32_t helper_getcpu(x64emu_t* emu) {
