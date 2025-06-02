@@ -400,7 +400,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     if(dl->dllibs[nlib].lib) {
         if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, -1, NULL)==0) {
             // not found
-            printf_dlsym(LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol);
+            printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol);
             printf_log_prefix(0, LOG_DEBUG, " Symbol not found\n");
             SET_ERROR("Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->dllibs[nlib].lib));
             pthread_mutex_unlock(&mutex);
@@ -523,11 +523,11 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
             ret_addr = *(uintptr_t*)R_RSP;
         elfheader_t *elf = FindElfAddress(my_context, ret_addr); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername, 0, NULL)) {
-                printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+                printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
         SET_ERROR("Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
-            printf_dlsym(LOG_NEVER, "%p\n", NULL);
+            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
         return NULL;
     }
     size_t nlib = (size_t)handle;
@@ -535,18 +535,18 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     // size_t is unsigned
     if(nlib>=dl->lib_sz) {
         SET_ERROR("Bad handle %p)\n", handle);
-        printf_dlsym(LOG_NEVER, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
         return NULL;
     }
     if(!dl->dllibs[nlib].count || !dl->dllibs[nlib].full) {
         SET_ERROR("Bad handle %p (already closed))\n", handle);
-        printf_dlsym(LOG_NEVER, "%p\n", (void*)NULL);
+        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)NULL);
         return NULL;
     }
     if(dl->dllibs[nlib].lib) {
         if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, version, vername)==0) {
             // not found
-                printf_dlsym(LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol, vername?vername:"(nil)");
+                printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol, vername?vername:"(nil)");
             printf_log(LOG_DEBUG, " Symbol not found\n");
             SET_ERROR("Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->dllibs[nlib].lib));
             return NULL;
@@ -554,16 +554,16 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     } else {
         // still usefull?
         if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
         // not found
-            printf_dlsym(LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, "Self", rsymbol, vername?vername:"(nil)");
+            printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, "Self", rsymbol, vername?vername:"(nil)");
         printf_log(LOG_DEBUG, " Symbol not found\n");
         SET_ERROR("Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
         return NULL;
     }
-        printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
+        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
     return (void*)start;
 }
 
