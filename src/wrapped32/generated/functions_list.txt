@@ -663,6 +663,7 @@
 #() uFuup -> uFuup
 #() uFupp -> uFupp
 #() uFpii -> uFpii
+#() uFpip -> uFpip
 #() uFpuU -> uFpuU
 #() uEpup -> uEpup
 #() uFpup -> uFpup
@@ -990,6 +991,7 @@
 #() iFEpui -> iFEpui
 #() iFEpuu -> iFEpuu
 #() iEEpup -> iEEpup
+#() iFEpup -> iFEpup
 #() iFEpll -> iFEpll
 #() iEEpLi -> iEEpLi
 #() iFEpLi -> iFEpLi
@@ -1043,6 +1045,7 @@
 #() iFpiII -> iFpiII
 #() iFpiuu -> iFpiuu
 #() iFpili -> iFpili
+#() iFpipu -> iFpipu
 #() iFpipL -> iFpipL
 #() iEpipp -> iEpipp
 #() iFpipp -> iFpipp
@@ -1070,6 +1073,7 @@
 #() iFppLi -> iFppLi
 #() iFppLI -> iFppLI
 #() iFppLu -> iFppLu
+#() iFppLp -> iFppLp
 #() iFpppi -> iFpppi
 #() iFpppu -> iFpppu
 #() iEpppL -> iEpppL
@@ -1108,8 +1112,10 @@
 #() uFEpii -> uFEpii
 #() uFEpip -> uFEpip
 #() uFEpiV -> uFEpiV
+#() uFEpup -> uFEpup
 #() uFuuuu -> uFuuuu
 #() uFuppd -> uFuppd
+#() uFpiip -> uFpiip
 #() uFpCCC -> uFpCCC
 #() uFppii -> uFppii
 #() uFppip -> uFppip
@@ -1447,6 +1453,7 @@
 #() iFppiUi -> iFppiUi
 #() iFppipp -> iFppipp
 #() iFppWup -> iFppWup
+#() iFppuip -> iFppuip
 #() iFppupu -> iFppupu
 #() iFppLpL -> iFppLpL
 #() iFpppip -> iFpppip
@@ -1725,6 +1732,7 @@
 #() iFXppppp -> iFXppppp
 #() uFEpippi -> uFEpippi
 #() uFupuufp -> uFupuufp
+#() uFpppppp -> uFpppppp
 #() lEipLipu -> lEipLipu
 #() lEipLipp -> lEipLipp
 #() pFEpiiuu -> pFEpiiuu
@@ -1848,6 +1856,7 @@
 #() vFXLppipi -> vFXLppipi
 #() vFXpiipii -> vFXpiipii
 #() vFXppiiii -> vFXppiiii
+#() iFElppppp -> iFElppppp
 #() iEEpLiipp -> iEEpLiipp
 #() iEEpLiipV -> iEEpLiipV
 #() iEEpLiLpV -> iEEpLiLpV
@@ -2117,6 +2126,7 @@
 #() vFuiiiiiuiiiiilll -> vFuiiiiiuiiiiilll
 #() vFuuiiiiuuiiiiiii -> vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff -> vFfffffffffffffff
+#() iFpppppppppppppppp -> iFpppppppppppppppp
 #() vFuuuuiiiiuuiiiiiii -> vFuuuuiiiiuuiiiiiii
 #() vFXpuiiiiipuiiiiiiii -> vFXpuiiiiipuiiiiiiii
 #() uFippuuuuiiiiuuiiiiiiiipp -> uFippuuuuiiiiuuiiiiiiiipp
@@ -2150,6 +2160,14 @@ wrappedcairo:
   - cairo_xlib_surface_create
   - cairo_xlib_surface_create_for_bitmap
 wrappedcrashhandler:
+wrappedcurl:
+- iFpup:
+  - curl_multi_setopt
+- uFpup:
+  - curl_easy_setopt
+  - curl_share_setopt
+- iFlppppp:
+  - curl_global_init_mem
 wrappeddbus:
 - vFp:
   - dbus_free_string_array
