@@ -25,14 +25,19 @@ sudo systemctl restart systemd-binfmt
 - You can use `make -j1`, `make -j2` with less jobs to prevent running out of memory
 - You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on a Linux Kernel mixed with Android, like on RK3588.
 
-### What about BOX32
+### Note about Box32
 
-if you want to build Box64 with the Box32 option, you will need to add `-DBOX32=ON` to the cmake command. That will enable 32bits process to be run with Box64.
+If you want to build Box64 with the Box32 option, you will need to add `-DBOX32=ON` to the cmake command. That will enable 32bits process to be run with Box64.
 If you also want binfmt integration on 32bits binaries, you also need to add `-DBOX32_BINFMT=ON` to the cmake command.
 
-### note about binfmt_misc
+### Note about WowBox64
 
-[binfmt_misc](https://en.wikipedia.org/wiki/Binfmt_misc) is a capability of the Linux kernel which allows arbitrary executable file formats to be recognized and passed to certain user space applications such as box64 usually used with systemd but systems like android can't run/use systemd so you will need to register box64 manually, this will also work inside a CHRoot.
+A highly experimantal subproject named WowBox64 has been added as a build option, add `-DWOW64=ON` to the cmake command to enable it.
+It will build alongside the regular Box64, and produce a `libwowbox64.dll` file in `build/wowbox64-prefix/src/wowbox64-build/` directory.
+
+### Note about binfmt_misc on Android
+
+[binfmt_misc](https://en.wikipedia.org/wiki/Binfmt_misc) is a capability of the Linux kernel which allows arbitrary executable file formats to be recognized and passed to certain user space applications such as Box64 usually used with systemd but systems like Android can't run/use systemd so you will need to register Box64 manually, this will also work inside a CHRoot.
 ```
 sudo mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
 sudo echo ':box64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00:\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/local/bin/box64:' | sudo tee /proc/sys/fs/binfmt_misc/register
