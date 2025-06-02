@@ -93,6 +93,7 @@ typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32
 	GO(SDL_WriteBE64, uFpU_t) \
 	GO(SDL_WriteLE64, uFpU_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
+	GO(SDL_RWFromMem, pFpi_t) \
 	GO(SDL_notreal, pFpi_t) \
 	GO(SDL_CreateTextureFromSurface, pFpp_t) \
 	GO(SDL_RWFromFile, pFpp_t) \

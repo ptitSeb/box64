@@ -462,6 +462,14 @@ EXPORT void* my32_2_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)
     return ret;
 }
 
+EXPORT void* my32_2_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
+{
+    SDL2_RWops_t* r = (SDL2_RWops_t*)my->SDL_RWFromMem(a, b);
+    void* ret = AddNativeRW2(emu, r);
+    inplace_SDL2_RWops_to_32(ret);
+    return ret;
+}
+
 EXPORT void *my32_2_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
 {
     inplace_SDL2_RWops_to_64(a);

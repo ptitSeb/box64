@@ -3401,6 +3401,7 @@ wrappedsdl2:
   - SDL_WriteLE64
 - pFpi:
   - SDL_LoadBMP_RW
+  - SDL_RWFromMem
   - SDL_notreal
 - pFpp:
   - SDL_CreateTextureFromSurface
