@@ -4,9 +4,11 @@ Usage
 
 There are many environment variables to control Box64's behaviour, which will be listed below by category.
 
-### Configuration files
+There are 2 types of Box64 builds: the Wine WOW64 build (WowBox64) and the regular Linux build. Beware only some of the environment variables are available in WowBox64.
 
-In addition to environment variables, by default, Box64 also looks for 2 places for rcfile: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
+### Configuration files for Linux build
+
+In addition to environment variables, if you're using the regular Linux build, Box64 also looks for 2 places for rcfile by default: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
 Settings priority follows this order (from highest to lowest): `~/.box64rc` > `/etc/box64.box64rc` > environment variables.
 
 Example configuration:
@@ -21,7 +23,7 @@ BOX64_DYNAREC_CALLRET=1
 
 This configuration will apply the specified settings application-wide to any executable named `factorio`.
 
-### Advanced usage
+### Advanced usage for Linux build
 
 1. **Wildcard Matching**
 
@@ -173,7 +175,7 @@ Add --no-sandbox argument to the guest program.
 
 ### BOX64_AVX
 
-Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise.
+Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
 
  * 0: Do not expose AVX capabilities. 
  * 1: Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file. 
@@ -187,7 +189,7 @@ Path to the bash executable.
 
 ### BOX64_CPUTYPE
 
-Specify the CPU type to emulate.
+Specify the CPU type to emulate. Availble in WowBox64.
 
  * 0: Emulate a Intel CPU Model. [Default]
  * 1: Emulate a AMD CPU Model. 
@@ -208,7 +210,7 @@ Detect MonoBleedingEdge and apply conservative settings.
 
 ### BOX64_DYNAREC_DIV0
 
-Enable or disable the generation of division-by-zero exception.
+Enable or disable the generation of division-by-zero exception. Availble in WowBox64.
 
  * 0: Do not generate thr division-by-zero exception. [Default]
  * 1: Generate the division-by-zero exception. 
@@ -222,7 +224,7 @@ Enable or disable libtbb detection.
 
 ### BOX64_DYNAREC_X87DOUBLE
 
-Force the use of float/double for x87 emulation.
+Force the use of float/double for x87 emulation. Availble in WowBox64.
 
  * 0: Try to use float when possible for x87 emulation. [Default]
  * 1: Only use Double for x87 emulation. 
@@ -273,7 +275,7 @@ Behaviour when hooking malloc operators.
 
 ### BOX64_MAXCPU
 
-Maximum CPU cores exposed.
+Maximum CPU cores exposed. Availble in WowBox64.
 
  * 0: Use the actual number of CPU cores. [Default]
  * XXXX: Use XXXX CPU cores. 
@@ -320,14 +322,14 @@ Expose SHAEXT (a.k.a. SHA_NI) capabilities.
 
 ### BOX64_SSE_FLUSHTO0
 
-Behaviour of SSE Flush to 0 flags.
+Behaviour of SSE Flush to 0 flags. Availble in WowBox64.
 
  * 0: Just track the flag. [Default]
  * 1: Apply SSE Flush to 0 flag directly. 
 
 ### BOX64_SSE42
 
-Expose SSE4.2 capabilities.
+Expose SSE4.2 capabilities. Availble in WowBox64.
 
  * 0: Do not expose SSE4.2 capabilities. 
  * 1: Expose SSE4.2 capabilities. [Default]
@@ -369,7 +371,7 @@ Call XInitThreads when loading X11. This is mostly for old Loki games with the L
 
 ### BOX64_X87_NO80BITS
 
-Behavoiur of x87 80bits long double.
+Behavoiur of x87 80bits long double. Availble in WowBox64.
 
  * 0: Try to handle 80bits long double as precise as possible. [Default]
  * 1: Use 64bits double for x87. 
@@ -385,14 +387,14 @@ Enable or disable the logging of dlsym errors.
 
 ### BOX64_DUMP
 
-Dump elfloader debug information.
+Dump elfloader debug information. Availble in WowBox64.
 
  * 0: Do not dump elfloader debug information. [Default]
  * 1: Dump elfloader debug information. 
 
 ### BOX64_DYNAREC_DUMP
 
-Enable DynaRec dump.
+Enable DynaRec dump. Availble in WowBox64.
 
  * 0: Do not dump DynaRec blocks. [Default]
  * 1: Dump DynaRec blocks. 
@@ -400,7 +402,7 @@ Enable DynaRec dump.
 
 ### BOX64_DYNAREC_DUMP_RANGE
 
-Dump DynaRec blocks in the specified range.
+Dump DynaRec blocks in the specified range. Availble in WowBox64.
 
  * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynablock gets dumped (inclusive-exclusive). 
 
@@ -416,7 +418,7 @@ The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable
 
 ### BOX64_DYNAREC_LOG
 
-Disable or enable DynaRec logs.
+Disable or enable DynaRec logs. Availble in WowBox64.
 
  * 0: Disable DynaRec logs. [Default]
  * 1: Enable minimal DynaRec logs. 
@@ -425,7 +427,7 @@ Disable or enable DynaRec logs.
 
 ### BOX64_DYNAREC_MISSING
 
-Print missing opcodes.
+Print missing opcodes. Availble in WowBox64.
 
  * 0: Do not print the missing opcode. [Default]
  * 1: Print missing opcodes. 
@@ -440,7 +442,7 @@ Generate map file for Linux perf tool.
 
 ### BOX64_DYNAREC_TEST
 
-Enable DynaRec execution comparison with the interpreter, very slow, only for testing.
+Enable DynaRec execution comparison with the interpreter, very slow, only for testing. Availble in WowBox64.
 
  * 0: No comparison. [Default]
  * 1: Each opcode runs on interpreter and on Dynarec, regs and memory are compared and printed when they differ. 
@@ -470,7 +472,7 @@ Set the address where the program is loaded, only active for PIE guest programs.
 
 ### BOX64_LOG
 
-Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 otherwise.
+Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 otherwise. Availble in WowBox64.
 
  * 0: Disable Box64 logs. 
  * 1: Enable minimal Box64 logs. 
@@ -479,7 +481,7 @@ Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 ot
 
 ### BOX64_NOBANNER
 
-Disable the Box64 banner.
+Disable the Box64 banner. Availble in WowBox64.
 
  * 0: Show the Box64 banner. 
  * 1: Do not show the Box64 banner. 
@@ -577,21 +579,21 @@ Only available on box64 build with trace. Adds trace of all instructions execute
 
 ### BOX64_DYNAREC
 
-Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1 if it's enabled in the build options for a supported architecture.
+Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1 if it's enabled in the build options for a supported architecture. Availble in WowBox64.
 
  * 0: Disable DynaRec. 
  * 1: Enable DynaRec. 
 
 ### BOX64_DYNAREC_ALIGNED_ATOMICS
 
-Generate aligned atomics only (only available on Arm64 for now).
+Generate aligned atomics only (only available on Arm64 for now). Availble in WowBox64.
 
  * 0: Generate unaligned atomics handling code. [Default]
  * 1: Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on aligned data addresses. 
 
 ### BOX64_DYNAREC_BIGBLOCK
 
-Enable building bigger DynaRec code blocks for better performance.
+Enable building bigger DynaRec code blocks for better performance. Availble in WowBox64.
 
  * 0: Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity. 
  * 1: Build Dynarec block as big as possible. 
@@ -600,15 +602,15 @@ Enable building bigger DynaRec code blocks for better performance.
 
 ### BOX64_DYNAREC_CALLRET
 
-Optimize CALL/RET opcodes.
+Optimize CALL/RET opcodes. Availble in WowBox64.
 
  * 0: Do not optimize CALL/RET, use jump table. [Default]
  * 1: Try to optimize CALL/RET, skipping the jump table when possible. 
- * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. 
+ * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64. 
 
 ### BOX64_DYNAREC_DF
 
-Enable or disable the use of deferred flags.
+Enable or disable the use of deferred flags. Availble in WowBox64.
 
  * 0: Disable the use of deferred flags. 
  * 1: Enable the use of deferred flags. [Default]
@@ -623,14 +625,14 @@ Allow continue running a block that is unprotected and potentially dirty.
 
 ### BOX64_DYNAREC_FASTNAN
 
-Enable or disable fast NaN handling.
+Enable or disable fast NaN handling. Availble in WowBox64.
 
  * 0: Precisely emulate the -NaN generation like on x86. 
  * 1: Do not do anything special with -NAN generation, faster. [Default]
 
 ### BOX64_DYNAREC_FASTROUND
 
-Enable or disable fast rounding.
+Enable or disable fast rounding. Availble in WowBox64.
 
  * 0: Generate float/double -> int rounding and use current rounding mode for float/double computation like on x86. 
  * 1: Do not do anything special with edge case rounding, faster. [Default]
@@ -638,7 +640,7 @@ Enable or disable fast rounding.
 
 ### BOX64_DYNAREC_FORWARD
 
-Define max allowed forward value when building block.
+Define max allowed forward value when building block. Availble in WowBox64.
 
  * 0: No forward value. When current block ends, do not try to go further even if there are previous forward jumps. 
  * 128: Allow up to 128 bytes of gap between end of the block and the next forward jump. [Default]
@@ -646,14 +648,14 @@ Define max allowed forward value when building block.
 
 ### BOX64_DYNAREC_NATIVEFLAGS
 
-Enable or disable the use of native flags.
+Enable or disable the use of native flags. Availble in WowBox64.
 
  * 0: Do not use native flags. 
  * 1: Use native flags when possible. [Default]
 
 ### BOX64_DYNAREC_PAUSE
 
-Enable x86 PAUSE emulation, may help the performance of spinlocks.
+Enable x86 PAUSE emulation, may help the performance of spinlocks. Availble in WowBox64.
 
  * 0: Ignore x86 PAUSE instruction. [Default]
  * 1: Use YIELD to emulate x86 PAUSE instruction. 
@@ -662,7 +664,7 @@ Enable x86 PAUSE emulation, may help the performance of spinlocks.
 
 ### BOX64_DYNAREC_SAFEFLAGS
 
-Behaviour of flags emulation on CALL/RET opcodes.
+Behaviour of flags emulation on CALL/RET opcodes. Availble in WowBox64.
 
  * 0: Treat CALL/RET as if it never needs any flags. 
  * 1: Most of RETs will need flags, most of CALLs will not. [Default]
@@ -670,7 +672,7 @@ Behaviour of flags emulation on CALL/RET opcodes.
 
 ### BOX64_DYNAREC_STRONGMEM
 
-Enable the emulation of x86 strong memory model.
+Enable the emulation of x86 strong memory model. Availble in WowBox64.
 
  * 0: Do not try anything special. [Default]
  * 1: Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way. 
@@ -686,14 +688,14 @@ Use volatile metadata parsed from PE files, only valid for 64bit Windows games.
 
 ### BOX64_DYNAREC_WAIT
 
-Wait or not for the building of a DynaRec code block to be ready.
+Wait or not for the building of a DynaRec code block to be ready. Availble in WowBox64.
 
  * 0: Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs. 
  * 1: Wait for a DynaRec code block to be ready. [Default]
 
 ### BOX64_DYNAREC_WEAKBARRIER
 
-Tweak the memory barriers to reduce the performance impact by strong memory emualtion.
+Tweak the memory barriers to reduce the performance impact by strong memory emualtion. Availble in WowBox64.
 
  * 0: Use regular safe barrier. 
  * 1: Use weak barriers to have more performance boost. [Default]
@@ -708,7 +710,7 @@ Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code 
 
 ### BOX64_NODYNAREC
 
-Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter.
+Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter. Availble in WowBox64.
 
  * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynablock creation is forbidden (inclusive-exclusive). 
 

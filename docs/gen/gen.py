@@ -18,9 +18,11 @@ Usage
 
 There are many environment variables to control Box64's behaviour, which will be listed below by category.
 
-### Configuration files
+There are 2 types of Box64 builds: the Wine WOW64 build (WowBox64) and the regular Linux build. Beware only some of the environment variables are available in WowBox64.
 
-In addition to environment variables, by default, Box64 also looks for 2 places for rcfile: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
+### Configuration files for Linux build
+
+In addition to environment variables, if you're using the regular Linux build, Box64 also looks for 2 places for rcfile by default: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
 Settings priority follows this order (from highest to lowest): `~/.box64rc` > `/etc/box64.box64rc` > environment variables.
 
 Example configuration:
@@ -35,7 +37,7 @@ BOX64_DYNAREC_CALLRET=1
 
 This configuration will apply the specified settings application-wide to any executable named `factorio`.
 
-### Advanced usage
+### Advanced usage for Linux build
 
 1. **Wildcard Matching**
 
@@ -63,9 +65,9 @@ This configuration will apply the specified settings application-wide to any exe
     for category, entries in categories.items():
       md_file.write(f"## {category}\n\n")
       for entry in entries:
-        md_file.write(f"### {entry['name']}\n\n{entry['description']}\n\n")
+        md_file.write(f"### {entry['name']}\n\n{entry['description']}{' Availble in WowBox64.' if entry['wine'] else ''}\n\n")
         for option in entry['options']:
-          md_file.write(f" * {option['key']}: {option['description']} {"[Default]" if option['default'] else ""}\n")
+          md_file.write(f" * {option['key']}: {option['description']} {'[Default]' if option['default'] else ''}\n")
         md_file.write("\n")
 
 
@@ -123,9 +125,9 @@ Example:
 """)
 
     for entry in data:
-      pod_file.write(f"\n=item B<{entry['name']}> =I<{ '|'.join(option['key'] for option in entry['options']) }>\n\n{entry['description']}\n\n")
+      pod_file.write(f"\n=item B<{entry['name']}> =I<{ '|'.join(option['key'] for option in entry['options']) }>\n\n{entry['description']}{' Availble in WowBox64.' if entry['wine'] else ''}\n\n")
       for option in entry['options']:
-        pod_file.write(f" * {option['key']} : {option['description']} {"[Default]" if option['default'] else ""}\n")
+        pod_file.write(f" * {option['key']} : {option['description']} {'[Default]' if option['default'] else ''}\n")
       pod_file.write("\n")
 
     pod_file.write("""
@@ -155,22 +157,22 @@ def get_usage_entry(usage, define):
 for entry in data:
     i = list(d["default"] for d in entry["options"]).count(True)
     if i > 1:
-        print(f"{entry["name"]:<{PADDING}}: multiple default values usage.json")
+        print(f"{entry['name']:<{PADDING}}: multiple default values usage.json")
 
 
 # regex to match env.h C code
 regex = {
     "INTEGER": re.compile(
-        r"^\s*INTEGER\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<min>\w+), (?P<max>\w+)\)"
+        r"^\s*INTEGER\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<min>\w+), (?P<max>\w+), (?P<wine>\w+)\)"
     ),
     "INTEGER64": re.compile(
-        r"^\s*INTEGER64\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+)\)"
+        r"^\s*INTEGER64\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<wine>\w+)\)"
     ),
     "BOOLEAN": re.compile(
-        r"^\s*BOOLEAN\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+)\)"
+        r"^\s*BOOLEAN\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<wine>\w+)\)"
     ),
-    "ADDRESS": re.compile(r"^\s*ADDRESS\((?P<define>\w+), (?P<name>\w+)\)"),
-    "STRING": re.compile(r"^\s*STRING\((?P<define>\w+), (?P<name>\w+)\)"),
+    "ADDRESS": re.compile(r"^\s*ADDRESS\((?P<define>\w+), (?P<name>\w+), (?P<wine>\w+)\)"),
+    "STRING": re.compile(r"^\s*STRING\((?P<define>\w+), (?P<name>\w+), (?P<wine>\w+)\)"),
 }
 
 env_file = os.path.join(script_dir, "../../src/include/env.h")
@@ -210,6 +212,10 @@ for define, m in matches["INTEGER"].items():
         # blank means that the entry has an 'XXXX' entry which usually indicated that arbitrary values are valid
         blank = False
         default2 = None
+
+        if int(m["wine"]) != int(e["wine"]):
+            print(f"{define:<{PADDING}}: wine mismatch: env.h={int(m['wine'])}, usage.json={int(e['wine'])}")
+
         for o in e["options"]:
             if o["key"] == "XXXX":
                 blank = True
@@ -238,7 +244,7 @@ for define, m in matches["INTEGER"].items():
                 f"{define:<{PADDING}}: default value mismatch: env.h={default}, usage.json={default2}"
             )
 
-for define, m in matches["INTEGER64"].items():
+for define, m in matches['INTEGER64'].items():
     # similar to INTEGER but without min/max
     name = m["name"]
     default = None if m["no_default"] or not m["default"].isdigit() else int(m["default"])
@@ -246,6 +252,10 @@ for define, m in matches["INTEGER64"].items():
     # Check consistency with usage.json
     if e := get_usage_entry(data, define):
         default2 = None
+
+        if int(m["wine"]) != int(e["wine"]):
+            print(f"{define:<{PADDING}}: wine mismatch: env.h={int(m['wine'])}, usage.json={int(e['wine'])}")
+
         for o in e["options"]:
             if o["key"] == "XXXX":
                 continue
@@ -267,11 +277,15 @@ for define, m in matches["BOOLEAN"].items():
     # Check consistency with usage.json
     if e := get_usage_entry(data, define):
         default2 = None
+
+        if int(m["wine"]) != int(e["wine"]):
+            print(f"{define:<{PADDING}}: wine mismatch: env.h={int(m['wine'])}, usage.json={int(e['wine'])}")
+
         for o in e["options"]:
             try:
                 val = bool(o["key"])
             except ValueError:
-                print(f"{define:<{PADDING}}: failed to parse boolean {o["key"]}")
+                print(f"{define:<{PADDING}}: failed to parse boolean {o['key']}")
 
             if o["default"]:
                 default2 = val
@@ -281,14 +295,19 @@ for define, m in matches["BOOLEAN"].items():
                 f"{define:<{PADDING}}: default value mismatch: env.h={default}, usage.json={default2}"
             )
 
-# ADDRESS and STRING are not that interesting, just check that they exist in usage.json
+# ADDRESS and STRING are not that interesting
 for define, m in matches["ADDRESS"].items():
-    _ = get_usage_entry(data, define)
+    if e := get_usage_entry(data, define):
+        if int(m["wine"]) != int(e["wine"]):
+            print(f"{define:<{PADDING}}: wine mismatch: env.h={int(m['wine'])}, usage.json={int(e['wine'])}")
+
 for define, m in matches["STRING"].items():
     # skip BOX64_ENV[1-5] entries, they mismatch but this is fine
     if define.startswith("BOX64_ENV"):
         continue
-    _ = get_usage_entry(data, define)
+    if e := get_usage_entry(data, define):
+        if int(m["wine"]) != int(e["wine"]):
+            print(f"{define:<{PADDING}}: wine mismatch: env.h={int(m['wine'])}, usage.json={int(e['wine'])}")
 
 # check that everything from usage.json is in env.h
 for e in data:

@@ -3,6 +3,7 @@
     "name": "BOX64_ADDLIBS",
     "description": "Add extras to the needed libraries list, rarely needed.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -20,6 +21,7 @@
     "name": "BOX64_ALLOWMISSINGLIBS",
     "description": "Allow missing libraries to be ignored.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -37,6 +39,7 @@
     "name": "BOX64_ARGS",
     "description": "Arguments to pass to the guest program, only valid if there is no existing arguments.",
     "category": "Arguments",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -54,6 +57,7 @@
     "name": "BOX64_AVX",
     "description": "Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -76,6 +80,7 @@
     "name": "BOX64_BASH",
     "description": "Path to the bash executable.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -88,6 +93,7 @@
     "name": "BOX64_CEFDISABLEGPU",
     "description": "Add -cef-disable-gpu argument to the guest program.",
     "category": "Arguments",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -105,6 +111,7 @@
     "name": "BOX64_CEFDISABLEGPUCOMPOSITOR",
     "description": "Add -cef-disable-gpu-compositor argument to the guest program.",
     "category": "Arguments",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -122,6 +129,7 @@
     "name": "BOX64_CPUTYPE",
     "description": "Specify the CPU type to emulate.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -139,6 +147,7 @@
     "name": "BOX64_CRASHHANDLER",
     "description": "Use a dummy crash handler or not.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -156,6 +165,7 @@
     "name": "BOX64_DLSYM_ERROR",
     "description": "Enable or disable the logging of dlsym errors.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -173,6 +183,7 @@
     "name": "BOX64_DUMP",
     "description": "Dump elfloader debug information.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -190,6 +201,7 @@
     "name": "BOX64_DYNAREC",
     "description": "Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1 if it's enabled in the build options for a supported architecture.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -207,6 +219,7 @@
     "name": "BOX64_DYNAREC_ALIGNED_ATOMICS",
     "description": "Generate aligned atomics only (only available on Arm64 for now).",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -224,6 +237,7 @@
     "name": "BOX64_DYNAREC_BIGBLOCK",
     "description": "Enable building bigger DynaRec code blocks for better performance.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -251,6 +265,7 @@
     "name": "BOX64_DYNAREC_BLEEDING_EDGE",
     "description": "Detect MonoBleedingEdge and apply conservative settings.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -268,6 +283,7 @@
     "name": "BOX64_DYNAREC_CALLRET",
     "description": "Optimize CALL/RET opcodes.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -281,7 +297,7 @@
       },
       {
         "key": "2",
-        "description": "Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block.",
+        "description": "Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64.",
         "default": false
       }
     ]
@@ -290,6 +306,7 @@
     "name": "BOX64_DYNAREC_DF",
     "description": "Enable or disable the use of deferred flags.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -307,6 +324,7 @@
     "name": "BOX64_DYNAREC_DIRTY",
     "description": "Allow continue running a block that is unprotected and potentially dirty.",
     "category": "Performance",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -329,6 +347,7 @@
     "name": "BOX64_DYNAREC_DIV0",
     "description": "Enable or disable the generation of division-by-zero exception.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -346,6 +365,7 @@
     "name": "BOX64_DYNAREC_DUMP",
     "description": "Enable DynaRec dump.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -368,6 +388,7 @@
     "name": "BOX64_DYNAREC_DUMP_RANGE",
     "description": "Dump DynaRec blocks in the specified range.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0xXXXXXXXX-0xYYYYYYYY",
@@ -380,6 +401,7 @@
     "name": "BOX64_DYNAREC_FASTNAN",
     "description": "Enable or disable fast NaN handling.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -397,6 +419,7 @@
     "name": "BOX64_DYNAREC_FASTROUND",
     "description": "Enable or disable fast rounding.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -419,6 +442,7 @@
     "name": "BOX64_DYNAREC_FORWARD",
     "description": "Define max allowed forward value when building block.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -441,6 +465,7 @@
     "name": "BOX64_DYNAREC_GDBJIT",
     "description": "The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -473,6 +498,7 @@
     "name": "BOX64_DYNAREC_LOG",
     "description": "Disable or enable DynaRec logs.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -500,6 +526,7 @@
     "name": "BOX64_DYNAREC_MISSING",
     "description": "Print missing opcodes.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -522,6 +549,7 @@
     "name": "BOX64_DYNAREC_NATIVEFLAGS",
     "description": "Enable or disable the use of native flags.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -539,6 +567,7 @@
     "name": "BOX64_DYNAREC_PAUSE",
     "description": "Enable x86 PAUSE emulation, may help the performance of spinlocks.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -566,6 +595,7 @@
     "name": "BOX64_DYNAREC_PERFMAP",
     "description": "Generate map file for Linux perf tool.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -583,6 +613,7 @@
     "name": "BOX64_DYNAREC_SAFEFLAGS",
     "description": "Behaviour of flags emulation on CALL/RET opcodes.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -605,6 +636,7 @@
     "name": "BOX64_DYNAREC_STRONGMEM",
     "description": "Enable the emulation of x86 strong memory model.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -632,6 +664,7 @@
     "name": "BOX64_DYNAREC_TBB",
     "description": "Enable or disable libtbb detection.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -649,6 +682,7 @@
     "name": "BOX64_DYNAREC_TEST",
     "description": "Enable DynaRec execution comparison with the interpreter, very slow, only for testing.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -671,6 +705,7 @@
     "name": "BOX64_DYNAREC_TRACE",
     "description": "Enable or disable DynaRec trace.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -688,6 +723,7 @@
     "name": "BOX64_DYNAREC_VOLATILE_METADATA",
     "description": "Use volatile metadata parsed from PE files, only valid for 64bit Windows games.",
     "category": "Performance",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -705,6 +741,7 @@
     "name": "BOX64_DYNAREC_WAIT",
     "description": "Wait or not for the building of a DynaRec code block to be ready.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -722,6 +759,7 @@
     "name": "BOX64_DYNAREC_WEAKBARRIER",
     "description": "Tweak the memory barriers to reduce the performance impact by strong memory emualtion.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -744,6 +782,7 @@
     "name": "BOX64_DYNAREC_X87DOUBLE",
     "description": "Force the use of float/double for x87 emulation.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -766,6 +805,7 @@
     "name": "BOX64_EMULATED_LIBS",
     "description": "Force the use of emulated libraries.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -783,6 +823,7 @@
     "name": "BOX64_ENV",
     "description": "Add an environment variable.",
     "category": "Environment",
+    "wine": false,
     "options": [
       {
         "key": "XXXX=yyyy",
@@ -795,6 +836,7 @@
     "name": "BOX64_ENV[1-5]",
     "description": "Add an environment variable.",
     "category": "Environment",
+    "wine": false,
     "options": [
       {
         "key": "XXXX=yyyy",
@@ -807,6 +849,7 @@
     "name": "BOX64_EXIT",
     "description": "Just exit, do not try to run the program.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -824,6 +867,7 @@
     "name": "BOX64_FIX_64BIT_INODES",
     "description": "Fix 64bit inodes.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -841,6 +885,7 @@
     "name": "BOX64_IGNOREINT3",
     "description": "Ignore INT3 instructions.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -858,6 +903,7 @@
     "name": "BOX64_INSERT_ARGS",
     "description": "Prepend arguments to the command line.",
     "category": "Arguments",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -875,6 +921,7 @@
     "name": "BOX64_INPROCESSGPU",
     "description": "Add --in-process-gpu argument to the guest program.",
     "category": "Arguments",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -892,6 +939,7 @@
     "name": "BOX64_JITGDB",
     "description": "Launch gdb or not for SIGSEGV, SIGILL, and SIGBUS.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -919,6 +967,7 @@
     "name": "BOX64_JVM",
     "description": "Detect libjvm and apply conservative settings.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -936,6 +985,7 @@
     "name": "BOX64_LD_LIBRARY_PATH",
     "description": "Path to look for x86_64 libraries.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -948,6 +998,7 @@
     "name": "BOX64_LD_PRELOAD",
     "description": "Force loading libraries with the binary.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -965,6 +1016,7 @@
     "name": "BOX64_LIBCEF",
     "description": "Detect libcef and apply BOX64_MALLOC_HACK settings.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -982,6 +1034,7 @@
     "name": "BOX64_LIBGL",
     "description": "Set the name for libGL.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "libXXXX",
@@ -999,6 +1052,7 @@
     "name": "BOX64_LOAD_ADDR",
     "description": "Set the address where the program is loaded, only active for PIE guest programs.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0xXXXXXXXX",
@@ -1011,6 +1065,7 @@
     "name": "BOX64_LOG",
     "description": "Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 otherwise.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1038,6 +1093,7 @@
     "name": "BOX64_MALLOC_HACK",
     "description": "Behaviour when hooking malloc operators.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1060,6 +1116,7 @@
     "name": "BOX64_MAXCPU",
     "description": "Maximum CPU cores exposed.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1077,6 +1134,7 @@
     "name": "BOX64_MMAP32",
     "description": "Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.",
     "category": "Performance",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1094,6 +1152,7 @@
     "name": "BOX64_NOBANNER",
     "description": "Disable the Box64 banner.",
     "category": "Debugging",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1111,6 +1170,7 @@
     "name": "BOX64_NODYNAREC",
     "description": "Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter.",
     "category": "Performance",
+    "wine": true,
     "options": [
       {
         "key": "0xXXXXXXXX-0xYYYYYYYY",
@@ -1123,6 +1183,7 @@
     "name": "BOX64_NOGTK",
     "description": "Do not load wrapped GTK libraries.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1140,6 +1201,7 @@
     "name": "BOX64_NOPULSE",
     "description": "Do not load PulseAudio libraries (both native and x86_64).",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1157,6 +1219,7 @@
     "name": "BOX64_NORCFILES",
     "description": "Do not load any rc files.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1174,6 +1237,7 @@
     "name": "BOX64_NOSANDBOX",
     "description": "Add --no-sandbox argument to the guest program.",
     "category": "Arguments",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1191,6 +1255,7 @@
     "name": "BOX64_NOSIGSEGV",
     "description": "Disable the handling of SIGSEGV.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1208,6 +1273,7 @@
     "name": "BOX64_NOSIGILL",
     "description": "Disable the handling of SIGILL.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1225,6 +1291,7 @@
     "name": "BOX64_NOVULKAN",
     "description": "Do not load Vulkan libraries.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1242,6 +1309,7 @@
     "name": "BOX64_PATH",
     "description": "Path to look for x86_64 binaries.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -1254,6 +1322,7 @@
     "name": "BOX64_PREFER_EMULATED",
     "description": "Prefer emulated libraries over native ones.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1271,6 +1340,7 @@
     "name": "BOX64_PREFER_WRAPPED",
     "description": "Prefer wrapped libs first even if the lib is specified with absolute path.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1288,6 +1358,7 @@
     "name": "BOX64_RCFILE",
     "description": "Path to the rc file to load.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -1300,6 +1371,7 @@
     "name": "BOX64_RDTSC_1GHZ",
     "description": "Use hardware counter for rdtsc if available.",
     "category": "Performance",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1317,6 +1389,7 @@
     "name": "BOX64_RESERVE_HIGH",
     "description": "Reserve high memory area for the program, always enabled on Box32.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1334,6 +1407,7 @@
     "name": "BOX64_ROLLING_LOG",
     "description": "Show last few wrapped function call when a signal is caught.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1356,6 +1430,7 @@
     "name": "BOX64_SDL2_JGUID",
     "description": "Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1373,6 +1448,7 @@
     "name": "BOX64_SHAEXT",
     "description": "Expose SHAEXT (a.k.a. SHA_NI) capabilities.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1390,6 +1466,7 @@
     "name": "BOX64_SHOWBT",
     "description": "Show native and emulated backtrace when a signal is caught.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1407,6 +1484,7 @@
     "name": "BOX64_SHOWSEGV",
     "description": "Always show SIGSEGV signal detailes.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1424,6 +1502,7 @@
     "name": "BOX64_SSE_FLUSHTO0",
     "description": "Behaviour of SSE Flush to 0 flags.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1441,6 +1520,7 @@
     "name": "BOX64_SSE42",
     "description": "Expose SSE4.2 capabilities.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1458,6 +1538,7 @@
     "name": "BOX64_SYNC_ROUNDING",
     "description": "Synchronize rounding mode between x86 and native.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1475,6 +1556,7 @@
     "name": "BOX64_TRACE_COLOR",
     "description": "Enable or disable colored trace output.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1492,6 +1574,7 @@
     "name": "BOX64_TRACE_EMM",
     "description": "Enable or disable EMM (i.e. MMX) trace output.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1509,6 +1592,7 @@
     "name": "BOX64_TRACE_FILE",
     "description": "Send all log and trace to a file instead of `stdout`.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "XXXX",
@@ -1531,6 +1615,7 @@
     "name": "BOX64_TRACE_INIT",
     "description": "Same as BOX64_TRACE but starts the trace immediately.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1548,6 +1633,7 @@
     "name": "BOX64_TRACE_START",
     "description": "Start trace after N opcodes executed.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1570,6 +1656,7 @@
     "name": "BOX64_TRACE_XMM",
     "description": "Enable or disable XMM (i.e. SSE) trace output.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1587,6 +1674,7 @@
     "name": "BOX64_TRACE",
     "description": "Only available on box64 build with trace. Adds trace of all instructions executed, along with a register dump.",
     "category": "Debugging",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1614,6 +1702,7 @@
     "name": "BOX64_UNITYPLAYER",
     "description": "Detect UnityPlayer and apply conservative settings.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1631,6 +1720,7 @@
     "name": "BOX64_WRAP_EGL",
     "description": "Prefer wrapped libs for EGL and GLESv2.",
     "category": "Libraries",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1648,6 +1738,7 @@
     "name": "BOX64_X11GLX",
     "description": "Force Xorg GLX extension to be present.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1665,6 +1756,7 @@
     "name": "BOX64_X11SYNC",
     "description": "Force synchronized operation on X11 display.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1682,6 +1774,7 @@
     "name": "BOX64_X11THREADS",
     "description": "Call XInitThreads when loading X11. This is mostly for old Loki games with the Loki_Compat library.",
     "category": "Compatibility",
+    "wine": false,
     "options": [
       {
         "key": "0",
@@ -1699,6 +1792,7 @@
     "name": "BOX64_X87_NO80BITS",
     "description": "Behavoiur of x87 80bits long double.",
     "category": "Compatibility",
+    "wine": true,
     "options": [
       {
         "key": "0",
