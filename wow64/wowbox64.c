@@ -153,36 +153,43 @@ static NTSTATUS invalidate_mapped_section(PVOID addr)
 
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
+    printf_log(LOG_DEBUG, "BTCpuFlushInstructionCache2(%p, %zu)\n", addr, size);
     unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void WINAPI BTCpuFlushInstructionCacheHeavy(LPCVOID addr, SIZE_T size)
 {
+    printf_log(LOG_DEBUG, "BTCpuFlushInstructionCacheHeavy(%p, %zu)\n", addr, size);
     unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void* WINAPI BTCpuGetBopCode(void)
 {
+    printf_log(LOG_DEBUG, "BTCpuGetBopCode()\n");
     return (UINT32*)&bopcode;
 }
 
 void* WINAPI __wine_get_unix_opcode(void)
 {
+    printf_log(LOG_DEBUG, "__wine_get_unix_opcode()\n");
     return (UINT32*)&unxcode;
 }
 
 NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
+    printf_log(LOG_DEBUG, "BTCpuGetContext(%p, %p, %p, %p)\n", thread, process, unknown, ctx);
     return NtQueryInformationThread(thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL);
 }
 
 void WINAPI BTCpuNotifyMemoryDirty(PVOID addr, SIZE_T size)
 {
+    printf_log(LOG_DEBUG, "BTCpuNotifyMemoryDirty(%p, %zu)\n", addr, size);
     unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
 {
+    printf_log(LOG_DEBUG, "BTCpuNotifyMemoryFree(%p, %zu, %u)\n", addr, size, free_type);
     if (!size)
         invalidate_mapped_section(addr);
     else if (free_type & MEM_DECOMMIT)
@@ -191,6 +198,7 @@ void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
 
 void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 {
+    printf_log(LOG_DEBUG, "BTCpuNotifyMemoryProtect(%p, %zu, %08x)\n", addr, size, new_protect);
     if (!(new_protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
         return;
     unprotectDB((uintptr_t)addr, size, 1);
@@ -198,11 +206,13 @@ void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 
 void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
 {
+    printf_log(LOG_DEBUG, "BTCpuNotifyUnmapViewOfSection(%p, %u)\n", addr, flags);
     invalidate_mapped_section(addr);
 }
 
 NTSTATUS WINAPI BTCpuProcessInit(void)
 {
+    printf_log(LOG_DEBUG, "BTCpuProcessInit()\n");
     HMODULE module;
     UNICODE_STRING str;
     void** p__wine_unix_call_dispatcher;
@@ -255,6 +265,7 @@ static uint8_t box64_is_addr_in_jit(void* addr)
 
 NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 {
+    printf_log(LOG_DEBUG, "BTCpuResetToConsistentState(%p)\n", ptrs);
     x64emu_t* emu = NtCurrentTeb()->TlsSlots[0]; // FIXME
     EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
     CONTEXT* ctx = ptrs->ContextRecord;
@@ -283,11 +294,13 @@ NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 
 NTSTATUS WINAPI BTCpuSetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
+    printf_log(LOG_DEBUG, "BTCpuSetContext(%p, %p, %p, %p)\n", thread, process, unknown, ctx);
     return NtSetInformationThread(thread, ThreadWow64Context, ctx, sizeof(*ctx));
 }
 
 void WINAPI BTCpuSimulate(void)
 {
+    printf_log(LOG_DEBUG, "BTCpuSimulate()\n");
     WOW64_CPURESERVED* cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
     x64emu_t* emu = NtCurrentTeb()->TlsSlots[0]; // FIXME
     WOW64_CONTEXT* ctx = (WOW64_CONTEXT*)(cpu + 1);
@@ -325,6 +338,7 @@ void WINAPI BTCpuSimulate(void)
 
 NTSTATUS WINAPI BTCpuThreadInit(void)
 {
+    printf_log(LOG_DEBUG, "BTCpuThreadInit()\n");
     WOW64_CONTEXT* ctx;
     x64emu_t* emu = RtlAllocateHeap(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*emu));
 
