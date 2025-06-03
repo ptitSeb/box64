@@ -170,6 +170,84 @@ typedef void* (*pFu_t)(uint32_t);
 
 #include "wrappercallback32.h"
 
+struct i386_stat {
+	uint64_t  st_dev;
+	uint32_t  __pad1;
+	uint32_t  st_ino;
+	uint32_t  st_mode;
+	uint32_t  st_nlink;
+	uint32_t  st_uid;
+	uint32_t  st_gid;
+	uint64_t  st_rdev;
+	uint32_t  __pad2;
+	int32_t   st_size;
+	int32_t   st_blksize;
+	int32_t   st_blocks;
+	int32_t   st_atime_sec;
+	uint32_t  st_atime_nsec;
+	int32_t   st_mtime_sec;
+	uint32_t  st_mtime_nsec;
+	int32_t   st_ctime_sec;
+	uint32_t  st_ctime_nsec;
+	uint32_t  __unused4;
+	uint32_t  __unused5;
+} __attribute__((packed));
+
+static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
+{
+    struct i386_stat *i386st = (struct i386_stat *)st32;
+
+    if (vers != 3)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    i386st->st_dev = st64->st_dev;
+    i386st->__pad1 = 0;
+    if (BOX64ENV(fix_64bit_inodes))
+    {
+        i386st->st_ino = st64->st_ino ^ (st64->st_ino >> 32);
+    }
+    else
+    {
+        i386st->st_ino = st64->st_ino;
+        if ((st64->st_ino >> 32) != 0)
+        {
+            errno = EOVERFLOW;
+            return -1;
+        }
+    }
+    i386st->st_mode = st64->st_mode;
+    i386st->st_nlink = st64->st_nlink;
+    i386st->st_uid = st64->st_uid;
+    i386st->st_gid = st64->st_gid;
+    i386st->st_rdev = st64->st_rdev;
+    i386st->__pad2 = 0;
+    i386st->st_size = st64->st_size;
+    if ((i386st->st_size >> 31) != (int32_t)(st64->st_size >> 32))
+    {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    i386st->st_blksize = st64->st_blksize;
+    i386st->st_blocks = st64->st_blocks;
+    if ((i386st->st_blocks >> 31) != (int32_t)(st64->st_blocks >> 32))
+    {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    i386st->st_atime_sec = st64->st_atim.tv_sec;
+    i386st->st_atime_nsec = st64->st_atim.tv_nsec;
+    i386st->st_mtime_sec = st64->st_mtim.tv_sec;
+    i386st->st_mtime_nsec = st64->st_mtim.tv_nsec;
+    i386st->st_ctime_sec = st64->st_ctim.tv_sec;
+    i386st->st_ctime_nsec = st64->st_ctim.tv_nsec;
+    i386st->__unused4 = 0;
+    i386st->__unused5 = 0;
+    return 0;
+}
+
 // utility functions
 #define SUPER() \
 GO(0)   \
@@ -261,13 +339,14 @@ static void* findftw64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc ftw64 callback\n");
     return NULL;
 }
-#if 0
 // nftw
 #define GO(A)   \
-static uintptr_t my32_nftw_fct_##A = 0;                                   \
-static int my32_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)  \
-{                                                                       \
-    return (int)RunFunction(my_context, my32_nftw_fct_##A, 4, fpath, sb, flag, ftwbuff);   \
+static uintptr_t my32_nftw_fct_##A = 0;                                                     \
+static int my32_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)                    \
+{                                                                                           \
+    struct i386_stat i386st;                                                                \
+    FillStatFromStat64(3, sb, &i386st);                                                     \
+    return (int)RunFunctionFmt(my32_nftw_fct_##A, "ppip", fpath, &i386st, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
@@ -285,7 +364,7 @@ static void* findnftwFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw callback\n");
     return NULL;
 }
-#endif
+
 // nftw64
 #define GO(A)   \
 static uintptr_t my32_nftw64_fct_##A = 0;                                                   \
@@ -1100,85 +1179,6 @@ EXPORT void my32__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, v
 EXPORT void my32__ITM_registerTMCloneTable(x64emu_t* emu, void* p, uint32_t s) {}
 EXPORT void my32__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) {}
 
-
-struct i386_stat {
-	uint64_t  st_dev;
-	uint32_t  __pad1;
-	uint32_t  st_ino;
-	uint32_t  st_mode;
-	uint32_t  st_nlink;
-	uint32_t  st_uid;
-	uint32_t  st_gid;
-	uint64_t  st_rdev;
-	uint32_t  __pad2;
-	int32_t   st_size;
-	int32_t   st_blksize;
-	int32_t   st_blocks;
-	int32_t   st_atime_sec;
-	uint32_t  st_atime_nsec;
-	int32_t   st_mtime_sec;
-	uint32_t  st_mtime_nsec;
-	int32_t   st_ctime_sec;
-	uint32_t  st_ctime_nsec;
-	uint32_t  __unused4;
-	uint32_t  __unused5;
-} __attribute__((packed));
-
-static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
-{
-    struct i386_stat *i386st = (struct i386_stat *)st32;
-
-    if (vers != 3)
-    {
-        errno = EINVAL;
-        return -1;
-    }
-
-    i386st->st_dev = st64->st_dev;
-    i386st->__pad1 = 0;
-    if (BOX64ENV(fix_64bit_inodes))
-    {
-        i386st->st_ino = st64->st_ino ^ (st64->st_ino >> 32);
-    }
-    else
-    {
-        i386st->st_ino = st64->st_ino;
-        if ((st64->st_ino >> 32) != 0)
-        {
-            errno = EOVERFLOW;
-            return -1;
-        }
-    }
-    i386st->st_mode = st64->st_mode;
-    i386st->st_nlink = st64->st_nlink;
-    i386st->st_uid = st64->st_uid;
-    i386st->st_gid = st64->st_gid;
-    i386st->st_rdev = st64->st_rdev;
-    i386st->__pad2 = 0;
-    i386st->st_size = st64->st_size;
-    if ((i386st->st_size >> 31) != (int32_t)(st64->st_size >> 32))
-    {
-        errno = EOVERFLOW;
-        return -1;
-    }
-    i386st->st_blksize = st64->st_blksize;
-    i386st->st_blocks = st64->st_blocks;
-    if ((i386st->st_blocks >> 31) != (int32_t)(st64->st_blocks >> 32))
-    {
-        errno = EOVERFLOW;
-        return -1;
-    }
-    i386st->st_atime_sec = st64->st_atim.tv_sec;
-    i386st->st_atime_nsec = st64->st_atim.tv_nsec;
-    i386st->st_mtime_sec = st64->st_mtim.tv_sec;
-    i386st->st_mtime_nsec = st64->st_mtim.tv_nsec;
-    i386st->st_ctime_sec = st64->st_ctim.tv_sec;
-    i386st->st_ctime_nsec = st64->st_ctim.tv_nsec;
-    i386st->__unused4 = 0;
-    i386st->__unused5 = 0;
-    return 0;
-}
-
 EXPORT int my32_stat(char* path, void* buf)
 {
     struct stat64 st;
@@ -1599,19 +1599,11 @@ EXPORT int32_t my32_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 
     return f(pathname, findftwFct(B), nopenfd);
 }
-
+#endif
 EXPORT int32_t my32_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    static iFppii_t f = NULL;
-    if(!f) {
-        library_t* lib = my_lib;
-        if(!lib) return 0;
-        f = (iFppii_t)dlsym(lib->priv.w.lib, "nftw");
-    }
-
-    return f(pathname, findnftwFct(B), nopenfd, flags);
+    return nftw64(pathname, findnftwFct(B), nopenfd, flags);
 }
-#endif
 
 EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
 {

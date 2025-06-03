@@ -1183,7 +1183,7 @@ GOWM(nanosleep, iErLL_BLL_)	 //%%,noE
 GOW(newlocale, aEipa)
 GO(__newlocale, aEipa)
 // nfsservctl
-//GOM(nftw, iEEppii)       //%%
+GOM(nftw, iEEppii)       //%%
 GOM(nftw64, iEEppii)     //%%
 //GOW(ngettext, pEppu)
 GO(nice, iEi)
@@ -2062,7 +2062,7 @@ GO(wcsxfrm, LEppL)
 //GOW(wcsxfrm_l, uEppup)
 GO(__wcsxfrm_l, LEppLa)
 GO(wctob, iEu)
-//GO(wctomb, iEpi)
+GO(wctomb, iEpi)
 //GO(__wctomb_chk, iEpuL)
 // wctrans  // Weak
 // __wctrans_l
