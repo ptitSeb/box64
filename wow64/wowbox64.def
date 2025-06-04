@@ -1,16 +1,17 @@
 LIBRARY libwowbox64.dll
 
 EXPORTS
+  BTCpuFlushInstructionCache2
+  BTCpuFlushInstructionCacheHeavy
   BTCpuGetBopCode
   BTCpuGetContext
+  BTCpuNotifyMemoryDirty
+  BTCpuNotifyMemoryFree
+  BTCpuNotifyMemoryProtect
+  BTCpuNotifyUnmapViewOfSection
   BTCpuProcessInit
-  BTCpuThreadInit
   BTCpuResetToConsistentState
   BTCpuSetContext
   BTCpuSimulate
-  BTCpuTurboThunkControl
-  BTCpuNotifyUnmapViewOfSection
-  BTCpuNotifyMemoryFree
-  BTCpuNotifyMemoryProtect
-  BTCpuFlushInstructionCache2
+  BTCpuThreadInit
   __wine_get_unix_opcode

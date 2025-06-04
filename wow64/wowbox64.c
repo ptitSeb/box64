@@ -35,8 +35,7 @@ uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 
-static uint32_t x86emu_parity_tab[8] =
-{
+static uint32_t x86emu_parity_tab[8] = {
     0x96696996,
     0x69969669,
     0x69969669,
@@ -47,14 +46,14 @@ static uint32_t x86emu_parity_tab[8] =
     0x69969669,
 };
 
-static UINT16 DECLSPEC_ALIGN(4096) bopcode[4096/sizeof(UINT16)];
-static UINT16 DECLSPEC_ALIGN(4096) unxcode[4096/sizeof(UINT16)];
+static UINT16 DECLSPEC_ALIGN(4096) bopcode[4096 / sizeof(UINT16)];
+static UINT16 DECLSPEC_ALIGN(4096) unxcode[4096 / sizeof(UINT16)];
 
 typedef UINT64 unixlib_handle_t;
-NTSTATUS (WINAPI *__wine_unix_call_dispatcher)( unixlib_handle_t, unsigned int, void * );
+NTSTATUS(WINAPI* __wine_unix_call_dispatcher)(unixlib_handle_t, unsigned int, void*);
 
-#define ROUND_ADDR(addr,mask) ((void *)((UINT_PTR)(addr) & ~(UINT_PTR)(mask)))
-#define ROUND_SIZE(addr,size) (((SIZE_T)(size) + ((UINT_PTR)(addr) & page_mask) + page_mask) & ~page_mask)
+#define ROUND_ADDR(addr, mask) ((void*)((UINT_PTR)(addr) & ~(UINT_PTR)(mask)))
+#define ROUND_SIZE(addr, size) (((SIZE_T)(size) + ((UINT_PTR)(addr) & page_mask) + page_mask) & ~page_mask)
 static const UINT_PTR page_mask = 0xfff;
 
 int is_addr_unaligned(uintptr_t addr)
@@ -89,18 +88,18 @@ int arm64_afp = 0;
 int arm64_rndr = 0;
 
 static box64context_t box64_context;
-box64context_t *my_context = &box64_context;
+box64context_t* my_context = &box64_context;
 
 
-void fpu_to_box(WOW64_CONTEXT *ctx, x64emu_t *emu)
+void fpu_to_box(WOW64_CONTEXT* ctx, x64emu_t* emu)
 {
-    XMM_SAVE_AREA32 *fpu = (XMM_SAVE_AREA32 *)ctx->ExtendedRegisters;
+    XMM_SAVE_AREA32* fpu = (XMM_SAVE_AREA32*)ctx->ExtendedRegisters;
 
     emu->mxcsr.x32 = fpu->MxCsr;
     emu->cw.x16 = fpu->ControlWord;
     emu->sw.x16 = fpu->StatusWord;
 
-    LD2D(&ctx->FloatSave.RegisterArea[ 0], &emu->x87[0]);
+    LD2D(&ctx->FloatSave.RegisterArea[0], &emu->x87[0]);
     LD2D(&ctx->FloatSave.RegisterArea[10], &emu->x87[1]);
     LD2D(&ctx->FloatSave.RegisterArea[20], &emu->x87[2]);
     LD2D(&ctx->FloatSave.RegisterArea[30], &emu->x87[3]);
@@ -111,15 +110,15 @@ void fpu_to_box(WOW64_CONTEXT *ctx, x64emu_t *emu)
     memcpy(emu->xmm, fpu->XmmRegisters, sizeof(emu->xmm));
 }
 
-void box_to_fpu(WOW64_CONTEXT *ctx, x64emu_t *emu)
+void box_to_fpu(WOW64_CONTEXT* ctx, x64emu_t* emu)
 {
-    XMM_SAVE_AREA32 *fpu = (XMM_SAVE_AREA32 *)ctx->ExtendedRegisters;
+    XMM_SAVE_AREA32* fpu = (XMM_SAVE_AREA32*)ctx->ExtendedRegisters;
 
     fpu->MxCsr = emu->mxcsr.x32;
     fpu->ControlWord = emu->cw.x16;
-    fpu->StatusWord  = emu->sw.x16;
+    fpu->StatusWord = emu->sw.x16;
 
-    D2LD(&emu->x87[0], &ctx->FloatSave.RegisterArea[ 0]);
+    D2LD(&emu->x87[0], &ctx->FloatSave.RegisterArea[0]);
     D2LD(&emu->x87[1], &ctx->FloatSave.RegisterArea[10]);
     D2LD(&emu->x87[2], &ctx->FloatSave.RegisterArea[20]);
     D2LD(&emu->x87[3], &ctx->FloatSave.RegisterArea[30]);
@@ -130,13 +129,13 @@ void box_to_fpu(WOW64_CONTEXT *ctx, x64emu_t *emu)
     memcpy(fpu->XmmRegisters, emu->xmm, sizeof(emu->xmm));
 }
 
-static NTSTATUS invalidate_mapped_section( PVOID addr )
+static NTSTATUS invalidate_mapped_section(PVOID addr)
 {
     MEMORY_BASIC_INFORMATION mem_info;
     SIZE_T size;
     void* base;
 
-    NTSTATUS ret = NtQueryVirtualMemory( NtCurrentProcess(), addr, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL );
+    NTSTATUS ret = NtQueryVirtualMemory(NtCurrentProcess(), addr, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL);
 
     if (!NT_SUCCESS(ret))
         return ret;
@@ -144,9 +143,7 @@ static NTSTATUS invalidate_mapped_section( PVOID addr )
     base = mem_info.AllocationBase;
     size = (char*)mem_info.BaseAddress + mem_info.RegionSize - (char*)base;
 
-    while (!NtQueryVirtualMemory( NtCurrentProcess(), (char*)base + size, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL) &&
-           mem_info.AllocationBase == base)
-    {
+    while (!NtQueryVirtualMemory(NtCurrentProcess(), (char*)base + size, MemoryBasicInformation, &mem_info, sizeof(mem_info), NULL) && mem_info.AllocationBase == base) {
         size += mem_info.RegionSize;
     }
 
@@ -156,36 +153,52 @@ static NTSTATUS invalidate_mapped_section( PVOID addr )
 
 void WINAPI BTCpuFlushInstructionCache2(LPCVOID addr, SIZE_T size)
 {
-    // NYI
-    // invalidate all paged interleaved with this range.
+    printf_log(LOG_DEBUG, "BTCpuFlushInstructionCache2(%p, %zu)\n", addr, size);
+    unprotectDB((uintptr_t)addr, (size_t)size, 1);
+}
+
+void WINAPI BTCpuFlushInstructionCacheHeavy(LPCVOID addr, SIZE_T size)
+{
+    printf_log(LOG_DEBUG, "BTCpuFlushInstructionCacheHeavy(%p, %zu)\n", addr, size);
     unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void* WINAPI BTCpuGetBopCode(void)
 {
+    printf_log(LOG_DEBUG, "BTCpuGetBopCode()\n");
     return (UINT32*)&bopcode;
 }
 
 void* WINAPI __wine_get_unix_opcode(void)
 {
+    printf_log(LOG_DEBUG, "__wine_get_unix_opcode()\n");
     return (UINT32*)&unxcode;
 }
 
 NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
-    return NtQueryInformationThread( thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL );
+    printf_log(LOG_DEBUG, "BTCpuGetContext(%p, %p, %p, %p)\n", thread, process, unknown, ctx);
+    return NtQueryInformationThread(thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL);
+}
+
+void WINAPI BTCpuNotifyMemoryDirty(PVOID addr, SIZE_T size)
+{
+    printf_log(LOG_DEBUG, "BTCpuNotifyMemoryDirty(%p, %zu)\n", addr, size);
+    unprotectDB((uintptr_t)addr, (size_t)size, 1);
 }
 
 void WINAPI BTCpuNotifyMemoryFree(PVOID addr, SIZE_T size, ULONG free_type)
 {
+    printf_log(LOG_DEBUG, "BTCpuNotifyMemoryFree(%p, %zu, %u)\n", addr, size, free_type);
     if (!size)
-        invalidate_mapped_section( addr );
+        invalidate_mapped_section(addr);
     else if (free_type & MEM_DECOMMIT)
-        unprotectDB((uintptr_t)ROUND_ADDR( addr, page_mask ), (DWORD64)ROUND_SIZE( addr, size ), 1);
+        unprotectDB((uintptr_t)ROUND_ADDR(addr, page_mask), (DWORD64)ROUND_SIZE(addr, size), 1);
 }
 
 void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 {
+    printf_log(LOG_DEBUG, "BTCpuNotifyMemoryProtect(%p, %zu, %08x)\n", addr, size, new_protect);
     if (!(new_protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
         return;
     unprotectDB((uintptr_t)addr, size, 1);
@@ -193,18 +206,20 @@ void WINAPI BTCpuNotifyMemoryProtect(PVOID addr, SIZE_T size, DWORD new_protect)
 
 void WINAPI BTCpuNotifyUnmapViewOfSection(PVOID addr, ULONG flags)
 {
-    invalidate_mapped_section( addr );
+    printf_log(LOG_DEBUG, "BTCpuNotifyUnmapViewOfSection(%p, %u)\n", addr, flags);
+    invalidate_mapped_section(addr);
 }
 
 NTSTATUS WINAPI BTCpuProcessInit(void)
 {
+    printf_log(LOG_DEBUG, "BTCpuProcessInit()\n");
     HMODULE module;
     UNICODE_STRING str;
-    void **p__wine_unix_call_dispatcher;
+    void** p__wine_unix_call_dispatcher;
 
-#define STATIC_ASSERT(COND, MSG) typedef char static_assertion_##MSG[(!!(COND))*2-1]
-/* otherwise adjust arm64_epilog.S and arm64_next.S */
-STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
+#define STATIC_ASSERT(COND, MSG) typedef char static_assertion_##MSG[(!!(COND)) * 2 - 1]
+    /* otherwise adjust arm64_epilog.S and arm64_next.S */
+    STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
 #undef STATIC_ASSERT
 
     LoadEnvVariables();
@@ -219,15 +234,14 @@ STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
     init_custommem_helper(&box64_context);
     box64_context.db_sizes = rbtree_init("db_sizes");
 
-    if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32)
-    {
+    if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32) {
         printf_log(LOG_NONE, "box64cpu loaded above 4G, disabling\n");
         return STATUS_INVALID_ADDRESS;
     }
 
-    RtlInitUnicodeString( &str, L"ntdll.dll" );
-    LdrGetDllHandle( NULL, 0, &str, &module );
-    p__wine_unix_call_dispatcher = RtlFindExportedRoutineByName( module, "__wine_unix_call_dispatcher" );
+    RtlInitUnicodeString(&str, L"ntdll.dll");
+    LdrGetDllHandle(NULL, 0, &str, &module);
+    p__wine_unix_call_dispatcher = RtlFindExportedRoutineByName(module, "__wine_unix_call_dispatcher");
     __wine_unix_call_dispatcher = *p__wine_unix_call_dispatcher;
 
     RtlInitializeCriticalSection(&box64_context.mutex_dyndump);
@@ -251,22 +265,21 @@ static uint8_t box64_is_addr_in_jit(void* addr)
 
 NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 {
-    x64emu_t *emu = NtCurrentTeb()->TlsSlots[0];  // FIXME
-    EXCEPTION_RECORD *rec = ptrs->ExceptionRecord;
-    CONTEXT *ctx = ptrs->ContextRecord;
+    printf_log(LOG_DEBUG, "BTCpuResetToConsistentState(%p)\n", ptrs);
+    x64emu_t* emu = NtCurrentTeb()->TlsSlots[0]; // FIXME
+    EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
+    CONTEXT* ctx = ptrs->ContextRecord;
 
-    if (rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
-    {
-        dynablock_t *db = NULL;
+    if (rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
+        dynablock_t* db = NULL;
         void* addr = NULL;
         uint32_t prot;
 
         if (rec->NumberParameters == 2 && rec->ExceptionInformation[0] == 1)
             addr = ULongToPtr(rec->ExceptionInformation[1]);
 
-        if (addr)
-        {
-            unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        if (addr) {
+            unprotectDB((uintptr_t)addr, 1, 1); // unprotect 1 byte... But then, the whole page will be unprotected
             NtContinue(ctx, FALSE);
         }
     }
@@ -281,14 +294,16 @@ NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 
 NTSTATUS WINAPI BTCpuSetContext(HANDLE thread, HANDLE process, void* unknown, WOW64_CONTEXT* ctx)
 {
-    return NtSetInformationThread( thread, ThreadWow64Context, ctx, sizeof(*ctx) );
+    printf_log(LOG_DEBUG, "BTCpuSetContext(%p, %p, %p, %p)\n", thread, process, unknown, ctx);
+    return NtSetInformationThread(thread, ThreadWow64Context, ctx, sizeof(*ctx));
 }
 
 void WINAPI BTCpuSimulate(void)
 {
-    WOW64_CPURESERVED *cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
-    x64emu_t *emu = NtCurrentTeb()->TlsSlots[0]; // FIXME
-    WOW64_CONTEXT *ctx = (WOW64_CONTEXT *)(cpu + 1);
+    printf_log(LOG_DEBUG, "BTCpuSimulate()\n");
+    WOW64_CPURESERVED* cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
+    x64emu_t* emu = NtCurrentTeb()->TlsSlots[0]; // FIXME
+    WOW64_CONTEXT* ctx = (WOW64_CONTEXT*)(cpu + 1);
     CONTEXT entry_context;
 
     RtlCaptureContext(&entry_context);
@@ -303,12 +318,12 @@ void WINAPI BTCpuSimulate(void)
     R_EBP = ctx->Ebp;
     R_RIP = ctx->Eip;
     R_ESP = ctx->Esp;
-    R_CS  = ctx->SegCs & 0xffff;
-    R_DS  = ctx->SegDs & 0xffff;
-    R_ES  = ctx->SegEs & 0xffff;
-    R_FS  = ctx->SegFs & 0xffff;
-    R_GS  = ctx->SegGs & 0xffff;
-    R_SS  = ctx->SegSs & 0xffff;
+    R_CS = ctx->SegCs & 0xffff;
+    R_DS = ctx->SegDs & 0xffff;
+    R_ES = ctx->SegEs & 0xffff;
+    R_FS = ctx->SegFs & 0xffff;
+    R_GS = ctx->SegGs & 0xffff;
+    R_SS = ctx->SegSs & 0xffff;
     emu->eflags.x64 = ctx->EFlags;
     emu->segs_offs[_FS] = calculate_fs();
     emu->win64_teb = (uint64_t)NtCurrentTeb();
@@ -323,36 +338,30 @@ void WINAPI BTCpuSimulate(void)
 
 NTSTATUS WINAPI BTCpuThreadInit(void)
 {
-    WOW64_CONTEXT *ctx;
-    x64emu_t *emu = RtlAllocateHeap( GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*emu) );
+    printf_log(LOG_DEBUG, "BTCpuThreadInit()\n");
+    WOW64_CONTEXT* ctx;
+    x64emu_t* emu = RtlAllocateHeap(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*emu));
 
-    RtlWow64GetCurrentCpuArea( NULL, (void **)&ctx, NULL );
+    RtlWow64GetCurrentCpuArea(NULL, (void**)&ctx, NULL);
     emu->context = &box64_context;
 
     // setup cpu helpers
-    for (int i=0; i<16; ++i)
+    for (int i = 0; i < 16; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
     emu->x64emu_parity_tab = x86emu_parity_tab;
 
     reset_fpu(emu);
 
-    NtCurrentTeb()->TlsSlots[0] = emu;  // FIXME
+    NtCurrentTeb()->TlsSlots[0] = emu; // FIXME
     return STATUS_SUCCESS;
 }
 
-NTSTATUS WINAPI BTCpuTurboThunkControl(ULONG enable)
+void EmitInterruptionImpl(x64emu_t* emu, int code)
 {
-    if (enable) return STATUS_NOT_SUPPORTED;
-    return STATUS_SUCCESS;
-}
-
-void EmitInterruptionImpl(x64emu_t *emu, int code)
-{
-    if (code == 0x2e)  /* NT syscall */
-    {
-        WOW64_CPURESERVED *cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
-        WOW64_CONTEXT *ctx = (WOW64_CONTEXT *)(cpu + 1);
+    if (code == 0x2e /* NT syscall */) {
+        WOW64_CPURESERVED* cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
+        WOW64_CONTEXT* ctx = (WOW64_CONTEXT*)(cpu + 1);
         int id = R_EAX;
         BOOL is_unix_call = FALSE;
 
@@ -373,19 +382,16 @@ void EmitInterruptionImpl(x64emu_t *emu, int code)
 
         box_to_fpu(ctx, emu);
 
-        if (is_unix_call)
-        {
+        if (is_unix_call) {
             uintptr_t handle_low = Pop32(emu);
             uintptr_t handle_high = Pop32(emu);
             unsigned int code = Pop32(emu);
             uintptr_t args = Pop32(emu);
 
             ctx->Esp = R_ESP;
-            R_EAX = __wine_unix_call_dispatcher( handle_low | (handle_high << 32), code, (void *)args );
-        }
-        else
-        {
-            R_EAX = Wow64SystemServiceEx( id, ULongToPtr(ctx->Esp+4) );
+            R_EAX = __wine_unix_call_dispatcher(handle_low | (handle_high << 32), code, (void*)args);
+        } else {
+            R_EAX = Wow64SystemServiceEx(id, ULongToPtr(ctx->Esp + 4));
         }
 
         fpu_to_box(ctx, emu);
@@ -396,41 +402,38 @@ void EmitInterruptionImpl(x64emu_t *emu, int code)
         R_EBP = ctx->Ebp;
         R_ESP = ctx->Esp;
         R_RIP = ctx->Eip;
-        if (cpu->Flags & WOW64_CPURESERVED_FLAG_RESET_STATE)
-        {
+        if (cpu->Flags & WOW64_CPURESERVED_FLAG_RESET_STATE) {
             cpu->Flags &= ~WOW64_CPURESERVED_FLAG_RESET_STATE;
             R_EAX = ctx->Eax;
             R_ECX = ctx->Ecx;
             R_EDX = ctx->Edx;
-            R_FS  = ctx->SegFs & 0xffff;
+            R_FS = ctx->SegFs & 0xffff;
             emu->segs_offs[_FS] = calculate_fs();
             emu->eflags.x64 = ctx->EFlags;
         }
-    }
-    else
-    {
-        RtlRaiseStatus( STATUS_ACCESS_VIOLATION );
+    } else {
+        RtlRaiseStatus(STATUS_ACCESS_VIOLATION);
     }
 }
 
 /* Calls a 2-argument function `Func` setting the parent unwind frame information to the given SP and PC */
 static void __attribute__((naked)) SEHFrameTrampoline2Args(void* Arg0, int Arg1, void* Func, uint64_t Sp, uint64_t Pc)
 {
-    asm( ".seh_proc SEHFrameTrampoline2Args\n\t"
-         "stp x3, x4, [sp, #-0x10]!\n\t"
-         ".seh_pushframe\n\t"
-         "stp x29, x30, [sp, #-0x10]!\n\t"
-         ".seh_save_fplr_x 16\n\t"
-         ".seh_endprologue\n\t"
-         "blr x2\n\t"
-         "ldp x29, x30, [sp], 0x20\n\t"
-         "ret\n\t"
-         ".seh_endproc" );
+    asm(".seh_proc SEHFrameTrampoline2Args\n\t"
+        "stp x3, x4, [sp, #-0x10]!\n\t"
+        ".seh_pushframe\n\t"
+        "stp x29, x30, [sp, #-0x10]!\n\t"
+        ".seh_save_fplr_x 16\n\t"
+        ".seh_endprologue\n\t"
+        "blr x2\n\t"
+        "ldp x29, x30, [sp], 0x20\n\t"
+        "ret\n\t"
+        ".seh_endproc");
 }
 
 void EmitInterruption(x64emu_t* emu, int num, void* addr)
 {
-    CONTEXT *entry_context = NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER];
+    CONTEXT* entry_context = NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER];
     SEHFrameTrampoline2Args(emu, num, (void*)EmitInterruptionImpl, entry_context->Sp, entry_context->Pc);
     NtCurrentTeb()->TlsSlots[WOW64_TLS_MAX_NUMBER] = entry_context;
 }
