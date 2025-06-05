@@ -344,4 +344,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wowbox64-${{ matrix.type }}
-          path: build/wowbox64-prefix/src/wowbox64-build/libwowbox64.dll
+          path: build/wowbox64-prefix/src/wowbox64-build/wowbox64.dll
