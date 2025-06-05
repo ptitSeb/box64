@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <sys/personality.h>
+#include <sys/stat.h>
 #include <dlfcn.h>
 #include <string.h>
 #include <stdarg.h>
@@ -207,4 +208,25 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
 void* GetEnv(const char* name)
 {
     return getenv(name);
+}
+
+int FileExist(const char* filename, int flags)
+{
+    struct stat sb;
+    if (stat(filename, &sb) == -1)
+        return 0;
+    if (flags == -1)
+        return 1;
+    // check type of file? should be executable, or folder
+    if (flags & IS_FILE) {
+        if (!S_ISREG(sb.st_mode))
+            return 0;
+    } else if (!S_ISDIR(sb.st_mode))
+        return 0;
+
+    if (flags & IS_EXECUTABLE) {
+        if ((sb.st_mode & S_IXUSR) != S_IXUSR)
+            return 0; // nope
+    }
+    return 1;
 }

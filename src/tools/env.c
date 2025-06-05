@@ -73,6 +73,27 @@ static const char default_rcfile[] =
 "BOX64_EXIT=1\n"
 ;
 
+#ifdef _WIN32
+#define PATHSEP "\\"
+#define HOME    "USERPROFILE"
+#else
+#define PATHSEP "/"
+#define HOME    "HOME"
+#endif
+
+char* LowerCase(const char* s)
+{
+    if (!s)
+        return NULL;
+    char* ret = box_calloc(1, strlen(s) + 1);
+    size_t i = 0;
+    while (*s) {
+        ret[i++] = (*s >= 'A' && *s <= 'Z') ? (*s - 'A' + 'a') : (*s);
+        ++s;
+    }
+
+    return ret;
+}
 
 static void addNewEnvVar(const char* s)
 {
