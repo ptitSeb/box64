@@ -2,12 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#ifndef _WIN32
-#include <sys/mman.h>
-#include <sys/stat.h>
-#endif
 #include <fcntl.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "os.h"
 #include "env.h"
@@ -117,10 +114,10 @@ static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
 {
     if (!s) return;
     if (!strchr(s, '-')) return;
-    if (sscanf(s, "%ld-%ld", start, end) == 2) return;
-    if (sscanf(s, "0x%lX-0x%lX", start, end) == 2) return;
-    if (sscanf(s, "0x%lx-0x%lx", start, end) == 2) return;
-    sscanf(s, "%lx-%lx", start, end);
+    if (sscanf(s, "%" PRId64 "-%" PRId64, start, end) == 2) return;
+    if (sscanf(s, "0x%" PRIX64 "-0x%" PRIX64, start, end) == 2) return;
+    if (sscanf(s, "0x%" PRIx64 "-0x%" PRIx64, start, end) == 2) return;
+    sscanf(s, "%" PRIx64 "-%" PRIx64, start, end);
 }
 
 void AddNewLibs(const char* list);
@@ -294,12 +291,12 @@ static void initializeEnvFile(const char* filename)
 {
     if (box64env.noenvfiles) return;
 
+    BOXFILE* f = NULL;
+    if (filename)
+        f = box_fopen(filename, "r");
 #ifndef _WIN32
-    FILE* f = NULL;
-    if (filename) 
-        f = fopen(filename, "r");
     else {
-        #define TMP_MEMRCFILE  "/box64_rcfile"
+#define TMP_MEMRCFILE "/box64_rcfile"
         int tmp = shm_open(TMP_MEMRCFILE, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return; // error, bye bye
         shm_unlink(TMP_MEMRCFILE);    // remove the shm file, but it will still exist because it's currently in use
@@ -308,10 +305,9 @@ static void initializeEnvFile(const char* filename)
         lseek(tmp, 0, SEEK_SET);
         f = fdopen(tmp, "r");
     }
-    if (!f) {
-        printf("Error: Cannot open env file %s\n", filename);
-        return;
-    }
+#endif
+
+    if (!f) return;
 
     if (!box64env_entries)
         box64env_entries = kh_init(box64env_entry);
@@ -320,10 +316,10 @@ static void initializeEnvFile(const char* filename)
 
     box64env_t current_env = { 0 };
     size_t linesize = 0, len = 0;
-    char *line = NULL, *current_name = NULL;
-    int ret;
+    char* current_name = NULL;
     bool is_wildcard_name = false;
-    while ((ret = getline(&line, &linesize, f)) != -1) {
+    char line[1024];
+    while ((box_fgets(line, 1024, f)) != NULL) {
         // remove comments
         char* p = strchr(line, '#');
         if (p) *p = '\0';
@@ -345,8 +341,14 @@ static void initializeEnvFile(const char* filename)
             *strchr(key, '=') = '\0';
             trimStringInplace(key);
             trimStringInplace(val);
+#ifdef _WIN32
+#define VALID(a) a
+#else
+#define VALID(a) 1
+#endif
+
 #define INTEGER(NAME, name, default, min, max, wine) \
-    else if (!strcmp(key, #NAME))                    \
+    else if (!strcmp(key, #NAME) && VALID(wine))     \
     {                                                \
         int v = strtol(val, &p, 0);                  \
         if (p != val && v >= min && v <= max) {      \
@@ -356,7 +358,7 @@ static void initializeEnvFile(const char* filename)
         }                                            \
     }
 #define INTEGER64(NAME, name, default, wine)        \
-    else if (!strcmp(key, #NAME))                   \
+    else if (!strcmp(key, #NAME) && VALID(wine))    \
     {                                               \
         int64_t v = strtoll(val, &p, 0);            \
         if (p != val) {                             \
@@ -366,7 +368,7 @@ static void initializeEnvFile(const char* filename)
         }                                           \
     }
 #define BOOLEAN(NAME, name, default, wine)          \
-    else if (!strcmp(key, #NAME))                   \
+    else if (!strcmp(key, #NAME) && VALID(wine))    \
     {                                               \
         if (strcmp(val, "0")) {                     \
             current_env.is_##name##_overridden = 1; \
@@ -379,7 +381,7 @@ static void initializeEnvFile(const char* filename)
         }                                           \
     }
 #define ADDRESS(NAME, name, wine)                     \
-    else if (!strcmp(key, #NAME))                     \
+    else if (!strcmp(key, #NAME) && VALID(wine))      \
     {                                                 \
         uintptr_t v = (uintptr_t)strtoll(val, &p, 0); \
         if (p != val) {                               \
@@ -389,7 +391,7 @@ static void initializeEnvFile(const char* filename)
         }                                             \
     }
 #define STRING(NAME, name, wine)                          \
-    else if (!strcmp(key, #NAME))                         \
+    else if (!strcmp(key, #NAME) && VALID(wine))          \
     {                                                     \
         current_env.is_##name##_overridden = 1;           \
         current_env.is_any_overridden = 1;                \
@@ -408,6 +410,7 @@ static void initializeEnvFile(const char* filename)
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
+#undef VALID
         }
     }
     // push the last entry
@@ -415,15 +418,13 @@ static void initializeEnvFile(const char* filename)
         pushNewEntry(current_name, &current_env, is_wildcard_name);
         box_free(current_name);
     }
-    box_free(line);
-    fclose(f);
-#endif
+    box_fclose(f);
 }
 
 
 void InitializeEnvFiles()
 {
-#ifndef _WIN32
+#ifndef _WIN32 // FIXME: this needs some consideration on Windows, so for now, only do it on Linux
     if (BOX64ENV(envfile) && FileExist(BOX64ENV(envfile), IS_FILE))
         initializeEnvFile(BOX64ENV(envfile));
 #ifndef TERMUX
@@ -437,17 +438,17 @@ void InitializeEnvFiles()
 #endif
     else
         initializeEnvFile(NULL); // load default rcfile
+#endif
 
-    char* p = getenv("HOME");
+    char* p = GetEnv(HOME);
     if (p) {
         static char tmp[4096];
         strncpy(tmp, p, 4095);
-        strncat(tmp, "/.box64rc", 4095);
+        strncat(tmp, PATHSEP ".box64rc", 4095);
         if (FileExist(tmp, IS_FILE)) {
             initializeEnvFile(tmp);
         }
     }
-#endif
 }
 
 static char old_entryname[256] = "";
@@ -497,7 +498,6 @@ static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* e
 
 void ApplyEnvFileEntry(const char* entryname)
 {
-#ifndef _WIN32
     if (!entryname || !box64env_entries) return;
     if (!strcasecmp(entryname, old_entryname)) return;
 
@@ -520,7 +520,6 @@ void ApplyEnvFileEntry(const char* entryname)
     box64env_t* env = &kh_value(box64env_entries, k1);
     internalApplyEnvFileEntry(entryname, env);
     applyCustomRules();
-#endif
 }
 
 void LoadEnvVariables()
