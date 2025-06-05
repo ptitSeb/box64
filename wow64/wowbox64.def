@@ -1,4 +1,4 @@
-LIBRARY libwowbox64.dll
+LIBRARY wowbox64.dll
 
 EXPORTS
   BTCpuFlushInstructionCache2

@@ -33,7 +33,7 @@ If you also want binfmt integration on 32bits binaries, you also need to add `-D
 ### Note about WowBox64
 
 A highly experimantal subproject named WowBox64 has been added as a build option, add `-DWOW64=ON` to the cmake command to enable it.
-It will build alongside the regular Box64, and produce a `libwowbox64.dll` file in `build/wowbox64-prefix/src/wowbox64-build/` directory.
+It will build alongside the regular Box64, and produce a `wowbox64.dll` file in `build/wowbox64-prefix/src/wowbox64-build/` directory.
 
 ### Note about binfmt_misc on Android
 

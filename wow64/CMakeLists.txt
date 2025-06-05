@@ -137,6 +137,11 @@ import_dll(wow64)
 add_compile_definitions(DYNAREC ARM64)
 
 target_link_options(wowbox64 PRIVATE -nostdlib -nodefaultlibs -lclang_rt.builtins-aarch64 -Wl,--image-base,0x004c0000)
+set_target_properties(wowbox64 PROPERTIES
+    PREFIX ""
+    SUFFIX ".dll"
+    OUTPUT_NAME "wowbox64"
+)
 
 add_custom_command(
     TARGET wowbox64 POST_BUILD
