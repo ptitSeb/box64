@@ -223,6 +223,17 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
 #undef STATIC_ASSERT
 
     LoadEnvVariables();
+    InitializeEnvFiles();
+
+    TCHAR filename[MAX_PATH];
+    if (GetModuleFileName(NULL, filename, MAX_PATH)) {
+        char* shortname = strrchr(filename, '\\');
+        if (shortname) {
+            shortname++;
+            ApplyEnvFileEntry(shortname);
+        }
+    }
+
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
     PrintEnvVariables(&box64env, LOG_INFO);
 

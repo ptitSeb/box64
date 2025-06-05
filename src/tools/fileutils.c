@@ -21,27 +21,6 @@ static const char* bashsign= "#!/bin/bash";
 static const char* shsign  = "#!/bin/sh";
 static const char* bashsign2="#!/usr/bin/env bash";
 
-int FileExist(const char* filename, int flags)
-{
-    struct stat sb;
-    if (stat(filename, &sb) == -1)
-        return 0;
-    if(flags==-1)
-        return 1;
-    // check type of file? should be executable, or folder
-    if(flags&IS_FILE) {
-        if(!S_ISREG(sb.st_mode))
-            return 0;
-    } else if(!S_ISDIR(sb.st_mode))
-            return 0;
-    
-    if(flags&IS_EXECUTABLE) {
-        if((sb.st_mode&S_IXUSR)!=S_IXUSR)
-            return 0;   // nope
-    }
-    return 1;
-}
-
 static char* ResolvePathInner(const char* path, int resolve_symlink) {
     if (resolve_symlink) {
         return box_realpath(path, NULL);
@@ -150,19 +129,6 @@ const char* GetTmpDir() {
     if(FileExist("/usr/tmp", 0))                            return "/usr/tmp";
 
     return "/tmp";  // meh...
-}
-
-char* LowerCase(const char* s) {
-    if(!s)
-        return NULL;
-    char* ret = box_calloc(1, strlen(s)+1);
-    size_t i=0;
-    while(*s) {
-        ret[i++] = (*s>='A' && *s<='Z')?(*s-'A'+'a'):(*s);
-        ++s;
-    }
-
-    return ret;
 }
 
 #if defined(RPI) || defined(RK3399) || defined(RK3326)

@@ -226,3 +226,25 @@ void* GetEnv(const char* name)
     int len = GetEnvironmentVariableA(name, buf, sizeof(buf));
     return len ? buf : NULL;
 }
+
+int FileExist(const char* filename, int flags)
+{
+    DWORD attrs = GetFileAttributesA(filename);
+    if (attrs == INVALID_FILE_ATTRIBUTES) return 0;
+    if (flags == -1) return 1;
+
+    if (flags & IS_FILE) {
+        if ((attrs & FILE_ATTRIBUTE_DIRECTORY) || (attrs & FILE_ATTRIBUTE_DEVICE) || (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
+            return 0;
+        }
+    } else {
+        if (!(attrs & FILE_ATTRIBUTE_DIRECTORY))
+            return 0;
+    }
+
+    if (flags & IS_EXECUTABLE) {
+        printf_log(LOG_NONE, "Warning: Executable check not implemented for Windows\n");
+    }
+
+    return 1;
+}
