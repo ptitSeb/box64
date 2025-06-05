@@ -6,9 +6,10 @@ There are many environment variables to control Box64's behaviour, which will be
 
 There are 2 types of Box64 builds: the Wine WOW64 build (WowBox64) and the regular Linux build. Beware only some of the environment variables are available in WowBox64.
 
-### Configuration files for Linux build
+### Configuration files
 
 In addition to environment variables, if you're using the regular Linux build, Box64 also looks for 2 places for rcfile by default: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
+While in WowBox64, the configuration file is checked at `%USERPROFILE%/.box64rc` only.
 Settings priority follows this order (from highest to lowest): `~/.box64rc` > `/etc/box64.box64rc` > environment variables.
 
 Example configuration:
