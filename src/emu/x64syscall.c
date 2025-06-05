@@ -478,7 +478,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             case 1: S_RAX = syscall(sc, R_RDI); break;
             case 2: if(s==33) {if(log) snprintf(buff2, 127, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
             case 3: if(s==42) {if(log) snprintf(buff2, 127, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 127, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
-            case 4: if(s==267) S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
+            case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
             case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
             case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
             default:
