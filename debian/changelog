@@ -1,3 +1,15 @@
+box64 (0.3.6) unstable; urgency=low
+
+This version introduces wowbox64.dll for Hangover; the ability to use the Volatile Metadata of Windows executables for x64 wine; and some better x87/SSE/AVX handling
+
+    => WowBox64 can be built directly from Box64 repo, and can be found in the CI artifacts also
+    => it also supports a subset of BOX64_XXXX settings, which can be set from command line or via a setting file ".box64rc" in the Wine prefix home
+    => Volatile Metadata, when present, allows only applying strong memory ordering when needed, as marked by the compiler, giving overall better performances
+    => The precision control bit of x87 is now handled, allowing some older games to run correctly
+    => More work has been done in the handling of precise NaN and Round handling in SSE & AVX opcodes
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 6 Jun 2025 10:30:33 -0100
+
 box64 (0.3.4) unstable; urgency=low
 
 * This version is Faster and more compatible

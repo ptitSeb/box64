@@ -1,3 +1,49 @@
+v0.3.6
+======
+
+Highlights:
+
+* This version introduces wowbox64.dll for Hangover; the ability to use the Volatile Metadata of Windows executables for x64 wine; and some better x87/SSE/AVX handling
+
+    => WowBox64 can be built directly from Box64 repo, and can be found in the CI artifacts also
+    => it also supports a subset of BOX64_XXXX settings, which can be set from command line or via a setting file ".box64rc" in the Wine prefix home
+    => Volatile Metadata, when present, allows only applying strong memory ordering when needed, as marked by the compiler, giving overall better performances
+    => The precision control bit of x87 is now handled, allowing some older games to run correctly
+    => More work has been done in the handling of precise NaN and Round handling in SSE & AVX opcodes
+
+Version summary:
+    
+* Added/fixed some Syscalls, helping Go programs
+* Wrapper: more functions added, and some fixes too. Vulkan is 1.4 now, among other things
+* Wrapper: Added a few more wrapped libs (like some avcodec and friends)
+* Improve internal memory allocator (with a dedicated allocator for small memory allocations), and fixed some issues around it
+* Improve internal mmaped file tracking
+* Box32: Some small refactoring around memory management and internal memory allocations
+* Box32: More functions wrapped
+* Box32: More libraries wrapped
+* ARM64: Added support for Atomic extension in many internal functions (not related to Dynarec).
+* ARM64: Added support for CRC2 extension for internal CRC functions
+* Interp: A few fixes to some opcodes, and better NAN handling on some selected SSE/AVX opcodes
+* Interp: Added a few opcodes with exotic prefixes
+* Dynarec: Introcude BOX64_DYNAREC_ROUND=2 to handle x87 precision control bit (ARM64 and RV64, LA64 still doesn't handle x87 yet)
+* Dynarec: Some small optimizations on Strongmem emulation, making it more efficient
+* Dynarec: Some speed optimizations on code that do SMC and waiting slot
+* Dynarec: Added CALLRET=2 to improve call/ret optimization compatibility with SMC code
+* Dynarec: ARM64: Various optimizations and fixes on some opcodes, especially AVX ones
+* Dynarec: ARM64: Added missing FASTNAN=0 handling on some SSE/AVX opcodes
+* Dynarec: ARM64: Added some exotic prefixed opcodes
+* Dynarec: ARM64: Avoid purging XMM/YMM register on intra-block loop if possible
+* Dynarec: RV64: Many fixes and improvments around x87 emulation
+* Dynarec: RV64: Added some more missing opcodes, especially some LOCK prefixed ones and many MMX ones
+* Dynarec: RV64: Various fixes on some existing opcodes
+* Dynarec: RV64: Improved nativeflags handling, allowing for more cases to use it
+* Dynarec: LA64: Added some more opcodes and MMX handling
+* Dynarec: LA64: Various fixes to some existing opcodes
+* Android: Improved signal handling, structure alignment, and transformation
+* WowBox64: Created the dll, with RcFile, Env. Var. handling and log printout (both ARM64 Dynarec and Interpreter available)
+* Cosim: Various fixes and improvements to limit false negatives and improve readability of logs
+* RcFile: A few fixes for some values that would be ignored
+
 v0.3.4
 ======
 * This version is Faster and more compatible:
