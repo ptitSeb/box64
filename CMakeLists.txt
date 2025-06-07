@@ -1341,9 +1341,9 @@ if(WOW64 AND ARM_DYNAREC)
     include(ExternalProject)
     ExternalProject_Add(
         wowbox64
-        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wow64"
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wine/wow64"
         CMAKE_ARGS 
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wow64/toolchain_mingw.cmake
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wine/toolchain_mingw.cmake
             -DDYNAREC_PASS_STR=${DYNAREC_PASS_STR}
             -DDYNAREC_ASM_STR=${DYNAREC_ASM_STR}
             -DINTERPRETER_STR=${INTERPRETER_STR}
