@@ -219,7 +219,7 @@ void my_child_fork()
 }
 
 const char* getCpuName();
-int getNCpu();
+int getNCpuUnmasked();
 
 #ifdef DYNAREC
 void GatherDynarecExtensions()
@@ -445,7 +445,7 @@ static void displayMiscInfo()
 #endif
 
     // grab ncpu and cpu name
-    int ncpu = getNCpu();
+    int ncpu = getNCpuUnmasked();
     const char* cpuname = getCpuName();
 
     printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd\n", cpuname, ncpu, ncpu > 1 ? "s" : "", box64_pagesize);

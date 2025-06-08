@@ -76,6 +76,7 @@ int get_cpuMhz()
 }
 static int nCPU = 0;
 static double bogoMips = 100.;
+static int read_ncpu = 0;
 
 void grabNCpu() {
     nCPU = 1;  // default number of CPU to 1
@@ -107,9 +108,20 @@ int getNCpu()
 {
     if(!nCPU)
         grabNCpu();
+    read_ncpu = 1;
     if(BOX64ENV(maxcpu) && nCPU>BOX64ENV(maxcpu))
         return BOX64ENV(maxcpu);
     return nCPU;
+}
+int getNCpuUnmasked()
+{
+    if(!nCPU)
+        grabNCpu();
+    return nCPU;
+}
+int canNCpuBeChanged()
+{
+    return read_ncpu?0:1;
 }
 
 double getBogoMips()

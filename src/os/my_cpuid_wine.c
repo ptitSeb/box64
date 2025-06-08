@@ -8,6 +8,7 @@ NTSYSAPI ULONG WINAPI NtGetTickCount(VOID);
 NTSYSAPI ULONG NTAPI RtlRandom(ULONG *seed);
 
 static int nCPU = 0;
+static int read_ncpu = 0;
 
 void grabNCpu() {
     SYSTEM_INFO sysinfo;
@@ -21,6 +22,16 @@ int getNCpu()
     if(BOX64ENV(maxcpu) && nCPU>BOX64ENV(maxcpu))
         return BOX64ENV(maxcpu);
     return nCPU;
+}
+int getNCpuUnmasked()
+{
+    if(!nCPU)
+        grabNCpu();
+    return nCPU;
+}
+int canNCpuBeChanged()
+{
+    return read_ncpu?0:1;
 }
 
 const char* getBoxCpuName()

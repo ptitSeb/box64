@@ -121,6 +121,7 @@ static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
 }
 
 void AddNewLibs(const char* list);
+int canNCpuBeChanged();
 
 static void applyCustomRules()
 {
@@ -196,8 +197,9 @@ static void applyCustomRules()
 #endif
     }
 
-    if (box64env.maxcpu == 0 || (!box64_wine && box64env.new_maxcpu < box64env.maxcpu)) {
-        box64env.maxcpu = box64env.new_maxcpu;
+    if (box64env.maxcpu == 0 || (box64env.new_maxcpu < box64env.maxcpu)) {
+        if(canNCpuBeChanged())
+            box64env.maxcpu = box64env.new_maxcpu;
     }
 
 #ifndef _WIN32
