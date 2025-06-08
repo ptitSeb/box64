@@ -43,6 +43,7 @@ typedef my_xcb_cookie_t (*zFppp_t)(void*, void*, void*);
 typedef my_xcb_cookie_t (*zFpCWp_t)(void*, uint8_t, uint16_t, void*);
 typedef my_xcb_cookie_t (*zFpCuuuuu_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*zFpCuuuCup_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint8_t, uint32_t, void*);
+typedef my_xcb_cookie_t (*zFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t, int16_t, int16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint32_t, uint32_t, void*);
 typedef my_xcb_XXX_iterator_t (*ZFp_t)(void*);
 
 #define ADDED_FUNCTIONS()       				\
@@ -51,6 +52,8 @@ GO(xcb_delete_property, zFppp_t)                \
 GO(xcb_get_property, zFpCuuuuu_t)               \
 GO(xcb_intern_atom, zFpCWp_t)                   \
 GO(xcb_setup_roots_iterator, ZFp_t)             \
+GO(xcb_create_window, zFpCuuwwWWWWuup_t)        \
+GO(xcb_create_window_checked, zFpCuuwwWWWWuup_t)\
 
 #include "generated/wrappedlibxcbtypes32.h"
 
@@ -79,6 +82,8 @@ SUPER(xcb_change_property, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_
 SUPER(xcb_delete_property, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, void* w, void* p), c, w, p)
 SUPER(xcb_get_property, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t _del, uint32_t w, uint32_t p, uint32_t type, uint32_t off, uint32_t len), c, _del, w, p, type, off, len)
 SUPER(xcb_intern_atom, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
+SUPER(xcb_create_window, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t depth, uint32_t w, uint32_t p, int16_t x, int16_t y, uint16_t width, uint16_t height, uint16_t bw, uint16_t cl, uint32_t vid, uint32_t mask, void* list), c, depth, w, p, x, y, width, height, bw, cl, vid, mask, list)
+SUPER(xcb_create_window_checked, (x64emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t depth, uint32_t w, uint32_t p, int16_t x, int16_t y, uint16_t width, uint16_t height, uint16_t bw, uint16_t cl, uint32_t vid, uint32_t mask, void* list), c, depth, w, p, x, y, width, height, bw, cl, vid, mask, list)
 
 #undef SUPER
 

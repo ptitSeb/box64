@@ -152,10 +152,10 @@ GO(xcb_create_gc_value_list_unpack, iFpup)
 //GOS(xcb_create_glyph_cursor_checked, pFpnuuuWWWWWWWW)
 //GOS(xcb_create_pixmap, pFpnCuuWW)
 //GOS(xcb_create_pixmap_checked, pFpnCuuWW)
-//GOS(xcb_create_window, pFpnCuuwwWWWWuup)
+GOS(xcb_create_window, zFEpnCuuwwWWWWuup)    //%%
 //GOS(xcb_create_window_aux, pFpnCuuwwWWWWuup)
 //GOS(xcb_create_window_aux_checked, pFpnCuuwwWWWWuup)
-//GOS(xcb_create_window_checked, pFpnCuuwwWWWWuup)
+GOS(xcb_create_window_checked, zFEpnCuuwwWWWWuup)    //%%
 GO(xcb_create_window_sizeof, iFp)
 GO(xcb_create_window_value_list, pFp)
 GO(xcb_create_window_value_list_serialize, iFbp_up)

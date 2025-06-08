@@ -18,6 +18,7 @@ typedef my_xcb_cookie_t (*zFnuu_t)(void*, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*zFnCWp_t)(void*, uint8_t, uint16_t, void*);
 typedef my_xcb_cookie_t (*zFnCuuuuu_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*zFnCuuuCup_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint8_t, uint32_t, void*);
+typedef my_xcb_cookie_t (*zFpnCuuwwWWWWuup_t)(void*, void*, uint8_t, uint32_t, uint32_t, int16_t, int16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint32_t, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xcb_disconnect, vFp_t) \

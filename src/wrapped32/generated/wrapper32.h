@@ -2168,6 +2168,7 @@ void vFuiiiiiuiiiiilll_32(x64emu_t *emu, uintptr_t fnc);
 void vFuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFfffffffffffffff_32(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppp_32(x64emu_t *emu, uintptr_t fnc);
+void pFEppnCuuwwWWWWuup_32(x64emu_t *emu, uintptr_t fnc);
 void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void vFXpuiiiiipuiiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fnc);

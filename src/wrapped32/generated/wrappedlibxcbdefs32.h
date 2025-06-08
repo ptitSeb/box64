@@ -14,5 +14,7 @@
 #define zFEnCuuuuu_32 pFEpnCuuuuu_32
 #define zFEnCuuuCup pFEpnCuuuCup
 #define zFEnCuuuCup_32 pFEpnCuuuCup_32
+#define zFEpnCuuwwWWWWuup pFEppnCuuwwWWWWuup
+#define zFEpnCuuwwWWWWuup_32 pFEppnCuuwwWWWWuup_32
 
 #endif // __wrappedlibxcbDEFS32_H_

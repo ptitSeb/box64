@@ -14,5 +14,7 @@
 #undef zFEnCuuuuu_32
 #undef zFEnCuuuCup
 #undef zFEnCuuuCup_32
+#undef zFEpnCuuwwWWWWuup
+#undef zFEpnCuuwwWWWWuup_32
 
 #endif // __wrappedlibxcbUNDEFS32_H_

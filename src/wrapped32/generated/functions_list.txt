@@ -2127,6 +2127,7 @@
 #() vFuuiiiiuuiiiiiii -> vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff -> vFfffffffffffffff
 #() iFpppppppppppppppp -> iFpppppppppppppppp
+#() pFEppnCuuwwWWWWuup -> pFEppnCuuwwWWWWuup
 #() vFuuuuiiiiuuiiiiiii -> vFuuuuiiiiuuiiiiiii
 #() vFXpuiiiiipuiiiiiiii -> vFXpuiiiiipuiiiiiiii
 #() uFippuuuuiiiiuuiiiiiiiipp -> uFippuuuuiiiiuuiiiiiiiipp
@@ -3131,11 +3132,13 @@ wrappedlibxcb:
 - zFnCWp:
 - zFnCuuuuu:
 - zFnCuuuCup:
+- zFpnCuuwwWWWWuup:
 % ZFEpp -> pFEppp
 % zFEnuu -> pFEpnuu
 % zFEnCWp -> pFEpnCWp
 % zFEnCuuuuu -> pFEpnCuuuuu
 % zFEnCuuuCup -> pFEpnCuuuCup
+% zFEpnCuuwwWWWWuup -> pFEppnCuuwwWWWWuup
 wrappedlibxcbres:
 % Z my_xcb_XXX_iterator_t pii
 % z my_xcb_cookie_t u
