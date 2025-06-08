@@ -47,13 +47,15 @@ void setJumpTableDefault64(void* addr);
 void setJumpTableDefaultRef64(void* addr, void* jmp);
 int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64(void);
+uintptr_t getJumpTable48(void);
 uintptr_t getJumpTable32(void);
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
 
 #ifdef SAVE_MEM
+#define JMPTABL_SHIFTMAX   JMPTABL_SHIFT4
 #define JMPTABL_SHIFT4 16
-#define JMPTABL_SHIFT3 14
+#define JMPTABL_SHIFT3 16
 #define JMPTABL_SHIFT2 12
 #define JMPTABL_SHIFT1 12
 #define JMPTABL_SHIFT0 10
@@ -68,10 +70,11 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #define JMPTABLE_MASK1 ((1<<JMPTABL_SHIFT1)-1)
 #define JMPTABLE_MASK0 ((1<<JMPTABL_SHIFT0)-1)
 #else
+#define JMPTABL_SHIFTMAX   JMPTABL_SHIFT3
 #define JMPTABL_SHIFT3 16
-#define JMPTABL_SHIFT2 18
+#define JMPTABL_SHIFT2 16
 #define JMPTABL_SHIFT1 18
-#define JMPTABL_SHIFT0 12
+#define JMPTABL_SHIFT0 14
 #define JMPTABL_START3 (JMPTABL_START2+JMPTABL_SHIFT2)
 #define JMPTABL_START2 (JMPTABL_START1+JMPTABL_SHIFT1)
 #define JMPTABL_START1 (JMPTABL_START0+JMPTABL_SHIFT0)

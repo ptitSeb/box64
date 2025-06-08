@@ -579,23 +579,39 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
             MOVx_REG(xRIP, reg);
         }
         NOTEST(x2);
-        uintptr_t tbl = is32bits?getJumpTable32():getJumpTable64();
-        MAYUSE(tbl);
-        MOV64x(x3, tbl);
         if(!is32bits) {
+            // check higher 48bits
+            LSRx_IMM(x2, xRIP, 48);
+            CBNZw(x2, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            // load table
+            uintptr_t tbl = getJumpTable48();   // this is a static value, so will be a low address
+            MOV64x(x3, tbl);
             #ifdef JMPTABL_SHIFT4
-            UBFXx(x2, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
-            LDRx_REG_LSL3(x3, x3, x2);
-            #endif
             UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
             LDRx_REG_LSL3(x3, x3, x2);
+            #endif
+            UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
+            LDRx_REG_LSL3(x3, x3, x2);
+            UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
+            LDRx_REG_LSL3(x3, x3, x2);
+            UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
+            LDRx_REG_LSL3(x2, x3, x2);
+        } else {
+            // check higher 32bits disabled
+            //LSRx_IMM(x2, xRIP, 32);
+            //CBNZw(x2, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            // load table
+            uintptr_t tbl = getJumpTable32();   // this will not be a low address
+            TABLE64(x3, tbl);
+            #ifdef JMPTABL_SHIFT4
+            UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
+            LDRx_REG_LSL3(x3, x3, x2);
+            #endif
+            UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
+            LDRx_REG_LSL3(x3, x3, x2);
+            UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
+            LDRx_REG_LSL3(x2, x3, x2);
         }
-        UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
-        LDRx_REG_LSL3(x3, x3, x2);
-        UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
-        LDRx_REG_LSL3(x3, x3, x2);
-        UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
-        LDRx_REG_LSL3(x2, x3, x2);
     } else {
         NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
@@ -636,23 +652,40 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         SUBx_U12(xSP, xSavedSP, 16);
     }
-    uintptr_t tbl = rex.is32bits?getJumpTable32():getJumpTable64();
     NOTEST(x2);
-    MOV64x(x2, tbl);
     if(!rex.is32bits) {
+        // check higher 48bits
+        LSRx_IMM(x2, xRIP, 48);
+        CBNZw(x2, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        // load table
+        uintptr_t tbl = getJumpTable48();
+        MOV64x(x3, tbl);
         #ifdef JMPTABL_SHIFT4
-        UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
-        LDRx_REG_LSL3(x2, x2, x3);
+        UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
+        LDRx_REG_LSL3(x3, x3, x2);
         #endif
-        UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
-        LDRx_REG_LSL3(x2, x2, x3);
+        UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
+        LDRx_REG_LSL3(x2, x3, x2);
+    } else {
+        // check higher 32bits disabled
+        //LSRx_IMM(x2, xRIP, 32);
+        //CBNZw(x2, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        // load table
+        uintptr_t tbl = getJumpTable32();
+        TABLE64(x3, tbl);
+        #ifdef JMPTABL_SHIFT4
+        UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
+        LDRx_REG_LSL3(x3, x3, x2);
+        #endif
+        UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
+        LDRx_REG_LSL3(x2, x3, x2);
     }
-    UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
-    LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
-    LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
-    LDRx_REG_LSL3(x2, x2, x3);
     #ifdef HAVE_TRACE
     BLR(x2);
     #else
@@ -683,23 +716,40 @@ void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int 
         // not the correct return address, regular jump
         SUBx_U12(xSP, xSavedSP, 16);
     }
-    uintptr_t tbl = rex.is32bits?getJumpTable32():getJumpTable64();
     NOTEST(x2);
-    MOV64x(x2, tbl);
     if(!rex.is32bits) {
+        // check higher 48bits
+        LSRx_IMM(x2, xRIP, 48);
+        CBNZw(x2, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        // load table
+        uintptr_t tbl = getJumpTable48();
+        MOV64x(x3, tbl);
         #ifdef JMPTABL_SHIFT4
-        UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
-        LDRx_REG_LSL3(x2, x2, x3);
+        UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
+        LDRx_REG_LSL3(x3, x3, x2);
         #endif
-        UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
-        LDRx_REG_LSL3(x2, x2, x3);
+        UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
+        LDRx_REG_LSL3(x2, x3, x2);
+    } else {
+        // check higher 32bits disbaled
+        //LSRx_IMM(x2, xRIP, 32);
+        //CBNZw(x2, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        // load table
+        uintptr_t tbl = getJumpTable32();
+        TABLE64(x3, tbl);
+        #ifdef JMPTABL_SHIFT4
+        UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
+        LDRx_REG_LSL3(x3, x3, x2);
+        #endif
+        UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
+        LDRx_REG_LSL3(x3, x3, x2);
+        UBFXx(x2, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
+        LDRx_REG_LSL3(x2, x3, x2);
     }
-    UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
-    LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
-    LDRx_REG_LSL3(x2, x2, x3);
-    UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
-    LDRx_REG_LSL3(x2, x2, x3);
     #ifdef HAVE_TRACE
     BLR(x2);
     #else

@@ -547,10 +547,10 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
             BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
             ALSL_D(x3, x2, x3, 3);
             LD_D(x3, x3, 0);
+            BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+            ALSL_D(x3, x2, x3, 3);
+            LD_D(x3, x3, 0);
         }
-        BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x3, x3, 0);
         BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
         ALSL_D(x3, x2, x3, 3);
         LD_D(x3, x3, 0);
@@ -601,10 +601,10 @@ void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
         ALSL_D(x3, x2, x3, 3);
         LD_D(x3, x3, 0);
+        BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+        ALSL_D(x3, x2, x3, 3);
+        LD_D(x3, x3, 0);
     }
-    BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-    ALSL_D(x3, x2, x3, 3);
-    LD_D(x3, x3, 0);
     BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
     ALSL_D(x3, x2, x3, 3);
     LD_D(x3, x3, 0);
@@ -646,10 +646,10 @@ void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
         BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
         ALSL_D(x3, x2, x3, 3);
         LD_D(x3, x3, 0);
+        BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+        ALSL_D(x3, x2, x3, 3);
+        LD_D(x3, x3, 0);
     }
-    BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-    ALSL_D(x3, x2, x3, 3);
-    LD_D(x3, x3, 0);
     BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
     ALSL_D(x3, x2, x3, 3);
     LD_D(x3, x3, 0);

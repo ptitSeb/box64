@@ -31,12 +31,23 @@
 static mmaplist_t          *mmaplist = NULL;
 static rbtree_t            *rbt_dynmem = NULL;
 static uint64_t jmptbl_allocated = 0, jmptbl_allocated1 = 0, jmptbl_allocated2 = 0, jmptbl_allocated3 = 0;
+#if JMPTABL_SHIFTMAX != 16
+#error Incorect value for jumptable shift max that should be 16
+#endif
 #ifdef JMPTABL_SHIFT4
+#if JMPTABL_SHIFT3 != 16
+#error Incorect value for jumptable shift3 that should be 16
+#endif
 static uint64_t jmptbl_allocated4 = 0;
 static uintptr_t****       box64_jmptbl4[1<<JMPTABL_SHIFT4];
 static uintptr_t***        box64_jmptbldefault3[1<<JMPTABL_SHIFT3];
+static uintptr_t***        box64_jmptbl_48[1<<JMPTABL_SHIFT3];
 #else
+#if JMPTABL_SHIFT2 != 16
+#error Incorect value for jumptable shift2 that should be 16
+#endif
 static uintptr_t***        box64_jmptbl3[1<<JMPTABL_SHIFT3];
+static uintptr_t**         box64_jmptbl_48[1<<JMPTABL_SHIFT2];
 #endif
 static uintptr_t**         box64_jmptbldefault2[1<<JMPTABL_SHIFT2];
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT1];
@@ -1281,7 +1292,7 @@ int cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 }
 
 #ifdef JMPTABL_SHIFT4
-static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3, uintptr_t idx4)
+static uintptr_t *create_jmptbl(int for32bits, uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3, uintptr_t idx4)
 {
     if(box64_jmptbl4[idx4] == box64_jmptbldefault3) {
         uintptr_t**** tbl = (uintptr_t****)customMalloc((1<<JMPTABL_SHIFT3)*sizeof(uintptr_t***));
@@ -1309,6 +1320,7 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
         }
 #endif
     }
+    if(for32bits) return NULL;
     if(box64_jmptbl4[idx4][idx3][idx2] == box64_jmptbldefault1) {
         uintptr_t** tbl = (uintptr_t**)customMalloc((1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
@@ -1338,7 +1350,7 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
     return &box64_jmptbl4[idx4][idx3][idx2][idx1][idx0];
 }
 #else
-static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3)
+static uintptr_t *create_jmptbl(int for32bits, uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3)
 {
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
         uintptr_t*** tbl = (uintptr_t***)customMalloc((1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**));
@@ -1366,6 +1378,7 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
         }
 #endif
     }
+    if(for32bits) return NULL;
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
         uintptr_t* tbl = (uintptr_t*)customMalloc((1<<JMPTABL_SHIFT0)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
@@ -1396,9 +1409,9 @@ int addJumpTableIfDefault64(void* addr, void* jmp)
     idx0 = (((uintptr_t)addr)                )&JMPTABLE_MASK0;
 
     #ifdef JMPTABL_SHIFT4
-    return (native_lock_storeifref(create_jmptbl(idx0, idx1, idx2, idx3, idx4), jmp, native_next)==jmp)?1:0;
+    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), jmp, native_next)==jmp)?1:0;
     #else
-    return (native_lock_storeifref(create_jmptbl(idx0, idx1, idx2, idx3), jmp, native_next)==jmp)?1:0;
+    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3), jmp, native_next)==jmp)?1:0;
     #endif
 }
 void setJumpTableDefault64(void* addr)
@@ -1456,9 +1469,9 @@ int setJumpTableIfRef64(void* addr, void* jmp, void* ref)
     idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
     idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     #ifdef JMPTABL_SHIFT4
-    return (native_lock_storeifref(create_jmptbl(idx0, idx1, idx2, idx3, idx4), jmp, ref)==jmp)?1:0;
+    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), jmp, ref)==jmp)?1:0;
     #else
-    return (native_lock_storeifref(create_jmptbl(idx0, idx1, idx2, idx3), jmp, ref)==jmp)?1:0;
+    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3), jmp, ref)==jmp)?1:0;
     #endif
 }
 int isJumpTableDefault64(void* addr)
@@ -1491,13 +1504,19 @@ uintptr_t getJumpTable64()
     return (uintptr_t)box64_jmptbl3;
     #endif
 }
+uintptr_t getJumpTable48()
+{
+    return (uintptr_t)box64_jmptbl_48;
+}
 
 uintptr_t getJumpTable32()
 {
     #ifdef JMPTABL_SHIFT4
+    create_jmptbl(1, 0, 0, 0, 0, 0);
     return (uintptr_t)box64_jmptbl4[0][0];
     #else
-    return (uintptr_t)box64_jmptbl3[0];
+    create_jmptbl(1, 0, 0, 0, 0);
+    return (uintptr_t)box64_jmptbl3[0][0];
     #endif
 }
 
@@ -1512,9 +1531,9 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
     idx1 = ((addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
     idx0 = ((addr)                )&JMPTABLE_MASK0;
     #ifdef JMPTABL_SHIFT4
-    return (uintptr_t)create_jmptbl(idx0, idx1, idx2, idx3, idx4);
+    return (uintptr_t)create_jmptbl(0, idx0, idx1, idx2, idx3, idx4);
     #else
-    return (uintptr_t)create_jmptbl(idx0, idx1, idx2, idx3);
+    return (uintptr_t)create_jmptbl(0, idx0, idx1, idx2, idx3);
     #endif
 }
 
@@ -2242,11 +2261,17 @@ void init_custommem_helper(box64context_t* ctx)
         #ifdef JMPTABL_SHIFT4
         for(int i=0; i<(1<<JMPTABL_SHIFT4); ++i)
             box64_jmptbl4[i] = box64_jmptbldefault3;
-        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i)
+        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i) {
             box64_jmptbldefault3[i] = box64_jmptbldefault2;
+            box64_jmptbl_48[i] = box64_jmptbldefault2;
+        }
+        box64_jmptbl4[0] = box64_jmptbl_48;
         #else
-        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i)
-            box64_jmptbl3[i] = box64_jmptbldefault2;
+        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i) {
+                box64_jmptbl3[i] = box64_jmptbldefault2;
+                box64_jmptbl_48[i] = box64_jmptbldefault1;
+            }
+        box64_jmptbl3[0] = box64_jmptbl_48;
         #endif
         for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
             box64_jmptbldefault2[i] = box64_jmptbldefault1;
@@ -2336,10 +2361,14 @@ void fini_custommem_helper(box64context_t *ctx)
                             }
                         customFree(box64_jmptbl3[i3][i2]);
                     }
-                customFree(box64_jmptbl3[i3]);
+                #ifndef JMPTABL_SHIFT4
+                if(i3)
+                #endif
+                    customFree(box64_jmptbl3[i3]);
             }
         #ifdef JMPTABL_SHIFT4
-                customFree(box64_jmptbl4[i4]);
+                if(i4)
+                    customFree(box64_jmptbl4[i4]);
             }
         #endif
     }

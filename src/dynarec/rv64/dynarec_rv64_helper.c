@@ -605,10 +605,10 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
                 TH_EXTU(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
                 TH_ADDSL(x3, x3, x2, 3);
                 LD(x3, x3, 0);
+                TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+                TH_ADDSL(x3, x3, x2, 3);
+                LD(x3, x3, 0);
             }
-            TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-            TH_ADDSL(x3, x3, x2, 3);
-            LD(x3, x3, 0);
             TH_EXTU(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
             TH_ADDSL(x3, x3, x2, 3);
             LD(x3, x3, 0);
@@ -625,14 +625,16 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
                     ADD(x3, x3, x2);
                 }
                 LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
-            }
-            MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-            SRLI(x2, xRIP, JMPTABL_START2 - 3);
-            AND(x2, x2, x4);
-            ADD(x3, x3, x2);
-            LD(x3, x3, 0); // LR_D(x3, x3, 1, 1);
-            if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
-                MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
+                MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
+                SRLI(x2, xRIP, JMPTABL_START2 - 3);
+                AND(x2, x2, x4);
+                ADD(x3, x3, x2);
+                LD(x3, x3, 0); // LR_D(x3, x3, 1, 1);
+                if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
+                    MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
+                }
+            } else {
+                MOV64x(x4, JMPTABLE_MASK1 << 3);
             }
             SRLI(x2, xRIP, JMPTABL_START1 - 3);
             AND(x2, x2, x4);
@@ -695,9 +697,9 @@ void ret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         if (!rex.is32bits) {
             TH_EXTU(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
             TH_LRD(x3, x3, x2, 3);
+            TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+            TH_LRD(x3, x3, x2, 3);
         }
-        TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-        TH_LRD(x3, x3, x2, 3);
         TH_EXTU(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
         TH_LRD(x3, x3, x2, 3);
         TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
@@ -707,13 +709,15 @@ void ret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
             SRLI(x2, xRIP, JMPTABL_START3);
             ADDSL(x3, x3, x2, 3, x2);
             LD(x3, x3, 0);
-        }
-        MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-        SRLI(x2, xRIP, JMPTABL_START2 - 3);
-        AND(x2, x2, x4);
-        ADD(x3, x3, x2);
-        LD(x3, x3, 0);
-        if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
+            MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
+            SRLI(x2, xRIP, JMPTABL_START2 - 3);
+            AND(x2, x2, x4);
+            ADD(x3, x3, x2);
+            LD(x3, x3, 0);
+            if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
+                MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
+            }
+        } else {
             MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
         }
         SRLI(x2, xRIP, JMPTABL_START1 - 3);
@@ -772,9 +776,9 @@ void retn_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
         if (!rex.is32bits) {
             TH_EXTU(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
             TH_LRD(x3, x3, x2, 3);
+            TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+            TH_LRD(x3, x3, x2, 3);
         }
-        TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-        TH_LRD(x3, x3, x2, 3);
         TH_EXTU(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT2 - 1, JMPTABL_START1);
         TH_LRD(x3, x3, x2, 3);
         TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
@@ -784,13 +788,15 @@ void retn_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
             SRLI(x2, xRIP, JMPTABL_START3);
             ADDSL(x3, x3, x2, 3, x2);
             LD(x3, x3, 0);
-        }
-        MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-        SRLI(x2, xRIP, JMPTABL_START2 - 3);
-        AND(x2, x2, x4);
-        ADD(x3, x3, x2);
-        LD(x3, x3, 0);
-        if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
+            MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
+            SRLI(x2, xRIP, JMPTABL_START2 - 3);
+            AND(x2, x2, x4);
+            ADD(x3, x3, x2);
+            LD(x3, x3, 0);
+            if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
+                MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
+            }
+        } else {
             MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
         }
         SRLI(x2, xRIP, JMPTABL_START1 - 3);
