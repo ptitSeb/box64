@@ -274,7 +274,7 @@ int rb_set_64(rbtree_t* tree, uintptr_t start, uintptr_t end, uint64_t data);
 int rb_unset(rbtree_t* tree, uintptr_t start, uintptr_t end);
 
 /**
- * rb_get_righter() - Retrieves the start value of the right-most node in a red-black tree.
+ * rb_get_rightmost() - Retrieves the start value of the right-most node in a red-black tree.
  * @tree: Pointer to the red-black tree whose right-most node's start value is to be retrieved.
  *
  * This function traverses the red-black tree from the root to the right-most node, which is the node
@@ -304,17 +304,17 @@ uint64_t rb_inc(rbtree_t* tree, uintptr_t start, uintptr_t end);
  * Returns the new value for the node (or 0 if non-existant / removed)
  */
 
-uintptr_t rb_get_righter(rbtree_t* tree);
+uintptr_t rb_get_rightmost(rbtree_t* tree);
 
 /**
- * rb_get_lefter() - Retrieves the start value of the left-most node in a red-black tree.
+ * rb_get_leftmost() - Retrieves the start value of the left-most node in a red-black tree.
  * @tree: Pointer to the red-black tree whose left-most node's start value is to be retrieved.
  *
  * This function traverses the red-black tree from the root to the left-most node, which is the node
  * with the lowest key value in the tree. 
  * Return: The start value of the left-most node if the tree is not empty; otherwise, 0.
  */
-uintptr_t rb_get_lefter(rbtree_t* tree);
+uintptr_t rb_get_leftmost(rbtree_t* tree);
 
 /**
  * @brief Print a rbtree (for debugging purpose)

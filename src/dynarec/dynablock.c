@@ -61,7 +61,7 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
         if(db_size && my_context) {
             uint32_t n = rb_dec(my_context->db_sizes, db_size, db_size+1);
             if(!n && (db_size >= my_context->max_db_size)) {
-                my_context->max_db_size = rb_get_righter(my_context->db_sizes);
+                my_context->max_db_size = rb_get_rightmost(my_context->db_sizes);
                 dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
             }
         }
@@ -103,7 +103,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         if(db_size && my_context) {
             uint32_t n = rb_dec(my_context->db_sizes, db_size, db_size+1);
             if(!n && (db_size >= my_context->max_db_size)) {
-                my_context->max_db_size = rb_get_righter(my_context->db_sizes);
+                my_context->max_db_size = rb_get_rightmost(my_context->db_sizes);
                 dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
             }
         }

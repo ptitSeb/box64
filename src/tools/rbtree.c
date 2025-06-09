@@ -32,8 +32,8 @@ struct rbtree {
     const char* name;
     bool is_unstable;
     // Cache 
-    rbnode *righter; 
-    rbnode *lefter;
+    rbnode *rightmost; 
+    rbnode *leftmost;
     // TODO: Refine the naming scheme
 };
 
@@ -42,8 +42,8 @@ rbtree_t* rbtree_init(const char* name) {
     tree->root = NULL;
     tree->is_unstable = false;
     tree->name = name?name:"(rbtree)";
-    tree->righter = NULL;
-    tree->lefter = NULL;
+    tree->rightmost = NULL;
+    tree->leftmost = NULL;
     return tree;
 }
 
@@ -83,16 +83,16 @@ static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uint
         node->meta = IS_BLACK;
         tree->root = node;
         tree->is_unstable = false;
-        tree->lefter = node;
-        tree->righter = node;
+        tree->leftmost = node;
+        tree->rightmost = node;
         return 0;
     }
     
     // Update cache
-    if (start < tree->lefter->start) // new left most
-        tree->lefter = node;
-    else if (start > tree->righter->start) // new right most
-        tree->righter = node;
+    if (start < tree->leftmost->start) // new left most
+        tree->leftmost = node;
+    else if (start > tree->rightmost->start) // new right most
+        tree->rightmost = node;
 
     node->parent = prev;
     if (prev->start < start) {
@@ -266,10 +266,10 @@ static int remove_node(rbtree_t *tree, rbnode *node) {
     }
     tree->is_unstable = true;
     // Update cache
-    if (node == tree->lefter)
-        tree->lefter = succ_node(node);
-    else if (node == tree->righter)
-        tree->righter = pred_node(node);
+    if (node == tree->leftmost)
+        tree->leftmost = succ_node(node);
+    else if (node == tree->rightmost)
+        tree->rightmost = pred_node(node);
     
     if (node->left && node->right) {
         // Swap node and its successor
@@ -1137,18 +1137,18 @@ uint64_t rb_dec(rbtree_t *tree, uintptr_t start, uintptr_t end) {
     return data;
 }
 
-uintptr_t rb_get_righter(rbtree_t* tree)
+uintptr_t rb_get_rightmost(rbtree_t* tree)
 {
-dynarec_log(LOG_DEBUG, "rb_get_righter(%s);\n", tree->name);
+dynarec_log(LOG_DEBUG, "rb_get_rightmost(%s);\n", tree->name);
     if (!tree->root) return 0;
-    return tree->righter->start;
+    return tree->rightmost->start;
 }
 
-uintptr_t rb_get_lefter(rbtree_t* tree)
+uintptr_t rb_get_leftmost(rbtree_t* tree)
 {
-dynarec_log(LOG_DEBUG, "rb_get_lefter(%s);\n", tree->name);
+dynarec_log(LOG_DEBUG, "rb_get_leftmost(%s);\n", tree->name);
     if (!tree->root) return 0;
-    return tree->lefter->start;
+    return tree->leftmost->start;
 }
 
 #include <stdio.h>
@@ -1206,7 +1206,7 @@ static void cache_check(const rbtree_t *tree) {
     while (right_node->right)
         right_node = right_node->right;
 
-    if (tree->righter != right_node){
+    if (tree->rightmost != right_node){
         printf_log(LOG_NONE, "<invalid rightmost node>\n");
         return;
     }
@@ -1216,7 +1216,7 @@ static void cache_check(const rbtree_t *tree) {
     while (left_node->left)
         left_node = left_node->left;
 
-    if (tree->lefter != left_node){
+    if (tree->leftmost != left_node){
         printf_log(LOG_NONE, "<invalid leftmost node>\n");
         return;
     }

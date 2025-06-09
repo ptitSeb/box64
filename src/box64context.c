@@ -357,7 +357,7 @@ void FreeBox64Context(box64context_t** context)
     FreeMapSymbols(&ctx->uniques);
 
 #ifdef DYNAREC
-    //dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, righter=%d\n", ctx->max_db_size, rb_get_righter(ctx->db_sizes));
+    //dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, rightmost=%d\n", ctx->max_db_size, rb_get_rightmost(ctx->db_sizes));
     rbtree_delete(ctx->db_sizes);
 #endif
 
