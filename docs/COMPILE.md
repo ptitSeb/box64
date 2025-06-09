@@ -260,7 +260,7 @@ Add `-DCMAKE_BUILD_TYPE=RelWithDebInfo` option for an optimized build with debug
 
 #### Build with trace
 
-To have a trace enabled build (***the interpreter will be slightly slower***), add `-DHAVE_TRACE=1`. You will need the [Zydis library](https://github.com/zyantific/zydis) v4.x devel package installed (`apt install libzydis-dev` on Debian for example).
+To have a trace enabled build (***the interpreter will be slightly slower***), add `-DHAVE_TRACE=1`. You will need the [Zydis library](https://github.com/zyantific/zydis) devel package installed (`apt install libzydis-dev` on Debian for example).
 
 #### Build DynaRec
 
