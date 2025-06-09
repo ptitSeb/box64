@@ -604,7 +604,7 @@ void* map128_customMalloc(size_t size, int is32bits)
             testAllBlocks();
             if(BOX64ENV(log)>=LOG_DEBUG) {
                 printf_log(LOG_NONE, "Used 32bits address space map:\n");
-                uintptr_t addr = rb_get_lefter(mapallmem);
+                uintptr_t addr = rb_get_leftmost(mapallmem);
                 while(addr<0x100000000LL) {
                     uintptr_t bend;
                     uint32_t val;
@@ -715,7 +715,7 @@ void* internal_customMalloc(size_t size, int is32bits)
             testAllBlocks();
             if(BOX64ENV(log)>=LOG_DEBUG) {
                 printf_log(LOG_NONE, "Used 32bits address space map:\n");
-                uintptr_t addr = rb_get_lefter(mapallmem);
+                uintptr_t addr = rb_get_leftmost(mapallmem);
                 while(addr<0x100000000LL) {
                     uintptr_t bend;
                     uint32_t val;

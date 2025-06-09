@@ -720,7 +720,7 @@ void RemoveMapping(uintptr_t addr, size_t length)
         if(mapping == (mapping_t*)rb_get_64(envmap, addr+length))
             return; // still present, don't purge mapping
         // Will traverse the tree to find any left over
-        uintptr_t start = rb_get_lefter(envmap);
+        uintptr_t start = rb_get_leftmost(envmap);
         uintptr_t end;
         uint64_t val;
         do {
