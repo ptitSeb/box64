@@ -7,25 +7,26 @@
 #include "box64context.h"
 #include "x64emu_private.h"
 #ifdef HAVE_TRACE
-#include "x86zydis.h"
-
+#include <Zydis/Zydis.h>
 typedef ZyanStatus (*PFNZydisDecoderInit)(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
-    ZydisAddressWidth address_width);
+    ZydisStackWidth stack_width);
 
 typedef ZyanStatus (*PFNZydisFormatterInit)(ZydisFormatter* formatter, ZydisFormatterStyle style);
 
-typedef ZyanStatus (*PFNZydisDecoderDecodeBuffer)(const ZydisDecoder* decoder,
-    const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction);
+typedef ZyanStatus (*PFNZydisDecoderDecodeFull)(const ZydisDecoder* decoder,
+    const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction,
+    ZydisDecodedOperand* operands);
 
 typedef ZyanStatus (*PFNZydisFormatterFormatInstruction)(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, char* buffer, ZyanUSize length,
-    ZyanU64 runtime_address);
+    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
+    ZyanU8 operand_count, char* buffer, ZyanUSize length, ZyanU64 runtime_address,
+    void* user_data);
 
 typedef struct zydis_s {
     void*                       lib;
     PFNZydisDecoderInit         ZydisDecoderInit;
     PFNZydisFormatterInit       ZydisFormatterInit;
-    PFNZydisDecoderDecodeBuffer ZydisDecoderDecodeBuffer;
+    PFNZydisDecoderDecodeFull ZydisDecoderDecodeFull;
     PFNZydisFormatterFormatInstruction ZydisFormatterFormatInstruction;
 } zydis_t;
 
@@ -33,7 +34,8 @@ typedef struct zydis_dec_s {
     ZydisDecoder            decoder;
     ZydisFormatter          formatter;
     ZydisDecodedInstruction instruction;
-    PFNZydisDecoderDecodeBuffer ZydisDecoderDecodeBuffer;
+    ZydisDecodedOperand     operands[ZYDIS_MAX_OPERAND_COUNT];
+    PFNZydisDecoderDecodeFull ZydisDecoderDecodeFull;
     PFNZydisFormatterFormatInstruction ZydisFormatterFormatInstruction;
 } zydis_dec_t;
 
@@ -67,7 +69,7 @@ int InitX64Trace(box64context_t *context)
 
     GO(ZydisDecoderInit);
     GO(ZydisFormatterInit);
-    GO(ZydisDecoderDecodeBuffer);
+    GO(ZydisDecoderDecodeFull);
     GO(ZydisFormatterFormatInstruction);
     #undef GO
 
@@ -98,9 +100,9 @@ zydis_dec_t* InitX86TraceDecoder(box64context_t *context)
     if(!context->zydis)
         return NULL;
     zydis_dec_t *dec = (zydis_dec_t*)box_calloc(1, sizeof(zydis_dec_t));
-    dec->ZydisDecoderDecodeBuffer = context->zydis->ZydisDecoderDecodeBuffer;
+    dec->ZydisDecoderDecodeFull = context->zydis->ZydisDecoderDecodeFull;
     dec->ZydisFormatterFormatInstruction = context->zydis->ZydisFormatterFormatInstruction;
-    context->zydis->ZydisDecoderInit(&dec->decoder, ZYDIS_MACHINE_MODE_LEGACY_32, ZYDIS_ADDRESS_WIDTH_32);
+    context->zydis->ZydisDecoderInit(&dec->decoder, ZYDIS_MACHINE_MODE_LEGACY_32, ZYDIS_STACK_WIDTH_32);
     context->zydis->ZydisFormatterInit(&dec->formatter, ZYDIS_FORMATTER_STYLE_INTEL);
 
     return dec;
@@ -122,9 +124,9 @@ zydis_dec_t* InitX64TraceDecoder(box64context_t *context)
     if(!context->zydis)
         return NULL;
     zydis_dec_t *dec = (zydis_dec_t*)box_calloc(1, sizeof(zydis_dec_t));
-    dec->ZydisDecoderDecodeBuffer = context->zydis->ZydisDecoderDecodeBuffer;
+    dec->ZydisDecoderDecodeFull = context->zydis->ZydisDecoderDecodeFull;
     dec->ZydisFormatterFormatInstruction = context->zydis->ZydisFormatterFormatInstruction;
-    context->zydis->ZydisDecoderInit(&dec->decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
+    context->zydis->ZydisDecoderInit(&dec->decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
     context->zydis->ZydisFormatterInit(&dec->formatter, ZYDIS_FORMATTER_STYLE_INTEL);
 
     return dec;
@@ -144,8 +146,8 @@ const char* DecodeX64Trace(zydis_dec_t* dec, uintptr_t p, int withhex)
     return "???";
     #else
     static char buff[512];
-    if(ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 15,
-        &dec->instruction))) {
+    if(ZYAN_SUCCESS(dec->ZydisDecoderDecodeFull(&dec->decoder, (char*)p, 15,
+        &dec->instruction, dec->operands))) {
         char tmp[511];
         buff[0]='\0';
         if (withhex) {
@@ -154,13 +156,7 @@ const char* DecodeX64Trace(zydis_dec_t* dec, uintptr_t p, int withhex)
                 strcat(buff, tmp);
             }
         }
-        #if 0
-        const /*ZydisFormatterToken*/void* token;
-        dec->ZydisFormatterTokenizeInstruction(&dec->formatter, &dec->instruction, tmp, sizeof(tmp), p, &token);
-        dec->PrintTokenizedInstruction(token);
-        #else
-        dec->ZydisFormatterFormatInstruction(&dec->formatter, &dec->instruction, tmp, sizeof(tmp),p);
-        #endif
+        dec->ZydisFormatterFormatInstruction(&dec->formatter, &dec->instruction, dec->operands, dec->instruction.operand_count, tmp, sizeof(tmp), p, ZYAN_NULL);
         strcat(buff, tmp);
     } else {
         sprintf(buff, "Decoder failed @%p", (void*)p);
