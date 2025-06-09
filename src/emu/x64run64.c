@@ -430,6 +430,24 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
 
+                case 0xBF:                      
+                    switch(rep) {
+                        case 0: /* MOVSX Gd,FS:Ew */
+                            nextop = F8;
+                            GETEW_OFFS(0, tlsdata);
+                            GETGD;
+                            if(rex.w)
+                                GD->sq[0] = EW->sword[0];
+                            else {
+                                GD->sdword[0] = EW->sword[0];
+                                GD->dword[1] = 0;
+                            }
+                            break;
+                        default:
+                            return 0;
+                        }
+                        break;
+
                 default:
                     return 0;
             }
