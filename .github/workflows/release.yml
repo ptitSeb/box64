@@ -65,6 +65,12 @@ jobs:
             type: StaticBuild
           - platform: WOW64
             type: Box32
+          - platform: ANDROID
+            type: Trace
+          - platform: TERMUX
+            type: Trace
+          - platform: LARCH64
+            type: Trace
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -75,7 +81,7 @@ jobs:
         run: |
           sudo apt-get update
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
-            sudo apt-get -y install git cmake make python3 patchelf
+            sudo apt-get -y install git cmake make python3 patchelf libzydis-dev
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               sudo apt-get -y install p7zip
               wget -q https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
@@ -120,11 +126,11 @@ jobs:
             if [[ ${{ matrix.platform }} == 'X64' ]]; then
               echo "BOX64_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
               echo "BOX64_COMPILER=gcc" >> $GITHUB_ENV
-              sudo apt-get -y install git cmake make python3
+              sudo apt-get -y install git cmake make python3 libzydis-dev
             elif [[ ${{ matrix.platform }} == 'RISCV' ]]; then
               echo BOX64_PLATFORM_MARCRO="-DRV64=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
-              sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3 ninja-build libglib2.0-dev
+              sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3 ninja-build libglib2.0-dev libzydis-dev
             elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
               sudo mkdir /usr/local/larch
               wget -O- -q https://github.com/loongson/build-tools/releases/download/2023.08.08/CLFS-loongarch64-8.1-x86_64-cross-tools-gcc-glibc.tar.xz | sudo tar -C /usr/local/larch --strip-components=1 --xz -xf -
@@ -139,11 +145,11 @@ jobs:
 
               echo BOX64_PLATFORM_MARCRO="-DLARCH64=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=loongarch64-linux-gnu-gcc" >> $GITHUB_ENV
-              sudo apt-get -y install git cmake make python3
+              sudo apt-get -y install git cmake make python3 libzydis-dev
             else
               echo BOX64_PLATFORM_MARCRO="-DARM_DYNAREC=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-              sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3
+              sudo apt-get -y install git gcc-aarch64-linux-gnu cmake make python3 libzydis-dev
             fi
           fi
           if [[ ${{ matrix.type }} == 'Release' ]]; then
@@ -166,6 +172,11 @@ jobs:
             echo BOX64_HAVE_TRACE=1 >> $GITHUB_ENV
             echo BOX64_STATICBUILD=0 >> $GITHUB_ENV
             echo BOX64_BOX32=0 >> $GITHUB_ENV
+          fi
+          if [[ ${{ matrix.os }} == 'ubuntu-22.04-arm' ]]; then
+            echo "BOX64_ZYDIS3=1" >> $GITHUB_ENV
+          else
+            echo "BOX64_ZYDIS3=0" >> $GITHUB_ENV
           fi
 
       - name: "Get XuanTie QEMU Cache Key"
@@ -217,6 +228,7 @@ jobs:
                    ${{ env.BOX64_PLATFORM_MARCRO }}\
                    -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }}\
                    -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }}\
+                   -DZYDIS3=${{ env.BOX64_ZYDIS3 }}\
                    -DSTATICBUILD=${{ env.BOX64_STATICBUILD }}\
                    -DBOX32=${{ env.BOX64_BOX32 }}\
                    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON\
@@ -326,14 +338,14 @@ jobs:
           7z -tzip -mx=5 a box64-latest.rat files pkg-header
 
       - name: "Upload WCP file"
-        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild'
+        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type == 'Release'
         uses: actions/upload-artifact@v4
         with:
           name: box64-latest-${{ matrix.type }}-wcp
           path: build/box64-latest.wcp
 
       - name: "Upload Rat File"
-        if: matrix.platform == 'ANDROID' && matrix.type != 'StaticBuild'
+        if: matrix.platform == 'ANDROID' && matrix.type == 'Release'
         uses: actions/upload-artifact@v4
         with:
           name: box64-MiceWine-${{ matrix.type }}
