@@ -763,7 +763,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // no need for next anymore
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
-
+    helper.table64size = 0;
     // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
@@ -776,6 +776,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             helper.need_x87check = 0;
     }
     POSTUPDATE_SPECIFICS(&helper);
+    helper.table64size = 0;
     // pass 2, instruction size
     helper.callrets = static_callrets;
     native_pass2(&helper, addr, alternate, is32bits, inst_max);
