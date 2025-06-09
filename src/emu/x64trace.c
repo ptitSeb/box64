@@ -5,8 +5,9 @@
 #include "debug.h"
 #include "x64trace.h"
 #include "box64context.h"
-#include "x86zydis.h"
 #include "x64emu_private.h"
+#ifdef HAVE_TRACE
+#include "x86zydis.h"
 
 typedef ZyanStatus (*PFNZydisDecoderInit)(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
     ZydisAddressWidth address_width);
@@ -35,6 +36,16 @@ typedef struct zydis_dec_s {
     PFNZydisDecoderDecodeBuffer ZydisDecoderDecodeBuffer;
     PFNZydisFormatterFormatInstruction ZydisFormatterFormatInstruction;
 } zydis_dec_t;
+
+#else
+typedef struct zydis_s {
+    int dummy;
+} zydis_t;
+
+typedef struct zydis_dec_s {
+    int dummy;
+} zydis_dec_t;
+#endif
 
 int InitX64Trace(box64context_t *context)
 {
