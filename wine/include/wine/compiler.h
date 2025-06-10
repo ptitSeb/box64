@@ -50,16 +50,48 @@ typedef struct _XMM_SAVE_AREA32 {
     BYTE  Reserved4[96];
 } XMM_SAVE_AREA32;
 
+typedef struct _SYSTEM_CPU_INFORMATION {
+    USHORT ProcessorArchitecture;
+    USHORT ProcessorLevel;
+    USHORT ProcessorRevision;
+    USHORT MaximumProcessors;
+    ULONG ProcessorFeatureBits;
+} SYSTEM_CPU_INFORMATION, *PSYSTEM_CPU_INFORMATION;
+
+typedef struct _SYSTEM_BASIC_INFORMATION__ {
+    DWORD unknown;
+    ULONG KeMaximumIncrement;
+    ULONG PageSize;
+    ULONG MmNumberOfPhysicalPages;
+    ULONG MmLowestPhysicalPage;
+    ULONG MmHighestPhysicalPage;
+    ULONG_PTR AllocationGranularity;
+    PVOID LowestUserAddress;
+    PVOID HighestUserAddress;
+    ULONG_PTR ActiveProcessorsAffinityMask;
+    BYTE NumberOfProcessors;
+} SYSTEM_BASIC_INFORMATION__, *PSYSTEM_BASIC_INFORMATION__;
+
 #define NtCurrentProcess() ((HANDLE)(LONG_PTR) - 1)
 
 NTSTATUS WINAPI RtlWow64GetCurrentCpuArea(USHORT*, void**, void**);
 NTSTATUS WINAPI Wow64SystemServiceEx(UINT, UINT*);
 NTSYSAPI NTSTATUS WINAPI LdrGetDllHandle(LPCWSTR, ULONG, const UNICODE_STRING*, HMODULE*);
+NTSYSAPI NTSTATUS WINAPI LdrGetDllFullName(HMODULE, UNICODE_STRING*);
 NTSYSAPI NTSTATUS WINAPI NtContinue(PCONTEXT, BOOLEAN);
 NTSYSAPI NTSTATUS WINAPI NtQueryVirtualMemory(HANDLE, LPCVOID, MEMORY_INFORMATION_CLASS, PVOID, SIZE_T, SIZE_T*);
+NTSYSAPI NTSTATUS WINAPI NtReadFile(HANDLE, HANDLE, PIO_APC_ROUTINE, PVOID, PIO_STATUS_BLOCK, PVOID, ULONG, PLARGE_INTEGER, PULONG);
 NTSYSAPI void* WINAPI RtlFindExportedRoutineByName(HMODULE, const char*);
 NTSYSAPI void DECLSPEC_NORETURN WINAPI RtlRaiseStatus(NTSTATUS);
 NTSYSAPI void WINAPI RtlRaiseException(EXCEPTION_RECORD*);
+NTSYSAPI NTSTATUS WINAPI RtlQueryEnvironmentVariable_U(PWSTR, PUNICODE_STRING, PUNICODE_STRING);
+NTSYSAPI NTSTATUS WINAPI NtQueryAttributesFile(const OBJECT_ATTRIBUTES*, FILE_BASIC_INFORMATION*);
+NTSYSAPI ULONG WINAPI RtlIsDosDeviceName_U(PCWSTR);
+NTSYSAPI NTSTATUS WINAPI RtlUnicodeToMultiByteN(LPSTR, DWORD, LPDWORD, LPCWSTR, DWORD);
+NTSTATUS WINAPI NtProtectVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG, ULONG*);
+NTSTATUS WINAPI NtAllocateVirtualMemory(HANDLE, PVOID*, ULONG_PTR, SIZE_T*, ULONG, ULONG);
+PVOID WINAPI RtlReAllocateHeap(HANDLE, ULONG, PVOID, SIZE_T);
+NTSTATUS WINAPI NtFreeVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG);
 
 static inline uintptr_t calculate_fs(void)
 {

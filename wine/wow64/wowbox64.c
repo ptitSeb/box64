@@ -226,7 +226,7 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     InitializeEnvFiles();
 
     TCHAR filename[MAX_PATH];
-    if (GetModuleFileName(NULL, filename, MAX_PATH)) {
+    if (GetModuleFileNameA(NULL, filename, MAX_PATH)) {
         char* shortname = strrchr(filename, '\\');
         if (shortname) {
             shortname++;

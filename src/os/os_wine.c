@@ -6,16 +6,12 @@
 
 #include "os.h"
 #include "debug.h"
+#include "wine/compiler.h"
 #include "wine/debug.h"
 
 #define HandleToULong(h) ((ULONG)(ULONG_PTR)(h))
 
 NTSTATUS WINAPI NtYieldExecution(void);
-
-static HANDLE myGetProcessHeap(void)
-{
-    return ((HANDLE**)NtCurrentTeb())[12][6];
-}
 
 
 int GetTID(void)
@@ -105,13 +101,6 @@ static uint32_t prot_unix_to_win32(uint32_t unx)
     return 0;
 }
 
-#define NtCurrentProcess() ((HANDLE) ~(ULONG_PTR)0)
-
-NTSTATUS WINAPI NtProtectVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG, ULONG*);
-NTSTATUS WINAPI NtAllocateVirtualMemory(HANDLE, PVOID*, ULONG_PTR, SIZE_T*, ULONG, ULONG);
-PVOID WINAPI RtlReAllocateHeap(HANDLE, ULONG, PVOID, SIZE_T);
-NTSTATUS WINAPI NtFreeVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG);
-
 int mprotect(void* addr, size_t len, int prot)
 {
     NTSTATUS ntstatus;
@@ -171,7 +160,7 @@ int InternalMunmap(void* addr, unsigned long length)
 void* WinMalloc(size_t size)
 {
     void* ret;
-    ret = RtlAllocateHeap(myGetProcessHeap(), 0, size);
+    ret = RtlAllocateHeap(GetProcessHeap(), 0, size);
     return ret;
 }
 
@@ -180,25 +169,25 @@ void* WinRealloc(void* ptr, size_t size)
     void* ret;
     if (!ptr)
         return WinMalloc(size);
-    ret = RtlReAllocateHeap(myGetProcessHeap(), HEAP_ZERO_MEMORY, ptr, size);
+    ret = RtlReAllocateHeap(GetProcessHeap(), HEAP_ZERO_MEMORY, ptr, size);
     return ret;
 }
 
 void* WinCalloc(size_t nmemb, size_t size)
 {
     void* ret;
-    ret = RtlAllocateHeap(myGetProcessHeap(), HEAP_ZERO_MEMORY, nmemb * size);
+    ret = RtlAllocateHeap(GetProcessHeap(), HEAP_ZERO_MEMORY, nmemb * size);
     return ret;
 }
 
 void WinFree(void* ptr)
 {
-    RtlFreeHeap(myGetProcessHeap(), 0, ptr);
+    RtlFreeHeap(GetProcessHeap(), 0, ptr);
 }
 
 void free(void* ptr)
 {
-    RtlFreeHeap(myGetProcessHeap(), 0, ptr);
+    RtlFreeHeap(GetProcessHeap(), 0, ptr);
 }
 
 int VolatileRangesContains(uintptr_t addr)
