@@ -526,6 +526,31 @@ void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
     BR(x2);
 }
 
+
+static int indirect_lookup(dynarec_la64_t* dyn, int ninst, int is32bits, int s1, int s2)
+{
+    MAYUSE(dyn);
+    if (!is32bits) {
+        SRLI_D(s1, xRIP, 48);
+        BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        uintptr_t tbl = getJumpTable48();
+        MOV64x(s2, tbl);
+        BSTRPICK_D(s1, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+        ALSL_D(s2, s1, s2, 3);
+        LD_D(s2, s2, 0);
+    } else {
+        uintptr_t tbl = getJumpTable32();
+        TABLE64(s2, tbl);
+    }
+    BSTRPICK_D(s1, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
+    ALSL_D(s2, s1, s2, 3);
+    LD_D(s2, s2, 0);
+    BSTRPICK_D(s1, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
+    ALSL_D(s2, s1, s2, 3);
+    LD_D(s1, s2, 0);
+    return s1;
+}
+
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
 {
     MAYUSE(dyn);
@@ -535,45 +560,28 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     if (is32bits)
         ip &= 0xffffffffLL;
 
+    int dest;
     if (reg) {
         if (reg != xRIP) {
             MV(xRIP, reg);
         }
         NOTEST(x2);
-        uintptr_t tbl = is32bits ? getJumpTable32() : getJumpTable64();
-        MAYUSE(tbl);
-        TABLE64(x3, tbl);
-        if (!is32bits) {
-            BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
-            ALSL_D(x3, x2, x3, 3);
-            LD_D(x3, x3, 0);
-            BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-            ALSL_D(x3, x2, x3, 3);
-            LD_D(x3, x3, 0);
-        }
-        BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x3, x3, 0);
-        BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x2, x3, 0);
+        dest = indirect_lookup(dyn, ninst, is32bits, x2, x3);
     } else {
         NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         TABLE64(x3, p);
         GETIP_(ip);
-        LD_D(x2, x3, 0); // LR_D(x2, x3, 1, 1);
+        LD_D(x2, x3, 0);
+        dest = x2;
     }
     if (reg != x1) {
         MV(x1, xRIP);
     }
     CLEARIP();
-#ifdef HAVE_TRACE
-// MOVx(x3, 15);    no access to PC reg
-#endif
     SMEND();
-    JIRL((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x2, 0x0); // save LR...
+    JIRL((dyn->insts[ninst].x64.has_callret ? xRA : xZR), dest, 0x0);
 }
 
 void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
@@ -594,24 +602,9 @@ void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         ADDI_D(xSP, xSavedSP, -16);
     }
-
-    uintptr_t tbl = rex.is32bits ? getJumpTable32() : getJumpTable64();
-    MOV64x(x3, tbl);
-    if (!rex.is32bits) {
-        BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x3, x3, 0);
-        BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x3, x3, 0);
-    }
-    BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
-    ALSL_D(x3, x2, x3, 3);
-    LD_D(x3, x3, 0);
-    BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
-    ALSL_D(x3, x2, x3, 3);
-    LD_D(x2, x3, 0);
-    BR(x2);
+    NOTEST(x2);
+    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
+    BR(dest);
     CLEARIP();
 }
 
@@ -640,23 +633,9 @@ void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
         ADDI_D(xSP, xSavedSP, -16);
     }
 
-    uintptr_t tbl = rex.is32bits ? getJumpTable32() : getJumpTable64();
-    MOV64x(x3, tbl);
-    if (!rex.is32bits) {
-        BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x3, x3, 0);
-        BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-        ALSL_D(x3, x2, x3, 3);
-        LD_D(x3, x3, 0);
-    }
-    BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
-    ALSL_D(x3, x2, x3, 3);
-    LD_D(x3, x3, 0);
-    BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
-    ALSL_D(x3, x2, x3, 3);
-    LD_D(x2, x3, 0);
-    BR(x2);
+    NOTEST(x2);
+    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
+    BR(dest);
     CLEARIP();
 }
 
