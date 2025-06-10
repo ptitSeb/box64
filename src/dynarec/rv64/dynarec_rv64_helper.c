@@ -583,6 +583,56 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
 #ifdef JMPTABLE_SHIFT4
 #error TODO!
 #endif
+
+static int indirect_lookup(dynarec_rv64_t* dyn, int ninst, int is32bits, int s1, int s2)
+{
+    MAYUSE(dyn);
+    if (rv64_xtheadbb && rv64_xtheadmemidx) {
+        if (!is32bits) {
+            SRLI(s1, xRIP, 48);
+            BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            uintptr_t tbl = getJumpTable48();
+            MOV64x(s2, tbl);
+            TH_EXTU(s1, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+            TH_LRD(s2, s2, s1, 3);
+        } else {
+            uintptr_t tbl = getJumpTable32();
+            TABLE64(s2, tbl);
+        }
+        TH_EXTU(s1, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
+        TH_LRD(s2, s2, s1, 3);
+        TH_EXTU(s1, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
+        TH_LRD(s1, s2, s1, 3);
+    } else {
+        if (!is32bits) {
+            SRLI(s1, xRIP, 48);
+            BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            uintptr_t tbl = getJumpTable48();
+            MOV64x(s2, tbl);
+            SRLI(s1, xRIP, JMPTABL_START2);
+            ADDSL(s2, s2, s1, 3, s1);
+            LD(s2, s2, 0);
+        } else {
+            uintptr_t tbl = getJumpTable32();
+            TABLE64(s2, tbl);
+        }
+        MOV64x(x4, JMPTABLE_MASK1 << 3);
+        SRLI(s1, xRIP, JMPTABL_START1 - 3);
+        AND(s1, s1, x4);
+        ADD(s2, s2, s1);
+        LD(s2, s2, 0);
+        if (JMPTABLE_MASK0 < 2048) {
+            ANDI(s1, xRIP, JMPTABLE_MASK0);
+        } else {
+            MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
+            AND(s1, xRIP, x4);
+        }
+        ADDSL(s2, s2, s1, 3, s1);
+        LD(s1, s2, 0);
+    }
+    return s1;
+}
+
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
 {
     MAYUSE(dyn);
@@ -592,81 +642,27 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     if (is32bits)
         ip &= 0xffffffffLL;
 
+    int dest;
     if (reg) {
         if (reg != xRIP) {
             MV(xRIP, reg);
         }
         NOTEST(x2);
-        uintptr_t tbl = is32bits ? getJumpTable32() : getJumpTable64();
-        MAYUSE(tbl);
-        TABLE64(x3, tbl);
-        if (rv64_xtheadbb) {
-            if (!is32bits) {
-                TH_EXTU(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
-                TH_ADDSL(x3, x3, x2, 3);
-                LD(x3, x3, 0);
-                TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-                TH_ADDSL(x3, x3, x2, 3);
-                LD(x3, x3, 0);
-            }
-            TH_EXTU(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
-            TH_ADDSL(x3, x3, x2, 3);
-            LD(x3, x3, 0);
-            TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
-            TH_ADDSL(x3, x3, x2, 3);
-            LD(x2, x3, 0);
-        } else {
-            if (!is32bits) {
-                SRLI(x2, xRIP, JMPTABL_START3);
-                if (rv64_zba)
-                    SH3ADD(x3, x2, x3);
-                else {
-                    SLLI(x2, x2, 3);
-                    ADD(x3, x3, x2);
-                }
-                LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
-                MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-                SRLI(x2, xRIP, JMPTABL_START2 - 3);
-                AND(x2, x2, x4);
-                ADD(x3, x3, x2);
-                LD(x3, x3, 0); // LR_D(x3, x3, 1, 1);
-                if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
-                    MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-                }
-            } else {
-                MOV64x(x4, JMPTABLE_MASK1 << 3);
-            }
-            SRLI(x2, xRIP, JMPTABL_START1 - 3);
-            AND(x2, x2, x4);
-            ADD(x3, x3, x2);
-            LD(x3, x3, 0); // LR_D(x3, x3, 1, 1);
-            if (JMPTABLE_MASK0 < 2048) {
-                ANDI(x2, xRIP, JMPTABLE_MASK0);
-            } else {
-                MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
-                AND(x2, xRIP, x4);
-            }
-            if (rv64_zba)
-                SH3ADD(x3, x2, x3);
-            else {
-                SLLI(x2, x2, 3);
-                ADD(x3, x3, x2);
-            }
-            LD(x2, x3, 0);
-        }
+        dest = indirect_lookup(dyn, ninst, is32bits, x2, x3);
     } else {
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         GETIP_(ip, x3);
         TABLE64(x3, p);
         LD(x2, x3, 0);
+        dest = x2;
     }
     CLEARIP();
     SMEND();
 #ifdef HAVE_TRACE
-    JALR(xRA, x2);
+    JALR(xRA, dest);
 #else
-    JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x2);
+    JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), dest);
 #endif
 }
 
@@ -689,58 +685,9 @@ void ret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
         ADDI(xSP, xSP, -16);
     }
-
-    uintptr_t tbl = rex.is32bits ? getJumpTable32() : getJumpTable64();
     NOTEST(x2);
-    MOV64x(x3, tbl);
-    if (rv64_xtheadbb && rv64_xtheadmemidx) {
-        if (!rex.is32bits) {
-            TH_EXTU(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
-            TH_LRD(x3, x3, x2, 3);
-            TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-            TH_LRD(x3, x3, x2, 3);
-        }
-        TH_EXTU(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
-        TH_LRD(x3, x3, x2, 3);
-        TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
-        TH_LRD(x2, x3, x2, 3);
-    } else {
-        if (!rex.is32bits) {
-            SRLI(x2, xRIP, JMPTABL_START3);
-            ADDSL(x3, x3, x2, 3, x2);
-            LD(x3, x3, 0);
-            MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-            SRLI(x2, xRIP, JMPTABL_START2 - 3);
-            AND(x2, x2, x4);
-            ADD(x3, x3, x2);
-            LD(x3, x3, 0);
-            if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
-                MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-            }
-        } else {
-            MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-        }
-        SRLI(x2, xRIP, JMPTABL_START1 - 3);
-        AND(x2, x2, x4);
-        ADD(x3, x3, x2);
-        LD(x3, x3, 0);
-        if (JMPTABLE_MASK0 < 2048) {
-            ANDI(x2, xRIP, JMPTABLE_MASK0);
-        } else {
-            if (JMPTABLE_MASK1 != JMPTABLE_MASK0) {
-                MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
-            }
-            AND(x2, xRIP, x4);
-        }
-        if (rv64_zba)
-            SH3ADD(x3, x2, x3);
-        else {
-            SLLI(x2, x2, 3);
-            ADD(x3, x3, x2);
-        }
-        LD(x2, x3, 0);
-    }
-    BR(x2);
+    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
+    BR(dest);
     CLEARIP();
 }
 
@@ -769,57 +716,9 @@ void retn_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
         ADDI(xSP, xSP, -16);
     }
-    uintptr_t tbl = rex.is32bits ? getJumpTable32() : getJumpTable64();
     NOTEST(x2);
-    MOV64x(x3, tbl);
-    if (rv64_xtheadbb && rv64_xtheadmemidx) {
-        if (!rex.is32bits) {
-            TH_EXTU(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
-            TH_LRD(x3, x3, x2, 3);
-            TH_EXTU(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
-            TH_LRD(x3, x3, x2, 3);
-        }
-        TH_EXTU(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT2 - 1, JMPTABL_START1);
-        TH_LRD(x3, x3, x2, 3);
-        TH_EXTU(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
-        TH_LRD(x2, x3, x2, 3);
-    } else {
-        if (!rex.is32bits) {
-            SRLI(x2, xRIP, JMPTABL_START3);
-            ADDSL(x3, x3, x2, 3, x2);
-            LD(x3, x3, 0);
-            MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-            SRLI(x2, xRIP, JMPTABL_START2 - 3);
-            AND(x2, x2, x4);
-            ADD(x3, x3, x2);
-            LD(x3, x3, 0);
-            if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
-                MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-            }
-        } else {
-            MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-        }
-        SRLI(x2, xRIP, JMPTABL_START1 - 3);
-        AND(x2, x2, x4);
-        ADD(x3, x3, x2);
-        LD(x3, x3, 0);
-        if (JMPTABLE_MASK0 < 2048) {
-            ANDI(x2, xRIP, JMPTABLE_MASK0);
-        } else {
-            if (JMPTABLE_MASK1 != JMPTABLE_MASK0) {
-                MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
-            }
-            AND(x2, xRIP, x4);
-        }
-        if (rv64_zba)
-            SH3ADD(x3, x2, x3);
-        else {
-            SLLI(x2, x2, 3);
-            ADD(x3, x3, x2);
-        }
-        LD(x2, x3, 0);
-    }
-    BR(x2);
+    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
+    BR(dest);
     CLEARIP();
 }
 
@@ -942,7 +841,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     int sextw_mask = ((w > 0 ? w : -w) >> 4) & 0b111111;
     for (int i = 0; i < 6; i++) {
         if (sextw_mask & (1 << i)) {
-            SEXT_W(A0+i, A0+i);
+            SEXT_W(A0 + i, A0 + i);
         }
     }
     // native call
