@@ -1626,6 +1626,16 @@
         "key": "1",
         "description": "Enable trace output. Trace starts before the initialization of dependencies.",
         "default": false
+      },
+      {
+        "key": "symbolname",
+        "description": "Enable trace output for `symbolname` only. Trace starts before the initialization of dependencies.",
+        "default": false
+      },
+      {
+        "key": "0xXXXXXXX-0xYYYYYYY",
+        "description": "Enable trace output for the range of address (inclusive-exclusive). Trace starts before the initialization of dependencies.",
+        "default": false
       }
     ]
   },

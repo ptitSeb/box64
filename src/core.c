@@ -734,6 +734,8 @@ void setupTraceInit()
         uintptr_t s_trace_start=0, s_trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
+        else if (strcmp(p, "0")==0)
+            ;
         else if (strchr(p,'-')) {
             if(sscanf(p, "%ld-%ld", &s_trace_start, &s_trace_end)!=2) {
                 if(sscanf(p, "0x%lX-0x%lX", &s_trace_start, &s_trace_end)!=2)
@@ -803,6 +805,8 @@ void setupTrace()
         uintptr_t s_trace_start=0, s_trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
+        else if (strcmp(p, "0")==0)
+            ;
         else if (strchr(p,'-')) {
             if(sscanf(p, "%ld-%ld", &s_trace_start, &s_trace_end)!=2) {
                 if(sscanf(p, "0x%lX-0x%lX", &s_trace_start, &s_trace_end)!=2)
