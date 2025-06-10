@@ -551,6 +551,8 @@ Same as BOX64_TRACE but starts the trace immediately.
 
  * 0: Disable trace output. [Default]
  * 1: Enable trace output. Trace starts before the initialization of dependencies. 
+ * symbolname: Enable trace output for `symbolname` only. Trace starts before the initialization of dependencies. 
+ * 0xXXXXXXX-0xYYYYYYY: Enable trace output for the range of address (inclusive-exclusive). Trace starts before the initialization of dependencies. 
 
 ### BOX64_TRACE_START
 
