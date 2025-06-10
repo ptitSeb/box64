@@ -698,8 +698,16 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         mapping = kh_value(mapping_entries, k);
 
     if(mapping && mapping->start>addr) { 
-        dynarec_log(LOG_INFO, "Mapping %s (%s) adjusted start: %p from %p\n", fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
-        mapping->start = addr;
+        dynarec_log(LOG_INFO, "Ignoring Mapping %s (%s) adjusted start: %p from %p\n", fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
+        box_free(lowercase_filename);
+        return;
+    }
+    if(BOX64ENV(dynarec_log)) {
+        uintptr_t end; uintptr_t val;
+        if(rb_get_end_64(envmap, addr, &val, &end))
+            if(end<addr+length) {
+                dynarec_log(LOG_INFO, "Enlarging Mapping %s (%s) %p-%p from %p\n", fullname, lowercase_filename, (void*)(mapping->start), (void*)(addr+length), (void*)end);
+            }
     }
     rb_set_64(envmap, addr, addr + length, (uint64_t)mapping);
     if(mapping->env) {

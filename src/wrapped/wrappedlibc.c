@@ -3056,7 +3056,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             }
         }
         // hack to capture full size of the mmap done by wine
-        if(emu && (fd==-1) && (flags==(MAP_PRIVATE|MAP_ANON))) {
+        if(emu && (fd==-1) && (flags&(MAP_PRIVATE|MAP_ANON))==(MAP_PRIVATE|MAP_ANON)) {
             last_mmap_addr[last_mmap_idx] = ret;
             last_mmap_len[last_mmap_idx] = length;
         } else {
