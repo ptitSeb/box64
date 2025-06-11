@@ -25,6 +25,7 @@ string(REPLACE "," ";" INTERPRETER "${INTERPRETER_STR}")
 
 set(WOW64_MAIN_SRC
     "${BOX64_ROOT}/wine/common/crt.c"
+    "${BOX64_ROOT}/wine/common/wrt.c"
     "${BOX64_ROOT}/wine/wow64/wowbox64.c"
 )
 
@@ -136,7 +137,12 @@ import_dll(wow64)
 # always enable DynaRec, only supports ARM64 for now.
 add_compile_definitions(DYNAREC ARM64)
 
-target_link_options(wowbox64 PRIVATE -nostdlib -nodefaultlibs -lclang_rt.builtins-aarch64 -Wl,--image-base,0x004c0000)
+target_compile_options(wowbox64 PRIVATE -Wno-inconsistent-dllimport)
+target_link_options(wowbox64 PRIVATE -nostdlib -nodefaultlibs 
+    -lclang_rt.builtins-aarch64
+    -Wl,--image-base,0x004c0000
+    -Wl,/ignore:4217 # LNK4217: locally defined symbol imported
+)
 set_target_properties(wowbox64 PROPERTIES
     PREFIX ""
     SUFFIX ".dll"
