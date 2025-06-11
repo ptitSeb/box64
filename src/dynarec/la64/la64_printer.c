@@ -71,7 +71,6 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
 #define Rc     a.c
 #define imm    a.i
 #define imm_up a.u
-
     if (isMask(opcode, "00000000000100000kkkkkjjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADD.W", Xt[Rd], Xt[Rj], Xt[Rk]);
         return buff;
@@ -754,6 +753,14 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     if (isMask(opcode, "000000010001010011011100cccddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVCF2GR", Xt[Rd], FCCt[Rc]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100011001001001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCVT.D.S", Ft[Rd], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100011001000110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCVT.S.D", Ft[Rd], Ft[Rj]);
         return buff;
     }
     if (isMask(opcode, "0000000100011010000001jjjjjddddd", &a)) {
@@ -2289,6 +2296,426 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VEXTRINS.B", Vt[Rd], Vt[Rj], imm);
         return buff;
     }
+    if (isMask(opcode, "011100101110101110iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VINSGR2VR.B", Vt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001011101011110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VINSGR2VR.H", Vt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010111010111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VINSGR2VR.W", Vt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101110101111110ijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VINSGR2VR.D", Vt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101110111110iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.B", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001011101111110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.H", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010111011111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.W", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101110111111110ijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.D", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101111001110iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.BU", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001011110011110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.HU", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010111100111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.WU", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101111001111110ijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPICKVE2GR.DU", Xt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101111011110iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VREPLVEI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001011110111110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VREPLVEI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010111101111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VREPLVEI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100101111011111110ijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VREPLVEI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100001000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLWIL.H.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110000100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLWIL.W.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011000010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLWIL.D.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100001001000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXTL.Q.D", Vt[Rd], Vt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100001100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLWIL.HU.BU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110000110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLWIL.WU.HU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011000011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLWIL.DU.WU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100001101000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXTL.QU.DU", Vt[Rd], Vt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100010000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITCLRI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110001000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITCLRI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011000100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITCLRI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100010001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITCLRI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100010100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITSETI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110001010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITSETI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011000101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITSETI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100010101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITSETI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100011000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITREVI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110001100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITREVI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011000110001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITREVI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100011001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITREVI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100100100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110010010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011001001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100100101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100101000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.BU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110010100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.HU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011001010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.WU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100101001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSAT.DU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100101100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110010110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011001011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100101101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSLLI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100110000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110011000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011001100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100110001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100110100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRAI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110011010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRAI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011001101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRAI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001100110101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRAI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLNI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLNI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101000001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLNI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100001iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLNI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101001001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100101iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLRNI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLRNI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101000101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLRNI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100011iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRLRNI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.BU.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.HU.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101001101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.WU.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110100111iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLNI.DU.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101010001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101001iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.BU.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.HU.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101010101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.WU.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101011iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRLRNI.DU.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRANI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010110001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRANI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101011001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRANI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101101iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRANI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRARNI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011010111001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRARNI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101011101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRARNI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110101111iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSRARNI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011011000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101100001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110001iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.BU.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011011001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.HU.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101100101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.WU.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110011iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRANI.DU.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.B.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011011010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.H.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101101001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.W.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110101iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.D.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.BU.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011011011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.HU.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111001101101101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.WU.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011100110110111iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VSSRARNI.DU.Q", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011111001iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VPERMI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
     if (isMask(opcode, "0010110000iiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "VLD", Vt[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
@@ -3081,6 +3508,14 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
         return buff;
     }
+    if (isMask(opcode, "0010110010iiiiiiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "XVLD", XVt[Rd], Xt[Rj], signExtend(imm, 12));
+        return buff;
+    }
+    if (isMask(opcode, "0010110011iiiiiiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "XVST", XVt[Rd], Xt[Rj], signExtend(imm, 12));
+        return buff;
+    }
     if (isMask(opcode, "00000000000000001000000000101000", &a)) {
         snprintf(buff, sizeof(buff), "X64CLRSM");
         return buff;
@@ -3533,7 +3968,3286 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %lu", "X64RCLI.D", Xt[Rj], imm);
         return buff;
     }
-
+    if (isMask(opcode, "0000000100010100111000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCVT.LD.D", Ft[Rd], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100010100111001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCVT.UD.D", Ft[Rd], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00000001000101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s,", "FCVT.D.LD", Ft[Rd], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100010100110000jjjjj000cc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVGR2FCSR", FCSRt[Rc], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100010100110010000ccddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVFCSR2GR", Xt[Rd], FCSRt[Rc]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100010100110100jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVFR2CF", FCCt[Rc], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "000000010001010011010100cccddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVCF2FR", Ft[Rd], FCCt[Rc]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000100010100110110jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVGR2CF", FCCt[Rc], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "000000010001010011011100cccddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "MOVCF2GR", Xt[Rd], FCCt[Rc]);
+        return buff;
+    }
+    if (isMask(opcode, "010010iiiiiiiiiiiiiiii00cccuuuuu", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %ld", "BCEQZ", FCCt[Rc], signExtend((imm + (imm_up << 16)) << 2, 23));
+        return buff;
+    }
+    if (isMask(opcode, "010010iiiiiiiiiiiiiiii01cccuuuuu", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %ld", "BCNEZ", FCCt[Rc], signExtend((imm + (imm_up << 16)) << 2, 23));
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CAF.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SAF.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100010kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CLT.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100011kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SLT.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100011kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SGT.S", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100100kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CEQ.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100101kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SEQ.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100110kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CLE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100111kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SLE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000100111kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SGE.S", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUN.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SUN.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101010kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CULT.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101010kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUGT.S", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101011kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SULT.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101100kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUEQ.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101101kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SUEQ.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101110kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CULE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101110kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUGE.S", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000101111kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SULE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000110000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CNE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000110001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SNE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000110100kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.COR.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000110101kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SOR.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000111000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUNE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100000111001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SUNE.S", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CAF.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SAF.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000010kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CLT.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000011kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SLT.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000011kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SGT.D", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000100kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CEQ.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000101kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SEQ.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000110kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CLE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000111kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SLE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001000111kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SGE.D", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUN.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SUN.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001010kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CULT.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001010kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUGT.D", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001011kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SULT.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001100kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUEQ.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001101kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SUEQ.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001110kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CULE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001110kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUGE.D", FCCt[Rc], Ft[Rk], Ft[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001001111kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SULE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001010000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CNE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001010001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SNE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001010100kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.COR.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001010101kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SOR.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001011000kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.CUNE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100001011001kkkkkjjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCMP.SUNE.D", FCCt[Rc], Ft[Rj], Ft[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CAF.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SAF.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CLT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SLT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CLE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SLE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUN.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUN.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CULT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SULT.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUEQ.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CULE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SULE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.COR.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SOR.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100010111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUNE.S", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CAF.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SAF.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CLT.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SLT.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CEQ.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SEQ.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CLE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SLE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CUN.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SUN.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CULT.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SULT.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CUEQ.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SUEQ.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CULE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SULE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CNE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SNE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.COR.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SOR.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CUNE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100100111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SUNE.S", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CAF.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SAF.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CLT.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SLT.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CEQ.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SEQ.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CLE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SLE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUN.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUN.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CULT.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SULT.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUEQ.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUEQ.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CULE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SULE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CNE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SNE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.COR.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SOR.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.CUNE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100011011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCMP.SUNE.D", Vt[Rd], Vt[Rj], Vt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CAF.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SAF.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CLT.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SLT.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CEQ.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SEQ.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CLE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SLE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CUN.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SUN.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CULT.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SULT.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CUEQ.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SUEQ.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CULE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SULE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CNE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SNE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.COR.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SOR.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.CUNE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00001100101011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCMP.SUNE.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSEQ.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSEQ.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSEQ.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSEQ.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLE.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLT.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUB.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUB.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000011010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUB.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000011011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUB.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSADD.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010011010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010011011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSUB.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.HU.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.WU.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.DU.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHADDW.QU.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.HU.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.WU.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.DU.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010110111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVHSUBW.QU.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000111100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000111101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000111110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100000111111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001011100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001011101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001011110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001011111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001111100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.H.BU.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001111101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.W.HU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001111110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.D.WU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001111111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWEV.Q.DU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.H.BU.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.W.HU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.D.WU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDWOD.Q.DU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.H.BU.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.W.HU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.D.WU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.Q.DU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWEV.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101011111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.H.BU.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.W.HU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.D.WU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101111111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADDWOD.Q.DU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.H.BU.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.W.HU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.D.WU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWEV.Q.DU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100110111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.H.BU.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.W.HU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.D.WU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMULWOD.Q.DU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWEV.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.H.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.W.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.D.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.Q.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.H.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.W.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.D.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100001101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUBWOD.Q.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDA.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDA.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010111010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDA.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100010111011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADDA.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVABSD.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVG.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAVGR.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMAX.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100011101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMIN.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUL.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUL.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUL.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUL.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100100010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMUH.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMADD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMSUB.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMSUB.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMSUB.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100101010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMSUB.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVDIV.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.BU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.HU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.WU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVMOD.DU", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLL.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLL.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLL.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSLL.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRL.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRL.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRL.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRL.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRA.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRA.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRA.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRA.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVROTR.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVROTR.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVROTR.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111011111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVROTR.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLR.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLR.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLR.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLR.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAR.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAR.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAR.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAR.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRAN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLRN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111110010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLRN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111110011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRLRN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRARN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111110110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRARN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111110111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSRARN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111111010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111111011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111111101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRAN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111111110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRAN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110100111111111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRAN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLRN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLRN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLRN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRARN.B.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRARN.H.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRARN.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000001001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLN.BU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLN.HU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000001011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLN.WU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRAN.BU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRAN.HU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRAN.WU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLRN.BU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000010010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLRN.HU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRLRN.WU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRARN.BU.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRARN.HU.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSSRARN.WU.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITCLR.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITCLR.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITCLR.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITCLR.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITSET.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITSET.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITSET.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000011111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITSET.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITREV.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITREV.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITREV.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVBITREV.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKEV.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKEV.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKEV.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKEV.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKOD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKOD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKOD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPACKOD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVL.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVL.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVL.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000110111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVL.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVH.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVH.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVH.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVILVH.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKEV.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKEV.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKEV.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101000111111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKEV.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKOD.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKOD.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKOD.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPICKOD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.B", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.H", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.W", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.D", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVAND.V", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVOR.V", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVXOR.V", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001001111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVNOR.V", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVANDN.V", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001010001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVORN.V", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFRSTP.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFRSTP.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001011010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVADD.Q", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001011011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSUB.Q", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001011100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSIGNCOV.B", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001011101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSIGNCOV.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001011110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSIGNCOV.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001011111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSIGNCOV.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFADD.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFADD.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFSUB.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFSUB.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMUL.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001110010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMUL.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFDIV.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001110110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFDIV.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001111001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMAX.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001111010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMAX.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001111101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMIN.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001111110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMIN.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010000001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMAXA.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMAXA.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMINA.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFMINA.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010001100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCVT.H.S", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010001101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFCVT.S.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010010000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFFINT.S.L", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010010011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFTINT.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010010100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFTINTRM.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010010101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFTINTRP.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010010110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFTINTRZ.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101010010111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVFTINTRNE.W.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101011110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSHUF.H", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101011110110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSHUF.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101011110111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVSHUF.D", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101011111010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVPERM.W", XVt[Rd], XVt[Rj], XVt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSEQI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSEQI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSEQI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSEQI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000110iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100000111iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLEI.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001110iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100001111iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLTI.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVADDI.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVADDI.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010110iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVADDI.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100010111iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVADDI.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100011000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSUBI.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSUBI.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100011010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSUBI.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100011011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSUBI.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100011100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBSLL.V", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100011101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBSRL.V", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100110iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100100111iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMAXI.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101110iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100101111iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVMINI.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100110100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVFRSTPI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100110101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVFRSTPI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLO.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLO.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLO.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLO.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLZ.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLZ.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLZ.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100000111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVCLZ.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVPCNT.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVPCNT.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVPCNT.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVPCNT.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVNEG.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVNEG.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVNEG.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100001111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVNEG.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100010000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVMSKLTZ.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100010001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVMSKLTZ.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100010010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVMSKLTZ.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100010011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVMSKLTZ.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100010100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVMSKGEZ.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100011000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVMSKNZ.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100100110jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETEQZ.V", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100100111jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETNEZ.V", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101000jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETANYEQZ.B", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101001jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETANYEQZ.H", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101010jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETANYEQZ.W", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101011jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETANYEQZ.D", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101100jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETALLNEZ.B", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101101jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETALLNEZ.H", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101110jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETALLNEZ.W", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100101111jjjjj00ccc", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVSETALLNEZ.D", FCCt[Rc], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100110001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFLOGB.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100110010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFLOGB.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100110101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFCLASS.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100110110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFCLASS.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100111001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFSQRT.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100111010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFSQRT.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100111101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRECIP.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011100111110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRECIP.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101000001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRSQRT.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101000010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRSQRT.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101000101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRECIPE.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101000110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRECIPE.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101001001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRSQRTE.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101001010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRSQRTE.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101001101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINT.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101001110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINT.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101010001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRM.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101010010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRM.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101010101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRP.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101010110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRP.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101011001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRZ.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101011010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRZ.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101011101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRNE.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101011110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFRINTRNE.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101111010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFCVTL.S.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101111011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFCVTH.S.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101111100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFCVTL.D.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011101111101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFCVTH.D.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFFINT.S.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110000001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFFINT.S.WU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110000010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFFINT.D.L", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110000011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFFINT.D.LU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110000100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFFINTL.D.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110000101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFFINTH.D.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110001100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINT.W.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110001101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINT.L.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110001110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRM.W.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110001111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRM.L.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRP.W.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRP.L.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRZ.W.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRZ.L.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRNE.W.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRNE.L.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINT.WU.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110010111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINT.LU.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110011100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRZ.WU.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110011101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRZ.LU.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTL.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTH.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRML.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRMH.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRPL.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRPH.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRZL.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110100111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRZH.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110101000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRNEL.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110101001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVFTINTRNEH.L.S", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.H.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.W.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.D.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.Q.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.HU.BU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.WU.HU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.DU.WU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011110111111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTH.QU.DU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.B", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.H", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.W", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.D", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.H.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.W.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.D.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.W.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.D.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.D.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.HU.BU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.WU.BU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.DU.BU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001101jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.WU.HU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.DU.HU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111001111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VEXT2XV.DU.WU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "01110110100111111iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVHSELI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010100000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVROTRI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101101010000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVROTRI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110101000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVROTRI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010100001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVROTRI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010100100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101101010010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110101001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010100101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010101000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101101010100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110101010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010101001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011011101011110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVINSGR2VR.W", XVt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110111010111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVINSGR2VR.D", XVt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011011101111110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPICKVE2GR.W", Xt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110111011111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPICKVE2GR.D", Xt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011011110011110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPICKVE2GR.WU", Xt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110111100111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPICKVE2GR.DU", Xt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101101111011110iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVREPL128VEI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011011110111110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVREPL128VEI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110111101111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVREPL128VEI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101101111011111110ijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVREPL128VEI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011011111111110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVINSVE0.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110110111111111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVINSVE0.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100000011110iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPICKVE.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111000000111110iijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPICKVE.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100000111000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLVE0.B", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100000111100000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLVE0.H", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100000111110000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLVE0.W", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100000111111000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLVE0.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100000111111100jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLVE0.Q", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100001000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLWIL.H.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110000100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLWIL.W.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111000010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLWIL.D.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100001001000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTL.Q.D", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100001100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLWIL.HU.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110000110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLWIL.WU.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111000011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLWIL.DU.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100001101000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVEXTL.QU.DU", XVt[Rd], XVt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100010000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITCLRI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110001000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITCLRI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111000100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITCLRI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100010001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITCLRI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100010100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITSETI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110001010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITSETI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111000101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITSETI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100010101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITSETI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100011000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITREVI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110001100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITREVI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111000110001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITREVI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100011001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITREVI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100100100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110010010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111001001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100100101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100101000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.BU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110010100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.HU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111001010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.WU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100101001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSAT.DU", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100101100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110010110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111001011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100101101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSLLI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100110000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110011000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111001100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100110001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100110100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRAI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110011010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRAI.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111001101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRAI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011100110101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRAI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLNI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLNI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101000001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLNI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100001iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLNI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRNI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRNI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101000101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRNI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100011iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRLRNI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101001001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100101iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.BU.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.HU.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101001101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.WU.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110100111iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLNI.DU.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101010001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101001iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.BU.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.HU.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101010101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.WU.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101011iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRLRNI.DU.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRANI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010110001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRANI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101011001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRANI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101101iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRANI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARNI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111010111001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARNI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101011101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARNI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110101111iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSRARNI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111011000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101100001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110001iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110010001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.BU.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111011001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.HU.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101100101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.WU.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110011iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRANI.DU.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110100001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.B.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111011010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.H.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101101001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.W.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110101iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.D.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.BU.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111011011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.HU.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0111011101101101iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.WU.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "011101110110111iiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSSRARNI.DU.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100000iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVEXTRINS.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100001iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVEXTRINS.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100010iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVEXTRINS.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100011iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVEXTRINS.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100100iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSHUF4I.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100101iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSHUF4I.H", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100110iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSHUF4I.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111100111iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVSHUF4I.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111110001iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVBITSELI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111110100iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVANDI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111110101iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVORI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111110110iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVXORI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111110111iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVNORI.B", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111111000iiiiiiiiiiiiiddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%lx", "XVLDI", XVt[Rd], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111111001iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPERMI.W", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111111010iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPERMI.D", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110111111011iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVPERMI.Q", XVt[Rd], XVt[Rj], imm);
+        return buff;
+    }
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }

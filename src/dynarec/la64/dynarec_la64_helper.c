@@ -883,6 +883,11 @@ int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)
         }
         return dyn->lsx.ssecache[a].reg;
     }
+    // migrate from avx to sse
+    if (dyn->lsx.avxcache[a].v != -1) {
+        avx_reflect_reg_upper128(dyn, ninst, a, forwrite);
+        dyn->lsx.avxcache[a].v = -1;
+    }
     dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, forwrite ? LSX_CACHE_XMMW : LSX_CACHE_XMMR, a);
     int ret = dyn->lsx.ssecache[a].reg;
     dyn->lsx.ssecache[a].write = forwrite;
@@ -897,6 +902,11 @@ int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
         dyn->lsx.ssecache[a].write = 1;
         dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t = LSX_CACHE_XMMW;
         return dyn->lsx.ssecache[a].reg;
+    }
+    // migrate from avx to sse
+    if (dyn->lsx.avxcache[a].v != -1) {
+        avx_reflect_reg_upper128(dyn, ninst, a, 1);
+        dyn->lsx.avxcache[a].v = -1;
     }
     dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, LSX_CACHE_XMMW, a);
     dyn->lsx.ssecache[a].write = 1; // it will be write...
@@ -929,16 +939,26 @@ void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1)
 {
     int old = -1;
     for (int i = 0; i < 8; ++i)
-        if (dyn->lsx.ssecache[i].v != -1) {
+        if (dyn->lsx.ssecache[i].v != -1 || dyn->lsx.avxcache[i].v != -1) {
             if (old == -1) {
                 MESSAGE(LOG_DUMP, "\tPurge XMM0..7 Cache ------\n");
                 ++old;
             }
-            if (dyn->lsx.lsxcache[dyn->lsx.ssecache[i].reg].t == LSX_CACHE_XMMW) {
+            if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
+                VST(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                if(dyn->lsx.avxcache[i].zero_upper == 1){
+                    XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
+                }else{
+                    XVPERMI_Q(SCRATCH, dyn->lsx.avxcache[i].reg, XVPERMI_IMM_4_0(0, 1));
+                }
+                VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));
+                fpu_free_reg(dyn, dyn->lsx.avxcache[i].reg);
+                dyn->lsx.avxcache[i].v = -1;
+            } else if (dyn->lsx.lsxcache[dyn->lsx.ssecache[i].reg].t == LSX_CACHE_XMMW) {
                 VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                fpu_free_reg(dyn, dyn->lsx.ssecache[i].reg);
+                dyn->lsx.ssecache[i].v = -1;
             }
-            fpu_free_reg(dyn, dyn->lsx.ssecache[i].reg);
-            dyn->lsx.ssecache[i].v = -1;
         }
     if (old != -1) {
         MESSAGE(LOG_DUMP, "\t------ Purge XMM0..7 Cache\n");
@@ -976,40 +996,237 @@ static void sse_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
         }
 }
 
+// AVX helpers
+// get lasx register for a SSE reg, create the entry if needed
+int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int width)
+{
+    if (dyn->lsx.avxcache[a].v != -1) {
+        if (forwrite) {
+            dyn->lsx.avxcache[a].write = 1; // update only if forwrite
+            dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t = LSX_CACHE_YMMW;
+        }
+        if (width == LSX_AVX_WIDTH_128) {
+            dyn->lsx.avxcache[a].width = LSX_AVX_WIDTH_128;
+            if(forwrite) dyn->lsx.avxcache[a].zero_upper = 1;
+        } else {
+            // if width changed to 256, and vzeroup ==1, means need zero-fill upper 128bits now.
+            if (dyn->lsx.avxcache[a].zero_upper == 1) {
+                dyn->lsx.avxcache[a].zero_upper = 0;
+                XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
+                XVPERMI_Q(dyn->lsx.avxcache[a].reg, SCRATCH, 0b00000010);
+            }
+            dyn->lsx.avxcache[a].width = LSX_AVX_WIDTH_256;
+        }
+
+        return dyn->lsx.avxcache[a].reg;
+    }
+
+    // migrate from sse to avx
+    if (dyn->lsx.ssecache[a].v != -1) {
+        // release SSE reg cache
+        fpu_free_reg(dyn, dyn->lsx.ssecache[a].reg);
+        dyn->lsx.ssecache[a].v = -1;
+    }
+
+    // new reg
+    dyn->lsx.avxcache[a].reg = fpu_get_reg_ymm(dyn, forwrite ? LSX_CACHE_YMMW : LSX_CACHE_YMMR, a);
+    int ret = dyn->lsx.avxcache[a].reg;
+    dyn->lsx.avxcache[a].write = forwrite;
+    dyn->lsx.avxcache[a].width = width;
+    if (width == LSX_AVX_WIDTH_128) {
+        if(forwrite) dyn->lsx.avxcache[a].zero_upper = 1;
+        VLD(ret, xEmu, offsetof(x64emu_t, xmm[a]));
+    } else {
+        VLD(ret, xEmu, offsetof(x64emu_t, xmm[a]));
+        VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
+        XVPERMI_Q(ret, SCRATCH, XVPERMI_IMM_4_0(0, 2));
+        dyn->lsx.avxcache[a].zero_upper = 0;
+    }
+    return ret;
+}
+
+int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
+{
+    if (dyn->lsx.avxcache[a].v != -1) {
+        dyn->lsx.avxcache[a].write = 1;
+        dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t = LSX_CACHE_YMMW;
+        if (width == LSX_AVX_WIDTH_128) {
+            dyn->lsx.avxcache[a].width = LSX_AVX_WIDTH_128;
+            dyn->lsx.avxcache[a].zero_upper = 1;
+        } else {
+            dyn->lsx.avxcache[a].width = LSX_AVX_WIDTH_256;
+            dyn->lsx.avxcache[a].zero_upper = 0;
+        }
+        return dyn->lsx.avxcache[a].reg;
+    }
+    // migrate from sse to avx
+    if (dyn->lsx.ssecache[a].v != -1) {
+        // Release SSE reg cache
+        fpu_free_reg(dyn, dyn->lsx.ssecache[a].reg);
+        dyn->lsx.ssecache[a].v = -1;
+    }
+    dyn->lsx.avxcache[a].reg = fpu_get_reg_ymm(dyn, LSX_CACHE_YMMW, a);
+    dyn->lsx.avxcache[a].write = 1;
+    dyn->lsx.avxcache[a].width = width;
+    if (width == LSX_AVX_WIDTH_128){
+        dyn->lsx.avxcache[a].zero_upper = 1;
+    } else {
+        dyn->lsx.avxcache[a].zero_upper = 0;
+    }
+    return dyn->lsx.avxcache[a].reg;
+}
+
+void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrite)
+{
+    if (dyn->lsx.avxcache[a].v == -1 || forwrite == 0)
+        return;
+    if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
+        if (dyn->lsx.avxcache[a].zero_upper == 1) {
+            XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
+        } else {
+            XVPERMI_Q(SCRATCH, dyn->lsx.avxcache[a].reg, XVPERMI_IMM_4_0(0, 1));
+        }
+        VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
+    }
+    dyn->lsx.avxcache[a].zero_upper = 0;
+    dyn->lsx.avxcache[a].v = -1;
+    return;
+}
+
+void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
+{
+    if (dyn->lsx.avxcache[a].v == -1)
+        return;
+    if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
+        VST(dyn->lsx.avxcache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        if (dyn->lsx.avxcache[a].zero_upper == 1) {
+            XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
+        } else {
+            XVPERMI_Q(SCRATCH, dyn->lsx.avxcache[a].reg, XVPERMI_IMM_4_0(0, 1));
+        }
+        VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
+    }
+    fpu_free_reg(dyn, dyn->lsx.avxcache[a].reg);
+    dyn->lsx.avxcache[a].zero_upper = 0;
+    dyn->lsx.avxcache[a].v = -1;
+    return;
+}
+
+void avx_reflect_reg(dynarec_la64_t* dyn, int ninst, int a)
+{
+    if (dyn->lsx.avxcache[a].v == -1)
+        return;
+    if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
+        VST(dyn->lsx.avxcache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        if (dyn->lsx.avxcache[a].zero_upper == 1) {
+            XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
+            XVPERMI_Q(dyn->lsx.avxcache[a].reg, SCRATCH, 0b00000010);
+        } else {
+            XVPERMI_Q(SCRATCH, dyn->lsx.avxcache[a].reg, XVPERMI_IMM_4_0(0, 1));
+        }
+        VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
+        dyn->lsx.avxcache[a].zero_upper = 0;
+    }
+}
+
+// purge the AVX cache only
+static void avx_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
+{
+    int old = -1;
+    for (int i = 0; i < 16; ++i)
+        if (dyn->lsx.avxcache[i].v != -1) {
+            if (dyn->lsx.avxcache[i].write) {
+                if (old == -1) {
+                    MESSAGE(LOG_DUMP, "\tPurge %sAVX Cache ------\n", next ? "locally " : "");
+                    ++old;
+                }
+                if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
+                    VST(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                    if (dyn->lsx.avxcache[i].zero_upper == 1) {
+                        XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
+                    } else {
+                        XVPERMI_Q(SCRATCH, dyn->lsx.avxcache[i].reg, XVPERMI_IMM_4_0(0, 1));
+                    }
+                    VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));
+                }
+            }
+            if (!next) {
+                fpu_free_reg(dyn, dyn->lsx.avxcache[i].reg);
+                dyn->lsx.avxcache[i].v = -1;
+            }
+        }
+    if (old != -1) {
+        MESSAGE(LOG_DUMP, "\t------ Purge AVX Cache\n");
+    }
+}
+
+static void avx_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
+{
+    for (int i = 0; i < 16; ++i) {
+        if (dyn->lsx.avxcache[i].v != -1 && dyn->lsx.avxcache[i].write) {
+            if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
+                avx_reflect_reg(dyn, ninst, i);
+            }
+        }
+    }
+}
+
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07 ? 8 : 0;
-    // only SSE regs needs to be push back to xEmu (needs to be "write")
     int n = 0;
-    for (int i = start; i < 16; i++)
+
+    for (int i = start; i < 16; i++) {
         if ((dyn->lsx.ssecache[i].v != -1) && (dyn->lsx.ssecache[i].write))
             ++n;
-    if (!n)
-        return;
-    MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
-    for (int i = start; i < 16; ++i)
-        if ((dyn->lsx.ssecache[i].v != -1) && (dyn->lsx.ssecache[i].write)) {
-            VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+        if ((dyn->lsx.avxcache[i].v != -1) && (dyn->lsx.avxcache[i].write))
+            ++n;
+    }
+
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPush XMM/YMM Cache (%d)------\n", n);
+        for (int i = start; i < 16; ++i) {
+            if ((dyn->lsx.ssecache[i].v != -1) && (dyn->lsx.ssecache[i].write)) {
+                VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+            }
+            if ((dyn->lsx.avxcache[i].v != -1) && (dyn->lsx.avxcache[i].write)) {
+                    VST(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                    if (dyn->lsx.avxcache[i].zero_upper == 0) {
+                        XVPERMI_Q(SCRATCH, dyn->lsx.avxcache[i].reg, XVPERMI_IMM_4_0(0, 1));
+                        VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));
+                    }
+            }
         }
-    MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
+        MESSAGE(LOG_DUMP, "\t------- Pushed XMM/YMM Cache (%d)\n", n);
+    }
 }
 
 void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07 ? 8 : 0;
-    // only SSE regs needs to be pop back from xEmu (don't need to be "write" this time)
     int n = 0;
-    for (int i = start; i < 16; i++)
-        if (dyn->lsx.ssecache[i].v != -1)
+
+    for (int i = start; i < 16; i++) {
+        if (dyn->lsx.ssecache[i].v != -1 || dyn->lsx.avxcache[i].v != -1)
             ++n;
-    if (!n)
-        return;
-    MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
-    for (int i = start; i < 16; ++i)
-        if (dyn->lsx.ssecache[i].v != -1) {
-            VLD(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+    }
+
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPop XMM/YMM Cache (%d)------\n", n);
+        for (int i = start; i < 16; ++i) {
+            if (dyn->lsx.ssecache[i].v != -1) {
+                VLD(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+            }
+            if (dyn->lsx.avxcache[i].v != -1) {
+                VLD(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                if (dyn->lsx.avxcache[i].zero_upper == 0) {
+                    VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));
+                    XVPERMI_Q(dyn->lsx.avxcache[i].reg, SCRATCH, XVPERMI_IMM_4_0(0, 2));
+                }
+            }
         }
-    MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
+        MESSAGE(LOG_DUMP, "\t------- Pop XMM/YMM Cache (%d)\n", n);
+    }
 }
 
 void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3)
@@ -1017,6 +1234,7 @@ void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, in
     x87_purgecache(dyn, ninst, next, s1, s2, s3);
     mmx_purgecache(dyn, ninst, next, s1);
     sse_purgecache(dyn, ninst, next, s1);
+    avx_purgecache(dyn, ninst, next, s1);
     if (!next)
         fpu_reset_reg(dyn);
 }
@@ -1026,6 +1244,7 @@ void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
     // TODO: x87_reflectcache(dyn, ninst, s1, s2, s3);
     mmx_reflectcache(dyn, ninst, s1);
     sse_reflectcache(dyn, ninst, s1);
+    avx_reflectcache(dyn, ninst, s1);
 }
 
 void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
@@ -1124,6 +1343,14 @@ static int findCacheSlot(dynarec_la64_t* dyn, int ninst, int t, int n, lsxcache_
                     if (t == LSX_CACHE_XMMR)
                         return i;
                     break;
+                case LSX_CACHE_YMMR:
+                    if (t == LSX_CACHE_YMMW)
+                        return i;
+                    break;
+                case LSX_CACHE_YMMW:
+                    if (t == LSX_CACHE_YMMR)
+                        return i;
+                    break;
             }
         }
     }
@@ -1139,15 +1366,25 @@ static void swapCache(dynarec_la64_t* dyn, int ninst, int i, int j, lsxcache_t* 
         quad = 1;
     if (cache->lsxcache[j].t == LSX_CACHE_XMMR || cache->lsxcache[j].t == LSX_CACHE_XMMW)
         quad = 1;
+    if (cache->lsxcache[i].t == LSX_CACHE_YMMR || cache->lsxcache[i].t == LSX_CACHE_YMMW)
+        quad = 2;
+    if (cache->lsxcache[j].t == LSX_CACHE_YMMR || cache->lsxcache[j].t == LSX_CACHE_YMMW)
+        quad = 2;
 
     if (!cache->lsxcache[i].v) {
         // a mov is enough, no need to swap
         MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
-        if (quad) {
-            VOR_V(i, j, j);
-        } else {
-            VXOR_V(i, i, i);
-            VEXTRINS_D(i, j, 0);
+        switch (quad) {
+            case 2:
+                XVOR_V(i, j, j);
+                break;
+            case 1:
+                VOR_V(i, j, j);
+                break;
+            default:
+                VXOR_V(i, i, i);
+                VEXTRINS_D(i, j, 0);
+                break;
         }
         cache->lsxcache[i].v = cache->lsxcache[j].v;
         cache->lsxcache[j].v = 0;
@@ -1158,17 +1395,25 @@ static void swapCache(dynarec_la64_t* dyn, int ninst, int i, int j, lsxcache_t* 
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
     // so use a scratch...
-    if (quad) {
-        VOR_V(SCRATCH, i, i);
-        VOR_V(i, j, j);
-        VOR_V(j, SCRATCH, SCRATCH);
-    } else {
-        VXOR_V(SCRATCH, SCRATCH, SCRATCH);
-        VEXTRINS_D(SCRATCH, i, 0);
-        VXOR_V(i, i, i);
-        VEXTRINS_D(i, j, 0);
-        VXOR_V(j, j, j);
-        VEXTRINS_D(j, SCRATCH, 0);
+    switch (quad) {
+        case 2:
+            XVOR_V(SCRATCH, i, i);
+            XVOR_V(i, j, j);
+            XVOR_V(j, SCRATCH, SCRATCH);
+            break;
+        case 1:
+            VOR_V(SCRATCH, i, i);
+            VOR_V(i, j, j);
+            VOR_V(j, SCRATCH, SCRATCH);
+            break;
+        default:
+            VXOR_V(SCRATCH, SCRATCH, SCRATCH);
+            VEXTRINS_D(SCRATCH, i, 0);
+            VXOR_V(i, i, i);
+            VEXTRINS_D(i, j, 0);
+            VXOR_V(j, j, j);
+            VEXTRINS_D(j, SCRATCH, 0);
+            break;
     }
     tmp.v = cache->lsxcache[i].v;
     cache->lsxcache[i].v = cache->lsxcache[j].v;
@@ -1181,21 +1426,38 @@ static void loadCache(dynarec_la64_t* dyn, int ninst, int stack_cnt, int s1, int
         int quad = 0;
         if (t == LSX_CACHE_XMMR || t == LSX_CACHE_XMMW)
             quad = 1;
+        if (t == LSX_CACHE_YMMR || t == LSX_CACHE_YMMW)
+            quad = 2;
         if (cache->lsxcache[i].t == LSX_CACHE_XMMR || cache->lsxcache[i].t == LSX_CACHE_XMMW)
             quad = 1;
+        if (cache->lsxcache[i].t == LSX_CACHE_YMMR || cache->lsxcache[i].t == LSX_CACHE_YMMW)
+            quad = 2;
         int j = i + 1;
         while (cache->lsxcache[j].v)
             ++j;
         MESSAGE(LOG_DUMP, "\t  - Moving away %d\n", i);
-        if (quad) {
-            VOR_V(j, i, i);
-        } else {
-            VXOR_V(j, j, j);
-            VEXTRINS_D(j, i, 0);
+        switch (quad) {
+            case 2:
+                XVOR_V(j, i, i);
+                break;
+            case 1:
+                VOR_V(j, i, i);
+                break;
+            default:
+                VXOR_V(j, j, j);
+                VEXTRINS_D(j, i, 0);
+                break;
         }
         cache->lsxcache[j].v = cache->lsxcache[i].v;
     }
     switch (t) {
+        case LSX_CACHE_YMMR:
+        case LSX_CACHE_YMMW:
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
+            VLD(i, xEmu, offsetof(x64emu_t, xmm[n]));
+            VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[n]));
+            XVPERMI_Q(i, SCRATCH, XVPERMI_IMM_4_0(0, 2));
+            break;
         case LSX_CACHE_XMMR:
         case LSX_CACHE_XMMW:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
@@ -1227,11 +1489,18 @@ static void unloadCache(dynarec_la64_t* dyn, int ninst, int stack_cnt, int s1, i
 {
     switch (t) {
         case LSX_CACHE_XMMR:
+        case LSX_CACHE_YMMR:
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
             break;
         case LSX_CACHE_XMMW:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             VST(i, xEmu, offsetof(x64emu_t, xmm[n]));
+            break;
+        case LSX_CACHE_YMMW:
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
+            XVPERMI_Q(SCRATCH, i, XVPERMI_IMM_4_0(0, 1));
+            VST(i, xEmu, offsetof(x64emu_t, xmm[n]));
+            VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[n]));
             break;
         case LSX_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
@@ -1302,6 +1571,11 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
     // unload every unneeded cache
     // check SSE first, than MMX, in order, for optimization issue
     for (int i = 0; i < 16; ++i) {
+        int j = findCacheSlot(dyn, ninst, LSX_CACHE_YMMW, i, &cache);
+        if (j >= 0 && findCacheSlot(dyn, ninst, LSX_CACHE_YMMW, i, &cache_i2) == -1)
+            unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.lsxcache[j].t, cache.lsxcache[j].n);
+    }
+    for (int i = 0; i < 16; ++i) {
         int j = findCacheSlot(dyn, ninst, LSX_CACHE_XMMW, i, &cache);
         if (j >= 0 && findCacheSlot(dyn, ninst, LSX_CACHE_XMMW, i, &cache_i2) == -1)
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.lsxcache[j].t, cache.lsxcache[j].n);
@@ -1356,6 +1630,15 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
                     cache.lsxcache[i].t = LSX_CACHE_ST_D;
                 } else if (cache.lsxcache[i].t == LSX_CACHE_XMMR && cache_i2.lsxcache[i].t == LSX_CACHE_XMMW) {
                     cache.lsxcache[i].t = LSX_CACHE_XMMW;
+                } else if (cache.lsxcache[i].t == LSX_CACHE_YMMR && cache_i2.lsxcache[i].t == LSX_CACHE_YMMW) {
+                    cache.lsxcache[i].t = LSX_CACHE_YMMW;
+                } else if (cache.lsxcache[i].t == LSX_CACHE_YMMW && cache_i2.lsxcache[i].t == LSX_CACHE_YMMR) {
+                    // refresh cache...
+                    MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.lsxcache[i].t, cache.lsxcache[i].n));
+                    XVPERMI_Q(SCRATCH, i, XVPERMI_IMM_4_0(0, 1));
+                    VST(i, xEmu, offsetof(x64emu_t, xmm[cache.lsxcache[i].n]));
+                    VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[cache.lsxcache[i].n]));
+                    cache.lsxcache[i].t = LSX_CACHE_YMMR;
                 } else if (cache.lsxcache[i].t == LSX_CACHE_XMMW && cache_i2.lsxcache[i].t == LSX_CACHE_XMMR) {
                     // refresh cache...
                     MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.lsxcache[i].t, cache.lsxcache[i].n));
