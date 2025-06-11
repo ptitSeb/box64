@@ -22,6 +22,9 @@ KHASH_MAP_INIT_STR(box64env_entry, box64env_t)
 static kh_box64env_entry_t* box64env_entries = NULL;
 static kh_box64env_entry_t* box64env_entries_gen = NULL;
 
+mmaplist_t* NewMmaplist();
+void DelMmaplist(mmaplist_t* list);
+
 static rbtree_t* envmap = NULL;
 
 static const char default_rcfile[] = 
@@ -649,6 +652,7 @@ typedef struct mapping_s {
     char*       fullname;
     box64env_t* env;
     uintptr_t   start;  //lower address of the map for this file
+    mmaplist_t* mmaplist;
 } mapping_t;
 
 KHASH_MAP_INIT_STR(mapping_entry, mapping_t*);
@@ -742,6 +746,8 @@ void RemoveMapping(uintptr_t addr, size_t length)
         khint_t k = kh_get(mapping_entry, mapping_entries, mapping->fullname);
         if(k!=kh_end(mapping_entries))
             kh_del(mapping_entry, mapping_entries, k);
+        if(mapping->mmaplist)
+            DelMmaplist(mapping->mmaplist);
         box_free(mapping->filename);
         box_free(mapping->fullname);
         box_free(mapping);
@@ -757,6 +763,18 @@ box64env_t* GetCurEnvByAddr(uintptr_t addr)
     if(!env) return &box64env;
     return env;
 }
+
+mmaplist_t* GetMmaplistByAddr(uintptr_t addr)
+{
+    if (!envmap) return NULL;
+    mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
+    if(!mapping) return NULL;
+    mmaplist_t* list = mapping->mmaplist;
+    if(!list)
+        list = mapping->mmaplist = NewMmaplist();
+    return list;
+}
+
 
 int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start)
 {

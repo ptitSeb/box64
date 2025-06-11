@@ -1069,6 +1069,34 @@ typedef struct mmaplist_s {
     mmaplist_t*         next;
 } mmaplist_t;
 
+mmaplist_t* NewMmaplist()
+{
+    return (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
+}
+
+void DelMmaplist(mmaplist_t* list)
+{
+    if(!list) return;
+    while(list) {
+        for(int i=0; i<NCHUNK; ++i)
+            if(list->chunks[i].chunk.size) {
+                cleanDBFromAddressRange((uintptr_t)list->chunks[i].chunk.block, list->chunks[i].chunk.size, 1);
+                rb_unset(rbt_dynmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size);
+                InternalMunmap(list->chunks[i].chunk.block, list->chunks[i].chunk.size);
+                // check if memory should be protected and alloced for box32
+                if(box64_is32bits && (uintptr_t)list->chunks[i].chunk.block>0xffffffffLL) {
+                    //rereserve and mark as reserved
+                    if(InternalMmap(list->chunks[i].chunk.block, list->chunks[i].chunk.size, 0, MAP_NORESERVE|MAP_ANON|MAP_FIXED, -1, 0)!=MAP_FAILED)
+                        rb_set(mapallmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size, MEM_RESERVED);
+                } else
+                    rb_unset(mapallmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size);
+            }
+        mmaplist_t* next = list->next;
+        box_free(list);
+        list = next;
+    }
+}
+
 dynablock_t* FindDynablockFromNativeAddress(void* p)
 {
     if(!p)
@@ -1098,16 +1126,18 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
 #endif
-uintptr_t AllocDynarecMap(size_t size)
+uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size)
 {
     if(!size)
         return 0;
 
     size = roundSize(size);
 
-    mmaplist_t* list = mmaplist;
+    mmaplist_t* list = GetMmaplistByAddr(x64_addr);
     if(!list)
-        list = mmaplist = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
+        list = mmaplist;
+    if(!list)
+        list = mmaplist = NewMmaplist();
     // check if there is space in current open ones
     int idx = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);

@@ -31,9 +31,12 @@ size_t customGetUsableSize(void* p);
 
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
+typedef struct mmaplist_s mmaplist_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose
-uintptr_t AllocDynarecMap(size_t size);
+uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size);
 void FreeDynarecMap(uintptr_t addr);
+mmaplist_t* NewMmaplist();
+void DelMmaplist(mmaplist_t* list);
 
 void addDBFromAddressRange(uintptr_t addr, size_t size);
 // Will return 1 if at least 1 db in the address range

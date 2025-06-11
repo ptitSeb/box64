@@ -193,6 +193,8 @@ typedef struct box64env_s {
     uint64_t is_dynarec_perf_map_fd_overridden : 1;
 } box64env_t;
 
+typedef struct mmaplist_s mmaplist_t;
+
 void InitializeEnvFiles();
 void ApplyEnvFileEntry(const char* name);
 const char* GetLastApplyEntryName();
@@ -204,5 +206,6 @@ void RemoveMapping(uintptr_t addr, size_t length);
 box64env_t* GetCurEnvByAddr(uintptr_t addr);
 int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start);
 size_t SizeFileMapped(uintptr_t addr);
+mmaplist_t* GetMmaplistByAddr(uintptr_t addr);
 
 #endif // __ENV_H

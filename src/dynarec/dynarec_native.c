@@ -562,7 +562,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr, int is32bits) {
     block->isize = 0;
     block->done = 0;
     size_t sz = 4*sizeof(void*);
-    void* actual_p = (void*)AllocDynarecMap(sz);
+    void* actual_p = (void*)AllocDynarecMap(addr, sz);
     void* p = actual_p + sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", block, sz);
@@ -808,7 +808,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // ok, now allocate mapped memory, with executable flag on
     size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size;
     //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets
-    void* actual_p = (void*)AllocDynarecMap(sz);
+    void* actual_p = (void*)AllocDynarecMap(addr, sz);
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
     void* next = tablestart + helper.table64size*sizeof(uint64_t);
