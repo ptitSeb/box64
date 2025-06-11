@@ -36,7 +36,7 @@ void* GetSeg43Base()
 
 void* GetSegmentBase(uint32_t desc)
 {
-    printf_log(LOG_NONE, "GetSegmentBase NYI\n");
+    printf_log(LOG_NONE, "GetSegmentBase does not apply to Wine dlls\n");
     return NULL;
 }
 
