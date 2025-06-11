@@ -1086,7 +1086,7 @@ void DelMmaplist(mmaplist_t* list)
                 // check if memory should be protected and alloced for box32
                 if(box64_is32bits && (uintptr_t)list->chunks[i].chunk.block>0xffffffffLL) {
                     //rereserve and mark as reserved
-                    if(InternalMmap(list->chunks[i].chunk.block, list->chunks[i].chunk.size, 0, MAP_NORESERVE|MAP_ANON|MAP_FIXED, -1, 0)!=MAP_FAILED)
+                    if(InternalMmap(list->chunks[i].chunk.block, list->chunks[i].chunk.size, 0, MAP_NORESERVE|MAP_ANONYMOUS|MAP_FIXED, -1, 0)!=MAP_FAILED)
                         rb_set(mapallmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size, MEM_RESERVED);
                 } else
                     rb_unset(mapallmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size);
