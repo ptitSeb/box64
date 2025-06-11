@@ -836,7 +836,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 B_NEXT_nocond;
                 MARK;
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_br, -1);
+                CALL_S(native_br, -1);
                 LOAD_XEMU_CALL(xRIP);
             } else {
                 if(BOX64DRENV(dynarec_safeflags)>1) {
@@ -846,7 +846,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_ud, -1);
+                CALL_S(native_ud, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;
@@ -1046,7 +1046,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);
+            CALL_S(native_priv, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -1062,7 +1062,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);
+            CALL_S(native_priv, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -2634,7 +2634,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     B_MARK(cEQ);
                     GETIP(addr);  // update RIP
                     STORE_XEMU_CALL(xRIP);
-                    CALL(native_int3, -1);
+                    CALL_S(native_int3, -1);
                     LOAD_XEMU_CALL(xRIP);
                     MARK;
                     jump_to_epilog(dyn, addr, 0, ninst);
@@ -2670,7 +2670,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(xRIP);
                 MOV32w(x1, u8);
-                CALL(native_int, -1);
+                CALL_S(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
                 LOAD_XEMU_REM();
                 TABLE64(x3, addr); // expected return address
@@ -2705,7 +2705,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 GETIP(addr);
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_int3, -1);
+                CALL_S(native_int3, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;
@@ -2724,7 +2724,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 STORE_XEMU_CALL(xRIP);
                 MOV32w(x1,u8);
-                CALL(native_int, -1);
+                CALL_S(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;
@@ -2742,7 +2742,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 TBZ_NEXT(wFlags, F_OF);
                 STORE_XEMU_CALL(xRIP);
                 MOV32w(x1,4);
-                CALL(native_int, -1);
+                CALL_S(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
             }
             break;
@@ -3349,7 +3349,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u8 = F8;
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_priv, -1);
+                CALL_S(native_priv, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;
@@ -3534,7 +3534,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_priv, -1);
+                CALL_S(native_priv, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;
@@ -3554,7 +3554,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);  // is that a privileged opcodes or an int 1??
+            CALL_S(native_priv, -1);  // is that a privileged opcodes or an int 1??
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -3570,7 +3570,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);
+            CALL_S(native_priv, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -3683,7 +3683,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARK3(ed);
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
-                        CALL(native_div0, -1);
+                        CALL_S(native_div0, -1);
                         CLEARIP();
                         LOAD_XEMU_CALL(xRIP);
                         jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3717,7 +3717,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARK3(ed);
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
-                        CALL(native_div0, -1);
+                        CALL_S(native_div0, -1);
                         CLEARIP();
                         LOAD_XEMU_CALL(xRIP);
                         jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3849,14 +3849,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MESSAGE(LOG_INFO, "Divide by 0 hack\n");
                             GETIP(ip);
                             STORE_XEMU_CALL(xRIP);
-                            CALL(native_div0, -1);
+                            CALL_S(native_div0, -1);
                             LOAD_XEMU_CALL(xRIP);
                         } else {
                             if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
-                                CALL(native_div0, -1);
+                                CALL_S(native_div0, -1);
                                 CLEARIP();
                                 LOAD_XEMU_CALL(xRIP);
                                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3883,7 +3883,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
-                                CALL(native_div0, -1);
+                                CALL_S(native_div0, -1);
                                 CLEARIP();
                                 LOAD_XEMU_CALL(xRIP);
                                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3898,7 +3898,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
-                                CALL(native_div0, -1);
+                                CALL_S(native_div0, -1);
                                 CLEARIP();
                                 LOAD_XEMU_CALL(xRIP);
                                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3939,7 +3939,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             CBNZx_MARK3(wb);
                             GETIP_(ip);
                             STORE_XEMU_CALL(xRIP);
-                            CALL(native_div0, -1);
+                            CALL_S(native_div0, -1);
                             CLEARIP();
                             LOAD_XEMU_CALL(xRIP);
                             jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3961,7 +3961,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
-                                CALL(native_div0, -1);
+                                CALL_S(native_div0, -1);
                                 CLEARIP();
                                 LOAD_XEMU_CALL(xRIP);
                                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -3976,7 +3976,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
-                                CALL(native_div0, -1);
+                                CALL_S(native_div0, -1);
                                 CLEARIP();
                                 LOAD_XEMU_CALL(xRIP);
                                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -4034,7 +4034,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_priv, -1);
+                CALL_S(native_priv, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;
