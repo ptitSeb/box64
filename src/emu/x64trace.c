@@ -7,7 +7,11 @@
 #include "box64context.h"
 #include "x64emu_private.h"
 #ifdef HAVE_TRACE
+#ifdef ZYDIS3
+#include "x86zydis.h"
+#else
 #include <Zydis/Zydis.h>
+#endif
 
 /* We cannot use
 
