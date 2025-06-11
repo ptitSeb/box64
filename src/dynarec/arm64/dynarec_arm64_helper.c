@@ -909,6 +909,9 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment==_FS)?"FS":"GS");
     int t2 = x4;
     if(reg==t2) ++t2;
+    #ifdef _WIN32
+    LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
+    #else
     LDRw_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[segment]));
     /*if(segment==_GS) {
         LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
@@ -923,6 +926,7 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
     MOVZw(x1, segment);
     call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
     MARKSEG;
+    #endif
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
 }
 
