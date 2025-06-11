@@ -746,8 +746,10 @@ void RemoveMapping(uintptr_t addr, size_t length)
         khint_t k = kh_get(mapping_entry, mapping_entries, mapping->fullname);
         if(k!=kh_end(mapping_entries))
             kh_del(mapping_entry, mapping_entries, k);
+	#ifdef DYNAREC
         if(mapping->mmaplist)
             DelMmaplist(mapping->mmaplist);
+	#endif
         box_free(mapping->filename);
         box_free(mapping->fullname);
         box_free(mapping);
@@ -766,6 +768,7 @@ box64env_t* GetCurEnvByAddr(uintptr_t addr)
 
 mmaplist_t* GetMmaplistByAddr(uintptr_t addr)
 {
+    #ifdef DYNAREC
     if (!envmap) return NULL;
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
     if(!mapping) return NULL;
@@ -773,6 +776,9 @@ mmaplist_t* GetMmaplistByAddr(uintptr_t addr)
     if(!list)
         list = mapping->mmaplist = NewMmaplist();
     return list;
+    #else
+    return NULL;
+    #endif
 }
 
 
