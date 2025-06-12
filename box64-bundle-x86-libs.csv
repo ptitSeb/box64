@@ -62,5 +62,5 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/pam-1.5.1-22.el9_5.i68
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/pam-1.5.1-22.el9_5.x86_64.rpm,15bfe177d3c10982c75e81d7b274883a9fb53322011c8d829667c983ee419b18
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/pciutils-libs-3.7.0-5.el9.i686.rpm,2cf468da5ecf307cc325c9a5da0a288aafd25dec0951af2b4d0954a77bdf900d
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/pciutils-libs-3.7.0-5.el9.x86_64.rpm,308bd897d8f9a36020d70edc79089a3595b22b149200d67c37e2d4e6147a9f75
-https://dl.fedoraproject.org/pub/fedora/linux/updates/40/Everything/x86_64/Packages/s/SDL3-3.2.4-1.fc40.i686.rpm,f4776f6f56a8d3e62e95c06fb885832e22116323c0c2e0f57f918cd4b92e16a2
-https://dl.fedoraproject.org/pub/fedora/linux/updates/40/Everything/x86_64/Packages/s/SDL3-3.2.4-1.fc40.x86_64.rpm,96f52b7cf293ce335e2bf726c8b6aefd82ed76fbe9d9f0db1fe603780477c2d0
+https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/s/SDL3-3.2.12-1.fc40.i686.rpm,4a3bce6e6358ddd05ed2941e7b8fcc4c8cc02df20741d3f0f9295facbc687769
+https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/s/SDL3-3.2.12-1.fc40.x86_64.rpm,9524803ef42d80dc1b15190d5bb5925200995d5a6152eca04471383ff891af17
