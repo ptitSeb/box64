@@ -3572,6 +3572,7 @@ typedef int32_t (*iFEipipp_t)(x64emu_t*, int32_t, void*, int32_t, void*, void*);
 
 #if !defined(STATICBUILD)
 typedef intptr_t (*lFiN_t)(int32_t, ...);
+typedef int32_t (*iFEpu_t)(x64emu_t*, void*, uint32_t);
 typedef int32_t (*iFlip_t)(intptr_t, int32_t, void*);
 typedef int32_t (*iFLLi_t)(uintptr_t, uintptr_t, int32_t);
 typedef int32_t (*iFLLii_t)(uintptr_t, uintptr_t, int32_t, int32_t);
@@ -7130,6 +7131,7 @@ void iFEipipp(x64emu_t *emu, uintptr_t fcn) { iFEipipp_t fn = (iFEipipp_t)fcn; R
 
 #if !defined(STATICBUILD)
 void lFiN(x64emu_t *emu, uintptr_t fcn) { lFiN_t fn = (lFiN_t)fcn; R_RAX=(intptr_t)fn((int32_t)R_RDI, (void*)R_RSI); }
+void iFEpu(x64emu_t *emu, uintptr_t fcn) { iFEpu_t fn = (iFEpu_t)fcn; R_RAX=(uint32_t)fn(emu, (void*)R_RDI, (uint32_t)R_RSI); }
 void iFlip(x64emu_t *emu, uintptr_t fcn) { iFlip_t fn = (iFlip_t)fcn; R_RAX=(uint32_t)fn((intptr_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX); }
 void iFLLi(x64emu_t *emu, uintptr_t fcn) { iFLLi_t fn = (iFLLi_t)fcn; R_RAX=(uint32_t)fn((uintptr_t)R_RDI, (uintptr_t)R_RSI, (int32_t)R_RDX); }
 void iFLLii(x64emu_t *emu, uintptr_t fcn) { iFLLii_t fn = (iFLLii_t)fcn; R_RAX=(uint32_t)fn((uintptr_t)R_RDI, (uintptr_t)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX); }

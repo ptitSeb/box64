@@ -3485,6 +3485,7 @@
 #!defined(NOALIGN) iFEipiip
 #!defined(NOALIGN) iFEipipp
 #!defined(STATICBUILD) lFiN
+#!defined(STATICBUILD) iFEpu
 #!defined(STATICBUILD) iFlip
 #!defined(STATICBUILD) iFLLi
 #!defined(STATICBUILD) iFLLii
@@ -4620,6 +4621,8 @@ wrappedlibc:
   - __sigsetjmp
   - backtrace
   - sigsetjmp
+- iFpu:
+  - delete_module
 - iFpL:
   - munmap
 - iFpp:
@@ -4704,6 +4707,8 @@ wrappedlibc:
   - vdprintf
 - iFpLi:
   - mprotect
+- iFpLp:
+  - init_module
 - iFppi:
   - ftw
   - ftw64

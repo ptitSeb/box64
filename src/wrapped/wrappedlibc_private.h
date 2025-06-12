@@ -220,7 +220,7 @@ GOW(dcngettext, pFpppLi)
 //GO(delete_module, 
 //GO(des_setparity, 
 #else
-//GO(delete_module, 
+GOM(delete_module, iFEpu)
 GO(des_setparity, vFp)
 #endif
 GO(__dgettext, pFpp)
@@ -833,7 +833,7 @@ GO(inet_ntop, pFippu)
 GOW(inet_pton, iFipp)
 //GO(__inet_pton_length, 
 GO(initgroups, iFpu)
-//GO(init_module, 
+GOM(init_module, iFEpLp)
 GO(initstate, pFupL)
 GO(initstate_r, iFupLp)
 GO(innetgr, iFpppp)
