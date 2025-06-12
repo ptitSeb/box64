@@ -323,7 +323,13 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_EDX = 0;
             }
             break;
-
+        case 0x40000000 ... 0x400000FF:
+            // the Hypervisor interface, yeah we don't do this, see also the 31bit of ECX in leaf 0x1.
+            R_EAX = 0;
+            R_EBX = 0;
+            R_ECX = 0;
+            R_EDX = 0;
+            break;
         case 0x80000000:        // max extended
             if(BOX64ENV(cputype)) {
                 R_EAX = 0x8000001a;
