@@ -70,8 +70,7 @@ uintptr_t dynarec64_6764(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {      // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                ADDxw_REG(x4, x4, ed);
-                STxw(gd, x4, fixedaddress);
+                STRxw_REG(gd, x4, ed);
             }
             break;
 
@@ -84,8 +83,7 @@ uintptr_t dynarec64_6764(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {      // mem => reg
                 grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                ADDxw_REG(x4, x4, ed);
-                LDxw(gd, x4, fixedaddress);
+                LDRxw_REG(gd, x4, ed);
             }
             break;
 
