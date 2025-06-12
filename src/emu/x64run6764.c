@@ -52,6 +52,11 @@ uintptr_t Run6764(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
         opcode = F8;
     }
 
+    while (opcode >= 0x40 && opcode <= 0x4f) {
+        rex.rex = opcode;
+        opcode = F8;
+    }
+
     switch(opcode) {
 
         case 0x89:                      /* MOV FS:Ed, Gd */
