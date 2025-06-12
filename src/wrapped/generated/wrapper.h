@@ -3530,6 +3530,7 @@ void iFEipipp(x64emu_t *emu, uintptr_t fnc);
 
 #if !defined(STATICBUILD)
 void lFiN(x64emu_t *emu, uintptr_t fnc);
+void iFEpu(x64emu_t *emu, uintptr_t fnc);
 void iFlip(x64emu_t *emu, uintptr_t fnc);
 void iFLLi(x64emu_t *emu, uintptr_t fnc);
 void iFLLii(x64emu_t *emu, uintptr_t fnc);

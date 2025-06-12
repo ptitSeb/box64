@@ -6400,6 +6400,8 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIi32 ", %" PRIp ", %" PRIi32 ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (int32_t)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (void*)R_RCX, (void*)R_R8);
 #endif
 #if !defined(STATICBUILD)
+    } else if (w == iFEpu) {
+        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ", %" PRIu32 ")", tid, *(void**)(R_RSP), func, (void*)R_RDI, (uint32_t)R_RSI);
     } else if (w == iFlip) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIi64 ", %" PRIi32 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (intptr_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX);
     } else if (w == iFLLi) {
