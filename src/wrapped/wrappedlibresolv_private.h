@@ -84,11 +84,11 @@ GO(__res_mailok, iFp)
 GO(__res_mkquery, iFipiipippi)
 GOW(res_mkquery, iFipiipippi)
 GO(__res_nameinquery, iFpiipp)
-//GO(__res_nmkquery, 
+GO(__res_nmkquery, iFpipiipippi)
 GO(__res_nquery, iFppiipi)
 //GO(__res_nquerydomain, 
 GO(__res_nsearch, iFppiipi)
-//GO(__res_nsend, 
+GO(__res_nsend, iFppipi)
 //DATA(_res_opcodes, 4)
 GO(__res_ownok, iFp)
 GO(__res_queriesmatch, iFpppp)
