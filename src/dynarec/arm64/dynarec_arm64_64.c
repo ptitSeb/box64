@@ -562,7 +562,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.is32bits)
                 addr = dynarec64_6764_32(dyn, addr, ip, ninst, rex, rep, seg, ok, need_epilog);
             else {
-                DEFAULT;
+                addr = dynarec64_6764(dyn, addr, ip, ninst, rex, rep, seg, ok, need_epilog);
             }
             break;
 

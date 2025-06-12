@@ -952,6 +952,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67_32.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67_avx.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_6764.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_6764_32.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d8.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d9.c"
