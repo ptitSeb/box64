@@ -2178,7 +2178,7 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             break;
         case NEON_CACHE_YMMR:
         case NEON_CACHE_YMMW:
-            if(dyn->insts[i2].n.xmm_unneeded&(1<<n)) {
+            if(dyn->insts[i2].n.ymm_unneeded&(1<<n)) {
                 MESSAGE(LOG_DUMP, "\t  - ignoring unneeded %s\n", getCacheName(t, n));
             } else {
                 MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
@@ -2245,7 +2245,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
             }
             break;
         case NEON_CACHE_YMMW:
-            if(dyn->insts[i2].n.ymm_unneeded&(1<<i)) {
+            if(dyn->insts[i2].n.ymm_unneeded&(1<<n)) {
                 MESSAGE(LOG_DUMP, "\t  - ignoring unneeded %s\n", getCacheName(t, n));
             } else {
                 MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
