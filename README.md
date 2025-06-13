@@ -35,7 +35,7 @@ Box64 offers environment variables to control its behavior. For details, see [Us
 
 - [Compilation Instructions](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md)
 - [Bundle x86 Libraries](https://github.com/ptitSeb/box64/blob/main/docs/BUNDLE-X86-LIBS.md)
-- [Wine Installation for Box64](https://github.com/ptitSeb/box64/blob/main/docs/X64WINE.md)
+- [Wine Installation for Box64](https://github.com/ptitSeb/box64/blob/main/docs/WINE.md)
 
 ---
 
