@@ -34,7 +34,7 @@ Box64 提供了环境变量来控制其行为。有关详细信息请参阅[使�
 ## 🚀 编译和安装
 
 - [编译说明](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md)
-- [安装 Wine](https://github.com/ptitSeb/box64/blob/main/docs/X64WINE.md)
+- [安装 Wine](https://github.com/ptitSeb/box64/blob/main/docs/WINE.md)
 
 ---
 
