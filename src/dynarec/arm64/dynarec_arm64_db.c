@@ -133,7 +133,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("FNINIT");
             MESSAGE(LOG_DUMP, "Need Optimization (FNINIT)\n");
             x87_purgecache(dyn, ninst, 0, x1, x2, x3);
-            CALL(reset_fpu, -1);
+            CALL(const_reset_fpu, -1);
             NATIVE_RESTORE_X87PC();
             break;
         case 0xE8:
@@ -309,7 +309,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
                         // sync top
                         x87_reflectcount(dyn, ninst, x3, x4);
-                        CALL(native_fld, -1);
+                        CALL(const_native_fld, -1);
                         // go back with the top & stack counter
                         x87_unreflectcount(dyn, ninst, x3, x4);
                     }
@@ -327,7 +327,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
                         x87_reflectcount(dyn, ninst, x3, x4);
-                        CALL(native_fstp, -1);
+                        CALL(const_native_fstp, -1);
                         x87_unreflectcount(dyn, ninst, x3, x4);
                     } else {
                         // Painfully long, straight conversion from the C code, shoud be optimized

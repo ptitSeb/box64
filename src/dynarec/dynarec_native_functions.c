@@ -235,6 +235,7 @@ void native_fsave(x64emu_t* emu, uint8_t* ed)
         LD2D(p, &emu->x87[7-i].d);
         p+=10;
     }
+    reset_fpu(emu);
 }
 void native_fsave16(x64emu_t* emu, uint8_t* ed)
 {
@@ -246,6 +247,7 @@ void native_fsave16(x64emu_t* emu, uint8_t* ed)
         LD2D(p, &emu->x87[7-i].d);
         p+=10;
     }
+    reset_fpu(emu);
 }
 void native_frstor(x64emu_t* emu, uint8_t* ed)
 {

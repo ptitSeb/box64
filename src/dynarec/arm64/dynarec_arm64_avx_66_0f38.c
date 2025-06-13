@@ -1887,7 +1887,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 sse_forget_reg(dyn, ninst, gd);
                 MOV32w(x1, gd);
-                CALL(native_aesimc, -1);
+                CALL(const_native_aesimc, -1);
             }
             YMM0(gd);
             break;
@@ -1922,8 +1922,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 sse_forget_reg(dyn, ninst, gd);
                 MOV32w(x1, gd);
-                CALL(native_aese, -1);
-                if(vex.l) {MOV32w(x1, gd); CALL(native_aese_y, -1);}
+                CALL(const_native_aese, -1);
+                if(vex.l) {MOV32w(x1, gd); CALL(const_native_aese_y, -1);}
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
@@ -1962,8 +1962,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 sse_forget_reg(dyn, ninst, gd);
                 MOV32w(x1, gd);
-                CALL(native_aeselast, -1);
-                if(vex.l) {MOV32w(x1, gd); CALL(native_aeselast_y, -1);}
+                CALL(const_native_aeselast, -1);
+                if(vex.l) {MOV32w(x1, gd); CALL(const_native_aeselast_y, -1);}
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
@@ -2003,8 +2003,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 sse_forget_reg(dyn, ninst, gd);
                 MOV32w(x1, gd);
-                CALL(native_aesd, -1);
-                if(vex.l) {MOV32w(x1, gd); CALL(native_aesd_y, -1);}
+                CALL(const_native_aesd, -1);
+                if(vex.l) {MOV32w(x1, gd); CALL(const_native_aesd_y, -1);}
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
@@ -2043,8 +2043,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 sse_forget_reg(dyn, ninst, gd);
                 MOV32w(x1, gd);
-                CALL(native_aesdlast, -1);
-                if(vex.l) {MOV32w(x1, gd); CALL(native_aesdlast_y, -1);}
+                CALL(const_native_aesdlast, -1);
+                if(vex.l) {MOV32w(x1, gd); CALL(const_native_aesdlast_y, -1);}
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {

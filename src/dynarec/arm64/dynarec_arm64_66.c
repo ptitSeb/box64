@@ -1285,7 +1285,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
                     GETEW(x1, 0);
-                    CALL_(rcl16, x1, x3);
+                    CALL_(const_rcl16, x1, x3);
                     EWBACK;
                     break;
                 case 3:
@@ -1299,7 +1299,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
                     GETEW(x1, 0);
-                    CALL_(rcr16, x1, x3);
+                    CALL_(const_rcr16, x1, x3);
                     EWBACK;
                     break;
                 case 4:
@@ -1365,7 +1365,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
                         MOV32w(x2, 1);
-                        CALL(fpu_savenv, -1);
+                        CALL(const_fpu_savenv, -1);
                         break;
                     default:
                         DEFAULT;
@@ -1384,7 +1384,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
-                        CALL(native_frstor16, -1);
+                        CALL(const_native_frstor16, -1);
                         break;
                     case 6:
                         INST_NAME("FNSAVE Ed");
@@ -1392,8 +1392,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
-                        CALL(native_fsave16, -1);
-                        CALL(reset_fpu, -1);
+                        CALL(const_native_fsave16, -1);
                         break;
                     default:
                         DEFAULT;
@@ -1506,7 +1505,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARK3(ed);
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
-                        CALL_S(native_div0, -1);
+                        CALL_S(const_native_div0, -1);
                         CLEARIP();
                         LOAD_XEMU_CALL(xRIP);
                         jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -1540,7 +1539,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARK3(ed);
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
-                        CALL_S(native_div0, -1);
+                        CALL_S(const_native_div0, -1);
                         CLEARIP();
                         LOAD_XEMU_CALL(xRIP);
                         jump_to_epilog(dyn, 0, xRIP, ninst);

@@ -271,7 +271,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization (F2XM1)\n");
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(native_f2xm1, -1);
+            CALL(const_native_f2xm1, -1);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
         case 0xF1:
@@ -280,7 +280,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(native_fyl2x, -1);
+            CALL(const_native_fyl2x, -1);
             x87_unstackcount(dyn, ninst, x1, i1);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -291,7 +291,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 0);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_ftan, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            CALL_(const_native_ftan, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             x87_unstackcount(dyn, ninst, x1, i1);
            if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
@@ -316,7 +316,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 1);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fpatan, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            CALL_(const_native_fpatan, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
@@ -328,19 +328,11 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(native_fxtract, -1);
+            CALL(const_native_fxtract, -1);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
         case 0xF5:
             INST_NAME("FPREM1");
-            #if 0
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            i1 = x87_stackcount(dyn, ninst, x1);
-            x87_forget(dyn, ninst, x1, x2, 0);
-            x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(native_fprem1, -1);
-            x87_unstackcount(dyn, ninst, x1, i1);
-            #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             s0 = fpu_get_scratch(dyn, ninst);
@@ -361,7 +353,6 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LSRx(x4, x4, 1);
             BFIw(x1, x4, 8, 1);
             STRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
-            #endif
             break;
         case 0xF6:
             INST_NAME("FDECSTP");
@@ -381,14 +372,6 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF8:
             INST_NAME("FPREM");
-            #if 0
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            i1 = x87_stackcount(dyn, ninst, x1);
-            x87_forget(dyn, ninst, x1, x2, 0);
-            x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(native_fprem, -1);
-            x87_unstackcount(dyn, ninst, x1, i1);
-            #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             s0 = fpu_get_scratch(dyn, ninst);
@@ -409,7 +392,6 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LSRx(x4, x4, 1);
             BFIw(x1, x4, 8, 1);
             STRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
-            #endif
             break;
         case 0xF9:
             INST_NAME("FYL2XP1");
@@ -417,7 +399,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
-            CALL(native_fyl2xp1, -1);
+            CALL(const_native_fyl2xp1, -1);
             x87_unstackcount(dyn, ninst, x1, i1);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -443,19 +425,13 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 1);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fsincos, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            CALL_(const_native_fsincos, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
         case 0xFC:
             INST_NAME("FRNDINT");
-            #if 0
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            // use C helper for now, nothing staightforward is available
-            x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(native_frndint, -1);
-            #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             u8 = x87_setround(dyn, ninst, x1, x2, x3);
             if(ST_IS_F(0)) {
@@ -464,7 +440,6 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FRINTID(v1, v1);
             }
             x87_restoreround(dyn, ninst, u8);
-            #endif
             break;
         case 0xFD:
             INST_NAME("FSCALE");
@@ -474,7 +449,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 1);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fscale, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            CALL_(const_native_fscale, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
@@ -486,7 +461,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 0);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fsin, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            CALL_(const_native_fsin, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
@@ -498,7 +473,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             x87_forget(dyn, ninst, x1, x2, 0);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_(native_fcos, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
+            CALL_(const_native_fcos, -1, BOX64ENV(dynarec_fastround) ? 0 : u8);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             x87_unstackcount(dyn, ninst, x1, i1);
@@ -556,7 +531,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVx_REG(x1, ed);
                 }
                 MOV32w(x2, 0);
-                CALL(fpu_loadenv, -1);
+                CALL(const_fpu_loadenv, -1);
                 NATIVE_RESTORE_X87PC();
                 break;
             case 5:
@@ -575,7 +550,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVx_REG(x1, ed);
                 }
                 MOV32w(x2, 0);
-                CALL(fpu_savenv, -1);
+                CALL(const_fpu_savenv, -1);
                 break;
             case 7:
                 INST_NAME("FNSTCW Ew");

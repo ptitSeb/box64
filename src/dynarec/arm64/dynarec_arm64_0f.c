@@ -16,7 +16,6 @@
 #include "my_cpuid.h"
 #include "freq.h"
 #include "emu/x87emu_private.h"
-#include "emu/x64shaext.h"
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
@@ -90,7 +89,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RDTSCP");
                     NOTEST(x1);
                     if(box64_rdtsc) {
-                        CALL_(ReadTSC, x1, x3);
+                        CALL_(const_readtsc, x1, x3);
                     } else {
                         MRS_cntvct_el0(x1);
                     }
@@ -99,7 +98,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     LSRx(xRDX, x1, 32);
                     MOVw_REG(xRAX, x1);   // wipe upper part
-                    CALL_(helper_getcpu, x1, x3);
+                    CALL_(const_helper_getcpu, x1, x3);
                     MOVw_REG(xRCX, x1);    // IA32_TSC, 0 for now
                     break;
                 default:
@@ -149,7 +148,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL(xRIP);
-            CALL_S(EmuX64Syscall, -1);
+            CALL_S(const_x64syscall, -1);
             LOAD_XEMU_CALL(xRIP);
             TABLE64(x3, addr); // expected return address
             SUBx_REG(x3, x3, xRIP);
@@ -170,7 +169,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL_S(native_ud, -1);
+            CALL_S(const_native_ud, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -186,7 +185,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL_S(native_ud, -1);
+            CALL_S(const_native_ud, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -225,7 +224,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL_S(native_ud, -1);
+            CALL_S(const_native_ud, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -532,7 +531,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
-            CALL_S(native_priv, -1);
+            CALL_S(const_native_priv, -1);
             LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             // continue the block
@@ -541,7 +540,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("RDTSC");
             NOTEST(x1);
             if(box64_rdtsc) {
-                CALL_(ReadTSC, x1, x3);
+                CALL_(const_readtsc, x1, x3);
             } else {
                 MRS_cntvct_el0(x1);
             }
@@ -771,7 +770,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
-                        CALL(sha1msg2, -1);
+                        CALL(const_sha1msg2, -1);
                     }
                     break;
                 case 0xCB:
@@ -817,7 +816,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         sse_forget_reg(dyn, ninst, gd);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
                         sse_reflect_reg(dyn, ninst, 0);
-                        CALL(sha256rnds2, -1);
+                        CALL(const_sha256rnds2, -1);
                     }
                     break;
                 case 0xCC:
@@ -842,7 +841,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
-                        CALL(sha256msg1, -1);
+                        CALL(const_sha256msg1, -1);
                     }
                     break;
                 case 0xCD:
@@ -876,7 +875,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETG;
                         sse_forget_reg(dyn, ninst, gd);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
-                        CALL(sha256msg2, -1);
+                        CALL(const_sha256msg2, -1);
                     }
                     break;
 
@@ -999,7 +998,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         sse_forget_reg(dyn, ninst, gd);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
                         MOV32w(x3, u8);
-                        CALL(sha1rnds4, -1);
+                        CALL(const_sha1rnds4, -1);
                     }
                     break;
 
@@ -1743,7 +1742,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("CPUID");
             NOTEST(x1);
             MOVx_REG(x1, xRAX);
-            CALL_(my_cpuid, -1, 0);
+            CALL_(const_cpuid, -1, 0);
             break;
         case 0xA3:
             INST_NAME("BT Ed, Gd");
@@ -1925,7 +1924,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
-                        CALL(rex.is32bits?((void*)fpu_fxsave32):((void*)fpu_fxsave64), -1);
+                        CALL(rex.is32bits?const_fpu_fxsave32:const_fpu_fxsave64, -1);
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
@@ -1933,7 +1932,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
-                        CALL(rex.is32bits?((void*)fpu_fxrstor32):((void*)fpu_fxrstor64), -1);
+                        CALL(rex.is32bits?const_fpu_fxrstor32:const_fpu_fxrstor64, -1);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
@@ -1994,7 +1993,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
                         MOV32w(x2, rex.w?0:1);
-                        CALL((void*)fpu_xsave, -1);
+                        CALL(const_fpu_xsave, -1);
                         break;
                     case 5:
                         INST_NAME("XRSTOR Ed");
@@ -2003,7 +2002,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
                         MOV32w(x2, rex.w?0:1);
-                        CALL((void*)fpu_xrstor, -1);
+                        CALL(const_fpu_xrstor, -1);
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
@@ -2012,7 +2011,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(ed!=x1) {
                             MOVx_REG(x1, ed);
                         }
-                        CALL_(native_clflush, -1, 0);
+                        CALL_(const_native_clflush, -1, 0);
                         break;
                     default:
                         DEFAULT;
@@ -2595,7 +2594,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MRS_rndr(x1);
                     IFX(X_CF) { CSETw(x3, cNE); }
                 } else {
-                    CALL(rex.w?((void*)get_random64):((void*)get_random32), x1);
+                    CALL(rex.w?const_random64:const_random32, x1);
                     IFX(X_CF) { MOV32w(x3, 1); }
                 }
                 IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
@@ -2604,7 +2603,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 7:
                 INST_NAME("RDPID Ed");
                 GETED(0);
-                CALL_(helper_getcpu, ed, x2);
+                CALL_(const_helper_getcpu, ed, x2);
                 break;
             default:
                 DEFAULT;
@@ -2654,7 +2653,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MRS_rndr(x1);
                     IFX(X_CF) { CSETw(x3, cNE); }
                 } else {
-                    CALL(rex.w?((void*)get_random64):((void*)get_random32), x1);
+                    CALL(rex.w?const_random64:const_random32, x1);
                     IFX(X_CF) { MOV32w(x3, 1); }
                 }
                 IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }

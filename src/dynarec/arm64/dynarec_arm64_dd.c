@@ -49,7 +49,6 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC6:
         case 0xC7:
             INST_NAME("FFREE STx");
-            #if 1
             if((nextop&7)==0 && PK(0)==0xD9 && PK(1)==0xF7) {
                 MESSAGE(LOG_DUMP, "Hack for FFREE ST0 / FINCSTP\n");
                 x87_do_pop(dyn, ninst, x1);
@@ -57,12 +56,6 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SKIPTEST(x1);
             } else
                 x87_free(dyn, ninst, x1, x2, x3, nextop&7);
-            #else
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            x87_purgecache(dyn, ninst, 0, x1, x2, x3);
-            MOV32w(x1, nextop&7);
-            CALL(fpu_do_free, -1);
-            #endif
             break;
         case 0xD0:
         case 0xD1:
@@ -196,7 +189,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
-                CALL(native_frstor, -1);
+                CALL(const_native_frstor, -1);
                 break;
             case 6:
                 INST_NAME("FNSAVE m108byte");
@@ -204,8 +197,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
-                CALL(native_fsave, -1);
-                CALL(reset_fpu, -1);
+                CALL(const_native_fsave, -1);
                 NATIVE_RESTORE_X87PC();
                 break;
             case 7:

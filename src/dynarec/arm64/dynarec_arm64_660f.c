@@ -18,7 +18,6 @@
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
 #include "../dynarec_helper.h"
-#include "emu/x64compstrings.h"
 
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
@@ -781,7 +780,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(native_aesimc, -1);
+                        CALL(const_native_aesimc, -1);
                     }
                     break;
                 case 0xDC:
@@ -804,7 +803,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(native_aese, -1);
+                        CALL(const_native_aese, -1);
                         GETGX(q0, 1);
                         VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
@@ -828,7 +827,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(native_aeselast, -1);
+                        CALL(const_native_aeselast, -1);
                         GETGX(q0, 1);
                         VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
@@ -853,7 +852,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(native_aesd, -1);
+                        CALL(const_native_aesd, -1);
                         GETGX(q0, 1);
                         VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
@@ -877,7 +876,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
-                        CALL(native_aesdlast, -1);
+                        CALL(const_native_aesdlast, -1);
                         GETGX(q0, 1);
                         VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
@@ -1276,7 +1275,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         u8 = F8;
                         MOV32w(x4, u8);
-                        CALL(native_pclmul, -1);
+                        CALL(const_native_pclmul, -1);
                     }
                     break;
 
@@ -1302,7 +1301,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     MOVx_REG(x4, xRAX);
                     u8 = F8;
                     MOV32w(x5, u8);
-                    CALL(sse42_compare_string_explicit_len, x1);
+                    CALL(const_sse42_compare_string_explicit_len, x1);
                     q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
                         q1 = fpu_get_scratch(dyn, ninst);
@@ -1471,7 +1470,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         MOVw_REG(x4, xRAX);
                         u8 = F8;
                         MOV32w(x5, u8);
-                        CALL(sse42_compare_string_explicit_len, x1);
+                        CALL(const_sse42_compare_string_explicit_len, x1);
                     }
                     if(u8&0b1000000) {
                         CBNZw_MARK(x1);
@@ -1507,7 +1506,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     u8 = F8;
                     MOV32w(x3, u8);
-                    CALL(sse42_compare_string_implicit_len, x1);
+                    CALL(const_sse42_compare_string_implicit_len, x1);
                     q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
                         q1 = fpu_get_scratch(dyn, ninst);
@@ -1561,7 +1560,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     u8 = F8;
                     MOV32w(x3, u8);
-                    CALL(sse42_compare_string_implicit_len, x1);
+                    CALL(const_sse42_compare_string_implicit_len, x1);
                     CBNZw_MARK(x1);
                     MOV32w(xRCX, (u8&1)?8:16);
                     B_NEXT_nocond;
@@ -1596,7 +1595,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     u8 = F8;
                     MOV32w(x4, u8);
-                    CALL(native_aeskeygenassist, -1);
+                    CALL(const_native_aeskeygenassist, -1);
                     break;
 
                 default:
@@ -2514,7 +2513,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(ed!=x1) {
                             MOVx_REG(x1, ed);
                         }
-                        CALL_(native_clflush, -1, 0);
+                        CALL_(const_native_clflush, -1, 0);
                         break;
                     case 7:
                         INST_NAME("CLFLUSHOPT Ed");
@@ -2523,7 +2522,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(ed!=x1) {
                             MOVx_REG(x1, ed);
                         }
-                        CALL_(native_clflush, -1, 0);
+                        CALL_(const_native_clflush, -1, 0);
                         break;
                     default:
                         DEFAULT;

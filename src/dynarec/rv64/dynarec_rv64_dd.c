@@ -161,7 +161,6 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
                 CALL(native_fsave, -1, ed, 0);
-                CALL(reset_fpu, -1, 0, 0);
                 NATIVE_RESTORE_X87PC();
                 break;
             case 7:

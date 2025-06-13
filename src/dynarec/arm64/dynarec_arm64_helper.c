@@ -757,7 +757,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     CLEARIP();
 }
 
-void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
+void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int savereg)
 {
     MAYUSE(fnc);
     #if STEP == 0
@@ -780,7 +780,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     #ifdef _WIN32
     LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
     #endif
-    TABLE64(reg, (uintptr_t)fnc);
+    TABLE64(reg, getConst(fnc));
     BLR(reg);
     if(ret>=0) {
         MOVx_REG(ret, xEmu);
@@ -924,7 +924,7 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
         CBZw_MARKSEG(t2);
     }
     MOVZw(x1, segment);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
+    call_c(dyn, ninst, const_getsegmentbase, t2, reg, 1, 0);
     MARKSEG;
     #endif
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
@@ -2522,7 +2522,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
         }
         if(dyn->insts[ninst].need_nat_flags)
             MRS_nzcv(s1);
-        CALL_(UpdateFlags, -1, s1);
+        CALL_(const_updateflags, -1, s1);
         if(dyn->insts[ninst].need_nat_flags)
             MSR_nzcv(s1);
         MARKF2;

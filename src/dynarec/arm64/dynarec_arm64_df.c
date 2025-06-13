@@ -273,7 +273,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
                 s0 = x87_stackcount(dyn, ninst, x3);
-                CALL(fpu_fbld, -1);
+                CALL(const_fpu_fbld, -1);
                 x87_unstackcount(dyn, ninst, x3, s0);
                 break;
             case 5:
@@ -310,7 +310,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 x87_forget(dyn, ninst, x1, x2, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
-                CALL(fpu_fbst, -1);
+                CALL(const_fpu_fbst, -1);
                 x87_unstackcount(dyn, ninst, x1, i1);
                 X87_POP_OR_FAIL(dyn, ninst, x3);
                 break;

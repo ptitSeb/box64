@@ -1616,7 +1616,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             GETED32H(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
                             CBZxw_MARK(xRDX);
                             if(ed!=x1) {MOVx_REG(x1, ed);}
-                            CALL(div64, -1);
+                            CALL(const_div64, -1);
                             B_NEXT_nocond;
                             MARK;
                             UDIVx(x2, xRAX, ed);
@@ -1666,7 +1666,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MVNx_REG(x2, xRDX);
                             CBZxw_MARK(x2);
                             if(ed!=x1) {MOVx_REG(x1, ed);}
-                            CALL((void*)idiv64, -1);
+                            CALL(const_idiv64, -1);
                             B_NEXT_nocond;
                             MARK;
                             SDIVx(x2, xRAX, ed);
