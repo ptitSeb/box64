@@ -21,7 +21,7 @@ Wine ships in multiple forms:
 
     The executable architecture of **x86_64 Wine** is x86_64, and it runs x64 Windows executables.
 
-    It can be used with Box64.
+    It can be used with Box64. Note that **x86_64 Wine** usually ships with **x86 Wine** included. So you can use a combination of Box86 + Box64 or Box64 alone with Box32 enabled to run both x32 and x64 executables seamlessly.
 
 3. **x86_64 Wine WOW64**
 
@@ -29,7 +29,7 @@ Wine ships in multiple forms:
 
     What's great about **x86_64 Wine WOW64** is that it does not require a 32-bit environment for x32 Windows executable, as the 32-bit environment emulation is taken care of by Wine WOW64 itself.
 
-    That means you can just use Box64 to run x32 Windows executables. However, the downside is that the performance of WineD3D is pretty bad for 32-bit (use DXVK!).
+    That means you can just use Box64 (without Box32) to run x32 Windows executables. However, the downside is that the performance of WineD3D is pretty bad for 32-bit (use DXVK!).
 
 4. **Arm64 Wine WOW64**
 
