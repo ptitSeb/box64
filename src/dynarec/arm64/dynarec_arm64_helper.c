@@ -560,7 +560,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         GETIP_(ip);
     }
     NOTEST(x2);
-    TABLE64(x2, (uintptr_t)arm64_epilog);
+    TABLE64C(x2, const_epilog);
     SMEND();
     BR(x2);
 }
@@ -575,8 +575,7 @@ static int indirect_lookup(dynarec_arm_t* dyn, int ninst, int is32bits, int s1, 
         LSRx_IMM(s1, xRIP, 48);
         CBNZw(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
         // load table
-        uintptr_t tbl = getJumpTable48(); // this is a static value, so will be a low address
-        MOV64x(s2, tbl);
+        MOV64x(s2, getConst(const_jmptbl48));    // this is a static value, so will be a low address
         #ifdef JMPTABL_SHIFT4
         UBFXx(s1, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
         LDRx_REG_LSL3(s2, s2, s1);
@@ -588,8 +587,7 @@ static int indirect_lookup(dynarec_arm_t* dyn, int ninst, int is32bits, int s1, 
         // LSRx_IMM(s1, xRIP, 32);
         // CBNZw(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
         // load table
-        uintptr_t tbl = getJumpTable32(); // this will not be a low address
-        TABLE64(s2, tbl);
+        TABLE64C(s2, const_jmptbl32);
         #ifdef JMPTABL_SHIFT4
         UBFXx(s1, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
         LDRx_REG_LSL3(s2, s2, s1);
@@ -624,7 +622,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
         NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
-        MOV64x(x3, p);
+        TABLE64(x3, p);
         GETIP_(ip);
         LDRx_U12(x2, x3, 0);
         dest = x2;
@@ -752,7 +750,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     MOVx_REG(xRSP, x3);
     MARKSEG;
     // Ret....
-    MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
+    MOV64x(x2, getConst(const_epilog));  // epilog on purpose, CS might have changed!
     BR(x2);
     CLEARIP();
 }
@@ -780,7 +778,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
     #ifdef _WIN32
     LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
     #endif
-    TABLE64(reg, getConst(fnc));
+    TABLE64C(reg, fnc);
     BLR(reg);
     if(ret>=0) {
         MOVx_REG(ret, xEmu);

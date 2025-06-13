@@ -54,9 +54,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
-    #if STEP > 1
-    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
-    #endif
 
     switch(opcode) {
 
@@ -2739,7 +2736,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             q1 = fpu_get_scratch(dyn, ninst);
             GETEM(q0, 0);
             GETGD;
-            TABLE64(x1, (uintptr_t)&mask_shift8);
+            TABLE64C(x1, const_8b_m7_m6_m5_m4_m3_m2_m1_0);
             VLDR64_U12(v0, x1, 0);     // load shift
             MOVI_8(v1, 0x80);   // load mask
             VAND(q1, v1, q0);

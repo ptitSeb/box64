@@ -1211,6 +1211,9 @@
 #ifndef FTABLE64
 #define FTABLE64(A, V)
 #endif
+#ifndef TABLE64C
+#define TABLE64C(A, V)
+#endif
 
 #define ARCH_INIT()      \
     SMSTART();           \
@@ -1255,9 +1258,6 @@
 #endif
 
 #define MODREG  ((nextop&0xC0)==0xC0)
-
-void arm64_epilog(void);
-void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME
 #define STEPNAME3(N,M) N##M

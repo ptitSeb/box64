@@ -54,9 +54,6 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
-    #if STEP > 1
-    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
-    #endif
 
     rex_t rex = vex.rex;
 

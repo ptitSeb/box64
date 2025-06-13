@@ -46,9 +46,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(eb2);
     MAYUSE(j64);
     #if STEP > 1
-    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
-    static const int8_t mask_string8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
-    static const int8_t mask_string16[] = { 15, 14, 13, 12, 11, 10, 9, 8 };
     static const int8_t round_round[] = { 0, 2, 1, 3};
     #endif
 
@@ -1311,7 +1308,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 LSRw_IMM(x1, x1, 8);
                                 VDUPQB(q1, x1); // load the high 8bits of the mask
                                 VEXTQ_8(q0, q0, q1, 8); // low and hig bits mask
-                                TABLE64(x2, (uintptr_t)&mask_string8);
+                                TABLE64C(x2, const_8b_7_6_5_4_3_2_1_0);
                                 VLDR64_U12(q1, x2, 0);     // load shift
                                 VDUPQ_64(q1, q1, 0);
                                 USHLQ_8(q0, q0, q1); // extract 1 bit
@@ -1321,7 +1318,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 break;
                             case 0b01:
                                 VDUPQH(q0, x1); // load the 8bits of the mask
-                                TABLE64(x2, (uintptr_t)&mask_string16);
+                                TABLE64C(x2, const_8b_15_14_13_12_11_10_9_8);
                                 VLDR64_U12(q1, x2, 0);     // load shift
                                 UXTL_8(q1, q1);     // extend mask to 16bits
                                 USHLQ_16(q0, q0, q1); // extract 1 bit
@@ -1353,7 +1350,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             // transform that a mask in x1
                             q1 = fpu_get_scratch(dyn, ninst);
                             VSHL_8(q0, q0, 7);  // keep only bit 0x80
-                            TABLE64(x1, (uintptr_t)&mask_shift8);
+                            TABLE64C(x1, const_8b_m7_m6_m5_m4_m3_m2_m1_0);
                             VLDR64_U12(q1, x1, 0);     // load shift
                             USHL_8(q0, q0, q1); // shift
                             UADDLV_8(q0, q0);   // accumulate
@@ -1365,7 +1362,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             q1 = fpu_get_scratch(dyn, ninst);
                             d0 = fpu_get_scratch(dyn, ninst);
                             VSHL_8(d0, q0, 7);  // keep only bit 0x80
-                            TABLE64(x1, (uintptr_t)&mask_shift8);
+                            TABLE64C(x1, const_8b_m7_m6_m5_m4_m3_m2_m1_0);
                             VLDR64_U12(q1, x1, 0);     // load shift
                             USHL_8(d0, d0, q1); // shift
                             UADDLV_8(d0, d0);   // accumulate
@@ -1516,7 +1513,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 LSRw_IMM(x1, x1, 8);
                                 VDUPQB(q1, x1); // load the high 8bits of the mask
                                 VEXTQ_8(q0, q0, q1, 8); // low and hig bits mask
-                                TABLE64(x2, (uintptr_t)&mask_string8);
+                                TABLE64C(x2, const_8b_7_6_5_4_3_2_1_0);
                                 VLDR64_U12(q1, x2, 0);     // load shift
                                 VDUPQ_64(q1, q1, 0);
                                 USHLQ_8(q0, q0, q1); // extract 1 bit
@@ -1526,7 +1523,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 break;
                             case 0b01:
                                 VDUPQH(q0, x1); // load the 8bits of the mask
-                                TABLE64(x2, (uintptr_t)&mask_string16);
+                                TABLE64C(x2, const_8b_15_14_13_12_11_10_9_8);
                                 VLDR64_U12(q1, x2, 0);     // load shift
                                 UXTL_8(q1, q1);     // extend mask to 16bits
                                 USHLQ_16(q0, q0, q1); // extract 1 bit

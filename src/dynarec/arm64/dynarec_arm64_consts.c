@@ -15,11 +15,27 @@
 #include "my_cpuid.h"
 #include "freq.h"
 #include "debug.h"
+#include "custommem.h"
 #include "dynarec_arm64_functions.h"
 #include "emu/x64shaext.h"
 #include "emu/x87emu_private.h"
 #include "emu/x64compstrings.h"
 #include "x64test.h"
+
+static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+static const int8_t mask_string8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
+static const int8_t mask_string16[] = { 15, 14, 13, 12, 11, 10, 9, 8 };
+static const float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
+static const double addsubpd[2] = {-1., 1.};
+static const float subaddps[4] = {1.f, -1.f, 1.f, -1.f};
+static const double subaddpd[2] = {1., -1.};
+
+void arm64_epilog(void);
+void* arm64_next(x64emu_t* emu, uintptr_t addr);
+
+#ifndef HAVE_TRACE
+void PrintTrace() {}
+#endif
 
 uintptr_t getConst(arm64_consts_t which)
 {
@@ -106,6 +122,17 @@ uintptr_t getConst(arm64_consts_t which)
         case const_sse42_compare_string_implicit_len: return (uintptr_t)sse42_compare_string_implicit_len;
         case const_x64test_step: return (uintptr_t)x64test_step;
         case const_printtrace: return (uintptr_t)PrintTrace;
+        case const_epilog: return (uintptr_t)arm64_epilog;
+        case const_jmptbl32: return getJumpTable32();
+        case const_jmptbl48: return getJumpTable48();
+        case const_jmptbl64: return getJumpTable64();
+        case const_8b_m7_m6_m5_m4_m3_m2_m1_0: return (uintptr_t)&mask_shift8;
+        case const_8b_7_6_5_4_3_2_1_0: return (uintptr_t)&mask_string8;
+        case const_8b_15_14_13_12_11_10_9_8: return (uintptr_t)&mask_string16;
+        case const_4f_m1_1_m1_1: return (uintptr_t)&addsubps;
+        case const_4f_1_m1_1_m1: return (uintptr_t)&subaddps;
+        case const_2d_m1_1: return (uintptr_t)&addsubpd;
+        case const_2d_1_m1: return (uintptr_t)&subaddpd;
 
         case const_last: dynarec_log(LOG_NONE, "Warning, const last used\n");
             return 0;

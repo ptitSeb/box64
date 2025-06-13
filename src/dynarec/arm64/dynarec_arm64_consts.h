@@ -84,6 +84,17 @@ typedef enum arm64_consts_s {
     const_sse42_compare_string_implicit_len,
     const_x64test_step,
     const_printtrace,
+    const_epilog,
+    const_jmptbl32,
+    const_jmptbl48,
+    const_jmptbl64,
+    const_8b_m7_m6_m5_m4_m3_m2_m1_0,
+    const_8b_7_6_5_4_3_2_1_0,
+    const_8b_15_14_13_12_11_10_9_8,
+    const_4f_m1_1_m1_1,
+    const_2d_m1_1,
+    const_4f_1_m1_1_m1,
+    const_2d_1_m1,
 
     const_last
 } arm64_consts_t;

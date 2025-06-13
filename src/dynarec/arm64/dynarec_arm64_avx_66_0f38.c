@@ -22,11 +22,6 @@
 #include "dynarec_arm64_functions.h"
 #include "../dynarec_helper.h"
 
-static const float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
-static const double addsubpd[2] = {-1., 1.};
-static const float subaddps[4] = {1.f, -1.f, 1.f, -1.f};
-static const double subaddpd[2] = {1., -1.};
-
 uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;
@@ -1587,7 +1582,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VFMADDSUB213PS/D Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
-            TABLE64(x2, (rex.w)?((uintptr_t)&addsubpd):((uintptr_t)&addsubps));
+            TABLE64C(x2, rex.w?const_2d_m1_1:const_4f_m1_1_m1_1);
             VLDR128_U12(q0, x2, 0);
             q1 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
@@ -1738,7 +1733,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VFMADDSUB231PS/D Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
-            TABLE64(x2, (rex.w)?((uintptr_t)&addsubpd):((uintptr_t)&addsubps));
+            TABLE64C(x2, rex.w?const_2d_m1_1:const_4f_m1_1_m1_1);
             VLDR128_U12(q0, x2, 0);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_VXEX(v0, v2, v1, 0); if(v0==v2 || v0==v1) q1 = fpu_get_scratch(dyn, ninst); } else { GETGY_VYEY(v0, v2, v1); }
@@ -1761,7 +1756,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VFMSUBADD231PS/D Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
-            TABLE64(x2, (rex.w)?((uintptr_t)&subaddpd):((uintptr_t)&subaddps));
+            TABLE64(x2, rex.w?const_2d_1_m1:const_4f_1_m1_1_m1);
             VLDR128_U12(q0, x2, 0);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_VXEX(v0, v2, v1, 0); if(v0==v2 || v0==v1) q1 = fpu_get_scratch(dyn, ninst); } else { GETGY_VYEY(v0, v2, v1); }
