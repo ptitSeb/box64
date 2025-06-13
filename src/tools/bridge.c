@@ -287,7 +287,7 @@ int isNativeCall32(uintptr_t addr, uintptr_t* calladdress, uint16_t* retn)
 #undef PK
 }
 #else
-int isNativeCall32(uintptr_t addr, uintptr_t* calladdress, int* retn)
+int isNativeCall32(uintptr_t addr, uintptr_t* calladdress, uint16_t* retn)
 {
     return 0;
 }
