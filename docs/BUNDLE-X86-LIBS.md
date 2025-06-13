@@ -25,7 +25,7 @@ Run `box64-bundle-x86-libs.sh`. This will create two archives:
 Extract the library archive. Box will automatically search these paths for library files to emulate.
 
 ```
-sudo tar --extract --file box64-bundle-x86-libs.tar.gz --directory /
+sudo tar --extract --no-same-owner --file box64-bundle-x86-libs.tar.gz --directory /
 ```
 
 ### Developer

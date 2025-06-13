@@ -39,7 +39,10 @@ for line in $(cat "${box64_dir}/box64-bundle-x86-libs.csv");
     do pkg_url="$(echo "${line}" | cut -d, -f1)"
     pkg_checksum_expected="$(echo "${line}" | cut -d, -f2)"
     pkg_name="$(basename "${pkg_url}")"
-    curl --silent --location --remote-name "${pkg_url}"
+    if ! curl --silent --fail --location --remote-name "${pkg_url}"
+        then echo "Failed to download ${pkg_url}"
+        exit 1
+    fi
     pkg_checksum_actual="$(sha256sum ${pkg_name} | awk '{print $1}')"
     if [[ "${pkg_checksum_expected}" -ne "${pkg_checksum_actual}" ]];
         then echo "Invalid checksum for ${pkg_name}"
