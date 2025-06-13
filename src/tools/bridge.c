@@ -21,6 +21,9 @@
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
+#ifdef BOX32
+#include "box32context.h"
+#endif
 
 KHASH_MAP_INIT_INT64(bridgemap, uintptr_t)
 
@@ -258,10 +261,42 @@ void fini_bridge_helper()
     cleanAlternate();
 }
 
+#ifdef BOX32
+int isNativeCall32(uintptr_t addr, uintptr_t* calladdress, uint16_t* retn)
+{
+#define PK(a)       *(uint8_t*)(addr+a)
+#define PK32(a)     *(uint32_t*)(addr+a)
+
+    if(!addr || !getProtection(addr))
+        return 0;
+    if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
+        ptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
+        addr = (uintptr_t)getAlternate(from_ptrv(a1)); 
+    }
+    if(addr<0x10000 || !getProtection(addr))    // too low, that is suspicious
+        return 0;
+    onebridge_t *b = (onebridge_t*)(addr);
+    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver32) {
+        // found !
+        if(retn) *retn = (b->C3==0xC2)?b->N:0;
+        if(calladdress) *calladdress = addr+1;
+        return 1;
+    }
+    return 0;
+#undef PK32
+#undef PK
+}
+#else
+int isNativeCall32(uintptr_t addr, uintptr_t* calladdress, int* retn)
+{
+    return 0;
+}
+#endif
+
 int isNativeCallInternal(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
 {
     if (is32bits)
-        addr &= 0xFFFFFFFFLL;
+        return isNativeCall32(addr, calladdress, retn);
 
 #define PK(a)   *(uint8_t*)(addr + a)
 #define PK32(a) *(int32_t*)(addr + a)

@@ -879,7 +879,8 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
     MOVx_REG(x4, xR8);
     MOVx_REG(x5, xR9);
     // native call
-    TABLE64(16, (uintptr_t)fnc);    // using x16 as scratch regs for call address
+    // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
+    TABLE64(16, *(uintptr_t*)fnc);    // using x16 as scratch regs for call address
     BLR(16);
     // put return value in x64 regs
     if(w>0) {

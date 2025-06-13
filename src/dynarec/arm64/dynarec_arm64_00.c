@@ -2602,7 +2602,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if ((BOX64ENV(log)<2 && !BOX64ENV(rolling_log) && !BOX64ENV(dynarec_test)) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
-                        call_n(dyn, ninst, *(void**)(addr+8), tmp);
+                        call_n(dyn, ninst, (void*)(addr+8), tmp);
                         addr+=8+8;
                     } else {
                         GETIP(ip+1); // read the 0xCC
@@ -3395,7 +3395,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if ((BOX64ENV(log)<2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
-                        call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
+                        call_n(dyn, ninst, (void*)(dyn->insts[ninst].natcall+2+8), tmp);
                         SMWRITE2();
                         POP1(xRIP);   // pop the return address
                         dyn->last_ip = addr;
