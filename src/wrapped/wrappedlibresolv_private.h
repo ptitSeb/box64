@@ -84,13 +84,17 @@ GO(__res_mailok, iFp)
 GO(__res_mkquery, iFipiipippi)
 GOW(res_mkquery, iFipiipippi)
 GO(__res_nameinquery, iFpiipp)
-#ifndef STATICBUILD
+#ifdef STATICBUILD
+//GO(__res_nmkquery,
+#else
 GO(__res_nmkquery, iFpipiipippi)
 #endif
 GO(__res_nquery, iFppiipi)
 //GO(__res_nquerydomain, 
 GO(__res_nsearch, iFppiipi)
-#ifndef STATICBUILD
+#ifdef STATICBUILD
+//GO(__res_nsend,
+#else
 GO(__res_nsend, iFppipi)
 #endif
 //DATA(_res_opcodes, 4)
