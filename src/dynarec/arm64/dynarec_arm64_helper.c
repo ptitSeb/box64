@@ -809,7 +809,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
     //SET_NODF();
 }
 
-void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
+void call_i(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc)
 {
     MAYUSE(fnc);
     #if STEP == 0
@@ -830,7 +830,7 @@ void call_i(dynarec_arm_t* dyn, int ninst, void* fnc)
     #ifdef _WIN32
     LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
     #endif
-    TABLE64(x87pc, (uintptr_t)fnc);
+    TABLE64C(x87pc, fnc);
     BLR(x87pc);
     LDPx_S7_postindex(xEmu, x1, xSP, 16);
     LDPx_S7_postindex(x2, x3, xSP, 16);

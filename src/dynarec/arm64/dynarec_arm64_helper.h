@@ -1135,7 +1135,7 @@
         MOVZw(S, (N));                                                                                                          \
         STRw_U12(S, xEmu, offsetof(x64emu_t, df));                                                                              \
         if (dyn->f.pending == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_I(UpdateFlags);                                                                                                \
+            CALL_I(const_updateflags);                                                                                          \
             dyn->f.pending = SF_SET;                                                                                            \
             SET_NODF();                                                                                                         \
         }                                                                                                                       \
@@ -1157,7 +1157,7 @@
             j64 = (GETMARKF)-(dyn->native_size);        \
             CBZw(x3, j64);                              \
         }                                               \
-        CALL_I(UpdateFlags);                            \
+        CALL_I(const_updateflags);                      \
         MARKF;                                          \
         dyn->f.pending = SF_SET;                        \
         SET_DFOK();                                     \
@@ -1485,7 +1485,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int save_reg);
-void call_i(dynarec_arm_t* dyn, int ninst, void* fnc);
+void call_i(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc);
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w);
 void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg);
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
