@@ -116,6 +116,7 @@ typedef struct dynarec_la64_s {
     int32_t              size;
     int32_t              cap;
     uintptr_t            start;      // start of the block
+    uintptr_t            end;        // maximum end of the block (only used in pass0)
     uint32_t             isize;      // size in bytes of x64 instructions included
     void*                block;      // memory pointer where next instruction is emitted
     uintptr_t            native_start;  // start of the arm code

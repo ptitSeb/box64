@@ -633,6 +633,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.next_cap = MAX_INSTS;
     helper.table64 = static_table64;
     helper.table64cap = sizeof(static_table64)/sizeof(uint64_t);
+    helper.end = addr + SizeFileMapped(addr);
+    if(helper.end == helper.start)  // that means there is no mmap with a file associated to the memory
+        helper.end = (uintptr_t)~0LL;
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {

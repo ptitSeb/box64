@@ -69,7 +69,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(cur_page != ((addr)&~(box64_pagesize-1))) {
             cur_page = (addr)&~(box64_pagesize-1);
             uint32_t prot = getProtection(addr);
-            if(!(prot&PROT_READ) || checkInHotPage(addr)) {
+            if(!(prot&PROT_READ) || checkInHotPage(addr) || (addr>dyn->end)) {
+                dynarec_log(LOG_INFO, "Stopping dynablock because of protection, hotpage or mmap crossing at %p -> %p inst=%d\n", (void*)dyn->start, (void*)addr, ninst);
                 need_epilog = 1;
                 break;
             }
