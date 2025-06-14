@@ -429,7 +429,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VCVTPS2DQ Gx, Ex");
             nextop = F8;
             u8 = sse_setround(dyn, ninst, x1, x2, x6);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 d1 = fpu_get_scratch(dyn, ninst);
                 MOVI_32_lsl(d1, 0x80, 3);
@@ -440,7 +440,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     VFRINTISQ(v0, v1);
                     VFCVTZSQS(v0, v0);
                 } else {
-                    if(arm64_frintts) {
+                    if(cpuext.frintts) {
                          VFRINT32XSQ(v0, v1);
                          VFCVTZSQS(v0, v0);
                     } else {
@@ -1694,7 +1694,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     else
                         SQXTN2_32(v0, d0);   // convert int64 -> int32 with saturation in higher part
                 } else {
-                    if(arm64_frintts) {
+                    if(cpuext.frintts) {
                         VFRINT32ZDQ(l?d0:v0, v1); // handle overflow
                         VFCVTZSQD(l?d0:v0, l?d0:v0);  // convert double -> int64
                         if(!l)

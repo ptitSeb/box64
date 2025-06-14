@@ -57,7 +57,7 @@ uintptr_t dynarec64_66F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     nextop = F8;
                     GETEW(x1, 0);
                     GETGD;
-                    if(arm64_crc32) {
+                    if(cpuext.crc32) {
                         CRC32CH(gd, gd, ed);
                     } else {
                         MOV32w(x2, 0x82f63b78);

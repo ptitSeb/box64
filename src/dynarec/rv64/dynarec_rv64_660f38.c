@@ -149,7 +149,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
                         ADDW(x3, x3, x4);
-                        if (rv64_zbb) {
+                        if (cpuext.zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
                         } else {
@@ -172,7 +172,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                             LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                             LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                             ADDW(x3, x3, x4);
-                            if (rv64_zbb) {
+                            if (cpuext.zbb) {
                                 MIN(x3, x3, x5);
                                 MAX(x3, x3, x6);
                             } else {
@@ -200,7 +200,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
                         ADD(x3, x3, x7);
-                        if (rv64_zbb) {
+                        if (cpuext.zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
                         } else {
@@ -500,7 +500,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     MOV64x(x5, 65535);
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
-                        if (rv64_zbb) {
+                        if (cpuext.zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, xZR);
                         } else {
@@ -517,7 +517,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     } else
                         for (int i = 0; i < 4; ++i) {
                             LW(x3, wback, fixedaddress + i * 4);
-                            if (rv64_zbb) {
+                            if (cpuext.zbb) {
                                 MIN(x3, x3, x5);
                                 MAX(x3, x3, xZR);
                             } else {
@@ -605,7 +605,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 16; ++i) {
                         LB(x3, gback, gdoffset + i);
                         LB(x4, wback, fixedaddress + i);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MIN(x4, x3, x4);
                         else
                             BLT(x3, x4, 4 + 4);
@@ -620,7 +620,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
                         LW(x4, wback, fixedaddress + i * 4);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MIN(x4, x3, x4);
                         else
                             BLT(x3, x4, 4 + 4);
@@ -635,7 +635,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 8; ++i) {
                         LHU(x3, gback, gdoffset + i * 2);
                         LHU(x4, wback, fixedaddress + i * 2);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MINU(x4, x3, x4);
                         else
                             BLTU(x3, x4, 4 + 4);
@@ -650,7 +650,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 4; ++i) {
                         LWU(x3, gback, gdoffset + i * 4);
                         LWU(x4, wback, fixedaddress + i * 4);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MINU(x4, x3, x4);
                         else
                             BLTU(x3, x4, 4 + 4);
@@ -665,7 +665,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 16; ++i) {
                         LB(x3, gback, gdoffset + i);
                         LB(x4, wback, fixedaddress + i);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MAX(x4, x3, x4);
                         else
                             BLT(x4, x3, 4 + 4);
@@ -680,7 +680,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
                         LW(x4, wback, fixedaddress + i * 4);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MAX(x4, x3, x4);
                         else
                             BLT(x4, x3, 4 + 4);
@@ -695,7 +695,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 8; ++i) {
                         LHU(x3, gback, gdoffset + i * 2);
                         LHU(x4, wback, fixedaddress + i * 2);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MAXU(x4, x3, x4);
                         else
                             BLTU(x4, x3, 4 + 4);
@@ -710,7 +710,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 4; ++i) {
                         LWU(x3, gback, gdoffset + i * 4);
                         LWU(x4, wback, fixedaddress + i * 4);
-                        if (rv64_zbb)
+                        if (cpuext.zbb)
                             MAXU(x4, x3, x4);
                         else
                             BLTU(x4, x3, 4 + 4);
@@ -825,10 +825,10 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, 0);
                     LHU(x1, ed, fixedaddress);
-                    if (rv64_zbb) {
+                    if (cpuext.zbb) {
                         REV8(x1, x1);
                         SRLI(x1, x1, 48);
-                    } else if (rv64_xtheadbb) {
+                    } else if (cpuext.xtheadbb) {
                         TH_REVW(x1, x1);
                         SRLI(x1, x1, 16);
                     } else {
@@ -847,10 +847,10 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETGD;
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, 0);
-                    if (rv64_zbb) {
+                    if (cpuext.zbb) {
                         REV8(x1, gd);
                         SRLI(x1, x1, 48);
-                    } else if (rv64_xtheadbb) {
+                    } else if (cpuext.xtheadbb) {
                         TH_REVW(x1, gd);
                         SRLI(x1, x1, 16);
                     } else {

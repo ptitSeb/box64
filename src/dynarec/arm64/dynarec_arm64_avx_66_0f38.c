@@ -1874,7 +1874,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VAESIMC Gx, Ex");
             nextop = F8;
             GETGX_empty_EX(v0, v1, 0);
-            if(arm64_aes) {
+            if(cpuext.aes) {
                 AESIMC(v0, v1);
             } else {
                 if(v0!=v1) {
@@ -1890,7 +1890,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0xDC:
             INST_NAME("VAESENC Gx, Vx, Ex");  // AES-NI
             nextop = F8;
-            if(arm64_aes) {
+            if(cpuext.aes) {
                 d0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
@@ -1931,7 +1931,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0xDD:
             INST_NAME("VAESENCLAST Gx, Vx, Ex");  // AES-NI
             nextop = F8;
-            if(arm64_aes) {
+            if(cpuext.aes) {
                 d0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
@@ -1971,7 +1971,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0xDE:
             INST_NAME("VAESDEC Gx, Vx, Ex");  // AES-NI
             nextop = F8;
-            if(arm64_aes) {
+            if(cpuext.aes) {
                 d0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
@@ -2012,7 +2012,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0xDF:
             INST_NAME("VAESDECLAST Gx, Vx, Ex");  // AES-NI
             nextop = F8;
-            if(arm64_aes) {
+            if(cpuext.aes) {
                 d0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}

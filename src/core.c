@@ -49,6 +49,7 @@
 #include "env.h"
 #include "cleanup.h"
 #include "freq.h"
+#include "core_arch.h"
 
 box64context_t *my_context = NULL;
 extern box64env_t box64env;
@@ -75,43 +76,7 @@ uint32_t default_fs = 0;
 int box64_isglibc234 = 0;
 
 #ifdef DYNAREC
-#ifdef ARM64
-int arm64_asimd = 0;
-int arm64_aes = 0;
-int arm64_pmull = 0;
-int arm64_crc32 = 0;
-int arm64_atomics = 0;
-int arm64_sha1 = 0;
-int arm64_sha2 = 0;
-int arm64_uscat = 0;
-int arm64_flagm = 0;
-int arm64_flagm2 = 0;
-int arm64_frintts = 0;
-int arm64_afp = 0;
-int arm64_rndr = 0;
-#elif defined(RV64)
-int rv64_zba = 0;
-int rv64_zbb = 0;
-int rv64_zbc = 0;
-int rv64_zbs = 0;
-int rv64_vector = 0; // rvv 1.0 or xtheadvector
-int rv64_xtheadvector = 0;
-int rv64_vlen = 0;
-int rv64_xtheadba = 0;
-int rv64_xtheadbb = 0;
-int rv64_xtheadbs = 0;
-int rv64_xtheadcondmov = 0;
-int rv64_xtheadmemidx = 0;
-int rv64_xtheadmempair = 0;
-int rv64_xtheadfmemidx = 0;
-int rv64_xtheadmac = 0;
-int rv64_xtheadfmv = 0;
-#elif defined(LA64)
-int la64_lbt = 0;
-int la64_lam_bh = 0;
-int la64_lamcas = 0;
-int la64_scq = 0;
-#endif
+cpu_ext_t cpuext = {0};
 #endif
 
 int box64_wine = 0;
@@ -235,70 +200,70 @@ void GatherDynarecExtensions()
         return;
     }
     if(hwcap&HWCAP_CRC32)
-        arm64_crc32 = 1;
+        cpuext.crc32 = 1;
     if(hwcap&HWCAP_PMULL)
-        arm64_pmull = 1;
+        cpuext.pmull = 1;
     if(hwcap&HWCAP_AES)
-        arm64_aes = 1;
+        cpuext.aes = 1;
     if(hwcap&HWCAP_ATOMICS)
-        arm64_atomics = 1;
+        cpuext.atomics = 1;
     #ifdef HWCAP_SHA1
     if(hwcap&HWCAP_SHA1)
-        arm64_sha1 = 1;
+        cpuext.sha1 = 1;
     #endif
     #ifdef HWCAP_SHA2
     if(hwcap&HWCAP_SHA2)
-        arm64_sha2 = 1;
+        cpuext.sha2 = 1;
     #endif
     #ifdef HWCAP_USCAT
     if(hwcap&HWCAP_USCAT)
-        arm64_uscat = 1;
+        cpuext.uscat = 1;
     #endif
     #ifdef HWCAP_FLAGM
     if(hwcap&HWCAP_FLAGM)
-        arm64_flagm = 1;
+        cpuext.flagm = 1;
     #endif
     unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
     #ifdef HWCAP2_FLAGM2
     if(hwcap2&HWCAP2_FLAGM2)
-        arm64_flagm2 = 1;
+        cpuext.flagm2 = 1;
     #endif
     #ifdef HWCAP2_FRINT
     if(hwcap2&HWCAP2_FRINT)
-        arm64_frintts = 1;
+        cpuext.frintts = 1;
     #endif
     #ifdef HWCAP2_AFP
     if(hwcap2&HWCAP2_AFP)
-        arm64_afp = 1;
+        cpuext.afp = 1;
     #endif
     #ifdef HWCAP2_RNG
     if(hwcap2&HWCAP2_RNG)
-        arm64_rndr = 1;
+        cpuext.rndr = 1;
     #endif
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
-    if(arm64_aes)
+    if(cpuext.aes)
         printf_log_prefix(0, LOG_INFO, " AES");
-    if(arm64_crc32)
+    if(cpuext.crc32)
         printf_log_prefix(0, LOG_INFO, " CRC32");
-    if(arm64_pmull)
+    if(cpuext.pmull)
         printf_log_prefix(0, LOG_INFO, " PMULL");
-    if(arm64_atomics)
+    if(cpuext.atomics)
         printf_log_prefix(0, LOG_INFO, " ATOMICS");
-    if(arm64_sha1)
+    if(cpuext.sha1)
         printf_log_prefix(0, LOG_INFO, " SHA1");
-    if(arm64_sha2)
+    if(cpuext.sha2)
         printf_log_prefix(0, LOG_INFO, " SHA2");
-    if(arm64_uscat)
+    if(cpuext.uscat)
         printf_log_prefix(0, LOG_INFO, " USCAT");
-    if(arm64_flagm)
+    if(cpuext.flagm)
         printf_log_prefix(0, LOG_INFO, " FLAGM");
-    if(arm64_flagm2)
+    if(cpuext.flagm2)
         printf_log_prefix(0, LOG_INFO, " FLAGM2");
-    if(arm64_frintts)
+    if(cpuext.frintts)
         printf_log_prefix(0, LOG_INFO, " FRINT");
-    if(arm64_afp)
+    if(cpuext.afp)
         printf_log_prefix(0, LOG_INFO, " AFP");
-    if(arm64_rndr)
+    if(cpuext.rndr)
         printf_log_prefix(0, LOG_INFO, " RNDR");
     printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(LA64)
@@ -315,13 +280,13 @@ void GatherDynarecExtensions()
             return;
         }
 
-        if (la64_lbt = ((cpucfg2 >> 18) & 0b1))
+        if (cpuext.lbt = ((cpucfg2 >> 18) & 0b1))
             printf_log_prefix(0, LOG_INFO, " LBT_X86");
-        if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
+        if ((cpuext.lam_bh = (cpucfg2 >> 27) & 0b1))
             printf_log_prefix(0, LOG_INFO, " LAM_BH");
-        if ((la64_lamcas = (cpucfg2 >> 28) & 0b1))
+        if ((cpuext.lamcas = (cpucfg2 >> 28) & 0b1))
             printf_log_prefix(0, LOG_INFO, " LAMCAS");
-        if ((la64_scq = (cpucfg2 >> 30) & 0b1))
+        if ((cpuext.scq = (cpucfg2 >> 30) & 0b1))
             printf_log_prefix(0, LOG_INFO, " SCQ");
     }
     printf_log_prefix(0, LOG_INFO, "\n");
@@ -334,46 +299,46 @@ void GatherDynarecExtensions()
         if (p) {
             p = strtok(p, ",");
             while (p) {
-                if (!strcasecmp(p, "zba")) rv64_zba = 0;
-                if (!strcasecmp(p, "zbb")) rv64_zbb = 0;
-                if (!strcasecmp(p, "zbc")) rv64_zbc = 0;
-                if (!strcasecmp(p, "zbs")) rv64_zbs = 0;
+                if (!strcasecmp(p, "zba")) cpuext.zba = 0;
+                if (!strcasecmp(p, "zbb")) cpuext.zbb = 0;
+                if (!strcasecmp(p, "zbc")) cpuext.zbc = 0;
+                if (!strcasecmp(p, "zbs")) cpuext.zbs = 0;
                 if (!strcasecmp(p, "vector")) {
-                    rv64_vector = 0;
-                    rv64_xtheadvector = 0;
+                    cpuext.vector = 0;
+                    cpuext.xtheadvector = 0;
                 }
-                if (!strcasecmp(p, "xtheadba")) rv64_xtheadba = 0;
-                if (!strcasecmp(p, "xtheadbb")) rv64_xtheadbb = 0;
-                if (!strcasecmp(p, "xtheadbs")) rv64_xtheadbs = 0;
-                if (!strcasecmp(p, "xtheadmemidx")) rv64_xtheadmemidx = 0;
-                // if (!strcasecmp(p, "xtheadfmemidx")) rv64_xtheadfmemidx = 0;
-                // if (!strcasecmp(p, "xtheadmac")) rv64_xtheadmac = 0;
-                // if (!strcasecmp(p, "xtheadfmv")) rv64_xtheadfmv = 0;
-                if (!strcasecmp(p, "xtheadmempair")) rv64_xtheadmempair = 0;
-                if (!strcasecmp(p, "xtheadcondmov")) rv64_xtheadcondmov = 0;
+                if (!strcasecmp(p, "xtheadba")) cpuext.xtheadba = 0;
+                if (!strcasecmp(p, "xtheadbb")) cpuext.xtheadbb = 0;
+                if (!strcasecmp(p, "xtheadbs")) cpuext.xtheadbs = 0;
+                if (!strcasecmp(p, "xtheadmemidx")) cpuext.xtheadmemidx = 0;
+                // if (!strcasecmp(p, "xtheadfmemidx")) cpuext.xtheadfmemidx = 0;
+                // if (!strcasecmp(p, "xtheadmac")) cpuext.xtheadmac = 0;
+                // if (!strcasecmp(p, "xtheadfmv")) cpuext.xtheadfmv = 0;
+                if (!strcasecmp(p, "xtheadmempair")) cpuext.xtheadmempair = 0;
+                if (!strcasecmp(p, "xtheadcondmov")) cpuext.xtheadcondmov = 0;
                 p = strtok(NULL, ",");
             }
         }
     }
 
     printf_log(LOG_INFO, "Dynarec for rv64g");
-    if (rv64_vector && !rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "v");
-    if (rv64_zba) printf_log_prefix(0, LOG_INFO, "_zba");
-    if (rv64_zbb) printf_log_prefix(0, LOG_INFO, "_zbb");
-    if (rv64_zbc) printf_log_prefix(0, LOG_INFO, "_zbc");
-    if (rv64_zbs) printf_log_prefix(0, LOG_INFO, "_zbs");
-    if (rv64_vector && !rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "_zvl%d", rv64_vlen);
-    if (rv64_xtheadba) printf_log_prefix(0, LOG_INFO, "_xtheadba");
-    if (rv64_xtheadbb) printf_log_prefix(0, LOG_INFO, "_xtheadbb");
-    if (rv64_xtheadbs) printf_log_prefix(0, LOG_INFO, "_xtheadbs");
-    if (rv64_xtheadmempair) printf_log_prefix(0, LOG_INFO, "_xtheadmempair");
-    if (rv64_xtheadcondmov) printf_log_prefix(0, LOG_INFO, "_xtheadcondmov");
-    if (rv64_xtheadmemidx) printf_log_prefix(0, LOG_INFO, "_xtheadmemidx");
+    if (cpuext.vector && !cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "v");
+    if (cpuext.zba) printf_log_prefix(0, LOG_INFO, "_zba");
+    if (cpuext.zbb) printf_log_prefix(0, LOG_INFO, "_zbb");
+    if (cpuext.zbc) printf_log_prefix(0, LOG_INFO, "_zbc");
+    if (cpuext.zbs) printf_log_prefix(0, LOG_INFO, "_zbs");
+    if (cpuext.vector && !cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "_zvl%d", cpuext.vlen*8);
+    if (cpuext.xtheadba) printf_log_prefix(0, LOG_INFO, "_xtheadba");
+    if (cpuext.xtheadbb) printf_log_prefix(0, LOG_INFO, "_xtheadbb");
+    if (cpuext.xtheadbs) printf_log_prefix(0, LOG_INFO, "_xtheadbs");
+    if (cpuext.xtheadmempair) printf_log_prefix(0, LOG_INFO, "_xtheadmempair");
+    if (cpuext.xtheadcondmov) printf_log_prefix(0, LOG_INFO, "_xtheadcondmov");
+    if (cpuext.xtheadmemidx) printf_log_prefix(0, LOG_INFO, "_xtheadmemidx");
     // Disable the display since these are only detected but never used.
-    // if(rv64_xtheadfmemidx) printf_log_prefix(0, LOG_INFO, " xtheadfmemidx");
-    // if(rv64_xtheadmac) printf_log_prefix(0, LOG_INFO, " xtheadmac");
-    // if(rv64_xtheadfmv) printf_log_prefix(0, LOG_INFO, " xtheadfmv");
-    if (rv64_xtheadvector) printf_log_prefix(0, LOG_INFO, "_xthvector");
+    // if(cpuext.xtheadfmemidx) printf_log_prefix(0, LOG_INFO, " xtheadfmemidx");
+    // if(cpuext.xtheadmac) printf_log_prefix(0, LOG_INFO, " xtheadmac");
+    // if(cpuext.xtheadfmv) printf_log_prefix(0, LOG_INFO, " xtheadfmv");
+    if (cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "_xthvector");
     printf_log_prefix(0, LOG_INFO, "\n");
 #else
 #error Unsupported architecture

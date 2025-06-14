@@ -1284,7 +1284,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 // Restore xFlags from LBT.eflags
 #define RESTORE_EFLAGS(s)             \
     do {                              \
-        if (la64_lbt) {               \
+        if (cpuext.lbt) {             \
             CLEAR_FLAGS_(s);          \
             X64_GET_EFLAGS(s, X_ALL); \
             OR(xFlags, xFlags, s);    \
@@ -1294,7 +1294,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 // Spill xFlags to LBT.eflags
 #define SPILL_EFLAGS()                     \
     do {                                   \
-        if (la64_lbt) {                    \
+        if (cpuext.lbt) {                  \
             X64_SET_EFLAGS(xFlags, X_ALL); \
         }                                  \
     } while (0)

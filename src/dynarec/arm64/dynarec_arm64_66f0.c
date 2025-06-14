@@ -60,7 +60,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 BFIx(ed, x6, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                if(arm64_atomics) {
+                if(cpuext.atomics) {
                     UFLAG_IF {
                         LDADDALH(x5, x1, wback);
                         emit_add16(dyn, ninst, x1, x5, x3, x4);
@@ -90,7 +90,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 BFIx(ed, x6, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                if(arm64_atomics) {
+                if(cpuext.atomics) {
                     UFLAG_IF {
                         LDSETALH(x5, x1, wback);
                         emit_or16(dyn, ninst, x1, x5, x3, x4);
@@ -128,7 +128,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         if(!ALIGNED_ATOMICH) {
-                            if(arm64_uscat) {
+                            if(cpuext.uscat) {
                                 ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
                                 CMPSw_U12(x1, 0xF);
                                 B_MARK3(cGE);
@@ -138,7 +138,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             }
                         }
                         // Aligned version
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             MOVw_REG(x1, x6);
                             CASALH(x1, gd, wback);
                         } else {
@@ -187,7 +187,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFIx(ed, x5, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             LDADDALH(x5, x1, wback);
                         } else {
                             MARKLOCK;
@@ -244,7 +244,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 BFIx(ed, x6, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                if(arm64_atomics) {
+                if(cpuext.atomics) {
                     MVNw_REG(x3, gd);
                     UFLAG_IF {
                         LDCLRALH(x3, x1, wback);
@@ -286,7 +286,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         MOV32w(x5, i16);
                         if(!ALIGNED_ATOMICH) {
-                            if(arm64_uscat) {
+                            if(cpuext.uscat) {
                                 ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
                                 CMPSw_U12(x1, 0xF);
                                 B_MARK(cGE);
@@ -295,7 +295,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 B_MARK(cNE);
                             }
                         }
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             UFLAG_IF {
                                 LDADDALH(x5, x1, wback);
                             } else {
@@ -341,7 +341,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         if(!i64) {MOV32w(x5, i16);}
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             UFLAG_IF {
                                 LDSETALH(x5, x1, wback);
                                 emit_or16c(dyn, ninst, x1, i16, x3, x4);
@@ -423,7 +423,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         i64 = convert_bitmask_w(i16);
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             MOV32w(x5, ~i16);
                             UFLAG_IF {
                                 LDCLRALH(x5, x1, wback);
@@ -466,7 +466,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         MOV32w(x5, i16);
                         if(!ALIGNED_ATOMICH) {
-                            if(arm64_uscat) {
+                            if(cpuext.uscat) {
                                 ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
                                 CMPSw_U12(x1, 0xF);
                                 B_MARK(cGE);
@@ -475,7 +475,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 B_MARK(cNE);
                             }
                         }
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             NEGw_REG(x4, x5);
                             UFLAG_IF {
                                 LDADDALH(x4, x1, wback);
@@ -522,7 +522,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         i64 = convert_bitmask_w(i16);
-                        if(arm64_atomics) {
+                        if(cpuext.atomics) {
                             UFLAG_IF {
                                 LDEORALH(x5, x1, wback);
                                 emit_xor16c(dyn, ninst, x1, i16, x3, x4);
@@ -574,7 +574,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             BFIx(ed, x6, 0, 16);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                            if(arm64_atomics) {
+                            if(cpuext.atomics) {
                                 MOV32w(x3, 1);
                                 UFLAG_IF {
                                     LDADDALH(x3, x1, wback);
@@ -602,7 +602,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             BFIx(ed, x6, 0, 16);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                            if(arm64_atomics) {
+                            if(cpuext.atomics) {
                                 MOV32w(x3, -1);
                                 UFLAG_IF {
                                     LDADDALH(x3, x1, wback);

@@ -451,7 +451,7 @@ void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw_REG(xFlags, xFlags, s3);
     }
-    if(arm64_flagm) {
+    if(cpuext.flagm) {
         COMP_ZFSF(s1, 8)
     } else {
         IFX(X_ZF) {
@@ -496,7 +496,7 @@ void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    if(arm64_flagm) {
+    if(cpuext.flagm) {
         COMP_ZFSF(s1, 8)
     } else {
         IFX(X_ZF) {
@@ -639,7 +639,7 @@ void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw_REG(xFlags, xFlags, s3);
     }
-    if(arm64_flagm) {
+    if(cpuext.flagm) {
         COMP_ZFSF(s1, 16)
     } else {
         IFX(X_ZF) {
@@ -684,7 +684,7 @@ void emit_and16c(dynarec_arm_t* dyn, int ninst, int s1, int16_t c, int s3, int s
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    if(arm64_flagm) {
+    if(cpuext.flagm) {
         COMP_ZFSF(s1, 16)
     } else {
         IFX(X_ZF) {

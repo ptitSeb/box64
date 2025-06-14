@@ -443,7 +443,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if (BOX64ENV(dynarec_fastround)) {
                 VFCVTZSS(q0, v1);
             } else {
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     VFRINT32ZS(q0, v1);
                     VFCVTZSS(q0, q0);
                 } else {
@@ -481,7 +481,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VFCVTZSS(q0, q0);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     VFRINT32XS(q0, v1);
                     VFCVTZSS(q0, q0);
                 } else {
@@ -707,7 +707,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn, ninst);
                     VEORQ(v0, v0, v0);
-                    if(arm64_sha1) {
+                    if(cpuext.sha1) {
                         v1 = fpu_get_scratch(dyn, ninst);
                         VMOVeS(v1, 0, q0, 3);
                         SHA1H(v1, v1);
@@ -731,7 +731,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xCA:
                     INST_NAME("SHA1MSG2 Gx, Ex");
                     nextop = F8;
-                    if(arm64_sha1) {
+                    if(cpuext.sha1) {
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         VEXTQ_8(q0, q0, q0, 8);
@@ -773,7 +773,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xCB:
                     INST_NAME("SHA256RNDS2 Gx, Ex (, XMM0)");
                     nextop = F8;
-                    if(arm64_sha2) {
+                    if(cpuext.sha2) {
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         d0 = sse_get_reg(dyn, ninst, x1, 0, 0);
@@ -819,7 +819,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xCC:
                     INST_NAME("SHA256MSG1 Gx, Ex");
                     nextop = F8;
-                    if(arm64_sha2) {
+                    if(cpuext.sha2) {
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         SHA256SU0(q0, q1);
@@ -844,7 +844,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xCD:
                     INST_NAME("SHA256MSG2 Gx, Ex");
                     nextop = F8;
-                    if(arm64_sha2) {
+                    if(cpuext.sha2) {
                         GETGX(q0, 1);
                         GETEX(q1, 0, 0);
                         v0 = fpu_get_scratch(dyn, ninst);
@@ -931,7 +931,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xCC:
                     INST_NAME("SHA1RNDS4 Gx, Ex, Ib");
                     nextop = F8;
-                    if(arm64_sha1) {
+                    if(cpuext.sha1) {
                         GETGX(q0, 1);
                         GETEX(q1, 0, 1);
                         u8 = F8&3;
@@ -2587,7 +2587,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
                     BICw(xFlags, xFlags, x1);
                 }
-                if(arm64_rndr) {
+                if(cpuext.rndr) {
                     MRS_rndr(x1);
                     IFX(X_CF) { CSETw(x3, cNE); }
                 } else {
@@ -2646,7 +2646,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
                     BICw(xFlags, xFlags, x1);
                 }
-                if(arm64_rndr) {
+                if(cpuext.rndr) {
                     MRS_rndr(x1);
                     IFX(X_CF) { CSETw(x3, cNE); }
                 } else {

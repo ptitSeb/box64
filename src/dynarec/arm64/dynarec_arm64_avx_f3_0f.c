@@ -144,12 +144,12 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             GETEXSS(d0, 0, 0);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
-            if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && cpuext.frintts) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 if(rex.w) {
                     FRINT64ZS(v0, d0);
@@ -160,7 +160,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else {
                 FCVTZSxwS(gd, d0);
             }
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -175,14 +175,14 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETGD;
             GETEXSS(q0, 0, 0);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
             d1 = fpu_get_scratch(dyn, ninst);
-            if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && cpuext.frintts) {
                 if(rex.w) {
                     FRINT64XS(d1, q0);
                 } else {
@@ -193,7 +193,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwS(gd, d1);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -342,7 +342,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(BOX64ENV(dynarec_fastround)) {
                     VFCVTZSQS(v0, v1);
                 } else {
-                    if(arm64_frintts) {
+                    if(cpuext.frintts) {
                         VFRINT32ZSQ(v0, v1);
                         VFCVTZSQS(v0, v0);
                     } else {

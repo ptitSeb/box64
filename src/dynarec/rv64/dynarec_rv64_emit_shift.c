@@ -950,7 +950,7 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
-    if (rv64_zbb) {
+    if (cpuext.zbb) {
         if (rex.w) {
             ROL(s1, s1, s2);
         } else {
@@ -1004,7 +1004,7 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
-    if (rv64_zbb) {
+    if (cpuext.zbb) {
         if (rex.w) {
             ROR(s1, s1, s2);
         } else {
@@ -1093,9 +1093,9 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
-    if (rv64_zbb) {
+    if (cpuext.zbb) {
         RORIxw(s1, s1, (rex.w ? 64 : 32) - c);
-    } else if (rv64_xtheadbb) {
+    } else if (cpuext.xtheadbb) {
         TH_SRRIxw(s1, s1, (rex.w ? 64 : 32) - c);
     } else {
         SLLIxw(s3, s1, c);
@@ -1179,9 +1179,9 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
-    if (rv64_zbb) {
+    if (cpuext.zbb) {
         RORIxw(s1, s1, c);
-    } else if (rv64_xtheadbb) {
+    } else if (cpuext.xtheadbb) {
         TH_SRRIxw(s1, s1, c);
     } else {
         SRLIxw(s3, s1, c);
@@ -1324,7 +1324,7 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         if (c == 1) SRLI(s4, s1, 15);
     }
 
-    if (rv64_zbb) {
+    if (cpuext.zbb) {
         RORIW(s1, s1, c);
     } else {
         SRLI(s5, s1, c);
@@ -1582,7 +1582,7 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         if (c == 1) SRLI(s5, s1, 15);
     }
 
-    if (rv64_zbb) {
+    if (cpuext.zbb) {
         RORIW(s1, s1, 32 - c);
     } else {
         SLLI(s3, s1, c);

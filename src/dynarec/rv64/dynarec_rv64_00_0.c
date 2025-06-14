@@ -176,17 +176,17 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x0F:
             switch (rep) {
                 case 0:
-                    if (rv64_vector)
+                    if (cpuext.vector)
                         retaddr = dynarec64_0F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     addr = retaddr ? retaddr : dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;
                 case 1:
-                    if (rv64_vector)
+                    if (cpuext.vector)
                         retaddr = dynarec64_F20F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     addr = retaddr ? retaddr : dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;
                 case 2:
-                    if (rv64_vector)
+                    if (cpuext.vector)
                         retaddr = dynarec64_F30F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     addr = retaddr ? retaddr : dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;

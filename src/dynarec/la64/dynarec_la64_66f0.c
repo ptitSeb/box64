@@ -80,7 +80,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             u64 = (uint16_t)(int16_t)F8S;
                         MOV64x(x5, u64);
 
-                        if (la64_lam_bh) {
+                        if (cpuext.lam_bh) {
                             AMADD_DB_H(x1, x5, wback);
                         } else {
                             ANDI(x3, wback, 0b10);

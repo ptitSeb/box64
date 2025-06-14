@@ -6,7 +6,7 @@
 .text
 .align 4
 
-.extern la64_lbt
+.extern cpuext
 
 .global la64_prolog
 la64_prolog:
@@ -53,8 +53,9 @@ la64_prolog:
     ld.d   $r31, $r4, (8 * 16)  // xFlags
     ld.d   $r20, $r4, (8 * 17)  // xRIP
     // spill xFlags to LBT.eflags
-    la.global $a6, la64_lbt
+    la.global $a6, cpuext
     ldptr.d   $a6, $a6, 0
+    andi      $a6, $a6, 1
     beqz      $a6, 1f
     x86mtflag $r31, 0b111111
 1:

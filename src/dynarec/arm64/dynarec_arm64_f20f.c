@@ -118,12 +118,12 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEXSD(q0, 0, 0);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
-            if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && cpuext.frintts) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 if(rex.w) {
                     FRINT64ZD(v0, q0);
@@ -134,7 +134,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 FCVTZSxwD(gd, q0);
             }
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -149,14 +149,14 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEXSD(q0, 0, 0);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
             }
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
             d1 = fpu_get_scratch(dyn, ninst);
-            if(!BOX64ENV(dynarec_fastround) && arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && cpuext.frintts) {
                 if(rex.w) {
                     FRINT64XD(d1, q0);
                 } else {
@@ -167,7 +167,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwD(gd, d1);
-            if(!BOX64ENV(dynarec_fastround) && !arm64_frintts) {
+            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                 TBZ_NEXT(x5, FPSR_IOC);
                 if(rex.w) {
@@ -187,7 +187,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETEB(x1, 0);
                     GETGD;
-                    if(arm64_crc32) {
+                    if(cpuext.crc32) {
                         CRC32CB(gd, gd, ed);
                     } else {
                         EORw_REG(gd, gd, ed);
@@ -204,7 +204,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETED(0);
                     GETGD;
-                    if(arm64_crc32) {
+                    if(cpuext.crc32) {
                         CRC32Cxw(gd, gd, ed);
                     } else {
                         MOV32w(x2, 0x82f63b78);
@@ -551,7 +551,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     VFRINT32XDQ(v0, v1);    // round, handling of overflow and Nan to 0x80000000
                     VFCVTNSQD(v0, v0);  // convert double -> int64
                     SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part

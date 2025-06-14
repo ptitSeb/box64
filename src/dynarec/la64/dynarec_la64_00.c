@@ -700,7 +700,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     BARRIER(BARRIER_MAYBE);                                                                 \
     JUMP(addr + i8, 1);                                                                     \
     if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
-        if (la64_lbt) {                                                                     \
+        if (cpuext.lbt) {                                                                   \
             X64_SETJ(tmp1, I);                                                              \
         } else {                                                                            \
             GETFLAGS;                                                                       \
@@ -712,7 +712,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         if (dyn->insts[ninst].nat_flags_fusion) {                                           \
             NATIVEJUMP_safe(NATNO, i32);                                                    \
         } else {                                                                            \
-            if (la64_lbt)                                                                   \
+            if (cpuext.lbt)                                                                 \
                 BEQZ_safe(tmp1, i32);                                                       \
             else                                                                            \
                 B##NO##_safe(tmp1, i32);                                                    \
@@ -732,7 +732,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         if (dyn->insts[ninst].nat_flags_fusion) {                                           \
             NATIVEJUMP_safe(NATYES, i32);                                                   \
         } else {                                                                            \
-            if (la64_lbt)                                                                   \
+            if (cpuext.lbt)                                                                 \
                 BNEZ_safe(tmp1, i32);                                                       \
             else                                                                            \
                 B##YES##_safe(tmp1, i32);                                                   \
@@ -980,7 +980,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 GETGB(x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                if (la64_lam_bh) {
+                if (cpuext.lam_bh) {
                     AMSWAP_DB_B(x1, gd, ed);
                     BSTRINS_D(gb1, x1, gb2 + 7, gb2);
                 } else {
@@ -2289,7 +2289,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_ZF);
             i8 = F8S;
             ADDI_D(xRCX, xRCX, -1);
-            if (la64_lbt)
+            if (cpuext.lbt)
                 X64_GET_EFLAGS(x1, X_ZF);
             else
                 ANDI(x1, xFlags, 1 << F_ZF);
@@ -2301,7 +2301,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_ZF);
             i8 = F8S;
             ADDI_D(xRCX, xRCX, -1);
-            if (la64_lbt)
+            if (cpuext.lbt)
                 X64_GET_EFLAGS(x1, X_ZF);
             else
                 ANDI(x1, xFlags, 1 << F_ZF);
@@ -2508,7 +2508,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMC");
             READFLAGS(X_CF);
             SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
-            if (la64_lbt) {
+            if (cpuext.lbt) {
                 X64_GET_EFLAGS(x3, X_CF);
                 XORI(x3, x3, 1 << F_CF);
                 X64_SET_EFLAGS(x3, X_CF);
@@ -2739,7 +2739,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CLC");
             SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
-            if (la64_lbt)
+            if (cpuext.lbt)
                 X64_SET_EFLAGS(xZR, X_CF);
             else
                 BSTRINS_D(xFlags, xZR, F_CF, F_CF);
@@ -2748,7 +2748,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("STC");
             SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
-            if (la64_lbt) {
+            if (cpuext.lbt) {
                 ORI(x3, xZR, 1 << F_CF);
                 X64_SET_EFLAGS(x3, X_CF);
             } else {

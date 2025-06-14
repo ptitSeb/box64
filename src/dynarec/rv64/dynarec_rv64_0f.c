@@ -537,7 +537,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
                         ADDW(x3, x3, x4);
-                        if (rv64_zbb) {
+                        if (cpuext.zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
                         } else {
@@ -560,7 +560,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                             LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                             ADDW(x3, x3, x4);
-                            if (rv64_zbb) {
+                            if (cpuext.zbb) {
                                 MIN(x3, x3, x5);
                                 MAX(x3, x3, x6);
                             } else {
@@ -588,7 +588,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
                         ADD(x3, x3, x7);
-                        if (rv64_zbb) {
+                        if (cpuext.zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
                         } else {
@@ -661,7 +661,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
                         SUBW(x3, x3, x4);
-                        if (rv64_zbb) {
+                        if (cpuext.zbb) {
                             MIN(x3, x3, x5);
                             MAX(x3, x3, x6);
                         } else {
@@ -684,7 +684,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                             LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                             SUBW(x3, x3, x4);
-                            if (rv64_zbb) {
+                            if (cpuext.zbb) {
                                 MIN(x3, x3, x5);
                                 MAX(x3, x3, x6);
                             } else {
@@ -1292,7 +1292,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64x(x6, -128);
             for (int i = 0; i < 4; ++i) {
                 LH(x3, gback, gdoffset + i * 2);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
@@ -1309,7 +1309,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
                 for (int i = 0; i < 4; ++i) {
                     LH(x3, wback, fixedaddress + i * 2);
-                    if (rv64_zbb) {
+                    if (cpuext.zbb) {
                         MIN(x3, x3, x5);
                         MAX(x3, x3, x6);
                     } else {
@@ -1665,7 +1665,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("PCMPEQB Gm,Em");
             nextop = F8;
             GETGM();
-            if (rv64_xtheadbb) {
+            if (cpuext.xtheadbb) {
                 GETEM(x2, 0, 0);
                 LD(x3, gback, gdoffset);
                 LD(x4, wback, fixedaddress);
@@ -2567,7 +2567,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0, 1);
             LD(x1, wback, fixedaddress + 0);
             for (int i = 0; i < 8; i++) {
-                if (rv64_zbs) {
+                if (cpuext.zbs) {
                     if (i == 0) {
                         BEXTI(gd, x1, 63);
                     } else {
@@ -2582,7 +2582,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                 }
                 if (i != 0) {
-                    if (rv64_zba) {
+                    if (cpuext.zba) {
                         SH1ADD(gd, gd, x6);
                     } else {
                         SLLI(gd, gd, 1);
@@ -2600,7 +2600,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
                 SUB(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MAX(x3, x3, xZR);
                 } else {
                     NOT(x4, x3);
@@ -2615,7 +2615,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM();
             GETEM(x2, 0, 6);
-            MMX_LOOP_W(x3, x4, SUB(x3, x3, x4); if (rv64_zbb) { MAX(x3, x3, xZR); } else {
+            MMX_LOOP_W(x3, x4, SUB(x3, x3, x4); if (cpuext.zbb) { MAX(x3, x3, xZR); } else {
                     NOT(x4, x3);
                     SRAI(x4, x4, 63);
                     AND(x3, x3, x4); } SH(x3, gback, gdoffset + i * 2););
@@ -2628,7 +2628,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 8; ++i) {
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MINU(x3, x3, x4);
                 } else {
                     BLTU(x3, x4, 8);
@@ -2657,7 +2657,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
                 ADD(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MINU(x3, x3, x5);
                 } else {
                     BLT(x3, x5, 8);
@@ -2678,7 +2678,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LHU(x3, gback, gdoffset + i * 2);
                 LHU(x4, wback, fixedaddress + i * 2);
                 ADDW(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MINU(x3, x3, x5);
                 } else {
                     BGE(x5, x3, 8); // tmp32s <= 65535?
@@ -2695,7 +2695,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 8; ++i) {
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MAXU(x3, x3, x4);
                 } else {
                     BLTU(x4, x3, 8);
@@ -2711,7 +2711,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0, 1);
             LD(x1, gback, gdoffset);
             LD(x3, wback, fixedaddress);
-            if (rv64_zbb) {
+            if (cpuext.zbb) {
                 ANDN(x1, x3, x1);
             } else {
                 NOT(x1, x1);
@@ -2740,7 +2740,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x4, 0, 1);
             LBU(x1, wback, fixedaddress);
             ADDI(x2, xZR, 15);
-            if (rv64_zbb) {
+            if (cpuext.zbb) {
                 MINU(x1, x1, x2);
             } else {
                 BLTU(x1, x2, 4 + 4);
@@ -2759,7 +2759,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x4, 0, 1);
             LBU(x1, wback, fixedaddress);
             ADDI(x2, xZR, 31);
-            if (rv64_zbb) {
+            if (cpuext.zbb) {
                 MINU(x1, x1, x2);
             } else {
                 BLTU(x1, x2, 4 + 4);
@@ -2834,7 +2834,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LB(x3, gback, gdoffset + i);
                 LB(x4, wback, fixedaddress + i);
                 SUBW(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
@@ -2859,7 +2859,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
                 SUBW(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
@@ -2879,7 +2879,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 4; ++i) {
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MIN(x3, x3, x4);
                 } else {
                     BLT(x3, x4, 8);
@@ -2911,7 +2911,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LB(x3, gback, gdoffset + i);
                 LB(x4, wback, fixedaddress + i);
                 ADDW(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
@@ -2936,7 +2936,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
                 ADDW(x3, x3, x4);
-                if (rv64_zbb) {
+                if (cpuext.zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
                 } else {
@@ -2953,7 +2953,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM();
             GETEM(x1, 0, 6);
-            MMX_LOOP_WS(x3, x4, if (rv64_zbb) { MAX(x3, x3, x4); } else {
+            MMX_LOOP_WS(x3, x4, if (cpuext.zbb) { MAX(x3, x3, x4); } else {
                     BGE(x3, x4, 8);
                     MV(x3, x4); });
             break;

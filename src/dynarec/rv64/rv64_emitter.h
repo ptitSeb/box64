@@ -35,9 +35,9 @@
 // ZERO the upper part, compatible to zba, xtheadbb, and rv64gc
 #define ZEXTW2(rd, rs1)              \
     do {                             \
-        if (rv64_zba) {              \
+        if (cpuext.zba) {            \
             ZEXTW(rd, rs1);          \
-        } else if (rv64_xtheadbb) {  \
+        } else if (cpuext.xtheadbb) {\
             TH_EXTU(rd, rs1, 31, 0); \
         } else {                     \
             SLLI(rd, rs1, 32);       \
@@ -251,19 +251,19 @@
 #define SGTU(rd, rs1, rs2) SLTU(rd, rs2, rs1);
 #define SLEU(rd, rs1, rs2) SGEU(rd, rs2, rs1);
 
-#define MVEQ(rd, rs1, rs2, rs3)                             \
-    if (rv64_xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
-        TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));      \
-    } else {                                                \
-        BNE(rs2, rs3, 8);                                   \
-        MV(rd, rs1);                                        \
+#define MVEQ(rd, rs1, rs2, rs3)                               \
+    if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
+        TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
+    } else {                                                  \
+        BNE(rs2, rs3, 8);                                     \
+        MV(rd, rs1);                                          \
     }
-#define MVNE(rd, rs1, rs2, rs3)                             \
-    if (rv64_xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
-        TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));      \
-    } else {                                                \
-        BEQ(rs2, rs3, 8);                                   \
-        MV(rd, rs1);                                        \
+#define MVNE(rd, rs1, rs2, rs3)                               \
+    if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
+        TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
+    } else {                                                  \
+        BEQ(rs2, rs3, 8);                                     \
+        MV(rd, rs1);                                          \
     }
 #define MVLT(rd, rs1, rs2, rs3) \
     BGE(rs2, rs3, 8);           \
@@ -411,36 +411,36 @@
 // 4-bytes[rs1+imm12] = rs2
 #define SW(rs2, rs1, imm12) EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
-#define PUSH1(reg)                              \
-    do {                                        \
-        if (rv64_xtheadmemidx && reg != xRSP) { \
-            TH_SDIB(reg, xRSP, -8, 0);          \
-        } else {                                \
-            SD(reg, xRSP, 0xFF8);               \
-            SUBI(xRSP, xRSP, 8);                \
-        }                                       \
-    } while (0)
-#define POP1(reg)                                 \
+#define PUSH1(reg)                                \
     do {                                          \
-        if (rv64_xtheadmemidx && reg != xRSP) {   \
-            TH_LDIA(reg, xRSP, 8, 0);             \
+        if (cpuext.xtheadmemidx && reg != xRSP) { \
+            TH_SDIB(reg, xRSP, -8, 0);            \
         } else {                                  \
-            LD(reg, xRSP, 0);                     \
-            if (reg != xRSP) ADDI(xRSP, xRSP, 8); \
+            SD(reg, xRSP, 0xFF8);                 \
+            SUBI(xRSP, xRSP, 8);                  \
         }                                         \
     } while (0)
-#define PUSH1_32(reg)                           \
-    do {                                        \
-        if (rv64_xtheadmemidx && reg != xRSP) { \
-            TH_SWIB(reg, xRSP, -4, 0);          \
-        } else {                                \
-            SW(reg, xRSP, 0xFFC);               \
-            SUBI(xRSP, xRSP, 4);                \
-        }                                       \
+#define POP1(reg)                                   \
+    do {                                            \
+        if (cpuext.xtheadmemidx && reg != xRSP) {   \
+            TH_LDIA(reg, xRSP, 8, 0);               \
+        } else {                                    \
+            LD(reg, xRSP, 0);                       \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 8);   \
+        }                                           \
+    } while (0)
+#define PUSH1_32(reg)                             \
+    do {                                          \
+        if (cpuext.xtheadmemidx && reg != xRSP) { \
+            TH_SWIB(reg, xRSP, -4, 0);            \
+        } else {                                  \
+            SW(reg, xRSP, 0xFFC);                 \
+            SUBI(xRSP, xRSP, 4);                  \
+        }                                         \
     } while (0)
 #define POP1_32(reg)                              \
     do {                                          \
-        if (rv64_xtheadmemidx && reg != xRSP) {   \
+        if (cpuext.xtheadmemidx && reg != xRSP) { \
             TH_LWUIA(reg, xRSP, 4, 0);            \
         } else {                                  \
             LWU(reg, xRSP, 0);                    \
@@ -461,19 +461,19 @@
         PUSH1(reg);     \
     }
 
-#define PUSH1_16(reg)                           \
-    do {                                        \
-        if (rv64_xtheadmemidx && reg != xRSP) { \
-            TH_SHIB(reg, xRSP, -2, 0);          \
-        } else {                                \
-            SH(reg, xRSP, 0xFFE);               \
-            SUBI(xRSP, xRSP, 2);                \
-        }                                       \
+#define PUSH1_16(reg)                             \
+    do {                                          \
+        if (cpuext.xtheadmemidx && reg != xRSP) { \
+            TH_SHIB(reg, xRSP, -2, 0);            \
+        } else {                                  \
+            SH(reg, xRSP, 0xFFE);                 \
+            SUBI(xRSP, xRSP, 2);                  \
+        }                                         \
     } while (0)
 
 #define POP1_16(reg)                              \
     do {                                          \
-        if (rv64_xtheadmemidx && reg != xRSP) {   \
+        if (cpuext.xtheadmemidx && reg != xRSP) { \
             TH_LHUIA(reg, xRSP, 2, 0);            \
         } else {                                  \
             LHU(reg, xRSP, 0);                    \
@@ -539,9 +539,9 @@
 #define ADDSL(rd, rs1, rs2, imm2, scratch) \
     if (!(imm2)) {                         \
         ADD(rd, rs1, rs2);                 \
-    } else if (rv64_zba) {                 \
+    } else if (cpuext.zba) {               \
         SHxADD(rd, rs2, imm2, rs1);        \
-    } else if (rv64_xtheadba) {            \
+    } else if (cpuext.xtheadba) {          \
         TH_ADDSL(rd, rs1, rs2, imm2);      \
     } else {                               \
         SLLI(scratch, rs2, imm2);          \
@@ -894,12 +894,12 @@
 #define CLZW(rd, rs) EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, 0b0011011))
 // Count leading zero bits
 #define CLZxw(rd, rs, x, s1, s2, s3)       \
-    if (rv64_zbb) {                        \
+    if (cpuext.zbb) {                      \
         if (x)                             \
             CLZ(rd, rs);                   \
         else                               \
             CLZW(rd, rs);                  \
-    } else if (rv64_xtheadbb) {            \
+    } else if (cpuext.xtheadbb) {          \
         if (x) {                           \
             TH_FF1(rd, rs);                \
         } else {                           \
@@ -949,7 +949,7 @@
 // BEWARE: You should take care of the all zeros situation yourself,
 //         and clear the high 32bit when x is 1.
 #define CTZxw(rd, rs, x, s1, s2)                  \
-    if (rv64_zbb) {                               \
+    if (cpuext.zbb) {                             \
         if (x)                                    \
             CTZ(rd, rs);                          \
         else                                      \
@@ -985,9 +985,9 @@
 #define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word
 #define SEXTH(rd, rs)          \
-    if (rv64_zbb)              \
+    if (cpuext.zbb)            \
         SEXTH_(rd, rs);        \
-    else if (rv64_xtheadbb)    \
+    else if (cpuext.xtheadbb)  \
         TH_EXT(rd, rs, 15, 0); \
     else {                     \
         SLLI(rd, rs, 48);      \
@@ -997,9 +997,9 @@
 #define ZEXTH_(rd, rs) EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011))
 // Zero-extend half-word
 #define ZEXTH(rd, rs)           \
-    if (rv64_zbb)               \
+    if (cpuext.zbb)             \
         ZEXTH_(rd, rs);         \
-    else if (rv64_xtheadbb)     \
+    else if (cpuext.xtheadbb)   \
         TH_EXTU(rd, rs, 15, 0); \
     else {                      \
         SLLI(rd, rs, 48);       \
@@ -1047,12 +1047,12 @@
 
 // Byte-reverse register, rd can be the same as rs or s1, but rs cannot be the same as s1.
 #define REV8xw(rd, rs, s1, s2, s3, s4) \
-    if (rv64_zbb) {                    \
+    if (cpuext.zbb) {                  \
         REV8(rd, rs);                  \
         if (!rex.w) {                  \
             SRLI(rd, rd, 32);          \
         }                              \
-    } else if (rv64_xtheadbb) {        \
+    } else if (cpuext.xtheadbb) {      \
         if (rex.w) {                   \
             TH_REV(rd, rs);            \
         } else {                       \
@@ -1135,7 +1135,7 @@
 
 // Single-bit Extract (Register)
 #define BEXT(rd, rs1, rs2, s0)              \
-    if (rv64_zbs) {                         \
+    if (cpuext.zbs) {                       \
         if (rex.w) {                        \
             BEXT_(rd, rs1, rs2);            \
         } else {                            \
@@ -1150,9 +1150,9 @@
 
 // Single-bit Extract (Immediate)
 #define BEXTI(rd, rs1, imm)   \
-    if (rv64_zbs)             \
+    if (cpuext.zbs)           \
         BEXTI_(rd, rs1, imm); \
-    else if (rv64_xtheadbs)   \
+    else if (cpuext.xtheadbs) \
         TH_TST(rd, rs1, imm); \
     else {                    \
         SRLIxw(rd, rs1, imm); \
@@ -1504,14 +1504,14 @@
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
 //  Note: Make sure SEW in vtype is always the same as EEW, for xtheadvector compatibility!
 
-#define VLUXEI8_V(vd, vs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
-#define VLUXEI16_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
-#define VLUXEI32_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
-#define VLUXEI64_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
-#define VSUXEI8_V(vs3, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
-#define VSUXEI16_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
-#define VSUXEI32_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
-#define VSUXEI64_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
+#define VLUXEI8_V(vd, vs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
+#define VLUXEI16_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
+#define VLUXEI32_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
+#define VLUXEI64_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
+#define VSUXEI8_V(vs3, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
+#define VSUXEI16_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
+#define VSUXEI32_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
+#define VSUXEI64_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (cpuext.xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
 
 //  Vector Strided Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#75-vector-strided-instructions
@@ -1583,7 +1583,7 @@
 #define VFSLIDE1UP_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001110...........101.....1010111
 #define VFSLIDE1DOWN_VF(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001111...........101.....1010111
 
-#define VFMV_S_F(vd, rs1) EMIT(I_type((rv64_xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
+#define VFMV_S_F(vd, rs1) EMIT(I_type((cpuext.xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
 #define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111))                                        // 010111100000.....101.....1010111
 
 #define VFMERGE_VFM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b101, vd, 0b1010111)) // 0101110..........101.....1010111
@@ -1629,7 +1629,7 @@
 #define VFSGNJN_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001001...........001.....1010111
 #define VFSGNJX_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001010...........001.....1010111
 
-#define VFMV_F_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b001, rd, 0b1010111)) // 0100001.....00000001.....1010111
+#define VFMV_F_S(rd, vs2) EMIT(R_type((cpuext.xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b001, rd, 0b1010111)) // 0100001.....00000001.....1010111
 
 #define VMFEQ_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011000...........001.....1010111
 #define VMFLE_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011001...........001.....1010111
@@ -1646,29 +1646,29 @@
 #define VFMSAC_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1011100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101110...........001.....1010111
 #define VFNMSAC_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101111...........001.....1010111
 
-#define VFCVT_XU_F_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010010......00000001.....1010111
-#define VFCVT_X_F_V(vd, vs2, vm)       EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00001, 0b001, vd, 0b1010111)) // 010010......00001001.....1010111
-#define VFCVT_F_XU_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00010, 0b001, vd, 0b1010111)) // 010010......00010001.....1010111
-#define VFCVT_F_X_V(vd, vs2, vm)       EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00011, 0b001, vd, 0b1010111)) // 010010......00011001.....1010111
-#define VFCVT_RTZ_XU_F_V(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00110, 0b001, vd, 0b1010111)) // 010010......00110001.....1010111
-#define VFCVT_RTZ_X_F_V(vd, vs2, vm)   EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00111, 0b001, vd, 0b1010111)) // 010010......00111001.....1010111
-#define VFWCVT_XU_F_V(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01000, 0b001, vd, 0b1010111)) // 010010......01000001.....1010111
-#define VFWCVT_X_F_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01001, 0b001, vd, 0b1010111)) // 010010......01001001.....1010111
-#define VFWCVT_F_XU_V(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01010, 0b001, vd, 0b1010111)) // 010010......01010001.....1010111
-#define VFWCVT_F_X_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01011, 0b001, vd, 0b1010111)) // 010010......01011001.....1010111
-#define VFWCVT_F_F_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01100, 0b001, vd, 0b1010111)) // 010010......01100001.....1010111
-#define VFWCVT_RTZ_XU_F_V(vd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01110, 0b001, vd, 0b1010111)) // 010010......01110001.....1010111
-#define VFWCVT_RTZ_X_F_V(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01111, 0b001, vd, 0b1010111)) // 010010......01111001.....1010111
-#define VFNCVT_XU_F_W(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010010......10000001.....1010111
-#define VFNCVT_X_F_W(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10001, 0b001, vd, 0b1010111)) // 010010......10001001.....1010111
-#define VFNCVT_F_XU_W(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10010, 0b001, vd, 0b1010111)) // 010010......10010001.....1010111
-#define VFNCVT_F_X_W(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10011, 0b001, vd, 0b1010111)) // 010010......10011001.....1010111
-#define VFNCVT_F_F_W(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10100, 0b001, vd, 0b1010111)) // 010010......10100001.....1010111
-#define VFNCVT_ROD_F_F_W(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10101, 0b001, vd, 0b1010111)) // 010010......10101001.....1010111
-#define VFNCVT_RTZ_XU_F_W(vd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10110, 0b001, vd, 0b1010111)) // 010010......10110001.....1010111
-#define VFNCVT_RTZ_X_F_W(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10111, 0b001, vd, 0b1010111)) // 010010......10111001.....1010111
-#define VFSQRT_V(vd, vs2, vm)          EMIT(R_type((rv64_xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010011......00000001.....1010111
-#define VFCLASS_V(vd, vs2, vm)         EMIT(R_type((rv64_xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010011......10000001.....1010111
+#define VFCVT_XU_F_V(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010010......00000001.....1010111
+#define VFCVT_X_F_V(vd, vs2, vm)       EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00001, 0b001, vd, 0b1010111)) // 010010......00001001.....1010111
+#define VFCVT_F_XU_V(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00010, 0b001, vd, 0b1010111)) // 010010......00010001.....1010111
+#define VFCVT_F_X_V(vd, vs2, vm)       EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00011, 0b001, vd, 0b1010111)) // 010010......00011001.....1010111
+#define VFCVT_RTZ_XU_F_V(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00110, 0b001, vd, 0b1010111)) // 010010......00110001.....1010111
+#define VFCVT_RTZ_X_F_V(vd, vs2, vm)   EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00111, 0b001, vd, 0b1010111)) // 010010......00111001.....1010111
+#define VFWCVT_XU_F_V(vd, vs2, vm)     EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01000, 0b001, vd, 0b1010111)) // 010010......01000001.....1010111
+#define VFWCVT_X_F_V(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01001, 0b001, vd, 0b1010111)) // 010010......01001001.....1010111
+#define VFWCVT_F_XU_V(vd, vs2, vm)     EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01010, 0b001, vd, 0b1010111)) // 010010......01010001.....1010111
+#define VFWCVT_F_X_V(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01011, 0b001, vd, 0b1010111)) // 010010......01011001.....1010111
+#define VFWCVT_F_F_V(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01100, 0b001, vd, 0b1010111)) // 010010......01100001.....1010111
+#define VFWCVT_RTZ_XU_F_V(vd, vs2, vm) EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01110, 0b001, vd, 0b1010111)) // 010010......01110001.....1010111
+#define VFWCVT_RTZ_X_F_V(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01111, 0b001, vd, 0b1010111)) // 010010......01111001.....1010111
+#define VFNCVT_XU_F_W(vd, vs2, vm)     EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010010......10000001.....1010111
+#define VFNCVT_X_F_W(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10001, 0b001, vd, 0b1010111)) // 010010......10001001.....1010111
+#define VFNCVT_F_XU_W(vd, vs2, vm)     EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10010, 0b001, vd, 0b1010111)) // 010010......10010001.....1010111
+#define VFNCVT_F_X_W(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10011, 0b001, vd, 0b1010111)) // 010010......10011001.....1010111
+#define VFNCVT_F_F_W(vd, vs2, vm)      EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10100, 0b001, vd, 0b1010111)) // 010010......10100001.....1010111
+#define VFNCVT_ROD_F_F_W(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10101, 0b001, vd, 0b1010111)) // 010010......10101001.....1010111
+#define VFNCVT_RTZ_XU_F_W(vd, vs2, vm) EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10110, 0b001, vd, 0b1010111)) // 010010......10110001.....1010111
+#define VFNCVT_RTZ_X_F_W(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10111, 0b001, vd, 0b1010111)) // 010010......10111001.....1010111
+#define VFSQRT_V(vd, vs2, vm)          EMIT(R_type((cpuext.xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010011......00000001.....1010111
+#define VFCLASS_V(vd, vs2, vm)         EMIT(R_type((cpuext.xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010011......10000001.....1010111
 
 #define VFRSQRT7_V(vd, vs2, vm) EMIT(R_type(0b0100110 | (vm), vs2, 0b00100, 0b001, vd, 0b1010111)) // 010011......00100001.....1010111
 #define VFREC7_V(vd, vs2, vm)   EMIT(R_type(0b0100110 | (vm), vs2, 0b00101, 0b001, vd, 0b1010111)) // 010011......00101001.....1010111
@@ -1700,13 +1700,13 @@
 #define VSLIDEUP_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001110...........100.....1010111
 #define VSLIDEDOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001111...........100.....1010111
 
-#define VADC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
-#define VMADC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100010..........100.....1010111
-#define VMADC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100011..........100.....1010111
-#define VSBC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100100 | rv64_xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
-#define VMSBC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100110..........100.....1010111
-#define VMSBC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111))                       // 0100111..........100.....1010111
-#define VMERGE_VXM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111))                       // 0101110..........100.....1010111
+#define VADC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100000 | cpuext.xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
+#define VMADC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111))                         // 0100010..........100.....1010111
+#define VMADC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111))                         // 0100011..........100.....1010111
+#define VSBC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100100 | cpuext.xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
+#define VMSBC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111))                         // 0100110..........100.....1010111
+#define VMSBC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111))                         // 0100111..........100.....1010111
+#define VMERGE_VXM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111))                         // 0101110..........100.....1010111
 
 #define VMV_V_X(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b100, vd, 0b1010111)) // 010111100000.....100.....1010111
 
@@ -1746,13 +1746,13 @@
 #define VRGATHER_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0011000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001100...........000.....1010111
 #define VRGATHEREI16_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001110...........000.....1010111
 
-#define VADC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
-#define VMADC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100010..........000.....1010111
-#define VMADC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100011..........000.....1010111
-#define VSBC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100100 | rv64_xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
-#define VMSBC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100110..........000.....1010111
-#define VMSBC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111))                       // 0100111..........000.....1010111
-#define VMERGE_VVM(vd, vs2, vs1) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111))                       // 0101110..........000.....1010111
+#define VADC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100000 | cpuext.xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
+#define VMADC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111))                         // 0100010..........000.....1010111
+#define VMADC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111))                         // 0100011..........000.....1010111
+#define VSBC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100100 | cpuext.xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
+#define VMSBC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111))                         // 0100110..........000.....1010111
+#define VMSBC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111))                         // 0100111..........000.....1010111
+#define VMERGE_VVM(vd, vs2, vs1) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111))                         // 0101110..........000.....1010111
 
 #define VMV_V_V(vd, vs1) EMIT(I_type(0b010111100000, vs1, 0b000, vd, 0b1010111)) // 010111100000.....000.....1010111
 
@@ -1789,10 +1789,10 @@
 #define VSLIDEUP_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b0011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001110...........011.....1010111
 #define VSLIDEDOWN_VI(vd, vs2, simm5, vm) EMIT(R_type(0b0011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001111...........011.....1010111
 
-#define VADC_VIM(vd, vs2, simm5)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
-#define VMADC_VIM(vd, vs2, simm5)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111))                       // 0100010..........011.....1010111
-#define VMADC_VI(vd, vs2, simm5)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111))                       // 0100011..........011.....1010111
-#define VMERGE_VIM(vd, vs2, simm5) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111))                       // 0101110..........011.....1010111
+#define VADC_VIM(vd, vs2, simm5)   EMIT(R_type((0b0100000 | cpuext.xtheadvector), vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
+#define VMADC_VIM(vd, vs2, simm5)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111))                         // 0100010..........011.....1010111
+#define VMADC_VI(vd, vs2, simm5)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111))                         // 0100011..........011.....1010111
+#define VMERGE_VIM(vd, vs2, simm5) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111))                         // 0101110..........011.....1010111
 
 #define VMV_V_I(vd, simm5) EMIT(I_type(0b010111100000, simm5, 0b011, vd, 0b1010111)) // 010111100000.....011.....1010111
 
@@ -1836,10 +1836,10 @@
 #define VASUBU_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
 
 // Warning: zero-extended on xtheadvector!
-#define VMV_X_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
+#define VMV_X_S(rd, vs2) EMIT(R_type((cpuext.xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
 
 // Warning: xtheadvector only
-#define VEXT_X_V(rd, vs2, rs1) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, rs1, 0b010, rd, 0b1010111))
+#define VEXT_X_V(rd, vs2, rs1) EMIT(R_type((cpuext.xtheadvector ? 0b0011001 : 0b0100001), vs2, rs1, 0b010, rd, 0b1010111))
 
 //  Vector Integer Extension Instructions
 //  https://github.com/riscv/riscv-v-spec/blob/e49574c92b072fd4d71e6cb20f7e8154de5b83fe/v-spec.adoc#123-vector-integer-extension
@@ -1861,14 +1861,14 @@
 #define VMNOR_MM(vd, vs2, vs1)     EMIT(R_type(0b0111101, vs2, vs1, 0b010, vd, 0b1010111)) // 0111101..........010.....1010111
 #define VMXNOR_MM(vd, vs2, vs1)    EMIT(R_type(0b0111111, vs2, vs1, 0b010, vd, 0b1010111)) // 0111111..........010.....1010111
 
-#define VMSBF_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00001, 0b010, vd, 0b1010111)) // 010100......00001010.....1010111
-#define VMSOF_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00010, 0b010, vd, 0b1010111)) // 010100......00010010.....1010111
-#define VMSIF_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00011, 0b010, vd, 0b1010111)) // 010100......00011010.....1010111
-#define VIOTA_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b10000, 0b010, vd, 0b1010111)) // 010100......10000010.....1010111
-#define VCPOP_M(rd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10000, 0b010, rd, 0b1010111)) // 010000......10000010.....1010111
-#define VFIRST_M(rd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10001, 0b010, rd, 0b1010111)) // 010000......10001010.....1010111
+#define VMSBF_M(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00001, 0b010, vd, 0b1010111)) // 010100......00001010.....1010111
+#define VMSOF_M(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00010, 0b010, vd, 0b1010111)) // 010100......00010010.....1010111
+#define VMSIF_M(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00011, 0b010, vd, 0b1010111)) // 010100......00011010.....1010111
+#define VIOTA_M(vd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b10000, 0b010, vd, 0b1010111)) // 010100......10000010.....1010111
+#define VCPOP_M(rd, vs2, vm)  EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10000, 0b010, rd, 0b1010111)) // 010000......10000010.....1010111
+#define VFIRST_M(rd, vs2, vm) EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10001, 0b010, rd, 0b1010111)) // 010000......10001010.....1010111
 
-#define VID_V(vd, vm) EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), 0b00000, 0b10001, 0b010, vd, 0b1010111)) // 010100.0000010001010.....1010111
+#define VID_V(vd, vm) EMIT(R_type((cpuext.xtheadvector ? 0b0101100 : 0b0101000) | (vm), 0b00000, 0b10001, 0b010, vd, 0b1010111)) // 010100.0000010001010.....1010111
 
 #define VDIVU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100000...........010.....1010111
 #define VDIV_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100001...........010.....1010111
@@ -1906,7 +1906,7 @@
 #define VSLIDE1DOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001111...........110.....1010111
 
 // Warning, upper elements will be cleared in xtheadvector!
-#define VMV_S_X(vd, rs1) EMIT(I_type((rv64_xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b110, vd, 0b1010111))
+#define VMV_S_X(vd, rs1) EMIT(I_type((cpuext.xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b110, vd, 0b1010111))
 
 #define VDIVU_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100000...........110.....1010111
 #define VDIV_VX(vd, vs2, rs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100001...........110.....1010111

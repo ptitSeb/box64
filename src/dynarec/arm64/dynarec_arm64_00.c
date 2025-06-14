@@ -1336,7 +1336,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(eb1, x4, eb2, 8);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                if(arm64_atomics) {
+                if(cpuext.atomics) {
                     SWPALB(x4, x1, ed);
                 } else {
                     MARKLOCK;
@@ -1363,7 +1363,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 if(!ALIGNED_ATOMICxw) {
-                    if(arm64_uscat) {
+                    if(cpuext.uscat) {
                         ANDx_mask(x1, ed, 1, 0, 3);  // mask = F
                         CMPSw_U12(x1, 16-(1<<(2+rex.w)));
                         B_MARK(cGT);
@@ -1372,7 +1372,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         B_MARK(cNE);
                     }
                 }
-                if(arm64_atomics) {
+                if(cpuext.atomics) {
                     SWPALxw(gd, gd, ed);
                     if(!ALIGNED_ATOMICxw) {
                         B_NEXT_nocond;
@@ -1396,7 +1396,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MARK2;
                 }
                 SMDMB();
-                if(!ALIGNED_ATOMICxw || !arm64_atomics) {
+                if(!ALIGNED_ATOMICxw || !cpuext.atomics) {
                     MOVxw_REG(gd, x1);
                 }
             }

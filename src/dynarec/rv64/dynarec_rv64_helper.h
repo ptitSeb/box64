@@ -240,7 +240,7 @@
             wback = TO_NAT(wback & 3);                                                          \
         }                                                                                       \
         if (wb2) {                                                                              \
-            if (rv64_xtheadbb) {                                                                \
+            if (cpuext.xtheadbb) {                                                              \
                 TH_EXTU(i, wback, 15, 8);                                                       \
             } else {                                                                            \
                 SRLI(i, wback, wb2);                                                            \
@@ -269,7 +269,7 @@
             wback = TO_NAT(wback & 3);                                                          \
         }                                                                                       \
         if (wb2) {                                                                              \
-            if (rv64_xtheadbb) {                                                                \
+            if (cpuext.xtheadbb) {                                                                \
                 TH_EXTU(i, wback, 15, 8);                                                       \
             } else {                                                                            \
                 SRLI(i, wback, wb2);                                                            \
@@ -323,7 +323,7 @@
             wback = TO_NAT(wback & 3);                                                            \
         }                                                                                         \
         if (wb2) {                                                                                \
-            if (rv64_xtheadbb) {                                                                  \
+            if (cpuext.xtheadbb) {                                                                \
                 TH_EXTU(i, wback, 15, 8);                                                         \
             } else {                                                                              \
                 MV(i, wback);                                                                     \
@@ -354,7 +354,7 @@
     }                                                        \
     gd = i;                                                  \
     if (gb2) {                                               \
-        if (rv64_xtheadbb) {                                 \
+        if (cpuext.xtheadbb) {                               \
             TH_EXTU(gd, gb1, 15, 8);                         \
         } else {                                             \
             SRLI(gd, gb1, 8);                                \
@@ -920,7 +920,7 @@
 
 #define SET_FLAGS_NEZ(reg, F, scratch)      \
     do {                                    \
-        if (rv64_xtheadcondmov) {           \
+        if (cpuext.xtheadcondmov) {         \
             ORI(scratch, xFlags, 1 << F);   \
             TH_MVNEZ(xFlags, scratch, reg); \
         } else {                            \
@@ -931,7 +931,7 @@
 
 #define SET_FLAGS_EQZ(reg, F, scratch)      \
     do {                                    \
-        if (rv64_xtheadcondmov) {           \
+        if (cpuext.xtheadcondmov) {         \
             ORI(scratch, xFlags, 1 << F);   \
             TH_MVEQZ(xFlags, scratch, reg); \
         } else {                            \
@@ -942,7 +942,7 @@
 
 #define SET_FLAGS_LTZ(reg, F, scratch1, scratch2) \
     do {                                          \
-        if (rv64_xtheadcondmov) {                 \
+        if (cpuext.xtheadcondmov) {               \
             SLT(scratch1, reg, xZR);              \
             ORI(scratch2, xFlags, 1 << F);        \
             TH_MVNEZ(xFlags, scratch2, scratch1); \
@@ -1894,7 +1894,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     }                                                            \
     IFX (X_CF | X_PF | X_ZF | X_PEND) {                          \
         MOV32w(s2, 0b01000101);                                  \
-        if (rv64_zbb) {                                          \
+        if (cpuext.zbb) {                                        \
             ANDN(xFlags, xFlags, s2);                            \
         } else {                                                 \
             NOT(s3, s2);                                         \
@@ -1934,7 +1934,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     ADDIW(reg, s, -1);
 
 #define FAST_8BIT_OPERATION(dst, src, s1, OP)                                        \
-    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+    if (MODREG && (cpuext.zbb || cpuext.xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
         if (rex.rex) {                                                               \
             wb = TO_NAT((nextop & 7) + (rex.b << 3));                                \
             wb2 = 0;                                                                 \
@@ -1950,13 +1950,13 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         }                                                                            \
         if (src##2) { ANDI(s1, src, 0xf00); }                                        \
         SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                              \
-        if (rv64_zbb) {                                                              \
+        if (cpuext.zbb) {                                                            \
             RORI(dst, dst, 8 + dst##2);                                              \
         } else {                                                                     \
             TH_SRRI(dst, dst, 8 + dst##2);                                           \
         }                                                                            \
         OP;                                                                          \
-        if (rv64_zbb) {                                                              \
+        if (cpuext.zbb) {                                                            \
             RORI(dst, dst, 64 - 8 - dst##2);                                         \
         } else {                                                                     \
             TH_SRRI(dst, dst, 64 - 8 - dst##2);                                      \
@@ -1969,17 +1969,17 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     }
 
 #define FAST_16BIT_OPERATION(dst, src, s1, OP)                                       \
-    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+    if (MODREG && (cpuext.zbb || cpuext.xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
         gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));                          \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                    \
         SLLI(s1, src, 64 - 16);                                                      \
-        if (rv64_zbb) {                                                              \
+        if (cpuext.zbb) {                                                            \
             RORI(dst, dst, 16);                                                      \
         } else {                                                                     \
             TH_SRRI(dst, dst, 16);                                                   \
         }                                                                            \
         OP;                                                                          \
-        if (rv64_zbb) {                                                              \
+        if (cpuext.zbb) {                                                            \
             RORI(dst, dst, 64 - 16);                                                 \
         } else {                                                                     \
             TH_SRRI(dst, dst, 64 - 16);                                              \

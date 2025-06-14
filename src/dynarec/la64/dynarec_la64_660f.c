@@ -525,7 +525,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETGX(q0, 0);
                     GETEX(q1, 0, 0);
-                    if (!la64_lbt) {
+                    if (!cpuext.lbt) {
                         CLEAR_FLAGS(x3);
                     } else IFX (X_ALL) {
                         X64_SET_EFLAGS(xZR, X_ALL);
@@ -536,7 +536,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VAND_V(v0, q1, q0);
                         VSETEQZ_V(fcc0, v0);
                         BCEQZ_MARK(fcc0);
-                        if (la64_lbt) {
+                        if (cpuext.lbt) {
                             ADDI_D(x3, xZR, 1 << F_ZF);
                             X64_SET_EFLAGS(x3, X_ZF);
                         } else {
@@ -548,7 +548,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VANDN_V(v0, q0, q1);
                         VSETEQZ_V(fcc0, v0);
                         BCEQZ_MARK2(fcc0);
-                        if (la64_lbt) {
+                        if (cpuext.lbt) {
                             ADDI_D(x3, xZR, 1 << F_CF);
                             X64_SET_EFLAGS(x3, X_ZF);
                         } else {
@@ -1361,7 +1361,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     READFLAGS(F);                                                                            \
     tmp1 = x1;                                                                               \
     tmp3 = x3;                                                                               \
-    if (la64_lbt) {                                                                          \
+    if (cpuext.lbt) {                                                                          \
         X64_SETJ(x1, I);                                                                     \
     } else {                                                                                 \
         GETFLAGS;                                                                            \
@@ -1375,7 +1375,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         LD_HU(x4, ed, fixedaddress);                                                         \
         ed = x4;                                                                             \
     }                                                                                        \
-    if (la64_lbt)                                                                            \
+    if (cpuext.lbt)                                                                            \
         BEQZ(x1, 4 + 4);                                                                     \
     else                                                                                     \
         B##NO(x1, 4 + 4);                                                                    \
@@ -2047,7 +2047,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGW(x2);
             ANDI(gd, gd, 15);
             SRL_D(x4, ed, gd);
-            if (la64_lbt)
+            if (cpuext.lbt)
                 X64_SET_EFLAGS(x4, X_CF);
             else
                 BSTRINS_D(xFlags, x4, F_CF, F_CF);
@@ -2097,7 +2097,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 &= rex.w ? 0x3f : 15;
                     IFX (X_CF) {
                         BSTRPICK_D(x3, ed, u8, u8);
-                        if (la64_lbt) {
+                        if (cpuext.lbt) {
                             X64_SET_EFLAGS(x3, X_CF);
                         } else {
                             BSTRINS_D(xFlags, x3, F_CF, F_CF);

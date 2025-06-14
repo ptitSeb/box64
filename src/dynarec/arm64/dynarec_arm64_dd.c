@@ -150,7 +150,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VST64(v1, ed, fixedaddress);
                 } else {
                     s0 = fpu_get_scratch(dyn, ninst);
-                    if(arm64_frintts) {
+                    if(cpuext.frintts) {
                         FRINT64ZD(s0, v1);
                         VFCVTZSd(s0, s0);
                         VST64(s0, ed, fixedaddress);

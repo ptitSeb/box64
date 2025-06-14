@@ -991,7 +991,7 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFNATIVE_BEFORE(NF_CF) {
         if(INVERTED_CARRY_BEFORE) {
-            if(arm64_flagm)
+            if(cpuext.flagm)
                 CFINV();
             else {
                 MRS_nzcv(s3);
@@ -1134,7 +1134,7 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFNATIVE_BEFORE(NF_CF) {
         if(INVERTED_CARRY_BEFORE) {
-            if(arm64_flagm)
+            if(cpuext.flagm)
                 CFINV();
             else {
                 MRS_nzcv(s3);
@@ -1198,7 +1198,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFNATIVE_BEFORE(NF_CF) {
         if(INVERTED_CARRY_BEFORE) {
-            if(arm64_flagm)
+            if(cpuext.flagm)
                 CFINV();
             else {
                 MRS_nzcv(s3);
@@ -1321,7 +1321,7 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     IFNATIVE_BEFORE(NF_CF) {
         if(!INVERTED_CARRY_BEFORE) {
-            if(arm64_flagm)
+            if(cpuext.flagm)
                 CFINV();
             else {
                 MRS_nzcv(s3);
@@ -1470,7 +1470,7 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFNATIVE_BEFORE(NF_CF) {
         if(!INVERTED_CARRY_BEFORE) {
-            if(arm64_flagm)
+            if(cpuext.flagm)
                 CFINV();
             else {
                 MRS_nzcv(s3);
@@ -1535,7 +1535,7 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFNATIVE_BEFORE(NF_CF) {
         if(!INVERTED_CARRY_BEFORE) {
-            if(arm64_flagm)
+            if(cpuext.flagm)
                 CFINV();
             else {
                 MRS_nzcv(s3);

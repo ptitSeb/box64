@@ -28,8 +28,9 @@ la64_epilog:
     st.d   $r29, $r4, (8 * 14)
     st.d   $r30, $r4, (8 * 15)
     // restore xFlags from LBT.eflags
-    la.global $r12, la64_lbt
+    la.global $r12, cpuext
     ldptr.d   $r12, $r12, 0
+    andi      $r12, $r12, 1
     beqz      $r12, 1f
     ori       $r13, $r0, 0b100011010101
     andn      $r31, $r31, $r13

@@ -662,7 +662,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x44:
             INST_NAME("VPCLMULQDQ Gx, Vx, Ex, Ib");
             nextop = F8;
-            if(arm64_pmull) {
+            if(cpuext.pmull) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) {

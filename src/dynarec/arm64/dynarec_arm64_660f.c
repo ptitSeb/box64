@@ -229,7 +229,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCVTZSQD(q0, v1);
                 SQXTN_32(q0, q0);
             } else {
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     VFRINT32ZDQ(q0, v1);
                     VFCVTZSQD(q0, q0);
                     SQXTN_32(q0, q0);
@@ -269,7 +269,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCVTZSS(q0, q0);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     VFRINT32XDQ(q0, v1);
                     VFCVTZSQD(q0, q0);
                     SQXTN_32(q0, q0);
@@ -765,7 +765,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex");  // AES-NI
                     nextop = F8;
-                    if(arm64_aes) {
+                    if(cpuext.aes) {
                         GETEX(q1, 0, 0);
                         GETGX_empty(q0);
                         AESIMC(q0, q1);
@@ -783,7 +783,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0xDC:
                     INST_NAME("AESENC Gx, Ex");  // AES-NI
                     nextop = F8;
-                    if(arm64_aes) {
+                    if(cpuext.aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
                         v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
@@ -808,7 +808,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0xDD:
                     INST_NAME("AESENCLAST Gx, Ex");  // AES-NI
                     nextop = F8;
-                    if(arm64_aes) {
+                    if(cpuext.aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
                         v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
@@ -832,7 +832,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0xDE:
                     INST_NAME("AESDEC Gx, Ex");  // AES-NI
                     nextop = F8;
-                    if(arm64_aes) {
+                    if(cpuext.aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
                         v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
@@ -857,7 +857,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0xDF:
                     INST_NAME("AESDECLAST Gx, Ex");  // AES-NI
                     nextop = F8;
-                    if(arm64_aes) {
+                    if(cpuext.aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
                         v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
@@ -919,7 +919,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGD;
                     IFNATIVE_BEFORE(NF_CF) {
                         if(INVERTED_CARRY_BEFORE) {
-                            if(arm64_flagm)
+                            if(cpuext.flagm)
                                 CFINV();
                             else {
                                 MRS_nzcv(x3);
@@ -1234,7 +1234,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
-                    if(arm64_pmull) {
+                    if(cpuext.pmull) {
                         GETGX(q0, 1);
                         GETEX(q1, 0, 1);
                         u8 = F8;
@@ -1748,7 +1748,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 x87_restoreround(dyn, ninst, u8);
                 VFCVTZSQS(v0, v0);
             } else {
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     u8 = sse_setround(dyn, ninst, x1, x2, x3);
                     VFRINT32XSQ(v0, v1); // handle overflow
                     VFCVTZSQS(v0, v0);
@@ -3184,7 +3184,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCVTZSQD(v0, v1);  // convert double -> int64
                 SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
             } else {
-                if(arm64_frintts) {
+                if(cpuext.frintts) {
                     VFRINT32ZDQ(v0, v1); // handle overflow
                     VFCVTZSQD(v0, v0);  // convert double -> int64
                     SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part

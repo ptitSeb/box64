@@ -4,6 +4,7 @@
 #include <env.h>
 
 #include "os.h"
+#include "core_arch.h"
 
 typedef struct box64context_s box64context_t;
 extern box64env_t box64env;
@@ -14,42 +15,7 @@ extern int box64_rdtsc;
 extern uint8_t box64_rdtsc_shift;
 extern int box64_is32bits;
 #ifdef DYNAREC
-#ifdef ARM64
-extern int arm64_asimd;
-extern int arm64_aes;
-extern int arm64_pmull;
-extern int arm64_crc32;
-extern int arm64_atomics;
-extern int arm64_sha1;
-extern int arm64_sha2;
-extern int arm64_uscat;
-extern int arm64_flagm;
-extern int arm64_flagm2;
-extern int arm64_frintts;
-extern int arm64_rndr;
-#elif defined(RV64)
-extern int rv64_zba;
-extern int rv64_zbb;
-extern int rv64_zbc;
-extern int rv64_zbs;
-extern int rv64_vector;
-extern int rv64_xtheadvector; // rvv 1.0 or xtheadvector
-extern int rv64_vlen;
-extern int rv64_xtheadba;
-extern int rv64_xtheadbb;
-extern int rv64_xtheadbs;
-extern int rv64_xtheadcondmov;
-extern int rv64_xtheadmemidx;
-extern int rv64_xtheadmempair;
-extern int rv64_xtheadfmemidx;
-extern int rv64_xtheadmac;
-extern int rv64_xtheadfmv;
-#elif defined(LA64)
-extern int la64_lbt;
-extern int la64_lam_bh;
-extern int la64_lamcas;
-extern int la64_scq;
-#endif
+extern cpu_ext_t cpuext;
 #endif
 #ifdef HAVE_TRACE
 extern uintptr_t trace_start, trace_end;

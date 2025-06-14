@@ -59,7 +59,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     GETGX();
                     GETVX();
                     GETEX(x2, 0, 1);
-                    if (rv64_xtheadmempair) {
+                    if (cpuext.xtheadmempair) {
                         ADD(x1, vback, vxoffset);
                         TH_LDD(x3, x4, x1, 0);
                     } else {
@@ -67,7 +67,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                         LD(x4, vback, vxoffset + 8);
                     }
                     LWU(x5, wback, fixedaddress);
-                    if (rv64_xtheadmempair) {
+                    if (cpuext.xtheadmempair) {
                         ADDI(x1, gback, gdoffset);
                         TH_SDD(x3, x4, x1, 0);
                     } else {

@@ -261,7 +261,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         case 1:
                             if (rex.w) {
                                 INST_NAME("LOCK CMPXCHG16B Gq, Eq");
-                                if (!la64_scq) {
+                                if (!cpuext.scq) {
                                     static int warned = 0;
                                     PASS3(if (!warned) dynarec_log(LOG_INFO, "Warning, LOCK CMPXCHG16B is not well supported on LoongArch without SCQ and issues are expected.\n"));
                                     warned = 1;
@@ -272,14 +272,14 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                             addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                             UFLAG_IF {
-                                if (la64_lbt) {
+                                if (cpuext.lbt) {
                                     X64_SET_EFLAGS(xZR, X_ZF);
                                 } else {
                                     BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
                                 }
                             }
                             if (rex.w) {
-                                if (la64_scq) {
+                                if (cpuext.scq) {
                                     MARKLOCK;
                                     LL_D(x2, wback, 0);
                                     LD_D(x3, wback, 8);
@@ -290,7 +290,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     SC_Q(x5, xRCX, wback);
                                     BEQZ_MARKLOCK(x5);
                                     UFLAG_IF {
-                                        if (la64_lbt) {
+                                        if (cpuext.lbt) {
                                             ADDI_D(x5, xZR, -1);
                                             X64_SET_EFLAGS(x5, X_ZF);
                                         } else {
@@ -320,7 +320,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     ST_D(xRBX, wback, 0);
                                     ST_D(xRCX, wback, 8);
                                     UFLAG_IF {
-                                        if (la64_lbt) {
+                                        if (cpuext.lbt) {
                                             ADDI_D(x5, xZR, -1);
                                             X64_SET_EFLAGS(x5, X_ZF);
                                         } else {
@@ -352,7 +352,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SC_D(x5, wback, 0);
                                 BEQZ_MARKLOCK(x5);
                                 UFLAG_IF {
-                                    if (la64_lbt) {
+                                    if (cpuext.lbt) {
                                         ADDI_D(x5, xZR, -1);
                                         X64_SET_EFLAGS(x5, X_ZF);
                                     } else {
@@ -372,7 +372,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BEQZ_MARKLOCK2(x6);
                                 ST_D(x4, wback, 0);
                                 UFLAG_IF {
-                                    if (la64_lbt) {
+                                    if (cpuext.lbt) {
                                         ADDI_D(x5, xZR, -1);
                                         X64_SET_EFLAGS(x5, X_ZF);
                                     } else {

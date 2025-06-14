@@ -252,10 +252,10 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         i64 = F8S;
                     MOV64xw(x5, i64);
-                    IFXA (X_ALL, !la64_lbt)
+                    IFXA (X_ALL, !cpuext.lbt)
                         ST_D(x6, xEmu, offsetof(x64emu_t, scratch));
                     emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x7);
-                    IFXA (X_ALL, !la64_lbt) {
+                    IFXA (X_ALL, !cpuext.lbt) {
                         LD_D(x6, xEmu, offsetof(x64emu_t, scratch));
                     }
                     WBACKO(x6);

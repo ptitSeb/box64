@@ -56,7 +56,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 1, VECTOR_SEW32);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, VECTOR_SEW32);
-                if (rv64_xtheadvector) {
+                if (cpuext.xtheadvector) {
                     VECTOR_LOAD_VMASK(0b0001, x4, 1);
                     VMERGE_VVM(v0, v0, v1); // implies VMASK
                 } else {
@@ -81,7 +81,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW32);
-                if (rv64_xtheadvector) {
+                if (cpuext.xtheadvector) {
                     VECTOR_LOAD_VMASK(0b0001, x4, 1);
                     VMERGE_VVM(v0, v0, v1); // implies VMASK
                 } else {
@@ -150,7 +150,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETED(0);
                 FCVTSW(v0, ed, RD_RNE);
             }
-            if (rv64_xtheadvector) {
+            if (cpuext.xtheadvector) {
                 v1 = fpu_get_scratch(dyn);
                 VFMV_S_F(v1, v0);
                 VECTOR_LOAD_VMASK(0b0001, x4, 1);
@@ -331,7 +331,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VECTOR_LOAD_VMASK(0b0001, x4, 1);
             VFWCVT_F_F_V(d0, v1, VECTOR_MASKED);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            if (rv64_xtheadvector) {
+            if (cpuext.xtheadvector) {
                 VMERGE_VVM(v0, v0, d0); // implies VMASK
             } else {
                 VMV_X_S(x4, d0);
@@ -345,7 +345,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(v1, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v0);
-            if (rv64_xtheadvector) {
+            if (cpuext.xtheadvector) {
                 ADDI(x4, xZR, 1); // RTZ
                 FSRM(x4, x4);
                 VFCVT_X_F_V(v0, v1, VECTOR_UNMASKED);
@@ -405,7 +405,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 MARK;
                 FMVS(d0, d1);
                 MARK2;
-                if (rv64_xtheadvector) {
+                if (cpuext.xtheadvector) {
                     VFMV_S_F(d0, d0);
                     VECTOR_LOAD_VMASK(0b0001, x4, 1);
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
@@ -465,7 +465,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 MARK;
                 FMVS(d0, d1);
                 MARK2;
-                if (rv64_xtheadvector) {
+                if (cpuext.xtheadvector) {
                     VFMV_S_F(d0, d0);
                     VECTOR_LOAD_VMASK(0b0001, x4, 1);
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
@@ -530,7 +530,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, ed, fixedaddress);
             }
-            if (!rv64_xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            if (!cpuext.xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             VMV_S_X(v0, x4);
             break;
         case 0x7F:
@@ -616,7 +616,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 MARK;
             }
             NEG(x2, x2);
-            if (rv64_xtheadvector) {
+            if (cpuext.xtheadvector) {
                 v0 = fpu_get_scratch(dyn);
                 VMV_S_X(v0, x2);
                 VECTOR_LOAD_VMASK(0b0001, x4, 1);

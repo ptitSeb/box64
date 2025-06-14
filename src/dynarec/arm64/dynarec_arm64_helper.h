@@ -943,7 +943,7 @@
 #define GEN_INVERTED_CARRY()
 #endif
 #ifndef INVERT_CARRY
-#define INVERT_CARRY(A)     if(dyn->insts[ninst].normal_carry) {if(arm64_flagm) CFINV(); else {MRS_nzcv(A); EORx_mask(A, A, 1, 35, 0); MSR_nzcv(A);}}
+#define INVERT_CARRY(A)     if(dyn->insts[ninst].normal_carry) {if(cpuext.flagm) CFINV(); else {MRS_nzcv(A); EORx_mask(A, A, 1, 35, 0); MSR_nzcv(A);}}
 #endif
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
@@ -1953,7 +1953,7 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 
 #define COMP_ZFSF(s1, A)                        \
     IFX(X_ZF|X_SF) {                            \
-        if(arm64_flagm) {                       \
+        if(cpuext.flagm) {                      \
             SETF##A(s1);                        \
             IFX(X_ZF) {                         \
                 IFNATIVE(NF_EQ) {} else {       \

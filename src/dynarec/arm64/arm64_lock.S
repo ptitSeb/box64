@@ -5,7 +5,7 @@
 .text
 .align 4
 
-.extern arm64_atomics
+.extern cpuext
 .global arm64_lock_read_b
 .global arm64_lock_write_b
 .global arm64_lock_read_h
@@ -106,10 +106,10 @@ arm64_lock_write_dq:
 
 
 arm64_lock_xchg_dd:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_xchg_dd
+    tbnz    w3, #0, arm64_atomic_xchg_dd
     dmb     ish
 arm64_lock_xchg_dd_0:
     // address is x0, value is x1, return old value in x0
@@ -126,10 +126,10 @@ arm64_atomic_xchg_dd:
     ret
 
 arm64_lock_xchg_d:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_xchg_d
+    tbnz    w3, #0, arm64_atomic_xchg_d
     dmb     ish
 arm64_lock_xchg_d_0:
     // address is x0, value is x1, return old value in x0
@@ -146,10 +146,10 @@ arm64_atomic_xchg_d:
     ret
 
 arm64_lock_xchg_h:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_xchg_h
+    tbnz    w3, #0, arm64_atomic_xchg_h
     dmb     ish
 arm64_lock_xchg_h_0:
     // address is x0, value is x1, return old value in x0
@@ -166,10 +166,10 @@ arm64_atomic_xchg_h:
     ret
 
 arm64_lock_xchg_b:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_xchg_b
+    tbnz    w3, #0, arm64_atomic_xchg_b
     dmb     ish
 arm64_lock_xchg_b_0:
     // address is x0, value is x1, return old value in x0
@@ -186,10 +186,10 @@ arm64_atomic_xchg_b:
     ret
 
 arm64_lock_storeifnull:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_storeifnull
+    tbnz    w3, #0, arm64_atomic_storeifnull
     dmb     ish
 1:
     // address is x0, value is x1, x1 store to x0 only if [x0] is 0. return old [x0] value
@@ -211,10 +211,10 @@ arm64_atomic_storeifnull:
 
 
 arm64_lock_storeifnull_d:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_storeifnull_d
+    tbnz    w3, #0, arm64_atomic_storeifnull_d
     dmb     ish
 1:
     // address is x0, value is w1, w1 store to x0 only if [x0] is 0. return old [x0] value
@@ -236,10 +236,10 @@ arm64_atomic_storeifnull_d:
     ret
 
 arm64_lock_storeifref:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_storeifref
+    tbnz    w3, #0, arm64_atomic_storeifref
     dmb     ish
 1:
     // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return new [x0] value (so x1 or old value)
@@ -267,10 +267,10 @@ arm64_atomic_storeifref:
     ret
 
 arm64_lock_storeifref_d:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_storeifref_d
+    tbnz    w3, #0, arm64_atomic_storeifref_d
     dmb     ish
 1:
     // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return new [x0] value (so x1 or old value)
@@ -298,10 +298,10 @@ arm64_atomic_storeifref_d:
     ret
 
 arm64_lock_storeifref2_d:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_storeifref2_d
+    tbnz    w3, #0, arm64_atomic_storeifref2_d
     dmb     ish
 1:
     // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
@@ -352,10 +352,10 @@ arm64_lock_decifnot0:
     ret
 
 arm64_lock_incif0:
-    adrp    x3, arm64_atomics
-    add     x3, x3, #:lo12:arm64_atomics
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
-    cbnz    w3, arm64_atomic_incif0
+    tbnz    w3, #0, arm64_atomic_incif0
     dmb     ish
 1:
     ldaxr   w1, [x0]

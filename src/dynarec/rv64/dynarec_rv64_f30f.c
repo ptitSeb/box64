@@ -466,7 +466,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV32w(gd, 0);
             B_NEXT_nocond;
             MARK;
-            if (rv64_zbb) {
+            if (cpuext.zbb) {
                 CPOPxw(gd, ed);
             } else {
                 if (rex.w) {

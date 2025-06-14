@@ -57,66 +57,66 @@ void RV64_Detect_Function()
     ADDI(A1, xZR, 1);
     TH_ADDSL(A0, A0, A1, 1);
     BR(xRA);
-    rv64_xtheadba
-        = rv64_xtheadbb
-        = rv64_xtheadbs
-        = rv64_xtheadcondmov
-        = rv64_xtheadmemidx
-        = rv64_xtheadmempair
-        = rv64_xtheadfmemidx
-        = rv64_xtheadmac
-        = rv64_xtheadfmv = Check(my_block);
+    cpuext.xtheadba
+        = cpuext.xtheadbb
+        = cpuext.xtheadbs
+        = cpuext.xtheadcondmov
+        = cpuext.xtheadmemidx
+        = cpuext.xtheadmempair
+        = cpuext.xtheadfmemidx
+        = cpuext.xtheadmac
+        = cpuext.xtheadfmv = Check(my_block);
 
     // Official extensions
 
-    if (!rv64_xtheadba) {
+    if (!cpuext.xtheadba) {
         // Test Zba with ADDUW
         block = (uint32_t*)my_block;
         ADDUW(A0, A0, A1);
         ADDI(A0, xZR, 42);
         BR(xRA);
-        rv64_zba = Check(my_block);
+        cpuext.zba = Check(my_block);
         // Test Zbb with ANDN
         block = (uint32_t*)my_block;
         ANDN(A0, A0, A1);
         ADDI(A0, xZR, 42);
         BR(xRA);
-        rv64_zbb = Check(my_block);
+        cpuext.zbb = Check(my_block);
         // Test Zbc with CLMUL
         block = (uint32_t*)my_block;
         CLMUL(A0, A0, A1);
         ADDI(A0, xZR, 42);
         BR(xRA);
-        rv64_zbc = Check(my_block);
+        cpuext.zbc = Check(my_block);
         // Test Zbs with BCLR
         block = (uint32_t*)my_block;
         BCLR(A0, A0, A1);
         ADDI(A0, xZR, 42);
         BR(xRA);
-        rv64_zbs = Check(my_block);
+        cpuext.zbs = Check(my_block);
     }
 
     block = (uint32_t*)my_block;
     CSRRS(xZR, xZR, 0xc22 /* vlenb */);
     ADDI(A0, xZR, 42);
     BR(xRA);
-    rv64_vector = Check(my_block);
+    cpuext.vector = Check(my_block);
 
-    if (rv64_vector) {
+    if (cpuext.vector) {
         block = (uint32_t*)my_block;
         CSRRS(xZR, xZR, 0x00f /* vcsr */); // vcsr does not exists in xtheadvector
         ADDI(A0, xZR, 42);
         BR(xRA);
-        rv64_xtheadvector = !Check(my_block);
+        cpuext.xtheadvector = !Check(my_block);
     }
 
-    if (rv64_vector) {
+    if (cpuext.vector) {
         int vlenb = 0;
         asm volatile("csrr %0, 0xc22" : "=r"(vlenb));
-        rv64_vlen = vlenb * 8;
+        cpuext.vlen = vlenb;
         if (vlenb < 16) {
             // we need vlen >= 128
-            rv64_vector = 0;
+            cpuext.vector = 0;
         }
     }
 

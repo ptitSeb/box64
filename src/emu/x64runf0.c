@@ -790,7 +790,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                             if (rex.w) {
 #if defined(__riscv) || defined(__loongarch64)
 #if defined(__loongarch64)
-                                if (la64_scq) {
+                                if (cpuext.scq) {
                                     do {
                                         native_lock_read_dq(&tmp64u, &tmp64u2, ED);
                                         if (R_RAX == tmp64u && R_RDX == tmp64u2) {

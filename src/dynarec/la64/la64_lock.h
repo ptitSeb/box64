@@ -1,9 +1,9 @@
 #ifndef __LA64_LOCK__H__
 #define __LA64_LOCK__H__
 #include <stdint.h>
+#include "core_arch.h"
 
-extern int la64_lamcas;
-extern int la64_lam_bh;
+extern cpu_ext_t cpuext;
 
 // Atomically store val at [p] if old [p] is ref. Return 0 if OK, 1 is not. p needs to be aligned
 extern int

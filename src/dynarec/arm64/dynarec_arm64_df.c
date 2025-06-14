@@ -354,7 +354,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         B_MARK3(c__);
                         MARK2;
                     }
-                    if(arm64_frintts) {
+                    if(cpuext.frintts) {
                         FRINT64XD(s0, v1);
                         VFCVTZSd(s0, s0);
                         VST64(s0, wback, fixedaddress);

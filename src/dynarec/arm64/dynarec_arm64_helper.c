@@ -2593,7 +2593,7 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
     }
     // special case for NF_CF changing state
     if((flags_before&NF_CF) && (flags_after&NF_CF) && (nc_before!=nc_after)) {
-        if(arm64_flagm && !mrs) {
+        if(cpuext.flagm && !mrs) {
             CFINV();
         } else {
             GO_MRS(s2);

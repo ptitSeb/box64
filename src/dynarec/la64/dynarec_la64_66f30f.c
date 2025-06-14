@@ -59,7 +59,7 @@ uintptr_t dynarec64_66F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             VPCNT_H(v0, v0);
             VPICKVE2GR_HU(gd, v0, 0);
             IFX (X_ALL) {
-                if (la64_lbt) {
+                if (cpuext.lbt) {
                     X64_SET_EFLAGS(xZR, X_ALL);
                     BNEZ_MARK(gd);
                     ADDI_D(x5, xZR, 1 << F_ZF);

@@ -24,6 +24,7 @@
 #include "rbtree.h"
 #include "wine/compiler.h"
 #include "wine/debug.h"
+#include "core_arch.h"
 
 uintptr_t box64_pagesize = 4096;
 
@@ -85,19 +86,7 @@ int isRetX87Wrapper(wrapper_t fun)
     return 0;
 }
 
-int arm64_asimd = 0;
-int arm64_aes = 0;
-int arm64_pmull = 0;
-int arm64_crc32 = 0;
-int arm64_atomics = 0;
-int arm64_sha1 = 0;
-int arm64_sha2 = 0;
-int arm64_uscat = 0;
-int arm64_flagm = 0;
-int arm64_flagm2 = 0;
-int arm64_frintts = 0;
-int arm64_afp = 0;
-int arm64_rndr = 0;
+cpu_ext_t cpuext = {0};
 
 static box64context_t box64_context;
 box64context_t* my_context = &box64_context;

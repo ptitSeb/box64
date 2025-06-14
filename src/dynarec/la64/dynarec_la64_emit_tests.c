@@ -34,7 +34,7 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             X64_SUB_B(s1, s2);
         }
@@ -105,7 +105,7 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
 
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             X64_SUB_B(s1, xZR);
         }
@@ -156,7 +156,7 @@ void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             X64_SUB_H(s1, s2);
         }
@@ -229,7 +229,7 @@ void emit_cmp16_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
 
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             X64_SUB_H(s1, xZR);
         }
@@ -280,7 +280,7 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             if (rex.w)
                 X64_SUB_D(s1, s2);
@@ -365,7 +365,7 @@ void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, uint8_t nextop, int
 
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             if (rex.w)
                 X64_SUB_D(s1, xZR);
@@ -443,7 +443,7 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             X64_AND_B(s1, s2);
         }
@@ -497,7 +497,7 @@ void emit_test8c(dynarec_la64_t* dyn, int ninst, int s1, uint8_t c, int s3, int 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
 
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX (X_ALL) {
             ADDI_D(s3, xZR, c);
             X64_AND_B(s1, s3);
@@ -551,7 +551,7 @@ void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX (X_ALL) {
             X64_AND_H(s1, s2);
         }
@@ -604,7 +604,7 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             if (rex.w)
                 X64_AND_D(s1, s2);
@@ -670,7 +670,7 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR);
-    if (la64_lbt) {
+    if (cpuext.lbt) {
         IFX(X_ALL) {
             MOV64xw(s3, c);
             if (rex.w)
@@ -705,7 +705,7 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     if (c >= 0 && c <= 4095) {
         ANDI(s3, s1, c);
     } else {
-        IFXA(X_ALL, la64_lbt) { } else MOV64xw(s3, c);
+        IFXA(X_ALL, cpuext.lbt) { } else MOV64xw(s3, c);
         AND(s3, s1, s3);
     }
 
