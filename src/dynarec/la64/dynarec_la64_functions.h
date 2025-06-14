@@ -14,6 +14,8 @@ int fpu_get_scratch(dynarec_la64_t* dyn);
 void fpu_reset_scratch(dynarec_la64_t* dyn);
 // Get an XMM quad reg
 int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm);
+// Get an YMM quad reg
+int fpu_get_reg_ymm(dynarec_la64_t* dyn, int t, int ymm);
 // Free a FPU/MMX/XMM reg
 void fpu_free_reg(dynarec_la64_t* dyn, int reg);
 // Reset fpu regs counter
