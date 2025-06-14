@@ -960,7 +960,7 @@ uint64_t ror64(x64emu_t *emu, uint64_t d, uint8_t s)
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d >> 62), F_OF);
 
 	/* set new CF; note that it is the MSB of the result */
-	CONDITIONAL_SET_FLAG(d & (1L << 63), F_CF);
+	CONDITIONAL_SET_FLAG(d & (1LL << 63), F_CF);
 
 	return d;
 }
@@ -1433,7 +1433,7 @@ void idiv32(x64emu_t *emu, uint32_t s)
 	ldiv_t p = ldiv(dvd, (int32_t)s);
 	quot = p.quot;
 	mod = p.rem;
-	if (labs(quot) > 0x7fffffff) {
+	if (llabs(quot) > 0x7fffffff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
