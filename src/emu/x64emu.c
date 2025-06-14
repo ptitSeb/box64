@@ -443,13 +443,13 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         for (int i=_AX; i<=_R15; ++i) {
 #ifdef HAVE_TRACE
             if (BOX64ENV(trace_regsdiff) && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
-                sprintf(tmp, "\e[1;35m%s=%016lx\e[m ", regname[i], emu->regs[i].q[0]);
+                sprintf(tmp, "\e[1;35m%s=%016llx\e[m ", regname[i], emu->regs[i].q[0]);
                 emu->oldregs[i].q[0] = emu->regs[i].q[0];
             } else {
-                sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+                sprintf(tmp, "%s=%016llx ", regname[i], emu->regs[i].q[0]);
             }
 #else
-            sprintf(tmp, "%s=%016lx ", regname[i], emu->regs[i].q[0]);
+            sprintf(tmp, "%s=%016llx ", regname[i], emu->regs[i].q[0]);
 #endif
             strcat(buff, tmp);
 
@@ -472,9 +472,9 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             }
     }
     if(is32bits)
-        sprintf(tmp, "EIP=%08lx ", ip);
+        sprintf(tmp, "EIP=%08llx ", ip);
     else
-        sprintf(tmp, "RIP=%016lx ", ip);
+        sprintf(tmp, "RIP=%016llx ", ip);
     strcat(buff, tmp);
     return buff;
 }
@@ -1570,7 +1570,7 @@ void UpdateFlags(x64emu_t* emu)
                 CONDITIONAL_SET_FLAG(XOR2(emu->res.u64 >> 62), F_OF);
             else
                 CONDITIONAL_SET_FLAG(((emu->op1.u64 >> 63) ^ emu->op1.u64) & 1, F_OF);
-            CONDITIONAL_SET_FLAG(emu->res.u64 & (1L << 63), F_CF);
+            CONDITIONAL_SET_FLAG(emu->res.u64 & (1LL << 63), F_CF);
             break;
 
         case d_unknown:
