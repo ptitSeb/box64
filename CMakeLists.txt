@@ -51,6 +51,15 @@ if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
     set(ANDROID ON CACHE BOOL "")
 endif()
+
+# Hack: limit the optimization level to -O1 for some platforms
+if(TERMUX OR ANDROID)
+    set(CMAKE_C_FLAGS_RELEASE "-O1")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O1 -g")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O1 -g")
+endif()
+
 if(LARCH64)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
