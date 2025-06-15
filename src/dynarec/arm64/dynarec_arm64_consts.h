@@ -88,6 +88,7 @@ typedef enum arm64_consts_s {
     const_jmptbl32,
     const_jmptbl48,
     const_jmptbl64,
+    const_context,
     const_8b_m7_m6_m5_m4_m3_m2_m1_0,
     const_8b_7_6_5_4_3_2_1_0,
     const_8b_15_14_13_12_11_10_9_8,

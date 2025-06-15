@@ -293,6 +293,15 @@ void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size)
     }
 }
 
+int isTable64(dynarec_native_t *dyn, uint64_t val)
+{
+    // find the value if already present
+    int idx = -1;
+    for(int i=0; i<dyn->table64size && (idx==-1); ++i)
+        if(dyn->table64[i] == val)
+            idx = i;
+    return (idx!=-1);
+}
 // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
 int Table64(dynarec_native_t *dyn, uint64_t val, int pass)
 {
@@ -636,6 +645,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.end = addr + SizeFileMapped(addr);
     if(helper.end == helper.start)  // that means there is no mmap with a file associated to the memory
         helper.end = (uintptr_t)~0LL;
+    helper.need_reloc = IsAddrNeedReloc(addr);
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
@@ -771,6 +781,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
     helper.table64size = 0;
+    helper.reloc_size = 0;
     // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
@@ -784,6 +795,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     }
     POSTUPDATE_SPECIFICS(&helper);
     helper.table64size = 0;
+    helper.reloc_size = 0;
     // pass 2, instruction size
     helper.callrets = static_callrets;
     native_pass2(&helper, addr, alternate, is32bits, inst_max);
@@ -812,9 +824,10 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
     size_t arch_size = ARCH_SIZE(&helper);
     size_t callret_size = helper.callret_size*sizeof(callret_t);
+    size_t reloc_size = helper.reloc_size*sizeof(uint32_t);
     // ok, now allocate mapped memory, with executable flag on
-    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size + sizeof(dynablock_t);
-    //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets          dynablock
+    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size + sizeof(dynablock_t) + reloc_size;
+    //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets          dynablock           relocs
     void* actual_p = (void*)AllocDynarecMap(addr, sz);
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
@@ -830,10 +843,13 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.block = p;
     dynablock_t* block = (dynablock_t*)(callrets+callret_size);
     memset(block, 0, sizeof(dynablock_t));
+    void* relocs = helper.need_reloc?(block+1):NULL;
     // fill the block
     block->x64_addr = (void*)addr;
     block->isize = 0;
     block->actual_block = actual_p;
+    helper.relocs = relocs;
+    block->relocs = relocs;
     helper.native_start = (uintptr_t)p;
     helper.tablestart = (uintptr_t)tablestart;
     helper.jmp_next = (uintptr_t)next+sizeof(void*);
@@ -861,6 +877,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.native_size = 0;
     helper.table64size = 0; // reset table64 (but not the cap)
     helper.insts_size = 0;  // reset
+    helper.reloc_size = 0;
     native_pass3(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
         if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");

@@ -126,6 +126,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_jmptbl32: return getJumpTable32();
         case const_jmptbl48: return getJumpTable48();
         case const_jmptbl64: return getJumpTable64();
+        case const_context: return (uintptr_t)my_context;
         case const_8b_m7_m6_m5_m4_m3_m2_m1_0: return (uintptr_t)&mask_shift8;
         case const_8b_7_6_5_4_3_2_1_0: return (uintptr_t)&mask_string8;
         case const_8b_15_14_13_12_11_10_9_8: return (uintptr_t)&mask_string16;

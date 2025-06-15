@@ -622,7 +622,8 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
         NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
-        TABLE64(x3, p);
+        if(dyn->need_reloc) AddRelocTable64JmpTbl(dyn, ninst, ip, STEP);
+        TABLE64_(x3, p);
         GETIP_(ip);
         LDRx_U12(x2, x3, 0);
         dest = x2;

@@ -807,3 +807,21 @@ size_t SizeFileMapped(uintptr_t addr)
     }
     return 0;
 }
+
+int IsAddrNeedReloc(uintptr_t addr)
+{
+    box64env_t* env = GetCurEnvByAddr(addr);
+    if(env->nodynarec)
+        return 0;
+    if(!env->dynacache)
+        return 0;
+    if(env->nodynarec_end && addr>=env->nodynarec_start && addr<env->nodynarec_end)
+        return 0;
+    #ifdef HAVE_TRACE
+    if(env->dynarec_test_end && addr>=env->dynarec_test_start && addr<env->dynarec_test_end)
+        return 0;
+    if(env->dynarec_trace && trace_end && addr>=trace_start && addr<trace_end)
+        return 0;
+    #endif
+    return 1;
+}

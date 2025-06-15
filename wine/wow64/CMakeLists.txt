@@ -76,6 +76,7 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native.c"
     "${BOX64_ROOT}/src/dynarec/dynarec.c"
+    "${BOX64_ROOT}/src/dynarec/dynacache_reloc.c"
     "${BOX64_ROOT}/src/emu/x64compstrings.c"
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64primop.c"

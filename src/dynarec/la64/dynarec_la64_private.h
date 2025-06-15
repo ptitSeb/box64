@@ -152,6 +152,9 @@ typedef struct dynarec_la64_s {
     void*               gdbjit_block;
     uint32_t            need_x87check; // x87 low precision check
     uint32_t            need_dump;     // need to dump the block
+    int                 need_reloc; // does the dynablock need relocations
+    int                 reloc_size;
+    uint32_t*           relocs;
 } dynarec_la64_t;
 
 void add_next(dynarec_la64_t *dyn, uintptr_t addr);
@@ -162,6 +165,7 @@ int get_first_jump_addr(dynarec_la64_t *dyn, uintptr_t next);
 int is_nops(dynarec_la64_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_la64_t *dyn, uintptr_t addr, int n);
 
+int isTable64(dynarec_la64_t *dyn, uint64_t val); // return 1 if val already in Table64
 int Table64(dynarec_la64_t *dyn, uint64_t val, int pass);  // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
 
 void CreateJmpNext(void* addr, void* next);

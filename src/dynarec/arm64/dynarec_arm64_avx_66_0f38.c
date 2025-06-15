@@ -1756,7 +1756,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             INST_NAME("VFMSUBADD231PS/D Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
-            TABLE64(x2, rex.w?const_2d_1_m1:const_4f_1_m1_1_m1);
+            TABLE64C(x2, rex.w?const_2d_1_m1:const_4f_1_m1_1_m1);
             VLDR128_U12(q0, x2, 0);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_VXEX(v0, v2, v1, 0); if(v0==v2 || v0==v1) q1 = fpu_get_scratch(dyn, ninst); } else { GETGY_VYEY(v0, v2, v1); }

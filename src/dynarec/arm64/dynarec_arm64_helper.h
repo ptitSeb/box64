@@ -1208,6 +1208,9 @@
 #ifndef TABLE64
 #define TABLE64(A, V)
 #endif
+#ifndef TABLE64_
+#define TABLE64_(A, V)
+#endif
 #ifndef FTABLE64
 #define FTABLE64(A, V)
 #endif
@@ -1235,14 +1238,22 @@
         }                                               \
     } else {                                            \
         dyn->last_ip = (A);                             \
-        MOV64x(xRIP, dyn->last_ip);                     \
+        if(dyn->need_reloc) {                           \
+            TABLE64(xRIP, dyn->last_ip);                \
+        } else {                                        \
+            MOV64x(xRIP, dyn->last_ip);                 \
+        }                                               \
     }
 #define GETIP_(A)                                       \
     if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
         uint64_t _delta_ip = (A)-dyn->last_ip;          \
         if(_delta_ip) {ADDx_U12(xRIP, xRIP, _delta_ip);}\
     } else {                                            \
-        MOV64x(xRIP, (A));                              \
+        if(dyn->need_reloc) {                           \
+            TABLE64(xRIP, (A));                         \
+        } else {                                        \
+            MOV64x(xRIP, (A));                          \
+        }                                               \
     }
 #endif
 #define CLEARIP()   dyn->last_ip=0

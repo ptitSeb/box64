@@ -2626,7 +2626,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("INT 3");
                 if(!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
-                    TABLE64(x1, (uintptr_t)my_context);
+                    TABLE64C(x1, const_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
                     LDRx_REG(x3, x1, x2);
                     //LDRx_U12(x3, x1, offsetof(box64context_t, signals[SIGTRAP]));
@@ -4129,7 +4129,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
-                        TABLE64(x4, j64);
+                        if(dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
+                        TABLE64_(x4, j64);
                         LDRx_U12(x4, x4, 0);
                         BR(x4);
                     }
@@ -4148,24 +4149,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDH(x3, wback, rex.w?8:4);
                         LDH(x4, xEmu, offsetof(x64emu_t, segs[_CS]));
                         GETIP_(addr);
-                        /*
-                        if(BOX64DRENV(dynarec_callret)) {
-                            SET_HASCALLRET();
-                            // Push actual return address
-                            if(addr < (dyn->start+dyn->isize)) {
-                                // there is a next...
-                                j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
-                                ADR_S20(x4, j64);
-                                MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
-                            } else {
-                                MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
-                                j64 = getJumpTableAddress64(addr);
-                                TABLE64(x4, j64);
-                                LDRx_U12(x4, x4, 0);
-                            }
-                            STPx_S7_preindex(x4, xRIP, xSP, -16);
-                        }
-                        */
                         // not doing callret because call far will exit the dynablock anyway, to be sure to recompute CS segment
                         PUSH1z(x4);
                         PUSH1z(xRIP);

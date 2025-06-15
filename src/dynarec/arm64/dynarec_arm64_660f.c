@@ -3038,7 +3038,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 q1 = fpu_get_scratch(dyn, ninst);
                 GETEX(q0, 0, 0);
                 GETGD;
-                TABLE64(x2, 0x0706050403020100LL);
+                TABLE64_(x2, 0x0706050403020100LL);
                 VDUPQD(v0, x2);
                 VSHRQ_8(q1, q0, 7);
                 USHLQ_8(q1, q1, v0); // shift

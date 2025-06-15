@@ -103,4 +103,6 @@ extern uint32_t arm64_crc(void* p, uint32_t len);
 #error Unsupported platform
 #endif
 
+#include "dynacache_reloc.h"
+
 #endif //__DYNAREC_ARCH__H_
