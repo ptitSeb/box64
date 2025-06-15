@@ -322,14 +322,17 @@ EXPORT int my_pthread_attr_getguardsize(x64emu_t* emu, pthread_attr_t* attr, siz
 	PTHREAD_ATTR_ALIGN(attr);
 	return pthread_attr_getguardsize(PTHREAD_ATTR(attr), size);
 }
-#ifndef TERMUX
 EXPORT int my_pthread_attr_getinheritsched(x64emu_t* emu, pthread_attr_t* attr, int* sched)
 {
+#ifndef TERMUX
 	(void)emu;
 	PTHREAD_ATTR_ALIGN(attr);
 	return pthread_attr_getinheritsched(PTHREAD_ATTR(attr), sched);
-}
+#else
+	(void)emu; (void)attr; (void)sched;
+	return 0;
 #endif
+}
 EXPORT int my_pthread_attr_getschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
 	(void)emu;
@@ -410,16 +413,19 @@ EXPORT int my_pthread_attr_setguardsize(x64emu_t* emu, pthread_attr_t* attr, siz
 	PTHREAD_ATTR_UNALIGN(attr);
 	return ret;
 }
-#ifndef TERMUX
 EXPORT int my_pthread_attr_setinheritsched(x64emu_t* emu, pthread_attr_t* attr, int sched)
 {
+#ifndef TERMUX
 	(void)emu;
 	PTHREAD_ATTR_ALIGN(attr);
 	int ret = pthread_attr_setinheritsched(PTHREAD_ATTR(attr), sched);
 	PTHREAD_ATTR_UNALIGN(attr);
 	return ret;
-}
+#else
+	(void)emu; (void)attr; (void)sched;
+	return 0;
 #endif
+}
 EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
 	(void)emu;
@@ -875,16 +881,20 @@ EXPORT int my_pthread_mutexattr_getkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 	attr->x86 = mattr.x86;
 	return ret;
 }
-#ifndef TERMUX
 EXPORT int my_pthread_mutexattr_getprotocol(x64emu_t* emu, my_mutexattr_t *attr, void* p)
 {
+#ifndef TERMUX
+	(void)emu;
 	my_mutexattr_t mattr = {0};
 	mattr.x86 = attr->x86;
 	int ret = pthread_mutexattr_getprotocol(&mattr.nat, p);
 	attr->x86 = mattr.x86;
 	return ret;
-}
+#else
+	(void)emu; (void)attr; (void)p;
+	return 0;
 #endif
+}
 EXPORT int my_pthread_mutexattr_gettype(x64emu_t* emu, my_mutexattr_t *attr, void* p)
 {
 	my_mutexattr_t mattr = {0};
@@ -921,16 +931,20 @@ EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 	attr->x86 = mattr.x86;
 	return ret;
 }
-#ifndef TERMUX
 EXPORT int my_pthread_mutexattr_setprotocol(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
+#ifndef TERMUX
+	(void)emu;
 	my_mutexattr_t mattr = {0};
 	mattr.x86 = attr->x86;
 	int ret = pthread_mutexattr_setprotocol(&mattr.nat, p);
 	attr->x86 = mattr.x86;
 	return ret;
-}
+#else
+	(void)emu; (void)attr; (void)p;
+	return 0;
 #endif
+}
 EXPORT int my_pthread_mutexattr_setpshared(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
 	my_mutexattr_t mattr = {0};
