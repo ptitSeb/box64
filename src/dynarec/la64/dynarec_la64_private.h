@@ -16,7 +16,12 @@ typedef struct instsize_s instsize_t;
 #define LSX_CACHE_MM     4
 #define LSX_CACHE_XMMW   5
 #define LSX_CACHE_XMMR   6
-#define LSX_CACHE_SCR    7
+#define LSX_CACHE_YMMW   7
+#define LSX_CACHE_YMMR   8
+#define LSX_CACHE_SCR    9
+
+#define LSX_AVX_WIDTH_128 0
+#define LSX_AVX_WIDTH_256 1
 
 typedef union lsx_cache_s {
     int8_t v;
@@ -33,6 +38,16 @@ typedef union sse_cache_s {
         uint8_t write : 1;
     };
 } sse_cache_t;
+
+typedef union avx_cache_s {
+    int8_t v;
+    struct {
+        uint8_t reg : 5;
+        uint8_t width : 1;
+        uint8_t zero_upper : 1;        
+        uint8_t write : 1;
+    };
+} avx_cache_t;
 
 typedef struct lsxcache_s {
     // LSX cache
@@ -54,6 +69,7 @@ typedef struct lsxcache_s {
     int16_t         tags;           // similar to fpu_tags
     int8_t          mmxcache[8];    // cache status for the 8 MMX registers
     sse_cache_t     ssecache[16];   // cache status for the 16 SSE(2) registers
+    avx_cache_t     avxcache[16];   // cache status for the 16 SSE(2) registers
     int8_t          fpuused[24];    // all 0..24 double reg from fpu, used by x87, sse and mmx
     int8_t          x87stack;       // cache stack counter
     int8_t          mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
