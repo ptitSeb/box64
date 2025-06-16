@@ -567,9 +567,9 @@ uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int
 uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 
-dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits) {
+dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits, int is_new) {
     size_t sz = 4*sizeof(void*) + sizeof(dynablock_t);
-    void* actual_p = (void*)AllocDynarecMap(addr, sz);
+    void* actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
     void* p = actual_p + sizeof(void*);
     if(actual_p==NULL) {
         dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", (void*)addr, sz);
@@ -595,7 +595,7 @@ dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits) {
     return block;
 }
 
-dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_max) {
+dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_max, int is_new) {
     /*
         A Block must have this layout:
 
@@ -612,7 +612,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     */
     if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
-        return CreateEmptyBlock(addr, is32bits);
+        return CreateEmptyBlock(addr, is32bits, is_new);
     }
     if(current_helper) {
         dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock at %p as another one is going on\n", (void*)addr);
@@ -660,7 +660,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         CancelBlock64(0);
-        return CreateEmptyBlock(addr, is32bits);
+        return CreateEmptyBlock(addr, is32bits, is_new);
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
@@ -762,7 +762,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         // NULL block after removing dead code, how is that possible?
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block after trimming dead code (%p)\n", (void*)addr);
         CancelBlock64(0);
-        return CreateEmptyBlock(addr, is32bits);
+        return CreateEmptyBlock(addr, is32bits, is_new);
     }
     updateYmm0s(&helper, 0, 0);
     UPDATE_SPECIFICS(&helper);
@@ -818,7 +818,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         --imax;
         if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Dynablock oversized, with %zu (max=%zd), recomputing cutting at %d from %d\n", native_size, MAXBLOCK_SIZE, imax, helper.size);
         CancelBlock64(0);
-        return FillBlock64(addr, alternate, is32bits, imax);
+        return FillBlock64(addr, alternate, is32bits, imax, is_new);
     }
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
@@ -828,7 +828,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     // ok, now allocate mapped memory, with executable flag on
     size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size + sizeof(dynablock_t) + reloc_size;
     //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets          dynablock           relocs
-    void* actual_p = (void*)AllocDynarecMap(addr, sz);
+    void* actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
     void* next = tablestart + helper.table64size*sizeof(uint64_t);

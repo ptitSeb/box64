@@ -33,7 +33,7 @@ size_t customGetUsableSize(void* p);
 typedef struct dynablock_s dynablock_t;
 typedef struct mmaplist_s mmaplist_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose
-uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size);
+uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new);
 void FreeDynarecMap(uintptr_t addr);
 mmaplist_t* NewMmaplist();
 void DelMmaplist(mmaplist_t* list);

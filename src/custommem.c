@@ -1064,6 +1064,7 @@ typedef struct mmaplist_s {
     blocklist_t**   chunks;
     int             cap;
     int             size;
+    int             has_new;
 } mmaplist_t;
 
 mmaplist_t* NewMmaplist()
@@ -1124,7 +1125,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
 #endif
-uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size)
+uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
 {
     if(!size)
         return 0;
@@ -1136,6 +1137,7 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size)
         list = mmaplist;
     if(!list)
         list = mmaplist = NewMmaplist();
+    if(is_new) list->has_new = 1;
     // check if there is space in current open ones
     int idx = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);
