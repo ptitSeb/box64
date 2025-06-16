@@ -8,8 +8,8 @@
 [*setup*]
 # using safest dynarec settings here, has some installers do crazy things
 BOX64_DYNAREC_SAFEFLAGS=2
-BOX64_DYNAREC_BIGBLOCK=0
-BOX64_DYNAREC_CALLRET=0
+#BOX64_DYNAREC_BIGBLOCK=0
+#BOX64_DYNAREC_CALLRET=0
 
 [*install*]
 # using safest dynarec settings here, has some installers do crazy things
@@ -880,6 +880,9 @@ BOX64_DYNAREC_CALLRET=1
 
 [witcher3.exe]
 BOX64_DYNAREC_STRONGMEM=1
+
+[xdelta3.exe]
+BOX64_DYNAREC_SAFEFLAGS=2
 
 [YandareSimulator.exe]
 BOX64_DYNAREC_STRONGMEM=2
