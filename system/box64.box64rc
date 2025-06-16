@@ -647,13 +647,10 @@ BOX64_DYNAREC_STRONGMEM=1
 BOX64_DYNAREC_STRONGMEM=1
 
 [MiSideFull.exe]
-BOX64_AVX=0              # huge fps improvement (might be bionic build of box64 only)
 BOX64_DYNAREC_STRONGMEM=1   
 BOX64_DYNAREC_FASTNAN=0  # fixes graphical issues like invisible mita's skirt
 BOX64_DYNAREC_BIGBLOCK=2
-BOX64_DYNAREC_CALLRET=0  # prevent crashes
-BOX64_DYNAREC_WEAKBARRIER=1
-BOX64_DYNAREC_SAFEFLAGS=1
+BOX64_DYNAREC_CALLRET=1
 
 [ActivationUI.exe]
 BOX64_DYNAREC_SAFEFLAGS=2
