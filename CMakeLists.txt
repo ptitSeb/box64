@@ -364,6 +364,8 @@ set_source_files_properties(
 set(OS_LINUX_SRC
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/emit_signals_linux.c"
+    "${BOX64_ROOT}/src/os/hostext_common.c"
+    "${BOX64_ROOT}/src/os/hostext_linux.c"
     "${BOX64_ROOT}/src/os/freq_linux.c"
     "${BOX64_ROOT}/src/os/os_linux.c"
     "${BOX64_ROOT}/src/os/perfmap.c"
@@ -1003,7 +1005,6 @@ if(RV64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_arch.c"
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_printer.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_jmpnext.c"
-        "${BOX64_ROOT}/src/rv64detect.c"
         )
     set(DYNAREC_ASM
         ${DYNAREC_ASM}

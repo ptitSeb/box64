@@ -24,7 +24,7 @@
 #include "rbtree.h"
 #include "wine/compiler.h"
 #include "wine/debug.h"
-#include "core_arch.h"
+#include "hostext.h"
 
 uintptr_t box64_pagesize = 4096;
 
@@ -226,6 +226,14 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     LoadEnvVariables();
     InitializeEnvFiles();
 
+    if (!BOX64ENV(nobanner)) PrintBox64Version(1);
+    if (DetectHostCpuFeatures())
+        PrintHostCpuFeatures();
+    else {
+        printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
+        SET_BOX64ENV(dynarec, 0);
+    }
+
     TCHAR filename[MAX_PATH];
     if (GetModuleFileNameA(NULL, filename, MAX_PATH)) {
         char* shortname = strrchr(filename, '\\');
@@ -235,7 +243,6 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
         }
     }
 
-    if (!BOX64ENV(nobanner)) PrintBox64Version(1);
     PrintEnvVariables(&box64env, LOG_INFO);
 
     memset(bopcode, 0xc3, sizeof(bopcode));

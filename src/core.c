@@ -16,10 +16,6 @@
 #include <stdarg.h>
 #include <ctype.h>
 #ifdef DYNAREC
-#ifdef ARM64
-#include <linux/auxvec.h>
-#include <asm/hwcap.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -49,7 +45,7 @@
 #include "env.h"
 #include "cleanup.h"
 #include "freq.h"
-#include "core_arch.h"
+#include "hostext.h"
 
 box64context_t *my_context = NULL;
 extern box64env_t box64env;
@@ -186,166 +182,6 @@ void my_child_fork()
 const char* getCpuName();
 int getNCpuUnmasked();
 
-#ifdef DYNAREC
-void GatherDynarecExtensions()
-{
-#ifdef ARM64
-    unsigned long hwcap = real_getauxval(AT_HWCAP);
-    if(!hwcap)
-        hwcap = HWCAP_ASIMD;
-    // first, check all needed extensions, lif half, edsp and fastmult
-    if((hwcap&HWCAP_ASIMD) == 0) {
-        printf_log(LOG_INFO, "Missing ASMID cpu support, disabling Dynarec\n");
-        SET_BOX64ENV(dynarec, 0);
-        return;
-    }
-    if(hwcap&HWCAP_CRC32)
-        cpuext.crc32 = 1;
-    if(hwcap&HWCAP_PMULL)
-        cpuext.pmull = 1;
-    if(hwcap&HWCAP_AES)
-        cpuext.aes = 1;
-    if(hwcap&HWCAP_ATOMICS)
-        cpuext.atomics = 1;
-    #ifdef HWCAP_SHA1
-    if(hwcap&HWCAP_SHA1)
-        cpuext.sha1 = 1;
-    #endif
-    #ifdef HWCAP_SHA2
-    if(hwcap&HWCAP_SHA2)
-        cpuext.sha2 = 1;
-    #endif
-    #ifdef HWCAP_USCAT
-    if(hwcap&HWCAP_USCAT)
-        cpuext.uscat = 1;
-    #endif
-    #ifdef HWCAP_FLAGM
-    if(hwcap&HWCAP_FLAGM)
-        cpuext.flagm = 1;
-    #endif
-    unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
-    #ifdef HWCAP2_FLAGM2
-    if(hwcap2&HWCAP2_FLAGM2)
-        cpuext.flagm2 = 1;
-    #endif
-    #ifdef HWCAP2_FRINT
-    if(hwcap2&HWCAP2_FRINT)
-        cpuext.frintts = 1;
-    #endif
-    #ifdef HWCAP2_AFP
-    if(hwcap2&HWCAP2_AFP)
-        cpuext.afp = 1;
-    #endif
-    #ifdef HWCAP2_RNG
-    if(hwcap2&HWCAP2_RNG)
-        cpuext.rndr = 1;
-    #endif
-    printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
-    if(cpuext.aes)
-        printf_log_prefix(0, LOG_INFO, " AES");
-    if(cpuext.crc32)
-        printf_log_prefix(0, LOG_INFO, " CRC32");
-    if(cpuext.pmull)
-        printf_log_prefix(0, LOG_INFO, " PMULL");
-    if(cpuext.atomics)
-        printf_log_prefix(0, LOG_INFO, " ATOMICS");
-    if(cpuext.sha1)
-        printf_log_prefix(0, LOG_INFO, " SHA1");
-    if(cpuext.sha2)
-        printf_log_prefix(0, LOG_INFO, " SHA2");
-    if(cpuext.uscat)
-        printf_log_prefix(0, LOG_INFO, " USCAT");
-    if(cpuext.flagm)
-        printf_log_prefix(0, LOG_INFO, " FLAGM");
-    if(cpuext.flagm2)
-        printf_log_prefix(0, LOG_INFO, " FLAGM2");
-    if(cpuext.frintts)
-        printf_log_prefix(0, LOG_INFO, " FRINT");
-    if(cpuext.afp)
-        printf_log_prefix(0, LOG_INFO, " AFP");
-    if(cpuext.rndr)
-        printf_log_prefix(0, LOG_INFO, " RNDR");
-    printf_log_prefix(0, LOG_INFO, "\n");
-#elif defined(LA64)
-    printf_log(LOG_INFO, "Dynarec for LoongArch ");
-    char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
-    if(p == NULL || p[0] == '0') {
-        uint32_t cpucfg2 = 0, idx = 2;
-        asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
-        if (((cpucfg2 >> 6) & 0b11) == 3) {
-            printf_log_prefix(0, LOG_INFO, "with extension LSX LASX");
-        } else {
-            printf_log(LOG_INFO, "\nMissing LSX and/or LASX extension support, disabling Dynarec\n");
-            SET_BOX64ENV(dynarec, 0);
-            return;
-        }
-
-        if (cpuext.lbt = ((cpucfg2 >> 18) & 0b1))
-            printf_log_prefix(0, LOG_INFO, " LBT_X86");
-        if ((cpuext.lam_bh = (cpucfg2 >> 27) & 0b1))
-            printf_log_prefix(0, LOG_INFO, " LAM_BH");
-        if ((cpuext.lamcas = (cpucfg2 >> 28) & 0b1))
-            printf_log_prefix(0, LOG_INFO, " LAMCAS");
-        if ((cpuext.scq = (cpucfg2 >> 30) & 0b1))
-            printf_log_prefix(0, LOG_INFO, " SCQ");
-    }
-    printf_log_prefix(0, LOG_INFO, "\n");
-#elif defined(RV64)
-    void RV64_Detect_Function();
-    // private env. variable for the developer ;)
-    char *p = getenv("BOX64_DYNAREC_RV64NOEXT");
-    if(p == NULL || strcasecmp(p, "1")) {
-        RV64_Detect_Function();
-        if (p) {
-            p = strtok(p, ",");
-            while (p) {
-                if (!strcasecmp(p, "zba")) cpuext.zba = 0;
-                if (!strcasecmp(p, "zbb")) cpuext.zbb = 0;
-                if (!strcasecmp(p, "zbc")) cpuext.zbc = 0;
-                if (!strcasecmp(p, "zbs")) cpuext.zbs = 0;
-                if (!strcasecmp(p, "vector")) {
-                    cpuext.vector = 0;
-                    cpuext.xtheadvector = 0;
-                }
-                if (!strcasecmp(p, "xtheadba")) cpuext.xtheadba = 0;
-                if (!strcasecmp(p, "xtheadbb")) cpuext.xtheadbb = 0;
-                if (!strcasecmp(p, "xtheadbs")) cpuext.xtheadbs = 0;
-                if (!strcasecmp(p, "xtheadmemidx")) cpuext.xtheadmemidx = 0;
-                // if (!strcasecmp(p, "xtheadfmemidx")) cpuext.xtheadfmemidx = 0;
-                // if (!strcasecmp(p, "xtheadmac")) cpuext.xtheadmac = 0;
-                // if (!strcasecmp(p, "xtheadfmv")) cpuext.xtheadfmv = 0;
-                if (!strcasecmp(p, "xtheadmempair")) cpuext.xtheadmempair = 0;
-                if (!strcasecmp(p, "xtheadcondmov")) cpuext.xtheadcondmov = 0;
-                p = strtok(NULL, ",");
-            }
-        }
-    }
-
-    printf_log(LOG_INFO, "Dynarec for rv64g");
-    if (cpuext.vector && !cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "v");
-    if (cpuext.zba) printf_log_prefix(0, LOG_INFO, "_zba");
-    if (cpuext.zbb) printf_log_prefix(0, LOG_INFO, "_zbb");
-    if (cpuext.zbc) printf_log_prefix(0, LOG_INFO, "_zbc");
-    if (cpuext.zbs) printf_log_prefix(0, LOG_INFO, "_zbs");
-    if (cpuext.vector && !cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "_zvl%d", cpuext.vlen*8);
-    if (cpuext.xtheadba) printf_log_prefix(0, LOG_INFO, "_xtheadba");
-    if (cpuext.xtheadbb) printf_log_prefix(0, LOG_INFO, "_xtheadbb");
-    if (cpuext.xtheadbs) printf_log_prefix(0, LOG_INFO, "_xtheadbs");
-    if (cpuext.xtheadmempair) printf_log_prefix(0, LOG_INFO, "_xtheadmempair");
-    if (cpuext.xtheadcondmov) printf_log_prefix(0, LOG_INFO, "_xtheadcondmov");
-    if (cpuext.xtheadmemidx) printf_log_prefix(0, LOG_INFO, "_xtheadmemidx");
-    // Disable the display since these are only detected but never used.
-    // if(cpuext.xtheadfmemidx) printf_log_prefix(0, LOG_INFO, " xtheadfmemidx");
-    // if(cpuext.xtheadmac) printf_log_prefix(0, LOG_INFO, " xtheadmac");
-    // if(cpuext.xtheadfmv) printf_log_prefix(0, LOG_INFO, " xtheadfmv");
-    if (cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "_xthvector");
-    printf_log_prefix(0, LOG_INFO, "\n");
-#else
-#error Unsupported architecture
-#endif
-}
-#endif
-
 void computeRDTSC()
 {
     int hardware  = 0;
@@ -405,8 +241,12 @@ static void displayMiscInfo()
         box64_pagesize = 4096;
 
 #ifdef DYNAREC
-    // grab cpu extensions for dynarec usage
-    GatherDynarecExtensions();
+    if (DetectHostCpuFeatures())
+        PrintHostCpuFeatures();
+    else {
+        printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
+        SET_BOX64ENV(dynarec, 0);
+    }
 #endif
 
     // grab ncpu and cpu name
