@@ -1060,13 +1060,10 @@ void* box32_dynarec_mmap(size_t size)
 }
 
 #ifdef DYNAREC
-#define NCHUNK          64
-typedef struct mapchunk_s {
-    blocklist_t         chunk;
-} mapchunk_t;
 typedef struct mmaplist_s {
-    mapchunk_t          chunks[NCHUNK];
-    mmaplist_t*         next;
+    blocklist_t**   chunks;
+    int             cap;
+    int             size;
 } mmaplist_t;
 
 mmaplist_t* NewMmaplist()
@@ -1077,24 +1074,25 @@ mmaplist_t* NewMmaplist()
 void DelMmaplist(mmaplist_t* list)
 {
     if(!list) return;
-    while(list) {
-        for(int i=0; i<NCHUNK; ++i)
-            if(list->chunks[i].chunk.size) {
-                cleanDBFromAddressRange((uintptr_t)list->chunks[i].chunk.block, list->chunks[i].chunk.size, 1);
-                rb_unset(rbt_dynmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size);
-                InternalMunmap(list->chunks[i].chunk.block, list->chunks[i].chunk.size);
-                // check if memory should be protected and alloced for box32
-                if(box64_is32bits && (uintptr_t)list->chunks[i].chunk.block>0xffffffffLL) {
-                    //rereserve and mark as reserved
-                    if(InternalMmap(list->chunks[i].chunk.block, list->chunks[i].chunk.size, 0, MAP_NORESERVE|MAP_ANONYMOUS|MAP_FIXED, -1, 0)!=MAP_FAILED)
-                        rb_set(mapallmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size, MEM_RESERVED);
-                } else
-                    rb_unset(mapallmem, (uintptr_t)list->chunks[i].chunk.block, (uintptr_t)list->chunks[i].chunk.block+list->chunks[i].chunk.size);
-            }
-        mmaplist_t* next = list->next;
-        box_free(list);
-        list = next;
-    }
+    for(int i=0; i<list->size; ++i)
+        if(list->chunks[i]->size) {
+            cleanDBFromAddressRange((uintptr_t)list->chunks[i]->block, list->chunks[i]->size, 1);
+            rb_unset(rbt_dynmem, (uintptr_t)list->chunks[i]->block, (uintptr_t)list->chunks[i]->block+list->chunks[i]->size);
+            // the blocklist_t "chunk" structure is port of the memory map, so grab info before freing the memory
+            // also need to include back the blocklist_t that is excluded from the blocklist tracking
+            void* addr = list->chunks[i]->block - sizeof(blocklist_t);
+            size_t size = list->chunks[i]->size + sizeof(blocklist_t);
+            int isReserved = box64_is32bits && (uintptr_t)addr>0xffffffffLL;
+            InternalMunmap(addr, size);
+            // check if memory should be protected and alloced for box32
+            if(isReserved) {
+                //rereserve and mark as reserved
+                if(InternalMmap(addr, size, 0, MAP_NORESERVE|MAP_ANONYMOUS|MAP_FIXED, -1, 0)!=MAP_FAILED)
+                    rb_set(mapallmem, (uintptr_t)addr, (uintptr_t)addr+size, MEM_RESERVED);
+            } else
+                rb_unset(mapallmem, (uintptr_t)addr, (uintptr_t)addr+size);
+        }
+    box_free(list);
 }
 
 dynablock_t* FindDynablockFromNativeAddress(void* p)
@@ -1104,10 +1102,10 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     
     uintptr_t addr = (uintptr_t)p;
 
-    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, addr);
+    blocklist_t* bl = (blocklist_t*)rb_get_64(rbt_dynmem, addr);
     if(bl) {
         // browse the map allocation as a fallback
-        blockmark_t* sub = (blockmark_t*)bl->chunk.block;
+        blockmark_t* sub = (blockmark_t*)bl->block;
         while((uintptr_t)sub<addr) {
             blockmark_t* n = NEXT_BLOCK(sub);
             if((uintptr_t)n>addr) {
@@ -1141,85 +1139,81 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size)
     // check if there is space in current open ones
     int idx = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);
-    while(1) {
-        int i = idx%NCHUNK;
-        if(list->chunks[i].chunk.maxfree>=size) {
+    for(int i=0; i<list->size; ++i)
+        if(list->chunks[i]->maxfree>=size) {
             // looks free, try to alloc!
             size_t rsize = 0;
-            void* sub = getFirstBlock(list->chunks[i].chunk.block, size, &rsize, list->chunks[i].chunk.first);
+            void* sub = getFirstBlock(list->chunks[i]->block, size, &rsize, list->chunks[i]->first);
             if(sub) {
-                void* ret = allocBlock(list->chunks[i].chunk.block, sub, size, &list->chunks[i].chunk.first);
-                if(rsize==list->chunks[i].chunk.maxfree)
-                    list->chunks[i].chunk.maxfree = getMaxFreeBlock(list->chunks[i].chunk.block, list->chunks[i].chunk.size, list->chunks[i].chunk.first);
+                void* ret = allocBlock(list->chunks[i]->block, sub, size, &list->chunks[i]->first);
+                if(rsize==list->chunks[i]->maxfree)
+                    list->chunks[i]->maxfree = getMaxFreeBlock(list->chunks[i]->block, list->chunks[i]->size, list->chunks[i]->first);
                 //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
                 return (uintptr_t)ret;
             }
         }
-        // check if new
-        if(!list->chunks[i].chunk.size) {
-            // alloc a new block, aversized or not, we are at the end of the list
-            size_t allocsize = (sz>DYNMMAPSZ)?sz:DYNMMAPSZ;
-            // allign sz with pagesize
-            allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
-            void* p=MAP_FAILED;
-            #ifdef BOX32
-            if(box64_is32bits)
-                p = box32_dynarec_mmap(allocsize);
-            #endif
-            // disabling for now. explicit hugepage needs to be enabled to be used on userspace 
-            // with`/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages` as the number of allowaed 2M huge page
-            // At least with a 2M allocation, transparent huge page should kick-in
-            #if 0//def MAP_HUGETLB
-            if(p==MAP_FAILED && allocsize==DYNMMAPSZ) {
-                p = InternalMmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE|MAP_HUGETLB, -1, 0);
-                if(p!=MAP_FAILED) printf_log(LOG_INFO, "Allocated a dynarec memory block with HugeTLB\n");
-                else printf_log(LOG_INFO, "Failled to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
-            }
-            #endif
-            if(p==MAP_FAILED)
-                p = InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-            if(p==MAP_FAILED) {
-                dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes (%s)\n", allocsize, strerror(errno));
-                return 0;
-            }
-            #ifdef MADV_HUGEPAGE
-            madvise(p, allocsize, MADV_HUGEPAGE);
-            #endif
-#ifdef TRACE_MEMSTAT
-            dynarec_allocated += allocsize;
-            printf_log(LOG_INFO, "Custommem: allocation %p-%p for Dynarec block %d\n", p, p+allocsize, idx);
-#endif
-            setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-            list->chunks[i].chunk.block = p;
-            list->chunks[i].chunk.first = p;
-            list->chunks[i].chunk.size = allocsize;
-            rb_set_64(rbt_dynmem, (uintptr_t)p, (uintptr_t)p+allocsize, (uintptr_t)&list->chunks[i]);
-            // setup marks
-            blockmark_t* m = (blockmark_t*)p;
-            m->prev.x32 = 0;
-            m->next.fill = 0;
-            m->next.offs = allocsize-sizeof(blockmark_t);
-            blockmark_t* n = NEXT_BLOCK(m);
-            n->next.x32 = 0;
-            n->prev.x32 = m->next.x32;
-            // alloc 1st block
-            void* ret  = allocBlock(list->chunks[i].chunk.block, p, size, &list->chunks[i].chunk.first);
-            list->chunks[i].chunk.maxfree = getMaxFreeBlock(list->chunks[i].chunk.block, list->chunks[i].chunk.size, list->chunks[i].chunk.first);
-            if(list->chunks[i].chunk.maxfree)
-                list->chunks[i].chunk.first = getNextFreeBlock(m);
-            //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
-            return (uintptr_t)ret;
-        }
-        // next chunk...
-        ++idx; ++i;
-        if(i==NCHUNK) {
-            i = 0;
-            if(!list->next)
-                list->next = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
-            list = list->next;
-        }
+    // need to add a new
+    if(list->size == list->cap) {
+        list->cap+=4;
+        list->chunks = box_realloc(list->chunks, list->cap*sizeof(blocklist_t**));
     }
+    int i = list->size++;
+    size_t need_sz = sz + sizeof(blocklist_t);
+    // alloc a new block, aversized or not, we are at the end of the list
+    size_t allocsize = (need_sz>DYNMMAPSZ)?need_sz:DYNMMAPSZ;
+    // allign sz with pagesize
+    allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
+    void* p=MAP_FAILED;
+    #ifdef BOX32
+    if(box64_is32bits)
+        p = box32_dynarec_mmap(allocsize);
+    #endif
+    // disabling for now. explicit hugepage needs to be enabled to be used on userspace 
+    // with`/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages` as the number of allowaed 2M huge page
+    // At least with a 2M allocation, transparent huge page should kick-in
+    #if 0//def MAP_HUGETLB
+    if(p==MAP_FAILED && allocsize==DYNMMAPSZ) {
+        p = InternalMmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE|MAP_HUGETLB, -1, 0);
+        if(p!=MAP_FAILED) printf_log(LOG_INFO, "Allocated a dynarec memory block with HugeTLB\n");
+        else printf_log(LOG_INFO, "Failled to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
+    }
+    #endif
+    if(p==MAP_FAILED)
+        p = InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    if(p==MAP_FAILED) {
+        dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes (%s)\n", allocsize, strerror(errno));
+        return 0;
+    }
+    #ifdef MADV_HUGEPAGE
+    madvise(p, allocsize, MADV_HUGEPAGE);
+    #endif
+#ifdef TRACE_MEMSTAT
+    dynarec_allocated += allocsize;
+    printf_log(LOG_INFO, "Custommem: allocation %p-%p for Dynarec block %d\n", p, p+allocsize, idx);
+#endif
+    setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
+    list->chunks[i] = p;
+    rb_set_64(rbt_dynmem, (uintptr_t)p, (uintptr_t)p+allocsize, (uintptr_t)list->chunks[i]);
+    p = p + sizeof(blocklist_t);    // adjust pointer and size, to exclude blocklist_t itself
+    allocsize-=sizeof(blocklist_t);
+    list->chunks[i]->block = p;
+    list->chunks[i]->first = p;
+    list->chunks[i]->size = allocsize;
+    // setup marks
+    blockmark_t* m = (blockmark_t*)p;
+    m->prev.x32 = 0;
+    m->next.fill = 0;
+    m->next.offs = allocsize-sizeof(blockmark_t);
+    blockmark_t* n = NEXT_BLOCK(m);
+    n->next.x32 = 0;
+    n->prev.x32 = m->next.x32;
+    // alloc 1st block
+    void* ret  = allocBlock(list->chunks[i]->block, p, size, &list->chunks[i]->first);
+    list->chunks[i]->maxfree = getMaxFreeBlock(list->chunks[i]->block, list->chunks[i]->size, list->chunks[i]->first);
+    if(list->chunks[i]->maxfree)
+        list->chunks[i]->first = getNextFreeBlock(m);
+    //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
+    return (uintptr_t)ret;
 }
 
 void FreeDynarecMap(uintptr_t addr)
@@ -1228,13 +1222,13 @@ void FreeDynarecMap(uintptr_t addr)
         return;
     
 
-    mapchunk_t* bl = (mapchunk_t*)rb_get_64(rbt_dynmem, addr);
+    blocklist_t* bl = (blocklist_t*)rb_get_64(rbt_dynmem, addr);
 
     if(bl) {
         void* sub = (void*)(addr-sizeof(blockmark_t));
-        size_t newfree = freeBlock(bl->chunk.block, bl->chunk.size, sub, &bl->chunk.first);
-        if(bl->chunk.maxfree < newfree)
-            bl->chunk.maxfree = newfree;
+        size_t newfree = freeBlock(bl->block, bl->size, sub, &bl->first);
+        if(bl->maxfree < newfree)
+            bl->maxfree = newfree;
         return;
     }
 }
@@ -2364,14 +2358,11 @@ void fini_custommem_helper(box64context_t *ctx)
         dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
         mmaplist_t* head = mmaplist;
         mmaplist = NULL;
-        while(head) {
-            for (int i=0; i<NCHUNK; ++i) {
-                if(head->chunks[i].chunk.block)
-                    InternalMunmap(head->chunks[i].chunk.block, head->chunks[i].chunk.size);
+        if(head) {
+            for (int i=0; i<head->size; ++i) {
+                InternalMunmap(head->chunks[i]->block-sizeof(blocklist_t), head->chunks[i]->size+sizeof(blocklist_t));
             }
-            mmaplist_t *old = head;
-            head = head->next;
-            free(old);
+            free(head);
         }
 
         box_free(mmaplist);
