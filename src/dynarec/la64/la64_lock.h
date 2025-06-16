@@ -1,7 +1,7 @@
 #ifndef __LA64_LOCK__H__
 #define __LA64_LOCK__H__
 #include <stdint.h>
-#include "core_arch.h"
+#include "hostext.h"
 
 extern cpu_ext_t cpuext;
 

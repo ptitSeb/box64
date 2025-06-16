@@ -234,3 +234,8 @@ void WINAPI GetSystemInfo(SYSTEM_INFO* si)
 
     fillSystemInfo(si, &basic_info, &cpu_info);
 }
+
+BOOL WINAPI IsProcessorFeaturePresent(DWORD feature)
+{
+    return RtlIsProcessorFeaturePresent(feature);
+}

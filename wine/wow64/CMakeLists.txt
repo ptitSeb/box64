@@ -87,6 +87,8 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/os_wine.c"
+    "${BOX64_ROOT}/src/os/hostext_common.c"
+    "${BOX64_ROOT}/src/os/hostext_wine.c"
     "${BOX64_ROOT}/src/os/freq_wine.c"
     "${BOX64_ROOT}/src/os/symbolfuncs_wine.c"
     "${BOX64_ROOT}/src/os/emit_signal_wine.c"

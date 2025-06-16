@@ -4,7 +4,7 @@
 #include <env.h>
 
 #include "os.h"
-#include "core_arch.h"
+#include "hostext.h"
 
 typedef struct box64context_s box64context_t;
 extern box64env_t box64env;

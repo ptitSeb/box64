@@ -92,6 +92,7 @@ NTSTATUS WINAPI NtProtectVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG, ULONG*);
 NTSTATUS WINAPI NtAllocateVirtualMemory(HANDLE, PVOID*, ULONG_PTR, SIZE_T*, ULONG, ULONG);
 PVOID WINAPI RtlReAllocateHeap(HANDLE, ULONG, PVOID, SIZE_T);
 NTSTATUS WINAPI NtFreeVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG);
+BOOLEAN WINAPI RtlIsProcessorFeaturePresent(UINT feature);
 
 static inline uintptr_t calculate_fs(void)
 {
