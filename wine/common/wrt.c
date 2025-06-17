@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <windows.h>
 #include <ntstatus.h>
 #include <winternl.h>
@@ -238,4 +239,74 @@ void WINAPI GetSystemInfo(SYSTEM_INFO* si)
 BOOL WINAPI IsProcessorFeaturePresent(DWORD feature)
 {
     return RtlIsProcessorFeaturePresent(feature);
+}
+
+LSTATUS WINAPI RegOpenKeyExA(HKEY hkey, LPCSTR name, DWORD options, REGSAM access, PHKEY retkey)
+{
+    if (hkey != HKEY_LOCAL_MACHINE) {
+        printf_log(LOG_NONE, "Unsupported registry key %p\n", hkey);
+        return ERROR_INVALID_HANDLE;
+    }
+
+    UNICODE_STRING rootkeyU;
+    UNICODE_STRING nameU;
+    OBJECT_ATTRIBUTES attr;
+    NTSTATUS status;
+    HANDLE handle;
+    RtlInitUnicodeString(&rootkeyU, L"\\Registry\\Machine");
+    InitializeObjectAttributes(&attr, &rootkeyU, OBJ_CASE_INSENSITIVE, 0, NULL);
+    if (NtOpenKey(&handle, access, &attr)) return RtlNtStatusToDosError(status);
+
+    RtlCreateUnicodeStringFromAsciiz(&nameU, name);
+    InitializeObjectAttributes(&attr, &nameU, OBJ_CASE_INSENSITIVE, handle, NULL);
+    status = NtOpenKey((HANDLE*)retkey, access, &attr);
+    RtlFreeUnicodeString(&nameU);
+    NtClose(handle);
+    return RtlNtStatusToDosError(status);
+}
+
+LSTATUS WINAPI RegQueryValueExA(HKEY hkey, LPCSTR name, LPDWORD reserved, LPDWORD type, LPBYTE data, LPDWORD count)
+{
+    NTSTATUS status;
+    ANSI_STRING nameA;
+    UNICODE_STRING nameW;
+    DWORD total_size, datalen = 0;
+    char buffer[256];
+    KEY_VALUE_PARTIAL_INFORMATION* info = (KEY_VALUE_PARTIAL_INFORMATION*)buffer;
+    static const int info_size = offsetof(KEY_VALUE_PARTIAL_INFORMATION, Data);
+
+    if ((data && !count) || reserved) return ERROR_INVALID_PARAMETER;
+
+    if (count) datalen = *count;
+    if (!data && count) *count = 0;
+
+    RtlInitAnsiString(&nameA, name);
+    if ((status = RtlAnsiStringToUnicodeString(&nameW, &nameA, TRUE)))
+        return RtlNtStatusToDosError(status);
+
+    status = NtQueryValueKey(hkey, &nameW, KeyValuePartialInformation, buffer, sizeof(buffer), &total_size);
+    if (status) {
+        RtlFreeUnicodeString(&nameW);
+        return RtlNtStatusToDosError(status);
+    }
+
+    if (data) {
+        if (total_size - info_size > datalen)
+            status = STATUS_BUFFER_OVERFLOW;
+        else
+            memcpy(data, buffer + info_size, total_size - info_size);
+    } else
+        status = STATUS_SUCCESS;
+
+    if (type) *type = info->Type;
+    if (count) *count = total_size - info_size;
+
+    RtlFreeUnicodeString(&nameW);
+    return RtlNtStatusToDosError(status);
+}
+
+LSTATUS WINAPI RegCloseKey(HKEY hkey)
+{
+    if (!hkey) return ERROR_INVALID_HANDLE;
+    return RtlNtStatusToDosError(NtClose(hkey));
 }

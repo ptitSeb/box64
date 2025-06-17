@@ -72,6 +72,22 @@ typedef struct _SYSTEM_BASIC_INFORMATION__ {
     BYTE NumberOfProcessors;
 } SYSTEM_BASIC_INFORMATION__, *PSYSTEM_BASIC_INFORMATION__;
 
+typedef struct _KEY_VALUE_PARTIAL_INFORMATION {
+    ULONG TitleIndex;
+    ULONG Type;
+    ULONG DataLength;
+    UCHAR Data[1];
+} KEY_VALUE_PARTIAL_INFORMATION, *PKEY_VALUE_PARTIAL_INFORMATION;
+
+typedef enum _KEY_VALUE_INFORMATION_CLASS {
+    KeyValueBasicInformation,
+    KeyValueFullInformation,
+    KeyValuePartialInformation,
+    KeyValueFullInformationAlign64,
+    KeyValuePartialInformationAlign64,
+    KeyValueLayerInformation,
+} KEY_VALUE_INFORMATION_CLASS;
+
 #define NtCurrentProcess() ((HANDLE)(LONG_PTR) - 1)
 
 NTSTATUS WINAPI RtlWow64GetCurrentCpuArea(USHORT*, void**, void**);
@@ -93,6 +109,8 @@ NTSTATUS WINAPI NtAllocateVirtualMemory(HANDLE, PVOID*, ULONG_PTR, SIZE_T*, ULON
 PVOID WINAPI RtlReAllocateHeap(HANDLE, ULONG, PVOID, SIZE_T);
 NTSTATUS WINAPI NtFreeVirtualMemory(HANDLE, PVOID*, SIZE_T*, ULONG);
 BOOLEAN WINAPI RtlIsProcessorFeaturePresent(UINT feature);
+NTSTATUS WINAPI NtOpenKey(HANDLE*, ACCESS_MASK, const OBJECT_ATTRIBUTES*);
+NTSYSAPI NTSTATUS WINAPI NtQueryValueKey(HANDLE, const UNICODE_STRING*, KEY_VALUE_INFORMATION_CLASS, void*, DWORD, DWORD*);
 
 static inline uintptr_t calculate_fs(void)
 {
