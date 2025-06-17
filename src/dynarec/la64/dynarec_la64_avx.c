@@ -51,8 +51,8 @@ uintptr_t dynarec64_AVX(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
     if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_NONE))
         addr = dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    // else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_NONE))
-    //     addr = dynarec64_AVX_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_NONE))
+        addr = dynarec64_AVX_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_66))
         addr = dynarec64_AVX_66_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F2))
@@ -65,17 +65,17 @@ uintptr_t dynarec64_AVX(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int n
         addr = dynarec64_AVX_66_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
     // else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F2))
     //     addr = dynarec64_AVX_F2_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    // else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_F2))
-    //     addr = dynarec64_AVX_F2_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    else if ((vex.m == VEX_M_0F3A) && (vex.p == VEX_P_F2))
+        addr = dynarec64_AVX_F2_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
     // else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F3))
     //     addr = dynarec64_AVX_F3_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else {
         DEFAULT;
     }
 
-    if((*ok==-1) && (BOX64ENV(dynarec_log)>=LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing)))
-        if(!dyn->size || BOX64ENV(dynarec_log)>LOG_INFO || dyn->need_dump) {
-            dynarec_log(LOG_NONE, "  Dynarec unimplemented VEX opcode size %d prefix %s map %s opcode %02X\n", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
-    }
+    if ((*ok == -1) && (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing)))
+        if (!dyn->size || BOX64ENV(dynarec_log) > LOG_INFO || dyn->need_dump) {
+            dynarec_log(LOG_NONE, "  Dynarec unimplemented VEX opcode size %d prefix %s map %s opcode %02X\n", 128 << vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
+        }
     return addr;
 }

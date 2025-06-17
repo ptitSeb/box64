@@ -227,6 +227,30 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VPICKVE2GR_DU(gd, d1, 0);
             }
             break;
+        case 0x54:
+            INST_NAME("VANDPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VAND_Vxy(v0, v1, v2);
+            break;
+        case 0x55:
+            INST_NAME("VANDNPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VANDN_Vxy(v0, v1, v2);
+            break;
+        case 0x56:
+            INST_NAME("VORPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VOR_Vxy(v0, v1, v2);
+            break;
+        case 0x57:
+            INST_NAME("VXORPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VXOR_Vxy(v0, v1, v2);
+            break;
         case 0x6E:
             INST_NAME("VMOVD Gx, Ed");
             nextop = F8;
@@ -334,6 +358,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VPICKVE2GR_DU(gd, d1, 0);
             }
             break;
+        case 0xDB:
+            INST_NAME("VPAND Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VAND_Vxy(v0, v1, v2);
+            break;
+        case 0xDF:
+            INST_NAME("VPANDN Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VANDN_Vxy(v0, v1, v2);
+            break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex, Gx");
             nextop = F8;
@@ -349,6 +385,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 SMWRITE2();
             }
+            break;
+        case 0xEB:
+            INST_NAME("VPOR Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VOR_Vxy(v0, v1, v2);
+            break;
+        case 0xEF:
+            INST_NAME("VPXOR Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VXOR_Vxy(v0, v1, v2);
             break;
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
