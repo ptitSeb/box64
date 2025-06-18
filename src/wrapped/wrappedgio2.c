@@ -356,11 +356,11 @@ static my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterface
     #undef GO
     #define GO(A) if(ref_GDBusInterfaceVTable_##A == 0) {   \
         ref_GDBusInterfaceVTable_##A = fcts;                 \
-        my_GDBusInterfaceVTable_##A.method_call = (fcts->method_call)?((GetNativeFnc((uintptr_t)fcts->method_call))?GetNativeFnc((uintptr_t)fcts->method_call):my_funcs_method_call_##A):NULL;    \
+        my_GDBusInterfaceVTable_##A.method_call = (fcts->method_call)?((GetNativeFnc((uintptr_t)fcts->method_call))?GetNativeFnc((uintptr_t)fcts->method_call):(void*)my_funcs_method_call_##A):NULL;    \
         fct_funcs_method_call_##A = (uintptr_t)fcts->method_call;                            \
-        my_GDBusInterfaceVTable_##A.get_property = (fcts->get_property)?((GetNativeFnc((uintptr_t)fcts->get_property))?GetNativeFnc((uintptr_t)fcts->get_property):my_funcs_get_property_##A):NULL;    \
+        my_GDBusInterfaceVTable_##A.get_property = (fcts->get_property)?((GetNativeFnc((uintptr_t)fcts->get_property))?GetNativeFnc((uintptr_t)fcts->get_property):(void*)my_funcs_get_property_##A):NULL;    \
         fct_funcs_get_property_##A = (uintptr_t)fcts->get_property;                            \
-        my_GDBusInterfaceVTable_##A.set_property = (fcts->set_property)?((GetNativeFnc((uintptr_t)fcts->set_property))?GetNativeFnc((uintptr_t)fcts->set_property):my_funcs_set_property_##A):NULL;    \
+        my_GDBusInterfaceVTable_##A.set_property = (fcts->set_property)?((GetNativeFnc((uintptr_t)fcts->set_property))?GetNativeFnc((uintptr_t)fcts->set_property):(void*)my_funcs_set_property_##A):NULL;    \
         fct_funcs_set_property_##A = (uintptr_t)fcts->set_property;                            \
         return &my_GDBusInterfaceVTable_##A;                \
     }

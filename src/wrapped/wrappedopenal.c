@@ -63,7 +63,7 @@ void my_alRequestFoldbackStop(x64emu_t* emu);
 
 #include "wrappedlib_init.h"
 
-void fillALProcWrapper()
+void fillALProcWrapper(box64context_t* context)
 {
     int cnt, ret;
     khint_t k;
@@ -82,7 +82,7 @@ void fillALProcWrapper()
         kh_value(symbolmap, k).w = openalmysymbolmap[i].w;
         kh_value(symbolmap, k).resolved = 0;
     }
-    my_context->alwrappers = symbolmap;
+    context->alwrappers = symbolmap;
     // fill my_* map
     symbolmap = kh_init(symbolmap);
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
@@ -91,7 +91,7 @@ void fillALProcWrapper()
         kh_value(symbolmap, k).w = openalmysymbolmap[i].w;
         kh_value(symbolmap, k).resolved = 0;
     }
-    my_context->almymap = symbolmap;
+    context->almymap = symbolmap;
 }
 void freeALProcWrapper(box64context_t* context)
 {
@@ -147,7 +147,7 @@ EXPORT void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name)
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alcGetProcAddress(%p, %s)\n", device, rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
-        fillALProcWrapper();
+        fillALProcWrapper(emu->context);
     // get proc adress using actual alGetProcAddress
     k = kh_get(symbolmap, emu->context->almymap, rname);
     int is_my = (k==kh_end(emu->context->almymap))?0:1;

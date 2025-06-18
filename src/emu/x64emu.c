@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "os.h"
 #include "debug.h"
@@ -393,7 +394,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         int stack = emu->fpu_stack;
         if(stack>8) stack = 8;
         for (int i=0; i<stack; i++) {
-            sprintf(tmp, "ST%d=%f(0x%llx)", i, ST(i).d, ST(i).q);
+            sprintf(tmp, "ST%d=%f(0x%" PRIx64 ")", i, ST(i).d, ST(i).q);
             strcat(buff, tmp);
             int c = 20-strlen(tmp);
             if(c<1) c=1;
@@ -443,13 +444,13 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         for (int i=_AX; i<=_R15; ++i) {
 #ifdef HAVE_TRACE
             if (BOX64ENV(trace_regsdiff) && (emu->regs[i].q[0] != emu->oldregs[i].q[0])) {
-                sprintf(tmp, "\e[1;35m%s=%016llx\e[m ", regname[i], emu->regs[i].q[0]);
+                sprintf(tmp, "\e[1;35m%s=%016" PRIx64 "\e[m ", regname[i], emu->regs[i].q[0]);
                 emu->oldregs[i].q[0] = emu->regs[i].q[0];
             } else {
-                sprintf(tmp, "%s=%016llx ", regname[i], emu->regs[i].q[0]);
+                sprintf(tmp, "%s=%016" PRIx64, regname[i], emu->regs[i].q[0]);
             }
 #else
-            sprintf(tmp, "%s=%016llx ", regname[i], emu->regs[i].q[0]);
+            sprintf(tmp, "%s=%016" PRIx64, regname[i], emu->regs[i].q[0]);
 #endif
             strcat(buff, tmp);
 
@@ -472,9 +473,9 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             }
     }
     if(is32bits)
-        sprintf(tmp, "EIP=%08llx ", ip);
+        sprintf(tmp, "EIP=%08" PRIx64, ip);
     else
-        sprintf(tmp, "RIP=%016llx ", ip);
+        sprintf(tmp, "RIP=%016" PRIx64, ip);
     strcat(buff, tmp);
     return buff;
 }

@@ -391,7 +391,7 @@ void KillAllInstances()
     snprintf(self_name_with_deleted, sizeof(self_name_with_deleted), "%s (deleted)", self_name);
 
     const pid_t self = getpid();
-    while (entry = readdir(proc_dir)) {
+    while ((entry = readdir(proc_dir))) {
         const pid_t pid = atoi(entry->d_name);
         if (!pid || pid == self) continue;
 
