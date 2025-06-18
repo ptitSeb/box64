@@ -5572,13 +5572,13 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent)
         my_gtktypeinfo_##A.type_name = fcts->type_name; \
         my_gtktypeinfo_##A.object_size = fcts->object_size; \
         my_gtktypeinfo_##A.class_size = fcts->class_size; \
-        my_gtktypeinfo_##A.class_init_func = (fcts->class_init_func)?((GetNativeFnc((uintptr_t)fcts->class_init_func))?GetNativeFnc((uintptr_t)fcts->class_init_func):my_gtk_class_init_##A):NULL;    \
+        my_gtktypeinfo_##A.class_init_func = (fcts->class_init_func)?((GetNativeFnc((uintptr_t)fcts->class_init_func))?GetNativeFnc((uintptr_t)fcts->class_init_func):(void*)my_gtk_class_init_##A):NULL;    \
         fct_gtk_class_init_##A = (uintptr_t)fcts->class_init_func;           \
-        my_gtktypeinfo_##A.object_init_func = (fcts->object_init_func)?((GetNativeFnc((uintptr_t)fcts->object_init_func))?GetNativeFnc((uintptr_t)fcts->object_init_func):my_gtk_object_init_##A):NULL;    \
+        my_gtktypeinfo_##A.object_init_func = (fcts->object_init_func)?((GetNativeFnc((uintptr_t)fcts->object_init_func))?GetNativeFnc((uintptr_t)fcts->object_init_func):(void*)my_gtk_object_init_##A):NULL;    \
         fct_gtk_object_init_##A = (uintptr_t)fcts->object_init_func;         \
         my_gtktypeinfo_##A.reserved_1 = fcts->reserved_1;                 \
         my_gtktypeinfo_##A.reserved_2 = fcts->reserved_2;                 \
-        my_gtktypeinfo_##A.base_class_init_func = (fcts->base_class_init_func)?((GetNativeFnc((uintptr_t)fcts->base_class_init_func))?GetNativeFnc((uintptr_t)fcts->base_class_init_func):my_gtk_base_class_init_##A):NULL;    \
+        my_gtktypeinfo_##A.base_class_init_func = (fcts->base_class_init_func)?((GetNativeFnc((uintptr_t)fcts->base_class_init_func))?GetNativeFnc((uintptr_t)fcts->base_class_init_func):(void*)my_gtk_base_class_init_##A):NULL;    \
         fct_gtk_base_class_init_##A = (uintptr_t)fcts->base_class_init_func;   \
         return &my_gtktypeinfo_##A;                       \
     }

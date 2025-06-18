@@ -145,6 +145,7 @@ typedef struct elfheader_s {
 
 } elfheader_t;
 
+#ifndef R_X86_64_NONE
 #define R_X86_64_NONE           0       /* No reloc */
 #define R_X86_64_64             1       /* Direct 64 bit  */
 #define R_X86_64_PC32           2       /* PC relative 32 bit signed */
@@ -188,6 +189,7 @@ typedef struct elfheader_s {
                                         /* 40 Reserved was R_X86_64_PLT32_BND */
 #define R_X86_64_GOTPCRELX      41      /* Load from 32 bit signed pc relative offset to GOT entry without REX prefix, relaxable.  */
 #define R_X86_64_REX_GOTPCRELX  42      /* Load from 32 bit signed pc relative offset to GOT entry with REX prefix, relaxable.  */
+#endif
 #define R_X86_64_NUM            43
 
 #ifndef STB_GNU_UNIQUE
