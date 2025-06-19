@@ -765,7 +765,7 @@ void iret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     CLEARIP();
 }
 
-void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
+void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
 {
     MAYUSE(fnc);
     if (savereg == 0)
@@ -787,7 +787,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         STORE_REG(RAX);
         SD(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
-    TABLE64(reg, (uintptr_t)fnc);
+    TABLE64(reg, getConst(fnc));
     MV(A0, xEmu);
     if (arg1) MV(A1, arg1);
     if (arg2) MV(A2, arg2);
@@ -884,7 +884,7 @@ void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int s
         CBZ_MARKSEG(t1);
     }
     MOV64x(x1, segment);
-    call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 0, xFlags, x1, 0, 0, 0, 0, 0);
+    call_c(dyn, ninst, const_getsegmentbase, t2, reg, 0, xFlags, x1, 0, 0, 0, 0, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment == _FS) ? "FS" : "GS");
 }
@@ -2784,7 +2784,7 @@ static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
             j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
-        CALL_(UpdateFlags, -1, 0, 0, 0);
+        CALL_(const_updateflags, -1, 0, 0, 0);
         MARKF2;
     }
 }

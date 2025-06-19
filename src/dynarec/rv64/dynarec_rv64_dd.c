@@ -153,14 +153,14 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MESSAGE(LOG_DUMP, "Need Optimization (FRSTOR)\n");
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
-                CALL(native_frstor, -1, ed, 0);
+                CALL(const_native_frstor, -1, ed, 0);
                 break;
             case 6:
                 INST_NAME("FNSAVE m108byte");
                 MESSAGE(LOG_DUMP, "Need Optimization\n");
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
-                CALL(native_fsave, -1, ed, 0);
+                CALL(const_native_fsave, -1, ed, 0);
                 NATIVE_RESTORE_X87PC();
                 break;
             case 7:

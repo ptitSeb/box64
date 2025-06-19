@@ -293,7 +293,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             GETIP(ip, x7);
             STORE_XEMU_CALL(x3);
-            CALL(native_priv, -1, 0, 0);
+            CALL(const_native_priv, -1, 0, 0);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
@@ -309,7 +309,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             GETIP(ip, x7);
             STORE_XEMU_CALL(x3);
-            CALL(native_priv, -1, 0, 0);
+            CALL(const_native_priv, -1, 0, 0);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;

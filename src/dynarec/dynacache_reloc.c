@@ -237,17 +237,7 @@ int RelocsHaveCancel(dynablock_t* block)
     return 0;
 }
 
-uintptr_t RelocGetNext() {
-    #ifdef DUMMY_GETCONST
-    return 0;
-    #else
-    return getConst(const_native_next);
-    #endif
-}
-
-#ifdef DUMMY_GETCONST
-uintptr_t getConst(native_consts_t which)
+uintptr_t RelocGetNext()
 {
-    return 0;
+    return getConst(const_native_next);
 }
-#endif

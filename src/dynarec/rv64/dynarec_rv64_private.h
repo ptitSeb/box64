@@ -219,12 +219,12 @@ int Table64(dynarec_rv64_t *dyn, uint64_t val, int pass);  // add a value to tab
 
 void CreateJmpNext(void* addr, void* next);
 
-#define GO_TRACE(A, B, s0) \
-    GETIP(addr, s0);       \
-    MV(x1, xRIP);          \
-    STORE_XEMU_CALL(s0);   \
-    MOV64x(x2, B);         \
-    CALL(A, -1, x1, x2);   \
+#define GO_TRACE(A, B, s0)       \
+    GETIP(addr, s0);             \
+    MV(x1, xRIP);                \
+    STORE_XEMU_CALL(s0);         \
+    MOV64x(x2, B);               \
+    CALL(const_##A, -1, x1, x2); \
     LOAD_XEMU_CALL()
 
 #endif //__DYNAREC_RV64_PRIVATE_H_
