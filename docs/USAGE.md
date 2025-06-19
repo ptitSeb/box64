@@ -704,6 +704,25 @@ Tweak the memory barriers to reduce the performance impact by strong memory emua
  * 1: Use weak barriers to have more performance boost. [Default]
  * 2: All in 1, plus disabled the last write barriers. 
 
+### BOX64_DYNACACHE
+
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 0. Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit
+
+ * 0: Disable DynaCache. [Default]
+ * 1: Enable DynaCache. 
+
+### BOX64_DYNACACHE_FOLDER
+
+Set the folder for DynaCache files. Default is in XDG_CACHE_HOME/box64 or, it does not exist in HOME/.cache/box64
+
+ * XXXX: Use folder XXXX for DynaCache files. 
+
+### BOX64_DYNACACHE_MIN
+
+Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
+
+ * XXXX: Set a minimum size of XXXX KB of Dynarec code to write the dynacache to disk. Will not be saved to disk else. 
+
 ### BOX64_MMAP32
 
 Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.

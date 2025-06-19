@@ -242,10 +242,10 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     void* image = NULL;
     if(!head->vaddr) {
         sz += head->align;
-        raw = mmap64((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        raw = InternalMmap((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         image = (void*)(((uintptr_t)raw+max_align)&~max_align);
     } else {
-        image = raw = mmap64((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        image = raw = InternalMmap((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         if(head->vaddr&(box64_pagesize-1)) {
             // load address might be lower
             if((uintptr_t)image == (head->vaddr&~(box64_pagesize-1))) {
@@ -258,7 +258,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p(%p/0x%zx) instead\n", (((uintptr_t)image)&max_align)?"Error":"Warning", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image, raw, head->align);
         offs = (uintptr_t)image;
         if(((uintptr_t)image)&max_align) {
-            munmap(raw, sz);
+            InternalMunmap(raw, sz);
             return 1;   // that's an error, alocated memory is not aligned properly
         }
     }
@@ -314,7 +314,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 try_mmap = 0;
             if(try_mmap) {
                 printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, head->name);
-                void* p = mmap64(
+                void* p = InternalMmap(
                     (void*)head->multiblocks[n].paddr,
                     head->multiblocks[n].size,
                     prot,
@@ -339,7 +339,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 void* p = MAP_FAILED;
                 if(paddr==(paddr&~(box64_pagesize-1)) && (asize==ALIGN(asize))) {
                     printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
-                    p = mmap64(
+                    p = InternalMmap(
                         (void*)paddr,
                         asize,
                         prot|PROT_WRITE,
@@ -362,7 +362,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     }
                     if(new_size>0) {
                         printf_dump(log_level, "Allocating 0x%zx (0x%zx/0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", ALIGN(new_size), paddr, e->p_memsz, (void*)new_addr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
-                        p = mmap64(
+                        p = InternalMmap(
                             (void*)new_addr,
                             ALIGN(new_size),
                             prot|PROT_WRITE,
@@ -450,7 +450,7 @@ void FreeElfMemory(elfheader_t* head)
     // we only need to free the overall mmap, no need to free individual part as they are inside the big one
     if(head->raw && head->raw_size) {
         dynarec_log(LOG_INFO, "Unmap elf memory %p-%p for %s\n", head->raw, head->raw+head->raw_size, head->path);
-        munmap(head->raw, head->raw_size);
+        InternalMunmap(head->raw, head->raw_size);
     }
     freeProtection((uintptr_t)head->raw, head->raw_size);
 }

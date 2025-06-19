@@ -3145,6 +3145,9 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     int ret = box_munmap(addr, length);
     int e = errno;
     #ifdef DYNAREC
+    if(!ret) {
+        WillRemoveMapping((uintptr_t)addr, length);
+    }
     if(!ret && BOX64ENV(dynarec) && length) {
         cleanDBFromAddressRange((uintptr_t)addr, length, 1);
     }
@@ -3168,9 +3171,10 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
     if(BOX64ENV(dynarec) && !ret && len) {
-        if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)addr, len);
-        else
+        if(prot& PROT_EXEC) {
+            if(!IsAddrMappingLoadAndClean((uintptr_t)addr))
+                addDBFromAddressRange((uintptr_t)addr, len);
+        } else
             cleanDBFromAddressRange((uintptr_t)addr, len, (!prot)?1:0);
     }
     #endif

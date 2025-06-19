@@ -1749,7 +1749,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MARK;
                         j64 = getJumpTableAddress64(addr);
                         if(dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
-                        TABLE64(x4, j64);
+                        TABLE64_(x4, j64);
                         LDRx_U12(x4, x4, 0);
                         BR(x4);
                     }

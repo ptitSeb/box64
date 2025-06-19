@@ -17,4 +17,8 @@ void AddRelocTable64RetEndBlock(dynarec_native_t* dyn, int ninst, uintptr_t addr
 void AddRelocTable64JmpTbl(dynarec_native_t* dyn, int ninst, uintptr_t addr, int pass);
 void AddRelocCancelBlock(dynarec_native_t* dyn, int ninst, int pass);
 
+int ApplyRelocs(dynablock_t* block, intptr_t delta_block, intptr_t delta_map, uintptr_t mapping_start);
+int RelocsHaveCancel(dynablock_t* block);
+uintptr_t RelocGetNext();
+
 #endif

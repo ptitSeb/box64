@@ -5,7 +5,7 @@ typedef struct x64emu_s x64emu_t;
 typedef struct dynablock_s dynablock_t;
 
 uint32_t X31_hash_code(void* addr, int len);
-void FreeDynablock(dynablock_t* db, int need_lock);
+void FreeDynablock(dynablock_t* db, int need_lock, int need_remove);
 void MarkDynablock(dynablock_t* db);
 void MarkRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
 int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);

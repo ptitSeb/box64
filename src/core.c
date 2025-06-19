@@ -235,11 +235,6 @@ static void displayMiscInfo()
 
     char* p;
 
-    // grab pagesize
-    box64_pagesize = sysconf(_SC_PAGESIZE);
-    if(!box64_pagesize)
-        box64_pagesize = 4096;
-
 #ifdef DYNAREC
     if (DetectHostCpuFeatures())
         PrintHostCpuFeatures();
@@ -356,6 +351,8 @@ void PrintHelp() {
     PrintfFtrace(0, "    '-v'|'--version' to print box64 version and quit\n");
     PrintfFtrace(0, "    '-h'|'--help' to print this and quit\n");
     PrintfFtrace(0, "    '-k'|'--kill-all' to kill all box64 instances\n");
+    PrintfFtrace(0, "    '--dynacache-list' to list of DynaCache file and their validity\n");
+    PrintfFtrace(0, "    '--dynacache-clean' to remove invalide DynaCache files\n");
 }
 
 void KillAllInstances()
@@ -660,6 +657,7 @@ void endBox64()
     if(!my_context || box64_quit)
         return;
 
+    SerializeAllMapping();   // just to be safe
     // then call all the fini
     dynarec_log(LOG_DEBUG, "endBox64() called\n");
     box64_quit = 1;
@@ -683,6 +681,7 @@ void endBox64()
     #ifndef STATICBUILD
     endMallocHook();
     #endif
+    SerializeAllMapping();   // to be safe
     FreeBox64Context(&my_context);
     #ifdef DYNAREC
     // disable dynarec now
@@ -763,6 +762,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     LoadEnvVariables();
     InitializeEnvFiles();
 
+    // grab pagesize
+    box64_pagesize = sysconf(_SC_PAGESIZE);
+    if(!box64_pagesize)
+        box64_pagesize = 4096;
+
     const char* prog = argv[1];
     int nextarg = 1;
     // check if some options are passed
@@ -777,6 +781,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
         if (!strcmp(prog, "-k") || !strcmp(prog, "--kill-all")) {
             KillAllInstances();
+            exit(0);
+        }
+        if(!strcmp(prog, "--dynacache-list")) {
+            DynaCacheList(argv[nextarg+1]);
+            exit(0);
+        }
+        if(!strcmp(prog, "--dynacache-clean")) {
+            DynaCacheClean();
             exit(0);
         }
         // other options?

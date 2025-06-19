@@ -2446,7 +2446,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
-                        TABLE64(x4, j64);
+                        if(dyn->need_reloc)
+                            AddRelocTable64JmpTbl(dyn, ninst, addr, STEP);
+                        TABLE64_(x4, j64);
                         LD_D(x4, x4, 0);
                         BR(x4);
                     }
@@ -2842,7 +2844,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
-                        TABLE64(x4, j64);
+                        if(dyn->need_reloc)
+                            AddRelocTable64JmpTbl(dyn, ninst, addr, STEP);
+                        TABLE64_(x4, j64);
                         LD_D(x4, x4, 0);
                         BR(x4);
                     }

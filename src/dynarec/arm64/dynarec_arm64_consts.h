@@ -46,6 +46,7 @@ typedef enum arm64_consts_s {
     const_native_fld,
     const_native_fstp,
     const_native_frstor,
+    const_native_next,
     const_int3,
     const_x86syscall,
     const_x64syscall,

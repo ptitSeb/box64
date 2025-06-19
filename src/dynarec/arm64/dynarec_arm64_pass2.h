@@ -15,19 +15,19 @@
         }
 #define INST_EPILOG dyn->insts[ninst].epilog = dyn->native_size; 
 #define INST_NAME(name) 
-#define TABLE64(A, V)   {                                                       \
-                if(dyn->need_reloc && !isTable64(dyn, (V)))                     \
+#define TABLE64(A, V)   do {                                                    \
+                if(dyn->need_reloc)                                             \
                         AddRelocTable64Addr(dyn, ninst, (V), 2);                \
                 Table64(dyn, (V), 2); EMIT(0);                                  \
-        }
-#define TABLE64_(A, V)   {                                                      \
+        } while(0)
+#define TABLE64_(A, V)  do {                                                    \
                 Table64(dyn, (V), 2); EMIT(0);                                  \
-        }
-#define TABLE64C(A, V)  {                                                       \
-                if(dyn->need_reloc && !isTable64(dyn, getConst(V)))             \
+        } while(0)
+#define TABLE64C(A, V)  do {                                                    \
+                if(dyn->need_reloc)                                             \
                         AddRelocTable64Const(dyn, ninst, (V), 2);               \
                 Table64(dyn, getConst(V), 2); EMIT(0);                          \
-        }
-#define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; Table64(dyn, v.q, 2); EMIT(0);}
+        } while(0)
+#define FTABLE64(A, V)  do {mmx87_regs_t v = {.d = V}; Table64(dyn, v.q, 2); EMIT(0);} while(0)
 #define CALLRET_RET()   do {dyn->callrets[dyn->callret_size].type = 0; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP); } while(0)
 #define CALLRET_LOOP()   do {dyn->callrets[dyn->callret_size].type = 1; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP); } while(0)

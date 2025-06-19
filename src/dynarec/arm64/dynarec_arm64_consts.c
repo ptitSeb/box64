@@ -21,6 +21,7 @@
 #include "emu/x87emu_private.h"
 #include "emu/x64compstrings.h"
 #include "x64test.h"
+#include "dynarec/dynarec_next.h"
 
 static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
 static const int8_t mask_string8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
@@ -29,9 +30,6 @@ static const float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
 static const double addsubpd[2] = {-1., 1.};
 static const float subaddps[4] = {1.f, -1.f, 1.f, -1.f};
 static const double subaddpd[2] = {1., -1.};
-
-void arm64_epilog(void);
-void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef HAVE_TRACE
 void PrintTrace() {}
@@ -84,6 +82,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_native_fld: return (uintptr_t)native_fld;
         case const_native_fstp: return (uintptr_t)native_fstp;
         case const_native_frstor: return (uintptr_t)native_frstor;
+        case const_native_next: return (uintptr_t)native_next;
         case const_int3: return (uintptr_t)EmuInt3;
         case const_x86syscall: return (uintptr_t)EmuX86Syscall;
         case const_x64syscall: return (uintptr_t)EmuX64Syscall;
@@ -122,7 +121,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_sse42_compare_string_implicit_len: return (uintptr_t)sse42_compare_string_implicit_len;
         case const_x64test_step: return (uintptr_t)x64test_step;
         case const_printtrace: return (uintptr_t)PrintTrace;
-        case const_epilog: return (uintptr_t)arm64_epilog;
+        case const_epilog: return (uintptr_t)native_epilog;
         case const_jmptbl32: return getJumpTable32();
         case const_jmptbl48: return getJumpTable48();
         case const_jmptbl64: return getJumpTable64();

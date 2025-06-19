@@ -237,3 +237,15 @@ int FileExist(const char* filename, int flags)
 
     return 1;
 }
+
+int MakeDir(const char* folder)
+{
+    // TODO
+    return 0;
+}
+
+size_t FileSize(const char* filename)
+{
+    // TODO
+    return 0;
+}

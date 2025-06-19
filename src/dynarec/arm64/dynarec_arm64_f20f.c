@@ -523,9 +523,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             q0 = fpu_get_scratch(dyn, ninst);
-            static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
-            MAYUSE(addsubps);
-            MOV64x(x2, (uintptr_t)&addsubps);   // no need to use table64, as box64 is loaded in low memory
+            TABLE64C(x2, const_4f_m1_1_m1_1);
             VLDR128_U12(q0, x2, 0);
             VFMLAQS(v0, v1, q0);
             break;

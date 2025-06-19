@@ -94,6 +94,7 @@ typedef struct blocklist_s {
 #define MMAPSIZE (512*1024)     // allocate 512kb sized blocks
 #define MMAPSIZE128 (128*1024)  // allocate 128kb sized blocks for 128byte map
 #define DYNMMAPSZ (2*1024*1024) // allocate 2Mb block for dynarec
+#define DYNMMAPSZ0 (128*1024)   // allocate 128kb block for 1st page, to avoid wasting too much memory on small program / libs
 
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static int                 c_blocks = 0;       // capacity of blocks for custom malloc
@@ -483,7 +484,7 @@ void add_blockstree(uintptr_t start, uintptr_t end, int idx)
     reent = 0;
 }
 
-void* box32_dynarec_mmap(size_t size);
+void* box32_dynarec_mmap(size_t size, int fd, off_t offset);
 #ifdef BOX32
 int isCustomAddr(void* p)
 {
@@ -577,7 +578,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     if(is32bits) mutex_unlock(&mutex_blocks);   // unlocking, because mmap might use it
     void* p = is32bits
         ? box_mmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0)
-        : (box64_is32bits ? box32_dynarec_mmap(allocsize) : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+        : (box64_is32bits ? box32_dynarec_mmap(allocsize, -1, 0) : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
     if(is32bits) mutex_lock(&mutex_blocks);
     #ifdef TRACE_MEMSTAT
     customMalloc_allocated += allocsize;
@@ -687,7 +688,7 @@ void* internal_customMalloc(size_t size, int is32bits)
         mutex_unlock(&mutex_blocks);
     void* p = is32bits
         ? box_mmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0)
-        : (box64_is32bits ? box32_dynarec_mmap(allocsize) : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+        : (box64_is32bits ? box32_dynarec_mmap(allocsize, -1, 0) : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
     if(is32bits)
         mutex_lock(&mutex_blocks);
 #ifdef TRACE_MEMSTAT
@@ -1031,18 +1032,19 @@ size_t customGetUsableSize(void* p)
     return 0;
 }
 
-void* box32_dynarec_mmap(size_t size)
+void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
 {
-#ifdef BOX32
+    #ifdef BOX32
     // find a block that was prereserve before and big enough
     size = (size+box64_pagesize-1)&~(box64_pagesize-1);
     uint32_t flag;
     static uintptr_t cur = 0x100000000LL;
     uintptr_t bend = 0;
     while(bend<0x800000000000LL) {
+        uint32_t map_flags = MAP_FIXED | ((fd==-1)?MAP_ANONYMOUS:0) | MAP_PRIVATE;
         if(rb_get_end(mapallmem, cur, &flag, &bend)) {
             if(flag == MEM_RESERVED && bend-cur>=size) {
-                void* ret = InternalMmap((void*)cur, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+                void* ret = InternalMmap((void*)cur, size, PROT_READ | PROT_WRITE | PROT_EXEC, map_flags, fd, offset);
                 if(ret!=MAP_FAILED)
                     rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);    // mark as allocated
                 else
@@ -1054,8 +1056,9 @@ void* box32_dynarec_mmap(size_t size)
         cur = bend;
     }
 #endif
+    uint32_t map_flags = ((fd==-1)?0:MAP_ANONYMOUS) | MAP_PRIVATE;
     //printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", "fallback to internal mmap");
-    return InternalMmap((void*)0x100000000LL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    return InternalMmap((void*)0x100000000LL, size, PROT_READ | PROT_WRITE | PROT_EXEC, map_flags, fd, offset);
     ;
 }
 
@@ -1065,11 +1068,166 @@ typedef struct mmaplist_s {
     int             cap;
     int             size;
     int             has_new;
+    int             dirty;
 } mmaplist_t;
 
 mmaplist_t* NewMmaplist()
 {
     return (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
+}
+
+int MmaplistHasNew(mmaplist_t* list, int clear)
+{
+    if(!list) return 0;
+    int ret = list->has_new;
+    if(clear) list->has_new = 0;
+    return ret;
+}
+
+int MmaplistIsDirty(mmaplist_t* list)
+{
+    if(!list) return 0;
+    return list->dirty;
+}
+
+int MmaplistNBlocks(mmaplist_t* list)
+{
+    if(!list) return 0;
+    return list->size;
+}
+
+void MmaplistAddNBlocks(mmaplist_t* list, int nblocks)
+{
+    if(!list) return;
+    if(nblocks<=0) return;
+    list->cap = list->size + nblocks;
+    list->chunks = box_realloc(list->chunks, list->cap*sizeof(blocklist_t**));
+}
+
+int RelocsHaveCancel(dynablock_t* block);
+size_t MmaplistChunkGetUsedcode(blocklist_t* list)
+{
+    void* p = list->block;
+    void* end = list->block + list->size - sizeof(blockmark_t);
+    size_t total = 0;
+    while(p<end) {
+        if(((blockmark_t*)p)->next.fill) {
+            dynablock_t* b = *(dynablock_t**)((blockmark_t*)p)->mark;
+            size_t b_size = SIZE_BLOCK(((blockmark_t*)p)->next);
+            if(b->relocs && b->relocsize && RelocsHaveCancel(b))
+                b_size = 0;
+            total +=  b_size;
+        }
+        p = NEXT_BLOCK((blockmark_t*)p);
+    }
+    return total;
+}
+
+size_t MmaplistTotalAlloc(mmaplist_t* list)
+{
+    if(!list) return 0;
+    size_t total = 0;
+    for(int i=0; i<list->size; ++i)
+        total += MmaplistChunkGetUsedcode(list->chunks[i]);
+    return total;
+}
+
+int ApplyRelocs(dynablock_t* block, intptr_t delta_block, intptr_t delat_map, uintptr_t mapping_start);
+uintptr_t RelocGetNext();
+int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t size, intptr_t delta_map, uintptr_t mapping_start)
+{
+    if(!list) return -1;
+    if(list->cap==list->size) {
+        list->cap += 4;
+        list->chunks = box_realloc(list->chunks, list->cap*sizeof(blocklist_t**));
+    }
+    int i = list->size++;
+    void* map = MAP_FAILED;
+    #ifdef BOX32
+    if(box64_is32bits)
+        map = box32_dynarec_mmap(size, fd, offset);
+    #endif
+    if(map==MAP_FAILED)
+        map = InternalMmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, fd, offset);
+    if(map==MAP_FAILED) {
+        printf_log(LOG_INFO, "Failed to load block %d of a maplist\n", i);
+        return -3;
+    }
+    #ifdef MADV_HUGEPAGE
+    madvise(map, size, MADV_HUGEPAGE);
+    #endif
+    setProtection((uintptr_t)map, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+    list->chunks[i] = map;
+    intptr_t delta = map - orig;
+    // relocate the pointers
+    if(delta) {
+        list->chunks[i]->block = ((void*)list->chunks[i]->block) + delta;
+        list->chunks[i]->first += delta;
+    }
+    // relocate all allocated dynablocks
+    void* p = list->chunks[i]->block;
+    void* end = map + size - sizeof(blockmark_t);
+    while(p<end) {
+        if(((blockmark_t*)p)->next.fill) {
+            void** b = (void**)((blockmark_t*)p)->mark;
+            // first is the address of the dynablock itself, that needs to be adjusted
+            b[0] += delta;
+            dynablock_t* bl = b[0];
+            // now reloacte the dynablocks, all that need to be adjusted!
+            #define GO(A) if(bl->A) bl->A = ((void*)bl->A)+delta
+            GO(block);
+            GO(actual_block);
+            GO(instsize);
+            GO(arch);
+            GO(callrets);
+            GO(jmpnext);
+            GO(table64);
+            GO(relocs);
+            #undef GO
+            bl->previous = NULL;    // that seems safer that way
+            // shift the self referece to dynablock
+            if(bl->block!=bl->jmpnext) {
+                void** db_ref = (bl->jmpnext-sizeof(void*));
+                *db_ref = (*db_ref)+delta;
+            }
+            // adjust x64_addr with delta_map
+            bl->x64_addr += delta_map;
+            *(uintptr_t*)(bl->jmpnext+2*sizeof(void*)) = RelocGetNext();
+            if(bl->relocs && bl->relocsize)
+                ApplyRelocs(bl, delta, delta_map, mapping_start);
+            ClearCache(bl->actual_block+sizeof(void*), bl->native_size);
+            //add block, as dirty for now
+            if(!addJumpTableIfDefault64(bl->x64_addr, bl->jmpnext)) {
+                // cannot add blocks?
+                printf_log(LOG_INFO, "Warning, cannot add DynaCache Block %d to JmpTable\n", i);
+            } else {
+                if(bl->x64_size) {
+                    dynarec_log(LOG_DEBUG, "Added DynCache bl %p for %p - %p\n", bl, bl->x64_addr, bl->x64_addr+bl->x64_size);
+                    if(bl->x64_size>my_context->max_db_size) {
+                        my_context->max_db_size = bl->x64_size;
+                        dynarec_log(LOG_INFO, "BOX64 Dynarec: higher max_db=%d\n", my_context->max_db_size);
+                    }
+                    rb_inc(my_context->db_sizes, bl->x64_size, bl->x64_size+1);
+                }
+            }
+
+        }
+        p = NEXT_BLOCK((blockmark_t*)p);
+    }
+    // add new block to rbtt_dynmem
+    rb_set_64(rbt_dynmem, (uintptr_t)map, (uintptr_t)map+size, (uintptr_t)list->chunks[i]);
+
+    return 0;
+}
+
+void MmaplistFillBlocks(mmaplist_t* list, DynaCacheBlock_t* blocks)
+{
+    if(!list) return;
+    for(int i=0; i<list->size; ++i) {
+        blocks[i].block = list->chunks[i];
+        blocks[i].size = list->chunks[i]->size+sizeof(blocklist_t);
+        blocks[i].free_size = list->chunks[i]->maxfree;
+    }
 }
 
 void DelMmaplist(mmaplist_t* list)
@@ -1138,6 +1296,7 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     if(!list)
         list = mmaplist = NewMmaplist();
     if(is_new) list->has_new = 1;
+    list->dirty = 1;
     // check if there is space in current open ones
     int idx = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);
@@ -1162,13 +1321,13 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     int i = list->size++;
     size_t need_sz = sz + sizeof(blocklist_t);
     // alloc a new block, aversized or not, we are at the end of the list
-    size_t allocsize = (need_sz>DYNMMAPSZ)?need_sz:DYNMMAPSZ;
+    size_t allocsize = (need_sz>(i?DYNMMAPSZ:DYNMMAPSZ0))?need_sz:(i?DYNMMAPSZ:DYNMMAPSZ0);
     // allign sz with pagesize
     allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
     void* p=MAP_FAILED;
     #ifdef BOX32
     if(box64_is32bits)
-        p = box32_dynarec_mmap(allocsize);
+        p = box32_dynarec_mmap(allocsize, -1, 0);
     #endif
     // disabling for now. explicit hugepage needs to be enabled to be used on userspace 
     // with`/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages` as the number of allowaed 2M huge page
@@ -2430,7 +2589,27 @@ int isLockAddress(uintptr_t addr)
     khint_t k = kh_get(lockaddress, lockaddress, addr);
     return (k==kh_end(lockaddress))?0:1;
 }
-
+int nLockAddressRange(uintptr_t start, size_t size)
+{
+    int n = 0;
+    uintptr_t end = start + size -1;
+    uintptr_t addr;
+    kh_foreach_key(lockaddress, addr,
+        if(addr>=start && addr<=end)
+            ++n;
+    );
+    return n;
+}
+void getLockAddressRange(uintptr_t start, size_t size, uintptr_t addrs[])
+{
+    int n = 0;
+    uintptr_t end = start + size -1;
+    uintptr_t addr;
+    kh_foreach_key(lockaddress, addr,
+        if(addr>=start && addr<=end)
+            addrs[n++] = addr;
+    );
+}
 #endif
 
 #ifndef MAP_FIXED_NOREPLACE

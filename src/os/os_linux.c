@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "os.h"
 #include "signals.h"
@@ -229,4 +230,23 @@ int FileExist(const char* filename, int flags)
             return 0; // nope
     }
     return 1;
+}
+
+int MakeDir(const char* folder)
+{
+    int ret = mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if(!ret || ret==EEXIST)
+        return 1;
+    return 0;
+}
+
+size_t FileSize(const char* filename)
+{
+    struct stat sb;
+    if (stat(filename, &sb) == -1)
+        return 0;
+    // check type of file? should be executable, or folder
+    if (!S_ISREG(sb.st_mode))
+        return 0;
+    return sb.st_size;
 }

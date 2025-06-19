@@ -1229,31 +1229,40 @@
 #define GETIP_(A) MOV64x(xRIP, A)
 #else
 // put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
-#define GETIP(A)                                        \
-    if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
-        uint64_t _delta_ip = (A)-dyn->last_ip;          \
-        dyn->last_ip += _delta_ip;                      \
-        if(_delta_ip) {                                 \
-            ADDx_U12(xRIP, xRIP, _delta_ip);            \
-        }                                               \
-    } else {                                            \
-        dyn->last_ip = (A);                             \
-        if(dyn->need_reloc) {                           \
-            TABLE64(xRIP, dyn->last_ip);                \
-        } else {                                        \
-            MOV64x(xRIP, dyn->last_ip);                 \
-        }                                               \
+#define GETIP(A)                                            \
+    if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {         \
+        uint64_t _delta_ip = (A)-dyn->last_ip;              \
+        dyn->last_ip += _delta_ip;                          \
+        if(_delta_ip) {                                     \
+            ADDx_U12(xRIP, xRIP, _delta_ip);                \
+        }                                                   \
+    } else if(dyn->last_ip && (dyn->last_ip-(A))<0x1000) {  \
+        uint64_t _delta_ip = dyn->last_ip-(A);              \
+        dyn->last_ip -= _delta_ip;                          \
+        if(_delta_ip) {                                     \
+            SUBx_U12(xRIP, xRIP, _delta_ip);                \
+        }                                                   \
+    } else {                                                \
+        dyn->last_ip = (A);                                 \
+        if(dyn->need_reloc) {                               \
+            TABLE64(xRIP, dyn->last_ip);                    \
+        } else {                                            \
+            MOV64x(xRIP, dyn->last_ip);                     \
+        }                                                   \
     }
-#define GETIP_(A)                                       \
-    if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {     \
-        uint64_t _delta_ip = (A)-dyn->last_ip;          \
-        if(_delta_ip) {ADDx_U12(xRIP, xRIP, _delta_ip);}\
-    } else {                                            \
-        if(dyn->need_reloc) {                           \
-            TABLE64(xRIP, (A));                         \
-        } else {                                        \
-            MOV64x(xRIP, (A));                          \
-        }                                               \
+#define GETIP_(A)                                           \
+    if(dyn->last_ip && ((A)-dyn->last_ip)<0x1000) {         \
+        uint64_t _delta_ip = (A)-dyn->last_ip;              \
+        if(_delta_ip) {ADDx_U12(xRIP, xRIP, _delta_ip);}    \
+    } else if(dyn->last_ip && (dyn->last_ip-(A))<0x1000) {  \
+        uint64_t _delta_ip = dyn->last_ip-(A);              \
+        if(_delta_ip) {SUBx_U12(xRIP, xRIP, _delta_ip);}    \
+    } else {                                                \
+        if(dyn->need_reloc) {                               \
+            TABLE64(xRIP, (A));                             \
+        } else {                                            \
+            MOV64x(xRIP, (A));                              \
+        }                                                   \
     }
 #endif
 #define CLEARIP()   dyn->last_ip=0

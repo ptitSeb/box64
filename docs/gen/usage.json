@@ -802,6 +802,50 @@
     ]
   },
   {
+    "name": "BOX64_DYNACACHE",
+    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 0. Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Disable DynaCache.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Enable DynaCache.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNACACHE_FOLDER",
+    "description": "Set the folder for DynaCache files. Default is in XDG_CACHE_HOME/box64 or, it does not exist in HOME/.cache/box64",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Use folder XXXX for DynaCache files.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNACACHE_MIN",
+    "description": "Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Set a minimum size of XXXX KB of Dynarec code to write the dynacache to disk. Will not be saved to disk else.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_EMULATED_LIBS",
     "description": "Force the use of emulated libraries.",
     "category": "Libraries",

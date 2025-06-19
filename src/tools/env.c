@@ -5,6 +5,10 @@
 #include <fcntl.h>
 #include <string.h>
 #include <inttypes.h>
+#if defined(DYNAREC) && !defined(WIN32)
+#include <sys/types.h>
+#include <dirent.h>
+#endif
 
 #include "os.h"
 #include "env.h"
@@ -24,6 +28,18 @@ static kh_box64env_entry_t* box64env_entries_gen = NULL;
 
 mmaplist_t* NewMmaplist();
 void DelMmaplist(mmaplist_t* list);
+#ifdef DYNAREC
+int MmaplistHasNew(mmaplist_t* list, int clear);
+int MmaplistIsDirty(mmaplist_t* list);
+int MmaplistNBlocks(mmaplist_t* list);
+size_t MmaplistTotalAlloc(mmaplist_t* list);
+void MmaplistFillBlocks(mmaplist_t* list, DynaCacheBlock_t* blocks);
+void MmaplistAddNBlocks(mmaplist_t* list, int nblocks);
+int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t size, intptr_t delta_map, uintptr_t mapping_start);
+int nLockAddressRange(uintptr_t start, size_t size);
+void getLockAddressRange(uintptr_t start, size_t size, uintptr_t addrs[]);
+void addLockAddress(uintptr_t addr);
+#endif
 
 static rbtree_t* envmap = NULL;
 
@@ -658,6 +674,11 @@ typedef struct mapping_s {
 KHASH_MAP_INIT_STR(mapping_entry, mapping_t*);
 static kh_mapping_entry_t* mapping_entries = NULL;
 
+#if defined(DYNAREC) && !defined(WIN32)
+void MmapDynaCache(mapping_t* mapping);
+#endif
+
+
 void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 {
 #ifndef _WIN32
@@ -698,6 +719,13 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
                 mapping->env = &kh_value(box64env_entries, k);
         }
         dynarec_log(LOG_INFO, "Mapping %s (%s) in %p-%p\n", fullname, lowercase_filename, (void*)addr, (void*)(addr+length));
+        #if defined(DYNAREC) && !defined(WIN32)
+        int dynacache = box64env.dynacache;
+        if(mapping->env && mapping->env->is_dynacache_overridden)
+            dynacache = mapping->env->dynacache;
+        if(dynacache)
+            MmapDynaCache(mapping);
+        #endif
     } else
         mapping = kh_value(mapping_entries, k);
 
@@ -720,6 +748,525 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     }
     box_free(lowercase_filename);
 #endif
+}
+
+#ifdef DYNAREC
+const char* GetDynacacheFolder(mapping_t* mapping)
+{
+    if(mapping && mapping->env && mapping->env->is_dynacache_folder_overridden && mapping->env->dynacache_folder) {
+        if(FileExist(mapping->env->dynacache_folder, 0))
+            return mapping->env->dynacache_folder;  // folder exist
+        if(MakeDir(mapping->env->dynacache_folder))
+            return mapping->env->dynacache_folder; 
+    }
+    if(box64env.dynacache_folder) {
+        if(FileExist(box64env.dynacache_folder, 0))
+            return box64env.dynacache_folder;  // folder exist
+        if(MakeDir(box64env.dynacache_folder))
+            return box64env.dynacache_folder; 
+    }
+    static char folder[4096] = {0};
+    static int default_folder = 0;
+    if(default_folder)
+        return folder;
+    if(GetEnv("XDG_CACHE_HOME"))
+        strcpy(folder, GetEnv("XDG_CACHE_HOME"));
+    else if(GetEnv(HOME)) {
+        strcpy(folder, GetEnv(HOME));
+        strcat(folder, PATHSEP);
+        strcat(folder, ".cache");
+        if(!FileExist(folder, 0))
+            if(!MakeDir(folder))
+                return NULL;
+    }
+    else return NULL;
+    strcat(folder, PATHSEP);
+    strcat(folder, "box64");
+    if(!FileExist(folder, 0))
+        if(!MakeDir(folder))
+            return NULL;
+    strcat(folder, PATHSEP);
+    return folder;
+}
+
+/* 
+    There is 3 version to change when evoling things, depending on what is changed:actual_malloc_usable_size
+    1. FILE_VERSION for the DynaCache infrastructure
+    2. DYNAREC_VERSION for dynablock_t changes and other global dynarec change
+    3. ARCH_VERSION for the architecture specific changes (and there is one per arch)
+
+    An ARCH_VERSION of 0 means Unsupported and disable DynaCache.
+    Dynacache will ignore any DynaCache file not exactly matching those 3 version.
+    `box64 --dynacache-clean` can be used from command line to purge obsolete DyaCache files
+*/
+
+#define HEADER_VERSION 1
+#define HEADER_SIGN "DynaCache"
+#define SET_VERSION(MAJ, MIN, REV) (((MAJ)<<24)|((MIN)<<16)|(REV))
+#ifdef ARM64
+#define ARCH_VERSION SET_VERSION(0, 0, 1)
+#elif defined(RV64)
+#define ARCH_VERSION SET_VERSION(0, 0, 0)
+#elif defined(LA64)
+#define ARCH_VERSION SET_VERSION(0, 0, 0)
+#else
+#error meh!
+#endif
+#define DYNAREC_VERSION SET_VERSION(0, 0, 1)
+
+typedef struct DynaCacheHeader_s {
+    char sign[10];  //"DynaCache\0"
+    uint64_t    file_version:16;
+    uint64_t    dynarec_version:24;
+    uint64_t    arch_version:24;
+    uint64_t    cpuext;
+    uint64_t    dynarec_settings;
+    size_t      pagesize;
+    size_t      codesize;
+    uintptr_t   map_addr;
+    size_t      map_len;
+    size_t      file_length;
+    uint32_t    filename_length;
+    uint32_t    nblocks;
+    uint32_t    nLockAddresses;
+    char        filename[];
+} DynaCacheHeader_t;
+
+#define DYNAREC_SETTINGS()                                              \
+    DS_GO(BOX64_DYNAREC_ALIGNED_ATOMICS, dynarec_aligned_atomics, 1)    \
+    DS_GO(BOX64_DYNAREC_BIGBLOCK, dynarec_bigblock, 2)                  \
+    DS_GO(BOX64_DYNAREC_CALLRET, dynarec_callret, 2)                    \
+    DS_GO(BOX64_DYNAREC_DF, dynarec_df, 1)                              \
+    DS_GO(BOX64_DYNAREC_DIRTY, dynarec_dirty, 2)                        \
+    DS_GO(BOX64_DYNAREC_DIV0, dynarec_div0, 1)                          \
+    DS_GO(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1)                    \
+    DS_GO(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 2)                \
+    DS_GO(BOX64_DYNAREC_FORWARD, dynarec_forward, 10)                   \
+    DS_GO(BOX64_DYNAREC_NATIVEFLAGS, dynarec_nativeflags, 1)            \
+    DS_GO(BOX64_DYNAREC_SAFEFLAGS, dynarec_safeflags, 2)                \
+    DS_GO(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 2)                \
+    DS_GO(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1)\
+    DS_GO(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 2)            \
+    DS_GO(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 2)                \
+    DS_GO(BOX64_SHAEXT, shaext, 1)                                      \
+    DS_GO(BOX64_SSE42, sse42, 1)                                        \
+    DS_GO(BOX64_AVX, avx, 2)                                            \
+    DS_GO(BOX64_X87_NO80BITS, x87_no80bits, 1)                          \
+    DS_GO(BOX64_RDTSC_1GHZ, rdtsc_1ghz, 1)                              \
+    DS_GO(BOX64_SSE_FLUSHTO0, sse_flushto0, 1)                          \
+
+#define DS_GO(A, B, C) uint64_t B:C;
+typedef union dynarec_settings_s {
+    struct {
+        DYNAREC_SETTINGS()
+    };
+    uint64_t    x;
+} dynarec_settings_t;
+#undef DS_GO
+uint64_t GetDynSetting(mapping_t* mapping)
+{
+    dynarec_settings_t settings = {0};
+    #define DS_GO(A, B, C)  settings.B = (mapping->env && mapping->env->is_##B##_overridden)?mapping->env->B:box64env.B;
+    DYNAREC_SETTINGS()
+    #undef DS_GO
+    return settings.x;
+}
+void PrintDynfSettings(int level, uint64_t s)
+{
+    dynarec_settings_t settings = {0};
+    settings.x = s;
+    #define DS_GO(A, B, C) if(settings.B) printf_log_prefix(0, level, "\t\t" #A "=%d\n", settings.B);
+    DYNAREC_SETTINGS()
+    #undef DS_GO
+}
+#undef DYNAREC_SETTINGS
+
+char* MmaplistName(const char* filename, uint64_t dynarec_settings, const char* fullname)
+{
+    // names are FOLDER/filename-YYYYY-XXXXX.box64
+    // Where XXXXX is the hash of the full name
+    // and YYYY is the Dynarec optim (in hex)
+    static char mapname[4096];
+    snprintf(mapname, 4095-6, "%s-%llx-%u", filename, dynarec_settings, __ac_X31_hash_string(fullname));
+    strcat(mapname, ".box64");
+    return mapname;
+}
+
+char* GetMmaplistName(mapping_t* mapping)
+{
+    return MmaplistName(mapping->filename+1, GetDynSetting(mapping), mapping->fullname);
+}
+
+const char* NicePrintSize(size_t sz)
+{
+    static char buf[256];
+    const char* units[] = {"", "kb", "Mb", "Gb"};
+    size_t u, d;
+    int idx = 0;
+    size_t ratio = 0;
+    while(idx<sizeof(units)/sizeof(units[0]) && (1<<(ratio+10))<sz) {
+        ratio+=10;
+        ++idx;
+    }
+    if(ratio && (sz>>ratio)<50) {
+        snprintf(buf, 255, "%zd.%zd%s", sz>>ratio, (sz>>(ratio-1))%10, units[idx]);
+    } else {
+        snprintf(buf, 255, "%zd%s", sz>>ratio, units[idx]);
+    }
+    return buf;
+}
+
+void SerializeMmaplist(mapping_t* mapping)
+{
+    if(!DYNAREC_VERSION)
+        return;
+    if(!box64env.dynacache)
+        return;
+    if(mapping->env && mapping->env->is_dynacache_overridden && !mapping->env->dynacache)
+        return;
+    const char* folder = GetDynacacheFolder(mapping);
+    if(!folder) return; // no folder, no serialize...
+    const char* name = GetMmaplistName(mapping);
+    if(!name) return;
+    char mapname[strlen(folder)+strlen(name)+1];
+    strcpy(mapname, folder);
+    strcat(mapname, name);
+    size_t filesize = FileSize(mapping->fullname);
+    if(!filesize) {
+        dynarec_log(LOG_INFO, "DynaCache will not serialize cache for %s because filesize is 0\n", mapping->fullname);
+        return;   // mmaped file as a 0 size...
+    }
+    // prepare header
+    int nblocks = MmaplistNBlocks(mapping->mmaplist);
+    if(!nblocks) {
+        dynarec_log(LOG_INFO, "DynaCache will not serialize cache for %s because nblocks is 0\n", mapping->fullname);
+        return; //How???
+    }
+    size_t map_len = SizeFileMapped(mapping->start);
+    size_t nLockAddresses = nLockAddressRange(mapping->start, map_len);
+    size_t total = sizeof(DynaCacheHeader_t) + strlen(mapping->fullname) + 1 + nblocks*sizeof(DynaCacheBlock_t) + nLockAddresses*sizeof(uintptr_t);
+    total = (total + box64_pagesize-1)&~(box64_pagesize-1); // align on pagesize
+    uint8_t all_header[total];
+    memset(all_header, 0, total);
+    void* p = all_header;
+    DynaCacheHeader_t* header = p;
+    strcpy(header->sign, HEADER_SIGN);
+    header->file_version = HEADER_VERSION;
+    header->dynarec_version = DYNAREC_VERSION;
+    header->arch_version = ARCH_VERSION;
+    header->dynarec_settings = GetDynSetting(mapping);
+    header->cpuext = cpuext.x;
+    header->pagesize = box64_pagesize;
+    header->codesize = MmaplistTotalAlloc(mapping->mmaplist);
+    header->map_addr = mapping->start;
+    header->file_length = filesize;
+    header->filename_length = strlen(mapping->fullname);
+    header->nblocks = MmaplistNBlocks(mapping->mmaplist);
+    header->map_len = map_len;
+    header->nLockAddresses = nLockAddresses;
+    size_t dynacache_min = box64env.dynacache_min;
+    if(mapping->env && mapping->env->is_dynacache_min_overridden)
+        dynacache_min = mapping->env->dynacache_min;
+    if(dynacache_min*1024>header->codesize) {
+        dynarec_log(LOG_INFO, "DynaCache will not serialize cache for %s because there is not enough usefull code (%s)\n", mapping->fullname, NicePrintSize(header->codesize));
+        return; // not enugh code, do no write
+    }
+    p += sizeof(DynaCacheHeader_t); // fullname
+    strcpy(p, mapping->fullname);
+    p += strlen(p) + 1; // blocks
+    DynaCacheBlock_t* blocks = p;
+    MmaplistFillBlocks(mapping->mmaplist, blocks);
+    p += nblocks*sizeof(DynaCacheBlock_t);
+    uintptr_t* lockAddresses = p;
+    getLockAddressRange(mapping->start, map_len, lockAddresses);
+    // all done, now just create the file and write all this down...
+    #ifndef WIN32
+    unlink(mapname);
+    FILE* f = fopen(mapname, "wbx");
+    if(!f) {
+        dynarec_log(LOG_INFO, "Cannot create cache file %s\n", mapname);
+        return;
+    }
+    if(fwrite(all_header, total, 1, f)!=1) {
+        dynarec_log(LOG_INFO, "Error writing Cache file (disk full?)\n");
+        return;
+    }
+    for(int i=0; i<nblocks; ++i) {
+        if(fwrite(blocks[i].block, blocks[i].size, 1, f)!=1) {
+            dynarec_log(LOG_INFO, "Error writing Cache file (disk full?)\n");
+            return;
+        }
+    }
+    fclose(f);
+    #else
+    // TODO?
+    #endif
+}
+
+#define DCERR_OK            0
+#define DCERR_NEXIST        1
+#define DCERR_TOOSMALL      2
+#define DCERR_FERROR        3
+#define DCERR_BADHEADER     4
+#define DCERR_FILEVER       5
+#define DCERR_DYNVER        6
+#define DCERR_DYNARCHVER    7
+#define DCERR_PAGESIZE      8
+#define DCERR_MAPNEXIST     9
+#define DCERR_MAPCHG        10
+#define DCERR_RELOC         11
+#define DCERR_BADNAME       12
+
+#ifndef WIN32
+int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int verbose)
+{
+    char filename[strlen(folder)+strlen(name)+1];
+    strcpy(filename, folder);
+    strcat(filename, name);
+    if(verbose) printf_log(LOG_NONE, "File %s:\t", name);
+    if(!FileExist(filename, IS_FILE)) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Invalid file\n");
+        return DCERR_NEXIST;
+    }
+    size_t filesize = FileSize(filename);
+    if(filesize<sizeof(DynaCacheHeader_t)) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Invalid side: %zd\n", filesize);
+        return DCERR_TOOSMALL;
+    }
+    FILE *f = fopen(filename, "rb");
+    if(!f) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Cannot open file\n");
+        return DCERR_FERROR;
+    }
+    DynaCacheHeader_t header = {0};
+    if(fread(&header, sizeof(header), 1, f)!=1) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Cannot read header\n");
+        fclose(f);
+        return DCERR_FERROR;
+    }
+    if(strcmp(header.sign, HEADER_SIGN)) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Bad header\n");
+        fclose(f);
+        return DCERR_BADHEADER;
+    }
+    if(header.file_version!=HEADER_VERSION) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible File Version\n");
+        fclose(f);
+        return DCERR_FILEVER;
+    }
+    if(header.dynarec_version!=DYNAREC_VERSION) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible Dynarec Version\n");
+        fclose(f);
+        return DCERR_DYNVER;
+    }
+    if(header.arch_version!=ARCH_VERSION) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible Dynarec Arch Version\n");
+        fclose(f);
+        return DCERR_DYNARCHVER;
+    }
+    if(header.arch_version!=ARCH_VERSION) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible Dynarec Arch Version\n");
+        fclose(f);
+        return DCERR_DYNVER;
+    }
+    if(header.pagesize!=box64_pagesize) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Bad pagesize\n");
+        fclose(f);
+        return DCERR_PAGESIZE;
+    }
+    char map_filename[header.filename_length+1];
+    if(fread(map_filename, header.filename_length+1, 1, f)!=1) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Cannot read filename\n");
+        fclose(f);
+        return DCERR_FERROR;
+    }
+    if(!FileExist(map_filename, IS_FILE)) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Mapfiled does not exists\n");
+        fclose(f);
+        return DCERR_MAPNEXIST;
+    }
+    if(FileSize(map_filename)!=header.file_length) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "File changed\n");
+        fclose(f);
+        return DCERR_MAPCHG;
+    }
+    DynaCacheBlock_t blocks[header.nblocks];
+    if(fread(blocks, sizeof(DynaCacheBlock_t), header.nblocks, f)!=header.nblocks) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Cannot read blocks\n");
+        fclose(f);
+        return DCERR_FERROR;
+    }
+    uintptr_t lockAddresses[header.nLockAddresses];
+    if(fread(lockAddresses, sizeof(uintptr_t), header.nLockAddresses, f)!=header.nLockAddresses) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Cannot read lockAddresses\n");
+        fclose(f);
+        return DCERR_FERROR;
+    }
+    off_t p = ftell(f);
+    p = (p+box64_pagesize-1)&~(box64_pagesize-1);
+    if(fseek(f, p, SEEK_SET)<0) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Error reading a block\n");
+        fclose(f);
+        return DCERR_FERROR;
+    }
+    if(!mapping) {
+        // check the blocks can be read without reading...
+        for(int i=0; i<header.nblocks; ++i) {
+            p+=blocks[i].size;
+            if(fseek(f, blocks[i].size, SEEK_CUR)<0 || ftell(f)!=p) {
+                if(verbose) printf_log_prefix(0, LOG_NONE, "Error reading a block\n");
+                fclose(f);
+                return DCERR_FERROR;
+            }
+        }
+        char* short_name = strrchr(map_filename, '/');
+        if(short_name)
+            ++short_name;
+        else
+            short_name = map_filename;
+        short_name = LowerCase(short_name);
+        const char* file_name = MmaplistName(short_name, header.dynarec_settings, map_filename);
+        box_free(short_name);
+        if(strcmp(file_name, name)) {
+            if(verbose) printf_log_prefix(0, LOG_NONE, "Invalid cache name\n");
+            return DCERR_BADNAME;
+        }
+        if(verbose) {
+            // check if name is coherent
+            // file is valid, gives informations:
+            printf_log_prefix(0, LOG_NONE, "%s (%s)\n", map_filename, NicePrintSize(filesize));
+            printf_log_prefix(0, LOG_NONE, "\tDynarec Settings:\n");
+            PrintDynfSettings(LOG_NONE, header.dynarec_settings);
+            size_t total_blocks = 0, total_free = 0;
+            size_t total_code = header.codesize;
+            for(int i=0; i<header.nblocks; ++i) {
+                total_blocks += blocks[i].size;
+                total_free += blocks[i].free_size;
+            }
+            printf_log_prefix(0, LOG_NONE, "\tHas %d blocks for a total of %s", header.nblocks, NicePrintSize(total_blocks));
+            printf_log_prefix(0, LOG_NONE, " with %s still free", NicePrintSize(total_free));
+            printf_log_prefix(0, LOG_NONE, " and %s non-canceled blocks (mapped at %p-%p, with %zu lock addresses)\n", NicePrintSize(total_code), (void*)header.map_addr, (void*)header.map_addr+header.map_len, header.nLockAddresses);
+        }
+    } else {
+        // actually reading!
+        int fd = fileno(f);
+        intptr_t delta_map = mapping->start - header.map_addr;
+        dynarec_log(LOG_INFO, "Trying to load DynaCache for %s, with a delta_map=%zx\n", mapping->fullname, delta_map);
+        if(!mapping->mmaplist)
+            mapping->mmaplist = NewMmaplist();
+        MmaplistAddNBlocks(mapping->mmaplist, header.nblocks);
+        for(int i=0; i<header.nblocks; ++i) {
+            if(MmaplistAddBlock(mapping->mmaplist, fd, p, blocks[i].block, blocks[i].size, delta_map, mapping->start)) {
+                printf_log(LOG_NONE, "Error while doing relocation on a DynaCache (block %d)\n", i);
+                fclose(f);
+                return DCERR_RELOC;
+            }
+            p+=blocks[i].size;
+        }
+        for(size_t i=0; i<header.nLockAddresses; ++i)
+            addLockAddress(lockAddresses[i]+delta_map);
+        dynarec_log(LOG_INFO, "Loaded DynaCache for %s, with %d blocks\n", mapping->fullname, header.nblocks);
+    }
+    fclose(f);
+    return DCERR_OK;
+}
+#endif
+
+void DynaCacheList(const char* filter)
+{
+    #ifndef WIN32
+    const char* folder = GetDynacacheFolder(NULL);
+    if(!folder) {
+        printf_log(LOG_NONE, "DynaCache folder not found\n");
+        return;
+    }
+    DIR* dir = opendir(folder);
+    if(!dir) {
+        printf_log(LOG_NONE, "Cannot open DynaCache folder\n");
+    }
+    struct dirent* d = NULL;
+    int need_filter = (filter && strlen(filter));
+    while(d = readdir(dir)) {
+        size_t l = strlen(d->d_name);
+        if(l>6 && !strcmp(d->d_name+l-6, ".box64")) {
+            if(need_filter && !strstr(d->d_name, filter))
+                continue;
+            ReadDynaCache(folder, d->d_name, NULL, 1);
+            printf_log_prefix(0, LOG_NONE, "\n");
+        }
+    }
+    closedir(dir);
+    #endif
+}
+void DynaCacheClean()
+{
+    #ifndef WIN32
+    const char* folder = GetDynacacheFolder(NULL);
+    if(!folder) {
+        printf_log(LOG_NONE, "DynaCache folder not found\n");
+        return;
+    }
+    DIR* dir = opendir(folder);
+    if(!dir) {
+        printf_log(LOG_NONE, "Cannot open DynaCache folder\n");
+    }
+    struct dirent* d = NULL;
+    while(d = readdir(dir)) {
+        size_t l = strlen(d->d_name);
+        if(l>6 && !strcmp(d->d_name+l-6, ".box64")) {
+            int ret = ReadDynaCache(folder, d->d_name, NULL, 0);
+            if(ret) {
+                char filename[strlen(folder)+strlen(d->d_name)+1];
+                strcpy(filename, folder);
+                strcat(filename, d->d_name);
+                size_t filesize = FileSize(filename);
+                if(!unlink(filename)) {
+                    printf_log(LOG_NONE, "Removed %s for %s\n", d->d_name, NicePrintSize(filesize));
+                } else {
+                    printf_log(LOG_NONE, "Could not remove %d\n", d->d_name);
+                }
+            }
+        }
+    }
+    closedir(dir);
+    #endif
+}
+#ifndef WIN32
+void MmapDynaCache(mapping_t* mapping)
+{
+    if(!DYNAREC_VERSION)
+        return;
+    if(!box64env.dynacache)
+        return;
+    if(mapping->env && mapping->env->is_dynacache_overridden && !mapping->env->dynacache)
+        return;
+    const char* folder = GetDynacacheFolder(mapping);
+    if(!folder) return;
+    const char* name = GetMmaplistName(mapping);
+    if(!name) return;
+    dynarec_log(LOG_DEBUG, "Looking for DynaCache %s in %s\n", name, folder);
+    ReadDynaCache(folder, name, mapping, 0);
+}
+#endif
+#else
+void SerializeMmaplist(mapping_t* mapping) {}
+void DynaCacheList() { printf_log(LOG_NONE, "Dynarec not enable\n"); }
+void DynaCacheClean() {}
+#endif
+
+void WillRemoveMapping(uintptr_t addr, size_t length)
+{
+    #ifdef DYNAREC
+    if(!envmap) return;
+    mapping_t* mapping = (mapping_t*)rb_get_64(envmap, addr);
+    if(mapping) {
+        if(MmaplistHasNew(mapping->mmaplist, 1)) {
+            mutex_lock(&my_context->mutex_dyndump);
+            SerializeMmaplist(mapping);
+            mutex_unlock(&my_context->mutex_dyndump);
+        }
+    }
+    #endif
 }
 
 void RemoveMapping(uintptr_t addr, size_t length)
@@ -754,6 +1301,19 @@ void RemoveMapping(uintptr_t addr, size_t length)
         box_free(mapping->fullname);
         box_free(mapping);
     }
+}
+
+void SerializeAllMapping()
+{
+#ifdef DYNAREC
+    mapping_t* mapping;
+    mutex_lock(&my_context->mutex_dyndump);
+    kh_foreach_value(mapping_entries, mapping, 
+        if(MmaplistHasNew(mapping->mmaplist, 1))
+            SerializeMmaplist(mapping);
+    );
+    mutex_unlock(&my_context->mutex_dyndump);
+#endif
 }
 
 box64env_t* GetCurEnvByAddr(uintptr_t addr)
@@ -811,17 +1371,32 @@ size_t SizeFileMapped(uintptr_t addr)
 int IsAddrNeedReloc(uintptr_t addr)
 {
     box64env_t* env = GetCurEnvByAddr(addr);
-    if(env->nodynarec)
+    // TODO: this seems quite wrong and should be refactored
+    int test = env->is_dynacache_overridden?env->dynacache:box64env.dynacache;
+    if(!test)
         return 0;
-    if(!env->dynacache)
-        return 0;
-    if(env->nodynarec_end && addr>=env->nodynarec_start && addr<env->nodynarec_end)
+    uintptr_t end = env->nodynarec_end?env->nodynarec_end:box64env.nodynarec_end;
+    uintptr_t start = env->nodynarec_start?env->nodynarec_start:box64env.nodynarec_start;
+    if(end && addr>=start && addr<end)
         return 0;
     #ifdef HAVE_TRACE
-    if(env->dynarec_test_end && addr>=env->dynarec_test_start && addr<env->dynarec_test_end)
+    end = env->dynarec_test_end?env->dynarec_test_end:box64env.dynarec_test_end;
+    start = env->dynarec_test_start?env->dynarec_test_start:box64env.dynarec_test_start;
+    if(end && addr>=start && addr<end)
         return 0;
-    if(env->dynarec_trace && trace_end && addr>=trace_start && addr<trace_end)
+    test = env->is_dynarec_trace_overridden?env->dynarec_trace:box64env.dynarec_trace;
+    if(test && trace_end && addr>=trace_start && addr<trace_end)
         return 0;
     #endif
+    return 1;
+}
+
+int IsAddrMappingLoadAndClean(uintptr_t addr)
+{
+    if(!envmap) return 0;
+    mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
+    if(!mapping) return 0;
+    if(!mapping->mmaplist) return 0;
+    if(MmaplistIsDirty(mapping->mmaplist)) return 0;
     return 1;
 }

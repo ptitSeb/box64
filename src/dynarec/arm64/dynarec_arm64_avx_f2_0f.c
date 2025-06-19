@@ -509,9 +509,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VADDSUBPS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
-            static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
-            MAYUSE(addsubps);
-            MOV64x(x2, (uintptr_t)&addsubps);
+            TABLE64C(x2, const_4f_m1_1_m1_1);
             VLDR128_U12(q0, x2, 0);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }

@@ -101,7 +101,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             } else if(tmp<0 && tmp>-0x1000) {
                 GETIP(addr+delta);
                 SUBx_U12(ret, xRIP, -tmp);
-            } else if(tmp+addr+delta<0x1000000000000LL) {  // 3 opcodes to load immediate is cheap enough
+            } else if((tmp+addr+delta<0x1000000000000LL) && !dyn->need_reloc) {  // 3 opcodes to load immediate is cheap enough
                 MOV64x(ret, tmp+addr+delta);
             } else {
                 MOV64x(ret, tmp);
@@ -575,7 +575,11 @@ static int indirect_lookup(dynarec_arm_t* dyn, int ninst, int is32bits, int s1, 
         LSRx_IMM(s1, xRIP, 48);
         CBNZw(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
         // load table
-        MOV64x(s2, getConst(const_jmptbl48));    // this is a static value, so will be a low address
+        if(dyn->need_reloc) {
+            TABLE64C(s2, const_jmptbl48);
+        } else {
+            MOV64x(s2, getConst(const_jmptbl48));    // this is a static value, so will be a low address
+        }
         #ifdef JMPTABL_SHIFT4
         UBFXx(s1, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
         LDRx_REG_LSL3(s2, s2, s1);
@@ -751,7 +755,11 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     MOVx_REG(xRSP, x3);
     MARKSEG;
     // Ret....
-    MOV64x(x2, getConst(const_epilog));  // epilog on purpose, CS might have changed!
+    // epilog on purpose, CS might have changed!
+    if(dyn->need_reloc)
+        TABLE64C(x2, const_epilog);
+    else
+        MOV64x(x2, getConst(const_epilog));
     BR(x2);
     CLEARIP();
 }
@@ -880,8 +888,13 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
     MOVx_REG(x4, xR8);
     MOVx_REG(x5, xR9);
     // native call
-    // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
-    TABLE64(16, *(uintptr_t*)fnc);    // using x16 as scratch regs for call address
+    if(dyn->need_reloc) {
+        // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
+        TABLE64(16, (uintptr_t)fnc);
+        LDRx_U12(16, 16, 0);
+    } else {
+        TABLE64_(16, *(uintptr_t*)fnc);    // using x16 as scratch regs for call address
+    }
     BLR(16);
     // put return value in x64 regs
     if(w>0) {
