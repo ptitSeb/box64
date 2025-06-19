@@ -1250,7 +1250,7 @@ void MmapDynaCache(mapping_t* mapping)
 #endif
 #else
 void SerializeMmaplist(mapping_t* mapping) {}
-void DynaCacheList() { printf_log(LOG_NONE, "Dynarec not enable\n"); }
+void DynaCacheList(const char* filter) { printf_log(LOG_NONE, "Dynarec not enable\n"); }
 void DynaCacheClean() {}
 #endif
 
@@ -1393,10 +1393,14 @@ int IsAddrNeedReloc(uintptr_t addr)
 
 int IsAddrMappingLoadAndClean(uintptr_t addr)
 {
+    #ifdef DYNAREC
     if(!envmap) return 0;
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
     if(!mapping) return 0;
     if(!mapping->mmaplist) return 0;
     if(MmaplistIsDirty(mapping->mmaplist)) return 0;
     return 1;
+    #else
+    return 0;
+    #endif
 }
