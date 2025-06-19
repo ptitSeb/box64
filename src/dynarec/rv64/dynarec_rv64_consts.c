@@ -22,6 +22,7 @@
 #include "emu/x64compstrings.h"
 #include "x64test.h"
 #include "dynarec/dynarec_next.h"
+#include "bitutils.h"
 
 #ifndef HAVE_TRACE
 void PrintTrace() {}
@@ -126,10 +127,13 @@ uintptr_t getConst(rv64_consts_t which)
         case const_x64test_step: return (uintptr_t)x64test_step;
         case const_printtrace: return (uintptr_t)PrintTrace;
         case const_epilog: return (uintptr_t)native_epilog;
+        case const_epilog_fast: return (uintptr_t)native_epilog_fast;
         case const_jmptbl32: return getJumpTable32();
         case const_jmptbl48: return getJumpTable48();
         case const_jmptbl64: return getJumpTable64();
         case const_context: return (uintptr_t)my_context;
+        case const_lead0tab: return (uintptr_t)lead0tab;
+        case const_deBruijn64tab: return (uintptr_t)deBruijn64tab;
 
         case const_last: dynarec_log(LOG_NONE, "Warning, const last used\n");
             return 0;

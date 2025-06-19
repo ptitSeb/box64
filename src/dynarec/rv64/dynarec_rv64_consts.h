@@ -98,10 +98,13 @@ typedef enum rv64_consts_s {
     const_x64test_step,
     const_printtrace,
     const_epilog,
+    const_epilog_fast,
     const_jmptbl32,
     const_jmptbl48,
     const_jmptbl64,
     const_context,
+    const_lead0tab,
+    const_deBruijn64tab,
 
     const_last
 } rv64_consts_t;

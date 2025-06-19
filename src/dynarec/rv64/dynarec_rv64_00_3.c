@@ -481,7 +481,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("INT 3");
                 if (!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
-                    TABLE64(x1, (uintptr_t)my_context);
+                    TABLE64C(x1, const_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
                     ADD(x2, x2, x1);
                     LD(x3, x2, 0);
