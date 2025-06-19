@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "auxval.h"
 #include "debug.h"
 
@@ -182,7 +184,7 @@ int DetectHostCpuFeatures(void)
         cpuext.rndr = 1;
     #endif
 #elif defined(LA64)
-    char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
+    char* p = GetEnv("BOX64_DYNAREC_LA64NOEXT");
     if(p == NULL || p[0] == '0') {
         uint32_t cpucfg2 = 0, idx = 2;
         asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
@@ -195,7 +197,7 @@ int DetectHostCpuFeatures(void)
     }
 #elif defined(RV64)
     // private env. variable for the developer ;)
-    char *p = getenv("BOX64_DYNAREC_RV64NOEXT");
+    char *p = GetEnv("BOX64_DYNAREC_RV64NOEXT");
     if(p == NULL || strcasecmp(p, "1")) {
         rv64Detect();
         if (p) {
