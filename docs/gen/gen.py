@@ -63,7 +63,9 @@ This configuration will apply the specified settings application-wide to any exe
     for entry in data:
       categories[entry["category"]].append(entry)
 
-    for category, entries in categories.items():
+    # Put "Performance" at the top
+    sorted_categories = sorted(categories.items(), key=lambda x: x[0] != "Performance")
+    for category, entries in sorted_categories:
       md_file.write(f"## {category}\n\n")
       for entry in entries:
         md_file.write(f"### {entry['name']}\n\n{entry['description']}{' Availble in WowBox64.' if entry['wine'] else ''}\n\n")
