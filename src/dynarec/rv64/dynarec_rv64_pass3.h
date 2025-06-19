@@ -44,6 +44,13 @@
         AUIPC(x1, SPLIT20(val64offset));            \
         FLD(A, x1, SPLIT12(val64offset));           \
     }
+#define TABLE64C(A, V)                                  \
+    {                                                   \
+        int val64offset = Table64(dyn, getConst(V), 3); \
+        MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V));   \
+        AUIPC(A, SPLIT20(val64offset));                 \
+        LD(A, A, SPLIT12(val64offset));                 \
+    }
 
 #define DEFAULT_VECTOR                                                                                                                  \
     if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 2) {                                        \

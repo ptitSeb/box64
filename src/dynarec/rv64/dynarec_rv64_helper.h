@@ -1149,6 +1149,9 @@
 #ifndef FTABLE64
 #define FTABLE64(A, V)
 #endif
+#ifndef TABLE64C
+#define TABLE64C(A, V)
+#endif
 
 #define ARCH_INIT() \
     SMSTART();      \
@@ -1211,10 +1214,6 @@
         if (set) dyn->vector_sew = dyn->vector_eew;                                   \
     } while (0)
 #endif
-
-void rv64_epilog(void);
-void rv64_epilog_fast(void);
-void* rv64_next(void);
 
 #ifndef STEPNAME
 #define STEPNAME3(N, M) N##M

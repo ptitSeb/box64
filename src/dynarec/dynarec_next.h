@@ -19,9 +19,11 @@ void la64_epilog(void) EXPORTDYN;
 void rv64_next(void) EXPORTDYN;
 void rv64_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
 void rv64_epilog(void) EXPORTDYN;
+void rv64_epilog_fast(void) EXPORTDYN;
 #define native_next         rv64_next
 #define native_prolog       rv64_prolog
 #define native_epilog       rv64_epilog
+#define native_epilog_fast  rv64_epilog_fast
 #else
 #error Unsupported architecture
 #endif
