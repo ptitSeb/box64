@@ -238,7 +238,11 @@ int RelocsHaveCancel(dynablock_t* block)
 }
 
 uintptr_t RelocGetNext() {
+    #ifdef DUMMY_GETCONST
+    return 0;
+    #else
     return getConst(const_native_next);
+    #endif
 }
 
 #ifdef DUMMY_GETCONST
