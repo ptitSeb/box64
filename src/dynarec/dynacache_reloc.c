@@ -242,7 +242,7 @@ uintptr_t RelocGetNext() {
 }
 
 #ifdef DUMMY_GETCONST
-uintptr_t getConst(arm64_consts_t which)
+uintptr_t getConst(native_consts_t which)
 {
     return 0;
 }
