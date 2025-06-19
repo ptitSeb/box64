@@ -9,6 +9,8 @@ typedef enum native_consts_s {
     const_none,
     const_last
 } native_consts_t;
+#define DUMMY_GETCONST
+uintptr_t getConst(arm64_consts_t which);
 #endif
 
 void AddRelocTable64Const(dynarec_native_t* dyn, int ninst, native_consts_t C, int pass);

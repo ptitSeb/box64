@@ -240,3 +240,10 @@ int RelocsHaveCancel(dynablock_t* block)
 uintptr_t RelocGetNext() {
     return getConst(const_native_next);
 }
+
+#ifdef DUMMY_GETCONST
+uintptr_t getConst(arm64_consts_t which)
+{
+    return 0;
+}
+#endif
