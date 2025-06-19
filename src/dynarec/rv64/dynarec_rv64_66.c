@@ -1294,7 +1294,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
-                    CALL_(rol16, x1, x3, x1, x2);
+                    CALL_(const_rol16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 1:
@@ -1304,7 +1304,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
-                    CALL_(ror16, x1, x3, x1, x2);
+                    CALL_(const_ror16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 2:
@@ -1315,7 +1315,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
-                    CALL_(rcl16, x1, x3, x1, x2);
+                    CALL_(const_rcl16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 3:
@@ -1326,7 +1326,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
-                    CALL_(rcr16, x1, x3, x1, x2);
+                    CALL_(const_rcr16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 5:
@@ -1436,7 +1436,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNE_MARK3(ed, xZR);
                         GETIP_(ip, x7);
                         STORE_XEMU_CALL(x6);
-                        CALL(native_div0, -1, 0, 0);
+                        CALL(const_native_div0, -1, 0, 0);
                         CLEARIP();
                         LOAD_XEMU_CALL();
                         jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -1457,7 +1457,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNE_MARK3(ed, xZR);
                         GETIP_(ip, x7);
                         STORE_XEMU_CALL(x6);
-                        CALL(native_div0, -1, 0, 0);
+                        CALL(const_native_div0, -1, 0, 0);
                         CLEARIP();
                         LOAD_XEMU_CALL();
                         jump_to_epilog(dyn, 0, xRIP, ninst);

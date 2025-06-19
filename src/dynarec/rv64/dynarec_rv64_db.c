@@ -111,7 +111,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("FNINIT");
                 MESSAGE(LOG_DUMP, "Need Optimization\n");
                 x87_purgecache(dyn, ninst, 0, x1, x2, x3);
-                CALL(reset_fpu, -1, 0, 0);
+                CALL(const_reset_fpu, -1, 0, 0);
                 NATIVE_RESTORE_X87PC();
                 break;
             case 0xE8 ... 0xEF:
@@ -221,7 +221,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ADDI(x1, ed, fixedaddress);
                         X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
                         x87_reflectcount(dyn, ninst, x3, x4);
-                        CALL(native_fld, -1, x1, 0);
+                        CALL(const_native_fld, -1, x1, 0);
                         x87_unreflectcount(dyn, ninst, x3, x4);
                     }
                 }
@@ -236,7 +236,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     x87_forget(dyn, ninst, x1, x3, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                     x87_reflectcount(dyn, ninst, x3, x4);
-                    CALL(native_fstp, -1, ed, 0);
+                    CALL(const_native_fstp, -1, ed, 0);
                     x87_unreflectcount(dyn, ninst, x3, x4);
                 }
                 X87_POP_OR_FAIL(dyn, ninst, x3);

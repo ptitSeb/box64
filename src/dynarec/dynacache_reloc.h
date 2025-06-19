@@ -3,14 +3,21 @@
 
 #ifdef ARM64
 #include "dynarec/arm64/dynarec_arm64_consts.h"
-#define native_consts_t             arm64_consts_t
+#define native_consts_t arm64_consts_t
+#elif defined(RV64)
+#include "dynarec/rv64/dynarec_rv64_consts.h"
+#define native_consts_t rv64_consts_t
 #else
 typedef enum native_consts_s {
     const_none,
+    const_native_next,
     const_last
 } native_consts_t;
-#define DUMMY_GETCONST
-uintptr_t getConst(native_consts_t which);
+inline uintptr_t getConst(native_consts_t which)
+{
+    (void)which;
+    return 0; // dummy
+}
 #endif
 
 void AddRelocTable64Const(dynarec_native_t* dyn, int ninst, native_consts_t C, int pass);
