@@ -753,44 +753,44 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
 #ifdef DYNAREC
 const char* GetDynacacheFolder(mapping_t* mapping)
 {
+    static char folder[4096] = { 0 };
     if(mapping && mapping->env && mapping->env->is_dynacache_folder_overridden && mapping->env->dynacache_folder) {
-        if(FileExist(mapping->env->dynacache_folder, 0))
-            return mapping->env->dynacache_folder;  // folder exist
-        if(MakeDir(mapping->env->dynacache_folder))
-            return mapping->env->dynacache_folder; 
+        if (FileExist(mapping->env->dynacache_folder, 0) || MakeDir(mapping->env->dynacache_folder)) {
+            strcpy(folder, mapping->env->dynacache_folder);
+            goto done;
+        }
+    } else if (box64env.dynacache_folder) {
+        if (FileExist(box64env.dynacache_folder, 0) || MakeDir(box64env.dynacache_folder)) {
+            strcpy(folder, box64env.dynacache_folder);
+            goto done;
+        }
     }
-    if(box64env.dynacache_folder) {
-        if(FileExist(box64env.dynacache_folder, 0))
-            return box64env.dynacache_folder;  // folder exist
-        if(MakeDir(box64env.dynacache_folder))
-            return box64env.dynacache_folder; 
-    }
-    static char folder[4096] = {0};
-    static int default_folder = 0;
-    if(default_folder)
-        return folder;
+
     if(GetEnv("XDG_CACHE_HOME"))
         strcpy(folder, GetEnv("XDG_CACHE_HOME"));
     else if(GetEnv(HOME)) {
         strcpy(folder, GetEnv(HOME));
         strcat(folder, PATHSEP);
         strcat(folder, ".cache");
-        if(!FileExist(folder, 0))
-            if(!MakeDir(folder))
-                return NULL;
-    }
-    else return NULL;
+        if (!FileExist(folder, 0) && !MakeDir(folder))
+            return NULL;
+
+    } else
+        return NULL;
     strcat(folder, PATHSEP);
     strcat(folder, "box64");
-    if(!FileExist(folder, 0))
-        if(!MakeDir(folder))
-            return NULL;
-    strcat(folder, PATHSEP);
+    if (!FileExist(folder, 0) && !MakeDir(folder))
+        return NULL;
+
+done:
+    if (folder && folder[strlen(folder) - 1] != PATHSEP[0]) {
+        strcat(folder, PATHSEP);
+    }
     return folder;
 }
 
-/* 
-    There is 3 version to change when evoling things, depending on what is changed:actual_malloc_usable_size
+/*
+    There is 3 version to change when evoling things, depending on what is changed:
     1. FILE_VERSION for the DynaCache infrastructure
     2. DYNAREC_VERSION for dynablock_t changes and other global dynarec change
     3. ARCH_VERSION for the architecture specific changes (and there is one per arch)
@@ -800,7 +800,7 @@ const char* GetDynacacheFolder(mapping_t* mapping)
     `box64 --dynacache-clean` can be used from command line to purge obsolete DyaCache files
 */
 
-#define HEADER_VERSION 1
+#define FILE_VERSION               1
 #define HEADER_SIGN "DynaCache"
 #define SET_VERSION(MAJ, MIN, REV) (((MAJ)<<24)|((MIN)<<16)|(REV))
 #ifdef ARM64
@@ -951,7 +951,7 @@ void SerializeMmaplist(mapping_t* mapping)
     void* p = all_header;
     DynaCacheHeader_t* header = p;
     strcpy(header->sign, HEADER_SIGN);
-    header->file_version = HEADER_VERSION;
+    header->file_version = FILE_VERSION;
     header->dynarec_version = DYNAREC_VERSION;
     header->arch_version = ARCH_VERSION;
     header->dynarec_settings = GetDynSetting(mapping);
@@ -1049,7 +1049,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
         fclose(f);
         return DCERR_BADHEADER;
     }
-    if(header.file_version!=HEADER_VERSION) {
+    if (header.file_version != FILE_VERSION) {
         if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible File Version\n");
         fclose(f);
         return DCERR_FILEVER;
