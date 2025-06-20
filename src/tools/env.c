@@ -783,7 +783,7 @@ const char* GetDynacacheFolder(mapping_t* mapping)
         return NULL;
 
 done:
-    if (folder && folder[strlen(folder) - 1] != PATHSEP[0]) {
+    if (folder[strlen(folder) - 1] != PATHSEP[0]) {
         strcat(folder, PATHSEP);
     }
     return folder;
