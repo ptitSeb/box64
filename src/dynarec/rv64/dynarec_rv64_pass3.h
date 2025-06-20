@@ -30,27 +30,38 @@
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
 #define TABLE64(A, V)                                 \
-    {                                                 \
+    do {                                              \
+        if (dyn->need_reloc && !isTable64(dyn, (V)))  \
+            AddRelocTable64Addr(dyn, ninst, (V), 3);  \
         int val64offset = Table64(dyn, (V), 3);       \
         MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); \
         AUIPC(A, SPLIT20(val64offset));               \
         LD(A, A, SPLIT12(val64offset));               \
-    }
+    } while (0)
+#define TABLE64_(A, V)                                \
+    do {                                              \
+        int val64offset = Table64(dyn, (V), 3);       \
+        MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); \
+        AUIPC(A, SPLIT20(val64offset));               \
+        LD(A, A, SPLIT12(val64offset));               \
+    } while (0)
 #define FTABLE64(A, V)                              \
-    {                                               \
+    do {                                            \
         mmx87_regs_t v = { .d = V };                \
         int val64offset = Table64(dyn, v.q, 3);     \
         MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); \
         AUIPC(x1, SPLIT20(val64offset));            \
         FLD(A, x1, SPLIT12(val64offset));           \
-    }
-#define TABLE64C(A, V)                                  \
-    {                                                   \
-        int val64offset = Table64(dyn, getConst(V), 3); \
-        MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V));   \
-        AUIPC(A, SPLIT20(val64offset));                 \
-        LD(A, A, SPLIT12(val64offset));                 \
-    }
+    } while (0)
+#define TABLE64C(A, V)                                       \
+    do {                                                     \
+        if (dyn->need_reloc && !isTable64(dyn, getConst(V))) \
+            AddRelocTable64Const(dyn, ninst, (V), 3);        \
+        int val64offset = Table64(dyn, getConst(V), 3);      \
+        MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V));        \
+        AUIPC(A, SPLIT20(val64offset));                      \
+        LD(A, A, SPLIT12(val64offset));                      \
+    } while (0)
 
 #define DEFAULT_VECTOR                                                                                                                  \
     if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 2) {                                        \

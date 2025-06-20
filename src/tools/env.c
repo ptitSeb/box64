@@ -806,7 +806,7 @@ const char* GetDynacacheFolder(mapping_t* mapping)
 #ifdef ARM64
 #define ARCH_VERSION SET_VERSION(0, 0, 1)
 #elif defined(RV64)
-#define ARCH_VERSION SET_VERSION(0, 0, 0)
+#define ARCH_VERSION SET_VERSION(0, 0, 1)
 #elif defined(LA64)
 #define ARCH_VERSION SET_VERSION(0, 0, 0)
 #else
