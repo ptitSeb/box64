@@ -1152,6 +1152,9 @@
 #ifndef TABLE64C
 #define TABLE64C(A, V)
 #endif
+#ifndef TABLE64_
+#define TABLE64_(A, V)
+#endif
 
 #define ARCH_INIT() \
     SMSTART();      \
@@ -1168,7 +1171,11 @@
     do {                                                          \
         ssize_t _delta_ip = (ssize_t)(A) - (ssize_t)dyn->last_ip; \
         if (!dyn->last_ip) {                                      \
-            MOV64x(xRIP, A);                                      \
+            if (dyn->need_reloc) {                                \
+                TABLE64(xRIP, (A));                               \
+            } else {                                              \
+                MOV64x(xRIP, (A));                                \
+            }                                                     \
         } else if (_delta_ip == 0) {                              \
         } else if (_delta_ip >= -2048 && _delta_ip < 2048) {      \
             ADDI(xRIP, xRIP, _delta_ip);                          \
@@ -1179,7 +1186,11 @@
             MOV32w(scratch, _delta_ip);                           \
             ADD(xRIP, xRIP, scratch);                             \
         } else {                                                  \
-            MOV64x(xRIP, (A));                                    \
+            if (dyn->need_reloc) {                                \
+                TABLE64(xRIP, (A));                               \
+            } else {                                              \
+                MOV64x(xRIP, (A));                                \
+            }                                                     \
         }                                                         \
     } while (0)
 #define GETIP(A, scratch) \

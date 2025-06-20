@@ -948,21 +948,21 @@
 // Count trailing zero bits
 // BEWARE: You should take care of the all zeros situation yourself,
 //         and clear the high 32bit when x is 1.
-#define CTZxw(rd, rs, x, s1, s2)            \
-    if (cpuext.zbb) {                       \
-        if (x)                              \
-            CTZ(rd, rs);                    \
-        else                                \
-            CTZW(rd, rs);                   \
-    } else {                                \
-        NEG(s2, rs);                        \
-        AND(s2, s2, rs);                    \
-        TABLE64(s1, 0x03f79d71b4ca8b09ULL); \
-        MUL(s2, s2, s1);                    \
-        SRLI(s2, s2, 64 - 6);               \
-        TABLE64C(s1, const_deBruijn64tab);  \
-        ADD(s1, s1, s2);                    \
-        LBU(rd, s1, 0);                     \
+#define CTZxw(rd, rs, x, s1, s2)             \
+    if (cpuext.zbb) {                        \
+        if (x)                               \
+            CTZ(rd, rs);                     \
+        else                                 \
+            CTZW(rd, rs);                    \
+    } else {                                 \
+        NEG(s2, rs);                         \
+        AND(s2, s2, rs);                     \
+        TABLE64_(s1, 0x03f79d71b4ca8b09ULL); \
+        MUL(s2, s2, s1);                     \
+        SRLI(s2, s2, 64 - 6);                \
+        TABLE64C(s1, const_deBruijn64tab);   \
+        ADD(s1, s1, s2);                     \
+        LBU(rd, s1, 0);                      \
     }
 
 // Count set bits
