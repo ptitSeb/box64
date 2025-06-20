@@ -171,10 +171,11 @@ Tweak the memory barriers to reduce the performance impact by strong memory emua
 
 ### BOX64_DYNACACHE
 
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 0. Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit
 
- * 0: Disable DynaCache. [Default]
+ * 0: Disable DynaCache. 
  * 1: Enable DynaCache. 
+ * 2: Use DynaCache files if present, but do not generate new one. [Default]
 
 ### BOX64_DYNACACHE_FOLDER
 

@@ -920,9 +920,9 @@ void SerializeMmaplist(mapping_t* mapping)
 {
     if(!DYNAREC_VERSION)
         return;
-    if(!box64env.dynacache)
+    if(mapping->env && mapping->env->is_dynacache_overridden && (mapping->env->dynacache!=1))
         return;
-    if(mapping->env && mapping->env->is_dynacache_overridden && !mapping->env->dynacache)
+    if((!mapping->env || !mapping->env->is_dynacache_overridden) && box64env.dynacache!=1)
         return;
     const char* folder = GetDynacacheFolder(mapping);
     if(!folder) return; // no folder, no serialize...
@@ -1236,10 +1236,7 @@ void MmapDynaCache(mapping_t* mapping)
 {
     if(!DYNAREC_VERSION)
         return;
-    if(!box64env.dynacache)
-        return;
-    if(mapping->env && mapping->env->is_dynacache_overridden && !mapping->env->dynacache)
-        return;
+    // no need to test dynacache enabled or not, it has already been done before this call
     const char* folder = GetDynacacheFolder(mapping);
     if(!folder) return;
     const char* name = GetMmaplistName(mapping);
@@ -1373,7 +1370,7 @@ int IsAddrNeedReloc(uintptr_t addr)
     box64env_t* env = GetCurEnvByAddr(addr);
     // TODO: this seems quite wrong and should be refactored
     int test = env->is_dynacache_overridden?env->dynacache:box64env.dynacache;
-    if(!test)
+    if(test!=1)
         return 0;
     uintptr_t end = env->nodynarec_end?env->nodynarec_end:box64env.nodynarec_end;
     uintptr_t start = env->nodynarec_start?env->nodynarec_start:box64env.nodynarec_start;

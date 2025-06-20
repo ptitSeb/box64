@@ -381,12 +381,13 @@ Force the use of float/double for x87 emulation. Availble in WowBox64.
  * 2 : Check Precision Control low precision on x87 emulation. 
 
 
-=item B<BOX64_DYNACACHE> =I<0|1>
+=item B<BOX64_DYNACACHE> =I<0|1|2>
 
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 0. Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit
 
- * 0 : Disable DynaCache. [Default]
+ * 0 : Disable DynaCache. 
  * 1 : Enable DynaCache. 
+ * 2 : Use DynaCache files if present, but do not generate new one. [Default]
 
 
 =item B<BOX64_DYNACACHE_FOLDER> =I<XXXX>
