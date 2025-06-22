@@ -100,7 +100,7 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
     // got through all naoncache to gather regs assignments
     int idx;
     for(int i=0; i<32; ++i)
-        if(dyn->insts[ninst].n.neoncache[i].v!=-1)
+        if(dyn->insts[ninst].n.neoncache[i].v)
             switch(dyn->insts[ninst].n.neoncache[i].t) {
                 case NEON_CACHE_XMMW:
                     arch->sse = 1;
