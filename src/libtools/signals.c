@@ -426,6 +426,32 @@ int is_addr_unaligned(uintptr_t addr)
 }
 
 #ifdef DYNAREC
+int nUnalignedRange(uintptr_t start, size_t size)
+{
+    if(!unaligned)
+        return 0;
+    int n = 0;
+    uintptr_t end = start + size -1;
+    uintptr_t addr;
+    kh_foreach_key(unaligned, addr,
+        if(addr>=start && addr<=end)
+            ++n;
+    );
+    return n;
+}
+void getUnalignedRange(uintptr_t start, size_t size, uintptr_t addrs[])
+{
+    if(!unaligned)
+        return;
+    int n = 0;
+    uintptr_t end = start + size -1;
+    uintptr_t addr;
+    kh_foreach_key(unaligned, addr,
+        if(addr>=start && addr<=end)
+            addrs[n++] = addr;
+    );
+}
+
 int mark_db_unaligned(dynablock_t* db, uintptr_t x64pc)
 {
     add_unaligned_address(x64pc);
