@@ -1072,7 +1072,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         #define GO(GETFLAGS, NO, YES, F)                                \
             READFLAGS(F);                                               \
             i8 = F8S;                                                   \
-            BARRIER(BARRIER_MAYBE);                                     \
             JUMP(addr+i8, 1);                                           \
             GETFLAGS;                                                   \
             if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
@@ -2385,7 +2384,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(BOX64DRENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND);  // lets play safe here too
             }
-            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
+            BARRIER(BARRIER_FLOAT);
             i32 = F16;
             retn_to_epilog(dyn, ip, ninst, rex, i32);
             *need_epilog = 0;
@@ -2397,7 +2396,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(BOX64DRENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
-            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
+            BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
@@ -3282,7 +3281,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
         #define GO(Z)                                                   \
-            BARRIER(BARRIER_MAYBE);                                     \
             JUMP(addr+i8, 1);                                           \
             if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
                 CHECK_CACHE()) {                                        \
@@ -3450,7 +3448,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         MOV64x(x2, addr);
                     }
-                    fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
+                    BARRIER(BARRIER_FLOAT);
+                    //fpu_purgecache(dyn, ninst, 0, x1, x3, x4);
                     PUSH1z(x2);
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
@@ -3500,7 +3499,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xE9:
         case 0xEB:
-            BARRIER(BARRIER_MAYBE);
+            BARRIER(BARRIER_MAYBE); // there will be a barrier if there is a jump out
             if(opcode==0xEB && PK(0)==0xFF) {
                 INST_NAME("JMP ib");
                 MESSAGE(LOG_DEBUG, "Hack for EB FF opcode");
@@ -3522,7 +3521,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {
                     // out of the block
                     SET_NODF();
-                    fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+                    BARRIER(BARRIER_FLOAT);
+                    //fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                 } else {
                     // inside the block

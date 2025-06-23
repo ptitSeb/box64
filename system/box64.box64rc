@@ -7,12 +7,14 @@
 #
 [*setup*]
 # using safest dynarec settings here, has some installers do crazy things
+BOX64_DYNACACHE=0
 BOX64_DYNAREC_SAFEFLAGS=2
 #BOX64_DYNAREC_BIGBLOCK=0
 #BOX64_DYNAREC_CALLRET=0
 
 [*install*]
 # using safest dynarec settings here, as some installers do crazy things
+BOX64_DYNACACHE=0
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_BIGBLOCK=0
 BOX64_DYNAREC_CALLRET=0

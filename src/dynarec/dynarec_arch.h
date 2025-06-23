@@ -24,7 +24,7 @@
 #define MAXBLOCK_SIZE ((1<<20)-200)
 
 #define RAZ_SPECIFIC(A, N)      rasNativeState(A, N)
-#define UPDATE_SPECIFICS(A)     updateNativeFlags(A)
+#define UPDATE_SPECIFICS(A)     updateNativeFlags(A); propagateFpuBarrier(A)
 #define PREUPDATE_SPECIFICS(A)
 #define POSTUPDATE_SPECIFICS(A) updateUneeded(A)
 #define ARCH_SIZE(A)    get_size_arch(A)

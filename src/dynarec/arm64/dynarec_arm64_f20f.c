@@ -456,7 +456,6 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 j64 = (uint32_t)(addr+i32_);                            \
             else                                                        \
                 j64 = addr+i32_;                                        \
-            BARRIER(BARRIER_MAYBE);                                     \
             JUMP(j64, 1);                                               \
             GETFLAGS;                                                   \
             if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \

@@ -132,6 +132,10 @@ typedef struct instruction_arm64_s {
     unsigned            df_notneeded:1;
     unsigned            unaligned:1;    // this opcode can be re-generated for unaligned special case
     unsigned            x87precision:1; // this opcode can handle x87pc
+    unsigned            mmx_used:1; // no fine tracking, just a global "any reg used"
+    unsigned            x87_used:1; // no fine tracking, just a global "any reg used"
+    unsigned            fpu_used:1; // any xmm/ymm/x87/mmx reg used
+    unsigned            fpupurge:1;   // this opcode will purge all fpu regs
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

@@ -702,6 +702,10 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         #endif
         {
             helper.insts[i].x64.need_after |= X_PEND;
+            if(helper.insts[i].barrier_maybe) {
+                helper.insts[i].x64.barrier|=BARRIER_FLOAT;
+                helper.insts[i].barrier_maybe = 0;
+            }
         } else {
             // find jump address instruction
             int k=-1;
@@ -734,8 +738,6 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                     k=i2;
             }*/
             if(k!=-1) {
-                if(!helper.insts[i].barrier_maybe)
-                    helper.insts[k].x64.barrier |= BARRIER_FULL;
                 // special case, loop on itself with some nop in between
                 if(k<i && !helper.insts[i].x64.has_next && is_nops(&helper, helper.insts[k].x64.addr, helper.insts[i].x64.addr-helper.insts[k].x64.addr)) {
                     #ifndef ARCH_NOP
@@ -746,6 +748,12 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                     #endif
                 }
                 helper.insts[i].x64.jmp_insts = k;
+                helper.insts[i].barrier_maybe = 0;
+            } else {
+                if(helper.insts[i].barrier_maybe) {
+                    helper.insts[i].x64.barrier|=BARRIER_FLOAT;
+                    helper.insts[i].barrier_maybe = 0;
+                }
             }
         }
     }

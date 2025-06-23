@@ -186,7 +186,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 4:
                 INST_NAME("FRSTOR m108byte");
                 MESSAGE(LOG_DUMP, "Need Optimization (FRSTOR)\n");
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
                 CALL(const_native_frstor, -1);
@@ -194,7 +194,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 6:
                 INST_NAME("FNSAVE m108byte");
                 MESSAGE(LOG_DUMP, "Need Optimization (FNSAVE)\n");
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
                 CALL(const_native_fsave, -1);
@@ -202,7 +202,6 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 break;
             case 7:
                 INST_NAME("FNSTSW m2byte");
-                //fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
                 LDRH_U12(x3, xEmu, offsetof(x64emu_t, sw));

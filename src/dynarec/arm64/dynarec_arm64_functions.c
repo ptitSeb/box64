@@ -1237,3 +1237,65 @@ void updateUneeded(dynarec_arm_t* dyn)
                     propagateYMMUneeded(dyn, ninst, i);
     }
 }
+
+void tryEarlyFpuBarrier(dynarec_arm_t* dyn, int last_fpu_used, int ninst)
+{
+    // there is a barrier at ninst
+    // check if, up to last fpu_used, if there is some suspicious jump that would prevent the barrier to be put earlier
+    int usefull = 0;
+    for(int i=ninst-1; i>last_fpu_used; --i)
+    {
+        if(!dyn->insts[i].x64.has_next)
+            return; // break of chain, don't try to be smart for now
+        if(dyn->insts[i].x64.barrier&BARRIER_FLOAT)
+            return; // already done?
+        if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts==-1)
+            usefull = 1;
+        if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1) {
+            int i2 = dyn->insts[i].x64.jmp_insts;
+            if(i2<last_fpu_used || i2>ninst) {
+                // check if some xmm/ymm/x87 stack are used in landing point
+                if(i2>ninst) {
+                    if(dyn->insts[i2].n.xmm_used || dyn->insts[i2].n.ymm_used || dyn->insts[i2].n.stack)
+                        return;
+                }
+                // we will stop there, not trying to guess too much thing
+                if((usefull && (i+1)!=ninst)) {
+                    if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log)>1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", i+1, ninst);
+                    dyn->insts[i+1].x64.barrier|=BARRIER_FLOAT;
+                }
+                return;
+            }
+            usefull = 1;
+        }
+        for(int pred=0; pred<dyn->insts[i].pred_sz; ++pred) {
+            if(dyn->insts[i].pred[pred]<=last_fpu_used) {
+                if(usefull && ((i+1)!=ninst)) {
+                    if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log)>1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", i+1, ninst);
+                    dyn->insts[i+1].x64.barrier|=BARRIER_FLOAT;
+                }
+                return;
+            }
+        }
+        if(dyn->insts[i].pred_sz>1)
+            usefull = 1;
+    }
+    if(usefull) {
+        if(BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log)>1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", last_fpu_used, ninst);
+        dyn->insts[last_fpu_used+1].x64.barrier|=BARRIER_FLOAT;
+    }
+}
+
+void propagateFpuBarrier(dynarec_arm_t* dyn)
+{
+    int last_fpu_used = -1;
+    for(int ninst=0; ninst<dyn->size; ++ninst) {
+        int fpu_used = dyn->insts[ninst].n.xmm_used || dyn->insts[ninst].n.ymm_used || dyn->insts[ninst].mmx_used || dyn->insts[ninst].x87_used;
+        if(fpu_used) last_fpu_used = ninst;
+        dyn->insts[ninst].fpu_used = fpu_used;
+        if(dyn->insts[ninst].fpupurge && (last_fpu_used!=-1) && (last_fpu_used!=(ninst-1))) {
+            tryEarlyFpuBarrier(dyn, last_fpu_used, ninst);
+            last_fpu_used = -1;  // reset the last_fpu_used...
+        }
+    }
+}

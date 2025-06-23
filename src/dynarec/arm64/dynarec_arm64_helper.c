@@ -1028,6 +1028,7 @@ int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b)
 // the reg returned is *2 for FLOAT
 int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     dyn->n.x87stack+=1;
@@ -1062,6 +1063,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
 }
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    dyn->insts[ninst].x87_used = 1;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     dyn->n.x87stack+=1;
@@ -1111,6 +1113,7 @@ static int internal_x87_dofree(dynarec_arm_t* dyn)
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    dyn->insts[ninst].x87_used = 1;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     do {
@@ -1193,17 +1196,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
         for (int i=0; i<8; ++i)
             if(dyn->n.x87cache[i]!=-1) {
                 int st = dyn->n.x87cache[i]+dyn->n.stack_pop;
-                #if STEP == 1
-                if(!next) {   // don't force promotion here
-                    // pre-apply pop, because purge happens in-between
-                    neoncache_promote_double(dyn, ninst, st);
-                }
-                #endif
-                #if STEP == 3
-                if(!next && neoncache_get_current_st(dyn, ninst, st)!=NEON_CACHE_ST_D) {
-                    MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", st);
-                }
-                #endif
+                // don't force promotion here
                 ADDw_U12(s3, s2, dyn->n.x87cache[i]);   // unadjusted count, as it's relative to real top
                 ANDw_mask(s3, s3, 0, 2); //mask=7   // (emu->top + st)&7
                 switch(neoncache_get_current_st(dyn, ninst, st)) {
@@ -1378,6 +1371,7 @@ void x87_unreflectcount(dynarec_arm_t* dyn, int ninst, int s1, int s2)
 
 int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     // search in cache first
     for (int i=0; i<8; ++i) {
         if(dyn->n.x87cache[i]==st) {
@@ -1398,6 +1392,7 @@ int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
 
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int st, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     int ret = x87_get_current_cache(dyn, ninst, st, t);
@@ -1431,6 +1426,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, i
 }
 int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+    dyn->insts[ninst].x87_used = 1;
     for(int ii=0; ii<24; ++ii)
         if((dyn->n.neoncache[ii].t == NEON_CACHE_ST_F
          || dyn->n.neoncache[ii].t == NEON_CACHE_ST_D
@@ -1442,10 +1438,12 @@ int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 }
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     return dyn->n.x87reg[x87_get_cache(dyn, ninst, 1, s1, s2, a, t)];
 }
 int x87_get_st_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     return dyn->n.x87reg[x87_get_cache(dyn, ninst, 0, s1, s2, a, t)];
 }
 
@@ -1500,6 +1498,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 
 void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+    dyn->insts[ninst].x87_used = 1;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     // search in cache first
@@ -1550,6 +1549,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 
 void x87_free(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int st)
 {
+    dyn->insts[ninst].x87_used = 1;
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->n.x87cache[i] == st)
@@ -1683,6 +1683,7 @@ static int isx87Empty(dynarec_arm_t* dyn)
 // get neon register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
+    dyn->insts[ninst].mmx_used = 1;
     if(!dyn->n.x87stack && isx87Empty(dyn))
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if(dyn->n.mmxcache[a]!=-1)
@@ -1695,6 +1696,7 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
+    dyn->insts[ninst].mmx_used = 1;
     if(!dyn->n.x87stack && isx87Empty(dyn))
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if(dyn->n.mmxcache[a]!=-1)
@@ -2067,8 +2069,10 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     x87_purgecache(dyn, ninst, next, s1, s2, s3);
     mmx_purgecache(dyn, ninst, next, s1);
     sse_purgecache(dyn, ninst, next, s1);
-    if(!next)
+    if(!next) {
         fpu_reset_reg(dyn);
+        dyn->insts[ninst].fpupurge = 1;
+    }
 }
 
 static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_t* cache)
