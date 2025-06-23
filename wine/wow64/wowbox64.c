@@ -75,6 +75,18 @@ int is_addr_unaligned(uintptr_t addr)
     return 0;
 }
 
+#ifdef DYNAREC
+int nUnalignedRange(uintptr_t start, size_t size)
+{
+    // FIXME
+    return 0;
+}
+void getUnalignedRange(uintptr_t start, size_t size, uintptr_t addrs[])
+{
+    //FIXME
+}
+#endif
+
 typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 int isSimpleWrapper(wrapper_t fun)
 {
