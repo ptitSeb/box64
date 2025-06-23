@@ -3522,7 +3522,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     // out of the block
                     SET_NODF();
                     BARRIER(BARRIER_FLOAT);
-                    //fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                 } else {
                     // inside the block
