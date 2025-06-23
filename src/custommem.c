@@ -81,6 +81,7 @@ static rbtree_t*  blockstree = NULL;
 
 #define BTYPE_MAP   1
 #define BTYPE_LIST  0
+#define BTYPE_MAP64 2
 
 typedef struct blocklist_s {
     void*               block;
@@ -92,6 +93,7 @@ typedef struct blocklist_s {
 } blocklist_t;
 
 #define MMAPSIZE (512*1024)     // allocate 512kb sized blocks
+#define MMAPSIZE64 (64*2048)   // allocate 128kb sized blocks for 64byte map
 #define MMAPSIZE128 (128*1024)  // allocate 128kb sized blocks for 128byte map
 #define DYNMMAPSZ (2*1024*1024) // allocate 2Mb block for dynarec
 #define DYNMMAPSZ0 (128*1024)   // allocate 128kb block for 1st page, to avoid wasting too much memory on small program / libs
@@ -546,7 +548,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     size = 128;
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if(p_blocks[i].block && (p_blocks[i].type==BTYPE_MAP) && p_blocks[i].maxfree && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
+        if(p_blocks[i].block && (p_blocks[i].type == BTYPE_MAP) && p_blocks[i].maxfree && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
             // look for a free block
             uint8_t* map = p_blocks[i].first;
             for(uint32_t idx=p_blocks[i].lowest; idx<(p_blocks[i].size>>7); ++idx) {
@@ -643,9 +645,113 @@ void* map128_customMalloc(size_t size, int is32bits)
     }
     return ret;
 }
+// the BTYPE_MAP64 is a simple bitmap based allocator: it will allocate slices of 64bytes only, from a large 64k mapping
+// the bitmap itself is also allocated in that mapping, as a slice of 256bytes, at the end of the mapping (and so marked as allocated)
+void* map64_customMalloc(size_t size, int is32bits)
+{
+    size = 64;
+    mutex_lock(&mutex_blocks);
+    for(int i = 0; i < n_blocks; ++i) {
+        if (p_blocks[i].block
+         && p_blocks[i].type == BTYPE_MAP64
+         && p_blocks[i].maxfree
+         && (!box64_is32bits
+             || ((!is32bits && p_blocks[i].block > (void*)0xffffffffLL)
+                 || (is32bits && p_blocks[i].block < (void*)0x100000000LL)))
+        ) {
+            uint16_t* map = p_blocks[i].first;
+            uint32_t slices = p_blocks[i].size >> 6; 
+            for (uint32_t idx = p_blocks[i].lowest; idx < slices; ++idx) {
+                if (!(idx & 15) && map[idx >> 4] == 0xFFFF)
+                    idx += 15;
+                else if (!(map[idx >> 4] & (1u << (idx & 15)))) {
+                    map[idx >> 4] |= 1u << (idx & 15);
+                    p_blocks[i].maxfree -= 64;
+                    p_blocks[i].lowest = idx + 1;
+                    mutex_unlock(&mutex_blocks);
+                    return p_blocks[i].block + (idx << 6);
+                }
+            }
+            #ifdef TRACE_MEMSTAT
+            printf_log(LOG_INFO,
+                "Warning: MAP has maxfree=%d and lowest=%d but no free 64 B slice found\n",
+                p_blocks[i].maxfree, p_blocks[i].lowest);
+            #endif
+        }
+    }
+    int i = n_blocks++;
+    if (n_blocks > c_blocks) {
+        c_blocks += box64_is32bits ? 256 : 8;
+        p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks * sizeof(blocklist_t));
+    }
+
+    size_t allocsize = MMAPSIZE64; 
+    p_blocks[i].block = NULL;    // guard re-entrance
+    p_blocks[i].first = NULL;
+    p_blocks[i].size  = 0;
+
+    if(is32bits) mutex_unlock(&mutex_blocks);   // unlocking, because mmap might use it
+    void* p = is32bits
+        ? box_mmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0)
+        : (box64_is32bits ? box32_dynarec_mmap(allocsize, -1, 0) : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
+    if(is32bits) mutex_lock(&mutex_blocks);
+
+    #ifdef TRACE_MEMSTAT
+    customMalloc_allocated += allocsize;
+    #endif
+
+    size_t mapsize = (allocsize / 64) / 8; 
+    mapsize = (mapsize + 255) & ~255LL;
+
+    p_blocks[i].type  = BTYPE_MAP64;
+    p_blocks[i].block = p;
+    p_blocks[i].first = p+allocsize-mapsize;
+    p_blocks[i].size  = allocsize;
+
+    // mark the bitmap area itself as "used"
+    uint16_t* map = p_blocks[i].first;
+    for (size_t idx = (allocsize - mapsize) >> 6; idx < (allocsize >> 6); ++idx) {
+        map[idx >> 4] |= 1u << (idx & 15);
+    }
+
+    if (is32bits && p > (void*)0xffffffffLL) {
+        p_blocks[i].maxfree = allocsize - mapsize;
+        return NULL;
+    }
+
+    #ifdef TRACE_MEMSTAT
+    printf_log(LOG_INFO,
+        "Custommem: allocation %p-%p for %dbit 64 B MAP Alloc [%d]\n",
+        p, (uint8_t*)p + allocsize,
+        is32bits ? 32 : 64, i);
+    #endif
+
+    void* ret = p_blocks[i].block;
+    map[0] |= 1u;
+    p_blocks[i].lowest  = 1;
+    p_blocks[i].maxfree = allocsize - (mapsize + 64);
+
+    mutex_unlock(&mutex_blocks);
+    add_blockstree((uintptr_t)p, (uintptr_t)p + allocsize, i);
+
+    if (mapallmem) {
+        if (setting_prot) {
+            defered_prot_p    = (uintptr_t)p;
+            defered_prot_sz   = allocsize;
+            defered_prot_prot = PROT_READ | PROT_WRITE;
+        } else {
+            setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
+        }
+    }
+
+    return ret;
+}
+
 
 void* internal_customMalloc(size_t size, int is32bits)
 {
+    if(size<=64)
+        return map64_customMalloc(size, is32bits);
     if(size<=128)
         return map128_customMalloc(size, is32bits);
     size_t init_size = size;
@@ -655,7 +761,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     size_t fullsize = size+2*sizeof(blockmark_t);
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if(p_blocks[i].block && (p_blocks[i].type==BTYPE_LIST) && p_blocks[i].maxfree>=init_size && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
+        if(p_blocks[i].block && (p_blocks[i].type == BTYPE_LIST) && p_blocks[i].maxfree>=init_size && (!box64_is32bits || ((!is32bits && p_blocks[i].block>(void*)0xffffffffLL)) || (is32bits && p_blocks[i].block<(void*)0x100000000LL))) {
             size_t rsize = 0;
             sub = getFirstBlock(p_blocks[i].block, init_size, &rsize, p_blocks[i].first);
             if(sub) {
@@ -787,7 +893,7 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
     blocklist_t* l = findBlock(addr);
     if(l) {
         size_t subsize;
-        if(l->type==BTYPE_LIST) {
+        if(l->type == BTYPE_LIST) {
             blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
             if(expandBlock(l->block, sub, size, &l->first)) {
                 l->maxfree = getMaxFreeBlock(l->block, l->size, l->first);
@@ -795,13 +901,20 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
                 return p;
             }
             subsize = sizeBlock(sub);
-        } else {
+        } else if(l->type == BTYPE_MAP) {
             //BTYPE_MAP
             if(size<=128) {
                 mutex_unlock(&mutex_blocks);
                 return p;
             }
             subsize = 128;
+        }else{
+            // BTYPE_MAP64
+            if(size<=64) {
+                mutex_unlock(&mutex_blocks);
+                return p;
+            }
+            subsize = 64;
         }
         mutex_unlock(&mutex_blocks);
         void* newp = internal_customMalloc(size, is32bits);
@@ -843,13 +956,28 @@ void internal_customFree(void* p, int is32bits)
             if(l->maxfree < newfree) l->maxfree = newfree;
             mutex_unlock(&mutex_blocks);
             return;
-        } else {
+        } else if(l->type == BTYPE_MAP) {
             //BTYPE_MAP
             size_t idx = (addr-(uintptr_t)l->block)>>7;
             uint8_t* map = l->first;
             if(map[idx>>3]&(1<<(idx&7))) {
                 map[idx>>3] ^= (1<<(idx&7));
                 l->maxfree += 128;
+            }   // warn if double free?
+            #ifdef TRACE_MEMSTAT
+            else printf_log(LOG_INFO, "Warning, customme free(%p) from MAP block %p, but not found as allocated\n", p, l);
+            #endif
+            if(l->lowest>idx)
+                l->lowest = idx;
+            mutex_unlock(&mutex_blocks);
+            return;
+        }else{
+            //BTYPE_MAP
+            size_t idx = (addr-(uintptr_t)l->block)>>6;
+            uint16_t* map = l->first;
+            if(map[idx>>4]&(1<<(idx&15))) {
+                map[idx>>4] ^= (1<<(idx&15));
+                l->maxfree += 64;
             }   // warn if double free?
             #ifdef TRACE_MEMSTAT
             else printf_log(LOG_INFO, "Warning, customme free(%p) from MAP block %p, but not found as allocated\n", p, l);
@@ -898,6 +1026,8 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     size_t init_size = (size+align_mask)&~align_mask;
     size = roundSize(size);
     if(align<8) align = 8;
+    if(size<=64 && align<=64)
+        return map64_customMalloc(size, is32bits);
     if(size<=128 && align<=128)
         return map128_customMalloc(size, is32bits);
     // look for free space
@@ -1018,9 +1148,13 @@ size_t customGetUsableSize(void* p)
     mutex_lock(&mutex_blocks);
     blocklist_t* l = findBlock(addr);
     if(l) {
-        if(l->type==BTYPE_MAP) {
+        if(l->type == BTYPE_MAP) {
             mutex_unlock(&mutex_blocks);
             return 128;
+        }
+        else if(l->type == BTYPE_MAP64) {
+            mutex_unlock(&mutex_blocks);
+            return 64;
         }
         blockmark_t* sub = (void*)(addr-sizeof(blockmark_t));
 
