@@ -157,6 +157,22 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x50:
+            nextop = F8;
+            INST_NAME("VMOVMSKPD Gd, Ex");
+            GETEYxy(v0, 0, 0);
+            GETGD;
+            d1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVMSKLTZ_D(d1, v0);
+                VPICKVE2GR_DU(gd, d1, 0);
+                VPICKVE2GR_DU(x4, d1, 2);
+                BSTRINS_D(gd, x4, 3, 2);
+            } else {
+                VMSKLTZ_D(d1, v0);
+                VPICKVE2GR_DU(gd, d1, 0);
+            }
+            break;
         case 0x6E:
             INST_NAME("VMOVD Gx, Ed");
             nextop = F8;
@@ -248,6 +264,22 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0xD7:
+            nextop = F8;
+            INST_NAME("VPMOVMSKB Gd, Ex");
+            GETEYxy(v0, 0, 0);
+            GETGD;
+            d1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVMSKLTZ_B(d1, v0);
+                VPICKVE2GR_DU(gd, d1, 0);
+                VPICKVE2GR_DU(x4, d1, 2);
+                BSTRINS_D(gd, x4, 31, 16);
+            } else {
+                VMSKLTZ_B(d1, v0);
+                VPICKVE2GR_DU(gd, d1, 0);
+            }
+            break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex, Gx");
             nextop = F8;
@@ -263,6 +295,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 SMWRITE2();
             }
+            break;
+        case 0xF7:
+            INST_NAME("VMASKMOVDQU Gx, Ex");
+            nextop = F8;
+            GETEYx(v1, 0, 0);
+            GETGYx(v0, 1);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VSLTI_B(q1, v1, 0); // q1 = byte selection mask
+            VLD(q0, xRDI, 0);
+            VBITSEL_V(q0, q0, v0, q1); // sel v0 if mask is 1
+            VST(q0, xRDI, 0);
             break;
         default:
             DEFAULT;

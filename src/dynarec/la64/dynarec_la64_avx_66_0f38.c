@@ -62,9 +62,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETEYSS(q2, 0, 0);
             GETGYxy_empty(q0);
-            if(vex.l){
+            if (vex.l) {
                 XVREPLVE0_W(q0, q2);
-            }else{
+            } else {
                 VREPLVE_W(q0, q2, 0);
             }
             break;
@@ -72,10 +72,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VBROADCASTSD Gx, Ex");
             nextop = F8;
             GETEYSD(q2, 0, 0);
-            GETGYxy_empty(q0);            
-            if(vex.l){
+            GETGYxy_empty(q0);
+            if (vex.l) {
                 XVREPLVE0_D(q0, q2);
-            }else{
+            } else {
                 VREPLVE_D(q0, q2, 0);
             }
             break;
@@ -84,6 +84,115 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_EY_xy(q0, q2, 0);
             XVREPLVE0_Q(q0, q2);
+            break;
+        case 0x2C:
+            INST_NAME("VMASKMOVPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVXOR_V(d0, d0, d0);
+                XVSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
+                XVBITSEL_V(v0, d0, v2, d1);
+            } else {
+                VXOR_V(d0, d0, d0);
+                VSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
+                VBITSEL_V(v0, d0, v2, d1);
+            }
+            break;
+        case 0x2D:
+            INST_NAME("VMASKMOVPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVXOR_V(d0, d0, d0);
+                XVSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
+                XVBITSEL_V(v0, d0, v2, d1);
+            } else {
+                VXOR_V(d0, d0, d0);
+                VSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
+                VBITSEL_V(v0, d0, v2, d1);
+            }
+            break;
+        case 0x2E:
+            INST_NAME("VMASKMOVPS Ex, Gx, Vx");
+            nextop = F8;
+            GETEY_VYGY_xy(v0, v2, v1, 0);
+            d0 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
+                XVBITSEL_V(v0, v0, v2, d0);
+                PUTEYy(v0);
+            } else {
+                VSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
+                VBITSEL_V(v0, v0, v2, d0);
+                PUTEYx(v0);
+            }
+            break;
+        case 0x2F:
+            INST_NAME("VMASKMOVPD Ex, Gx, Vx");
+            nextop = F8;
+            GETEY_VYGY_xy(v0, v2, v1, 0);
+            d0 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
+                XVBITSEL_V(v0, v0, v2, d0);
+                PUTEYy(v0);
+            } else {
+                VSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
+                VBITSEL_V(v0, v0, v2, d0);
+                PUTEYx(v0);
+            }
+            break;
+        case 0x8C:
+            INST_NAME("VPMASKMOVD/Q Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVXOR_V(d0, d0, d0);
+                if (rex.w) {
+                    XVSLTI_D(d1, v1, 0);
+                } else {
+                    XVSLTI_W(d1, v1, 0);
+                }
+                XVBITSEL_V(v0, d0, v2, d1);
+            } else {
+                VXOR_V(d0, d0, d0);
+                if (rex.w) {
+                    VSLTI_D(d1, v1, 0);
+                } else {
+                    VSLTI_W(d1, v1, 0);
+                }
+                VBITSEL_V(v0, d0, v2, d1);
+            }
+            break;
+        case 0x8E:
+            INST_NAME("VPMASKMOVD/Q Ex, Vx, Gx");
+            nextop = F8;
+            GETEY_VYGY_xy(v0, v2, v1, 0);
+            d0 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                if (rex.w) {
+                    XVSLTI_D(d0, v1, 0);
+                } else {
+                    XVSLTI_W(d0, v1, 0);
+                }
+                XVBITSEL_V(v0, v0, v2, d0);
+                PUTEYy(v0);
+            } else {
+                if (rex.w) {
+                    VSLTI_D(d0, v1, 0);
+                } else {
+                    VSLTI_W(d0, v1, 0);
+                }
+                VBITSEL_V(v0, v0, v2, d0);
+                PUTEYx(v0);
+            }
             break;
         default:
             DEFAULT;

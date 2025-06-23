@@ -630,7 +630,7 @@
     GETGYxy(gx, 1);
 
 // Get writable EY, and non-written VY and GY
-#define GETEY_VYGY_xy(gx, vx, ex, D)  \
+#define GETEY_VYGY_xy(ex, vx, gx, D)  \
     GETVYxy(vx, 0);                   \
     GETGYxy(gx, 0);                   \
     GETEYxy(ex, 1, D);
