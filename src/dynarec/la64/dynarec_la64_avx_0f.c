@@ -99,6 +99,65 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            nextop = F8;
+            GETVYx(v1, 0);
+            if (MODREG) {
+                INST_NAME("VMOVHLPS Gx, Vx, Ex");
+                GETEYx(v2, 0, 0);
+                GETGYx_empty(v0);
+                VEXTRINS_D(v0, v2, VEXTRINS_IMM_4_0(0, 1));
+                VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                INST_NAME("VMOVLPS Gx, Vx, Ex");
+                GETEYSD(v2, 0, 0);
+                GETGYx_empty(v0);
+                VEXTRINS_D(v0, v2, VEXTRINS_IMM_4_0(0, 0));
+                VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(1, 1));
+            }
+            break;
+        case 0x13:
+            nextop = F8;
+            INST_NAME("VMOVLPS Ex, Gx");
+            GETGYx(v0, 0);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                FST_D(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
+        case 0x16:
+            nextop = F8;
+            GETVYx(v1, 0);
+            if (MODREG) {
+                INST_NAME("VMOVLHPS Gx, Vx, Ex");
+                GETEYx(v2, 0, 0);
+                GETGYx_empty(v0);
+                VEXTRINS_D(v0, v2, VEXTRINS_IMM_4_0(1, 0));
+                VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(0, 0));
+            } else {
+                INST_NAME("VMOVHPS Gx, Vx, Ex");
+                GETEYSD(v2, 0, 0);
+                GETGYx_empty(v0);
+                VEXTRINS_D(v0, v2, VEXTRINS_IMM_4_0(1, 0));
+                VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(0, 0));
+            }
+            break;
+        case 0x17:
+            nextop = F8;
+            INST_NAME("VMOVHPS Ex, Gx");
+            GETGYx(v0, 0);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                VSTELM_D(v0, ed, fixedaddress, 1);
+                SMWRITE2();
+            }
         case 0x28:
             INST_NAME("VMOVAPS Gx, Ex");
             nextop = F8;
