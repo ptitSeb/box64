@@ -50,8 +50,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (MODREG) {
                 GETVYx(q1, 0);
                 GETEYSS(q2, 0, 0);
-                GETGYx_empty(q0);                
-                if ( !gd == vex.v) VOR_V(q0, q1, q1);
+                GETGYx_empty(q0);
+                if (!gd == vex.v) VOR_V(q0, q1, q1);
                 VEXTRINS_W(q0, q2, 0);
             } else {
                 GETEYSS(q2, 0, 0);
@@ -81,6 +81,26 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            INST_NAME("VMOVSLDUP Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(q0, q1, 0);
+            if (vex.l) {
+                XVPACKEV_W(q0, q1, q1);
+            } else {
+                VPACKEV_W(q0, q1, q1);
+            }
+            break;
+        case 0x16:
+            INST_NAME("VMOVSHDUP Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(q0, q1, 0);
+            if (vex.l) {
+                XVPACKOD_W(q0, q1, q1);
+            } else {
+                VPACKOD_W(q0, q1, q1);
+            }
+            break;
         case 0x6F:
             INST_NAME("VMOVDQU Gx, Ex");
             nextop = F8;
@@ -101,6 +121,20 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                     VLD(q0, ed, fixedaddress);
                 }
             }
+            break;
+        case 0x7E:
+            INST_NAME("VMOVD Gx, Ex");
+            nextop = F8;
+            if (MODREG) {
+                GETEYx(q1, 0, 0);
+                GETGYx_empty(q0);
+            } else {
+                GETEYSD(q1, 0, 0);
+                GETGYx_empty(q0);
+            }
+            XVXOR_V(q0, q0, q0);
+            XVINSVE0_D(q0, q1, 0);
+            YMM_UNMARK_UPPER_ZERO(q0);
             break;
         case 0x7F:
             INST_NAME("VMOVDQU Ex, Gx");

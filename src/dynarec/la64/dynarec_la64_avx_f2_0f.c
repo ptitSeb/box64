@@ -69,7 +69,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VEXTRINS_D(q0, q2, 0);
             } else {
                 GETEYSD(q2, 0, 0);
-                GETGYx_empty(q0);                
+                GETGYx_empty(q0);
                 XVXOR_V(q0, q0, q0);
                 XVINSVE0_D(q0, q2, 0);
                 YMM_UNMARK_UPPER_ZERO(q0);
@@ -95,7 +95,49 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
-
+        case 0x12:
+            INST_NAME("VMOVDDUP Gx, Ex");
+            nextop = F8;
+            if (MODREG) {
+                GETGY_empty_EY_xy(q0, q1, 0);
+            } else {
+                GETGYxy_empty(q0);
+                q1 = fpu_get_scratch(dyn);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 0, 0);
+                if (vex.l) {
+                    XVLD(q1, ed, 0);
+                } else {
+                    VLDREPL_D(q0, ed, 0);
+                }
+            }
+            if (vex.l) {
+                XVSHUF4I_D(q0, q1, 0b1010);
+            } else if (MODREG) {
+                VREPLVE_D(q0, q1, 0);
+            }
+            break;
+        case 0xF0:
+            INST_NAME("VLDDQU Gx, Ex");
+            nextop = F8;
+            if (MODREG) {
+                GETGY_empty_EY_xy(q0, q1, 0);
+                if (vex.l) {
+                    XVOR_V(q0, q1, q1);
+                } else {
+                    VOR_V(q0, q1, q1);
+                }
+            } else {
+                GETGYxy_empty(q0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                if (vex.l) {
+                    XVLD(q0, ed, fixedaddress);
+                } else {
+                    VLD(q0, ed, fixedaddress);
+                }
+            }
+            break;
         default:
             DEFAULT;
     }

@@ -68,7 +68,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY_empty_VYEY_xy(q0, q1, q2, 1);
             u8 = F8;
             XVOR_V(q0, q1, q1);
-            XVPERMI_Q(q0, q2, (u8&1) == 0 ? 0b00110000 : 0b00000010);
+            XVPERMI_Q(q0, q2, (u8 & 1) == 0 ? 0b00110000 : 0b00000010);
             break;
         case 0x19:
         case 0x39:
@@ -81,13 +81,29 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETEY_GY_xy(q1, q0, 1);
             u8 = F8;
             if (MODREG) {
-                XVPERMI_Q(q1, q0, (u8&1) == 0 ? XVPERMI_IMM_4_0(3, 0) : XVPERMI_IMM_4_0(3, 1));
+                XVPERMI_Q(q1, q0, (u8 & 1) == 0 ? XVPERMI_IMM_4_0(3, 0) : XVPERMI_IMM_4_0(3, 1));
             } else {
-                if ((u8&1) == 1) {
+                if ((u8 & 1) == 1) {
                     XVPERMI_Q(q1, q0, XVPERMI_IMM_4_0(3, 1));
                     VST(q1, ed, fixedaddress);
                 } else {
                     VST(q0, ed, fixedaddress);
+                }
+            }
+            break;
+        case 0x2A:
+            INST_NAME("VMOVNTDQA Gx, Ex");
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                GETGYxy_empty(q0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                if (vex.l) {
+                    XVLD(q0, ed, fixedaddress);
+                } else {
+                    VLD(q0, ed, fixedaddress);
                 }
             }
             break;
