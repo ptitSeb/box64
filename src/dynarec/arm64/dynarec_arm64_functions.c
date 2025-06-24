@@ -182,7 +182,6 @@ int is_ymm_to_keep(dynarec_arm_t* dyn, int reg, int k1, int k2, int k3)
 // Reset fpu regs counter
 static void fpu_reset_reg_neoncache(neoncache_t* n)
 {
-    n->fpu_reg = 0;
     for (int i=0; i<32; ++i) {
         n->fpuused[i]=0;
         n->neoncache[i].v = 0;
@@ -563,7 +562,6 @@ void neoncacheUnwind(neoncache_t* cache)
     // And now, rebuild the x87cache info with neoncache
     cache->mmxcount = 0;
     cache->fpu_scratch = 0;
-    cache->fpu_reg = 0;
     for(int i=0; i<8; ++i) {
         cache->x87cache[i] = -1;
         cache->mmxcache[i] = -1;
@@ -579,13 +577,11 @@ void neoncacheUnwind(neoncache_t* cache)
                 case NEON_CACHE_MM:
                     cache->mmxcache[cache->neoncache[i].n] = i;
                     ++cache->mmxcount;
-                    ++cache->fpu_reg;
                     break;
                 case NEON_CACHE_XMMR:
                 case NEON_CACHE_XMMW:
                     cache->ssecache[cache->neoncache[i].n].reg = i;
                     cache->ssecache[cache->neoncache[i].n].write = (cache->neoncache[i].t==NEON_CACHE_XMMW)?1:0;
-                    ++cache->fpu_reg;
                     break;
                 case NEON_CACHE_YMMR:
                 case NEON_CACHE_YMMW:
@@ -597,7 +593,6 @@ void neoncacheUnwind(neoncache_t* cache)
                     cache->x87cache[x87reg] = cache->neoncache[i].n;
                     cache->x87reg[x87reg] = i;
                     ++x87reg;
-                    ++cache->fpu_reg;
                     break;
                 case NEON_CACHE_SCR:
                     cache->fpuused[i] = 0;
@@ -617,7 +612,6 @@ void neoncacheUnwind(neoncache_t* cache)
                 cache->neoncache[reg].n = i;
                 cache->ssecache[i].reg = reg;
                 cache->ssecache[i].write = (cache->xmm_write&(1<<i))?1:0;
-                ++cache->fpu_reg;
             }
         cache->xmm_write = cache->xmm_removed = 0;
     }

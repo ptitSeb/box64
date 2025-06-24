@@ -90,7 +90,6 @@ int fpu_get_reg_ymm(dynarec_la64_t* dyn, int t, int ymm)
 // Reset fpu regs counter
 static void fpu_reset_reg_lsxcache(lsxcache_t* lsx)
 {
-    lsx->fpu_reg = 0;
     for (int i = 0; i < 24; ++i) {
         lsx->fpuused[i] = 0;
         lsx->lsxcache[i].v = 0;
@@ -229,8 +228,6 @@ void lsxcacheUnwind(lsxcache_t* cache)
     // And now, rebuild the x87cache info with lsxcache
     cache->mmxcount = 0;
     cache->fpu_scratch = 0;
-    cache->fpu_extra_qscratch = 0;
-    cache->fpu_reg = 0;
     for (int i = 0; i < 8; ++i) {
         cache->x87cache[i] = -1;
         cache->mmxcache[i] = -1;
@@ -248,19 +245,16 @@ void lsxcacheUnwind(lsxcache_t* cache)
                 case LSX_CACHE_MM:
                     cache->mmxcache[cache->lsxcache[i].n] = i;
                     ++cache->mmxcount;
-                    ++cache->fpu_reg;
                     break;
                 case LSX_CACHE_XMMR:
                 case LSX_CACHE_XMMW:
                     cache->ssecache[cache->lsxcache[i].n].reg = i;
                     cache->ssecache[cache->lsxcache[i].n].write = (cache->lsxcache[i].t == LSX_CACHE_XMMW) ? 1 : 0;
-                    ++cache->fpu_reg;
                     break;
                 case LSX_CACHE_YMMR:
                 case LSX_CACHE_YMMW:
                     cache->avxcache[cache->lsxcache[i].n].reg = i;
                     cache->avxcache[cache->lsxcache[i].n].write = (cache->lsxcache[i].t == LSX_CACHE_YMMW) ? 1 : 0;
-                    ++cache->fpu_reg;
                     break;
                 case LSX_CACHE_ST_F:
                 case LSX_CACHE_ST_D:
@@ -268,7 +262,6 @@ void lsxcacheUnwind(lsxcache_t* cache)
                     cache->x87cache[x87reg] = cache->lsxcache[i].n;
                     cache->x87reg[x87reg] = i;
                     ++x87reg;
-                    ++cache->fpu_reg;
                     break;
                 case LSX_CACHE_SCR:
                     cache->fpuused[i] = 0;

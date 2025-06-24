@@ -90,8 +90,6 @@ typedef struct extcache_s {
     int8_t              x87stack;       // cache stack counter
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
-    int8_t              fpu_extra_qscratch; // some opcode need an extra quad scratch register
-    int8_t              fpu_reg;        // x87/sse/mmx reg counter
 } extcache_t;
 
 typedef struct flagcache_s {

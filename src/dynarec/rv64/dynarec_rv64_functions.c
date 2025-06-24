@@ -99,7 +99,6 @@ int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
 // Reset fpu regs counter
 static void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
 {
-    e->fpu_reg = 0;
     for (int i = 0; i < 32; ++i) {
         e->fpuused[i] = 0;
         e->extcache[i].v = 0;
@@ -492,8 +491,6 @@ void extcacheUnwind(extcache_t* cache)
     // And now, rebuild the x87cache info with extcache
     cache->mmxcount = 0;
     cache->fpu_scratch = 0;
-    cache->fpu_extra_qscratch = 0;
-    cache->fpu_reg = 0;
     for (int i = 0; i < 8; ++i) {
         cache->x87cache[i] = -1;
         cache->mmxcache[i].v = -1;
@@ -511,19 +508,16 @@ void extcacheUnwind(extcache_t* cache)
                     cache->mmxcache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->mmxcache[cache->extcache[i].n].vector = cache->extcache[i].t == EXT_CACHE_MMV;
                     ++cache->mmxcount;
-                    ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_SS:
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 0;
                     cache->ssecache[cache->extcache[i].n].single = 1;
-                    ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_SD:
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 0;
                     cache->ssecache[cache->extcache[i].n].single = 0;
-                    ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_XMMR:
                 case EXT_CACHE_XMMW:
@@ -532,7 +526,6 @@ void extcacheUnwind(extcache_t* cache)
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 1;
                     cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW) ? 1 : 0;
-                    ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_ST_F:
                 case EXT_CACHE_ST_D:
@@ -540,7 +533,6 @@ void extcacheUnwind(extcache_t* cache)
                     cache->x87cache[x87reg] = cache->extcache[i].n;
                     cache->x87reg[x87reg] = EXTREG(i);
                     ++x87reg;
-                    ++cache->fpu_reg;
                     break;
                 case EXT_CACHE_SCR:
                     cache->fpuused[i] = 0;
