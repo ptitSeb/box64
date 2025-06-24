@@ -3494,6 +3494,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDRx_U12(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
             }
             break;
@@ -4153,6 +4154,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDRx_U12(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
                 case 3: // CALL FAR Ed
                     if(MODREG) {

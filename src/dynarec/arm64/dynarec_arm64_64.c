@@ -1652,6 +1652,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDRx_U12(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
