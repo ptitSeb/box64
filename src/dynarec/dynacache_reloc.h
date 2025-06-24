@@ -13,11 +13,8 @@ typedef enum native_consts_s {
     const_native_next,
     const_last
 } native_consts_t;
-inline uintptr_t getConst(native_consts_t which)
-{
-    (void)which;
-    return 0; // dummy
-}
+#define FAKE_GETCONST
+uintptr_t getConst(native_consts_t which);
 #endif
 
 void AddRelocTable64Const(dynarec_native_t* dyn, int ninst, native_consts_t C, int pass);

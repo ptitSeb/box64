@@ -241,3 +241,11 @@ uintptr_t RelocGetNext()
 {
     return getConst(const_native_next);
 }
+
+#ifdef FAKE_GETCONST
+inline uintptr_t getConst(native_consts_t which)
+{
+    (void)which;
+    return 0; // dummy
+}
+#endif
