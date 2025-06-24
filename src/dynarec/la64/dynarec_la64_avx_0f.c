@@ -141,6 +141,22 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SMWRITE2();
             }
             break;
+        case 0x2B:
+            INST_NAME("VMOVNTPS Ex, Gx");
+            nextop = F8;
+            GETGYxy(q0, 0);
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                if (vex.l) {
+                    XVST(q0, ed, fixedaddress);
+                } else {
+                    VST(q0, ed, fixedaddress);
+                }
+                SMWRITE2();
+            }
+            break;
         case 0x77:
             if (!vex.l) {
                 INST_NAME("VZEROUPPER");
@@ -150,9 +166,9 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     q2 = fpu_get_scratch(dyn);
                     XVXOR_V(q2, q2, q2);
                     for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
-                        if (dyn->lsx.avxcache[i].v != -1 ){
+                        if (dyn->lsx.avxcache[i].v != -1) {
                             // avx used register
-                            if(dyn->lsx.avxcache[i].width == LSX_AVX_WIDTH_256) {
+                            if (dyn->lsx.avxcache[i].width == LSX_AVX_WIDTH_256) {
                                 // 256 width, fill upper 128bits with zero.
                                 q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_256); // mark reg write (dirty)
                                 XVPERMI_Q(q1, q2, XVPERMI_IMM_4_0(0, 2));
@@ -161,7 +177,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                                 q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_128); // mark reg write (dirty)
                                 dyn->lsx.avxcache[i].zero_upper = 1;
                             }
-                        }else {
+                        } else {
                             // SSE register or unused register, store 128bit zero to x64emu_t.ymm[]
                             VST(q2, xEmu, offsetof(x64emu_t, ymm[i]));
                         }
@@ -180,7 +196,35 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 }
             }
             break;
-
+        case 0xAE:
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+            } else
+                switch ((nextop >> 3) & 7) {
+                    case 2:
+                        INST_NAME("VLDMXCSR Md");
+                        GETED(0);
+                        ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if (BOX64ENV(sse_flushto0)) {
+                            // sync with fpsr, with mask from mxcsr
+                            // TODO
+                        }
+                        break;
+                    case 3:
+                        INST_NAME("VSTMXCSR Md");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        LD_WU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        ST_W(x4, wback, fixedaddress);
+                        if (BOX64ENV(sse_flushto0)) {
+                            // sync with fpsr, with mask from mxcsr
+                            // TODO
+                        }
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            break;
         default:
             DEFAULT;
     }

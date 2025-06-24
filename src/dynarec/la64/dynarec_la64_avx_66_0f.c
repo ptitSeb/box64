@@ -141,6 +141,22 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x2B:
+            INST_NAME("VMOVNTPD Ex, Gx");
+            nextop = F8;
+            GETGYxy(q0, 0);
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                if (vex.l) {
+                    XVST(q0, ed, fixedaddress);
+                } else {
+                    VST(q0, ed, fixedaddress);
+                }
+                SMWRITE2();
+            }
+            break;
         case 0x6E:
             INST_NAME("VMOVD Gx, Ed");
             nextop = F8;
@@ -217,7 +233,37 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
-
+        case 0xD6:
+            INST_NAME("VMOVD Ex, Gx");
+            nextop = F8;
+            GETGYx(q0, 0);
+            if (MODREG) {
+                GETEYx_empty(q1, 0);
+                XVXOR_V(q1, q1, q1);
+                XVINSVE0_D(q1, q0, 0);
+                YMM_UNMARK_UPPER_ZERO(q1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                FST_D(q0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
+        case 0xE7:
+            INST_NAME("VMOVNTDQ Ex, Gx");
+            nextop = F8;
+            GETGYxy(q0, 0);
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                if (vex.l) {
+                    XVST(q0, ed, fixedaddress);
+                } else {
+                    VST(q0, ed, fixedaddress);
+                }
+                SMWRITE2();
+            }
+            break;
         default:
             DEFAULT;
     }
