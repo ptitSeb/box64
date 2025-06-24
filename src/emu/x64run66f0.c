@@ -220,6 +220,41 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
             break;
 
+        case 0xF7:                      /* GRP3 Ed(,Id) */
+            nextop = F8;
+            nextop = (nextop>>3)&7;
+            GETEW((nextop<2)?2:0);
+            switch(nextop) {
+                case 2:                 /* NOT Ed */
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    if(rex.w)
+                        do {
+                            tmp64u = native_lock_read_dd(ED); 
+                            tmp64u = not64(emu, tmp64u);
+                        } while(native_lock_write_dd(ED, tmp64u));
+                    else {
+                        do {
+                            tmp16u = native_lock_read_h(ED); 
+                            tmp16u = not16(emu, tmp16u);
+                        } while(native_lock_write_h(ED, tmp16u));
+                    }
+#else
+                    if(rex.w) {
+                        pthread_mutex_lock(&my_context->mutex_lock);
+                        ED->q[0] = not64(emu, ED->q[0]);
+                        pthread_mutex_unlock(&my_context->mutex_lock);
+                    } else {
+                        pthread_mutex_lock(&my_context->mutex_lock);
+                        ED->word[0] = not16(emu, ED->dword[0]);
+                        pthread_mutex_unlock(&my_context->mutex_lock);
+                    }
+#endif
+                    break;
+                default:
+                    return 0;
+            }
+            break;
+
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GETEW(0);

@@ -1264,7 +1264,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             tmp8u = (nextop>>3)&7;
             GETED((tmp8u<2)?4:0);
             switch(tmp8u) {
-                case 2:                 /* NOT Eb */
+                case 2:                 /* NOT Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
                         do {
