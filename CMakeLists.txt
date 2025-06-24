@@ -1066,6 +1066,7 @@ if(LARCH64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_functions.c"
         "${BOX64_ROOT}/src/dynarec/la64/la64_printer.c"
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_jmpnext.c"
+        "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_consts.c"
     )
     set(DYNAREC_ASM
         ${DYNAREC_ASM}
