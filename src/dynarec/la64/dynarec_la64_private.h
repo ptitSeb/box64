@@ -189,7 +189,7 @@ void CreateJmpNext(void* addr, void* next);
     MV(A1, xRIP);          \
     STORE_XEMU_CALL();     \
     MOV64x(A2, B);         \
-    CALL(A, -1);           \
+    CALL(const_##A, -1);   \
     LOAD_XEMU_CALL()
 
 #endif //__DYNAREC_ARM_PRIVATE_H_
