@@ -74,8 +74,6 @@ typedef struct lsxcache_s {
     int8_t          x87stack;       // cache stack counter
     int8_t          mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t          fpu_scratch;    // scratch counter
-    int8_t          fpu_extra_qscratch; // some opcode need an extra quad scratch register
-    int8_t          fpu_reg;        // x87/sse/mmx reg counter
 } lsxcache_t;
 
 typedef struct flagcache_s {
@@ -191,7 +189,7 @@ void CreateJmpNext(void* addr, void* next);
     MV(A1, xRIP);          \
     STORE_XEMU_CALL();     \
     MOV64x(A2, B);         \
-    CALL(A, -1);           \
+    CALL(const_##A, -1);   \
     LOAD_XEMU_CALL()
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

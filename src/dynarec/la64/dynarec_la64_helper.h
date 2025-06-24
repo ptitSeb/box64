@@ -17,6 +17,7 @@
 #include "debug.h"
 #include "la64_emitter.h"
 #include "../emu/x64primop.h"
+#include "dynarec_la64_consts.h"
 
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
@@ -863,7 +864,7 @@
         if (dyn->f.pending == SF_PENDING                       \
             && dyn->insts[ninst].x64.need_after                \
             && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_(UpdateFlags, -1, 0);                         \
+            CALL_(const_updateflags, -1, 0);                   \
             dyn->f.pending = SF_SET;                           \
             SET_NODF();                                        \
         }                                                      \
@@ -934,7 +935,7 @@
             j64 = (GETMARKF) - (dyn->native_size);  \
             BEQ(x3, xZR, j64);                      \
         }                                           \
-        CALL_(UpdateFlags, -1, 0);                  \
+        CALL_(const_updateflags, -1, 0);            \
         MARKF;                                      \
         dyn->f.pending = SF_SET;                    \
         SET_DFOK();                                 \
@@ -1235,7 +1236,7 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits);
-void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int save_reg);
 void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg);
 void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);

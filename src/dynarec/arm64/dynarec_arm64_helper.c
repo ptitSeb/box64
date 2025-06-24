@@ -635,7 +635,6 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
-    CLEARIP();
     #ifdef HAVE_TRACE
     //MOVx(x3, 15);    no access to PC reg
     BLR(dest); // save LR...

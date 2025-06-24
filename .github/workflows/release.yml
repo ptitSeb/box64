@@ -133,7 +133,7 @@ jobs:
               sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3 ninja-build libglib2.0-dev libzydis-dev
             elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
               sudo mkdir /usr/local/larch
-              wget -O- -q https://github.com/loongson/build-tools/releases/download/2023.08.08/CLFS-loongarch64-8.1-x86_64-cross-tools-gcc-glibc.tar.xz | sudo tar -C /usr/local/larch --strip-components=1 --xz -xf -
+              wget -O- -q https://github.com/loongson/build-tools/releases/download/2025.02.21/x86_64-cross-tools-loongarch64-binutils_2.44-gcc_14.2.0-glibc_2.41.tar.xz | sudo tar -C /usr/local/larch --strip-components=1 --xz -xf -
               sudo ln -sf /usr/local/larch/target /usr/loongarch64-linux-gnu
               sudo cp -r /usr/local/larch/loongarch64-unknown-linux-gnu/lib/* /usr/loongarch64-linux-gnu/lib64/
               for i in objdump objcopy strip; do
@@ -238,9 +238,9 @@ jobs:
       - name: "Test Box64"
         run: |
           if [[ ${{ matrix.platform }} != 'X64' ]]; then
-            mkdir qemu9
-            wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-9.0.2-1-x86_64.pkg.tar.zst | tar -I zstd -C qemu9 -xf -
-            sudo cp qemu9/usr/bin/* /usr/bin/
+            mkdir qemu10
+            wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-10.0.0-7-x86_64.pkg.tar.zst  | tar -I zstd -C qemu10 -xf -
+            sudo cp qemu10/usr/bin/* /usr/bin/
           fi
 
           cd build
@@ -269,9 +269,11 @@ jobs:
             export INTERPRETER=qemu-loongarch64-static
             export QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/
 
+            ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC_LA64NOEXT=1 ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC=0 ctest $CTEST_OPTIONS -E nocosim
 
+            BOX64_DYNAREC_TEST=1 ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC_TEST=1 BOX64_DYNAREC_LA64NOEXT=1 ctest $CTEST_OPTIONS -E nocosim
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             export INTERPRETER=qemu-aarch64-static

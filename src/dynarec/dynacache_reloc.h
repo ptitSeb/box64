@@ -7,17 +7,11 @@
 #elif defined(RV64)
 #include "dynarec/rv64/dynarec_rv64_consts.h"
 #define native_consts_t rv64_consts_t
+#elif defined(LA64)
+#include "dynarec/la64/dynarec_la64_consts.h"
+#define native_consts_t la64_consts_t
 #else
-typedef enum native_consts_s {
-    const_none,
-    const_native_next,
-    const_last
-} native_consts_t;
-inline uintptr_t getConst(native_consts_t which)
-{
-    (void)which;
-    return 0; // dummy
-}
+#error Unsupported architecture
 #endif
 
 void AddRelocTable64Const(dynarec_native_t* dyn, int ninst, native_consts_t C, int pass);

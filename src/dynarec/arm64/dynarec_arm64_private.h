@@ -72,7 +72,6 @@ typedef struct neoncache_s {
     int8_t              x87stack;       // cache stack counter
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
-    int8_t              fpu_reg;        // x87/sse/mmx reg counter
     uint16_t            xmm_write;      // 1bit of xmmXX removed write
     uint16_t            xmm_removed;    // 1bit if xmmXX was removed
     uint16_t            xmm_used;       // mask of the xmm regs used in this opcode
