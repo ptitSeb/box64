@@ -184,7 +184,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                     GETVD;
                     IFX(X_CF) {
                         TSTxw_REG(ed, ed);
-                        CSETMw(x3, cEQ);
+                        CSETMw(x3, cNE);
                         BFIw(xFlags, x3, F_CF, 1);
                     }
                     NEGxw_REG(x3, ed);
