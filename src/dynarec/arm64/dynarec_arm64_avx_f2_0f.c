@@ -496,9 +496,9 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 case 0x09: CSETMx(x2, cHI); break;  // Less than or unordered
                 case 0x0a: CSETMx(x2, cCS); break;  // Less or equal or unordered
                 case 0x0b: MOV32w(x2, 0); break;    // false
-                case 0x0c: CSETMw(x2, cNE); CSETMx(x3, cVS); BICx(x2, x2, x3); break;  // Not Equal not unordered
-                case 0x0d: CSETMw(x2, cLS); break;  // Greater or equal not unordered
-                case 0x0e: CSETMw(x2, cCC); break;  // Greater not unordered
+                case 0x0c: CSETMx(x2, cNE); CSETMx(x3, cVS); BICx(x2, x2, x3); break;  // Not Equal not unordered
+                case 0x0d: CSETMx(x2, cLS); break;  // Greater or equal not unordered
+                case 0x0e: CSETMx(x2, cCC); break;  // Greater not unordered
                 case 0x0f: MOV64x(x2, 0xffffffffffffffffLL); break; // true
             }
             VMOVQDfrom(v0, 0, x2);
