@@ -117,7 +117,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     ResetFlags(emu);
                     GETVD;
                     GETED(0);
-                    CONDITIONAL_SET_FLAG(rex.w?(ED->q[0]==0):(ED->dword[0]==0), F_CF);
+                    CONDITIONAL_SET_FLAG(rex.w?(ED->q[0]!=0):(ED->dword[0]!=0), F_CF);
                     if(rex.w)
                         VD->sq[0] = ED->sq[0] & (-ED->sq[0]);
                     else
