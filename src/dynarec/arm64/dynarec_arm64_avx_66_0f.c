@@ -510,7 +510,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
         case 0x5E:
-            INST_NAME("DIVPD Gx, Ex");
+            INST_NAME("VDIVPD Gx, Ex");
             nextop = F8;
             if(!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn, ninst);
