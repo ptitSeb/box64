@@ -570,17 +570,22 @@ uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
     if(!in.exponant) {
         // zero and denormals
         ret.exponant = 0;
-        ret.fraction = in.fraction>>13;
+        if(in.fraction && ((rounding==1 && ret.sign) || ((rounding==2) && !ret.sign))) 
+            ret.fraction = 1; // rounding artifact
+        else
+            ret.fraction = 0;   // no way a 32bits denormal is something else the 0 in 16bits
         return ret.u16;
     } else if(in.exponant==0b11111111) {
         // nan and infinites
         ret.exponant = 0b11111;
         ret.fraction = in.fraction;
+        if(in.fraction && !ret.fraction)
+            ret.fraction = 0b1000000000;
         return ret.u16;
     } else {
         // regular numbers
         int e = in.exponant - 127;
-        uint16_t f = (in.fraction>>13);
+        uint16_t f = (in.fraction>>13)|0b10000000000;   // add back implicit msb
         uint16_t r = in.fraction&0b1111111111111;
         switch(rounding) {
             case 0: // nearest even
@@ -596,15 +601,25 @@ uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
             case 3: // truncate
                 break;
         }
-        if(f>0b1111111111) {
+        if(f>0b11111111111) {   // implicit msb included
             ++e;
             f>>=1;
         }
-        // remove msb, it's implicit
+        // remove implicit msb
+        if(f) {
+            while(!(f&0b10000000000)) {
+                f<<=1;
+                --e;
+            }
+        }
+        // there is no msb to remove, as it's implicit and was not added back before
         if(!f) e = -15;
         else if(e<-14) { 
             // flush to zero
-            e = -15; f = 0;
+            f >>= (-15-e);
+            e = -15;
+            if((rounding==1 && ret.sign) || ((rounding==2) && !ret.sign)) 
+                f = 1; // rounding artifact
         }
         else if(e>15) { 
             if((rounding==1 && !in.sign) || (rounding==2 && in.sign) || (rounding==3)) {
@@ -616,7 +631,7 @@ uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
                 f=0;
                 e = 16;
             }
-        }
+        } else f&=0b1111111111; // remove implicit msb (bit 11)
         ret.fraction = f;
         ret.exponant = e+15;
     }
