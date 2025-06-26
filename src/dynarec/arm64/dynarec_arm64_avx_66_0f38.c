@@ -1297,6 +1297,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                         s0 = -1;
                         v1 = fpu_get_scratch(dyn, ninst);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x3) {
+                            MOVz_REG(x3, ed);
+                            ed = x3;
+                        }
                         EORx_REG(x4, x4, x4);
                     } else {
                         GETGY(v0, 0, vex.v, s0, -1); v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1);
