@@ -25,3 +25,9 @@
         EMIT(0);              \
         EMIT(0);              \
     }
+#define TABLE64C(A, V)                \
+    {                                 \
+        Table64(dyn, getConst(V), 2); \
+        EMIT(0);                      \
+        EMIT(0);                      \
+    }

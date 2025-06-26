@@ -1022,6 +1022,9 @@
 #ifndef TABLE64
 #define TABLE64(A, V)
 #endif
+#ifndef TABLE64C
+#define TABLE64C(A, V)
+#endif
 
 #define ARCH_INIT() SMSTART()
 
@@ -1070,10 +1073,6 @@
 #endif
 
 #define MODREG ((nextop & 0xC0) == 0xC0)
-
-void la64_epilog(void);
-void la64_epilog_fast(void);
-void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME
 #define STEPNAME3(N, M) N##M

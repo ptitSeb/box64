@@ -1996,7 +1996,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("INT 3");
                 if (!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
-                    TABLE64(x1, (uintptr_t)my_context);
+                    TABLE64C(x1, const_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
                     LDX_D(x3, x1, x2);
                     BEQZ_MARK(x3);
