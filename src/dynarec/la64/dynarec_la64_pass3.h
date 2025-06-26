@@ -31,3 +31,10 @@
         PCADDU12I(A, SPLIT20(val64offset));           \
         LD_D(A, A, SPLIT12(val64offset));             \
     }
+#define TABLE64C(A, V)                                  \
+    {                                                   \
+        int val64offset = Table64(dyn, getConst(V), 3); \
+        MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V));   \
+        PCADDU12I(A, SPLIT20(val64offset));             \
+        LD_D(A, A, SPLIT12(val64offset));               \
+    }

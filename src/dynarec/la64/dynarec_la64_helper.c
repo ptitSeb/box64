@@ -502,7 +502,7 @@ void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         GETIP_(ip);
     }
-    TABLE64(x2, (uintptr_t)la64_epilog);
+    TABLE64C(x2, const_epilog);
     SMEND();
     BR(x2);
 }
@@ -521,7 +521,7 @@ void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         GETIP_(ip);
     }
-    TABLE64(x2, (uintptr_t)la64_epilog_fast);
+    TABLE64C(x2, const_epilog_fast);
     SMEND();
     BR(x2);
 }
@@ -533,14 +533,12 @@ static int indirect_lookup(dynarec_la64_t* dyn, int ninst, int is32bits, int s1,
     if (!is32bits) {
         SRLI_D(s1, xRIP, 48);
         BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
-        uintptr_t tbl = getJumpTable48();
-        MOV64x(s2, tbl);
+        MOV64x(s2, getConst(const_jmptbl48));
         BSTRPICK_D(s1, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
         ALSL_D(s2, s1, s2, 3);
         LD_D(s2, s2, 0);
     } else {
-        uintptr_t tbl = getJumpTable32();
-        TABLE64(s2, tbl);
+        TABLE64C(s2, const_jmptbl32);
     }
     BSTRPICK_D(s1, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
     ALSL_D(s2, s1, s2, 3);
@@ -677,7 +675,7 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     // set new RSP
     MV(xRSP, x3);
     // Ret....
-    MOV64x(x2, (uintptr_t)la64_epilog); // epilog on purpose, CS might have changed!
+    MOV64x(x2, getConst(const_epilog)); // epilog on purpose, CS might have changed!
     SMEND();
     BR(x2);
     CLEARIP();
@@ -708,7 +706,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
         STORE_REG(RDI);
         ST_D(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
-    TABLE64(reg, getConst(fnc));
+    TABLE64C(reg, fnc);
     JIRL(xRA, reg, 0);
     if (ret >= 0) {
         MV(ret, xEmu);
