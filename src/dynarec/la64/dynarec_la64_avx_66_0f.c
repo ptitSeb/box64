@@ -99,6 +99,60 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            INST_NAME("VMOVLPD Gx, Vx, Eq");
+            nextop = F8;
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETVYx(v1, 0);
+            GETEYSD(v2, 0, 0);
+            GETGYx_empty(v0);
+            VEXTRINS_D(v0, v2, VEXTRINS_IMM_4_0(0, 0));
+            VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(1, 1));
+            break;
+        case 0x13:
+            INST_NAME("VMOVLPD Eq, Gx");
+            nextop = F8;
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETGYx(v0, 0);
+            addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+            FST_D(v0, ed, fixedaddress);
+            SMWRITE2();
+            break;
+        case 0x16:
+            INST_NAME("VMOVHPD Gx, Vx, Eq");
+            nextop = F8;
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETVYx(v1, 0);
+            GETEYSD(v2, 0, 0);
+            GETGYx_empty(v0);
+            VEXTRINS_D(v0, v2, VEXTRINS_IMM_4_0(1, 0));
+            VEXTRINS_D(v0, v1, VEXTRINS_IMM_4_0(0, 0));
+            break;
+        case 0x17:
+            INST_NAME("VMOVHPD Eq, Gx");
+            nextop = F8;
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETGYx(v0, 0);
+            addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+            FST_D(v0, ed, fixedaddress);
+            SMWRITE2();
+            break;
         case 0x28:
             INST_NAME("VMOVAPD Gx, Ex");
             nextop = F8;
