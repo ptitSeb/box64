@@ -1221,6 +1221,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(!l) {
                         GETGX_empty_VX(v0, v2);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x3) {
+                            MOVz_REG(x3, ed);
+                            ed = x3;
+                        }
                         v1 = fpu_get_scratch(dyn, ninst);
                     } else {
                         GETGY_empty_VY(v0, v2, 0, -1, -1);
