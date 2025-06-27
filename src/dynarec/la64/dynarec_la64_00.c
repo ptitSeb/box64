@@ -669,7 +669,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             }
-            GETIP(ip);
+            GETIP(ip, x7);
             STORE_XEMU_CALL();
             CALL(const_native_priv, -1);
             LOAD_XEMU_CALL();
@@ -685,7 +685,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             }
-            GETIP(ip);
+            GETIP(ip, x7);
             STORE_XEMU_CALL();
             CALL(const_native_priv, -1);
             LOAD_XEMU_CALL();
@@ -1979,7 +1979,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                     // FIXME: Even the basic support of isSimpleWrapper is disabled for now.
 
-                    GETIP(ip + 1); // read the 0xCC
+                    GETIP(ip + 1, x7); // read the 0xCC
                     STORE_XEMU_CALL();
                     ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                     CALL_S(const_int3, -1);
@@ -2000,7 +2000,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
                     LDX_D(x3, x1, x2);
                     BEQZ_MARK(x3);
-                    GETIP(addr);
+                    GETIP(addr, x7);
                     STORE_XEMU_CALL();
                     CALL(const_native_int3, -1);
                     LOAD_XEMU_CALL();
@@ -2017,7 +2017,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("INT 29/2c/2d");
                 // lets do nothing
                 MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
-                GETIP(ip); // priviledged instruction, IP not updated
+                GETIP(ip, x7); // priviledged instruction, IP not updated
                 STORE_XEMU_CALL();
                 MOV32w(x1, u8);
                 CALL(const_native_int, -1);
@@ -2026,7 +2026,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("32bits SYSCALL");
                 NOTEST(x1);
                 SMEND();
-                GETIP(addr);
+                GETIP(addr, x7);
                 STORE_XEMU_CALL();
                 CALL_S(const_x86syscall, -1);
                 LOAD_XEMU_CALL();
@@ -2044,7 +2044,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
                 }
-                GETIP(addr);
+                GETIP(addr, x7);
                 STORE_XEMU_CALL();
                 CALL(const_native_int3, -1);
                 LOAD_XEMU_CALL();
@@ -2058,7 +2058,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
                 }
-                GETIP(ip); // priviledged instruction, IP not updated
+                GETIP(ip, x7); // priviledged instruction, IP not updated
                 STORE_XEMU_CALL();
                 CALL(const_native_priv, -1);
                 LOAD_XEMU_CALL();
@@ -2401,12 +2401,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     //     // return value will be on the stack, so the stack depth needs to be updated
                     //     x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
-                        // GETIP(ip+3+8+8); // read the 0xCC
+                        // GETIP(ip+3+8+8, x7); // read the 0xCC
                         // FIXME: call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address
                         dyn->last_ip = addr;
                     } else {
-                        GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
+                        GETIP_(dyn->insts[ninst].natcall, x7); // read the 0xCC already
                         STORE_XEMU_CALL();
                         ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                         CALL_S(const_int3, -1);
@@ -2535,7 +2535,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             }
-            GETIP(ip);
+            GETIP(ip, x7);
             STORE_XEMU_CALL();
             CALL(const_native_priv, -1);
             LOAD_XEMU_CALL();
@@ -2855,7 +2855,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *need_epilog = 0;
                         *ok = 0;
                     }
-                    GETIP_(addr);
+                    GETIP_(addr, x7);
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address

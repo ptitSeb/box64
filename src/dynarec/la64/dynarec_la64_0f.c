@@ -86,7 +86,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SYSCALL");
             NOTEST(x1);
             SMEND();
-            GETIP(addr);
+            GETIP(addr, x7);
             STORE_XEMU_CALL();
             CALL_S(const_x64syscall, -1);
             LOAD_XEMU_CALL();
@@ -105,7 +105,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             }
-            GETIP(ip);
+            GETIP(ip, x7);
             STORE_XEMU_CALL();
             CALL(const_native_ud, -1);
             LOAD_XEMU_CALL();

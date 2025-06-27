@@ -185,7 +185,7 @@ int Table64(dynarec_la64_t *dyn, uint64_t val, int pass);  // add a value to tab
 void CreateJmpNext(void* addr, void* next);
 
 #define GO_TRACE(A, B, s0) \
-    GETIP(addr);           \
+    GETIP(addr, s0);       \
     MV(A1, xRIP);          \
     STORE_XEMU_CALL();     \
     MOV64x(A2, B);         \
