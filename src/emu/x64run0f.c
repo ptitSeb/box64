@@ -162,6 +162,20 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x03:                      /* LSL */
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            UpdateFlags(emu);
+            tmp8u = ED->word[0]>>3;
+            if (tmp8u>0x10 || !my_context->segtls[tmp8u].present) {
+                CLEAR_FLAG(F_ZF);
+            } else {
+                GD->dword[0] = my_context->segtls[tmp8u].limit;
+                SET_FLAG(F_ZF);
+            }
+            break;
+
         case 0x05:                      /* SYSCALL */
             #ifndef TEST_INTERPRETER
             R_RIP = addr;
