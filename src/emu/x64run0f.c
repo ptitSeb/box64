@@ -166,7 +166,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETED(0);
             GETGD;
-            UpdateFlags(emu);
+            CHECK_FLAGS(emu);
             tmp8u = ED->word[0]>>3;
             if (tmp8u>0x10 || !my_context->segtls[tmp8u].present) {
                 CLEAR_FLAG(F_ZF);
