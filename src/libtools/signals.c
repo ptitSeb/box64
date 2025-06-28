@@ -462,7 +462,7 @@ if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address 
 }
 #endif
 
-int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, dynablock_t* db, uintptr_t x64pc)
+int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, dynablock_t* db, uintptr_t x64pc, int is32bits)
 {
     if((uintptr_t)pc<0x10000)
         return 0;
@@ -483,6 +483,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         uint64_t offset = (opcode>>10)&0b111111111111;
         offset<<=scale;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = p->uc_mcontext.regs[val];
         if(scale==3 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -502,6 +503,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = p->uc_mcontext.regs[val];
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -526,6 +528,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         int val = opcode&31;
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -551,6 +554,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         int val = opcode&31;
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -575,6 +579,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         int val = opcode&31;
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         __uint128_t value = 0;
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -601,6 +606,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         int val = opcode&31;
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         __uint128_t value = 0;
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -620,6 +626,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         uint64_t offset = (opcode>>10)&0b111111111111;
         offset<<=scale;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = 0;
         if(scale==3 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -640,6 +647,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = 0;
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -659,6 +667,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         uint64_t offset = (opcode>>10)&0b111111111111;
         offset<<=scale;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = p->uc_mcontext.regs[val];
         for(int i=0; i<(1<<scale); ++i)
             addr[i] = (value>>(i*8))&0xff;
@@ -673,6 +682,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = p->uc_mcontext.regs[val];
         for(int i=0; i<2; ++i)
             addr[i] = (value>>(i*8))&0xff;
@@ -691,6 +701,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
             return 0;   // only LSL is supported
         uint64_t offset = p->uc_mcontext.regs[dest2]<<S;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = p->uc_mcontext.regs[val];
         for(int i=0; i<(1<<scale); ++i)
             addr[i] = (value>>(i*8))&0xff;
@@ -708,6 +719,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
             offset |= (0xffffffffffffffffll<<7);
         offset <<= scale;
         uintptr_t addr= p->uc_mcontext.regs[dest] + offset;
+        if(is32bits) addr = addr&0xffffffff;
         if((((uintptr_t)addr)&3)==0) {
             ((volatile uint32_t*)addr)[0] = p->uc_mcontext.regs[val1];
             ((volatile uint32_t*)addr)[1] = p->uc_mcontext.regs[val2];
@@ -730,6 +742,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
             offset |= (0xffffffffffffffffll<<7);
         offset <<= scale;
         uintptr_t addr= p->uc_mcontext.regs[dest] + offset;
+        if(is32bits) addr = addr&0xffffffff;
         if((((uintptr_t)addr)&3)==0) {
             for(int i=0; i<4; ++i)
                 ((volatile uint32_t*)addr)[0+i] = (fpsimd->vregs[val1]>>(i*32))&0xffffffff;
@@ -750,6 +763,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         int val = opcode&31;
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest]);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = fpsimd->vregs[val]>>(idx*64);
         if((((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -769,6 +783,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest]);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = 0;
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -790,6 +805,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[src]);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = p->uc_mcontext.regs[val];
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -816,6 +832,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         int64_t imm = (GET_FIELD(inst, 31, 25) << 5) | (GET_FIELD(inst, 11, 7));
         imm = SIGN_EXT(imm, 12);
         volatile uint8_t *addr = (void *)(p->uc_mcontext.__gregs[dest] + imm);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value = opcode == 0b0100011 ? p->uc_mcontext.__gregs[val] : p->uc_mcontext.__fpregs.__d.__f[val<<1];
         for(int i = 0; i < (funct3 == 0b010 ? 4 : funct3 == 0b011 ? 8 : 2); ++i) {
             addr[i] = (value >> (i * 8)) & 0xff;
@@ -1423,13 +1440,13 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int db_searched = 0;
     uintptr_t x64pc = (uintptr_t)-1;
     x64pc = R_RIP;
-    if((sig==SIGBUS) && (addr!=pc)) {
+    if((sig==SIGBUS) && (addr!=pc) || ((sig==SIGSEGV)) && emu->segs[_CS]==0x23 && ((uintptr_t)addr>>32)==0xffffffff) {
         db = FindDynablockFromNativeAddress(pc);
         if(db)
             x64pc = getX64Address(db, (uintptr_t)pc);
         db_searched = 1;
         int fixed = 0;
-        if((fixed=sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc))) {
+        if((fixed=sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc, emu->segs[_CS]==0x23))) {
             // special case fixed, restore everything and just continues
             if (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(showsegv)) {
                 static void*  old_pc[2] = {0};
@@ -1544,7 +1561,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             db_searched = 1;
         }
         int fixed = 0;
-        if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc))) {
+        if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc, emu->segs[_CS]==0x23))) {
             // special case fixed, restore everything and just continues
             if (BOX64ENV(log) >= LOG_DEBUG || BOX64ENV(showsegv)) {
                 static void*  old_pc[2] = {0};
