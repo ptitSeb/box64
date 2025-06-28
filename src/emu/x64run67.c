@@ -331,6 +331,12 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             GD->q[0] = ((uintptr_t)ED)&0xffffffff;
         break;
 
+
+    case 0x9C:                      /* PUSHF */
+        CHECK_FLAGS(emu);
+        Push64(emu, emu->eflags.x64);
+        break;
+
     case 0xA1:                      /* MOV EAX,Od */
         if(rex.w)
             R_RAX = *(uint64_t*)(uintptr_t)F32;
