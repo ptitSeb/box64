@@ -269,6 +269,78 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VXOR_Vxy(v0, v1, v2);
             break;
+        case 0x58:
+            INST_NAME("VADDPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(S, d0, v1, v2, cUN);
+            }
+            VFADDxy(S, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(S, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b010 << 9) | 0b1111111100);
+                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x59:
+            INST_NAME("VMULPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(S, d0, v1, v2, cUN);
+            }
+            VFMULxy(S, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(S, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b010 << 9) | 0b1111111100);
+                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x5C:
+            INST_NAME("VSUBPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(S, d0, v1, v2, cUN);
+            }
+            VFSUBxy(S, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(S, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b010 << 9) | 0b1111111100);
+                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x5E:
+            INST_NAME("VDIVPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(S, d0, v1, v2, cUN);
+            }
+            VFDIVxy(S, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(S, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b010 << 9) | 0b1111111100);
+                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
         case 0x77:
             if (!vex.l) {
                 INST_NAME("VZEROUPPER");

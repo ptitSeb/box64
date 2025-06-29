@@ -3152,4 +3152,50 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                             \
     } while (0)
 
+
+#define VFCMPxy(width, vd, vj, vk, cond)      \
+    do {                                      \
+        if (vex.l) {                          \
+            XVFCMP_##width(vd, vj, vk, cond); \
+        } else {                              \
+            VFCMP_##width(vd, vj, vk, cond);  \
+        }                                     \
+    } while (0)
+
+#define VFADDxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVFADD_##width(vd, vj, vk); \
+        } else {                        \
+            VFADD_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VFSUBxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVFSUB_##width(vd, vj, vk); \
+        } else {                        \
+            VFSUB_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VFMULxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVFMUL_##width(vd, vj, vk); \
+        } else {                        \
+            VFMUL_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VFDIVxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVFDIV_##width(vd, vj, vk); \
+        } else {                        \
+            VFDIV_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
 #endif //__ARM64_EMITTER_H__
