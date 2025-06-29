@@ -1246,6 +1246,12 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x9C:
+            INST_NAME("PUSHF");
+            READFLAGS(X_ALL);
+            PUSH1z(xFlags);
+            break;
+
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             u64 = F32;
