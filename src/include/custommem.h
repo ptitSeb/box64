@@ -120,6 +120,7 @@ void protectDB(uintptr_t addr, size_t size);
 void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 void neverprotectDB(uintptr_t addr, size_t size, int mark);
+void unneverprotectDB(uintptr_t addr, size_t size);
 int isprotectedDB(uintptr_t addr, size_t size);
 #endif
 void* find32bitBlock(size_t size);
@@ -143,8 +144,7 @@ int isLockAddress(uintptr_t addr);  // return 1 is the address is used as a LOCK
 int nLockAddressRange(uintptr_t start, size_t size);    // gives the number of lock address for a range
 void getLockAddressRange(uintptr_t start, size_t size, uintptr_t addrs[]);   // fill in the array with the lock addresses in the range (array must be of the correct size)
 
-void SetHotPage(uintptr_t addr);
-void CheckHotPage(uintptr_t addr);
+void CheckHotPage(uintptr_t addr, uint32_t prot);
 int isInHotPage(uintptr_t addr);
 int checkInHotPage(uintptr_t addr);
 #endif

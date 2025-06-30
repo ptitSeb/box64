@@ -815,7 +815,7 @@ done:
 #else
 #error meh!
 #endif
-#define DYNAREC_VERSION SET_VERSION(0, 0, 2)
+#define DYNAREC_VERSION SET_VERSION(0, 0, 3)
 
 typedef struct DynaCacheHeader_s {
     char sign[10];  //"DynaCache\0"
@@ -927,6 +927,11 @@ void SerializeMmaplist(mapping_t* mapping)
     if(mapping->env && mapping->env->is_dynacache_overridden && (mapping->env->dynacache!=1))
         return;
     if((!mapping->env || !mapping->env->is_dynacache_overridden) && box64env.dynacache!=1)
+        return;
+    // don't do serialize for program that needs dirty=1
+    if(mapping->env && mapping->env->is_dynarec_dirty_overridden && mapping->env->dynarec_dirty)
+        return;
+    if((!mapping->env || !mapping->env->is_dynarec_dirty_overridden) && box64env.dynarec_dirty)
         return;
     const char* folder = GetDynacacheFolder(mapping);
     if(!folder) return; // no folder, no serialize...
@@ -1395,7 +1400,12 @@ int IsAddrNeedReloc(uintptr_t addr)
     uintptr_t start = env->nodynarec_start?env->nodynarec_start:box64env.nodynarec_start;
     if(end && addr>=start && addr<end)
         return 0;
-    #ifdef HAVE_TRACE
+     // don't do serialize for program that needs dirty=1 or 2 (maybe 1 is ok?)
+    if(env && env->is_dynarec_dirty_overridden && env->dynarec_dirty)
+        return 0;
+    if((!env || !env->is_dynarec_dirty_overridden) && box64env.dynarec_dirty)
+        return 0;
+   #ifdef HAVE_TRACE
     end = env->dynarec_test_end?env->dynarec_test_end:box64env.dynarec_test_end;
     start = env->dynarec_test_start?env->dynarec_test_start:box64env.dynarec_test_start;
     if(end && addr>=start && addr<end)

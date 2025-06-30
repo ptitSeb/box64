@@ -992,7 +992,6 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         //protectDB(addr, end-addr);
     }
     if(getProtection(addr)&PROT_NEVERCLEAN) {
-        block->dirty = 1;
         block->always_test = 1;
     }
     if(block->always_test) {
