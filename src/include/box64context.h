@@ -235,8 +235,8 @@ typedef struct box64context_s {
     int                 stack_clone_used;
 
     // rolling logs
-    char*               *log_call;
-    char*               *log_ret;
+    char*               log_call;   // is a large string composed of slices of 256 chars
+    char*               log_ret;    // is a large string composed of sloces of 128 chars
     int                 current_line;
 
 } box64context_t;

@@ -121,8 +121,8 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 if(BOX64ENV(rolling_log)) {
                     my_context->current_line = (my_context->current_line+1)%BOX64ENV(rolling_log);
                 }
-                char* buff = BOX64ENV(rolling_log)?my_context->log_call[cycle_line]:t_buff;
-                char* buffret = BOX64ENV(rolling_log)?my_context->log_ret[cycle_line]:NULL;
+                char* buff = BOX64ENV(rolling_log)?(my_context->log_call+256*cycle_line):t_buff;
+                char* buffret = BOX64ENV(rolling_log)?(my_context->log_ret+128*cycle_line):NULL;
                 if(buffret) buffret[0] = '\0';
                 char *tmp;
                 int post = 0;
@@ -379,7 +379,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
 
                 if(BOX64ENV(rolling_log))
-                    snprintf(buffret, 128, "0x%lX%s%s", R_RAX, buff2, buff3);
+                    snprintf(buffret, 127, "0x%lX%s%s", R_RAX, buff2, buff3);
                 else {
                     mutex_lock(&emu->context->mutex_trace);
                     printf_log_prefix(0, LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
@@ -411,8 +411,8 @@ void print_rolling_log(int loglevel) {
         int j = (my_context->current_line+1)%BOX64ENV(rolling_log);
         for (int i=0; i<BOX64ENV(rolling_log); ++i) {
             int k = (i+j)%BOX64ENV(rolling_log);
-            if(my_context->log_call[k][0]) {
-                printf_log(loglevel, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
+            if(my_context->log_call[256*k+0]) {
+                printf_log(loglevel, "%s => return %s\n", my_context->log_call+256*k, my_context->log_ret+128*k);
             }
         }
     }

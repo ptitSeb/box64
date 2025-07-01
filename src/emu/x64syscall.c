@@ -461,8 +461,8 @@ void EXPORT x64Syscall(x64emu_t *emu)
     char* buffret = NULL;
     if(BOX64ENV(log) >= LOG_DEBUG || BOX64ENV(rolling_log)) {
         log = 1;
-        buff = BOX64ENV(rolling_log)?my_context->log_call[my_context->current_line]:t_buff;
-        buffret = BOX64ENV(rolling_log)?my_context->log_ret[my_context->current_line]:t_buffret;
+        buff = BOX64ENV(rolling_log)?(my_context->log_call+256*my_context->current_line):t_buff;
+        buffret = BOX64ENV(rolling_log)?(my_context->log_ret+128*my_context->current_line):t_buffret;
         if(BOX64ENV(rolling_log))
             my_context->current_line = (my_context->current_line+1)%BOX64ENV(rolling_log);
         snprintf(buff, 255, "%04d|%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9);

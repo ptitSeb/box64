@@ -73,8 +73,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 if(BOX64ENV(rolling_log)) {
                     my_context->current_line = (my_context->current_line+1)%BOX64ENV(rolling_log);
                 }
-                char* buff = BOX64ENV(rolling_log)?my_context->log_call[cycle_line]:t_buff;
-                char* buffret = BOX64ENV(rolling_log)?my_context->log_ret[cycle_line]:NULL;
+                char* buff = BOX64ENV(rolling_log)?(my_context->log_call+256*cycle_line):t_buff;
+                char* buffret = BOX64ENV(rolling_log)?(my_context->log_ret+128*cycle_line):NULL;
                 if(buffret) buffret[0] = '\0';
                 char *tmp;
                 int post = 0;
@@ -468,9 +468,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 if(BOX64ENV(rolling_log)) {
                     if(ret_fmt==1)
-                        snprintf(buffret, 128, "%d%s%s", S_EAX, buff2, buff3);
+                        snprintf(buffret, 127, "%d%s%s", S_EAX, buff2, buff3);
                     else
-                        snprintf(buffret, 128, "0x%X%s%s", R_EAX, buff2, buff3);
+                        snprintf(buffret, 127, "0x%X%s%s", R_EAX, buff2, buff3);
                 } else {
                     mutex_lock(&emu->context->mutex_trace);
                     if(ret_fmt==1)
