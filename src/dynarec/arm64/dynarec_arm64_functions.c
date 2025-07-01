@@ -1190,30 +1190,21 @@ void fpu_unwind_restore(dynarec_arm_t* dyn, int ninst, neoncache_t* cache)
     memcpy(&dyn->insts[ninst].n, cache, sizeof(neoncache_t));
 }
 
-static void propagateXMMUneeded(dynarec_arm_t* dyn, int ninst, int a)
+static void propagateXYMMUneeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x, uint16_t mask_y)
 {
     if(!ninst) return;
     ninst = getNominalPred(dyn, ninst);
     while(ninst>=0) {
-        if(dyn->insts[ninst].n.xmm_used&(1<<a)) return; // used, value is needed
+        mask_x &= ~dyn->insts[ninst].n.xmm_used;
+        mask_y &= ~dyn->insts[ninst].n.ymm_used;
+        if(!mask_x && !mask_y) return; // used, value is needed
         if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) return; // barrier, value is needed
-        if(dyn->insts[ninst].n.xmm_unneeded&(1<<a)) return; // already handled
+        mask_x &= ~dyn->insts[ninst].n.xmm_unneeded;
+        mask_y &= ~dyn->insts[ninst].n.ymm_unneeded;
+        if(!mask_x && !mask_y) return; // already handled
         if(dyn->insts[ninst].x64.jmp) return;   // stop when a jump is detected, that gets too complicated
-        dyn->insts[ninst].n.xmm_unneeded |= (1<<a); // flags
-        ninst = getNominalPred(dyn, ninst); // continue
-    }
-}
-
-static void propagateYMMUneeded(dynarec_arm_t* dyn, int ninst, int a)
-{
-    if(!ninst) return;
-    ninst = getNominalPred(dyn, ninst);
-    while(ninst>=0) {
-        if(dyn->insts[ninst].n.ymm_used&(1<<a)) return; // used, value is needed
-        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) return; // barrier, value is needed
-        if(dyn->insts[ninst].n.ymm_unneeded&(1<<a)) return; // already handled
-        if(dyn->insts[ninst].x64.jmp) return;   // stop when a jump is detected, that gets too complicated
-        dyn->insts[ninst].n.ymm_unneeded |= (1<<a); // flags
+        dyn->insts[ninst].n.xmm_unneeded |= mask_x; // flags
+        dyn->insts[ninst].n.ymm_unneeded |= mask_y; // flags
         ninst = getNominalPred(dyn, ninst); // continue
     }
 }
@@ -1221,14 +1212,8 @@ static void propagateYMMUneeded(dynarec_arm_t* dyn, int ninst, int a)
 void updateUneeded(dynarec_arm_t* dyn)
 {
     for(int ninst=0; ninst<dyn->size; ++ninst) {
-        if(dyn->insts[ninst].n.xmm_unneeded)
-            for(int i=0; i<16; ++i)
-                if(dyn->insts[ninst].n.xmm_unneeded&(1<<i))
-                    propagateXMMUneeded(dyn, ninst, i);
-        if(dyn->insts[ninst].n.ymm_unneeded)
-            for(int i=0; i<16; ++i)
-                if(dyn->insts[ninst].n.ymm_unneeded&(1<<i))
-                    propagateYMMUneeded(dyn, ninst, i);
+        if(dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.ymm_unneeded)
+            propagateXYMMUneeded(dyn, ninst, dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
     }
 }
 
