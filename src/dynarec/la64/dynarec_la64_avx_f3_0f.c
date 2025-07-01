@@ -115,7 +115,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 BCEQZ(fcc0, 4 + 4);
                 FNEG_S(d1, d1);
             }
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x52:
@@ -130,7 +130,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 FRSQRT_S(d0, v1);
             }
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
         case 0x53:
@@ -145,7 +145,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 FRECIP_S(d0, v1);
             }
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
         case 0x58:
@@ -164,7 +164,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_S(d0, d0);
             }
             MARK;
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
         case 0x59:
@@ -183,7 +183,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_S(d0, d0);
             }
             MARK;
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
         case 0x5C:
@@ -202,7 +202,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_S(d0, d0);
             }
             MARK;
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
         case 0x5D:
@@ -218,7 +218,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FCMP_S(fcc0, v2, v1, cULE);
                 FSEL(q0, v1, v2, fcc0);
             }
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, q0, 0);
             break;
         case 0x5E:
@@ -237,7 +237,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_S(d0, d0);
             }
             MARK;
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
         case 0x5F:
@@ -253,7 +253,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FCMP_S(fcc0, v2, v1, cLT);
                 FSEL(q0, v2, v1, fcc0);
             }
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, q0, 0);
             break;
         case 0x6F:
@@ -320,7 +320,36 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
-
+        case 0xC2:
+            INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETVYx(v1, 0);
+            GETEYSS(v2, 0, 1);
+            GETGYx_empty(v0);
+            q0 = fpu_get_scratch(dyn);
+            u8 = F8;
+            switch (u8 & 0xf) {
+                case 0x00: VFCMP_S(q0, v1, v2, cEQ); break;  // Equal, not unordered
+                case 0x01: VFCMP_S(q0, v1, v2, cLT); break;  // Less than
+                case 0x02: VFCMP_S(q0, v1, v2, cLE); break;  // Less or equal
+                case 0x03: VFCMP_S(q0, v1, v2, cUN); break;  // unordered
+                case 0x04: VFCMP_S(q0, v1, v2, cUNE); break; // Not Equal (or unordered on ARM, not on X86...)
+                case 0x05: VFCMP_S(q0, v2, v1, cULE); break; // Greater or equal or unordered
+                case 0x06: VFCMP_S(q0, v2, v1, cULT); break; // Greater or unordered
+                case 0x07: VFCMP_S(q0, v1, v2, cOR); break;  // Greater or unordered
+                case 0x08: VFCMP_S(q0, v1, v2, cUEQ); break; // Equal, or unordered
+                case 0x09: VFCMP_S(q0, v1, v2, cULT); break; // Less than or unordered
+                case 0x0a: VFCMP_S(q0, v1, v2, cULE); break; // Less or equal or unordered
+                case 0x0b: VXOR_V(q0, q0, q0); break;        // false
+                case 0x0c: VFCMP_S(q0, v1, v2, cNE); break;  // Not Eual, ordered
+                case 0x0d: VFCMP_S(q0, v2, v1, cLE); break;  // Greater or Equal ordered
+                case 0x0e: VFCMP_S(q0, v2, v1, cLT); break;  // Greater ordered
+                case 0x0f: VSEQ_B(q0, v1, v1); break;        // true
+            }
+            XVXOR_V(v0, v0, v0);
+            XVINSVE0_W(v0, q0, 0);
+            YMM_UNMARK_UPPER_ZERO(v0);
+            break;
         default:
             DEFAULT;
     }
