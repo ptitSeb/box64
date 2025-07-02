@@ -1627,19 +1627,7 @@ static void* x64_resource_alloc = NULL;
 static my_XDisplay_t* x64_dpy = NULL;
 static XID my_resource_alloc(void* dpy)
 {
-    x64emu_t* emu = thread_get_emu();
-    ResetSegmentsCache(emu);
-    Push64(emu, 0); // PUSH 0 (backtrace marker: return address is 0)
-    Push64(emu, 0); // PUSH BP
-    R_RBP = R_RSP;  // MOV BP, SP
-    R_RSP -= 64;    // Guard zone
-    R_RSP &= ~15LL;
-    PushExit(emu);
-    R_RIP = (uintptr_t)x64_resource_alloc;
-    R_RDI = (uintptr_t)x64_dpy;
-    DynaRun(emu);
-    XID ret = (XID)R_RAX;
-    // XID ret = (XID)RunFunctionWithEmu(emu, 0, x64_resource_alloc, 1, x64_dpy);
+    XID ret = (XID)RunFunctionFmt((uintptr_t)x64_resource_alloc, "p", x64_dpy);
     return ret;
 }
 
