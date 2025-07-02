@@ -300,7 +300,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                     } else {
                         // need to find back that instruction to copy the caches, as previous version cannot be used anymore
                         // and pred table is not ready yet
-                        reset_n = get_first_jump(dyn, next);
+                        reset_n = get_first_jump_addr(dyn, next);
                     }
                     if (dyn->need_dump) dynarec_log(LOG_NONE, "Extend block %p, %s%p -> %p (ninst=%d, jump from %d)\n", dyn, dyn->insts[ninst].x64.has_callret ? "(opt. call) " : "", (void*)addr, (void*)next, ninst + 1, dyn->insts[ninst].x64.has_callret ? ninst : reset_n);
                 } else if (next && (int)(next - addr) < BOX64ENV(dynarec_forward) && (getProtection(next) & PROT_READ) /*BOX64DRENV(dynarec_bigblock)>=stopblock*/) {
