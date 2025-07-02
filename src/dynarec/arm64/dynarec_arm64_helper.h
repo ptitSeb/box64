@@ -1123,9 +1123,9 @@
     do {                                                    \
         if (!dyn->f.dfnone) {                               \
             STRw_U12(wZR, xEmu, offsetof(x64emu_t, df));    \
+            dyn->f.dfnone_here = 1;                         \
         }                                                   \
         if(!dyn->insts[ninst].x64.may_set) {                \
-            dyn->f.dfnone_here = 1;                         \
             dyn->f.dfnone = 1;                              \
         }                                                   \
     } while(0)
