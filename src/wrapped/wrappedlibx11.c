@@ -16,7 +16,7 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "myalign.h"
-#include "elfs/elfloader_private.h"
+#include "elfloader.h"
 
 const char* libx11Name = "libX11.so.6";
 #define ALTNAME "libX11.so"
@@ -1627,17 +1627,10 @@ static XID my_resource_alloc(void* dpy)
 
 EXPORT uintptr_t my_XCreateWindow(x64emu_t* emu, my_XDisplay_t* dpy, uintptr_t v2, int32_t v3, int32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, int32_t v8, uint32_t v9, void* v10, uintptr_t v11, void* v12)
 {
-    void* x64_entry = dpy->resource_alloc;
-    for (int i = 0; i < my_context->elfsize; i++) {
-        void* start = my_context->elfs[i]->image;
-        void* end = my_context->elfs[i]->image + my_context->elfs[i]->raw_size;
-        if ((x64_entry >= start) && (x64_entry <= end)) {
-            printf_log(LOG_DEBUG, "DEBUG: %s:%d resource_alloc: %p is x64 entry\n", __func__, __LINE__, x64_entry);
-            x64_resource_alloc = dpy->resource_alloc;
-            x64_dpy = dpy;
-            dpy->resource_alloc = my_resource_alloc;
-            break;
-        }
+    if (FindElfAddress(my_context, (uintptr_t)dpy->resource_alloc)) {
+        x64_resource_alloc = dpy->resource_alloc;
+        x64_dpy = dpy;
+        dpy->resource_alloc = my_resource_alloc;
     }
     uintptr_t ret = my->XCreateWindow(dpy, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12);
     return ret;
