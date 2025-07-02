@@ -17,12 +17,6 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 #include "elfs/elfloader_private.h"
-#include "box64cpu_util.h"
-#include "box64cpu.h"
-#ifdef DYNAREC
-#include "dynablock.h"
-//#include "dynarec/native_lock.h"
-#endif
 
 const char* libx11Name = "libX11.so.6";
 #define ALTNAME "libX11.so"
@@ -1641,12 +1635,6 @@ EXPORT uintptr_t my_XCreateWindow(x64emu_t* emu, my_XDisplay_t* dpy, uintptr_t v
             printf_log(LOG_DEBUG, "DEBUG: %s:%d resource_alloc: %p is x64 entry\n", __func__, __LINE__, x64_entry);
             x64_resource_alloc = dpy->resource_alloc;
             x64_dpy = dpy;
-#ifdef DYNAREC
-            if (BOX64ENV(dynarec)) {
-                // pre-creation of the JIT code for the entry point of the thread
-                DBGetBlock(emu, (uintptr_t)dpy->resource_alloc, 1, 0); // function wrapping are 64bits only on box64
-            }
-#endif
             dpy->resource_alloc = my_resource_alloc;
             break;
         }
