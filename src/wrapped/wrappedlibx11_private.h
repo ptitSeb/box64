@@ -933,7 +933,7 @@ GO(XOffsetRegion, iFpii)
 //GO(_XomInitConverter, 
 GO(XOMOfOC, pFp)
 GOM(XOpenDisplay, pFEp)
-GO(XOpenIM, pFpppp)
+GOM(XOpenIM, pFEpppp)
 //GO(_XOpenLC, 
 GO(XOpenOM, pFpppp)
 //GO(_XParseBaseFontNameList, 

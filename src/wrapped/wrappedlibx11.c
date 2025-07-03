@@ -1646,6 +1646,22 @@ EXPORT uintptr_t my_XCreateWindow(x64emu_t* emu, my_XDisplay_t* dpy, uintptr_t v
     return ret;
 }
 
+EXPORT void* my_XOpenIM(x64emu_t* emu, my_XDisplay_t* dpy, void* v2, void* v3, void* v4)
+{
+    void* ret = my->XOpenIM(dpy, v2, v3, v4);
+    bridge_t* system = emu->context->system;
+
+    #define GO(A, W)\
+    if(dpy->A)      \
+        if(!CheckBridged(system, dpy->A)) \
+            AddAutomaticBridge(system, W, dpy->A, 0, #A); \
+
+    GO(resource_alloc, LFp)
+    #undef GO
+
+    return ret;
+}
+
 #define CUSTOM_INIT                 \
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XLockMutex_fn"), 0, "_XLockMutex_fn"); \
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \
