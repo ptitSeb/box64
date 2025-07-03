@@ -14,6 +14,7 @@ extern uintptr_t box64_pagesize;
 extern int box64_rdtsc;
 extern uint8_t box64_rdtsc_shift;
 extern int box64_is32bits;
+extern int box64_isAddressSpace32;
 #ifdef DYNAREC
 extern cpu_ext_t cpuext;
 #endif

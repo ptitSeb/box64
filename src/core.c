@@ -59,6 +59,7 @@ int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
 path_collection_t box64_addlibs = {0};
 int box64_is32bits = 0;
+int box64_isAddressSpace32 = 0;
 int box64_rdtsc = 0;
 uint8_t box64_rdtsc_shift = 0;
 int box64_mapclean = 0;
@@ -1159,7 +1160,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         if(tried) {
             unsetenv("BOX32_PERSONA32BITS");
             int p = personality(0xffffffff);
-            if(p==ADDR_LIMIT_32BIT) printf_log(LOG_INFO, "Personality set to 32bits\n");
+            if(p==ADDR_LIMIT_32BIT) {
+                box64_isAddressSpace32 = 1;
+                printf_log(LOG_INFO, "Personality set to 32bits\n");
+            }
         } else {
             if(personality(ADDR_LIMIT_32BIT)!=-1) {
                 int nenv = 0;
