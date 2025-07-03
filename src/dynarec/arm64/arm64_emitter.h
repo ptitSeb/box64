@@ -2488,4 +2488,14 @@ int convert_bitmask(uint64_t bitmask);
 //SHA256 hash update (part 2)
 #define SHA256H2(Vd, Vn, Vm)        EMIT(SHA256H2_gen(Vm, Vn, Vd))
 
+// LRCPC extension
+
+#define LDAPR_gen(sz, Rn, Rt)   ((sz)<<30 | 0b111<<27 | 1<<23 | 1<<21 | 0b11111<<16 | 1<<15 | 0b100<<12 | (Rn)<<5 | (Rt))
+#define LDAPRx(Rt, Rn)      EMIT(LDAPR_gen(0b11, Rn, Rt))
+#define LDAPRw(Rt, Rn)      EMIT(LDAPR_gen(0b10, Rn, Rt))
+#define LDAPRxw(Rt, Rn)     EMIT(LDAPR_gen(0b10+rex.w, Rn, Rt))
+#define LDAPRz(Rt, Rn)      EMIT(LDAPR_gen(rex.is32bits?0b10:0b11, Rn, Rt))
+#define LDAPRH(Rt, Rn)      EMIT(LDAPR_gen(0b01, Rn, Rt))
+#define LDAPRB(Rt, Rn)      EMIT(LDAPR_gen(0b00, Rn, Rt))
+
 #endif  //__ARM64_EMITTER_H__
