@@ -2153,9 +2153,11 @@ x64emurun:
                     GETE8(0);
                     if(rex.is32bits) {
                         tmp64u = (uintptr_t)ED->dword[0];
+                        tmp64u = (uintptr_t)getAlternate((void*)tmp64u);
                         Push32(emu, addr);
                     } else {
-                        tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
+                        tmp64u = ED->q[0];
+                        tmp64u = (uintptr_t)getAlternate((void*)tmp64u);
                         Push64(emu, addr);
                     }
                     addr = tmp64u;
@@ -2171,14 +2173,15 @@ x64emurun:
                         if(rex.is32bits || !rex.w) {
                             Push32(emu, R_CS);
                             Push32(emu, addr);
-                            addr = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
+                            addr = (uintptr_t)ED->dword[0];
                             R_CS = ED->word[2];
                         } else {
                             Push64(emu, R_CS);
                             Push64(emu, addr);
-                            addr = (uintptr_t)getAlternate((void*)ED->q[0]);
+                            addr = ED->q[0];
                             R_CS = (ED+1)->word[0];
                         }
+                        addr = (uintptr_t)getAlternate((void*)addr);
                         STEP2;
                         if(is32bits!=(emu->segs[_CS]==0x23)) {
                             is32bits = (emu->segs[_CS]==0x23);
@@ -2205,7 +2208,8 @@ x64emurun:
                     if(rex.is32bits)
                         addr = (uintptr_t)ED->dword[0];
                     else
-                        addr = (uintptr_t)getAlternate((void*)ED->q[0]);
+                        addr = (uintptr_t)ED->q[0];
+                    addr = (uintptr_t)getAlternate((void*)addr);
                     STEP2
                     break;
                 case 5:                 /* JMP FAR Ed */
@@ -2216,12 +2220,13 @@ x64emurun:
                         goto fini;
                     } else {
                         if(rex.is32bits || !rex.w) {
-                            addr = (uintptr_t)getAlternate((void*)(uintptr_t)ED->dword[0]);
+                            addr = (uintptr_t)ED->dword[0];
                             R_CS = ED->word[2];
                         } else {
-                            addr = (uintptr_t)getAlternate((void*)ED->q[0]);
+                            addr = ED->q[0];
                             R_CS = (ED+1)->word[0];
                         }
+                        addr = (uintptr_t)getAlternate((void*)addr);
                         STEP2;
                         if(is32bits!=(emu->segs[_CS]==0x23)) {
                             is32bits = (emu->segs[_CS]==0x23);
