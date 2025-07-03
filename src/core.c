@@ -15,6 +15,9 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <ctype.h>
+#ifdef BOX32
+#include <sys/personality.h>
+#endif
 #ifdef DYNAREC
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1149,6 +1152,29 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     #ifdef BOX32
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
+    // try to switch personality, but only if not already tried
+    if(box64_is32bits) {
+        int tried = getenv("BOX32_PERSONA32BITS")?1:0;
+        if(tried) {
+            unsetenv("BOX32_PERSONA32BITS");
+            int p = personality(0xffffffff);
+            if(p==ADDR_LIMIT_32BIT) printf_log(LOG_INFO, "Personality set to 32bits\n");
+        } else {
+            if(personality(ADDR_LIMIT_32BIT)!=-1) {
+                int nenv = 0;
+                while(env[nenv]) nenv++;
+                // alloc + "LD_PRELOAD" if needd + last NULL ending
+                char** newenv = (char**)box_calloc(nenv+1+1, sizeof(char*));
+                // copy strings
+                for (int i=0; i<nenv; ++i)
+                    newenv[i] = box_strdup(env[i]);
+                newenv[nenv] = "BOX32_PERSONA32BITS=1";
+                // re-launch...
+                if(execve(argv[0], (void*)argv, newenv)<0)
+                    printf_log(LOG_NONE, "Failed to relaunch. Error is %d/%s\n", errno, strerror(errno));
+            }
+        }
+    }
     if(box64_is32bits) {
         printf_log(LOG_INFO, "Using Box32 to load 32bits elf\n");
         loadProtectionFromMap();
