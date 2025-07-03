@@ -20,6 +20,7 @@
 
 const char* flacName = "libFLAC.so.8";
 #define ALTNAME "libFLAC.so"
+#define ALTNAME2 "libFLAC.so.12"
 
 #define LIBNAME flac
 
