@@ -2132,6 +2132,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVFRSTPI_H(xd, xj, imm5)     EMIT(type_2RI5(0b01110110100110101, imm5, xj, xd))
 #define XVLDI(xd, imm13)             EMIT(type_1RI13(0b01110111111000, imm13, xd))
 #define XVSHUF_B(xd, xj, xk, xa)     EMIT(type_4R(0b000011010110, xa, xk, xj, xd))
+#define XVREPLVE_B(xd, xj, rk)       EMIT(type_3R(0b01110101001000100, rk, xj, xd))
+#define XVREPLVE_H(xd, xj, rk)       EMIT(type_3R(0b01110101001000101, rk, xj, xd))
+#define XVREPLVE_W(xd, xj, rk)       EMIT(type_3R(0b01110101001000110, rk, xj, xd))
+#define XVREPLVE_D(xd, xj, rk)       EMIT(type_3R(0b01110101001000111, rk, xj, xd))
+#define XVREPLGR2VR_B(xd, rj)        EMIT(type_2R(0b0111011010011111000000, rj, xd))
+#define XVREPLGR2VR_H(xd, rj)        EMIT(type_2R(0b0111011010011111000001, rj, xd))
+#define XVREPLGR2VR_W(xd, rj)        EMIT(type_2R(0b0111011010011111000010, rj, xd))
+#define XVREPLGR2VR_D(xd, rj)        EMIT(type_2R(0b0111011010011111000011, rj, xd))
 
 #define XVFMADD_S(xd, xj, xk, xa)  EMIT(type_4R(0b000010100001, xa, xk, xj, xd))
 #define XVFMSUB_S(xd, xj, xk, xa)  EMIT(type_4R(0b000010100101, xa, xk, xj, xd))
@@ -3198,4 +3206,17 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                               \
     } while (0)
 
+#define VREPLVEIxy(width, vd, vj, imm)         \
+    do {                                       \
+        if (vex.l) {                           \
+            if (imm > 0) {                     \
+                ADDI_D(x5, xZR, imm);          \
+                XVREPLVE_##width(vd, vj, x5);  \
+            } else {                           \
+                XVREPLVE0_##width(vd, vj); \
+            }                                  \
+        } else {                               \
+            VREPLVEI_##width(vd, vj, imm);     \
+        }                                      \
+    } while (0)
 #endif //__ARM64_EMITTER_H__
