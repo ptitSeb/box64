@@ -116,6 +116,24 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VREPLVE_D(q0, q1, 0);
             }
             break;
+        case 0x51:
+            INST_NAME("VSQRTSD Gx, Vx, Ex");
+            nextop = F8;
+            GETVYx(v1, 0);
+            GETEYSD(v2, 0, 0);
+            GETGYx_empty(v0);
+            d1 = fpu_get_scratch(dyn);
+            FSQRT_D(d1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                VXOR_V(d0, d0, d0);
+                FCMP_D(fcc0, v2, d0, cLT);
+                BCEQZ(fcc0, 4 + 4);
+                FNEG_D(d1, d1);
+            }
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VEXTRINS_D(v0, d1, 0);
+            break;
         case 0x58:
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
@@ -132,7 +150,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_D(d0, d0);
             }
             MARK;
-            VOR_V(v0, v1, v1);
+            if(v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d0, 0);
             break;
         case 0x59:
@@ -151,7 +169,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_D(d0, d0);
             }
             MARK;
-            VOR_V(v0, v1, v1);
+            if(v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d0, 0);
             break;
         case 0x5C:
@@ -170,8 +188,24 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_D(d0, d0);
             }
             MARK;
-            VOR_V(v0, v1, v1);
+            if(v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d0, 0);
+            break;
+        case 0x5D:
+            INST_NAME("VMINSD Gx, Vx, Ex");
+            nextop = F8;
+            GETVYx(v1, 1);
+            GETEYSD(v2, 0, 0);
+            GETGYx_empty(v0);
+            q0 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastnan)) {
+                FMIN_D(q0, v1, v2);
+            } else {
+                FCMP_D(fcc0, v2, v1, cULE);
+                FSEL(q0, v1, v2, fcc0);
+            }
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VEXTRINS_D(v0, q0, 0);
             break;
         case 0x5E:
             INST_NAME("VDIVSD Gx, Vx, Ex");
@@ -189,8 +223,24 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FNEG_D(d0, d0);
             }
             MARK;
-            VOR_V(v0, v1, v1);
+            if(v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d0, 0);
+            break;
+        case 0x5F:
+            INST_NAME("VMAXSD Gx, Vx, Ex");
+            nextop = F8;
+            GETVYx(v1, 1);
+            GETEYSD(v2, 0, 0);
+            GETGYx_empty(v0);
+            q0 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastnan)) {
+                FMAX_D(q0, v1, v2);
+            } else {
+                FCMP_D(fcc0, v2, v1, cLT);
+                FSEL(q0, v2, v1, fcc0);
+            }
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VEXTRINS_D(v0, q0, 0);
             break;
         case 0x70:
             INST_NAME("VPSHUFLW Gx, Ex, Ib");

@@ -191,6 +191,7 @@ int DetectHostCpuFeatures(void)
         if (((cpucfg2 >> 6) & 0b11) != 3) return 0; // LSX/LASX must present
 
         cpuext.lbt = (cpucfg2 >> 18) & 0b1;
+        cpuext.frecipe = (cpucfg2 >> 25) & 0b1;
         cpuext.lam_bh = (cpucfg2 >> 27) & 0b1;
         cpuext.lamcas = (cpucfg2 >> 28) & 0b1;
         cpuext.scq = (cpucfg2 >> 30) & 0b1;
