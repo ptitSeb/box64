@@ -13,6 +13,7 @@
 
 NTSTATUS WINAPI NtYieldExecution(void);
 
+int box64_isAddressSpace32 = 0;
 
 int GetTID(void)
 {
