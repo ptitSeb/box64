@@ -3399,7 +3399,6 @@
 #() iFpppppppppppp
 #() UFbCuuWWwwCCup
 #() UFbuuuWWWWWWWW
-#() LFpLiiuuuiupLp
 #() pFEpLiiuuLipii
 #() pFEppppppppppp
 #() pFWWiCCCCiipup
@@ -3425,6 +3424,7 @@
 #() uFippuuuulllipp
 #() uFpppppuupppppp
 #() UFbCuuwwWWWWuup
+#() LFEpLiiuuuiupLp
 #() pFppLppppiiLpip
 #() pFpppppppuipppp
 #() pFppppppppppppp
@@ -5493,6 +5493,8 @@ wrappedlibx11:
   - XCreateImage
 - pFpLiiuuLipii:
   - XGetSubImage
+- LFpLiiuuuiupLp:
+  - XCreateWindow
 wrappedlibx11xcb:
 - pFp:
   - XGetXCBConnection

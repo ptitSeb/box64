@@ -16,7 +16,6 @@
 #include "x64emu.h"
 #include "box64stack.h"
 #include "box64cpu.h"
-#include "box64cpu.h"
 #include "box64cpu_util.h"
 #include "callback.h"
 #include "custommem.h"

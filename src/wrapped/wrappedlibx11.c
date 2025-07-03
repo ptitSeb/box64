@@ -705,6 +705,30 @@ static void* find_async_handler_Fct(void* fct)
     return NULL;
 }
 
+// ResourceAlloc
+typedef unsigned long XID;
+#define GO(A)   \
+static uintptr_t my_ResourceAlloc_fct_##A = 0;                      \
+static XID my_ResourceAlloc_##A(void* dpy)                          \
+{                                                                   \
+    return (XID)RunFunctionFmt(my_ResourceAlloc_fct_##A, "p", dpy); \
+}
+SUPER()
+#undef GO
+static void* findResourceAllocFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ResourceAlloc_fct_##A == (uintptr_t)fct) return my_ResourceAlloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ResourceAlloc_fct_##A == 0) {my_ResourceAlloc_fct_##A = (uintptr_t)fct; return my_ResourceAlloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 ResourceAlloc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 void* my_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
@@ -1390,7 +1414,6 @@ EXPORT void* my_XSynchronize(x64emu_t* emu, void* display, int onoff)
     return reverse_XSynchronizeProcFct(my_lib, my->XSynchronize(display, onoff));
 }
 
-typedef unsigned long XID;
 struct my_XFreeFuncs {
     void* atoms;
     void* modifiermap;
@@ -1614,6 +1637,13 @@ EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, si
     }
 
     return my->_XGetRequest(dpy, type, len);
+}
+
+EXPORT uintptr_t my_XCreateWindow(x64emu_t* emu, my_XDisplay_t* dpy, uintptr_t v2, int32_t v3, int32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, int32_t v8, uint32_t v9, void* v10, uintptr_t v11, void* v12)
+{
+    dpy->resource_alloc = findResourceAllocFct(dpy->resource_alloc);
+    uintptr_t ret = my->XCreateWindow(dpy, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12);
+    return ret;
 }
 
 #define CUSTOM_INIT                 \
