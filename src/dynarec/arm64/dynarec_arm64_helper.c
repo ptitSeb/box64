@@ -573,7 +573,8 @@ static int indirect_lookup(dynarec_arm_t* dyn, int ninst, int is32bits, int s1, 
     if (!is32bits) {
         // check higher 48bits
         LSRx_IMM(s1, xRIP, 48);
-        CBNZw(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        intptr_t j64 = (intptr_t)dyn->jmp_next - (intptr_t)dyn->block;
+        CBNZw(s1, j64);
         // load table
         if(dyn->need_reloc) {
             TABLE64C(s2, const_jmptbl48);
@@ -589,7 +590,8 @@ static int indirect_lookup(dynarec_arm_t* dyn, int ninst, int is32bits, int s1, 
     } else {
         // check higher 32bits disabled
         // LSRx_IMM(s1, xRIP, 32);
-        // CBNZw(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        // intptr_t j64 = (intptr_t)dyn->jmp_next - (intptr_t)dyn->block;
+        // CBNZw(s1, j64);
         // load table
         TABLE64C(s2, const_jmptbl32);
         #ifdef JMPTABL_SHIFT4
