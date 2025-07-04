@@ -2171,17 +2171,6 @@ EXPORT int32_t my_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
     return f(pathname, findftwFct(B), nopenfd);
 }
 
-EXPORT int32_t my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
-{
-    static iFppii_t f = NULL;
-    if(!f) {
-        library_t* lib = my_lib;
-        if(!lib) return 0;
-        f = (iFppii_t)dlsym(lib->w.lib, "nftw");
-    }
-
-    return f(pathname, findnftwFct(B), nopenfd, flags);
-}
 #endif
 
 #ifndef NOALIGN
@@ -2266,6 +2255,7 @@ EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd
     (void)emu;
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
+EXPORT int my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags) __attribute__((alias("my_nftw64")));
 
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;

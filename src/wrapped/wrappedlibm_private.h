@@ -252,7 +252,7 @@ GOWM(llrintf, IFEf)
 GOWM(llrintl, IFED)
 GOW(llround, IFd)
 GOW(llroundf, IFf)
-// llroundl // Weak
+GOWD(llroundl, IFD, llround)
 GOW(log, dFd)
 GOW(log10, dFd)
 GOW(log10f, fFf)

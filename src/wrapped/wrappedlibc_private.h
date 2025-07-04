@@ -1370,7 +1370,7 @@ GO(netname2user, iFppppp)
 GO(__newlocale, pFipp)
 GOW(newlocale, pFipp)
 //GO(nfsservctl, 
-//GOM(nftw, iFppii)
+GOM(nftw, iFEppii)
 GOM(nftw64, iFEppii)
 GOW(ngettext, pFppL)
 GO(nice, iFi)

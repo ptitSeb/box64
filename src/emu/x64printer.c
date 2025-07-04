@@ -99,6 +99,8 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIf ")", tid, *(void**)(R_RSP), func, emu->xmm[0].f[0]);
     } else if (w == IFd) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIf ")", tid, *(void**)(R_RSP), func, emu->xmm[0].d[0]);
+    } else if (w == IFD) {
+        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRILf ")", tid, *(void**)(R_RSP), func, LD2localLD((void*)(R_RSP + 8)));
     } else if (w == IFp) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ")", tid, *(void**)(R_RSP), func, (void*)R_RDI);
     } else if (w == CFv) {

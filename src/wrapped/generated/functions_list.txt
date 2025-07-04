@@ -45,6 +45,7 @@
 #() IFI
 #() IFf
 #() IFd
+#() IFD
 #() IFp
 #() IFS
 #() CFv
@@ -4815,6 +4816,7 @@ wrappedlibc:
   - vsnprintf
   - vswprintf
 - iFppii:
+  - nftw
   - nftw64
 - iFpppp:
   - __register_atfork

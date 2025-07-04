@@ -306,6 +306,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__vsnprintf, iFpLpA_t) \
 	GO(vsnprintf, iFpLpA_t) \
 	GO(vswprintf, iFpLpA_t) \
+	GO(nftw, iFppii_t) \
 	GO(nftw64, iFppii_t) \
 	GO(__register_atfork, iFpppp_t) \
 	GO(__vsprintf_chk, iFpppp_t) \
