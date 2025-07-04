@@ -24,6 +24,7 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef void* (*pFpCL_t)(void*, uint8_t, uintptr_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpLiiuuLi_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
@@ -57,6 +58,7 @@ typedef uintptr_t (*LFpLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XCheckIfEvent, iFpppp_t) \
 	GO(XIfEvent, iFpppp_t) \
 	GO(XPeekIfEvent, iFpppp_t) \
+	GO(XOpenIM, pFpppp_t) \
 	GO(XQueryExtension, iFppppp_t) \
 	GO(XRegisterIMInstantiateCallback, iFpppppp_t) \
 	GO(XUnregisterIMInstantiateCallback, iFpppppp_t) \
