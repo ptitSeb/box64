@@ -6367,6 +6367,7 @@ wrappedxml2:
 - iFpppp:
   - xmlHashRemoveEntry2
   - xmlHashUpdateEntry
+  - xmlMemSetup
   - xmlRegisterInputCallbacks
   - xmlRegisterOutputCallbacks
 - iFpppV:

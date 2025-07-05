@@ -1235,6 +1235,98 @@ static void* find_xmlTextReaderErrorFunc_Fct(void* fct) // this one have a VAArg
     return NULL;
 }
 
+// xmlFreeFunc ...
+#define GO(A)   \
+static uintptr_t my_xmlFreeFunc_fct_##A = 0;                      \
+static void my_xmlFreeFunc_##A(void* a)                          \
+{                                                                 \
+    return (void)RunFunctionFmt(my_xmlFreeFunc_fct_##A, "p", a); \
+}
+SUPER()
+#undef GO
+static void* find_xmlFreeFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlFreeFunc_fct_##A == (uintptr_t)fct) return my_xmlFreeFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlFreeFunc_fct_##A == 0) {my_xmlFreeFunc_fct_##A = (uintptr_t)fct; return my_xmlFreeFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlFreeFunc callback\n");
+    return NULL;
+}
+
+// xmlMallocFunc ...
+#define GO(A)   \
+static uintptr_t my_xmlMallocFunc_fct_##A = 0;                      \
+static void* my_xmlMallocFunc_##A(size_t a)                         \
+{                                                                   \
+    return (void*)RunFunctionFmt(my_xmlMallocFunc_fct_##A, "L", a); \
+}
+SUPER()
+#undef GO
+static void* find_xmlMallocFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlMallocFunc_fct_##A == (uintptr_t)fct) return my_xmlMallocFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlMallocFunc_fct_##A == 0) {my_xmlMallocFunc_fct_##A = (uintptr_t)fct; return my_xmlMallocFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlMallocFunc callback\n");
+    return NULL;
+}
+
+// xmlReallocFunc ...
+#define GO(A)   \
+static uintptr_t my_xmlReallocFunc_fct_##A = 0;                          \
+static void* my_xmlReallocFunc_##A(void* a, size_t b)                    \
+{                                                                        \
+    return (void*)RunFunctionFmt(my_xmlReallocFunc_fct_##A, "pL", a, b); \
+}
+SUPER()
+#undef GO
+static void* find_xmlReallocFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlReallocFunc_fct_##A == (uintptr_t)fct) return my_xmlReallocFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlReallocFunc_fct_##A == 0) {my_xmlReallocFunc_fct_##A = (uintptr_t)fct; return my_xmlReallocFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlReallocFunc callback\n");
+    return NULL;
+}
+
+// xmlStrdupFunc ...
+#define GO(A)   \
+static uintptr_t my_xmlStrdupFunc_fct_##A = 0;                      \
+static char* my_xmlStrdupFunc_##A(char* a)                          \
+{                                                                   \
+    return (char*)RunFunctionFmt(my_xmlStrdupFunc_fct_##A, "p", a); \
+}
+SUPER()
+#undef GO
+static void* find_xmlStrdupFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlStrdupFunc_fct_##A == (uintptr_t)fct) return my_xmlStrdupFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlStrdupFunc_fct_##A == 0) {my_xmlStrdupFunc_fct_##A = (uintptr_t)fct; return my_xmlStrdupFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlStrdupFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void* my_xmlHashCopy(x64emu_t* emu, void* table, void* f)
@@ -1489,6 +1581,12 @@ EXPORT void my_xmlTextReaderSetErrorHandler(x64emu_t* emu, void* reader, void* f
 EXPORT void* my_xmlCtxtReadIO(x64emu_t* emu, void* ctxt, void* ioread, void* ioclose, void* ioctx, void* url, void* encoding, int options)
 {
     return my->xmlCtxtReadIO(ctxt, find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, url, encoding, options);
+}
+
+EXPORT int my_xmlMemSetup(x64emu_t* emu, void* v1, void* v2, void* v3, void* v4)
+{
+    int ret = my->xmlMemSetup(find_xmlFreeFunc_Fct(v1), find_xmlMallocFunc_Fct(v2), find_xmlReallocFunc_Fct(v3), find_xmlStrdupFunc_Fct(v4));
+    return ret;
 }
 
 #include "wrappedlib_init.h"
