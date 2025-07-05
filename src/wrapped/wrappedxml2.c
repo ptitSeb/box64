@@ -1583,12 +1583,6 @@ EXPORT void* my_xmlCtxtReadIO(x64emu_t* emu, void* ctxt, void* ioread, void* ioc
     return my->xmlCtxtReadIO(ctxt, find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, url, encoding, options);
 }
 
-EXPORT int my_xmlMemGet(x64emu_t* emu, void* v1, void* v2, void* v3, void* v4)
-{
-    int ret = my->xmlMemGet(find_xmlFreeFunc_Fct(v1), find_xmlMallocFunc_Fct(v2), find_xmlReallocFunc_Fct(v3), find_xmlStrdupFunc_Fct(v4));
-    return ret;
-}
-
 EXPORT int my_xmlMemSetup(x64emu_t* emu, void* v1, void* v2, void* v3, void* v4)
 {
     int ret = my->xmlMemSetup(find_xmlFreeFunc_Fct(v1), find_xmlMallocFunc_Fct(v2), find_xmlReallocFunc_Fct(v3), find_xmlStrdupFunc_Fct(v4));

@@ -519,7 +519,7 @@ GO(xmlLoadExternalEntity, pFppp)
 //GO(xmlMemDisplay, 
 //GO(xmlMemDisplayLast, 
 //GO(xmlMemFree, 
-GOM(xmlMemGet, iFEpppp)
+GO(xmlMemGet, iFpppp)
 //GO(xmlMemMalloc, 
 //GO(xmlMemoryDump, 
 //GO(xmlMemoryStrdup, 
