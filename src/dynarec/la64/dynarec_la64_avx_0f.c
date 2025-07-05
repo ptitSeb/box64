@@ -158,6 +158,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 VSTELM_D(v0, ed, fixedaddress, 1);
                 SMWRITE2();
             }
+            break;
         case 0x28:
             INST_NAME("VMOVAPS Gx, Ex");
             nextop = F8;
