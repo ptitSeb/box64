@@ -1250,6 +1250,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VBITREV_D(vd, vj, vk)        EMIT(type_3R(0b01110001000100011, vk, vj, vd))
 #define VFRSTP_B(vd, vj, vk)         EMIT(type_3R(0b01110001001010110, vk, vj, vd))
 #define VFRSTP_H(vd, vj, vk)         EMIT(type_3R(0b01110001001010111, vk, vj, vd))
+#define VFRSTPI_B(vd, vj, imm5)      EMIT(type_2RI5(0b01110010100110100, imm5, vj, vd))
+#define VFRSTPI_H(vd, vj, imm5)      EMIT(type_2RI5(0b01110010100110101, imm5, vj, vd))
 #define VFADD_S(vd, vj, vk)          EMIT(type_3R(0b01110001001100001, vk, vj, vd))
 #define VFADD_D(vd, vj, vk)          EMIT(type_3R(0b01110001001100010, vk, vj, vd))
 #define VFSUB_S(vd, vj, vk)          EMIT(type_3R(0b01110001001100101, vk, vj, vd))
