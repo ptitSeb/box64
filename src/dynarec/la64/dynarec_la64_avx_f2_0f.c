@@ -70,8 +70,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 GETEYSD(q2, 0, 0);
                 GETGYx_empty(q0);
-                XVXOR_V(q0, q0, q0);
-                XVINSVE0_D(q0, q2, 0);
+                XVPICKVE_D(q0, q2, 0);
                 YMM_UNMARK_UPPER_ZERO(q0);
             }
             break;

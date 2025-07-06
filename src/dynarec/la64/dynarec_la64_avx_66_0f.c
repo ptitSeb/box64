@@ -309,8 +309,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGYx(q0, 0);
             if (MODREG) {
                 GETEYx_empty(q1, 0);
-                XVXOR_V(q1, q1, q1);
-                XVINSVE0_D(q1, q0, 0);
+                XVPICKVE_D(q1, q0, 0);
                 YMM_UNMARK_UPPER_ZERO(q1);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);

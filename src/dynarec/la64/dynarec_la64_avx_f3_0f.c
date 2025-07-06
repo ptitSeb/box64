@@ -56,8 +56,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 GETEYSS(q2, 0, 0);
                 GETGYx_empty(q0);
-                XVXOR_V(q0, q0, q0);
-                XVINSVE0_W(q0, q2, 0);
+                XVPICKVE_W(q0, q2, 0);
                 YMM_UNMARK_UPPER_ZERO(q0);
             }
             break;
@@ -125,15 +124,9 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x7E:
             INST_NAME("VMOVD Gx, Ex");
             nextop = F8;
-            if (MODREG) {
-                GETEYx(q1, 0, 0);
-                GETGYx_empty(q0);
-            } else {
-                GETEYSD(q1, 0, 0);
-                GETGYx_empty(q0);
-            }
-            XVXOR_V(q0, q0, q0);
-            XVINSVE0_D(q0, q1, 0);
+            GETEYSD(q1, 0, 0);
+            GETGYx_empty(q0);
+            XVPICKVE_D(q0, q1, 0);
             YMM_UNMARK_UPPER_ZERO(q0);
             break;
         case 0x7F:
