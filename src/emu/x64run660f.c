@@ -2110,7 +2110,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             } else {
                 SET_FLAG(F_ZF);
             }
-            GW->q[0] = tmp8u;
+            if(tmp64u || !MODREG)
+                GW->q[0] = tmp8u;
         } else {
             tmp16u = EW->word[0];
             if(tmp16u) {
@@ -2119,7 +2120,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             } else {
                 SET_FLAG(F_ZF);
             }
-            GW->word[0] = tmp8u;
+            if(tmp16u || !MODREG)
+                GW->word[0] = tmp8u;
         }
         if(!BOX64ENV(cputype)) {
             CONDITIONAL_SET_FLAG(PARITY(tmp8u), F_PF);
@@ -2144,7 +2146,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             } else {
                 SET_FLAG(F_ZF);
             }
-            GW->q[0] = tmp8u;
+            if(tmp64u || !MODREG)
+                GW->q[0] = tmp8u;
         } else {
             tmp16u = EW->word[0];
             if(tmp16u) {
@@ -2154,7 +2157,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             } else {
                 SET_FLAG(F_ZF);
             }
-            GW->word[0] = tmp8u;
+            if(tmp16u || !MODREG)
+                GW->word[0] = tmp8u;
         }
         if(!BOX64ENV(cputype)) {
             CONDITIONAL_SET_FLAG(PARITY(tmp8u), F_PF);
