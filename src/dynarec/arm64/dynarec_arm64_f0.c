@@ -342,7 +342,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     CMPSxw_REG(xRAX, ed);
                                 }
                                 MOVxw_REG(x1, ed); // save value
-                                CSELxw(ed, gd, ed, cEQ);
+                                Bcond(cNE, 4+4);
+                                MOVxw_REG(ed, gd);
                                 MOVxw_REG(xRAX, x1);
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
