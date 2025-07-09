@@ -233,6 +233,30 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 VPICKVE2GR_DU(gd, d1, 0);
             }
             break;
+        case 0x54:
+            INST_NAME("VANDPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VAND_Vxy(v0, v1, v2);
+            break;
+        case 0x55:
+            INST_NAME("VANDNPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VANDN_Vxy(v0, v1, v2);
+            break;
+        case 0x56:
+            INST_NAME("VORPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VOR_Vxy(v0, v1, v2);
+            break;
+        case 0x57:
+            INST_NAME("VXORPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VXOR_Vxy(v0, v1, v2);
+            break;
         case 0x77:
             if (!vex.l) {
                 INST_NAME("VZEROUPPER");

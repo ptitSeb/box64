@@ -38,6 +38,8 @@
 
 // GETGD    get x64 register in gd
 #define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+// GETVD    get x64 register in vd
+#define GETVD vd = TO_NAT(vex.v)
 
 // GETGW extract x64 register in gd, that is i
 #define GETGW(i)                                        \
@@ -327,7 +329,7 @@
     }
 
 #define VEXTRINS_IMM_4_0(n, m) ((n & 0xf) << 4 | (m & 0xf))
-#define XVPERMI_IMM_4_0(n, m) ((n & 0xf) << 4 | (m & 0xf))
+#define XVPERMI_IMM_4_0(n, m)  ((n & 0xf) << 4 | (m & 0xf))
 
 // Get GX as a quad (might use x1)
 #define GETGX(a, w)                             \
@@ -435,9 +437,9 @@
         BSTRINS_D(wback, ed, wb2 + 7, wb2); \
     }
 
-#define YMM_UNMARK_UPPER_ZERO(a)                                  \
-    do {                                         \
-        dyn->lsx.avxcache[a].zero_upper = 0;     \
+#define YMM_UNMARK_UPPER_ZERO(a)             \
+    do {                                     \
+        dyn->lsx.avxcache[a].zero_upper = 0; \
     } while (0)
 
 // AVX helpers
@@ -608,36 +610,36 @@
     }
 
 // Get empty GY, and non-written VY and EY
-#define GETGY_empty_VYEY_xy(gx, vx, ex, D)  \
-    GETVYxy(vx, 0);                         \
-    GETEYxy(ex, 0, D);                      \
+#define GETGY_empty_VYEY_xy(gx, vx, ex, D) \
+    GETVYxy(vx, 0);                        \
+    GETEYxy(ex, 0, D);                     \
     GETGYxy_empty(gx);
 
 // Get empty GY, and non-written EY
-#define GETGY_empty_EY_xy(gx, ex, D)  \
-    GETEYxy(ex, 0, D);                \
+#define GETGY_empty_EY_xy(gx, ex, D) \
+    GETEYxy(ex, 0, D);               \
     GETGYxy_empty(gx);
 
 // Get writable GY, and non-written VY and EY
-#define GETGY_VYEY_xy(gx, vx, ex, D)  \
-    GETVYxy(vx, 0);                   \
-    GETEYxy(ex, 0, D);                \
+#define GETGY_VYEY_xy(gx, vx, ex, D) \
+    GETVYxy(vx, 0);                  \
+    GETEYxy(ex, 0, D);               \
     GETGYxy(gx, 1);
 
 // Get writable GY, and non-written EY
-#define GETGY_EY_xy(gx, ex, D)  \
-    GETEYxy(ex, 0, D);          \
+#define GETGY_EY_xy(gx, ex, D) \
+    GETEYxy(ex, 0, D);         \
     GETGYxy(gx, 1);
 
 // Get writable EY, and non-written VY and GY
-#define GETEY_VYGY_xy(ex, vx, gx, D)  \
-    GETVYxy(vx, 0);                   \
-    GETGYxy(gx, 0);                   \
+#define GETEY_VYGY_xy(ex, vx, gx, D) \
+    GETVYxy(vx, 0);                  \
+    GETGYxy(gx, 0);                  \
     GETEYxy(ex, 1, D);
 
 // Get writable EY, and non-written GY
-#define GETEY_GY_xy(ex, gx, D)  \
-    GETGYxy(gx, 0);             \
+#define GETEY_GY_xy(ex, gx, D) \
+    GETGYxy(gx, 0);            \
     GETEYxy(ex, 1, D);
 
 // Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
@@ -1095,10 +1097,12 @@
 #define dynarec64_F20F        STEPNAME(dynarec64_F20F)
 #define dynarec64_AVX         STEPNAME(dynarec64_AVX)
 #define dynarec64_AVX_0F      STEPNAME(dynarec64_AVX_0F)
+#define dynarec64_AVX_0F38    STEPNAME(dynarec64_AVX_0F38)
 #define dynarec64_AVX_66_0F   STEPNAME(dynarec64_AVX_66_0F)
 #define dynarec64_AVX_66_0F38 STEPNAME(dynarec64_AVX_66_0F38)
 #define dynarec64_AVX_66_0F3A STEPNAME(dynarec64_AVX_66_0F3A)
-#define dynarec64_AVX_F2_0F   STEPNAME(dynarec64_AVX_F3_0F)
+#define dynarec64_AVX_F2_0F   STEPNAME(dynarec64_AVX_F2_0F)
+#define dynarec64_AVX_F2_0F3A STEPNAME(dynarec64_AVX_F2_0F3A)
 #define dynarec64_AVX_F3_0F   STEPNAME(dynarec64_AVX_F3_0F)
 
 #define geted               STEPNAME(geted)
@@ -1198,11 +1202,11 @@
 #define sse_forget_reg    STEPNAME(sse_forget_reg)
 #define sse_reflect_reg   STEPNAME(sse_reflect_reg)
 
-#define avx_get_reg            STEPNAME(avx_get_reg)
-#define avx_get_reg_empty      STEPNAME(avx_get_reg_empty)
-#define avx_forget_reg         STEPNAME(sse_forget_reg)
-#define avx_reflect_reg        STEPNAME(avx_reflect_reg)
-#define avx_purgecache         STEPNAME(avx_purgecache)
+#define avx_get_reg              STEPNAME(avx_get_reg)
+#define avx_get_reg_empty        STEPNAME(avx_get_reg_empty)
+#define avx_forget_reg           STEPNAME(sse_forget_reg)
+#define avx_reflect_reg          STEPNAME(avx_reflect_reg)
+#define avx_purgecache           STEPNAME(avx_purgecache)
 #define avx_reflect_reg_upper128 STEPNAME(avx_reflect_reg_upper128)
 
 
@@ -1385,10 +1389,12 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_F2_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 

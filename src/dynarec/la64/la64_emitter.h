@@ -2622,4 +2622,39 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                   \
     } while (0)
 
+#define VAND_Vxy(vd, vj, vk)     \
+    do {                         \
+        if (vex.l) {             \
+            XVAND_V(vd, vj, vk); \
+        } else {                 \
+            VAND_V(vd, vj, vk);  \
+        }                        \
+    } while (0)
+
+#define VANDN_Vxy(vd, vj, vk)     \
+    do {                          \
+        if (vex.l) {              \
+            XVANDN_V(vd, vj, vk); \
+        } else {                  \
+            VANDN_V(vd, vj, vk);  \
+        }                         \
+    } while (0)
+
+#define VOR_Vxy(vd, vj, vk)     \
+    do {                        \
+        if (vex.l) {            \
+            XVOR_V(vd, vj, vk); \
+        } else {                \
+            VOR_V(vd, vj, vk);  \
+        }                       \
+    } while (0)
+
+#define VXOR_Vxy(vd, vj, vk)     \
+    do {                         \
+        if (vex.l) {             \
+            XVXOR_V(vd, vj, vk); \
+        } else {                 \
+            VXOR_V(vd, vj, vk);  \
+        }                        \
+    } while (0)
 #endif //__ARM64_EMITTER_H__
