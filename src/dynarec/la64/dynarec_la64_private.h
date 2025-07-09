@@ -6,6 +6,7 @@
 typedef struct x64emu_s x64emu_t;
 typedef struct dynablock_s dynablock_t;
 typedef struct instsize_s instsize_t;
+typedef struct box64env_s box64env_t;
 
 #define BARRIER_MAYBE   8
 
@@ -169,6 +170,7 @@ typedef struct dynarec_la64_s {
     int                 need_reloc; // does the dynablock need relocations
     int                 reloc_size;
     uint32_t*           relocs;
+    box64env_t*         env;
 } dynarec_la64_t;
 
 void add_next(dynarec_la64_t *dyn, uintptr_t addr);

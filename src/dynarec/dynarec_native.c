@@ -658,6 +658,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.next = static_next;
     helper.next_cap = MAX_INSTS;
     helper.table64 = NULL;
+    helper.env = GetCurEnvByAddr(addr);
     ResetTable64(&helper);
     helper.table64cap = 0;
     helper.end = addr + SizeFileMapped(addr);
