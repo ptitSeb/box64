@@ -1299,6 +1299,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
+                    CBZw_NEXT(x2);
                     GETEW(x1, 0);
                     CALL_(const_rcl16, x1, x3);
                     EWBACK;
@@ -1313,6 +1314,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
+                    CBZw_NEXT(x2);
                     GETEW(x1, 0);
                     CALL_(const_rcr16, x1, x3);
                     EWBACK;
