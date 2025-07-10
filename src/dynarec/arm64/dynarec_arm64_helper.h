@@ -1119,11 +1119,12 @@
     x87_do_pop(dyn, ninst, scratch)
 #endif
 
+#define FORCE_DFNONE()  STRw_U12(wZR, xEmu, offsetof(x64emu_t, df))
+
 #define SET_DFNONE()                                        \
     do {                                                    \
         if (!dyn->f.dfnone) {                               \
-            STRw_U12(wZR, xEmu, offsetof(x64emu_t, df));    \
-            dyn->f.dfnone_here = 1;                         \
+            FORCE_DFNONE();                                 \
         }                                                   \
         if(!dyn->insts[ninst].x64.may_set) {                \
             dyn->f.dfnone = 1;                              \
@@ -1146,7 +1147,7 @@
 #ifndef SET_NODF
 #define SET_NODF()          dyn->f.dfnone = 0
 #endif
-#define SET_DFOK()          dyn->f.dfnone = 1; dyn->f.dfnone_here=1
+#define SET_DFOK()          dyn->f.dfnone = 1
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
@@ -1197,7 +1198,6 @@
 #define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
 #define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A);}
 #define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
-#define UFLAG_IF_DF if(dyn->insts[ninst].x64.gen_flags || (dyn->insts[ninst].f_entry.dfnone && dyn->insts[ninst].f_entry.dfnone_here))
 #define UFLAG_IF2(A) if(dyn->insts[ninst].x64.gen_flags A)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)

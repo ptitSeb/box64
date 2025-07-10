@@ -117,7 +117,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         #endif
-        dyn->f.dfnone_here = 0;
         NEW_INST;
         MESSAGE(LOG_DUMP, "New Instruction %s:%p, native:%p\n", is32bits?"x86":"x64",(void*)addr, (void*)dyn->block);
         #ifdef ARCH_NOP
