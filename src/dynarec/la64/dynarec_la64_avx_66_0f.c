@@ -285,6 +285,136 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             }
             break;
+        case 0x71:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("VPSRLW Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VSRLIxy(H, v0, v1, u8);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("VPSRAW Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 15) u8 = 15;
+                    if (u8) {
+                        VSRAIxy(H, v0, v1, u8);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("VPSLLW Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VSLLIxy(H, v0, v1, u8);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+        case 0x72:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("VPSRLD Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 31) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VSRLIxy(W, v0, v1, u8);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("VPSRAD Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 31) u8 = 31;
+                    if (u8) {
+                        VSRAIxy(W, v0, v1, u8);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("VPSLLD Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 31) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VSLLIxy(W, v0, v1, u8);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0x73:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("VPSRLQ Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 63) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VSRLIxy(D, v0, v1, u8);
+                    }
+                    break;
+                case 3:
+                    INST_NAME("VPSRLDQ Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VBSRL_Vxy(v0, v1, u8);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("VPSLLQ Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 63) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VSLLIxy(D, v0, v1, u8);
+                    }
+                    break;
+                case 7:
+                    INST_NAME("VPSLLDQ Vx, Ex, Ib");
+                    GETEYxy(v1, 0, 1);
+                    GETVYxy_empty(v0);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        VXOR_Vxy(v0, v0, v0);
+                    } else {
+                        VBSLL_Vxy(v0, v1, u8);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x7E:
             INST_NAME("VMOVD Ed, Gx");
             nextop = F8;
