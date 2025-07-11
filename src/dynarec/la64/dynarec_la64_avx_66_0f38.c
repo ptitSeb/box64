@@ -91,13 +91,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                XVSLLWIL_H_B(q0, q1, 0);
+                VEXT2XV_H_B(q0, q1);                
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
+                GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_H_B(q0, q1, 0);
             }
@@ -106,38 +102,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMOVSXBD Gx, Ex");
             nextop = F8;
             if (vex.l) {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
-                GETGYy_empty(q0);
-                XVSLLWIL_H_B(q0, q1, 0);
-                XVSLLWIL_W_H(q0, q0, 0);
+                GETEYSD(q1, 0, 0);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSS(q1, 0, 0);
-                }
-                GETGYx_empty(q0);
-                VSLLWIL_H_B(q0, q1, 0);
-                VSLLWIL_W_H(q0, q0, 0);
+                GETEYSS(q1, 0, 0);
             }
+            GETGYxy_empty(q0);
+            VEXT2XV_W_B(q0, q1);
             break;
         case 0x22:
             INST_NAME("VPMOVSXBQ Gx, Ex");
             nextop = F8;
             if (vex.l) {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSS(q1, 0, 0);
-                }
-                GETGYy_empty(q0);
-                XVSLLWIL_H_B(q0, q1, 0);
-                XVSLLWIL_W_H(q0, q0, 0);
-                XVSLLWIL_D_W(q0, q0, 0);
+                GETEYSS(q1, 0, 0);
             } else {
                 if (MODREG) {
                     GETEYx(q1, 0, 0);
@@ -148,11 +124,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                     q1 = fpu_get_scratch(dyn);
                     MOVGR2FR_W(q1, x5);
                 }
-                GETGYx_empty(q0);
-                VSLLWIL_H_B(q0, q1, 0);
-                VSLLWIL_W_H(q0, q0, 0);
-                VSLLWIL_D_W(q0, q0, 0);
             }
+            GETGYxy_empty(q0);
+            VEXT2XV_D_B(q0, q1);
             break;
         case 0x23:
             INST_NAME("VPMOVSXWD Gx, Ex");
@@ -160,13 +134,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                XVSLLWIL_W_H(q0, q1, 0);
+                VEXT2XV_W_H(q0, q1);                
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
+                GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_W_H(q0, q1, 0);
             }
@@ -175,24 +145,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMOVSXWQ Gx, Ex");
             nextop = F8;
             if (vex.l) {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
-                GETGYy_empty(q0);
-                XVSLLWIL_W_H(q0, q1, 0);
-                XVSLLWIL_D_W(q0, q0, 0);
+                GETEYSD(q1, 0, 0);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSS(q1, 0, 0);
-                }
-                GETGYx_empty(q0);
-                VSLLWIL_W_H(q0, q1, 0);
-                VSLLWIL_D_W(q0, q0, 0);
+                GETEYSS(q1, 0, 0);
             }
+            GETGYxy_empty(q0);
+            VEXT2XV_D_H(q0, q1);
             break;
         case 0x25:
             INST_NAME("VPMOVSXDQ Gx, Ex");
@@ -200,13 +158,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                XVSLLWIL_D_W(q0, q1, 0);
+                VEXT2XV_D_W(q0, q1);                
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
+                GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_D_W(q0, q1, 0);
             }
@@ -279,13 +233,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                XVSLLWIL_HU_BU(q0, q1, 0);
+                VEXT2XV_HU_BU(q0, q1);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
+                GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_HU_BU(q0, q1, 0);
             }
@@ -294,38 +244,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMOVZXBD Gx, Ex");
             nextop = F8;
             if (vex.l) {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
-                GETGYy_empty(q0);
-                XVSLLWIL_HU_BU(q0, q1, 0);
-                XVSLLWIL_WU_HU(q0, q0, 0);
+                GETEYSD(q1, 0, 0);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSS(q1, 0, 0);
-                }
-                GETGYx_empty(q0);
-                VSLLWIL_HU_BU(q0, q1, 0);
-                VSLLWIL_WU_HU(q0, q0, 0);
+                GETEYSS(q1, 0, 0);
             }
+            GETGYxy_empty(q0);
+            VEXT2XV_WU_BU(q0, q1);
             break;
         case 0x32:
             INST_NAME("VPMOVZXBQ Gx, Ex");
             nextop = F8;
             if (vex.l) {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSS(q1, 0, 0);
-                }
-                GETGYy_empty(q0);
-                XVSLLWIL_HU_BU(q0, q1, 0);
-                XVSLLWIL_WU_HU(q0, q0, 0);
-                XVSLLWIL_DU_WU(q0, q0, 0);
+                GETEYSS(q1, 0, 0);
             } else {
                 if (MODREG) {
                     GETEYx(q1, 0, 0);
@@ -336,11 +266,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                     q1 = fpu_get_scratch(dyn);
                     MOVGR2FR_W(q1, x5);
                 }
-                GETGYx_empty(q0);
-                VSLLWIL_HU_BU(q0, q1, 0);
-                VSLLWIL_WU_HU(q0, q0, 0);
-                VSLLWIL_DU_WU(q0, q0, 0);
             }
+            GETGYxy_empty(q0);
+            VEXT2XV_DU_BU(q0, q1);
             break;
         case 0x33:
             INST_NAME("VPMOVZXWD Gx, Ex");
@@ -348,13 +276,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                XVSLLWIL_WU_HU(q0, q1, 0);
+                VEXT2XV_WU_HU(q0, q1);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
+                GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_WU_HU(q0, q1, 0);
             }
@@ -363,24 +287,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMOVZXWQ Gx, Ex");
             nextop = F8;
             if (vex.l) {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
-                GETGYy_empty(q0);
-                XVSLLWIL_WU_HU(q0, q1, 0);
-                XVSLLWIL_DU_WU(q0, q0, 0);
+                GETEYSD(q1, 0, 0);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSS(q1, 0, 0);
-                }
-                GETGYx_empty(q0);
-                VSLLWIL_WU_HU(q0, q1, 0);
-                VSLLWIL_DU_WU(q0, q0, 0);
+                GETEYSS(q1, 0, 0);
             }
+            GETGYxy_empty(q0);
+            VEXT2XV_DU_HU(q0, q1);
             break;
         case 0x35:
             INST_NAME("VPMOVZXDQ Gx, Ex");
@@ -388,13 +300,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                XVSLLWIL_DU_WU(q0, q1, 0);
+                VEXT2XV_DU_WU(q0, q1);
             } else {
-                if (MODREG) {
-                    GETEYx(q1, 0, 0);
-                } else {
-                    GETEYSD(q1, 0, 0);
-                }
+                GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_DU_WU(q0, q1, 0);
             }
