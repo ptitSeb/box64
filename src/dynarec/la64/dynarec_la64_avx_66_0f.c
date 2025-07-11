@@ -731,6 +731,25 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULWEVxy(D_WU, v0, v1, v2);
             break;
+        case 0xF5:
+            INST_NAME("VPMADDWD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VMULWEVxy(W_H, q0, v1, v2);
+            VMULWODxy(W_H, q1, v1, v2);
+            VADDxy(W, v0, q0, q1);
+            break;
+        case 0xF6:
+            INST_NAME("VPSADBW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VABSDxy(BU, v0, v1, v2);
+            VHADDWxy(HU_BU, v0, v0, v0);
+            VHADDWxy(WU_HU, v0, v0, v0);
+            VHADDWxy(DU_WU, v0, v0, v0);
+            break;
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
             nextop = F8;

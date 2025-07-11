@@ -57,6 +57,76 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x01:
+            INST_NAME("VPHADDW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VPICKEVxy(H, q0, v2, v1);
+            VPICKODxy(H, q1, v2, v1);
+            VADDxy(H, v0, q0, q1);
+            break;
+        case 0x02:
+            INST_NAME("VPHADDD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VPICKEVxy(W, q0, v2, v1);
+            VPICKODxy(W, q1, v2, v1);
+            VADDxy(W, v0, q0, q1);
+            break;
+        case 0x03:
+            INST_NAME("VPHADDSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VPICKEVxy(H, q0, v2, v1);
+            VPICKODxy(H, q1, v2, v1);
+            VSADDxy(H, v0, q0, q1);
+            break;
+        case 0x04:
+            INST_NAME("VPMADDUBSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VMULWEVxy(H_BU_B, q0, v1, v2);
+            VMULWODxy(H_BU_B, q1, v1, v2);
+            VSADDxy(H, v0, q0, q1);
+            break;
+        case 0x05:
+            INST_NAME("VPHSUBW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VPICKEVxy(H, q0, v2, v1);
+            VPICKODxy(H, q1, v2, v1);
+            VSUBxy(H, v0, q0, q1);
+            break;
+        case 0x06:
+            INST_NAME("VPHSUBD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VPICKEVxy(W, q0, v2, v1);
+            VPICKODxy(W, q1, v2, v1);
+            VSUBxy(W, v0, q0, q1);
+            break;
+        case 0x07:
+            INST_NAME("VPHSUBSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VPICKEVxy(H, q0, v2, v1);
+            VPICKODxy(H, q1, v2, v1);
+            VSSUBxy(H, v0, q0, q1);
+            break;
         case 0x08:
             INST_NAME("VPSIGNB Gx, Vx, Ex");
             nextop = F8;
@@ -74,6 +144,32 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VSIGNCOVxy(W, v0, v2, v1);
+            break;
+        case 0x0B:
+            INST_NAME("VPMULHRSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                XVMULWEV_W_H(q0, v1, v2);
+                XVMULWOD_W_H(q1, v1, v2);
+                XVSRLI_W(q0, q0, 14);
+                XVSRLI_W(q1, q1, 14);
+                XVADDI_WU(q0, q0, 1);
+                XVADDI_WU(q1, q1, 1);
+                XVSRLNI_H_W(q0, q0, 1);
+                XVSRLNI_H_W(q1, q1, 1);
+                XVILVL_H(v0, q1, q0);
+            } else {
+                VEXT2XV_W_H(q0, v1);
+                VEXT2XV_W_H(q1, v2);
+                XVMUL_W(q0, q0, q1);
+                XVSRLI_W(q0, q0, 14);
+                XVADDI_WU(q0, q0, 1);
+                XVSRLNI_H_W(q0, q0, 1);
+                XVPERMI_D(v0, q0, 0b1000);
+            }
             break;
         case 0x18:
             INST_NAME("VBROADCASTSS Gx, Ex");
@@ -102,6 +198,30 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_EY_xy(q0, q2, 0);
             XVREPLVE0_Q(q0, q2);
+            break;
+        case 0x1C:
+            INST_NAME("VPABSB Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            XVXOR_V(q0, q0, q0);
+            VABSDxy(B, v0, v1, q0);
+            break;
+        case 0x1D:
+            INST_NAME("VPABSW Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            XVXOR_V(q0, q0, q0);
+            VABSDxy(H, v0, v1, q0);
+            break;
+        case 0x1E:
+            INST_NAME("VPABSD Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 0);
+            q0 = fpu_get_scratch(dyn);
+            XVXOR_V(q0, q0, q0);
+            VABSDxy(W, v0, v1, q0);
             break;
         case 0x20:
             INST_NAME("VPMOVSXBW Gx, Ex");

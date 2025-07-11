@@ -107,6 +107,86 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             }
             break;
+        case 0x42:
+            INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+            u8 = F8;
+            if (vex.l) {
+                uint8_t low_blk2_offset = 4 * (u8 & 3);
+                uint8_t low_blk1_offset = 4 * ((u8 >> 2) & 1);
+                uint8_t high_blk2_offset = 4 * ((u8 >> 3) & 3);
+                uint8_t high_blk1_offset = 4 * ((u8 >> 5) & 1);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                q2 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                if( low_blk1_offset == high_blk1_offset) {
+                    // generate hi128/low128 mask in one shot
+                    XVMEPATMSK_V(d0, 1, low_blk1_offset);
+                    XVMEPATMSK_V(d1, 1, low_blk1_offset + 4);
+                    XVSHUF_B(q0, v1, v1, d0);
+                    XVSHUF_B(q2, v1, v1, d1);
+                } else {
+                    XVMEPATMSK_V(d0, 1, low_blk1_offset);
+                    XVMEPATMSK_V(d1, 1, high_blk1_offset);
+                    XVSHUF_B(q0, v1, v1, d0);
+                    XVSHUF_B(q1, v1, v1, d1);
+                    XVPERMI_Q(q0, q1, XVPERMI_IMM_4_0(1, 2));
+                    XVMEPATMSK_V(d0, 1, low_blk1_offset + 4);
+                    XVMEPATMSK_V(d1, 1, high_blk1_offset + 4);
+                    XVSHUF_B(q2, v1, v1, d0);
+                    XVSHUF_B(q1, v1, v1, d1);
+                    XVPERMI_Q(q2, q1, XVPERMI_IMM_4_0(1, 2));
+                }
+                if( low_blk2_offset == high_blk2_offset) {
+                    // generate hi128/low128 mask in one shot
+                    XVBSRL_V(q1, v2, low_blk2_offset);
+                    XVSHUF4I_W(q1, q1, 0b00000000);
+                } else {
+                    XVBSRL_V(q1, v2, low_blk2_offset);
+                    XVBSRL_V(d1, v2, high_blk2_offset);
+                    XVPERMI_Q(q1, d1, XVPERMI_IMM_4_0(1, 2));
+                    XVSHUF4I_W(q1, q1, 0b00000000);
+                }                
+                XVABSD_BU(d0, q0, q1);
+                XVABSD_BU(d1, q2, q1);
+                XVHADDW_HU_BU(d0, d0, d0);
+                XVHADDW_HU_BU(d1, d1, d1);
+                XVHADDW_WU_HU(d0, d0, d0);
+                XVHADDW_WU_HU(d1, d1, d1);
+                XVSSRANI_HU_W(d0, d0, 0);
+                XVSSRANI_HU_W(d1, d1, 0);
+                XVEXTRINS_D(v0, d0, VEXTRINS_IMM_4_0(0, 0));
+                XVEXTRINS_D(v0, d1, VEXTRINS_IMM_4_0(1, 0));
+            } else {
+                uint8_t blk2_offset = 4 * (u8 & 3);
+                uint8_t blk1_offset = 4 * ((u8 >> 2) & 1);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                q2 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VMEPATMSK_V(d0, 1, blk1_offset);
+                VMEPATMSK_V(d1, 1, blk1_offset + 4);
+                VSHUF_B(q0, v1, v1, d0);
+                VSHUF_B(q2, v1, v1, d1);
+                VBSRL_V(q1, v2, blk2_offset);
+                VSHUF4I_W(q1, q1, 0b00000000);
+
+                VABSD_BU(d0, q0, q1);
+                VABSD_BU(d1, q2, q1);
+                VHADDW_HU_BU(d0, d0, d0);
+                VHADDW_HU_BU(d1, d1, d1);
+                VHADDW_WU_HU(d0, d0, d0);
+                VHADDW_WU_HU(d1, d1, d1);
+                VSSRANI_HU_W(d0, d0, 0);
+                VSSRANI_HU_W(d1, d1, 0);
+                VEXTRINS_D(v0, d0, VEXTRINS_IMM_4_0(0, 0));
+                VEXTRINS_D(v0, d1, VEXTRINS_IMM_4_0(1, 0));
+            }
+            break;
         default:
             DEFAULT;
     }
