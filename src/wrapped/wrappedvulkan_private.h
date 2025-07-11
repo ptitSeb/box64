@@ -312,6 +312,7 @@ GO(vkGetPhysicalDeviceMemoryProperties2KHR, vFpp)
 GO(vkGetPhysicalDeviceProperties2KHR, vFpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2KHR, vFppp)
 GO(vkGetPhysicalDeviceSparseImageFormatProperties2KHR, vFpppp)  //VkSparseImageFormatProperties2 seems OK
+GO(vkGetPhysicalDeviceExternalTensorPropertiesARM, vFpp)
 
 // VK_KHR_get_surface_capabilities2
 GO(vkGetPhysicalDeviceSurfaceCapabilities2KHR, iFppp)
