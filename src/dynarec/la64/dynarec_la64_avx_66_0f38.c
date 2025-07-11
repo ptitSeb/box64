@@ -57,6 +57,24 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x08:
+            INST_NAME("VPSIGNB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSIGNCOVxy(B, v0, v2, v1);
+            break;
+        case 0x09:
+            INST_NAME("VPSIGNW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSIGNCOVxy(H, v0, v2, v1);
+            break;
+        case 0x0A:
+            INST_NAME("VPSIGND Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSIGNCOVxy(W, v0, v2, v1);
+            break;
         case 0x18:
             INST_NAME("VBROADCASTSS Gx, Ex");
             nextop = F8;
@@ -91,7 +109,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                VEXT2XV_H_B(q0, q1);                
+                VEXT2XV_H_B(q0, q1);
             } else {
                 GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
@@ -134,7 +152,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                VEXT2XV_W_H(q0, q1);                
+                VEXT2XV_W_H(q0, q1);
             } else {
                 GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
@@ -158,12 +176,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEYx(q1, 0, 0);
                 GETGYy_empty(q0);
-                VEXT2XV_D_W(q0, q1);                
+                VEXT2XV_D_W(q0, q1);
             } else {
                 GETEYSD(q1, 0, 0);
                 GETGYx_empty(q0);
                 VSLLWIL_D_W(q0, q1, 0);
             }
+            break;
+        case 0x28:
+            INST_NAME("VPMULDQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMULWEVxy(D_W, v0, v1, v2);
             break;
         case 0x2C:
             INST_NAME("VMASKMOVPS Gx, Vx, Ex");
@@ -306,6 +330,60 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGYx_empty(q0);
                 VSLLWIL_DU_WU(q0, q1, 0);
             }
+            break;
+        case 0x38:
+            INST_NAME("VPMINSB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMINxy(B, v0, v1, v2);
+            break;
+        case 0x39:
+            INST_NAME("VPMINSD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMINxy(W, v0, v1, v2);
+            break;
+        case 0x3A:
+            INST_NAME("VPMINUW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMINxy(HU, v0, v1, v2);
+            break;
+        case 0x3B:
+            INST_NAME("VPMINUD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMINxy(WU, v0, v1, v2);
+            break;
+        case 0x3C:
+            INST_NAME("VPMAXSB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMAXxy(B, v0, v1, v2);
+            break;
+        case 0x3D:
+            INST_NAME("VPMAXSD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMAXxy(W, v0, v1, v2);
+            break;
+        case 0x3E:
+            INST_NAME("VPMAXUW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMAXxy(HU, v0, v1, v2);
+            break;
+        case 0x3F:
+            INST_NAME("VPMAXUD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMAXxy(WU, v0, v1, v2);
+            break;
+        case 0x40:
+            INST_NAME("VPMULLD Gx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMULxy(W, v0, v1, v2);
             break;
         case 0x45:
             INST_NAME("VPSRLVD/Q Gx, Vx, Ex");

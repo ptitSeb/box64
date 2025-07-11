@@ -487,11 +487,23 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
-            VREPLVE0xy(D, q0 ,v2);
+            VREPLVE0xy(D, q0, v2);
             VLDIxy(d0, (0b011 << 10) | 0x3f);
             VSLExy(DU, d0, q0, d0);
             VSRLxy(D, v0, v1, q0);
             VAND_Vxy(v0, v0, d0);
+            break;
+        case 0xD4:
+            INST_NAME("VPADDQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VADDxy(D, v0, v1, v2);
+            break;
+        case 0xD5:
+            INST_NAME("VPMULLW Gx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMULxy(H, v0, v1, v2);
             break;
         case 0xD6:
             INST_NAME("VMOVD Ex, Gx");
@@ -523,17 +535,59 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VPICKVE2GR_DU(gd, d1, 0);
             }
             break;
+        case 0xD8:
+            INST_NAME("VPSUBUSB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSSUBxy(BU, v0, v1, v2);
+            break;
+        case 0xD9:
+            INST_NAME("VPSUBUSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSSUBxy(HU, v0, v1, v2);
+            break;
+        case 0xDA:
+            INST_NAME("VPMINUB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMINxy(BU, v0, v1, v2);
+            break;
         case 0xDB:
             INST_NAME("VPAND Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VAND_Vxy(v0, v1, v2);
             break;
+        case 0xDC:
+            INST_NAME("VPADDUSB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSADDxy(BU, v0, v1, v2);
+            break;
+        case 0xDD:
+            INST_NAME("VPADDUSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSADDxy(HU, v0, v1, v2);
+            break;
+        case 0xDE:
+            INST_NAME("VPMAXUB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMAXxy(BU, v0, v1, v2);
+            break;
         case 0xDF:
             INST_NAME("VPANDN Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VANDN_Vxy(v0, v1, v2);
+            break;
+        case 0xE0:
+            INST_NAME("VPAVGB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VAVGRxy(BU, v0, v1, v2);
             break;
         case 0xE1:
             INST_NAME("VPSRAW Gx, Vx, Ex");
@@ -542,7 +596,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             VMINIxy(DU, d0, v2, 15);
             VREPLVE0xy(H, d0, d0);
-            VSRAxy(H, v0, v1, d0);            
+            VSRAxy(H, v0, v1, d0);
             break;
         case 0xE2:
             INST_NAME("VPSRAD Gx, Vx, Ex");
@@ -551,7 +605,25 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             VMINIxy(DU, d0, v2, 31);
             VREPLVE0xy(W, d0, d0);
-            VSRAxy(W, v0, v1, d0);            
+            VSRAxy(W, v0, v1, d0);
+            break;
+        case 0xE3:
+            INST_NAME("VPAVGW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VAVGRxy(HU, v0, v1, v2);
+            break;
+        case 0xE4:
+            INST_NAME("VPMULHUW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMUHxy(HU, v0, v1, v2);
+            break;
+        case 0xE5:
+            INST_NAME("VPMULHW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMUHxy(H, v0, v1, v2);
             break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex, Gx");
@@ -569,11 +641,47 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0xE8:
+            INST_NAME("VPSUBSB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSSUBxy(B, v0, v1, v2);
+            break;
+        case 0xE9:
+            INST_NAME("VPSUBSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSSUBxy(H, v0, v1, v2);
+            break;
+        case 0xEA:
+            INST_NAME("VPMINSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMINxy(H, v0, v1, v2);
+            break;
         case 0xEB:
             INST_NAME("VPOR Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VOR_Vxy(v0, v1, v2);
+            break;
+        case 0xEC:
+            INST_NAME("VPADDSB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSADDxy(B, v0, v1, v2);
+            break;
+        case 0xED:
+            INST_NAME("VPADDSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSADDxy(H, v0, v1, v2);
+            break;
+        case 0xEE:
+            INST_NAME("VPMAXSW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMAXxy(H, v0, v1, v2);
             break;
         case 0xEF:
             INST_NAME("VPXOR Gx, Vx, Ex");
@@ -617,6 +725,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             VSLLxy(D, v0, v1, q0);
             VAND_Vxy(v0, v0, d0);
             break;
+        case 0xF4:
+            INST_NAME("VPMULLUDQ Gx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VMULWEVxy(D_WU, v0, v1, v2);
+            break;
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
             nextop = F8;
@@ -628,6 +742,48 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             VLD(q0, xRDI, 0);
             VBITSEL_V(q0, q0, v0, q1); // sel v0 if mask is 1
             VST(q0, xRDI, 0);
+            break;
+        case 0xF8:
+            INST_NAME("VPSUBB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSUBxy(B, v0, v1, v2);
+            break;
+        case 0xF9:
+            INST_NAME("VPSUBW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSUBxy(H, v0, v1, v2);
+            break;
+        case 0xFA:
+            INST_NAME("VPSUBD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSUBxy(W, v0, v1, v2);
+            break;
+        case 0xFB:
+            INST_NAME("VPSUBQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSUBxy(D, v0, v1, v2);
+            break;
+        case 0xFC:
+            INST_NAME("VPADDB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VADDxy(B, v0, v1, v2);
+            break;
+        case 0xFD:
+            INST_NAME("VPADDW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VADDxy(H, v0, v1, v2);
+            break;
+        case 0xFE:
+            INST_NAME("VPADDD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VADDxy(W, v0, v1, v2);
             break;
         default:
             DEFAULT;
