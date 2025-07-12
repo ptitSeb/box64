@@ -56,7 +56,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(cacheupd);
 
     switch(opcode) {
-
+        case 0x00:
+            if(rex.is32bits) {
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0:
+                        INST_NAME("SLDT EW");
+                        if(MODREG) {
+                            ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                            MOV32w(ed, 0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                            STRH_U12(xZR, wback, 0);
+                        }
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x01:
             // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
