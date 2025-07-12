@@ -57,6 +57,7 @@ int my_pthread_mutexattr_getrobust(x64emu_t* emu, my_mutexattr_t *attr, void* p)
 int my_pthread_mutexattr_init(x64emu_t* emu, my_mutexattr_t *attr);
 int my___pthread_mutexattr_init(x64emu_t* emu, my_mutexattr_t *attr);
 int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, int k);
+int my_pthread_mutexattr_setprioceiling(x64emu_t* emu, my_mutexattr_t *attr, int p);
 int my_pthread_mutexattr_setprotocol(x64emu_t* emu, my_mutexattr_t *attr, int p);
 int my_pthread_mutexattr_setpshared(x64emu_t* emu, my_mutexattr_t *attr, int p);
 int my_pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int t);

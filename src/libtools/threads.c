@@ -930,6 +930,20 @@ EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 	attr->x86 = mattr.x86;
 	return ret;
 }
+EXPORT int my_pthread_mutexattr_setprioceiling(x64emu_t* emu, my_mutexattr_t *attr, int p)
+{
+#ifndef TERMUX
+	(void)emu;
+	my_mutexattr_t mattr = {0};
+	mattr.x86 = attr->x86;
+	int ret = pthread_mutexattr_setprioceiling(&mattr.nat, p);
+	attr->x86 = mattr.x86;
+	return ret;
+#else
+	(void)emu; (void)attr; (void)p;
+	return 0;
+#endif
+}
 EXPORT int my_pthread_mutexattr_setprotocol(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
 #ifndef TERMUX

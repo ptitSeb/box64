@@ -64,6 +64,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_kill, iFpi_t) \
 	GO(pthread_kill@GLIBC_2.2.5, iFpi_t) \
 	GO(pthread_mutexattr_setkind_np, iFpi_t) \
+	GO(pthread_mutexattr_setprioceiling, iFpi_t) \
 	GO(pthread_mutexattr_setprotocol, iFpi_t) \
 	GO(pthread_mutexattr_setpshared, iFpi_t) \
 	GO(pthread_mutexattr_setrobust, iFpi_t) \

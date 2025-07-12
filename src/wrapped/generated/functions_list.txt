@@ -5250,6 +5250,7 @@ wrappedlibpthread:
   - pthread_kill
   - pthread_kill@GLIBC_2.2.5
   - pthread_mutexattr_setkind_np
+  - pthread_mutexattr_setprioceiling
   - pthread_mutexattr_setprotocol
   - pthread_mutexattr_setpshared
   - pthread_mutexattr_setrobust
