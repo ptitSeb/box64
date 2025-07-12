@@ -932,7 +932,7 @@ EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 }
 EXPORT int my_pthread_mutexattr_setprioceiling(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
-#ifndef TERMUX
+#if !defined(TERMUX) && !defined(ANDROID)
 	(void)emu;
 	my_mutexattr_t mattr = {0};
 	mattr.x86 = attr->x86;
