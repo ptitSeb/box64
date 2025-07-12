@@ -27,7 +27,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
 
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    uint8_t gd, ed;
+    uint8_t gd, ed, vd;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2, gb1, gb2;
     int32_t i32, i32_;
@@ -353,6 +353,15 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 VBITSEL_V(v0, v0, v2, d0);
                 PUTEYx(v0);
             }
+            break;
+        case 0xF7:
+            INST_NAME("SHLX Gd, Ed, Vd");
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            GETVD;
+            ANDI(x5, vd, rex.w ? 0x3f : 0x1f);
+            SLLxw(gd, ed, x5);
             break;
         default:
             DEFAULT;
