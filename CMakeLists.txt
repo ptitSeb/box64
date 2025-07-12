@@ -472,6 +472,7 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64run.c"
     "${BOX64_ROOT}/src/emu/x64run0f.c"
     "${BOX64_ROOT}/src/emu/x64run64.c"
+    "${BOX64_ROOT}/src/emu/x64run64avx.c"
     "${BOX64_ROOT}/src/emu/x64run66.c"
     "${BOX64_ROOT}/src/emu/x64run660f.c"
     "${BOX64_ROOT}/src/emu/x64run66f20f.c"

@@ -744,7 +744,61 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     *(uint32_t*)(tlsdata+tmp64u) = R_EAX;
             }
             break;
-
+        case 0xC4:                      /* LES Gd,Ed */
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
+                GETED(0);
+                GETGD;
+                emu->segs[_ES] = *(uint16_t*)(((char*)ED) + 4);
+                emu->segs_serial[_ES] = 0;
+                GD->dword[0] = *(uint32_t*)ED;
+            } else {
+                vex_t vex = {0};
+                vex.rex = rex;
+                tmp8u = nextop;
+                vex.m = tmp8u&0b00011111;
+                vex.rex.b = (tmp8u&0b00100000)?0:1;
+                vex.rex.x = (tmp8u&0b01000000)?0:1;
+                vex.rex.r = (tmp8u&0b10000000)?0:1;
+                tmp8u = F8;
+                vex.p = tmp8u&0b00000011;
+                vex.l = (tmp8u>>2)&1;
+                vex.v = ((~tmp8u)>>3)&0b1111;
+                vex.rex.w = (tmp8u>>7)&1;
+                #ifdef TEST_INTERPRETER 
+                addr = Test64AVX(test, vex, addr, tlsdata);
+                #else
+                addr = Run64AVX(emu, vex, addr, tlsdata);
+                #endif
+            }
+            break;
+        case 0xC5:                      /* LDS Gd,Ed */
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
+                GETED(0);
+                GETGD;
+                emu->segs[_DS] = *(uint16_t*)(((char*)ED) + 4);
+                emu->segs_serial[_DS] = 0;
+                GD->dword[0] = *(uint32_t*)ED;
+            } else {
+                vex_t vex = {0};
+                vex.rex = rex;
+                tmp8u = nextop;
+                vex.p = tmp8u&0b00000011;
+                vex.l = (tmp8u>>2)&1;
+                vex.v = ((~tmp8u)>>3)&0b1111;
+                vex.rex.r = (tmp8u&0b10000000)?0:1;
+                vex.rex.b = 0;
+                vex.rex.x = 0;
+                vex.rex.w = 0;
+                vex.m = VEX_M_0F;
+                #ifdef TEST_INTERPRETER 
+                addr = Test64AVX(test, vex, addr, tlsdata);
+                #else
+                addr = Run64AVX(emu, vex, addr, tlsdata);
+                #endif
+            }
+            break;
         case 0xC6:                      /* MOV FS:Eb, Ib */
             nextop = F8;
             GETEB_OFFS(1, tlsdata);

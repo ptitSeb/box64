@@ -98,6 +98,7 @@ sse_regs_t* GetGy(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 
 uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr);
+uintptr_t Run64AVX(x64emu_t *emu, vex_t vex, uintptr_t addr, uintptr_t tlsdata);
 uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t Run66F20F(x64emu_t *emu, rex_t rex, uintptr_t addr);
@@ -140,6 +141,7 @@ uintptr_t RunAVX_F30F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 
 uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Test64(x64test_t *test, rex_t rex, int seg, uintptr_t addr);
+uintptr_t Test64AVX(x64test_t *test, vex_t vex, uintptr_t addr, uintptr_t tlsdata);
 uintptr_t Test66(x64test_t *test, rex_t rex, int rep, uintptr_t addr);
 uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr);
 uintptr_t Test66F20F(x64test_t *test, rex_t rex, uintptr_t addr);
