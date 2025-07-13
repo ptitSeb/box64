@@ -149,8 +149,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 return addr;
             }
             GETGYx(v0, 0);
-            addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
-            FST_D(v0, ed, fixedaddress);
+            addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 0, 0);
+            VSTELM_D(v0, ed, 0, 1);
             SMWRITE2();
             break;
         case 0x28:
