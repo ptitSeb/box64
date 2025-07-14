@@ -2774,4 +2774,121 @@ LSX instruction starts with V, LASX instruction starts with XV.
             VMINI_##width(vd, vj, imm);  \
         }                                \
     } while (0)
+
+#define VADDxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVADD_##width(vd, vj, vk); \
+        } else {                       \
+            VADD_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VSUBxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVSUB_##width(vd, vj, vk); \
+        } else {                       \
+            VSUB_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VSADDxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVSADD_##width(vd, vj, vk); \
+        } else {                        \
+            VSADD_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VSSUBxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVSSUB_##width(vd, vj, vk); \
+        } else {                        \
+            VSSUB_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VMULxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVMUL_##width(vd, vj, vk); \
+        } else {                       \
+            VMUL_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VMUHxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVMUH_##width(vd, vj, vk); \
+        } else {                       \
+            VMUH_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VMULWEVxy(width, vd, vj, vk)      \
+    do {                                  \
+        if (vex.l) {                      \
+            XVMULWEV_##width(vd, vj, vk); \
+        } else {                          \
+            VMULWEV_##width(vd, vj, vk);  \
+        }                                 \
+    } while (0)
+
+#define VMULWODxy(width, vd, vj, vk)      \
+    do {                                  \
+        if (vex.l) {                      \
+            XVMULWOD_##width(vd, vj, vk); \
+        } else {                          \
+            VMULWOD_##width(vd, vj, vk);  \
+        }                                 \
+    } while (0)
+
+#define VMAXxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVMAX_##width(vd, vj, vk); \
+        } else {                       \
+            VMAX_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VMINxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVMIN_##width(vd, vj, vk); \
+        } else {                       \
+            VMIN_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VSIGNCOVxy(width, vd, vj, vk)      \
+    do {                                   \
+        if (vex.l) {                       \
+            XVSIGNCOV_##width(vd, vj, vk); \
+        } else {                           \
+            VSIGNCOV_##width(vd, vj, vk);  \
+        }                                  \
+    } while (0)
+
+#define VAVGxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVAVG_##width(vd, vj, vk); \
+        } else {                       \
+            VAVG_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
+
+#define VAVGRxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVAVGR_##width(vd, vj, vk); \
+        } else {                        \
+            VAVGR_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
 #endif //__ARM64_EMITTER_H__
