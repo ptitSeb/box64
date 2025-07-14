@@ -134,7 +134,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             WILLWRITE();
         }
 
-        int is_opcode_volatile = box64_wine && VolatileRangesContains(ip);
+        int is_opcode_volatile = box64_wine && VolatileRangesContains(ip) && VolatileOpcodesHas(ip);
         if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed && dyn->insts[ninst].will_write)
             DMB_ISHST();
         #endif

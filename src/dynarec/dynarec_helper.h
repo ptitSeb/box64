@@ -36,7 +36,7 @@
 #define STRONGMEM_LAST_WRITE 1 // The level of a barrier before the last guest memory store will be put
 #define STRONGMEM_SEQ_WRITE  3 // The level of a barrier at every third memory store will be  put
 
-#define STRONGMEM_LEVEL() (box64_wine && VolatileRangesContains(ip) ? 0 : BOX64DRENV(dynarec_strongmem))
+#define STRONGMEM_LEVEL() ((box64_wine && VolatileRangesContains(ip)) ? 0 : BOX64DRENV(dynarec_strongmem))
 
 #if STEP == 1
 
