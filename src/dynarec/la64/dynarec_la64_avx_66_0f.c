@@ -251,6 +251,55 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VXOR_Vxy(v0, v1, v2);
             break;
+        case 0x63:
+            INST_NAME("VPACKSSWB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            if (v1 == v2) {
+                VSATxy(H, v0, v1, 7);
+                VPICKEVxy(B, v0, v0, v0);
+            } else {
+                VSATxy(H, q0, v2, 7);
+                VSATxy(H, v0, v1, 7);
+                VPICKEVxy(B, v0, q0, v0);
+            }
+            break;
+        case 0x67:
+            INST_NAME("VPACKUSWB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VLDIxy(q0, 0b0010011111111); // broadcast 0xff as 16-bit elements to all lanes
+            if (v1 == v2) {
+                VMAXIxy(H, d0, v1, 0);
+                VMINxy(H, d0, v1, q0);
+                VPICKEVxy(B, v0, d0, d0);
+            } else {
+                VMAXIxy(H, d0, v1, 0);
+                VMAXIxy(H, q1, v2, 0);
+                VMINxy(H, d0, d0, q0);
+                VMINxy(H, q1, q1, q0);
+                VPICKEVxy(B, v0, q1, d0);
+            }
+            break;
+        case 0x6B:
+            INST_NAME("VPACKSSDW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            if (v1 == v2) {
+                VSATxy(W, d0, v1, 15);
+                VPICKEVxy(H, v0, d0, d0);
+            } else {
+                VSATxy(W, d0, v1, 15);
+                VSATxy(W, q0, v2, 15);
+                VPICKEVxy(H, v0, q0, d0);
+            }
+            break;
         case 0x6E:
             INST_NAME("VMOVD Gx, Ed");
             nextop = F8;

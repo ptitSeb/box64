@@ -2763,12 +2763,21 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                   \
     } while (0)
 
-#define VREPLVE0xy(width, vd, vj)          \
+#define VREPLVE0xy(width, vd, vj)        \
     do {                                 \
         if (vex.l) {                     \
             XVREPLVE0_##width(vd, vj);   \
         } else {                         \
             VREPLVEI_##width(vd, vj, 0); \
+        }                                \
+    } while (0)
+
+#define VMAXIxy(width, vd, vj, imm)      \
+    do {                                 \
+        if (vex.l) {                     \
+            XVMAXI_##width(vd, vj, imm); \
+        } else {                         \
+            VMAXI_##width(vd, vj, imm);  \
         }                                \
     } while (0)
 
@@ -2976,6 +2985,15 @@ LSX instruction starts with V, LASX instruction starts with XV.
             XVILVH_##width(vd, vj, vk); \
         } else {                        \
             VPILVH_##width(vd, vj, vk); \
+        }                               \
+    } while (0)
+
+#define VSATxy(width, vd, vj, imm)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVSAT_##width(vd, vj, imm); \
+        } else {                        \
+            VSAT_##width(vd, vj, imm);  \
         }                               \
     } while (0)
 
