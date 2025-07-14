@@ -27,7 +27,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
 
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    uint8_t gd, ed;
+    uint8_t gd, ed, vd;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2, gb1, gb2;
     int32_t i32, i32_;
@@ -307,6 +307,48 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 VSLLWIL_DU_WU(q0, q1, 0);
             }
             break;
+        case 0x45:
+            INST_NAME("VPSRLVD/Q Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d1 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                d0 = fpu_get_scratch(dyn);
+                VLDIxy(d0, (0b011 << 10) | 63);
+                VSLExy(DU, d1, v2, d0);
+                VSRLxy(D, v0, v1, v2);
+                VAND_Vxy(v0, v0, d1);
+            } else {
+                VSLEIxy(WU, d1, v2, 31);
+                VSRLxy(W, v0, v1, v2);
+                VAND_Vxy(v0, v0, d1);
+            }
+            break;
+        case 0x46:
+            INST_NAME("VPSRAVD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            VMINIxy(WU, d0, v2, 31);
+            VSRAxy(W, v0, v1, d0);
+            break;
+        case 0x47:
+            INST_NAME("VPSLLVD/Q Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d1 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                d0 = fpu_get_scratch(dyn);
+                VLDIxy(d0, (0b011 << 10) | 63);
+                VSLExy(DU, d1, v2, d0);
+                VSLLxy(D, v0, v1, v2);
+                VAND_Vxy(v0, v0, d1);
+            } else {
+                VSLEIxy(WU, d1, v2, 31);
+                VSLLxy(W, v0, v1, v2);
+                VAND_Vxy(v0, v0, d1);
+            }
+            break;
         case 0x8C:
             INST_NAME("VPMASKMOVD/Q Gx, Vx, Ex");
             nextop = F8;
@@ -353,6 +395,15 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 VBITSEL_V(v0, v0, v2, d0);
                 PUTEYx(v0);
             }
+            break;
+        case 0xF7:
+            INST_NAME("SHLX Gd, Ed, Vd");
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            GETVD;
+            ANDI(x5, vd, rex.w ? 0x3f : 0x1f);
+            SLLxw(gd, ed, x5);
             break;
         default:
             DEFAULT;

@@ -457,6 +457,42 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0xD1:
+            INST_NAME("VPSRLW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVE0xy(D, q0, v2);
+            VREPLVE0xy(H, d0, v2);
+            VSLEIxy(DU, q0, q0, 15);
+            VSRLxy(H, v0, v1, d0);
+            VAND_Vxy(v0, v0, q0);
+            break;
+        case 0xD2:
+            INST_NAME("VPSRLD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVE0xy(D, q0, v2);
+            VREPLVE0xy(W, d0, v2);
+            VSLEIxy(DU, q0, q0, 31);
+            VSRLxy(W, v0, v1, d0);
+            VAND_Vxy(v0, v0, q0);
+            break;
+        case 0xD3:
+            INST_NAME("VPSRLQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVE0xy(D, q0 ,v2);
+            VLDIxy(d0, (0b011 << 10) | 0x3f);
+            VSLExy(DU, d0, q0, d0);
+            VSRLxy(D, v0, v1, q0);
+            VAND_Vxy(v0, v0, d0);
+            break;
         case 0xD6:
             INST_NAME("VMOVD Ex, Gx");
             nextop = F8;
@@ -499,6 +535,24 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VANDN_Vxy(v0, v1, v2);
             break;
+        case 0xE1:
+            INST_NAME("VPSRAW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            VMINIxy(DU, d0, v2, 15);
+            VREPLVE0xy(H, d0, d0);
+            VSRAxy(H, v0, v1, d0);            
+            break;
+        case 0xE2:
+            INST_NAME("VPSRAD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            VMINIxy(DU, d0, v2, 31);
+            VREPLVE0xy(W, d0, d0);
+            VSRAxy(W, v0, v1, d0);            
+            break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex, Gx");
             nextop = F8;
@@ -526,6 +580,42 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VXOR_Vxy(v0, v1, v2);
+            break;
+        case 0xF1:
+            INST_NAME("VPSLLW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVE0xy(D, q0, v2);
+            VSLEIxy(DU, q0, q0, 15);
+            VREPLVE0xy(H, d0, v2);
+            VSLLxy(H, v0, v1, d0);
+            VAND_Vxy(v0, v0, q0);
+            break;
+        case 0xF2:
+            INST_NAME("VPSLLD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVE0xy(D, q0, v2);
+            VSLEIxy(DU, q0, q0, 31);
+            VREPLVE0xy(W, d0, v2);
+            VSLLxy(W, v0, v1, d0);
+            VAND_Vxy(v0, v0, q0);
+            break;
+        case 0xF3:
+            INST_NAME("VPSLLQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVE0xy(D, q0, v2);
+            VLDIxy(d0, (0b011 << 10) | 0x3f);
+            VSLExy(DU, d0, q0, d0);
+            VSLLxy(D, v0, v1, q0);
+            VAND_Vxy(v0, v0, d0);
             break;
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
