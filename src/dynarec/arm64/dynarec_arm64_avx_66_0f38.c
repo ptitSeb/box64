@@ -774,7 +774,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else YMM0(gd);
             break;
         case 0x2E:
-            INST_NAME("VMASKMOVPS Ex, Gx, Vx");
+            INST_NAME("VMASKMOVPS Ex, Vx, Gx");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             GETVX(v2, 0);
@@ -830,7 +830,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             SMWRITE2();
             break;
         case 0x2F:
-            INST_NAME("VMASKMOVPD Ex, Gx, Vx");
+            INST_NAME("VMASKMOVPD Ex, Vx, Gx");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             GETVX(v2, 0);

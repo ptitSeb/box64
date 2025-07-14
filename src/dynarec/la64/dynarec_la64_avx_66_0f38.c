@@ -198,9 +198,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x2E:
-            INST_NAME("VMASKMOVPS Ex, Gx, Vx");
+            INST_NAME("VMASKMOVPS Ex, Vx, Gx");
             nextop = F8;
-            GETEY_VYGY_xy(v0, v2, v1, 0);
+            GETEY_VYGY_xy(v0, v1, v2, 0);
             d0 = fpu_get_scratch(dyn);
             if (vex.l) {
                 XVSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
@@ -213,9 +213,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x2F:
-            INST_NAME("VMASKMOVPD Ex, Gx, Vx");
+            INST_NAME("VMASKMOVPD Ex, Vx, Gx");
             nextop = F8;
-            GETEY_VYGY_xy(v0, v2, v1, 0);
+            GETEY_VYGY_xy(v0, v1, v2, 0);
             d0 = fpu_get_scratch(dyn);
             if (vex.l) {
                 XVSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
