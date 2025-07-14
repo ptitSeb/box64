@@ -2205,7 +2205,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             REVBxw(gd, gd);
             break;
         case 0xD0:
-            INST_NAME("ADDSUBPD Gx,Ex");
+            INST_NAME("ADDSUBPD Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
@@ -2215,7 +2215,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VEXTRINS_D(q0, v0, 0);
             break;
         case 0xD1:
-            INST_NAME("PSRLW Gx,Ex");
+            INST_NAME("PSRLW Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
@@ -2234,16 +2234,14 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            VSAT_DU(v0, q1, 31);
-            VREPLVEI_W(v0, v0, 0);
-            VLDI(v1, 0b1000000011111); // broadcast 31 as uint32
-            VSLT_WU(v1, v1, v0);
-            VMINI_WU(v0, v0, 31);
-            VSRL_W(q0, q0, v0);
+            VREPLVEI_D(v0, q1, 0);
+            VSLEI_DU(v0, v0, 31);
+            VREPLVEI_W(v1, q1, 0);
             VSRL_W(q0, q0, v1);
+            VAND_V(q0, q0, v0);
             break;
         case 0xD3:
-            INST_NAME("PSRLQ Gx,Ex");
+            INST_NAME("PSRLQ Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
@@ -2252,10 +2250,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d0 = fpu_get_scratch(dyn);
             VREPLVEI_D(v0, q1, 0);
             VLDI(v1, 0b0110000111111); // broadcast 63 as uint64
-            VMIN_DU(d0, v0, v1);
-            VSLT_DU(v1, v1, v0);
-            VSRL_D(q0, q0, d0);
-            VSRL_D(q0, q0, v1);
+            VSLE_DU(v1, v0, v1);
+            VSRL_D(q0, q0, v0);
+            VAND_V(q0, q0, v1);
             break;
         case 0xD4:
             INST_NAME("PADDQ Gx, Ex");
@@ -2265,7 +2262,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VADD_D(v0, v0, q0);
             break;
         case 0xD5:
-            INST_NAME("PMULLW Gx,Ex");
+            INST_NAME("PMULLW Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
@@ -2377,36 +2374,31 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VSRA_H(q0, q0, v0);
             break;
         case 0xE2:
-            INST_NAME("PSRAD Gx,Ex");
+            INST_NAME("PSRAD Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
-            v2 = fpu_get_scratch(dyn);
-            VREPLVEI_D(v0, q1, 0);
-            VSLEI_DU(v1, v0, 31);
-            VREPLVEI_W(v0, q1, 0);
-            VSRAI_W(v2, q0, 31);
+            VMINI_DU(v0, q1, 31);
+            VREPLVEI_W(v0, v0, 0);
             VSRA_W(q0, q0, v0);
-            VBITSEL_V(q0, v2, q0, v1);
             break;
         case 0xE3:
-            INST_NAME("PAVGW Gx,Ex");
+            INST_NAME("PAVGW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             VAVGR_HU(v0, v0, v1);
             break;
         case 0xE4:
-            INST_NAME("PMULHUW Gx,Ex");
+            INST_NAME("PMULHUW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             VMUH_HU(v0, v0, v1);
             break;
         case 0xE5:
-            INST_NAME("PMULHW Gx,Ex");
+            INST_NAME("PMULHW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
@@ -2434,56 +2426,56 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0xE8:
-            INST_NAME("PSUBSB Gx,Ex");
+            INST_NAME("PSUBSB Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VSSUB_B(v0, v0, q0);
             break;
         case 0xE9:
-            INST_NAME("PSUBSW Gx,Ex");
+            INST_NAME("PSUBSW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VSSUB_H(v0, v0, q0);
             break;
         case 0xEA:
-            INST_NAME("PMINSW Gx,Ex");
+            INST_NAME("PMINSW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VMIN_H(v0, v0, q0);
             break;
         case 0xEB:
-            INST_NAME("POR Gx,Ex");
+            INST_NAME("POR Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VOR_V(v0, v0, q0);
             break;
         case 0xEC:
-            INST_NAME("PADDSB Gx,Ex");
+            INST_NAME("PADDSB Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VSADD_B(v0, v0, q0);
             break;
         case 0xED:
-            INST_NAME("PADDSW Gx,Ex");
+            INST_NAME("PADDSW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VSADD_H(v0, v0, q0);
             break;
         case 0xEE:
-            INST_NAME("PMAXSW Gx,Ex");
+            INST_NAME("PMAXSW Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VMAX_H(v0, v0, q0);
             break;
         case 0xEF:
-            INST_NAME("PXOR Gx,Ex");
+            INST_NAME("PXOR Gx, Ex");
             nextop = F8;
             GETG;
             if (MODREG && ((nextop & 7) + (rex.b << 3) == gd)) {
@@ -2503,15 +2495,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            VREPLVE_H(v1, q1, xZR);
-            VPICKVE2GR_DU(x4, q1, 0);
-            SLTUI(x3, x4, 16);
-            SUB_D(x3, xZR, x3);
-            NOR(x3, x3, xZR);
-            VREPLGR2VR_D(v0, x3);
+            VREPLVEI_D(v0, q1, 0);
+            VSLEI_DU(v0, v0, 15);
+            VREPLVEI_H(v1, q1, 0);
             VSLL_H(q0, q0, v1);
-            VAND_V(v0, q0, v0);
-            VXOR_V(q0, q0, v0);
+            VAND_V(q0, q0, v0);
             break;
         case 0xF2:
             INST_NAME("PSLLD Gx, Ex");
@@ -2520,15 +2508,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            VREPLVE_W(v1, q1, xZR);
-            VPICKVE2GR_DU(x4, q1, 0);
-            SLTUI(x3, x4, 32);
-            SUB_D(x3, xZR, x3);
-            NOR(x3, x3, xZR);
-            VREPLGR2VR_D(v0, x3);
+            VREPLVEI_D(v0, q1, 0);
+            VSLEI_DU(v0, v0, 31);
+            VREPLVEI_W(v1, q1, 0);
             VSLL_W(q0, q0, v1);
-            VAND_V(v0, q0, v0);
-            VXOR_V(q0, q0, v0);
+            VAND_V(q0, q0, v0);
             break;
         case 0xF3:
             INST_NAME("PSLLQ Gx, Ex");
@@ -2537,15 +2521,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
-            VREPLVE_D(v1, q1, xZR);
-            VPICKVE2GR_DU(x4, q1, 0);
-            SLTUI(x3, x4, 64);
-            SUB_D(x3, xZR, x3);
-            NOR(x3, x3, xZR);
-            VREPLGR2VR_D(v0, x3);
-            VSLL_D(q0, q0, v1);
-            VAND_V(v0, q0, v0);
-            VXOR_V(q0, q0, v0);
+            VREPLVEI_D(v0, q1, 0);
+            VLDI(v1, (0b011 << 10) | 0x3f);
+            VSLEI_DU(v1, v0, v1);
+            VSLL_D(q0, q0, v0);
+            VAND_V(q0, q0, v1);
             break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx,Ex");
