@@ -126,6 +126,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             FST_D(v0, ed, fixedaddress);
             SMWRITE2();
             break;
+        case 0x14:
+            INST_NAME("VUNPCKLPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVLxy(D, v0, v2, v1);
+            break;
+        case 0x15:
+            INST_NAME("VUNPCKHPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVHxy(D, v0, v2, v1);
+            break;
         case 0x16:
             INST_NAME("VMOVHPD Gx, Vx, Eq");
             nextop = F8;
@@ -251,6 +263,24 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VXOR_Vxy(v0, v1, v2);
             break;
+        case 0x60:
+            INST_NAME("VPUNPCKLBW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVLxy(B, v0, v2, v1);
+            break;
+        case 0x61:
+            INST_NAME("VPUNPCKLWD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVLxy(H, v0, v2, v1);
+            break;
+        case 0x62:
+            INST_NAME("VPUNPCKLDQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVLxy(W, v0, v2, v1);
+            break;
         case 0x63:
             INST_NAME("VPACKSSWB Gx, Vx, Ex");
             nextop = F8;
@@ -285,6 +315,24 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VPICKEVxy(B, v0, q1, d0);
             }
             break;
+        case 0x68:
+            INST_NAME("VPUNPCKHBW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVHxy(B, v0, v2, v1);
+            break;
+        case 0x69:
+            INST_NAME("VPUNPCKHWD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVHxy(H, v0, v2, v1);
+            break;
+        case 0x6A:
+            INST_NAME("VPUNPCKHDQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVHxy(W, v0, v2, v1);
+            break;
         case 0x6B:
             INST_NAME("VPACKSSDW Gx, Vx, Ex");
             nextop = F8;
@@ -299,6 +347,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VSATxy(W, q0, v2, 15);
                 VPICKEVxy(H, v0, q0, d0);
             }
+            break;
+        case 0x6C:
+            INST_NAME("VPUNPCKLQDQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVLxy(D, v0, v2, v1);
+            break;
+        case 0x6D:
+            INST_NAME("VPUNPCKHQDQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVHxy(D, v0, v2, v1);
             break;
         case 0x6E:
             INST_NAME("VMOVD Gx, Ed");

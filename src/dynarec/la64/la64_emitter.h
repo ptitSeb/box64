@@ -2975,7 +2975,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
         if (vex.l) {                    \
             XVILVL_##width(vd, vj, vk); \
         } else {                        \
-            VPILVL_##width(vd, vj, vk); \
+            VILVL_##width(vd, vj, vk); \
         }                               \
     } while (0)
 
@@ -2984,7 +2984,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
         if (vex.l) {                    \
             XVILVH_##width(vd, vj, vk); \
         } else {                        \
-            VPILVH_##width(vd, vj, vk); \
+            VILVH_##width(vd, vj, vk); \
         }                               \
     } while (0)
 
