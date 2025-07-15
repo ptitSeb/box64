@@ -2255,7 +2255,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
             break;
         case NEON_CACHE_XMMW:
-            if(dyn->insts[i2].n.xmm_unneeded&(1<<i)) {
+            if(dyn->insts[i2].n.xmm_unneeded&(1<<n)) {
                 MESSAGE(LOG_DUMP, "\t  - ignoring unneeded %s\n", getCacheName(t, n));
             } else {
                 MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
