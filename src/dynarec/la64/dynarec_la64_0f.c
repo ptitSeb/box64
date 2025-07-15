@@ -485,21 +485,18 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VSHUF4I_W(q0, q0, 0b11011000);
                     break;
                 case 0x04:
-                    INST_NAME("PMADDUBSW Gm,Em");
+                    INST_NAME("PMADDUBSW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    VEXT2XV_HU_BU(v0, q0);
-                    VEXT2XV_H_B(v1, q1);
-                    XVMUL_H(v0, v0, v1);
-                    VPICKEV_H(q0, v1, v0);
-                    VPICKOD_H(v0, v1, v0);
-                    VSADD_H(q0, v0, q0);
+                    VMULWEV_H_BU_B(v0, q0, q1);
+                    VMULWOD_H_BU_B(v1, q0, q1);
+                    VSADD_H(q0, v0, v1);
                     break;
                 case 0x05:
-                    INST_NAME("PHSUBW Gm,Em");
+                    INST_NAME("PHSUBW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
@@ -511,7 +508,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VSHUF4I_W(q0, q0, 0b11011000);
                     break;
                 case 0x06:
-                    INST_NAME("PHSUBD Gm,Em");
+                    INST_NAME("PHSUBD Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
@@ -523,7 +520,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VSHUF4I_W(q0, q0, 0b11011000);
                     break;
                 case 0x07:
-                    INST_NAME("PHSUBSW Gm,Em");
+                    INST_NAME("PHSUBSW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
@@ -535,28 +532,28 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VSHUF4I_W(q0, q0, 0b11011000);
                     break;
                 case 0x08:
-                    INST_NAME("PSIGNB Gm,Em");
+                    INST_NAME("PSIGNB Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
                     VSIGNCOV_B(q0, q1, q0);
                     break;
                 case 0x09:
-                    INST_NAME("PSIGNW Gm,Em");
+                    INST_NAME("PSIGNW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
                     VSIGNCOV_H(q0, q1, q0);
                     break;
                 case 0x0A:
-                    INST_NAME("PSIGND Gm,Em");
+                    INST_NAME("PSIGND Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
                     VSIGNCOV_W(q0, q1, q0);
                     break;
                 case 0x0B:
-                    INST_NAME("PMULHRSW Gm,Em");
+                    INST_NAME("PMULHRSW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
@@ -570,7 +567,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VSRLNI_H_W(q0, v0, 1);
                     break;
                 case 0x1C:
-                    INST_NAME("PABSB Gm,Em");
+                    INST_NAME("PABSB Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
@@ -579,7 +576,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VABSD_B(q0, q1, v0);
                     break;
                 case 0x1D:
-                    INST_NAME("PABSW Gm,Em");
+                    INST_NAME("PABSW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
@@ -588,7 +585,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VABSD_H(q0, q1, v0);
                     break;
                 case 0x1E:
-                    INST_NAME("PABSD Gm,Em");
+                    INST_NAME("PABSD Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
