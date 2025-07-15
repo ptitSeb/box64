@@ -301,6 +301,21 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             }
             break;
+        case 0x17:
+            INST_NAME("VEXTRACTPS Ed, Gx, imm8");
+            nextop = F8;
+            GETGYx(v0, 0);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                u8 = F8 & 0b11;
+                VPICKVE2GR_WU(ed, v0, u8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                u8 = F8 & 0b11;
+                VSTELM_W(v0, ed, 0, u8);
+                SMWRITE2();
+            }
+            break;
         case 0x18:
         case 0x38:
             if (opcode == 0x18) {
@@ -332,6 +347,44 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                     VST(q1, ed, fixedaddress);
                 } else {
                     VST(q0, ed, fixedaddress);
+                }
+            }
+            break;
+        case 0x21:
+            INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            uint8_t src_index = (u8 >> 6) & 3;
+            uint8_t dst_index = (u8 >> 4) & 3;
+            uint8_t zmask = u8 & 0xf;
+            q1 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+                u8 = F8;
+                if (v0 == v2) {
+                    VOR_V(q1, v2, v2);
+                    if (v0 != v1) VOR_V(v0, v1, v1);
+                    VEXTRINS_W(v0, q1, VEXTRINS_IMM_4_0(dst_index, src_index));
+                } else {
+                    if (v0 != v1) VOR_V(v0, v1, v1);
+                    VEXTRINS_W(v0, v2, VEXTRINS_IMM_4_0(dst_index, src_index));
+                }
+            } else {
+                GETVYx(v1, 0);
+                GETGYx_empty(v0);
+                u8 = F8;
+                if (v0 != v1) VOR_V(v0, v1, v1);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                u8 = F8;
+                FLD_S(q1, wback, fixedaddress);
+                VEXTRINS_W(v0, q1, VEXTRINS_IMM_4_0(dst_index, 0)); // src index is zero when Ex is mem operand
+            }
+            VXOR_V(q1, q1, q1);
+            if (zmask) {
+                for (uint8_t i = 0; i < 4; i++) {
+                    if (zmask & (1 << i)) {
+                        VEXTRINS_W(v0, q1, VEXTRINS_IMM_4_0(i, 0));
+                    }
                 }
             }
             break;

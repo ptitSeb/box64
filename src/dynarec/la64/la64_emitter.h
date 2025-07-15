@@ -2066,10 +2066,19 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VNEG_W(vd, vj)              EMIT(type_2R(0b0111011010011100001110, vj, vd))
 #define VNEG_D(vd, vj)              EMIT(type_2R(0b0111011010011100001111, vj, vd))
 
-#define XVLD(vd, rj, imm12) EMIT(type_2RI12(0b0010110010, imm12, rj, vd))
-#define XVST(vd, rj, imm12) EMIT(type_2RI12(0b0010110011, imm12, rj, vd))
-#define XVLDX(vd, vj, vk)   EMIT(type_3R(0b00111000010010000, vk, vj, vd))
-#define XVSTX(vd, vj, vk)   EMIT(type_3R(0b00111000010011000, vk, vj, vd))
+#define XVLD(vd, rj, imm12)        EMIT(type_2RI12(0b0010110010, imm12, rj, vd))
+#define XVST(vd, rj, imm12)        EMIT(type_2RI12(0b0010110011, imm12, rj, vd))
+#define XVLDX(vd, vj, vk)          EMIT(type_3R(0b00111000010010000, vk, vj, vd))
+#define XVSTX(vd, vj, vk)          EMIT(type_3R(0b00111000010011000, vk, vj, vd))
+#define XVLDREPL_D(xd, rj, offset) EMIT(type_2RI9(0b0011001000010, (offset >> 3), rj, xd))
+#define XVLDREPL_W(xd, rj, offset) EMIT(type_2RI10(0b001100100010, (offset >> 2), rj, xd))
+#define XVLDREPL_H(xd, rj, offset) EMIT(type_2RI11(0b00110010010, (offset >> 1), rj, xd))
+#define XVLDREPL_B(xd, rj, offset) EMIT(type_2RI12(0b0011001010, offset, rj, xd))
+#define XVSTELM_D(xd, rj, offset, imm2)         EMIT(type_2RI10(0b001100110001, (((imm2) << 8) | (offset >>3), rj, xd))
+#define XVSTELM_W(xd, rj, offset, imm3)         EMIT(type_2RI11(0b00110011001, (((imm3) << 8) | (offset >>2), rj, xd))
+#define XVSTELM_H(xd, rj, offset, imm4)         EMIT(type_2RI12(0b0011001101, (((imm4) << 8) | (offset >>1), rj, xd))
+#define XVSTELM_B(xd, rj, offset, imm5)         EMIT(type_2RI13(0b001100111, (((imm5) << 8) | offset, rj, xd))
+
 
 #define XVHSELI_D(vd, vj, imm5)      EMIT(type_2RI5(0b01110110100111111, imm5, vj, vd))
 #define XVROTRI_B(vd, vj, imm3)      EMIT(type_2RI3(0b0111011010100000001, imm3, vj, vd))
@@ -3019,24 +3028,6 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                               \
     } while (0)
 
-#define VSLTIxy(width, vd, vj, imm)      \
-    do {                                 \
-        if (vex.l) {                     \
-            XVSLTI_##width(vd, vj, imm); \
-        } else {                         \
-            VSLTI_##width(vd, vj, imm);  \
-        }                                \
-    } while (0)
-
-#define VBITSEL_Vxy(vd, vj, vk, va)     \
-    do {                                \
-        if (vex.l) {                    \
-            XVBITSEL_V(vd, vj, vk, va); \
-        } else {                        \
-            VBITSEL_V(vd, vj, vk, va);  \
-        }                               \
-    } while (0)
-
 #define VSHUF_Bxy(vd, vj, vk, va)     \
     do {                              \
         if (vex.l) {                  \
@@ -3080,5 +3071,62 @@ LSX instruction starts with V, LASX instruction starts with XV.
         } else {                   \
             VANDI_B(vd, vj, imm);  \
         }                          \
+    } while (0)
+
+#define VLDREPLxy(width, vd, rj, imm)      \
+    do {                                   \
+        if (vex.l) {                       \
+            XVLDREPL_##width(vd, rj, imm); \
+        } else {                           \
+            VLDREPL_##width(vd, rj, imm);  \
+        }                                  \
+    } while (0)
+
+#define XVPICKVE2GRxw(rd, xj, imm)       \
+    do {                                 \
+        if (rex.w)                       \
+            XVPICKVE2GR_D(rd, xj, imm);  \
+        else                             \
+            XVPICKVE2GR_WU(rd, xj, imm); \
+    } while (0)
+
+#define XVINSGR2VRxw(xd, rj, imm)      \
+    do {                               \
+        if (rex.w)                     \
+            XVINSGR2VR_D(xd, rj, imm); \
+        else                           \
+            XVINSGR2VR_W(xd, rj, imm); \
+    } while (0)
+
+#define VPICKVE2GRxw(rd, xj, imm)       \
+    do {                                \
+        if (rex.w)                      \
+            VPICKVE2GR_D(rd, xj, imm);  \
+        else                            \
+            VPICKVE2GR_WU(rd, xj, imm); \
+    } while (0)
+
+#define VINSGR2VRxw(xd, rj, imm)      \
+    do {                              \
+        if (rex.w)                    \
+            VINSGR2VR_D(xd, rj, imm); \
+        else                          \
+            VINSGR2VR_W(xd, rj, imm); \
+    } while (0)
+
+#define XVINSVE0xw(xd, xj, imm)      \
+    do {                             \
+        if (rex.w)                   \
+            XVINSVE0_D(xd, xj, imm); \
+        else                         \
+            XVINSVE0_W(xd, xj, imm); \
+    } while (0)
+
+#define VEXTRINSxw(xd, xj, imm)      \
+    do {                             \
+        if (rex.w)                   \
+            VEXTRINS_D(xd, xj, imm); \
+        else                         \
+            VEXTRINS_W(xd, xj, imm); \
     } while (0)
 #endif //__ARM64_EMITTER_H__
