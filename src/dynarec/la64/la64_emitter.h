@@ -164,6 +164,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_2RI9(opc, imm9, rj, rd)   ((opc) << 19 | ((imm9) & 0x1FF) << 10 | (rj) << 5 | (rd))
 #define type_2RI10(opc, imm10, rj, rd) ((opc) << 20 | ((imm10) & 0x3FF) << 10 | (rj) << 5 | (rd))
 #define type_2RI11(opc, imm11, rj, rd) ((opc) << 21 | ((imm11) & 0x7FF) << 10 | (rj) << 5 | (rd))
+#define type_1RI5I5(opc, imm5, imm5_2, rd)   ((opc) << 15 | ((imm5) & 0x1F) << 10 | ((imm5_2) & 0x1F) << 5 | (rd))
 
 // tmp = GR[rj][31:0] + GR[rk][31:0]
 // Gr[rd] = SignExtend(tmp[31:0], GRLEN)
@@ -2239,6 +2240,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVFRSTPI_B(xd, xj, imm5)     EMIT(type_2RI5(0b01110110100110100, imm5, xj, xd))
 #define XVFRSTPI_H(xd, xj, imm5)     EMIT(type_2RI5(0b01110110100110101, imm5, xj, xd))
 #define XVLDI(xd, imm13)             EMIT(type_1RI13(0b01110111111000, imm13, xd))
+#define XVSHUF_B(xd, xj, xk, xa)     EMIT(type_4R(0b000011010110, xa, xk, xj, xd))
 
 #define XVFMADD_S(xd, xj, xk, xa)  EMIT(type_4R(0b000010100001, xa, xk, xj, xd))
 #define XVFMSUB_S(xd, xj, xk, xa)  EMIT(type_4R(0b000010100101, xa, xk, xj, xd))
@@ -2248,6 +2250,10 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVFMSUB_D(xd, xj, xk, xa)  EMIT(type_4R(0b000010100110, xa, xk, xj, xd))
 #define XVFNMADD_D(xd, xj, xk, xa) EMIT(type_4R(0b000010101010, xa, xk, xj, xd))
 #define XVFNMSUB_D(xd, xj, xk, xa) EMIT(type_4R(0b000010101110, xa, xk, xj, xd))
+
+#define VMEPATMSK_V(vd, mode, uimm5)     EMIT(type_1RI5I5(0b01110010100110111, uimm5, mode, vd))
+#define XVMEPATMSK_V(xd, mode, uimm5)    EMIT(type_1RI5I5(0b01110110100110111, uimm5, mode, xd))
+
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions
 
@@ -2891,4 +2897,86 @@ LSX instruction starts with V, LASX instruction starts with XV.
             VAVGR_##width(vd, vj, vk);  \
         }                               \
     } while (0)
+
+#define VABSDxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVABSD_##width(vd, vj, vk); \
+        } else {                        \
+            VABSD_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VHADDWxy(width, vd, vj, vk)      \
+    do {                                 \
+        if (vex.l) {                     \
+            XVHADDW_##width(vd, vj, vk); \
+        } else {                         \
+            VHADDW_##width(vd, vj, vk);  \
+        }                                \
+    } while (0)
+
+#define VMADDxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVMADD_##width(vd, vj, vk); \
+        } else {                        \
+            VMADD_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VPICKEVxy(width, vd, vj, vk)      \
+    do {                                  \
+        if (vex.l) {                      \
+            XVPICKEV_##width(vd, vj, vk); \
+        } else {                          \
+            VPICKEV_##width(vd, vj, vk);  \
+        }                                 \
+    } while (0)
+
+#define VPICKODxy(width, vd, vj, vk)      \
+    do {                                  \
+        if (vex.l) {                      \
+            XVPICKOD_##width(vd, vj, vk); \
+        } else {                          \
+            VPICKOD_##width(vd, vj, vk);  \
+        }                                 \
+    } while (0)
+
+#define VPACKEVxy(width, vd, vj, vk)      \
+    do {                                  \
+        if (vex.l) {                      \
+            XVPACKEV_##width(vd, vj, vk); \
+        } else {                          \
+            VPACKEV_##width(vd, vj, vk);  \
+        }                                 \
+    } while (0)
+
+#define VPACKODxy(width, vd, vj, vk)      \
+    do {                                  \
+        if (vex.l) {                      \
+            XVPACKOD_##width(vd, vj, vk); \
+        } else {                          \
+            VPACKOD_##width(vd, vj, vk);  \
+        }                                 \
+    } while (0)
+
+#define VILVLxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVILVL_##width(vd, vj, vk); \
+        } else {                        \
+            VPILVL_##width(vd, vj, vk); \
+        }                               \
+    } while (0)
+
+#define VILVHxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVILVH_##width(vd, vj, vk); \
+        } else {                        \
+            VPILVH_##width(vd, vj, vk); \
+        }                               \
+    } while (0)
+
 #endif //__ARM64_EMITTER_H__
