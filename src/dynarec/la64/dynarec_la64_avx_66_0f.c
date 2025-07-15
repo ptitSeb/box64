@@ -394,6 +394,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             }
             break;
+        case 0x70:
+            INST_NAME("VPSHUFD Gx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            VSHUF4Ixy(W, v0, v1, u8);
+            break;
         case 0x71:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
@@ -564,6 +571,32 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                     VST(q0, ed, fixedaddress);
                 }
                 SMWRITE2();
+            }
+            break;
+        case 0xC6:
+            INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+            u8 = F8 & 0xf;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (vex.l) {
+                if ((u8 >> 2) == (u8 & 0b11)) {
+                    XVOR_V(d0, v1, v1);
+                    XVSHUF4I_D(d0, v2, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
+                    XVOR_V(v0, d0, d0);
+                } else {
+                    XVOR_V(d0, v1, v1);
+                    XVOR_V(d1, v1, v1);
+                    XVSHUF4I_D(d0, v2, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
+                    XVSHUF4I_D(d1, v2, 0x8 | ((u8 & 4) >> 2) | ((u8 & 8) >> 1));
+                    XVPERMI_Q(d1, d0, XVPERMI_IMM_4_0(3, 0));
+                    XVOR_V(v0, d1, d1);
+                }
+            } else {
+                VOR_V(d0, v1, v1);
+                VSHUF4I_D(d0, v2, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
+                VOR_V(v0, d0, d0);
             }
             break;
         case 0xD1:

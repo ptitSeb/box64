@@ -57,6 +57,19 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x00:
+        case 0x01:
+            if (opcode) {
+                INST_NAME("VPERMPD Gx, Ex, Imm8");
+            } else {
+                INST_NAME("VPERMQ Gx, Ex, Imm8");
+            }
+            nextop = F8;
+            if (!vex.l) EMIT(0);
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            XVPERMI_D(v0, v1, u8);
+            break;
         case 0x02:
         case 0x0C:
             if (opcode == 0x2) {
@@ -95,6 +108,63 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             MOVGR2FR_D(d0, x5);
             VEXT2XV_W_B(d0, d0);
             XVBITSEL_V(v0, v1, v2, d0);
+            break;
+        case 0x04:
+            INST_NAME("VPERMILPS Gx, Ex, Imm8");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            VSHUF4Ixy(W, v0, v1, u8);
+            break;
+        case 0x05:
+            INST_NAME("VPERMILPD Gx, Ex, Imm8");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            u8 = 0b10100000 + ((u8 & 0b00001000) << 3) + ((u8 & 0b00000100) << 2) + ((u8 & 0b00000010) << 1) + (u8 & 0b00000001);
+            XVPERMI_D(v0, v1, u8);
+            break;
+        case 0x06:
+        case 0x46:
+            if (opcode == 0x06) {
+                INST_NAME("VPERM2F128 Gx, Vx, Ex, Imm8");
+            } else {
+                INST_NAME("VPERM2I128 Gx, Vx, Ex, Imm8");
+            }
+            nextop = F8;
+            if (!vex.l) EMIT(0);
+            u8 = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+            if (u8 == 0x88) {
+                XVXOR_V(v0, v0, v0);
+                break;
+            }
+            d0 = fpu_get_scratch(dyn);
+            uint8_t zero_low = (u8 & 0x8) >> 3;
+            uint8_t zero_up = (u8 & 0x80) >> 7;
+            uint8_t vec_lo = (u8 & 0x2) >> 1;
+            uint8_t index_lo = u8 & 0x1;
+            uint8_t vec_hi = (u8 & 0x20) >> 5;
+            uint8_t index_hi = (u8 & 0x10) >> 4;
+            if (!zero_low && !zero_up) {
+                if (v0 == v1) {
+                    XVPERMI_Q(v0, v2, XVPERMI_IMM_4_0((vec_hi ? 0 : 2) | index_hi, (vec_lo ? 0 : 2) | index_lo));
+                } else if (v0 == v2) {
+                    XVPERMI_Q(v0, v1, XVPERMI_IMM_4_0((vec_hi << 1) | index_hi, ((vec_lo) << 1) | index_lo));
+                } else {
+                    XVOR_V(v0, v2, v2);
+                    XVPERMI_Q(v0, v1, XVPERMI_IMM_4_0((vec_hi << 1) | index_hi, ((vec_lo) << 1) | index_lo));
+                }
+                break;
+            }
+            XVXOR_V(d0, d0, d0);
+            if (zero_low) {
+                XVORI_B(v0, vec_hi ? v2 : v1, 0);
+                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(2 + index_hi, 0));
+            } else {
+                XVORI_B(v0, vec_lo ? v2 : v1, 0);
+                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2 + index_lo));
+            }
             break;
         case 0x0D:
             INST_NAME("VBLENDPD Gx, Vx, Ex, Ib");

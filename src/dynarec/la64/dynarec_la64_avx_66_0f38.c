@@ -57,6 +57,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x00:
+            INST_NAME("VPSHUFB Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VLDIxy(q0, 0b0000010001111); // broadcast 0b10001111 as byte
+            VAND_Vxy(q0, q0, v2);
+            VMINIxy(BU, q0, q0, 0x1f);
+            VXOR_Vxy(q1, q1, q1);
+            VSHUF_Bxy(v0, q1, v1, q0);
+            break;
         case 0x01:
             INST_NAME("VPHADDW Gx, Vx, Ex");
             nextop = F8;
@@ -170,6 +182,32 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 XVSRLNI_H_W(q0, q0, 1);
                 XVPERMI_D(v0, q0, 0b1000);
             }
+            break;
+        case 0x0C:
+            INST_NAME("VPERMILPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            VANDIxy(d0, v2, 0b11);
+            VSHUFxy(W, d0, v1, v1);
+            VOR_Vxy(v0, d0, d0);
+            break;
+        case 0x0D:
+            INST_NAME("VPERMILPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            VSRLIxy(D, d0, v2, 0x1);
+            VANDIxy(d0, d0, 0b1);
+            VSHUFxy(D, d0, v2, v1);
+            VOR_Vxy(v0, d0, d0);
+            break;
+        case 0x16:
+            INST_NAME("VPERMPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            XVPERM_W(v0, v2, v1);
             break;
         case 0x18:
             INST_NAME("VBROADCASTSS Gx, Ex");
@@ -470,6 +508,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGYx_empty(q0);
                 VSLLWIL_DU_WU(q0, q1, 0);
             }
+            break;
+        case 0x36:
+            INST_NAME("VPERMD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            XVPERM_W(v0, v2, v1);
             break;
         case 0x38:
             INST_NAME("VPMINSB Gx, Vx, Ex");

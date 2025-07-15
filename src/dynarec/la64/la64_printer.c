@@ -7444,6 +7444,22 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "XVFRSTPI.H", XVt[Rd], XVt[Rj], imm);
         return buff;
     }
+    if (isMask(opcode, "01110011110100iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VANDI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011110101iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VORI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011110110iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VXORI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011110111iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VNORI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }
