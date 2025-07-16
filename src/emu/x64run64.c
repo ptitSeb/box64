@@ -270,6 +270,19 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
 
+                case 0x7F:  
+                    switch(rep) {
+                        case 2: /* MOVDQU FS:Ex, Gx */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            memcpy(EX, GX, 16);    // unaligned...
+                            break;
+                        default:
+                            return 0;
+                    }
+                    break;
+
                 case 0xAF:
                     switch(rep) {
                         case 0: /* IMUL Gd, FS:Ed */
