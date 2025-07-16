@@ -272,6 +272,27 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0x7F:
+                    switch(rep) {
+                        case 2:
+                            INST_NAME("MOVDQU Ex,Gx");
+                            nextop = F8;
+                            GETGX(v0, 0);
+                            if(MODREG) {
+                                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                                VMOVQ(v1, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                ADDz_REG(x4, x4, ed);
+                                VST128(v0, x4, fixedaddress);
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
 
                 case 0xAF:
                     switch(rep) {
