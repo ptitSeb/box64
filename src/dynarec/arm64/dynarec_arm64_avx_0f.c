@@ -294,7 +294,9 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             nextop = F8;
             GETGX(v0, 0);
             GETEXSS(s0, 0, 0);
-            FCMPS(v0, s0);
+            IFX(X_CF|X_PF|X_ZF) {
+                FCMPS(v0, s0);
+            }
             FCOMI(x1, x2);
             break;
 

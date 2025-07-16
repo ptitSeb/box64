@@ -962,19 +962,19 @@
 
 // Generate FCOMI with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOMI(s1, s2)                                                       \
-    IFX(X_OF|X_AF|X_SF|X_PEND) {                                            \
+    IFX(X_OF|X_AF|X_SF) {                                                   \
         MOV32w(s2, 0b100011010101);                                         \
         BICw_REG(xFlags, xFlags, s2);                                       \
-        IFX(X_CF|X_PF|X_ZF|X_PEND) {                                        \
+        IFX(X_CF|X_PF|X_ZF) {                                               \
             MOV32w(s2, 0b01000101);                                         \
         }                                                                   \
     } else {                                                                \
-        IFX(X_CF|X_PF|X_ZF|X_PEND) {                                        \
+        IFX(X_CF|X_PF|X_ZF) {                                               \
             MOV32w(s2, 0b01000101);                                         \
             BICw_REG(xFlags, xFlags, s2);                                   \
         }                                                                   \
     }                                                                       \
-    IFX(X_CF|X_PF|X_ZF|X_PEND) {                                            \
+    IFX(X_CF|X_PF|X_ZF) {                                                   \
         CSETw(s1, cMI); /* 1 if less than, 0 else */                        \
         /*s2 already set */     /* unordered */                             \
         CSELw(s1, s2, s1, cVS);                                             \

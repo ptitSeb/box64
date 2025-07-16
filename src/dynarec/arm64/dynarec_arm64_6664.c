@@ -64,7 +64,9 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         v1 = fpu_get_scratch(dyn, ninst);
                         VLD64(v1, ed, fixedaddress);
                     }
-                    FCMPD(v0, v1);
+                    IFX(X_CF|X_PF|X_ZF) {
+                        FCMPD(v0, v1);
+                    }
                     FCOMI(x1, x2);
                     break;
 

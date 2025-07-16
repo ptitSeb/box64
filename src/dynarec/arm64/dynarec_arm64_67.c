@@ -230,7 +230,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                                 VLD32(s0, ed, fixedaddress);
                             }
-                            FCMPS(v0, s0);
+                            IFX(X_CF|X_PF|X_ZF) {
+                                FCMPS(v0, s0);
+                            }
                             FCOMI(x1, x2);
                             break;
                         default:
