@@ -36,6 +36,8 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libbrotli-1.0.9-7.el9_
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libbrotli-1.0.9-7.el9_5.x86_64.rpm,77906ae44bcd42a9f6646d814874768e8befaabf413133d44f71a95ac6c6d68c
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/libsigc%2B%2B20-2.10.7-2.el9.i686.rpm,7c33f4c18cbd51dc0a7c9ae0190b1a27d0540ce2fd92ced4776dde66162d1a88
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/libsigc%2B%2B20-2.10.7-2.el9.x86_64.rpm,8600132b9e4efadfe23d3125e90287f5a7114165fd9ecb064d9930fcca446ef2
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/sqlite-libs-3.34.1-7.el9_3.i686.rpm,dc6946a8344b8f4f476fef9479d1786c86fdcd045e988ab5d85fef7780e1fae4
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/sqlite-libs-3.34.1-7.el9_3.x86_64.rpm,e7f87444f24a03b37caa02942082b6d4283067ecbbd3f7798f882d22b55713cf
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/libSM-1.2.3-10.el9.i686.rpm,ec68b3def828ba442248f3cff495f42c4af3dd58f38c8daad07dfddc109d999a
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/libSM-1.2.3-10.el9.x86_64.rpm,d00318843a50138829b470a97b8db1a00723b10bca23c16a8386d9ab670e4c64
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libstdc%2B%2B-11.5.0-5.el9_5.alma.1.i686.rpm,05fd29569c312a661374aa69e28ed5cad20812822070a3138265c92a446e2c80
