@@ -440,7 +440,7 @@ static const char* essential_libs[] = {
     "libXtst.so.6", "libXt.so.6", "libXcomposite.so.1", "libXdamage.so.1", "libXmu.so.6", "libxkbcommon.so.0", 
     "libxkbcommon-x11.so.0", "libpulse-simple.so.0", "libpulse.so.0", "libvulkan.so.1", "libvulkan.so",
     "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4", "libanl.so.1",
-    "ld-linux.so.2", "ld-linux.so.3"
+    "ld-linux.so.2", "ld-linux.so.3", "libthread_db.so.1"
 };
 static const char* essential_libs_egl[] = {
     "libEGL.so", "libGLESv2.so"
