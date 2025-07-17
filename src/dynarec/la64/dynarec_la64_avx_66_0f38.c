@@ -309,6 +309,26 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULWEVxy(D_W, v0, v1, v2);
             break;
+        case 0x2B:
+            INST_NAME("VPACKUSDW Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VLDIxy(q0, 0b0010011111111); // broadcast 0xff as 16-bit elements to all lanes
+            if (v1 == v2) {
+                VMAXIxy(W, v0, v1, 0);
+                VMINxy(W, v0, v1, q0);
+                VPICKEVxy(H, v0, v0, v0);
+            } else {
+                VMAXIxy(W, q1, v2, 0);
+                VMAXIxy(W, v0, v1, 0);
+                VMINxy(W, q1, q1, q0);
+                VMINxy(W, v0, v0, q0);
+                VPICKEVxy(H, v0, q1, v0);
+            }
+            break;
         case 0x2C:
             INST_NAME("VMASKMOVPS Gx, Vx, Ex");
             nextop = F8;
