@@ -86,6 +86,21 @@ for dir_lib in \
     done
 done
 
+# Remove libraries that cannot be emulated.
+# https://github.com/ptitSeb/box64/blob/v0.3.6/src/librarian/library.c#L433
+for lib in libc.so libpthread.so librt.so libGL.so libGL.so libX11.so \
+  libasound.so libdl.so libm.so libbsd.so libutil.so libresolv.so \
+  libXxf86vm.so libXinerama.so libXrandr.so libXext.so libXfixes.so libXcursor.so \
+  libXrender.so  libXft.so libXi.so libXss.so libXpm.so libXau.so libXdmcp.so \
+  libX11-xcb.so libxcb.so libxcb-xfixes.so libxcb-shape.so libxcb-shm.so libxcb-randr.so \
+  libxcb-image.so libxcb-keysyms.so libxcb-xtest.so libxcb-glx.so libxcb-dri2.so libxcb-dri3.so \
+  libXtst.so libXt.so libXcomposite.so libXdamage.so libXmu.so libxkbcommon.so \
+  libxkbcommon-x11.so libpulse-simple.so libpulse.so libvulkan.so libvulkan.so \
+  ld-linux-x86-64.so crashhandler.so libtcmalloc_minimal.so libtcmalloc_minimal.so libanl.so \
+  ld-linux.so ld-linux.so libthread_db.so
+    do find "${dir_tmp_local}" -name "${lib}"* -delete
+done
+
 mv "${dir_tmp_local}"/*.deb "${dir_tmp_local}/bundle-pkgs/"
 mv "${dir_tmp_local}"/*.eopkg "${dir_tmp_local}/bundle-pkgs/"
 mv "${dir_tmp_local}"/*.rpm "${dir_tmp_local}/bundle-pkgs/"

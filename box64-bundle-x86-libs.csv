@@ -2,6 +2,8 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/bluez-libs-5.72-2.el9.
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/bluez-libs-5.72-2.el9.x86_64.rpm,49c273813b4616240acdae8dae893192658c7541482f9bbb2c46dfe19b61877d
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/fribidi-1.0.10-6.el9.2.i686.rpm,75f808f0f5f93aceb4e477aa5f302edbed07a605a0644f0ea929d4ea609e36a0
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/fribidi-1.0.10-6.el9.2.x86_64.rpm,b4763ca410f8479b2775efb55ba09e6722948af7526180a56309e3e090c27010
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/glibc-2.34-125.el9_5.8.alma.1.i686.rpm,1848b9ced2dfec6c206791b23a5a8a6356939c5ed0492fc91c86bf1d3a255c1d
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/glibc-2.34-125.el9_5.8.alma.1.x86_64.rpm,1848b9ced2dfec6c206791b23a5a8a6356939c5ed0492fc91c86bf1d3a255c1d
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gmp-6.2.0-13.el9.i686.rpm,fe352f7d197ebdf2c92bbd6e548f9f6b7ac9e69e7a9d6c9861a6274482e79d73
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gmp-6.2.0-13.el9.x86_64.rpm,babe0b1385e723476a216d5f4b72453e031c3d683b19344786c2bddf7203cb04
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gnutls-3.8.3-4.el9_4.i686.rpm,64cf0b0136d3f9b80b07ce2d4b8ce6a4ab86617e8ef9baf560bdfa5edef825ea
