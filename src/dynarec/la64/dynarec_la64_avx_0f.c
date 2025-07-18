@@ -129,6 +129,18 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SMWRITE2();
             }
             break;
+        case 0x14:
+            INST_NAME("VUNPCKLPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVLxy(W, v0, v2, v1);
+            break;
+        case 0x15:
+            INST_NAME("VUNPCKHPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VILVHxy(W, v0, v2, v1);
+            break;
         case 0x16:
             nextop = F8;
             GETVYx(v1, 0);
