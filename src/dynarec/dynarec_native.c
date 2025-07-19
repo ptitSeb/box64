@@ -631,13 +631,12 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return CreateEmptyBlock(addr, is32bits, is_new);
     }
-    if(current_helper) {
-        dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock at %p as another one is going on\n", (void*)addr);
-        return NULL;
-    }
     if(checkInHotPage(addr)) {
         dynarec_log(LOG_DEBUG, "Not creating dynablock at %p as in a HotPage\n", (void*)addr);
         return NULL;
+    }
+    if(current_helper) {
+        dynarec_log(LOG_INFO, "Warning: previous FillBlock did not cleaned up correctly\n");
     }
     // protect the 1st page
     protectDB(addr, 1);
