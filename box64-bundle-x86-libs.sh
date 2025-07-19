@@ -101,6 +101,13 @@ for lib in libc.so libpthread.so librt.so libGL.so libGL.so libX11.so \
     do find "${dir_tmp_local}" -name "${lib}"* -delete
 done
 
+if find "${dir_tmp_local}"/bundle-libs/ -type l ! -exec test -e {} \; -print | grep bundle-libs
+    then echo "Broken symlinks found."
+    cd -
+    echo rm -r -f "${dir_tmp_local}"
+    exit 1
+fi
+
 mv "${dir_tmp_local}"/*.deb "${dir_tmp_local}/bundle-pkgs/"
 mv "${dir_tmp_local}"/*.eopkg "${dir_tmp_local}/bundle-pkgs/"
 mv "${dir_tmp_local}"/*.rpm "${dir_tmp_local}/bundle-pkgs/"
