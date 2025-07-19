@@ -1207,78 +1207,386 @@ void myStackAlignGVariantNewVa(x64emu_t* emu, const char* fmt, uint64_t* scratch
     int fr_offs = ((*b)->fp_offset - X64_VA_MAX_REG) / 8;
 
     int oa_offs = 0;
-    const char* pfmt = fmt;
-    while (*pfmt) {
-        switch (*pfmt) {
-            case 'd': // double
-                if (fr_offs >= ((X64_VA_MAX_XMM - X64_VA_MAX_REG) / 8)) {
-                    scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
-                } else {
-                    scratch[idx++] = frp[fr_offs];
-                    fr_offs += 2;
+    const char *p = fmt;
+    int state = 0;
+    int inblocks = 0;
+    int tmp;
+
+    do {
+        switch(state) {
+            case 0: // Nothing
+                switch(*p) {
+                    case 'b': // gboolean
+                    case 'y': // guchar
+                    case 'n': // gint16
+                    case 'q': // guint16
+                    case 'i': // gint32
+                    case 'u': // guint32
+                    case 'h': // gint32
+                    case 's': // const gchar*
+                    case 'o':
+                    case 'g':
+                    case 'v': // GVariant*
+                    case '*': // GVariant* of any type
+                    case '?': // GVariant* of basic type
+                    case 'r': // GVariant* of tuple type
+                    case 'x': // gint64
+                    case 't': // guint64
+                        if (gr_offs >= (X64_VA_MAX_REG / 8))
+                            scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                        else
+                            scratch[idx++] = grp[gr_offs++];
+                        break;
+                    case 'd': // gdouble
+                        if (fr_offs >= ((X64_VA_MAX_XMM - X64_VA_MAX_REG) / 8)) {
+                            scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                        } else {
+                            scratch[idx++] = frp[fr_offs];
+                            fr_offs += 2;
+                        }
+                        break;
+                    case '{':
+                    case '(': ++inblocks; break;
+                    case '}':
+                    case ')': --inblocks; break;
+                    case 'a': state = 1; break; // GVariantBuilder* or GVariantIter**
+                    case 'm': state = 2; break; // maybe types
+                    case '@': state = 3; break; // GVariant* of type [type]
+                    case '^': state = 4; break; // pointer value
+                    case '&': break; // pointer: do nothing
                 }
                 break;
-            case 'b':
-            case 'y':
-            case 'n':
-            case 'q':
-            case 'i':
-            case 'h':
-            case 'u':
-            case 'x':
-            case 't':
-                if (gr_offs >= (X64_VA_MAX_REG / 8))
-                    scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
-                else
-                    scratch[idx++] = grp[gr_offs++];
+            case 1: // Arrays
+                switch(*p) {
+                    case '{':
+                    case '(': ++tmp; break;
+                    case '}':
+                    case ')': --tmp; break;
+                }
+                if (*p == 'a') break;
+                if (tmp == 0) {
+                    if (gr_offs >= (X64_VA_MAX_REG / 8))
+                        scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                    else
+                        scratch[idx++] = grp[gr_offs++];
+                    state = 0;
+                }
                 break;
-            default:
+            case 2: // Maybe-types
+                switch(*p) {
+                    case 'b': // gboolean
+                    case 'y': // guchar
+                    case 'n': // gint16
+                    case 'q': // guint16
+                    case 'i': // gint32
+                    case 'u': // guint32
+                    case 'h': // gint32
+                    case 'x': // gint64
+                    case 't': // guint64
+                    case 'd': // gdouble
+                    case '{':
+                    case '}':
+                    case '(':
+                    case ')':
+                        // Add a gboolean or gboolean*, no char increment
+                        if (gr_offs >= (X64_VA_MAX_REG / 8))
+                            scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                        else
+                            scratch[idx++] = grp[gr_offs++];
+                        --p;
+                        state = 0;
+                        break;
+                    case 'a': // GVariantBuilder* or GVariantIter**
+                    case 's': // const gchar*
+                    case 'o':
+                    case 'g':
+                    case 'v': // GVariant*
+                    case '@': // GVariant* of type [type]
+                    case '*': // GVariant* of any type
+                    case '?': // GVariant* of basic type
+                    case 'r': // GVariant* of tuple type
+                    case '&': // pointer
+                    case '^': // pointer value
+                        // Just maybe-NULL
+                        --p;
+                        state = 0;
+                        break;
+
+                    default: // Default to add a gboolean & reinit state?
+                        if (gr_offs >= (X64_VA_MAX_REG / 8))
+                            scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                        else
+                            scratch[idx++] = grp[gr_offs++];
+                        --p;
+                        state = 0;
+                }
+                break;
+            case 3: // GVariant*
+                switch(*p) {
+                    case '{':
+                    case '(': ++tmp; break;
+                    case '}':
+                    case ')': --tmp; break;
+                    case 'a': // GVariantBuilder* or GVariantIter**
+                        do { ++p; } while(*p == 'a'); // Use next character which is not an array (array definition)
+                        switch(*p) {
+                            case '{':
+                            case '(': ++tmp; break;
+                            case '}':
+                            case ')': --tmp; break;
+                        }
+                        break;
+                }
+                if (tmp == 0) {
+                    if (gr_offs >= (X64_VA_MAX_REG / 8))
+                        scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                    else
+                        scratch[idx++] = grp[gr_offs++];
+                    state = 0;
+                }
+                break;
+            case 4: // ^
+                if (*p == 'a') state = 5;
+                else if (*p == '&') state = 8;
+                else state = 0; //???
+                break;
+            case 5: // ^a
+                if ((*p == 's') || (*p == 'o') || (*p == 'y')) {
+                    if (gr_offs >= (X64_VA_MAX_REG / 8))
+                        scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                    else
+                        scratch[idx++] = grp[gr_offs++];
+                    state = 0;
+                } else if (*p == '&') state = 6;
+                else if (*p == 'a') state = 7;
+                else state = 0; //???
+                break;
+            case 6: // ^a&
+                if ((*p == 's') || (*p == 'o')) {
+                    if (gr_offs >= (X64_VA_MAX_REG / 8))
+                        scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                    else
+                        scratch[idx++] = grp[gr_offs++];
+                    state = 0;
+                } else if (*p == 'a') state = 7;
+                else state = 0; //???
+                break;
+            case 7: // ^aa / ^a&a
+                if (*p == 'y') {
+                    if (gr_offs >= (X64_VA_MAX_REG / 8))
+                        scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                    else
+                        scratch[idx++] = grp[gr_offs++];
+                    state = 0;
+                } else state = 0; //???
+                break;
+            case 8: // ^&
+                if (*p == 'a') state = 9;
+                else state = 0; //???
+                break;
+            case 9: // ^&a
+                if (*p == 'y') {
+                    if (gr_offs >= (X64_VA_MAX_REG / 8))
+                        scratch[idx++] = ((uint64_t*)((*b)->overflow_arg_area))[oa_offs++];
+                    else
+                        scratch[idx++] = grp[gr_offs++];
+                    state = 0;
+                } else state = 0; //???
                 break;
         }
-        pfmt++;
-    }
+        ++p;
+    } while (*p && (inblocks || state));                    
 }
 
 void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm)
 {
+    if (!fmt)
+        return;
+
     int x = 0;
-    int pos = 1;
-    const char* pfmt = fmt;
-    while (*pfmt) {
-        switch (*pfmt) {
-            case 'd': // double
-                if (xmm) {
-                    *mystack = emu->xmm[x++].q[0];
-                    --xmm;
-                    mystack++;
-                } else {
-                    *mystack = *st;
-                    st++;
-                    mystack++;
+    const char *p = fmt;
+    int state = 0;
+    int inblocks = 0;
+    int tmp;
+
+    do {
+        switch(state) {
+            case 0: // Nothing
+                switch(*p) {
+                    case 'b': // gboolean
+                    case 'y': // guchar
+                    case 'n': // gint16
+                    case 'q': // guint16
+                    case 'i': // gint32
+                    case 'u': // guint32
+                    case 'h': // gint32
+                    case 's': // const gchar*
+                    case 'o':
+                    case 'g':
+                    case 'v': // GVariant*
+                    case '*': // GVariant* of any type
+                    case '?': // GVariant* of basic type
+                    case 'r': // GVariant* of tuple type
+                    case 'x': // gint64
+                    case 't': // guint64
+                        *mystack = *st;
+                        ++mystack;
+                        ++st;
+                        break;
+                    case 'd': // gdouble
+                        if (xmm) {
+                            *mystack = emu->xmm[x++].q[0];
+                            --xmm;
+                            mystack++;
+                        } else {
+                            *mystack = *st;
+                            st++;
+                            mystack++;
+                        }
+                        break;
+                    case '{':
+                    case '(': ++inblocks; break;
+                    case '}':
+                    case ')': --inblocks; break;
+                    case 'a': state = 1; break; // GVariantBuilder* or GVariantIter**
+                    case 'm': state = 2; break; // maybe types
+                    case '@': state = 3; break; // GVariant* of type [type]
+                    case '^': state = 4; break; // pointer value
+                    case '&': break; // pointer: do nothing
                 }
                 break;
-            case 'b':
-            case 'y':
-            case 'n':
-            case 'q':
-            case 'i':
-            case 'h':
-            case 'u':
-            case 'x':
-            case 't':
-                if (pos < 6)
-                    *mystack = emu->regs[regs_abi[pos++]].q[0];
-                else {
+            case 1: // Arrays
+                switch(*p) {
+                    case '{':
+                    case '(': ++tmp; break;
+                    case '}':
+                    case ')': --tmp; break;
+                }
+                if (*p == 'a') break;
+                if (tmp == 0) {
                     *mystack = *st;
+                    ++mystack;
                     ++st;
+                    state = 0;
                 }
-                ++mystack;
                 break;
-            default:
+            case 2: // Maybe-types
+                switch(*p) {
+                    case 'b': // gboolean
+                    case 'y': // guchar
+                    case 'n': // gint16
+                    case 'q': // guint16
+                    case 'i': // gint32
+                    case 'u': // guint32
+                    case 'h': // gint32
+                    case 'x': // gint64
+                    case 't': // guint64
+                    case 'd': // gdouble
+                    case '{':
+                    case '}':
+                    case '(':
+                    case ')':
+                        // Add a gboolean or gboolean*, no char increment
+                        *mystack = *st;
+                        ++mystack;
+                        ++st;
+                        --p;
+                        state = 0;
+                        break;
+                    case 'a': // GVariantBuilder* or GVariantIter**
+                    case 's': // const gchar*
+                    case 'o':
+                    case 'g':
+                    case 'v': // GVariant*
+                    case '@': // GVariant* of type [type]
+                    case '*': // GVariant* of any type
+                    case '?': // GVariant* of basic type
+                    case 'r': // GVariant* of tuple type
+                    case '&': // pointer
+                    case '^': // pointer value
+                        // Just maybe-NULL
+                        --p;
+                        state = 0;
+                        break;
+
+                    default: // Default to add a gboolean & reinit state?
+                        *mystack = *st;
+                        ++mystack;
+                        ++st;
+                        --p;
+                        state = 0;
+                }
+                break;
+            case 3: // GVariant*
+                switch(*p) {
+                    case '{':
+                    case '(': ++tmp; break;
+                    case '}':
+                    case ')': --tmp; break;
+                    case 'a': // GVariantBuilder* or GVariantIter**
+                        do { ++p; } while(*p == 'a'); // Use next character which is not an array (array definition)
+                        switch(*p) {
+                            case '{':
+                            case '(': ++tmp; break;
+                            case '}':
+                            case ')': --tmp; break;
+                        }
+                        break;
+                }
+                if (tmp == 0) {
+                    *mystack = *st;
+                    ++mystack;
+                    ++st;
+                    state = 0;
+                }
+                break;
+            case 4: // ^
+                if (*p == 'a') state = 5;
+                else if (*p == '&') state = 8;
+                else state = 0; //???
+                break;
+            case 5: // ^a
+                if ((*p == 's') || (*p == 'o') || (*p == 'y')) {
+                    *mystack = *st;
+                    ++mystack;
+                    ++st;
+                    state = 0;
+                } else if (*p == '&') state = 6;
+                else if (*p == 'a') state = 7;
+                else state = 0; //???
+                break;
+            case 6: // ^a&
+                if ((*p == 's') || (*p == 'o')) {
+                    *mystack = *st;
+                    ++mystack;
+                    ++st;
+                    state = 0;
+                } else if (*p == 'a') state = 7;
+                else state = 0; //???
+                break;
+            case 7: // ^aa / ^a&a
+                if (*p == 'y') {
+                    *mystack = *st;
+                    ++mystack;
+                    ++st;
+                    state = 0;
+                } else state = 0; //???
+                break;
+            case 8: // ^&
+                if (*p == 'a') state = 9;
+                else state = 0; //???
+                break;
+            case 9: // ^&a
+                if (*p == 'y') {
+                    *mystack = *st;
+                    ++mystack;
+                    ++st;
+                    state = 0;
+                } else state = 0; //???
                 break;
         }
-        pfmt++;
-    }
+        ++p;
+    } while (*p && (inblocks || state));
 }
 
 #endif
