@@ -2129,7 +2129,7 @@ typedef union hotpage_s {
     uint64_t    x;
 } hotpage_t;
 #define HOTPAGE_MAX ((1<<28)-1)
-#define N_HOTPAGE   16
+#define N_HOTPAGE   8
 #define HOTPAGE_MARK 64
 #define HOTPAGE_DIRTY 1024
 static hotpage_t hotpage[N_HOTPAGE] = {0};
