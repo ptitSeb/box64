@@ -58,6 +58,8 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libzstd-1.5.1-2.el9.i6
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libzstd-1.5.1-2.el9.x86_64.rpm,2e5215e225cec2db43d92c3b3380812a6f8684e881ed415670299e1e0fe7d1ce
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/lz4-libs-1.9.3-5.el9.i686.rpm,c308ba7380a3b5c5337c919150f0234342b64c1ea696d6207c2b790b82ba4669
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/lz4-libs-1.9.3-5.el9.x86_64.rpm,439e701491af6a957ac4d7dc69cccee1a945333f19d8bfcbd896b5119af01aab
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/ncurses-libs-6.2-10.20210508.el9.i686.rpm,285db6dc6f610f75ef6863dcb0a383eae394c2b33bff283189cb49ac7fae4c58
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/ncurses-libs-6.2-10.20210508.el9.x86_64.rpm,d06b0e491481a345faf21a69666cbdc302d19b54fb29ae1aa78fa6b205f9e604
 https://repo.almalinux.org/almalinux/8.10/BaseOS/x86_64/os/Packages/nettle-3.4.1-7.el8.i686.rpm,13bc8758355c3ec885f414e0e86efad29a7fe82c0999cdb3754d666949c06cc5
 https://repo.almalinux.org/almalinux/8.10/BaseOS/x86_64/os/Packages/nettle-3.4.1-7.el8.x86_64.rpm,fb4aaa22b2e2f2fc0c451b87ac464e8746d240397d64e79f6bfd38f4e9128a5a
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/nettle-3.9.1-1.el9.i686.rpm,e5610fe3b25cfca1616440e1a8a7489fd37b0852f182fdda87ab8e196d981970
