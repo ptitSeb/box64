@@ -10,6 +10,8 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gnutls-3.8.3-4.el9_4.i
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gnutls-3.8.3-4.el9_4.x86_64.rpm,16c48c504fe62f8e19cac7c6442d3e08bba487f610c2f533116dac32357cda86
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/harfbuzz-2.7.4-10.el9.i686.rpm,5157daf2ab0a03b403d37c60b150b8f0f866754714f81e3d96368e06a16339ce
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/harfbuzz-2.7.4-10.el9.x86_64.rpm,1f81073019abe4176d4496723a89b55a349c31f507e96397a0b3efa7cea0ff61
+https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/h/hidapi-0.11.2-2.fc34.i686.rpm,386040fc502e2f02b4b072e0cd90c034dc0a30831fbd2ddb116d17c080b6f9a4
+https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/h/hidapi-0.11.2-2.fc34.x86_64.rpm,2a13461c7d5fcf72ffd682b3eb04833aea8306d61c3b8bdeb42a5081d96d5478
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libblkid-2.37.4-20.el9.i686.rpm,f9e62d2768c31948b53268b7de51bd1c7342cdf39a328a0d89d933b4aa0c5dd1
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libblkid-2.37.4-20.el9.x86_64.rpm,ed02d978a36488b38bad62af21d4045367c1f0b00d00c90ded01e2fc8e190536
 https://archive.debian.org/debian/pool/main/c/curl/libcurl3-gnutls_7.74.0-1.3+deb11u7~bpo11+1_amd64.deb,d5ae55e3a9838d12358530cd03218cc0d18127a84e9cfc73bdf79dacd40b25e4
