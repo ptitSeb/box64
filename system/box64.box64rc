@@ -97,6 +97,7 @@ BOX64_DYNAREC_ALIGNED_ATOMICS=1
 [BeamNG.drive.x64]
 BOX64_MALLOC_HACK=2
 BOX64_DYNAREC_CALLRET=1
+BOX64_NOSANDBOX=1
 
 [box64-bash]
 # LOG tend to mess up script execution in bash
