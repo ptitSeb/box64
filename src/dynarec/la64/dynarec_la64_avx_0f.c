@@ -337,6 +337,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                         DEFAULT;
                 }
             break;
+        case 0xC6:
+            INST_NAME("VSHUFPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (v1 == v2) {
+                VSHUF4Ixy(W, v0, v1, u8);
+            } else {
+                VSHUF4Ixy(W, d0, v1, u8);
+                VSHUF4Ixy(W, d1, v2, u8 >> 4);
+                VPICKEVxy(D, v0, d1, d0);
+            }
+            break;
         default:
             DEFAULT;
     }

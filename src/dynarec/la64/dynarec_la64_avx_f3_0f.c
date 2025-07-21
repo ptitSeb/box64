@@ -121,6 +121,20 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             }
             break;
+        case 0x70:
+            INST_NAME("VPSHUFHW Gx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            if (v0 != v1) {
+                VSHUF4Ixy(H, v0, v1, u8);
+                VEXTRINSxy(D, v0, v1, VEXTRINS_IMM_4_0(0, 0));
+            } else {
+                VSHUF4Ixy(H, d0, v1, u8);
+                VEXTRINSxy(D, v0, d0, VEXTRINS_IMM_4_0(1, 1));
+            }
+            break;
         case 0x7E:
             INST_NAME("VMOVD Gx, Ex");
             nextop = F8;

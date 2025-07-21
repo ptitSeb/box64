@@ -153,18 +153,18 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_I26(opc, imm26)             ((opc) << 26 | ((imm26) & 0xFFFF) << 10 | ((imm26 >> 16) & 0x3FF))
 
 // Made-up formats not found in the spec.
-#define type_1RI13(opc, imm13, rd)     ((opc) << 18 | ((imm13) & 0x1FFFF) << 5 | (rd))
-#define type_2RI1(opc, imm1, rj, rd)   ((opc) << 11 | ((imm1) & 0x1) << 10 | (rj) << 5 | (rd))
-#define type_2RI2(opc, imm2, rj, rd)   ((opc) << 12 | ((imm2) & 0x3) << 10 | (rj) << 5 | (rd))
-#define type_2RI3(opc, imm3, rj, rd)   ((opc) << 13 | ((imm3) & 0x7) << 10 | (rj) << 5 | (rd))
-#define type_2RI4(opc, imm4, rj, rd)   ((opc) << 14 | ((imm4) & 0xF) << 10 | (rj) << 5 | (rd))
-#define type_2RI5(opc, imm5, rj, rd)   ((opc) << 15 | ((imm5) & 0x1F) << 10 | (rj) << 5 | (rd))
-#define type_2RI6(opc, imm6, rj, rd)   ((opc) << 16 | ((imm6) & 0x3F) << 10 | (rj) << 5 | (rd))
-#define type_2RI7(opc, imm7, rj, rd)   ((opc) << 17 | ((imm7) & 0x7F) << 10 | (rj) << 5 | (rd))
-#define type_2RI9(opc, imm9, rj, rd)   ((opc) << 19 | ((imm9) & 0x1FF) << 10 | (rj) << 5 | (rd))
-#define type_2RI10(opc, imm10, rj, rd) ((opc) << 20 | ((imm10) & 0x3FF) << 10 | (rj) << 5 | (rd))
-#define type_2RI11(opc, imm11, rj, rd) ((opc) << 21 | ((imm11) & 0x7FF) << 10 | (rj) << 5 | (rd))
-#define type_1RI5I5(opc, imm5, imm5_2, rd)   ((opc) << 15 | ((imm5) & 0x1F) << 10 | ((imm5_2) & 0x1F) << 5 | (rd))
+#define type_1RI13(opc, imm13, rd)         ((opc) << 18 | ((imm13) & 0x1FFFF) << 5 | (rd))
+#define type_2RI1(opc, imm1, rj, rd)       ((opc) << 11 | ((imm1) & 0x1) << 10 | (rj) << 5 | (rd))
+#define type_2RI2(opc, imm2, rj, rd)       ((opc) << 12 | ((imm2) & 0x3) << 10 | (rj) << 5 | (rd))
+#define type_2RI3(opc, imm3, rj, rd)       ((opc) << 13 | ((imm3) & 0x7) << 10 | (rj) << 5 | (rd))
+#define type_2RI4(opc, imm4, rj, rd)       ((opc) << 14 | ((imm4) & 0xF) << 10 | (rj) << 5 | (rd))
+#define type_2RI5(opc, imm5, rj, rd)       ((opc) << 15 | ((imm5) & 0x1F) << 10 | (rj) << 5 | (rd))
+#define type_2RI6(opc, imm6, rj, rd)       ((opc) << 16 | ((imm6) & 0x3F) << 10 | (rj) << 5 | (rd))
+#define type_2RI7(opc, imm7, rj, rd)       ((opc) << 17 | ((imm7) & 0x7F) << 10 | (rj) << 5 | (rd))
+#define type_2RI9(opc, imm9, rj, rd)       ((opc) << 19 | ((imm9) & 0x1FF) << 10 | (rj) << 5 | (rd))
+#define type_2RI10(opc, imm10, rj, rd)     ((opc) << 20 | ((imm10) & 0x3FF) << 10 | (rj) << 5 | (rd))
+#define type_2RI11(opc, imm11, rj, rd)     ((opc) << 21 | ((imm11) & 0x7FF) << 10 | (rj) << 5 | (rd))
+#define type_1RI5I5(opc, imm5, imm5_2, rd) ((opc) << 15 | ((imm5) & 0x1F) << 10 | ((imm5_2) & 0x1F) << 5 | (rd))
 
 // tmp = GR[rj][31:0] + GR[rk][31:0]
 // Gr[rd] = SignExtend(tmp[31:0], GRLEN)
@@ -1530,6 +1530,10 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VFMSUB_D(vd, vj, vk, va)     EMIT(type_4R(0b000010010110, va, vk, vj, vd))
 #define VFNMADD_D(vd, vj, vk, va)    EMIT(type_4R(0b000010011010, va, vk, vj, vd))
 #define VFNMSUB_D(vd, vj, vk, va)    EMIT(type_4R(0b000010011110, va, vk, vj, vd))
+#define VANDI_B(vd, vj, imm8)        EMIT(type_2RI8(0b01110011110100, imm8, vj, vd))
+#define VORI_B(vd, vj, imm8)         EMIT(type_2RI8(0b01110011110101, imm8, vj, vd))
+#define VXORI_B(vd, vj, imm8)        EMIT(type_2RI8(0b01110011110110, imm8, vj, vd))
+#define VNORI_B(vd, vj, imm8)        EMIT(type_2RI8(0b01110011110111, imm8, vj, vd))
 
 #define XVADD_B(vd, vj, vk)          EMIT(type_3R(0b01110100000010100, vk, vj, vd))
 #define XVADD_H(vd, vj, vk)          EMIT(type_3R(0b01110100000010101, vk, vj, vd))
@@ -2251,8 +2255,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVFNMADD_D(xd, xj, xk, xa) EMIT(type_4R(0b000010101010, xa, xk, xj, xd))
 #define XVFNMSUB_D(xd, xj, xk, xa) EMIT(type_4R(0b000010101110, xa, xk, xj, xd))
 
-#define VMEPATMSK_V(vd, mode, uimm5)     EMIT(type_1RI5I5(0b01110010100110111, uimm5, mode, vd))
-#define XVMEPATMSK_V(xd, mode, uimm5)    EMIT(type_1RI5I5(0b01110110100110111, uimm5, mode, xd))
+#define VMEPATMSK_V(vd, mode, uimm5)  EMIT(type_1RI5I5(0b01110010100110111, uimm5, mode, vd))
+#define XVMEPATMSK_V(xd, mode, uimm5) EMIT(type_1RI5I5(0b01110110100110111, uimm5, mode, xd))
 
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions
@@ -2975,7 +2979,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
         if (vex.l) {                    \
             XVILVL_##width(vd, vj, vk); \
         } else {                        \
-            VILVL_##width(vd, vj, vk); \
+            VILVL_##width(vd, vj, vk);  \
         }                               \
     } while (0)
 
@@ -2984,7 +2988,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
         if (vex.l) {                    \
             XVILVH_##width(vd, vj, vk); \
         } else {                        \
-            VILVH_##width(vd, vj, vk); \
+            VILVH_##width(vd, vj, vk);  \
         }                               \
     } while (0)
 
@@ -3015,4 +3019,66 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                               \
     } while (0)
 
+#define VSLTIxy(width, vd, vj, imm)      \
+    do {                                 \
+        if (vex.l) {                     \
+            XVSLTI_##width(vd, vj, imm); \
+        } else {                         \
+            VSLTI_##width(vd, vj, imm);  \
+        }                                \
+    } while (0)
+
+#define VBITSEL_Vxy(vd, vj, vk, va)     \
+    do {                                \
+        if (vex.l) {                    \
+            XVBITSEL_V(vd, vj, vk, va); \
+        } else {                        \
+            VBITSEL_V(vd, vj, vk, va);  \
+        }                               \
+    } while (0)
+
+#define VSHUF_Bxy(vd, vj, vk, va)     \
+    do {                              \
+        if (vex.l) {                  \
+            XVSHUF_B(vd, vj, vk, va); \
+        } else {                      \
+            VSHUF_B(vd, vj, vk, va);  \
+        }                             \
+    } while (0)
+
+#define VSHUFxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVSHUF_##width(vd, vj, vk); \
+        } else {                        \
+            VSHUF_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VSHUF4Ixy(width, vd, vj, imm)      \
+    do {                                   \
+        if (vex.l) {                       \
+            XVSHUF4I_##width(vd, vj, imm); \
+        } else {                           \
+            VSHUF4I_##width(vd, vj, imm);  \
+        }                                  \
+    } while (0)
+
+#define VEXTRINSxy(width, vd, vj, imm)      \
+    do {                                    \
+        if (vex.l) {                        \
+            XVEXTRINS_##width(vd, vj, imm); \
+        } else {                            \
+            VEXTRINS_##width(vd, vj, imm);  \
+        }                                   \
+    } while (0)
+
+#define VANDIxy(vd, vj, imm)       \
+    do {                           \
+        if (vex.l) {               \
+            XVANDI_B(vd, vj, imm); \
+        } else {                   \
+            VANDI_B(vd, vj, imm);  \
+        }                          \
+    } while (0)
 #endif //__ARM64_EMITTER_H__
