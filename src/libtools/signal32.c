@@ -38,13 +38,16 @@
 #include "dynarec_native.h"
 #if defined(ARM64)
 #include "dynarec/arm64/arm64_mapping.h"
-#define CONTEXT_REG(P, X) P->uc_mcontext.regs[X]
+#define CONTEXT_REG(P, X)   P->uc_mcontext.regs[X]
+#define CONTEXT_PC(P)       P->uc_mcontext.pc
 #elif defined(LA64)
 #include "dynarec/la64/la64_mapping.h"
-#define CONTEXT_REG(P, X) P->uc_mcontext.__gregs[X]
+#define CONTEXT_REG(P, X)   P->uc_mcontext.__gregs[X]
+#define CONTEXT_PC(P)       P->uc_mcontext.__pc;
 #elif defined(RV64)
 #include "dynarec/rv64/rv64_mapping.h"
-#define CONTEXT_REG(P, X) P->uc_mcontext.__gregs[X]
+#define CONTEXT_REG(P, X)   P->uc_mcontext.__gregs[X]
+#define CONTEXT_PC(P)       P->uc_mcontext.__gregs[REG_PC]
 #else
 #error Unsupported Architecture
 #endif //arch
@@ -497,7 +500,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     ucontext_t *p = (ucontext_t *)ucntx;
     void* pc = NULL;
     if(p) {
-        pc = (void*)p->uc_mcontext.pc;
+        pc = (void*)CONTEXT_PC(p);
         if(db)
             frame = from_ptr((ptr_t)CONTEXT_REG(p, xRSP));
     }

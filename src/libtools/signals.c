@@ -43,13 +43,16 @@
 #include "gdbjit.h"
 #if defined(ARM64)
 #include "dynarec/arm64/arm64_mapping.h"
-#define CONTEXT_REG(P, X) P->uc_mcontext.regs[X]
+#define CONTEXT_REG(P, X)   P->uc_mcontext.regs[X]
+#define CONTEXT_PC(P)       P->uc_mcontext.pc
 #elif defined(LA64)
 #include "dynarec/la64/la64_mapping.h"
-#define CONTEXT_REG(P, X) P->uc_mcontext.__gregs[X]
+#define CONTEXT_REG(P, X)   P->uc_mcontext.__gregs[X]
+#define CONTEXT_PC(P)       P->uc_mcontext.__pc;
 #elif defined(RV64)
 #include "dynarec/rv64/rv64_mapping.h"
-#define CONTEXT_REG(P, X) P->uc_mcontext.__gregs[X]
+#define CONTEXT_REG(P, X)   P->uc_mcontext.__gregs[X]
+#define CONTEXT_PC(P)       P->uc_mcontext.__gregs[REG_PC]
 #else
 #error Unsupported Architecture
 #endif //arch
@@ -278,7 +281,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
 #ifdef DYNAREC
 x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
 {
-    if(db && p->uc_mcontext.regs[0]>0x10000) {
+    if(db && CONTEXT_REG(p, xEmu)>0x10000) {
         emu = (x64emu_t*)CONTEXT_REG(p, xEmu);
     }
     return emu;
@@ -1430,13 +1433,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 if(!db->gone && !is_hotpage && hash==db->hash) {
                     dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, always_test=%d) is clean, %s continuing at %p (%p)!\n", db, db->x64_addr, db->always_test, type_callret?"self-loop":"ret from callret", (void*)x64pc, (void*)addr);
                     // it's good! go next opcode
-                    #ifdef __aarch64__
-                    p->uc_mcontext.pc+=4;
-                    #elif defined(LA64)
-                    p->uc_mcontext.__pc+=4;
-                    #elif defined(RV64)
-                    p->uc_mcontext.__gregs[REG_PC]+=4;
-                    #endif
+                    CONTEXT_PC(p)+=4;
                     if(db->always_test)
                         protectDB((uintptr_t)db->x64_addr, 1);
                     else {
@@ -1882,15 +1879,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* pc = NULL;
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
-    #ifdef ARM64
-    pc = (void*)p->uc_mcontext.pc;
-    #elif defined(LA64)
-    pc = (void*)p->uc_mcontext.__pc;
-    #elif defined(RV64)
-    pc = (void*)p->uc_mcontext.__gregs[0];
-    #else
-    #error Unsupported architecture
-    #endif
+    pc = (void*)CONTEXT_PC(p);
     #endif
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
     x64emu_t* emu = thread_get_emu();
