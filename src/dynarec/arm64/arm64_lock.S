@@ -110,19 +110,21 @@ arm64_lock_xchg_dd:
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_xchg_dd
-    dmb     ish
-arm64_lock_xchg_dd_0:
-    // address is x0, value is x1, return old value in x0
-    ldaxr   x2, [x0]
-    stlxr   w3, x1, [x0]
-    cbnz    w3, arm64_lock_xchg_dd_0
-    mov     x0, x2
-    ret
+    b       arm64_atomic_xchg_dd_v8_0
 
 arm64_atomic_xchg_dd:
     dmb     ish
     // address is x0, value is x1, return old value in x0
     swpal   x1, x0, [x0]
+    ret
+    
+arm64_atomic_xchg_dd_v8_0:
+    dmb     ish
+arm64_atomic_xchg_dd_v8_0_loop:
+    ldaxr   x2, [x0]
+    stlxr   w3, x1, [x0]
+    cbnz    w3, arm64_atomic_xchg_dd_v8_0_loop
+    mov     x0, x2
     ret
 
 arm64_lock_xchg_d:
@@ -130,14 +132,7 @@ arm64_lock_xchg_d:
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_xchg_d
-    dmb     ish
-arm64_lock_xchg_d_0:
-    // address is x0, value is x1, return old value in x0
-    ldaxr   w2, [x0]
-    stlxr   w3, w1, [x0]
-    cbnz    w3, arm64_lock_xchg_d_0
-    mov     w0, w2
-    ret
+    b       arm64_atomic_xchg_d_v8_0
 
 arm64_atomic_xchg_d:
     dmb     ish
@@ -145,19 +140,21 @@ arm64_atomic_xchg_d:
     swpal   w1, w0, [x0]
     ret
 
+arm64_atomic_xchg_d_v8_0:
+    dmb     ish
+arm64_atomic_xchg_d_v8_0_loop:
+    ldaxr   w2, [x0]
+    stlxr   w3, w1, [x0]
+    cbnz    w3, arm64_atomic_xchg_d_v8_0_loop
+    mov     w0, w2
+    ret
+
 arm64_lock_xchg_h:
     adrp    x3, cpuext
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_xchg_h
-    dmb     ish
-arm64_lock_xchg_h_0:
-    // address is x0, value is x1, return old value in x0
-    ldaxrh  w2, [x0]
-    stlxrh  w3, w1, [x0]
-    cbnz    w3, arm64_lock_xchg_h_0
-    mov     w0, w2
-    ret
+    b       arm64_atomic_xchg_h_v8_0
 
 arm64_atomic_xchg_h:
     dmb     ish
@@ -165,19 +162,21 @@ arm64_atomic_xchg_h:
     swpalh  w1, w0, [x0]
     ret
 
+arm64_atomic_xchg_h_v8_0:
+    dmb     ish
+arm64_atomic_xchg_h_v8_0_loop:
+    ldaxrh  w2, [x0]
+    stlxrh  w3, w1, [x0]
+    cbnz    w3, arm64_atomic_xchg_h_v8_0_loop
+    mov     w0, w2
+    ret
+
 arm64_lock_xchg_b:
     adrp    x3, cpuext
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_xchg_b
-    dmb     ish
-arm64_lock_xchg_b_0:
-    // address is x0, value is x1, return old value in x0
-    ldaxrb   w2, [x0]
-    stlxrb   w3, w1, [x0]
-    cbnz    w3, arm64_lock_xchg_b_0
-    mov     w0, w2
-    ret
+    b       arm64_atomic_xchg_b_v8_0
 
 arm64_atomic_xchg_b:
     dmb     ish
@@ -185,21 +184,21 @@ arm64_atomic_xchg_b:
     swpalb  w1, w0, [x0]
     ret
 
+arm64_atomic_xchg_b_v8_0:
+    dmb     ish
+arm64_atomic_xchg_b_v8_0_loop:
+    ldaxrb  w2, [x0]
+    stlxrb  w3, w1, [x0]
+    cbnz    w3, arm64_atomic_xchg_b_v8_0_loop
+    mov     w0, w2
+    ret
+
 arm64_lock_storeifnull:
     adrp    x3, cpuext
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_storeifnull
-    dmb     ish
-1:
-    // address is x0, value is x1, x1 store to x0 only if [x0] is 0. return old [x0] value
-    ldaxr   x2, [x0]
-    cbnz    x2, 2f
-    stlxr   w3, x1, [x0]
-    cbnz    w3, 1b
-2:
-    mov     x0, x2
-    ret
+    b       arm64_atomic_storeifnull_v8_0
 
 arm64_atomic_storeifnull:
     dmb     ish
@@ -209,23 +208,24 @@ arm64_atomic_storeifnull:
     mov     x0, x2
     ret
 
+arm64_atomic_storeifnull_v8_0:
+    dmb     ish
+1:
+    ldaxr   x2, [x0]
+    cbnz    x2, 2f
+    stlxr   w3, x1, [x0]
+    cbnz    w3, 1b
+2:
+    mov     x0, x2
+    ret
+
 
 arm64_lock_storeifnull_d:
     adrp    x3, cpuext
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_storeifnull_d
-    dmb     ish
-1:
-    // address is x0, value is w1, w1 store to x0 only if [x0] is 0. return old [x0] value
-    ldaxr   w2, [x0]
-    cbnz    w2, 2f
-    stlxr   w3, w1, [x0]
-    cbnz    w3, 1b
-2:
-    dmb     ish
-    mov     w0, w2
-    ret
+    b       arm64_atomic_storeifnull_d_v8_0
 
 arm64_atomic_storeifnull_d:
     dmb     ish
@@ -235,14 +235,41 @@ arm64_atomic_storeifnull_d:
     mov     w0, w2
     ret
 
+arm64_atomic_storeifnull_d_v8_0:
+    dmb     ish
+1:
+    ldaxr   w2, [x0]
+    cbnz    w2, 2f
+    stlxr   w3, w1, [x0]
+    cbnz    w3, 1b
+2:
+    dmb     ish
+    mov     w0, w2
+    ret
+
 arm64_lock_storeifref:
     adrp    x3, cpuext
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_storeifref
+    b       arm64_atomic_storeifref_v8_0
+
+arm64_atomic_storeifref:
+    dmb     ish
+    // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return new [x0] value (so x1 or old value)
+    mov     x3, x2
+    casal   x2, x1, [x0]
+    cmp     x2, x3
+    bne     1f
+    mov     x0, x1
+    ret
+1:
+    mov     x0, x2
+    ret
+
+arm64_atomic_storeifref_v8_0:
     dmb     ish
 1:
-    // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return new [x0] value (so x1 or old value)
     ldaxr   x3, [x0]
     cmp     x2, x3
     bne     2f
@@ -254,36 +281,12 @@ arm64_lock_storeifref:
     mov     x0, x3
     ret
 
-arm64_atomic_storeifref:
-    dmb     ish
-    // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return new [x0] value (so x1 or old value)
-    mov     x3, x2
-    casal   x2, x1, [x0]
-    cmp     x2, x3
-    mov     x0, x1
-    ret
-2:
-    mov     x0, x3
-    ret
-
 arm64_lock_storeifref_d:
     adrp    x3, cpuext
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_storeifref_d
-    dmb     ish
-1:
-    // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return new [x0] value (so x1 or old value)
-    ldaxr   w3, [x0]
-    cmp     w2, w3
-    bne     2f
-    stlxr   w4, w1, [x0]
-    cbnz    w4, 1b
-    mov     w0, w1
-    ret
-2:
-    mov     w0, w3
-    ret
+    b       arm64_atomic_storeifref_d_v8_0
 
 arm64_atomic_storeifref_d:
     dmb     ish
@@ -291,6 +294,21 @@ arm64_atomic_storeifref_d:
     mov     w3, w2
     casal   w2, w1, [x0]
     cmp     w2, w3
+    bne     1f
+    mov     w0, w1
+    ret
+1:
+    mov     w0, w2
+    ret
+
+arm64_atomic_storeifref_d_v8_0:
+    dmb     ish
+1:
+    ldaxr   w3, [x0]
+    cmp     w2, w3
+    bne     2f
+    stlxr   w4, w1, [x0]
+    cbnz    w4, 1b
     mov     w0, w1
     ret
 2:
@@ -302,9 +320,18 @@ arm64_lock_storeifref2_d:
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_storeifref2_d
+    b       arm64_atomic_storeifref2_d_v8_0
+
+arm64_atomic_storeifref2_d:
+    dmb     ish
+    // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
+    casal   w2, w1, [x0]
+    mov     w0, w2
+    ret
+
+arm64_atomic_storeifref2_d_v8_0:
     dmb     ish
 1:
-    // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
     ldaxr   w3, [x0]
     cmp     w2, w3
     bne     2f
@@ -312,13 +339,6 @@ arm64_lock_storeifref2_d:
     cbnz    w4, 1b
 2:
     mov     w0, w3
-    ret
-
-arm64_atomic_storeifref2_d:
-    dmb     ish
-    // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
-    casal   w2, w1, [x0]
-    mov     w0, w2
     ret
 
 arm64_lock_decifnot0b:
@@ -356,6 +376,16 @@ arm64_lock_incif0:
     add     x3, x3, #:lo12:cpuext
     ldr     w3, [x3]
     tbnz    w3, #0, arm64_atomic_incif0
+    b       arm64_atomic_incif0_v8_0
+
+arm64_atomic_incif0:
+    mov     w1, #1
+    dmb     ish
+    swpal   w1, wzr, [x0]
+    mov     w0, w1
+    ret
+
+arm64_atomic_incif0_v8_0:
     dmb     ish
 1:
     ldaxr   w1, [x0]
@@ -365,13 +395,6 @@ arm64_lock_incif0:
     stlxr   w2, w3, [x0]
     cbnz    w2, 1b
 2:
-    mov     w0, w1
-    ret
-
-arm64_atomic_incif0:
-    mov     w1, #1
-    dmb     ish
-    swpal   w1, wzr, [x0]
     mov     w0, w1
     ret
 
