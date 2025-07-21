@@ -36,6 +36,18 @@
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
 #include "dynarec_native.h"
+#if defined(ARM64)
+#include "dynarec/arm64/arm64_mapping.h"
+#define CONTEXT_REG(P, X) P->uc_mcontext.regs[X]
+#elif defined(LA64)
+#include "dynarec/la64/la64_mapping.h"
+#define CONTEXT_REG(P, X) P->uc_mcontext.__gregs[X]
+#elif defined(RV64)
+#include "dynarec/rv64/rv64_mapping.h"
+#define CONTEXT_REG(P, X) P->uc_mcontext.__gregs[X]
+#else
+#error Unsupported Architecture
+#endif //arch
 #endif
 
 
@@ -481,36 +493,14 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
         emu = thread_get_emu();
     uintptr_t frame = R_RSP;
 #if defined(DYNAREC)
-#if defined(ARM64)
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     ucontext_t *p = (ucontext_t *)ucntx;
     void* pc = NULL;
     if(p) {
         pc = (void*)p->uc_mcontext.pc;
         if(db)
-            frame = from_ptr((ptr_t)p->uc_mcontext.regs[10+_SP]);
+            frame = from_ptr((ptr_t)CONTEXT_REG(p, xRSP));
     }
-#elif defined(LA64)
-    dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
-    ucontext_t *p = (ucontext_t *)ucntx;
-    void* pc = NULL;
-    if(p) {
-        pc = (void*)p->uc_mcontext.__pc;
-        if(db)
-            frame = from_ptr((ptr_t)p->uc_mcontext.__gregs[12+_SP]);
-    }
-#elif defined(RV64)
-    dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
-    ucontext_t *p = (ucontext_t *)ucntx;
-    void* pc = NULL;
-    if(p) {
-        pc = (void*)p->uc_mcontext.__gregs[0];
-        if(db)
-            frame = from_ptr((ptr_t)p->uc_mcontext.__gregs[9]);
-    }
-#else
-#error Unsupported architecture
-#endif
 #else
     (void)ucntx; (void)cur_db;
     void* pc = NULL;
