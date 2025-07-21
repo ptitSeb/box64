@@ -383,7 +383,7 @@ Force the use of float/double for x87 emulation. Availble in WowBox64.
 
 =item B<BOX64_DYNACACHE> =I<0|1|2>
 
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). Not all architecture support DynaCache yet (it will have no effect then). DynaCache write file to home folder, and can grow without limit
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache write file to home folder by default, and can grow without limit.
 
  * 0 : Disable DynaCache. 
  * 1 : Enable DynaCache. 
@@ -392,7 +392,7 @@ Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defau
 
 =item B<BOX64_DYNACACHE_FOLDER> =I<XXXX>
 
-Set the folder for DynaCache files. Default is in XDG_CACHE_HOME/box64 or, it does not exist in HOME/.cache/box64
+Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
 
  * XXXX : Use folder XXXX for DynaCache files. 
 
