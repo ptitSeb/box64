@@ -811,7 +811,7 @@ done:
 #elif defined(RV64)
 #define ARCH_VERSION SET_VERSION(0, 0, 1)
 #elif defined(LA64)
-#define ARCH_VERSION SET_VERSION(0, 0, 0)
+#define ARCH_VERSION SET_VERSION(0, 0, 1)
 #else
 #error meh!
 #endif
