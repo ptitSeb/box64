@@ -2369,7 +2369,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #endif
             }
 #if STEP < 2
-            if (!rex.is32bits && IsNativeCall(addr + i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+            if (!rex.is32bits && !dyn->need_reloc && IsNativeCall(addr + i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else
                 tmp = dyn->insts[ninst].pass2choice = i32 ? 0 : 1;
@@ -2381,10 +2381,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     SKIPTEST(x1);
                     BARRIER(BARRIER_FULL);
-                    if (dyn->last_ip && (addr - dyn->last_ip < 0x800)) {
+                    if (dyn->last_ip && ((addr - dyn->last_ip < 0x800) || (dyn->last_ip - addr < 0x800))) {
                         ADDI_D(x2, xRIP, addr - dyn->last_ip);
                     } else {
-                        MOV64x(x2, addr);
+                        if (dyn->need_reloc) {
+                            TABLE64(x2, addr);
+                        } else {
+                            MOV64x(x2, addr);
+                        }
                     }
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1)), dyn->insts[ninst].retn);
@@ -2402,7 +2406,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     //     x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
                         // GETIP(ip+3+8+8, x7); // read the 0xCC
-                        // FIXME: call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
+                        // FIXME: call_n(dyn, ninst, (void*)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address
                         dyn->last_ip = addr;
                     } else {
@@ -2432,7 +2436,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1:
                     // this is call to next step, so just push the return address to the stack
-                    MOV64x(x2, addr);
+                    if (dyn->need_reloc) {
+                        TABLE64(x2, addr);
+                    } else {
+                        MOV64x(x2, addr);
+                    }
                     PUSH1z(x2);
                     break;
                 default:
@@ -2442,7 +2450,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    MOV64x(x2, addr);
+                    if (dyn->need_reloc) {
+                        TABLE64(x2, addr);
+                    } else {
+                        MOV64x(x2, addr);
+                    }
                     fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
                     if (BOX64DRENV(dynarec_callret)) {
@@ -2476,7 +2488,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
-                        MOV64x(x4, j64);
+                        if (dyn->need_reloc) {
+                            AddRelocTable64JmpTbl(dyn, ninst, addr, STEP);
+                            TABLE64_(x4, j64);
+                        } else {
+                            MOV64x(x4, j64);
+                        }
                         LD_D(x4, x4, 0);
                         BR(x4);
                     }
@@ -2872,7 +2889,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
-                        TABLE64(x4, j64);
+                        if (dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
+                        TABLE64_(x4, j64);
                         LD_D(x4, x4, 0);
                         BR(x4);
                     }

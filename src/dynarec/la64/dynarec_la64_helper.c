@@ -102,7 +102,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             } else if ((tmp >= -2048) && (tmp <= maxval)) {
                 GETIP(addr + delta, scratch);
                 ADDI_D(ret, xRIP, tmp);
-            } else if (tmp + addr + delta < 0x100000000LL) {
+            } else if (tmp + addr + delta < 0x80000000LL && !dyn->need_reloc) {
                 MOV64x(ret, tmp + addr + delta);
             } else {
                 if (adj) {
@@ -533,7 +533,11 @@ static int indirect_lookup(dynarec_la64_t* dyn, int ninst, int is32bits, int s1,
     if (!is32bits) {
         SRLI_D(s1, xRIP, 48);
         BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
-        MOV64x(s2, getConst(const_jmptbl48));
+        if (dyn->need_reloc) {
+            TABLE64C(s2, const_jmptbl48);
+        } else {
+            MOV64x(s2, getConst(const_jmptbl48));
+        }
         BSTRPICK_D(s1, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
         ALSL_D(s2, s1, s2, 3);
         LD_D(s2, s2, 0);
@@ -570,7 +574,8 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         GETIP_(ip, x3);
-        TABLE64(x3, p);
+        if (dyn->need_reloc) AddRelocTable64JmpTbl(dyn, ninst, ip, STEP);
+        TABLE64_(x3, p);
         LD_D(x2, x3, 0);
         dest = x2;
     }
@@ -675,7 +680,11 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     // set new RSP
     MV(xRSP, x3);
     // Ret....
-    MOV64x(x2, getConst(const_epilog)); // epilog on purpose, CS might have changed!
+    // epilog on purpose, CS might have changed!
+    if (dyn->need_reloc)
+        TABLE64C(x2, const_epilog);
+    else
+        MOV64x(x2, getConst(const_epilog));
     SMEND();
     BR(x2);
     CLEARIP();
