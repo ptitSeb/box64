@@ -364,7 +364,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
     GO(R15);
     #undef GO
     emu->ip.q[0] = ip;
-    emu->eflags.x64 = p->uc_mcontext.regs[xFlags];
+    emu->eflags.x64 = CONTEXT_REG(p, xFlags);
 #endif
 }
 
@@ -878,9 +878,9 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     ucontext_t *p = (ucontext_t *)ucntx;
     void* pc = NULL;
     if(p) {
-        pc = (void*)p->uc_mcontext.pc;
+        pc = (void*)CONTEXT_PC(p);
         if(db)
-            frame = (uintptr_t)p->uc_mcontext.regs[xRSP];
+            frame = (uintptr_t)CONTEXT_REG(p, xRSP);
     }
 #else
     (void)ucntx; (void)cur_db;
