@@ -175,7 +175,7 @@ GO(cairo_pattern_set_matrix, vFpp)
 GO(cairo_pattern_status, uFp)
 GO(cairo_pdf_get_versions, vFpp)
 GO(cairo_pdf_surface_create, pFpdd)
-//GO(cairo_pdf_surface_create_for_stream, 
+GOM(cairo_pdf_surface_create_for_stream, pFEppdd)
 GO(cairo_pdf_surface_restrict_to_version, vFpu)
 GO(cairo_pdf_surface_set_size, vFpdd)
 GO(cairo_pdf_version_to_string, pFu)
@@ -338,7 +338,7 @@ GO(cairo_surface_status, uFp)
 GO(cairo_surface_supports_mime_type, iFpp)
 GO(cairo_surface_unmap_image, vFpp)
 GO(cairo_surface_write_to_png, uFpp)
-//GO(cairo_surface_write_to_png_stream, 
+GOM(cairo_surface_write_to_png_stream, uFEppp)
 GO(cairo_svg_get_versions, vFpp)
 GO(cairo_svg_surface_create, pFpdd)
 //GO(cairo_svg_surface_create_for_stream, 

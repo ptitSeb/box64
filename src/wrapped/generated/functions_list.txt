@@ -1947,6 +1947,7 @@
 #() pFEpLpp
 #() pFEppii
 #() pFEppip
+#() pFEppdd
 #() pFEppLp
 #() pFEpppi
 #() pFEpppu
@@ -3541,9 +3542,13 @@ wrappedbz2:
 wrappedcairo:
 - pFp:
   - cairo_xcb_device_get_connection
+- uFppp:
+  - cairo_surface_write_to_png_stream
 - iFpppp:
   - cairo_set_user_data
   - cairo_surface_set_user_data
+- pFppdd:
+  - cairo_pdf_surface_create_for_stream
 - iFpppLpp:
   - cairo_surface_set_mime_data
 wrappedcairogobject:

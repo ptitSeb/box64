@@ -64,6 +64,30 @@ static void* reverse_destroy_Fct(void* fct)
     #undef GO
     return (void*)AddBridge(my_lib->w.bridge, pFpii, fct, 0, NULL);
 }
+// cairo_write ...
+#define GO(A)   \
+static uintptr_t my_cairo_write_fct_##A = 0;                                    \
+static uint32_t my_cairo_write_##A(void* a, void* b, uint32_t c)                \
+{                                                                               \
+    return (uint32_t)RunFunctionFmt(my_cairo_write_fct_##A, "ppu", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_cairo_write_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_cairo_write_fct_##A == (uintptr_t)fct) return my_cairo_write_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_cairo_write_fct_##A == 0) {my_cairo_write_fct_##A = (uintptr_t)fct; return my_cairo_write_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for cairo cairo_write callback\n");
+    return NULL;
+}
+
+#undef SUPER
 
 EXPORT void* my_cairo_xcb_device_get_connection(x64emu_t* emu, void* a)
 {
@@ -83,6 +107,16 @@ EXPORT int my_cairo_set_user_data(x64emu_t* emu, void* cr, void* key, void* data
 EXPORT int my_cairo_surface_set_mime_data(x64emu_t* emu, void* surf, void* mime_type, void* data, size_t len, void* destroy, void* closure)
 {
     return my->cairo_surface_set_mime_data(surf, mime_type, data, len, find_destroy_Fct(destroy), closure);
+}
+
+EXPORT void* my_cairo_pdf_surface_create_for_stream(x64emu_t* emu, void* f, void* c, double w, double h)
+{
+    return my->cairo_pdf_surface_create_for_stream(find_cairo_write_Fct(f), c, w, h);
+}
+
+EXPORT uint32_t my_cairo_surface_write_to_png_stream(x64emu_t* emu, void* surf, void* f, void* c)
+{
+    return my->cairo_surface_write_to_png_stream(surf, find_cairo_write_Fct(f), c);
 }
 
 #include "wrappedlib_init.h"
