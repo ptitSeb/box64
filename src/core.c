@@ -1153,7 +1153,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     #ifdef BOX32
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
-    #if !defined(RV64) && !defined(LA64)
     // try to switch personality, but only if not already tried
     if(box64_is32bits) {
         int tried = getenv("BOX32_PERSONA32BITS")?1:0;
@@ -1180,7 +1179,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             }
         }
     }
-    #endif
     if(box64_is32bits) {
         printf_log(LOG_INFO, "Using Box32 to load 32bits elf\n");
         loadProtectionFromMap();
