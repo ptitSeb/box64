@@ -24,6 +24,7 @@ GO(FcCharSetCopy, pFp)
 GO(FcCharSetCount, uFp)
 GO(FcCharSetCoverage, uFpup)
 GO(FcCharSetCreate, pFv)
+GO(FcCharSetDelChar, iFpu)
 GO(FcCharSetDestroy, vFp)
 GO(FcCharSetEqual, iFpp)
 GO(FcCharSetFirstPage, uFppp)   // second p is a fixed sized array
