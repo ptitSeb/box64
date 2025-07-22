@@ -1214,4 +1214,10 @@ EXPORT void* my_hb_ft_face_create(x64emu_t* emu, void* face, void* destroy)
     return my->hb_ft_face_create(face, find_destroy_Fct(destroy));
 }
 
+EXPORT void* my_hb_ft_font_create(x64emu_t* emu, void* face, void* destroy)
+{
+    (void)emu;
+    return my->hb_ft_font_create(face, find_destroy_Fct(destroy));
+}
+
 #include "wrappedlib_init.h"
