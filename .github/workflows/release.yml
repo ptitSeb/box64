@@ -249,6 +249,9 @@ jobs:
             export INTERPRETER=qemu-riscv64-static
             export QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/
 
+            if [[ ${{ env.BOX64_BOX32 }} == '1' ]]; then
+              export BOX32_PERSONA32BITS=1 # hack to disable personality setting
+            fi
             ctest $CTEST_OPTIONS
             QEMU_CPU=rv64,v=false BOX64_DYNAREC=0 ctest $CTEST_OPTIONS
             QEMU_CPU=rv64,v=false,zba=true,zbb=true,zbc=true,zbs=true ctest $CTEST_OPTIONS
@@ -269,6 +272,9 @@ jobs:
             export INTERPRETER=qemu-loongarch64-static
             export QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/
 
+            if [[ ${{ env.BOX64_BOX32 }} == '1' ]]; then
+              export BOX32_PERSONA32BITS=1 # hack to disable personality setting
+            fi
             ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC_LA64NOEXT=1 ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC=0 ctest $CTEST_OPTIONS -E nocosim
