@@ -3544,6 +3544,8 @@ wrappedcairo:
 - iFpppp:
   - cairo_set_user_data
   - cairo_surface_set_user_data
+- iFpppLpp:
+  - cairo_surface_set_mime_data
 wrappedcairogobject:
 wrappedcap:
 wrappedcrashhandler:

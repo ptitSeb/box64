@@ -13,10 +13,12 @@
 
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFpppLpp_t)(void*, void*, void*, uintptr_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(cairo_xcb_device_get_connection, pFp_t) \
 	GO(cairo_set_user_data, iFpppp_t) \
-	GO(cairo_surface_set_user_data, iFpppp_t)
+	GO(cairo_surface_set_user_data, iFpppp_t) \
+	GO(cairo_surface_set_mime_data, iFpppLpp_t)
 
 #endif // __wrappedcairoTYPES_H_

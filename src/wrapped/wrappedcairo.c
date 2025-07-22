@@ -80,4 +80,9 @@ EXPORT int my_cairo_set_user_data(x64emu_t* emu, void* cr, void* key, void* data
     return my->cairo_set_user_data(cr, key, data, find_destroy_Fct(d));
 }
 
+EXPORT int my_cairo_surface_set_mime_data(x64emu_t* emu, void* surf, void* mime_type, void* data, size_t len, void* destroy, void* closure)
+{
+    return my->cairo_surface_set_mime_data(surf, mime_type, data, len, find_destroy_Fct(destroy), closure);
+}
+
 #include "wrappedlib_init.h"
