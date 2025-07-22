@@ -865,6 +865,258 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             XVPERMI_Q(v0, v2, XVPERMI_IMM_4_0(1, 2));
             break;
+        case 0x96:
+            INST_NAME("VFMADDSUB132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFMADDxyxw(q0, v0, v2, v1);
+            VFMSUBxyxw(v0, v0, v2, v1);
+            if(rex.w){
+                VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(3, 3));
+            }
+            break;
+        case 0x97:
+            INST_NAME("VFMSUBADD132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFMSUBxyxw(q0, v0, v2, v1);
+            VFMADDxyxw(v0, v0, v2, v1);
+            if(rex.w){
+                VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(3, 3));
+            }
+            break;
+        case 0x98:
+            INST_NAME("VFMADD132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFMADDxyxw(v0, v0, v2, v1);
+            break;
+        case 0x99:
+            INST_NAME("VFMADD132SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMADDxw(d0, v0, v2, v1);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0x9A:
+            INST_NAME("VFMSUB132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFMSUBxyxw(v0, v0, v2, v1);
+            break;
+        case 0x9B:
+            INST_NAME("VFMSUB132SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMSUBxw(d0, v0, v2, v1);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0x9C:
+            INST_NAME("VFNMADD132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFNMSUBxyxw(v0, v0, v2, v1);
+            break;
+        case 0x9D:
+            INST_NAME("VFNMADD132SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FNMSUBxw(d0, v0, v2, v1);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0x9E:
+            INST_NAME("VFNMSUB132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFNMADDxyxw(v0, v0, v2, v1);
+            break;
+        case 0x9F:
+            INST_NAME("VFNMSUB132SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FNMADDxw(d0, v0, v2, v1);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xA6:
+            INST_NAME("VFMADDSUB213PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFMADDxyxw(q0, v1, v0, v2);
+            VFMSUBxyxw(v0, v1, v0, v2);
+            if(rex.w){
+                VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(3, 3));
+            }
+            break;
+        case 0xA7:
+            INST_NAME("VFMSUBADD213PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFMSUBxyxw(q0, v1, v0, v2);
+            VFMADDxyxw(v0, v1, v0, v2);
+            if(rex.w){
+                VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(3, 3));
+            }
+            break;
+        case 0xA8:
+            INST_NAME("VFMADD213PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFMADDxyxw(v0, v1, v0, v2);
+            break;
+        case 0xA9:
+            INST_NAME("VFMADD213SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMADDxw(d0, v1, v0, v2);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xAA:
+            INST_NAME("VFMSUB213PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFMSUBxyxw(v0, v1, v0, v2);
+            break;
+        case 0xAB:
+            INST_NAME("VFMSUB213SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMSUBxw(d0, v1, v0, v2);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xAC:
+            INST_NAME("VFNMADD213PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFNMSUBxyxw(v0, v1, v0, v2);
+            break;
+        case 0xAD:
+            INST_NAME("VFNMADD213SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FNMSUBxw(d0, v1, v0, v2);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xAE:
+            INST_NAME("VFNMSUB213PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFNMADDxyxw(v0, v1, v0, v2);
+            break;
+        case 0xAF:
+            INST_NAME("VFNMSUB213SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FNMADDxw(d0, v1, v0, v2);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xB6:
+            INST_NAME("VFMADDSUB231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFMADDxyxw(q0, v1, v2, v0);
+            VFMSUBxyxw(v0, v1, v2, v0);
+            if(rex.w){
+                VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(3, 3));
+            }
+            break;
+        case 0xB7:
+            INST_NAME("VFMSUBADD231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VFMSUBxyxw(q0, v1, v2, v0);
+            VFMADDxyxw(v0, v1, v2, v0);
+            if(rex.w){
+                VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+            } else {
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
+                VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(3, 3));
+            }
+            break;
+        case 0xB8:
+            INST_NAME("VFMADD231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFMADDxyxw(v0, v1, v2, v0);
+            break;
+        case 0xB9:
+            INST_NAME("VFMADD231SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMADDxw(d0, v1, v2, v0);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xBA:
+            INST_NAME("VFMSUB231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFMSUBxyxw(v0, v1, v2, v0);
+            break;
+        case 0xBB:
+            INST_NAME("VFMSUB231SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FMSUBxw(d0, v1, v2, v0);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xBC:
+            INST_NAME("VFNMADD231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFNMSUBxyxw(v0, v1, v2, v0);
+            break;
+        case 0xBD:
+            INST_NAME("VFNMADD231SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FNMSUBxw(d0, v1, v2, v0);
+            VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xBE:
+            INST_NAME("VFNMSUB231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_VYEY_xy(v0, v1, v2, 0);
+            VFNMADDxyxw(v0, v1, v2, v0);
+            break;
+        case 0xBF:
+            INST_NAME("VFNMSUB231SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGYx_VYx_EYxw(v0, v1, v2, 0);
+            d0 = fpu_get_scratch(dyn);
+            FNMADDxw(d0, v1, v2, v0);
+            VEXTRINSxw(v0, d0, 0);
+            break;
         case 0xF7:
             INST_NAME("SHLX Gd, Ed, Vd");
             nextop = F8;

@@ -642,6 +642,16 @@
     GETGYxy(gx, 0);            \
     GETEYxy(ex, 1, D);
 
+// Get writable GYx, and non-written VYx, EYSD or EYSS , for FMA SD/SSinsts.
+#define GETGYx_VYx_EYxw(gx, vx, ex, D) \
+    GETVYx(vx, 0);                     \
+    if (rex.w) {                       \
+        GETEYSD(ex, 0, D)              \
+    } else {                           \
+        GETEYSS(ex, 0, D);             \
+    }                                  \
+    GETGYx(gx, 1);
+
 // Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
 // using s as scratch.
 // F_DF is not in LBT4.eflags, don't worry
@@ -874,7 +884,7 @@
         SET_DFNONE()
 
 #define SET_NODF() dyn->f.dfnone = 0
-#define SET_DFOK()     \
+#define SET_DFOK() \
     dyn->f.dfnone = 1
 
 #define CLEAR_FLAGS_(s)                                                                                       \

@@ -7460,6 +7460,70 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VNORI.B", Vt[Rd], Vt[Rj], imm);
         return buff;
     }
+    if (isMask(opcode, "000010010001aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.S", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010010101aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.S", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010011001aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.S", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010011101aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.S", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010100001aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFMADD.S", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010100101aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFMSUB.S", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010101001aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFNMADD.S", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010101101aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFNMSUB.S", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010010010aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.D", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010010110aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.D", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010011010aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.D", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010011110aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.D", Vt[Rd], Vt[Rj], Vt[Rk], Vt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010100010aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFMADD.D", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010100110aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFMSUB.D", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010101010aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFNMADD.D", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
+    if (isMask(opcode, "000010101110aaaaakkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFNMSUB.D", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
+        return buff;
+    }
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }
