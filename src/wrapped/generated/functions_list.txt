@@ -3671,6 +3671,7 @@ wrappeddbus:
   - dbus_message_append_args_valist
 - vFpppp:
   - dbus_connection_set_dispatch_status_function
+  - dbus_connection_set_unix_user_function
   - dbus_connection_set_wakeup_main_function
   - dbus_server_set_new_connection_function
 - iFpipp:
@@ -3685,6 +3686,7 @@ wrappeddbus:
 - iFpppp:
   - dbus_connection_add_filter
   - dbus_connection_register_fallback
+  - dbus_connection_register_object_path
   - dbus_pending_call_set_notify
 - iFppppp:
   - dbus_connection_try_register_fallback

@@ -55,7 +55,7 @@ GO(dbus_connection_read_write, iFpi)
 GO(dbus_connection_read_write_dispatch, iFpi)
 GO(dbus_connection_ref, pFp)
 GOM(dbus_connection_register_fallback, iFEpppp)
-//GO(dbus_connection_register_object_path, 
+GOM(dbus_connection_register_object_path, iFEpppp)
 GOM(dbus_connection_remove_filter, vFEppp)
 GO(dbus_connection_return_message, vFpp)
 GO(dbus_connection_send, iFppp)
@@ -71,7 +71,7 @@ GO(dbus_connection_set_max_message_size, vFpl)
 GO(dbus_connection_set_max_received_size, vFpl)
 GO(dbus_connection_set_route_peer_messages, vFpi)
 GOM(dbus_connection_set_timeout_functions, iFEpppppp)
-//GO(dbus_connection_set_unix_user_function, 
+GOM(dbus_connection_set_unix_user_function, vFEpppp)
 GOM(dbus_connection_set_wakeup_main_function, vFEpppp)
 GOM(dbus_connection_set_watch_functions, iFEpppppp)
 //GO(dbus_connection_set_windows_user_function, 
@@ -184,7 +184,7 @@ GO(dbus_server_allocate_data_slot, iFp)
 GO(dbus_server_disconnect, vFp)
 GO(dbus_server_free_data_slot, vFp)
 GO(dbus_server_get_address, pFp)
-//GO(dbus_server_get_data, 
+GO(dbus_server_get_data, pFpi)
 //GO(dbus_server_get_id, 
 GO(dbus_server_get_is_connected, iFp)
 GO(dbus_server_listen, pFpp)

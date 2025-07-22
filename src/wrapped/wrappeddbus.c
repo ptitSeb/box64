@@ -372,6 +372,28 @@ static void* findDBusNewConnectionFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for dbus DBusNewConnectionFunction callback\n");
     return NULL;
 }
+// DBusAllowUnixUserFunction
+#define GO(A)   \
+static uintptr_t my_DBusAllowUnixUserFunction_fct_##A = 0;                              \
+static int my_DBusAllowUnixUserFunction_##A(void* a, unsigned long b, void* c)          \
+{                                                                                       \
+    return RunFunctionFmt(my_DBusAllowUnixUserFunction_fct_##A, "pLp", a, b, c);        \
+}
+SUPER()
+#undef GO
+static void* find_DBusAllowUnixUserFunction_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusAllowUnixUserFunction_fct_##A == (uintptr_t)fct) return my_DBusAllowUnixUserFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusAllowUnixUserFunction_fct_##A == 0) {my_DBusAllowUnixUserFunction_fct_##A = (uintptr_t)fct; return my_DBusAllowUnixUserFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libdbus-1.so DBusAllowUnixUserFunction callback\n");
+    return NULL;
+}
 
 
 #undef SUPER
@@ -576,6 +598,22 @@ EXPORT int my_dbus_connection_register_fallback(x64emu_t* emu, void* connection,
     return my->dbus_connection_register_fallback(connection, path, vtable?&vt:NULL, data);
 }
 
+EXPORT int my_dbus_connection_register_object_path(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data)
+{
+    (void)emu;
+    my_DBusObjectPathVTable_t vt = {0};
+    if(vtable) {
+        vt.unregister_function = findDBusObjectPathUnregisterFunctionFct(vtable->unregister_function);
+        vt.message_function = findDBusObjectPathMessageFunctionFct(vtable->message_function);
+        vt.pad1 = finddbus_internal_padFct(vtable->pad1);
+        vt.pad2 = finddbus_internal_padFct(vtable->pad2);
+        vt.pad3 = finddbus_internal_padFct(vtable->pad3);
+        vt.pad4 = finddbus_internal_padFct(vtable->pad4);
+    }
+
+    return my->dbus_connection_register_object_path(connection, path, vtable?&vt:NULL, data);
+}
+
 EXPORT int my_dbus_connection_set_data(x64emu_t* emu, void* connection, int slot, void* data, void* free_func)
 {
     (void)emu;
@@ -622,6 +660,11 @@ EXPORT int my_dbus_server_set_timeout_functions(x64emu_t* emu, void* server, voi
 EXPORT int my_dbus_server_set_data(x64emu_t* emu, void* server, int slot, void* data, void* d)
 {
     return my->dbus_server_set_data(server, slot, data, find_DBusFreeFunction_Fct(d));
+}
+
+EXPORT void my_dbus_connection_set_unix_user_function(x64emu_t* emu, void* conn, void* f, void* data, void* fr)
+{
+    my->dbus_connection_set_unix_user_function(conn, find_DBusAllowUnixUserFunction_Fct(f), data, find_DBusFreeFunction_Fct(fr));
 }
 
 #include "wrappedlib_init.h"
