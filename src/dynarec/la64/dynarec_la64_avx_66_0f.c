@@ -263,6 +263,78 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VXOR_Vxy(v0, v1, v2);
             break;
+        case 0x58:
+            INST_NAME("VADDPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, v1, v2, cUN);
+            }
+            VFADDxy(D, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x59:
+            INST_NAME("VMULPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, v1, v2, cUN);
+            }
+            VFMULxy(D, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x5C:
+            INST_NAME("VSUBPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, v1, v2, cUN);
+            }
+            VFSUBxy(D, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x5E:
+            INST_NAME("VDIVPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, v1, v2, cUN);
+            }
+            VFDIVxy(D, v0, v1, v2);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
         case 0x60:
             INST_NAME("VPUNPCKLBW Gx, Vx, Ex");
             nextop = F8;
@@ -597,6 +669,27 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VOR_V(d0, v1, v1);
                 VSHUF4I_D(d0, v2, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
                 VOR_V(v0, d0, d0);
+            }
+            break;
+        case 0xD0:
+            INST_NAME("VADDSUBPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, v1, v2, cUN);
+            }
+            q0 = fpu_get_scratch(dyn);
+            VFSUBxy(D, q0, v1, v2);
+            VFADDxy(D, v0, v1, v2);
+            VEXTRINSxy(D, v0, q0, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
         case 0xD1:
