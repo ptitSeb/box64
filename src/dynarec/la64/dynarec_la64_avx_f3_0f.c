@@ -104,7 +104,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VADDSS Gx, Vx, Ex");
             nextop = F8;
             GETVYx(v1, 0);
-            GETEYSD(v2, 0, 0);
+            GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
             FADD_S(d0, v1, v2);
@@ -123,7 +123,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VMULSS Gx, Vx, Ex");
             nextop = F8;
             GETVYx(v1, 0);
-            GETEYSD(v2, 0, 0);
+            GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
             FMUL_S(d0, v1, v2);
@@ -142,7 +142,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VSUBSS Gx, Vx, Ex");
             nextop = F8;
             GETVYx(v1, 0);
-            GETEYSD(v2, 0, 0);
+            GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
             FSUB_S(d0, v1, v2);
@@ -161,7 +161,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VDIVSS Gx, Vx, Ex");
             nextop = F8;
             GETVYx(v1, 0);
-            GETEYSD(v2, 0, 0);
+            GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
             FDIV_S(d0, v1, v2);

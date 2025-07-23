@@ -404,6 +404,56 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             }
             break;
+        case 0x40:
+            INST_NAME("VDPPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            d2 = fpu_get_scratch(dyn);
+            VFMULxy(S, d0, v1, v2);
+            VXOR_Vxy(d2, d2, d2);
+            for (int i = 0; i < 4; ++i) {
+                if (!(u8 & (1 << (4 + i)))) {
+                    VEXTRINSxy(W, d0, d2, (i << 4));
+                }
+            }
+            VSHUF4Ixy(W, d1, d0, 0b10110001); // v0[a,b,c,d] v1[b,a,d,c]
+            VFADDxy(S, d0, d0, d1);           // v0[ab,ba,cd,dc]
+            VSHUF4Ixy(W, d1, d0, 0b01001110); // v1[cd,dc,ab,ba]
+            VFADDxy(S, d0, d0, d1);           // v0[abcd,badc,cdab,dcba]
+            VREPLVEIxy(W, v0, d0, 0);
+            for (int i = 0; i < 4; ++i) {
+                if (!(u8 & (1 << i))) {
+                    VEXTRINSxy(W, v0, d2, (i << 4));
+                }
+            }
+            break;
+        case 0x41:
+            INST_NAME("VDPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 1);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            d2 = fpu_get_scratch(dyn);
+            VFMULxy(D, d0, v1, v2);
+            VXOR_Vxy(d2, d2, d2);
+            for (int i = 0; i < 2; ++i) {
+                if (!(u8 & (1 << (4 + i)))) {
+                    VEXTRINSxy(D, d0, d2, (i << 4));
+                }
+            }
+            VSHUF4Ixy(W, d1, d0, 0b01001110); // v0[a,b] v1[b,a]
+            VFADDxy(D, d0, d0, d1);           // v0[ab,ba]
+            VREPLVEIxy(D, v0, d0, 0);
+            for (int i = 0; i < 2; ++i) {
+                if (!(u8 & (1 << i))) {
+                    VEXTRINSxy(D, v0, d2, (i << 4));
+                }
+            }
+            break;
         case 0x42:
             INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
             nextop = F8;

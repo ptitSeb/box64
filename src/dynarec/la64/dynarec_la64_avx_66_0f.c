@@ -603,6 +603,48 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                     DEFAULT;
             }
             break;
+        case 0x7C:
+            INST_NAME("VHADDPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VPICKEVxy(D, q0, v2, v1);
+            VPICKODxy(D, v0, v2, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, q0, v0, cUN);
+            }
+            VFADDxy(D, v0, q0, v0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x7D:
+            INST_NAME("VHSUBPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            q0 = fpu_get_scratch(dyn);
+            VPICKEVxy(D, q0, v2, v1);
+            VPICKODxy(D, v0, v2, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, q0, v0, cUN);
+            }
+            VFSUBxy(D, v0, q0, v0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMPxy(D, d1, v0, v0, cUN);
+                VANDN_Vxy(d0, d0, d1);
+                VLDIxy(d1, (0b011 << 9) | 0b111111000);
+                VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
+                VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
         case 0x7E:
             INST_NAME("VMOVD Ed, Gx");
             nextop = F8;

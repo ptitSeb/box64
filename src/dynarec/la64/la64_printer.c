@@ -7524,6 +7524,38 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "XVFNMSUB.D", XVt[Rd], XVt[Rj], XVt[Rk], XVt[Ra]);
         return buff;
     }
+    if (isMask(opcode, "01110101001000100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.B", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.H", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.W", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "01110101001000111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XVREPLVE.D", XVt[Rd], XVt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000000jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.B", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000001jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.H", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000010jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.W", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
+    if (isMask(opcode, "0111011010011111000011jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "XVREPLGR2VR.D", XVt[Rd], Xt[Rj]);
+        return buff;
+    }
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }
