@@ -887,15 +887,16 @@
     LOAD_REG(R14);        \
     LOAD_REG(R15);
 
+#define FORCE_DFNONE() SW(xZR, xEmu, offsetof(x64emu_t, df))
 
-#define SET_DFNONE()                               \
-    do {                                           \
-        if (!dyn->f.dfnone) {                      \
-            SW(xZR, xEmu, offsetof(x64emu_t, df)); \
-        }                                          \
-        if (!dyn->insts[ninst].x64.may_set) {      \
-            dyn->f.dfnone = 1;                     \
-        }                                          \
+#define SET_DFNONE()                          \
+    do {                                      \
+        if (!dyn->f.dfnone) {                 \
+            FORCE_DFNONE();                   \
+        }                                     \
+        if (!dyn->insts[ninst].x64.may_set) { \
+            dyn->f.dfnone = 1;                \
+        }                                     \
     } while (0)
 
 #define SET_DF(S, N)                                                                                                            \
