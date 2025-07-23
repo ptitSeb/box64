@@ -1666,29 +1666,20 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if (jmp < 0)
         return;
-    if (dyn->f.dfnone) // flags are fully known, nothing we can do more
+    if (dyn->f.dfnone || ((dyn->insts[jmp].f_exit.dfnone && !dyn->insts[jmp].f_entry.dfnone) && !dyn->insts[jmp].x64.use_flags)) // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone) ? 1 : 0;
+    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone && !dyn->insts[jmp].df_notneeded) ? 1 : 0;
     switch (dyn->insts[jmp].f_entry.pending) {
-        case SF_UNKNOWN: break;
-        case SF_SET:
-            if (dyn->f.pending != SF_SET && dyn->f.pending != SF_SET_PENDING)
-                go = 1;
+        case SF_UNKNOWN:
+            go = 0;
             break;
-        case SF_SET_PENDING:
-            if (dyn->f.pending != SF_SET
-                && dyn->f.pending != SF_SET_PENDING
-                && dyn->f.pending != SF_PENDING)
-                go = 1;
-            break;
-        case SF_PENDING:
-            if (dyn->f.pending != SF_SET
-                && dyn->f.pending != SF_SET_PENDING
-                && dyn->f.pending != SF_PENDING)
-                go = 1;
-            else if (dyn->insts[jmp].f_entry.dfnone != dyn->f.dfnone)
-                go = 1;
+        default:
+            if (go && !(dyn->insts[jmp].x64.need_before & X_PEND) && (dyn->f.pending != SF_UNKNOWN)) {
+                // just clear df flags
+                go = 0;
+                ST_W(xZR, xEmu, offsetof(x64emu_t, df));
+            }
             break;
     }
     if (go) {

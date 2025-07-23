@@ -809,9 +809,9 @@ done:
 #ifdef ARM64
 #define ARCH_VERSION SET_VERSION(0, 0, 3)
 #elif defined(RV64)
-#define ARCH_VERSION SET_VERSION(0, 0, 1)
+#define ARCH_VERSION SET_VERSION(0, 0, 2)
 #elif defined(LA64)
-#define ARCH_VERSION SET_VERSION(0, 0, 1)
+#define ARCH_VERSION SET_VERSION(0, 0, 2)
 #else
 #error meh!
 #endif
