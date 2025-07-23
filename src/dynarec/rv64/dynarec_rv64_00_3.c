@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <errno.h>
-#include <signal.h>
 #include <assert.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64context.h"
@@ -482,7 +482,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if (!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
                     TABLE64C(x1, const_context);
-                    MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                    MOV32w(x2, offsetof(box64context_t, signals[X64_SIGTRAP]));
                     ADD(x2, x2, x1);
                     LD(x3, x2, 0);
                     BEQZ_MARK(x3);

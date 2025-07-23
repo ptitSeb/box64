@@ -5,10 +5,10 @@
 #include <math.h>
 #include <fenv.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -539,7 +539,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEY;
             GETGY;
             GETVY;
-            if(!vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
@@ -992,7 +992,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEY;
             GETGY;
             GETVY;
-            if(!vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
@@ -1388,7 +1388,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         case 0x92:  /* VGATHERDPD/VGATHERDPS Gx, VSIB, Vx */
             nextop = F8;
             if(((nextop&7)!=4) || MODREG) {
-                EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             }
             GETGX;
             GETVX;
@@ -1455,7 +1455,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         case 0x93:  /* VGATHERQPD/VGATHERQPS Gx, VSIB, Vx */
             nextop = F8;
             if(((nextop&7)!=4) || MODREG) {
-                EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             }
             GETGX;
             GETVX;

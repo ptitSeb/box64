@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <errno.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64context.h"
@@ -2626,9 +2627,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(!BOX64ENV(ignoreint3)) {
                     // check if TRAP signal is handled
                     TABLE64C(x1, const_context);
-                    MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                    MOV32w(x2, offsetof(box64context_t, signals[X64_SIGTRAP]));
                     LDRx_REG(x3, x1, x2);
-                    //LDRx_U12(x3, x1, offsetof(box64context_t, signals[SIGTRAP]));
+                    //LDRx_U12(x3, x1, offsetof(box64context_t, signals[X64_SIGTRAP]));
                     CMPSx_U12(x3, 0);
                     B_MARK(cEQ);
                     GETIP(addr);  // update RIP

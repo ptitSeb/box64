@@ -5,10 +5,10 @@
 #include <math.h>
 #include <fenv.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -301,7 +301,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
             //TODO: test /r
@@ -319,7 +319,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         if(!BOX64ENV(cputype) || !(MODREG)) {
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
             //TODO: test /r

@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -333,7 +334,7 @@ x64emurun:
             if(rex.is32bits) {
                 R_AX = aas16(emu, R_AX);
             } else {
-                EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                 goto fini;
             }
             break;
@@ -433,7 +434,7 @@ x64emurun:
                 GETGD;
                 int* bounds = (int*)GETEA(0);
                 if(bounds[0]<GD->dword[0] || bounds[1]>GD->dword[0])
-                    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xb09d);
+                    EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xb09d);
             } else {
                 unimp = 1;
                 goto fini;
@@ -592,7 +593,7 @@ x64emurun:
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {
             } else {
-                EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             }
             STEP;
             #endif
@@ -1562,7 +1563,7 @@ x64emurun:
             } else if (tmp8u==0x03) {
                 R_RIP = addr;
                 #ifndef TEST_INTERPRETER
-                EmitSignal(emu, SIGTRAP, NULL, 3);
+                EmitSignal(emu, X64_SIGTRAP, NULL, 3);
                 STEP2;
                 #endif
             } else {
@@ -1598,7 +1599,7 @@ x64emurun:
                 if((new_cs&3)!=3) {
                     printf_log(LOG_NONE, "Warning, unexpected new_cs=0x%x\n", new_cs);
                     R_RSP-=(rex.w?4:8)*2;
-                    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0); // GP if trying to change priv level
+                    EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0); // GP if trying to change priv level
                 }
                 #endif
                 RESET_FLAGS(emu);
@@ -1878,7 +1879,7 @@ x64emurun:
             F8;
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
-            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -1918,7 +1919,7 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
-            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -1940,14 +1941,14 @@ x64emurun:
         case 0xF1:                      /* INT1 */
             emu->old_ip = R_RIP;
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 128);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 128);
             #endif
             break;
 
         case 0xF4:                      /* HLT */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             #endif
             break;
@@ -2093,14 +2094,14 @@ x64emurun:
             // this is a privilege opcode
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
-            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             break;
         case 0xFB:                      /* STI */
             // this is a privilege opcode
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
-            EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
             break;
         case 0xFC:                      /* CLD */
@@ -2167,7 +2168,7 @@ x64emurun:
                     GETET(0);
                     if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1));
-                        EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                        EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                         goto fini;
                     } else {
                         if(rex.is32bits || !rex.w) {
@@ -2216,7 +2217,7 @@ x64emurun:
                     GETET(0);
                     if(MODREG) {
                         printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1));
-                        EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                        EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                         goto fini;
                     } else {
                         if(rex.is32bits || !rex.w) {
@@ -2260,7 +2261,7 @@ x64emurun:
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1), PK(2), PK(3));
-                    EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                    EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                     goto fini;
             }
             break;
@@ -2276,7 +2277,7 @@ x64emurun:
             } else {
                 tf_next = 0;
                 R_RIP = addr;
-                EmitSignal(emu, SIGTRAP, (void*)addr, 1);
+                EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
                 if(emu->quit) goto fini;
             }
         }
@@ -2290,7 +2291,7 @@ fini:
     // check the TRACE flag before going to out, in case it's a step by step scenario
     if(!emu->quit && !emu->fork && ACCESS_FLAG(F_TF)) {
         R_RIP = addr;
-        EmitSignal(emu, SIGTRAP, (void*)addr, 1);
+        EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
         if(emu->quit) goto fini;
     }
 #endif
@@ -2300,7 +2301,7 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
     if(unimp) {
         //emu->quit = 1;
         UnimpOpcode(emu, is32bits);
-        EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+        EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
     }
     // fork handling
     if(emu->fork) {

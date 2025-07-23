@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64context.h"
@@ -186,20 +187,20 @@ void native_ud(x64emu_t* emu)
 {
     if(BOX64ENV(dynarec_test))
         emu->test.test = 0;
-    EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+    EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
 }
 
 void native_br(x64emu_t* emu)
 {
     if(BOX64ENV(dynarec_test))
         emu->test.test = 0;
-    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xb09d);
+    EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xb09d);
 }
 
 void native_priv(x64emu_t* emu)
 {
     emu->test.test = 0;
-    EmitSignal(emu, SIGSEGV, (void*)R_RIP, 0xbad0);
+    EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
 }
 
 void native_int(x64emu_t* emu, int num)
@@ -216,7 +217,7 @@ void native_wineint(x64emu_t* emu, int num)
 #endif
 void native_int3(x64emu_t* emu)
 {
-    EmitSignal(emu, SIGTRAP, NULL, 3);
+    EmitSignal(emu, X64_SIGTRAP, NULL, 3);
 }
 
 void native_div0(x64emu_t* emu)

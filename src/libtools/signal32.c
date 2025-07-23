@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <signal.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -17,6 +16,7 @@
 #include <execinfo.h>
 #endif
 
+#include "x64_signals.h"
 #include "os.h"
 #include "box32context.h"
 #include "debug.h"
@@ -466,9 +466,9 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
     siginfo_t* src = s;
 
     memcpy(dst, src, sizeof(my_siginfo32_t));
-    if(sig==SIGILL || sig==SIGFPE || sig==SIGSEGV || sig==SIGBUS)
+    if(sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGSEGV || sig==X64_SIGBUS)
         dst->_sifields._sigfault.__si_addr = to_ptrv(src->si_addr);
-    if(sig==SIGCHLD) {
+    if(sig==X64_SIGCHLD) {
         dst->_sifields._sigchld.__si_pid = src->si_pid;
         dst->_sifields._sigchld.__si_uid = src->si_uid;
         dst->_sifields._sigchld.__si_status = src->si_status;
@@ -486,7 +486,7 @@ int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
-    int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
+    int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:((sig==X64_SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
 
     printf_log(LOG_DEBUG, "Sigactionhanlder32 for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
 
@@ -600,9 +600,9 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     if(prot&PROT_DYNAREC) real_prot|=PROT_WRITE;
     sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
     sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 0;
-    if(sig==SIGBUS)
+    if(sig==X64_SIGBUS)
         sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 17;
-    else if(sig==SIGSEGV) {
+    else if(sig==X64_SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[I386_EIP]) {
             if(info->si_errno==0xbad0) {
                 //bad opcode
@@ -642,7 +642,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
 
             // some special cases...
             if(int_n==3) {
-                info2->si_signo = SIGTRAP;
+                info2->si_signo = X64_SIGTRAP;
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 3;
                 sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
             } else if(int_n==0x04) {
@@ -658,17 +658,17 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
             info2->si_errno = 0;
             sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 0;
-            info2->si_signo = SIGFPE;
+            info2->si_signo = X64_SIGFPE;
         }
-    } else if(sig==SIGFPE) {
+    } else if(sig==X64_SIGFPE) {
         if (info->si_code == FPE_INTOVF)
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 4;
         else
             sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 19;
-    } else if(sig==SIGILL) {
+    } else if(sig==X64_SIGILL) {
         info2->si_code = 2;
         sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 6;
-    } else if(sig==SIGTRAP) {
+    } else if(sig==X64_SIGTRAP) {
         if(info->si_code==1) {  //single step
             info2->si_code = 2;
             info2->_sifields._sigfault.__si_addr = sigcontext->uc_mcontext.gregs[I386_EIP];
@@ -699,7 +699,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     int ret;
     int dynarec = 0;
     #ifdef DYNAREC
-    if(sig!=SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
+    if(sig!=X64_SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
         dynarec = 1;
     #endif
     ret = RunFunctionHandler32(&exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
@@ -825,10 +825,10 @@ EXPORT int my32_sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act
         return -1;
     }
 
-    if(signum==SIGSEGV && emu->context->no_sigsegv)
+    if(signum==X64_SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
-    if(signum==SIGILL && emu->context->no_sigill)
+    if(signum==X64_SIGILL && emu->context->no_sigill)
         return 0;
     struct sigaction newact = {0};
     struct sigaction old = {0};
@@ -856,8 +856,8 @@ EXPORT int my32_sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act
         my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
     }
     int ret = 0;
-    if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL && signum!=SIGABRT)
-        ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+    if(signum!=X64_SIGSEGV && signum!=X64_SIGBUS && signum!=X64_SIGILL && signum!=X64_SIGABRT)
+        ret = sigaction(signal_from_x64(signum), act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;

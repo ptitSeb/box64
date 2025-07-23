@@ -6,12 +6,11 @@
 #include <sys/mman.h>
 #include <ucontext.h>
 #include <setjmp.h>
-#include <signal.h>
 #ifndef ANDROID
 #include <execinfo.h>
 #endif
 
-
+#include "x64_signals.h"
 #include "box64context.h"
 #include "custommem.h"
 #include "debug.h"
@@ -29,15 +28,15 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
 {
     siginfo_t info = { 0 };
     info.si_signo = sig;
-    info.si_errno = (sig == SIGSEGV) ? 0x1234 : 0; // Mark as a sign this is a #GP(0) (like privileged instruction)
+    info.si_errno = (sig == X64_SIGSEGV) ? 0x1234 : 0; // Mark as a sign this is a #GP(0) (like privileged instruction)
     info.si_code = code;
-    if (sig == SIGSEGV && code == 0xbad0) {
+    if (sig == X64_SIGSEGV && code == 0xbad0) {
         info.si_errno = 0xbad0;
         info.si_code = 0;
-    } else if (sig == SIGSEGV && code == 0xecec) {
+    } else if (sig == X64_SIGSEGV && code == 0xecec) {
         info.si_errno = 0xecec;
         info.si_code = SEGV_ACCERR;
-    } else if (sig == SIGSEGV && code == 0xb09d) {
+    } else if (sig == X64_SIGSEGV && code == 0xb09d) {
         info.si_errno = 0xb09d;
         info.si_code = 0;
     }
@@ -52,7 +51,7 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", sig, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr, code);
         print_rolling_log(LOG_INFO);
 
-        if ((BOX64ENV(showbt) || sig == SIGABRT) && BOX64ENV(log) >= LOG_INFO) {
+        if ((BOX64ENV(showbt) || sig == X64_SIGABRT) && BOX64ENV(log) >= LOG_INFO) {
             // show native bt
             #define BT_BUF_SIZE 100
             int nptrs;
@@ -94,7 +93,7 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
         //         fclose(f);
         //     }
         // }
-        if (sig == SIGILL) {
+        if (sig == X64_SIGILL) {
             uint8_t* mem = (uint8_t*)R_RIP;
             printf_log(LOG_NONE, "SIGILL: Opcode at ip is %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n", mem[0], mem[1], mem[2], mem[3], mem[4], mem[5]);
         }
@@ -108,14 +107,14 @@ void CheckExec(x64emu_t* emu, uintptr_t addr)
         return; // disabling the test, 4K pagesize simlation isn't good enough for this
     while ((getProtection/*_fast*/(addr) & (PROT_EXEC | PROT_READ)) != (PROT_EXEC | PROT_READ)) {
         R_RIP = addr; // incase there is a slight difference
-        EmitSignal(emu, SIGSEGV, (void*)addr, 0xecec);
+        EmitSignal(emu, X64_SIGSEGV, (void*)addr, 0xecec);
     }
 }
 
 void EmitInterruption(x64emu_t* emu, int num, void* addr)
 {
     siginfo_t info = { 0 };
-    info.si_signo = SIGSEGV;
+    info.si_signo = X64_SIGSEGV;
     info.si_errno = 0xdead;
     info.si_code = num;
     info.si_addr = NULL; // addr;
@@ -128,13 +127,13 @@ void EmitInterruption(x64emu_t* emu, int num, void* addr)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr);
     }
-    my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
+    my_sigactionhandler_oldcode(emu, X64_SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
 }
 
 void EmitDiv0(x64emu_t* emu, void* addr, int code)
 {
     siginfo_t info = { 0 };
-    info.si_signo = SIGSEGV;
+    info.si_signo = X64_SIGSEGV;
     info.si_errno = 0xcafe;
     info.si_code = code;
     info.si_addr = addr;
@@ -147,13 +146,13 @@ void EmitDiv0(x64emu_t* emu, void* addr, int code)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Divide by 0 at IP=%p(%s / %s) / addr=%p\n", (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr);
     }
-    my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
+    my_sigactionhandler_oldcode(emu, X64_SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
 }
 
 void EmitWineInt(x64emu_t* emu, int num, void* addr)
 {
     siginfo_t info = { 0 };
-    info.si_signo = SIGSEGV;
+    info.si_signo = X64_SIGSEGV;
     info.si_errno = 0xdead;
     info.si_code = num;
     info.si_addr = NULL; // addr;
@@ -167,10 +166,10 @@ void EmitWineInt(x64emu_t* emu, int num, void* addr)
         printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr);
     }
     if(box64_is32bits)
-        my_sigactionhandler_oldcode(emu, SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
+        my_sigactionhandler_oldcode(emu, X64_SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
     else {
         uintptr_t frame = R_RSP;
-        int sig = SIGSEGV;
+        int sig = X64_SIGSEGV;
         // stack tracking
         x64_stack_t *new_ss = my_context->onstack[sig]?sigstack_getstack():NULL;
         int used_stack = 0;

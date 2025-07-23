@@ -5,10 +5,10 @@
 #include <math.h>
 #include <fenv.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -99,7 +99,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETEY;
             u8 = F8;
-            if(!vex.l)  EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l)  EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
@@ -184,7 +184,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             u8 = F8;
-            if(!vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
@@ -767,7 +767,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             u8 = F8;
-            if(!vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(!vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;

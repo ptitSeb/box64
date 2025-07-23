@@ -3370,7 +3370,7 @@ EXPORT int my32_waitid(x64emu_t* emu, uint32_t idtype, uint32_t id, void* siginf
 {
     siginfo_t siginfo_l;
     int ret = waitid(idtype, id, siginfo?(&siginfo_l):NULL, options);
-    convert_siginfo_to_32(siginfo, &siginfo_l, SIGCHLD);
+    convert_siginfo_to_32(siginfo, &siginfo_l, X64_SIGCHLD);
     return ret;
 }
 

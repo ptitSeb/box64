@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <signal.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -17,6 +16,7 @@
 #include <execinfo.h>
 #endif
 
+#include "x64_signals.h"
 #include "os.h"
 #include "backtrace.h"
 #include "box64context.h"
@@ -996,9 +996,9 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     if(prot&PROT_DYNAREC) real_prot|=PROT_WRITE;
     sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
     sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 0;
-    if(sig==SIGBUS)
+    if(sig==X64_SIGBUS)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 17;
-    else if(sig==SIGSEGV) {
+    else if(sig==X64_SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[X64_RIP]) {
             if(info->si_errno==0xbad0) {
                 //bad opcode
@@ -1041,7 +1041,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
             // some special cases...
             if(int_n==3) {
-                info2->si_signo = SIGTRAP;
+                info2->si_signo = X64_SIGTRAP;
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 3;
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
             } else if(int_n==0x04) {
@@ -1057,17 +1057,17 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             info2->si_errno = 0;
             sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 0;
-            info2->si_signo = SIGFPE;
+            info2->si_signo = X64_SIGFPE;
         }
-    } else if(sig==SIGFPE) {
+    } else if(sig==X64_SIGFPE) {
         if (info->si_code == FPE_INTOVF)
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 4;
         else
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
-    } else if(sig==SIGILL) {
+    } else if(sig==X64_SIGILL) {
         info2->si_code = 2;
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
-    } else if(sig==SIGTRAP) {
+    } else if(sig==X64_SIGTRAP) {
         if(info->si_code==1) {  //single step
             info2->si_code = 2;
             info2->si_addr = (void*)sigcontext->uc_mcontext.gregs[X64_RIP];
@@ -1104,7 +1104,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     int ret;
     int dynarec = 0;
     #ifdef DYNAREC
-    if(sig!=SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
+    if(sig!=X64_SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
         dynarec = 1;
     #endif
     ret = RunFunctionHandler(emu, &exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
@@ -1333,8 +1333,9 @@ extern int box64_exit_code;
 
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
-    int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
+    sig = signal_from_x64(sig);
+    // sig==X64_SIGSEGV || sig==X64_SIGBUS || sig==X64_SIGILL || sig==X64_SIGABRT here!
+    int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:((sig==X64_SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
     if(signal_jmpbuf_active) {
         signal_jmpbuf_active = 0;
         longjmp(SIG_JMPBUF, 1);
@@ -1381,7 +1382,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int db_searched = 0;
     uintptr_t x64pc = (uintptr_t)-1;
     x64pc = R_RIP;
-    if((sig==SIGBUS) && (addr!=pc) || ((sig==SIGSEGV)) && emu->segs[_CS]==0x23 && ((uintptr_t)addr>>32)==0xffffffff) {
+    if((sig==X64_SIGBUS) && (addr!=pc) || ((sig==X64_SIGSEGV)) && emu->segs[_CS]==0x23 && ((uintptr_t)addr>>32)==0xffffffff) {
         db = FindDynablockFromNativeAddress(pc);
         if(db)
             x64pc = getX64Address(db, (uintptr_t)pc);
@@ -1407,7 +1408,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
     }
     #ifdef ARCH_NOP
-    if(sig==SIGILL) {
+    if(sig==X64_SIGILL) {
         if(!db_searched) {
             db = FindDynablockFromNativeAddress(pc);
             if(db)
@@ -1476,13 +1477,13 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #ifdef BAD_SIGNAL
     // try to see if the si_code makes sense
     // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
-    if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && getMmapped((uintptr_t)addr)) {
+    if((sig==X64_SIGSEGV) && (addr) && (info->si_code == 1) && getMmapped((uintptr_t)addr)) {
         printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%hhx\n", addr, prot);
         info->si_code = 2;
     }
     #endif
 #ifdef RV64
-    if((sig==SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
+    if((sig==X64_SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
         if(!db_searched) {
             db = FindDynablockFromNativeAddress(pc);
             if(db)
@@ -1508,14 +1509,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
 #endif
 #ifdef DYNAREC
-    if((Locks & is_dyndump_locked) && ((sig==SIGSEGV) || (sig==SIGBUS)) && current_helper) {
-        printf_log(LOG_INFO, "FillBlock triggered a %s at %p from %p\n", (sig==SIGSEGV)?"segfault":"bus error", addr, pc);
+    if((Locks & is_dyndump_locked) && ((sig==X64_SIGSEGV) || (sig==X64_SIGBUS)) && current_helper) {
+        printf_log(LOG_INFO, "FillBlock triggered a %s at %p from %p\n", (sig==X64_SIGSEGV)?"segfault":"bus error", addr, pc);
         CancelBlock64(0);
         relockMutex(Locks);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
         // cancelFillBlock does not return
     }
-    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
+    if ((sig==X64_SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         lock_signal();
         // check if SMC inside block
         if(!db_searched) {
@@ -1560,7 +1561,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             return;
         }
         unlock_signal();
-    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
+    } else if ((sig==X64_SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
         lock_signal();
         if(!db_searched) {
             db = FindDynablockFromNativeAddress(pc);
@@ -1618,7 +1619,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             glitch2_prot = 0;
         }
         unlock_signal();
-    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC_R)) {
+    } else if ((sig==X64_SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC_R)) {
         // unprotect and continue to signal handler, because Write is not there on purpose
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
     }
@@ -1629,7 +1630,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         db_searched = 1;
     }
 #endif
-    if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
+    if((sig==X64_SIGSEGV || sig==X64_SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
         _exit(box64_exit_code);    // Hack, segfault while quiting, exit silently
     }
@@ -1639,7 +1640,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
     static int old_tid = 0;
     static uint32_t old_prot = 0;
     int mapped = memExist((uintptr_t)addr);
-    const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
+    const char* signame = (sig==X64_SIGSEGV)?"SIGSEGV":((sig==X64_SIGBUS)?"SIGBUS":((sig==X64_SIGILL)?"SIGILL":"SIGABRT"));
     rsp = (void*)R_RSP;
 #if defined(DYNAREC)
     if(db && CONTEXT_REG(p, xEmu)>0x10000) {
@@ -1649,13 +1650,13 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         rsp = (void*)CONTEXT_REG(p, xRSP);
     }
 #endif //DYNAREC
-    if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
+    if(!db && (sig==X64_SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
         x64pc--;
     if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==tid && old_prot==prot) {
         printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, x64pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, x64pc, old_addr, prot);
         exit(-1);
     } else {
-        if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
+        if((sig==X64_SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
             static uintptr_t old_addr = 0;
             #ifdef DYNAREC
             if(prot==(PROT_READ|PROT_WRITE|PROT_EXEC))
@@ -1694,7 +1695,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             signal_jmpbuf_active = 0;
         }
         // Adjust RIP for special case of NULL function run
-        if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
+        if(sig==X64_SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
             R_RIP = 0x0;
         if(log_minimum<=BOX64ENV(log)) {
             elfheader_t* elf = FindElfAddress(my_context, x64pc);
@@ -1735,7 +1736,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         }
         print_rolling_log(log_minimum);
 
-        if((BOX64ENV(showbt) || sig==SIGABRT) && log_minimum<=BOX64ENV(log)) {
+        if((BOX64ENV(showbt) || sig==X64_SIGABRT) && log_minimum<=BOX64ENV(log)) {
             // show native bt
             ShowNativeBT(log_minimum);
 
@@ -1846,13 +1847,13 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
                     printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
             zydis_dec_t* dec = emu->segs[_CS] == 0x23 ? my_context->dec32 : my_context->dec;
-            if(sig==SIGILL) {
+            if(sig==X64_SIGILL) {
                 printf_log_prefix(0, log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X ", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
                 if (dec)
                     printf_log_prefix(0, log_minimum, "(%s)\n", DecodeX64Trace(dec, x64pc, 1));
                 else
                     printf_log_prefix(0, log_minimum, "(%02X %02X %02X %02X %02X)\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
-            } else if(sig==SIGBUS || (sig==SIGSEGV && (x64pc!=(uintptr_t)addr) && (pc!=addr)) && (getProtection_fast(x64pc)&PROT_READ) && (getProtection_fast((uintptr_t)pc)&PROT_READ)) {
+            } else if(sig==X64_SIGBUS || (sig==X64_SIGSEGV && (x64pc!=(uintptr_t)addr) && (pc!=addr)) && (getProtection_fast(x64pc)&PROT_READ) && (getProtection_fast((uintptr_t)pc)&PROT_READ)) {
                 if (dec)
                     printf_log_prefix(0, log_minimum, " %sopcode=%s; native opcode=%08x\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", DecodeX64Trace(dec, x64pc, 1), *(uint32_t*)pc);
                 else
@@ -1869,13 +1870,14 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
     }
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
-    if(my_context->signals[sig]!=1 || sig==SIGSEGV || sig==SIGILL || sig==SIGFPE || sig==SIGABRT) {
-        signal(sig, (void*)my_context->signals[sig]);
+    if(my_context->signals[sig]!=1 || sig==X64_SIGSEGV || sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGABRT) {
+        signal(signal_from_x64(sig), (void*)my_context->signals[sig]);
     }
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
+    sig = signal_from_x64(sig);
     void* pc = NULL;
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
@@ -1908,7 +1910,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     if(signum<0 || signum>MAX_SIGNAL)
         return SIG_ERR;
 
-    if(signum==SIGSEGV && emu->context->no_sigsegv)
+    if(signum==X64_SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
     // create a new handler
@@ -1917,7 +1919,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     my_context->restorer[signum] = 0;
     my_context->onstack[signum] = 0;
 
-    if(signum==SIGSEGV || signum==SIGBUS || signum==SIGILL || signum==SIGABRT)
+    if(signum==X64_SIGSEGV || signum==X64_SIGBUS || signum==X64_SIGILL || signum==X64_SIGABRT)
         return 0;
 
     if(handler!=NULL && handler!=(sighandler_t)1) {
@@ -1925,10 +1927,10 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
         struct sigaction oldact = {0};
         newact.sa_flags = 0x04;
         newact.sa_sigaction = my_sigactionhandler;
-        sigaction(signum, &newact, &oldact);
+        sigaction(signal_from_x64(signum), &newact, &oldact);
         return oldact.sa_handler;
     } else
-        return signal(signum, handler);
+        return signal(signal_from_x64(signum), handler);
 }
 EXPORT sighandler_t my___sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 EXPORT sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));    // not completely exact
@@ -1941,10 +1943,10 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
         return -1;
     }
 
-    if(signum==SIGSEGV && emu->context->no_sigsegv)
+    if(signum==X64_SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
-    if(signum==SIGILL && emu->context->no_sigill)
+    if(signum==X64_SIGILL && emu->context->no_sigill)
         return 0;
     struct sigaction newact = {0};
     struct sigaction old = {0};
@@ -1972,8 +1974,8 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
         my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
     }
     int ret = 0;
-    if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL && signum!=SIGABRT)
-        ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+    if(signum!=X64_SIGSEGV && signum!=X64_SIGBUS && signum!=X64_SIGILL && signum!=X64_SIGABRT)
+        ret = sigaction(signal_from_x64(signum), act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
@@ -1998,7 +2000,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         return -1;
     }
 
-    if(signum==SIGSEGV && emu->context->no_sigsegv)
+    if(signum==X64_SIGSEGV && emu->context->no_sigsegv)
         return 0;
     // TODO, how to handle sigsetsize>4?!
     if(signum==32 || signum==33) {
@@ -2079,8 +2081,8 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         }
         int ret = 0;
 
-        if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL && signum!=SIGABRT)
-            ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+        if(signum!=X64_SIGSEGV && signum!=X64_SIGBUS && signum!=X64_SIGILL && signum!=X64_SIGABRT)
+            ret = sigaction(signal_from_x64(signum), act?&newact:NULL, oldact?&old:NULL);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
             memcpy(&oldact->sa_mask, &old.sa_mask, (sigsetsize>8)?8:sigsetsize);
@@ -2095,6 +2097,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
 
 EXPORT sighandler_t my_sigset(x64emu_t* emu, int signum, sighandler_t handler)
 {
+    signum = signal_from_x64(signum);
     // emulated SIG_HOLD
     if(handler == (sighandler_t)2) {
         x64_sigaction_t oact;
@@ -2333,3 +2336,24 @@ void fini_signal_helper()
     signal(SIGILL, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
 }
+
+#ifdef NEED_SIG_CONV
+int signal_to_x64(int sig)
+{
+    #define GO(A) case A: return X64_##A;
+    switch(sig) {
+        SUPER_SIGNAL
+    }
+    #undef GO
+    return sig;
+}
+int signal_from_x64(int sig)
+{
+    #define GO(A) case X64_##A: return A;
+    switch(sig) {
+        SUPER_SIGNAL
+    }
+    #undef GO
+    return sig;
+}
+#endif

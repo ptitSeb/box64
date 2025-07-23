@@ -2,10 +2,10 @@
  * Copyright 2022-2025 André Zwing
  * Copyright 2023 Alexandre Julliard
  */
-#include <signal.h>
 #include <windows.h>
 #include <winternl.h>
 
+#include "x64_signals.h"
 #include "x64emu.h"
 #include "debug.h"
 #include "custommem.h"
@@ -16,11 +16,11 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
     EXCEPTION_RECORD rec;
 
     switch (sig) {
-        case SIGILL:
+        case X64_SIGILL:
             printf_log(LOG_DEBUG, "SIGILL at %p with code %d\n", addr, code);
             rec.ExceptionCode = STATUS_ILLEGAL_INSTRUCTION;
             break;
-        case SIGSEGV:
+        case X64_SIGSEGV:
             printf_log(LOG_DEBUG, "SIGSEGV at %p with code %d\n", addr, code);
             rec.ExceptionCode = STATUS_ACCESS_VIOLATION;
             break;

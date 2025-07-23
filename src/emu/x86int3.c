@@ -9,9 +9,9 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <pthread.h>
-#include <signal.h>
 #include <inttypes.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -484,9 +484,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
         }
         return;
     }
-    if(!BOX64ENV(ignoreint3) && my_context->signals[SIGTRAP]) {
+    if(!BOX64ENV(ignoreint3) && my_context->signals[X64_SIGTRAP]) {
         R_RIP = *addr;  // update RIP
-        EmitSignal(emu, SIGTRAP, NULL, 3);
+        EmitSignal(emu, X64_SIGTRAP, NULL, 3);
     } else {
         printf_log(LOG_DEBUG, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_RIP);
         R_RIP = *addr;

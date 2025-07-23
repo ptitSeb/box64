@@ -5,10 +5,10 @@
 #include <math.h>
 #include <fenv.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -61,7 +61,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0xF2:  /* ANDN Gd, Vd, Ed */
             nextop = F8;
-            if(vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             ResetFlags(emu);
             GETGD;
             GETED(0);
@@ -81,7 +81,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 1:     /* BLSR Vd, Ed */
-                    if(vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                    if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                     ResetFlags(emu);
                     GETVD;
                     GETED(0);
@@ -101,7 +101,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     }
                     break;
                 case 2:     /* BLSMSK Vd, Ed */
-                    if(vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                    if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                     ResetFlags(emu);
                     GETVD;
                     GETED(0);
@@ -122,7 +122,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     }
                     break;
                 case 3:     /* BLSI Vd, Ed */
-                    if(vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                    if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                     ResetFlags(emu);
                     GETVD;
                     GETED(0);
@@ -151,7 +151,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0xF5:  /* BZHI Gd, Ed, Vd */
             nextop = F8;
-            if(vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             GETGD;
             GETED(0);
             GETVD;
@@ -179,7 +179,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0xF7:  /* BEXTR Gd, Ed, Vd */
             nextop = F8;
-            if(vex.l) EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+            if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             ResetFlags(emu);
             GETGD;
             GETED(0);

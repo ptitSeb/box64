@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <signal.h>
 #include <errno.h>
 #include <setjmp.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64context.h"
@@ -834,6 +834,7 @@ EXPORT int my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* 
 
 EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 {
+	sig = signal_from_x64(sig);
 	// should ESCHR result be filtered, as this is expected to be the 2.34 behaviour?
 	(void)emu;
 	// check for old "is everything ok?"
@@ -844,6 +845,7 @@ EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 
 EXPORT int my_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
 {
+	sig = signal_from_x64(sig);
     // check for old "is everything ok?"
     if((thread==NULL) && (sig==0))
         return real_phtread_kill_old(pthread_self(), 0);

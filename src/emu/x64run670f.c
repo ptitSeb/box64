@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
 #include "box64stack.h"
@@ -189,7 +189,7 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                     nextop = F8;
                     FAKEED32(0);
                     #ifndef TEST_INTERPRETER
-                    EmitSignal(emu, SIGILL, (void*)R_RIP, 0);
+                    EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                     #endif
                     break;
                 default:
