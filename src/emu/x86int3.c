@@ -400,6 +400,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     post = 2;
                 } else  if(!strcmp(s, "getaddrinfo")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %p, %p)", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), from_ptriv(R_ESP+12), from_ptriv(R_ESP+16));
+                } else  if(!strcmp(s, "__errno_location")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s()", tid, from_ptriv(R_ESP), (char *)s);
+                    perr = 4;
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptriv(R_ESP), (char *)s, from_ptri(uint32_t, R_ESP+4), from_ptri(uint32_t, R_ESP+8), from_ptri(uint32_t, R_ESP+12));
                 }
@@ -465,6 +468,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==3 && (S_EAX)==-1)
+                    snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
+                else if(perr==4)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 if(BOX64ENV(rolling_log)) {
                     if(ret_fmt==1)

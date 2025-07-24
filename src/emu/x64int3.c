@@ -215,6 +215,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (!strcmp(s, "fgetxattr")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, \"%s\", %p, 0x%zx)", tid, *(void**)(R_RSP), s, R_EDI, (char*)R_RSI, (void*)R_RDX, R_RCX);
                     perr = 1;
+                } else if (!strcmp(s, "connect")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %d)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_EDX);
+                    perr = 1;
                 } else if (strstr(s, "puts")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
@@ -323,6 +326,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     pu32 = (uint32_t*)(R_RDI);
                     post = 7;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, 0x%X)", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_ESI);
+                } else  if(!strcmp(s, "__errno_location")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s()", tid, *(void**)(R_RSP), s);
+                    perr = 4;
                 } else {
                     x64Print(emu, buff, 256, s, tid, w);
                 }
@@ -376,6 +382,8 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==3 && (S_RAX)==-1)
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                else if(perr==4)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
 
                 if(BOX64ENV(rolling_log))
