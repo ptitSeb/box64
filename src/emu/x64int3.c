@@ -113,6 +113,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
             if(BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(rolling_log)) {
+                int e = errno;
                 int tid = GetTID();
                 char t_buff[256] = "\0";
                 char buff2[64] = "\0";
@@ -337,7 +338,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     printf_log_prefix(0, LOG_NONE, "%s =>", buff);
                     mutex_unlock(&emu->context->mutex_trace);
                 }
+                errno = e;
                 w(emu, a);   // some function never come back, so unlock the mutex first!
+                e = errno;
                 if(post)
                     switch(post) { // Only ever 2 for now...
                     case 1: snprintf(buff2, 64, " [%llu sec %llu nsec]", pu64?pu64[0]:~0ull, pu64?pu64[1]:~0ull);
@@ -378,13 +381,13 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     break;
                 }
                 if(perr==1 && (S_EAX)<0)
-                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
                 else if(perr==2 && R_EAX==0)
-                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
                 else if(perr==3 && (S_RAX)==-1)
-                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
                 else if(perr==4)
-                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
 
                 if(BOX64ENV(rolling_log))
                     snprintf(buffret, 127, "0x%lX%s%s", R_RAX, buff2, buff3);
@@ -393,6 +396,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     printf_log_prefix(0, LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
                     mutex_unlock(&emu->context->mutex_trace);
                 }
+                errno = e;
             } else
                 w(emu, a);
         }
