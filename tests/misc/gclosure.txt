@@ -1,0 +1,4 @@
+Initial refcount: 1
+After ref, refcount: 2
+After sinking, refcount: 1
+After unref, refcount: 0
