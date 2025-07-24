@@ -316,6 +316,14 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (!strcmp(s, "__isoc99_fscanf")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
+                } else if (!strcmp(s, "inotify_add_watch")) {
+                    tmp = (char*)(R_RSI);
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%d, \"%s\" , 0x%x)", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", R_EDX);
+                    perr = 1;
+                } else if (!strcmp(s, "__xstat64")) {
+                    tmp = (char*)(R_RSI);
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%d, \"%s\" , %p)", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)R_RDX);
+                    perr = 1;
                 } else if (!strcmp(s, "XCreateWindow")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, 0x%lx, %p)", tid, *(void**)(R_RSP), s, 
