@@ -40,9 +40,9 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     if (cpuext.lbt) {
         IFX (X_ALL) {
             if (rex.w)
-                X64_ADD_DU(s1, s2);
+                X64_ADD_D(s1, s2);
             else
-                X64_ADD_WU(s1, s2);
+                X64_ADD_W(s1, s2);
         }
         ADDxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -149,9 +149,9 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     if (cpuext.lbt) {
         IFX (X_ALL) {
             if (rex.w)
-                X64_ADD_DU(s1, s2);
+                X64_ADD_D(s1, s2);
             else
-                X64_ADD_WU(s1, s2);
+                X64_ADD_W(s1, s2);
         }
         ADDxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -575,9 +575,9 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     if (cpuext.lbt) {
         IFX (X_ALL) {
             if (rex.w)
-                X64_SUB_DU(s1, s2);
+                X64_SUB_D(s1, s2);
             else
-                X64_SUB_WU(s1, s2);
+                X64_SUB_W(s1, s2);
         }
         SUBxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -646,9 +646,9 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         }
         IFX (X_ALL) {
             if (rex.w) {
-                X64_SUB_DU(s1, s2);
+                X64_SUB_D(s1, s2);
             } else {
-                X64_SUB_WU(s1, s2);
+                X64_SUB_W(s1, s2);
             }
         }
         SUBxw(s1, s1, s2);
@@ -967,9 +967,9 @@ void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     IFXA (X_ALL, cpuext.lbt) {
         if (rex.w)
-            X64_SUB_DU(xZR, s1);
+            X64_SUB_D(xZR, s1);
         else
-            X64_SUB_WU(xZR, s1);
+            X64_SUB_W(xZR, s1);
     }
 
     NEGxw(s1, s1);
