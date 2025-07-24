@@ -808,6 +808,18 @@ EXPORT void my_g_signal_override_class_handler(x64emu_t* emu, char* name, size_t
     my->g_signal_override_class_handler(name, gtype, findGCallbackFct(callback));
 }
 
+typedef struct my_GClosure_s {
+    uint32_t in_marshal : 1;
+    uint32_t is_invalid : 1;
+    void (*marshal)(
+        struct my_GClosure_s* closure,
+        my_GValue_t* return_value,
+        uint32_t n_param_values,
+        const my_GValue_t* param_values,
+        void* invocation_hint,
+        void* marshal_data);
+} my_GClosure_t;
+
 EXPORT void my_g_closure_set_marshal(x64emu_t* emu, void* closure, void* marshal)
 {
     my->g_closure_set_marshal(closure, findMarshalFct(marshal));
@@ -831,6 +843,28 @@ EXPORT void my_g_closure_add_finalize_notifier(x64emu_t* emu, void* closure, voi
 EXPORT void my_g_closure_remove_finalize_notifier(x64emu_t* emu, void* closure, void* data, void* f)
 {
     my->g_closure_remove_finalize_notifier(closure, data, findGClosureNotify_Fct(f));
+}
+
+EXPORT my_GClosure_t* my_g_closure_ref(x64emu_t* emu, my_GClosure_t* closure)
+{
+    my_GClosure_t* ret = my->g_closure_ref(closure);
+    bridge_t* system = emu->context->system;
+
+    #define GO(A, W)\
+    if(closure->A)      \
+        if(!CheckBridged(system, closure->A)) \
+            AddAutomaticBridge(system, W, closure->A, 0, #A); \
+
+    GO(marshal, vFppuppp)
+    #undef GO
+
+    return ret;
+}
+
+EXPORT void my_g_closure_sink(x64emu_t* emu, my_GClosure_t* closure)
+{
+    closure->marshal = findMarshalFct(closure->marshal);
+    my->g_closure_sink(closure);
 }
 
 EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)

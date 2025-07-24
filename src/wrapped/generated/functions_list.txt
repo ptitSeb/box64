@@ -4101,9 +4101,12 @@ wrappedgnutls:
   - gnutls_transport_set_pull_timeout_function
   - gnutls_transport_set_push_function
 wrappedgobject2:
+- vFp:
+  - g_closure_sink
 - pFL:
   - g_type_value_table_peek
 - pFp:
+  - g_closure_ref
   - g_type_class_peek_parent
 - vFpp:
   - g_closure_set_marshal
