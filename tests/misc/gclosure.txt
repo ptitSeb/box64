@@ -1,0 +1,4 @@
+Initial refcount: 1
+Callback called with: 42, 'Hello GClosure' (user_data: 0x3a5000)
+After ref, refcount: 2
+After sinking, refcount: 1
