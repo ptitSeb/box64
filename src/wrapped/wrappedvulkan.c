@@ -842,3 +842,8 @@ DESTROY64(vkDestroyIndirectExecutionSetEXT)
 CREATE(vkCreatePipelineBinariesKHR)
 DESTROY64(vkDestroyPipelineBinaryKHR)
 DESTROY(vkReleaseCapturedPipelineDataKHR)
+
+CREATE(vkCreateTensorARM)
+CREATE(vkCreateTensorViewARM)
+DESTROY64(vkDestroyTensorARM)
+DESTROY64(vkDestroyTensorViewARM)

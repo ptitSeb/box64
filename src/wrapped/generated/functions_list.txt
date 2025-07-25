@@ -6246,6 +6246,8 @@ wrappedvulkan:
   - vkDestroyShaderModule
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
+  - vkDestroyTensorARM
+  - vkDestroyTensorViewARM
   - vkDestroyValidationCacheEXT
   - vkDestroyVideoSessionKHR
   - vkDestroyVideoSessionParametersKHR
@@ -6307,6 +6309,8 @@ wrappedvulkan:
   - vkCreateSemaphore
   - vkCreateShaderModule
   - vkCreateSwapchainKHR
+  - vkCreateTensorARM
+  - vkCreateTensorViewARM
   - vkCreateValidationCacheEXT
   - vkCreateVideoSessionKHR
   - vkCreateVideoSessionParametersKHR

@@ -1045,3 +1045,18 @@ GOM(vkReleaseCapturedPipelineDataKHR, iFEppp)
 
 // VK_EXT_depth_clamp_control
 GO(vkCmdSetDepthClampRangeEXT, vFpup)
+
+// VK_ARM_tensors
+GO(vkBindTensorMemoryARM, iFpup)
+GO(vkCmdCopyTensorARM, vFpp)
+GOM(vkCreateTensorARM, iFEpppp)
+GOM(vkCreateTensorViewARM, iFEpppp)
+GOM(vkDestroyTensorARM, vFEpUp)
+GOM(vkDestroyTensorViewARM, vFEpUp)
+GO(vkGetDeviceTensorMemoryRequirementsARM, vFppp)
+GO(vkGetPhysicalDeviceExternalTensorPropertiesARM, vFppp)
+GO(vkGetTensorMemoryRequirementsARM, vFppp)
+
+// VK_EXT_descriptor_buffer + VK_ARM_tensors
+GO(vkGetTensorOpaqueCaptureDescriptorDataARM, iFppp)
+GO(vkGetTensorViewOpaqueCaptureDescriptorDataARM, iFppp)

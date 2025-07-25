@@ -75,6 +75,8 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkDestroyShaderModule, vFpUp_t) \
 	GO(vkDestroySurfaceKHR, vFpUp_t) \
 	GO(vkDestroySwapchainKHR, vFpUp_t) \
+	GO(vkDestroyTensorARM, vFpUp_t) \
+	GO(vkDestroyTensorViewARM, vFpUp_t) \
 	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
 	GO(vkDestroyVideoSessionKHR, vFpUp_t) \
 	GO(vkDestroyVideoSessionParametersKHR, vFpUp_t) \
@@ -131,6 +133,8 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateSemaphore, iFpppp_t) \
 	GO(vkCreateShaderModule, iFpppp_t) \
 	GO(vkCreateSwapchainKHR, iFpppp_t) \
+	GO(vkCreateTensorARM, iFpppp_t) \
+	GO(vkCreateTensorViewARM, iFpppp_t) \
 	GO(vkCreateValidationCacheEXT, iFpppp_t) \
 	GO(vkCreateVideoSessionKHR, iFpppp_t) \
 	GO(vkCreateVideoSessionParametersKHR, iFpppp_t) \
