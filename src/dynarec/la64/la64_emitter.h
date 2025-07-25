@@ -1266,8 +1266,12 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VFSQRT_D(vd, vj)             EMIT(type_2R(0b0111001010011100111010, vj, vd))
 #define VFRECIP_S(vd, vj)            EMIT(type_2R(0b0111001010011100111101, vj, vd))
 #define VFRECIP_D(vd, vj)            EMIT(type_2R(0b0111001010011100111110, vj, vd))
+#define VFRECIPE_S(vd, vj)           EMIT(type_2R(0b0111001010011101000101, vj, vd))
+#define VFRECIPE_D(vd, vj)           EMIT(type_2R(0b0111001010011101000110, vj, vd))
 #define VFRSQRT_S(vd, vj)            EMIT(type_2R(0b0111001010011101000001, vj, vd))
 #define VFRSQRT_D(vd, vj)            EMIT(type_2R(0b0111001010011101000010, vj, vd))
+#define VFRSQRTE_S(vd, vj)           EMIT(type_2R(0b0111001010011101001001, vj, vd))
+#define VFRSQRTE_D(vd, vj)           EMIT(type_2R(0b0111001010011101001010, vj, vd))
 #define VFCVTL_S_H(vd, vj)           EMIT(type_2R(0b0111001010011101111010, vj, vd))
 #define VFCVTH_S_H(vd, vj)           EMIT(type_2R(0b0111001010011101111011, vj, vd))
 #define VFCVTL_D_S(vd, vj)           EMIT(type_2R(0b0111001010011101111100, vj, vd))
@@ -3206,17 +3210,81 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                               \
     } while (0)
 
-#define VREPLVEIxy(width, vd, vj, imm)         \
-    do {                                       \
-        if (vex.l) {                           \
-            if (imm > 0) {                     \
-                ADDI_D(x5, xZR, imm);          \
-                XVREPLVE_##width(vd, vj, x5);  \
-            } else {                           \
-                XVREPLVE0_##width(vd, vj); \
-            }                                  \
-        } else {                               \
-            VREPLVEI_##width(vd, vj, imm);     \
-        }                                      \
+#define VFRECIPxy(width, vd, vj)      \
+    do {                              \
+        if (vex.l) {                  \
+            XVFRECIP_##width(vd, vj); \
+        } else {                      \
+            VFRECIP_##width(vd, vj);  \
+        }                             \
     } while (0)
+
+#define VFRECIPExy(width, vd, vj)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVFRECIPE_##width(vd, vj); \
+        } else {                       \
+            VFRECIPE_##width(vd, vj);  \
+        }                              \
+    } while (0)
+
+#define VFRSQRTxy(width, vd, vj)      \
+    do {                              \
+        if (vex.l) {                  \
+            XVFRSQRT_##width(vd, vj); \
+        } else {                      \
+            VFRSQRT_##width(vd, vj);  \
+        }                             \
+    } while (0)
+
+#define VFRSQRTExy(width, vd, vj)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVFRSQRTE_##width(vd, vj); \
+        } else {                       \
+            VFRSQRTE_##width(vd, vj);  \
+        }                              \
+    } while (0)
+
+#define VFSQRTxy(width, vd, vj)      \
+    do {                             \
+        if (vex.l) {                 \
+            XVFSQRT_##width(vd, vj); \
+        } else {                     \
+            VFSQRT_##width(vd, vj);  \
+        }                            \
+    } while (0)
+
+#define VFMAXxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVFMAX_##width(vd, vj, vk); \
+        } else {                        \
+            VFMAX_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VFMINxy(width, vd, vj, vk)      \
+    do {                                \
+        if (vex.l) {                    \
+            XVFMIN_##width(vd, vj, vk); \
+        } else {                        \
+            VFMIN_##width(vd, vj, vk);  \
+        }                               \
+    } while (0)
+
+#define VREPLVEIxy(width, vd, vj, imm)        \
+    do {                                      \
+        if (vex.l) {                          \
+            if (imm > 0) {                    \
+                ADDI_D(x5, xZR, imm);         \
+                XVREPLVE_##width(vd, vj, x5); \
+            } else {                          \
+                XVREPLVE0_##width(vd, vj);    \
+            }                                 \
+        } else {                              \
+            VREPLVEI_##width(vd, vj, imm);    \
+        }                                     \
+    } while (0)
+
 #endif //__ARM64_EMITTER_H__
