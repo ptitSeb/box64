@@ -530,6 +530,7 @@ static int static_jmps[MAX_INSTS+2];
 static uintptr_t static_next[MAX_INSTS+2];
 static instruction_native_t static_insts[MAX_INSTS+2] = {0};
 static callret_t static_callrets[MAX_INSTS+2] = {0};
+void* redundant_helper = NULL;
 // TODO: ninst could be a uint16_t instead of an int, that could same some temp. memory
 
 void ClearCache(void* start, size_t len)
@@ -575,6 +576,7 @@ void CancelBlock64(int need_lock)
         }
     }
     current_helper = NULL;
+    redundant_helper = NULL;
     if(need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
 }
@@ -636,7 +638,11 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         return NULL;
     }
     if(current_helper) {
-        dynarec_log(LOG_INFO, "Warning: previous FillBlock did not cleaned up correctly\n");
+        if(current_helper==redundant_helper) {
+            dynarec_log(LOG_INFO, "%04d|Warning: previous FillBlock did not cleaned up correctly (helper=%p, x64addr=%p, db=%p)\n", GetTID(), current_helper, (void*)((dynarec_native_t*)current_helper)->start, ((dynarec_native_t*)current_helper)->dynablock);
+            return NULL;
+        }
+        dynarec_log(LOG_INFO, "Warning: some static area curruption appeared (current=%p, redundant=%p)\n", current_helper, redundant_helper);
     }
     // protect the 1st page
     protectDB(addr, 1);
@@ -646,7 +652,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
 #ifdef GDBJIT
     helper.gdbjit_block = box_calloc(1, sizeof(gdbjit_block_t));
 #endif
-    current_helper = &helper;
+    redundant_helper = current_helper = &helper;
     helper.dynablock = NULL;
     helper.start = addr;
     uintptr_t start = addr;
@@ -1003,7 +1009,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                 *(uint32_t*)(block->block+block->callrets[i].offs) = ARCH_UDF;
         #endif
     }
-    current_helper = NULL;
+    redundant_helper = current_helper = NULL;
     //block->done = 1;
     return block;
 }
