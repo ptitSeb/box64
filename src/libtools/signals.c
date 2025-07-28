@@ -43,16 +43,16 @@
 #include "gdbjit.h"
 #if defined(ARM64)
 #include "dynarec/arm64/arm64_mapping.h"
-#define CONTEXT_REG(P, X)   P->uc_mcontext.regs[X]
-#define CONTEXT_PC(P)       P->uc_mcontext.pc
+#define CONTEXT_REG(P, X)   (P)->uc_mcontext.regs[X]
+#define CONTEXT_PC(P)       (P)->uc_mcontext.pc
 #elif defined(LA64)
 #include "dynarec/la64/la64_mapping.h"
-#define CONTEXT_REG(P, X)   P->uc_mcontext.__gregs[X]
-#define CONTEXT_PC(P)       P->uc_mcontext.__pc;
+#define CONTEXT_REG(P, X)   (P)->uc_mcontext.__gregs[X]
+#define CONTEXT_PC(P)       (P)->uc_mcontext.__pc;
 #elif defined(RV64)
 #include "dynarec/rv64/rv64_mapping.h"
-#define CONTEXT_REG(P, X)   P->uc_mcontext.__gregs[X]
-#define CONTEXT_PC(P)       P->uc_mcontext.__gregs[REG_PC]
+#define CONTEXT_REG(P, X)   (P)->uc_mcontext.__gregs[X]
+#define CONTEXT_PC(P)       (P)->uc_mcontext.__gregs[REG_PC]
 #else
 #error Unsupported Architecture
 #endif //arch
@@ -288,7 +288,8 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
 }
 #endif
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
-void adjustregs(x64emu_t* emu) {
+void adjustregs(x64emu_t* emu, void* pc) {
+    if(!pc) return;
 // tests some special cases
     uint8_t* mem = (uint8_t*)R_RIP;
     rex_t rex = {0};
@@ -314,25 +315,22 @@ void adjustregs(x64emu_t* emu) {
     dynarec_log(LOG_INFO, "Checking opcode: rex=%02hhx is32bits=%d, rep=%d is66=%d %02hhX %02hhX %02hhX %02hhX\n", rex.rex, rex.is32bits, rep, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
 #ifdef DYNAREC
 #ifdef ARM64
-    if(mem[idx+0]==0xA4) {
-        // (rep) movsb, read done, write not...
-        if(emu->eflags.f._F_DF)
-            R_RSI++;
-        else
-            R_RSI--;
-        return;
-    }
-    if(mem[idx+0]==0xA5) {
-        // (rep) movsd, read done, write not...
-        int step = (emu->eflags.f._F_DF)?-1:+1;
-        if(rex.w) step*=8;
-        else if(is66) step *=2;
-        else step*=4;
-        R_RSI-=step;
+    if(mem[idx+0]==0xA4 || mem[idx+0]==0xA5) {
+        uint32_t opcode = *(uint32_t*)pc;
+        // (rep) movsX, read done, write not... so opcode is a STR?_S9_postindex(A, B, C) with C to be substracted to RSI
+        // xx111000000iiiiiiiii01nnnnnttttt xx = size, iiiiiiiii = signed offset, t = value, n = address
+        if((opcode & 0b00111111111000000000110000000000)==0b00111000000000000000010000000000) {
+            int offset = (opcode>>12)&0b111111111;
+            offset<<=31-9;
+            offset>>=31-9;  // sign extend
+            dynarec_log(LOG_INFO, "\tAdjusting RSI: %d\n", -offset);
+            R_RSI -= offset;
+        }
         return;
     }
     if(mem[idx+0]==0x8F && (mem[idx+1]&0xc0)!=0xc0) {
         // POP Ed, issue on write address, restore RSP as in before the pop
+        dynarec_log(LOG_INFO, "\tAdjusting RSP: %d\n", -(is66?2:(rex.is32bits?4:8)));
         R_RSP -= is66?2:(rex.is32bits?4:8);
     }
 #elif defined(LA64)
@@ -1267,9 +1265,10 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     #undef GO
     #ifdef DYNAREC
     dynablock_t* db = cur_db;
-    if(db) {
+    if(db && ucntx) {
+        void * pc =(void*)CONTEXT_PC((ucontext_t*)ucntx);
         copyUCTXreg2Emu(emu, ucntx, x64pc);
-        adjustregs(emu);
+        adjustregs(emu, pc);
         if(db && db->arch_size)
             ARCH_ADJUST(db, emu, ucntx, x64pc);
     }
@@ -1453,7 +1452,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                         copyUCTXreg2Emu(emu, p, x64pc);
                         // only copy as it's a return address, so there is just the "epilog" to mimic here on "ret" type. "loop" type need everything
                         if(type_callret) {
-                            adjustregs(emu);
+                            adjustregs(emu, pc);
                             if(db && db->arch_size)
                                 ARCH_ADJUST(db, emu, p, x64pc);
                         }
@@ -1535,7 +1534,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             if(emu->jmpbuf) {
                 uintptr_t x64pc = getX64Address(db, (uintptr_t)pc);
                 copyUCTXreg2Emu(emu, p, x64pc);
-                adjustregs(emu);
+                adjustregs(emu, pc);
                 if(db && db->arch_size)
                     ARCH_ADJUST(db, emu, p, x64pc);
                 dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) %s, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size))?"Auto-SMC":"unprotected", (void*)R_RIP, (void*)addr);
