@@ -714,8 +714,11 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, uint32_t s, ptr_t* b)
 #endif
 #endif
         case 449:
+            //futex_waitv(struct futex_waitv *waiters, unsigned int nr_futexes, unsigned int flags, struct timespec *timeout, clockid_t clockid)
+            //This syscall supports only 64bit sized timeout structs
+            // the struct futex_waitv is also the same for 32bits and 64bits address space (with 64bits sized address)
             #if defined(__NR_futex_waitv) && !defined(BAD_SIGNAL)
-            return syscall(__NR_futex_waitv, u32(0), u32(4), u32(8), u32(12), u32(16));
+            return syscall(__NR_futex_waitv, p(0), u32(4), u32(8), p(12), u32(16));
             #else
             errno = ENOSYS;
             return -1;
