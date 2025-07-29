@@ -239,6 +239,23 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VPICKVE2GR_DU(gd, d1, 0);
             }
             break;
+        case 0x51:
+            INST_NAME("VSQRTPD Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, d0, v1, v1, cEQ);
+                VFSQRTxy(D, v0, v1);
+                VFCMPxy(D, d1, v0, v0, cEQ);
+                VANDN_Vxy(d1, d1, d0);
+                VSLLIxy(D, d1, d1, 63);
+                VOR_Vxy(v0, v0, d1);
+            } else {
+                VFSQRTxy(D, v0, v1);
+            }
+            break;
         case 0x54:
             INST_NAME("VANDPD Gx, Vx, Ex");
             nextop = F8;
@@ -317,6 +334,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
+        case 0x5D:
+            INST_NAME("VMINPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (BOX64ENV(dynarec_fastnan)) {
+                VFMINxy(D, v0, v2, v1);
+            } else {
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, q0, v2, v1, cULE);
+                VBITSEL_Vxy(v0, v1, v2, q0);
+            }
+            break;
         case 0x5E:
             INST_NAME("VDIVPD Gx, Vx, Ex");
             nextop = F8;
@@ -333,6 +363,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VLDIxy(d1, (0b011 << 9) | 0b111111000);
                 VSLLIxy(D, d1, d1, 48); // broadcast 0xfff8000000000000
                 VBITSEL_Vxy(v0, v0, d1, d0);
+            }
+            break;
+        case 0x5F:
+            INST_NAME("VMAXPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            if (BOX64ENV(dynarec_fastnan)) {
+                VFMAXxy(D, v0, v2, v1);
+            } else {
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                VFCMPxy(D, q0, v2, v1, cLT);
+                VBITSEL_Vxy(v0, v2, v1, q0);
             }
             break;
         case 0x60:
