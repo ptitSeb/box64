@@ -203,11 +203,102 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             VSHUFxy(D, d0, v2, v1);
             VOR_Vxy(v0, d0, d0);
             break;
+        case 0x0E:
+        case 0x0F:
+            if (opcode == 0x0E) {
+                INST_NAME("VTESTPS Gx, Ex");
+            } else {
+                INST_NAME("VTESTPD Gx, Ex");
+            }
+            nextop = F8;
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            GETGYxy(q0, 0);
+            GETEYxy(q1, 0, 0);
+            if (!cpuext.lbt) {
+                CLEAR_FLAGS(x3);
+            } else IFX (X_ALL) {
+                X64_SET_EFLAGS(xZR, X_ALL);
+            }
+            SET_DFNONE();
+            v0 = fpu_get_scratch(dyn);
+            IFX (X_ZF) {
+                VAND_Vxy(v0, q1, q0);
+                if (opcode == 0x0E) {
+                    VMSKLTZxy(W, v0, v0);
+                } else {
+                    VMSKLTZxy(D, v0, v0);
+                }
+                VSETEQZ_Vxy(fcc0, v0);
+                BCEQZ_MARK(fcc0);
+                if (cpuext.lbt) {
+                    ADDI_D(x3, xZR, 1 << F_ZF);
+                    X64_SET_EFLAGS(x3, X_ZF);
+                } else {
+                    ORI(xFlags, xFlags, 1 << F_ZF);
+                }
+            }
+            MARK;
+            IFX (X_CF) {
+                VANDN_Vxy(v0, q0, q1);
+                if (opcode == 0x0E) {
+                    VMSKLTZxy(W, v0, v0);
+                } else {
+                    VMSKLTZxy(D, v0, v0);
+                }
+                VSETEQZ_Vxy(fcc0, v0);
+                BCEQZ_MARK2(fcc0);
+                if (cpuext.lbt) {
+                    ADDI_D(x3, xZR, 1 << F_CF);
+                    X64_SET_EFLAGS(x3, X_CF);
+                } else {
+                    ORI(xFlags, xFlags, 1 << F_CF);
+                }
+            }
+            MARK2;
+            break;
         case 0x16:
             INST_NAME("VPERMPS Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             XVPERM_W(v0, v2, v1);
+            break;
+        case 0x17:
+            INST_NAME("VPTEST Gx, Ex");
+            nextop = F8;
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            GETGYxy(q0, 0);
+            GETEYxy(q1, 0, 0);
+            if (!cpuext.lbt) {
+                CLEAR_FLAGS(x3);
+            } else IFX (X_ALL) {
+                X64_SET_EFLAGS(xZR, X_ALL);
+            }
+            SET_DFNONE();
+            v0 = fpu_get_scratch(dyn);
+            IFX (X_ZF) {
+                VAND_Vxy(v0, q1, q0);
+                VSETEQZ_Vxy(fcc0, v0);
+                BCEQZ_MARK(fcc0);
+                if (cpuext.lbt) {
+                    ADDI_D(x3, xZR, 1 << F_ZF);
+                    X64_SET_EFLAGS(x3, X_ZF);
+                } else {
+                    ORI(xFlags, xFlags, 1 << F_ZF);
+                }
+            }
+            MARK;
+            IFX (X_CF) {
+                VANDN_Vxy(v0, q0, q1);
+                VSETEQZ_Vxy(fcc0, v0);
+                BCEQZ_MARK2(fcc0);
+                if (cpuext.lbt) {
+                    ADDI_D(x3, xZR, 1 << F_CF);
+                    X64_SET_EFLAGS(x3, X_CF);
+                } else {
+                    ORI(xFlags, xFlags, 1 << F_CF);
+                }
+            }
+            MARK2;
             break;
         case 0x18:
             INST_NAME("VBROADCASTSS Gx, Ex");
