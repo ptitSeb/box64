@@ -1987,24 +1987,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                4  <-> 0    invalid operation
                             */
                             // Doing x86 -> RV here, 543210 => 0123x4, ignore denormal
-                            if (ed != x1) MV(x1, ed);
-                            // x5 = (x1 & 0b1) << 4
-                            SLLIW(x5, x1, 4);
+                            // x5 = (ed & 0b1) << 4
+                            SLLIW(x5, ed, 4);
                             ANDI(x5, x5, 16);
-                            // x3 = x5 | ((x1 & 0b100) << 1);
-                            SLLIW(x3, x1, 1);
+                            // x3 = x5 | ((ed & 0b100) << 1);
+                            SLLIW(x3, ed, 1);
                             ANDI(x3, x3, 8);
                             OR(x3, x3, x5);
-                            // x3 = x3 | (x1 & 0b1000) >> 1;
-                            SRLIW(x4, x1, 1);
+                            // x3 = x3 | (ed & 0b1000) >> 1;
+                            SRLIW(x4, ed, 1);
                             ANDI(x4, x4, 4);
                             OR(x3, x3, x4);
-                            // x3 = x3 | (x1 & 0b10000) >> 3;
-                            SRLIW(x5, x1, 3);
+                            // x3 = x3 | (ed & 0b10000) >> 3;
+                            SRLIW(x5, ed, 3);
                             ANDI(x5, x5, 2);
                             OR(x3, x3, x5);
-                            // x3 = x3 | (x1 & 0b100000) >> 5;
-                            SRLIW(x5, x1, 5);
+                            // x3 = x3 | (ed & 0b100000) >> 5;
+                            SRLIW(x5, ed, 5);
                             ANDI(x5, x5, 1);
                             OR(x3, x3, x5);
                             CSRRW(xZR, x3, /* fflags */ 0x001);
