@@ -339,6 +339,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULWEVxy(D_W, v0, v1, v2);
             break;
+        case 0x29:
+            INST_NAME("VPCMPEQQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSEQxy(D, v0, v2, v1);
+            break;
         case 0x2B:
             INST_NAME("VPACKUSDW Gx, Vx, Ex");
             nextop = F8;
@@ -506,6 +512,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             XVPERM_W(v0, v2, v1);
+            break;
+        case 0x37:
+            INST_NAME("VPCMPGTQ Gx, Vx, Ex");
+            nextop = F8;
+            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            VSLTxy(D, v0, v2, v1);
             break;
         case 0x38:
             INST_NAME("VPMINSB Gx, Vx, Ex");
@@ -872,7 +884,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VFMADDxyxw(q0, v0, v2, v1);
             VFMSUBxyxw(v0, v0, v2, v1);
-            if(rex.w){
+            if (rex.w) {
                 VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
             } else {
                 VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
@@ -886,7 +898,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VFMSUBxyxw(q0, v0, v2, v1);
             VFMADDxyxw(v0, v0, v2, v1);
-            if(rex.w){
+            if (rex.w) {
                 VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
             } else {
                 VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
@@ -956,7 +968,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VFMADDxyxw(q0, v1, v0, v2);
             VFMSUBxyxw(v0, v1, v0, v2);
-            if(rex.w){
+            if (rex.w) {
                 VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
             } else {
                 VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
@@ -970,7 +982,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VFMSUBxyxw(q0, v1, v0, v2);
             VFMADDxyxw(v0, v1, v0, v2);
-            if(rex.w){
+            if (rex.w) {
                 VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
             } else {
                 VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
@@ -1040,7 +1052,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VFMADDxyxw(q0, v1, v2, v0);
             VFMSUBxyxw(v0, v1, v2, v0);
-            if(rex.w){
+            if (rex.w) {
                 VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
             } else {
                 VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
@@ -1054,7 +1066,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VFMSUBxyxw(q0, v1, v2, v0);
             VFMADDxyxw(v0, v1, v2, v0);
-            if(rex.w){
+            if (rex.w) {
                 VEXTRINSxy(D, v0, q0, VEXTRINS_IMM_4_0(1, 1));
             } else {
                 VEXTRINSxy(W, v0, q0, VEXTRINS_IMM_4_0(1, 1));
