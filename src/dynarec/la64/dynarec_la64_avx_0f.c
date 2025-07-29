@@ -390,20 +390,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                         INST_NAME("VLDMXCSR Md");
                         GETED(0);
                         ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if (BOX64ENV(sse_flushto0)) {
-                            // sync with fpsr, with mask from mxcsr
-                            // TODO
-                        }
                         break;
                     case 3:
                         INST_NAME("VSTMXCSR Md");
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         LD_WU(x4, xEmu, offsetof(x64emu_t, mxcsr));
                         ST_W(x4, wback, fixedaddress);
-                        if (BOX64ENV(sse_flushto0)) {
-                            // sync with fpsr, with mask from mxcsr
-                            // TODO
-                        }
                         break;
                     default:
                         DEFAULT;

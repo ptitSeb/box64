@@ -1497,9 +1497,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
-                        if (BOX64ENV(sse_flushto0)) {
-                            // TODO
-                        }
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");

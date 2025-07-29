@@ -717,7 +717,7 @@ Always show SIGSEGV signal detailes.
 
 =item B<BOX64_SSE_FLUSHTO0> =I<0|1>
 
-Behaviour of SSE Flush to 0 flags. Availble in WowBox64.
+Behaviour of SSE Flush to 0 flags. Does not apply to RISC-V or LoongArch. Availble in WowBox64.
 
  * 0 : Just track the flag. [Default]
  * 1 : Apply SSE Flush to 0 flag directly. 

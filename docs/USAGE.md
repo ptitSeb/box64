@@ -489,7 +489,7 @@ Expose SHAEXT (a.k.a. SHA_NI) capabilities.
 
 ### BOX64_SSE_FLUSHTO0
 
-Behaviour of SSE Flush to 0 flags. Availble in WowBox64.
+Behaviour of SSE Flush to 0 flags. Does not apply to RISC-V or LoongArch. Availble in WowBox64.
 
  * 0: Just track the flag. [Default]
  * 1: Apply SSE Flush to 0 flag directly. 
