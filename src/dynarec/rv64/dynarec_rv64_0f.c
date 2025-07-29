@@ -1977,11 +1977,68 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         SW(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if (BOX64ENV(sse_flushto0)) {
+                            /* RV <-> x86
+                               0  <-> 5    inexact
+                               1  <-> 4    underflow
+                               2  <-> 3    overflow
+                               3  <-> 2    divide by zero
+                               x  <-> 1    denormal
+                               4  <-> 0    invalid operation
+                            */
+                            // Doing x86 -> RV here, 543210 => 0123x4, ignore denormal
+                            if (ed != x1) MV(x1, ed);
+                            // x5 = (x1 & 0b1) << 4
+                            SLLIW(x5, x1, 4);
+                            ANDI(x5, x5, 16);
+                            // x3 = x5 | ((x1 & 0b100) << 1);
+                            SLLIW(x3, x1, 1);
+                            ANDI(x3, x3, 8);
+                            OR(x3, x3, x5);
+                            // x3 = x3 | (x1 & 0b1000) >> 1;
+                            SRLIW(x4, x1, 1);
+                            ANDI(x4, x4, 4);
+                            OR(x3, x3, x4);
+                            // x3 = x3 | (x1 & 0b10000) >> 3;
+                            SRLIW(x5, x1, 3);
+                            ANDI(x5, x5, 2);
+                            OR(x3, x3, x5);
+                            // x3 = x3 | (x1 & 0b100000) >> 5;
+                            SRLIW(x5, x1, 5);
+                            ANDI(x5, x5, 1);
+                            OR(x3, x3, x5);
+                            CSRRW(xZR, x3, /* fflags */ 0x001);
+                        }
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        if (BOX64ENV(sse_flushto0)) {
+                            // Doing RV -> x86, 43210 => 02345, ignore denormal
+                            ANDI(x4, x4, 0xfc0);
+                            CSRRS(x3, xZR, /* fflags */ 0x001);
+                            // x4 = x4 | (x3 & 0b1) << 5;
+                            SLLIW(x5, x3, 5);
+                            ANDI(x5, x5, 32);
+                            OR(x4, x4, x5);
+                            // x4 = x4 | (x3 & 0b10) << 3;
+                            SLLIW(x6, x3, 3);
+                            ANDI(x6, x6, 16);
+                            OR(x4, x4, x6);
+                            // x4 = x4 | (x3 & 0b100) << 1;
+                            SLLIW(x6, x3, 1);
+                            ANDI(x6, x6, 8);
+                            OR(x4, x4, x6);
+                            // x4 = x4 | (x3 & 0b1000) >> 1;
+                            SRLIW(x5, x3, 1);
+                            ANDI(x5, x5, 4);
+                            OR(x4, x4, x5);
+                            // x4 = x4 | (x3 & 0b10000) >> 4;
+                            SRLIW(x5, x3, 4);
+                            ANDI(x5, x5, 2);
+                            OR(x4, x4, x5);
+                        }
                         SW(x4, wback, fixedaddress);
                         break;
                     case 4:

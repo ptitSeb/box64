@@ -1549,7 +1549,7 @@
   },
   {
     "name": "BOX64_SSE_FLUSHTO0",
-    "description": "Behaviour of SSE Flush to 0 flags. Does not apply to RISC-V or LoongArch.",
+    "description": "Behaviour of SSE Flush to 0 flags.",
     "category": "Compatibility",
     "wine": true,
     "options": [
