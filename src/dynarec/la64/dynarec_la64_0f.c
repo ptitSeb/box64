@@ -790,7 +790,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SKIPTEST(x1);
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            VFRSQRT_S(q1, q0);
+            if(cpuext.frecipe){
+                VFRSQRTE_S(q1, q0);
+            } else {
+                VFRSQRT_S(q1, q0);
+            }
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
@@ -798,7 +802,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SKIPTEST(x1);
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            // TODO: use v1.1 vfrecipe when possible
+            if(cpuext.frecipe){
+                VFRECIPE_S(q1, q0);
+            }else{
+                VFRECIP_S(q1, q0);
+            }
             VFRECIP_S(q1, q0);
             break;
         case 0x54:

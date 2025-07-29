@@ -16,6 +16,7 @@ typedef sigset_t __sigset_t;
 #define SIGTRAP 5
 #define SIGSEGV 11
 
+#undef pthread_sigmask
 #define pthread_sigmask(a, b, c) 0
 #endif
 

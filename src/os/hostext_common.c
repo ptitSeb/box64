@@ -39,6 +39,8 @@ void PrintHostCpuFeatures(void)
         printf_log_prefix(0, LOG_INFO, " LAMCAS");
     if (cpuext.scq)
         printf_log_prefix(0, LOG_INFO, " SCQ");
+    if (cpuext.frecipe)
+        printf_log_prefix(0, LOG_INFO, " FRECIP");
     printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(RV64)
     printf_log(LOG_INFO, "Dynarec for rv64g");

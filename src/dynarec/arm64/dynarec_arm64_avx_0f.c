@@ -647,21 +647,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                         if(BOX64ENV(sse_flushto0)) {
                             // try to sync mxcsr with fpsr on the flag side
                             /* mapping is 
-                                ARM -> X86
-                                0 -> 0  // Invalid operation
-                                1 -> 2  // Divide by 0
-                                2 -> 3  // Overflow
-                                3 -> 4  // underflow
-                                4 -> 5  // Inexact
-                                5 -> 1  // denormal
+                                ARM <-> X86
+                                 0  <->  0  // Invalid operation
+                                 1  <->  2  // Divide by 0
+                                 2  <->  3  // Overflow
+                                 3  <->  4  // underflow
+                                 4  <->  5  // Inexact
+                                 5  <->  1  // denormal
                             */
-                            // doing X86 -> ARM here, 0 1 2 3 4 5 -> 0 2 3 4 5 1
+                            // doing X86 -> ARM here, 543210 => 432150
                             if(ed!=x1)
                                 MOVw_REG(x1, ed);   // x1 = 543210
-                            RORw(x3, x1, 2);    // x3 = 10.....5432
-                            BFIw(x1, x3, 1, 4); // x1 = 54320
-                            RORw(x3, x3, 32-1); // x3 = 0.....54321
-                            BFIw(x1, x3, 5, 1); // x1 = 154320
+                            UBFXw(x2, x1, 1, 5);   // x2 = 54321
+                            BFIw(x1, x2, 2, 4); // x1 = 432110
+                            LSRw(x2, x2, 4);    // x2 = 5
+                            BFIw(x1, x2, 1, 1); // x1 = 432150
                             MRS_fpsr(x2);
                             BFIx(x2, x1, 0, 6);
                             MSR_fpsr(x2);
@@ -671,18 +671,18 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                         INST_NAME("VSTMXCSR Md");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                         LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
-                        STW(x4, ed, fixedaddress);
                         if(BOX64ENV(sse_flushto0)) {
                             // sync with fpsr, with mask from mxcsr
                             MRS_fpsr(x1);
-                            // doing ARM -> X86 here,  543210 => 432150
-                            UBFXw(x2, x1, 1, 5);   // x2 = 54321
-                            BFIw(x1, x2, 2, 4); // x1 = 432110
-                            LSRw(x2, x2, 4);    // x2 = 5
-                            BFIw(x1, x2, 1, 1); // x1 = 432150
+                            // doing ARM -> X86 here,  0 1 2 3 4 5 -> 0 2 3 4 5 1
+                            RORw(x3, x1, 2);    // x3 = 10.....5432
+                            BFIw(x1, x3, 1, 4); // x1 = 54320
+                            RORw(x3, x3, 32-1); // x3 = 0.....54321
+                            BFIw(x1, x3, 5, 1); // x1 = 154320
                             //BFXILw(x3, x4, 7, 6); // this would the mask, but let's ignore that for now
                             BFIw(x4, x1, 0, 6); // inject back the flags
                         }
+                        STW(x4, ed, fixedaddress);
                         break;
                     default:
                         DEFAULT;
