@@ -3287,4 +3287,12 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                                     \
     } while (0)
 
+#define VSEQxy(width, vd, vj, vk)      \
+    do {                               \
+        if (vex.l) {                   \
+            XVSEQ_##width(vd, vj, vk); \
+        } else {                       \
+            VSEQ_##width(vd, vj, vk);  \
+        }                              \
+    } while (0)
 #endif //__ARM64_EMITTER_H__
