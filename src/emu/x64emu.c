@@ -607,6 +607,8 @@ void applyFlushTo0(x64emu_t* emu)
     #else
     __builtin_aarch64_set_fpcr(fpcr);
     #endif
+    #else
+    // This does not applies to RISC-V and LoongArch, as they don't have flush to zero
     #endif
 }
 

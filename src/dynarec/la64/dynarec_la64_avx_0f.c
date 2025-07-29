@@ -454,19 +454,48 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                         GETED(0);
                         ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
                         if (BOX64ENV(sse_flushto0)) {
-                            // sync with fpsr, with mask from mxcsr
-                            // TODO
+                            /* LA <-> x86
+                            16/24 <-> 5    inexact
+                            17/25 <-> 4    underflow
+                            18/26 <-> 3    overflow
+                            19/27 <-> 2    divide by zero
+                                x <-> 1    denormal
+                            20/28 <-> 0    invalid operation
+                            */
+                            // Doing x86 -> LA here, ignore denormal
+                            XOR(x4, x4, x4);
+                            BSTRPICK_W(x3, ed, 5, 5);
+                            BSTRINS_W(x4, x3, 16, 16);
+                            BSTRPICK_W(x3, ed, 4, 4);
+                            BSTRINS_W(x4, x3, 17, 17);
+                            BSTRPICK_W(x3, ed, 3, 3);
+                            BSTRINS_W(x4, x3, 18, 18);
+                            BSTRPICK_W(x3, ed, 2, 2);
+                            BSTRINS_W(x4, x3, 19, 19);
+                            BSTRPICK_W(x3, ed, 0, 0);
+                            BSTRINS_W(x4, x3, 20, 20);
+                            MOVGR2FCSR(FCSR2, x4);
                         }
                         break;
                     case 3:
                         INST_NAME("VSTMXCSR Md");
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         LD_WU(x4, xEmu, offsetof(x64emu_t, mxcsr));
-                        ST_W(x4, wback, fixedaddress);
                         if (BOX64ENV(sse_flushto0)) {
-                            // sync with fpsr, with mask from mxcsr
-                            // TODO
+                            MOVFCSR2GR(x5, FCSR2);
+                            // Doing LA -> x86 here, ignore denormal
+                            BSTRPICK_W(x3, x5, 16, 16);
+                            BSTRINS_W(x4, x3, 5, 5);
+                            BSTRPICK_W(x3, x5, 17, 17);
+                            BSTRINS_W(x4, x3, 4, 4);
+                            BSTRPICK_W(x3, x5, 18, 18);
+                            BSTRINS_W(x4, x3, 3, 3);
+                            BSTRPICK_W(x3, x5, 19, 19);
+                            BSTRINS_W(x4, x3, 2, 2);
+                            BSTRPICK_W(x3, x5, 20, 20);
+                            BSTRINS_W(x4, x3, 0, 0);
                         }
+                        ST_W(x4, wback, fixedaddress);
                         break;
                     default:
                         DEFAULT;
