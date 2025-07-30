@@ -383,6 +383,31 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
+        case 0x5A:
+            INST_NAME("VCVTPS2PD Gx, Ex");
+            nextop = F8;
+            if(vex.l){
+                GETEYx(v1, 0 ,0);
+            } else {
+                GETEYSD(v1, 0, 0);
+            }
+            GETGYxy_empty(v0);
+            if(!BOX64ENV(dynarec_fastround)) {
+                u8 = sse_setround(dyn, ninst, x6, x4);
+            }
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if(vex.l) {
+                XVFCVTH_D_S(d0, v1);
+                XVFCVTL_D_S(v0, v1);
+                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2));
+            } else {
+                VFCVTL_D_S(v0, v1);
+            }
+            if(!BOX64ENV(dynarec_fastround)) {
+                x87_restoreround(dyn, ninst, u8);
+            }
+            break;
         case 0x5C:
             INST_NAME("VSUBPS Gx, Vx, Ex");
             nextop = F8;

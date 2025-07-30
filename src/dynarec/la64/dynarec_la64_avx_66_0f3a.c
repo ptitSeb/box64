@@ -53,7 +53,14 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
-
+#if STEP > 1
+    static const int8_t round_round[] = {
+        0x3, // round to nearest with ties to even
+        0x0, // round toward minus infinity
+        0x1, // round toward plus infinity
+        0x2  // round toward zero
+    };
+#endif
     rex_t rex = vex.rex;
 
     switch (opcode) {
@@ -165,6 +172,84 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 XVORI_B(v0, vec_lo ? v2 : v1, 0);
                 XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2 + index_lo));
             }
+            break;
+        case 0x08:
+            INST_NAME("VROUNDPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            if (u8 & 4) {
+                u8 = sse_setround(dyn, ninst, x1, x2);
+                if(vex.l) {
+                    XVFRINT_S(v0, v1);
+                } else {
+                    VFRINT_S(v0, v1);
+                }
+                x87_restoreround(dyn, ninst, u8);
+            } else {
+                if(vex.l) {
+                    XVFRINTRRD_S(v0, v1, round_round[u8 & 3]);
+                } else {
+                    VFRINTRRD_S(v0, v1, round_round[u8 & 3]);
+                }
+            }
+            break;
+        case 0x09:
+            INST_NAME("VROUNDPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 1);
+            u8 = F8;
+            if (u8 & 4) {
+                u8 = sse_setround(dyn, ninst, x1, x2);
+                if(vex.l) {
+                    XVFRINT_D(v0, v1);
+                } else {
+                    VFRINT_D(v0, v1);
+                }
+                x87_restoreround(dyn, ninst, u8);
+            } else {
+                if(vex.l) {
+                    XVFRINTRRD_D(v0, v1, round_round[u8 & 3]);
+                } else {
+                    VFRINTRRD_D(v0, v1, round_round[u8 & 3]);
+                }
+            }
+            break;
+        case 0x0A:
+            INST_NAME("VROUNDSS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEYSS(v2, 0, 1);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            if (u8 & 4) {
+                u8 = sse_setround(dyn, ninst, x1, x2);
+                VFRINT_S(d0, v2);
+                x87_restoreround(dyn, ninst, u8);
+            } else {
+                VFRINTRRD_S(d0, v2, round_round[u8 & 3]);
+            }
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VEXTRINS_W(v0, d0, 0);
+            break;
+        case 0x0B:
+            INST_NAME("VROUNDSD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEYSD(v2, 0, 1);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            if (u8 & 4) {
+                u8 = sse_setround(dyn, ninst, x1, x2);
+                VFRINT_D(d0, v2);
+                x87_restoreround(dyn, ninst, u8);
+            } else {
+                VFRINTRRD_D(d0, v2, round_round[u8 & 3]);
+            }
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VEXTRINS_D(v0, d0, 0);
             break;
         case 0x0D:
             INST_NAME("VBLENDPD Gx, Vx, Ex, Ib");
