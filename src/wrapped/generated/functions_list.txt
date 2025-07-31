@@ -5130,6 +5130,8 @@ wrappedlibm:
   - __fmod_finite
   - __hypot_finite
   - __pow_finite
+- DFDD:
+  - __powl_finite
 wrappedlibncurses:
 - pFv:
   - initscr

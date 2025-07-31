@@ -27,6 +27,9 @@ typedef float   (*fFff_t)   (float, float);
 typedef double  (*dFdd_t)   (double, double);
 typedef float   (*fFf_t)    (float);
 typedef double  (*dFd_t)    (double);
+#ifdef HAVE_LD80BITS
+typedef long double (*DFDD_t) (long double, long double);
+#endif
 
 #undef GO_cFc
 
@@ -80,6 +83,12 @@ F1F(logf)
 F1D(log)
 F2F(fmodf)
 F2D(fmod)
+
+#ifdef HAVE_LD80BITS
+FINITE(powl, DFDD_t, long double, (long double a, long double b), a, b)
+#else
+EXPORT double my___powl_finite(double a, double b) __attribute__((alias("my___pow_finite")));
+#endif
 
 #undef F2D
 #undef F2F

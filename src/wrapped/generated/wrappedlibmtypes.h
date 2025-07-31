@@ -25,9 +25,11 @@ typedef double (*dFdd_t)(double, double);
 #if defined(HAVE_LD80BITS) || defined(ANDROID)
 typedef int64_t (*IFD_t)(long double);
 typedef long double (*DFD_t)(long double);
+typedef long double (*DFDD_t)(long double, long double);
 #else // !HAVE_LD80BITS && !ANDROID
 typedef int64_t (*IFD_t)(double);
 typedef double (*DFD_t)(double);
+typedef double (*DFDD_t)(double, double);
 #endif
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -74,6 +76,7 @@ typedef double (*DFD_t)(double);
 	GO(__atan2_finite, dFdd_t) \
 	GO(__fmod_finite, dFdd_t) \
 	GO(__hypot_finite, dFdd_t) \
-	GO(__pow_finite, dFdd_t)
+	GO(__pow_finite, dFdd_t) \
+	GO(__powl_finite, DFDD_t)
 
 #endif // __wrappedlibmTYPES_H_
