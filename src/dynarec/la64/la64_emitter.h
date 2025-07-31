@@ -1800,6 +1800,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVFRINTRZ_D(xd, xj)          EMIT(type_2R(0b0111011010011101011010, xj, xd))
 #define XVFRINTRNE_S(xd, xj)         EMIT(type_2R(0b0111011010011101011101, xj, xd))
 #define XVFRINTRNE_D(xd, xj)         EMIT(type_2R(0b0111011010011101011110, xj, xd))
+#define XVFRINTRRD_S(vd, vj, rm)     EMIT(type_2RI4(0b011101101001110101, ((rm & 0b11) << 2) | 0b01, vj, vd))
+#define XVFRINTRRD_D(vd, vj, rm)     EMIT(type_2RI4(0b011101101001110101, ((rm & 0b11) << 2) | 0b10, vj, vd))
 #define XVFCVTL_S_H(xd, xj)          EMIT(type_2R(0b0111011010011101111010, xj, xd))
 #define XVFCVTH_S_H(xd, xj)          EMIT(type_2R(0b0111011010011101111011, xj, xd))
 #define XVFCVTL_D_S(xd, xj)          EMIT(type_2R(0b0111011010011101111100, xj, xd))

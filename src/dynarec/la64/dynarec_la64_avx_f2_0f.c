@@ -172,6 +172,17 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d0, 0);
             break;
+        case 0x5A:
+            INST_NAME("VCVTSD2SS Gx, Vx, Ex");
+            nextop = F8;
+            GETEYSD(v2, 0, 0);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            d0 = fpu_get_scratch(dyn);
+            FCVT_S_D(d0, v2);
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            XVINSVE0_W(v0, d0, 0);
+            break;
         case 0x5C:
             INST_NAME("VSUBSD Gx, Vx, Ex");
             nextop = F8;

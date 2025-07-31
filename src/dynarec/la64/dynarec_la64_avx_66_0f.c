@@ -356,6 +356,28 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
+        case 0x5A:
+            INST_NAME("CVTPD2PS Gx, Ex");
+            nextop = F8;
+            GETEYxy(v1, 0, 0);
+            GETGYx_empty(v0);
+            if(!BOX64ENV(dynarec_fastround)) {
+                u8 = sse_setround(dyn, ninst, x6, x4);
+            }
+            d0 = fpu_get_scratch(dyn);
+            if(vex.l) {
+                XVXOR_V(d0, d0, d0);
+                XVFCVT_S_D(v0, d0, v1);
+                XVPERMI_D(v0, v0, 0b11011000);
+            } else {
+                VFCVT_S_D(d0, v1, v1);
+                XVPICKVE_D(v0, d0, 0);
+                YMM_UNMARK_UPPER_ZERO(v0);
+            }
+            if(!BOX64ENV(dynarec_fastround)) {
+                x87_restoreround(dyn, ninst, u8);
+            }
+            break;
         case 0x5C:
             INST_NAME("VSUBPD Gx, Vx, Ex");
             nextop = F8;
