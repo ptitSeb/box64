@@ -29,7 +29,7 @@ GO(avcodec_configuration, pFv)
 //GOM(avcodec_dct_alloc, pFEv)
 //GOM(avcodec_dct_get_class, pFEv)
 //GOM(avcodec_dct_init, iFEp)
-//GOM(avcodec_decode_subtitle2, iFEpppp)
+GO(avcodec_decode_subtitle2, iFpppp) // AVCodecContext *, AVSubtitle *, AVPacket *
 //GOM(avcodec_default_execute, iFEppppii)
 //GOM(avcodec_default_execute2, iFEppppi)
 GO(avcodec_default_get_buffer2, iFppi)
