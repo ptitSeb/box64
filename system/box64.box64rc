@@ -964,6 +964,9 @@ BOX64_DYNAREC_CALLRET=0
 [StarRail.exe]
 BOX64_DYNAREC_SAFEFLAGS=2
 
+[ZoomLauncher]
+BOX64_MALLOC_HACK=2
+
 #
 # 32bits Linux process
 # 
