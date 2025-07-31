@@ -129,13 +129,13 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
 
-                    case 0x18:
-                    case 0x19:
-                    case 0x1F:
-                        INST_NAME("NOP (multibyte)");
-                        nextop = F8;
-                        FAKEED;
-                        break;
+                case 0x18:
+                case 0x19:
+                case 0x1F:
+                    INST_NAME("NOP (multibyte)");
+                    nextop = F8;
+                    FAKEED;
+                    break;
                 default:
                     DEFAULT;
             }
