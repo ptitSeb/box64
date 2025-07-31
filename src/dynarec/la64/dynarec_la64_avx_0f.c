@@ -408,6 +408,17 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 x87_restoreround(dyn, ninst, u8);
             }
             break;
+        case 0x5B:
+            INST_NAME("VCVTDQ2PS Gx, Ex");
+            nextop = F8;
+            GETEYxy(v1, 0, 0);
+            GETGYxy_empty(v0);
+            if(vex.l){
+                XVFFINT_S_W(v0, v1);
+            }else{
+                VFFINT_S_W(v0, v1);
+            }
+            break;
         case 0x5C:
             INST_NAME("VSUBPS Gx, Vx, Ex");
             nextop = F8;

@@ -100,6 +100,91 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VPACKOD_W(q0, q1, q1);
             }
             break;
+        case 0x2A:
+            INST_NAME("VCVTSI2SS Gx, Vx, Ed");
+            nextop = F8;
+            GETED(0);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastround)) {
+                u8 = sse_setround(dyn, ninst, x2, x3);
+            }
+            if (rex.w) {
+                MOVGR2FR_D(d1, ed);
+                FFINT_S_L(d1, d1);
+            } else {
+                MOVGR2FR_W(d1, ed);
+                FFINT_S_W(d1, d1);
+            }
+            if (!BOX64ENV(dynarec_fastround)) {
+                x87_restoreround(dyn, ninst, u8);
+            }
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VEXTRINS_W(v0, d1, 0);
+            break;
+        case 0x2C:
+            INST_NAME("VCVTTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEYSS(d0, 0, 0);
+            if (!BOX64ENV(dynarec_fastround)) {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+            }
+            u8 = sse_setround(dyn, ninst, x5, x6);
+            d1 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                FTINTRZ_L_S(d1, d0);
+                MOVFR2GR_D(gd, d1);
+            } else {
+                FTINTRZ_W_S(d1, d0);
+                MOVFR2GR_S(gd, d1);
+                ZEROUP(gd);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            if (!BOX64ENV(dynarec_fastround)) {
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
+        case 0x2D:
+            INST_NAME("VCVTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEYSS(d0, 0, 0);
+            if (!BOX64ENV(dynarec_fastround)) {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+            }
+            u8 = sse_setround(dyn, ninst, x5, x6);
+            d1 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                FTINT_L_S(d1, d0);
+                MOVFR2GR_D(gd, d1);
+            } else {
+                FTINT_W_S(d1, d0);
+                MOVFR2GR_S(gd, d1);
+                ZEROUP(gd);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            if (!BOX64ENV(dynarec_fastround)) {
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
         case 0x51:
             INST_NAME("VSQRTSS Gx, Vx, Ex");
             nextop = F8;
@@ -196,6 +281,36 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             FCVT_D_S(d1, v2);
             if(v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d1, 0);
+            break;
+        case 0x5B:
+            INST_NAME("VCVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(v0, v1, 0);
+            if(vex.l){
+                d1 = fpu_get_scratch(dyn);
+                XVFTINTRZ_W_S(d1, v1);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    q0 = fpu_get_scratch(dyn);
+                    q1 = fpu_get_scratch(dyn); // mask
+                    d0 = fpu_get_scratch(dyn);
+                    XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
+                    XVLDI(d0, (0b10011 << 8) | 0x4f);
+                    XVFCMP_S(q1, d0, v1, cULE); // get Nan,+overflow mark
+                    XVBITSEL_V(v0, d1, q0, q1);
+                }
+            } else {
+                d1 = fpu_get_scratch(dyn);
+                VFTINTRZ_W_S(d1, v1);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    q0 = fpu_get_scratch(dyn);
+                    q1 = fpu_get_scratch(dyn); // mask
+                    d0 = fpu_get_scratch(dyn);
+                    VLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
+                    VLDI(d0, (0b10011 << 8) | 0x4f);
+                    VFCMP_S(q1, d0, v1, cULE); // get Nan,+overflow mark
+                    VBITSEL_V(v0, d1, q0, q1);
+                }
+            }
             break;
         case 0x5C:
             INST_NAME("VSUBSS Gx, Vx, Ex");
