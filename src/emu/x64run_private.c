@@ -63,19 +63,19 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
 #endif
         printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip, is32bits));
         if(R_RIP==0) {
-            printf_log(LOG_NONE, "Running at NULL address\n");
+            printf_log_prefix(0, LOG_NONE, "Running at NULL address\n");
             mutex_unlock(&my_context->mutex_trace);
             return;
         }
         if (PK(0) == 0xcc && IsBridgeSignature(PK(1), PK(2))) {
             uint64_t a = *(uint64_t*)(ip+3);
             if(a==0) {
-                printf_log(LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
+                printf_log_prefix(0, LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
             } else {
-                printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11)));
+                printf_log_prefix(0, LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11)));
             }
         } else {
-            printf_log(LOG_NONE, "%s", DecodeX64Trace(is32bits ? my_context->dec32 : my_context->dec, ip, 1));
+            printf_log_prefix(0, LOG_NONE, "%s", DecodeX64Trace(is32bits ? my_context->dec32 : my_context->dec, ip, 1));
             uint8_t peek = PK(0);
             rex_t rex = {0};
             if(!is32bits && peek>=0x40 && peek<=0x4f) {
