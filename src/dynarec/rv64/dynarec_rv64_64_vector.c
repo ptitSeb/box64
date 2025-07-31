@@ -71,6 +71,8 @@ uintptr_t dynarec64_64_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     DEFAULT_VECTOR;
                 case 0x6F:
                     DEFAULT_VECTOR;
+                default:
+                    DEFAULT_VECTOR;
             }
             break;
         default:
