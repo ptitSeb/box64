@@ -827,7 +827,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 if (rex.w) {
                     VPICKVE2GR_D(ed, v0, 0);
                 } else {
-                    VPICKVE2GR_W(ed, v0, 0);
+                    VPICKVE2GR_WU(ed, v0, 0);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);

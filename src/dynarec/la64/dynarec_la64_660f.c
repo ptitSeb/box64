@@ -2519,7 +2519,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v1 = fpu_get_scratch(dyn);
             VREPLVEI_D(v0, q1, 0);
             VLDI(v1, (0b011 << 10) | 0x3f);
-            VSLEI_DU(v1, v0, v1);
+            VSLE_DU(v1, v0, v1);
             VSLL_D(q0, q0, v0);
             VAND_V(q0, q0, v1);
             break;

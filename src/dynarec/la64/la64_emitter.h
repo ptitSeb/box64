@@ -3288,18 +3288,18 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                               \
     } while (0)
 
-#define VREPLVEIxy(width, vd, vj, imm)        \
-    do {                                      \
-        if (vex.l) {                          \
-            if (imm > 0) {                    \
-                ADDI_D(x5, xZR, imm);         \
-                XVREPLVE_##width(vd, vj, x5); \
-            } else {                          \
-                XVREPLVE0_##width(vd, vj);    \
-            }                                 \
-        } else {                              \
-            VREPLVEI_##width(vd, vj, imm);    \
-        }                                     \
+#define VREPLVEIxy(width, vd, vj, imm)         \
+    do {                                       \
+        if (vex.l) {                           \
+            if (imm > 0) {                     \
+                ADDI_D(x5, xZR, imm);          \
+                XVREPLVE_##width(vd, vj, x5);  \
+            } else {                           \
+                XVREPLVE_##width(vd, vj, xZR); \
+            }                                  \
+        } else {                               \
+            VREPLVEI_##width(vd, vj, imm);     \
+        }                                      \
     } while (0)
 
 #define VSEQxy(width, vd, vj, vk)      \
