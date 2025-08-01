@@ -1277,7 +1277,7 @@ GO(mbtowc, iFppL)
 //GOM(mcheck, iFp)
 GO(mcheck_check_all, vFv)
 //GOM(mcheck_pedantic, iFp)
-//GO(_mcleanup, 
+GO(_mcleanup, vFv)
 GO(_mcount, vFpp)
 GO2(mcount, vFpp, _mcount)
 GO(memalign, pFLL)
@@ -1329,8 +1329,8 @@ GOW(modf, dFdp)
 GOW(modff, fFfp)
 GOWD(modfl, DFDp, modf)
 //GOW(modify_ldt, 
-//GOW(moncontrol, 
-//GO(__monstartup, 
+//GOW(moncontrol,
+GO(__monstartup, vFLL)
 #ifdef STATICBUILD
 //GOW(monstartup, vFLL)
 #else
