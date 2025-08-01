@@ -435,6 +435,38 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             }
             break;
+        case 0x1D:
+            INST_NAME("VCVTPS2PH Ex, Gx, Ib");
+            nextop = F8;
+            GETGYxy(v0, 0);
+            if(vex.l) {
+                GETEYx(v1, 1, 1);
+            } else {
+                GETEYSD(v1, 1, 1);
+            }
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            if (u8 & 4) {
+                u8 = sse_setround(dyn, ninst, x1, x2);
+            } else {
+                MOVFCSR2GR(x4, FCSR3);
+                ORI(x5, x5, round_round[u8&3]);
+                SLLI_D(x5, x5, 8);
+                MOVGR2FCSR(FCSR3, x5);
+                u8 = x4;
+            }
+            if(vex.l){
+                XVXOR_V(d0, d0, d0);
+                XVFCVT_H_S(v1, d0, v0);
+                XVPERMI_D(v1, v1, 0b11011000);
+                PUTEYx(v1);
+            } else {
+                XVXOR_V(d0, d0, d0);
+                VFCVT_H_S(v1, d0, v0);
+                PUTEYSD(v1);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            break;
         case 0x21:
             INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
             nextop = F8;

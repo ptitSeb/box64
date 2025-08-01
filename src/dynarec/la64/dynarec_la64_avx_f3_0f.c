@@ -476,6 +476,22 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             XVINSVE0_W(v0, q0, 0);
             YMM_UNMARK_UPPER_ZERO(v0);
             break;
+        case 0xE6:
+            INST_NAME("CVTDQ2PD Gx, Ex");
+            nextop = F8;
+            d0 = fpu_get_scratch(dyn);
+            if(vex.l){
+                GETEYx(v1, 0, 0);
+                GETGYy_empty(v0);
+                XVFFINTL_D_W(v0, v1);
+                XVFFINTH_D_W(d0, v1);
+                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2));
+            }else{
+                GETEYSD(v1, 0, 0);
+                GETGYx_empty(v0);
+                VFFINTL_D_W(v0, v1);
+            }
+            break;
         default:
             DEFAULT;
     }
