@@ -438,6 +438,8 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                     strcat(buff, tmp);
 #undef FLAG_CHAR
                 }
+            } else {
+                strcat(buff, " ");
             }
         }
     else
@@ -470,12 +472,14 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 } else {
                     strcat(buff, "\n");
                 }
+            } else {
+                strcat(buff, " ");
             }
     }
     if(is32bits)
-        sprintf(tmp, "EIP=%08" PRIx64, ip);
+        sprintf(tmp, "EIP=%08" PRIx64 " ", ip);
     else
-        sprintf(tmp, "RIP=%016" PRIx64, ip);
+        sprintf(tmp, "RIP=%016" PRIx64 " ", ip);
     strcat(buff, tmp);
     return buff;
 }
