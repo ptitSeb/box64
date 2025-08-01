@@ -2721,8 +2721,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGM(d0);
             GETEM(d1, 0);
             v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
+            UQXTN_32(v1, d1);
             MOVI_32(v0, 64);
-            UMIN_32(v0, v0, d1);    // limit to 0 .. +64 values (will force 32bits upper part to 0)
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +64 values
             NEG_32(v0, v0);
             UXTL_32(v0, v0);
             USHL_R_64(d0, d0, v0);
