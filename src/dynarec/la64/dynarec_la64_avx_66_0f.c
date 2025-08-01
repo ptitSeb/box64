@@ -1099,6 +1099,47 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMUHxy(H, v0, v1, v2);
             break;
+        case 0xE6:
+            INST_NAME("VCVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEYxy(v1, 0, 0);
+            GETGYx_empty(v0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if(vex.l){
+                XVXOR_V(d0, d0, d0);
+                XVFTINTRZ_W_D(d1, d0, v1);       // v0 [lo0, lo1, --, --, hi0, hi1, --, -- ]
+                if (!BOX64ENV(dynarec_fastround)) {
+                    q0 = fpu_get_scratch(dyn);
+                    q1 = fpu_get_scratch(dyn);
+                    XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
+                    /*
+                        VCVTTPD2DQ has default rounding mode RZ
+                        so we could combine +-NAN +overflow to xvfcmp.cule 0x41e0000000000000
+                    */
+                    LU52I_D(x5, xZR, 0x41e);
+                    XVREPLGR2VR_D(q1, x5);       
+                    XVFCMP_D(d0, q1, v1, cULE); // get Nan mask
+                    XVSRLNI_W_D(d0, d0, 0);
+                    XVBITSEL_V(v0, d1, q0, d0);
+                }
+                XVPERMI_D(v0, v0, 0b11011000);
+            }else{
+                VFTINTRZ_W_D(d0, v1, v1);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    q0 = fpu_get_scratch(dyn);
+                    q1 = fpu_get_scratch(dyn);
+                    XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
+                    LU52I_D(x5, xZR, 0x41e);
+                    XVREPLGR2VR_D(q1, x5);       
+                    XVFCMP_D(q1, q1, v1, cULE); // get Nan mask
+                    VSHUF4I_W(q1, q1, 0b11011000);
+                    VBITSEL_V(d0, d0, q0, q1);
+                }
+                XVPICKVE_D(v0, d0, 0);
+                YMM_UNMARK_UPPER_ZERO(v0);
+            }
+            break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex, Gx");
             nextop = F8;

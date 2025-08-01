@@ -256,6 +256,20 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             MARK2;
             break;
+        case 0x13:
+            INST_NAME("VCVTPH2PS Gx, Ex");
+            nextop = F8;
+            GETEYSD(v1, 0, 0);
+            GETGYxy_empty(v0);
+            d0 = fpu_get_scratch(dyn);
+            if(vex.l) {
+                XVFCVTH_S_H(d0, v1);
+                XVFCVTL_S_H(v0, v1);
+                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2));
+            } else {
+                VFCVTL_S_H(v0, v1);
+            }
+            break;
         case 0x16:
             INST_NAME("VPERMPS Gx, Vx, Ex");
             nextop = F8;
