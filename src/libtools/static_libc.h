@@ -195,6 +195,7 @@ extern size_t __mbsnrtowcs_chk(wchar_t*, const char**, size_t, size_t, mbstate_t
 extern size_t __mbsrtowcs_chk(wchar_t*, const char**, size_t, mbstate_t*, size_t);
 extern size_t __mbstowcs_chk(wchar_t*, const char*, size_t, size_t);
 extern void _mcount(void*, void*);
+extern void _mcleanup();
 extern void* __memcpy_chk(void*, void*, size_t, size_t);
 extern void* __memmove_chk(void*, void*, size_t, size_t);
 extern void* __mempcpy_chk(void*, void*, size_t, size_t);
@@ -323,3 +324,4 @@ extern char *__xpg_basename(char *__path);
 void* dummy_pFLp(size_t a, void* b) {}
 void* dummy_pFpLLp(void* a, size_t b, size_t c, void* d) {}
 void* dummy__ZnwmSt11align_val_tRKSt9nothrow_t(size_t a, size_t b, void* c) {}
+extern void __monstartup(unsigned long, unsigned long);
