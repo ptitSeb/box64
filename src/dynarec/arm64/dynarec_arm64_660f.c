@@ -1388,10 +1388,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         CMPSw_REG(x3, x4);
                         CSELw(x3, x3, x4, cLT); // x3 is lmem
                         CMPSw_REG(x2, x4);
-                        CSELw(x2, x2, x4, cLT); // x2 is lreg
-                        CMPSw_REG(x2, x3);
-                        CSELw(x5, x3, x2, cLT); // x5 is max(lmem, lreg)
-                        CSELw(x2, x2, x3, cLT); // x2 is min(lmem, lreg)
+                        CSELw(x6, x2, x4, cLT); // x6 is lreg
+                        CMPSw_REG(x6, x3);
+                        CSELw(x5, x3, x6, cLT); // x5 is max(lmem, lreg)
+                        CSELw(x2, x6, x3, cLT); // x2 is min(lmem, lreg)
                         // x2 is min length 0-n_packed
                         MVNw_REG(x4, xZR);
                         LSLw_REG(x87pc, x4, x2);
@@ -1427,7 +1427,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                     BFIw(xFlags, x5, F_ZF, 1);
                                 }
                                 IFX(X_SF) {
-                                    CMPSw_REG(x2, x4);
+                                    CMPSw_REG(x6, x4);
                                     CSETw(x5, cLT);
                                     BFIw(xFlags, x5, F_SF, 1);
                                 }
