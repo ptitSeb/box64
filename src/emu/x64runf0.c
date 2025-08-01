@@ -942,34 +942,34 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
                             } else
                                 if(((uintptr_t)ED)&0x7) {
+                                    tmp64u = R_EAX | (((uint64_t)R_EDX)<<32);
                                     do {
                                         native_lock_get_b(ED);
-                                        tmp64u = ED->q[0];
-                                        if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
+                                        tmp64u2 = ED->q[0];
+                                        if(tmp64u == tmp64u2) {
                                             SET_FLAG(F_ZF);
                                             tmp32s = native_lock_write_b(ED, emu->regs[_BX].byte[0]);
                                             if(!tmp32s)
                                                 ED->q[0] = R_EBX|(((uint64_t)R_ECX)<<32);
                                         } else {
                                             CLEAR_FLAG(F_ZF);
-                                            R_RAX = tmp64u&0xffffffff;
-                                            R_RDX = (tmp64u>>32)&0xffffffff;
+                                            R_RAX = tmp64u2&0xffffffff;
+                                            R_RDX = (tmp64u2>>32)&0xffffffff;
                                             tmp32s = 0;
                                         }
                                     } while(tmp32s);
-                                } else
-                                do {
-                                    tmp64u = native_lock_read_dd(ED);
-                                    if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
+                                } else {
+                                    tmp64u = R_EAX | (((uint64_t)R_EDX)<<32);
+                                    tmp64u2 = R_EBX | (((uint64_t)R_ECX)<<32);
+                                    tmp64u2 = (uint64_t)native_lock_storeifref2(ED, (void*)tmp64u2, (void*)tmp64u);
+                                    if(tmp64u2==tmp64u) {
                                         SET_FLAG(F_ZF);
-                                        tmp32s = native_lock_write_dd(ED, R_EBX|(((uint64_t)R_ECX)<<32));
                                     } else {
                                         CLEAR_FLAG(F_ZF);
                                         R_RAX = tmp64u&0xffffffff;
                                         R_RDX = (tmp64u>>32)&0xffffffff;
-                                        tmp32s = 0;
                                     }
-                                } while(tmp32s);
+                                }
 #else
                             pthread_mutex_lock(&my_context->mutex_lock);
                             if(rex.w) {

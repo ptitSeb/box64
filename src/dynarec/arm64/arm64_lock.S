@@ -23,6 +23,7 @@
 .global arm64_lock_storeifnull
 .global arm64_lock_storeifnull_d
 .global arm64_lock_storeifref
+.global arm64_lock_storeifref2
 .global arm64_lock_storeifref_d
 .global arm64_lock_storeifref2_d
 .global arm64_lock_decifnot0b
@@ -319,6 +320,30 @@ arm64_atomic_storeifref2_d:
     // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return old [x0] value
     casal   w2, w1, [x0]
     mov     w0, w2
+    ret
+
+arm64_lock_storeifref2:
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
+    ldr     w3, [x3]
+    tbnz    w3, #0, arm64_atomic_storeifref2
+    dmb     ish
+1:
+    // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return old [x0] value
+    ldaxr   x3, [x0]
+    cmp     x2, x3
+    bne     2f
+    stlxr   w4, x1, [x0]
+    cbnz    w4, 1b
+2:
+    mov     x0, x3
+    ret
+
+arm64_atomic_storeifref2:
+    dmb     ish
+    // address is x0, value is x1, x1 store to x0 only if [x0] is x2. return old [x0] value
+    casal   x2, x1, [x0]
+    mov     x0, x2
     ret
 
 arm64_lock_decifnot0b:

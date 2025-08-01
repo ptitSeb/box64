@@ -55,11 +55,15 @@ extern void* arm64_atomic_storeifnull(void*p, void* val);
 extern void* arm64_lock_storeifref(void*p, void* val, void* ref);
 extern void* arm64_atomic_storeifref(void*p, void* val, void* ref);
 
+// Atomically store value to [p] only if [p] is ref. Return old [p] value (so val or old)
+extern void* arm64_lock_storeifref2(void*p, void* val, void* ref);
+extern void* arm64_atomic_storeifref2(void*p, void* val, void* ref);
+
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern uint32_t arm64_lock_storeifref_d(void*p, uint32_t val, uint32_t ref);
 extern uint32_t arm64_atomic_storeifref_d(void*p, uint32_t val, uint32_t ref);
 
-// Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
+// Atomically store value to [p] only if [p] is ref. Return old [p] value (so ref or old)
 extern uint32_t arm64_lock_storeifref2_d(void*p, uint32_t val, uint32_t ref);
 extern uint32_t arm64_atomic_storeifref2_d(void*p, uint32_t val, uint32_t ref);
 

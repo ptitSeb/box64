@@ -23,6 +23,9 @@ extern void* rv64_lock_storeifnull(void* p, void* val);
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern void* rv64_lock_storeifref(void* p, void* val, void* ref);
 
+// Atomically store value to [p] only if [p] is ref. Return old [p] value (so ref or old)
+extern void* rv64_lock_storeifref2(void* p, void* val, void* ref);
+
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern uint32_t rv64_lock_storeifref_d(void* p, uint32_t val, uint32_t ref);
 

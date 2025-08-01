@@ -10,6 +10,7 @@
 .global rv64_lock_storeifnull
 .global rv64_lock_storeifnull_d
 .global rv64_lock_storeifref
+.global rv64_lock_storeifref2
 .global rv64_lock_storeifref_d
 .global rv64_lock_storeifref2_d
 .global rv64_lock_decifnot0b
@@ -95,6 +96,18 @@ rv64_lock_storeifref2_d:
     lr.w    a3, (a0)
     bne     a2, a3, 2f
     sc.w    a4, a1, (a0)
+    bnez    a4, 1b
+2:
+    mv      a0, a3
+    ret
+
+rv64_lock_storeifref2:
+    // address is a0, value is a1, a1 store to a0 only if [a0] is a2. return old [a0] value
+    fence   rw, rw
+1:    
+    lr.d    a3, (a0)
+    bne     a2, a3, 2f
+    sc.d    a4, a1, (a0)
     bnez    a4, 1b
 2:
     mv      a0, a3
