@@ -430,7 +430,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("HSUBPS Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEX(v1, 0, 1);
+            GETEX(v1, 0, 0);
             d0 = fpu_get_scratch(dyn, ninst);
             VUZP1Q_32(d0, v0, v1);
             VUZP2Q_32(v0, v0, v1);
