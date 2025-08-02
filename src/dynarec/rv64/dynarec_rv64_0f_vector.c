@@ -1312,11 +1312,11 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGM_vector(v0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
-            SET_ELEMENT_WIDTH(x1, u8, 1);
             MOV32w(x5, i32 - 1);
             q0 = fpu_get_scratch(dyn);
             VMINU_VX(q0, v1, x5, VECTOR_UNMASKED);
             VMV_X_S(x4, q0);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             VSRA_VX(v0, v0, x4, VECTOR_UNMASKED);
             break;
         case 0xE5:

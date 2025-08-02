@@ -2791,7 +2791,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM();
             GETEM(x4, 0, 1);
-            LBU(x1, wback, fixedaddress);
+            LD(x1, wback, fixedaddress);
             ADDI(x2, xZR, 15);
             if (cpuext.zbb) {
                 MINU(x1, x1, x2);
@@ -2810,7 +2810,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM();
             GETEM(x4, 0, 1);
-            LBU(x1, wback, fixedaddress);
+            LD(x1, wback, fixedaddress);
             ADDI(x2, xZR, 31);
             if (cpuext.zbb) {
                 MINU(x1, x1, x2);
