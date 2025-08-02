@@ -891,8 +891,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             switch ((nextop >> 3) & 7) {
                 case 2:
                     INST_NAME("PSRLW Em, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     GETEM_vector(q0, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     u8 = F8;
                     if (u8 > 15) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
@@ -905,8 +906,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     break;
                 case 4:
                     INST_NAME("PSRAW Em, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     GETEM_vector(q0, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     u8 = F8;
                     if (u8 > 15) u8 = 15;
                     if (u8) {
@@ -917,8 +919,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     break;
                 case 6:
                     INST_NAME("PSLLW Em, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     GETEM_vector(q0, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     u8 = F8;
                     if (u8 > 15) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
@@ -937,8 +940,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             switch ((nextop >> 3) & 7) {
                 case 2:
                     INST_NAME("PSRLD Em, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     GETEM_vector(q0, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                     u8 = F8;
                     if (u8 > 31) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
@@ -951,8 +955,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     break;
                 case 4:
                     INST_NAME("PSRAD Em, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     GETEM_vector(q0, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                     u8 = F8;
                     if (u8 > 31) u8 = 31;
                     if (u8) {
@@ -963,8 +968,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     break;
                 case 6:
                     INST_NAME("PSLLD Em, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     GETEM_vector(q0, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                     u8 = F8;
                     if (u8 > 31) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
