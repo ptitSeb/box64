@@ -13,7 +13,7 @@ static const char gpr[32][9] = {
     "sp",
     "gp",
     "tp",
-    "mask_t0",
+    "t0",
     "t1",
     "t2",
     "rbp_s0",
