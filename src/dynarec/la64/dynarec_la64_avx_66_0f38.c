@@ -187,7 +187,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPERMILPS Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            u8 = F8;
             d0 = fpu_get_scratch(dyn);
             VANDIxy(d0, v2, 0b11);
             VSHUFxy(W, d0, v1, v1);
@@ -457,17 +456,17 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
-            VLDIxy(q0, 0b0010011111111); // broadcast 0xff as 16-bit elements to all lanes
+            VLDIxy(d0, (0b10111 <<8) | 0x00);  // Broadcast 0x0000FFFF as 32bits to all lane
             if (v1 == v2) {
-                VMAXIxy(W, v0, v1, 0);
-                VMINxy(W, v0, v1, q0);
-                VPICKEVxy(H, v0, v0, v0);
+                VMAXIxy(W, q0, v1, 0);
+                VMINxy(W, q0, q0, d0);
+                VPICKEVxy(H, v0, q0, q0);
             } else {
                 VMAXIxy(W, q1, v2, 0);
-                VMAXIxy(W, v0, v1, 0);
-                VMINxy(W, q1, q1, q0);
-                VMINxy(W, v0, v0, q0);
-                VPICKEVxy(H, v0, q1, v0);
+                VMAXIxy(W, q0, v1, 0);
+                VMINxy(W, q1, q1, d0);
+                VMINxy(W, q0, q0, d0);
+                VPICKEVxy(H, v0, q1, q0);
             }
             break;
         case 0x2C:
@@ -980,7 +979,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
                 VXOR_V(v2, v2, v2);
             }
-            XVPERMI_Q(v0, v2, XVPERMI_IMM_4_0(1, 2));
             break;
         case 0x96:
             INST_NAME("VFMADDSUB132PS/D Gx, Vx, Ex");

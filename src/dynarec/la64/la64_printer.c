@@ -7672,6 +7672,50 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VBITCLRI.D", Vt[Rd], Vt[Rj], imm);
         return buff;
     }
+    if (isMask(opcode, "01110010100110100iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VFRSTPI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100110101iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VFRSTPI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100100000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.H", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100100010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100100011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100101000iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.BU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100101001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.HU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100101010iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.WU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110010100101011iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "VMAXI.DU", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011111000iiiiiiiiiiiiiddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%lx", "VLDI", Vt[Rd], imm);
+        return buff;
+    }
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }
