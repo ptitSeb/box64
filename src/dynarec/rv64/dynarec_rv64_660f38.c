@@ -1154,7 +1154,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         s8 = 0;
                     // GX->ud[(tmp8u>>4)&3] = EX->ud[tmp8s];
                     LWU(x3, wback, fixedaddress + 4 * s8);
-                    SW(x3, gback, gdoffset + 4 * (u8 >> 4));
+                    SW(x3, gback, gdoffset + 4 * ((u8 >> 4) & 3));
                     for (int i = 0; i < 4; ++i) {
                         if (u8 & (1 << i))
                             // GX->ud[i] = 0;
