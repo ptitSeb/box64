@@ -884,6 +884,31 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x0f: VSEQxy(B, v0, v1, v1); break;        // true
             }
             break;
+        case 0xC4:
+            INST_NAME("VPINSRW Gx, Vx, ED, Ib");
+            nextop = F8;
+            GETEWW(0, x5, 1);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            u8 = F8;
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VINSGR2VR_H(v0, ed, (u8 & 0x7));
+            break;
+        case 0xC5:
+            INST_NAME("VPEXTRW Gd, Ex, Ib");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                GETEYx(v0, 0, 1);
+                u8 = (F8) & 7;
+                VPICKVE2GR_HU(gd, v0, u8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 0, 1);
+                u8 = (F8) & 7;
+                LD_HU(gd, wback, (u8 << 1));
+            }
+            break;
         case 0xC6:
             INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
             nextop = F8;

@@ -677,6 +677,27 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULxy(W, v0, v1, v2);
             break;
+        case 0x41:
+            INST_NAME("VPHMINPOSUW Gx, Ex");
+            nextop = F8;
+            GETEYx(v1, 0, 0);
+            GETGYx_empty(v0);
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            q2 = fpu_get_scratch(dyn);
+                                           // v1[a,b,c,d,e,f,g,h]
+            VSHUF4I_W(q0, v1, 0b01001110); // q0[e,f,g,h,a,b,c,d]
+            VMIN_HU(q1, v1, q0);           // q1[ae,bf,cg,dh ...]
+            
+            VSHUF4I_H(q2, q1, 0b10110001); // q2[bf,ae,dh,cg ...]
+            VMIN_HU(q1, q1, q2);           // q1[aebf,aebf,cgdh,cgdh ...]
+            VSHUF4I_H(q0, q1, 0b01001110); // q0[cgdh,cgdh,aebf,aebf]
+            VMIN_HU(q2, q0, q1);           // all lane is min(abcdefgh)
+            VSEQ_H(q0, q2, v1);            // get mask(0xffff)
+            VFRSTPI_H(q2, q0, 1);          // find first neg(0xffff),insert index to q2
+            XVPICKVE_W(v0, q2, 0);
+            YMM_UNMARK_UPPER_ZERO(v0);
+            break;
         case 0x45:
             INST_NAME("VPSRLVD/Q Gx, Vx, Ex");
             nextop = F8;
