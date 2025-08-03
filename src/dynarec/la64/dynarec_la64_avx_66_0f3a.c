@@ -466,9 +466,11 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VINSERTI128 Gx, Vx, Ex, imm8");
             }
             nextop = F8;
-            GETGY_empty_VYEY_xy(q0, q1, q2, 1);
+            GETEYx(q2, 0, 1);
+            GETVYy(q1, 0);
+            GETGYy_empty(q0);
             u8 = F8;
-            if(q0 != q2){
+            if(q0 != q2) {
                 if(q0 != q1) XVOR_V(q0, q1, q1);
                 XVPERMI_Q(q0, q2, ((u8 & 1) == 0) ? 0x30: 0x02);
             } else{
@@ -483,17 +485,25 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VEXTRACTI128 Ex, Gx, imm8");
             }
             nextop = F8;
-            GETEY_GY_xy(q1, q0, 1);
-            u8 = F8;
+            GETGYy(q0, 0);
             if (MODREG) {
-                XVPERMI_Q(q1, q0, (u8 & 1) == 0 ? XVPERMI_IMM_4_0(3, 0) : XVPERMI_IMM_4_0(3, 1));
-            } else {
-                if ((u8 & 1) == 1) {
+                GETEYx_empty(q1, 1);
+                u8 = F8;
+                if((u8 & 1) == 0) {
+                    VOR_V(q1, q0, q0);
+                } else {
                     XVPERMI_Q(q1, q0, XVPERMI_IMM_4_0(3, 1));
-                    VST(q1, ed, fixedaddress);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 0, 1);
+                u8 = F8;
+                if ((u8 & 1) == 1) {
+                    XVSTELM_D(q0, ed, 0, 2);
+                    XVSTELM_D(q0, ed, 1, 3);
                 } else {
                     VST(q0, ed, fixedaddress);
                 }
+                SMWRITE2();
             }
             break;
         case 0x1D:

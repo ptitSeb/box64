@@ -1782,7 +1782,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = F8;
                     u8 &= rex.w ? 0x3f : 0x1f;
                     BSTRPICK_D(x3, ed, u8, u8);
-                    BSTRINS_D(xFlags, x3, 0, 0);
+                    if (cpuext.lbt)
+                        X64_SET_EFLAGS(x3, X_CF);
+                    else
+                        BSTRINS_D(xFlags, x3, 0, 0);
                     if (u8 <= 10) {
                         XORI(ed, ed, (1LL << u8));
                     } else {
