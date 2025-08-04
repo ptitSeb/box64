@@ -2162,7 +2162,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VAVGR_BU(v0, v0, v1);
             break;
         case 0xE1:
-            INST_NAME("PSRAW Gm,Em");
+            INST_NAME("PSRAW Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);
@@ -2172,12 +2172,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VSRA_H(v0, v0, q0);
             break;
         case 0xE2:
-            INST_NAME("PSRAD Gm,Em");
+            INST_NAME("PSRAD Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);
             q0 = fpu_get_scratch(dyn);
-            VMINI_WU(q0, v1, 31);
+            VMINI_DU(q0, v1, 31);
             VREPLVEI_W(q0, q0, 0);
             VSRA_W(v0, v0, q0);
             break;
