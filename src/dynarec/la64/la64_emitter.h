@@ -41,6 +41,7 @@
 #define type_2RI9(opc, imm9, rj, rd)       ((opc) << 19 | ((imm9) & 0x1FF) << 10 | (rj) << 5 | (rd))
 #define type_2RI10(opc, imm10, rj, rd)     ((opc) << 20 | ((imm10) & 0x3FF) << 10 | (rj) << 5 | (rd))
 #define type_2RI11(opc, imm11, rj, rd)     ((opc) << 21 | ((imm11) & 0x7FF) << 10 | (rj) << 5 | (rd))
+#define type_2RI13(opc, imm13, rj, rd)     ((opc) << 23 | ((imm13) & 0x1FFF) << 10 | (rj) << 5 | (rd))
 #define type_1RI5I5(opc, imm5, imm5_2, rd) ((opc) << 15 | ((imm5) & 0x1F) << 10 | ((imm5_2) & 0x1F) << 5 | (rd))
 
 // tmp = GR[rj][31:0] + GR[rk][31:0]
@@ -1973,11 +1974,10 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVLDREPL_W(xd, rj, offset) EMIT(type_2RI10(0b001100100010, (offset >> 2), rj, xd))
 #define XVLDREPL_H(xd, rj, offset) EMIT(type_2RI11(0b00110010010, (offset >> 1), rj, xd))
 #define XVLDREPL_B(xd, rj, offset) EMIT(type_2RI12(0b0011001010, offset, rj, xd))
-#define XVSTELM_D(xd, rj, offset, imm2)         EMIT(type_2RI10(0b001100110001, (((imm2) << 8) | (offset >>3), rj, xd))
-#define XVSTELM_W(xd, rj, offset, imm3)         EMIT(type_2RI11(0b00110011001, (((imm3) << 8) | (offset >>2), rj, xd))
-#define XVSTELM_H(xd, rj, offset, imm4)         EMIT(type_2RI12(0b0011001101, (((imm4) << 8) | (offset >>1), rj, xd))
-#define XVSTELM_B(xd, rj, offset, imm5)         EMIT(type_2RI13(0b001100111, (((imm5) << 8) | offset, rj, xd))
-
+#define XVSTELM_D(xd, rj, offset, imm2)         EMIT(type_2RI10(0b001100110001, ((imm2) << 8) | (offset), rj, xd))
+#define XVSTELM_W(xd, rj, offset, imm3)         EMIT(type_2RI11(0b00110011001, ((imm3) << 8) | (offset), rj, xd))
+#define XVSTELM_H(xd, rj, offset, imm4)         EMIT(type_2RI12(0b0011001101, ((imm4) << 8) | (offset), rj, xd))
+#define XVSTELM_B(xd, rj, offset, imm5)         EMIT(type_2RI13(0b001100111, ((imm5) << 8) | (offset), rj, xd))
 
 #define XVHSELI_D(vd, vj, imm5)      EMIT(type_2RI5(0b01110110100111111, imm5, vj, vd))
 #define XVROTRI_B(vd, vj, imm3)      EMIT(type_2RI3(0b0111011010100000001, imm3, vj, vd))
