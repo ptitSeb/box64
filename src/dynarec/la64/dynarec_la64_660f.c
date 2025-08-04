@@ -430,7 +430,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     v1 = fpu_get_scratch(dyn);
                     VPICKEV_W(v0, q1, q0);
                     VPICKOD_W(v1, q1, q0);
-                    VSUB_D(q0, v0, v1);
+                    VSUB_W(q0, v0, v1);
                     break;
                 case 0x07:
                     INST_NAME("PHSUBSW Gx, Ex");
