@@ -2186,7 +2186,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);
-            VAVG_HU(v0, v0, v1);
+            VAVGR_HU(v0, v0, v1);
             break;
         case 0xE4:
             INST_NAME("PMULHUW Gm,Em");
