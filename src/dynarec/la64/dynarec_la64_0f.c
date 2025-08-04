@@ -125,7 +125,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x10:
-            INST_NAME("MOVUPS Gx,Ex");
+            INST_NAME("MOVUPS Gx, Ex");
             nextop = F8;
             GETG;
             if (MODREG) {
@@ -158,12 +158,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x12:
             nextop = F8;
             if (MODREG) {
-                INST_NAME("MOVHLPS Gx,Ex");
+                INST_NAME("MOVHLPS Gx, Ex");
                 GETGX(v0, 1);
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                 VEXTRINS_D(v0, v1, 1);
             } else {
-                INST_NAME("MOVLPS Gx,Ex");
+                INST_NAME("MOVLPS Gx, Ex");
                 GETGX(v0, 1);
                 SMREAD();
                 GETEX(q1, 0, 0);
@@ -202,11 +202,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x16:
             nextop = F8;
             if (MODREG) {
-                INST_NAME("MOVLHPS Gx,Ex");
+                INST_NAME("MOVLHPS Gx, Ex");
                 GETGX(v0, 1);
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
             } else {
-                INST_NAME("MOVHPS Gx,Ex");
+                INST_NAME("MOVHPS Gx, Ex");
                 SMREAD();
                 GETGX(v0, 1);
                 v1 = fpu_get_scratch(dyn);
@@ -253,7 +253,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FAKEED;
             break;
         case 0x28:
-            INST_NAME("MOVAPS Gx,Ex");
+            INST_NAME("MOVAPS Gx, Ex");
             nextop = F8;
             GETG;
             if (MODREG) {
@@ -295,7 +295,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VEXTRINS_D(v0, q0, VEXTRINS_IMM_4_0(0, 0));
             break;
         case 0x2B:
-            INST_NAME("MOVNTPS Ex,Gx");
+            INST_NAME("MOVNTPS Ex, Gx");
             nextop = F8;
             GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
@@ -309,7 +309,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x2C:
-            INST_NAME("CVTTPS2PI Gm,Ex");
+            INST_NAME("CVTTPS2PI Gm, Ex");
             nextop = F8;
             GETGM(v0);
             GETEX(v1, 0, 0);
@@ -2230,7 +2230,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VSSUB_H(v0, v0, q0);
             break;
         case 0xEA:
-            INST_NAME("PMINSW Gx,Ex");
+            INST_NAME("PMINSW Gx, Ex");
             nextop = F8;
             GETGM(v0);
             GETEM(v1, 0);

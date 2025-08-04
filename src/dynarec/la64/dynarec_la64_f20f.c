@@ -334,7 +334,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("HADDPS Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
-            GETEX(q1, 0, 1);
+            GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             VPICKEV_W(v0, q1, q0);
@@ -345,7 +345,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("HSUBPS Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
-            GETEX(q1, 0, 1);
+            GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             VPICKEV_W(v0, q1, q0);
