@@ -998,8 +998,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VOR_V(q0, q1, q1);
                     } else {
                         d0 = fpu_get_scratch(dyn);
-                        VBSLL_V(q0, q0, 16 - u8);
                         VBSRL_V(d0, q1, u8);
+                        VBSLL_V(q0, q0, 16 - u8);
                         VOR_V(q0, q0, d0);
                     }
                     break;
