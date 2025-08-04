@@ -955,7 +955,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("BLENDPS Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    GETEXSS(q1, 0, 1);
+                    GETEX(q1, 0, 1);
                     u8 = F8 & 0b1111;
                     if ((u8 & 0b11) == 0b11) {
                         VEXTRINS_D(q0, q1, 0);
@@ -974,7 +974,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("BLENDPD Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    GETEXSD(q1, 0, 1);
+                    GETEX(q1, 0, 1);
                     u8 = F8 & 0b11;
                     if (u8 == 0b01) {
                         VEXTRINS_D(q0, q1, 0b00000000);
