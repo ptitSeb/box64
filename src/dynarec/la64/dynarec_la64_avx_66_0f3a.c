@@ -386,6 +386,63 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             }
             break;
+        case 0x14:
+            INST_NAME("VPEXTRB Ed, Gx, imm8");
+            nextop = F8;
+            GETGYx(q0, 0);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                u8 = (F8) & 15;
+                VPICKVE2GR_BU(ed, q0, u8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 0, 1);
+                u8 = (F8) & 15;
+                VSTELM_B(q0, wback, 0, u8);
+            }
+            break;
+        case 0x15:
+            INST_NAME("VPEXTRW Ed, Gx, imm8");
+            nextop = F8;
+            GETGYx(q0, 0);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                u8 = (F8) & 7;
+                VPICKVE2GR_HU(ed, q0, u8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 0, 1);
+                u8 = (F8) & 7;
+                VSTELM_H(q0, wback, 0, u8);
+            }
+            break;
+        case 0x16:
+            if (rex.w) {
+                INST_NAME("VPEXTRQ Ed, Gx, Ib");
+            } else {
+                INST_NAME("VPEXTRD Ed, Gx, Ib");
+            }
+            nextop = F8;
+            GETGYx(q0, 0);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                u8 = F8;
+                if (rex.w) {
+                    VPICKVE2GR_D(ed, q0, (u8 & 1));
+                } else {
+                    VPICKVE2GR_WU(ed, q0, (u8 & 3));
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                u8 = F8;
+                if (rex.w) {
+                    VSTELM_D(q0, ed, 0, (u8 & 1));
+                } else {
+                    VSTELM_W(q0, ed, 0, (u8 & 3));
+                }
+                SMWRITE2();
+            }
+            break;
         case 0x17:
             INST_NAME("VEXTRACTPS Ed, Gx, imm8");
             nextop = F8;
@@ -471,6 +528,16 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             x87_restoreround(dyn, ninst, u8);
             break;
+        case 0x20:
+            INST_NAME("VPINSRB Gx, Vx, ED, Ib");
+            nextop = F8;
+            GETEB(x5, 1);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            u8 = F8;
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            VINSGR2VR_B(v0, ed, (u8 & 0xf));
+            break;
         case 0x21:
             INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -504,6 +571,24 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                         VEXTRINS_W(v0, q1, VEXTRINS_IMM_4_0(i, 0));
                     }
                 }
+            }
+            break;
+        case 0x22:
+            if (rex.w) {
+                INST_NAME("VPINSRQ Gx, Vx, ED, Ib");
+            } else {
+                INST_NAME("VPINSRD Gx, Vx, ED, Ib");
+            }            
+            nextop = F8;
+            GETED(1);
+            GETVYx(v1, 0);
+            GETGYx_empty(v0);
+            u8 = F8;
+            if(v0 != v1) VOR_V(v0, v1, v1);
+            if(rex.w) {
+                VINSGR2VR_D(v0, ed, (u8 & 0x1));
+            } else {
+                VINSGR2VR_W(v0, ed, (u8 & 0x3));
             }
             break;
         case 0x2A:
