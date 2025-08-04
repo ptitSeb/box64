@@ -499,7 +499,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     v0 = sse_get_reg(dyn, ninst, x1, 0, 0); // XMM0
                     v1 = fpu_get_scratch(dyn);
                     if (q0 != q1) {
-                        VSRA_W(v1, v0, 31);
+                        VSLTI_W(v1, v0, 0);
                         VBITSEL_V(q0, q0, q1, v1);
                     }
                     break;
