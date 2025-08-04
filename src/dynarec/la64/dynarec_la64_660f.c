@@ -1151,21 +1151,19 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("INSERTPS Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    u8 = F8;
-                    uint8_t src_index = (u8 >> 6) & 3;
-                    uint8_t dst_index = (u8 >> 4) & 3;
-                    uint8_t zmask = u8 & 0xf;
                     q2 = fpu_get_scratch(dyn);
                     if (MODREG) {
+                        u8 = F8;
                         q1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
-                        VEXTRINS_W(q0, q1, VEXTRINS_IMM_4_0(dst_index, src_index));
+                        VEXTRINS_W(q0, q1, VEXTRINS_IMM_4_0(((u8 >> 4) & 3), ((u8 >> 6) & 3)));
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x5, &fixedaddress, rex, NULL, 0, 1);
                         u8 = F8;
                         FLD_S(q2, wback, fixedaddress);
-                        VEXTRINS_W(q0, q2, VEXTRINS_IMM_4_0(dst_index, 0)); // src index is zero when Ex is mem operand
+                        VEXTRINS_W(q0, q2, VEXTRINS_IMM_4_0(((u8 >> 4) & 3), 0)); // src index is zero when Ex is mem operand
                     }
+                    uint8_t zmask = u8 & 0xf;
                     VXOR_V(q2, q2, q2);
                     if (zmask) {
                         for (uint8_t i = 0; i < 4; i++) {
