@@ -188,9 +188,9 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEXSS(v1, 0, 0);
             q0 = fpu_get_scratch(dyn);
-            if(cpuext.frecipe){
+            if (cpuext.frecipe) {
                 FRSQRTE_S(q0, v1);
-            }else{
+            } else {
                 FRSQRT_S(q0, v1);
             }
             VEXTRINS_W(v0, q0, 0);
@@ -201,11 +201,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEXSS(v1, 0, 0);
             d1 = fpu_get_scratch(dyn);
-            if(cpuext.frecipe){
-                FRECIPE_S(d1, v1);
-            }else{
-                FRECIP_S(d1, v1);
-            }
+            FRECIP_S(d1, v1);
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x58:
