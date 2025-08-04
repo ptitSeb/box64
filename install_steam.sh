@@ -21,6 +21,7 @@ cd ../ && rm -rf ./tmp/
 echo '#!/bin/bash
 export STEAMOS=1
 export STEAM_RUNTIME=1
+export PROTON_USE_WOW64=1
 export DBUS_FATAL_WARNINGS=0
 ~/steam/bin/steam $@' > steam
 
