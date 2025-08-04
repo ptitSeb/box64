@@ -2410,8 +2410,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            // TODO: fastround
-            VFTINTRZ_W_D(v0, v1, v1);
+            if (!BOX64ENV(dynarec_fastround)) {
+                d0 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                VFTINTRZ_W_D(d0, v1, v1);
+                VLDI(q0, 0b1001110000000); // broadcast 32bit 0x80000000 to all
+                LU52I_D(x5, xZR, 0x41e);
+                VREPLGR2VR_D(q1, x5);
+                VFCMP_D(q1, q1, v1, cULE);
+                VSHUF4I_W(q1, q1, 0b00001000);
+                VBITSEL_V(v0, d0, q0, q1);
+            } else {
+                VFTINTRZ_W_D(v0, v1, v1);
+            }
             VINSGR2VR_D(v0, xZR, 1);
             break;
         case 0xE7:
