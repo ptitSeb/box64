@@ -3987,6 +3987,7 @@ wrappedglib2:
   - g_queue_foreach
   - g_slist_foreach
   - g_static_private_set
+  - g_thread_pool_set_sort_function
   - g_tree_foreach
 - vFppV:
   - g_string_append_printf
