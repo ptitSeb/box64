@@ -293,6 +293,29 @@ static void* findWeakNotifyFct(void* fct)
     return NULL;
 }
 
+// GToggleNotify
+#define GO(A)   \
+static uintptr_t my_togglenotifyfunc_fct_##A = 0;                       \
+static int my_togglenotifyfunc_##A(void* a, void* b, int c)             \
+{                                                                       \
+    return RunFunctionFmt(my_togglenotifyfunc_fct_##A, "ppi", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* findToggleNotifyFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_togglenotifyfunc_fct_##A == (uintptr_t)fct) return my_togglenotifyfunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_togglenotifyfunc_fct_##A == 0) {my_togglenotifyfunc_fct_##A = (uintptr_t)fct; return my_togglenotifyfunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GToggleNotify callback\n");
+    return NULL;
+}
+
 // GParamSpecTypeInfo....
 // First the structure GParamSpecTypeInfo statics, with paired x64 source pointer
 typedef struct my_GParamSpecTypeInfo_s {
@@ -845,6 +868,21 @@ EXPORT void my_g_object_class_install_properties(x64emu_t* emu, void* klass, uin
 EXPORT void my_g_object_weak_ref(x64emu_t* emu, void* object, void* notify, void* data)
 {
     my->g_object_weak_ref(object, findWeakNotifyFct(notify), data);
+}
+
+EXPORT void my_g_object_weak_unref(x64emu_t* emu, void* object, void* notify, void* data)
+{
+    my->g_object_weak_unref(object, findWeakNotifyFct(notify), data);
+}
+
+EXPORT void my_g_object_add_toggle_ref(x64emu_t* emu, void* object, void* notify, void* data)
+{
+    my->g_object_add_toggle_ref(object, findToggleNotifyFct(notify), data);
+}
+
+EXPORT void my_g_object_remove_toggle_ref(x64emu_t* emu, void* object, void* notify, void* data)
+{
+    my->g_object_remove_toggle_ref(object, findToggleNotifyFct(notify), data);
 }
 
 EXPORT void my_g_signal_override_class_handler(x64emu_t* emu, char* name, size_t gtype, void* callback)

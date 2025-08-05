@@ -59,7 +59,10 @@ typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 	GO(g_signal_override_class_handler, vFpLp_t) \
 	GO(g_closure_add_finalize_notifier, vFppp_t) \
 	GO(g_closure_remove_finalize_notifier, vFppp_t) \
+	GO(g_object_add_toggle_ref, vFppp_t) \
+	GO(g_object_remove_toggle_ref, vFppp_t) \
 	GO(g_object_weak_ref, vFppp_t) \
+	GO(g_object_weak_unref, vFppp_t) \
 	GO(g_object_get, vFppV_t) \
 	GO(g_object_set, vFppV_t) \
 	GO(g_object_get_valist, vFppA_t) \
