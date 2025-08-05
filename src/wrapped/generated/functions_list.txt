@@ -4124,7 +4124,10 @@ wrappedgobject2:
 - vFppp:
   - g_closure_add_finalize_notifier
   - g_closure_remove_finalize_notifier
+  - g_object_add_toggle_ref
+  - g_object_remove_toggle_ref
   - g_object_weak_ref
+  - g_object_weak_unref
 - vFppV:
   - g_object_get
   - g_object_set
