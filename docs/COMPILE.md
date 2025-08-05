@@ -1,7 +1,7 @@
 Compiling/Installing
 ----
 
-If you don't want to compile box64 yourself and prefer to use third-party pre-build version, go to the [end of the document](#pre-build-packages) for alternatives.
+If you don't want to compile box64 yourself and prefer to use third-party pre-build version, go to the [end of the document](#pre-built-packages) for alternatives.
 
 You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
 
@@ -364,3 +364,4 @@ After successfully cross-compiling, copy the box64 executable to your RISC-V dev
 To fix this, copy the shared libraries folder from the Box64 repository (`x64lib` or `x86lib`) to your target. Place them into the proper library search paths, for example:
 - `/usr/lib/box64-x86_64-linux-gnu/` (for x86_64) 
 - `/usr/lib/box64-i386-linux-gnu/` (for i386) 
+
