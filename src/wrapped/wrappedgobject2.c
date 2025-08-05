@@ -432,6 +432,50 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject compare callback\n");
     return NULL;
 }
+
+// GTypeModuleClass
+#define GO(A)   \
+static uintptr_t my_load_fct_##A = 0;                         \
+static int my_load_##A(my_GTypeModule_t* module)              \
+{                                                             \
+    return (int)RunFunctionFmt(my_load_fct_##A, "p", module); \
+}
+SUPER()
+#undef GO
+static void* findLoadFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_load_fct_##A == (uintptr_t)fct) return my_load_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_load_fct_##A == 0) {my_load_fct_##A = (uintptr_t)fct; return my_load_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GTypeModuleClass load callback\n");
+    return NULL;
+}
+
+#define GO(A)   \
+static uintptr_t my_unload_fct_##A = 0;                         \
+static int my_unload_##A(my_GTypeModule_t* module)              \
+{                                                             \
+    return (int)RunFunctionFmt(my_unload_fct_##A, "p", module); \
+}
+SUPER()
+#undef GO
+static void* findUnloadFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_unload_fct_##A == (uintptr_t)fct) return my_unload_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_unload_fct_##A == 0) {my_unload_fct_##A = (uintptr_t)fct; return my_unload_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GTypeModuleClass unload callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 #include "super100.h"
@@ -836,6 +880,33 @@ EXPORT void my_g_closure_remove_finalize_notifier(x64emu_t* emu, void* closure, 
 EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
 {
     return findFreeGTypeValueTable(my->g_type_value_table_peek(type));
+}
+
+EXPORT int my_g_type_module_use(x64emu_t* emu, my_GTypeModule_t* module)
+{
+    my_GTypeModuleClass_t* module_class = (my_GTypeModuleClass_t*)(((my_GTypeInstance_t*)module)->g_class);
+    if (module_class) {
+        module_class->load = findLoadFct(module_class->load);
+        module_class->unload = findUnloadFct(module_class->unload);
+    }
+    return my->g_type_module_use(module);
+}
+
+EXPORT void my_g_type_module_add_interface(x64emu_t* emu, my_GTypeModule_t* module, size_t instance_type, size_t interface_type, my_GInterfaceInfo_t* interface_info)
+{
+    if (interface_info) {
+        interface_info->interface_init = findGInterfaceInitFuncFct(interface_info->interface_init, interface_type);
+        interface_info->interface_finalize = findGInterfaceFinalizeFuncFct(interface_info->interface_finalize);
+    }
+    return my->g_type_module_add_interface(module, instance_type, interface_type, interface_info);
+}
+
+EXPORT size_t my_g_type_module_register_type(x64emu_t* emu, my_GTypeModule_t* module, size_t parent_type, char* type_name, my_GTypeInfo_t* type_info, uint32_t flags)
+{
+    if (type_info) {
+        type_info->class_init = find_class_init_Fct(type_info->class_init, parent_type);
+    }
+    return my->g_type_module_register_type(module, parent_type, type_name, type_info, flags);
 }
 
 #define PRE_INIT    \

@@ -50,6 +50,41 @@ typedef struct my_GObjectClass_s
   void*  pdummy[6];
 } my_GObjectClass_t;
 
+typedef struct my_GTypeModule_s
+{
+  my_GObject_t parent_instance;
+  uint32_t use_count;
+  void* type_infos;      // GSList
+  void* interface_infos; // GSList
+  char *name;
+} my_GTypeModule_t;
+
+typedef struct my_GTypeModuleClass_s
+{
+  my_GObjectClass_t parent_class;
+  int  (*load)   (my_GTypeModule_t* module);
+  void (*unload) (my_GTypeModule_t* module);
+  void (*reserved1) (void);
+  void (*reserved2) (void);
+  void (*reserved3) (void);
+  void (*reserved4) (void);
+} my_GTypeModuleClass_t;
+
+/*
+typedef void (*my_GInterfaceInitFunc) (void* g_iface,
+				       void* iface_data);
+
+typedef void (*my_GInterfaceFinalizeFunc) (void* g_iface,
+					   void* iface_data);
+
+typedef struct my_GInterfaceInfo_s
+{
+  my_GInterfaceInitFunc     interface_init;
+  my_GInterfaceFinalizeFunc interface_finalize;
+  void*                     interface_data;
+} my_GInterfaceInfo_t;
+*/
+
 typedef struct my_GInitiallyUnowned_s
 {
   my_GTypeInstance_t  g_type_instance;
@@ -2215,6 +2250,7 @@ typedef struct my_GtkTypeInfo_s {
 my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts);
 my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent);
 my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent);
+void* find_class_init_Fct(void* fct, size_t parent);
 
 void InitGTKClass(bridge_t *bridge);
 void FiniGTKClass(void);

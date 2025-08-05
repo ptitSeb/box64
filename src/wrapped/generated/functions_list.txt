@@ -2435,6 +2435,7 @@
 #() LFEuuppp
 #() LFELpppu
 #() LFEpuppp
+#() LFEpLppu
 #() LFEppppu
 #() LFpipipi
 #() LFpLippp
@@ -4101,6 +4102,8 @@ wrappedgnutls:
   - gnutls_transport_set_pull_timeout_function
   - gnutls_transport_set_push_function
 wrappedgobject2:
+- iFp:
+  - g_type_module_use
 - pFL:
   - g_type_value_table_peek
 - pFp:
@@ -4147,6 +4150,8 @@ wrappedgobject2:
 - vFpupp:
   - g_object_set_qdata_full
   - g_param_spec_set_qdata_full
+- vFpLLp:
+  - g_type_module_add_interface
 - vFpppp:
   - g_object_set_data_full
 - LFLppu:
@@ -4155,6 +4160,8 @@ wrappedgobject2:
   - g_signal_add_emission_hook
 - LFLpppu:
   - g_type_register_fundamental
+- LFpLppu:
+  - g_type_module_register_type
 - LFppppu:
   - g_signal_connect_object
 - LFpppppu:
