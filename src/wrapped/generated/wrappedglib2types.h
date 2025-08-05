@@ -119,6 +119,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_queue_foreach, vFppp_t) \
 	GO(g_slist_foreach, vFppp_t) \
 	GO(g_static_private_set, vFppp_t) \
+	GO(g_thread_pool_set_sort_function, vFppp_t) \
 	GO(g_tree_foreach, vFppp_t) \
 	GO(g_string_append_printf, vFppV_t) \
 	GO(g_string_printf, vFppV_t) \
