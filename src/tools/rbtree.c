@@ -569,15 +569,19 @@ static rbnode *succ_node(rbnode *node) {
 }
 
 uint32_t rb_get(rbtree_t *tree, uintptr_t addr) {
+    if (tree->leftmost && addr < tree->leftmost->start) return 0;
+    if (tree->rightmost && addr > tree->rightmost->end) return 0;
     rbnode *node = find_addr(tree, addr);
     if (node) return node->data;
-    else return 0;
+    return 0;
 }
 
 uint64_t rb_get_64(rbtree_t *tree, uintptr_t addr) {
+    if (tree->leftmost && addr < tree->leftmost->start) return 0;
+    if (tree->rightmost && addr > tree->rightmost->end) return 0;
     rbnode *node = find_addr(tree, addr);
     if (node) return node->data;
-    else return 0;
+    return 0;
 }
 
 int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
