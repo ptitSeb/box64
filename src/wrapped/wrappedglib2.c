@@ -1541,6 +1541,21 @@ EXPORT void my_g_queue_insert_sorted(x64emu_t* emu, void* queue, void* data, voi
     my->g_queue_insert_sorted(queue, data, findGCompareDataFuncFct(f), user_data);
 }
 
+EXPORT void* my_g_async_queue_new_full(x64emu_t* emu, void* item_free_func)
+{
+    return my->g_async_queue_new_full(findGDestroyNotifyFct(item_free_func));
+}
+
+EXPORT void* my_g_thread_pool_new(x64emu_t* emu, void* func, void* user_data, int32_t max_threads, int32_t exclusive, void* error)
+{
+    return my->g_thread_pool_new(findGFuncFct(func), user_data, max_threads, exclusive, error);
+}
+
+EXPORT void my_g_async_queue_push_sorted(x64emu_t* emu, void* queue, void* data, void* func, void* user_data)
+{
+    my->g_async_queue_push_sorted(queue, data, findGCompareDataFuncFct(func), user_data);
+}
+
 #define PRE_INIT    \
     if(BOX64ENV(nogtk)) \
         return -1;
