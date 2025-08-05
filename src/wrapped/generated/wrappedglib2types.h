@@ -54,6 +54,7 @@ typedef void (*vFpiLpp_t)(void*, int32_t, uintptr_t, void*, void*);
 typedef void (*vFpuipV_t)(void*, uint32_t, int32_t, void*, ...);
 typedef uint32_t (*uFiippp_t)(int32_t, int32_t, void*, void*, void*);
 typedef uint32_t (*uFiuppp_t)(int32_t, uint32_t, void*, void*, void*);
+typedef void* (*pFppiip_t)(void*, void*, int32_t, int32_t, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
 typedef void (*vFpuuipp_t)(void*, uint32_t, uint32_t, int32_t, void*, void*);
 typedef int32_t (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
@@ -66,6 +67,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_atexit, vFp_t) \
+	GO(g_async_queue_new_full, pFp_t) \
 	GO(g_completion_new, pFp_t) \
 	GO(g_main_context_get_poll_func, pFp_t) \
 	GO(g_private_new, pFp_t) \
@@ -150,6 +152,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_log, vFpipV_t) \
 	GO(g_logv, vFpipA_t) \
 	GO(g_datalist_id_set_data_full, vFpupp_t) \
+	GO(g_async_queue_push_sorted, vFpppp_t) \
 	GO(g_queue_insert_sorted, vFpppp_t) \
 	GO(g_source_set_callback, vFpppp_t) \
 	GO(g_snprintf, iFpLpV_t) \
@@ -175,6 +178,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_child_watch_add_full, uFiippp_t) \
 	GO(g_timeout_add_full, uFiuppp_t) \
 	GO(g_timeout_add_seconds_full, uFiuppp_t) \
+	GO(g_thread_pool_new, pFppiip_t) \
 	GO(g_option_group_new, pFppppp_t) \
 	GO(g_node_traverse, vFpuuipp_t) \
 	GO(g_datalist_id_replace_data, iFpupppp_t) \

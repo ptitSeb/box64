@@ -2454,6 +2454,7 @@
 #() pFEpuupp
 #() pFEpuppp
 #() pFEpLLiN
+#() pFEppiip
 #() pFEppupi
 #() pFEppLLp
 #() pFEpppLp
@@ -3921,6 +3922,7 @@ wrappedglib2:
 - vFp:
   - g_atexit
 - pFp:
+  - g_async_queue_new_full
   - g_completion_new
   - g_main_context_get_poll_func
   - g_private_new
@@ -4031,6 +4033,7 @@ wrappedglib2:
 - vFpupp:
   - g_datalist_id_set_data_full
 - vFpppp:
+  - g_async_queue_push_sorted
   - g_queue_insert_sorted
   - g_source_set_callback
 - iFpLpV:
@@ -4071,6 +4074,8 @@ wrappedglib2:
 - uFiuppp:
   - g_timeout_add_full
   - g_timeout_add_seconds_full
+- pFppiip:
+  - g_thread_pool_new
 - pFppppp:
   - g_option_group_new
 - vFpuuipp:
