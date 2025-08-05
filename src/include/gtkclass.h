@@ -70,21 +70,6 @@ typedef struct my_GTypeModuleClass_s
   void (*reserved4) (void);
 } my_GTypeModuleClass_t;
 
-/*
-typedef void (*my_GInterfaceInitFunc) (void* g_iface,
-				       void* iface_data);
-
-typedef void (*my_GInterfaceFinalizeFunc) (void* g_iface,
-					   void* iface_data);
-
-typedef struct my_GInterfaceInfo_s
-{
-  my_GInterfaceInitFunc     interface_init;
-  my_GInterfaceFinalizeFunc interface_finalize;
-  void*                     interface_data;
-} my_GInterfaceInfo_t;
-*/
-
 typedef struct my_GInitiallyUnowned_s
 {
   my_GTypeInstance_t  g_type_instance;
