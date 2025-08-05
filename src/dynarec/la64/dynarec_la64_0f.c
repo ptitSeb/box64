@@ -1672,7 +1672,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
             SRL_D(x4, ed, x2);
-            BSTRINS_D(xFlags, x4, 0, 0);
+            if(cpuext.lbt) {
+                X64_SET_EFLAGS(x4, X_CF);
+            } else {
+                BSTRINS_D(xFlags, x4, 0, 0);
+            }
             ADDI_D(x4, xZR, 1);
             ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
             SLL_D(x4, x4, x2);

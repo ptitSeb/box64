@@ -347,7 +347,7 @@ void emit_and16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 
     IFXA (X_ALL, cpuext.lbt) {
-        X64_AND_W(s1, s2);
+        X64_AND_H(s1, s2);
     }
 
     AND(s1, s1, s2); // res = s1 & s2
