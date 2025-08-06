@@ -81,7 +81,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             nextop = F8;
             GETG;
             if(MODREG) {
-                GETGXVXEX_empty(v0, v2, v1, 0);
+                GETGXVXEX_empty(v0, v1, v2, 0);
                 if((v2!=v1) && (v2!=v0)) VMOVQ(v2, v1);
                 if(v2!=v0) VMOVeS(v2, 0, v0, 0);
                 if((v2!=v1) && (v2==v0)) { VMOVeS(v2, 1, v0, 1); VMOVeD(v2, 1, v0, 1);}
