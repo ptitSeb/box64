@@ -64,29 +64,6 @@ static void* findGAsyncReadyCallbackFct(void* fct)
     return NULL;
 }
 
-// GDestroyNotify
-#define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;                       \
-static void my_GDestroyNotify_##A(void* data)                         \
-{                                                                     \
-    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data); \
-}
-SUPER()
-#undef GO
-static void* findGDestroyNotifyFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for gio2 GDestroyNotify callback\n");
-    return NULL;
-}
-
 // GDBusProxyTypeFunc
 #define GO(A)   \
 static uintptr_t my_GDBusProxyTypeFunc_fct_##A = 0;                                                           \

@@ -445,28 +445,6 @@ static void* findGIOFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GIOFunc callback\n");
     return NULL;
 }
-// GDestroyNotify ...
-#define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;                    \
-static void my_GDestroyNotify_##A(void* a)                         \
-{                                                                  \
-    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", a); \
-}
-SUPER()
-#undef GO
-static void* findGDestroyNotifyFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for glib2 GDestroyNotify callback\n");
-    return NULL;
-}
 // GFunc ...
 #define GO(A)   \
 static uintptr_t my_GFunc_fct_##A = 0;                        \

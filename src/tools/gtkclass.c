@@ -5589,6 +5589,29 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent)
     return NULL;
 }
 
+// GDestroyNotify ...
+#define GO(A)   \
+static uintptr_t my_GDestroyNotify_fct_##A = 0;                    \
+static void my_GDestroyNotify_##A(void* a)                         \
+{                                                                  \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", a); \
+}
+SUPER()
+#undef GO
+void* findGDestroyNotifyFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GDestroyNotify callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 void InitGTKClass(bridge_t *bridge)
