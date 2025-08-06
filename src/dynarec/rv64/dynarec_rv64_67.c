@@ -203,7 +203,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 case 0xB6:
-                    INST_NAME("MOVXZ Gd, Eb");
+                    INST_NAME("MOVZX Gd, Eb");
                     nextop = F8;
                     GETGD;
                     SCRATCH_USAGE(0);
