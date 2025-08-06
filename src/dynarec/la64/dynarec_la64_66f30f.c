@@ -57,16 +57,17 @@ uintptr_t dynarec64_66F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             v0 = fpu_get_scratch(dyn);
             VINSGR2VR_H(v0, ed, 0);
             VPCNT_H(v0, v0);
-            VPICKVE2GR_HU(gd, v0, 0);
+            VPICKVE2GR_HU(x2, v0, 0);
+            BSTRINS_D(gd, x2, 15, 0);
             IFX (X_ALL) {
                 if (cpuext.lbt) {
                     X64_SET_EFLAGS(xZR, X_ALL);
-                    BNEZ_MARK(gd);
+                    BNEZ_MARK(x2);
                     ADDI_D(x5, xZR, 1 << F_ZF);
                     X64_SET_EFLAGS(x5, X_ZF);
                 } else {
-                    CLEAR_FLAGS(x2);
-                    BNEZ_MARK(gd);
+                    CLEAR_FLAGS(x5);
+                    BNEZ_MARK(x2);
                     ORI(xFlags, xFlags, 1 << F_ZF);
                 }
                 MARK;
