@@ -175,44 +175,6 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x06:  /* VPERM2F128 Gx, Vx, Ex, Imm8 */
-            nextop = F8;
-            GETEX(1);
-            GETGX;
-            GETVX;
-            GETEY;
-            GETGY;
-            GETVY;
-            u8 = F8;
-            if(!vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
-            if(GX==EX) {
-                eax1 = *EX;
-                EX = &eax1;
-                eay1 = *EY;
-                EY = &eay1;
-            }
-            if(GX==VX) {
-                eax2 = *VX;
-                VX = &eax2;
-                eay2 = *VY;
-                VY = &eay2;
-            }
-            switch(u8&0x0f) {
-                case 0 : GX->u128 = VX->u128; break;
-                case 1 : GX->u128 = VY->u128; break;
-                case 2 : GX->u128 = EX->u128; break;
-                case 3 : GX->u128 = EY->u128; break;
-                default: if(u8&0x08) GX->u128 = 0; break;
-            }
-            switch((u8>>4)&0x0f) {
-                case 0 : GY->u128 = VX->u128; break;
-                case 1 : GY->u128 = VY->u128; break;
-                case 2 : GY->u128 = EX->u128; break;
-                case 3 : GY->u128 = EY->u128; break;
-                default: if(u8&0x80) GY->u128 = 0; break;
-            }
-            break;
-
         case 0x08:          // VROUNDPS Gx, Ex, u8
             nextop = F8;
             GETEX(1);
@@ -758,6 +720,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0x06:  /* VPERM2F128 Gx, Vx, Ex, Imm8 */
         case 0x46:  /* VPERM2I128 Gx, Vx, Ex, Imm8 */
             nextop = F8;
             GETEX(1);
