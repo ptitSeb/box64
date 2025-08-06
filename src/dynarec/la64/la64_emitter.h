@@ -2528,6 +2528,18 @@ LSX instruction starts with V, LASX instruction starts with XV.
         if (reg != xRSP) ADDI_D(xRSP, xRSP, 4); \
     } while (0);
 
+#define PUSH1_16(reg)           \
+    do {                        \
+        ST_H(reg, xRSP, -2);    \
+        ADDI_D(xRSP, xRSP, -2); \
+    } while (0)
+
+#define POP1_16(reg)                            \
+    do {                                        \
+        LD_HU(reg, xRSP, 0);                    \
+        if (reg != xRSP) ADDI_D(xRSP, xRSP, 2); \
+    } while (0)
+
 // POP reg
 #define POP1z(reg)          \
     do {                    \

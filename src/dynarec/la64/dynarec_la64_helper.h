@@ -136,7 +136,18 @@
         }                                                                                           \
         ed = x1;                                                                                    \
     }
-
+// GETEDOz can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDOz(O, D, S)                                                                       \
+    if (MODREG) {                                                                              \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                              \
+        wback = 0;                                                                             \
+    } else {                                                                                   \
+        SMREAD();                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 1, D); \
+        ADDz(S, wback, O);                                                                     \
+        LDz(x1, S, fixedaddress);                                                              \
+        ed = x1;                                                                               \
+    }
 // GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
 #define GETSED(D)                                                                               \
     if (MODREG) {                                                                               \
