@@ -1107,7 +1107,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         if (rex.w) {
                             VPICKVE2GR_D(ed, q0, (u8 & 1));
                         } else {
-                            VPICKVE2GR_W(ed, q0, (u8 & 3));
+                            VPICKVE2GR_WU(ed, q0, (u8 & 3));
                         }
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 1, 1);
