@@ -1294,7 +1294,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VMASKMOVDQU Gx, Ex");
             nextop = F8;
             GETEYx(v1, 0, 0);
-            GETGYx(v0, 1);
+            GETGYx(v0, 0);
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
             VSLTI_B(q1, v1, 0); // q1 = byte selection mask
