@@ -398,7 +398,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             GETVYx(v1, 0);
             GETEYSD(v2, 0, 1);
-            GETGYx_empty(v0);
+            GETGYx(v0, 1);
             q0 = fpu_get_scratch(dyn);
             u8 = F8;
             switch (u8 & 0xf) {
@@ -420,6 +420,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x0f: VSEQ_B(q0, v1, v1); break;        // true
             }
             XVXOR_V(v0, v0, v0);
+            XVPERMI_Q(v0, v1, XVPERMI_IMM_4_0(3, 0));
             XVINSVE0_D(v0, q0, 0);
             YMM_UNMARK_UPPER_ZERO(v0);
             break;
