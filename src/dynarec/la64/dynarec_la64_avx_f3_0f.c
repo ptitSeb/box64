@@ -51,7 +51,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 GETVYx(q1, 0);
                 GETEYSS(q2, 0, 0);
                 GETGYx_empty(q0);
-                if (!gd == vex.v) VOR_V(q0, q1, q1);
+                if (gd != vex.v) VOR_V(q0, q1, q1);
                 VEXTRINS_W(q0, q2, 0);
             } else {
                 GETEYSS(q2, 0, 0);
