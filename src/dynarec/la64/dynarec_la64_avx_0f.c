@@ -278,8 +278,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             d1 = fpu_get_scratch(dyn);
             if (vex.l) {
                 XVMSKLTZ_W(d1, v0);
-                VPICKVE2GR_DU(gd, d1, 0);
-                VPICKVE2GR_DU(x4, d1, 2);
+                XVPICKVE2GR_DU(gd, d1, 0);
+                XVPICKVE2GR_DU(x4, d1, 2);
                 BSTRINS_D(gd, x4, 7, 4);
             } else {
                 VMSKLTZ_W(d1, v0);
