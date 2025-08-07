@@ -271,15 +271,14 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX(d0, 1);
             GETEXSS(d1, 0, 0);
-            FCMP_S(fcc0, d0, d1, cUN);
-            BCNEZ_MARK(fcc0);
-            FCMP_S(fcc1, d1, d0, cLT);
-            BCEQZ_MARK2(fcc1);
-            MARK;
-            v1 = fpu_get_scratch(dyn);
-            FMOV_S(v1, d1);
-            VEXTRINS_W(d0, v1, 0);
-            MARK2;
+            q0 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastnan)) {
+                FMIN_S(q0, d0, d1);
+            } else {
+                FCMP_S(fcc0, d1, d0, cULE);
+                FSEL(q0, d0, d1, fcc0);
+            }
+            VEXTRINS_W(d0, q0, 0);
             break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
@@ -295,15 +294,14 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX(d0, 1);
             GETEXSS(d1, 0, 0);
-            FCMP_S(fcc0, d0, d1, cUN);
-            BCNEZ_MARK(fcc0);
-            FCMP_S(fcc1, d0, d1, cLT);
-            BCEQZ_MARK2(fcc1);
-            MARK;
-            v1 = fpu_get_scratch(dyn);
-            FMOV_S(v1, d1);
-            VEXTRINS_W(d0, v1, 0);
-            MARK2;
+            q0 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastnan)) {
+                FMAX_S(q0, d0, d1);
+            } else {
+                FCMP_S(fcc0, d1, d0, cLT);
+                FSEL(q0, d1, d0, fcc0);
+            }
+            VEXTRINS_W(d0, q0, 0);
             break;
         case 0x6F:
             INST_NAME("MOVDQU Gx, Ex");
