@@ -142,7 +142,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (!vex.l) EMIT(0);
             GETGY_empty_VYEY_xy(v0, v1, v2, 1);
             u8 = F8;
-            if (u8 == 0x88) {
+            if ((u8 & 0x88) == 0x88) {
                 XVXOR_V(v0, v0, v0);
                 break;
             }
