@@ -334,7 +334,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x5D:
             INST_NAME("VMINSS Gx, Vx, Ex");
             nextop = F8;
-            GETVYx(v1, 1);
+            GETVYx(v1, 0);
             GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             q0 = fpu_get_scratch(dyn);
@@ -369,7 +369,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x5F:
             INST_NAME("VMAXSS Gx, Vx, Ex");
             nextop = F8;
-            GETVYx(v1, 1);
+            GETVYx(v1, 0);
             GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             q0 = fpu_get_scratch(dyn);
