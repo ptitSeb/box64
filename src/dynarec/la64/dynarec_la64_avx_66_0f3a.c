@@ -320,24 +320,12 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY_empty_VYEY_xy(v0, v1, v2, 1);
             u8 = F8;
             d0 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                // 256bits fast path
-                if (u8 == 0) {
-                    if (v0 != v1) XVOR_V(v0, v1, v1);
-                    break;
-                } else if (u8 == 0xFF) {
-                    if (v0 != v2) XVOR_V(v0, v2, v2);
-                    break;
-                }
-            } else {
-                // VEX.128 128bits fast path
-                if ((u8 & 0xf) == 0) {
-                    if (v0 != v1) VOR_V(v0, v1, v1);
-                    break;
-                } else if ((u8 & 0xf) == 0xF) {
-                    if (v0 != v2) VOR_V(v0, v2, v2);
-                    break;
-                }
+            if (u8 == 0) {
+                if (v0 != v1) VOR_Vxy(v0, v1, v1);
+                break;
+            } else if (u8 == 0xFF) {
+                if (v0 != v2) VOR_Vxy(v0, v2, v2);
+                break;
             }
             tmp64u = 0;
             for (int i = 0; i < 8; i++) {
