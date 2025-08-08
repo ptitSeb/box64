@@ -215,6 +215,7 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
                     } else {
                         if (sib >> 6) {
                             SLLI_D(ret, TO_NAT(sib_reg), (sib >> 6));
+                            ZEROUP(ret);
                         } else {
                             ret = TO_NAT(sib_reg);
                         }
