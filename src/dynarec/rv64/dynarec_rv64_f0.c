@@ -71,6 +71,31 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SMDMB();
             break;
+        case 0x08:
+            INST_NAME("LOCK OR Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGB(x1);
+            SMDMB();
+            if (MODREG) {
+                GETEB(x2, 1);
+                emit_or8(dyn, ninst, x2, x1, x4, x5);
+                EBBACK(x5, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x5, x6, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                ANDI(x2, wback, 3);
+                SLLI(x2, x2, 3);
+                ANDI(x3, wback, ~3);
+                SLL(x1, x1, x2);
+                AMOOR_W(x4, x1, x3, 1, 1);
+                IFXORNAT (X_ALL | X_PEND) {
+                    SRL(x2, x4, x2);
+                    ANDI(x2, x2, 0xFF);
+                    emit_or8(dyn, ninst, x2, x1, x4, x5);
+                }
+            }
+            SMDMB();
+            break;
         case 0x09:
             INST_NAME("LOCK OR Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
