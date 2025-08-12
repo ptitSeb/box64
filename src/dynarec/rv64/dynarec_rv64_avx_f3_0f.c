@@ -46,47 +46,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     rex_t rex = vex.rex;
 
     switch (opcode) {
-        case 0x10:
-            INST_NAME("VMOVSS Gx, [Vx,] Ex");
-            nextop = F8;
-            GETG;
-            if (MODREG) {
-                if (gd == vex.v) {
-                    v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                    q0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
-                    FMVS(v0, q0);
-                } else {
-                    GETGX();
-                    GETVX();
-                    GETEX(x2, 0, 1);
-                    if (cpuext.xtheadmempair) {
-                        ADD(x1, vback, vxoffset);
-                        TH_LDD(x3, x4, x1, 0);
-                    } else {
-                        LD(x3, vback, vxoffset);
-                        LD(x4, vback, vxoffset + 8);
-                    }
-                    LWU(x5, wback, fixedaddress);
-                    if (cpuext.xtheadmempair) {
-                        ADDI(x1, gback, gdoffset);
-                        TH_SDD(x3, x4, x1, 0);
-                    } else {
-                        SD(x3, gback, gdoffset);
-                        SD(x4, gback, gdoffset + 8);
-                    }
-                    SW(x5, gback, gdoffset);
-                }
-            } else {
-                v0 = sse_get_reg_empty(dyn, ninst, x1, gd, 1);
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
-                FLW(v0, ed, fixedaddress);
-                // reset upper part
-                SW(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 4);
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
-            }
-            YMM0(gd);
-            break;
         default:
             DEFAULT;
     }

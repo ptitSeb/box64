@@ -74,13 +74,6 @@ uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 // return Ib on a mod/rm opcode without emitting anything
 uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
-// AVX utilities
-void avx_mark_zero(dynarec_native_t* dyn, int ninst, int reg);
-int is_avx_zero(dynarec_native_t* dyn, int ninst, int reg);
-int is_avx_zero_unset(dynarec_native_t* dyn, int ninst, int reg);
-void avx_mark_zero_reset(dynarec_native_t* dyn, int ninst);
-void avx_unmark_zero(dynarec_native_t* dyn, int ninst, int reg);
-
 typedef struct register_mapping_s {
     const char* name;
     const char* native;

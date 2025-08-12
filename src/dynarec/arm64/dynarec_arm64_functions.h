@@ -90,4 +90,13 @@ int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 void propagateFpuBarrier(dynarec_arm_t* dyn);
 // propage the uneeded flags on XMM/YMM regs (done between step 0 and step 1)
 void updateUneeded(dynarec_arm_t* dyn);
+
+void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached);
+
+// AVX helpers
+void avx_mark_zero(dynarec_arm_t* dyn, int ninst, int reg);
+int is_avx_zero(dynarec_arm_t* dyn, int ninst, int reg);
+int is_avx_zero_unset(dynarec_arm_t* dyn, int ninst, int reg);
+void avx_mark_zero_reset(dynarec_arm_t* dyn, int ninst);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

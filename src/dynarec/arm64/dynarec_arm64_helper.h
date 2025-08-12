@@ -2002,6 +2002,10 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         }                                       \
     }
 
-#define PURGE_YMM()    avx_purge_ymm(dyn, ninst, dyn->insts[ninst+1].purge_ymm, x1)
+#define PURGE_YMM()                                                         \
+    do {                                                                    \
+        if ((ok > 0) && reset_n == -1 && dyn->insts[ninst + 1].purge_ymm)   \
+            avx_purge_ymm(dyn, ninst, dyn->insts[ninst + 1].purge_ymm, x1); \
+    } while (0)
 
 #endif //__DYNAREC_ARM64_HELPER_H__

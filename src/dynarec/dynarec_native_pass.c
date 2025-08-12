@@ -346,8 +346,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         if((ok>0) && dyn->insts[ninst].x64.has_callret)
             reset_n = -2;
-        if((ok>0) && reset_n==-1 && dyn->insts[ninst+1].purge_ymm)
-            PURGE_YMM();
+        PURGE_YMM();
         ++ninst;
         #if STEP == 0
         memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
