@@ -381,7 +381,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                                 B_MARK3_nocond;
                                 MARK;
-                                SLLI_D(xRDX, x2, 32);
+                                SRLI_D(xRDX, x2, 32);
                                 ZEROUP2(xRAX, x2);
                                 MARK3;
                                 SMDMB();
