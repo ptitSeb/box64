@@ -21,7 +21,6 @@
     dyn->inst_sew = dyn->vector_sew;                                                                              \
     dyn->inst_vlmul = VECTOR_LMUL1;                                                                               \
     dyn->inst_vl = 0;                                                                                             \
-    if (dyn->need_dump) print_newinst(dyn, ninst);                                                      \
     if (ninst) {                                                                                                  \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
