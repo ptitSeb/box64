@@ -60,7 +60,6 @@ const char* getCacheName(int t, int n);
 
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex);
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
-void print_newinst(dynarec_native_t* dyn, int ninst);
 
 // reset the cache
 void fpu_reset(dynarec_native_t* dyn);

@@ -774,14 +774,6 @@ void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
     dynarec_log_prefix(0, LOG_NONE, "\t%08x\t%s\n", opcode, rv64_print(opcode, (uintptr_t)dyn->block));
 }
 
-void print_newinst(dynarec_native_t* dyn, int ninst)
-{
-    dynarec_log(LOG_NONE, "%sNew instruction %d, native=%p (0x%x)%s\n",
-        (dyn->need_dump > 1) ? "\e[4;32m" : "",
-        ninst, dyn->block, dyn->native_size,
-        (dyn->need_dump > 1) ? "\e[m" : "");
-}
-
 // x87 stuffs
 static void x87_reset(extcache_t* e)
 {
