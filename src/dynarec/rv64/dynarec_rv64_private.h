@@ -21,9 +21,7 @@ typedef struct box64env_s box64env_t;
 #define EXT_CACHE_SCR    7
 #define EXT_CACHE_XMMW   8
 #define EXT_CACHE_XMMR   9
-#define EXT_CACHE_YMMW   10
-#define EXT_CACHE_YMMR   11
-#define EXT_CACHE_MMV    12
+#define EXT_CACHE_MMV    10
 
 #define EXT_CACHE_OLD_SD   0
 #define EXT_CACHE_OLD_SS   1
@@ -116,11 +114,6 @@ typedef struct instruction_rv64_s {
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
     uint16_t            retn;
-    uint16_t            purge_ymm;  // need to purge some ymm
-    uint16_t            ymm0_in;    // bitmap of ymm to zero at purge
-    uint16_t            ymm0_add;   // the ymm0 added by the opcode
-    uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
-    uint16_t            ymm0_out;   // the ymm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     int                 barrier_maybe;
     uint8_t             will_write:2;    // [strongmem] will write to memory
