@@ -950,18 +950,18 @@
 #endif
 
 #ifndef READFLAGS
-#define READFLAGS(A)                                \
-    if (((A) != X_PEND && dyn->f.pending != SF_SET) \
-        && (dyn->f.pending != SF_SET_PENDING)) {    \
-        if (dyn->f.pending != SF_PENDING) {         \
-            LD_D(x3, xEmu, offsetof(x64emu_t, df)); \
-            j64 = (GETMARKF) - (dyn->native_size);  \
-            BEQ(x3, xZR, j64);                      \
-        }                                           \
-        CALL_(const_updateflags, -1, 0);            \
-        MARKF;                                      \
-        dyn->f.pending = SF_SET;                    \
-        SET_DFOK();                                 \
+#define READFLAGS(A)                                 \
+    if (((A) != X_PEND && dyn->f.pending != SF_SET)  \
+        && (dyn->f.pending != SF_SET_PENDING)) {     \
+        if (dyn->f.pending != SF_PENDING) {          \
+            LD_WU(x3, xEmu, offsetof(x64emu_t, df)); \
+            j64 = (GETMARKF) - (dyn->native_size);   \
+            BEQ(x3, xZR, j64);                       \
+        }                                            \
+        CALL_(const_updateflags, -1, 0);             \
+        MARKF;                                       \
+        dyn->f.pending = SF_SET;                     \
+        SET_DFOK();                                  \
     }
 #endif
 
