@@ -589,22 +589,6 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 VINSGR2VR_W(v0, ed, (u8 & 0x3));
             }
             break;
-        case 0x2A:
-            INST_NAME("VMOVNTDQA Gx, Ex");
-            nextop = F8;
-            if (MODREG) {
-                DEFAULT;
-            } else {
-                GETGYxy_empty(q0);
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                if (vex.l) {
-                    XVLD(q0, ed, fixedaddress);
-                } else {
-                    VLD(q0, ed, fixedaddress);
-                }
-            }
-            break;
         case 0x40:
             INST_NAME("VDPPS Gx, Vx, Ex, Ib");
             nextop = F8;
