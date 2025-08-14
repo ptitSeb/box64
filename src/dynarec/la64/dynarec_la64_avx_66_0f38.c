@@ -449,6 +449,22 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VSEQxy(D, v0, v2, v1);
             break;
+        case 0x2A:
+            INST_NAME("VMOVNTDQA Gx, Ex");
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                GETGYxy_empty(q0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                if (vex.l) {
+                    XVLD(q0, ed, fixedaddress);
+                } else {
+                    VLD(q0, ed, fixedaddress);
+                }
+            }
+            break;
         case 0x2B:
             INST_NAME("VPACKUSDW Gx, Vx, Ex");
             nextop = F8;
