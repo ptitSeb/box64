@@ -261,7 +261,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETEYSD(v1, 0, 0);
             GETGYxy_empty(v0);
             d0 = fpu_get_scratch(dyn);
-            if(vex.l) {
+            if (vex.l) {
                 XVFCVTH_S_H(d0, v1);
                 XVFCVTL_S_H(v0, v1);
                 XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2));
@@ -456,7 +456,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
-            VLDIxy(d0, (0b10111 <<8) | 0x00);  // Broadcast 0x0000FFFF as 32bits to all lane
+            VLDIxy(d0, (0b10111 << 8) | 0x00); // Broadcast 0x0000FFFF as 32bits to all lane
             if (v1 == v2) {
                 VMAXIxy(W, q0, v1, 0);
                 VMINxy(W, q0, q0, d0);
@@ -685,10 +685,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
             q2 = fpu_get_scratch(dyn);
-                                           // v1[a,b,c,d,e,f,g,h]
+            // v1[a,b,c,d,e,f,g,h]
             VSHUF4I_W(q0, v1, 0b01001110); // q0[e,f,g,h,a,b,c,d]
             VMIN_HU(q1, v1, q0);           // q1[ae,bf,cg,dh ...]
-            
+
             VSHUF4I_H(q2, q1, 0b10110001); // q2[bf,ae,dh,cg ...]
             VMIN_HU(q1, q1, q2);           // q1[aebf,aebf,cgdh,cgdh ...]
             VSHUF4I_H(q0, q1, 0b01001110); // q0[cgdh,cgdh,aebf,aebf]
@@ -1252,6 +1252,101 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             d0 = fpu_get_scratch(dyn);
             FNMADDxw(d0, v1, v2, v0);
             VEXTRINSxw(v0, d0, 0);
+            break;
+        case 0xDB:
+            INST_NAME("VAESIMC Gx, Ex");
+            nextop = F8;
+            GETGY_empty_EY_xy(q0, q1, 0);
+            if (q0 != q1) {
+                VOR_V(q0, q1, q1);
+            }
+            avx_forget_reg(dyn, ninst, gd);
+            MOV32w(x1, gd);
+            CALL(const_native_aesimc, -1);
+            if (!vex.l) {
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
+            }
+            break;
+        case 0xDC:
+            INST_NAME("VAESENC Gx, Ex");
+            nextop = F8;
+            GETG;
+            GETEYx(q1, 0, 0);
+            if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                d0 = fpu_get_scratch(dyn);
+                VOR_V(d0, q1, q1);
+            } else
+                d0 = -1;
+            avx_forget_reg(dyn, ninst, gd);
+            MOV32w(x1, gd);
+            CALL(const_native_aese, -1);
+            GETGYx(q0, 1);
+            VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+            if (!vex.l) {
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
+            }
+            break;
+        case 0xDD:
+            INST_NAME("VAESENCLAST Gx, Ex");
+            nextop = F8;
+            GETG;
+            GETEYx(q1, 0, 0);
+            if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                d0 = fpu_get_scratch(dyn);
+                VOR_V(d0, q1, q1);
+            } else
+                d0 = -1;
+            avx_forget_reg(dyn, ninst, gd);
+            MOV32w(x1, gd);
+            CALL(const_native_aeselast, -1);
+            GETGYx(q0, 1);
+            VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+            if (!vex.l) {
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
+            }
+            break;
+        case 0xDE:
+            INST_NAME("VAESDEC Gx, Ex"); // AES-NI
+            nextop = F8;
+            GETG;
+            GETEYx(q1, 0, 0);
+            if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                d0 = fpu_get_scratch(dyn);
+                VOR_V(d0, q1, q1);
+            } else
+                d0 = -1;
+            avx_forget_reg(dyn, ninst, gd);
+            MOV32w(x1, gd);
+            CALL(const_native_aesd, -1);
+            GETGYx(q0, 1);
+            VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+            if (!vex.l) {
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
+            }
+            break;
+        case 0xDF:
+            INST_NAME("VAESDECLAST Gx, Ex"); // AES-NI
+            nextop = F8;
+            GETG;
+            GETEYx(q1, 0, 0);
+            if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
+                d0 = fpu_get_scratch(dyn);
+                VOR_V(d0, q1, q1);
+            } else
+                d0 = -1;
+            avx_forget_reg(dyn, ninst, gd);
+            MOV32w(x1, gd);
+            CALL(const_native_aesdlast, -1);
+            GETGYx(q0, 1);
+            VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
+            if (!vex.l) {
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
+                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
+            }
             break;
         case 0xF7:
             INST_NAME("SHLX Gd, Ed, Vd");
