@@ -1041,7 +1041,7 @@
     if (((A) != X_PEND && dyn->f.pending != SF_SET) \
         && (dyn->f.pending != SF_SET_PENDING)) {    \
         if (dyn->f.pending != SF_PENDING) {         \
-            LD(x3, xEmu, offsetof(x64emu_t, df));   \
+            LWU(x3, xEmu, offsetof(x64emu_t, df));  \
             j64 = (GETMARKF) - (dyn->native_size);  \
             BEQ(x3, xZR, j64);                      \
         }                                           \

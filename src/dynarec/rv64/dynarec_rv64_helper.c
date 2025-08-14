@@ -2701,7 +2701,7 @@ static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
     }
     if (go) {
         if (dyn->f.pending != SF_PENDING) {
-            LW(s1, xEmu, offsetof(x64emu_t, df));
+            LWU(s1, xEmu, offsetof(x64emu_t, df));
             j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
