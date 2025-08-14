@@ -369,7 +369,7 @@ GO(29)
 static uintptr_t my32_cleanup_routine_fct_##A = 0;  				\
 static void my32_cleanup_routine_##A(void* a)    					\
 {                                       							\
-    RunFunctionFmt(my32_cleanup_routine_fct_##A, "p", to_ptrv(a));	\
+    RunFunctionFmt(my32_cleanup_routine_fct_##A, "p", a);			\
 }
 SUPER()
 #undef GO
@@ -392,7 +392,7 @@ static void* findcleanup_routineFct(void* fct)
 static uintptr_t my32_key_destructor_fct_##A = 0;  					\
 static void my32_key_destructor_##A(void* a)    					\
 {                                       							\
-    RunFunctionFmt(my32_key_destructor_fct_##A, "p", to_ptrv(a));	\
+    RunFunctionFmt(my32_key_destructor_fct_##A, "p", a);			\
 }
 SUPER()
 #undef GO
