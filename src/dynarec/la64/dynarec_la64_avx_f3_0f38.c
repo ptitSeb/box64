@@ -57,6 +57,36 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0xF5:
+            INST_NAME("PEXT Gd, Vd, Ed");
+            nextop = F8;
+            GETGD;
+            GETVD;
+            GETED(0);
+            if (gd == ed || gd == vd) {
+                gb1 = gd;
+                gd = x6;
+            } else {
+                gb1 = 0;
+            }
+            MOV64x(gd, 0);
+            MOV64x(x3, 1);
+            MOV64x(x4, 1);
+            MARK;
+            AND(x5, ed, x4);
+            BEQZ_MARK2(x5);
+            AND(x5, vd, x4);
+            BEQZ_MARK3(x5);
+            OR(gd, gd, x3);
+            MARK3;
+            SLLIxw(x3, x3, 1);
+            MARK2;
+            SLLIxw(x4, x4, 1);
+            BNEZ_MARK(x4);
+            if (gb1)
+                OR(gb1, gd, gd);
+            break;
+
         case 0xF7:
             INST_NAME("SARX Gd, Ed, Vd");
             nextop = F8;
