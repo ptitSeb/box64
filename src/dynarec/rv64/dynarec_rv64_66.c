@@ -768,7 +768,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x9C:
             INST_NAME("PUSHF");
-            NOTEST(x1);
             READFLAGS(X_ALL);
             FLAGS_ADJUST_TO11(x3, xFlags, x2);
             PUSH1_16(x3);
@@ -781,7 +780,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LUI(x2, 0xffff0);
             AND(xFlags, xFlags, x2);
             OR(xFlags, xFlags, x1);
-            MOV32w(x1, 0x3F7FD7);
+            MOV32w(x1, 0x3F7FF7);
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x2);
             SET_DFNONE();
