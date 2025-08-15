@@ -67,6 +67,28 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SD(xZR, gyback, gyoffset + 8);
             }
             break;
+        case 0x29:
+            INST_NAME("VMOVAPS Ex, Gx");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            LD(x3, gback, gdoffset);
+            SD(x3, wback, fixedaddress);
+            LD(x3, gback, gdoffset + 8);
+            SD(x3, wback, fixedaddress + 8);
+            if (vex.l) {
+                GETEY();
+                GETGY();
+                LD(x3, gyback, gyoffset);
+                SD(x3, wback, fixedaddress);
+                LD(x3, gyback, gyoffset + 8);
+                SD(x3, wback, fixedaddress + 8);
+            } else if (MODREG) {
+                GETEY();
+                SD(xZR, wback, fixedaddress);
+                SD(xZR, wback, fixedaddress + 8);
+            }
+            break;
         default:
             DEFAULT;
     }
