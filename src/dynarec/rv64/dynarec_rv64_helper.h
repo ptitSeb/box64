@@ -457,6 +457,12 @@
     gback = xEmu;                               \
     gdoffset = offsetof(x64emu_t, xmm[gd])
 
+#define GETGY()                                 \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    /* TODO: forget */                          \
+    gyback = xEmu;                              \
+    gyoffset = offsetof(x64emu_t, ymm[gd])
+
 #define GETVX()                            \
     sse_forget_reg(dyn, ninst, x3, vex.v); \
     vback = xEmu;                          \
@@ -474,6 +480,19 @@
         ed = 16;                                                                                 \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
+
+
+#define GETEY()                                     \
+    if (MODREG) {                                   \
+        ed = (nextop & 7) + (rex.b << 3);           \
+        /* TODO: forget */                          \
+        wback = xEmu;                               \
+        fixedaddress = offsetof(x64emu_t, ymm[ed]); \
+    } else {                                        \
+        fixedaddress += 16;                         \
+    }
+
+
 #define GETEX32(a, D, I12)                                                                         \
     if (MODREG) {                                                                                  \
         ed = (nextop & 7) + (rex.b << 3);                                                          \
