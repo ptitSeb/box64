@@ -30,6 +30,9 @@ f24-f31  fs0-fs7   Static registers                Callee
  flags in r31
  ip in r20
 */
+
+#ifndef ASM_MAPPING
+
 // x86 Register mapping
 #define xRAX     12
 #define xRCX     13
@@ -63,14 +66,14 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define x6 10
 #define x7 11
 
-// emu is r0
+// emu is $r4
 #define xEmu 4
 // LA64 RA
 #define xRA 1
 #define ra  xRA
 // LA64 SP
 #define xSP 3
-// RV64 args
+// LA64 args
 #define A0 4
 #define A1 5
 #define A2 6
@@ -126,5 +129,39 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define FR_O 26
 #define FR_U 25
 #define FR_I 24
+
+#else
+
+// x86 Register mapping
+#define RAX     $r12
+#define RCX     $r13
+#define RDX     $r14
+#define RBX     $r15
+#define RSP     $r16
+#define RBP     $r17
+#define RSI     $r18
+#define RDI     $r19
+#define R8      $r23
+#define R9      $r24
+#define R10     $r25
+#define R11     $r26
+#define R12     $r27
+#define R13     $r28
+#define R14     $r29
+#define R15     $r30
+#define Flags   $r31
+#define RIP     $r20
+#define SavedSP $r22
+#define Emu     $r4
+
+#ifdef LA64_ABI_1
+
+.macro ret
+    jr  $ra
+.endm
+
+#endif // LA64_ABI_1
+
+#endif // ASM_MAPPING
 
 #endif //__LA64_MAPPING_H__
