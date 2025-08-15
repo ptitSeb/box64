@@ -87,6 +87,24 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(xZR, wback, fixedaddress + 8);
             }
             break;
+        case 0x5A:
+            INST_NAME("VCVTSS2SD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, 1);
+            GETGX();
+            GETVX();
+            GETGY();
+            s0 = fpu_get_scratch(dyn);
+            FLW(s0, wback, fixedaddress);
+            FCVTDS(s0, s0);
+            FSD(s0, gback, gdoffset);
+            if (gd != vex.v) {
+                LD(x2, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 8);
+            }
+            SD(xZR, gyback, gyoffset);
+            SD(xZR, gyback, gyoffset + 8);
+            break;
         default:
             DEFAULT;
     }
