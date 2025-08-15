@@ -460,8 +460,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETGY;
-            if(vex.l) {
-                GETEY;
+            if (vex.l) {
                 GY->d[1] = EX->f[3];
                 GY->d[0] = EX->f[2];
             } else
