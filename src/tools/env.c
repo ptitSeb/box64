@@ -807,11 +807,11 @@ done:
 #define HEADER_SIGN "DynaCache"
 #define SET_VERSION(MAJ, MIN, REV) (((MAJ)<<24)|((MIN)<<16)|(REV))
 #ifdef ARM64
-#define ARCH_VERSION SET_VERSION(0, 0, 3)
+#define ARCH_VERSION SET_VERSION(0, 0, 4)
 #elif defined(RV64)
-#define ARCH_VERSION SET_VERSION(0, 0, 2)
+#define ARCH_VERSION SET_VERSION(0, 0, 3)
 #elif defined(LA64)
-#define ARCH_VERSION SET_VERSION(0, 0, 2)
+#define ARCH_VERSION SET_VERSION(0, 0, 3)
 #else
 #error meh!
 #endif
