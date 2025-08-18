@@ -188,6 +188,7 @@ Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.c
 Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
 
  * XXXX: Set a minimum size of XXXX KB of Dynarec code to write the dynacache to disk. Will not be saved to disk else. 
+ * 350: A size of 350 KB is the default value. [Default]
 
 ### BOX64_MMAP32
 
@@ -342,7 +343,7 @@ Add --no-sandbox argument to the guest program.
 
 ### BOX64_AVX
 
-Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
+Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 and LoongArch64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
 
  * 0: Do not expose AVX capabilities. 
  * 1: Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file. 
