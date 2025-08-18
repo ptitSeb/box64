@@ -30,7 +30,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed, vd;
-    uint8_t wback, wb1, wb2, gback, vback, gyback;
+    uint8_t wback, wb1, wb2, gback, vback;
     uint8_t eb1, eb2, gb1, gb2;
     int32_t i32, i32_;
     int cacheupd = 0;
@@ -59,12 +59,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (vex.l) {
                 GETEY();
                 LD(x3, wback, fixedaddress);
-                SD(x3, gyback, gyoffset);
+                SD(x3, gback, gyoffset);
                 LD(x3, wback, fixedaddress + 8);
-                SD(x3, gyback, gyoffset + 8);
+                SD(x3, gback, gyoffset + 8);
             } else {
-                SD(xZR, gyback, gyoffset);
-                SD(xZR, gyback, gyoffset + 8);
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
             }
             break;
         case 0x6E:
@@ -75,8 +75,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY();
             SD(ed, gback, gdoffset);
             SD(xZR, gback, gdoffset + 8);
-            SD(xZR, gyback, gyoffset);
-            SD(xZR, gyback, gyoffset + 8);
+            SD(xZR, gback, gyoffset);
+            SD(xZR, gback, gyoffset + 8);
             break;
         case 0x6F:
             INST_NAME("VMOVDQA Gx, Ex");
@@ -91,12 +91,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (vex.l) {
                 GETEY();
                 LD(x3, wback, fixedaddress);
-                SD(x3, gyback, gyoffset);
+                SD(x3, gback, gyoffset);
                 LD(x3, wback, fixedaddress + 8);
-                SD(x3, gyback, gyoffset + 8);
+                SD(x3, gback, gyoffset + 8);
             } else {
-                SD(xZR, gyback, gyoffset);
-                SD(xZR, gyback, gyoffset + 8);
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
             }
             break;
         case 0x7E:
@@ -136,9 +136,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SD(x3, wback, fixedaddress + 8);
             if (vex.l) {
                 GETEY();
-                LD(x3, gyback, gyoffset);
+                LD(x3, gback, gyoffset);
                 SD(x3, wback, fixedaddress);
-                LD(x3, gyback, gyoffset + 8);
+                LD(x3, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
             } else if (MODREG) {
                 SD(xZR, wback, fixedaddress);
