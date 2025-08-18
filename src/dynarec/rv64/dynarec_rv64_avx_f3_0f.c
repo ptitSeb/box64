@@ -105,6 +105,131 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SD(xZR, gyback, gyoffset);
             SD(xZR, gyback, gyoffset + 8);
             break;
+        case 0x5D:
+            INST_NAME("VMINSS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x1, 0, 1);
+            GETVX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLW(d0, vback, vxoffset);
+            FLW(d1, wback, fixedaddress);
+            FEQS(x2, d0, d0);
+            FEQS(x3, d1, d1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLES(x2, d1, d0);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVS(d0, d1);
+            MARK2;
+            FSW(d0, gback, gdoffset);
+            if (gd != vex.v) {
+                LWU(x2, vback, vxoffset + 4);
+                SW(x2, gback, gdoffset + 4);
+                LD(x2, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 8);
+            }
+            SD(xZR, gyback, gyoffset);
+            SD(xZR, gyback, gyoffset + 8);
+            break;
+        case 0x5F:
+            INST_NAME("VMAXSS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x1, 0, 1);
+            GETVX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLW(d0, vback, vxoffset);
+            FLW(d1, wback, fixedaddress);
+            FEQS(x2, d0, d0);
+            FEQS(x3, d1, d1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLES(x2, d0, d1);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVS(d0, d1);
+            MARK2;
+            FSW(d0, gback, gdoffset);
+            if (gd != vex.v) {
+                LWU(x2, vback, vxoffset + 4);
+                SW(x2, gback, gdoffset + 4);
+                LD(x2, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 8);
+            }
+            SD(xZR, gyback, gyoffset);
+            SD(xZR, gyback, gyoffset + 8);
+            break;
+        case 0xC2:
+            INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLW(d0, vback, vxoffset);
+            FLW(d1, wback, fixedaddress);
+            u8 = F8;
+            if ((u8 & 7) == 0) { // Equal
+                FEQS(x2, d0, d1);
+            } else if ((u8 & 7) == 4) { // Not Equal or unordered
+                FEQS(x2, d0, d1);
+                XORI(x2, x2, 1);
+            } else {
+                // x2 = !(isnan(d0) || isnan(d1))
+                FEQS(x3, d0, d0);
+                FEQS(x2, d1, d1);
+                AND(x2, x2, x3);
+
+                switch (u8 & 7) {
+                    case 1:
+                        BEQ_MARK(x2, xZR);
+                        FLTS(x2, d0, d1);
+                        break; // Less than
+                    case 2:
+                        BEQ_MARK(x2, xZR);
+                        FLES(x2, d0, d1);
+                        break;                      // Less or equal
+                    case 3: XORI(x2, x2, 1); break; // NaN
+                    case 5: {                       // Greater or equal or unordered
+                        BEQ_MARK2(x2, xZR);
+                        FLES(x2, d1, d0);
+                        B_MARK_nocond;
+                        break;
+                    }
+                    case 6: { // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                        BEQ_MARK2(x2, xZR);
+                        FLTS(x2, d1, d0);
+                        B_MARK_nocond;
+                        break;
+                    }
+                    case 7: break; // Not NaN
+                }
+
+                MARK2;
+                if ((u8 & 7) == 5 || (u8 & 7) == 6) {
+                    MOV32w(x2, 1);
+                }
+                MARK;
+            }
+            NEG(x2, x2);
+            SW(x2, gback, gdoffset);
+            if (gd != vex.v) {
+                LWU(x2, vback, vxoffset + 4);
+                SW(x2, gback, gdoffset + 4);
+                LD(x2, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 8);
+            }
+            SD(xZR, gyback, gyoffset);
+            SD(xZR, gyback, gyoffset + 8);
+            break;
         default:
             DEFAULT;
     }
