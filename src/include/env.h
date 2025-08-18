@@ -128,9 +128,9 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_X87_NO80BITS, x87_no80bits, 0, 1)                           \
     INTEGER(BOX64_DYNACACHE, dynacache, 2, 0, 2, 0)                           \
     STRING(BOX64_DYNACACHE_FOLDER, dynacache_folder, 0)                       \
-    INTEGER(BOX64_DYNACACHE_MIN, dynacache_min, 350, 0, 10240, 0)             \
+    INTEGER(BOX64_DYNACACHE_MIN, dynacache_min, 350, 0, 10240, 0)
 
-#ifdef ARM64
+#if defined(ARM64) || defined(LA64)
 #define ENVSUPER2() \
     INTEGER(BOX64_AVX, avx, 2, 0, 2, 1)
 #else
