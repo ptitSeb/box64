@@ -70,9 +70,9 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 16; ++i) {
                         LBU(x3, wback, fixedaddress + i);
                         ANDI(x4, x3, 128);
-                        BEQZ(x4, 12);
+                        BEQZ(x4, 4 + 4 * 2);
                         SB(xZR, gback, gdoffset + i);
-                        BEQZ(xZR, 20); // continue
+                        J(4 + 4 * 4); // continue
                         ANDI(x4, x3, 15);
                         ADD(x4, x4, x5);
                         LBU(x4, x4, 0);

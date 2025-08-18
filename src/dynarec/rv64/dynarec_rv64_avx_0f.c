@@ -30,7 +30,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed, vd;
-    uint8_t wback, wb1, wb2, gback, vback, gyback;
+    uint8_t wback, wb1, wb2, gback, vback;
     uint8_t eb1, eb2, gb1, gb2;
     int32_t i32, i32_;
     int cacheupd = 0;
@@ -59,12 +59,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             if (vex.l) {
                 GETEY();
                 LD(x3, wback, fixedaddress);
-                SD(x3, gyback, gyoffset);
+                SD(x3, gback, gyoffset);
                 LD(x3, wback, fixedaddress + 8);
-                SD(x3, gyback, gyoffset + 8);
+                SD(x3, gback, gyoffset + 8);
             } else {
-                SD(xZR, gyback, gyoffset);
-                SD(xZR, gyback, gyoffset + 8);
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
             }
             break;
         case 0x29:
@@ -79,9 +79,9 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             if (vex.l) {
                 GETEY();
                 GETGY();
-                LD(x3, gyback, gyoffset);
+                LD(x3, gback, gyoffset);
                 SD(x3, wback, fixedaddress);
-                LD(x3, gyback, gyoffset + 8);
+                LD(x3, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
             } else if (MODREG) {
                 GETEY();
@@ -147,11 +147,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 FLW(s1, wback, fixedaddress + 12);
                 FCVTDS(s0, s0);
                 FCVTDS(s1, s1);
-                FSD(s0, gyback, gyoffset + 0);
-                FSD(s1, gyback, gyoffset + 8);
+                FSD(s0, gback, gyoffset + 0);
+                FSD(s1, gback, gyoffset + 8);
             } else {
-                FSD(xZR, gyback, gyoffset + 0);
-                FSD(xZR, gyback, gyoffset + 8);
+                FSD(xZR, gback, gyoffset + 0);
+                FSD(xZR, gback, gyoffset + 8);
             }
             break;
         default:
