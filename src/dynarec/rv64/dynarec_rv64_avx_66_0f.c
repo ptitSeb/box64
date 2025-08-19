@@ -40,7 +40,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     int s0;
     uint64_t tmp64u, u64;
     int64_t j64;
-    int64_t fixedaddress, gdoffset, vxoffset, gyoffset;
+    int64_t fixedaddress, gdoffset, vxoffset, gyoffset, vyoffset;
     int unscaled;
 
     rex_t rex = vex.rex;
@@ -64,6 +64,35 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(x3, gback, gyoffset + 8);
             } else {
                 SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x66:
+            INST_NAME("VPCMPGTD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            for (int i = 0; i < 4; ++i) {
+                LW(x3, vback, vxoffset + i * 4);
+                LW(x4, wback, fixedaddress + i * 4);
+                SLT(x4, x4, x3);
+                NEG(x3, x4);
+                SW(x3, gback, gdoffset + i * 4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    LW(x3, vback, vyoffset + i * 4);
+                    LW(x4, wback, fixedaddress + i * 4);
+                    SLT(x4, x4, x3);
+                    NEG(x3, x4);
+                    SW(x3, gback, gyoffset + i * 4);
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
                 SD(xZR, gback, gyoffset + 8);
             }
             break;
@@ -143,6 +172,37 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else if (MODREG) {
                 SD(xZR, wback, fixedaddress);
                 SD(xZR, wback, fixedaddress + 8);
+            }
+            break;
+        case 0xEF:
+            INST_NAME("VPXOR Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            LD(x3, vback, vxoffset + 0);
+            LD(x4, wback, fixedaddress + 0);
+            XOR(x3, x3, x4);
+            SD(x3, gback, gdoffset + 0);
+            LD(x3, vback, vxoffset + 8);
+            LD(x4, wback, fixedaddress + 8);
+            XOR(x3, x3, x4);
+            SD(x3, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, vback, vyoffset + 0);
+                LD(x4, wback, fixedaddress + 0);
+                XOR(x3, x3, x4);
+                SD(x3, gback, gyoffset + 0);
+                LD(x3, vback, vyoffset + 8);
+                LD(x4, wback, fixedaddress + 8);
+                XOR(x3, x3, x4);
+                SD(x3, gback, gyoffset + 8);
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
             }
             break;
         default:

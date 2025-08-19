@@ -448,6 +448,138 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SD(xZR, gback, gyoffset + 8);
             }
             break;
+        case 0x08:
+            INST_NAME("VPSIGNB Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 31 : 15);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            for (int i = 0; i < 16; ++i) {
+                LB(x3, vback, vxoffset + i);
+                LB(x4, wback, fixedaddress + i);
+                SLT(x1, xZR, x4);
+                SRAI(x5, x4, 63);
+                OR(x1, x1, x5);
+                MUL(x3, x1, x3);
+                SB(x3, gback, gdoffset + i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 16; ++i) {
+                    LB(x3, vback, vyoffset + i);
+                    LB(x4, wback, fixedaddress + i);
+                    SLT(x1, xZR, x4);
+                    SRAI(x5, x4, 63);
+                    OR(x1, x1, x5);
+                    MUL(x3, x1, x3);
+                    SB(x3, gback, gyoffset + i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x09:
+            INST_NAME("VPSIGNW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            for (int i = 0; i < 8; ++i) {
+                LH(x3, vback, vxoffset + i * 2);
+                LH(x4, wback, fixedaddress + i * 2);
+                SLT(x1, xZR, x4);
+                SRAI(x5, x4, 63);
+                OR(x1, x1, x5);
+                MUL(x3, x1, x3);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LH(x3, vback, vyoffset + i * 2);
+                    LH(x4, wback, fixedaddress + i * 2);
+                    SLT(x1, xZR, x4);
+                    SRAI(x5, x4, 63);
+                    OR(x1, x1, x5);
+                    MUL(x3, x1, x3);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x0A:
+            INST_NAME("VPSIGND Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            for (int i = 0; i < 4; ++i) {
+                LH(x3, vback, vxoffset + i * 4);
+                LH(x4, wback, fixedaddress + i * 4);
+                SLT(x1, xZR, x4);
+                SRAI(x5, x4, 63);
+                OR(x1, x1, x5);
+                MUL(x3, x1, x3);
+                SH(x3, gback, gdoffset + i * 4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    LH(x3, vback, vyoffset + i * 4);
+                    LH(x4, wback, fixedaddress + i * 4);
+                    SLT(x1, xZR, x4);
+                    SRAI(x5, x4, 63);
+                    OR(x1, x1, x5);
+                    MUL(x3, x1, x3);
+                    SH(x3, gback, gyoffset + i * 4);
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x0B:
+            INST_NAME("VPMULHRSW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            for (int i = 0; i < 8; ++i) {
+                LH(x3, gback, vxoffset + i * 2);
+                LH(x4, wback, fixedaddress + i * 2);
+                MUL(x3, x3, x4);
+                SRAI(x3, x3, 14);
+                ADDI(x3, x3, 1);
+                SRAI(x3, x3, 1);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LH(x3, gback, vyoffset + i * 2);
+                    LH(x4, wback, fixedaddress + i * 2);
+                    MUL(x3, x3, x4);
+                    SRAI(x3, x3, 14);
+                    ADDI(x3, x3, 1);
+                    SRAI(x3, x3, 1);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
         default:
             DEFAULT;
     }
