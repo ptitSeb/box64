@@ -1950,15 +1950,25 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 
 #define PURGE_YMM()
 
-// reg = (reg < -32768) ? -32768 : ((reg > 32767) ? 32767 : reg)
-#define SAT16(reg, s)             \
-    LUI(s, 0xFFFF8); /* -32768 */ \
-    BGE(reg, s, 4 + 2 * 4);       \
-    MV(reg, s);                   \
-    J(4 + 4 * 3);                 \
-    LUI(s, 8); /* 32768 */        \
-    BLT(reg, s, 4 + 4);           \
-    ADDIW(reg, s, -1);
+// TODO: zbb?
+#define SAT16(reg, s)                 \
+    do {                              \
+        LUI(s, 0xFFFF8); /* -32768 */ \
+        BGE(reg, s, 4 + 4);           \
+        MV(reg, s);                   \
+        LUI(s, 0x8); /* 32768 */      \
+        BLT(reg, s, 4 + 4);           \
+        ADDIW(reg, s, -1);            \
+    } while (0)
+
+#define SATU16(reg, s)            \
+    do {                          \
+        LUI(s, 0x10); /* 65536 */ \
+        BGE(reg, xZR, 4 + 4);     \
+        MV(reg, xZR);             \
+        BLT(reg, s, 4 + 4);       \
+        ADDIW(reg, s, -1);        \
+    } while (0)
 
 #define FAST_8BIT_OPERATION(dst, src, s1, OP)                                        \
     if (MODREG && (cpuext.zbb || cpuext.xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \

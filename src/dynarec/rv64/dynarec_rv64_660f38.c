@@ -141,23 +141,13 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     INST_NAME("PHADDSW Gx, Ex");
                     nextop = F8;
                     GETGX();
-                    MOV64x(x5, 32767);
-                    MOV64x(x6, -32768);
                     for (int i = 0; i < 4; ++i) {
                         // tmp32s = GX->sw[i*2+0]+GX->sw[i*2+1];
                         // GX->sw[i] = sat(tmp32s);
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
                         ADDW(x3, x3, x4);
-                        if (cpuext.zbb) {
-                            MIN(x3, x3, x5);
-                            MAX(x3, x3, x6);
-                        } else {
-                            BLT(x3, x5, 4 + 4);
-                            MV(x3, x5);
-                            BLT(x6, x3, 4 + 4);
-                            MV(x3, x6);
-                        }
+                        SAT16(x3, x6);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
@@ -172,15 +162,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                             LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                             LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                             ADDW(x3, x3, x4);
-                            if (cpuext.zbb) {
-                                MIN(x3, x3, x5);
-                                MAX(x3, x3, x6);
-                            } else {
-                                BLT(x3, x5, 4 + 4);
-                                MV(x3, x5);
-                                BLT(x6, x3, 4 + 4);
-                                MV(x3, x6);
-                            }
+                            SAT16(x3, x6);
                             SH(x3, gback, gdoffset + 2 * (4 + i));
                         }
                     }
@@ -190,8 +172,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0, 15);
-                    MOV64x(x5, 32767);
-                    MOV64x(x6, -32768);
                     for (int i = 0; i < 8; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
@@ -200,15 +180,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
                         ADD(x3, x3, x7);
-                        if (cpuext.zbb) {
-                            MIN(x3, x3, x5);
-                            MAX(x3, x3, x6);
-                        } else {
-                            BLT(x3, x5, 4 + 4);
-                            MV(x3, x5);
-                            BLT(x6, x3, 4 + 4);
-                            MV(x3, x6);
-                        }
+                        SAT16(x3, x6);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     break;
@@ -497,18 +469,9 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0, 12);
-                    MOV64x(x5, 65535);
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
-                        if (cpuext.zbb) {
-                            MIN(x3, x3, x5);
-                            MAX(x3, x3, xZR);
-                        } else {
-                            BGE(x3, xZR, 4 + 4);
-                            MV(x3, xZR);
-                            BLT(x3, x5, 4 + 4);
-                            MV(x3, x5);
-                        }
+                        SATU16(x3, x5);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     if (MODREG && gd == ed) {
@@ -517,15 +480,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     } else
                         for (int i = 0; i < 4; ++i) {
                             LW(x3, wback, fixedaddress + i * 4);
-                            if (cpuext.zbb) {
-                                MIN(x3, x3, x5);
-                                MAX(x3, x3, xZR);
-                            } else {
-                                BGE(x3, xZR, 4 + 4);
-                                MV(x3, xZR);
-                                BLT(x3, x5, 4 + 4);
-                                MV(x3, x5);
-                            }
+                            SATU16(x3, x5);
                             SH(x3, gback, gdoffset + 8 + i * 2);
                         }
                     break;
