@@ -104,9 +104,13 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x01:
-            INST_NAME("VPHADDW Gx, Vx, Ex");
+        case 0x03:
+            if (opcode == 0x01)
+                INST_NAME("VPHADDW Gx, Vx, Ex");
+            else
+                INST_NAME("VPHADDSW Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 46 : 14);
+            GETEX(x1, 0, vex.l ? 30 : 14);
             GETGX();
             GETVX();
             GETGY();
@@ -125,6 +129,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LH(x3, vback, vxoffset + 2 * (i * 2 + 0));
                 LH(x4, vback, vxoffset + 2 * (i * 2 + 1));
                 ADDW(x3, x3, x4);
+                if (opcode == 0x03) SAT16(x3, x6);
                 SH(x3, gback, gdoffset + 2 * i);
             }
             if (MODREG && ed == vex.v) {
@@ -137,6 +142,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                     LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                     ADDW(x3, x3, x4);
+                    if (opcode == 0x03) SAT16(x3, x6);
                     SH(x3, gback, gdoffset + 2 * (4 + i));
                 }
             }
@@ -156,6 +162,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LH(x3, vback, vyoffset + 2 * (i * 2 + 0));
                     LH(x4, vback, vyoffset + 2 * (i * 2 + 1));
                     ADDW(x3, x3, x4);
+                    if (opcode == 0x03) SAT16(x3, x6);
                     SH(x3, gback, gyoffset + 2 * i);
                 }
                 if (MODREG && ed == vex.v) {
@@ -168,6 +175,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                         LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                         ADDW(x3, x3, x4);
+                        if (opcode == 0x03) SAT16(x3, x6);
                         SH(x3, gback, gyoffset + 2 * (4 + i));
                     }
                 }
@@ -179,7 +187,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x02:
             INST_NAME("VPHADDD Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 44 : 12);
+            GETEX(x1, 0, vex.l ? 28 : 12);
             GETGX();
             GETVX();
             GETGY();
@@ -249,10 +257,51 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SD(xZR, gback, gyoffset + 8);
             }
             break;
-        case 0x05:
-            INST_NAME("VPHSUBW Gx, Vx, Ex");
+        case 0x04:
+            INST_NAME("VPMADDUBSW Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 46 : 14);
+            GETEX(x1, 0, vex.l ? 31 : 15);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            for (int i = 0; i < 8; ++i) {
+                LBU(x3, vback, vxoffset + i * 2);
+                LB(x4, wback, fixedaddress + i * 2);
+                MUL(x7, x3, x4);
+                LBU(x3, vback, vxoffset + i * 2 + 1);
+                LB(x4, wback, fixedaddress + i * 2 + 1);
+                MUL(x3, x3, x4);
+                ADD(x3, x3, x7);
+                SAT16(x3, x6);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LBU(x3, vback, vyoffset + i * 2);
+                    LB(x4, wback, fixedaddress + i * 2);
+                    MUL(x7, x3, x4);
+                    LBU(x3, vback, vyoffset + i * 2 + 1);
+                    LB(x4, wback, fixedaddress + i * 2 + 1);
+                    MUL(x3, x3, x4);
+                    ADD(x3, x3, x7);
+                    SAT16(x3, x6);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x05:
+        case 0x07:
+            if (opcode == 0x05)
+                INST_NAME("VPHSUBW Gx, Vx, Ex");
+            else
+                INST_NAME("VPHSUBSW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
             GETGX();
             GETVX();
             GETGY();
@@ -271,6 +320,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LH(x3, vback, vxoffset + 2 * (i * 2 + 0));
                 LH(x4, vback, vxoffset + 2 * (i * 2 + 1));
                 SUBW(x3, x3, x4);
+                if (opcode == 0x07) SAT16(x3, x6);
                 SH(x3, gback, gdoffset + 2 * i);
             }
             if (MODREG && ed == vex.v) {
@@ -283,6 +333,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                     LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                     SUBW(x3, x3, x4);
+                    if (opcode == 0x07) SAT16(x3, x6);
                     SH(x3, gback, gdoffset + 2 * (4 + i));
                 }
             }
@@ -302,6 +353,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LH(x3, vback, vyoffset + 2 * (i * 2 + 0));
                     LH(x4, vback, vyoffset + 2 * (i * 2 + 1));
                     SUBW(x3, x3, x4);
+                    if (opcode == 0x07) SAT16(x3, x6);
                     SH(x3, gback, gyoffset + 2 * i);
                 }
                 if (MODREG && ed == vex.v) {
@@ -314,6 +366,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                         LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                         SUBW(x3, x3, x4);
+                        if (opcode == 0x07) SAT16(x3, x6);
                         SH(x3, gback, gyoffset + 2 * (4 + i));
                     }
                 }
@@ -325,7 +378,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x06:
             INST_NAME("VPHSUBD Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 44 : 12);
+            GETEX(x1, 0, vex.l ? 28 : 12);
             GETGX();
             GETVX();
             GETGY();
