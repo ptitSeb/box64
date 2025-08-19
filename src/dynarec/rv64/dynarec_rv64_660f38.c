@@ -313,31 +313,29 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETGX();
-                    GETEX(x2, 0, 8);
+                    GETEX(x1, 0, 8);
                     CLEAR_FLAGS();
                     SET_DFNONE();
                     IFX (X_ZF | X_CF) {
-                        LD(x5, wback, fixedaddress + 0);
-                        LD(x6, wback, fixedaddress + 8);
+                        LD(x2, wback, fixedaddress + 0);
+                        LD(x3, wback, fixedaddress + 8);
+                        LD(x4, gback, gdoffset + 0);
+                        LD(x5, gback, gdoffset + 8);
 
                         IFX (X_ZF) {
-                            LD(x3, gback, gdoffset + 0);
-                            LD(x4, gback, gdoffset + 8);
-                            AND(x3, x3, x5);
-                            AND(x4, x4, x6);
-                            OR(x3, x3, x4);
-                            BNEZ(x3, 8);
+                            AND(x6, x4, x2);
+                            AND(x7, x5, x3);
+                            OR(x6, x6, x7);
+                            BNEZ(x6, 4 + 4);
                             ORI(xFlags, xFlags, 1 << F_ZF);
                         }
                         IFX (X_CF) {
-                            LD(x3, gback, gdoffset + 0);
-                            NOT(x3, x3);
-                            LD(x4, gback, gdoffset + 8);
                             NOT(x4, x4);
-                            AND(x3, x3, x5);
-                            AND(x4, x4, x6);
-                            OR(x3, x3, x4);
-                            BNEZ(x3, 8);
+                            NOT(x5, x5);
+                            AND(x6, x4, x2);
+                            AND(x7, x5, x3);
+                            OR(x6, x6, x7);
+                            BNEZ(x6, 4 + 4);
                             ORI(xFlags, xFlags, 1 << F_CF);
                         }
                     }

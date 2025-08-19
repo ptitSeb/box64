@@ -580,6 +580,64 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SD(xZR, gback, gyoffset + 8);
             }
             break;
+        case 0x17:
+            INST_NAME("VPTEST Gx, Ex");
+            nextop = F8;
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            CLEAR_FLAGS();
+            SET_DFNONE();
+            IFX (X_ZF | X_CF) {
+                LD(x2, wback, fixedaddress + 0);
+                LD(x3, wback, fixedaddress + 8);
+                LD(x4, gback, gdoffset + 0);
+                LD(x5, gback, gdoffset + 8);
+
+                IFX (X_ZF) {
+                    AND(x6, x4, x2);
+                    AND(x7, x5, x3);
+                    OR(x6, x6, x7);
+                    BNEZ(x6, 4 + 4);
+                    ORI(xFlags, xFlags, 1 << F_ZF);
+                }
+                IFX (X_CF) {
+                    NOT(x4, x4);
+                    NOT(x5, x5);
+                    AND(x6, x4, x2);
+                    AND(x7, x5, x3);
+                    OR(x6, x6, x7);
+                    BNEZ(x3, 4 + 4);
+                    ORI(xFlags, xFlags, 1 << F_CF);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                LD(x2, wback, fixedaddress + 0);
+                LD(x3, wback, fixedaddress + 8);
+                LD(x4, gback, gyoffset + 0);
+                LD(x5, gback, gyoffset + 8);
+
+                IFX (X_ZF) {
+                    AND(x6, x4, x2);
+                    AND(x7, x5, x3);
+                    OR(x6, x6, x7);
+                    BNEZ(x6, 4 + 2 * 4);
+                    ANDI(x6, xFlags, 1 << F_ZF);
+                    OR(xFlags, xFlags, x6);
+                }
+                IFX (X_CF) {
+                    NOT(x4, x4);
+                    NOT(x5, x5);
+                    AND(x6, x4, x2);
+                    AND(x7, x5, x3);
+                    OR(x6, x6, x7);
+                    BNEZ(x6, 4 + 2 * 4);
+                    ANDI(x6, xFlags, 1 << F_CF);
+                    OR(xFlags, xFlags, x6);
+                }
+            }
+            break;
         default:
             DEFAULT;
     }
