@@ -66,7 +66,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 
             for (int i = 0; i < 16; ++i) {
                 LB(x3, wback, fixedaddress + i);
-                BLT(xZR, x3, 4 + 4 * 2);
+                BGE(x3, xZR, 4 + 4 * 2);
                 SB(xZR, gback, gdoffset + i);
                 J(4 + 4 * 4); // continue
                 ANDI(x4, x3, 15);
@@ -87,7 +87,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 }
                 for (int i = 0; i < 16; ++i) {
                     LB(x3, wback, fixedaddress + i);
-                    BLT(xZR, x3, 4 + 4 * 2);
+                    BGE(x3, xZR, 4 + 4 * 2);
                     SB(xZR, gback, gyoffset + i);
                     J(4 + 4 * 4); // continue
                     ANDI(x4, x3, 15);
