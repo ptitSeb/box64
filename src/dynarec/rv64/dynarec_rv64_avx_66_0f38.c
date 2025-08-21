@@ -966,8 +966,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LW(x4, wback, fixedaddress + i * 4);
                 if (cpuext.zbb)
                     MIN(x4, x3, x4);
-                else
-                    BLT(x3, x4, 4 + 4);
+                else {
+                    BLT(x4, x3, 4 + 4);
+                    MV(x4, x3);
+                }
                 SW(x4, gback, gdoffset + i * 4);
             }
             if (vex.l) {
@@ -977,8 +979,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LW(x4, wback, fixedaddress + i * 4);
                     if (cpuext.zbb)
                         MIN(x4, x3, x4);
-                    else
-                        BLT(x3, x4, 4 + 4);
+                    else {
+                        BLT(x4, x3, 4 + 4);
+                        MV(x4, x3);
+                    }
                     SW(x4, gback, gyoffset + i * 4);
                 }
             } else {
@@ -999,8 +1003,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LW(x4, wback, fixedaddress + i * 4);
                 if (cpuext.zbb)
                     MAX(x4, x3, x4);
-                else
-                    BLT(x4, x3, 4 + 4);
+                else {
+                    BLT(x3, x4, 4 + 4);
+                    MV(x4, x3);
+                }
                 SW(x4, gback, gdoffset + i * 4);
             }
             if (vex.l) {
@@ -1010,8 +1016,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LW(x4, wback, fixedaddress + i * 4);
                     if (cpuext.zbb)
                         MAX(x4, x3, x4);
-                    else
-                        BLT(x4, x3, 4 + 4);
+                    else {
+                        BLT(x3, x4, 4 + 4);
+                        MV(x4, x3);
+                    }
                     SW(x4, gback, gyoffset + i * 4);
                 }
             } else {
