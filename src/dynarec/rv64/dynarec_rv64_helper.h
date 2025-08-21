@@ -1294,6 +1294,7 @@
 #define dynarec64_AVX_66_0F   STEPNAME(dynarec64_AVX_66_0F)
 #define dynarec64_AVX_66_0F38 STEPNAME(dynarec64_AVX_66_0F38)
 #define dynarec64_AVX_66_0F3A STEPNAME(dynarec64_AVX_66_0F3A)
+#define dynarec64_AVX_F2_0F   STEPNAME(dynarec64_AVX_F2_0F)
 #define dynarec64_AVX_F3_0F   STEPNAME(dynarec64_AVX_F3_0F)
 
 #define geted               STEPNAME(geted)
@@ -1747,6 +1748,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
 uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
