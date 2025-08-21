@@ -65,9 +65,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
 
             for (int i = 0; i < 16; ++i) {
-                LBU(x3, wback, fixedaddress + i);
-                ANDI(x4, x3, 128);
-                BEQZ(x4, 4 + 4 * 2);
+                LB(x3, wback, fixedaddress + i);
+                BLT(xZR, x3, 4 + 4 * 2);
                 SB(xZR, gback, gdoffset + i);
                 J(4 + 4 * 4); // continue
                 ANDI(x4, x3, 15);
@@ -87,15 +86,14 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     vyoffset = 0;
                 }
                 for (int i = 0; i < 16; ++i) {
-                    LBU(x3, wback, fixedaddress + i);
-                    ANDI(x4, x3, 128);
-                    BEQZ(x4, 4 + 4 * 2);
-                    SB(xZR, gback, gdoffset + i);
+                    LB(x3, wback, fixedaddress + i);
+                    BLT(xZR, x3, 4 + 4 * 2);
+                    SB(xZR, gback, gyoffset + i);
                     J(4 + 4 * 4); // continue
                     ANDI(x4, x3, 15);
                     ADD(x4, x4, vback);
-                    LBU(x4, x4, vxoffset);
-                    SB(x4, gback, gdoffset + i);
+                    LBU(x4, x4, vyoffset);
+                    SB(x4, gback, gyoffset + i);
                 }
             } else {
                 SD(xZR, gback, gyoffset + 0);
@@ -243,7 +241,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LD(x3, gback, gyoffset + 0);
                     SD(x3, gback, gyoffset + 8);
                 } else {
-                    for (int i = 0; i < 4; ++i) {
+                    for (int i = 0; i < 2; ++i) {
                         // GY->sd[4+i] = EY->sd[i*2+0]+EY->sd[i*2+1];
                         LW(x3, wback, fixedaddress + 4 * (i * 2 + 0));
                         LW(x4, wback, fixedaddress + 4 * (i * 2 + 1));
@@ -434,7 +432,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LD(x3, gback, gyoffset + 0);
                     SD(x3, gback, gyoffset + 8);
                 } else {
-                    for (int i = 0; i < 4; ++i) {
+                    for (int i = 0; i < 2; ++i) {
                         // GY->sd[4+i] = EY->sd[i*2+0]-EY->sd[i*2+1];
                         LW(x3, wback, fixedaddress + 4 * (i * 2 + 0));
                         LW(x4, wback, fixedaddress + 4 * (i * 2 + 1));
