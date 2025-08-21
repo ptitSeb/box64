@@ -52,6 +52,8 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
         addr = dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_66))
         addr = dynarec64_AVX_66_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F2))
+        addr = dynarec64_AVX_F2_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F3))
         addr = dynarec64_AVX_F3_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_66))

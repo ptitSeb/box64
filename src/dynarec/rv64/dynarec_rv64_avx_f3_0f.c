@@ -165,6 +165,18 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SD(xZR, gback, gyoffset);
             SD(xZR, gback, gyoffset + 8);
             break;
+        case 0x7E:
+            INST_NAME("VMOVQ Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETGY();
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, gdoffset + 0);
+            SD(xZR, gback, gdoffset + 8);
+            SD(xZR, gback, gyoffset + 0);
+            SD(xZR, gback, gyoffset + 8);
+            break;
         case 0xC2:
             INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
             nextop = F8;

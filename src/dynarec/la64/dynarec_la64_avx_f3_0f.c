@@ -418,7 +418,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x7E:
-            INST_NAME("VMOVD Gx, Ex");
+            INST_NAME("VMOVQ Gx, Ex");
             nextop = F8;
             GETEYSD(q1, 0, 0);
             GETGYx_empty(q0);
