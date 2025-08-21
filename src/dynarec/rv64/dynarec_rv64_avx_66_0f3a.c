@@ -46,6 +46,190 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x0E:
+            INST_NAME("VPBLENDW Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, vex.l ? 30 : 14);
+            GETVX();
+            GETVY();
+            GETGY();
+            u8 = F8;
+            for (int i = 0; i < 8; ++i) {
+                if (u8 & (1 << i)) {
+                    if (gd != ed) {
+                        LHU(x3, wback, fixedaddress + 2 * i);
+                        SH(x3, gback, gdoffset + 2 * i);
+                    }
+                } else if (gd != vex.v) {
+                    LHU(x3, vback, vxoffset + 2 * i);
+                    SH(x3, gback, gdoffset + 2 * i);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    if (u8 & (1 << i)) {
+                        if (gd != ed) {
+                            LHU(x3, wback, fixedaddress + 2 * i);
+                            SH(x3, gback, gyoffset + 2 * i);
+                        }
+                    } else if (gd != vex.v) {
+                        LHU(x3, vback, vyoffset + 2 * i);
+                        SH(x3, gback, gyoffset + 2 * i);
+                    }
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x0F:
+            INST_NAME("VPALIGNR Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, vex.l ? 24 : 8);
+            GETVX();
+            GETVY();
+            GETGY();
+            u8 = F8;
+            if (u8 > 31) {
+                SD(xZR, gback, gdoffset + 0);
+                SD(xZR, gback, gdoffset + 8);
+            } else if (u8 > 23) {
+                LD(x5, vback, vxoffset + 8);
+                if (u8 > 24) {
+                    SRLI(x5, x5, 8 * (u8 - 24));
+                }
+                SD(x5, gback, gdoffset + 0);
+                SD(xZR, gback, gdoffset + 8);
+            } else if (u8 > 15) {
+                if (u8 > 16) {
+                    LD(x5, vback, vxoffset + 8);
+                    LD(x4, vback, vxoffset + 0);
+                    SRLI(x3, x5, 8 * (u8 - 16)); // lower of higher 64 bits
+                    SLLI(x5, x5, 8 * (24 - u8)); // higher of lower 64 bits
+                    SD(x3, gback, gdoffset + 8);
+                    SRLI(x4, x4, 8 * (u8 - 16)); // lower of lower 64 bits
+                    OR(x4, x4, x5);              // lower 64 bits
+                    SD(x4, gback, gdoffset + 0);
+                } else if (gd != vex.v) {
+                    LD(x4, vback, vxoffset + 0);
+                    LD(x5, vback, vxoffset + 8);
+                    SD(x4, gback, gdoffset + 0);
+                    SD(x5, gback, gdoffset + 8);
+                }
+            } else if (u8 > 7) {
+                if (u8 > 8) {
+                    LD(x5, vback, vxoffset + 8);
+                    LD(x4, vback, vxoffset + 0);
+                    LD(x3, wback, fixedaddress + 8);
+                    SLLI(x5, x5, 8 * (16 - u8)); // higher of higher 64 bits
+                    SRLI(x1, x4, 8 * (u8 - 8));  // lower of higher 64 bits
+                    SLLI(x4, x4, 8 * (16 - u8)); // higher of lower 64 bits
+                    OR(x5, x1, x5);              // higher 64 bits
+                    SRLI(x3, x3, 8 * (u8 - 8));  // lower of lower 64 bits
+                    SD(x5, gback, gdoffset + 8);
+                    OR(x4, x4, x3); // lower 64 bits
+                    SD(x4, gback, gdoffset + 0);
+                } else {
+                    LD(x5, vback, vxoffset + 0);
+                    LD(x4, wback, fixedaddress + 8);
+                    SD(x5, gback, gdoffset + 8);
+                    SD(x4, gback, gdoffset + 0);
+                }
+            } else {
+                if (u8 > 0) {
+                    LD(x5, vback, vxoffset + 0);
+                    LD(x4, wback, fixedaddress + 8);
+                    LD(x3, wback, fixedaddress + 0);
+                    SLLI(x5, x5, 8 * (8 - u8)); // higher of higher 64 bits
+                    SRLI(x1, x4, 8 * (u8 - 0)); // lower of higher 64 bits
+                    SLLI(x4, x4, 8 * (8 - u8)); // higher of lower 64 bits
+                    OR(x5, x1, x5);             // higher 64 bits
+                    SRLI(x3, x3, 8 * (u8 - 0)); // lower of lower 64 bits
+                    SD(x5, gback, gdoffset + 8);
+                    OR(x4, x4, x3); // lower 64 bits
+                    SD(x4, gback, gdoffset + 0);
+                } else {
+                    LD(x5, wback, fixedaddress + 8);
+                    LD(x4, wback, fixedaddress + 0);
+                    SD(x5, gback, gdoffset + 8);
+                    SD(x4, gback, gdoffset + 0);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                if (u8 > 31) {
+                    SD(xZR, gback, gyoffset + 0);
+                    SD(xZR, gback, gyoffset + 8);
+                } else if (u8 > 23) {
+                    LD(x5, vback, vyoffset + 8);
+                    if (u8 > 24) {
+                        SRLI(x5, x5, 8 * (u8 - 24));
+                    }
+                    SD(x5, gback, gyoffset + 0);
+                    SD(xZR, gback, gyoffset + 8);
+                } else if (u8 > 15) {
+                    if (u8 > 16) {
+                        LD(x5, vback, vyoffset + 8);
+                        LD(x4, vback, vyoffset + 0);
+                        SRLI(x3, x5, 8 * (u8 - 16)); // lower of higher 64 bits
+                        SLLI(x5, x5, 8 * (24 - u8)); // higher of lower 64 bits
+                        SD(x3, gback, gyoffset + 8);
+                        SRLI(x4, x4, 8 * (u8 - 16)); // lower of lower 64 bits
+                        OR(x4, x4, x5);              // lower 64 bits
+                        SD(x4, gback, gyoffset + 0);
+                    } else if (gd != vex.v) {
+                        LD(x4, vback, vyoffset + 0);
+                        LD(x5, vback, vyoffset + 8);
+                        SD(x4, gback, gyoffset + 0);
+                        SD(x5, gback, gyoffset + 8);
+                    }
+                } else if (u8 > 7) {
+                    if (u8 > 8) {
+                        LD(x5, vback, vyoffset + 8);
+                        LD(x4, vback, vyoffset + 0);
+                        LD(x3, wback, fixedaddress + 8);
+                        SLLI(x5, x5, 8 * (16 - u8)); // higher of higher 64 bits
+                        SRLI(x1, x4, 8 * (u8 - 8));  // lower of higher 64 bits
+                        SLLI(x4, x4, 8 * (16 - u8)); // higher of lower 64 bits
+                        OR(x5, x1, x5);              // higher 64 bits
+                        SRLI(x3, x3, 8 * (u8 - 8));  // lower of lower 64 bits
+                        SD(x5, gback, gyoffset + 8);
+                        OR(x4, x4, x3); // lower 64 bits
+                        SD(x4, gback, gyoffset + 0);
+                    } else {
+                        LD(x5, vback, vyoffset + 0);
+                        LD(x4, wback, fixedaddress + 8);
+                        SD(x5, gback, gyoffset + 8);
+                        SD(x4, gback, gyoffset + 0);
+                    }
+                } else {
+                    if (u8 > 0) {
+                        LD(x5, vback, vyoffset + 0);
+                        LD(x4, wback, fixedaddress + 8);
+                        LD(x3, wback, fixedaddress + 0);
+                        SLLI(x5, x5, 8 * (8 - u8)); // higher of higher 64 bits
+                        SRLI(x1, x4, 8 * (u8 - 0)); // lower of higher 64 bits
+                        SLLI(x4, x4, 8 * (8 - u8)); // higher of lower 64 bits
+                        OR(x5, x1, x5);             // higher 64 bits
+                        SRLI(x3, x3, 8 * (u8 - 0)); // lower of lower 64 bits
+                        SD(x5, gback, gyoffset + 8);
+                        OR(x4, x4, x3); // lower 64 bits
+                        SD(x4, gback, gyoffset + 0);
+                    } else {
+                        LD(x5, wback, fixedaddress + 8);
+                        LD(x4, wback, fixedaddress + 0);
+                        SD(x5, gback, gyoffset + 8);
+                        SD(x4, gback, gyoffset + 0);
+                    }
+                }
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
         case 0x4A:
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
             nextop = F8;
