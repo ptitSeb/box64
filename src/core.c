@@ -90,9 +90,10 @@ char* trace_func = NULL;
 
 FILE* ftrace = NULL;
 char* ftrace_name = NULL;
-int ftrace_has_pid = 0;
+int ftrace_opened = 0;
 
-void openFTrace(int reopen)
+
+static void openFTrace(void)
 {
     const char* p = BOX64ENV(trace_file);
     #ifndef MAX_PATH
@@ -100,86 +101,58 @@ void openFTrace(int reopen)
     #endif
     char tmp[MAX_PATH];
     char tmp2[MAX_PATH];
-    int append=0;
-    if(p && strlen(p) && p[strlen(p)-1]=='+') {
+    int append = 0;
+
+    if (ftrace_name) box_free(ftrace_name);
+    ftrace_name = NULL;
+
+    if (p && strlen(p) && p[strlen(p) - 1] == '+') {
         strncpy(tmp2, p, sizeof(tmp2));
         tmp2[strlen(p)-1]='\0';
         p = tmp2;
         append = 1;
     }
-    if (reopen) {
-        p = ftrace_name;
-        append = 1;
-    } else {
-        if (p && strstr(p, "\%pid")) {
-            int next = 0;
-            do {
-                strcpy(tmp, p);
-                char* c = strstr(tmp, "%pid");
-                *c = 0; // cut
-                char pid[16];
-                if (next)
-                    sprintf(pid, "%d-%d", GetTID(), next);
-                else
-                    sprintf(pid, "%d", GetTID());
-                strcat(tmp, pid);
-                c = strstr(p, "\%pid") + strlen("\%pid");
-                strcat(tmp, c);
-                ++next;
-            } while (FileExist(tmp, IS_FILE) && !append);
-            p = tmp;
-            ftrace_has_pid = 1;
-        }
-        if (ftrace_name)
-            box_free(ftrace_name);
-        ftrace_name = NULL;
-    }
-    if(p) {
-        if(!strcmp(p, "stderr"))
-            ftrace = stderr;
-        else {
-            if(append)
-                ftrace = fopen(p, "a");
+
+    if (!p || ftrace_opened) return;
+    ftrace_opened = 1;
+
+    if (strstr(p, "\%pid")) {
+        int next = 0;
+        do {
+            strcpy(tmp, p);
+            char* c = strstr(tmp, "%pid");
+            *c = 0; // cut
+            char pid[16];
+            if (next)
+                sprintf(pid, "%d-%d", GetTID(), next);
             else
-                ftrace = fopen(p, "w");
-            if(!ftrace) {
-                ftrace = stdout;
-                printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
-            } else {
-                if (!reopen) ftrace_name = box_strdup(p);
-                /*fclose(ftrace);
-                ftrace = NULL;*/
-                if (!BOX64ENV(nobanner)) {
-                    printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
-                    box64_stdout_no_w = 1;
-                }
-                PrintBox64Version(0);
+                sprintf(pid, "%d", GetTID());
+            strcat(tmp, pid);
+            c = strstr(p, "\%pid") + strlen("\%pid");
+            strcat(tmp, c);
+            ++next;
+        } while (FileExist(tmp, IS_FILE) && !append);
+        p = tmp;
+    }
+
+    if (!strcmp(p, "stderr"))
+        ftrace = stderr;
+    else {
+        if (append)
+            ftrace = fopen(p, "a");
+        else
+            ftrace = fopen(p, "w");
+        if (!ftrace) {
+            ftrace = stdout;
+            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s), fallback to stdout\n", p, strerror(errno));
+        } else {
+            ftrace_name = box_strdup(p);
+            if (!BOX64ENV(nobanner)) {
+                printf("[BOX64] Trace %s to \"%s\" (set BOX64_NOBANNER=1 to suppress this log)\n", append ? "appended" : "redirected", p);
+                box64_stdout_no_w = 1;
             }
+            PrintBox64Version(0);
         }
-    }
-}
-
-void my_prepare_fork()
-{
-    if (ftrace_has_pid && ftrace && (ftrace != stdout) && (ftrace != stderr)) {
-        printf_log(LOG_INFO, "%04d|Closed trace file of %s at prepare\n", GetTID(), GetLastApplyEntryName());
-        fclose(ftrace);
-    }
-}
-
-void my_parent_fork()
-{
-    if (ftrace_has_pid) {
-        openFTrace(1);
-        printf_log(LOG_INFO, "%04d|Reopened trace file of %s at parent\n", GetTID(), GetLastApplyEntryName());
-    }
-}
-
-void my_child_fork()
-{
-    if (ftrace_has_pid) {
-        openFTrace(0);
-        printf_log(LOG_INFO, "%04d|Created trace file of %s at child\n", GetTID(), GetLastApplyEntryName());
     }
 }
 
@@ -228,7 +201,7 @@ void computeRDTSC()
 
 static void displayMiscInfo()
 {
-    openFTrace(0);
+    openFTrace();
 
     if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace==stdout)
         box64_stdout_no_w = 1;
@@ -1050,7 +1023,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         ApplyEnvFileEntry(box64_wine_guest_name);
         box64_wine_guest_name = NULL;
     }
-    openFTrace(0);
+    // Try to open ftrace again after applying rcfile.
+    openFTrace();
     setupZydis(my_context);
     PrintEnvVariables(&box64env, LOG_INFO);
 
@@ -1357,9 +1331,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         SetRCX(emu, (uint64_t)my_context->envv);
         SetRBP(emu, 0); // Frame pointer so to "No more frame pointer"
     }
-
-    // child fork to handle traces
-    //pthread_atfork(my_prepare_fork, my_parent_fork, my_child_fork);
 
     thread_set_emu(emu);
 
