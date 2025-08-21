@@ -238,6 +238,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX();
             GETVX();
             GETGY();
+            GETVY();
             F8;
             for (int i = 0; i < 4; ++i) {
                 LW(x3, xEmu, offsetof(x64emu_t, xmm) + u8 * 16 + i * 4);

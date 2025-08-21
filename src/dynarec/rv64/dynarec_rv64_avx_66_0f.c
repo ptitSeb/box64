@@ -102,6 +102,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETED(0);
             GETGX();
             GETGY();
+            if (MODREG && !rex.w) {
+                ZEXTW2(x3, ed);
+                ed = x3;
+            }
             SD(ed, gback, gdoffset);
             SD(xZR, gback, gdoffset + 8);
             SD(xZR, gback, gyoffset);
@@ -170,6 +174,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x3, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
             } else if (MODREG) {
+                GETEY();
                 SD(xZR, wback, fixedaddress);
                 SD(xZR, wback, fixedaddress + 8);
             }

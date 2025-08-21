@@ -54,7 +54,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVX();
             GETGY();
             GETVY();
-
             if (gd == vex.v) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, vback, vxoffset + 0);
@@ -523,24 +522,24 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY();
             GETVY();
             for (int i = 0; i < 4; ++i) {
-                LH(x3, vback, vxoffset + i * 4);
-                LH(x4, wback, fixedaddress + i * 4);
+                LW(x3, vback, vxoffset + i * 4);
+                LW(x4, wback, fixedaddress + i * 4);
                 SLT(x1, xZR, x4);
                 SRAI(x5, x4, 63);
                 OR(x1, x1, x5);
                 MUL(x3, x1, x3);
-                SH(x3, gback, gdoffset + i * 4);
+                SW(x3, gback, gdoffset + i * 4);
             }
             if (vex.l) {
                 GETEY();
                 for (int i = 0; i < 4; ++i) {
-                    LH(x3, vback, vyoffset + i * 4);
-                    LH(x4, wback, fixedaddress + i * 4);
+                    LW(x3, vback, vyoffset + i * 4);
+                    LW(x4, wback, fixedaddress + i * 4);
                     SLT(x1, xZR, x4);
                     SRAI(x5, x4, 63);
                     OR(x1, x1, x5);
                     MUL(x3, x1, x3);
-                    SH(x3, gback, gyoffset + i * 4);
+                    SW(x3, gback, gyoffset + i * 4);
                 }
             } else {
                 SD(xZR, gback, gyoffset + 0);
