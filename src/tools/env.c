@@ -475,11 +475,6 @@ void InitializeEnvFiles()
     }
 }
 
-static char old_entryname[256] = "";
-const char* GetLastApplyEntryName()
-{
-    return old_entryname;
-}
 static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* env)
 {
 #define INTEGER(NAME, name, default, min, max, wine) \
@@ -520,6 +515,7 @@ static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* e
 #undef STRING
 }
 
+static char old_entryname[256] = "";
 void ApplyEnvFileEntry(const char* entryname)
 {
     if (!entryname || !box64env_entries) return;
