@@ -812,6 +812,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     SD(x3, gback, gyoffset + 8 * (i - 2));
                 }
             }
+            if (!vex.l) {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
             break;
         case 0xC6:
             INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
