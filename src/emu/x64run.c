@@ -51,7 +51,6 @@ int Run(x64emu_t *emu, int step)
     #endif
     uintptr_t addr = R_RIP;
     rex_t rex = {0};
-    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int unimp = 0;
     int is32bits = (emu->segs[_CS]==0x23);
     int tf_next = 0;
@@ -85,24 +84,53 @@ x64emurun:
 
         opcode = F8;
         
-        rep = 0;
-        while((opcode==0xF2) || (opcode==0xF3) || (opcode==0x3E) || (opcode==0x26)) {
+        rex.rex = 0;
+        rex.seg = 0;
+        rex.offset = 0;
+        rex.is32bits = is32bits;
+        rex.is66 = 0;
+        rex.is67 = 0;
+        rex.rep = 0;
+        while((opcode==0xF2) || (opcode==0xF3) 
+            || (opcode==0x3E) || (opcode==0x26) || (opcode==0x2e) || (opcode==0x36) 
+            || (opcode==0x64) || (opcode==0x65) || (opcode==0x66) || (opcode==0x67)
+            || (!is32bits && (opcode>=0x40 && opcode<=0x4f))) {
             switch (opcode) {
-                case 0xF2: rep = 1; break;
-                case 0xF3: rep = 2; break;
-                case 0x3E:
-                case 0x26: /* ignored*/ break;
+                case 0xF2: rex.rep = 1; rex.rex = 0; break;
+                case 0xF3: rex.rep = 2; rex.rex = 0; break;
+                case 0x26: /* ES: */
+                case 0x2E: /* CS: */
+                case 0x36: /* SS; */
+                case 0x3E: /* DS; */ 
+                           rex.seg =   0; rex.rex = 0; break;
+                case 0x64: rex.seg = _FS; rex.rex = 0; break;
+                case 0x65: rex.seg = _GS; rex.rex = 0; break;
+                case 0x66: rex.is66 = 1; rex.rex = 0; break;
+                case 0x67: rex.is67 = 1; rex.rex = 0; break;
+                case 0x40 ... 0x4F: rex.rex = opcode; break;
             }
             opcode = F8;
         }
-        rex.rex = 0;
-        rex.is32bits = is32bits;
-        if(!is32bits)
-            while(opcode>=0x40 && opcode<=0x4f) {
-                rex.rex = opcode;
-                opcode = F8;
-            }
 
+        if(rex.seg)
+            rex.offset = GetSegmentBaseEmu(emu, rex.seg);
+
+        if(rex.is66) {
+            /* 16bits prefix */
+            #ifdef TEST_INTERPRETER
+            if(!(addr = Test66(test, rex, addr-1)))
+                unimp = 1;
+            #else
+            if(!(addr = Run66(emu, rex, addr-1))) {
+                unimp = 1;
+                goto fini;
+            }
+            if(emu->quit) {
+                R_RIP = addr;
+                goto fini;
+            }
+            #endif
+        } else
         switch(opcode) {
 
         #define GO(B, OP)                                   \
@@ -175,7 +203,7 @@ x64emurun:
             Push32(emu, emu->segs[_CS]);  // even if a segment is a 16bits, a 32bits push/pop is done
             break;
         case 0x0F:                      /* More instructions */
-            switch(rep) {
+            switch(rex.rep) {
                 case 1:
                     #ifdef TEST_INTERPRETER 
                     if(!(addr = TestF20F(test, rex, addr, &step)))
@@ -458,98 +486,7 @@ x64emurun:
                         GD->sdword[0] = ED->sdword[0];  // meh?
             }
             break;
-        case 0x64:                      /* FS: prefix */
-            #ifdef TEST_INTERPRETER
-            if(!(addr = Test64(test, rex, _FS, addr)))
-                unimp = 1;
-            #else
-            if(!(addr = Run64(emu, rex, _FS, addr))) {
-                unimp = 1;
-                goto fini;
-            }
-            if(emu->quit) {
-                R_RIP = addr;
-                goto fini;
-            }
-            if(is32bits!=(emu->segs[_CS]==0x23)) {
-                is32bits = (emu->segs[_CS]==0x23);
-                if(is32bits) {
-                    // Zero upper part of the 32bits regs
-                    R_RAX = R_EAX;
-                    R_RBX = R_EBX;
-                    R_RCX = R_ECX;
-                    R_RDX = R_EDX;
-                    R_RSP = R_ESP;
-                    R_RBP = R_EBP;
-                    R_RSI = R_ESI;
-                    R_RDI = R_EDI;
-                }
-                if(is32bits)
-                    running32bits = 1;
-            }
-            #endif
-            break;
-        case 0x65:                      /* GS: prefix */
-            #ifdef TEST_INTERPRETER
-            if(!(addr = Test64(test, rex, _GS, addr)))
-                unimp = 1;
-            #else
-            if(!(addr = Run64(emu, rex, _GS, addr))) {
-                unimp = 1;
-                goto fini;
-            }
-            if(emu->quit) {
-                R_RIP = addr;
-                goto fini;
-            }
-            if(is32bits!=(emu->segs[_CS]==0x23)) {
-                is32bits = (emu->segs[_CS]==0x23);
-                if(is32bits) {
-                    // Zero upper part of the 32bits regs
-                    R_RAX = R_EAX;
-                    R_RBX = R_EBX;
-                    R_RCX = R_ECX;
-                    R_RDX = R_EDX;
-                    R_RSP = R_ESP;
-                    R_RBP = R_EBP;
-                    R_RSI = R_ESI;
-                    R_RDI = R_EDI;
-                }
-                if(is32bits)
-                    running32bits = 1;
-            }
-            #endif
-            break;
-        case 0x66:                      /* 16bits prefix */
-            #ifdef TEST_INTERPRETER
-            if(!(addr = Test66(test, rex, rep, addr)))
-                unimp = 1;
-            #else
-            if(!(addr = Run66(emu, rex, rep, addr))) {
-                unimp = 1;
-                goto fini;
-            }
-            if(emu->quit) {
-                R_RIP = addr;
-                goto fini;
-            }
-            #endif
-            break;
-        case 0x67:                      /* reduce EASize prefix */
-            #ifdef TEST_INTERPRETER
-            if(!(addr = Test67(test, rex, rep, addr)))
-                unimp = 1;
-            #else
-            if(!(addr = Run67(emu, rex, rep, addr))) {
-                unimp = 1;
-                goto fini;
-            }
-            if(emu->quit) {
-                R_RIP = addr;
-                goto fini;
-            }
-            #endif
-            break;
+
         case 0x68:                      /* Push Id */
             if(rex.is32bits)
                 Push32(emu, F32);
@@ -919,39 +856,39 @@ x64emurun:
             break;
         case 0xA0:                      /* MOV AL,Ob */
             if(rex.is32bits)
-                R_AL = *(uint8_t*)(uintptr_t)F32;
+                R_AL = *(uint8_t*)(uintptr_t)(ptr_t)(F32+rex.offset);
             else
-                R_AL = *(uint8_t*)F64;
+                R_AL = *(uint8_t*)(F64+rex.offset);
             break;
         case 0xA1:                      /* MOV EAX,Od */
             if(rex.is32bits)
-                R_EAX = *(int32_t*)(uintptr_t)F32;
+                R_EAX = *(int32_t*)(uintptr_t)(ptr_t)(F32+rex.offset);
             else {
                 if(rex.w)
-                    R_RAX = *(uint64_t*)F64;
+                    R_RAX = *(uint64_t*)(F64+rex.offset);
                 else
-                    R_RAX = *(uint32_t*)F64;
+                    R_RAX = *(uint32_t*)(F64+rex.offset);
             }
             break;
         case 0xA2:                      /* MOV Ob,AL */
             if(rex.is32bits)
-                *(uint8_t*)(uintptr_t)F32 = R_AL;
+                *(uint8_t*)(uintptr_t)(ptr_t)(F32+rex.offset) = R_AL;
             else
-                *(uint8_t*)F64 = R_AL;
+                *(uint8_t*)(F64+rex.offset) = R_AL;
             break;
         case 0xA3:                      /* MOV Od,EAX */
             if(rex.is32bits)
-                *(uint32_t*)(uintptr_t)F32 = R_EAX;
+                *(uint32_t*)(uintptr_t)(ptr_t)(F32+rex.offset) = R_EAX;
             else {
                 if(rex.w)
-                    *(uint64_t*)F64 = R_RAX;
+                    *(uint64_t*)(F64+rex.offset) = R_RAX;
                 else
-                    *(uint32_t*)F64 = R_EAX;
+                    *(uint32_t*)(F64+rex.offset) = R_EAX;
             }
             break;
         case 0xA4:                      /* MOVSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-            tmp64u = (rep)?R_RCX:1L;
+            tmp64u = (rex.rep)?R_RCX:1L;
             while(tmp64u) {
                 #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_RDI = *(uint8_t*)R_RSI;
@@ -960,12 +897,12 @@ x64emurun:
                 R_RSI += tmp8s;
                 --tmp64u;
             }
-            if(rep)
+            if(rex.rep)
                 R_RCX = tmp64u;
             break;
         case 0xA5:              /* (REP) MOVSD */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-            tmp64u = (rep)?R_RCX:1L;
+            tmp64u = (rex.rep)?R_RCX:1L;
             if(rex.w) {
                 tmp8s *= 8;
                 while(tmp64u) {
@@ -987,12 +924,12 @@ x64emurun:
                     R_RSI += tmp8s;
                 }
             }
-            if(rep)
+            if(rex.rep)
                 R_RCX = tmp64u;
             break;
         case 0xA6:                      /* (REPZ/REPNE) CMPSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-            switch(rep) {
+            switch(rex.rep) {
                 case 1:
                     if(R_RCX) {
                         while(R_RCX) {
@@ -1034,7 +971,7 @@ x64emurun:
                 tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
             else
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
-            switch(rep) {
+            switch(rex.rep) {
                 case 1:
                     if(R_RCX) {
                         if(rex.w) {
@@ -1117,7 +1054,7 @@ x64emurun:
 
         case 0xAA:                      /* (REP) STOSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-            tmp64u = (rep)?R_RCX:1L;
+            tmp64u = (rex.rep)?R_RCX:1L;
             while(tmp64u) {
                 #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_RDI = R_AL;
@@ -1125,7 +1062,7 @@ x64emurun:
                 R_RDI += tmp8s;
                 --tmp64u;
             }
-            if(rep)
+            if(rex.rep)
                 R_RCX = tmp64u;
             break;
         case 0xAB:                      /* (REP) STOSD */
@@ -1133,7 +1070,7 @@ x64emurun:
                 tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
             else
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
-            tmp64u = (rep)?R_RCX:1L;
+            tmp64u = (rex.rep)?R_RCX:1L;
             if((rex.w))
                 while(tmp64u) {
                     #ifndef TEST_INTERPRETER
@@ -1148,18 +1085,18 @@ x64emurun:
                     R_RDI += tmp8s;
                     --tmp64u;
                 }
-            if(rep)
+            if(rex.rep)
                 R_RCX = tmp64u;
             break;
         case 0xAC:                      /* LODSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-            tmp64u = (rep)?R_RCX:1L;
+            tmp64u = (rex.rep)?R_RCX:1L;
             while(tmp64u) {
                 R_AL = *(uint8_t*)R_RSI;
                 R_RSI += tmp8s;
                 --tmp64u;
             }
-            if(rep)
+            if(rex.rep)
                 R_RCX = tmp64u;
             break;
         case 0xAD:                      /* (REP) LODSD */
@@ -1167,7 +1104,7 @@ x64emurun:
                 tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
             else
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
-            tmp64u = (rep)?R_RCX:1L;
+            tmp64u = (rex.rep)?R_RCX:1L;
             if((rex.w))
                 while(tmp64u) {
                     R_RAX = *(uint64_t*)R_RSI;
@@ -1180,12 +1117,12 @@ x64emurun:
                     R_RSI += tmp8s;
                     --tmp64u;
                 }
-            if(rep)
+            if(rex.rep)
                 R_RCX = tmp64u;
             break;
         case 0xAE:                      /* (REPZ/REPNE) SCASB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-            switch(rep) {
+            switch(rex.rep) {
                 case 1:
                     if(R_RCX) {
                         while(R_RCX) {
@@ -1220,7 +1157,7 @@ x64emurun:
                 tmp8s = ACCESS_FLAG(F_DF)?-8:+8;
             else
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
-            switch(rep) {
+            switch(rex.rep) {
                 case 1:
                     if(R_RCX) {
                         if(rex.w) {
@@ -1723,10 +1660,10 @@ x64emurun:
             break;
         case 0xD8:                      /* x87 opcodes */
             #ifdef TEST_INTERPRETER
-            if(!(addr = TestD8(test, rex, addr, 0)))
+            if(!(addr = TestD8(test, rex, addr)))
                 unimp = 1;
             #else
-            if(!(addr = RunD8(emu, rex, addr, 0))) {
+            if(!(addr = RunD8(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
@@ -1738,10 +1675,10 @@ x64emurun:
             break;
         case 0xD9:                      /* x87 opcodes */
             #ifdef TEST_INTERPRETER
-            if(!(addr = TestD9(test, rex, addr, 0)))
+            if(!(addr = TestD9(test, rex, addr)))
                 unimp = 1;
             #else
-            if(!(addr = RunD9(emu, rex, addr, 0))) {
+            if(!(addr = RunD9(emu, rex, addr))) {
                 unimp = 1;
                 goto fini;
             }
@@ -1844,30 +1781,68 @@ x64emurun:
         case 0xE0:                      /* LOOPNZ */
             CHECK_FLAGS(emu);
             tmp8s = F8S;
-            --R_RCX; // don't update flags
-            if(R_RCX && !ACCESS_FLAG(F_ZF))
-                addr += tmp8s;
+            if(rex.is32bits && rex.is67) {
+                --R_CX; // don't update flags
+                if(R_CX && !ACCESS_FLAG(F_ZF))
+                    addr += tmp8s;
+            } else if(rex.is32bits || rex.is67) {
+                --R_ECX; // don't update flags
+                if(R_ECX && !ACCESS_FLAG(F_ZF))
+                    addr += tmp8s;
+            } else {
+                --R_RCX; // don't update flags
+                if(R_RCX && !ACCESS_FLAG(F_ZF))
+                    addr += tmp8s;
+            }
             STEP2
             break;
         case 0xE1:                      /* LOOPZ */
             CHECK_FLAGS(emu);
             tmp8s = F8S;
-            --R_RCX; // don't update flags
-            if(R_RCX && ACCESS_FLAG(F_ZF))
-                addr += tmp8s;
+            if(rex.is32bits && rex.is67) {
+                --R_CX; // don't update flags
+                if(R_CX && ACCESS_FLAG(F_ZF))
+                    addr += tmp8s;
+            } else if(rex.is32bits || rex.is67) {
+                --R_ECX; // don't update flags
+                if(R_ECX && ACCESS_FLAG(F_ZF))
+                    addr += tmp8s;
+            } else {
+                --R_RCX; // don't update flags
+                if(R_RCX && ACCESS_FLAG(F_ZF))
+                    addr += tmp8s;
+            }
             STEP2
             break;
         case 0xE2:                      /* LOOP */
             tmp8s = F8S;
-            --R_RCX; // don't update flags
-            if(R_RCX)
-                addr += tmp8s;
+            if(rex.is32bits && rex.is67) {
+                --R_CX; // don't update flags
+                if(R_CX)
+                    addr += tmp8s;
+            } else if(rex.is32bits || rex.is67) {
+                --R_ECX; // don't update flags
+                if(R_ECX)
+                    addr += tmp8s;
+            } else {
+                --R_RCX; // don't update flags
+                if(R_RCX)
+                    addr += tmp8s;
+            }
             STEP2
             break;
         case 0xE3:                      /* JRCXZ */
             tmp8s = F8S;
-            if(!R_RCX)
-                addr += tmp8s;
+            if(rex.is32bits && rex.is67) {
+                if(!R_CX)
+                    addr += tmp8s;
+            } else if(rex.is32bits || rex.is67) {
+                if(!R_ECX)
+                    addr += tmp8s;
+            } else {
+                if(!R_RCX)
+                    addr += tmp8s;
+            }
             STEP2
             break;
         case 0xE4:                      /* IN AL, XX */
