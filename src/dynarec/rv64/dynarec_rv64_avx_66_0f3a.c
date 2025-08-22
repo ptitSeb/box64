@@ -230,6 +230,32 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SD(xZR, gback, gyoffset + 8);
             }
             break;
+        case 0x22:
+            if (rex.w) {
+                INST_NAME("VPINSRQ Gx, Vx, ED, Ib");
+            } else {
+                INST_NAME("VPINSRD Gx, Vx, ED, Ib");
+            }
+            nextop = F8;
+            GETGX();
+            GETED(1);
+            GETGY();
+            GETVX();
+            u8 = F8;
+            if (gd != vex.v) {
+                LD(x4, vback, vxoffset + 0);
+                LD(x5, vback, vxoffset + 8);
+                SD(x4, gback, gdoffset + 0);
+                SD(x5, gback, gdoffset + 8);
+            }
+            if (rex.w) {
+                SD(ed, gback, gdoffset + 8 * (u8 & 0x1));
+            } else {
+                SW(ed, gback, gdoffset + 4 * (u8 & 0x3));
+            }
+            SD(xZR, gback, gyoffset + 0);
+            SD(xZR, gback, gyoffset + 8);
+            break;
         case 0x4A:
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
             nextop = F8;

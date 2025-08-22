@@ -90,6 +90,45 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             if (!MODREG) SMWRITE2();
             break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if (opcode == 0x2F) {
+                INST_NAME("VCOMISD Gx, Ex");
+            } else {
+                INST_NAME("VUCOMISD Gx, Ex");
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            nextop = F8;
+            GETGXSD(d0);
+            GETEXSD(v0, 0);
+            CLEAR_FLAGS();
+            // if isnan(d0) || isnan(v0)
+            IFX (X_ZF | X_PF | X_CF) {
+                FEQD(x3, d0, d0);
+                FEQD(x2, v0, v0);
+                AND(x2, x2, x3);
+                BNE_MARK(x2, xZR);
+                ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
+                B_NEXT_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX (X_CF) {
+                FLTD(x2, d0, v0);
+                BEQ_MARK2(x2, xZR);
+                ORI(xFlags, xFlags, 1 << F_CF);
+                B_NEXT_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX (X_ZF) {
+                FEQD(x2, d0, v0);
+                CBZ_NEXT(x2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            break;
         case 0x50:
             INST_NAME("VMOVMSKPD Gd, Ex");
             nextop = F8;
@@ -292,6 +331,292 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(xZR, gback, gyoffset + 8);
             }
             break;
+        case 0x58:
+            INST_NAME("VADDPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FADDD(v0, v0, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+                FSD(v0, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQD(x3, v0, v0);
+                        FEQD(x4, v1, v1);
+                    }
+                    FADDD(v0, v0, v1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        AND(x3, x3, x4);
+                        BEQZ(x3, 16);
+                        FEQD(x3, v0, v0);
+                        BNEZ(x3, 8);
+                        FNEGD(v0, v0);
+                    }
+                    FSD(v0, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x59:
+            INST_NAME("VMULPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FMULD(v0, v0, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+                FSD(v0, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQD(x3, v0, v0);
+                        FEQD(x4, v1, v1);
+                    }
+                    FMULD(v0, v0, v1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        AND(x3, x3, x4);
+                        BEQZ(x3, 16);
+                        FEQD(x3, v0, v0);
+                        BNEZ(x3, 8);
+                        FNEGD(v0, v0);
+                    }
+                    FSD(v0, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x5C:
+            INST_NAME("VSUBPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FSUBD(v0, v1, v0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+                FSD(v0, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQD(x3, v0, v0);
+                        FEQD(x4, v1, v1);
+                    }
+                    FSUBD(v0, v1, v0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        AND(x3, x3, x4);
+                        BEQZ(x3, 16);
+                        FEQD(x3, v0, v0);
+                        BNEZ(x3, 8);
+                        FNEGD(v0, v0);
+                    }
+                    FSD(v0, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x5D:
+            INST_NAME("VMINPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, vback, vxoffset + 8 * i);
+                FLD(v1, wback, fixedaddress + 8 * i);
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+                AND(x3, x3, x4);
+                BEQ(x3, xZR, 4 + 3 * 4);
+                FLTD(x3, v0, v1);
+                BEQ(x3, xZR, 4 + 4); // continue
+                FMVD(v1, v0);
+                FSD(v1, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, vback, vyoffset + 8 * i);
+                    FLD(v1, wback, fixedaddress + 8 * i);
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                    AND(x3, x3, x4);
+                    BEQ(x3, xZR, 4 + 3 * 4);
+                    FLTD(x3, v0, v1);
+                    BEQ(x3, xZR, 4 + 4); // continue
+                    FMVD(v1, v0);
+                    FSD(v1, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x5E:
+            INST_NAME("VDIVPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                FDIVD(v0, v1, v0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+                FSD(v0, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQD(x3, v0, v0);
+                        FEQD(x4, v1, v1);
+                    }
+                    FDIVD(v0, v1, v0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        AND(x3, x3, x4);
+                        BEQZ(x3, 16);
+                        FEQD(x3, v0, v0);
+                        BNEZ(x3, 8);
+                        FNEGD(v0, v0);
+                    }
+                    FSD(v0, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0x5F:
+            INST_NAME("VMAXPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, vback, vxoffset + 8 * i);
+                FLD(v1, wback, fixedaddress + 8 * i);
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+                AND(x3, x3, x4);
+                BEQ(x3, xZR, 4 + 3 * 4);
+                FLTD(x3, v1, v0);
+                BEQ(x3, xZR, 4 + 4); // continue
+                FMVD(v1, v0);
+                FSD(v1, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, vback, vyoffset + 8 * i);
+                    FLD(v1, wback, fixedaddress + 8 * i);
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                    AND(x3, x3, x4);
+                    BEQ(x3, xZR, 4 + 3 * 4);
+                    FLTD(x3, v1, v0);
+                    BEQ(x3, xZR, 4 + 4); // continue
+                    FMVD(v1, v0);
+                    FSD(v1, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
         case 0x66:
             INST_NAME("VPCMPGTD Gx, Vx, Ex");
             nextop = F8;
@@ -402,6 +727,171 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 GETEY();
                 SD(xZR, wback, fixedaddress);
                 SD(xZR, wback, fixedaddress + 8);
+            }
+            break;
+        case 0xC2:
+            INST_NAME("VCMPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEX(x2, 1, vex.l ? 24 : 8);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2 + (vex.l ? 2 : 0); ++i) {
+                if (i == 2) { GETEY(); }
+                if (i < 2) {
+                    FLD(d0, vback, vxoffset + 8 * i);
+                    FLD(d1, wback, fixedaddress + 8 * i);
+                } else {
+                    FLD(d0, vback, vyoffset + 8 * (i - 2));
+                    FLD(d1, wback, fixedaddress + 8 * (i - 2));
+                }
+
+                if ((u8 & 0xf) != 0x0b && (u8 & 0xf) != 0xf) {
+                    // x6 = !(isnan(d0) || isnan(d1))
+                    FEQD(x4, d0, d0);
+                    FEQD(x3, d1, d1);
+                    AND(x6, x3, x4);
+                }
+
+                switch (u8 & 0x7) {
+                    case 0:
+                        FEQD(x3, d0, d1);
+                        break; // Equal
+                    case 1:
+                        BEQ(x6, xZR, 8);
+                        FLTD(x3, d0, d1);
+                        break; // Less than
+                    case 2:
+                        BEQ(x6, xZR, 8);
+                        FLED(x3, d0, d1);
+                        break; // Less or equal
+                    case 3:
+                        if (u8 & 0x8)
+                            ADDI(x3, xZR, 0);
+                        else
+                            XORI(x3, x6, 1);
+                        break;
+                    case 4:
+                        FEQD(x3, d0, d1);
+                        XORI(x3, x3, 1);
+                        break; // Not Equal or unordered
+                    case 5:
+                        BEQ(x6, xZR, 12);
+                        FLED(x3, d1, d0);
+                        J(8);
+                        ADDI(x3, xZR, 1);
+                        break; // Greater or equal or unordered
+                    case 6:
+                        BEQ(x6, xZR, 12);
+                        FLTD(x3, d1, d0);
+                        J(8);
+                        ADDI(x3, xZR, 1);
+                        break; // Greater or unordered
+                    case 7:
+                        if (u8 & 0x8)
+                            ADDI(x3, xZR, 1);
+                        else
+                            MV(x3, x6);
+                        break; // Not NaN
+                }
+                if ((u8 & 0x3) != 0x3) {
+                    if ((u8 & 0xC) == 0x8 || (u8 & 0xC) == 0x4) {
+                        XORI(x7, x6, 1);
+                        OR(x3, x3, x7);
+                    } else
+                        AND(x3, x3, x6);
+                }
+                NEG(x3, x3);
+                if (i < 2) {
+                    SD(x3, gback, gdoffset + 8 * i);
+                } else {
+                    SD(x3, gback, gyoffset + 8 * (i - 2));
+                }
+            }
+            break;
+        case 0xC6:
+            INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, 8);
+            GETGY();
+            GETVX();
+            GETVY();
+            u8 = F8;
+            LD(x3, vback, vxoffset + 8 * (u8 & 1));
+            LD(x4, wback, fixedaddress + 8 * ((u8 >> 1) & 1));
+            SD(x3, gback, gdoffset + 0);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, vback, vyoffset + 8 * ((u8 >> 2) & 1));
+                LD(x4, wback, fixedaddress + 8 * ((u8 >> 3) & 1));
+                SD(x3, gback, gyoffset + 0);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                SD(xZR, gback, gyoffset + 0);
+                SD(xZR, gback, gyoffset + 8);
+            }
+            break;
+        case 0xD0:
+            INST_NAME("VADDSUBPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, v0, v0);
+                    FEQD(x4, v1, v1);
+                }
+                if (i == 0)
+                    FSUBD(v0, v1, v0);
+                else
+                    FADDD(v0, v1, v0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 16);
+                    FEQD(x3, v0, v0);
+                    BNEZ(x3, 8);
+                    FNEGD(v0, v0);
+                }
+                FSD(v0, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQD(x3, v0, v0);
+                        FEQD(x4, v1, v1);
+                    }
+                    if (i == 0)
+                        FSUBD(v0, v1, v0);
+                    else
+                        FADDD(v0, v1, v0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        AND(x3, x3, x4);
+                        BEQZ(x3, 16);
+                        FEQD(x3, v0, v0);
+                        BNEZ(x3, 8);
+                        FNEGD(v0, v0);
+                    }
+                    FSD(v0, gback, gyoffset + 8 * i);
+                }
+            } else {
+                SD(xZR, gback, gyoffset);
+                SD(xZR, gback, gyoffset + 8);
             }
             break;
         case 0xEF:
