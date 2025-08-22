@@ -586,7 +586,11 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             YMM0(gd);
             break;
         case 0x22:
-            INST_NAME("VINSERTD Gx, Vx, Ex, Ib");
+            if (rex.w) {
+                INST_NAME("VPINSRQ Gx, Vx, ED, Ib");
+            } else {
+                INST_NAME("VPINSRD Gx, Vx, ED, Ib");
+            }
             nextop = F8;
             GETGX_empty_VX(v0, v2);
             GETED(1);
