@@ -305,7 +305,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEX(x1, 0, 8);
-            MV(gd, xZR);
+            XOR(gd, gd, gd);
             for (int i = 0; i < 2; ++i) {
                 // GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
                 LD(x2, wback, fixedaddress + 8 * i);
