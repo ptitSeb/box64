@@ -2051,4 +2051,12 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 #define SCRATCH_USAGE(usage)
 #endif
 
+// TODO: can be lazy
+#define YMM0(a)                                        \
+    do {                                               \
+        SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 0); \
+        SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 8); \
+    } while (0)
+
+
 #endif //__DYNAREC_RV64_HELPER_H__

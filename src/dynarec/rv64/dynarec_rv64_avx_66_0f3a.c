@@ -79,10 +79,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SH(x3, gback, gyoffset + 2 * i);
                     }
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x0F:
             INST_NAME("VPALIGNR Gx, Vx, Ex, Ib");
@@ -161,8 +159,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 GETEY();
                 if (u8 > 31) {
-                    SD(xZR, gback, gyoffset + 0);
-                    SD(xZR, gback, gyoffset + 8);
+                    YMM0(gd);
                 } else if (u8 > 23) {
                     LD(x5, vback, vyoffset + 8);
                     if (u8 > 24) {
@@ -225,10 +222,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SD(x4, gback, gyoffset + 0);
                     }
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x22:
             if (rex.w) {
@@ -253,8 +248,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 SW(ed, gback, gdoffset + 4 * (u8 & 0x3));
             }
-            SD(xZR, gback, gyoffset + 0);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x4A:
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
@@ -286,10 +280,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     MV(x3, x5);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         default:
             DEFAULT;
