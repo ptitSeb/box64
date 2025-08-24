@@ -62,7 +62,20 @@ typedef struct my_sem_32_s {
     sem_t   *sem;
 } my_sem_32_t;
 
-#define GET_SEM(sem) sem_t* _sem = (sem->sign != SEM_SIGN)?((sem_t*)sem):(sem->sem)
+static sem_t* get_sem(void* sem)
+{
+    if(!(((uintptr_t)sem)&0x07))
+        return sem;
+    // sem is unaligned, create a wrapped sem
+    sem_t *new_sem = box_calloc(1, sizeof(sem_t));
+    memcpy(new_sem, sem, sizeof(sem_t));
+    my_sem_32_t* old = sem;
+    old->sign = SEM_SIGN;
+    old->sem = new_sem;
+    return new_sem;
+}
+
+#define GET_SEM(sem) sem_t* _sem = (sem->sign != SEM_SIGN)?(get_sem(sem)):(sem->sem)
 EXPORT int my32_sem_close(sem_t* sem)
 {
     return sem_close(sem);
