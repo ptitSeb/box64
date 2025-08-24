@@ -418,7 +418,7 @@ GO(fseek, iESli)
 GO(fseeko, iESli)
 GO(fseeko64, iESIi)
 GO(__fsetlocking, iESi)
-//GO(fsetpos, iEpp)
+GO(fsetpos, iEpBlii_)
 //GO(fsetpos64, iEpp)
 GO(fsetxattr, iEippLi)
 GOM(fstat, iFip)    //%%,noE

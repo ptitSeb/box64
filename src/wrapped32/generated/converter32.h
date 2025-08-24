@@ -545,5 +545,12 @@ typedef struct struct_ppuiiiiiiiiipp_s {
 } struct_ppuiiiiiiiiipp_t;
 void from_struct_ppuiiiiiiiiipp(struct_ppuiiiiiiiiipp_t *dest, ptr_t src);
 void to_struct_ppuiiiiiiiiipp(ptr_t dest, const struct_ppuiiiiiiiiipp_t *src);
+typedef struct struct_lii_s {
+	long l0;
+	int i1;
+	int i2;
+} struct_lii_t;
+void from_struct_lii(struct_lii_t *dest, ptr_t src);
+void to_struct_lii(ptr_t dest, const struct_lii_t *src);
 
 #endif // __CONVERTER_H_

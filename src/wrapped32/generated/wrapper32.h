@@ -459,6 +459,7 @@ void iFXbip__32(x64emu_t *emu, uintptr_t fnc);
 void uFpbpu__32(x64emu_t *emu, uintptr_t fnc);
 void pFnbpi__32(x64emu_t *emu, uintptr_t fnc);
 void vFpbupi__32(x64emu_t *emu, uintptr_t fnc);
+void iEpBlii__32(x64emu_t *emu, uintptr_t fnc);
 void iESBliu__32(x64emu_t *emu, uintptr_t fnc);
 void iFbppi_i_32(x64emu_t *emu, uintptr_t fnc);
 void iFbp_bp__32(x64emu_t *emu, uintptr_t fnc);

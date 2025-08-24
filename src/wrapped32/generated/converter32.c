@@ -1078,3 +1078,18 @@ void to_struct_ppuiiiiiiiiipp(ptr_t d, const struct_ppuiiiiiiiiipp_t *src) {
 	*(ptr_t*)dest = to_ptrv(src->p12); dest += 4;
 	*(ptr_t*)dest = to_ptrv(src->p13); dest += 4;
 }
+
+void from_struct_lii(struct_lii_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->l0 = from_long(*(long_t*)src); src += 4;
+	dest->i1 = *(int*)src; src += 4;
+	dest->i2 = *(int*)src; src += 4;
+}
+void to_struct_lii(ptr_t d, const struct_lii_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_long(src->l0); dest += 4;
+	*(int*)dest = src->i1; dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+}
+
