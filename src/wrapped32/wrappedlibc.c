@@ -291,13 +291,14 @@ static void* findcompareFct(void* fct)
     return NULL;
 }
 
-#if 0
 // ftw
 #define GO(A)   \
-static uintptr_t my32_ftw_fct_##A = 0;                                      \
-static int my32_ftw_##A(void* fpath, void* sb, int flag)                       \
+static uintptr_t my32_ftw_fct_##A = 0;                                          \
+static int my32_ftw_##A(void* fpath, void* sb, int flag)                        \
 {                                                                               \
-    return (int)RunFunction(my_context, my32_ftw_fct_##A, 3, fpath, sb, flag);   \
+    static struct i386_stat i386st;                                             \
+    FillStatFromStat64(3, sb, &i386st);                                         \
+    return (int)RunFunctionFmt(my32_ftw_fct_##A, "ppi", fpath, &i386st, flag);  \
 }
 SUPER()
 #undef GO
@@ -315,7 +316,6 @@ static void* findftwFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc ftw callback\n");
     return NULL;
 }
-#endif
 // ftw64
 #define GO(A)   \
 static uintptr_t my32_ftw64_fct_##A = 0;                                            \
@@ -1587,19 +1587,12 @@ EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
     free(fname);
     return ret;
 }
+#endif
 
 EXPORT int32_t my32_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
-    static iFppi_t f = NULL;
-    if(!f) {
-        library_t* lib = my_lib;
-        if(!lib) return 0;
-        f = (iFppi_t)dlsym(lib->priv.w.lib, "ftw");
-    }
-
-    return f(pathname, findftwFct(B), nopenfd);
+    return ftw64(pathname, findftwFct(B), nopenfd);
 }
-#endif
 EXPORT int32_t my32_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
     return nftw64(pathname, findnftwFct(B), nopenfd, flags);

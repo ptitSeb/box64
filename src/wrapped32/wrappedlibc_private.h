@@ -442,7 +442,7 @@ GOW(ftruncate64, iEiI)
 //GOM(fts_open, pEEpip)    //%%
 //GOM(fts_read, pEEp)      //%%
 // fts_set
-//GOM(ftw, iEEppi)         //%%
+GOM(ftw, iEEppi)         //%%
 GOM(ftw64, iEEppi)       //%%
 GOW(funlockfile, vFS)
 GOM(futimens, iEEip)
