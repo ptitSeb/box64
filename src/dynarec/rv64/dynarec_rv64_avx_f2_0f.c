@@ -61,8 +61,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 SD(xZR, gback, gdoffset + 8);
             }
-            SD(xZR, gback, gyoffset + 0);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x11:
             INST_NAME("VMOVSD Ex, [Vx,] Gx");
@@ -76,9 +75,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 GETVX();
                 LD(x3, vback, vxoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
-                GETEY();
-                SD(xZR, wback, fixedaddress + 0);
-                SD(xZR, wback, fixedaddress + 8);
+                YMM0(ed);
             }
             break;
         default:

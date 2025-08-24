@@ -62,10 +62,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(x3, gback, gyoffset);
                 LD(x3, wback, fixedaddress + 8);
                 SD(x3, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x29:
             INST_NAME("VMOVAPD Ex, Gx");
@@ -83,11 +81,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x4, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 0);
                 SD(x4, wback, fixedaddress + 8);
-            } else if (MODREG) {
-                GETEY();
-                SD(xZR, wback, fixedaddress + 0);
-                SD(xZR, wback, fixedaddress + 8);
-            }
+            } else if (MODREG)
+                YMM0(ed);
             if (!MODREG) SMWRITE2();
             break;
         case 0x2E:
@@ -188,10 +183,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FSD(d0, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x54:
             INST_NAME("VANDPD Gx, Vx, Ex");
@@ -219,10 +212,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 AND(x6, x6, x4);
                 SD(x5, gback, gyoffset + 0);
                 SD(x6, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x55:
             INST_NAME("VANDNPD Gx, Vx, Ex");
@@ -264,10 +255,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 SD(x5, gback, gyoffset + 0);
                 SD(x6, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x56:
             INST_NAME("VORPD Gx, Vx, Ex");
@@ -295,10 +284,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 OR(x6, x6, x4);
                 SD(x5, gback, gyoffset + 0);
                 SD(x6, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x57:
             INST_NAME("VXORPD Gx, Vx, Ex");
@@ -326,10 +313,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 XOR(x6, x6, x4);
                 SD(x5, gback, gyoffset + 0);
                 SD(x6, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x58:
             INST_NAME("VADDPD Gx, Vx, Ex");
@@ -377,10 +362,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FSD(v0, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x59:
             INST_NAME("VMULPD Gx, Vx, Ex");
@@ -428,10 +411,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FSD(v0, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x5C:
             INST_NAME("VSUBPD Gx, Vx, Ex");
@@ -479,10 +460,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FSD(v0, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x5D:
             INST_NAME("VMINPD Gx, Vx, Ex");
@@ -520,10 +499,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     FMVD(v1, v0);
                     FSD(v1, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x5E:
             INST_NAME("VDIVPD Gx, Vx, Ex");
@@ -571,10 +548,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FSD(v0, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x5F:
             INST_NAME("VMAXPD Gx, Vx, Ex");
@@ -612,10 +587,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     FMVD(v1, v0);
                     FSD(v1, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x66:
             INST_NAME("VPCMPGTD Gx, Vx, Ex");
@@ -641,10 +614,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     NEG(x3, x4);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x6E:
             INST_NAME("VMOVD Gx, Ed");
@@ -658,8 +629,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             SD(ed, gback, gdoffset);
             SD(xZR, gback, gdoffset + 8);
-            SD(xZR, gback, gyoffset);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x6F:
             INST_NAME("VMOVDQA Gx, Ex");
@@ -677,10 +647,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(x3, gback, gyoffset);
                 LD(x3, wback, fixedaddress + 8);
                 SD(x3, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x7E:
             INST_NAME("VMOVD Ed, Gx");
@@ -723,11 +691,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(x3, wback, fixedaddress);
                 LD(x3, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
-            } else if (MODREG) {
-                GETEY();
-                SD(xZR, wback, fixedaddress);
-                SD(xZR, wback, fixedaddress + 8);
-            }
+            } else if (MODREG)
+                YMM0(ed);
             break;
         case 0xC2:
             INST_NAME("VCMPPD Gx, Vx, Ex, Ib");
@@ -812,10 +777,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     SD(x3, gback, gyoffset + 8 * (i - 2));
                 }
             }
-            if (!vex.l) {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            if (!vex.l) YMM0(gd);
             break;
         case 0xC6:
             INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
@@ -836,10 +798,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x4, wback, fixedaddress + 8 * ((u8 >> 3) & 1));
                 SD(x3, gback, gyoffset + 0);
                 SD(x4, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0xD0:
             INST_NAME("VADDSUBPD Gx, Vx, Ex");
@@ -893,10 +853,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FSD(v0, gback, gyoffset + 8 * i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0xEF:
             INST_NAME("VPXOR Gx, Vx, Ex");
@@ -924,10 +882,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x4, wback, fixedaddress + 8);
                 XOR(x3, x3, x4);
                 SD(x3, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         default:
             DEFAULT;

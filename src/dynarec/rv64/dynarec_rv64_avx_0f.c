@@ -62,10 +62,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SD(x3, gback, gyoffset);
                 LD(x3, wback, fixedaddress + 8);
                 SD(x3, gback, gyoffset + 8);
-            } else {
-                SD(xZR, gback, gyoffset);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x29:
             INST_NAME("VMOVAPS Ex, Gx");
@@ -83,11 +81,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SD(x3, wback, fixedaddress);
                 LD(x3, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
-            } else if (MODREG) {
-                GETEY();
-                SD(xZR, wback, fixedaddress);
-                SD(xZR, wback, fixedaddress + 8);
-            }
+            } else if (MODREG)
+                YMM0(ed);
             break;
         case 0x2E:
             // no special check...
@@ -149,10 +144,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 FCVTDS(s1, s1);
                 FSD(s0, gback, gyoffset + 0);
                 FSD(s1, gback, gyoffset + 8);
-            } else {
-                FSD(xZR, gback, gyoffset + 0);
-                FSD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         default:
             DEFAULT;

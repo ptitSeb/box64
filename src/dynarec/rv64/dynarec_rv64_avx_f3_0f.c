@@ -66,8 +66,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(xZR, gback, gdoffset + 8);
             }
             GETGY();
-            SD(xZR, gback, gyoffset);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x11:
             INST_NAME("VMOVSS Ex, [Vx,] Gx");
@@ -82,9 +81,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SW(x3, wback, fixedaddress + 4);
                 LD(x3, vback, vxoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
-                GETEY();
-                SD(xZR, wback, fixedaddress);
-                SD(xZR, wback, fixedaddress + 8);
+                YMM0(ed);
             }
             break;
         case 0x5A:
@@ -102,8 +99,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x2, vback, vxoffset + 8);
                 SD(x2, gback, gdoffset + 8);
             }
-            SD(xZR, gback, gyoffset);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x5D:
             INST_NAME("VMINSS Gx, Vx, Ex");
@@ -132,8 +128,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x2, vback, vxoffset + 8);
                 SD(x2, gback, gdoffset + 8);
             }
-            SD(xZR, gback, gyoffset);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x5F:
             INST_NAME("VMAXSS Gx, Vx, Ex");
@@ -162,8 +157,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x2, vback, vxoffset + 8);
                 SD(x2, gback, gdoffset + 8);
             }
-            SD(xZR, gback, gyoffset);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0x7E:
             INST_NAME("VMOVQ Gx, Ex");
@@ -174,8 +168,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             LD(x3, wback, fixedaddress);
             SD(x3, gback, gdoffset + 0);
             SD(xZR, gback, gdoffset + 8);
-            SD(xZR, gback, gyoffset + 0);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         case 0xC2:
             INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
@@ -239,8 +232,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x2, vback, vxoffset + 8);
                 SD(x2, gback, gdoffset + 8);
             }
-            SD(xZR, gback, gyoffset);
-            SD(xZR, gback, gyoffset + 8);
+            YMM0(gd);
             break;
         default:
             DEFAULT;

@@ -95,10 +95,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LBU(x4, x4, vyoffset);
                     SB(x4, gback, gyoffset + i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x01:
         case 0x03:
@@ -176,10 +174,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SH(x3, gback, gyoffset + 2 * (4 + i));
                     }
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x02:
             INST_NAME("VPHADDD Gx, Vx, Ex");
@@ -249,10 +245,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SW(x3, gback, gyoffset + 4 * (2 + i));
                     }
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x04:
             INST_NAME("VPMADDUBSW Gx, Vx, Ex");
@@ -286,10 +280,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SAT16(x3, x6);
                     SH(x3, gback, gyoffset + i * 2);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x05:
         case 0x07:
@@ -367,10 +359,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SH(x3, gback, gyoffset + 2 * (4 + i));
                     }
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x06:
             INST_NAME("VPHSUBD Gx, Vx, Ex");
@@ -440,10 +430,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SW(x3, gback, gyoffset + 4 * (2 + i));
                     }
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x08:
             INST_NAME("VPSIGNB Gx, Vx, Ex");
@@ -473,10 +461,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     MUL(x3, x1, x3);
                     SB(x3, gback, gyoffset + i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x09:
             INST_NAME("VPSIGNW Gx, Vx, Ex");
@@ -506,10 +492,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     MUL(x3, x1, x3);
                     SH(x3, gback, gyoffset + i * 2);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x0A:
             INST_NAME("VPSIGND Gx, Vx, Ex");
@@ -539,10 +523,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     MUL(x3, x1, x3);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x0B:
             INST_NAME("VPMULHRSW Gx, Vx, Ex");
@@ -572,10 +554,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SRAI(x3, x3, 1);
                     SH(x3, gback, gyoffset + i * 2);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x17:
             INST_NAME("VPTEST Gx, Ex");
@@ -655,10 +635,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     NEG(x4, x4);
                     SB(x4, gback, gyoffset + i);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x1D:
             INST_NAME("VPABSW Gx, Ex");
@@ -680,10 +658,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     NEG(x4, x4);
                     SH(x4, gback, gyoffset + i * 2);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x1E:
             INST_NAME("VPABSD Gx, Ex");
@@ -705,10 +681,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     NEG(x4, x4);
                     SW(x4, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x20:
             INST_NAME("VPMOVSXBW Gx, Ex");
@@ -721,10 +695,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LB(x3, wback, fixedaddress + 8 + i);
                     SH(x3, gback, gyoffset + i * 2);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 7; i >= 0; --i) {
                 LB(x3, wback, fixedaddress + i);
                 SH(x3, gback, gdoffset + i * 2);
@@ -741,10 +713,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LB(x3, wback, fixedaddress + 4 + i);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 3; i >= 0; --i) {
                 LB(x3, wback, fixedaddress + i);
                 SW(x3, gback, gdoffset + i * 4);
@@ -761,10 +731,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LB(x3, wback, fixedaddress + 2 + i);
                     SD(x3, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 1; i >= 0; --i) {
                 LB(x3, wback, fixedaddress + i);
                 SD(x3, gback, gdoffset + i * 8);
@@ -781,10 +749,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LH(x3, wback, fixedaddress + 8 + i * 2);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 3; i >= 0; --i) {
                 LH(x3, wback, fixedaddress + i * 2);
                 SW(x3, gback, gdoffset + i * 4);
@@ -801,10 +767,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LH(x3, wback, fixedaddress + 4 + i * 2);
                     SD(x3, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 1; i >= 0; --i) {
                 LH(x3, wback, fixedaddress + i * 2);
                 SD(x3, gback, gdoffset + i * 8);
@@ -821,10 +785,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LW(x4, wback, fixedaddress + 8 + i * 4);
                     SD(x4, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 1; i >= 0; --i) {
                 LW(x4, wback, fixedaddress + i * 4);
                 SD(x4, gback, gdoffset + i * 8);
@@ -841,10 +803,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LBU(x3, wback, fixedaddress + 8 + i);
                     SH(x3, gback, gyoffset + i * 2);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 7; i >= 0; --i) {
                 LBU(x3, wback, fixedaddress + i);
                 SH(x3, gback, gdoffset + i * 2);
@@ -861,10 +821,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LBU(x3, wback, fixedaddress + 4 + i);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 3; i >= 0; --i) {
                 LBU(x3, wback, fixedaddress + i);
                 SW(x3, gback, gdoffset + i * 4);
@@ -881,10 +839,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LBU(x3, wback, fixedaddress + 2 + i);
                     SD(x3, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 1; i >= 0; --i) {
                 LBU(x3, wback, fixedaddress + i);
                 SD(x3, gback, gdoffset + i * 8);
@@ -901,10 +857,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LHU(x3, wback, fixedaddress + 8 + i * 2);
                     SW(x3, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 3; i >= 0; --i) {
                 LHU(x3, wback, fixedaddress + i * 2);
                 SW(x3, gback, gdoffset + i * 4);
@@ -921,10 +875,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LHU(x3, wback, fixedaddress + 4 + i * 2);
                     SD(x3, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 1; i >= 0; --i) {
                 LHU(x3, wback, fixedaddress + i * 2);
                 SD(x3, gback, gdoffset + i * 8);
@@ -941,10 +893,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LWU(x4, wback, fixedaddress + 8 + i * 4);
                     SD(x4, gback, gyoffset + i * 8);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             for (int i = 1; i >= 0; --i) {
                 LWU(x4, wback, fixedaddress + i * 4);
                 SD(x4, gback, gdoffset + i * 8);
@@ -982,10 +932,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     }
                     SW(x4, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         case 0x3D:
             INST_NAME("VPMAXSD Gx, Vx, Ex");
@@ -1019,10 +967,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     }
                     SW(x4, gback, gyoffset + i * 4);
                 }
-            } else {
-                SD(xZR, gback, gyoffset + 0);
-                SD(xZR, gback, gyoffset + 8);
-            }
+            } else
+                YMM0(gd);
             break;
         default:
             DEFAULT;
