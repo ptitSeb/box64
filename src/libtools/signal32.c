@@ -467,7 +467,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
 
     memcpy(dst, src, sizeof(my_siginfo32_t));
     if(sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGSEGV || sig==X64_SIGBUS)
-        dst->_sifields._sigfault.__si_addr = to_ptrv(src->si_addr);
+        dst->_sifields._sigfault.__si_addr = to_ptr(((uintptr_t)src->si_addr)&0xffffffff);  // in case addr is not a 32bits value...
     if(sig==X64_SIGCHLD) {
         dst->_sifields._sigchld.__si_pid = src->si_pid;
         dst->_sifields._sigchld.__si_uid = src->si_uid;
@@ -494,7 +494,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     // get that actual ESP first!
     if(!emu)
         emu = thread_get_emu();
-    uintptr_t frame = R_RSP;
+    uintptr_t frame = R_ESP;
 #if defined(DYNAREC)
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     ucontext_t *p = (ucontext_t *)ucntx;
