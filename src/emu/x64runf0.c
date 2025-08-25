@@ -966,8 +966,8 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         SET_FLAG(F_ZF);
                                     } else {
                                         CLEAR_FLAG(F_ZF);
-                                        R_RAX = tmp64u&0xffffffff;
-                                        R_RDX = (tmp64u>>32)&0xffffffff;
+                                        R_RAX = tmp64u2&0xffffffff;
+                                        R_RDX = (tmp64u2>>32)&0xffffffff;
                                     }
                                 }
 #else
