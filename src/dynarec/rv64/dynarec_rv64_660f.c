@@ -833,7 +833,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             SSE_LOOP_MV_Q(x3);
             break;
-        case 0x70: // TODO: Optimize this!
+        case 0x70:
             INST_NAME("PSHUFD Gx,Ex,Ib");
             nextop = F8;
             GETGX();

@@ -770,13 +770,13 @@
 #define B_MARKi_nocond Bxx_geni(__, MARK, 0, 0, i)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2)  Bxx_gen(LT, MARK, reg1, reg2)
-#define BLT_MARKi(reg1, reg2) Bxx_geni(LT, MARK, reg1, reg2, i)
+#define BLT_MARKi(reg1, reg2, i) Bxx_geni(LT, MARK, reg1, reg2, i)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLTU_MARK(reg1, reg2)  Bxx_gen(LTU, MARK, reg1, reg2)
-#define BLTU_MARKi(reg1, reg2) Bxx_geni(LTU, MARK, reg1, reg2, i)
+#define BLTU_MARKi(reg1, reg2, i) Bxx_geni(LTU, MARK, reg1, reg2, i)
 // Branch to MARK if reg1>=reg2 (use j64)
 #define BGE_MARK(reg1, reg2)  Bxx_gen(GE, MARK, reg1, reg2)
-#define BGE_MARKi(reg1, reg2) Bxx_geni(GE, MARK, reg1, reg2, i)
+#define BGE_MARKi(reg1, reg2, i) Bxx_geni(GE, MARK, reg1, reg2, i)
 // Branch to MARK2 if reg1==reg2 (use j64)
 #define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1, reg2)
 // Branch to MARK2 if reg1!=reg2 (use j64)
@@ -793,6 +793,8 @@
 #define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!>=reg2 (use j64)
 #define BGE_MARK3(reg1, reg2) Bxx_gen(GE, MARK3, reg1, reg2)
+// Branch to MARK if reg1<reg2 (use j64)
+#define BLTU_MARK3(reg1, reg2) Bxx_gen(LTU, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=0 (use j64)
 #define BNEZ_MARK3(reg) BNE_MARK3(reg, xZR)
 // Branch to MARK3 if reg1==0 (use j64)
@@ -1955,6 +1957,25 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 #define PURGE_YMM()
 
 // TODO: zbb?
+#define SAT8(reg, s)                     \
+    do {                                 \
+        ADDIW(s, xZR, 0xF80); /* -128 */ \
+        BGE(reg, s, 4 + 4);              \
+        MV(reg, s);                      \
+        ADDIW(s, xZR, 0x80); /* 128 */   \
+        BLT(reg, s, 4 + 4);              \
+        ADDIW(reg, s, -1);               \
+    } while (0)
+
+#define SATU8(reg, s)                   \
+    do {                                \
+        ADDIW(s, xZR, 0x100); /* 256 */ \
+        BGE(reg, xZR, 4 + 4);           \
+        MV(reg, xZR);                   \
+        BLT(reg, s, 4 + 4);             \
+        ADDIW(reg, s, -1);              \
+    } while (0)
+
 #define SAT16(reg, s)                 \
     do {                              \
         LUI(s, 0xFFFF8); /* -32768 */ \
