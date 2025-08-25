@@ -179,7 +179,8 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
     //setenv("BOX64_SHOWSEGV", "1", 1);
     //setenv("BOX64_SHOWBT", "1", 1);
     //setenv("BOX64_DYNAREC_LOG", "1", 1);
-
+    //setenv("BOX64_ROLLING_LOG", "128", 1);
+    
     printf_log(LOG_DEBUG, "Run %s %s and wait\n", x86?"i386":(x64?"x86_64":""), argv[nextarg]);
     pid_t v = vfork();
     if(v==-1) {

@@ -909,6 +909,28 @@ static void* find_time_free_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_free callback\n");
     return NULL;
 }
+// pa_time_event_destroy_cb
+#define GO(A)                                                               \
+static uintptr_t my_pa_time_event_destroy_cb_fct_##A = 0;                   \
+static void my_pa_time_event_destroy_cb_##A(void* a, void* e, void* u)      \
+{                                                                           \
+    RunFunctionFmt(my_pa_time_event_destroy_cb_fct_##A, "ppp", a, e, u);    \
+}
+SUPER()
+#undef GO
+static void* find_pa_time_event_destroy_cb_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_pa_time_event_destroy_cb_fct_##A == (uintptr_t)fct) return my_pa_time_event_destroy_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_pa_time_event_destroy_cb_fct_##A == 0) {my_pa_time_event_destroy_cb_fct_##A = (uintptr_t)fct; return my_pa_time_event_destroy_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio pa_time_event_destroy_cb callback\n");
+    return NULL;
+}
 // time_set_destroy
 #define GO(A)                                                                                                                       \
 static uintptr_t my_time_set_destroy_fct_##A = 0;                                                                                   \
@@ -929,6 +951,27 @@ static void* find_time_set_destroy_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_set_destroy callback\n");
+    return NULL;
+}
+#define GO(A)                                                   \
+static vFpp_t my_time_set_destroy_native_fct_##A = NULL;        \
+static void my_time_set_destroy_native_##A(void* e, void* cb)   \
+{                                                               \
+    cb = find_pa_time_event_destroy_cb_Fct(cb);                 \
+    my_time_set_destroy_native_fct_##A (e, cb);                 \
+}
+SUPER()
+#undef GO
+static void* find_time_set_destroy_native_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_time_set_destroy_native_fct_##A == fct) return my_time_set_destroy_native_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!my_time_set_destroy_native_fct_##A) {my_time_set_destroy_native_fct_##A = fct; return my_time_set_destroy_native_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_set_destroy native wrapper\n");
     return NULL;
 }
 // defer_new
@@ -1049,7 +1092,8 @@ static void UpdateautobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_m
     if(!api) {
         return;
     }
-    #define GO(A, W) if(api->A!=my_mainloop_api.A) {api->A=find_##A##_Fct(api->A); AddAutomaticBridge(bridge, W, api->A, 0, NULL);}
+    #define GO(A, W) if(api->A!=my_mainloop_api.A) {api->A=find_##A##_Fct(api->A); AddAutomaticBridge(bridge, W, api->A, 0, "pulse_" #A);}
+    #define GO2(A, W) if(api->A!=my_mainloop_api.A) {api->A=find_##A##_Fct(api->A); AddAutomaticBridgeAlt(bridge, W, api->A, find_##A##_native_Fct(api->A), 0, "pulse_" #A);}
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);
@@ -1057,13 +1101,14 @@ static void UpdateautobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_m
     GO(time_new, pFpppp);
     GO(time_restart, vFpp);
     GO(time_free, vFp);
-    GO(time_set_destroy, vFpp);
+    GO2(time_set_destroy, vFpp);
     GO(defer_new, pFppp);
     GO(defer_enable, vFpi);
     GO(defer_free, vFp);
     GO(defer_set_destroy, vFpp);
     GO(quit, vFpi);
     #undef GO
+    #undef GO2
     memcpy(&my_mainloop_api, api, sizeof(my_mainloop_api));
     return;
 }
@@ -1073,7 +1118,8 @@ static void autobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloo
     if(!api) {
         return;
     }
-    #define GO(A, W) if(api->A) AddAutomaticBridge(bridge, W, api->A, 0, NULL)
+    #define GO(A, W) if(api->A) AddAutomaticBridge(bridge, W, api->A, 0, "pulse_" #A)
+    #define GO2(A, W) if(api->A) AddAutomaticBridgeAlt(bridge, W, api->A, find_##A##_native_Fct(api->A), 0, "pulse_" #A)
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);
@@ -1081,13 +1127,14 @@ static void autobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloo
     GO(time_new, pFpppp);
     GO(time_restart, vFpp);
     GO(time_free, vFp);
-    GO(time_set_destroy, vFpp);
+    GO2(time_set_destroy, vFpp);
     GO(defer_new, pFppp);
     GO(defer_enable, vFpi);
     GO(defer_free, vFp);
     GO(defer_set_destroy, vFpp);
     GO(quit, vFpi);
     #undef GO
+    #undef GO2
     memcpy(&my_mainloop_api, api, sizeof(my_mainloop_api));
     return;
 }

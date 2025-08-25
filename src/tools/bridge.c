@@ -168,6 +168,20 @@ uintptr_t AddAutomaticBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, co
     return ret;
 }
 
+uintptr_t AddAutomaticBridgeAlt(bridge_t* bridge, wrapper_t w, void* fnc, void* alt, int N, const char* name)
+{
+    if(!fnc)
+        return 0;
+    uintptr_t ret = CheckBridged(bridge, alt);
+    if(!ret)
+        ret = AddBridge(bridge, w, alt, N, name);
+    if(!hasAlternate(fnc)) {
+        printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
+        addAlternate(fnc, (void*)ret);
+    }
+    return ret;
+}
+
 void* GetNativeOrAlt(void* fnc, void* alt)
 {
     if(!fnc) return NULL;
