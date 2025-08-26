@@ -1105,6 +1105,103 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else
                 YMM0(gd);
             break;
+        case 0x74:
+            INST_NAME("VPCMPEQB Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 31 : 15);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            for (int i = 0; i < 16; ++i) {
+                LBU(x3, vback, vxoffset + i);
+                LBU(x4, wback, fixedaddress + i);
+                if (cpuext.xtheadbb) {
+                    XOR(x3, x3, x4);
+                    TH_TSTNBZ(x3, x3);
+                } else {
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
+                }
+                SB(x3, gback, gdoffset + i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 16; ++i) {
+                    LBU(x3, vback, vyoffset + i);
+                    LBU(x4, wback, fixedaddress + i);
+                    if (cpuext.xtheadbb) {
+                        XOR(x3, x3, x4);
+                        TH_TSTNBZ(x3, x3);
+                    } else {
+                        SUB(x3, x3, x4);
+                        SEQZ(x3, x3);
+                        NEG(x3, x3);
+                    }
+                    SB(x3, gback, gyoffset + i);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x75:
+            INST_NAME("VPCMPEQW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            for (int i = 0; i < 8; ++i) {
+                LHU(x3, vback, vxoffset + i * 2);
+                LHU(x4, wback, fixedaddress + i * 2);
+                SUB(x3, x3, x4);
+                SEQZ(x3, x3);
+                NEG(x3, x3);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LHU(x3, vback, vyoffset + i * 2);
+                    LHU(x4, wback, fixedaddress + i * 2);
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x76:
+            INST_NAME("VPCMPEQD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            for (int i = 0; i < 4; ++i) {
+                LWU(x3, vback, vxoffset + i * 4);
+                LWU(x4, wback, fixedaddress + i * 4);
+                SUB(x3, x3, x4);
+                SEQZ(x3, x3);
+                NEG(x3, x3);
+                SW(x3, gback, gdoffset + i * 4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    LWU(x3, vback, vyoffset + i * 4);
+                    LWU(x4, wback, fixedaddress + i * 4);
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
+                    SW(x3, gback, gyoffset + i * 4);
+                }
+            } else
+                YMM0(gd);
+            break;
         case 0x7E:
             INST_NAME("VMOVD Ed, Gx");
             nextop = F8;
