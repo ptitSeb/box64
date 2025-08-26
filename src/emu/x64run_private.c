@@ -326,7 +326,7 @@ reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_
             base += rex.offset;
             return (reg64_t*)(base+*addr+delta);
         }
-        return (reg64_t*)(emu->regs[m+(rex.b<<3)].q[0]);
+        return (reg64_t*)(emu->regs[m+(rex.b<<3)].q[0]+rex.offset);
     } else {
         uintptr_t base;
         if((m&7)==4) {
