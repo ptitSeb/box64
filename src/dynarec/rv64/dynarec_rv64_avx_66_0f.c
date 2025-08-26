@@ -1155,14 +1155,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             for (int i = 0; i < 8; ++i) {
                 LHU(x3, vback, vxoffset + i * 2);
                 LHU(x4, wback, fixedaddress + i * 2);
-                if (cpuext.xtheadbb) {
-                    XOR(x3, x3, x4);
-                    TH_TSTNBZ(x3, x3);
-                } else {
-                    SUB(x3, x3, x4);
-                    SEQZ(x3, x3);
-                    NEG(x3, x3);
-                }
+                SUB(x3, x3, x4);
+                SEQZ(x3, x3);
+                NEG(x3, x3);
                 SH(x3, gback, gdoffset + i * 2);
             }
             if (vex.l) {
@@ -1170,14 +1165,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 for (int i = 0; i < 8; ++i) {
                     LHU(x3, vback, vyoffset + i * 2);
                     LHU(x4, wback, fixedaddress + i * 2);
-                    if (cpuext.xtheadbb) {
-                        XOR(x3, x3, x4);
-                        TH_TSTNBZ(x3, x3);
-                    } else {
-                        SUB(x3, x3, x4);
-                        SEQZ(x3, x3);
-                        NEG(x3, x3);
-                    }
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
                     SH(x3, gback, gyoffset + i * 2);
                 }
             } else
@@ -1194,14 +1184,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             for (int i = 0; i < 4; ++i) {
                 LWU(x3, vback, vxoffset + i * 4);
                 LWU(x4, wback, fixedaddress + i * 4);
-                if (cpuext.xtheadbb) {
-                    XOR(x3, x3, x4);
-                    TH_TSTNBZ(x3, x3);
-                } else {
-                    SUB(x3, x3, x4);
-                    SEQZ(x3, x3);
-                    NEG(x3, x3);
-                }
+                SUB(x3, x3, x4);
+                SEQZ(x3, x3);
+                NEG(x3, x3);
                 SW(x3, gback, gdoffset + i * 4);
             }
             if (vex.l) {
@@ -1209,14 +1194,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 for (int i = 0; i < 4; ++i) {
                     LWU(x3, vback, vyoffset + i * 4);
                     LWU(x4, wback, fixedaddress + i * 4);
-                    if (cpuext.xtheadbb) {
-                        XOR(x3, x3, x4);
-                        TH_TSTNBZ(x3, x3);
-                    } else {
-                        SUB(x3, x3, x4);
-                        SEQZ(x3, x3);
-                        NEG(x3, x3);
-                    }
+                    SUB(x3, x3, x4);
+                    SEQZ(x3, x3);
+                    NEG(x3, x3);
                     SW(x3, gback, gyoffset + i * 4);
                 }
             } else
