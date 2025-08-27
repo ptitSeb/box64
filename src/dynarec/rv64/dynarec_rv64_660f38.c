@@ -179,11 +179,11 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     for (int i = 0; i < 8; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
-                        MUL(x7, x3, x4);
+                        MUL(x1, x3, x4);
                         LBU(x3, gback, gdoffset + i * 2 + 1);
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
-                        ADD(x3, x3, x7);
+                        ADD(x3, x3, x1);
                         SATw(x3, x6, x7);
                         SH(x3, gback, gdoffset + i * 2);
                     }
