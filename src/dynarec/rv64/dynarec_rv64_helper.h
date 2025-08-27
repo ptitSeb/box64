@@ -1957,42 +1957,20 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 #define PURGE_YMM()
 
 // TODO: zbb?
-#define SAT8(reg, s)                     \
-    do {                                 \
-        ADDIW(s, xZR, 0xF80); /* -128 */ \
-        BGE(reg, s, 4 + 4);              \
-        MV(reg, s);                      \
-        ADDIW(s, xZR, 0x80); /* 128 */   \
-        BLT(reg, s, 4 + 4);              \
-        ADDIW(reg, s, -1);               \
+#define SATw(reg, min, maxp1)   \
+    do {                        \
+        BGE(reg, min, 4 + 4);   \
+        MV(reg, min);           \
+        BLT(reg, maxp1, 4 + 4); \
+        ADDIW(reg, maxp1, -1);  \
     } while (0)
 
-#define SATU8(reg, s)                   \
-    do {                                \
-        ADDIW(s, xZR, 0x100); /* 256 */ \
-        BGE(reg, xZR, 4 + 4);           \
-        MV(reg, xZR);                   \
-        BLT(reg, s, 4 + 4);             \
-        ADDIW(reg, s, -1);              \
-    } while (0)
-
-#define SAT16(reg, s)                 \
-    do {                              \
-        LUI(s, 0xFFFF8); /* -32768 */ \
-        BGE(reg, s, 4 + 4);           \
-        MV(reg, s);                   \
-        LUI(s, 0x8); /* 32768 */      \
-        BLT(reg, s, 4 + 4);           \
-        ADDIW(reg, s, -1);            \
-    } while (0)
-
-#define SATU16(reg, s)            \
-    do {                          \
-        LUI(s, 0x10); /* 65536 */ \
-        BGE(reg, xZR, 4 + 4);     \
-        MV(reg, xZR);             \
-        BLT(reg, s, 4 + 4);       \
-        ADDIW(reg, s, -1);        \
+#define SATUw(reg, maxu)       \
+    do {                       \
+        BGE(reg, xZR, 4 + 4);  \
+        MV(reg, xZR);          \
+        BLT(reg, maxu, 4 + 4); \
+        ADDIW(reg, maxu, -1);  \
     } while (0)
 
 #define FAST_8BIT_OPERATION(dst, src, s1, OP)                                        \

@@ -141,13 +141,15 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     INST_NAME("PHADDSW Gx, Ex");
                     nextop = F8;
                     GETGX();
+                    LUI(x6, 0xFFFF8); // -32768
+                    LUI(x7, 0x8);     // 32768
                     for (int i = 0; i < 4; ++i) {
                         // tmp32s = GX->sw[i*2+0]+GX->sw[i*2+1];
                         // GX->sw[i] = sat(tmp32s);
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
                         ADDW(x3, x3, x4);
-                        SAT16(x3, x6);
+                        SATw(x3, x6, x7);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
@@ -162,7 +164,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                             LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                             LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                             ADDW(x3, x3, x4);
-                            SAT16(x3, x6);
+                            SATw(x3, x6, x7);
                             SH(x3, gback, gdoffset + 2 * (4 + i));
                         }
                     }
@@ -172,15 +174,17 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0, 15);
+                    LUI(x6, 0xFFFF8); // -32768
+                    LUI(x7, 0x8);     // 32768
                     for (int i = 0; i < 8; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
-                        MUL(x7, x3, x4);
+                        MUL(x1, x3, x4);
                         LBU(x3, gback, gdoffset + i * 2 + 1);
                         LB(x4, wback, fixedaddress + i * 2 + 1);
                         MUL(x3, x3, x4);
-                        ADD(x3, x3, x7);
-                        SAT16(x3, x6);
+                        ADD(x3, x3, x1);
+                        SATw(x3, x6, x7);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     break;
@@ -467,9 +471,10 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0, 12);
+                    LUI(x5, 0x10); // 65536
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
-                        SATU16(x3, x5);
+                        SATUw(x3, x5);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     if (MODREG && gd == ed) {
@@ -478,7 +483,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     } else
                         for (int i = 0; i < 4; ++i) {
                             LW(x3, wback, fixedaddress + i * 4);
-                            SATU16(x3, x5);
+                            SATUw(x3, x5);
                             SH(x3, gback, gdoffset + 8 + i * 2);
                         }
                     break;
