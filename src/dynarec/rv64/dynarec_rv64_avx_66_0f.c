@@ -719,6 +719,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY();
             GETVX();
             GETVY();
+            if (opcode == 0x63) {
+                ADDIW(x6, xZR, 0xF80); // -128
+                ADDIW(x7, xZR, 0x80);  // 128
+            } else {
+                ADDIW(x6, xZR, 0x100); // 256
+            }
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
@@ -731,9 +737,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             for (int i = 0; i < 8; ++i) {
                 LH(x3, vback, vxoffset + i * 2);
                 if (opcode == 0x63)
-                    SAT8(x3, x6);
+                    SATw(x3, x6, x7);
                 else
-                    SATU8(x3, x6);
+                    SATUw(x3, x6);
                 SB(x3, gback, gdoffset + i);
             }
             if (vex.v == ed) {
@@ -743,9 +749,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 for (int i = 0; i < 8; ++i) {
                     LH(x3, wback, fixedaddress + i * 2);
                     if (opcode == 0x63)
-                        SAT8(x3, x6);
+                        SATw(x3, x6, x7);
                     else
-                        SATU8(x3, x6);
+                        SATUw(x3, x6);
                     SB(x3, gback, gdoffset + 8 + i);
                 }
             }
@@ -763,9 +769,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 for (int i = 0; i < 8; ++i) {
                     LH(x3, vback, vyoffset + i * 2);
                     if (opcode == 0x63)
-                        SAT8(x3, x6);
+                        SATw(x3, x6, x7);
                     else
-                        SATU8(x3, x6);
+                        SATUw(x3, x6);
                     SB(x3, gback, gyoffset + i);
                 }
                 if (vex.v == ed) {
@@ -775,9 +781,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     for (int i = 0; i < 8; ++i) {
                         LH(x3, wback, fixedaddress + i * 2);
                         if (opcode == 0x63)
-                            SAT8(x3, x6);
+                            SATw(x3, x6, x7);
                         else
-                            SATU8(x3, x6);
+                            SATUw(x3, x6);
                         SB(x3, gback, gyoffset + 8 + i);
                     }
                 }
@@ -948,6 +954,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY();
             GETVX();
             GETVY();
+            LUI(x6, 0xFFFF8); // -32768
+            LUI(x7, 0x8);     // 32768
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
@@ -959,7 +967,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             for (int i = 0; i < 4; ++i) {
                 LW(x3, vback, vxoffset + i * 4);
-                SAT16(x3, x6);
+                SATw(x3, x6, x7);
                 SH(x3, gback, gdoffset + i * 2);
             }
             if (vex.v == ed) {
@@ -968,7 +976,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 for (int i = 0; i < 4; ++i) {
                     LW(x3, wback, fixedaddress + i * 4);
-                    SAT16(x3, x6);
+                    SATw(x3, x6, x7);
                     SH(x3, gback, gdoffset + (4 + i) * 2);
                 }
             }
@@ -985,7 +993,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 for (int i = 0; i < 4; ++i) {
                     LW(x3, vback, vyoffset + i * 4);
-                    SAT16(x3, x6);
+                    SATw(x3, x6, x7);
                     SH(x3, gback, gyoffset + i * 2);
                 }
                 if (vex.v == ed) {
@@ -994,7 +1002,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 } else {
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, wback, fixedaddress + i * 4);
-                        SAT16(x3, x6);
+                        SATw(x3, x6, x7);
                         SH(x3, gback, gyoffset + (4 + i) * 2);
                     }
                 }
@@ -2136,6 +2144,118 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     ADDW(x3, x3, x4);
                     ADDIW(x3, x3, 1);
                     SRAIW(x3, x3, 1);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0xE4:
+            INST_NAME("VPMULHUW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            for (int i = 0; i < 8; ++i) {
+                LHU(x3, vback, vxoffset + i * 2);
+                LHU(x4, wback, fixedaddress + i * 2);
+                MULW(x3, x3, x4);
+                SRLIW(x3, x3, 16);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LHU(x3, vback, vyoffset + i * 2);
+                    LHU(x4, wback, fixedaddress + i * 2);
+                    MULW(x3, x3, x4);
+                    SRLIW(x3, x3, 16);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0xE5:
+            INST_NAME("VPMULHW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            for (int i = 0; i < 8; ++i) {
+                LH(x3, vback, vxoffset + i * 2);
+                LH(x4, wback, fixedaddress + i * 2);
+                MULW(x3, x3, x4);
+                SRAIW(x3, x3, 16);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LH(x3, vback, vyoffset + i * 2);
+                    LH(x4, wback, fixedaddress + i * 2);
+                    MULW(x3, x3, x4);
+                    SRAIW(x3, x3, 16);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0xE8:
+            INST_NAME("VPSUBSB Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 31 : 15);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            ADDIW(x6, xZR, 0xF80); // -128
+            ADDIW(x7, xZR, 0x80);  // 128
+            for (int i = 0; i < 16; ++i) {
+                LB(x3, vback, vxoffset + i);
+                LB(x4, wback, fixedaddress + i);
+                SUBW(x3, x3, x4);
+                SATw(x3, x6, x7);
+                SB(x3, gback, gdoffset + i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 16; ++i) {
+                    LB(x3, vback, vyoffset + i);
+                    LB(x4, wback, fixedaddress + i);
+                    SUBW(x3, x3, x4);
+                    SATw(x3, x6, x7);
+                    SB(x3, gback, gyoffset + i);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0xE9:
+            INST_NAME("VPSUBSW Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            LUI(x6, 0xFFFF8); // -32768
+            LUI(x7, 0x8);     // 32768
+            for (int i = 0; i < 8; ++i) {
+                LH(x3, vback, vxoffset + i * 2);
+                LH(x4, wback, fixedaddress + i * 2);
+                SUBW(x3, x3, x4);
+                SATw(x3, x6, x7);
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 8; ++i) {
+                    LH(x3, vback, vyoffset + i * 2);
+                    LH(x4, wback, fixedaddress + i * 2);
+                    SUBW(x3, x3, x4);
+                    SATw(x3, x6, x7);
                     SH(x3, gback, gyoffset + i * 2);
                 }
             } else
