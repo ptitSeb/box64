@@ -3,7 +3,7 @@
 
 typedef struct x64emu_s x64emu_t;
 
-int Run(x64emu_t *emu, int step);
+int Run(x64emu_t *emu, int step, int need_tf);
 void EmuCall(x64emu_t* emu, uintptr_t addr);
 void StopEmu(x64emu_t* emu, const char* reason, int is32bits);
 void DynaRun(x64emu_t *emu);

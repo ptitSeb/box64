@@ -400,8 +400,6 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
     int old_cs = R_CS;
     R_CS = 0x23;
 
-    emu->eflags.x64 &= ~(1<<F_TF); // this one needs to cleared
-
     if(dynarec)
         DynaCall(emu, fnc);
     else

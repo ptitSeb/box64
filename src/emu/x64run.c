@@ -32,7 +32,7 @@
 int RunTest(x64test_t *test)
 #else
 int running32bits = 0;
-int Run(x64emu_t *emu, int step)
+int Run(x64emu_t *emu, int step, int need_tf)
 #endif
 {
     uint8_t opcode;
@@ -68,6 +68,15 @@ int Run(x64emu_t *emu, int step)
     test->memsize = 0;
 #else
     CheckExec(emu, R_RIP);
+#ifndef TEST_INTERPRETER
+        // check the TRACE flag before going to next
+        if(ACCESS_FLAG(F_TF) && need_tf) {
+            need_tf = 0;
+            CLEAR_FLAG(F_TF);
+            EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
+            if(emu->quit) goto fini;
+        }
+#endif
 x64emurun:
     while(1) 
 #endif
@@ -2252,6 +2261,7 @@ x64emurun:
             } else {
                 tf_next = 0;
                 R_RIP = addr;
+                CLEAR_FLAG(F_TF);
                 EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
                 if(emu->quit) goto fini;
             }

@@ -364,7 +364,7 @@ void WINAPI BTCpuSimulate(void)
     if (box64env.dynarec)
         DynaRun(emu);
     else
-        Run(emu, 0);
+        Run(emu, 0, 0);
 }
 
 NTSTATUS WINAPI BTCpuThreadInit(void)

@@ -22,6 +22,7 @@
 #include "x64emu.h"
 #include "signals.h"
 #include "libtools/signal_private.h"
+#include "box64cpu_util.h"
 
 void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc);
 void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
@@ -49,6 +50,14 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
         if (elf)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", sig, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr, code);
+        if(sig==5)
+            printf_log(LOG_INFO, "\t Opcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
+                Peek(emu, -4), Peek(emu, -3), Peek(emu, -2), Peek(emu, -1),
+                Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
+                Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7),
+                Peek(emu, 8), Peek(emu, 9), Peek(emu,10), Peek(emu,11),
+                Peek(emu,12), Peek(emu,13), Peek(emu,14));
+
         print_rolling_log(LOG_INFO);
 
         if ((BOX64ENV(showbt) || sig == X64_SIGABRT) && BOX64ENV(log) >= LOG_INFO) {

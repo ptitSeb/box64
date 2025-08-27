@@ -160,8 +160,6 @@ uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_
     int old_cs = R_CS;
     R_CS = 0x33;
 
-    emu->eflags.x64 &= ~(1<<F_TF); // this one needs to cleared
-
     if(dynarec)
         DynaCall(emu, fnc);
     else
@@ -1102,7 +1100,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     int ret;
     int dynarec = 0;
     #ifdef DYNAREC
-    if(sig!=X64_SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
+    if(!(sig==X64_SIGSEGV || (Locks&is_dyndump_locked) || (Locks&is_memprot_locked)))
         dynarec = 1;
     #endif
     ret = RunFunctionHandler(emu, &exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
