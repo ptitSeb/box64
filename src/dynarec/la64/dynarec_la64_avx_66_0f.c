@@ -1266,7 +1266,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             VAND_Vxy(v0, v0, d0);
             break;
         case 0xF4:
-            INST_NAME("VPMULLUDQ Gx, Ex");
+            INST_NAME("VPMULUDQ Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULWEVxy(D_WU, v0, v1, v2);
