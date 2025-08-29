@@ -286,29 +286,33 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VCVTTPS2DQ Gx, Ex");
             nextop = F8;
             GETGY_empty_EY_xy(v0, v1, 0);
-            if(vex.l){
-                d1 = fpu_get_scratch(dyn);
-                XVFTINTRZ_W_S(d1, v1);
+            if (vex.l) {
                 if (!BOX64ENV(dynarec_fastround)) {
+                    d1 = fpu_get_scratch(dyn);
                     q0 = fpu_get_scratch(dyn);
                     q1 = fpu_get_scratch(dyn); // mask
                     d0 = fpu_get_scratch(dyn);
+                    XVFTINTRZ_W_S(d1, v1);
                     XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
                     XVLDI(d0, (0b10011 << 8) | 0x4f);
                     XVFCMP_S(q1, d0, v1, cULE); // get Nan,+overflow mark
                     XVBITSEL_V(v0, d1, q0, q1);
+                } else {
+                    XVFTINTRZ_W_S(v0, v1);
                 }
             } else {
-                d1 = fpu_get_scratch(dyn);
-                VFTINTRZ_W_S(d1, v1);
                 if (!BOX64ENV(dynarec_fastround)) {
+                    d1 = fpu_get_scratch(dyn);
                     q0 = fpu_get_scratch(dyn);
                     q1 = fpu_get_scratch(dyn); // mask
                     d0 = fpu_get_scratch(dyn);
+                    VFTINTRZ_W_S(d1, v1);
                     VLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
                     VLDI(d0, (0b10011 << 8) | 0x4f);
                     VFCMP_S(q1, d0, v1, cULE); // get Nan,+overflow mark
                     VBITSEL_V(v0, d1, q0, q1);
+                } else {
+                    VFTINTRZ_W_S(v0, v1);
                 }
             }
             break;
