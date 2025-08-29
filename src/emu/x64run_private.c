@@ -532,6 +532,7 @@ uintptr_t GetEA32_16(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8
 
 uintptr_t GetEA(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
+    rex.offset = 0; // no segment offset in Effective Address computation
     if(rex.is67 && rex.is32bits)
         return GetEA32_16(emu, addr, rex, v, delta);
     if(rex.is67)
