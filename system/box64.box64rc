@@ -81,6 +81,11 @@ BOX64_MAXCPU=16 #will crash if too many cores are present, (like 128)
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
 
+[amtrucks]
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_STRONGMEM=1
+
 [BALDI.x86_64]
 BOX64_DYNAREC_STRONGMEM=1 #little to no performance impact also makes game not crash
 BOX64_PREFER_EMULATED=1
@@ -166,6 +171,11 @@ BOX64_MAXCPU=16
 
 [EtG.x86_64]
 BOX64_MAXCPU=4  #it will crash with too many cpu, 4 is enough anyway
+
+[eurotrucks2]
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_STRONGMEM=1
 
 [factorio]
 BOX64_DYNAREC_SAFEFLAGS=0
