@@ -3190,6 +3190,22 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
     return p;
 }
 
+typedef struct mallinfo2 (*mallinfo2_fnc)(void);
+EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
+{
+    static mallinfo2_fnc f = NULL;
+    static int inited = 0;
+    if(!inited) {
+        inited = 1;
+        f = (mallinfo2_fnc)dlsym(my_lib->w.lib, "mallinfo2");
+    }
+    if(f)
+        *(struct mallinfo2*)p=f();
+    else
+        memset(p, 0, sizeof(struct mallinfo2));
+    return p;
+}
+
 #ifdef STATICBUILD
 void my_updateGlobalOpt() {}
 void my_checkGlobalOpt() {}

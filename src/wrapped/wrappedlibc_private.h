@@ -1250,6 +1250,7 @@ GO(__madvise, iFpLi)
 GOW(madvise, iFpLi)
 GOWM(makecontext, vFEppiV)
 GOWM(mallinfo, pFEp)
+GOWM(mallinfo2, pFEp)
 GO(malloc, pFL)
 //GO(malloc_get_state, 
 GOW(malloc_info, iFiS)
