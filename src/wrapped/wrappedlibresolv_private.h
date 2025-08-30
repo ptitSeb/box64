@@ -89,6 +89,7 @@ GO(__res_nameinquery, iFpiipp)
 #else
 GO(__res_nmkquery, iFpipiipippi)
 #endif
+GO(res_nmkquery, iFpipiipippi)
 GO(__res_nquery, iFppiipi)
 //GO(__res_nquerydomain, 
 GO(__res_nsearch, iFppiipi)
@@ -97,6 +98,7 @@ GO(__res_nsearch, iFppiipi)
 #else
 GO(__res_nsend, iFppipi)
 #endif
+GO(res_nsend, iFppipi)
 //DATA(_res_opcodes, 4)
 GO(__res_ownok, iFp)
 GO(__res_queriesmatch, iFpppp)

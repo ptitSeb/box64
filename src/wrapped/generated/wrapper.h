@@ -3310,6 +3310,7 @@ void iFuiiiuuiiip(x64emu_t *emu, uintptr_t fnc);
 void iFpiiLiiipip(x64emu_t *emu, uintptr_t fnc);
 void iFpiLLiiipip(x64emu_t *emu, uintptr_t fnc);
 void iFpiLLdduudd(x64emu_t *emu, uintptr_t fnc);
+void iFpipiipippi(x64emu_t *emu, uintptr_t fnc);
 void iFpCuWCCCCup(x64emu_t *emu, uintptr_t fnc);
 void iFpuuLiuiiLL(x64emu_t *emu, uintptr_t fnc);
 void iFpLLpiiuuii(x64emu_t *emu, uintptr_t fnc);
@@ -3543,7 +3544,6 @@ void iFEipup(x64emu_t *emu, uintptr_t fnc);
 void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFEpipppL(x64emu_t *emu, uintptr_t fnc);
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
-void iFpipiipippi(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 void vFEv(x64emu_t *emu, uintptr_t fnc);
