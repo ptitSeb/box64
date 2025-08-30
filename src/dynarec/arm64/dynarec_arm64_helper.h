@@ -4,6 +4,7 @@
 // undef to get Close to SSE Float->int conversions
 //#define PRECISE_CVT
 
+#ifndef STEP_PASS
 #if STEP == 0
 #include "dynarec_arm64_pass0.h"
 #elif STEP == 1
@@ -12,6 +13,8 @@
 #include "dynarec_arm64_pass2.h"
 #elif STEP == 3
 #include "dynarec_arm64_pass3.h"
+#endif
+#define STEP_PASS
 #endif
 
 #include "debug.h"
@@ -1136,7 +1139,8 @@
         MOVZw(S, (N));                                                                                                          \
         STRw_U12(S, xEmu, offsetof(x64emu_t, df));                                                                              \
         if (dyn->f.pending == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_I(const_updateflags);                                                                                          \
+            TABLE64C(x6, const_updateflags_arm64);                                                                              \
+            BLR(x6);                                                                                                            \
             dyn->f.pending = SF_SET;                                                                                            \
             SET_NODF();                                                                                                         \
         }                                                                                                                       \
@@ -1158,7 +1162,8 @@
             j64 = (GETMARKF)-(dyn->native_size);        \
             CBZw(x3, j64);                              \
         }                                               \
-        CALL_I(const_updateflags);                      \
+        TABLE64C(x6, const_updateflags_arm64);          \
+        BLR(x6);                                        \
         MARKF;                                          \
         dyn->f.pending = SF_SET;                        \
         SET_DFOK();                                     \
@@ -1286,6 +1291,8 @@
 #endif
 
 #define native_pass        STEPNAME(native_pass)
+
+#define updateflags_pass   STEPNAME(updateflags_pass)
 
 #define dynarec64_00       STEPNAME(dynarec64_00)
 #define dynarec64_0F       STEPNAME(dynarec64_0F)
@@ -1650,7 +1657,7 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // purge ymm_zero mask according to purge_ymm
 void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1);
 
-void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
+void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd);
 
 void arm64_move32(dynarec_arm_t* dyn, int ninst, int reg, uint32_t val);
 void arm64_move64(dynarec_arm_t* dyn, int ninst, int reg, uint64_t val);

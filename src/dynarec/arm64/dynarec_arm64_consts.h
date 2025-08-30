@@ -64,7 +64,7 @@ typedef enum arm64_consts_s {
     const_helper_getcpu,
     const_cpuid,
     const_getsegmentbase,
-    const_updateflags,
+    const_updateflags_arm64,
     const_reset_fpu,
     const_sha1msg2,
     const_sha1rnds4,

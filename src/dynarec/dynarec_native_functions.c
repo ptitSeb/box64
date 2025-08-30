@@ -38,7 +38,7 @@ void native_fstp(x64emu_t* emu, void* p)
 void native_print_armreg(x64emu_t* emu, uintptr_t reg, uintptr_t n)
 {
     (void)emu;
-    dynarec_log(LOG_DEBUG, "R%lu=0x%lx (%lu)\n", n, reg, reg);
+    dynarec_log(LOG_INFO, "Debug Register R%lu=0x%lx (%lu)\n", n, reg, reg);
 }
 
 void native_f2xm1(x64emu_t* emu)

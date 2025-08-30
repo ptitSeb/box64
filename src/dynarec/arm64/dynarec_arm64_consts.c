@@ -100,7 +100,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_helper_getcpu: return (uintptr_t)helper_getcpu;
         case const_cpuid: return (uintptr_t)my_cpuid;
         case const_getsegmentbase: return (uintptr_t)GetSegmentBaseEmu;
-        case const_updateflags: return (uintptr_t)UpdateFlags;
+        case const_updateflags_arm64: return (uintptr_t)create_updateflags();
         case const_reset_fpu: return (uintptr_t)reset_fpu;
         case const_sha1msg2: return (uintptr_t)sha1msg2;
         case const_sha1rnds4: return (uintptr_t)sha1rnds4;

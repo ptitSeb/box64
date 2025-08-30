@@ -72,6 +72,7 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_consts.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/updateflags_arm64.c"
     "${BOX64_ROOT}/src/dynarec/dynablock.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
     "${BOX64_ROOT}/src/dynarec/dynarec_native.c"

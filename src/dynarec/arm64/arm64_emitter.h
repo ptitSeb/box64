@@ -47,10 +47,12 @@ int convert_bitmask(uint64_t bitmask);
 #define ADDx_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(1, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSx_REG(Rd, Rn, Rm)              FEMIT(ADDSUB_REG_gen(1, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDx_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(1, 0, 0, 0b00, Rm, lsl, Rn, Rd))
+#define ADDx_REG_LSR(Rd, Rn, Rm, lsr)       EMIT(ADDSUB_REG_gen(1, 0, 0, 0b01, Rm, lsr, Rn, Rd))
 #define ADDz_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(rex.is32bits?0:1, 0, 0, 0b00, Rm, lsl, Rn, Rd))
 #define ADDw_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(0, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDSw_REG(Rd, Rn, Rm)              FEMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, 0, Rn, Rd))
 #define ADDw_REG_LSL(Rd, Rn, Rm, lsl)       EMIT(ADDSUB_REG_gen(0, 0, 0, 0b00, Rm, lsl, Rn, Rd))
+#define ADDw_REG_LSR(Rd, Rn, Rm, lsr)       EMIT(ADDSUB_REG_gen(0, 0, 0, 0b01, Rm, lsr, Rn, Rd))
 #define ADDSw_REG_LSL(Rd, Rn, Rm, lsl)     FEMIT(ADDSUB_REG_gen(0, 0, 1, 0b00, Rm, lsl, Rn, Rd))
 #define ADDxw_REG(Rd, Rn, Rm)               EMIT(ADDSUB_REG_gen(rex.w, 0, 0, 0b00, Rm, 0, Rn, Rd))
 #define ADDz_REG(Rd, Rn, Rm)                EMIT(ADDSUB_REG_gen(rex.is32bits?0:1, 0, 0, 0b00, Rm, 0, Rn, Rd))
@@ -120,9 +122,11 @@ int convert_bitmask(uint64_t bitmask);
 #define SBCSw_REG(Rd, Rn, Rm)      FEMIT(ADDSUBC_gen(0, 1, 1, Rm, Rn, Rd))
 #define SBCSxw_REG(Rd, Rn, Rm)     FEMIT(ADDSUBC_gen(rex.w, 1, 1, Rm, Rn, Rd))
 
-#define SUB_ext(sf, op, S, Rm, option, imm3, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b01011<<24 | 1<<21 | (Rm)<<16 | (option)<<13 | (imm3)<<10 | (Rn)<<5 | (Rd))
-#define SUBxw_UXTB(Rd, Rn, Rm)      EMIT(SUB_ext(rex.w, 1, 0, Rm, 0b000, 0, Rn, Rd))
-#define SUBw_UXTB(Rd, Rn, Rm)       EMIT(SUB_ext(0, 1, 0, Rm, 0b000, 0, Rn, Rd))
+#define ADDSUB_ext(sf, op, S, Rm, option, imm3, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b01011<<24 | 1<<21 | (Rm)<<16 | (option)<<13 | (imm3)<<10 | (Rn)<<5 | (Rd))
+#define SUBxw_UXTB(Rd, Rn, Rm)      EMIT(ADDSUB_ext(rex.w, 1, 0, Rm, 0b000, 0, Rn, Rd))
+#define SUBw_UXTB(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 1, 0, Rm, 0b000, 0, Rn, Rd))
+#define ADDw_UXTH(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 0, 0, Rm, 0b001, 0, Rn, Rd))
+#define ADDx_UXTW(Rd, Rn, Rm)       EMIT(ADDSUB_ext(1, 0, 0, Rm, 0b010, 0, Rn, Rd))
 
 // CCMP compare if cond is true, set nzcv if false
 #define CCMP_reg(sf, Rm, cond, Rn, nzcv)    ((sf)<<31 | 1<<30 | 1<<29 | 0b11010010<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | (nzcv))
@@ -160,6 +164,8 @@ int convert_bitmask(uint64_t bitmask);
 
 #define LDS_gen(size, op1, imm12, Rn, Rt)       ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b10<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))
 #define LDRSW_U12(Rt, Rn, imm12)          EMIT(LDS_gen(0b10, 0b01, ((uint32_t)((imm12)>>2))&0xfff, Rn, Rt))
+#define LDRSH_U12(Rt, Rn, imm12)          EMIT(LDS_gen(0b01, 0b01, ((uint32_t)((imm12)>>1))&0xfff, Rn, Rt))
+#define LDRSB_U12(Rt, Rn, imm12)          EMIT(LDS_gen(0b00, 0b01, ((uint32_t)(imm12))&0xfff, Rn, Rt))
 
 #define LDR_REG_gen(size, Rm, option, S, Rn, Rt)    ((size)<<30 | 0b111<<27 | 0b01<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | (0b10)<<10 | (Rn)<<5 | (Rt))
 #define LDRx_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b11, Rm, 0b011, 0, Rn, Rt))

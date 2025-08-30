@@ -932,6 +932,7 @@ if(ARM_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_consts.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/updateflags_arm64.c"
     )
     set(DYNAREC_ASM
         ${DYNAREC_ASM}
@@ -984,6 +985,8 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f2_0f38.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f2_0f3a.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f3_0f38.c"
+
+    "${BOX64_ROOT}/src/dynarec/arm64/updateflags_arm64_pass.c"
     )
 endif()
 

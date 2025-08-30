@@ -1086,7 +1086,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits); \
                 } else {                                                \
                     /* inside the block, cache transform */             \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
+                    CacheTransform(dyn, ninst, cacheupd);               \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
                     SKIP_SEVL(i32);                                     \
                     B(i32);                                             \
@@ -3293,7 +3293,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits); \
                 } else {                                                \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
+                    CacheTransform(dyn, ninst, cacheupd);               \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
                     SKIP_SEVL(i32);                                     \
                     Bcond(c__, i32);                                    \
@@ -3527,7 +3527,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                 } else {
                     // inside the block
-                    CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
+                    CacheTransform(dyn, ninst, CHECK_CACHE());
                     tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
                     SKIP_SEVL(tmp);
                     if(tmp==4) {

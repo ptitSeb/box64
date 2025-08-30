@@ -2492,7 +2492,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     }
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
 }
-static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
+static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
 {
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
@@ -2516,15 +2516,16 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     }
     if(go) {
         if(dyn->f.pending!=SF_PENDING) {
-            LDRw_U12(s1, xEmu, offsetof(x64emu_t, df));
+            LDRw_U12(x1, xEmu, offsetof(x64emu_t, df));
             j64 = (GETMARKF2)-(dyn->native_size);
-            CBZw(s1, j64);
+            CBZw(x1, j64);
         }
         if(dyn->insts[ninst].need_nat_flags)
-            MRS_nzcv(s1);
-        CALL_(const_updateflags, -1, s1);
+            MRS_nzcv(x6);
+        TABLE64C(x1, const_updateflags_arm64);
+        BLR(x1);
         if(dyn->insts[ninst].need_nat_flags)
-            MSR_nzcv(s1);
+            MSR_nzcv(x6);
         MARKF2;
     }
 }
@@ -2607,13 +2608,14 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
     MESSAGE(LOG_DUMP, "\t---- Native Flags transform\n");
 }
 
-void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
+// Might use all Scratch registers!
+void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd) {
     if(cacheupd&1)
-        flagsCacheTransform(dyn, ninst, s1);
+        flagsCacheTransform(dyn, ninst);
     if(cacheupd&2)
-        fpuCacheTransform(dyn, ninst, s1, s2, s3);
+        fpuCacheTransform(dyn, ninst, x1, x2, x3);
     if(cacheupd&4)
-        nativeFlagsTransform(dyn, ninst, s1, s2);
+        nativeFlagsTransform(dyn, ninst, x1, x2);
 }
 
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)

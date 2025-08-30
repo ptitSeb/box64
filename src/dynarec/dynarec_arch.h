@@ -34,6 +34,8 @@
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 extern uint32_t arm64_crc(void* p, uint32_t len);
 #define ARCH_CRC(A, B)  if(cpuext.crc32) return arm64_crc(A, B)
+extern void* create_updateflags();
+#define ARCH_UPDATEFLAGS()      create_updateflags()
 
 #define ARCH_NOP    0b11010101000000110010000000011111
 #define ARCH_UDF    0xcafe
