@@ -22,12 +22,17 @@ on:
       - "CMakeLists.txt"
       - "**/*.yml"
 
+defaults:
+  run:
+    # needed on container images which could default to sh
+    shell: bash
+
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC, WOW64]
+        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC, WOW64, ARM64-GCC-8]
         type: [Release, Trace, StaticBuild, Box32]
         os: [ubuntu-latest, ubuntu-22.04-arm]
         exclude:
@@ -65,23 +70,43 @@ jobs:
             type: StaticBuild
           - platform: WOW64
             type: Box32
+          - platform: ARM64-GCC-8
+            os: ubuntu-latest
+          - platform: ARM64-GCC-8
+            type: Trace
           - platform: ANDROID
             type: Trace
           - platform: TERMUX
             type: Trace
           - platform: LARCH64
             type: Trace
+        include:
+          - platform: ARM64-GCC-8
+            image: arm64v8/ubuntu:18.04
 
     runs-on: ${{ matrix.os }}
+    container:
+      image: ${{ matrix.image || '' }}
     steps:
       - name: "Checkout Box64 Repository"
+        if: ${{ matrix.platform != 'ARM64-GCC-8' }}
         uses: actions/checkout@v4
+
+      - name: "Checkout Box64 Repository (No NodeJS)"
+        if: ${{ matrix.platform == 'ARM64-GCC-8' }}
+        uses: taiki-e/checkout-action@v1
 
       - name: "Environment preparation"
         run: |
-          sudo apt-get update
+          if [[ ${{ matrix.platform }} == 'ARM64-GCC-8' ]]; then
+            apt-get update
+            apt install -y sudo
+          else
+            sudo apt-get update
+            zydis_package=libzydis-dev
+          fi
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
-            sudo apt-get -y install git cmake make python3 patchelf libzydis-dev
+            sudo apt-get -y install git cmake make python3 patchelf $zydis_package
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               sudo apt-get -y install p7zip
               wget -q https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
@@ -104,6 +129,18 @@ jobs:
               wget -q https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
               tar -xf llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
               echo "MINGW_COMPILER_PATH=$PWD/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64/bin" >> $GITHUB_ENV
+            elif [[ ${{ matrix.platform }} == 'ARM64-GCC-8' ]]; then
+              # some of these dependencies may be unnecessary to explicitly install depending on the image
+              sudo apt-get -y install git software-properties-common lsb-release \
+              wget curl build-essential autoconf automake \
+              pkg-config ca-certificates \
+              python3 make gettext \
+              gcc-8 g++-8
+              sudo add-apt-repository ppa:theofficialgman/cmake-bionic -y
+              sudo apt update
+              sudo apt install -y cmake
+              echo "BOX64_PLATFORM_MARCRO=-DARM64=1" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=aarch64-linux-gnu-gcc-8" >> $GITHUB_ENV
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
