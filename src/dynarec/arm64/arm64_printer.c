@@ -1849,9 +1849,9 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "SWP%s%s %s, %s, [%s]", a.A?"A":"", a.R?"L":"", sf?Xt[Rs]:Wt[Rs], sf?Xt[Rt]:Wt[Rt], XtSp[Rn]);
         return buff;
     }
-    // SWPxw
+    // SWP B/H
     if(isMask(opcode, "0f111000AR1sssss100000nnnnnttttt", &a)) {
-        snprintf(buff, sizeof(buff), "CAS%s%s%s %s, %s, [%s]", a.A?"A":"", a.R?"L":"", sf?"H":"B", Xt[Rs], Xt[Rt], XtSp[Rn]);
+        snprintf(buff, sizeof(buff), "SWP%s%s%s %s, %s, [%s]", a.A?"A":"", a.R?"L":"", sf?"H":"B", Xt[Rs], Xt[Rt], XtSp[Rn]);
         return buff;
     }
     // LDXXXxw
