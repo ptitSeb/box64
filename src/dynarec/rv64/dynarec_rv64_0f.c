@@ -973,9 +973,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX();
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
-            s1 = fpu_get_scratch(dyn); // 1.0f
-            LUI(x3, 0x3f800);
-            FMVWX(s1, x3); // 1.0f
             for (int i = 0; i < 4; ++i) {
                 FLW(d0, wback, fixedaddress + 4 * i);
                 if (!BOX64ENV(dynarec_fastnan)) {
