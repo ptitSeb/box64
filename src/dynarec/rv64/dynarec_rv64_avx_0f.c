@@ -320,6 +320,53 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             } else
                 YMM0(gd);
             break;
+        case 0x53:
+            INST_NAME("VRCPPS Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            LUI(x3, 0x3f800);
+            FMVWX(d0, x3); // 1.0f
+            for (int i = 0; i < 4; ++i) {
+                FLW(d1, wback, fixedaddress + 4 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d1, d1);
+                    BNEZ(x3, 4 + 2 * 4); // isnan(d1)? copy it
+                    FSW(d1, gback, gdoffset + i * 4);
+                    J(4 + 5 * 4); // continue
+                }
+                FDIVS(d1, d0, d1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d1, d1);
+                    BNEZ(x3, 4 + 4); // isnan(d1)? negate it
+                    FNEGS(d1, d1);
+                }
+                FSW(d1, gback, gdoffset + 4 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    FLW(d1, wback, fixedaddress + 4 * i);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, d1, d1);
+                        BNEZ(x3, 4 + 2 * 4); // isnan(d1)? copy it
+                        FSW(d1, gback, gyoffset + i * 4);
+                        J(4 + 5 * 4); // continue
+                    }
+                    FDIVS(d1, d0, d1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, d1, d1);
+                        BNEZ(x3, 4 + 4); // isnan(d1)? negate it
+                        FNEGS(d1, d1);
+                    }
+                    FSW(d1, gback, gyoffset + 4 * i);
+                }
+            } else
+                YMM0(gd);
+            break;
         case 0x5A:
             INST_NAME("VCVTPS2PD Gx, Ex");
             nextop = F8;
