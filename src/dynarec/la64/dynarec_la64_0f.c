@@ -1377,7 +1377,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAIxw(x1, gd, 5 + rex.w);        // r1 = (gd>>5)
-                ALSL_D(x3, wback, x1, 2 + rex.w); // (&ed) += r1*4;
+                ALSL_D(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
