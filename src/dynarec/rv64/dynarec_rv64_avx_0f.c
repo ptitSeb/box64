@@ -40,12 +40,106 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
     int s0, s1;
     uint64_t tmp64u, u64;
     int64_t j64;
-    int64_t fixedaddress, gdoffset, vxoffset, gyoffset;
+    int64_t fixedaddress, gdoffset, vxoffset, gyoffset, vyoffset;
     int unscaled;
 
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x12:
+            nextop = F8;
+            GETEX(x2, 0, 8);
+            GETGX();
+            GETVX();
+            if (MODREG) {
+                INST_NAME("VMOVHLPS Gx, Vx, Ex");
+                LD(x3, wback, fixedaddress + 8);
+                SD(x3, gback, gdoffset);
+            } else {
+                INST_NAME("VMOVLPS Gx, Vx, Ex");
+                LD(x3, wback, fixedaddress);
+                SD(x3, gback, gdoffset);
+            }
+            LD(x3, vback, vxoffset + 8);
+            SD(x3, gback, gdoffset + 8);
+            YMM0(gd);
+            break;
+        case 0x14:
+            INST_NAME("VUNPCKLPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 20 : 4);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            LWU(x3, vback, vxoffset + 0);
+            LWU(x5, vback, vxoffset + 4);
+            LWU(x4, wback, fixedaddress + 0);
+            LWU(x6, wback, fixedaddress + 4);
+            SW(x3, gback, gdoffset + 0);
+            SW(x4, gback, gdoffset + 4);
+            SW(x5, gback, gdoffset + 8);
+            SW(x6, gback, gdoffset + 12);
+            if (vex.l) {
+                GETEY();
+                LWU(x3, vback, vyoffset + 0);
+                LWU(x5, vback, vyoffset + 4);
+                LWU(x4, wback, fixedaddress + 0);
+                LWU(x6, wback, fixedaddress + 4);
+                SW(x3, gback, gyoffset + 0);
+                SW(x4, gback, gyoffset + 4);
+                SW(x5, gback, gyoffset + 8);
+                SW(x6, gback, gyoffset + 12);
+            } else
+                YMM0(gd);
+            break;
+        case 0x15:
+            INST_NAME("VUNPCKHPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            LWU(x3, vback, vxoffset + 8);
+            LWU(x5, vback, vxoffset + 12);
+            LWU(x4, wback, fixedaddress + 8);
+            LWU(x6, wback, fixedaddress + 12);
+            SW(x3, gback, gdoffset + 0);
+            SW(x4, gback, gdoffset + 4);
+            SW(x5, gback, gdoffset + 8);
+            SW(x6, gback, gdoffset + 12);
+            if (vex.l) {
+                GETEY();
+                LWU(x3, vback, vyoffset + 8);
+                LWU(x5, vback, vyoffset + 12);
+                LWU(x4, wback, fixedaddress + 8);
+                LWU(x6, wback, fixedaddress + 12);
+                SW(x3, gback, gyoffset + 0);
+                SW(x4, gback, gyoffset + 4);
+                SW(x5, gback, gyoffset + 8);
+                SW(x6, gback, gyoffset + 12);
+            } else
+                YMM0(gd);
+            break;
+        case 0x16:
+            nextop = F8;
+            GETEX(x2, 0, 1);
+            GETGX();
+            GETVX();
+            if (MODREG) {
+                INST_NAME("VMOVLHPS Gx, Vx, Ex");
+                LD(x3, wback, fixedaddress);
+                SD(x3, gback, gdoffset + 8);
+            } else {
+                INST_NAME("VMOVHPS Gx, Vx, Ex");
+                LD(x3, wback, fixedaddress);
+                SD(x3, gback, gdoffset + 8);
+            }
+            LD(x4, vback, vxoffset);
+            SD(x4, gback, gdoffset);
+            YMM0(gd);
+            break;
         case 0x28:
             INST_NAME("VMOVAPS Gx, Ex");
             nextop = F8;
@@ -122,6 +216,109 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 CBZ_NEXT(x2);
                 ORI(xFlags, xFlags, 1 << F_ZF);
             }
+            break;
+        case 0x51:
+            INST_NAME("VSQRTPS Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 4; ++i) {
+                FLW(d0, wback, fixedaddress + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d0, d0);
+                    BNEZ(x3, 4 + 2 * 4); // isnan(d0)? copy it
+                    FSW(d0, gback, gdoffset + i * 4);
+                    J(4 + 5 * 4); // continue
+                }
+                FSQRTS(d0, d0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d0, d0);
+                    BNEZ(x3, 4 + 4); // isnan(d0)? negate it
+                    FNEGS(d0, d0);
+                }
+                FSW(d0, gback, gdoffset + i * 4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    FLW(d0, wback, fixedaddress + i * 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, d0, d0);
+                        BNEZ(x3, 4 + 2 * 4); // isnan(d0)? copy it
+                        FSW(d0, gback, gyoffset + i * 4);
+                        J(4 + 5 * 4); // continue
+                    }
+                    FSQRTS(d0, d0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, d0, d0);
+                        BNEZ(x3, 4 + 4); // isnan(d0)? negate it
+                        FNEGS(d0, d0);
+                    }
+                    FSW(d0, gback, gyoffset + i * 4);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x52:
+            INST_NAME("VRSQRTPS Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn); // 1.0f
+            v0 = fpu_get_scratch(dyn); // 0.0f
+            LUI(x3, 0x3f800);
+            FMVWX(s1, x3); // 1.0f
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FMVWX(v0, xZR);
+            }
+            for (int i = 0; i < 4; ++i) {
+                FLW(s0, wback, fixedaddress + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FLTS(x3, v0, s0); // s0 > 0.0f?
+                    BNEZ(x3, 4 + 5 * 4);
+                    FEQS(x3, v0, s0); // s0 == 0.0f?
+                    BEQZ(x3, 4 + 3 * 4);
+                    FDIVS(s0, s1, v0); // generate an inf
+                    FSW(s0, gback, gdoffset + i * 4);
+                    J(4 + 6 * 4); // continue
+                }
+                FSQRTS(s0, s0);
+                FDIVS(s0, s1, s0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 4 + 4); // isnan(s0)? negate it
+                    FNEGS(s0, s0);
+                }
+                FSW(s0, gback, gdoffset + i * 4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    FLW(s0, wback, fixedaddress + i * 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FLTS(x3, v0, s0); // s0 > 0.0f?
+                        BNEZ(x3, 4 + 5 * 4);
+                        FEQS(x3, v0, s0); // s0 == 0.0f?
+                        BEQZ(x3, 4 + 3 * 4);
+                        FDIVS(s0, s1, v0); // generate an inf
+                        FSW(s0, gback, gyoffset + i * 4);
+                        J(4 + 6 * 4); // continue
+                    }
+                    FSQRTS(s0, s0);
+                    FDIVS(s0, s1, s0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        BNEZ(x3, 4 + 4); // isnan(s0)? negate it
+                        FNEGS(s0, s0);
+                    }
+                    FSW(s0, gback, gyoffset + i * 4);
+                }
+            } else
+                YMM0(gd);
             break;
         case 0x5A:
             INST_NAME("VCVTPS2PD Gx, Ex");
