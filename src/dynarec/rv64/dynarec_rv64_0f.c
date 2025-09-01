@@ -973,9 +973,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX();
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn); // 1.0f
+            MOV32w(x3, 1);
+            FCVTSW(s1, x3, RD_DYN);
             for (int i = 0; i < 4; ++i) {
                 FLW(d0, wback, fixedaddress + 4 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d0, d0);
+                    BNEZ(x3, 4 + 2 * 4); // isnan(d0)? copy it
+                    FSW(d0, gback, gdoffset + i * 4);
+                    J(4 + 5 * 4); // continue
+                }
                 FSQRTS(d0, d0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d0, d0);
+                    BNEZ(x3, 4 + 2 * 4); // isnan(d0)? negate it
+                    FNEGS(d0, d0);
+                }
                 FSW(d0, gback, gdoffset + 4 * i);
             }
             break;
@@ -987,7 +1001,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn); // 1.0f
             v0 = fpu_get_scratch(dyn); // 0.0f
-            // do accurate computation, because riscv doesn't have rsqrt
             MOV32w(x3, 1);
             FCVTSW(s1, x3, RD_DYN);
             if (!BOX64ENV(dynarec_fastnan)) {
@@ -996,19 +1009,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 if (!BOX64ENV(dynarec_fastnan)) {
-                    FLES(x3, v0, s0); // s0 >= 0.0f?
-                    BNEZ(x3, 6 * 4);
-                    FEQS(x3, s0, s0); // isnan(s0)?
-                    BEQZ(x3, 2 * 4);
-                    // s0 is negative, so generate a NaN
-                    FDIVS(s0, s1, v0);
-                    // s0 is a NaN, just copy it
+                    FLTS(x3, v0, s0); // s0 > 0.0f?
+                    BNEZ(x3, 4 + 5 * 4);
+                    FEQS(x3, v0, s0); // s0 == 0.0f?
+                    BEQZ(x3, 4 + 3 * 4);
+                    FDIVS(s0, s1, v0); // generate an inf
                     FSW(s0, gback, gdoffset + i * 4);
-                    J(4 * 4);
-                    // do regular computation
+                    J(4 + 6 * 4); // continue
                 }
                 FSQRTS(s0, s0);
                 FDIVS(s0, s1, s0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 4 + 2 * 4); // isnan(s0)? negate it
+                    FNEGS(s0, s0);
+                }
                 FSW(s0, gback, gdoffset + i * 4);
             }
             break;
