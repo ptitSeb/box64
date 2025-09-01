@@ -974,8 +974,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn); // 1.0f
-            MOV32w(x3, 1);
-            FCVTSW(s1, x3, RD_DYN);
+            LUI(x3, 0x3f800);
+            FMVWX(s1, x3); // 1.0f
             for (int i = 0; i < 4; ++i) {
                 FLW(d0, wback, fixedaddress + 4 * i);
                 if (!BOX64ENV(dynarec_fastnan)) {
@@ -987,10 +987,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSQRTS(d0, d0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, d0, d0);
-                    BNEZ(x3, 4 + 2 * 4); // isnan(d0)? negate it
+                    BNEZ(x3, 4 + 4); // isnan(d0)? negate it
                     FNEGS(d0, d0);
                 }
-                FSW(d0, gback, gdoffset + 4 * i);
+                FSW(d0, gback, gdoffset + i * 4);
             }
             break;
         case 0x52:
@@ -1001,8 +1001,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn); // 1.0f
             v0 = fpu_get_scratch(dyn); // 0.0f
-            MOV32w(x3, 1);
-            FCVTSW(s1, x3, RD_DYN);
+            LUI(x3, 0x3f800);
+            FMVWX(s1, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan)) {
                 FCVTSW(v0, xZR, RD_DYN);
             }
@@ -1021,7 +1021,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FDIVS(s0, s1, s0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, s0, s0);
-                    BNEZ(x3, 4 + 2 * 4); // isnan(s0)? negate it
+                    BNEZ(x3, 4 + 4); // isnan(s0)? negate it
                     FNEGS(s0, s0);
                 }
                 FSW(s0, gback, gdoffset + i * 4);
@@ -1038,7 +1038,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FMVWX(d0, x3); // 1.0f
             for (int i = 0; i < 4; ++i) {
                 FLW(d1, wback, fixedaddress + 4 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d1, d1);
+                    BNEZ(x3, 4 + 2 * 4); // isnan(d1)? copy it
+                    FSW(d1, gback, gdoffset + i * 4);
+                    J(4 + 5 * 4); // continue
+                }
                 FDIVS(d1, d0, d1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d1, d1);
+                    BNEZ(x3, 4 + 4); // isnan(d1)? negate it
+                    FNEGS(d1, d1);
+                }
                 FSW(d1, gback, gdoffset + 4 * i);
             }
             break;
@@ -1072,7 +1083,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x57:
             INST_NAME("XORPS Gx, Ex");
             nextop = F8;
-            // TODO: it might be possible to check if SS or SD are used and not purge them to optimize a bit
             GETGX();
             if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
                 // just zero dest
