@@ -429,6 +429,27 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
         s->resolved = 1;                                                        \
         s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallback_Fct(symb), 0, "glDebugMessageCallback"); \
     }                                                                           \
+    symb = dlsym(lib->w.lib, "glDebugMessageCallbackARB");                      \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallbackARB"); \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallbackARB_Fct(symb), 0, "glDebugMessageCallbackARB"); \
+    }                                                                           \
+    symb = dlsym(lib->w.lib, "glDebugMessageCallbackAMD");                      \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallbackAMD"); \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallbackAMD_Fct(symb), 0, "glDebugMessageCallbackAMD"); \
+    }                                                                           \
+    symb = dlsym(lib->w.lib, "glDebugMessageCallbackKHR");                      \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallbackKHR"); \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallbackKHR_Fct(symb), 0, "glDebugMessageCallbackKHR"); \
+    }                                                                           \
     symb = dlsym(lib->w.lib, "glXSwapIntervalMESA");                            \
     if(symb) {                                                                  \
         k = kh_get(symbolmap, lib->w.mysymbolmap, "glXSwapIntervalMESA");       \
@@ -442,6 +463,13 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
         symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
         s->resolved = 1;                                                        \
         s->addr = AddBridge(lib->w.bridge, s->w, find_glXSwapIntervalEXT_Fct(symb), 0, "glXSwapIntervalEXT"); \
+    }                                                                           \
+    symb = dlsym(lib->w.lib, "glGetVkProcAddrNV");                              \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glGetVkProcAddrNV");         \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = AddBridge(lib->w.bridge, s->w, find_glGetVkProcAddrNV_Fct(symb), 0, "glGetVkProcAddrNV"); \
     }                                                                           \
 
 #include "wrappedlib_init.h"
