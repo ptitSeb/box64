@@ -864,15 +864,25 @@ x64emurun:
             R_AH = (uint8_t)emu->eflags.x64;
             break;
         case 0xA0:                      /* MOV AL,Ob */
-            if(rex.is32bits)
+            if(rex.is32bits && rex.is67)
+                R_AL = *(uint8_t*)(uintptr_t)(ptr_t)(rex.offset+F16S);
+            else if(rex.is32bits || rex.is67)
                 R_AL = *(uint8_t*)(uintptr_t)(ptr_t)(F32+rex.offset);
             else
                 R_AL = *(uint8_t*)(F64+rex.offset);
             break;
         case 0xA1:                      /* MOV EAX,Od */
-            if(rex.is32bits)
-                R_EAX = *(int32_t*)(uintptr_t)(ptr_t)(F32+rex.offset);
-            else {
+            if(rex.is32bits && rex.is67)
+                R_EAX = *(uint32_t*)(uintptr_t)(ptr_t)(rex.offset+F16S);
+            else if(rex.is32bits || rex.is67) {
+                if(rex.w)
+                    R_RAX = *(int64_t*)(uintptr_t)(ptr_t)(F32+rex.offset);
+                else {
+                    R_EAX = *(int32_t*)(uintptr_t)(ptr_t)(F32+rex.offset);
+                    if(!rex.is32bits)
+                        R_RAX = R_EAX;
+                }
+            } else {
                 if(rex.w)
                     R_RAX = *(uint64_t*)(F64+rex.offset);
                 else
@@ -880,15 +890,22 @@ x64emurun:
             }
             break;
         case 0xA2:                      /* MOV Ob,AL */
-            if(rex.is32bits)
+            if(rex.is32bits && rex.is67)
+                *(uint8_t*)(uintptr_t)(ptr_t)(rex.offset+F16S) = R_AL;
+            else if(rex.is32bits || rex.is67)
                 *(uint8_t*)(uintptr_t)(ptr_t)(F32+rex.offset) = R_AL;
             else
                 *(uint8_t*)(F64+rex.offset) = R_AL;
             break;
         case 0xA3:                      /* MOV Od,EAX */
-            if(rex.is32bits)
-                *(uint32_t*)(uintptr_t)(ptr_t)(F32+rex.offset) = R_EAX;
-            else {
+            if(rex.is32bits && rex.is67)
+                *(uint32_t*)(uintptr_t)(ptr_t)(rex.offset+F16S) = R_EAX;
+            else if(rex.is32bits || rex.is67) {
+                if(rex.w)
+                    *(uint64_t*)(uintptr_t)(ptr_t)(F32+rex.offset) = R_RAX;
+                else
+                    *(uint32_t*)(uintptr_t)(ptr_t)(F32+rex.offset) = R_EAX;
+            } else {
                 if(rex.w)
                     *(uint64_t*)(F64+rex.offset) = R_RAX;
                 else
