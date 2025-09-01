@@ -782,7 +782,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX_empty(v0);
-            VFSQRT_S(v0, q0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMP_S(d0, q0, q0, cEQ);
+                VFSQRT_S(v0, q0);
+                VFCMP_S(d1, v0, v0, cEQ);
+                VANDN_V(d1, d1, d0);
+                VSLLI_W(d1, d1, 31);
+                VOR_V(v0, v0, d1);
+            } else
+                VFSQRT_S(v0, q0);
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
