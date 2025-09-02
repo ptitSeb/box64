@@ -260,11 +260,17 @@
 #() WFpp
 #() uFEp
 #() uFii
+#() uFiu
+#() uFip
 #() uFiS
 #() uFui
 #() uFuu
+#() uFuL
 #() uFup
 #() uFuS
+#() uFUi
+#() uFUL
+#() uFUp
 #() uFpw
 #() uFpi
 #() uFpC
@@ -650,9 +656,11 @@
 #() uFEpU
 #() uFEpp
 #() uFiuu
+#() uFiup
 #() uFilp
 #() uFipu
 #() uFipL
+#() uFipp
 #() uFuii
 #() uFuip
 #() uFuCC
@@ -664,8 +672,14 @@
 #() uFupL
 #() uFupp
 #() uFuNN
+#() uFUCL
+#() uFUWL
+#() uFUuL
+#() uFUUL
+#() uFUpL
 #() uFpii
 #() uFpiu
+#() uFpif
 #() uFpip
 #() uFpCi
 #() uFpWi
@@ -677,7 +691,10 @@
 #() uFpuU
 #() uFpuL
 #() uFpup
+#() uFpUu
+#() uFpUL
 #() uFpfu
+#() uFpff
 #() uFpli
 #() uFplu
 #() uFpLu
@@ -685,6 +702,7 @@
 #() uFpLp
 #() uFppi
 #() uFppu
+#() uFppU
 #() uFppL
 #() uFppp
 #() uFbWW
@@ -1267,27 +1285,58 @@
 #() uFiiii
 #() uFiiuu
 #() uFifff
+#() uFuipi
 #() uFuuuu
+#() uFuppU
 #() uFuppd
+#() uFuppp
+#() uFUiLL
+#() uFUCLp
+#() uFUWLp
+#() uFUuLp
+#() uFUULp
+#() uFULip
+#() uFULui
+#() uFULpL
+#() uFUpLL
+#() uFUpLp
 #() uFLppp
+#() uFpiii
 #() uFpiip
 #() uFpipu
 #() uFpipL
 #() uFpipp
 #() uFpCCC
+#() uFpuii
+#() uFpuui
+#() uFpuuu
 #() uFpuup
 #() uFpupi
 #() uFpupu
 #() uFpupL
 #() uFpupp
 #() uFpubp
+#() uFpUuu
+#() uFpUuU
+#() uFpUUu
+#() uFpULu
+#() uFpULp
 #() uFplup
+#() uFpLUL
+#() uFpLpU
+#() uFpLpL
+#() uFpLpp
 #() uFppii
 #() uFppiu
+#() uFppiL
 #() uFppip
 #() uFppuu
+#() uFppuU
 #() uFppup
+#() uFppUL
 #() uFpplp
+#() uFppLu
+#() uFppLL
 #() uFppLp
 #() uFpppi
 #() uFpppu
@@ -1881,6 +1930,7 @@
 #() uFEippp
 #() uFEpipp
 #() uFEpupp
+#() uFEpppu
 #() uFEpppp
 #() uFEpppV
 #() uFiuuuu
@@ -1888,6 +1938,12 @@
 #() uFipupp
 #() uFipLpp
 #() uFuiiii
+#() uFULCLL
+#() uFULWLL
+#() uFULuLL
+#() uFULULU
+#() uFULLUU
+#() uFUpUpL
 #() uFLpppL
 #() uFpCCCC
 #() uFpWuip
@@ -1896,13 +1952,24 @@
 #() uFpuupp
 #() uFpupuu
 #() uFpuppp
+#() uFpULuU
+#() uFpLuUL
+#() uFpLLUU
+#() uFpLpLL
+#() uFpLpLp
+#() uFppiui
+#() uFppiLu
 #() uFppipp
 #() uFppuup
 #() uFppupp
 #() uFpplip
 #() uFpplpp
+#() uFppLLu
+#() uFppLLp
 #() uFppLpp
 #() uFpppip
+#() uFpppLU
+#() uFpppLp
 #() uFppppL
 #() uFppppp
 #() uFbuuWW
@@ -2411,10 +2478,16 @@
 #() uFEpippp
 #() uFEpCppp
 #() uFEpuppp
+#() uFEpppLp
 #() uFipuppp
 #() uFuuuuuu
 #() uFupuufp
 #() uFuppppp
+#() uFULCLLp
+#() uFULWLLp
+#() uFULuLLp
+#() uFULULLU
+#() uFUpUpLp
 #() uFpiuppu
 #() uFpWuipp
 #() uFpWuuCp
@@ -2423,11 +2496,15 @@
 #() uFpuuupp
 #() uFpuuppp
 #() uFpupupu
+#() uFpupupp
 #() uFpupppp
 #() uFppuuup
 #() uFppuupu
 #() uFppLpLp
 #() uFppLppL
+#() uFpppLUL
+#() uFpppLpp
+#() uFppppLi
 #() uFpppppi
 #() uFpppppp
 #() uFbippup
@@ -2802,6 +2879,7 @@
 #() uFppiuppp
 #() uFppuiupu
 #() uFppuuuup
+#() uFppppLiu
 #() uFppppppp
 #() uFbuuuwwu
 #() uFbuupwwC
@@ -3052,9 +3130,11 @@
 #() uFulpppppp
 #() uFpuupupuu
 #() uFpupuuuCp
+#() uFpupLpupp
 #() uFppuuuupp
 #() uFppuuuppu
 #() uFppuppppp
+#() uFppppuppu
 #() uFpppppupp
 #() uFbWWWWWWp
 #() UFbCuwwWWu
@@ -3311,6 +3391,7 @@
 #() iFpppppiiuup
 #() iFpppppppipi
 #() iFpppppppppu
+#() uFpuuuuuuupp
 #() uFpddpippppp
 #() uFpppppppppp
 #() UFbCuWCCuuCW
@@ -3386,6 +3467,7 @@
 #() uFEpLuppppLup
 #() uFEpLuppppLuA
 #() uFEppppppuppp
+#() uFpuuuuuuuppp
 #() uFppppppppppp
 #() UFbuuuwwwwWWu
 #() pFEpipppppppi
@@ -3425,6 +3507,7 @@
 #() iFppLlliLppppp
 #() iFpppipipiipii
 #() iFpppppppppppp
+#() uFpuupppppuuuu
 #() UFbCuuWWwwCCup
 #() UFbuuuWWWWWWWW
 #() pFEpLiiuuLipii
@@ -3473,6 +3556,7 @@
 #() vFpUUUUUUUUUUUuuu
 #() vFpppippppppppppp
 #() vFppppppppppppppp
+#() uFpuupppppuupuuuu
 #() pFpuiippppppppppp
 #() pFppipppppppppppp
 #() pFppupppppppppppp
@@ -3679,6 +3763,19 @@ wrappedcrypto3:
   - PEM_write_bio_PrivateKey
   - PEM_write_bio_PrivateKey_traditional
   - PEM_write_bio_RSAPrivateKey
+wrappedcuda:
+- uFpp:
+  - cuGraphHostNodeGetParams
+  - cuGraphHostNodeSetParams
+- uFppp:
+  - cuGraphExecHostNodeSetParams
+  - cuLaunchHostFunc
+  - cuLaunchHostFunc_ptsz
+- uFpppu:
+  - cuStreamAddCallback
+  - cuStreamAddCallback_ptsz
+- uFpppLp:
+  - cuGraphAddHostNode
 wrappedcurl:
 - iFpup:
   - curl_multi_setopt

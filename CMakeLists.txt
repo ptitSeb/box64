@@ -527,6 +527,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedayatanaappindicator3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedbz2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcap.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedcuda.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcairo.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcairogobject.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrashhandler.c"
