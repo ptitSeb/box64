@@ -1002,6 +1002,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         box64_zoom = 1;
     }
     // special case for bash
+    int setup_bash_rcfile = 0;
     if (!strcmp(box64_guest_name, "bash") || !strcmp(box64_guest_name, "box64-bash")) {
         printf_log(LOG_INFO, "Bash detected, disabling banner\n");
         if (!BOX64ENV(nobanner)) {
@@ -1013,6 +1014,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             SET_BOX64ENV(bash, (char*)prog);
             setenv("BOX64_BASH", prog, 1);
         }
+        setup_bash_rcfile = 1;
     }
     if(!bashpath)
         bashpath = ResolveFile("box64-bash", &my_context->box64_path);
@@ -1029,12 +1031,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     setupZydis(my_context);
     PrintEnvVariables(&box64env, LOG_INFO);
 
-    int setup_bash_rcfile = 1;
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
 
-        if (BOX64ENV(bash) && (!strcmp(my_context->argv[i], "--norc") || !strcmp(my_context->argv[i], "--rcfile") || !strcmp(my_context->argv[i], "--init-file"))) {
+        if (setup_bash_rcfile && (!strcmp(my_context->argv[i], "--norc") || !strcmp(my_context->argv[i], "--rcfile") || !strcmp(my_context->argv[i], "--init-file"))) {
             setup_bash_rcfile = 0;
         }
     }
