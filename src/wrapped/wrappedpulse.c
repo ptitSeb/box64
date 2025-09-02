@@ -534,6 +534,29 @@ static void* find_subscribe_context_Fct(void* fct)
     return NULL;
 }
 
+// operation_state
+#define GO(A)                                                       \
+static uintptr_t my_operation_state_fct_##A = 0;                       \
+static void my_operation_state_##A(void* o, void* data)                \
+{                                                                   \
+    RunFunctionFmt(my_operation_state_fct_##A, "pp", o, data);   \
+}
+SUPER()
+#undef GO
+static void* find_operation_state_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_operation_state_fct_##A == (uintptr_t)fct) return my_operation_state_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_operation_state_fct_##A == 0) {my_operation_state_fct_##A = (uintptr_t)fct; return my_operation_state_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio operation_state callback\n");
+    return NULL;
+}
+
 // stream_state
 #define GO(A)                                                       \
 static uintptr_t my_stream_state_fct_##A = 0;                       \
@@ -1374,6 +1397,14 @@ EXPORT void* my_pa_context_get_source_info_by_name(x64emu_t* emu, void* context,
 {
     return my->pa_context_get_source_info_by_name(context, name, find_module_info_Fct(cb), data);
 }
+
+// Operation functions
+
+EXPORT void my_pa_operation_set_state_callback(x64emu_t* emu, void* stream, void* cb, void* data)
+{
+    my->pa_operation_set_state_callback(stream, find_operation_state_Fct(cb), data);
+}
+
 
 // Stream functions
 

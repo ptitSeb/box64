@@ -108,5 +108,5 @@ GO(setprogname, vFp)
 //GO(vis, 
 //GO(vwarnc, 
 //GO(warnc, 
-//GO(wcslcat, 
-//GO(wcslcpy, 
+GO(wcslcat, LFppL)
+GO(wcslcpy, LFppL)

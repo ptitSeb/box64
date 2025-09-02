@@ -12,8 +12,10 @@
 #endif
 
 typedef void (*vFpV_t)(void*, ...);
+typedef int32_t (*iFip_t)(int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(drmMsg, vFpV_t)
+	GO(drmMsg, vFpV_t) \
+	GO(drmHandleEvent, iFip_t)
 
 #endif // __wrappedlibdrmTYPES_H_
