@@ -1002,6 +1002,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         box64_zoom = 1;
     }
     // special case for bash
+    int setup_bash_rcfile = 0;
     if (!strcmp(box64_guest_name, "bash") || !strcmp(box64_guest_name, "box64-bash")) {
         printf_log(LOG_INFO, "Bash detected, disabling banner\n");
         if (!BOX64ENV(nobanner)) {
@@ -1010,8 +1011,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
         if (!bashpath) {
             bashpath = (char*)prog;
+            SET_BOX64ENV(bash, (char*)prog);
             setenv("BOX64_BASH", prog, 1);
         }
+        setup_bash_rcfile = 1;
     }
     if(!bashpath)
         bashpath = ResolveFile("box64-bash", &my_context->box64_path);
@@ -1032,6 +1035,13 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
     }
+
+    // Setup custom bash rcfile iff no args are present
+    if (setup_bash_rcfile && my_context->argc == 1) {
+        add_argv("--rcfile");
+        add_argv("box64-custom-bashrc-file"); // handled by my_open
+    }
+
     if(BOX64ENV(nosandbox))
     {
         add_argv("--no-sandbox");
