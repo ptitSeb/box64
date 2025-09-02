@@ -1034,13 +1034,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
-
-        if (setup_bash_rcfile && (!strcmp(my_context->argv[i], "--norc") || !strcmp(my_context->argv[i], "--rcfile") || !strcmp(my_context->argv[i], "--init-file"))) {
-            setup_bash_rcfile = 0;
-        }
     }
 
-    if (setup_bash_rcfile) {
+    // Setup custom bash rcfile iff no args are present
+    if (setup_bash_rcfile && my_context->argc == 1) {
         add_argv("--rcfile");
         add_argv("box64-custom-bashrc-file"); // handled by my_open
     }
