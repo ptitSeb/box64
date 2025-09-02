@@ -1961,7 +1961,7 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         int tmp = shm_open("box64-custom-bashrc-file", O_RDWR | O_CREAT, S_IRWXU);
         if (tmp < 0) return open(pathname, flags, mode); // error fallback
         shm_unlink("box64-custom-bashrc-file");
-        const char* content = "if [ -f ~/.bashrc ]\nthen\n. ~/.bashrc\nfi\nexport PS1=\"(box64) \"$PS1\n";
+        const char* content = "if [ -f ~/.bashrc ]\nthen\n. ~/.bashrc\nfi\nexport PS1=\"(box64) \"$PS1\nexport BOX64_NOBANNER=1\nexport BOX64_LOG=0\n";
         size_t dummy;
         dummy = write(tmp, content, strlen(content));
         (void)dummy;
