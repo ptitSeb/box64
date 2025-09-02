@@ -46,6 +46,7 @@ typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, vo
 	GO(pa_context_set_subscribe_callback, vFppp_t) \
 	GO(pa_mainloop_api_once, vFppp_t) \
 	GO(pa_mainloop_set_poll_func, vFppp_t) \
+	GO(pa_operation_set_state_callback, vFppp_t) \
 	GO(pa_stream_set_buffer_attr_callback, vFppp_t) \
 	GO(pa_stream_set_event_callback, vFppp_t) \
 	GO(pa_stream_set_latency_update_callback, vFppp_t) \

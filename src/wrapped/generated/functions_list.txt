@@ -202,6 +202,7 @@
 #() iFiu
 #() iFiU
 #() iFil
+#() iFiL
 #() iFip
 #() iFiS
 #() iFWW
@@ -534,7 +535,11 @@
 #() iFiCC
 #() iFiui
 #() iFiuu
+#() iFiuL
 #() iFiup
+#() iFiUU
+#() iFiUp
+#() iFidd
 #() iFill
 #() iFilp
 #() iFiLi
@@ -615,6 +620,7 @@
 #() iFppp
 #() iFpOi
 #() iFpOu
+#() iFpSi
 #() iFpSu
 #() iFpSp
 #() iFpHH
@@ -773,6 +779,7 @@
 #() pFiiu
 #() pFiid
 #() pFiip
+#() pFiuu
 #() pFiup
 #() pFiLL
 #() pFipi
@@ -1079,7 +1086,10 @@
 #() iFiIIu
 #() iFiWii
 #() iFiuwp
+#() iFiuii
+#() iFiuuU
 #() iFiuup
+#() iFiupu
 #() iFiupp
 #() iFilli
 #() iFiLpL
@@ -1088,6 +1098,7 @@
 #() iFipWp
 #() iFipui
 #() iFipuU
+#() iFipup
 #() iFipLi
 #() iFipLu
 #() iFipLp
@@ -1151,6 +1162,7 @@
 #() iFpuWp
 #() iFpuui
 #() iFpuuu
+#() iFpuuU
 #() iFpuul
 #() iFpuuL
 #() iFpuup
@@ -1709,15 +1721,19 @@
 #() iFEpppV
 #() iFEpppA
 #() iFiiiip
+#() iFiiiui
 #() iFiiipu
 #() iFiiipp
 #() iFiiupp
 #() iFiippp
 #() iFiuuuu
+#() iFiuuuU
 #() iFiuuup
 #() iFiuUip
 #() iFillLL
+#() iFiLLpp
 #() iFipiii
+#() iFipiip
 #() iFipipi
 #() iFipipu
 #() iFipuip
@@ -2237,6 +2253,8 @@
 #() iFiippiu
 #() iFiWiipi
 #() iFiuuuup
+#() iFiuuupu
+#() iFiuuUpU
 #() iFiuuppp
 #() iFiuUuUu
 #() iFilpppp
@@ -2675,6 +2693,8 @@
 #() iFEpppLpp
 #() iFEpppppL
 #() iFEpppppp
+#() iFiippppp
+#() iFiuuuuii
 #() iFiupuuup
 #() iFiupuppp
 #() iFipupupi
@@ -2958,6 +2978,7 @@
 #() iFEpppppuu
 #() iFEppppppp
 #() iFiiupiupi
+#() iFiipppppp
 #() iFiuuCCuup
 #() iFiuuuupip
 #() iFipippppp
@@ -3152,6 +3173,7 @@
 #() iFEpppppupp
 #() iFEppppppuu
 #() iFEppPPPPPP
+#() iFiuuuppppu
 #() iFipiipippi
 #() iFuiiuuiiip
 #() iFuiiupiiup
@@ -3269,6 +3291,7 @@
 #() iFEpupppLppL
 #() iFEppppppipp
 #() iFEpppppppip
+#() iFiuuupppppu
 #() iFuiiiuuiiip
 #() iFpiiLiiipip
 #() iFpiLLiiipip
@@ -3422,6 +3445,7 @@
 #() vFppuuppiiiiuii
 #() vFppuupppuiiiii
 #() vFppppppppppppp
+#() iFiuuuuiiuuuuuu
 #() iFddddpppddpppp
 #() iFpippuuuiipppp
 #() iFpLLlliiLppppp
@@ -3481,7 +3505,6 @@
 #() vFpppppppppppppppppppppppp
 #() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
-#defined(NOALIGN) iFipiip
 #defined(NOALIGN) iFipipp
 #!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
@@ -4938,6 +4961,8 @@ wrappedlibdl:
 wrappedlibdrm:
 - vFpV:
   - drmMsg
+- iFip:
+  - drmHandleEvent
 wrappedlibdrmamdgpu:
 wrappedlibegl:
 - pFp:
@@ -5737,6 +5762,7 @@ wrappedpulse:
   - pa_context_set_subscribe_callback
   - pa_mainloop_api_once
   - pa_mainloop_set_poll_func
+  - pa_operation_set_state_callback
   - pa_stream_set_buffer_attr_callback
   - pa_stream_set_event_callback
   - pa_stream_set_latency_update_callback
