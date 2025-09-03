@@ -11,6 +11,7 @@
 #include <windows.h>
 typedef __int64 ssize_t;
 #define dlsym(a, b) NULL
+#define box_strdup(a) strdup(a)
 
 #define PROT_READ  0x1
 #define PROT_WRITE 0x2
