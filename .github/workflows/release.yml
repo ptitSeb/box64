@@ -195,7 +195,7 @@ jobs:
               sudo apt-get -y install git software-properties-common lsb-release \
               wget curl build-essential autoconf automake \
               pkg-config ca-certificates \
-              python3 make gettext \
+              python3 make gettext zstd \
               gcc-8 g++-8
               sudo add-apt-repository ppa:theofficialgman/cmake-bionic -y
               sudo apt update
