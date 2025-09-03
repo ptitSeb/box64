@@ -722,7 +722,7 @@ void* map64_customMalloc(size_t size, int is32bits)
 
     #ifdef TRACE_MEMSTAT
     printf_log(LOG_INFO,
-        "Custommem: allocation %p-%p for %dbit 64 B MAP Alloc [%d]\n",
+        "Custommem: allocation %p-%p for %dbits 64bytes MAP Alloc p_blocks[%d]\n",
         p, (uint8_t*)p + allocsize,
         is32bits ? 32 : 64, i);
     #endif
@@ -1436,7 +1436,6 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     if(is_new) list->has_new = 1;
     list->dirty = 1;
     // check if there is space in current open ones
-    int idx = 0;
     uintptr_t sz = size + 2*sizeof(blockmark_t);
     for(int i=0; i<list->size; ++i)
         if(list->chunks[i]->maxfree>=size) {
@@ -1488,7 +1487,10 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     #endif
 #ifdef TRACE_MEMSTAT
     dynarec_allocated += allocsize;
-    printf_log(LOG_INFO, "Custommem: allocation %p-%p for Dynarec block %d\n", p, p+allocsize, idx);
+    printf_log(LOG_INFO, "Custommem: allocation %p-%p for Dynarec %p->chunk[%d]\n", p, p+allocsize, list, i);
+#else
+    if(box64env.dynarec_log>LOG_INFO || box64env.dynarec_dump)
+        dynarec_log(LOG_NONE, "Custommem: allocation %p-%p for Dynarec %p->chunk[%d]\n", p, p+allocsize, list, i);
 #endif
     setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
     list->chunks[i] = p;
