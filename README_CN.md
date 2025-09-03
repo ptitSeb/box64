@@ -2,7 +2,7 @@
 
 # Box64：Linux 用户空间 x86-64 模拟器（支持原生库）
 
-[更新日志](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [English](https://github.com/ptitSeb/box64/blob/main/README.md) | [Українська](https://github.com/ptitSeb/box64/blob/main/README_UK.md) | [Report an Error](https://github.com/ptitSeb/box64/issues/new)
+[官网](https://box86.org/) | [更新日志](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [English](https://github.com/ptitSeb/box64/blob/main/README.md) | [Українська](https://github.com/ptitSeb/box64/blob/main/README_UK.md) | [Report an Error](https://github.com/ptitSeb/box64/issues/new)
 
 ![Build Status](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main) ![Stars](https://img.shields.io/github/stars/ptitSeb/box64) ![Forks](https://img.shields.io/github/forks/ptitSeb/box64) ![Contributors](https://img.shields.io/github/contributors/ptitSeb/box64) ![Pull Requests](https://img.shields.io/github/issues-pr/ptitSeb/box64) ![Issues](https://img.shields.io/github/issues/ptitSeb/box64)
 
@@ -27,7 +27,12 @@ _Logo 由 @grayduck 制作，感谢！_
 
 ## 📖 使用方法
 
-Box64 提供了环境变量来控制其行为。有关详细信息请参阅[使用文档](docs/USAGE.md)。
+- `$ box64 ./program [args]` 运行 Linux x86_64 程序。
+- `$ box64 -k` 杀死所有模拟的进程。
+- `$ box64-bash` 进入 x86_64 bash 环境。
+- 想要使用 wine？请参阅 [Wine 使用说明](docs/WINE.md)。
+
+Box64 还提供了环境变量和 Rc 文件来控制其行为。有关详细信息请参阅[使用文档](docs/USAGE.md)。
 
 ---
 
@@ -46,7 +51,7 @@ Box64 提供了环境变量来控制其行为。有关详细信息请参阅[使�
 
 ## 🖥️ 平台兼容性说明
 
-Box64 直接转换 x86_64 函数调用到本机原生库，因此需要主机系统上的 64 位库。对于 32 位二进制文​​件，请使用 Box86。
+Box64 直接转换 x86_64 函数调用到本机原生库，因此需要主机系统上的 64 位库。对于 32 位二进制文​​件，请使用 Box86 或 Box32。
 
 **注意事项**
 
@@ -61,6 +66,8 @@ Box64 的配置文件位于 `/etc/box64.box64rc` 和 `~/.box64rc`，均为 `.ini
 
 配置项的优先级：`~/.box64rc` > `/etc/box64.box64rc` > 命令行。
 
+更多信息，请参阅[使用文档](docs/USAGE.md)。
+
 ---
 
 ## 📄 特定平台的其他说明
@@ -74,15 +81,17 @@ Box64 的配置文件位于 `/etc/box64.box64rc` 和 `~/.box64rc`，均为 `.ini
 
 Box64 包装了 GTK 库，支持 gtk2 和 gtk3。
 
-### Steam
+### Linux Steam
 
-由于 Steam 客户端应用是 32 位的，需要使用 Box86，但其本地服务器是 64 位的二进制文件。对于内存少于 6GB 的系统，可能需要使用交换文件以获得最佳性能。
+由于 Linux Steam 客户端应用是 32 位的，需要使用 Box86 或 Box32，但其本地服务器是 64 位的二进制文件。对于内存少于 6GB 的系统，可能需要使用交换文件以获得最佳性能。
 
 ### Wine
 
 Box64 支持 Wine64 和 Proton。对于 32 位组件，需要 Box86。配备 Box64 和 Box86 的系统可以运行 32 位和 64 位的 Windows 程序。
 
 **提示**：您可以使用 Wine WOW64 版本在仅限 Box64 的环境中运行 x86 Windows 程序，这项支持仍处于实验阶段，但在大多数情况下都可以工作。
+
+有关更多信息，请参阅 [Wine 使用说明](docs/WINE.md)。
 
 ### Vulkan
 

@@ -2,7 +2,7 @@
 
 # Box64: Linux Userspace x86-64 Emulator with a Twist
 
-[Changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box64/blob/main/README_CN.md) | [Українська](https://github.com/ptitSeb/box64/blob/main/README_UK.md) | [Report an Error](https://github.com/ptitSeb/box64/issues/new)
+[Website](https://box86.org/) | [Changelog](https://github.com/ptitSeb/box64/blob/main/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box64/blob/main/README_CN.md) | [Українська](https://github.com/ptitSeb/box64/blob/main/README_UK.md) | [Report an Error](https://github.com/ptitSeb/box64/issues/new)
 
 ![Build Status](https://app.travis-ci.com/ptitSeb/box64.svg?branch=main) ![Stars](https://img.shields.io/github/stars/ptitSeb/box64) ![Forks](https://img.shields.io/github/forks/ptitSeb/box64) ![Contributors](https://img.shields.io/github/contributors/ptitSeb/box64) ![Pull Requests](https://img.shields.io/github/issues-pr/ptitSeb/box64) ![Issues](https://img.shields.io/github/issues/ptitSeb/box64)
 
@@ -27,7 +27,12 @@ _Logo and icon by @grayduck - Thank you!_
 
 ## 📖 Usage
 
-Box64 offers environment variables to control its behavior. For details, see [Usage Documentation](docs/USAGE.md).
+- `$ box64 ./program [args]` to run Linux x86_64 programs.
+- `$ box64 -k` to kill all the emulated processes.
+- `$ box64-bash` to have a x86_64 bash environment.
+- Want to use wine? see [Wine Documentation](docs/WINE.md).
+
+Box64 also offers environment variables and rcfile to control its behavior. For details, see [Usage Documentation](docs/USAGE.md).
 
 ---
 
@@ -47,7 +52,7 @@ See the [Changelog](docs/CHANGELOG.md) for version updates.
 
 ## 🖥️ Platform Compatibility Notes
 
-Box64 requires 64-bit libraries on the host system, as it directly translates x86_64 function calls. For 32-bit binaries, use Box86.
+Box64 requires 64-bit libraries on the host system, as it directly translates x86_64 function calls. For 32-bit binaries, use Box86 or Box32.
 
 **Notes** 
 
@@ -61,6 +66,8 @@ Box64 requires 64-bit libraries on the host system, as it directly translates x8
 Box64 has configuration files located in `/etc/box64.box64rc` and `~/.box64rc`, both formatted as `.ini` files. If you don’t want to use the default `/etc/box64.box64rc` file, copy it to `~/.box64rc` to ensure compatibility.
 
 Settings priority: `~/.box64rc` > `/etc/box64.box64rc` > Command line.
+
+For more information, check [Usage Documentation](docs/USAGE.md).
 
 ---
 
@@ -76,15 +83,17 @@ Settings priority: `~/.box64rc` > `/etc/box64.box64rc` > Command line.
 
 Box64 wraps GTK libraries, supporting both gtk2 and gtk3.
 
-### Steam
+### Linux Steam
 
-Steam requires Box86 due to its 32-bit client app, but uses 64-bit local server binaries. Systems with less than 6GB RAM may need a swap file for optimal performance.
+Linux Steam requires Box86 or Box32 due to its 32-bit client app, but uses 64-bit local server binaries. Systems with less than 6GB RAM may need a swap file for optimal performance.
 
 ### Wine
 
 Box64 supports Wine64 and Proton. For 32-bit components, Box86 is required. Systems with both Box64 and Box86 can run 32- and 64-bit Windows programs.
 
 **Note**: You can use Wine WOW64 build to run x86 Windows programs in Box64-only environments, this is still experimental, but it works in most cases.
+
+For more information, check [Wine Documentation](docs/WINE.md).
 
 ### Vulkan
 
