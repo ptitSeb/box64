@@ -202,6 +202,7 @@
 #() iFiu
 #() iFiU
 #() iFil
+#() iFiL
 #() iFip
 #() iFiS
 #() iFWW
@@ -259,11 +260,17 @@
 #() WFpp
 #() uFEp
 #() uFii
+#() uFiu
+#() uFip
 #() uFiS
 #() uFui
 #() uFuu
+#() uFuL
 #() uFup
 #() uFuS
+#() uFUi
+#() uFUL
+#() uFUp
 #() uFpw
 #() uFpi
 #() uFpC
@@ -534,7 +541,11 @@
 #() iFiCC
 #() iFiui
 #() iFiuu
+#() iFiuL
 #() iFiup
+#() iFiUU
+#() iFiUp
+#() iFidd
 #() iFill
 #() iFilp
 #() iFiLi
@@ -615,6 +626,7 @@
 #() iFppp
 #() iFpOi
 #() iFpOu
+#() iFpSi
 #() iFpSu
 #() iFpSp
 #() iFpHH
@@ -644,9 +656,11 @@
 #() uFEpU
 #() uFEpp
 #() uFiuu
+#() uFiup
 #() uFilp
 #() uFipu
 #() uFipL
+#() uFipp
 #() uFuii
 #() uFuip
 #() uFuCC
@@ -658,8 +672,14 @@
 #() uFupL
 #() uFupp
 #() uFuNN
+#() uFUCL
+#() uFUWL
+#() uFUuL
+#() uFUUL
+#() uFUpL
 #() uFpii
 #() uFpiu
+#() uFpif
 #() uFpip
 #() uFpCi
 #() uFpWi
@@ -671,7 +691,10 @@
 #() uFpuU
 #() uFpuL
 #() uFpup
+#() uFpUu
+#() uFpUL
 #() uFpfu
+#() uFpff
 #() uFpli
 #() uFplu
 #() uFpLu
@@ -679,6 +702,7 @@
 #() uFpLp
 #() uFppi
 #() uFppu
+#() uFppU
 #() uFppL
 #() uFppp
 #() uFbWW
@@ -773,6 +797,7 @@
 #() pFiiu
 #() pFiid
 #() pFiip
+#() pFiuu
 #() pFiup
 #() pFiLL
 #() pFipi
@@ -1079,7 +1104,10 @@
 #() iFiIIu
 #() iFiWii
 #() iFiuwp
+#() iFiuii
+#() iFiuuU
 #() iFiuup
+#() iFiupu
 #() iFiupp
 #() iFilli
 #() iFiLpL
@@ -1088,6 +1116,7 @@
 #() iFipWp
 #() iFipui
 #() iFipuU
+#() iFipup
 #() iFipLi
 #() iFipLu
 #() iFipLp
@@ -1151,6 +1180,7 @@
 #() iFpuWp
 #() iFpuui
 #() iFpuuu
+#() iFpuuU
 #() iFpuul
 #() iFpuuL
 #() iFpuup
@@ -1255,27 +1285,58 @@
 #() uFiiii
 #() uFiiuu
 #() uFifff
+#() uFuipi
 #() uFuuuu
+#() uFuppU
 #() uFuppd
+#() uFuppp
+#() uFUiLL
+#() uFUCLp
+#() uFUWLp
+#() uFUuLp
+#() uFUULp
+#() uFULip
+#() uFULui
+#() uFULpL
+#() uFUpLL
+#() uFUpLp
 #() uFLppp
+#() uFpiii
 #() uFpiip
 #() uFpipu
 #() uFpipL
 #() uFpipp
 #() uFpCCC
+#() uFpuii
+#() uFpuui
+#() uFpuuu
 #() uFpuup
 #() uFpupi
 #() uFpupu
 #() uFpupL
 #() uFpupp
 #() uFpubp
+#() uFpUuu
+#() uFpUuU
+#() uFpUUu
+#() uFpULu
+#() uFpULp
 #() uFplup
+#() uFpLUL
+#() uFpLpU
+#() uFpLpL
+#() uFpLpp
 #() uFppii
 #() uFppiu
+#() uFppiL
 #() uFppip
 #() uFppuu
+#() uFppuU
 #() uFppup
+#() uFppUL
 #() uFpplp
+#() uFppLu
+#() uFppLL
 #() uFppLp
 #() uFpppi
 #() uFpppu
@@ -1709,15 +1770,19 @@
 #() iFEpppV
 #() iFEpppA
 #() iFiiiip
+#() iFiiiui
 #() iFiiipu
 #() iFiiipp
 #() iFiiupp
 #() iFiippp
 #() iFiuuuu
+#() iFiuuuU
 #() iFiuuup
 #() iFiuUip
 #() iFillLL
+#() iFiLLpp
 #() iFipiii
+#() iFipiip
 #() iFipipi
 #() iFipipu
 #() iFipuip
@@ -1865,6 +1930,7 @@
 #() uFEippp
 #() uFEpipp
 #() uFEpupp
+#() uFEpppu
 #() uFEpppp
 #() uFEpppV
 #() uFiuuuu
@@ -1872,6 +1938,12 @@
 #() uFipupp
 #() uFipLpp
 #() uFuiiii
+#() uFULCLL
+#() uFULWLL
+#() uFULuLL
+#() uFULULU
+#() uFULLUU
+#() uFUpUpL
 #() uFLpppL
 #() uFpCCCC
 #() uFpWuip
@@ -1880,13 +1952,24 @@
 #() uFpuupp
 #() uFpupuu
 #() uFpuppp
+#() uFpULuU
+#() uFpLuUL
+#() uFpLLUU
+#() uFpLpLL
+#() uFpLpLp
+#() uFppiui
+#() uFppiLu
 #() uFppipp
 #() uFppuup
 #() uFppupp
 #() uFpplip
 #() uFpplpp
+#() uFppLLu
+#() uFppLLp
 #() uFppLpp
 #() uFpppip
+#() uFpppLU
+#() uFpppLp
 #() uFppppL
 #() uFppppp
 #() uFbuuWW
@@ -2237,6 +2320,8 @@
 #() iFiippiu
 #() iFiWiipi
 #() iFiuuuup
+#() iFiuuupu
+#() iFiuuUpU
 #() iFiuuppp
 #() iFiuUuUu
 #() iFilpppp
@@ -2393,10 +2478,16 @@
 #() uFEpippp
 #() uFEpCppp
 #() uFEpuppp
+#() uFEpppLp
 #() uFipuppp
 #() uFuuuuuu
 #() uFupuufp
 #() uFuppppp
+#() uFULCLLp
+#() uFULWLLp
+#() uFULuLLp
+#() uFULULLU
+#() uFUpUpLp
 #() uFpiuppu
 #() uFpWuipp
 #() uFpWuuCp
@@ -2405,11 +2496,15 @@
 #() uFpuuupp
 #() uFpuuppp
 #() uFpupupu
+#() uFpupupp
 #() uFpupppp
 #() uFppuuup
 #() uFppuupu
 #() uFppLpLp
 #() uFppLppL
+#() uFpppLUL
+#() uFpppLpp
+#() uFppppLi
 #() uFpppppi
 #() uFpppppp
 #() uFbippup
@@ -2675,6 +2770,8 @@
 #() iFEpppLpp
 #() iFEpppppL
 #() iFEpppppp
+#() iFiippppp
+#() iFiuuuuii
 #() iFiupuuup
 #() iFiupuppp
 #() iFipupupi
@@ -2782,6 +2879,7 @@
 #() uFppiuppp
 #() uFppuiupu
 #() uFppuuuup
+#() uFppppLiu
 #() uFppppppp
 #() uFbuuuwwu
 #() uFbuupwwC
@@ -2958,6 +3056,7 @@
 #() iFEpppppuu
 #() iFEppppppp
 #() iFiiupiupi
+#() iFiipppppp
 #() iFiuuCCuup
 #() iFiuuuupip
 #() iFipippppp
@@ -3031,9 +3130,11 @@
 #() uFulpppppp
 #() uFpuupupuu
 #() uFpupuuuCp
+#() uFpupLpupp
 #() uFppuuuupp
 #() uFppuuuppu
 #() uFppuppppp
+#() uFppppuppu
 #() uFpppppupp
 #() uFbWWWWWWp
 #() UFbCuwwWWu
@@ -3152,6 +3253,7 @@
 #() iFEpppppupp
 #() iFEppppppuu
 #() iFEppPPPPPP
+#() iFiuuuppppu
 #() iFipiipippi
 #() iFuiiuuiiip
 #() iFuiiupiiup
@@ -3269,6 +3371,7 @@
 #() iFEpupppLppL
 #() iFEppppppipp
 #() iFEpppppppip
+#() iFiuuupppppu
 #() iFuiiiuuiiip
 #() iFpiiLiiipip
 #() iFpiLLiiipip
@@ -3288,6 +3391,7 @@
 #() iFpppppiiuup
 #() iFpppppppipi
 #() iFpppppppppu
+#() uFpuuuuuuupp
 #() uFpddpippppp
 #() uFpppppppppp
 #() UFbCuWCCuuCW
@@ -3363,6 +3467,7 @@
 #() uFEpLuppppLup
 #() uFEpLuppppLuA
 #() uFEppppppuppp
+#() uFpuuuuuuuppp
 #() uFppppppppppp
 #() UFbuuuwwwwWWu
 #() pFEpipppppppi
@@ -3402,6 +3507,7 @@
 #() iFppLlliLppppp
 #() iFpppipipiipii
 #() iFpppppppppppp
+#() uFpuupppppuuuu
 #() UFbCuuWWwwCCup
 #() UFbuuuWWWWWWWW
 #() pFEpLiiuuLipii
@@ -3422,6 +3528,7 @@
 #() vFppuuppiiiiuii
 #() vFppuupppuiiiii
 #() vFppppppppppppp
+#() iFiuuuuiiuuuuuu
 #() iFddddpppddpppp
 #() iFpippuuuiipppp
 #() iFpLLlliiLppppp
@@ -3449,6 +3556,7 @@
 #() vFpUUUUUUUUUUUuuu
 #() vFpppippppppppppp
 #() vFppppppppppppppp
+#() uFpuupppppuupuuuu
 #() pFpuiippppppppppp
 #() pFppipppppppppppp
 #() pFppupppppppppppp
@@ -3481,7 +3589,6 @@
 #() vFpppppppppppppppppppppppp
 #() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
-#defined(NOALIGN) iFipiip
 #defined(NOALIGN) iFipipp
 #!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
@@ -3656,6 +3763,19 @@ wrappedcrypto3:
   - PEM_write_bio_PrivateKey
   - PEM_write_bio_PrivateKey_traditional
   - PEM_write_bio_RSAPrivateKey
+wrappedcuda:
+- uFpp:
+  - cuGraphHostNodeGetParams
+  - cuGraphHostNodeSetParams
+- uFppp:
+  - cuGraphExecHostNodeSetParams
+  - cuLaunchHostFunc
+  - cuLaunchHostFunc_ptsz
+- uFpppu:
+  - cuStreamAddCallback
+  - cuStreamAddCallback_ptsz
+- uFpppLp:
+  - cuGraphAddHostNode
 wrappedcurl:
 - iFpup:
   - curl_multi_setopt
@@ -4938,6 +5058,8 @@ wrappedlibdl:
 wrappedlibdrm:
 - vFpV:
   - drmMsg
+- iFip:
+  - drmHandleEvent
 wrappedlibdrmamdgpu:
 wrappedlibegl:
 - pFp:
@@ -5737,6 +5859,7 @@ wrappedpulse:
   - pa_context_set_subscribe_callback
   - pa_mainloop_api_once
   - pa_mainloop_set_poll_func
+  - pa_operation_set_state_callback
   - pa_stream_set_buffer_attr_callback
   - pa_stream_set_event_callback
   - pa_stream_set_latency_update_callback

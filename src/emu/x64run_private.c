@@ -233,7 +233,7 @@ reg64_t* GetECommon_32(x64emu_t* emu, uintptr_t* addr, uint8_t m, uint32_t base)
         return (reg64_t*)(uintptr_t)base;
     }
 }
-reg64_t* GetECommon_16(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint32_t base)
+reg64_t* GetECommon_16(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint64_t base)
 {
     switch(m&7) {
         case 0: base+= R_BX+R_SI; break;
@@ -242,13 +242,13 @@ reg64_t* GetECommon_16(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint32_t base)
         case 3: base+= R_BP+R_DI; break;
         case 4: base+=      R_SI; break;
         case 5: base+=      R_DI; break;
-        case 6: base+=      R_BP; break;
+        case 6: if((m>>6)&3) base += R_BP; else base += F16S(addr); break;
         case 7: base+=      R_BX; break;
     }
     switch((m>>6)&3) {
-        case 0: if((m&7)==6) base= F16S(addr); break;
         case 1: base += F8S(addr); break;
         case 2: base += F16S(addr); break;
+        // case 0 is already dealt with on case 6
         // case 3 is C0..C7, already dealt with
     }
     return (reg64_t*)(uintptr_t)base;
@@ -344,11 +344,6 @@ reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_
 
 reg64_t* GetEb(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
-    if(rex.is67 && rex.is32bits) {
-        printf_log(LOG_NONE, "Need 32bits 67 prefix GetEb\n");
-        emu->quit = 1;
-        return NULL;
-    }
     uint8_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
         if(rex.rex) {
@@ -362,11 +357,6 @@ reg64_t* GetEb(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t del
 
 reg64_t* TestEb(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
-    if(rex.is67 && rex.is32bits) {
-        printf_log(LOG_NONE, "Need 32bits 67 prefix TestEb\n");
-        test->emu->quit = 1;
-        return NULL;
-    }
     uint8_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
         if(rex.rex) {
@@ -386,11 +376,6 @@ reg64_t* TestEb(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
 
 reg64_t* GetEd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
-    if(rex.is67 && rex.is32bits) {
-        printf_log(LOG_NONE, "Need 32bits 67 prefix GetEd\n");
-        emu->quit = 1;
-        return NULL;
-    }
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->regs[(m&0x07)+(rex.b<<3)];
@@ -399,11 +384,6 @@ reg64_t* GetEd(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t del
 
 reg64_t* TestEd(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
 {
-    if(rex.is67 && rex.is32bits) {
-        printf_log(LOG_NONE, "Need 32bits 67 prefix TestEd\n");
-        test->emu->quit = 1;
-        return NULL;
-    }
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
         return &test->emu->regs[(m&0x07)+(rex.b<<3)];

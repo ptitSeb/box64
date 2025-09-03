@@ -739,7 +739,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i)
-                GX->f[i] = sqrtf(EX->f[i]);
+                if (isnan(EX->f[i]))
+                    GX->f[i] = EX->f[i];
+                else
+                    GX->f[i] = (EX->f[i] < 0) ? (-NAN) : sqrtf(EX->f[i]);
             break;
         case 0x52:                      /* RSQRTPS Gx, Ex */
             nextop = F8;
@@ -763,7 +766,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i)
-                GX->f[i] = 1.0f/EX->f[i];
+                if (isnan(EX->f[i]))
+                    GX->f[i] = EX->f[i];
+                else
+                    GX->f[i] = 1.0f / EX->f[i];
             break;
         case 0x54:                      /* ANDPS Gx, Ex */
             nextop = F8;

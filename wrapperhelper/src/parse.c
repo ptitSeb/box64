@@ -2129,7 +2129,7 @@ parse_cur_token_decl:
 			}
 			char *ident = string_steal(tok->tokv.str);
 			*tok = proc_next_token(prep);
-			while ((tok->tokt == PTOK_IDENT) && !strcmp(string_content(tok->tokv.str), "__attribute__")) {
+			while ((tok->tokt == PTOK_IDENT) && (!strcmp(string_content(tok->tokv.str), "__attribute__") || !strcmp(string_content(tok->tokv.str), "__attribute"))) {
 				// Attribute
 				string_del(tok->tokv.str);
 				*tok = proc_next_token(prep);

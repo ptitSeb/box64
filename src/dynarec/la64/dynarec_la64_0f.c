@@ -782,7 +782,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX_empty(v0);
-            VFSQRT_S(v0, q0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMP_S(d0, q0, q0, cEQ);
+                VFSQRT_S(v0, q0);
+                VFCMP_S(d1, v0, v0, cEQ);
+                VANDN_V(d1, d1, d0);
+                VSLLI_W(d1, d1, 31);
+                VOR_V(v0, v0, d1);
+            } else
+                VFSQRT_S(v0, q0);
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
@@ -790,7 +800,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SKIPTEST(x1);
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            if(cpuext.frecipe){
+            if (cpuext.frecipe) {
                 VFRSQRTE_S(q1, q0);
             } else {
                 VFRSQRT_S(q1, q0);
@@ -802,12 +812,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SKIPTEST(x1);
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            if(cpuext.frecipe){
+            if (cpuext.frecipe) {
                 VFRECIPE_S(q1, q0);
-            }else{
+            } else {
                 VFRECIP_S(q1, q0);
             }
-            VFRECIP_S(q1, q0);
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
@@ -1377,7 +1386,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAIxw(x1, gd, 5 + rex.w);        // r1 = (gd>>5)
-                ALSL_D(x3, wback, x1, 2 + rex.w); // (&ed) += r1*4;
+                ALSL_D(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }

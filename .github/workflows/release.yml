@@ -1,6 +1,9 @@
 ### Auto build Box64 and release its binary with Github Action
 name: Build and Release Box64
 
+permissions:
+  actions: 'write'
+
 on:
   workflow_dispatch:
   release:
@@ -96,7 +99,64 @@ jobs:
         if: ${{ matrix.platform == 'ARM64-GCC-8' }}
         uses: taiki-e/checkout-action@v1
 
+      - name: Get all the unique changed directory names
+        id: changed-files-dir-names
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46
+        with:
+          dir_names: "true"
+
+      - name: Early exit other jobs if this is a ARM64-only change
+        id: early-exit-arm64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.changed-files-dir-names.outputs.all_modified_files == 'src/dynarec/arm64'
+        continue-on-error: true
+        run: |
+          if [[ ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' && ${{ matrix.platform }} != 'X64' ]]; then
+            exit 1
+          fi
+
+      - name: Early exit other jobs if this is a LA64-only change
+        id: early-exit-la64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.changed-files-dir-names.outputs.all_modified_files == 'src/dynarec/la64'
+        continue-on-error: true
+        run: |
+          if [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
+            exit 1
+          fi
+
+      - name: Early exit other jobs if this is a RV64-only change
+        id: early-exit-rv64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.changed-files-dir-names.outputs.all_modified_files == 'src/dynarec/rv64'
+        continue-on-error: true
+        run: |
+          if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
+            exit 1
+          fi
+
+      - name: Do not early exit otherwise
+        id: early-exit-never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIRS: ${{ steps.changed-files-dir-names.outputs.all_modified_files }}
+        if: env.DIRS != 'src/dynarec/arm64' && env.DIRS != 'src/dynarec/la64' && env.DIRS != 'src/dynarec/rv64'
+        continue-on-error: true
+        run: exit 1
+
+      - name: Merge early exit conditions
+        id: early-exit
+        if: steps.early-exit-arm64.outcome == 'failure' || steps.early-exit-la64.outcome == 'failure' || steps.early-exit-rv64.outcome == 'failure' || steps.early-exit-never.outcome == 'failure'
+        continue-on-error: true
+        run: exit 1
+
+      # Use `steps.early-exit.outcome == 'failure'` to check whether the current step should be processed.
+
       - name: "Environment preparation"
+        if: steps.early-exit.outcome == 'failure'
         run: |
           if [[ ${{ matrix.platform }} == 'ARM64-GCC-8' ]]; then
             apt-get update
@@ -217,13 +277,13 @@ jobs:
           fi
 
       - name: "Get XuanTie QEMU Cache Key"
-        if: matrix.platform == 'RISCV'
+        if: matrix.platform == 'RISCV' && steps.early-exit.outcome == 'failure'
         id: get-xuantie-qemu-cache-key
         run: |
           echo "key=f2dfdd13014d51f957c7172acc2e791cb42dc400" >> $GITHUB_OUTPUT
 
       - name: "Cache XuanTie QEMU"
-        if: matrix.platform == 'RISCV'
+        if: matrix.platform == 'RISCV' && steps.early-exit.outcome == 'failure'
         id: cache-xuantie-qemu
         uses: actions/cache@v3
         with:
@@ -231,7 +291,7 @@ jobs:
           key: ${{ runner.os }}-${{ steps.get-xuantie-qemu-cache-key.outputs.key }}-xuantie-qemu
 
       - name: "Checkout XuanTie QEMU"
-        if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true'
+        if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true' && steps.early-exit.outcome == 'failure'
         uses: actions/checkout@v3
         with:
           repository: revyos/qemu
@@ -239,7 +299,7 @@ jobs:
           ref: f2dfdd13014d51f957c7172acc2e791cb42dc400
 
       - name: "Build XuanTie QEMU for XTheadVector"
-        if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true'
+        if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true' && steps.early-exit.outcome == 'failure'
         run: |
           cd xuantie_qemu
           ./configure --prefix=$GITHUB_WORKSPACE/xuantie_qemu_install --target-list=riscv64-linux-user --disable-system
@@ -247,6 +307,7 @@ jobs:
           make install
 
       - name: "Display Build info"
+        if: steps.early-exit.outcome == 'failure'
         run: |
           echo "CMake Platform Macro: ${{ env.BOX64_PLATFORM_MARCRO }}"
           echo "CMake C Compiler: ${{ env.BOX64_COMPILER }}"
@@ -256,6 +317,7 @@ jobs:
           echo "Box32 Enabled: ${{ env.BOX64_BOX32 }}"
 
       - name: "Build Box64"
+        if: steps.early-exit.outcome == 'failure'
         run: |
           export PATH=$PATH:${{ env.MINGW_COMPILER_PATH }}
           mkdir build
@@ -273,6 +335,7 @@ jobs:
           make -j$(nproc) VERBOSE=1
 
       - name: "Test Box64"
+        if: steps.early-exit.outcome == 'failure'
         run: |
           if [[ ${{ matrix.platform }} != 'X64' ]]; then
             mkdir qemu10
@@ -339,13 +402,15 @@ jobs:
 
       - name: "Get short Git commit"
         id: git-info
+        if: steps.early-exit.outcome == 'failure'
         run: echo "SHORT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: "Get Box64 Version"
+        if: steps.early-exit.outcome == 'failure'
         run: echo "BOX64_VERSION=$(cat src/box64version.h | grep BOX64_MAJOR | cut -d " " -f 3).$(cat src/box64version.h | grep BOX64_MINOR | cut -d " " -f 3).$(cat src/box64version.h | grep BOX64_REVISION | cut -d " " -f 3)" >> $GITHUB_ENV
 
       - name: "Packaging WCP file for Winlator"
-        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild'
+        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type != 'StaticBuild' && steps.early-exit.outcome == 'failure'
         run: |
           cd build
           cat <<EOF > profile.json
@@ -366,7 +431,7 @@ jobs:
           tar --zstd -cf box64-latest.wcp box64 profile.json
 
       - name: "Package Rat File for MiceWine"
-        if: matrix.platform == 'ANDROID' && matrix.type != 'StaticBuild'
+        if: matrix.platform == 'ANDROID' && matrix.type != 'StaticBuild' && steps.early-exit.outcome == 'failure'
         run: |
           cd build
 
@@ -383,21 +448,21 @@ jobs:
           7z -tzip -mx=5 a box64-latest.rat files pkg-header
 
       - name: "Upload WCP file"
-        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type == 'Release'
+        if: matrix.platform == 'ANDROID_GLIBC' && matrix.type == 'Release' && steps.early-exit.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: box64-latest-${{ matrix.type }}-wcp
           path: build/box64-latest.wcp
 
       - name: "Upload Rat File"
-        if: matrix.platform == 'ANDROID' && matrix.type == 'Release'
+        if: matrix.platform == 'ANDROID' && matrix.type == 'Release' && steps.early-exit.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: box64-MiceWine-${{ matrix.type }}
           path: build/box64-latest.rat
 
       - name: "Upload WowBox64 file"
-        if: matrix.platform == 'WOW64' && matrix.type == 'Release'
+        if: matrix.platform == 'WOW64' && matrix.type == 'Release' && steps.early-exit.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: wowbox64-${{ matrix.type }}
