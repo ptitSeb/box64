@@ -168,11 +168,16 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #endif
 
         rep = 0;
+        rex.is32bits = is32bits;
         uint8_t pk = PK(0);
-        while((pk==0xF2) || (pk==0xF3) || (pk==0x3E) || (pk==0x26)) {
+        while((pk==0xF2) || (pk==0xF3) || (pk==0x3E) || (pk==0x26)
+            || (is32bits && ((pk==0x2E) || (pk==0x36)))
+        ) {
             switch(pk) {
                 case 0xF2: rep = 1; break;
                 case 0xF3: rep = 2; break;
+                case 0x2E:
+                case 0x36:
                 case 0x3E:
                 case 0x26: /* ignored */ break;
             }
@@ -180,7 +185,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             pk = PK(0);
         }
         rex.rex = 0;
-        rex.is32bits = is32bits;
         if(!rex.is32bits)
             while(pk>=0x40 && pk<=0x4f) {
                 rex.rex = pk;
