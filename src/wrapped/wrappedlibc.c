@@ -3203,6 +3203,7 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
     return p;
 }
 
+#ifndef LA64_ABI_1
 typedef struct mallinfo2 (*mallinfo2_fnc)(void);
 EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
 {
@@ -3218,6 +3219,7 @@ EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
         memset(p, 0, sizeof(struct mallinfo2));
     return p;
 }
+#endif // LA64_ABI_1
 
 #ifdef STATICBUILD
 void my_updateGlobalOpt() {}
