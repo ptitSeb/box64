@@ -3203,7 +3203,20 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
     return p;
 }
 
-typedef struct mallinfo2 (*mallinfo2_fnc)(void);
+struct my_mallinfo2_s {
+    size_t arena;
+    size_t ordblks;
+    size_t smblks;
+    size_t hblks;
+    size_t hblkhd;
+    size_t usmblks;
+    size_t fsmblks;
+    size_t uordblks;
+    size_t fordblks;
+    size_t keepcost;
+};
+
+typedef struct my_mallinfo2_s (*mallinfo2_fnc)(void);
 EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
 {
     static mallinfo2_fnc f = NULL;
@@ -3213,9 +3226,9 @@ EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
         f = (mallinfo2_fnc)dlsym(my_lib->w.lib, "mallinfo2");
     }
     if(f)
-        *(struct mallinfo2*)p=f();
+        *(struct my_mallinfo2_s*)p = f();
     else
-        memset(p, 0, sizeof(struct mallinfo2));
+        memset(p, 0, sizeof(struct my_mallinfo2_s));
     return p;
 }
 
