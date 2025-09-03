@@ -77,6 +77,8 @@ jobs:
             os: ubuntu-latest
           - platform: ARM64-GCC-8
             type: Trace
+          - platform: ARM64-GCC-8
+            type: StaticBuild
           - platform: ANDROID
             type: Trace
           - platform: TERMUX
