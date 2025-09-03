@@ -12,6 +12,7 @@
 
 #include "os.h"
 #include "env.h"
+#include "custommem.h"
 #include "khash.h"
 #include "debug.h"
 #include "fileutils.h"
@@ -294,7 +295,7 @@ static void pushNewEntry(const char* name, box64env_t* env, int gen)
     k = kh_get(box64env_entry, khp, name);
     if (k == kh_end(khp)) {
         int ret;
-        k = kh_put(box64env_entry, khp, strdup(name), &ret);
+        k = kh_put(box64env_entry, khp, box_strdup(name), &ret);
     } else {
         freeEnv(&kh_value(khp, k));
     }

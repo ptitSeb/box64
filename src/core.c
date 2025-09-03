@@ -736,13 +736,13 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     ftrace = stdout;
 
-    LoadEnvVariables();
-    InitializeEnvFiles();
-
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
+
+    LoadEnvVariables();
+    InitializeEnvFiles();
 
     const char* prog = argv[1];
     int nextarg = 1;
