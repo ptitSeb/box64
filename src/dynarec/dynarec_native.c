@@ -352,9 +352,8 @@ static void recurse_mark_alive(dynarec_native_t* dyn, int i)
         recurse_mark_alive(dyn, i+1);
 }
 
-static int sizePredecessors(dynarec_native_t* dyn)
+static void sizePredecessors(dynarec_native_t* dyn)
 {
-    int pred_sz = 1;    // to be safe
     // compute total size of predecessor to allocate the array
     // mark alive...
     recurse_mark_alive(dyn, 0);
@@ -362,7 +361,6 @@ static int sizePredecessors(dynarec_native_t* dyn)
     int jmpto;
     for(int i=0; i<dyn->size; ++i) {
         if(dyn->insts[i].x64.alive && dyn->insts[i].x64.jmp && ((jmpto=dyn->insts[i].x64.jmp_insts)!=-1)) {
-            pred_sz++;
             dyn->insts[jmpto].pred_sz++;
         }
     }
@@ -374,11 +372,9 @@ static int sizePredecessors(dynarec_native_t* dyn)
     // second the "has_next"
     for(int i=0; i<dyn->size-1; ++i) {
         if(dyn->insts[i].x64.has_next) {
-            pred_sz++;
             dyn->insts[i+1].pred_sz++;
         }
     }
-    return pred_sz;
 }
 static void fillPredecessors(dynarec_native_t* dyn)
 {
@@ -449,6 +445,7 @@ static int static_jmps[MAX_INSTS+2];
 static uintptr_t static_next[MAX_INSTS+2];
 static instruction_native_t static_insts[MAX_INSTS+2] = {0};
 static callret_t static_callrets[MAX_INSTS+2] = {0};
+static int static_preds[MAX_INSTS*2+2]; // for the worst case scenario were all instructions are conditional jumps
 void* redundant_helper = NULL;
 // TODO: ninst could be a uint16_t instead of an int, that could same some temp. memory
 
@@ -683,8 +680,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         }
     }
     // fill predecessors with the jump address
-    int alloc_size = sizePredecessors(&helper);
-    helper.predecessor = (int*)alloca(alloc_size*sizeof(int));
+    sizePredecessors(&helper);
+    helper.predecessor = static_preds;
     fillPredecessors(&helper);
 
     PREUPDATE_SPECIFICS(&helper);
