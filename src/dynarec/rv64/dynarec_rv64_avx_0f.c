@@ -367,6 +367,135 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             } else
                 YMM0(gd);
             break;
+        case 0x54:
+            INST_NAME("VANDPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            LD(x3, vback, vxoffset + 0);
+            LD(x4, wback, fixedaddress + 0);
+            AND(x5, x3, x4);
+            SD(x5, gback, gdoffset + 0);
+            LD(x3, vback, vxoffset + 8);
+            LD(x4, wback, fixedaddress + 8);
+            AND(x5, x3, x4);
+            SD(x5, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, vback, vyoffset + 0);
+                LD(x4, wback, fixedaddress + 0);
+                AND(x5, x3, x4);
+                SD(x5, gback, gyoffset + 0);
+                LD(x3, vback, vyoffset + 8);
+                LD(x4, wback, fixedaddress + 8);
+                AND(x5, x3, x4);
+                SD(x5, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
+        case 0x55:
+            INST_NAME("VANDNPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            LD(x3, vback, vxoffset + 0);
+            LD(x4, wback, fixedaddress + 0);
+            NOT(x3, x3);
+            AND(x5, x3, x4);
+            SD(x5, gback, gdoffset + 0);
+            LD(x3, vback, vxoffset + 8);
+            LD(x4, wback, fixedaddress + 8);
+            NOT(x3, x3);
+            AND(x5, x3, x4);
+            SD(x5, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, vback, vyoffset + 0);
+                LD(x4, wback, fixedaddress + 0);
+                NOT(x3, x3);
+                AND(x5, x3, x4);
+                SD(x5, gback, gyoffset + 0);
+                LD(x3, vback, vyoffset + 8);
+                LD(x4, wback, fixedaddress + 8);
+                NOT(x3, x3);
+                AND(x5, x3, x4);
+                SD(x5, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
+        case 0x56:
+            INST_NAME("VORPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            LD(x3, vback, vxoffset + 0);
+            LD(x4, wback, fixedaddress + 0);
+            OR(x5, x3, x4);
+            SD(x5, gback, gdoffset + 0);
+            LD(x3, vback, vxoffset + 8);
+            LD(x4, wback, fixedaddress + 8);
+            OR(x5, x3, x4);
+            SD(x5, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, vback, vyoffset + 0);
+                LD(x4, wback, fixedaddress + 0);
+                OR(x5, x3, x4);
+                SD(x5, gback, gyoffset + 0);
+                LD(x3, vback, vyoffset + 8);
+                LD(x4, wback, fixedaddress + 8);
+                OR(x5, x3, x4);
+                SD(x5, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
+        case 0x57:
+            INST_NAME("VXORPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            if (vex.v == ed) {
+                SD(xZR, gback, gdoffset + 0);
+                SD(xZR, gback, gdoffset + 8);
+            } else {
+                LD(x3, vback, vxoffset + 0);
+                LD(x4, wback, fixedaddress + 0);
+                XOR(x5, x3, x4);
+                SD(x5, gback, gdoffset + 0);
+                LD(x3, vback, vxoffset + 8);
+                LD(x4, wback, fixedaddress + 8);
+                XOR(x5, x3, x4);
+                SD(x5, gback, gdoffset + 8);
+            }
+            if (vex.l) {
+                GETEY();
+                if (vex.v == ed) {
+                    YMM0(gd);
+                } else {
+                    LD(x3, vback, vyoffset + 0);
+                    LD(x4, wback, fixedaddress + 0);
+                    XOR(x5, x3, x4);
+                    SD(x5, gback, gyoffset + 0);
+                    LD(x3, vback, vyoffset + 8);
+                    LD(x4, wback, fixedaddress + 8);
+                    XOR(x5, x3, x4);
+                    SD(x5, gback, gyoffset + 8);
+                }
+            } else
+                YMM0(gd);
+            break;
         case 0x5A:
             INST_NAME("VCVTPS2PD Gx, Ex");
             nextop = F8;
