@@ -2193,7 +2193,7 @@ GOM(reallocarray, pEpLL)     //%%,noE
 GO2(__close_nocancel, iEi, close)
 
 //GOM(mkstemps64, iEEpi)   //%% not always implemented
-//GOM(getentropy, iEEpL)   //%% starting from glibc 2.25
+GO(getentropy, iEpL)
 
 // not found (libitm???), but it seems OK to declare dummies:
 
