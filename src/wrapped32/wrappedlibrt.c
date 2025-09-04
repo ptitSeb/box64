@@ -37,10 +37,10 @@ GO(3)
 
 // sigev_notify
 #define GO(A)   \
-static uintptr_t my32_sigev_notify_fct_##A = 0;   \
-static void my32_sigev_notify_##A(void* sigval)    \
-{                                       \
-    RunFunctionFmt(my32_sigev_notify_fct_##A, "p", to_ptrv(sigval));\
+static uintptr_t my32_sigev_notify_fct_##A = 0;             \
+static void my32_sigev_notify_##A(void* sigval)             \
+{                                                           \
+    RunFunctionFmt(my32_sigev_notify_fct_##A, "p", sigval); \
 }
 SUPER()
 #undef GO
