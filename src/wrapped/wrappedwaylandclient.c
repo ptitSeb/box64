@@ -566,6 +566,297 @@ static void* find_zxdg_output_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zxdg_output_v1_listener callback\n");
     return NULL;
 }
+// wl_data_device_listener ...
+typedef struct my_wl_data_device_listener_s {
+    uintptr_t   data_offer; //vFppp
+    uintptr_t   enter; //vFppupiip
+    uintptr_t   leave; //vFpp
+    uintptr_t   motion; //vFppuii
+    uintptr_t   drop; //vFpp
+    uintptr_t   selection; //vFppp
+} my_wl_data_device_listener_t;
+#define GO(A)   \
+static my_wl_data_device_listener_t* ref_wl_data_device_listener_##A = NULL;                                    \
+static void my_wl_data_device_listener_data_offer_##A(void* a, void* b, void* c)                                \
+{                                                                                                               \
+    RunFunctionFmt(ref_wl_data_device_listener_##A->data_offer, "ppp", a, b, c);                                \
+}                                                                                                               \
+static void my_wl_data_device_listener_enter_##A(void* a, void* b, uint32_t c, void* d, int e, int f, void* g)  \
+{                                                                                                               \
+    RunFunctionFmt(ref_wl_data_device_listener_##A->enter, "ppupiip", a, b, c, d, e, f, g);                     \
+}                                                                                                               \
+static void my_wl_data_device_listener_leave_##A(void* a, void* b)                                              \
+{                                                                                                               \
+    RunFunctionFmt(ref_wl_data_device_listener_##A->leave, "pp", a, b);                                         \
+}                                                                                                               \
+static void my_wl_data_device_listener_motion_##A(void* a, void* b, uint32_t c, int d, int e)                   \
+{                                                                                                               \
+    RunFunctionFmt(ref_wl_data_device_listener_##A->motion, "ppuii", a, b, c, d, e);                            \
+}                                                                                                               \
+static void my_wl_data_device_listener_drop_##A(void* a, void* b)                                               \
+{                                                                                                               \
+    RunFunctionFmt(ref_wl_data_device_listener_##A->drop, "pp", a, b);                                          \
+}                                                                                                               \
+static void my_wl_data_device_listener_selection_##A(void* a, void* b, void* c)                                 \
+{                                                                                                               \
+    RunFunctionFmt(ref_wl_data_device_listener_##A->selection, "ppp", a, b, c);                                 \
+}                                                                                                               \
+static my_wl_data_device_listener_t my_wl_data_device_listener_fct_##A = {                                      \
+    (uintptr_t)my_wl_data_device_listener_data_offer_##A,                                                       \
+    (uintptr_t)my_wl_data_device_listener_enter_##A,                                                            \
+    (uintptr_t)my_wl_data_device_listener_leave_##A,                                                            \
+    (uintptr_t)my_wl_data_device_listener_motion_##A,                                                           \
+    (uintptr_t)my_wl_data_device_listener_drop_##A,                                                             \
+    (uintptr_t)my_wl_data_device_listener_selection_##A,                                                        \
+};
+SUPER()
+#undef GO
+static void* find_wl_data_device_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_wl_data_device_listener_##A == fct) return &my_wl_data_device_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_wl_data_device_listener_##A == 0) {ref_wl_data_device_listener_##A = fct; return &my_wl_data_device_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_data_device_listener callback\n");
+    return NULL;
+}
+// wl_touch_listener ...
+typedef struct my_wl_touch_listener_s {
+    uintptr_t   down; //vFppuupiii
+    uintptr_t   up; //vFppuui
+    uintptr_t   motion; //vFppuiii
+    uintptr_t   frame; //vFpp
+    uintptr_t   cancel; //vFpp
+} my_wl_touch_listener_t;
+#define GO(A)   \
+static my_wl_touch_listener_t* ref_wl_touch_listener_##A = NULL;                                                    \
+static void my_wl_touch_listener_down_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, int f, int g, int h)   \
+{                                                                                                                   \
+    RunFunctionFmt(ref_wl_touch_listener_##A->down, "ppuuppiii", a, b, c, d, e, f, g, h);                           \
+}                                                                                                                   \
+static void my_wl_touch_listener_up_##A(void* a, void* b, uint32_t c, uint32_t d, int e)                            \
+{                                                                                                                   \
+    RunFunctionFmt(ref_wl_touch_listener_##A->up, "ppuui", a, b, c, d, e);                                          \
+}                                                                                                                   \
+static void my_wl_touch_listener_motion_##A(void* a, void* b, uint32_t c, int d, int e, int f)                      \
+{                                                                                                                   \
+    RunFunctionFmt(ref_wl_touch_listener_##A->motion, "ppuiii", a, b, c, d, e, f);                                  \
+}                                                                                                                   \
+static void my_wl_touch_listener_frame_##A(void* a, void* b)                                                        \
+{                                                                                                                   \
+    RunFunctionFmt(ref_wl_touch_listener_##A->frame, "pp", a, b);                                                   \
+}                                                                                                                   \
+static void my_wl_touch_listener_cancel_##A(void* a, void* b)                                                       \
+{                                                                                                                   \
+    RunFunctionFmt(ref_wl_touch_listener_##A->cancel, "pp", a, b);                                                  \
+}                                                                                                                   \
+static my_wl_touch_listener_t my_wl_touch_listener_fct_##A = {                                                      \
+    (uintptr_t)my_wl_touch_listener_down_##A,                                                                       \
+    (uintptr_t)my_wl_touch_listener_up_##A,                                                                         \
+    (uintptr_t)my_wl_touch_listener_motion_##A,                                                                     \
+    (uintptr_t)my_wl_touch_listener_frame_##A,                                                                      \
+    (uintptr_t)my_wl_touch_listener_cancel_##A,                                                                     \
+};
+SUPER()
+#undef GO
+static void* find_wl_touch_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_wl_touch_listener_##A == fct) return &my_wl_touch_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_wl_touch_listener_##A == 0) {ref_wl_touch_listener_##A = fct; return &my_wl_touch_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_touch_listener callback\n");
+    return NULL;
+}
+// zwp_text_input_v3_listener ...
+typedef struct my_zwp_text_input_v3_listener_s {
+    uintptr_t   enter; //vFppp
+    uintptr_t   leave; //vFppp
+    uintptr_t   preedit_string; //vFpppii
+    uintptr_t   commit_string; //vFppp
+    uintptr_t   delete_surrounding_text; //vFpppuu
+    uintptr_t   done; //vFppu
+} my_zwp_text_input_v3_listener_t;
+#define GO(A)   \
+static my_zwp_text_input_v3_listener_t* ref_zwp_text_input_v3_listener_##A = NULL;                                          \
+static void my_zwp_text_input_v3_listener_enter_##A(void* a, void* b, void* c)                                              \
+{                                                                                                                           \
+    RunFunctionFmt(ref_zwp_text_input_v3_listener_##A->enter, "ppp", a, b, c);                                              \
+}                                                                                                                           \
+static void my_zwp_text_input_v3_listener_leave_##A(void* a, void* b, void* c)                                              \
+{                                                                                                                           \
+    RunFunctionFmt(ref_zwp_text_input_v3_listener_##A->leave, "ppp", a, b, c);                                              \
+}                                                                                                                           \
+static void my_zwp_text_input_v3_listener_preedit_string_##A(void* a, void* b, void* c, int d, int e)                       \
+{                                                                                                                           \
+    RunFunctionFmt(ref_zwp_text_input_v3_listener_##A->preedit_string, "pppii", a, b, c, d, e);                             \
+}                                                                                                                           \
+static void my_zwp_text_input_v3_listener_commit_string_##A(void* a, void* b, void* c)                                      \
+{                                                                                                                           \
+    RunFunctionFmt(ref_zwp_text_input_v3_listener_##A->commit_string, "ppp", a, b, c);                                      \
+}                                                                                                                           \
+static void my_zwp_text_input_v3_listener_delete_surrounding_text_##A(void* a, void* b, void* c, uint32_t d, uint32_t e)    \
+{                                                                                                                           \
+    RunFunctionFmt(ref_zwp_text_input_v3_listener_##A->delete_surrounding_text, "pppuu", a, b, c, d, e);                    \
+}                                                                                                                           \
+static void my_zwp_text_input_v3_listener_done_##A(void* a, void* b, uint32_t c)                                            \
+{                                                                                                                           \
+    RunFunctionFmt(ref_zwp_text_input_v3_listener_##A->done, "ppu", a, b, c);                                               \
+}                                                                                                                           \
+static my_zwp_text_input_v3_listener_t my_zwp_text_input_v3_listener_fct_##A = {                                            \
+    (uintptr_t)my_zwp_text_input_v3_listener_enter_##A,                                                                     \
+    (uintptr_t)my_zwp_text_input_v3_listener_leave_##A,                                                                     \
+    (uintptr_t)my_zwp_text_input_v3_listener_preedit_string_##A,                                                            \
+    (uintptr_t)my_zwp_text_input_v3_listener_commit_string_##A,                                                             \
+    (uintptr_t)my_zwp_text_input_v3_listener_delete_surrounding_text_##A,                                                   \
+    (uintptr_t)my_zwp_text_input_v3_listener_done_##A,                                                                      \
+};
+SUPER()
+#undef GO
+static void* find_zwp_text_input_v3_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_zwp_text_input_v3_listener_##A == fct) return &my_zwp_text_input_v3_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_zwp_text_input_v3_listener_##A == 0) {ref_zwp_text_input_v3_listener_##A = fct; return &my_zwp_text_input_v3_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_text_input_v3_listener callback\n");
+    return NULL;
+}
+// zwp_tablet_seat_v2_listener ...
+typedef struct my_zwp_tablet_seat_v2_listener_s {
+    uintptr_t   tablet_added; //vFppp
+    uintptr_t   tool_added; //vFppp
+    uintptr_t   pad_added; //vFppp
+} my_zwp_tablet_seat_v2_listener_t;
+#define GO(A)   \
+static my_zwp_tablet_seat_v2_listener_t* ref_zwp_tablet_seat_v2_listener_##A = NULL;            \
+static void my_zwp_tablet_seat_v2_listener_tablet_added_##A(void* a, void* b, void* c)          \
+{                                                                                               \
+    RunFunctionFmt(ref_zwp_tablet_seat_v2_listener_##A->tablet_added, "ppp", a, b, c);          \
+}                                                                                               \
+static void my_zwp_tablet_seat_v2_listener_tool_added_##A(void* a, void* b, void* c)            \
+{                                                                                               \
+    RunFunctionFmt(ref_zwp_tablet_seat_v2_listener_##A->tool_added, "ppp", a, b, c);            \
+}                                                                                               \
+static void my_zwp_tablet_seat_v2_listener_pad_added_##A(void* a, void* b, void* c)             \
+{                                                                                               \
+    RunFunctionFmt(ref_zwp_tablet_seat_v2_listener_##A->pad_added, "ppp", a, b, c);             \
+}                                                                                               \
+static my_zwp_tablet_seat_v2_listener_t my_zwp_tablet_seat_v2_listener_fct_##A = {              \
+    (uintptr_t)my_zwp_tablet_seat_v2_listener_tablet_added_##A,                                 \
+    (uintptr_t)my_zwp_tablet_seat_v2_listener_tool_added_##A,                                   \
+    (uintptr_t)my_zwp_tablet_seat_v2_listener_pad_added_##A,                                    \
+};
+SUPER()
+#undef GO
+static void* find_zwp_tablet_seat_v2_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_zwp_tablet_seat_v2_listener_##A == fct) return &my_zwp_tablet_seat_v2_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_zwp_tablet_seat_v2_listener_##A == 0) {ref_zwp_tablet_seat_v2_listener_##A = fct; return &my_zwp_tablet_seat_v2_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_tablet_seat_v2_listener callback\n");
+    return NULL;
+}
+// xdg_activation_token_v1_listener ...
+typedef struct my_xdg_activation_token_v1_listener_s {
+    uintptr_t   done; //vFppp
+} my_xdg_activation_token_v1_listener_t;
+#define GO(A)   \
+static my_xdg_activation_token_v1_listener_t* ref_xdg_activation_token_v1_listener_##A = NULL;  \
+static void my_xdg_activation_token_v1_listener_done_##A(void* a, void* b, void* c)             \
+{                                                                                               \
+    RunFunctionFmt(ref_xdg_activation_token_v1_listener_##A->done, "ppp", a, b, c);             \
+}                                                                                               \
+static my_xdg_activation_token_v1_listener_t my_xdg_activation_token_v1_listener_fct_##A = {    \
+    (uintptr_t)my_xdg_activation_token_v1_listener_done_##A,                                    \
+};
+SUPER()
+#undef GO
+static void* find_xdg_activation_token_v1_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_xdg_activation_token_v1_listener_##A == fct) return &my_xdg_activation_token_v1_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_xdg_activation_token_v1_listener_##A == 0) {ref_xdg_activation_token_v1_listener_##A = fct; return &my_xdg_activation_token_v1_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client xdg_activation_token_v1_listener callback\n");
+    return NULL;
+}
+// wl_surface_listener ...
+typedef struct my_wl_surface_listener_s {
+    uintptr_t   enter; //vFppp
+    uintptr_t   leave; //vFppp
+} my_wl_surface_listener_t;
+#define GO(A)   \
+static my_wl_surface_listener_t* ref_wl_surface_listener_##A = NULL;        \
+static void my_wl_surface_listener_enter_##A(void* a, void* b, void* c)     \
+{                                                                           \
+    RunFunctionFmt(ref_wl_surface_listener_##A->enter, "ppp", a, b, c);     \
+}                                                                           \
+static void my_wl_surface_listener_leave_##A(void* a, void* b, void* c)     \
+{                                                                           \
+    RunFunctionFmt(ref_wl_surface_listener_##A->leave, "ppp", a, b, c);     \
+}                                                                           \
+static my_wl_surface_listener_t my_wl_surface_listener_fct_##A = {          \
+    (uintptr_t)my_wl_surface_listener_enter_##A,                            \
+    (uintptr_t)my_wl_surface_listener_leave_##A,                            \
+};
+SUPER()
+#undef GO
+static void* find_wl_surface_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_wl_surface_listener_##A == fct) return &my_wl_surface_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_wl_surface_listener_##A == 0) {ref_wl_surface_listener_##A = fct; return &my_wl_surface_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_surface_listener callback\n");
+    return NULL;
+}
+// wl_callback_listener ...
+typedef struct my_wl_callback_listener_s {
+    uintptr_t   done; //vFppp
+} my_wl_callback_listener_t;
+#define GO(A)   \
+static my_wl_callback_listener_t* ref_wl_callback_listener_##A = NULL;      \
+static void my_wl_callback_listener_done_##A(void* a, void* b, void* c)     \
+{                                                                           \
+    RunFunctionFmt(ref_wl_callback_listener_##A->done, "ppp", a, b, c);     \
+}                                                                           \
+static my_wl_callback_listener_t my_wl_callback_listener_fct_##A = {        \
+    (uintptr_t)my_wl_callback_listener_done_##A,                            \
+};
+SUPER()
+#undef GO
+static void* find_wl_callback_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_wl_callback_listener_##A == fct) return &my_wl_callback_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_wl_callback_listener_##A == 0) {ref_wl_callback_listener_##A = fct; return &my_wl_callback_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_callback_listener callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -596,6 +887,20 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_zwp_relative_pointer_v1_listener_Fct(l);
     } else if(!strcmp(proxy_name, "zxdg_output_v1")) {
         l = find_zxdg_output_v1_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "wl_data_device")) {
+        l = find_wl_data_device_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "wl_touch")) {
+        l = find_wl_touch_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "zwp_text_input_v3")) {
+        l = find_zwp_text_input_v3_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "zwp_tablet_seat_v2")) {
+        l = find_zwp_tablet_seat_v2_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "xdg_activation_token_v1")) {
+        l = find_xdg_activation_token_v1_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "wl_surface")) {
+        l = find_wl_surface_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "wl_callback")) {
+        l = find_wl_callback_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
