@@ -212,7 +212,7 @@ GOW(dgettext, pEpp)
 GO(__dgettext, pEpp)
 GO(difftime, dEll)
 GO(dirfd, iEp)
-GO(dirname, pEp)
+GO(dirname, tEp)
 GOS(div, pEpii) //%%,noE
 // _dl_addr
 GOW2(dl_iterate_phdr, iEEpp, my_dl_iterate_phdr) //%%
