@@ -6357,6 +6357,7 @@ wrappedvulkan:
   - vkDestroyCuModuleNVX
   - vkDestroyCudaFunctionNV
   - vkDestroyCudaModuleNV
+  - vkDestroyDataGraphPipelineSessionARM
   - vkDestroyDeferredOperationKHR
   - vkDestroyDescriptorPool
   - vkDestroyDescriptorSetLayout
@@ -6417,6 +6418,7 @@ wrappedvulkan:
   - vkCreateCuModuleNVX
   - vkCreateCudaFunctionNV
   - vkCreateCudaModuleNV
+  - vkCreateDataGraphPipelineSessionARM
   - vkCreateDebugReportCallbackEXT
   - vkCreateDebugUtilsMessengerEXT
   - vkCreateDescriptorPool
@@ -6474,6 +6476,7 @@ wrappedvulkan:
   - vkCreateGraphicsPipelines
   - vkCreateRayTracingPipelinesNV
 - iFpUUuppp:
+  - vkCreateDataGraphPipelinesARM
   - vkCreateRayTracingPipelinesKHR
 - vFpiiiuipp:
   - vkGetPhysicalDeviceSparseImageFormatProperties

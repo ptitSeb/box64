@@ -44,6 +44,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkDestroyCuModuleNVX, vFpUp_t) \
 	GO(vkDestroyCudaFunctionNV, vFpUp_t) \
 	GO(vkDestroyCudaModuleNV, vFpUp_t) \
+	GO(vkDestroyDataGraphPipelineSessionARM, vFpUp_t) \
 	GO(vkDestroyDeferredOperationKHR, vFpUp_t) \
 	GO(vkDestroyDescriptorPool, vFpUp_t) \
 	GO(vkDestroyDescriptorSetLayout, vFpUp_t) \
@@ -99,6 +100,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateCuModuleNVX, iFpppp_t) \
 	GO(vkCreateCudaFunctionNV, iFpppp_t) \
 	GO(vkCreateCudaModuleNV, iFpppp_t) \
+	GO(vkCreateDataGraphPipelineSessionARM, iFpppp_t) \
 	GO(vkCreateDebugReportCallbackEXT, iFpppp_t) \
 	GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t) \
 	GO(vkCreateDescriptorPool, iFpppp_t) \
@@ -151,6 +153,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateExecutionGraphPipelinesAMDX, iFpUuppp_t) \
 	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
 	GO(vkCreateRayTracingPipelinesNV, iFpUuppp_t) \
+	GO(vkCreateDataGraphPipelinesARM, iFpUUuppp_t) \
 	GO(vkCreateRayTracingPipelinesKHR, iFpUUuppp_t) \
 	GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiuipp_t) \
 	GO(vkCmdPipelineBarrier, vFpuuuupupup_t)

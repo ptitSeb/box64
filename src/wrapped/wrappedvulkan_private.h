@@ -1060,3 +1060,16 @@ GO(vkGetTensorMemoryRequirementsARM, vFppp)
 // VK_EXT_descriptor_buffer + VK_ARM_tensors
 GO(vkGetTensorOpaqueCaptureDescriptorDataARM, iFppp)
 GO(vkGetTensorViewOpaqueCaptureDescriptorDataARM, iFppp)
+
+// VK_ARM_data_graph
+GO(vkBindDataGraphPipelineSessionMemoryARM, iFpup)
+GO(vkCmdDispatchDataGraphARM, vFpUp)
+GOM(vkCreateDataGraphPipelineSessionARM, iFEpppp)
+GOM(vkCreateDataGraphPipelinesARM, iFEpUUuppp)
+GOM(vkDestroyDataGraphPipelineSessionARM, vFEpUp)
+GO(vkGetDataGraphPipelineAvailablePropertiesARM, iFpppp)
+GO(vkGetDataGraphPipelinePropertiesARM, iFpppp)
+GO(vkGetDataGraphPipelineSessionBindPointRequirementsARM, iFpppp)
+GO(vkGetDataGraphPipelineSessionMemoryRequirementsARM, vFppp)
+GO(vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM, vFppp)
+GO(vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM, iFpupp)

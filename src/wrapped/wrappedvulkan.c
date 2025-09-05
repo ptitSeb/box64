@@ -847,3 +847,13 @@ CREATE(vkCreateTensorARM)
 CREATE(vkCreateTensorViewARM)
 DESTROY64(vkDestroyTensorARM)
 DESTROY64(vkDestroyTensorViewARM)
+
+CREATE(vkCreateDataGraphPipelineSessionARM)
+EXPORT int my_vkCreateDataGraphPipelinesARM(x64emu_t* emu, void* device, uint64_t deferredOperation, uint64_t pipelineCache,
+                                             uint32_t createInfoCount, void* pCreateInfos,
+                                             my_VkAllocationCallbacks_t* alloc, void* pPipelines)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkCreateDataGraphPipelinesARM(device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, alloc), pPipelines);
+}
+DESTROY64(vkDestroyDataGraphPipelineSessionARM)
