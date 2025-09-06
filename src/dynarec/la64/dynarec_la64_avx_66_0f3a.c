@@ -730,14 +730,14 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 avx_forget_reg(dyn, ninst, ed);
-                MOV32w(x3, ed); // ex
+                MOV32w(A3, ed); // ex
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
-                if (ed != x3) MV(x3, ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, A3, x5, &fixedaddress, rex, NULL, 0, 1);
+                if (ed != A3) MV(A3, ed);
             }
             u8 = F8;
-            MOV32w(x4, u8);
-            CALL_(vex.l ? const_native_pclmul_y : const_native_pclmul_x, -1, x3);
+            MOV32w(A4, u8);
+            CALL_(vex.l ? const_native_pclmul_y : const_native_pclmul_x, -1, A3, x1, x2);
             if (!vex.l) {
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
@@ -796,7 +796,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             u8 = F8;
             MOV32w(x4, u8);
-            CALL(const_native_aeskeygenassist, -1);
+            CALL4(const_native_aeskeygenassist, -1, x1, x2, x3, x4);
             if (!vex.l) {
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
