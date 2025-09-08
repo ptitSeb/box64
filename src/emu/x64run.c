@@ -371,7 +371,7 @@ x64emurun:
             if(rex.is32bits) {
                 R_AX = aas16(emu, R_AX);
             } else {
-                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+                unimp = 1;
                 goto fini;
             }
             break;
@@ -1813,6 +1813,7 @@ x64emurun:
                     addr += tmp8s;
             } else if(rex.is32bits || rex.is67) {
                 --R_ECX; // don't update flags
+                if(rex.is67) emu->regs[_CX].dword[1] = 0;
                 if(R_ECX && !ACCESS_FLAG(F_ZF))
                     addr += tmp8s;
             } else {
@@ -1831,6 +1832,7 @@ x64emurun:
                     addr += tmp8s;
             } else if(rex.is32bits || rex.is67) {
                 --R_ECX; // don't update flags
+                if(rex.is67) emu->regs[_CX].dword[1] = 0;
                 if(R_ECX && ACCESS_FLAG(F_ZF))
                     addr += tmp8s;
             } else {
@@ -1848,6 +1850,7 @@ x64emurun:
                     addr += tmp8s;
             } else if(rex.is32bits || rex.is67) {
                 --R_ECX; // don't update flags
+                if(rex.is67) emu->regs[_CX].dword[1] = 0;
                 if(R_ECX)
                     addr += tmp8s;
             } else {
