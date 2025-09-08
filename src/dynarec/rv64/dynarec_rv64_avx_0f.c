@@ -46,6 +46,45 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x10:
+            INST_NAME("VMOVUPS Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            LD(x3, wback, fixedaddress + 0);
+            LD(x4, wback, fixedaddress + 8);
+            SD(x3, gback, gdoffset + 0);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, wback, fixedaddress + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(x3, gback, gyoffset + 0);
+                SD(x4, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
+        case 0x11:
+            INST_NAME("VMOVUPS Ex, Gx");
+            nextop = F8;
+            GETEX(x1, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            LD(x3, gback, gdoffset + 0);
+            LD(x4, gback, gdoffset + 8);
+            SD(x3, wback, fixedaddress + 0);
+            SD(x4, wback, fixedaddress + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, gback, gyoffset + 0);
+                LD(x4, gback, gyoffset + 8);
+                SD(x3, wback, fixedaddress + 0);
+                SD(x4, wback, fixedaddress + 8);
+            } else
+                YMM0(ed);
+            if (!MODREG) SMWRITE2();
+            break;
         case 0x12:
             nextop = F8;
             GETEX(x2, 0, 8);
