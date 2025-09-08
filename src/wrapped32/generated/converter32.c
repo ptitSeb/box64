@@ -292,7 +292,7 @@ void from_struct_iiiiiiiiilt(struct_iiiiiiiiilt_t* dest, ptr_t s) {
 	dest->i7 = *(int*)src; src += 4;
 	dest->i8 = *(int*)src; src += 4;
 	dest->l9 = from_long(*(long_t*)src); src += 4;
-	dest->p10 = *(void**)src; src += 4;
+	dest->p10 = from_ptrv(*(ptr_t*)src); src += 4;
 }
 void to_struct_iiiiiiiiilt(ptr_t d, const struct_iiiiiiiiilt_t* src) {
 	if (!src) return;
@@ -312,7 +312,7 @@ void to_struct_iiiiiiiiilt(ptr_t d, const struct_iiiiiiiiilt_t* src) {
 void from_struct_up(struct_up_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->u0 = *(uint32_t*)src; src += 4;
-	dest->p1 = *(void**)src; src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
 }
 void to_struct_up(ptr_t d, const struct_up_t *src) {
 	if (!src) return;
@@ -323,7 +323,7 @@ void to_struct_up(ptr_t d, const struct_up_t *src) {
 void from_struct_upi(struct_upi_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->u0 = *(uint32_t*)src; src += 4;
-	dest->p1 = *(void**)src; src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
 	dest->i2 = *(int*)src; src += 4;
 }
 void to_struct_upi(ptr_t d, const struct_upi_t *src) {
@@ -350,7 +350,7 @@ void to_struct_Ldd(ptr_t d, const struct_Ldd_t *src) {
 void from_struct_upu(struct_upu_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->u0 = *(uint32_t*)src; src += 4;
-	dest->p1 = *(void**)src; src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
 	dest->u2 = *(uint32_t*)src; src += 4;
 }
 void to_struct_upu(ptr_t d, const struct_upu_t *src) {	
