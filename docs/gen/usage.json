@@ -228,7 +228,7 @@
       },
       {
         "key": "1",
-        "description": "Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on aligned data addresses.",
+        "description": "Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on unaligned data addresses.",
         "default": false
       }
     ]
@@ -351,7 +351,7 @@
     "options": [
       {
         "key": "0",
-        "description": "Do not generate thr division-by-zero exception.",
+        "description": "Do not generate the division-by-zero exception.",
         "default": true
       },
       {
@@ -611,7 +611,7 @@
   },
   {
     "name": "BOX64_DYNAREC_SAFEFLAGS",
-    "description": "Behaviour of flags emulation on CALL/RET opcodes.",
+    "description": "Behaviour of flags emulation on CALL/RET opcodes and other edge cases.",
     "category": "Performance",
     "wine": true,
     "options": [
@@ -627,7 +627,7 @@
       },
       {
         "key": "2",
-        "description": "All CALL/RET will need flags.",
+        "description": "All CALL/RET will need flags. All edge cases are also handled.",
         "default": false
       }
     ]
@@ -1554,7 +1554,7 @@
   },
   {
     "name": "BOX64_SSE_FLUSHTO0",
-    "description": "Behaviour of SSE Flush to 0 flags.",
+    "description": "Behaviour of SSE Flush to 0 flags. Also tracking SSE exception flags",
     "category": "Compatibility",
     "wine": true,
     "options": [
@@ -1565,7 +1565,7 @@
       },
       {
         "key": "1",
-        "description": "Apply SSE Flush to 0 flag directly.",
+        "description": "Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in Dynarec (if available)",
         "default": false
       }
     ]

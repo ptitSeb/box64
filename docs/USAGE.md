@@ -57,7 +57,7 @@ Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1
 Generate aligned atomics only (only available on Arm64 for now). Availble in WowBox64.
 
  * 0: Generate unaligned atomics handling code. [Default]
- * 1: Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on aligned data addresses. 
+ * 1: Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on unaligned data addresses. 
 
 ### BOX64_DYNAREC_BIGBLOCK
 
@@ -132,11 +132,11 @@ Enable x86 PAUSE emulation, may help the performance of spinlocks. Availble in W
 
 ### BOX64_DYNAREC_SAFEFLAGS
 
-Behaviour of flags emulation on CALL/RET opcodes. Availble in WowBox64.
+Behaviour of flags emulation on CALL/RET opcodes and other edge cases. Availble in WowBox64.
 
  * 0: Treat CALL/RET as if it never needs any flags. 
  * 1: Most of RETs will need flags, most of CALLs will not. [Default]
- * 2: All CALL/RET will need flags. 
+ * 2: All CALL/RET will need flags. All edge cases are also handled. 
 
 ### BOX64_DYNAREC_STRONGMEM
 
@@ -380,7 +380,7 @@ Detect MonoBleedingEdge and apply conservative settings.
 
 Enable or disable the generation of division-by-zero exception. Availble in WowBox64.
 
- * 0: Do not generate thr division-by-zero exception. [Default]
+ * 0: Do not generate the division-by-zero exception. [Default]
  * 1: Generate the division-by-zero exception. 
 
 ### BOX64_DYNAREC_TBB
@@ -490,10 +490,10 @@ Expose SHAEXT (a.k.a. SHA_NI) capabilities.
 
 ### BOX64_SSE_FLUSHTO0
 
-Behaviour of SSE Flush to 0 flags. Availble in WowBox64.
+Behaviour of SSE Flush to 0 flags. Also tracking SSE exception flags Availble in WowBox64.
 
  * 0: Just track the flag. [Default]
- * 1: Apply SSE Flush to 0 flag directly. 
+ * 1: Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in Dynarec (if available) 
 
 ### BOX64_SSE42
 
