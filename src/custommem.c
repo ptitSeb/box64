@@ -599,8 +599,8 @@ void* map128_customMalloc(size_t size, int is32bits)
         map[idx>>3] |= (1<<(idx&7));
     // 32bits check
     if(is32bits && p>(void*)0xffffffffLL) {
-        printf_log(LOG_INFO, "Warning: failled to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
-        // failled to allocate memory
+        printf_log(LOG_INFO, "Warning: failed to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+        // failed to allocate memory
         if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
             // mask size from this block
             p_blocks[i].size = 0;
@@ -621,7 +621,7 @@ void* map128_customMalloc(size_t size, int is32bits)
             p_blocks[i].size = allocsize;
         }
         #ifdef TRACE_MEMSTAT
-        printf_log(LOG_INFO, "Custommem: Failled to alloc 32bits: allocation %p-%p for 128byte MAP Alloc p_blocks[%d]\n", p, p+allocsize, i);
+        printf_log(LOG_INFO, "Custommem: Failed to alloc 32bits: allocation %p-%p for 128byte MAP Alloc p_blocks[%d]\n", p, p+allocsize, i);
         #endif
         p_blocks[i].maxfree = allocsize - mapsize;
         return NULL;
@@ -814,8 +814,8 @@ void* internal_customMalloc(size_t size, int is32bits)
     n->next.x32 = 0;
     n->prev.x32 = m->next.x32;
     if(is32bits && p>(void*)0xffffffffLL) {
-        printf_log(LOG_INFO, "Warning: failled to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
-        // failled to allocate memory
+        printf_log(LOG_INFO, "Warning: failed to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+        // failed to allocate memory
         if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
             // mask size from this block
             p_blocks[i].size = 0;
@@ -1473,7 +1473,7 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     if(p==MAP_FAILED && allocsize==DYNMMAPSZ) {
         p = InternalMmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE|MAP_HUGETLB, -1, 0);
         if(p!=MAP_FAILED) printf_log(LOG_INFO, "Allocated a dynarec memory block with HugeTLB\n");
-        else printf_log(LOG_INFO, "Failled to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
+        else printf_log(LOG_INFO, "Failed to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
     }
     #endif
     if(p==MAP_FAILED)
