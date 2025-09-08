@@ -206,12 +206,16 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 	}
 	if(!stack) {
 		//stack = malloc(stacksize);
-		stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+		stack = box_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+		setProtection_stack((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		own = 1;
 	}
 
 	if((uintptr_t)stack>=0x100000000LL) {
-		if(own) munmap(stack, stacksize);
+		if(own) {
+			box_munmap(stack, stacksize);
+			freeProtection((uintptr_t)stack, stacksize);
+		}
 		return EAGAIN;
 	}
 

@@ -74,7 +74,11 @@ typedef enum {
     MEM_UNUSED = 0,
     MEM_ALLOCATED = 1,
     MEM_RESERVED = 2,
-    MEM_MMAP = 3
+    MEM_MMAP = 3,
+    MEM_BOX = 5,
+    MEM_STACK = 9,
+    MEM_EXTERNAL = 17,
+    MEM_ELF = 33
 } mem_flag_t;
 rbtree_t*  mapallmem = NULL;
 static rbtree_t*  blockstree = NULL;
@@ -122,10 +126,10 @@ typedef struct blockmark_s {
 #define LAST_BLOCK(b, s) (blockmark_t*)(((uintptr_t)(b)+(s))-sizeof(blockmark_t))
 #define SIZE_BLOCK(b) (((ssize_t)b.offs)-sizeof(blockmark_t))
 
-void printBlock(blockmark_t* b, void* start)
+void printBlock(blockmark_t* b, void* start, size_t sz)
 {
     if(!b) return;
-    printf_log(LOG_NONE, "========== Block is:\n");
+    printf_log(LOG_NONE, "========== Block is: (%p - %p)\n", b, ((void*)b)+sz);
     do {
         printf_log(LOG_NONE, "%c%p, fill=%d, size=0x%x (prev=%d/0x%x)\n", b==start?'*':' ', b, b->next.fill, SIZE_BLOCK(b->next), b->prev.fill, SIZE_BLOCK(b->prev));
         b = NEXT_BLOCK(b);
@@ -340,6 +344,7 @@ static int isBlockChainCoherent(blockmark_t* m, blockmark_t* end)
     while(m) {
         if(m>end) return 0;
         if(m==end) return 1;
+        if(m==NEXT_BLOCK(m)) return 0;
         m = NEXT_BLOCK(m);
     }
     return 0;
@@ -356,7 +361,7 @@ int printBlockCoherent(int i)
     blockmark_t* m = (blockmark_t*)p_blocks[i].block;
     if(!m) {printf_log(LOG_NONE, "Warning, block #%d is NULL\n", i); return 0;}
     // check coherency of the chained list first
-    if(!isBlockChainCoherent(m, (blockmark_t*)(p_blocks[i].block+p_blocks[i].size-sizeof(blockmark_t)))) {printf_log(LOG_NONE, "Warning, block #%d chained list is not coherent\n", i); return 0;}
+    if(!isBlockChainCoherent(m, (blockmark_t*)(p_blocks[i].block+p_blocks[i].size-sizeof(blockmark_t)))) {printf_log(LOG_NONE, "Warning, block #%d %schained list is not coherent\n", i, p_blocks[i].is32bits?"(32bits) ":""); return 0;}
     // check if first is correct
     blockmark_t* first = getNextFreeBlock(m);
     if(p_blocks[i].first && p_blocks[i].first!=first) {printf_log(LOG_NONE, "First %p and stored first %p differs for block %d\n", first, p_blocks[i].first, i); ret = 0;}
@@ -387,6 +392,21 @@ int printBlockCoherent(int i)
     return ret;
 }
 
+static char* niceSize(size_t sz)
+{
+    static int idx = 0;
+    static char rets[16][50] = {0};
+    int i = idx = (idx+1)&15;
+    const char* units[] = {"b", "kb", "Mb", "Gb"};
+    const size_t vals[] = {1, 1024, 1024*1024, 1024*1024*1024};
+    int k = 0;
+    for(int j=0; j<sizeof(vals)/sizeof(vals[0]); ++j)
+        if(vals[j]<sz)
+            k = j;
+    sprintf(rets[i], "%zd %s", sz/vals[k], units[k]);
+    return rets[i];
+}
+
 void testAllBlocks()
 {
     size_t total = 0;
@@ -402,7 +422,7 @@ void testAllBlocks()
             int is32bits = p_blocks[i].is32bits;
             if(is32bits) ++n_blocks32;
             if((p_blocks[i].type==BTYPE_LIST) && !printBlockCoherent(i))
-                printBlock(p_blocks[i].block, p_blocks[i].first);
+                printBlock(p_blocks[i].block, p_blocks[i].first, p_blocks[i].size);
             total += p_blocks[i].size;
             if(is32bits) total32 += p_blocks[i].size;
             if(p_blocks[i].type==BTYPE_LIST) {
@@ -428,9 +448,9 @@ void testAllBlocks()
             }
         }
     }
-    printf_log(LOG_NONE, "CustomMem: Total %d blocks, for %zd (0x%zx) allocated memory, max_free %zd (0x%zx), total fragmented free %zd (0x%zx)\n", n_blocks, total, total, max_free, max_free, fragmented_free, fragmented_free);
+    printf_log(LOG_NONE, "CustomMem: Total %d blocks, for %s (0x%zx) allocated memory, max_free %s (0x%zx), total fragmented free %s (0x%zx)\n", n_blocks, niceSize(total), total, niceSize(max_free), max_free, niceSize(fragmented_free), fragmented_free);
     if(box64_is32bits)
-        printf_log(LOG_NONE, "   32bits: Total %d blocks, for %zd (0x%zx) allocated memory, max_free %zd (0x%zx), total fragmented free %zd (0x%zx)\n", n_blocks32, total32, total32, max_free32, max_free32, fragmented_free32, fragmented_free32);
+        printf_log(LOG_NONE, "   32bits: Total %d blocks, for %s (0x%zx) allocated memory, max_free %s (0x%zx), total fragmented free %s (0x%zx)\n", n_blocks32, niceSize(total32), total32, niceSize(max_free32), max_free32, niceSize(fragmented_free32), fragmented_free32);
 }
 
 static size_t roundSize(size_t size)
@@ -521,16 +541,18 @@ int isCustomAddr(void* p)
 static uintptr_t    defered_prot_p = 0;
 static size_t       defered_prot_sz = 0;
 static uint32_t     defered_prot_prot = 0;
+static mem_flag_t   defered_prot_flags = MEM_ALLOCATED;
 static sigset_t     critical_prot = {0};
+static void setProtection_generic(uintptr_t addr, size_t sz, uint32_t prot, mem_flag_t flags);
 #define LOCK_PROT()         sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
 #define LOCK_PROT_READ()    sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
 #define LOCK_PROT_FAST()    mutex_lock(&mutex_prot)
 #define UNLOCK_PROT()       if(defered_prot_p) {                                \
-                                uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; \
+                                uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; mem_flag_t f = defered_prot_flags;\
                                 defered_prot_p = 0;                             \
                                 pthread_sigmask(SIG_SETMASK, &old_sig, NULL);   \
                                 mutex_unlock(&mutex_prot);                      \
-                                setProtection(p, sz, prot);                     \
+                                setProtection_generic(p, sz, prot, f);          \
                             } else {                                            \
                                 pthread_sigmask(SIG_SETMASK, &old_sig, NULL);   \
                                 mutex_unlock(&mutex_prot);                      \
@@ -642,6 +664,7 @@ void* map128_customMalloc(size_t size, int is32bits)
             defered_prot_p = (uintptr_t)p;
             defered_prot_sz = allocsize;
             defered_prot_prot = PROT_READ|PROT_WRITE;
+            defered_prot_flags = MEM_ALLOCATED;
         } else
             setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
     }
@@ -740,6 +763,7 @@ void* map64_customMalloc(size_t size, int is32bits)
             defered_prot_p    = (uintptr_t)p;
             defered_prot_sz   = allocsize;
             defered_prot_prot = PROT_READ | PROT_WRITE;
+            defered_prot_flags = MEM_ALLOCATED;
         } else {
             setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
         }
@@ -855,6 +879,7 @@ void* internal_customMalloc(size_t size, int is32bits)
             defered_prot_p = (uintptr_t)p;
             defered_prot_sz = allocsize;
             defered_prot_prot = PROT_READ|PROT_WRITE;
+            defered_prot_flags = MEM_ALLOCATED;
         } else
             setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
     }
@@ -1057,9 +1082,11 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
                 if(rsize-size<THRESHOLD)
                     size = rsize;
                 blockmark_t* new_sub = sub;
-                if(empty_size)
+                if(empty_size) {
                     new_sub = createAlignBlock(p_blocks[i].block, sub, empty_size); // this block is a marker, between 2 free blocks
-                void* ret = allocBlock(p_blocks[i].block, new_sub, size-empty_size, &p_blocks[i].first);
+                    size -= empty_size;
+                }
+                void* ret = allocBlock(p_blocks[i].block, new_sub, size, &p_blocks[i].first);
                 if((uintptr_t)p_blocks[i].first>(uintptr_t)sub && (sub!=new_sub))
                     p_blocks[i].first = sub;
                 if(rsize==p_blocks[i].maxfree)
@@ -1086,8 +1113,8 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     if(is32bits)
         mutex_unlock(&mutex_blocks);
     void* p = is32bits
-        ? mmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0)
-        : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        ? box_mmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT, -1, 0)
+        : (box64_is32bits ? box32_dynarec_mmap(allocsize, -1, 0) : InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0));
     if(is32bits)
         mutex_lock(&mutex_blocks);
 #ifdef TRACE_MEMSTAT
@@ -1096,6 +1123,34 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     p_blocks[i].block = p;
     p_blocks[i].first = p;
     p_blocks[i].size = allocsize;
+    if(is32bits && p>(void*)0xffffffffLL) {
+        printf_log(LOG_INFO, "Warning: failed to allocate aligned 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+        // failed to allocate memory
+        if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
+            // mask size from this block
+            p_blocks[i].size = 0;
+            mutex_unlock(&mutex_blocks);
+            ShowNativeBT(LOG_NONE);
+            testAllBlocks();
+            if(1 || BOX64ENV(log)>=LOG_DEBUG) {
+                printf_log(LOG_NONE, "Used 32bits address space map:\n");
+                uintptr_t addr = rb_get_leftmost(mapallmem);
+                while(addr<0x100000000LL) {
+                    uintptr_t bend;
+                    uint32_t val;
+                    if(rb_get_end(mapallmem, addr, &val, &bend))
+                        printf_log(LOG_NONE, "\t%p - %p (%d)\n", (void*)addr, (void*)bend, val);
+                    addr = bend;
+                }
+            }
+            p_blocks[i].size = allocsize;
+        }
+        #ifdef TRACE_MEMSTAT
+        printf_log(LOG_INFO, "Custommem: Failed to aligned alloc 32bits: allocation %p-%p for LIST Alloc p_blocks[%d]\n", p, p+allocsize, i);
+        #endif
+        p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
+        return NULL;
+    }
     #ifdef TRACE_MEMSTAT
     printf_log(LOG_INFO, "Custommem: allocation %p-%p for LIST Alloc p_blocks[%d], aligned\n", p, p+allocsize, i);
     #endif
@@ -1115,14 +1170,12 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
         empty_size += align;
         aligned_p += align;
     }
-    void* new_sub = NULL;
     sub = p;
+    void* new_sub = sub;
     if(empty_size)
         new_sub = createAlignBlock(p_blocks[i].block, sub, empty_size);
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, new_sub, size, &p_blocks[i].first);
-    if(sub!=new_sub)
-        p_blocks[i].first = sub;
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
     mutex_unlock(&mutex_blocks);
     if(mapallmem)
@@ -1139,6 +1192,8 @@ void* customMemAligned32(size_t align, size_t size)
     void* ret = internal_customMemAligned(align, size, 1);
     if(((uintptr_t)ret)>=0x100000000LL) {
         printf_log(LOG_NONE, "Error, customAligned32(0x%lx, 0x%lx) return 64bits point %p\n", align, size, ret);
+        ShowNativeBT(LOG_NONE);
+        testAllBlocks();
     }
     return ret;
 }
@@ -1182,9 +1237,9 @@ void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
         if(rb_get_end(mapallmem, cur, &flag, &bend)) {
             if(flag == MEM_RESERVED && bend-cur>=size) {
                 void* ret = InternalMmap((void*)cur, size, PROT_READ | PROT_WRITE | PROT_EXEC, map_flags, fd, offset);
-                if(ret!=MAP_FAILED)
-                    rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);    // mark as allocated
-                else
+                if(ret!=MAP_FAILED) {
+                    //rb_set(mapallmem, cur, cur+size, MEM_BOX);    // mark as allocated by/for box
+                } else
                     printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", strerror(errno));
                 cur = cur+size;
                 return ret;
@@ -1294,7 +1349,7 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
     #ifdef MADV_HUGEPAGE
     madvise(map, size, MADV_HUGEPAGE);
     #endif
-    setProtection((uintptr_t)map, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+    setProtection_box((uintptr_t)map, size, PROT_READ | PROT_WRITE | PROT_EXEC);
     list->chunks[i] = map;
     intptr_t delta = map - orig;
     // relocate the pointers
@@ -1492,7 +1547,7 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     if(box64env.dynarec_log>LOG_INFO || box64env.dynarec_dump)
         dynarec_log(LOG_NONE, "Custommem: allocation %p-%p for Dynarec %p->chunk[%d]\n", p, p+allocsize, list, i);
 #endif
-    setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
+    setProtection_box((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
     list->chunks[i] = p;
     rb_set_64(rbt_dynmem, (uintptr_t)p, (uintptr_t)p+allocsize, (uintptr_t)list->chunks[i]);
     p = p + sizeof(blocklist_t);    // adjust pointer and size, to exclude blocklist_t itself
@@ -2235,7 +2290,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     LOCK_PROT();
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
-    rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);
+    //rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);
     while (cur < end) {
         uintptr_t bend;
         uint32_t oprot;
@@ -2260,6 +2315,31 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     UNLOCK_PROT();
 }
 
+static void setProtection_generic(uintptr_t addr, size_t size, uint32_t prot, mem_flag_t flag)
+{
+    if(!size)
+        return;
+    addr &= ~(box64_pagesize-1);
+    size = ALIGN(size);
+    if(!prot) {
+        LOCK_PROT();
+        rb_set(mapallmem, addr, addr+size, flag);
+        rb_unset(memprot, addr, addr+size);
+        UNLOCK_PROT();
+    }
+    else{//SetProtection
+        LOCK_PROT();
+        ++setting_prot;
+        uintptr_t cur = addr & ~(box64_pagesize-1);
+        uintptr_t end = ALIGN(cur+size);
+        rb_set(mapallmem, cur, end, flag);
+        rb_set(memprot, cur, end, prot);
+        --setting_prot;
+        UNLOCK_PROT();
+    }
+}
+
+
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     size = ALIGN(size);
@@ -2275,26 +2355,17 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
-    if(!size)
-        return;
-    addr &= ~(box64_pagesize-1);
-    size = ALIGN(size);
-    if(!prot) {
-        LOCK_PROT();
-        rb_set(mapallmem, addr, addr+size, MEM_MMAP);
-        rb_unset(memprot, addr, addr+size);
-        UNLOCK_PROT();
-    }
-    else{//SetProtection
-        LOCK_PROT();
-        ++setting_prot;
-        uintptr_t cur = addr & ~(box64_pagesize-1);
-        uintptr_t end = ALIGN(cur+size);
-        rb_set(mapallmem, cur, end, MEM_MMAP);
-        rb_set(memprot, cur, end, prot);
-        --setting_prot;
-        UNLOCK_PROT();
-    }
+    setProtection_generic(addr, size, prot, MEM_MMAP);
+}
+
+void setProtection_box(uintptr_t addr, size_t size, uint32_t prot)
+{
+    setProtection_generic(addr, size, prot, MEM_BOX);
+}
+
+void setProtection_stack(uintptr_t addr, size_t size, uint32_t prot)
+{
+    setProtection_generic(addr, size, prot, MEM_STACK);
 }
 
 void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
@@ -2302,10 +2373,10 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
     if(prot)
-        setProtection(addr, size, prot);
+        setProtection_generic(addr, size, prot, MEM_ELF);
     else {
         LOCK_PROT();
-        rb_set(mapallmem, addr, addr+size, MEM_ALLOCATED);
+        rb_set(mapallmem, addr, addr+size, MEM_ELF);
         rb_unset(memprot, addr, addr+size);
         UNLOCK_PROT();
     }
@@ -2334,7 +2405,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     int there = rb_get_end(mapallmem, addr, &val, &endb);
     // block is here or absent, no half-block handled..
     if(!there)
-        rb_set(mapallmem, addr, addr+size, MEM_ALLOCATED);
+        rb_set(mapallmem, addr, addr+size, MEM_EXTERNAL);
     UNLOCK_PROT();
     // don't need to add precise tracking probably
 }
@@ -2640,7 +2711,7 @@ void my_reserveHighMem()
             void* ret = InternalMmap((void*)cur, bend - cur, 0, MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, 0);
             printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, (ret==MAP_FAILED)?strerror(errno):"ok");
             if(ret!=(void*)-1) {
-                rb_set(mapallmem, cur, bend, MEM_ALLOCATED);
+                rb_set(mapallmem, cur, bend, MEM_RESERVED);
             }
         }
         cur = bend;

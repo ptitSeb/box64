@@ -27,7 +27,7 @@ int CalcStackSize(box64context_t *context)
         printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%lx/0x%zx) for stack\n", context->stacksz, context->stackalign);
         return 1;
     } else
-        setProtection((uintptr_t)context->stack, context->stacksz, PROT_READ|PROT_WRITE);
+        setProtection_stack((uintptr_t)context->stack, context->stacksz, PROT_READ|PROT_WRITE);
     //memset(context->stack, 0, context->stacksz);
     printf_log(LOG_DEBUG, "Stack is @%p size=0x%lx align=0x%zx\n", context->stack, context->stacksz, context->stackalign);
 

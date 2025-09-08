@@ -140,8 +140,10 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
 
 static void internalFreeX64(x64emu_t* emu)
 {
-    if(emu && emu->stack2free)
+    if(emu && emu->stack2free) {
         munmap(emu->stack2free, emu->size_stack);
+        freeProtection((uintptr_t)emu->stack2free, emu->size_stack);
+    }
     #ifdef BOX32
     if(emu->res_state_32)
         actual_free(emu->res_state_32);

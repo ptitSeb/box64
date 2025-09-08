@@ -321,7 +321,7 @@ static void* findftwFct(void* fct)
 static uintptr_t my32_ftw64_fct_##A = 0;                                            \
 static int my32_ftw64_##A(void* fpath, void* sb, int flag)                          \
 {                                                                                   \
-    struct i386_stat64 i386st;                                                      \
+    static struct i386_stat64 i386st;                                               \
     UnalignStat64_32(sb, &i386st);                                                  \
     return (int)RunFunctionFmt(my32_ftw64_fct_##A, "ppi", fpath, &i386st, flag);    \
 }

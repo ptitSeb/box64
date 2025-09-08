@@ -3082,7 +3082,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         if(emu)
             setProtection_mmap((uintptr_t)ret, length, prot);
         else
-            setProtection((uintptr_t)ret, length, prot);
+            setProtection_box((uintptr_t)ret, length, prot);
         if(addr && ret!=addr)
             e = EEXIST;
     }

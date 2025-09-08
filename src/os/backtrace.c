@@ -34,8 +34,10 @@ void ShowNativeBT(int log_minimum)
         for (int j = 0; j < nptrs; j++)
             printf_log(log_minimum, "NativeBT: %s\n", strings[j]);
         free(strings);
-    } else
-        printf_log(log_minimum, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
+    } else {
+        for (int j = 0; j < nptrs; j++)
+            printf_log(log_minimum, "NativeBT: %p\n", buffer[j]);
+    }
     // restore modified name
     memcpy(my_context->box64path, my_context->orig_argv[0], boxpath_lenth);
 }
