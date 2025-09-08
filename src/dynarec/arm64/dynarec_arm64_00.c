@@ -2722,6 +2722,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if ((BOX64ENV(log)<2 && !BOX64ENV(rolling_log) && !BOX64ENV(dynarec_test)) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, (void*)(addr+8), tmp);
+                        SMWRITE2();
                         addr+=8+8;
                     } else {
                         GETIP(ip+1); // read the 0xCC
@@ -3442,6 +3443,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE0:
             INST_NAME("LOOPNZ");
             READFLAGS(X_ZF);
+            SMEND();
             i8 = F8S;
             SUBz_U12(xRCX, xRCX, 1);
             TBNZ_NEXT(xFlags, F_ZF);
@@ -3450,6 +3452,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE1:
             INST_NAME("LOOPZ");
             READFLAGS(X_ZF);
+            SMEND();
             i8 = F8S;
             SUBz_U12(xRCX, xRCX, 1);
             TBZ_NEXT(xFlags, F_ZF);
@@ -3462,7 +3465,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GO(0);
             break;
         case 0xE3:
-            INST_NAME("JECXZ");
+            INST_NAME("JRCXZ");
             i8 = F8S;
             GO(1);
             break;

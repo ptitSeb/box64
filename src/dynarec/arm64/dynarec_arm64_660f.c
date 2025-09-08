@@ -905,10 +905,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         REV16x(x1, gd);
                         BFIx(ed, x1, 0, 16);
                     } else {
-                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                         REV16x(x1, gd);
                         STH(x1, ed, fixedaddress);
+                        SMWRITE();
                     }
                     break;
 
