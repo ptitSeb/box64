@@ -78,6 +78,194 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 YMM0(ed);
             }
             break;
+        case 0x58:
+            INST_NAME("VADDSD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, vback, vxoffset + 0);
+            FLD(v1, wback, fixedaddress + 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+            }
+            FADDD(v0, v0, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                BNEZ_MARK2(x4);
+                FMVD(v0, v1);
+                B_MARK2_nocond;
+                MARK;
+                FEQD(x3, v0, v0);
+                BNEZ_MARK2(x3);
+                FNEGD(v0, v0);
+                MARK2;
+            }
+            FSD(v0, gback, gdoffset + 0);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
+        case 0x59:
+            INST_NAME("VMULSD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, vback, vxoffset + 0);
+            FLD(v1, wback, fixedaddress + 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+            }
+            FMULD(v0, v0, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                BNEZ_MARK2(x4);
+                FMVD(v0, v1);
+                B_MARK2_nocond;
+                MARK;
+                FEQD(x3, v0, v0);
+                BNEZ_MARK2(x3);
+                FNEGD(v0, v0);
+                MARK2;
+            }
+            FSD(v0, gback, gdoffset + 0);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
+        case 0x5C:
+            INST_NAME("VSUBSD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, vback, vxoffset + 0);
+            FLD(v1, wback, fixedaddress + 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+            }
+            FSUBD(v0, v0, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                BNEZ_MARK2(x4);
+                FMVD(v0, v1);
+                B_MARK2_nocond;
+                MARK;
+                FEQD(x3, v0, v0);
+                BNEZ_MARK2(x3);
+                FNEGD(v0, v0);
+                MARK2;
+            }
+            FSD(v0, gback, gdoffset + 0);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
+        case 0x5D:
+            INST_NAME("VMINSD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, vback, vxoffset + 0);
+            FLD(v1, wback, fixedaddress + 0);
+            FEQD(x2, v0, v0);
+            FEQD(x3, v1, v1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLED(x2, v1, v0);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVD(v0, v1);
+            MARK2;
+            FSD(v0, gback, gdoffset + 0);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
+        case 0x5E:
+            INST_NAME("VDIVSD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, vback, vxoffset + 0);
+            FLD(v1, wback, fixedaddress + 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQD(x3, v0, v0);
+                FEQD(x4, v1, v1);
+            }
+            FDIVD(v0, v0, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                AND(x3, x3, x4);
+                BNEZ_MARK(x3);
+                BNEZ_MARK2(x4);
+                FMVD(v0, v1);
+                B_MARK2_nocond;
+                MARK;
+                FEQD(x3, v0, v0);
+                BNEZ_MARK2(x3);
+                FNEGD(v0, v0);
+                MARK2;
+            }
+            FSD(v0, gback, gdoffset + 0);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
+        case 0x5F:
+            INST_NAME("VMAXSD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            FLD(v0, vback, vxoffset + 0);
+            FLD(v1, wback, fixedaddress + 0);
+            FEQD(x2, v0, v0);
+            FEQD(x3, v1, v1);
+            AND(x2, x2, x3);
+            BEQ_MARK(x2, xZR);
+            FLED(x2, v0, v1);
+            BEQ_MARK2(x2, xZR);
+            MARK;
+            FMVD(v0, v1);
+            MARK2;
+            FSD(v0, gback, gdoffset + 0);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
         default:
             DEFAULT;
     }
