@@ -135,7 +135,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
 
         int is_opcode_volatile = box64_wine && VolatileRangesContains(ip) && VolatileOpcodesHas(ip);
-        if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed && dyn->insts[ninst].will_write)
+        if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed)
             DMB_ISHST();
         #endif
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !ninst) {
@@ -198,7 +198,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         INST_EPILOG;
 
         #if STEP > 1
-        if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed && dyn->insts[ninst].will_read)
+        if (is_opcode_volatile && !dyn->insts[ninst].lock_prefixed)
             DMB_ISHLD();
         #endif
 
