@@ -26,6 +26,7 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "bridge.h"
+#include "threads32.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -53,32 +54,6 @@ typedef struct threadstack_s {
 	size_t 	stacksize;
 } threadstack_t;
 
-// longjmp / setjmp
-typedef struct jump_buff_i386_s {
- uint32_t save_ebx;
- uint32_t save_esi;
- uint32_t save_edi;
- uint32_t save_ebp;
- uint32_t save_esp;
- uint32_t save_eip;
-} jump_buff_i386_t;
-
-// sigset_t should have the same size on 32bits and 64bits machine (64bits)
-typedef struct __attribute__((packed, aligned(4))) __jmp_buf_tag_s {
-    jump_buff_i386_t __jmpbuf;
-    int              __mask_was_saved;
-    sigset_t         __saved_mask;
-} __jmp_buf_tag_t;
-
-typedef struct i386_unwind_buff_s {
-	struct {
-		jump_buff_i386_t	__cancel_jmp_buf;	
-		int					__mask_was_saved;
-	} __cancel_jmp_buf[1];
-	ptr_t __pad[2];
-	ptr_t __pad3;
-} __attribute__((packed, aligned(4))) i386_unwind_buff_t;
-
 // those are define in thread.c
 emuthread_t* thread_get_et();
 void thread_set_et(emuthread_t* et);
@@ -104,11 +79,14 @@ static void emuthread_cancel(void* p)
 	if(!et)
 		return;
 	// check cancels threads
+	uintptr_t rax = et->emu->regs[_AX].q[0];
 	for(int i=et->cancel_size-1; i>=0; --i) {
 		et->emu->flags.quitonlongjmp = 0;
+		et->emu->quit = 0;
 		my32_longjmp(et->emu, ((i386_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
+	et->emu->regs[_AX].q[0] = rax;
 	box_free(et->cancels);
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
@@ -128,6 +106,7 @@ static void* pthread_routine(void* p)
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
 	thread_set_et(et);
+	et->is32bits = 1;
 	et->emu->type = EMUTYPE_MAIN;
 	et->self = (uintptr_t)pthread_self();
 	et->hself = to_hash(et->self);
@@ -309,6 +288,7 @@ EXPORT void my32___pthread_unregister_cancel(x64emu_t* emu, i386_unwind_buff_t* 
 			if(i!=et->cancel_size-1)
 				memmove(et->cancels+i, et->cancels+i+1, sizeof(i386_unwind_buff_t*)*(et->cancel_size-i-1));
 			et->cancel_size--;
+			return;
 		}
 	}
 }

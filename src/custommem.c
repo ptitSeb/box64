@@ -647,6 +647,8 @@ void* map128_customMalloc(size_t size, int is32bits)
         printf_log(LOG_INFO, "Custommem: Failed to alloc 32bits: allocation %p-%p for 128byte MAP Alloc p_blocks[%d]\n", p, p+allocsize, i);
         #endif
         p_blocks[i].maxfree = allocsize - mapsize;
+        p_blocks[i].is32bits = 0;
+        errno = ENOMEM;
         return NULL;
     }
     #ifdef TRACE_MEMSTAT
@@ -741,6 +743,8 @@ void* map64_customMalloc(size_t size, int is32bits)
 
     if (is32bits && p > (void*)0xffffffffLL) {
         p_blocks[i].maxfree = allocsize - mapsize;
+        p_blocks[i].is32bits = 0;
+        errno = ENOMEM;
         return NULL;
     }
 
@@ -864,6 +868,8 @@ void* internal_customMalloc(size_t size, int is32bits)
         printf_log(LOG_INFO, "Custommem: Failed to alloc 32bits: allocation %p-%p for LIST Alloc p_blocks[%d]\n", p, p+allocsize, i);
         #endif
         p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
+        p_blocks[i].is32bits = 0;
+        errno = ENOMEM;
         return NULL;
     }
     #ifdef TRACE_MEMSTAT
@@ -1151,6 +1157,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
         #endif
         p_blocks[i].is32bits = 0;
         p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
+        errno = ENOMEM;
         return NULL;
     }
     #ifdef TRACE_MEMSTAT

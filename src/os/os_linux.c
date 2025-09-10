@@ -10,6 +10,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/resource.h>
+#include <malloc.h>
 
 #include "os.h"
 #include "signals.h"
@@ -133,6 +135,16 @@ const char* GetNativeName(void* p)
 void PersonalityAddrLimit32Bit(void)
 {
     personality(ADDR_LIMIT_32BIT);
+    /*struct rlimit l;
+    if(getrlimit(RLIMIT_DATA, &l)<0) return;  // failed
+    if(l.rlim_max>3*1024*1024*1024LL) {
+        l.rlim_cur = 3*1024*1024*1024LL;
+        setrlimit(RLIMIT_DATA, &l);
+    }*/
+    // setting 32bits malloc options
+    mallopt(M_ARENA_TEST, 2);
+    mallopt(M_ARENA_MAX, 2);
+    mallopt(M_MMAP_THRESHOLD, 128*1024);
 }
 
 int IsAddrElfOrFileMapped(uintptr_t addr)

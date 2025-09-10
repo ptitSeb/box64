@@ -30,6 +30,7 @@
 #endif
 #ifdef BOX32
 #include "box32.h"
+#include "threads32.h"
 #endif
 
 //void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
@@ -125,6 +126,9 @@ int GetStackSize(uintptr_t attr, void** stack, size_t* stacksize)
 }
 
 void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+#ifdef BOX32
+void my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+#endif
 
 static pthread_key_t thread_key;
 
@@ -149,7 +153,13 @@ static void emuthread_cancel(void* p)
 	// check cancels threads
 	for(int i=et->cancel_size-1; i>=0; --i) {
 		et->emu->flags.quitonlongjmp = 0;
-		my_longjmp(et->emu, ((x64_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
+		et->emu->quit = 0;
+		#ifdef BOX32
+		if(et->is32bits)
+			my32_longjmp(et->emu, ((i386_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
+		else
+		#endif
+			my_longjmp(et->emu, ((x64_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
 	#ifdef BOX32
