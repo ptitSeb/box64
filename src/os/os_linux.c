@@ -135,6 +135,7 @@ const char* GetNativeName(void* p)
 void PersonalityAddrLimit32Bit(void)
 {
     personality(ADDR_LIMIT_32BIT);
+    #ifndef ANDROID
     /*struct rlimit l;
     if(getrlimit(RLIMIT_DATA, &l)<0) return;  // failed
     if(l.rlim_max>3*1024*1024*1024LL) {
@@ -145,6 +146,7 @@ void PersonalityAddrLimit32Bit(void)
     mallopt(M_ARENA_TEST, 2);
     mallopt(M_ARENA_MAX, 2);
     mallopt(M_MMAP_THRESHOLD, 128*1024);
+    #endif
 }
 
 int IsAddrElfOrFileMapped(uintptr_t addr)
