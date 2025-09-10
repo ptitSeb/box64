@@ -54,6 +54,7 @@ typedef void (*vFupupi_t)(uint32_t, void*, uint32_t, void*, int);
 typedef void (*vFuippp_t)(uint32_t, int, void*, void*, void*);
 typedef void (*vFuuippp_t)(uint32_t, uint32_t, int, void*, void*, void*);
 typedef void (*vFupupip_t)(uint32_t, void*, uint32_t, void*, int, void*);
+typedef void (*vFppupui_t)(void*, void*, uint32_t, void*, uint32_t, int);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 typedef struct gl_wrappers_s {
@@ -677,6 +678,36 @@ static void* find_glMultiDrawElementsEXT_Fct(void* fct)
 {
     return find_glMultiDrawElements_Fct(fct);
 }
+// glMultiModeDrawElementsIBM ...
+#define GO(A)                                                                                                                                               \
+static vFppupui_t my32_glMultiModeDrawElementsIBM_fct_##A = NULL;                                                                                           \
+static void my32_glMultiModeDrawElementsIBM_##A(x64emu_t* emu, void* mode, void* count, uint32_t type, ptr_t* indices, uint32_t primcount, int modestride)  \
+{                                                                                                                                                           \
+    if(!my32_glMultiModeDrawElementsIBM_fct_##A)                                                                                                            \
+        return;                                                                                                                                             \
+    void* indices_l[primcount];                                                                                                                             \
+    for(uint32_t i=0; i<primcount; ++i)                                                                                                                     \
+        indices_l[i] = from_ptrv(indices[i]);                                                                                                               \
+    my32_glMultiModeDrawElementsIBM_fct_##A (mode, count, type, indices_l, primcount, modestride);                                                          \
+}
+SUPER()
+#undef GO
+static void* find_glMultiModeDrawElementsIBM_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glMultiModeDrawElementsIBM_fct_##A == (vFppupui_t)fct) return my32_glMultiModeDrawElementsIBM_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glMultiModeDrawElementsIBM_fct_##A == 0) {my32_glMultiModeDrawElementsIBM_fct_##A = (vFppupui_t)fct; return my32_glMultiModeDrawElementsIBM_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glMultiModeDrawElementsIBM callback\n");
+    return NULL;
+}
+static void* find_glMultiModeDrawElementsIBMEXT_Fct(void* fct)
+{
+    return find_glMultiModeDrawElementsIBM_Fct(fct);
+}
 // glTransformFeedbackVaryings ...
 #define GO(A)                                                                                                               \
 static vFuipu_t my32_glTransformFeedbackVaryings_fct_##A = NULL;                                                            \
@@ -1091,6 +1122,14 @@ EXPORT void my32_glMultiDrawElementsExt(x64emu_t* emu, uint32_t mode, void* coun
     my32_glMultiDrawElements(emu, mode, count, type, indices, drawcount);
 }
 
+EXPORT void my32_glMultiModeDrawElementsIBM(x64emu_t* emu, void* mode, void* count, uint32_t type, ptr_t* indices, uint32_t primcount, int modestride)
+{
+    void* indices_l[primcount];
+    for(uint32_t i=0; i<primcount; ++i)
+        indices_l[i] = from_ptrv(indices[i]);
+    my->glMultiModeDrawElementsIBM(mode, count, type, indices_l, primcount, modestride);
+}
+
 EXPORT void my32_glTransformFeedbackVaryings(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode)
 {
     void* varyings_l[count];
@@ -1195,6 +1234,7 @@ EXPORT void my32_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, pt
  GO(pFpppi_t, glXCreateContext)                 \
  GO(pFpp_t, glXGetFBConfigFromVisualSGIX)       \
  GO(vFupupi_t, glMultiDrawElements)             \
+ GO(vFppupui_t, glMultiModeDrawElementsIBM)     \
  GO(vFuipu_t, glTransformFeedbackVaryings)      \
  GO(vFuuippp_t, glBindBuffersRange)             \
  GO(vFuippp_t, glBindVertexBuffers)             \

@@ -30,6 +30,7 @@ typedef void (*vFuippp_t)(uint32_t, int32_t, void*, void*, void*);
 typedef void (*vFupupi_t)(uint32_t, void*, uint32_t, void*, int32_t);
 typedef void (*vFuuippp_t)(uint32_t, uint32_t, int32_t, void*, void*, void*);
 typedef void (*vFupupip_t)(uint32_t, void*, uint32_t, void*, int32_t, void*);
+typedef void (*vFppupui_t)(void*, void*, uint32_t, void*, uint32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(glXSwapIntervalMESA, iFi_t) \
@@ -66,6 +67,7 @@ typedef void (*vFupupip_t)(uint32_t, void*, uint32_t, void*, int32_t, void*);
 	GO(glMultiDrawElementsEXT, vFupupi_t) \
 	GO(glBindBuffersRange, vFuuippp_t) \
 	GO(glVertexArrayVertexBuffers, vFuuippp_t) \
-	GO(glMultiDrawElementsBaseVertex, vFupupip_t)
+	GO(glMultiDrawElementsBaseVertex, vFupupip_t) \
+	GO(glMultiModeDrawElementsIBM, vFppupui_t)
 
 #endif // __wrappedlibglTYPES32_H_

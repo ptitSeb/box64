@@ -1671,6 +1671,7 @@
 #() vFXLiiiL -> vFXLiiiL
 #() vFXLiipi -> vFXLiipi
 #() vFXLpppi -> vFXLpppi
+#() vFXpiiii -> vFXpiiii
 #() iEEiippi -> iEEiippi
 #() iEEiLLLL -> iEEiLLLL
 #() iEEipiup -> iEEipiup
@@ -1798,6 +1799,7 @@
 #() iFpbpu_bpu_bpu_bpu_bpu_ -> iFpBBBBB
 #() vFEuuippp -> vFEuuippp
 #() vFEupupip -> vFEupupip
+#() vFEppupui -> vFEppupui
 #() vFiiiiiip -> vFiiiiiip
 #() vFiiiiuup -> vFiiiiuup
 #() vFiiuilil -> vFiiuilil
@@ -2694,6 +2696,8 @@ wrappedlibgl:
   - glVertexArrayVertexBuffers
 - vFupupip:
   - glMultiDrawElementsBaseVertex
+- vFppupui:
+  - glMultiModeDrawElementsIBM
 wrappedlibglu:
 - vFpup:
   - gluNurbsCallback
