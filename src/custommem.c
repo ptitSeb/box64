@@ -420,6 +420,7 @@ void testAllBlocks()
         // just silently skip blocks with 0 size, as they are not finished and so might be not coherent
         if(p_blocks[i].size) {
             int is32bits = p_blocks[i].is32bits;
+            if(box64_is32bits && !is32bits && p_blocks[i].block<(void*)0x100000000LL) printf_log(LOG_NONE, "Warning, p_block[%d] is 64bits but in 32bits address space: %p (type=%d)\n", i, p_blocks[i].block, p_blocks[i].type);
             if(is32bits) ++n_blocks32;
             if((p_blocks[i].type==BTYPE_LIST) && !printBlockCoherent(i))
                 printBlock(p_blocks[i].block, p_blocks[i].first, p_blocks[i].size);
@@ -1148,6 +1149,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
         #ifdef TRACE_MEMSTAT
         printf_log(LOG_INFO, "Custommem: Failed to aligned alloc 32bits: allocation %p-%p for LIST Alloc p_blocks[%d]\n", p, p+allocsize, i);
         #endif
+        p_blocks[i].is32bits = 0;
         p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
         return NULL;
     }
@@ -1251,7 +1253,7 @@ void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
     uint32_t map_flags = ((fd==-1)?MAP_ANONYMOUS:0) | MAP_PRIVATE;
     //printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", "fallback to internal mmap");
     void* ret = InternalMmap(box64_isAddressSpace32?NULL:(void*)0x100000000ULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, map_flags, fd, offset);
-    printf_log(LOG_INFO, "fallback on box32_dynarec_mmap: %p\n", ret);
+    //printf_log(LOG_INFO, "fallback on box32_dynarec_mmap: %p\n", ret);
     return ret;
 }
 
@@ -2427,7 +2429,18 @@ void loadProtectionFromMap()
         (void)ret;
         char r, w, x;
         uintptr_t s, e;
+        uintptr_t prev = 0;
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
+            uint32_t val;
+            uintptr_t endb; 
+            if(prev!=s && rb_get_end(mapallmem, prev, &val, &endb)) {
+                if(endb>s) endb = s;
+                if(val==MEM_EXTERNAL) {
+                    // free the place, it's not longer taken
+                    rb_unset(mapallmem, prev, endb);
+                }
+            }
+            prev = e;
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
             allocProtection(s, e-s, prot);
             if(!pbrk && strstr(buf, "[heap]"))

@@ -181,6 +181,8 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 	size_t attr_stacksize;
 	int own;
 	void* stack = NULL;
+	pthread_attr_t* my_attr = NULL;
+	pthread_attr_t actual_attr;
 
 	if(attr) {
 		size_t stsize;
@@ -193,6 +195,12 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 			stacksize = stsize;
 		if(stacksize<minsize)	// emu and all needs some stack space, don't go too low
 			pthread_attr_setstacksize(get_attr(attr), minsize);
+		if(stacksize>1*1024*1024)
+			pthread_attr_setstacksize(get_attr(attr), 1*1024*1024);
+	} else {
+		my_attr = &actual_attr;
+		pthread_attr_init(my_attr);
+		pthread_attr_setstacksize(my_attr, 1*1024*1024);
 	}
 	if(GetStackSize((uintptr_t)attr, &attr_stack, &attr_stacksize))
 	{
@@ -242,8 +250,10 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 	}
 	#endif
 	// create thread
-	return pthread_create((pthread_t*)t, get_attr(attr), 
+	int ret = pthread_create((pthread_t*)t, my_attr?my_attr:get_attr(attr), 
 		pthread_routine, et);
+	if(my_attr) pthread_attr_destroy(my_attr);
+	return ret;
 }
 
 EXPORT int my32_pthread_detach(x64emu_t* emu, pthread_t p)
