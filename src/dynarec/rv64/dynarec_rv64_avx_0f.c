@@ -559,6 +559,91 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             } else
                 YMM0(gd);
             break;
+        case 0xC2:
+            INST_NAME("VCMPPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 4 + (vex.l ? 4 : 0); ++i) {
+                if (i == 4) { GETEY(); }
+                if (i < 4) {
+                    FLW(d0, vback, vxoffset + 4 * i);
+                    FLW(d1, wback, fixedaddress + 4 * i);
+                } else {
+                    FLW(d0, vback, vyoffset + 4 * (i - 4));
+                    FLW(d1, wback, fixedaddress + 4 * (i - 4));
+                }
+
+                if ((u8 & 0xf) != 0x0b && (u8 & 0xf) != 0xf) {
+                    // x6 = !(isnan(d0) || isnan(d1))
+                    FEQS(x4, d0, d0);
+                    FEQS(x3, d1, d1);
+                    AND(x6, x3, x4);
+                }
+
+                switch (u8 & 0x7) {
+                    case 0:
+                        FEQS(x3, d0, d1);
+                        break; // Equal
+                    case 1:
+                        BEQ(x6, xZR, 8);
+                        FLTS(x3, d0, d1);
+                        break; // Less than
+                    case 2:
+                        BEQ(x6, xZR, 8);
+                        FLES(x3, d0, d1);
+                        break; // Less or equal
+                    case 3:
+                        if (u8 & 0x8)
+                            ADDI(x3, xZR, 0);
+                        else
+                            XORI(x3, x6, 1);
+                        break;
+                    case 4:
+                        FEQS(x3, d0, d1);
+                        XORI(x3, x3, 1);
+                        break; // Not Equal or unordered
+                    case 5:
+                        BEQ(x6, xZR, 12);
+                        FLES(x3, d1, d0);
+                        J(8);
+                        ADDI(x3, xZR, 1);
+                        break; // Greater or equal or unordered
+                    case 6:
+                        BEQ(x6, xZR, 12);
+                        FLTS(x3, d1, d0);
+                        J(8);
+                        ADDI(x3, xZR, 1);
+                        break; // Greater or unordered
+                    case 7:
+                        if (u8 & 0x8)
+                            ADDI(x3, xZR, 1);
+                        else
+                            MV(x3, x6);
+                        break; // Not NaN
+                }
+                if ((u8 & 0x3) != 0x3) {
+                    if ((u8 & 0xC) == 0x8 || (u8 & 0xC) == 0x4) {
+                        XORI(x7, x6, 1);
+                        OR(x3, x3, x7);
+                    } else
+                        AND(x3, x3, x6);
+                }
+                NEG(x3, x3);
+                if (i < 4) {
+                    SW(x3, gback, gdoffset + 4 * i);
+                } else {
+                    SW(x3, gback, gyoffset + 4 * (i - 4));
+                }
+            }
+            if (!vex.l) YMM0(gd);
+            break;
         default:
             DEFAULT;
     }
