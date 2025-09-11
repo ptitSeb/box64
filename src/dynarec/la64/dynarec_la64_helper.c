@@ -597,14 +597,15 @@ void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     MVz(x1, xRIP);
     SMEND();
     if (BOX64DRENV(dynarec_callret)) {
-        // pop the actual return address from RV64 stack
+        // pop the actual return address from LA64 stack
         LD_D(xRA, xSP, 0);    // native addr
         LD_D(x6, xSP, 8);     // x86 addr
         ADDI_D(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        ADDI_D(xSP, xSavedSP, -16);
+        LD_D(xSP, xEmu, offsetof(x64emu_t, xSPSave));
+        ADDI_D(xSP, xSP, -16);
     }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
@@ -627,14 +628,15 @@ void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
     MVz(x1, xRIP);
     SMEND();
     if (BOX64DRENV(dynarec_callret)) {
-        // pop the actual return address from RV64 stack
+        // pop the actual return address from LA64 stack
         LD_D(xRA, xSP, 0);    // native addr
         LD_D(x6, xSP, 8);     // x86 addr
         ADDI_D(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        ADDI_D(xSP, xSavedSP, -16);
+        LD_D(xSP, xEmu, offsetof(x64emu_t, xSPSave));
+        ADDI_D(xSP, xSP, -16);
     }
 
     NOTEST(x2);
@@ -691,7 +693,7 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     CLEARIP();
 }
 
-void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int savereg)
+void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
 {
     MAYUSE(fnc);
     if (savereg == 0)
@@ -702,39 +704,45 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
     }
     fpu_pushcache(dyn, ninst, reg, 0);
     if (ret != -2) {
-        ADDI_D(xSP, xSP, -16); // RV64 stack needs to be 16byte aligned
-        ST_D(xEmu, xSP, 0);
-        ST_D(savereg, xSP, 8);
-        // $r4..$r20 needs to be saved by caller
-        STORE_REG(RAX);
-        STORE_REG(RCX);
+        ADDI_D(xSP, xSP, -16); // LA64 stack needs to be 16byte aligned
+        ST_D(savereg, xSP, 0);
+        STORE_REG(RDI);
+        STORE_REG(RSI);
         STORE_REG(RDX);
+        STORE_REG(RCX);
+        STORE_REG(R8);
+        STORE_REG(R9);
+        STORE_REG(RAX);
         STORE_REG(RBX);
         STORE_REG(RSP);
-        STORE_REG(RBP);
-        STORE_REG(RSI);
-        STORE_REG(RDI);
         ST_D(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
     TABLE64C(reg, fnc);
+    MV(A0, xEmu);
+    if (arg1) MV(A1, arg1);
+    if (arg2) MV(A2, arg2);
+    if (arg3) MV(A3, arg3);
+    if (arg4) MV(A4, arg4);
+    if (arg5) MV(A5, arg5);
+    if (arg6) MV(A6, arg6);
     JIRL(xRA, reg, 0);
     if (ret >= 0) {
-        MV(ret, xEmu);
+        MV(ret, A0);
     }
     if (ret != -2) {
-        LD_D(xEmu, xSP, 0);
-        LD_D(savereg, xSP, 8);
+        LD_D(savereg, xSP, 0);
         ADDI_D(xSP, xSP, 16);
 #define GO(A) \
     if (ret != x##A) { LOAD_REG(A); }
-        GO(RAX);
-        GO(RCX);
+        GO(RDI);
+        GO(RSI);
         GO(RDX);
+        GO(RCX);
+        GO(R8);
+        GO(R9);
+        GO(RAX);
         GO(RBX);
         GO(RSP);
-        GO(RBP);
-        GO(RSI);
-        GO(RDI);
         if (ret != xRIP)
             LD_D(xRIP, xEmu, offsetof(x64emu_t, ip));
 #undef GO
@@ -770,7 +778,7 @@ void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int s
         CBZ_MARKSEG(t1);
     }
     MOV64x(x1, segment);
-    call_c(dyn, ninst, const_getsegmentbase, t2, reg, 0, xFlags);
+    call_c(dyn, ninst, const_getsegmentbase, t2, reg, 0, xFlags, x1, 0, 0, 0, 0, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment == _FS) ? "FS" : "GS");
 }
@@ -1689,7 +1697,7 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
             j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
-        CALL_(const_updateflags, -1, 0);
+        CALL_(const_updateflags, -1, 0, 0, 0);
         MARKF2;
     }
 }
