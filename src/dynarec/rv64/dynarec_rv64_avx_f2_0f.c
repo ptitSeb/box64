@@ -266,6 +266,81 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             YMM0(gd);
             break;
+        case 0xC2:
+            INST_NAME("VCMPSD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEX(x2, 1, 1);
+            GETGX();
+            GETVX();
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLD(d0, vback, vxoffset);
+            FLD(d1, wback, fixedaddress);
+
+            if ((u8 & 0xf) != 0x0b && (u8 & 0xf) != 0xf) {
+                // x6 = !(isnan(d0) || isnan(d1))
+                FEQD(x4, d0, d0);
+                FEQD(x3, d1, d1);
+                AND(x6, x3, x4);
+            }
+
+            switch (u8 & 0x7) {
+                case 0:
+                    FEQD(x3, d0, d1);
+                    break; // Equal
+                case 1:
+                    BEQ(x6, xZR, 8);
+                    FLTD(x3, d0, d1);
+                    break; // Less than
+                case 2:
+                    BEQ(x6, xZR, 8);
+                    FLED(x3, d0, d1);
+                    break; // Less or equal
+                case 3:
+                    if (u8 & 0x8)
+                        ADDI(x3, xZR, 0);
+                    else
+                        XORI(x3, x6, 1);
+                    break;
+                case 4:
+                    FEQD(x3, d0, d1);
+                    XORI(x3, x3, 1);
+                    break; // Not Equal or unordered
+                case 5:
+                    BEQ(x6, xZR, 12);
+                    FLED(x3, d1, d0);
+                    J(8);
+                    ADDI(x3, xZR, 1);
+                    break; // Greater or equal or unordered
+                case 6:
+                    BEQ(x6, xZR, 12);
+                    FLTD(x3, d1, d0);
+                    J(8);
+                    ADDI(x3, xZR, 1);
+                    break; // Greater or unordered
+                case 7:
+                    if (u8 & 0x8)
+                        ADDI(x3, xZR, 1);
+                    else
+                        MV(x3, x6);
+                    break; // Not NaN
+            }
+            if ((u8 & 0x3) != 0x3) {
+                if ((u8 & 0xC) == 0x8 || (u8 & 0xC) == 0x4) {
+                    XORI(x7, x6, 1);
+                    OR(x3, x3, x7);
+                } else
+                    AND(x3, x3, x6);
+            }
+            NEG(x3, x3);
+            SD(x3, gback, gdoffset);
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
         default:
             DEFAULT;
     }
