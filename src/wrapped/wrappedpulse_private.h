@@ -138,6 +138,15 @@ GOM(pa_ext_device_restore_subscribe, pFEpipp)
 //GO(pa_ext_stream_restore_test, 
 //GO(pa_ext_stream_restore_write, 
 GO(pa_format_info_new, pFv)
+
+GO(pa_format_info_set_rate, vFpi)
+GO(pa_format_info_set_sample_format, vFpu)
+GO(pa_format_info_set_channels, vFpi)
+GO(pa_format_info_set_channel_map, vFpp)
+GO(pa_format_info_free, vFp)
+GO(pa_stream_new_extended, pFppip)
+GO(pa_sw_cvolume_multiply_scalar, pFppu)
+
 GO(pa_frame_size, LFp)
 GO(pa_get_binary_name, pFpL)
 GO(pa_get_fqdn, pFpL)
