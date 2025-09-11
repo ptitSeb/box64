@@ -71,7 +71,7 @@ typedef struct x64emu_s {
     x87control_t cw;
     uint16_t    dummy_cw;   // align...
     mmxcontrol_t mxcsr;
-    #ifdef RV64         // it would be better to use a dedicated register for this like arm64 xSavedSP, but we're running of of free registers.
+    #if defined(RV64) || defined(LA64) // it would be better to use a dedicated register for this like arm64 xSavedSP, but we're running out of free registers.
     uintptr_t xSPSave;  // sp base value of current dynarec frame, used by call/ret optimization to reset stack when unmatch.
     #endif
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
@@ -120,7 +120,7 @@ typedef struct x64emu_s {
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
     JUMPBUFF*   jmpbuf;
-    #ifdef RV64
+    #if defined(RV64) || defined(LA64)
     uintptr_t   old_savedsp;
     #endif
 

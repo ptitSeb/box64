@@ -1172,7 +1172,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             if(Locks & is_dyndump_locked)
                 CancelBlock64(1);
             #endif
-            #ifdef RV64
+            #if defined(RV64) || defined(LA64)
             emu->xSPSave = emu->old_savedsp;
             #endif
             #ifdef ANDROID

@@ -674,13 +674,15 @@
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
+#define CALL(F, ret, arg1, arg2)                          call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, 0, 0, 0, 0)
+#define CALL4(F, ret, arg1, arg2, arg3, arg4)             call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, arg3, arg4, 0, 0)
+#define CALL6(F, ret, arg1, arg2, arg3, arg4, arg5, arg6) call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, arg3, arg4, arg5, arg6)
 // CALL_ will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x6, ret, 1, reg)
+#define CALL_(F, ret, reg, arg1, arg2) call_c(dyn, ninst, F, x6, ret, 1, reg, arg1, arg2, 0, 0, 0, 0)
 // CALL_S will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
-#define CALL_S(F, ret) call_c(dyn, ninst, F, x6, ret, 0, 0)
+#define CALL_S(F, ret, arg1) call_c(dyn, ninst, F, x6, ret, 0, 0, arg1, 0, 0, 0, 0, 0)
 
 #define MARKi(i)    dyn->insts[ninst].mark[i] = dyn->native_size
 #define GETMARKi(i) dyn->insts[ninst].mark[i]
@@ -848,8 +850,9 @@
 
 // Need to also store current value of some register, as they may be used by functions like setjmp
 #define STORE_XEMU_CALL() \
-    STORE_REG(R8);        \
-    STORE_REG(R9);        \
+    STORE_REG(RBX);       \
+    STORE_REG(RSP);       \
+    STORE_REG(RBP);       \
     STORE_REG(R10);       \
     STORE_REG(R11);       \
     STORE_REG(R12);       \
@@ -860,8 +863,9 @@
 #define LOAD_XEMU_CALL()
 
 #define LOAD_XEMU_REM() \
-    LOAD_REG(R8);       \
-    LOAD_REG(R9);       \
+    LOAD_REG(RBX);      \
+    LOAD_REG(RSP);      \
+    LOAD_REG(RBP);      \
     LOAD_REG(R10);      \
     LOAD_REG(R11);      \
     LOAD_REG(R12);      \
@@ -888,7 +892,7 @@
         if (dyn->f.pending == SF_PENDING                       \
             && dyn->insts[ninst].x64.need_after                \
             && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_(const_updateflags, -1, 0);                   \
+            CALL_(const_updateflags, -1, 0, 0, 0);             \
             dyn->f.pending = SF_SET;                           \
             SET_NODF();                                        \
         }                                                      \
@@ -958,7 +962,7 @@
             j64 = (GETMARKF) - (dyn->native_size);   \
             BEQ(x3, xZR, j64);                       \
         }                                            \
-        CALL_(const_updateflags, -1, 0);             \
+        CALL_(const_updateflags, -1, 0, 0, 0);       \
         MARKF;                                       \
         dyn->f.pending = SF_SET;                     \
         SET_DFOK();                                  \
@@ -1272,7 +1276,7 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits);
-void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int save_reg);
+void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int save_reg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6);
 void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg);
 void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);

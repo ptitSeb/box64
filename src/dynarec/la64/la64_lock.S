@@ -1,3 +1,7 @@
+#define ASM_MAPPING 1
+#include "la64_mapping.h"
+#undef ASM_MAPPING
+
 // LA64 lock helper
 // there is 2 part: read and write
 // write return 0 on success, 1 on fail (value has been changed)
