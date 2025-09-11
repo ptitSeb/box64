@@ -1149,8 +1149,11 @@ void RefreshElfTLS(elfheader_t* h)
 }
 void MarkElfInitDone(elfheader_t* h)
 {
-    if(h)
+    if(h) {
         h->init_done = 1;
+    	if(h->malloc_hook_2)
+            startMallocHook();
+    }
 }
 #ifndef STATICBUILD
 void startMallocHook();
