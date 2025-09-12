@@ -211,7 +211,7 @@ jobs:
             fi
             if [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
               wget https://packages.termux.dev/apt/termux-main/pool/main/liba/libandroid-sysv-semaphore/libandroid-sysv-semaphore_0.1-1_aarch64.deb
-              7z x libandroid-sysv-semaphore_0.1_aarch64.deb
+              7z x libandroid-sysv-semaphore_0.1-1_aarch64.deb
               tar -xf data.tar.xz
               sudo cp -rf data /
               sudo chmod 755 -R /data
