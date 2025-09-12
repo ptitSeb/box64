@@ -5,7 +5,7 @@ If you don't want to compile box64 yourself and prefer to use third-party pre-bu
 
 You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
 
-Additional installation steps may be necessary when copying only the box64 executable file without running make install in cross-build environments. See [Cross-compiling](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#Cross-compiling)
+Additional installation steps may be necessary when copying only the box64 executable file without running make install in cross-build environments. See [Cross-Compiling](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#Cross-Compiling)
 
 ## Per-platform compiling instructions
 
@@ -334,7 +334,7 @@ sudo apt update
 sudo apt install box64-generic-arm -y
 ```
 
-## Cross-compiling 
+## Cross-Compiling 
 ----
 ### Set Up the Cross-Compiler
 For example, to compile Box64 for RISC-V on an x86 machine, you can get prebuilt GNU toolchain from the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases) 
@@ -361,7 +361,16 @@ ctest -j$(nproc)
 ### Installing on the Target Machine
 After successfully cross-compiling, copy the box64 executable to your RISC-V device. Note that simply copying the binary does not automatically install Box64’s shared libraries. Because `make install` does not run on the target during cross-compilation, libraries required for emulation may be missing.
 
-To fix this, copy the shared libraries folder from the Box64 repository (`x64lib` or `x86lib`) to your target. Place them into the proper library search paths, for example:
-- `/usr/lib/box64-x86_64-linux-gnu/` (for x86_64) 
-- `/usr/lib/box64-i386-linux-gnu/` (for i386) 
+To resolve this, copy the shared libraries folder from the Box64 repository (`x64lib` or `x86lib`) to your target device, then rename it and place it in the appropriate library search path (e.g., `/usr/lib`).
+
+For `x86_64`:
+```shell
+$ mv x64lib box64-x86_64-linux-gnu
+$ mv box64-x86_64-linux-gnu /usr/lib
+```
+For `i386`:
+```shell
+$ mv x64lib box64-i386-linux-gnu
+$ mv box64-i386-linux-gnu /usr/lib
+```
 
