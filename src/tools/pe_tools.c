@@ -292,7 +292,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
             ULONGLONG entry = volatileAccessTable[i].Rva + (ULONGLONG)addr;
             int ret;
             khint_t _ = kh_put(volatileopcode, volatileOpcodes, entry, &ret);
-            printf_log(LOG_DEBUG, "Volatile access table [%d]: %08lX\n", i, entry);
+            printf_log(LOG_DEBUG, "Volatile access table [%d]: %08lx\n", i, entry);
         }
     }
 
@@ -309,8 +309,8 @@ void ParseVolatileMetadata(char* filename, void* addr)
         for (DWORD i = 0; i < numEntries; i++) {
             ULONGLONG rva = volatileRangeMetadata[i].Rva + (ULONGLONG)addr;
             ULONGLONG size = volatileRangeMetadata[i].Size;
-            rb_set(volatileRanges, rva, rva + size, i);
-            printf_log(LOG_DEBUG, "Volatile range metadata [%d]: %08lX-%08lX\n", i, rva, rva + size);
+            rb_set(volatileRanges, rva, rva + size, 1);
+            printf_log(LOG_DEBUG, "Volatile range metadata [%d]: %08lx-%08lx\n", i, rva, rva + size);
         }
     }
     free(buffer);
