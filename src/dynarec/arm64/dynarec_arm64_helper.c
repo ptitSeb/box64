@@ -31,8 +31,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
     if (l == LOCK_LOCK) {
-        dyn->insts[ninst].lock_prefixed = 1;
-        DMB_ISH();
+        dyn->insts[ninst].lock = 1;
     }
 
     if(rex.is32bits)

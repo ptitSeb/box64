@@ -36,7 +36,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
     MAYUSE(delta);
 
     if (l == LOCK_LOCK) {
-        dyn->insts[ninst].lock_prefixed = 1;
+        dyn->insts[ninst].lock = 1;
     }
 
     if (rex.is32bits)

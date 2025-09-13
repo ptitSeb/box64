@@ -106,7 +106,6 @@ typedef struct instruction_la64_s {
     uint8_t             will_read:1;     // [strongmem] will read from memory
     uint8_t             last_write:1;    // [strongmem] the last write in a SEQ
     uint8_t             lock:1;          // [strongmem] lock semantic
-    uint8_t             lock_prefixed:1; // [strongmem] the opcode is lock prefixed
     uint8_t             df_notneeded;
     uint8_t             nat_flags_fusion:1;
     uint8_t             nat_flags_nofusion:1;
