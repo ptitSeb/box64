@@ -167,7 +167,7 @@ void DynaRun(x64emu_t* emu)
             if ((skip = SigSetJmp(emu->jmpbuf, 1)))
             #endif
             {
-                printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
+                dynarec_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x will %sskip dynarec next\n", emu->segs[_FS], (skip==3)?"not ":"");
                 #ifdef DYNAREC
                 if(BOX64ENV(dynarec_test)) {
                     if(emu->test.clean)
