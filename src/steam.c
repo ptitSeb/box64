@@ -115,7 +115,25 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
             // setup LD_LIBRARY_PATH
             const char* ld = getenv("LD_LIBRARY_PATH");
-            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu:%s/lib/i386-linux-gnu:%s/lib:%s/lib64:%s/lib32:%s", sniper, sniper, sniper, sniper, sniper, ld?ld:"");
+            char tmp2[4096];
+            tmp[0] = '\0';
+            #define GO(A, B) \
+            snprintf(tmp2, sizeof(tmp2), A, B);     \
+            if(FileExist(tmp2, 0)) {                \
+                strncat(tmp, tmp2, sizeof(tmp)-1);  \
+                strncat(tmp, ":", sizeof(tmp)-1);   \
+            }
+            GO("%s/lib/x86_64-linux-gnu", sniper)
+            GO("%s/lib/i386-linux-gnu", sniper)
+            GO("%s/lib/x86_64-linux-gnu/openblas", sniper)
+            GO("%s/lib/i386-linux-gnu/openblas", sniper)
+            GO("%s/lib/x86_64-linux-gnu/openblas-pthread", sniper)
+            GO("%s/lib/i386-linux-gnu/openblas-pthread", sniper)
+            GO("%s/lib", sniper)
+            GO("%s/lib64", sniper)
+            GO("%s/lib32", sniper)
+            #undef GO
+            if(ld) strncat(tmp, ld, sizeof(tmp)-1);
             setenv("LD_LIBRARY_PATH", tmp, 1);
             printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "LD_LIBRARY_PATH", tmp);
         }
