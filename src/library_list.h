@@ -376,6 +376,10 @@ GO("libgmodule-2.0.so", gmodule2)
 GO("libgtk-x11-2.0.so", gtkx112)
 GO("libgdk-x11-2.0.so", gdkx112)
 GO("libpangocairo-1.0.so", pangocairo)
+GO("libblas.so.3", libblas)
+GO("libblas.so", libblas)
+GO("liblapack.so.3", liblapack)
+GO("liblapack.so", liblapack)
 #ifdef ANDROID
 GO("libandroid-shmem.so", androidshmem)
 #endif
