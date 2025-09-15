@@ -144,7 +144,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     perr = 2;
                 } else  if(!strcmp(s, "chdir")) {
                     pu32=(uint32_t*)from_ptrv(R_ESP+4);
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptriv(R_ESP), (char *)s, pu32?((pu32==(uint32_t*)1)?"/1/":(char*)pu32):"/0/");
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptriv(R_ESP), (char *)s, pu32?((pu32==(uint32_t*)1)?"/1/":(char*)(uintptr_t)(*pu32)):"/0/");
                 } else  if(!strcmp(s, "poll")) {
                     pu32=from_ptrv(*(ptr_t*)from_ptrv(R_ESP+4));
                     char tmp[50];
