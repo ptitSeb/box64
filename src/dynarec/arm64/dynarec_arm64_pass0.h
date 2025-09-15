@@ -58,6 +58,8 @@
 #define FEMIT(A)        dyn->insts[ninst].nat_flags_op = dyn->insts[ninst].x64.set_flags?NAT_FLAG_OP_TOUCH:NAT_FLAG_OP_UNUSABLE
 #define IFNATIVE(A)     if(mark_natflag(dyn, ninst, A, 0))
 #define IFNATIVEN(A)    if(mark_natflag(dyn, ninst, A, 0))
+#define UFLAG_IF if(dyn->insts[ninst].x64.set_flags)
+#define UFLAG_IF2(A) if(dyn->insts[ninst].x64.set_flags A)
 #define IFX(A)  if((dyn->insts[ninst].x64.set_flags&(A)))
 #define IFX2(A, B)  if((dyn->insts[ninst].x64.set_flags&(A)) B)
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.set_flags&(X_PEND) || !dyn->insts[ninst].x64.set_flags))

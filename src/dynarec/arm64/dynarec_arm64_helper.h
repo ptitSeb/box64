@@ -1202,8 +1202,12 @@
 #define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, xEmu, offsetof(x64emu_t, op2));}
 #define UFLAG_RES(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, res));}
 #define UFLAG_DF(r, A) if(dyn->insts[ninst].x64.gen_flags) {SET_DF(r, A);}
+#ifndef UFLAG_IF
 #define UFLAG_IF if(dyn->insts[ninst].x64.gen_flags)
+#endif
+#ifndef UFLAG_IF2
 #define UFLAG_IF2(A) if(dyn->insts[ninst].x64.gen_flags A)
+#endif
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif
