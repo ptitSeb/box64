@@ -630,7 +630,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                SMDMB();
 
                 ANDI(x3, ed, 1);
                 BNEZ_MARK(x3);
@@ -670,7 +669,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(gd, ed, 0);
 
                 MARK2;
-                SMDMB();
                 INSHz(gd, x1, x3, x4, 1, 0);
             }
             break;

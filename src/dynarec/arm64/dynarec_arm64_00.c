@@ -1450,7 +1450,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STLXRB(x3, x4, ed);
                     CBNZx_MARKLOCK(x3);
                 }
-                SMDMB();
             }
             BFIx(gb1, x1, gb2, 8);
             break;
@@ -1499,7 +1498,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STRxw_U12(gd, ed, 0);
                     MARK2;
                 }
-                SMDMB();
                 if(!ALIGNED_ATOMICxw || !cpuext.atomics) {
                     MOVxw_REG(gd, x1);
                 }

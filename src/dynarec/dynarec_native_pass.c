@@ -198,8 +198,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         INST_EPILOG;
 
         #if STEP > 1
-        if (is_opcode_volatile && !dyn->insts[ninst].lock)
-            DMB_ISHLD();
+        if (is_opcode_volatile || dyn->insts[ninst].lock)
+            DMB_ISH();
         #endif
 
         fpu_reset_scratch(dyn);

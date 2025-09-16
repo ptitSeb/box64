@@ -95,7 +95,6 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         BNEZ_MARKLOCK2(x5);
                     }
                     MARK;
-                    SMDMB();
                     UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x2, x3, x4, x5); }
                     INSH(xRAX, x1, x2, x3, 1, 0);
                     break;
@@ -106,7 +105,6 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x81:
         case 0x83:
             nextop = F8;
-            SMDMB();
             switch ((nextop >> 3) & 7) {
                 case 0: // ADD
                     if (opcode == 0x81) {
@@ -311,7 +309,6 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 default:
                     DEFAULT;
             }
-            SMDMB();
             break;
 
         default:

@@ -598,7 +598,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 if(cpuext.atomics) {
                     SWPALH(gd, x1, ed);
-                    SMDMB();
                     if(!ALIGNED_ATOMICH) {
                         B_MARK2_nocond;
                     }
@@ -607,7 +606,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LDAXRH(x1, ed);
                     STLXRH(x3, gd, ed);
                     CBNZx_MARKLOCK(x3);
-                    SMDMB();
                     if(!ALIGNED_ATOMICH) {
                         B_MARK2_nocond;
                     }
@@ -619,7 +617,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STLXRB(x3, gd, ed);
                     CBNZx_MARK(x3);
                     STRH_U12(gd, ed, 0);
-                    SMDMB();
                     MARK2;
                 }
                 BFIz(gd, x1, 0, 16);

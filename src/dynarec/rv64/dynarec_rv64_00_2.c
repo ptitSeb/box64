@@ -293,7 +293,6 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 GETGB(x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                SMDMB();
 
                 // calculate shift amount
                 ANDI(x1, ed, 0x3);
@@ -335,7 +334,6 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                SMDMB();
                 ANDI(x3, ed, (1 << (2 + rex.w)) - 1);
                 BNE_MARK(x3, xZR);
                 AMOSWAPxw(gd, gd, ed, 1, 1);

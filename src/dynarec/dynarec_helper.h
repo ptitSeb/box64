@@ -49,10 +49,10 @@
         dyn->insts[ninst].will_write = 1;                        \
     } while (0)
 
-#define SMWRITELOCK(lock)              \
-    do {                               \
-        dyn->insts[ninst].lock = lock; \
-        SMWRITE();                     \
+#define SMWRITELOCK(lock)                   \
+    do {                                    \
+        if(lock) dyn->insts[ninst].lock = 1;\
+        SMWRITE();                          \
     } while (0)
 
 #define SMWRITE2()                                       \

@@ -53,7 +53,6 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x81:
         case 0x83:
             nextop = F8;
-            SMDMB();
             switch ((nextop >> 3) & 7) {
                 case 0: // ADD
                     if (opcode == 0x81) {
@@ -119,7 +118,6 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 default:
                     DEFAULT;
             }
-            SMDMB();
             break;
 
         default:
