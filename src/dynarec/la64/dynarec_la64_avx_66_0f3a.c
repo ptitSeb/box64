@@ -737,7 +737,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             u8 = F8;
             MOV32w(x4, u8);
-            CALL_(vex.l ? const_native_pclmul_y : const_native_pclmul_x, -1, x3, x1, x2);
+            CALL4_(vex.l ? const_native_pclmul_y : const_native_pclmul_x, -1, x3, x1, x2, x3, x4);
             if (!vex.l) {
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
