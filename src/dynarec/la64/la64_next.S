@@ -18,7 +18,7 @@
 la64_next:
     // move emu to a0
     // move IP address to a1
-    addi.d $sp, $sp, -(8 * 10)
+    addi.d $sp, $sp, -(8 * 11)
     st.d   RDI, $sp, 0
     st.d   RSI, $sp, 8
     st.d   RDX, $sp, 16
@@ -28,12 +28,13 @@ la64_next:
     st.d   RAX, $sp, 48
     st.d   RBX, $sp, 56
     st.d   RSP, $sp, 64
-    st.d   RIP, $sp, 72 // also save r29(rip) to allow change in LinkNext
+    st.d   RBP, $sp, 72
+    st.d   RIP, $sp, 80 // also save r29(rip) to allow change in LinkNext
 
     move   $a0, Emu
     move   $a1, RIP
     move   $a2, $ra      // "from" is in ra, so put in a2
-    addi.d $a3, $sp, 72  // a3 is address to change rip
+    addi.d $a3, $sp, 80  // a3 is address to change rip
     // call the function
     bl LinkNext
     // preserve return value
@@ -48,7 +49,8 @@ la64_next:
     ld.d   RAX, $sp, 48
     ld.d   RBX, $sp, 56
     ld.d   RSP, $sp, 64
-    ld.d   RIP, $sp, 72
-    addi.d $sp, $sp, (8 * 10)
+    ld.d   RBP, $sp, 72
+    ld.d   RIP, $sp, 80
+    addi.d $sp, $sp, (8 * 11)
     // return offset is jump address
     jr     $r16

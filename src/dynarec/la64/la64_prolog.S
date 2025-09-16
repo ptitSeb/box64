@@ -66,11 +66,11 @@ la64_prolog:
     beqz      $r19, 1f
     x86mtflag Flags, 0b111111
 1:
-    ld.d   $r19, Emu, 808  // grab an old value of emu->xSPSave
-    st.d   $sp,  Emu, 808  // save current sp to emu->xSPSave
     // push sentinel onto the stack
-    st.d   $r19, $sp, -16
+    st.d   $r0,  $sp, -16
     st.d   $r0,  $sp, -8
     addi.d $sp,  $sp, -16
+    // save old sp into xSavedSP
+    addi.d SavedSP, $sp, 16
     //jump to function
     jirl   $r0,  $r16, 0

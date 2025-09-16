@@ -45,11 +45,7 @@ la64_epilog:
     st.d   RIP,   Emu, (8 * 17) // put back reg value in emu, including EIP (so $r28 must be EIP now)
     // fallback to epilog_fast now, just restoring saved regs
 la64_epilog_fast:
-    // restore saved sp from emu->xSPSave
-    ld.d   $sp, Emu, 808
-    ld.d   $r19, $sp, -8
-    // put back old value
-    st.d   $r19, Emu, 808
+    addi.d $sp, SavedSP, 0       // restore save sp from xSavedSP
     // restore all used register
     ld.d   $r1,  $sp, (8 * 0) // load ra
     ld.d   $r22, $sp, (8 * 1) // load fp

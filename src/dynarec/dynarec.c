@@ -149,7 +149,7 @@ void DynaRun(x64emu_t* emu)
     int skip = 0;
     int need_tf = 0;
     JUMPBUFF *old_jmpbuf = emu->jmpbuf;
-    #if defined(RV64) || defined(LA64)
+    #ifdef RV64
     uintptr_t old_savesp = emu->xSPSave;
     #endif
     emu->flags.jmpbuf_ready = 0;
@@ -157,7 +157,7 @@ void DynaRun(x64emu_t* emu)
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
-            #if defined(RV64) || defined(LA64)
+            #ifdef RV64
             emu->old_savedsp = emu->xSPSave;
             #endif
             emu->flags.jmpbuf_ready = 1;
@@ -243,7 +243,7 @@ void DynaRun(x64emu_t* emu)
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
-    #if defined(RV64) || defined(LA64)
+    #ifdef RV64
     emu->xSPSave = old_savesp;
     #endif
 }

@@ -604,8 +604,7 @@ void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        LD_D(xSP, xEmu, offsetof(x64emu_t, xSPSave));
-        ADDI_D(xSP, xSP, -16);
+        ADDI_D(xSP, xSavedSP, -16);
     }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
@@ -635,8 +634,7 @@ void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        LD_D(xSP, xEmu, offsetof(x64emu_t, xSPSave));
-        ADDI_D(xSP, xSP, -16);
+        ADDI_D(xSP, xSavedSP, -16);
     }
 
     NOTEST(x2);
@@ -715,6 +713,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
         STORE_REG(RAX);
         STORE_REG(RBX);
         STORE_REG(RSP);
+        STORE_REG(RBP);
         ST_D(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
     TABLE64C(reg, fnc);
@@ -743,6 +742,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
         GO(RAX);
         GO(RBX);
         GO(RSP);
+        GO(RBP);
         if (ret != xRIP)
             LD_D(xRIP, xEmu, offsetof(x64emu_t, ip));
 #undef GO

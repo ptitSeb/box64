@@ -18,16 +18,16 @@ r9      a5     R9           Function argument               -                   
 r10     a6     RBX          Function argument               -                       Caller
 r11     a7     RSP          Function argument               -                       Caller
 r12     t0     RAX          Temporary                       -                       Caller
-r13     t1     x1           Temporary                       Scratch                 Caller
-r14     t2     x2           Temporary                       Scratch                 Caller
-r15     t3     x3           Temporary                       Scratch                 Caller
-r16     t4     x4           Temporary                       Scratch                 Caller
-r17     t5     x5           Temporary                       Scratch                 Caller
-r18     t6     x6           Temporary                       Scratch                 Caller
-r19     t7     -            Temporary                       -                       Caller
+r13     t1     RBP          Temporary                       -                       Caller
+r14     t2     x1           Temporary                       Scratch                 Caller
+r15     t3     x2           Temporary                       Scratch                 Caller
+r16     t4     x3           Temporary                       Scratch                 Caller
+r17     t5     x4           Temporary                       Scratch                 Caller
+r18     t6     x5           Temporary                       Scratch                 Caller
+r19     t7     x6           Temporary                       Scratch                 Caller
 r20     t8     x7           Temporary                       Scratch                 Caller
 r21     rx     -            Reserved                        N/A                     -
-r22     fp     RBP          Saved register/frame pointer    -                       Callee
+r22     fp     SavedSP      Saved register/frame pointer    -                       Callee
 r23     s0     R10          Saved register                  -                       Callee
 r24     s1     R11          Saved register                  -                       Callee
 r25     s2     R12          Saved register                  -                       Callee
@@ -47,7 +47,7 @@ r31     s8     xEmu         Saved register                  The Emu struct      
 #define xRDX     6
 #define xRBX     10
 #define xRSP     11
-#define xRBP     22
+#define xRBP     13
 #define xRSI     5
 #define xRDI     4
 #define xR8      8
@@ -60,17 +60,18 @@ r31     s8     xEmu         Saved register                  The Emu struct      
 #define xR15     28
 #define xFlags   30
 #define xRIP     29
+#define xSavedSP 22
 
 // convert a x86 register to native according to the register mapping
-#define TO_NAT(A) (((uint8_t[]) { 12, 7, 6, 10, 11, 22, 5, 4, 8, 9, 23, 24, 25, 26, 27, 28 })[(A)])
+#define TO_NAT(A) (((uint8_t[]) { 12, 7, 6, 10, 11, 13, 5, 4, 8, 9, 23, 24, 25, 26, 27, 28 })[(A)])
 
 // scratch registers
-#define x1 13
-#define x2 14
-#define x3 15
-#define x4 16
-#define x5 17
-#define x6 18
+#define x1 14
+#define x2 15
+#define x3 16
+#define x4 17
+#define x5 18
+#define x6 19
 #define x7 20
 
 // emu is $r31
@@ -145,7 +146,7 @@ r31     s8     xEmu         Saved register                  The Emu struct      
 #define RDX     $r6
 #define RBX     $r10
 #define RSP     $r11
-#define RBP     $r22
+#define RBP     $r13
 #define RSI     $r5
 #define RDI     $r4
 #define R8      $r8
@@ -159,6 +160,7 @@ r31     s8     xEmu         Saved register                  The Emu struct      
 #define Flags   $r30
 #define RIP     $r29
 #define Emu     $r31
+#define SavedSP $r22
 
 #ifdef LA64_ABI_1
 

@@ -6,7 +6,7 @@
 #include "la64_printer.h"
 #include "debug.h"
 
-static const char* Xt[] = { "xZR", "r1", "r2", "sp", "xRDI_r4", "xRSI_r5", "xRDX_r6", "xRCX_r7", "xR8_r8", "xR9_r9", "xRBX_r10", "xRSP_r11", "xRAX_r12", "x1_r13", "x2_r14", "x3_r15", "x4_r16", "x5_r17", "x6_r18", "r19", "x7_r20", "r21", "xRBP_r22", "xR10_r23", "xR11_r24", "xR12_r25", "xR13_r26", "xR14_r27", "xR15_r28", "xRIP_r29", "xFlags_r30", "xEmu_r31" };
+static const char* Xt[] = { "xZR", "r1", "r2", "sp", "xRDI_r4", "xRSI_r5", "xRDX_r6", "xRCX_r7", "xR8_r8", "xR9_r9", "xRBX_r10", "xRSP_r11", "xRAX_r12", "xRBP_r13", "x2_r14", "x3_r15", "x3_r16", "x4_r17", "x5_r18", "x6_r19", "x7_r20", "r21", "xSavedSP_r22", "xR10_r23", "xR11_r24", "xR12_r25", "xR13_r26", "xR14_r27", "xR15_r28", "xRIP_r29", "xFlags_r30", "xEmu_r31" };
 static const char* Ft[] = { "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7", "ft8", "ft9", "ft10", "ft11", "ft12", "ft13", "ft14", "ft15", "fs0", "fs1", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7" };
 static const char* Vt[] = { "vra0", "vra1", "vra2", "vra3", "vra4", "vra5", "vra6", "vra7", "vrt0", "vrt1", "vrt2", "vrt3", "vrt4", "vrt5", "vrt6", "vrt7", "vrt8", "vrt9", "vrt10", "vrt11", "vrt12", "vrt13", "vrt14", "vrt15", "vrs0", "vrs1", "vrs2", "vrs3", "vrs4", "vrs5", "vrs6", "vrs7" };
 static const char* XVt[] = { "xvra0", "xvra1", "xvra2", "xvra3", "xvra4", "xvra5", "xvra6", "xvra7", "xvrt0", "xvrt1", "xvrt2", "xvrt3", "xvrt4", "xvrt5", "xvrt6", "xvrt7", "xvrt8", "xvrt9", "xvrt10", "xvrt11", "xvrt12", "xvrt13", "xvrt14", "xvrt15", "xvrs0", "xvrs1", "xvrs2", "xvrs3", "xvrs4", "xvrs5", "xvrs6", "xvrs7" };
