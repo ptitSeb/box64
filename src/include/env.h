@@ -130,7 +130,7 @@ extern char* ftrace_name;
     STRING(BOX64_DYNACACHE_FOLDER, dynacache_folder, 0)                       \
     INTEGER(BOX64_DYNACACHE_MIN, dynacache_min, 350, 0, 10240, 0)
 
-#if defined(ARM64) || defined(LA64)
+#if defined(ARM64)
 #define ENVSUPER2() \
     INTEGER(BOX64_AVX, avx, 2, 0, 2, 1)
 #else

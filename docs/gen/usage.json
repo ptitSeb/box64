@@ -55,7 +55,7 @@
   },
   {
     "name": "BOX64_AVX",
-    "description": "Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 and LoongArch64 because it's fully implemented in DynaRec, 0 otherwise.",
+    "description": "Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise.",
     "category": "Compatibility",
     "wine": true,
     "options": [

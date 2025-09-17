@@ -343,7 +343,7 @@ Add --no-sandbox argument to the guest program.
 
 ### BOX64_AVX
 
-Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 and LoongArch64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
+Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
 
  * 0: Do not expose AVX capabilities. 
  * 1: Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file. 

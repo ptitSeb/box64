@@ -75,7 +75,7 @@ Arguments to pass to the guest program, only valid if there is no existing argum
 
 =item B<BOX64_AVX> =I<0|1|2>
 
-Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 and LoongArch64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
+Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise. Availble in WowBox64.
 
  * 0 : Do not expose AVX capabilities. 
  * 1 : Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file. 
