@@ -350,7 +350,10 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     }
                                 }
                                 // Aligned version
-                                if(cpuext.atomics) {
+                                // disabling use of atomics for now, as it seems to make (at least)
+                                //  HorizonZeroDawn and Cyberpunk2077 (both from GoG) unstable
+                                //  but why?!
+                                if(cpuext.atomics && 0) {
                                     UFLAG_IF {
                                         MOVxw_REG(x1, xRAX);
                                         CASALxw(x1, gd, wback);
@@ -394,7 +397,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 // Common part (and fallback for EAX != Ed)
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5); MOVxw_REG(xRAX, x1);}
                                 else {
-                                    if(!ALIGNED_ATOMICxw || !cpuext.atomics)
+                                    if(!ALIGNED_ATOMICxw || !(cpuext.atomics && 0))
                                         MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
                                 }
                             }
