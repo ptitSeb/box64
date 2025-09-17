@@ -1039,6 +1039,7 @@ int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int
     }
 
     // new reg
+    dyn->lsx.avxcache[a].v = 0;
     dyn->lsx.avxcache[a].reg = fpu_get_reg_ymm(dyn, forwrite ? LSX_CACHE_YMMW : LSX_CACHE_YMMR, a);
     int ret = dyn->lsx.avxcache[a].reg;
     dyn->lsx.avxcache[a].write = forwrite;
@@ -1075,6 +1076,7 @@ int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
         fpu_free_reg(dyn, dyn->lsx.ssecache[a].reg);
         dyn->lsx.ssecache[a].v = -1;
     }
+    dyn->lsx.avxcache[a].v = 0;
     dyn->lsx.avxcache[a].reg = fpu_get_reg_ymm(dyn, LSX_CACHE_YMMW, a);
     dyn->lsx.avxcache[a].write = 1;
     dyn->lsx.avxcache[a].width = width;
@@ -1098,7 +1100,6 @@ void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrit
         }
         VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
     }
-    dyn->lsx.avxcache[a].zero_upper = 0;
     dyn->lsx.avxcache[a].v = -1;
     return;
 }
@@ -1117,7 +1118,6 @@ void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
         VST(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
     }
     fpu_free_reg(dyn, dyn->lsx.avxcache[a].reg);
-    dyn->lsx.avxcache[a].zero_upper = 0;
     dyn->lsx.avxcache[a].v = -1;
     return;
 }
