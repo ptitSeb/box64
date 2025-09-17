@@ -713,15 +713,15 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     GBBACK;
                                 } else {
                                     MARKLOCK;
-                                    LDAXRB(x1, wback);
-                                    ADDw_REG(x4, x1, gd);
+                                    LDAXRB(x5, wback);
+                                    ADDw_REG(x4, x5, gd);
                                     STLXRB(x3, x4, wback);
                                     CBNZx_MARKLOCK(x3);
                                     IFX(X_ALL|X_PEND) {
-                                        MOVxw_REG(x2, x1);
+                                        MOVxw_REG(x2, x5);
                                         emit_add8(dyn, ninst, x2, gd, x3, x4);
                                     }
-                                    BFIz(gb1, x1, gb2, 8);
+                                    BFIz(gb1, x5, gb2, 8);
                                 }
                             }
                             break;
