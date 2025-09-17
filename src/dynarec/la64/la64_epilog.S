@@ -42,10 +42,10 @@ la64_epilog:
     or        Flags, Flags, $r19
 1:
     st.d   Flags, Emu, (8 * 16) // xFlags
-    st.d   RIP,   Emu, (8 * 17) // put back reg value in emu, including EIP (so $r28 must be EIP now)
+    st.d   RIP,   Emu, (8 * 17) // put back reg value in emu, including EIP (so $r29 must be EIP now)
     // fallback to epilog_fast now, just restoring saved regs
 la64_epilog_fast:
-    addi.d $sp, SavedSP, 0       // restore save sp from xSavedSP
+    addi.d $sp, SavedSP, 0      // restore save sp from xSavedSP
     // restore all used register
     ld.d   $r1,  $sp, (8 * 0) // load ra
     ld.d   $r22, $sp, (8 * 1) // load fp
