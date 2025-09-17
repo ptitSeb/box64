@@ -536,7 +536,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             VLDIxy(q0, 0b0010011111111); // broadcast 0xff as 16-bit elements to all lanes
             if (v1 == v2) {
                 VMAXIxy(H, d0, v1, 0);
-                VMINxy(H, d0, v1, q0);
+                VMINxy(H, d0, d0, q0);
                 VPICKEVxy(B, v0, d0, d0);
             } else {
                 VMAXIxy(H, d0, v1, 0);
