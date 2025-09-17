@@ -166,7 +166,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 DEFAULT;
                 return addr;
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 0, 0);
                 VSTELM_D(v0, ed, fixedaddress, 1);
                 SMWRITE2();
             }
