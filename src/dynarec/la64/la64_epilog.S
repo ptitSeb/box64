@@ -1,3 +1,7 @@
+#define ASM_MAPPING 1
+#include "la64_mapping.h"
+#undef ASM_MAPPING
+
 //la64 epilog for dynarec
 //Save stuff, prepare stack and register
 //called with pointer to emu as 1st parameter
@@ -11,37 +15,37 @@
 
 la64_epilog:
     // update register -> emu
-    st.d   $r12, $r4, (8 * 0)
-    st.d   $r13, $r4, (8 * 1)
-    st.d   $r14, $r4, (8 * 2)
-    st.d   $r15, $r4, (8 * 3)
-    st.d   $r16, $r4, (8 * 4)
-    st.d   $r17, $r4, (8 * 5)
-    st.d   $r18, $r4, (8 * 6)
-    st.d   $r19, $r4, (8 * 7)
-    st.d   $r23, $r4, (8 * 8)
-    st.d   $r24, $r4, (8 * 9)
-    st.d   $r25, $r4, (8 * 10)
-    st.d   $r26, $r4, (8 * 11)
-    st.d   $r27, $r4, (8 * 12)
-    st.d   $r28, $r4, (8 * 13)
-    st.d   $r29, $r4, (8 * 14)
-    st.d   $r30, $r4, (8 * 15)
+    st.d   RAX, Emu, (8 * 0)
+    st.d   RCX, Emu, (8 * 1)
+    st.d   RDX, Emu, (8 * 2)
+    st.d   RBX, Emu, (8 * 3)
+    st.d   RSP, Emu, (8 * 4)
+    st.d   RBP, Emu, (8 * 5)
+    st.d   RSI, Emu, (8 * 6)
+    st.d   RDI, Emu, (8 * 7)
+    st.d   R8,  Emu, (8 * 8)
+    st.d   R9,  Emu, (8 * 9)
+    st.d   R10, Emu, (8 * 10)
+    st.d   R11, Emu, (8 * 11)
+    st.d   R12, Emu, (8 * 12)
+    st.d   R13, Emu, (8 * 13)
+    st.d   R14, Emu, (8 * 14)
+    st.d   R15, Emu, (8 * 15)
     // restore xFlags from LBT.eflags
-    la.global $r12, cpuext
-    ldptr.d   $r12, $r12, 0
-    andi      $r12, $r12, 1
-    beqz      $r12, 1f
-    ori       $r13, $r0, 0b100011010101
-    andn      $r31, $r31, $r13
-    x86mfflag $r13, 0b111111
-    or        $r31, $r31, $r13
+    la.global $r19, cpuext
+    ldptr.d   $r19, $r19, 0
+    andi      $r19, $r19, 1
+    beqz      $r19, 1f
+    ori       $r19, $r0, 0b100011010101
+    andn      Flags, Flags, $r19
+    x86mfflag $r19, 0b111111
+    or        Flags, Flags, $r19
 1:
-    st.d   $r31, $r4, (8 * 16) // xFlags
-    st.d   $r20, $r4, (8 * 17) // put back reg value in emu, including EIP (so $r20 must be EIP now)
+    st.d   Flags, Emu, (8 * 16) // xFlags
+    st.d   RIP,   Emu, (8 * 17) // put back reg value in emu, including EIP (so $r29 must be EIP now)
     // fallback to epilog_fast now, just restoring saved regs
 la64_epilog_fast:
-    addi.d $sp, $r22, 0       // restore save sp from xSavedSP
+    addi.d $sp, SavedSP, 0      // restore save sp from xSavedSP
     // restore all used register
     ld.d   $r1,  $sp, (8 * 0) // load ra
     ld.d   $r22, $sp, (8 * 1) // load fp

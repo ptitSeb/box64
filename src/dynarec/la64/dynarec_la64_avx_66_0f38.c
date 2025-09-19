@@ -1278,7 +1278,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             avx_forget_reg(dyn, ninst, gd);
             MOV32w(x1, gd);
-            CALL(const_native_aesimc, -1);
+            CALL(const_native_aesimc, -1, x1, 0);
             if (!vex.l) {
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
                 ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
@@ -1296,7 +1296,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 d0 = -1;
             avx_forget_reg(dyn, ninst, gd);
             MOV32w(x1, gd);
-            CALL(const_native_aese, -1);
+            CALL(const_native_aese, -1, x1, 0);
             GETGYx(q0, 1);
             VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
             if (!vex.l) {
@@ -1316,7 +1316,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 d0 = -1;
             avx_forget_reg(dyn, ninst, gd);
             MOV32w(x1, gd);
-            CALL(const_native_aeselast, -1);
+            CALL(const_native_aeselast, -1, x1, 0);
             GETGYx(q0, 1);
             VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
             if (!vex.l) {
@@ -1336,7 +1336,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 d0 = -1;
             avx_forget_reg(dyn, ninst, gd);
             MOV32w(x1, gd);
-            CALL(const_native_aesd, -1);
+            CALL(const_native_aesd, -1, x1, 0);
             GETGYx(q0, 1);
             VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
             if (!vex.l) {
@@ -1356,7 +1356,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 d0 = -1;
             avx_forget_reg(dyn, ninst, gd);
             MOV32w(x1, gd);
-            CALL(const_native_aesdlast, -1);
+            CALL(const_native_aesdlast, -1, x1, 0);
             GETGYx(q0, 1);
             VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
             if (!vex.l) {

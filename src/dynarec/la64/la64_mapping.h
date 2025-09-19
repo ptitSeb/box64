@@ -1,76 +1,87 @@
 #ifndef __LA64_MAPPING_H__
 #define __LA64_MAPPING_H__
 
+// LA64 Register Mapping Scheme
+/*****************************************************************************************
+name    alias  mapping      native description              Box64 description       saver
+******************************************************************************************
+r0      zero   native zero  Hard-wired zero                 N/A                     -
+r1      ra     native ra    Return address                  N/A                     Caller
+r2      tp     -            Thread pointer                  N/A                     -
+r3      sp     native sp    Stack pointer                   N/A                     Callee
+r4      a0     RDI          Function argument/return val.   -                       Caller
+r5      a1     RSI          Function argument/return val.   -                       Caller
+r6      a2     RDX          Function argument               -                       Caller
+r7      a3     RCX          Function argument               -                       Caller
+r8      a4     R8           Function argument               -                       Caller
+r9      a5     R9           Function argument               -                       Caller
+r10     a6     RBX          Function argument               -                       Caller
+r11     a7     RSP          Function argument               -                       Caller
+r12     t0     RAX          Temporary                       -                       Caller
+r13     t1     RBP          Temporary                       -                       Caller
+r14     t2     x1           Temporary                       Scratch                 Caller
+r15     t3     x2           Temporary                       Scratch                 Caller
+r16     t4     x3           Temporary                       Scratch                 Caller
+r17     t5     x4           Temporary                       Scratch                 Caller
+r18     t6     x5           Temporary                       Scratch                 Caller
+r19     t7     x6           Temporary                       Scratch                 Caller
+r20     t8     x7           Temporary                       Scratch                 Caller
+r21     rx     -            Reserved                        N/A                     -
+r22     fp     SavedSP      Saved register/frame pointer    -                       Callee
+r23     s0     R10          Saved register                  -                       Callee
+r24     s1     R11          Saved register                  -                       Callee
+r25     s2     R12          Saved register                  -                       Callee
+r26     s3     R13          Saved register                  -                       Callee
+r27     s4     R14          Saved register                  -                       Callee
+r28     s5     R15          Saved register                  -                       Callee
+r29     s6     RIP          Saved register                  -                       Callee
+r30     s7     FLAGS        Saved register                  -                       Callee
+r31     s8     xEmu         Saved register                  The Emu struct          Callee
+******************************************************************************************/
 
-// LA64 ABI
-/*
-Name     Alias     Meaning                         saver
----------------------------------------------------------
-r0       zero      Zero register                   -
-r1       ra        Return address                  Callee
-r2       tp        Thread pointer                  -
-r3       sp        Stack pointer                   Callee
-r4-r5    a0-a1     Function arguments,Return val.  Caller
-r6-r11   a2-a7     Function arguments              Caller
-r12-r20  t0-t8     Temp registers                  Caller
-r21      Reserved  Non-allocatable                 -
-r22      fp/s9     Frame pointer/Static register   Callee
-r23-31   s0-s8     Static registers                Callee
----------------------------------------------------------
-f0-f1    fa0-fa1   Function arguments,Return val.  Caller
-f2-f7    fa2-fa7   Function arguments              Caller
-f8-f23   ft0-ft15  Temp registers                  Caller
-f24-f31  fs0-fs7   Static registers                Callee
-*/
-/*
- LA64 GPR mapping
- There is no 15 registers free, so split the regs in 2 part
- AX..DI : r12-r19
- R8..R15: r23-r30
- flags in r31
- ip in r20
-*/
+#ifndef ASM_MAPPING
+
 // x86 Register mapping
 #define xRAX     12
-#define xRCX     13
-#define xRDX     14
-#define xRBX     15
-#define xRSP     16
-#define xRBP     17
-#define xRSI     18
-#define xRDI     19
-#define xR8      23
-#define xR9      24
-#define xR10     25
-#define xR11     26
-#define xR12     27
-#define xR13     28
-#define xR14     29
-#define xR15     30
-#define xFlags   31
-#define xRIP     20
+#define xRCX     7
+#define xRDX     6
+#define xRBX     10
+#define xRSP     11
+#define xRBP     13
+#define xRSI     5
+#define xRDI     4
+#define xR8      8
+#define xR9      9
+#define xR10     23
+#define xR11     24
+#define xR12     25
+#define xR13     26
+#define xR14     27
+#define xR15     28
+#define xFlags   30
+#define xRIP     29
 #define xSavedSP 22
 
 // convert a x86 register to native according to the register mapping
-#define TO_NAT(A) (xRAX + (A) + (((A) > 7) ? 3 : 0))
+#define TO_NAT(A) (((uint8_t[]) { 12, 7, 6, 10, 11, 13, 5, 4, 8, 9, 23, 24, 25, 26, 27, 28 })[(A)])
 
 // scratch registers
-#define x1 5
-#define x2 6
-#define x3 7
-#define x4 8
-#define x5 9
-#define x6 10
-#define x7 11
+#define x1 14
+#define x2 15
+#define x3 16
+#define x4 17
+#define x5 18
+#define x6 19
+#define x7 20
 
-// emu is r0
-#define xEmu 4
+// emu is $r31
+#define xEmu 31
 // LA64 RA
 #define xRA 1
 #define ra  xRA
 // LA64 SP
 #define xSP 3
-// RV64 args
+// LA64 args
 #define A0 4
 #define A1 5
 #define A2 6
@@ -126,5 +137,39 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define FR_O 26
 #define FR_U 25
 #define FR_I 24
+
+#else
+
+// x86 Register mapping
+#define RAX     $r12
+#define RCX     $r7
+#define RDX     $r6
+#define RBX     $r10
+#define RSP     $r11
+#define RBP     $r13
+#define RSI     $r5
+#define RDI     $r4
+#define R8      $r8
+#define R9      $r9
+#define R10     $r23
+#define R11     $r24
+#define R12     $r25
+#define R13     $r26
+#define R14     $r27
+#define R15     $r28
+#define Flags   $r30
+#define RIP     $r29
+#define Emu     $r31
+#define SavedSP $r22
+
+#ifdef LA64_ABI_1
+
+.macro ret
+    jr  $ra
+.endm
+
+#endif // LA64_ABI_1
+
+#endif // ASM_MAPPING
 
 #endif //__LA64_MAPPING_H__

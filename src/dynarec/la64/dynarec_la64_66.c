@@ -782,7 +782,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
-                    CALL_(const_rol16, x1, x3);
+                    CALL_(const_rol16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 1:
@@ -792,7 +792,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
-                    CALL_(const_ror16, x1, x3);
+                    CALL_(const_ror16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 4:
@@ -872,7 +872,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 1);
-                    CALL_(const_rol16, x1, x3);
+                    CALL_(const_rol16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 5:
@@ -970,7 +970,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNE_MARK3(ed, xZR);
                         GETIP_(ip, x6);
                         STORE_XEMU_CALL();
-                        CALL(const_native_div0, -1);
+                        CALL(const_native_div0, -1, 0, 0);
                         CLEARIP();
                         LOAD_XEMU_CALL();
                         jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -991,7 +991,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNE_MARK3(ed, xZR);
                         GETIP_(ip, x7);
                         STORE_XEMU_CALL();
-                        CALL(const_native_div0, -1);
+                        CALL(const_native_div0, -1, 0, 0);
                         CLEARIP();
                         LOAD_XEMU_CALL();
                         jump_to_epilog(dyn, 0, xRIP, ninst);

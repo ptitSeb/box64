@@ -1,3 +1,7 @@
+#define ASM_MAPPING 1
+#include "la64_mapping.h"
+#undef ASM_MAPPING
+
 //loongarch prologue for dynarec
 //Save stuff, prepare stack and register
 //called with pointer to emu as 1st parameter
@@ -33,37 +37,40 @@ la64_prolog:
     fst.d  $f29, $sp, (8 * 16)
     fst.d  $f30, $sp, (8 * 17)
     fst.d  $f31, $sp, (8 * 18)
+    // save a1
+    move   $r16,  $a1
     // setup emu -> register
-    ld.d   $r12, $r4, (8 * 0)
-    ld.d   $r13, $r4, (8 * 1)
-    ld.d   $r14, $r4, (8 * 2)
-    ld.d   $r15, $r4, (8 * 3)
-    ld.d   $r16, $r4, (8 * 4)
-    ld.d   $r17, $r4, (8 * 5)
-    ld.d   $r18, $r4, (8 * 6)
-    ld.d   $r19, $r4, (8 * 7)
-    ld.d   $r23, $r4, (8 * 8)
-    ld.d   $r24, $r4, (8 * 9)
-    ld.d   $r25, $r4, (8 * 10)
-    ld.d   $r26, $r4, (8 * 11)
-    ld.d   $r27, $r4, (8 * 12)
-    ld.d   $r28, $r4, (8 * 13)
-    ld.d   $r29, $r4, (8 * 14)
-    ld.d   $r30, $r4, (8 * 15)
-    ld.d   $r31, $r4, (8 * 16)  // xFlags
-    ld.d   $r20, $r4, (8 * 17)  // xRIP
+    move   Emu,   $a0
+    ld.d   RAX,   Emu, (8 * 0)
+    ld.d   RCX,   Emu, (8 * 1)
+    ld.d   RDX,   Emu, (8 * 2)
+    ld.d   RBX,   Emu, (8 * 3)
+    ld.d   RSP,   Emu, (8 * 4)
+    ld.d   RBP,   Emu, (8 * 5)
+    ld.d   RSI,   Emu, (8 * 6)
+    ld.d   RDI,   Emu, (8 * 7)
+    ld.d   R8,    Emu, (8 * 8)
+    ld.d   R9,    Emu, (8 * 9)
+    ld.d   R10,   Emu, (8 * 10)
+    ld.d   R11,   Emu, (8 * 11)
+    ld.d   R12,   Emu, (8 * 12)
+    ld.d   R13,   Emu, (8 * 13)
+    ld.d   R14,   Emu, (8 * 14)
+    ld.d   R15,   Emu, (8 * 15)
+    ld.d   Flags, Emu, (8 * 16)  // xFlags
+    ld.d   RIP,   Emu, (8 * 17)  // xRIP
     // spill xFlags to LBT.eflags
-    la.global $a6, cpuext
-    ldptr.d   $a6, $a6, 0
-    andi      $a6, $a6, 1
-    beqz      $a6, 1f
-    x86mtflag $r31, 0b111111
+    la.global $r19, cpuext
+    ldptr.d   $r19, $r19, 0
+    andi      $r19, $r19, 1
+    beqz      $r19, 1f
+    x86mtflag Flags, 0b111111
 1:
     // push sentinel onto the stack
-    st.d   $r0, $sp, -16
+    st.d   $r0,  $sp, -16
     st.d   $r0,  $sp, -8
     addi.d $sp,  $sp, -16
     // save old sp into xSavedSP
-    addi.d $r22, $sp, 16
+    addi.d SavedSP, $sp, 16
     //jump to function
-    jirl   $r0,  $a1, 0
+    jirl   $r0,  $r16, 0
