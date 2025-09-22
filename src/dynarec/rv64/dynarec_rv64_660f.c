@@ -414,11 +414,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // GX->f[0] = EX->d[0];
             FLD(d0, wback, fixedaddress + 0);
             FCVTSD(d0, d0);
-            FSD(d0, gback, gdoffset + 0);
+            FSW(d0, gback, gdoffset + 0);
             // GX->f[1] = EX->d[1];
             FLD(d0, wback, fixedaddress + 8);
             FCVTSD(d0, d0);
-            FSD(d0, gback, gdoffset + 4);
+            FSW(d0, gback, gdoffset + 4);
             // GX->q[1] = 0;
             SD(xZR, gback, gdoffset + 8);
             break;
