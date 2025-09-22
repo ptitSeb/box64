@@ -225,6 +225,99 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else
                 YMM0(gd);
             break;
+        case 0x16:
+            if (rex.w) {
+                INST_NAME("VPEXTRQ Ed, Gx, Ib");
+            } else {
+                INST_NAME("VPEXTRD Ed, Gx, Ib");
+            }
+            nextop = F8;
+            GETGX();
+            GETED(1);
+            u8 = F8;
+            if (rex.w) {
+                LD(ed, gback, gdoffset + 8 * (u8 & 0x1));
+                if (!MODREG) {
+                    SD(ed, wback, fixedaddress);
+                    SMWRITE2();
+                }
+            } else {
+                if (MODREG) {
+                    LWU(ed, gback, gdoffset + 4 * (u8 & 0x3));
+                } else {
+                    LW(ed, gback, gdoffset + 4 * (u8 & 0x3));
+                    SW(ed, wback, fixedaddress);
+                    SMWRITE2();
+                }
+            }
+            break;
+        case 0x18:
+        case 0x38:
+            if (opcode == 0x18) {
+                INST_NAME("VINSERTF128 Gx, Vx, Ex, imm8");
+            } else {
+                INST_NAME("VINSERTI128 Gx, Vx, Ex, imm8");
+            }
+            nextop = F8;
+            GETEX(x1, 1, 8);
+            GETGX();
+            GETVX();
+            GETGY();
+            GETVY();
+            u8 = F8;
+            if (u8 & 1) {
+                LD(x4, wback, fixedaddress + 0);
+                LD(x5, wback, fixedaddress + 8);
+                SD(x4, gback, gyoffset + 0);
+                SD(x5, gback, gyoffset + 8);
+                if (gd != vex.v) {
+                    LD(x4, vback, vxoffset + 0);
+                    LD(x5, vback, vxoffset + 8);
+                    SD(x4, gback, gdoffset + 0);
+                    SD(x5, gback, gdoffset + 8);
+                }
+            } else {
+                LD(x4, wback, fixedaddress + 0);
+                LD(x5, wback, fixedaddress + 8);
+                SD(x4, gback, gdoffset + 0);
+                SD(x5, gback, gdoffset + 8);
+                if (gd != vex.v) {
+                    LD(x4, vback, vyoffset + 0);
+                    LD(x5, vback, vyoffset + 8);
+                    SD(x4, gback, gyoffset + 0);
+                    SD(x5, gback, gyoffset + 8);
+                }
+            }
+            break;
+        case 0x19:
+        case 0x39:
+            if (opcode == 0x19) {
+                INST_NAME("VEXTRACTF128 Ex, Gx, imm8");
+            } else {
+                INST_NAME("VEXTRACTI128 Ex, Gx, imm8");
+            }
+            nextop = F8;
+            GETEX(x1, 1, 8);
+            GETGX();
+            GETGY();
+            u8 = F8;
+            if (u8 & 1) {
+                LD(x4, gback, gyoffset + 0);
+                LD(x5, gback, gyoffset + 8);
+                SD(x4, wback, fixedaddress + 0);
+                SD(x5, wback, fixedaddress + 8);
+            } else {
+                LD(x4, gback, gdoffset + 0);
+                LD(x5, gback, gdoffset + 8);
+                SD(x4, wback, fixedaddress + 0);
+                SD(x5, wback, fixedaddress + 8);
+            }
+            if (MODREG) {
+                YMM0(ed);
+            } else {
+                SMWRITE2();
+            }
+            break;
         case 0x22:
             if (rex.w) {
                 INST_NAME("VPINSRQ Gx, Vx, ED, Ib");
