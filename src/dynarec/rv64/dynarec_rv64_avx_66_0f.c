@@ -513,6 +513,31 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else
                 YMM0(gd);
             break;
+        case 0x5A:
+            INST_NAME("VCVTPD2PS Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            FLD(d0, wback, fixedaddress + 0);
+            FLD(d1, wback, fixedaddress + 8);
+            FCVTSD(d0, d0);
+            FCVTSD(d1, d1);
+            FSW(d0, gback, gdoffset + 0);
+            FSW(d1, gback, gdoffset + 4);
+            if (vex.l) {
+                GETEY();
+                FLD(d0, wback, fixedaddress + 0);
+                FLD(d1, wback, fixedaddress + 8);
+                FCVTSD(d0, d0);
+                FCVTSD(d1, d1);
+                FSW(d0, gback, gdoffset + 8);
+                FSW(d1, gback, gdoffset + 12);
+            } else
+                SD(xZR, gback, gdoffset + 8);
+            YMM0(gd);
+            break;
         case 0x5B:
             INST_NAME("VCVTPS2DQ Gx, Ex");
             nextop = F8;
@@ -1849,6 +1874,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else
                 YMM0(gd);
+            break;
+        case 0xD6:
+            INST_NAME("VMOVQ Ex, Gx");
+            nextop = F8;
+            GETEX(x2, 0, 8);
+            GETGX();
+            LD(x3, gback, gdoffset);
+            SD(x3, wback, fixedaddress);
+            if (MODREG) {
+                SD(xZR, wback, fixedaddress + 8);
+                YMM0(ed);
+            } else {
+                SMWRITE2();
+            }
             break;
         case 0xD8:
             INST_NAME("VPSUBUSB Gx, Vx, Ex");

@@ -78,6 +78,23 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 YMM0(ed);
             }
             break;
+        case 0x12:
+            INST_NAME("VMOVDDUP Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETGY();
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, gdoffset);
+            SD(x3, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x3, wback, fixedaddress + 0);
+                SD(x3, gback, gyoffset + 0);
+                SD(x3, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
         case 0x58:
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
