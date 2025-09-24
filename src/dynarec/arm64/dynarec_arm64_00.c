@@ -3828,8 +3828,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIx(xRAX, x1, 0, 16);
                     SET_DFNONE();
                     IFX(X_CF|X_OF) {
-                        ASRxw(x2, x1, 8);
-                        CMPSw_REG_ASR(x2, x1, 16);
+                        SXTHw(x1, xRAX);
+                        SXTBw(x2, x1);
+                        CMPSw_REG(x2, x1);
                         CSETw(x3, cNE);
                         IFX(X_CF) {
                             BFIw(xFlags, x3, F_CF, 1);
