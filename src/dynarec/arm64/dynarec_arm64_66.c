@@ -472,6 +472,38 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV32w(x2, (uint16_t)i16);
             PUSH1_16(x2);
             break;
+        case 0x6C:
+        case 0x6D:
+            INST_NAME(opcode == 0x6C ? "INSB" : "INSW");
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL_S(const_native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0x6E:
+        case 0x6F:
+            INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSW");
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL_S(const_native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
 
         case 0x70:
         case 0x71:
@@ -1413,6 +1445,51 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xE4:                      /* IN AL, Ib */
+        case 0xE5:                      /* IN AX, Ib */
+        case 0xE6:                      /* OUT Ib, AL */
+        case 0xE7:                      /* OUT Ib, AX */
+            INST_NAME(opcode==0xE4?"IN AL, Ib":(opcode==0xE5?"IN AX, Ib":(opcode==0xE6?"OUT Ib, AL":"OUT Ib, AX")));
+            if (rex.is32bits && BOX64ENV(ignoreint3)) {
+                F8;
+            } else {
+                if(BOX64DRENV(dynarec_safeflags)>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
+                u8 = F8;
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL_S(const_native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
+            break;
+
+        case 0xEC:                      /* IN AL, DX */
+        case 0xED:                      /* IN AX, DX */
+        case 0xEE:                      /* OUT DX, AL */
+        case 0xEF:                      /* OUT DX, AX */
+            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN AX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, AX")));
+            if(rex.is32bits && BOX64ENV(ignoreint3))
+            {} else {
+                if(BOX64DRENV(dynarec_safeflags)>1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                }
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL_S(const_native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
+            break;
         case 0xF0:
             return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
 
