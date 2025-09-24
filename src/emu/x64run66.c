@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "x64_signals.h"
 #include "debug.h"
 #include "box64stack.h"
 #include "box64cpu_util.h"
@@ -19,6 +20,7 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "alternate.h"
+#include "emit_signals.h"
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
@@ -279,6 +281,18 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GW->word[0] = imul16(emu, EW->word[0], (uint16_t)tmp16s);
         }
         break;
+        case 0x6C:                      /* INSB DX */
+        case 0x6D:                      /* INSW DX */
+        case 0x6E:                      /* OUTSB DX */
+        case 0x6F:                      /* OUTSW DX */
+#ifndef TEST_INTERPRETER
+            if(rex.is32bits && BOX64ENV(ignoreint3))
+            {
+            } else {
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
+            }
+            #endif
+            break;
     
     case 0x70:
     case 0x71:
@@ -781,6 +795,18 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
         return Run66DD(emu, rex, addr);
         #endif
 
+        case 0xE4:                      /* IN AL, XX */
+        case 0xE5:                      /* IN AX, XX */
+        case 0xE6:                      /* OUT XX, AL */
+        case 0xE7:                      /* OUT XX, AX */
+            // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
+            F8;
+            if(rex.is32bits && BOX64ENV(ignoreint3))
+            {} else
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
+            #endif
+            break;
     case 0xE8:                              /* CALL Id */
         tmp32s = F32S; // call is relative
         if(rex.is32bits)
@@ -790,6 +816,17 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
         addr += tmp32s;
         break;
 
+    case 0xEC:                      /* IN AL, DX */
+    case 0xED:                      /* IN AX, DX */
+    case 0xEE:                      /* OUT DX, AL */
+    case 0xEF:                      /* OUT DX, AX */
+        // this is a privilege opcode...
+        #ifndef TEST_INTERPRETER
+        if(rex.is32bits && BOX64ENV(ignoreint3))
+        {} else
+        EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
+        #endif
+        break;
     case 0xF0:                              /* LOCK: */
         #ifdef TEST_INTERPRETER
         return Test66F0(test, rex, addr);
