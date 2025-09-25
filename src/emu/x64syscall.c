@@ -312,6 +312,7 @@ static const scwrap_t syscallwrap[] = {
     // TODO: implement fallback if __NR_statx is not defined
     [332] = {__NR_statx, 5},
     #endif
+    [425] = {__NR_io_uring_setup, 2},
     #ifdef __NR_fchmodat4
     [434] = {__NR_fchmodat4, 4},
     #endif
@@ -856,6 +857,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         case 334: // It is helpeful to run static binary
             R_RAX = -ENOSYS;
+            break;
+        case 425:
+            S_RAX = syscall(__NR_io_uring_setup, S_EDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_fchmodat4
         case 434:
