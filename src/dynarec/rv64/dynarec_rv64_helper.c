@@ -739,7 +739,7 @@ void iret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, int is64bits)
         POP1_32(x2);
         POP1_32(xFlags);
     }
-    FLAGS_ADJUST_FROM11(xFlags, xFlags, x2);
+    FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);
 
     SH(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
     SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
