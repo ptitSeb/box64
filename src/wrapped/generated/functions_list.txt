@@ -3900,6 +3900,8 @@ wrappedcrypto3:
   - ASN1_i2d_bio
 - iFppV:
   - BIO_printf
+- pFppp:
+  - OPENSSL_sk_deep_copy
 - vFiipV:
   - ERR_set_error
 - vFiipA:

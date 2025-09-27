@@ -2697,7 +2697,8 @@ GO(OPENSSL_issetugid, iFv)
 //GO(OPENSSL_load_builtin_modules, 
 //GO(OPENSSL_memcmp, 
 GO(OPENSSL_no_config, vFv)
-//GO(OPENSSL_rdtsc, 
+// GO(OPENSSL_rdtsc,
+GOM(OPENSSL_sk_deep_copy, pFEppp)
 GO(OPENSSL_sk_find, iFpp)
 GO(OPENSSL_sk_free, vFp)
 GOM(OPENSSL_sk_new, pFEp)
@@ -3668,9 +3669,14 @@ GO(X509_NAME_print_ex, iFppiu)
 GO(X509_NAME_print_ex_fp, iFppiu)
 //GO(X509_NAME_set, 
 GO(X509_new, pFv)
+GO(X509_OBJECT_free, vFp)
+GO(X509_OBJECT_new, pFv)
 //GO(X509_OBJECT_free_contents, 
 GO(X509_OBJECT_get_type, iFp)
 GO(X509_OBJECT_get0_X509, pFp)
+GO(X509_OBJECT_set1_X509, iFpp)
+GO(X509_OBJECT_get0_X509_CRL, pFp)
+GO(X509_OBJECT_set1_X509_CRL, iFpp)
 //GO(X509_OBJECT_idx_by_subject, 
 //GO(X509_OBJECT_retrieve_by_subject, 
 //GO(X509_OBJECT_retrieve_match, 
@@ -3833,6 +3839,8 @@ GO(X509_STORE_load_file, iFpp)
 GO(X509_STORE_load_path, iFpp)
 GO(X509_STORE_load_store, iFpp)
 //GO(X509_STORE_load_locations, iFppp)
+GO(X509_STORE_lock, iFp)
+GO(X509_STORE_unlock, iFp)
 GO(X509_STORE_new, pFv)
 //GO(X509_STORE_set1_param, 
 //GO(X509_STORE_set_default_paths, 

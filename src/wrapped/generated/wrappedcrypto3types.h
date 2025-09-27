@@ -17,6 +17,7 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
+typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFiipA_t)(int32_t, int32_t, void*, va_list);
 typedef void* (*pFiLpp_t)(int32_t, uintptr_t, void*, void*);
@@ -36,6 +37,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(EVP_MD_do_all_provided, vFppp_t) \
 	GO(ASN1_i2d_bio, iFppp_t) \
 	GO(BIO_printf, iFppV_t) \
+	GO(OPENSSL_sk_deep_copy, pFppp_t) \
 	GO(ERR_set_error, vFiipV_t) \
 	GO(ERR_vset_error, vFiipA_t) \
 	GO(RSA_generate_key, pFiLpp_t) \
