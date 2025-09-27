@@ -126,6 +126,30 @@ static void* find_free_fnc_Fct(void* fct)
     return NULL;
 }
 
+// copy_fnc
+#define GO(A)   \
+static uintptr_t my3_copy_fnc_fct_##A = 0;               \
+static void my3_copy_fnc_##A(void* p)                    \
+{                                                       \
+    RunFunctionFmt(my3_copy_fnc_fct_##A, "p", p); \
+}
+SUPER()
+#undef GO
+static void* find_copy_fnc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_copy_fnc_fct_##A == (uintptr_t)fct) return my3_copy_fnc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_copy_fnc_fct_##A == 0) {my3_copy_fnc_fct_##A = (uintptr_t)fct; return my3_copy_fnc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto copy_fnc callback\n");
+    return NULL;
+}
+
 // id_func
 #define GO(A)   \
 static uintptr_t my3_id_func_fct_##A = 0;                                    \
@@ -510,6 +534,11 @@ EXPORT void my3_OPENSSL_sk_pop_free(x64emu_t* emu, void* s, void* cb)
 {
     (void)emu;
     my->OPENSSL_sk_pop_free(s, find_free_fnc_Fct(cb));
+}
+
+EXPORT void* my3_OPENSSL_sk_deep_copy(x64emu_t* emu, void* s, void* c, void* f)
+{
+    return my->OPENSSL_sk_deep_copy(s, find_copy_fnc_Fct(c), find_free_fnc_Fct(f));
 }
 
 EXPORT void* my3_OPENSSL_sk_new(x64emu_t* emu, void* f)
