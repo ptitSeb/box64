@@ -546,6 +546,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     sigcontext->uc_mcontext.gregs[I386_EIP] = R_EIP;//emu->old_ip;   // old_ip should be more accurate as the "current" IP, but it's not always up-to-date
     // flags
     sigcontext->uc_mcontext.gregs[I386_EFL] = emu->eflags.x64;
+    CLEAR_FLAG(F_TF);   // now clear TF flags inside the signal handler
     // get segments
     sigcontext->uc_mcontext.gregs[I386_CS] = R_CS;
     sigcontext->uc_mcontext.gregs[I386_DS] = R_DS;

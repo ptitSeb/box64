@@ -53,7 +53,8 @@ int Run(x64emu_t *emu, int step, int need_tf)
     rex_t rex = {0};
     int unimp = 0;
     int is32bits = (emu->segs[_CS]==0x23);
-    int tf_next = 0;
+    int no_tf = 0;
+    int tf = ACCESS_FLAG(F_TF);
 
     if(emu->quit)
         return 0;
@@ -68,15 +69,6 @@ int Run(x64emu_t *emu, int step, int need_tf)
     test->memsize = 0;
 #else
     CheckExec(emu, R_RIP);
-#ifndef TEST_INTERPRETER
-        // check the TRACE flag before going to next
-        if(ACCESS_FLAG(F_TF) && need_tf) {
-            need_tf = 0;
-            CLEAR_FLAG(F_TF);
-            EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
-            if(emu->quit) goto fini;
-        }
-#endif
 x64emurun:
     while(1) 
 #endif
@@ -90,6 +82,19 @@ x64emurun:
                 PrintTrace(emu, addr, 0);
 #endif
         emu->old_ip = addr;
+
+        #ifndef TEST_INTERPRETER
+        // check the TRACE flag before going to next
+        if(tf) {
+            if(no_tf)
+                no_tf = 0;
+            else {
+                R_RIP = addr;
+                EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
+                if(emu->quit) goto fini;
+            }
+        }
+#endif
 
         opcode = F8;
         
@@ -123,7 +128,7 @@ x64emurun:
 
         if(rex.seg)
             rex.offset = GetSegmentBaseEmu(emu, rex.seg);
-
+        
         if(rex.is66) {
             /* 16bits prefix */
             #ifdef TEST_INTERPRETER
@@ -138,6 +143,7 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            tf = ACCESS_FLAG(F_TF);
             #endif
         } else
         switch(opcode) {
@@ -279,8 +285,7 @@ x64emurun:
             }
             emu->segs[_SS] = Pop32(emu);    // no check, no use....
             emu->segs_serial[_SS] = 0;
-            if(ACCESS_FLAG(F_TF))
-                tf_next = 1;
+            tf = 0;
             break;
 
         case 0x1E:                      /* PUSH DS */
@@ -772,8 +777,8 @@ x64emurun:
             GETED(0);
             emu->segs[((nextop&0x38)>>3)] = ED->word[0];
             emu->segs_serial[((nextop&0x38)>>3)] = 0;
-            if(((nextop&0x38)>>3)==_SS && ACCESS_FLAG(F_TF))
-                tf_next = 1;
+            if(((nextop&0x38)>>3)==_SS && tf)   // disable trace when SS is accessed
+                no_tf = 1;
             break;
         case 0x8F:                      /* POP Ed */
             nextop = F8;
@@ -842,12 +847,9 @@ x64emurun:
                 Push64(emu, emu->eflags.x64);
             break;
         case 0x9D:                      /* POPF */
-            if(ACCESS_FLAG(F_TF) && !tf_next)
-                --tf_next;
             emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x202; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
-            if(ACCESS_FLAG(F_TF))
-                ++tf_next;
+            tf = ACCESS_FLAG(F_TF);
             break;
         case 0x9E:                      /* SAHF */
             CHECK_FLAGS(emu);
@@ -1516,8 +1518,7 @@ x64emurun:
                 EmitInterruption(emu, 0x29, (void*)R_RIP);
             } else if (tmp8u==0x80) {
                 R_RIP = addr;
-                if(ACCESS_FLAG(F_TF))
-                    tf_next = 1;
+                if(tf) no_tf = 1;
                 // 32bits syscall
                 #ifndef TEST_INTERPRETER
                 EmuX86Syscall(emu);
@@ -1567,6 +1568,7 @@ x64emurun:
                 #endif
                 RESET_FLAGS(emu);
                 emu->eflags.x64 = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+                tf = ACCESS_FLAG(F_TF);
                 if(!is32bits || (is32bits && (new_cs!=0x23))) {
                     uintptr_t new_sp = (!rex.w)?Pop32(emu):Pop64(emu);
                     uint32_t new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
@@ -2273,20 +2275,6 @@ x64emurun:
             unimp = 1;
             goto fini;
         }
-#ifndef TEST_INTERPRETER
-        // check the TRACE flag before going to next
-        if(ACCESS_FLAG(F_TF) || (tf_next<0)) {
-            if(tf_next>0) {
-                tf_next = 0;
-            } else {
-                tf_next = 0;
-                R_RIP = addr;
-                CLEAR_FLAG(F_TF);
-                EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
-                if(emu->quit) goto fini;
-            }
-        }
-#endif
         R_RIP = addr;
     }
 
