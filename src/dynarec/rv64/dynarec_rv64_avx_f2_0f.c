@@ -37,10 +37,10 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     int v0, v1, v2;
     int q0, q1, q2;
     int d0, d1, d2;
-    int s0;
+    int s0, s1;
     uint64_t tmp64u, u64;
     int64_t j64;
-    int64_t fixedaddress, gdoffset, vxoffset, gyoffset;
+    int64_t fixedaddress, gdoffset, vxoffset, gyoffset, vyoffset;
     int unscaled;
 
     rex_t rex = vex.rex;
@@ -357,6 +357,65 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(x3, gback, gdoffset + 8);
             }
             YMM0(gd);
+            break;
+        case 0xD0:
+            INST_NAME("VADDSUBPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 4; ++i) {
+                FLW(s0, wback, fixedaddress + i * 4);
+                FLW(s1, vback, vxoffset + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x3, x3, x4);
+                    BEQZ(x3, 4 + 4 * 4);
+                }
+                if (i == 1 || i == 3)
+                    FADDS(s0, s0, s1);
+                else
+                    FSUBS(s0, s1, s0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 4 + 4);
+                    FNEGS(s0, s0);
+                    BNEZ(x4, 4 + 4);
+                    FMVS(s0, s1);
+                }
+                FSW(s0, gback, gdoffset + i * 4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    FLW(s0, wback, fixedaddress + i * 4);
+                    FLW(s1, vback, vyoffset + i * 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        FEQS(x4, s1, s1);
+                        AND(x3, x3, x4);
+                        BEQZ(x3, 4 + 4 * 4);
+                    }
+                    if (i == 1 || i == 3)
+                        FADDS(s0, s0, s1);
+                    else
+                        FSUBS(s0, s1, s0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        BNEZ(x3, 4 + 4);
+                        FNEGS(s0, s0);
+                        BNEZ(x4, 4 + 4);
+                        FMVS(s0, s1);
+                    }
+                    FSW(s0, gback, gyoffset + i * 4);
+                }
+            } else
+                YMM0(gd);
             break;
         default:
             DEFAULT;

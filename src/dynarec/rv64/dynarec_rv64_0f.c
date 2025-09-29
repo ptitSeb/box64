@@ -2515,7 +2515,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = (F8) & 3;
             LHU(gd, wback, fixedaddress + u8 * 2);
             break;
-        case 0xC6: // TODO: Optimize this!
+        case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
             GETGX();
