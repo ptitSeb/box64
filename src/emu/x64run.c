@@ -1955,8 +1955,10 @@ x64emurun:
                     #endif
                 }
                 #endif
-            } else
-                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
+            } else {
+                unimp = 1;
+                goto fini;
+            }
             STEP;
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
