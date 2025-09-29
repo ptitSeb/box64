@@ -13,6 +13,7 @@ typedef enum arm64_consts_s {
     const_native_br,
     const_native_ud,
     const_native_priv,
+    const_native_gpf,
     const_native_int3,
     const_native_int,
     const_native_div0,

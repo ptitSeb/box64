@@ -49,6 +49,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_native_br: return (uintptr_t)native_br;
         case const_native_ud: return (uintptr_t)native_ud;
         case const_native_priv: return (uintptr_t)native_priv;
+        case const_native_gpf: return (uintptr_t)native_gpf;
         case const_native_int3: return (uintptr_t)native_int3;
         case const_native_int: return (uintptr_t)native_int;
         case const_native_div0: return (uintptr_t)native_div0;

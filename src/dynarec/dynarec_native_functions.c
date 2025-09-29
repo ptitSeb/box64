@@ -203,6 +203,12 @@ void native_priv(x64emu_t* emu)
     EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
 }
 
+void native_gpf(x64emu_t* emu)
+{
+    emu->test.test = 0;
+    EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // same effect has private opcode?
+}
+
 void native_int(x64emu_t* emu, int num)
 {
     emu->test.test = 0;

@@ -718,42 +718,48 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     // POP IP
     NOTEST(x2);
     if(is64bits) {
-        POP1(xRIP);
+        POP1(x1);
         POP1(x2);
-        POP1(xFlags);
+        POP1(x3);
     } else {
-        POP1_32(xRIP);
+        POP1_32(x1);
         POP1_32(x2);
-        POP1_32(xFlags);
+        POP1_32(x3);
     }
-    // x2 is CS
-    STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
-    STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+    // check CS is NULL, sgfault if it is
+    CBZw_MARK3(x1);
     // clean EFLAGS
-    MOV32w(x1, 0x3F7FD7);
-    ANDx_REG(xFlags, xFlags, x1);
-    ORRx_mask(xFlags, xFlags, 1, 0b111111, 0); // xFlags | 0b10
+    MOV32w(x4, 0x3F7FD7);
+    ANDx_REG(x3, x3, x4);
+    ORRx_mask(x3, x3, 1, 0b111111, 0); // xFlags | 0b10
     SET_DFNONE();
     if(is32bits) {
-        ANDw_mask(x2, x2, 0, 7);   // mask 0xff
+        ANDw_mask(x4, x2, 0, 7);   // mask 0xff
         // check if return segment is 64bits, then restore rsp too
-        CMPSw_U12(x2, 0x23);
+        CMPSw_U12(x4, 0x23);
         B_MARKSEG(cEQ);
     }
     // POP RSP
     if(is64bits) {
-        POP1(x3);   //rsp
-        POP1(x2);   //ss
+        POP1(x4);   //rsp
+        POP1(x5);   //ss
     } else {
-        POP1_32(x3);   //rsp
-        POP1_32(x2);   //ss
+        POP1_32(x4);   //rsp
+        POP1_32(x5);   //ss
     }
+    // check if SS is NULL
+    CBZw(x5, MARK);
     // POP SS
-    STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
+    STRH_U12(x5, xEmu, offsetof(x64emu_t, segs[_SS]));
     STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
     // set new RSP
-    MOVx_REG(xRSP, x3);
+    MOVx_REG(xRSP, x4);
     MARKSEG;
+    // x2 is CS, x1 is IP, x3 is eFlags
+    STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
+    STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+    MOVx_REG(xRIP, x1);
+    MOVw_REG(xFlags, x3);
     // Ret....
     // epilog on purpose, CS might have changed!
     if(dyn->need_reloc)
@@ -762,6 +768,17 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
         MOV64x(x2, getConst(const_epilog));
     BR(x2);
     CLEARIP();
+    MARK;
+    if(is64bits)
+        ADDx_U12(xRSP, xRSP, 8*2);
+    else
+        ADDx_U12(xRSP, xRSP, 4*2);
+    MARK3;
+    if(is64bits)
+        ADDx_U12(xRSP, xRSP, 8*3);
+    else
+        ADDx_U12(xRSP, xRSP, 4*3);
+    CALL_S(const_native_priv, -1);
 }
 
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int savereg)
