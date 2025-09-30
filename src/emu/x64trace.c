@@ -199,11 +199,12 @@ const char* DecodeX64Trace(zydis_dec_t* dec, uintptr_t p, int withhex)
     static char buff[512];
 #ifndef ZYDIS3
     if (ZYAN_SUCCESS(dec->ZydisDecoderDecodeFull(&dec->decoder, (char*)p, 15,
-            &dec->instruction, dec->operands))) {
+            &dec->instruction, dec->operands)))
 #else
     if (ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 15,
-            &dec->instruction))) {
+            &dec->instruction)))
 #endif
+    {
         char tmp[511];
         buff[0] = '\0';
         if (withhex) {
@@ -217,9 +218,16 @@ const char* DecodeX64Trace(zydis_dec_t* dec, uintptr_t p, int withhex)
 #else
         dec->ZydisFormatterFormatInstruction(&dec->formatter, &dec->instruction, tmp, sizeof(tmp), p);
 #endif
-        strcat(buff, tmp);
+        strncat(buff, tmp, sizeof(buff)-1);
     } else {
-        sprintf(buff, "Decoder failed @%p", (void*)p);
+        snprintf(buff, sizeof(buff), "Decoder failed @%p: ", (void*)p);
+        if (withhex) {
+            char tmp[10];
+            for (int i = 0; i < 15; ++i) {
+                sprintf(tmp, "%02X ", *((unsigned char*)p + i));
+                strcat(buff, tmp);
+            }
+        }
     }
     return buff;
 #endif
