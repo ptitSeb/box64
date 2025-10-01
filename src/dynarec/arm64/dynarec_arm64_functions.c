@@ -770,7 +770,14 @@ static register_mapping_t register_mappings[] = {
 void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction_x64_t* inst, const char* name);
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
-    if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
+    if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) {
+        /*zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
+        if(dec && !OpcodeOK(dec, dyn->insts[ninst].x64.addr) && !strstr(name, "Illegal")) {
+            uint8_t* p = (uint8_t*)dyn->insts[ninst].x64.addr;
+            printf_log(LOG_INFO, "Warning: %p invalid opcode %02x %02x %02x %02x %02x %02x treated as valid\n", p, p[0], p[1], p[2], p[3], p[4], p[5]);
+        }*/
+        return;
+    }
 
     static char buf[4096];
     int length = sprintf(buf, "barrier=%d state=%d/%d/%d(%d:%d->%d:%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",

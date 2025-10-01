@@ -238,3 +238,20 @@ const char* DecodeX64Trace(zydis_dec_t* dec, uintptr_t p, int withhex)
     return buff;
 #endif
 }
+
+int OpcodeOK(zydis_dec_t* dec, uintptr_t p)
+{
+#ifndef HAVE_TRACE
+    return 1;
+#else
+#ifndef ZYDIS3
+    if (ZYAN_SUCCESS(dec->ZydisDecoderDecodeFull(&dec->decoder, (char*)p, 15,
+            &dec->instruction, dec->operands)))
+#else
+    if (ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 15,
+            &dec->instruction)))
+#endif
+        return 1;
+    return 0;
+#endif
+}
