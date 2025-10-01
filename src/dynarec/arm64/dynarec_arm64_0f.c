@@ -184,6 +184,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             }
+            BARRIER(BARRIER_FLOAT);
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL_S(const_native_ud, -1);
@@ -200,6 +201,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             }
+            BARRIER(BARRIER_FLOAT);
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL_S(const_native_ud, -1);
@@ -2650,6 +2652,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 4:
                 INST_NAME("Unsupported XSAVEC Ed");
                 FAKEED;
+                BARRIER(BARRIER_FLOAT);
+                GETIP(ip);
                 UDF(0);
                 break;
             case 6:

@@ -110,12 +110,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
                 PUSH1_32(x1);
             } else {
+                INST_NAME("Illegal 06");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -128,12 +130,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
                 STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             } else {
+                INST_NAME("Illegal 07");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -224,12 +228,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 PUSH1_32(x1);
                 SMWRITE();
             } else {
+                INST_NAME("Illegal 0E");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -310,12 +316,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 PUSH1_32(x1);
                 SMWRITE();
             } else {
+                INST_NAME("Illegal 16");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -329,12 +337,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
                 STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
             } else {
+                INST_NAME("Illegal 17");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -403,12 +413,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 PUSH1_32(x1);
                 SMWRITE();
             } else {
+                INST_NAME("Illegal 1E");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -422,12 +434,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
                 STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             } else {
+                INST_NAME("Illegal 1F");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -503,12 +517,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(const_daa8, x1, 0);
                 BFIz(xRAX, x1, 0, 8);
             } else {
+                INST_NAME("Illegal 27");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -576,12 +592,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(const_das8, x1, 0);
                 BFIz(xRAX, x1, 0, 8);
             } else {
+                INST_NAME("Illegal 2F");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -678,12 +696,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(const_aaa16, x1, 0);
                 BFIz(xRAX, x1, 0, 16);
             } else {
+                INST_NAME("Illegal 37");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -754,12 +774,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(const_aas16, x1, 0);
                 BFIx(xRAX, x1, 0, 16);
             } else {
+                INST_NAME("Illegal 3F");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -894,12 +916,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 PUSH2_32(xRSI, xRDI);
                 SMWRITE();
             } else {
+                INST_NAME("Illegal 60");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -914,12 +938,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 POP2_32(xRBX, xRDX);
                 POP2_32(xRCX, xRAX);
             } else {
+                INST_NAME("Illegal 61");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -1716,13 +1742,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.is32bits) {
                 DEFAULT;
             } else {
-                INST_NAME("CALL FAR Seg:Addr");
+                INST_NAME("Illegal 9A");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -3352,12 +3379,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(const_aam16, x1, 0);
                 BFIz(xRAX, x1, 0, 16);
             } else {
+                INST_NAME("Illegal D4");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -3373,12 +3402,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(const_aad16, x1, 0);
                 BFIz(xRAX, x1, 0, 16);
             } else {
+                INST_NAME("Illegal D5");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
@@ -3680,13 +3711,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.is32bits) {
                 DEFAULT;
             } else {
-                INST_NAME("JMP FAR Seg:Addr");
+                INST_NAME("Illegal EA");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
+                BARRIER(BARRIER_FLOAT);
                 UDF(0);
                 *need_epilog = 1;
                 *ok = 0;
