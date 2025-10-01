@@ -88,7 +88,13 @@ int InitX64Trace(box64context_t* context)
     context->zydis = (zydis_t*)box_calloc(1, sizeof(zydis_t));
     if (!context->zydis)
         return 1;
-    context->zydis->lib = dlopen("libZydis.so", RTLD_LAZY);
+    #ifndef ZYDIS3
+    context->zydis->lib = dlopen("libZydis.so.4", RTLD_LAZY);
+    #else
+    context->zydis->lib = dlopen("libZydis.so.3", RTLD_LAZY);
+    #endif
+    if(!context->zydis->lib)
+        context->zydis->lib = dlopen("libZydis.so", RTLD_LAZY);
     if (!context->zydis->lib) {
         printf_log(LOG_INFO, "Failed to open libZydis: %s\n", dlerror());
         return 1;
