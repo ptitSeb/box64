@@ -1628,7 +1628,8 @@ x64emurun:
                 tf = ACCESS_FLAG(F_TF);
                 emu->segs[_CS] = new_cs;
                 emu->segs_serial[_CS] = 0;
-                R_RIP = new_addr;
+                addr = new_addr;
+                R_RIP = addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
                     if(is32bits) {
