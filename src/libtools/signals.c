@@ -882,8 +882,6 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     (void)ucntx; (void)cur_db;
     void* pc = NULL;
 #endif
-    // setup libc context stack frame, on caller stack
-    frame = frame&~15;
 
     // stack tracking
     x64_stack_t *new_ss = my_context->onstack[sig]?(x64_stack_t*)pthread_getspecific(sigstack_key):NULL;
@@ -897,6 +895,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             new_ss->ss_flags = SS_ONSTACK;
         }
     } else {
+        frame = frame&~15;
         frame -= 0x200; // redzone
     }
 
@@ -1069,6 +1068,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     } else if(sig==X64_SIGILL) {
         info2->si_code = 2;
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
+        info2->si_addr = (void*)sigcontext->uc_mcontext.gregs[X64_RIP];
     } else if(sig==X64_SIGTRAP) {
         if(info->si_code==1) {  //single step
             info2->si_code = 2;
