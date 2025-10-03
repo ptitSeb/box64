@@ -147,7 +147,6 @@ void DynaRun(x64emu_t* emu)
     // prepare setjump for signal handling
     JUMPBUFF jmpbuf[1] = {0};
     int skip = 0;
-    int need_tf = 0;
     JUMPBUFF *old_jmpbuf = emu->jmpbuf;
     #ifdef RV64
     uintptr_t old_savesp = emu->xSPSave;
@@ -185,7 +184,7 @@ void DynaRun(x64emu_t* emu)
 #ifdef DYNAREC
         if(!BOX64ENV(dynarec))
 #endif
-            Run(emu, 0, 0);
+            Run(emu, 0);
 #ifdef DYNAREC
         else {
             int newis32bits = (emu->segs[_CS]==0x23);
@@ -217,8 +216,7 @@ void DynaRun(x64emu_t* emu)
                 }
                 if (BOX64ENV(dynarec_test))
                     emu->test.clean = 0;
-                Run(emu, 1, need_tf);
-                need_tf = 0;
+                Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
                 if(!BOX64ENV(dynarec_df)) {
@@ -226,9 +224,6 @@ void DynaRun(x64emu_t* emu)
                 }
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
-                if(ACCESS_FLAG(F_TF) && !emu->quit)
-                    need_tf = 1; 
-                    skip = 1;
             }
             if(emu->fork) {
                 int forktype = emu->fork;

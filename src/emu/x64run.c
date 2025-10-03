@@ -32,7 +32,7 @@
 int RunTest(x64test_t *test)
 #else
 int running32bits = 0;
-int Run(x64emu_t *emu, int step, int need_tf)
+int Run(x64emu_t *emu, int step)
 #endif
 {
     uint8_t opcode;
