@@ -670,6 +670,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     } else if(sig==X64_SIGILL) {
         info2->si_code = 2;
         sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 6;
+        info2->_sifields._sigfault.__si_addr = sigcontext->uc_mcontext.gregs[I386_EIP];
     } else if(sig==X64_SIGTRAP) {
         if(info->si_code==1) {  //single step
             info2->si_code = 2;
