@@ -91,6 +91,13 @@ Allow continue running a block that is unprotected and potentially dirty.
  * 1: Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes. 
  * 2: Will also, when it detect an HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but Block build from that page will always be tested. It can be faster that way (but soem SMC case might not be trapped). 
 
+### BOX64_DYNAREC_NOHOTPAGE
+
+Disable detection of hot page (where code is executed and data written at the same time).
+
+ * 0: Detect hot page [Default]
+ * 1: Do not detect hot page 
+
 ### BOX64_DYNAREC_FASTNAN
 
 Enable or disable fast NaN handling. Availble in WowBox64.

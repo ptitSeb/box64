@@ -197,6 +197,14 @@ Allow continue running a block that is unprotected and potentially dirty.
  * 2 : Will also, when it detect an HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but Block build from that page will always be tested. It can be faster that way (but soem SMC case might not be trapped). 
 
 
+=item B<BOX64_DYNAREC_NOHOTPAGE> =I<0|1>
+
+Disable detection of hot page (where code is executed and data written at the same time).
+
+ * 0 : Detect hot page [Default]
+ * 1 : Do not detect hot page 
+
+
 =item B<BOX64_DYNAREC_DIV0> =I<0|1>
 
 Enable or disable the generation of division-by-zero exception. Availble in WowBox64.

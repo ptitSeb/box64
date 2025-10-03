@@ -2250,6 +2250,8 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
         return;
     if(prot&PROT_NEVERCLEAN && BOX64ENV(dynarec_dirty)==2)
         return;
+    if(BOX64ENV(dynarec_nohotpage))
+        return;
     uintptr_t page = addr>>12;
     // look for idx
     int idx = IdxHotPage(page);

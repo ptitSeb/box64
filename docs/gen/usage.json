@@ -344,6 +344,24 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_NOHOTPAGE",
+    "description": "Disable detection of hot page (where code is executed and data written at the same time).",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Detect hot page",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not detect hot page",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_DIV0",
     "description": "Enable or disable the generation of division-by-zero exception.",
     "category": "Compatibility",

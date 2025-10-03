@@ -13,9 +13,9 @@
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 
 #ifdef DYNAREC
-#define STEP  CheckExec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) return 0;
-#define STEP2 CheckExec(emu, addr); if(step && !ACCESS_FLAG(F_TF)) {R_RIP = addr; return 0;}
-#define STEP3 CheckExec(emu, addr); if(*step) (*step)++;
+#define STEP  if(step && !ACCESS_FLAG(F_TF)) return 0; else if((emu->old_ip>>12)!=(addr>>12)) CheckExec(emu, addr); 
+#define STEP2 if(step && !ACCESS_FLAG(F_TF)) {R_RIP = addr; return 0;} else if((emu->old_ip>>12)!=(addr>>12)) CheckExec(emu, addr); 
+#define STEP3 if(*step) (*step)++; else if((emu->old_ip>>12)!=(addr>>12)) CheckExec(emu, addr); 
 #else
 #define STEP
 #define STEP2

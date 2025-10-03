@@ -47,6 +47,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 2, 1)               \
     BOOLEAN(BOX64_DYNAREC_DF, dynarec_df, 1, 1)                               \
     INTEGER(BOX64_DYNAREC_DIRTY, dynarec_dirty, 0, 0, 2, 0)                   \
+    BOOLEAN(BOX64_DYNAREC_NOHOTPAGE, dynarec_nohotpage, 0, 0)                 \
     BOOLEAN(BOX64_DYNAREC_DIV0, dynarec_div0, 0, 1)                           \
     INTEGER(BOX64_DYNAREC_DUMP, dynarec_dump, 0, 0, 2, 1)                     \
     STRING(BOX64_DYNAREC_DUMP_RANGE, dynarec_dump_range, 1)                   \
