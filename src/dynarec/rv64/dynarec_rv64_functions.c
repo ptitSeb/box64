@@ -904,8 +904,7 @@ static const uint8_t mcshift[3][16] = {
 __attribute__((target("arch=+v")))
 void rvv_aesd(x64emu_t* emu, int xmm) {
     asm volatile(
-        "li a7, 16\n\t"
-        "vsetvli zero, a7, e8, m1\n\t"
+        "vsetivli zero, 16, e8, m1\n\t"
         "vle8.v v4, (%[xmm])\n\t"
         "vle8.v v0, (%[shift])\n\t"
         "vle8.v v5, (%[mcshift])\n\t"
@@ -938,8 +937,7 @@ void rvv_aesd(x64emu_t* emu, int xmm) {
 __attribute__((target("arch=+v")))
 void rvv_aese(x64emu_t* emu, int xmm) {
     asm volatile(
-        "li a7, 16\n\t"
-        "vsetvli zero, a7, e8, m1\n\t"
+        "vsetivli zero, 16, e8, m1\n\t"
         "vle8.v v4, (%[xmm])\n\t"
         "vle8.v v0, (%[shift])\n\t"
         "vle8.v v5, (%[mcshift])\n\t"
@@ -972,8 +970,7 @@ void rvv_aese(x64emu_t* emu, int xmm) {
 __attribute__((target("arch=+v")))
 void rvv_aesdlast(x64emu_t* emu, int xmm) {
     asm volatile(
-        "li a7, 16\n\t"
-        "vsetvli zero, a7, e8, m1\n\t"
+        "vsetivli zero, 16, e8, m1\n\t"
         "vle8.v v4, (%[xmm])\n\t"
         "vle8.v v0, (%[shift])\n\t"
         "vrgather.vv v1, v4, v0\n\t"
@@ -987,8 +984,7 @@ void rvv_aesdlast(x64emu_t* emu, int xmm) {
 __attribute__((target("arch=+v")))
 void rvv_aeselast(x64emu_t* emu, int xmm) {
     asm volatile(
-        "li a7, 16\n\t"
-        "vsetvli zero, a7, e8, m1\n\t"
+        "vsetivli zero, 16, e8, m1\n\t"
         "vle8.v v4, (%[xmm])\n\t"
         "vle8.v v0, (%[shift])\n\t"
         "vrgather.vv v1, v4, v0\n\t"
