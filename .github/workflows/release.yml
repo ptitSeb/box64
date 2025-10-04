@@ -229,8 +229,8 @@ jobs:
               sudo apt-get -y install git cmake make python3 libzydis-dev
             elif [[ ${{ matrix.platform }} == 'RISCV' ]]; then
               echo BOX64_PLATFORM_MARCRO="-DRV64=ON" >> $GITHUB_ENV
-              echo "BOX64_COMPILER=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
-              sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3 ninja-build libglib2.0-dev libzydis-dev
+              echo "BOX64_COMPILER=riscv64-linux-gnu-gcc-14" >> $GITHUB_ENV
+              sudo apt-get -y install git gcc-14-riscv64-linux-gnu cmake make python3 ninja-build libglib2.0-dev libzydis-dev
             elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
               sudo mkdir /usr/local/larch
               wget -O- -q https://github.com/loongson/build-tools/releases/download/2025.02.21/x86_64-cross-tools-loongarch64-binutils_2.44-gcc_14.2.0-glibc_2.41.tar.xz | sudo tar -C /usr/local/larch --strip-components=1 --xz -xf -
