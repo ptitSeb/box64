@@ -70,4 +70,5 @@ int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 
 void updateNativeFlags(dynarec_rv64_t* dyn);
 void get_free_scratch(dynarec_rv64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5);
+
 #endif //__DYNAREC_RV64_FUNCTIONS_H__
