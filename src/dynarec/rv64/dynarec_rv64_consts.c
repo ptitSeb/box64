@@ -52,13 +52,13 @@ uintptr_t getConst(rv64_consts_t which)
         case const_native_fsave16: return (uintptr_t)native_fsave16;
         case const_native_fsave: return (uintptr_t)native_fsave;
         case const_native_aesimc: return (uintptr_t)native_aesimc;
-        case const_native_aesd: return (uintptr_t)((0) ? rvv_aesd : native_aesd);
+        case const_native_aesd: return (uintptr_t)native_aesd;
         case const_native_aesd_y: return (uintptr_t)native_aesd_y;
-        case const_native_aesdlast: return (uintptr_t)((0) ? rvv_aesdlast : native_aesdlast);
+        case const_native_aesdlast: return (uintptr_t)native_aesdlast;
         case const_native_aesdlast_y: return (uintptr_t)native_aesdlast_y;
-        case const_native_aese: return (uintptr_t)((0) ? rvv_aese : native_aese);
+        case const_native_aese: return (uintptr_t)native_aese;
         case const_native_aese_y: return (uintptr_t)native_aese_y;
-        case const_native_aeselast: return (uintptr_t)((0) ? rvv_aeselast : native_aeselast);
+        case const_native_aeselast: return (uintptr_t)native_aeselast;
         case const_native_aeselast_y: return (uintptr_t)native_aeselast_y;
         case const_native_aeskeygenassist: return (uintptr_t)native_aeskeygenassist;
         case const_native_pclmul: return (uintptr_t)native_pclmul;
