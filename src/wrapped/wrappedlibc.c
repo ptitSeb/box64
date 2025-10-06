@@ -3071,7 +3071,11 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             }
         }
         // hack to capture full size of the mmap done by wine
+#if defined(ANDROID) || defined(WINLATOR_GLIBC)
+        if(emu && (fd==-1) && (flags&(MAP_PRIVATE|MAP_ANON))==(MAP_PRIVATE|MAP_ANON) && !(flags&MAP_NORESERVE)) {
+#else
         if(emu && (fd==-1) && (flags&(MAP_PRIVATE|MAP_ANON))==(MAP_PRIVATE|MAP_ANON)) {
+#endif
             last_mmap_addr[last_mmap_idx] = ret;
             last_mmap_len[last_mmap_idx] = length;
         } else {
