@@ -346,6 +346,9 @@ In particular, you must specify the cross-compiler. For example:
 -DCMAKE_C_COMPILER=riscv64-unknown-linux-gnu-gcc  # Or whichever cross-compiler you use
 ```
 
+Be aware of potential glibc capability errors when choosing a cross-compiler.
+To avoid this, run `ldd --version` on your target machine to check its glibc version.
+
 ### Running tests with QEMU (optional)
 To do a quick check, run:
 ```
