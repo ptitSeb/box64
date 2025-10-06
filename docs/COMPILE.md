@@ -370,7 +370,7 @@ $ mv box64-x86_64-linux-gnu /usr/lib
 ```
 For `i386`:
 ```shell
-$ mv x64lib box64-i386-linux-gnu
+$ mv x86lib box64-i386-linux-gnu
 $ mv box64-i386-linux-gnu /usr/lib
 ```
 
