@@ -112,6 +112,8 @@ GO(glGetTexGeniv, vFuup)
 GO(glGetTexImage, vFuiuup)
 GO(glGetTexLevelParameterfv, vFuiup)
 GO(glGetTexLevelParameteriv, vFuiup)
+GO(glGetLevelParameterfv, vFuiup)   //some old programs have typo...
+GO(glGetLevelParameteriv, vFuiup)   //some old programs have typo...
 GO(glGetTexParameterfv, vFuup)
 GO(glGetTexParameteriv, vFuup)
 GO(glHint, vFuu)
