@@ -2361,6 +2361,7 @@ wrappedlibc:
 - vFi:
   - exit
 - vEp:
+  - __libc_free
   - freeaddrinfo
   - regfree
 - vFp:
@@ -2404,6 +2405,9 @@ wrappedlibc:
 - pFu:
   - _ZGTtnaj
 - pEL:
+  - __libc_malloc
+  - __libc_pvalloc
+  - __libc_valloc
 - pFL:
   - _ZGTtnaX
   - _ZGTtnam
@@ -2470,9 +2474,13 @@ wrappedlibc:
 - pEip:
   - signal
 - pELL:
+  - __libc_calloc
+  - __libc_memalign
   - aligned_alloc
 - pEpi:
   - backtrace_symbols
+- pEpL:
+  - __libc_realloc
 - pEpp:
   - __cmsg_nxthdr
   - __gmtime_r

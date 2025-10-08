@@ -63,6 +63,7 @@ typedef intptr_t (*lEuV_t)(uint32_t, ...);
 typedef void* (*pEip_t)(int32_t, void*);
 typedef void* (*pELL_t)(uintptr_t, uintptr_t);
 typedef void* (*pEpi_t)(void*, int32_t);
+typedef void* (*pEpL_t)(void*, uintptr_t);
 typedef void* (*pEpp_t)(void*, void*);
 typedef void* (*SEpp_t)(void*, void*);
 typedef int32_t (*iErLL_BLL__t)(struct_LL_t*, struct_LL_t*);
@@ -154,6 +155,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(exit, vFi_t) \
+	GO(__libc_free, vEp_t) \
 	GO(freeaddrinfo, vEp_t) \
 	GO(regfree, vEp_t) \
 	GO(_ZGTtdlPv, vFp_t) \
@@ -177,6 +179,9 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(__h_errno_location, pFv_t) \
 	GO(getpwuid, pEu_t) \
 	GO(_ZGTtnaj, pFu_t) \
+	GO(__libc_malloc, pEL_t) \
+	GO(__libc_pvalloc, pEL_t) \
+	GO(__libc_valloc, pEL_t) \
 	GO(_ZGTtnaX, pFL_t) \
 	GO(_ZGTtnam, pFL_t) \
 	GO(__ctime64, pEp_t) \
@@ -215,8 +220,11 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(ldexpl, KFKi_t) \
 	GO(frexpl, KFKp_t) \
 	GO(signal, pEip_t) \
+	GO(__libc_calloc, pELL_t) \
+	GO(__libc_memalign, pELL_t) \
 	GO(aligned_alloc, pELL_t) \
 	GO(backtrace_symbols, pEpi_t) \
+	GO(__libc_realloc, pEpL_t) \
 	GO(__cmsg_nxthdr, pEpp_t) \
 	GO(__gmtime_r, pEpp_t) \
 	GO(getservbyname, pEpp_t) \
