@@ -240,6 +240,46 @@ EXPORT int my32_gethostbyname_r(x64emu_t* emu, void* name, struct i386_hostent* 
     return r;
 }
 
+EXPORT int my32_gethostbyname2_r(x64emu_t* emu, void* name, int af, struct i386_hostent* ret, void* buff, size_t buflen, ptr_t* result, int* h_err)
+{
+    struct hostent ret_l = {0};
+    struct hostent *result_l = NULL;
+    int r = gethostbyname2_r(name, af, &ret_l, buff, buflen, &result_l, h_err);
+    if(!result_l)
+        *result = 0;
+    else
+        *result = to_ptrv(ret);
+    // convert result, all memory allocated should be in program space
+    if(result_l) {
+        ret->h_name = to_cstring(result_l->h_name);
+        ret->h_addrtype = result_l->h_addrtype;
+        ret->h_length = result_l->h_length;
+        int idx = 0;
+        ret->h_aliases = to_ptrv(result_l->h_aliases);
+        if(result_l->h_aliases) {
+            char** p = result_l->h_aliases;
+            ptr_t* strings = from_ptrv(ret->h_aliases);
+            while(*p) {
+                strings[idx++] = to_cstring(*p);
+                ++p;
+            }
+            strings[idx++] = 0;
+        }
+        idx = 0;
+        ret->h_addr_list = to_ptrv(result_l->h_addr_list);
+        if(result_l->h_addr_list) {
+            char** p = result_l->h_addr_list;
+            ptr_t* strings = from_ptrv(ret->h_addr_list);
+            while(*p) {
+                strings[idx++] = to_ptrv(*p);
+                ++p;
+            }   
+            strings[idx++] = 0;
+        }
+    }
+    return r;
+}
+
 EXPORT void* my32_gethostbyaddr(x64emu_t* emu, const char* a, uint32_t len, int type)
 {
     static struct i386_hostent ret = {0};
@@ -409,6 +449,62 @@ EXPORT void* my32_getprotobyname(x64emu_t* emu, void* name)
         my_protoent.p_aliases = 0;
 
     return &my_protoent;
+}
+
+EXPORT int my32_getprotobyname_r(x64emu_t* emu, void* name,struct protoent_32* ret, void* buff, size_t buflen, ptr_t* result)
+{
+    struct protoent ret_l = {0};
+    struct protoent *result_l = NULL;
+    int r = getprotobyname_r(name, &ret_l, buff, buflen, &result_l);
+    if(!result_l)
+        *result = 0;
+    else
+        *result = to_ptrv(ret);
+    // convert result, all memory allocated should be in program space
+    if(result_l) {
+        ret->p_name = to_cstring(result_l->p_name);
+        int idx = 0;
+        if(result_l->p_aliases) {
+            char** p = result_l->p_aliases;
+            ptr_t* strings = from_ptrv(ret->p_aliases);
+            while(*p) {
+                strings[idx++] = to_cstring(*p);
+                ++p;
+            }
+            strings[idx++] = 0;
+        }
+        ret->p_aliases = to_ptrv(result_l->p_aliases);
+        ret->p_proto = result_l->p_proto;
+    }
+    return r;
+}
+
+EXPORT int my32_getprotobynumber_r(x64emu_t* emu, int proto,struct protoent_32* ret, void* buff, size_t buflen, ptr_t* result)
+{
+    struct protoent ret_l = {0};
+    struct protoent *result_l = NULL;
+    int r = getprotobynumber_r(proto, &ret_l, buff, buflen, &result_l);
+    if(!result_l)
+        *result = 0;
+    else
+        *result = to_ptrv(ret);
+    // convert result, all memory allocated should be in program space
+    if(result_l) {
+        ret->p_name = to_cstring(result_l->p_name);
+        int idx = 0;
+        if(result_l->p_aliases) {
+            char** p = result_l->p_aliases;
+            ptr_t* strings = from_ptrv(ret->p_aliases);
+            while(*p) {
+                strings[idx++] = to_cstring(*p);
+                ++p;
+            }
+            strings[idx++] = 0;
+        }
+        ret->p_aliases = to_ptrv(result_l->p_aliases);
+        ret->p_proto = result_l->p_proto;
+    }
+    return r;
 }
 
 typedef struct my_res_state_32_s {

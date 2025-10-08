@@ -1675,6 +1675,7 @@
 #() iEEiippi -> iEEiippi
 #() iEEiLLLL -> iEEiLLLL
 #() iEEipiup -> iEEipiup
+#() iEEippup -> iEEippup
 #() iEEuppLp -> iEEuppLp
 #() iEEpiipi -> iEEpiipi
 #() iFEpiipi -> iFEpiipi
@@ -1688,6 +1689,7 @@
 #() iFEppipp -> iFEppipp
 #() iEEppupi -> iEEppupi
 #() iFEppllp -> iFEppllp
+#() iEEpppup -> iEEpppup
 #() iEEpppLp -> iEEpppLp
 #() iFEXLilp -> iFEXLilp
 #() iFEXLpiL -> iFEXLpiL
@@ -1951,6 +1953,7 @@
 #() vFXLiiiLii -> vFXLiiiLii
 #() vFXLLLiipi -> vFXLLLiipi
 #() vFXppuulll -> vFXppuulll
+#() iFEpippupp -> iFEpippupp
 #() iEEpippppp -> iEEpippppp
 #() iEEpLiLppp -> iEEpLiLppp
 #() iFEppipppp -> iFEppipppp
@@ -2564,6 +2567,8 @@ wrappedlibc:
   - prctl
 - iEipiup:
   - statx
+- iEippup:
+  - getprotobynumber_r
 - iEipppp:
   - __select64
   - getopt_long
@@ -2575,6 +2580,8 @@ wrappedlibc:
 - iEpipOi:
 - iEppupi:
   - regexec
+- iEpppup:
+  - getprotobyname_r
 - iEpppLp:
   - getgrnam_r
   - getpwnam_r
@@ -2594,6 +2601,8 @@ wrappedlibc:
   - process_vm_writev
 - pEpLiiiI:
 - pEpLiiil:
+- iFpippupp:
+  - gethostbyname2_r
 - iEpippppp:
 - iEpLiLppp:
 - iFpuippupp:
