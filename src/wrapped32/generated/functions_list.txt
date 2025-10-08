@@ -2198,6 +2198,7 @@ wrappeddbus:
   - dbus_connection_set_data
 - uFpppp:
   - dbus_connection_add_filter
+  - dbus_pending_call_set_notify
 - uFpbppuuuuup_ip:
 - uFpbppuuuuup_iV:
   - dbus_message_get_args

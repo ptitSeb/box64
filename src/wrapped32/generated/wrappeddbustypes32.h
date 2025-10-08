@@ -35,6 +35,7 @@ typedef uint32_t (*uFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_connection_set_wakeup_main_function, vFpppp_t) \
 	GO(dbus_connection_set_data, uFpipp_t) \
 	GO(dbus_connection_add_filter, uFpppp_t) \
+	GO(dbus_pending_call_set_notify, uFpppp_t) \
 	GO(dbus_message_get_args, uFpbppuuuuup_iV_t) \
 	GO(dbus_connection_try_register_object_path, uFppppbppuuuuup__t) \
 	GO(dbus_connection_set_timeout_functions, uFpppppp_t) \

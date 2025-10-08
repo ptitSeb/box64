@@ -574,13 +574,13 @@ EXPORT int my32_dbus_message_set_data(x64emu_t* emu, void* message, int32_t slot
     (void)emu;
     return my->dbus_message_set_data(message, slot, data, find_DBusFreeFunction_Fct(free_func));
 }
-
+#endif
 EXPORT int my32_dbus_pending_call_set_notify(x64emu_t* emu, void* pending, void* func, void* data, void* free_func)
 {
     (void)emu;
     return my->dbus_pending_call_set_notify(pending, findDBusPendingCallNotifyFunctionFct(func), data, find_DBusFreeFunction_Fct(free_func));
 }
-
+#if 0
 EXPORT int my32_dbus_pending_call_set_data(x64emu_t* emu, void* pending, int32_t slot, void* data, void* free_func)
 {
     (void)emu;
