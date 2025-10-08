@@ -25,6 +25,38 @@ static const char* mountName = "libmount.so.1";
 
 #include "wrappercallback32.h"
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// cmp ...
+#define GO(A)   \
+static uintptr_t my32_cmp_fct_##A = 0;                              \
+static int my32_cmp_##A(void* a, void* b, void* c)                  \
+{                                                                   \
+    return (int)RunFunctionFmt(my32_cmp_fct_##A, "ppp", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_cmp_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my32_cmp_fct_##A == (uintptr_t)fct) return my32_cmp_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_cmp_fct_##A == 0) {my32_cmp_fct_##A = (uintptr_t)fct; return my32_cmp_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libmount cmp callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
 typedef struct my_libmnt_optmap_s
 {
         /*const*/ char *name;
@@ -109,6 +141,11 @@ EXPORT void* my32_mnt_get_builtin_optmap(x64emu_t* emu, int a)
 EXPORT int my32_mnt_optstr_get_flags(x64emu_t* emu, void* optstr, void* flag, void* map)
 {
     return my->mnt_optstr_get_flags(optstr, flag, enlarge_libmnt_optmap(map));
+}
+
+EXPORT int my32_mnt_table_uniq_fs(void* tb, int flags, void* f)
+{
+    return my->mnt_table_uniq_fs(tb, flags, find_cmp_Fct(f));
 }
 
 #include "wrappedlib_init32.h"

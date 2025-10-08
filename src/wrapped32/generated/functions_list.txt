@@ -3280,6 +3280,8 @@ wrappedlibxxf86vm:
 wrappedmount:
 - pFi:
   - mnt_get_builtin_optmap
+- iFpip:
+  - mnt_table_uniq_fs
 - iFpbL_p:
   - mnt_optstr_get_flags
 wrappednsl:

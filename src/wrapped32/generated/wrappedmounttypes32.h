@@ -12,10 +12,12 @@
 #endif
 
 typedef void* (*pFi_t)(int32_t);
+typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFpbL_p_t)(void*, struct_L_t*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(mnt_get_builtin_optmap, pFi_t) \
+	GO(mnt_table_uniq_fs, iFpip_t) \
 	GO(mnt_optstr_get_flags, iFpbL_p_t)
 
 #endif // __wrappedmountTYPES32_H_
