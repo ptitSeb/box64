@@ -283,6 +283,20 @@ EXPORT void my32_FcFontSetDestroy(x64emu_t* emu, void* set)
     my->FcFontSetDestroy(inplace_FcFontSet_enlarge(set));
 }
 
+EXPORT void* my32_FcFontSetCreate(x64emu_t* emu)
+{
+    void* ret = my->FcFontSetCreate();
+    return inplace_FcFontSet_shrink(ret);
+}
+
+EXPORT int my32_FcFontSetAdd(x64emu_t* emu, void* set, void* pattern)
+{
+    inplace_FcFontSet_enlarge(set);
+    int ret = my->FcFontSetAdd(set, pattern);
+    inplace_FcFontSet_shrink(set);
+    return ret;
+}
+
 #define NEEDED_LIBS "libexpat.so.1", "libfreetype.so.6"
 
 #include "wrappedlib_init32.h"

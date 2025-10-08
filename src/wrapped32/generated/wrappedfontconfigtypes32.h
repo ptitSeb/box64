@@ -12,7 +12,9 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
@@ -22,7 +24,9 @@ typedef void* (*pFppibp_p_t)(void*, void*, int32_t, struct_p_t*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FcFontSetDestroy, vFp_t) \
+	GO(FcFontSetCreate, pFv_t) \
 	GO(FcCacheCopySet, pFp_t) \
+	GO(FcFontSetAdd, iFpp_t) \
 	GO(FcFreeTypeCharIndex, uFpu_t) \
 	GO(FcObjectSetBuild, pFpV_t) \
 	GO(FcPatternBuild, pFpV_t) \

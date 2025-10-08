@@ -2216,8 +2216,12 @@ wrappedexpat:
 wrappedfontconfig:
 - vFp:
   - FcFontSetDestroy
+- pFv:
+  - FcFontSetCreate
 - pFp:
   - FcCacheCopySet
+- iFpp:
+  - FcFontSetAdd
 - uFpu:
   - FcFreeTypeCharIndex
 - pFpp:
