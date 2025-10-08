@@ -55,7 +55,7 @@ GOW(atanhl, DED)
 GOW2(atanhl, KEK, atanh)
 #endif
 // atanl    // Weak
-//GOW(cabs, dEdd)     // only 1 arg, but is a double complex
+GOW(cabs, dEdd)     // only 1 arg, but is a double complex
 GOW(cabsf, fEff)    // only 1 arg, but is a float complex
 // cabsl    // Weak
 //GOWS(cacos, pEps)   //%% complex
