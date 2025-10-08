@@ -26,18 +26,18 @@ GOM(FT_Done_Face, iFEp)
 GO(FT_Done_FreeType, iFp)
 GOM(FT_Done_Glyph, vFEp)
 //GO(FT_Done_Library, iFp)
-//GO(FT_Done_MM_Var, iFpp)
+GOM(FT_Done_MM_Var, iFEpp)
 GOM(FT_Done_Size, iFEp)
 //GO(FT_Face_CheckTrueTypePatents, 
 //GO(FT_Face_GetCharsOfVariant, 
-//GO(FT_Face_GetCharVariantIndex, uFpuu)
+GOM(FT_Face_GetCharVariantIndex, uFEpLL)
 //GO(FT_Face_GetCharVariantIsDefault, 
 //GO(FT_Face_GetVariantSelectors, 
 //GO(FT_Face_GetVariantsOfChar, 
 //GO(FT_Face_Properties, iFpup)
 //GO(FT_Face_SetUnpatentedHinting, 
 GO(FT_FloorFix, lFl)
-//GO(FT_Get_Advance, iFpiup)
+GOM(FT_Get_Advance, iFEpiup)
 //GO(FT_Get_Advances, iFpuuip)
 //GO(FT_Get_BDF_Charset_ID, 
 GOM(FT_Get_BDF_Property, iFEppp)
@@ -60,10 +60,10 @@ GOM(FT_Get_Glyph, iFEpp)
 GOM(FT_Get_Glyph_Name, iFEpupu)
 GOM(FT_Get_Kerning, iFEpuuup)
 //GO(FT_Get_MM_Blend_Coordinates, 
-//GO(FT_Get_MM_Var, iFpp)
+GOM(FT_Get_MM_Var, iFEpp)
 //GO(FT_Get_Module, pFpp)
 //GO(FT_Get_Multi_Master, 
-//GO(FT_Get_Name_Index, uFpp)
+GOM(FT_Get_Name_Index, uFEpp)
 GOM(FT_Get_Next_Char, LFEpLp)
 //GO(FT_Get_Paint, iFppip)    // FT_OpaquePaint is a struct with "pi"
 //GO(FT_Get_Paint_Layers, iFppp)
@@ -83,7 +83,7 @@ GOM(FT_Get_Sfnt_Table, pFEpi)
 //GO(FT_Get_Track_Kerning, iFplip)
 //GO(FT_Get_Transform, vFppp)
 GO(FT_Get_TrueType_Engine_Type, uFp)
-//GO(FT_Get_Var_Blend_Coordinates, iFpup)
+GOM(FT_Get_Var_Blend_Coordinates, iFEpup)
 //GO(FT_Get_Var_Design_Coordinates, 
 GOM(FT_Get_WinFNT_Header, iFEpp)
 GOM(FT_Get_X11_Font_Format, pFEp)
@@ -145,7 +145,7 @@ GOM(FT_Outline_Translate, vFEpll)
 //GO(FT_Palette_Select, iFpWp)
 //GO(FT_Property_Get, iFpppp)
 GO(FT_Property_Set, iFpppp)
-//GO(FT_Reference_Face, iFp)
+GOM(FT_Reference_Face, iFEp)
 //GO(FT_Reference_Library, 
 //GO(FT_Remove_Module, iFpp)
 GOM(FT_Render_Glyph, iFEpu)
@@ -162,7 +162,7 @@ GOM(FT_Set_Char_Size, iFEplluu)
 GOM(FT_Set_Pixel_Sizes, iFEpuu)
 //GO(FT_Set_Renderer, iFppup)
 GOM(FT_Set_Transform, vFEppp)
-//GO(FT_Set_Var_Blend_Coordinates, 
+GOM(FT_Set_Var_Blend_Coordinates, iFEpup)
 //GO(FT_Set_Var_Design_Coordinates, iFpup)
 //GO(FT_Sfnt_Table_Info, iFpupp)
 //GO(FT_Sin, lFl)

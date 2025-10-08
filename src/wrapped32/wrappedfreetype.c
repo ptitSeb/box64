@@ -19,6 +19,8 @@
 #include "myalign32.h"
 #include "converter32.h"
 
+#include "khash.h"
+
 static const char* freetypeName = 
 #ifdef ANDROID
     "libfreetype.so"
@@ -497,6 +499,32 @@ typedef struct  TT_PCLT_s
     uint8_t         SerifStyle;
     uint8_t         Reserved;
 } TT_PCLT_t;
+
+typedef struct  FT_Var_Axis_s
+{
+    void*           name;    //string
+    long            minimum;
+    long            def;
+    long            maximum;
+    unsigned long   tag;
+    uint32_t        strid;
+} FT_Var_Axis_t;
+
+typedef struct  FT_Var_Named_Style_s
+{
+    long*      coords;  // one entry per axis
+    uint32_t   strid;
+    uint32_t   psid;
+} FT_Var_Named_Style_t;
+
+typedef struct  FT_MM_Var_s
+{
+    uint32_t                num_axis;
+    uint32_t                num_designs;
+    uint32_t                num_namedstyles;
+    FT_Var_Axis_t*          axis;
+    FT_Var_Named_Style_t*   namedstyle;
+} FT_MM_Var_t;
 // ===============================================
 // 32bits FreeType structures
 // ===============================================
@@ -966,6 +994,32 @@ typedef struct  TT_PCLT_32_s    //no align
     uint8_t         SerifStyle;
     uint8_t         Reserved;
 } TT_PCLT_32_t;
+
+typedef struct  FT_Var_Axis_32_s
+{
+    ptr_t      name;    //string
+    long_t     minimum;
+    long_t     def;
+    long_t     maximum;
+    ulong_t    tag;
+    uint32_t   strid;
+} FT_Var_Axis_32_t;
+
+typedef struct  FT_Var_Named_Style_32_s
+{
+    ptr_t      coords;  // long_t*
+    uint32_t   strid;
+    uint32_t   psid;
+} FT_Var_Named_Style_32_t;
+
+typedef struct  FT_MM_Var_32_s
+{
+    uint32_t    num_axis;
+    uint32_t    num_designs;
+    uint32_t    num_namedstyles;
+    ptr_t       axis;    //FT_Var_Axis_32_t*
+    ptr_t       namedstyle; //FT_Var_Named_Style_32_t*
+} FT_MM_Var_32_t;
 
 // ==================================
 // Convertions
@@ -2319,10 +2373,43 @@ EXPORT int my32_FT_Get_BDF_Property(x64emu_t* emu, void* face, void* name, BDF_P
     return ret;
 }
 
-EXPORT int my32_FT_Done_Face(x64emu_t* emu, void* face)
+KHASH_MAP_INIT_INT(face_ref, uintptr_t);
+
+static kh_face_ref_t *face_ref = NULL;
+
+EXPORT int my32_FT_Reference_Face(x64emu_t* emu, void* face)
 {
     inplace_FT_FaceRec_enlarge(face);
-    return my->FT_Done_Face(face);
+    int ret = my->FT_Reference_Face(face);
+    inplace_FT_FaceRec_shrink(face);
+    if(!ret) {
+        if(!face_ref) face_ref = kh_init(face_ref);
+    }
+    khint_t k = kh_get(face_ref, face_ref, (uintptr_t)face);
+    if(k==kh_end(face_ref)) {
+        int ret;
+        k = kh_put(face_ref, face_ref, (uintptr_t)face, &ret);
+        kh_value(face_ref, k) = 0;
+    }
+    ++kh_value(face_ref, k);
+    return ret;
+}
+
+EXPORT int my32_FT_Done_Face(x64emu_t* emu, void* face)
+{
+    int will_free = 0;
+    khint_t k;
+    if(face_ref && ((k=kh_get(face_ref, face_ref, (uintptr_t)face)!=kh_end(face_ref))))
+        will_free = 1;
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Done_Face(face);
+    if(!will_free) {
+        inplace_FT_FaceRec_shrink(face);
+        --kh_value(face_ref, k);
+        if(!kh_value(face_ref, k))
+            kh_del(face_ref, face_ref, k);
+    }
+    return ret;
 }
 
 EXPORT void my32_FT_Set_Transform(x64emu_t* emu, void* face, FT_Matrix_32_t* matrix, FT_Vector_32_t* delta)
@@ -2407,6 +2494,115 @@ EXPORT int my32_FT_Set_Charmap(x64emu_t* emu, void* face, void* charmap)
     // do not enlarge charmap, as it's already part of the face and so is expanded already
     inplace_FT_FaceRec_enlarge(face);
     int ret = my->FT_Set_Charmap(face, charmap);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_Advance(x64emu_t* emu, void* face, uint32_t gindex, int load_flags, long_t*padvance)
+{
+    signed long advance_l = 0;
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_Advance(face, gindex, load_flags, &advance_l);
+    inplace_FT_FaceRec_shrink(face);
+    *padvance = to_long(advance_l);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_MM_Var(x64emu_t* emu, void* face, FT_MM_Var_32_t* amaster)
+{
+    FT_MM_Var_t* amaster_l = NULL;
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_MM_Var(face, amaster_l);
+    inplace_FT_FaceRec_shrink(face);
+    if(!amaster_l) return ret;
+    // create a 32bits structure...
+    size_t sz = sizeof(FT_MM_Var_32_t)+sizeof(void*);
+    if(amaster_l->axis)
+        sz += amaster_l->num_axis*sizeof(FT_Var_Axis_32_t);
+    if(amaster->namedstyle)
+        sz += amaster_l->num_namedstyles*(sizeof(FT_Var_Named_Style_32_t) + amaster_l->num_axis*sizeof(long_t));
+    void* p = box32_calloc(1, sz);
+    amaster = p; p += sizeof(FT_MM_Var_32_t);
+    *(void**)p = amaster_l; // save original value
+    p += sizeof(void*);
+    amaster->num_axis = amaster_l->num_axis;
+    amaster->num_designs = amaster_l->num_designs;
+    amaster->num_namedstyles = amaster_l->num_namedstyles;
+    if(amaster_l->axis) {
+        amaster->axis = to_ptrv(p);
+        FT_Var_Axis_32_t* axis = p;
+        p += amaster_l->num_axis*sizeof(FT_Var_Axis_32_t);
+        for(int i=0; i<amaster_l->num_axis; ++i) {
+            axis[i].name = to_cstring(amaster_l->axis[i].name);
+            axis[i].minimum = to_long(amaster_l->axis[i].minimum);
+            axis[i].def = to_long(amaster_l->axis[i].def);
+            axis[i].maximum = to_long(amaster_l->axis[i].maximum);
+            axis[i].tag = to_ulong(amaster_l->axis[i].tag);
+            axis[i].strid = amaster_l->axis[i].strid;
+        }
+    } else
+        amaster->axis = 0;
+    if(amaster_l->namedstyle) {
+        amaster->axis = to_ptrv(p);
+        FT_Var_Named_Style_32_t* axis = p;
+        p += amaster_l->num_axis*sizeof(FT_Var_Named_Style_32_t);
+        for(int i=0; i<amaster_l->num_namedstyles; ++i) {
+            axis[i].coords = to_ptrv(p);
+            long_t* coords = p;
+            p += sizeof(long_t)*amaster_l->num_axis;
+            for(int j=0; j<amaster_l->num_axis; ++j)
+                coords[j] = to_long(amaster_l->namedstyle[i].coords[j]);
+        }
+    } else
+        amaster->namedstyle = 0;
+    return ret;
+}
+
+EXPORT int my32_FT_Done_MM_Var(x64emu_t* emu, void* face, FT_MM_Var_32_t* amaster)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    void* amaster_l = amaster+1;
+    int ret = my->FT_Done_MM_Var(face, amaster_l);
+    inplace_FT_FaceRec_shrink(face);
+    box32_free(amaster);    // should check result first?
+    return ret;
+}
+
+EXPORT int my32_FT_Set_Var_Blend_Coordinates(x64emu_t* emu, void* face, uint32_t num_coords, long_t* coords)
+{
+    long coords_l[num_coords];
+    for(int i=0; i<num_coords; ++i)
+        coords_l[i] = from_long(coords[i]);
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Set_Var_Blend_Coordinates(face, num_coords, coords_l);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_Var_Blend_Coordinates(x64emu_t* emu, void* face, uint32_t num_coords, long_t* coords)
+{
+    long coords_l[num_coords];
+    memset(coords_l, 0, sizeof(coords_l));
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_Var_Blend_Coordinates(face, num_coords, coords_l);
+    inplace_FT_FaceRec_shrink(face);
+    for(int i=0; i<num_coords; ++i)
+        coords[i] = to_long(coords_l[i]);
+    return ret;
+}
+
+EXPORT uint32_t my32_FT_Face_GetCharVariantIndex(x64emu_t* emu, void* face, unsigned long charcode, unsigned long variantSel)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    uint32_t ret = my->FT_Face_GetCharVariantIndex(face, charcode, variantSel);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT uint32_t my32_FT_Get_Name_Index(x64emu_t* emu, void* face, void* name)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    uint32_t ret = my->FT_Get_Name_Index(face, name);
     inplace_FT_FaceRec_shrink(face);
     return ret;
 }

@@ -21,6 +21,7 @@ typedef int32_t (*iFpu_t)(void*, uint32_t);
 typedef int32_t (*iFpl_t)(void*, intptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef uint32_t (*uFpL_t)(void*, uintptr_t);
+typedef uint32_t (*uFpp_t)(void*, void*);
 typedef uintptr_t (*LFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef int32_t (*iFpBp__t)(void*, struct_p_t*);
@@ -29,12 +30,15 @@ typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFpui_t)(void*, uint32_t, int32_t);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
+typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpll_t)(void*, intptr_t, intptr_t);
 typedef int32_t (*iFpLi_t)(void*, uintptr_t, int32_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef uint32_t (*uFpLL_t)(void*, uintptr_t, uintptr_t);
 typedef uintptr_t (*LFpLp_t)(void*, uintptr_t, void*);
 typedef void (*vFpuBLLLL__t)(void*, uint32_t, struct_LLLL_t*);
 typedef int32_t (*iFprllll_rll__t)(void*, struct_llll_t*, struct_ll_t*);
+typedef int32_t (*iFpiup_t)(void*, int32_t, uint32_t, void*);
 typedef int32_t (*iFpuip_t)(void*, uint32_t, int32_t, void*);
 typedef int32_t (*iFpupu_t)(void*, uint32_t, void*, uint32_t);
 typedef int32_t (*iFpplp_t)(void*, void*, intptr_t, void*);
@@ -49,6 +53,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Done_Face, iFp_t) \
 	GO(FT_Done_Size, iFp_t) \
 	GO(FT_Has_PS_Glyph_Names, iFp_t) \
+	GO(FT_Reference_Face, iFp_t) \
 	GO(FT_Get_Sfnt_Name_Count, uFp_t) \
 	GO(FT_Get_Postscript_Name, pFp_t) \
 	GO(FT_Get_X11_Font_Format, pFp_t) \
@@ -59,7 +64,9 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Select_Size, iFpi_t) \
 	GO(FT_Render_Glyph, iFpu_t) \
 	GO(FT_Outline_Embolden, iFpl_t) \
+	GO(FT_Done_MM_Var, iFpp_t) \
 	GO(FT_Get_Glyph, iFpp_t) \
+	GO(FT_Get_MM_Var, iFpp_t) \
 	GO(FT_Get_PS_Font_Info, iFpp_t) \
 	GO(FT_Get_WinFNT_Header, iFpp_t) \
 	GO(FT_New_Size, iFpp_t) \
@@ -68,6 +75,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Request_Size, iFpp_t) \
 	GO(FT_Set_Charmap, iFpp_t) \
 	GO(FT_Get_Char_Index, uFpL_t) \
+	GO(FT_Get_Name_Index, uFpp_t) \
 	GO(FT_Get_First_Char, LFpp_t) \
 	GO(FT_Get_Sfnt_Table, pFpi_t) \
 	GO(FT_Glyph_Copy, iFpBp__t) \
@@ -76,14 +84,18 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Get_Sfnt_Name, iFpip_t) \
 	GO(FT_Load_Glyph, iFpui_t) \
 	GO(FT_Set_Pixel_Sizes, iFpuu_t) \
+	GO(FT_Get_Var_Blend_Coordinates, iFpup_t) \
+	GO(FT_Set_Var_Blend_Coordinates, iFpup_t) \
 	GO(FT_Outline_EmboldenXY, iFpll_t) \
 	GO(FT_Load_Char, iFpLi_t) \
 	GO(FT_Get_BDF_Property, iFppp_t) \
 	GO(FT_Outline_Decompose, iFppp_t) \
 	GO(FT_Outline_Get_Bitmap, iFppp_t) \
+	GO(FT_Face_GetCharVariantIndex, uFpLL_t) \
 	GO(FT_Get_Next_Char, LFpLp_t) \
 	GO(FT_Glyph_Get_CBox, vFpuBLLLL__t) \
 	GO(FT_Glyph_Transform, iFprllll_rll__t) \
+	GO(FT_Get_Advance, iFpiup_t) \
 	GO(FT_Outline_New, iFpuip_t) \
 	GO(FT_Get_Glyph_Name, iFpupu_t) \
 	GO(FT_New_Face, iFpplp_t) \

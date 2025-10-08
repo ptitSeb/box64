@@ -658,6 +658,7 @@
 #() uFEpu -> uFEpu
 #() uFEpU -> uFEpU
 #() uFEpL -> uFEpL
+#() uFEpp -> uFEpp
 #() uFilp -> uFilp
 #() uFipu -> uFipu
 #() uFuuu -> uFuuu
@@ -1114,6 +1115,7 @@
 #() uFEpip -> uFEpip
 #() uFEpiV -> uFEpiV
 #() uFEpup -> uFEpup
+#() uFEpLL -> uFEpLL
 #() uFuuuu -> uFuuuu
 #() uFuppd -> uFuppd
 #() uFpiip -> uFpiip
@@ -1403,6 +1405,7 @@
 #() iEEipup -> iEEipup
 #() iEEippL -> iEEippL
 #() iEEuupi -> iEEuupi
+#() iFEpiup -> iFEpiup
 #() iEEpipp -> iEEpipp
 #() iFEpipp -> iFEpipp
 #() iEEpipV -> iEEpipV
@@ -2235,6 +2238,7 @@ wrappedfreetype:
   - FT_Done_Face
   - FT_Done_Size
   - FT_Has_PS_Glyph_Names
+  - FT_Reference_Face
 - uFp:
   - FT_Get_Sfnt_Name_Count
 - pFp:
@@ -2252,7 +2256,9 @@ wrappedfreetype:
 - iFpl:
   - FT_Outline_Embolden
 - iFpp:
+  - FT_Done_MM_Var
   - FT_Get_Glyph
+  - FT_Get_MM_Var
   - FT_Get_PS_Font_Info
   - FT_Get_WinFNT_Header
   - FT_New_Size
@@ -2262,6 +2268,8 @@ wrappedfreetype:
   - FT_Set_Charmap
 - uFpL:
   - FT_Get_Char_Index
+- uFpp:
+  - FT_Get_Name_Index
 - LFpp:
   - FT_Get_First_Char
 - pFpi:
@@ -2278,6 +2286,9 @@ wrappedfreetype:
   - FT_Load_Glyph
 - iFpuu:
   - FT_Set_Pixel_Sizes
+- iFpup:
+  - FT_Get_Var_Blend_Coordinates
+  - FT_Set_Var_Blend_Coordinates
 - iFpll:
   - FT_Outline_EmboldenXY
 - iFpLi:
@@ -2286,12 +2297,16 @@ wrappedfreetype:
   - FT_Get_BDF_Property
   - FT_Outline_Decompose
   - FT_Outline_Get_Bitmap
+- uFpLL:
+  - FT_Face_GetCharVariantIndex
 - LFpLp:
   - FT_Get_Next_Char
 - vFpuBLLLL_:
   - FT_Glyph_Get_CBox
 - iFprllll_rll_:
   - FT_Glyph_Transform
+- iFpiup:
+  - FT_Get_Advance
 - iFpuip:
   - FT_Outline_New
 - iFpupu:
