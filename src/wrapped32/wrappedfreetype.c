@@ -2397,13 +2397,13 @@ EXPORT int my32_FT_Reference_Face(x64emu_t* emu, void* face)
 
 EXPORT int my32_FT_Done_Face(x64emu_t* emu, void* face)
 {
-    int will_free = 0;
+    int will_keep = 0;
     khint_t k;
     if(face_ref && ((k=kh_get(face_ref, face_ref, (uintptr_t)face)!=kh_end(face_ref))))
-        will_free = 1;
+        will_keep = 1;
     inplace_FT_FaceRec_enlarge(face);
     int ret = my->FT_Done_Face(face);
-    if(!will_free) {
+    if(will_keep) {
         inplace_FT_FaceRec_shrink(face);
         --kh_value(face_ref, k);
         if(!kh_value(face_ref, k))
