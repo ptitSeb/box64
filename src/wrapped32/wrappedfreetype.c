@@ -2607,6 +2607,26 @@ EXPORT uint32_t my32_FT_Get_Name_Index(x64emu_t* emu, void* face, void* name)
     return ret;
 }
 
+EXPORT uint16_t my32_FT_Get_FSType_Flags(x64emu_t* emu, void* face)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    uint16_t ret = my->FT_Get_FSType_Flags(face);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_Advances(x64emu_t* emu, void* face, uint32_t start, uint32_t count, int flags, long_t* padvances)
+{
+    signed long advances_l[count];
+    memset(advances_l, 0, sizeof(advances_l));
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_Advances(face, start, count, flags, advances_l);
+    inplace_FT_FaceRec_shrink(face);
+    for(int i=0; i<count; ++i)
+        padvances[i] = to_long(advances_l[i]);
+    return ret;
+}
+
 EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT_BBox_32_t* bbox)
 {
     FT_Outline_t outline_l = {0};
@@ -2787,6 +2807,15 @@ EXPORT int my32_FT_Get_Glyph(x64emu_t* emu, FT_GlyphSlotRec_32_t* slot, ptr_t* g
     *glyph = to_ptrv(glyph_l);
     convert_FT_GlyphSlot_to_32(slot, &slot_l);
     inplace_FT_Glyph_shrink(glyph_l);
+    return ret;
+}
+
+EXPORT int my32_FT_GlyphSlot_Own_Bitmap(x64emu_t* emu, FT_GlyphSlotRec_32_t* slot)
+{
+    FT_GlyphSlotRec_t slot_l = {0};
+    convert_FT_GlyphSlot_to_64(&slot_l, slot);
+    int ret = my->FT_GlyphSlot_Own_Bitmap(&slot_l);
+    convert_FT_GlyphSlot_to_32(slot, &slot_l);  //usefull?
     return ret;
 }
 

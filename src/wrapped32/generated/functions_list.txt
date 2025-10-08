@@ -281,6 +281,7 @@
 #() CFpu -> CFpu
 #() CFpp -> CFpp
 #() CFXL -> CFXL
+#() WFEp -> WFEp
 #() WFpp -> WFpp
 #() uFEp -> uFEp
 #() uFii -> uFii
@@ -1280,6 +1281,7 @@
 #() iFXLuriiiiiLi_ -> iFXLuB
 #() uFnibpL_bLpCC_ -> uFniBB
 #() iFppubppuuuuup_ -> iFppuB
+#() iFpruuipWCCp_ll -> iFpBll
 #() iFpbLL_bLL_bLL_ -> iFpBBB
 #() pFppibppuuuuup_ -> pFppiB
 #() vFXLbLLLLLLLLLL_L -> vFXLBL
@@ -1687,6 +1689,7 @@
 #() iFEpiuuu -> iFEpiuuu
 #() iEEpiLpp -> iEEpiLpp
 #() iEEpipOi -> iEEpipOi
+#() iFEpuuip -> iFEpuuip
 #() iFEpuuup -> iFEpuuup
 #() iFEplluu -> iFEplluu
 #() iFEpLlpp -> iFEpLlpp
@@ -2243,8 +2246,11 @@ wrappedfreetype:
   - FT_Activate_Size
   - FT_Done_Face
   - FT_Done_Size
+  - FT_GlyphSlot_Own_Bitmap
   - FT_Has_PS_Glyph_Names
   - FT_Reference_Face
+- WFp:
+  - FT_Get_FSType_Flags
 - uFp:
   - FT_Get_Sfnt_Name_Count
 - pFp:
@@ -2320,6 +2326,8 @@ wrappedfreetype:
 - iFpplp:
   - FT_New_Face
   - FT_Open_Face
+- iFpuuip:
+  - FT_Get_Advances
 - iFpuuup:
   - FT_Get_Kerning
 - iFplluu:

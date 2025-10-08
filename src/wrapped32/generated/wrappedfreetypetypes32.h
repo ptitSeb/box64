@@ -13,6 +13,7 @@
 
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
+typedef uint16_t (*WFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
@@ -42,6 +43,7 @@ typedef int32_t (*iFpiup_t)(void*, int32_t, uint32_t, void*);
 typedef int32_t (*iFpuip_t)(void*, uint32_t, int32_t, void*);
 typedef int32_t (*iFpupu_t)(void*, uint32_t, void*, uint32_t);
 typedef int32_t (*iFpplp_t)(void*, void*, intptr_t, void*);
+typedef int32_t (*iFpuuip_t)(void*, uint32_t, uint32_t, int32_t, void*);
 typedef int32_t (*iFpuuup_t)(void*, uint32_t, uint32_t, uint32_t, void*);
 typedef int32_t (*iFplluu_t)(void*, intptr_t, intptr_t, uint32_t, uint32_t);
 typedef int32_t (*iFpLlpp_t)(void*, uintptr_t, intptr_t, void*, void*);
@@ -52,8 +54,10 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Activate_Size, iFp_t) \
 	GO(FT_Done_Face, iFp_t) \
 	GO(FT_Done_Size, iFp_t) \
+	GO(FT_GlyphSlot_Own_Bitmap, iFp_t) \
 	GO(FT_Has_PS_Glyph_Names, iFp_t) \
 	GO(FT_Reference_Face, iFp_t) \
+	GO(FT_Get_FSType_Flags, WFp_t) \
 	GO(FT_Get_Sfnt_Name_Count, uFp_t) \
 	GO(FT_Get_Postscript_Name, pFp_t) \
 	GO(FT_Get_X11_Font_Format, pFp_t) \
@@ -100,6 +104,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Get_Glyph_Name, iFpupu_t) \
 	GO(FT_New_Face, iFpplp_t) \
 	GO(FT_Open_Face, iFpplp_t) \
+	GO(FT_Get_Advances, iFpuuip_t) \
 	GO(FT_Get_Kerning, iFpuuup_t) \
 	GO(FT_Set_Char_Size, iFplluu_t) \
 	GO(FT_Load_Sfnt_Table, iFpLlpp_t) \
