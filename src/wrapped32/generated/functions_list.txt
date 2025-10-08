@@ -1506,6 +1506,7 @@
 #() pFEXipp -> pFEXipp
 #() pFEXCip -> pFEXCip
 #() pFEXlpp -> pFEXlpp
+#() pFEXLip -> pFEXLip
 #() pFEXpip -> pFEXpip
 #() pFEXppi -> pFEXppi
 #() pFuiupp -> pFuiupp
@@ -3260,6 +3261,7 @@ wrappedlibxi:
   - XGrabDevice
 wrappedlibxrandr:
 - vFp:
+  - XRRFreeMonitors
   - XRRFreeProviderInfo
   - XRRFreeProviderResources
 - iFp:
@@ -3281,6 +3283,8 @@ wrappedlibxrandr:
   - XRRGetProviderInfo
 - iFXpLp:
   - XRRSetPanning
+- pFXLip:
+  - XRRGetMonitors
 - iFXpLLiiLWpi:
   - XRRSetCrtcConfig
 wrappedlibxrender:

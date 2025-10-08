@@ -1439,3 +1439,56 @@ void* inplace_XFilters_enlarge(void* a)
     }
     return a;
 }
+
+void* inplace_XRRMonitorInfo_shrink(void* a, int n)
+{
+    if(a) {
+        my_XRRMonitorInfo_t* src = a;
+        my_XRRMonitorInfo_32_t* dst = a;
+        for(int i=0; i<n; ++i) {
+            for(int j=0; j<src->noutput; ++j)
+                ((ulong_t*)src->outputs)[j] = to_ulong(src->outputs[j]);
+            dst->name = to_ulong(src->name);
+            dst->primary = src->primary;
+            dst->automatic = src->automatic;
+            dst->noutput = src->noutput;
+            dst->x = src->x;
+            dst->y = src->y;
+            dst->width = src->width;
+            dst->height = src->height;
+            dst->mwidth = src->mwidth;
+            dst->mheight = src->mheight;
+            dst->outputs = to_ptrv(src->outputs);
+            src++;
+            dst++;
+        }
+        src->name = 0;  // mark the last record...
+    }
+    return a;
+}
+
+void* inplace_XRRMonitorInfo_enlarge(void* a, int n)
+{
+    if(a) {
+        my_XRRMonitorInfo_32_t* src = a;
+        my_XRRMonitorInfo_t* dst = a;
+        for(int i=0; i<n; ++i) {
+            dst->name = from_ulong(src->name);
+            dst->primary = src->primary;
+            dst->automatic = src->automatic;
+            dst->noutput = src->noutput;
+            dst->x = src->x;
+            dst->y = src->y;
+            dst->width = src->width;
+            dst->height = src->height;
+            dst->mwidth = src->mwidth;
+            dst->mheight = src->mheight;
+            dst->outputs = from_ptrv(src->outputs);
+            for(int j=dst->noutput-1; j>=0; --j)
+                ((unsigned long*)dst->outputs)[j] = from_ulong(dst->outputs[j]);
+            src++;
+            dst++;
+        }
+    }
+    return a;
+}

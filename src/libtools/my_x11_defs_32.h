@@ -1414,4 +1414,19 @@ typedef struct my_XFilters_32_s {
     ptr_t alias;    //short *
 } my_XFilters_32_t;
 
+typedef struct my__XRRMonitorInfo_32_s {
+    XID_32  name;
+    int     primary;
+    int     automatic;
+    int     noutput;
+    int     x;
+    int     y;
+    int     width;
+    int     height;
+    int     mwidth;
+    int     mheight;
+    ptr_t   outputs;   //XID*
+} my_XRRMonitorInfo_32_t;
+
+
 #endif//MY_X11_DEFS_32

@@ -1547,6 +1547,7 @@ void pFEpnup_32(x64emu_t *emu, uintptr_t fnc);
 void pFEXipp_32(x64emu_t *emu, uintptr_t fnc);
 void pFEXCip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEXlpp_32(x64emu_t *emu, uintptr_t fnc);
+void pFEXLip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEXpip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEXppi_32(x64emu_t *emu, uintptr_t fnc);
 void pFuiupp_32(x64emu_t *emu, uintptr_t fnc);

@@ -19,9 +19,11 @@ typedef void* (*pFXLL_t)(void*, uintptr_t, uintptr_t);
 typedef void* (*pFXLp_t)(void*, uintptr_t, void*);
 typedef void* (*pFXpL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFXpLp_t)(void*, void*, uintptr_t, void*);
+typedef void* (*pFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXpLLiiLWpi_t)(void*, void*, uintptr_t, uintptr_t, int32_t, int32_t, uintptr_t, uint16_t, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(XRRFreeMonitors, vFp_t) \
 	GO(XRRFreeProviderInfo, vFp_t) \
 	GO(XRRFreeProviderResources, vFp_t) \
 	GO(XRRUpdateConfiguration, iFp_t) \
@@ -36,6 +38,7 @@ typedef int32_t (*iFXpLLiiLWpi_t)(void*, void*, uintptr_t, uintptr_t, int32_t, i
 	GO(XRRGetPanning, pFXpL_t) \
 	GO(XRRGetProviderInfo, pFXpL_t) \
 	GO(XRRSetPanning, iFXpLp_t) \
+	GO(XRRGetMonitors, pFXLip_t) \
 	GO(XRRSetCrtcConfig, iFXpLLiiLWpi_t)
 
 #endif // __wrappedlibxrandrTYPES32_H_

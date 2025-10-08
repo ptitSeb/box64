@@ -166,6 +166,20 @@ EXPORT int my32_XRRUpdateConfiguration(x64emu_t* emu, my_XEvent_32_t* evt)
     return my->XRRUpdateConfiguration(&evt_l);
 }
 
+EXPORT void* my32_XRRGetMonitors(x64emu_t* emu, void* dpy, XID window, int get_active, int* nmonitors)
+{
+    void* ret = my->XRRGetMonitors(dpy, window, get_active, nmonitors);
+    return inplace_XRRMonitorInfo_shrink(ret, *nmonitors);
+}
+
+EXPORT void my32_XRRFreeMonitors(x64emu_t* emu, void* monitors)
+{
+    if(!monitors) return;
+    int n = 0;
+    while(((my_XRRMonitorInfo_32_t*)monitors)[n].name) ++n;
+    my->XRRFreeMonitors(inplace_XRRMonitorInfo_enlarge(monitors, n));
+}
+
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
 #else
