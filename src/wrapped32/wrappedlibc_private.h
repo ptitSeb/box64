@@ -636,9 +636,9 @@ GO(getwchar_unlocked, uEv)
 // __getwd_chk
 GO(getxattr, iEpppL)
 GOM(glob, iEEpipp)             //%%
-//GOM(glob64, iEEpipp)           //%%
-GO(globfree, vEp)
-//GO(globfree64, vEp)
+GOM(glob64, iEEpipp)           //%%
+GOM(globfree, vEEp)             //%%
+GOM(globfree64, vEEp)           //%%
 // glob_pattern_p   // Weak
 GOM(gmtime, pEEp)
 GOM(__gmtime64, pEEp)
