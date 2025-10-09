@@ -910,7 +910,7 @@ GO2(__isoc99_fscanf, iEESpV, my32_fscanf)
 // __isoc99_fwscanf
 // __isoc99_scanf
 GOM(__isoc99_sscanf, iEEppV)  //%%
-// __isoc99_swscanf
+GOM(__isoc99_swscanf, iEEppV)   //%%
 //GOM(__isoc99_vfscanf, iEEppp) //%%
 // __isoc99_vfwscanf
 // __isoc99_vscanf

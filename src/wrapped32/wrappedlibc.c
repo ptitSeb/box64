@@ -1121,6 +1121,7 @@ EXPORT int my32_vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
 
 EXPORT int my32__vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vswscanf")));
 EXPORT int my32_swscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vswscanf")));
+EXPORT int my32___isoc99_swscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vswscanf")));
 
 #if 0
 EXPORT void my32_verr(x64emu_t* emu, int eval, void* fmt, void* b) {
