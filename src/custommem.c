@@ -2467,7 +2467,8 @@ void loadProtectionFromMap()
             printf_log(LOG_INFO, "Didn't detect 48bits of address space, considering it's 39bits\n");
     }
     if(!pbrk) {
-        printf_log(LOG_INFO, "Warning, program break not found\n");
+        if (!box64_unittest_mode)
+            printf_log(LOG_INFO, "Warning, program break not found\n");
         if(cur_brk) pbrk = *cur_brk;    // approximate is better than nothing
     }
     fclose(f);

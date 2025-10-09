@@ -1144,6 +1144,28 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xF0:
             addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
+        case 0xF4:
+            INST_NAME("HLT");
+            if (box64_unittest_mode) { // HLT in unittest mode is an exit
+                READFLAGS(X_ALL);
+                BARRIER(BARRIER_FLOAT);
+                MOV32w(x1, 1);
+                SW(x1, xEmu, offsetof(x64emu_t, quit));
+            } else {
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                STORE_XEMU_CALL();
+                CALL(const_native_priv, -1, 0, 0);
+                LOAD_XEMU_CALL();
+            }
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xF5:
             INST_NAME("CMC");
             READFLAGS(X_CF);

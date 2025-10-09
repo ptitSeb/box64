@@ -376,6 +376,7 @@ set(OS_LINUX_SRC
 
 set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/main.c"
+    "${BOX64_ROOT}/src/test.c"
     "${BOX64_ROOT}/src/core.c"
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"

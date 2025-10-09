@@ -2043,9 +2043,16 @@ x64emurun:
         case 0xF4:                      /* HLT */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
-            STEP;
+            if (!box64_unittest_mode) {
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
+                STEP;
+            } else
             #endif
+            {
+                printf_log(LOG_DEBUG, "HLT encountered in interpreter, exiting\n");
+                emu->quit = 1;
+                goto fini;
+            }
             break;
         case 0xF5:                      /* CMC */
             CHECK_FLAGS(emu);
