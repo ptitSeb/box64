@@ -3766,15 +3766,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xF4:
             INST_NAME("HLT");
-            if(BOX64DRENV(dynarec_safeflags)>1) {
-                READFLAGS(X_PEND);
+            if (box64_unittest_mode) { // HLT in unittest mode is an exit
+                READFLAGS(X_ALL);
+                BARRIER(BARRIER_FLOAT);
+                MOV32w(x1, 1);
+                STRw_U12(x1, xEmu, offsetof(x64emu_t, quit));
             } else {
-                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL_S(const_native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
             }
-            GETIP(ip);
-            STORE_XEMU_CALL(xRIP);
-            CALL_S(const_native_priv, -1);
-            LOAD_XEMU_CALL(xRIP);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
             *ok = 0;

@@ -34,6 +34,7 @@ uint32_t default_fs = 0;
 int box64_rdtsc = 0;
 uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
+int box64_unittest_mode = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 
 static uint32_t x86emu_parity_tab[8] = {
