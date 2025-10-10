@@ -34,6 +34,19 @@ bool check_ymmregs[16] = { 0 };
 
 const char* regname[] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15" };
 
+#define MAX_MEMORY_REGIONS 32
+
+struct {
+    uint64_t start;
+    uint64_t size;
+} memory_regions[MAX_MEMORY_REGIONS] = { { 0 } };
+
+inline uint64_t fromstr(const char* str)
+{
+    int base = strlen(str) > 2 && (str[1] == 'x' || str[1] == 'X') ? 16 : 10;
+    return strtoull(str, NULL, base);
+}
+
 static struct json_value_s* json_find(struct json_object_s* object, const char* key)
 {
     struct json_object_element_s *element = object->start;
@@ -53,8 +66,7 @@ static void json_fill_array(struct json_array_s* array, uint64_t* values)
     while (element) {
         if (element->value->type == json_type_string) {
             struct json_string_s* string = (struct json_string_s*)element->value->payload;
-            int base = strlen(string->string) > 2 && (string->string[1] == 'x' || string->string[1] == 'X') ? 16 : 10;
-            values[i] = strtoull(string->string, NULL, base);
+            values[i] = fromstr(string->string);
             i++;
         }
         element = element->next;
@@ -97,16 +109,15 @@ static void loadTest(const char** filepath)
     struct json_value_s* regdata = json_find(config->payload, "RegData");
     int i = 0;
 
-#define REG(name)                                                                                                      \
-    if (regdata && regdata->type == json_type_object) {                                                                \
-        struct json_value_s* r##name = json_find(regdata->payload, #name);                                             \
-        if (r##name && r##name->type == json_type_string) {                                                            \
-            struct json_string_s* string = (struct json_string_s*)r##name->payload;                                    \
-            int base = strlen(string->string) > 2 && (string->string[1] == 'x' || string->string[1] == 'X') ? 16 : 10; \
-            regs[i] = strtoull(string->string, NULL, base);                                                            \
-            check_regs[i] = true;                                                                                      \
-        }                                                                                                              \
-        i++;                                                                                                           \
+#define REG(name)                                                                   \
+    if (regdata && regdata->type == json_type_object) {                             \
+        struct json_value_s* r##name = json_find(regdata->payload, #name);          \
+        if (r##name && r##name->type == json_type_string) {                         \
+            struct json_string_s* string = (struct json_string_s*)r##name->payload; \
+            regs[i] = fromstr(string->string);                                      \
+            check_regs[i] = true;                                                   \
+        }                                                                           \
+        i++;                                                                        \
     }
 
     REG(RAX);
@@ -163,6 +174,23 @@ static void loadTest(const char** filepath)
     if (mode && mode->type == json_type_string && !strcmp(((struct json_string_s*)mode->payload)->string, "32BIT")) {
         box64_is32bits = true;
         printf_log(LOG_INFO, "Test is in 32bits mode\n");
+    }
+
+    struct json_value_s* json_memory_regions = json_find(config->payload, "MemoryRegions");
+    if (json_memory_regions && json_memory_regions->type == json_type_object) {
+        struct json_object_s* object = (struct json_object_s*)json_memory_regions->payload;
+        struct json_object_element_s* element = object->start;
+        i = 0;
+        while (element && i < MAX_MEMORY_REGIONS) {
+            struct json_string_s* element_key = element->name;
+            struct json_value_s* value = element->value;
+            assert(value->type == json_type_string);
+            struct json_string_s* element_value = (struct json_string_s*)value->payload;
+            memory_regions[i].start = fromstr(element_key->string);
+            memory_regions[i].size = fromstr(element_value->string);
+            i++;
+            element = element->next;
+        }
     }
 
 #define BINNAME "/tmp/binfileXXXXXX"
@@ -259,6 +287,11 @@ int unittest(int argc, const char** argv)
     mmap((void*)my_context->stack, my_context->stacksz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     mmap((void*)0xE0000000, 16 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     mmap((void*)0xE800F000, 2 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+
+    for (int i = 0; i < MAX_MEMORY_REGIONS && memory_regions[i].size; ++i) {
+        if (!memory_regions[i].start) break;
+        mmap((void*)memory_regions[i].start, memory_regions[i].size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    }
 
     x64emu_t* emu = NewX64Emu(my_context, my_context->ep,
         (uintptr_t)my_context->stack, my_context->stacksz, 0);
