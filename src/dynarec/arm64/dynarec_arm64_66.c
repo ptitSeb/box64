@@ -706,13 +706,11 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
-                    if(rex.w)
-                        MOVx_REG(gd, ed);
-                    else
-                        BFIx(gd, ed, 0, 16);
-                }
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if (rex.w)
+                    MOVx_REG(gd, ed);
+                else
+                    BFIx(gd, ed, 0, 16);
             }
             break;
         case 0x8E:

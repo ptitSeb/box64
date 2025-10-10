@@ -380,7 +380,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     // done
                                     if (!rex.w) { B_MARK_nocond; }
                                     MOVxw_REG(xRAX, x1);
-                                    if(!ALIGNED_ATOMICxw && rex.w) {
+                                    if (!ALIGNED_ATOMICxw) {
                                         B_MARK_nocond;
                                     }
                                 }
