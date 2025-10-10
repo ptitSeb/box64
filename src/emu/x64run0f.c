@@ -1418,7 +1418,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         ED->q[0] = GD->dword[0];
                     else
                         ED->dword[0] = GD->dword[0];
-                    R_RAX = R_EAX;   // to erase upper part of RAX
                 } else {
                     R_RAX = ED->dword[0];
                 }
