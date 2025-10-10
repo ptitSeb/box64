@@ -25,6 +25,7 @@ arm64_next:
 #ifdef _WIN32
     ldr     x18, [x0, 3120]
 #endif
+    mov     x1, x27     // xRIP, should not be needed most of the time
     mov     x2, x30      // "from" is in lr, so put in x2
     add     x3, sp, 8*11    // x3 is address to change rip
     // call the function
