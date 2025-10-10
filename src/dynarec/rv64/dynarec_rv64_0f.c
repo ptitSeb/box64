@@ -310,6 +310,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
         case 0x19:
+        case 0x1A:
+        case 0x1B:
+        case 0x1C:
+        case 0x1D:
+        case 0x1E:
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
