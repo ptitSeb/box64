@@ -267,7 +267,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARKLOCK(x4);
                                 if (!rex.w) { B_MARK_nocond; }
                                 MVxw(xRAX, x1);
-                                if (rex.w) { B_MARK_nocond; }
+                                B_MARK_nocond;
                                 MARK3;
                                 // Unaligned
                                 ANDI(x5, wback, -(1 << (rex.w + 2)));

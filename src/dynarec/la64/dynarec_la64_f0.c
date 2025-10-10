@@ -194,7 +194,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BEQZ_MARKLOCK(x4);
                                 if (!rex.w) { B_MARK_nocond; }
                                 MVxw(xRAX, x1);
-                                if (rex.w) { B_MARK_nocond; }
+                                B_MARK_nocond;
                                 MARK3;
                                 // Unaligned
                                 ADDI_D(x5, xZR, -(1 << (rex.w + 2)));
