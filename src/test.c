@@ -190,7 +190,7 @@ static void loadTest(const char** filepath)
     }
 
     close(mkstemp(binname));
-    const char* ld_cmd[] = { X86_64_LD, objname, "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
+    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x10000", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
 
     fork_result = fork();
     if (fork_result == 0) {
