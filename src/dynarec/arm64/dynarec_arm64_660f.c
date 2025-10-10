@@ -1154,7 +1154,15 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("PINSRB Gx, ED, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    GETED(1);
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        wback = 0;
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, 1);
+                        LDB(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
                     u8 = F8;
                     VMOVQBfrom(q0, (u8&15), ed);
                     break;
