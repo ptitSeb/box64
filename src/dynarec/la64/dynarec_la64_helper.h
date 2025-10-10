@@ -168,9 +168,12 @@
     }
 
 // FAKEED like GETED, but doesn't get anything
-#define FAKEED                                   \
-    if (!MODREG) {                               \
-        addr = fakeed(dyn, addr, ninst, nextop); \
+#define FAKEED                                    \
+    if (MODREG) {                                 \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3)); \
+        wback = 0;                                \
+    } else {                                      \
+        addr = fakeed(dyn, addr, ninst, nextop);  \
     }
 
 // GETGW extract x64 register in gd, that is i, Signed extented
