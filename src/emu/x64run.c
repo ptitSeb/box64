@@ -1941,7 +1941,7 @@ x64emurun:
             #endif
             break;
         case 0xE8:                      /* CALL Id */
-            tmp32s = F32S; // call is relative
+            tmp32s = (rex.is32bits && rex.is66)?(F16S):(F32S); // call is relative
             if(rex.is32bits)
                 Push32(emu, addr);
             else
@@ -1954,7 +1954,7 @@ x64emurun:
             STEP2
             break;
         case 0xE9:                      /* JMP Id */
-            tmp32s = F32S; // jmp is relative
+            tmp32s = (rex.is32bits && rex.is66)?(F16S):(F32S); // jmp is relative
             if(rex.is32bits)
                 addr = (uint32_t)(addr+tmp32s);
             else
@@ -1965,7 +1965,7 @@ x64emurun:
         case 0xEA:                      /* JMP FAR seg:off*/
             if(is32bits) {
                 uint16_t new_cs = F16;
-                uint32_t new_addr = F32;
+                uint32_t new_addr = (rex.is32bits && rex.is66)?(F16):(F32);
                 #ifndef TEST_INTERPRETER
                 if((new_cs&3)!=3) {
                     // R_RIP doesn't advance
