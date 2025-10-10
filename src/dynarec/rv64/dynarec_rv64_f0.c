@@ -249,21 +249,25 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SUBxw(x2, ed, xRAX);
                                 BNE_MARK2(x2, xZR);
                                 MVxw(ed, gd);
+                                if (!rex.w) { B_NEXT_nocond; }
                                 MARK2;
                                 MVxw(xRAX, x1);
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                UFLAG_IF { MVxw(x6, xRAX); }
                                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                                 BNEZ_MARK3(x1);
                                 // Aligned
                                 MARKLOCK;
                                 LRxw(x1, wback, 1, 1);
                                 SUBxw(x3, x1, xRAX);
-                                BNEZ_MARK(x3);
+                                BNEZ(x3, 4 + (rex.w ? 8 : 12));
                                 // EAX == Ed
                                 SCxw(x4, gd, wback, 1, 1);
                                 BNEZ_MARKLOCK(x4);
-                                B_MARK_nocond;
+                                if (!rex.w) { B_MARK_nocond; }
+                                MVxw(xRAX, x1);
+                                if (rex.w) { B_MARK_nocond; }
                                 MARK3;
                                 // Unaligned
                                 ANDI(x5, wback, -(1 << (rex.w + 2)));
@@ -271,14 +275,15 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 LDxw(x1, wback, 0);
                                 LRxw(x6, x5, 1, 1);
                                 SUBxw(x3, x1, xRAX);
-                                BNEZ_MARK(x3);
+                                BNEZ(x3, 4 + (rex.w ? 12 : 16));
                                 // EAX == Ed
                                 SCxw(x4, x6, x5, 1, 1);
                                 BNEZ_MARKLOCK2(x4);
                                 SDxw(gd, wback, 0);
-                                MARK;
-                                UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6); }
+                                if (!rex.w) { B_MARK_nocond; }
                                 MVxw(xRAX, x1);
+                                MARK;
+                                UFLAG_IF { emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5, x6); }
                             }
                             break;
                         default:

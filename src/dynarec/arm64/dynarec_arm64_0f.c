@@ -2106,19 +2106,23 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     CMPSxw_REG(xRAX, ed);
                 }
                 MOVxw_REG(x1, ed); // save value
-                Bcond(cNE, 4+4);
+                Bcond(cNE, 4 + (rex.w ? 4 : 8));
                 MOVxw_REG(ed, gd);
+                if (!rex.w) { B_NEXT_nocond; }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 LDxw(x1, wback, fixedaddress);
-                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
+                UFLAG_IF {
+                    emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);
+                }
                 SUBxw_REG(x4, xRAX, x1);
                 CBNZxw_MARK(x4);
                 // EAX == Ed
                 STxw(gd, wback, fixedaddress);
+                if (!rex.w) { B_NEXT_nocond; }
                 MARK;
             }
-            MOVxw_REG(xRAX, x1);    // upper part of RAX will be erase on 32bits, no mater what
+            MOVxw_REG(xRAX, x1);
             break;
 
         case 0xB3:

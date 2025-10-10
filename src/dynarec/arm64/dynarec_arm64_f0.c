@@ -334,11 +334,13 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     CMPSxw_REG(xRAX, ed);
                                 }
                                 MOVxw_REG(x1, ed); // save value
-                                Bcond(cNE, 4+4);
+                                Bcond(cNE, 4 + (rex.w ? 4 : 8));
                                 MOVxw_REG(ed, gd);
+                                if (!rex.w) { B_NEXT_nocond; }
                                 MOVxw_REG(xRAX, x1);
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                                UFLAG_IF { MOVxw_REG(x6, xRAX); }
                                 if(!ALIGNED_ATOMICxw) {
                                     if(cpuext.uscat) {
                                         ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
@@ -353,16 +355,17 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 // disabling use of atomics for now, as it seems to make (at least)
                                 //  HorizonZeroDawn and Cyberpunk2077 (both from GoG) unstable
                                 //  but why?!
-                                if(cpuext.atomics && 0) {
+                                if (rex.w /* RAX should NOT be zero-upped if equal */ && cpuext.atomics && 0) {
                                     UFLAG_IF {
                                         MOVxw_REG(x1, xRAX);
                                         CASALxw(x1, gd, wback);
-                                        if(!ALIGNED_ATOMICxw) {
+                                        MOVxw_REG(xRAX, x1);
+                                        if (!ALIGNED_ATOMICxw) {
                                             B_MARK_nocond;
                                         }
                                     } else {
                                         CASALxw(xRAX, gd, wback);
-                                        if(!ALIGNED_ATOMICxw) {
+                                        if (!ALIGNED_ATOMICxw) {
                                             B_NEXT_nocond;
                                         }
                                     }
@@ -370,12 +373,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     MARKLOCK;
                                     LDAXRxw(x1, wback);
                                     CMPSxw_REG(xRAX, x1);
-                                    B_MARK(cNE);
+                                    Bcond(cNE, 4 + (rex.w ? 8 : 12));
                                     // EAX == Ed
                                     STLXRxw(x4, gd, wback);
                                     CBNZx_MARKLOCK(x4);
                                     // done
-                                    if(!ALIGNED_ATOMICxw) {
+                                    if (!rex.w) { B_MARK_nocond; }
+                                    MOVxw_REG(xRAX, x1);
+                                    if(!ALIGNED_ATOMICxw && rex.w) {
                                         B_MARK_nocond;
                                     }
                                 }
@@ -387,18 +392,17 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     SUBxw_UXTB(x3, x3, x1);
                                     CBNZw_MARK3(x3);
                                     CMPSxw_REG(xRAX, x1);
-                                    B_MARK(cNE);
+                                    Bcond(cNE, 4 + (rex.w ? 12 : 16));
                                     // EAX == Ed
                                     STLXRB(x4, gd, wback);
                                     CBNZx_MARK3(x4);
                                     STRxw_U12(gd, wback, 0);
+                                    if (!rex.w) { B_MARK_nocond; }
+                                    MOVxw_REG(xRAX, x1);
                                 }
                                 MARK;
-                                // Common part (and fallback for EAX != Ed)
-                                UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5); MOVxw_REG(xRAX, x1);}
-                                else {
-                                    if(!ALIGNED_ATOMICxw || !(cpuext.atomics && 0))
-                                        MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
+                                UFLAG_IF {
+                                    emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5);
                                 }
                             }
                             break;
