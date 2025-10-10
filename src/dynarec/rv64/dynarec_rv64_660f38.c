@@ -1096,7 +1096,15 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     INST_NAME("PINSRB Gx, ED, Ib");
                     nextop = F8;
                     GETGX();
-                    GETED(1);
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        wback = 0;
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                        LB(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
                     u8 = F8;
                     SB(ed, gback, gdoffset + (u8 & 0xF));
                     break;

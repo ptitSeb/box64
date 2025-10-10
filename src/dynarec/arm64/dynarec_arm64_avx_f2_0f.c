@@ -596,11 +596,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     VMOVQ(v0, v1);
                 }
             } else {
-                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                v1 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0x3f<<4, 15, rex, NULL, 1, 0);
-                VLDP128_I7(v0, v1, ed, fixedaddress);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                if (vex.l) {
+                    v1 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0x3f << 4, 15, rex, NULL, 1, 0);
+                    VLDP128_I7(v0, v1, ed, fixedaddress);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff << 4, 15, rex, NULL, 0, 0);
+                    VLD128(v0, ed, fixedaddress);
+                }
             }
             if(!vex.l) YMM0(gd);
             break;

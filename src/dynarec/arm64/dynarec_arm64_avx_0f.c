@@ -508,7 +508,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5A:
             INST_NAME("VCVTPS2PD Gx, Ex");
             nextop = F8;
-            GETGX_empty_EX(v0, v1, 0);
+            if (vex.l) {
+                GETGX_empty_EX(v0, v1, 0);
+            } else {
+                GETEXSD(v1, 0, 0);
+                GETGX_empty(v0);
+            }
             if(vex.l) {
                 GETGY_empty(q0, -1, -1, -1);
                 FCVTL2(q0, v1);

@@ -462,7 +462,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("CVTTPS2PI Gm,Ex");
             nextop = F8;
             GETGM(q0);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             if (BOX64ENV(dynarec_fastround)) {
                 VFCVTZSS(q0, v1);
             } else {
@@ -496,7 +496,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("CVTPS2PI Gm, Ex");
             nextop = F8;
             GETGM(q0);
-            GETEX(v1, 0, 0);
+            GETEXSD(v1, 0, 0);
             if (BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 VFRINTIS(q0, v1);
@@ -1220,7 +1220,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5A:
             INST_NAME("CVTPS2PD Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0, 0);
+            GETEXSD(q0, 0, 0);
             GETGX_empty(q1);
             FCVTL(q1, q0);
             break;
