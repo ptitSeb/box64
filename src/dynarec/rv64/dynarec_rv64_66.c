@@ -1087,8 +1087,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 15;
-                    if (u8) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         // removed PENDING on purpose
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                         GETEW(x1, 1);
@@ -1102,7 +1101,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    if (geted_ib(dyn, addr, ninst, nextop) & 15) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         // removed PENDING on purpose
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                         GETEW(x1, 1);
@@ -1116,7 +1115,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 2:
                     INST_NAME("RCL Ew, Ib");
-                    if (geted_ib(dyn, addr, ninst, nextop) & 31) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         READFLAGS(X_CF);
                         // removed PENDING on purpose
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
@@ -1131,7 +1130,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 3:
                     INST_NAME("RCR Ew, Ib");
-                    if (geted_ib(dyn, addr, ninst, nextop) & 31) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         READFLAGS(X_CF);
                         // removed PENDING on purpose
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
