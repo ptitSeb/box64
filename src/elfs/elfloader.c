@@ -296,7 +296,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             head->multiblocks[n].paddr = e->p_paddr + offs;
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
-            uint8_t prot = ((e->p_flags & PF_R)?PROT_READ:0)|((e->p_flags & PF_W)?PROT_WRITE:0)|((e->p_flags & PF_X)?PROT_EXEC:0);
+            // HACK: Mark all the code pages writable in unittest mode because some tests mix code and (writable) data...
+            uint8_t prot = ((e->p_flags & PF_R)?PROT_READ:0)|(((e->p_flags & PF_W) || box64_unittest_mode)?PROT_WRITE:0)|((e->p_flags & PF_X)?PROT_EXEC:0);
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if (balign < (box64_pagesize - 1)) balign = box64_pagesize - 1;
@@ -313,7 +314,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             if(e->p_align<box64_pagesize)
                 try_mmap = 0;
             if(try_mmap) {
-                printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, head->name);
+                printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p with prot %x for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, prot, head->name);
                 void* p = InternalMmap(
                     (void*)head->multiblocks[n].paddr,
                     head->multiblocks[n].size,

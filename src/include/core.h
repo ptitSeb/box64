@@ -10,4 +10,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
 int emulate(x64emu_t* emu, elfheader_t* elf_header);
 
+int unittest(int argc, const char** argv);
+
 #endif // __CORE_H
