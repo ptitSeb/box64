@@ -1801,8 +1801,8 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         tmp64u2= ED->q[1];
                         if(R_RAX == tmp64u && R_RDX == tmp64u2) {
                             SET_FLAG(F_ZF);
-                            ED->q[0] = R_EBX;
-                            ED->q[1] = R_ECX;
+                            ED->q[0] = R_RBX;
+                            ED->q[1] = R_RCX;
                         } else {
                             CLEAR_FLAG(F_ZF);
                             R_RAX = tmp64u;
