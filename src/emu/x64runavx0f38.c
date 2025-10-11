@@ -166,7 +166,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 CONDITIONAL_SET_FLAG((tmp32u>31), F_CF);
             }
             CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]==0):(GD->dword[0]==0), F_ZF);
-            CONDITIONAL_SET_FLAG(rex.w?(VD->q[0]>>63):(VD->dword[0]>>31), F_SF);
+            CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]>>63):(GD->dword[0]>>31), F_SF);
             CLEAR_FLAG(F_OF);
             // UD flags
             CLEAR_FLAG(F_AF);
