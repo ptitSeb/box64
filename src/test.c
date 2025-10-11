@@ -36,11 +36,19 @@ bool check_ymmregs[16] = { 0 };
 const char* regname[] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15" };
 
 #define MAX_MEMORY_REGIONS 32
+#define MAX_MEMORY_DATA      32
+#define MAX_MEMORY_DATA_SIZE 256
 
 struct {
     uint64_t start;
     uint64_t size;
 } memory_regions[MAX_MEMORY_REGIONS] = { { 0 } };
+
+struct {
+    uint64_t start;
+    uint64_t size;
+    uint8_t data[MAX_MEMORY_DATA_SIZE];
+} memory_data[MAX_MEMORY_DATA] = { { 0 } };
 
 inline uint64_t fromstr(const char* str)
 {
@@ -194,6 +202,55 @@ static void loadTest(const char** filepath)
         }
     }
 
+    struct json_value_s* json_memory_data = json_find(config->payload, "MemoryData");
+    if (json_memory_data && json_memory_data->type == json_type_object) {
+        struct json_object_s* object = (struct json_object_s*)json_memory_data->payload;
+        struct json_object_element_s* element = object->start;
+        i = 0;
+        while (element && i < MAX_MEMORY_DATA) {
+            struct json_string_s* element_key = element->name;
+            struct json_value_s* value = element->value;
+            assert(value->type == json_type_string);
+            struct json_string_s* element_value = (struct json_string_s*)value->payload;
+            memory_data[i].start = fromstr(element_key->string);
+            uint8_t* data = (uint8_t*)element_value->string;
+            while (*data) {
+                if (*data == ' ') {
+                    ++data;
+                    continue;
+                }
+                if (*data == '0' && (*(data + 1) == 'x' || *(data + 1) == 'X')) {
+                    data += 2;
+                }
+                uint8_t* lastbyte = data;
+                while (*lastbyte && *lastbyte != ' ' && *(lastbyte + 1) && *(lastbyte + 1) != ' ') {
+                    lastbyte += 2;
+                }
+                size_t len = lastbyte - data;
+                if (len < 2) {
+                    printf_log(LOG_NONE, "Invalid MemoryData item %s\n", element_key->string);
+                    break;
+                }
+                lastbyte -= 2;
+                static uint8_t byte_str[3] = { 0 };
+                while (lastbyte >= data) {
+                    byte_str[0] = *lastbyte;
+                    byte_str[1] = *(lastbyte + 1);
+                    memory_data[i].data[memory_data[i].size] = (uint8_t)strtol((const char*)byte_str, NULL, 16);
+                    memory_data[i].size++;
+                    if (memory_data[i].size >= MAX_MEMORY_DATA_SIZE) {
+                        printf_log(LOG_NONE, "MemoryData item %s too big (max=%d bytes)\n", element_key->string, MAX_MEMORY_DATA_SIZE);
+                        break;
+                    }
+                    lastbyte -= 2;
+                }
+                data += len;
+            }
+            i++;
+            element = element->next;
+        }
+    }
+
 #define BINNAME "/tmp/binfileXXXXXX"
     char* binname = box_malloc(strlen(BINNAME) + 1);
     memcpy(binname, BINNAME, strlen(BINNAME) + 1);
@@ -304,6 +361,12 @@ int unittest(int argc, const char** argv)
     for (int i = 0; i < MAX_MEMORY_REGIONS && memory_regions[i].size; ++i) {
         if (!memory_regions[i].start) break;
         mmap((void*)memory_regions[i].start, memory_regions[i].size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    }
+
+    for (int i = 0; i < MAX_MEMORY_DATA && memory_data[i].size; ++i) {
+        if (!memory_data[i].start) break;
+        if (!memory_data[i].size) continue;
+        memcpy((void*)memory_data[i].start, memory_data[i].data, memory_data[i].size);
     }
 
     x64emu_t* emu = NewX64Emu(my_context, my_context->ep,
