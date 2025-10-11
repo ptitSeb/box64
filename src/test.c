@@ -18,6 +18,7 @@
 #include "box64cpu.h"
 #include "box64cpu_util.h"
 #include "x64trace.h"
+#include "build_info.h"
 
 #define NASM      "nasm"
 #define X86_64_LD "x86_64-linux-gnu-ld"
@@ -266,6 +267,18 @@ int unittest(int argc, const char** argv)
     box64_pagesize = 4096;
     LoadEnvVariables();
     ftrace = stdout;
+    if (!BOX64ENV(nobanner)) PrintBox64Version(1);
+
+
+#ifdef DYNAREC
+    if (DetectHostCpuFeatures())
+        PrintHostCpuFeatures();
+    else {
+        printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
+        SET_BOX64ENV(dynarec, 0);
+    }
+#endif
+
     my_context = NewBox64Context(argc - 1);
 
     loadTest(&argv[2]); // will modify argv[2] to point to the binary file
