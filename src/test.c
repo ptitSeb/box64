@@ -82,7 +82,7 @@ static void json_fill_array(struct json_array_s* array, uint64_t* values)
     }
 }
 
-static void loadTest(const char** filepath)
+static void loadTest(const char** filepath, const char* include_path)
 {
     FILE* file = fopen(*filepath, "r");
     if (!file) {
@@ -261,7 +261,8 @@ static void loadTest(const char** filepath)
     fd = mkstemp(objname);
     close(fd);
 
-    const char* nasm_cmd[] = { NASM, *filepath, box64_is32bits ? "-felf32" : "-felf64", "-o", objname, NULL };
+    const char* nasm_cmd[] = { NASM, *filepath, box64_is32bits ? "-felf32" : "-felf64", "-o", objname,
+        include_path ? "-i" : NULL, include_path ? include_path : NULL, NULL };
     pid_t fork_result = fork();
     if (fork_result == 0) {
         execvp(nasm_cmd[0], (char* const*)nasm_cmd);
@@ -317,8 +318,13 @@ static void setupZydis(box64context_t* context)
 int unittest(int argc, const char** argv)
 {
     if (argc < 3 || (strcmp(argv[1], "--test") && strcmp(argv[1], "-t"))) {
-        printf_log(LOG_NONE, "Usage: %s -t <filepath>\n", argv[0]);
+        printf_log(LOG_NONE, "Usage: %s -t <filepath> [-i <include>]\n", argv[0]);
         return 0;
+    }
+
+    const char* include_path = NULL;
+    if (argc > 4 && (!strcmp(argv[3], "-i") || !strcmp(argv[3], "--include"))) {
+        include_path = argv[4];
     }
 
     box64_pagesize = 4096;
@@ -338,7 +344,7 @@ int unittest(int argc, const char** argv)
 
     my_context = NewBox64Context(argc - 1);
 
-    loadTest(&argv[2]); // will modify argv[2] to point to the binary file
+    loadTest(&argv[2], include_path); // will modify argv[2] to point to the binary file
     my_context->fullpath = box_strdup(argv[2]);
 
     FILE* f = fopen(my_context->fullpath, "rb");
