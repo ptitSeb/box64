@@ -130,7 +130,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (!rex.w) ZEROUP(ed);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                        SRAIxw(x1, gd, 5 + rex.w);
+                        if (rex.w)
+                            SRAI(x1, gd, 6);
+                        else
+                            SRAIW(x1, gd, 5);
                         ADDSL(x3, wback, x1, 2 + rex.w, x1);
                         ed = x1;
                         wback = x3;
@@ -310,7 +313,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (!rex.w) ZEROUP(ed);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                        SRAIxw(x1, gd, 5 + rex.w);
+                        if (rex.w)
+                            SRAI(x1, gd, 6);
+                        else
+                            SRAIW(x1, gd, 5);
                         ADDSL(x3, wback, x1, 2 + rex.w, x1);
                         LDxw(x1, x3, fixedaddress);
                         ed = x1;
