@@ -735,7 +735,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         exit(0);
     }
 
-    if (argc == 3 && (!strcmp(argv[1], "--test") || !strcmp(argv[1], "-t"))) {
+    if (argc >= 3 && (!strcmp(argv[1], "--test") || !strcmp(argv[1], "-t"))) {
         box64_unittest_mode = 1;
         exit(unittest(argc, argv));
     }
