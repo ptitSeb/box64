@@ -233,7 +233,7 @@ reg64_t* GetECommon_32(x64emu_t* emu, uintptr_t* addr, uint8_t m, uint32_t base)
         return (reg64_t*)(uintptr_t)base;
     }
 }
-reg64_t* GetECommon_16(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint64_t base)
+reg64_t* GetECommon_16(x64emu_t *emu, uintptr_t* addr, uint8_t m, uint16_t base)
 {
     switch(m&7) {
         case 0: base+= R_BX+R_SI; break;
