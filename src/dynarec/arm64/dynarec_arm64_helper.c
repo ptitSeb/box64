@@ -748,7 +748,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
         POP1_32(x5);   //ss
     }
     // check if SS is NULL
-    CBZw(x5, MARK);
+    CBZw_MARK(x5);
     // POP SS
     STRH_U12(x5, xEmu, offsetof(x64emu_t, segs[_SS]));
     STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
