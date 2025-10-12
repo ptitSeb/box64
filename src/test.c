@@ -332,7 +332,6 @@ int unittest(int argc, const char** argv)
     ftrace = stdout;
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
 
-
 #ifdef DYNAREC
     if (DetectHostCpuFeatures())
         PrintHostCpuFeatures();
@@ -342,6 +341,7 @@ int unittest(int argc, const char** argv)
     }
 #endif
 
+    PrintEnvVariables(&box64env, LOG_INFO);
     my_context = NewBox64Context(argc - 1);
 
     loadTest(&argv[2], include_path); // will modify argv[2] to point to the binary file
