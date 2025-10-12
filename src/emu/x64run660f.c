@@ -1799,7 +1799,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         tmp32s >>= (rex.w?6:4);
         if(!MODREG)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:1)));
+            if(rex.w)
+                *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+            else
+                *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+            #endif
         }
         if(rex.w) {
             if(EW->q[0] & (1LL<<tmp8u))
@@ -1838,7 +1846,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         tmp32s >>= (rex.w?6:4);
         if(!MODREG)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:1)));
+            if(rex.w)
+                *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+            else
+                *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+            #endif
         }
         if(rex.w) {
             if(EW->q[0] & (1LL<<tmp8u))
@@ -2080,12 +2096,20 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEW(0);
         GETGW;
-        tmp64s = rex.w?GW->sq[0]:GW->sword[0];
-        tmp8u=tmp64s&(rex.w?63:15);
-        tmp64s >>= (rex.w?6:4);
+        tmp32s = rex.w?GW->sdword[0]:GW->sword[0];
+        tmp8u=tmp32s&(rex.w?63:15);
+        tmp32s >>= (rex.w?6:4);
         if(!MODREG)
         {
-            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp64s<<(rex.w?3:1)));
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+(tmp32s<<(rex.w?3:1)));
+            if(rex.w)
+                *(uint64_t*)test->mem = *(uint64_t*)test->memaddr;
+            else
+                *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
+            EW=(reg64_t*)(((uintptr_t)(EW))+(tmp32s<<(rex.w?3:1)));
+            #endif
         }
         if(rex.w) {
             if(EW->q[0] & (1LL<<tmp8u))
