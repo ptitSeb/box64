@@ -3877,7 +3877,19 @@ EXPORT void my_exit(x64emu_t* emu, int code)
     exit(code);
 }
 
-EXPORT void my__exit(x64emu_t* emu, int code) __attribute__((alias("my_exit")));
+EXPORT void my__exit(x64emu_t* emu, int code)
+{
+    if(emu->flags.quitonexit || emu->quit) {
+        _exit(code);
+    }
+    printf_log(LOG_INFO, "Fast _exit called\n");
+    emu->quit = 1;
+    box64_exit_code = code;
+    SerializeAllMapping();   // just to be safe
+    // then call all the fini
+    
+    _exit(code);
+}
 
 EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
 {
