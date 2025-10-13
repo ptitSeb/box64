@@ -207,12 +207,12 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETVD;
             BSTRPICK_D(x4, vd, 7, 0);  // start
             BSTRPICK_D(x3, vd, 15, 8); // length
-            ADDI_D(x5, xZR, 0);
+            XOR(x5, x5, x5);
             BEQZ_MARK(x3);
             MOV64xw(x6, rex.w ? 64 : 32);
             BGE_MARK(x4, x6);
-            BLT_MARK(x6, x3);
             SRLxw(x5, ed, x4);
+            BLT_MARK(x6, x3);
             SUBxw(x6, x6, x3);
             SLLxw(x5, x5, x6);
             SRLxw(x5, x5, x6);
