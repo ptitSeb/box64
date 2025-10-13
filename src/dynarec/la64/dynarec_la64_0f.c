@@ -166,8 +166,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("MOVLPS Gx, Ex");
                 GETGX(v0, 1);
                 SMREAD();
-                GETEX(q1, 0, 0);
-                VEXTRINS_D(v0, q1, 0);
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                FLD_D(v1, ed, fixedaddress);
+                VEXTRINS_D(v0, v1, 0);
             }
             break;
         case 0x13:
