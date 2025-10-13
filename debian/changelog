@@ -1,3 +1,15 @@
+box64 (0.3.8) unstable; urgency=low
+
+This version introduce DynaCache, a disk cache for the generated native code. It's not enabled by default for now (but it will use cache file if present by default). It can dramaticaly speedup the load of program (try with linux factorio for example). This version also improve in the volatile metadata handling. There is a massive compatiblity improvment for box32 and on all dynarec in general too. And few more function wrapping...
+
+    => DynaCache for faster loading of program, and avoid runtime hicups
+    => Batter box32 compatibility (much less "Out of Memory" error)
+    => Unity3D games on Wayland are working now
+    => Volatile Metadata fully supported and handled, making games like Starfield to just work.
+    => More work on AVX support for RV64 & LA64. LA64 almost there, while RV64 has Scalar only support (no hardware vector support yet for AVX)
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Mon, 10 Oct 2025 10:30:33 -0100
+
 box64 (0.3.6) unstable; urgency=low
 
 This version introduces wowbox64.dll for Hangover; the ability to use the Volatile Metadata of Windows executables for x64 wine; and some better x87/SSE/AVX handling

@@ -1,3 +1,48 @@
+v0.3.8
+======
+
+Highlights:
+
+* This version introduce DynaCache, a disk cache for the generated native code. It's not enabled by default for now (but it will use cache file if present by default). It can dramaticaly speedup the load of program (try with linux factorio for example). This version also improve in the volatile metadata handling. There is a massive compatiblity improvment for box32 and on all dynarec in general too. And few more function wrapping...
+
+    => DynaCache for faster loading of program, and avoid runtime hicups
+    => Batter box32 compatibility (much less "Out of Memory" error)
+    => Unity3D games on Wayland are working now
+    => Volatile Metadata fully supported and handled, making games like Starfield to just work.
+    => More work on AVX support for RV64 & LA64. LA64 almost there, while RV64 has Scalar only support (no hardware vector support yet for AVX)
+
+Version summary:
+
+* Improved and fixed memory tracking
+* Improved volatile metadata handling, and some light refactor on StrongMem emulation
+* Improved handling of TF flag
+* DynaCache: Introducing a way to cache on disk native generated code for faster startup time on subsequent release
+* DynaCache: Support for all 3 backends ARM64, RV64 & LA64
+* Interpreter: refactor opcodes decoding to have prefixes handled in a generic way
+* Interpreter: many small fixes
+* Dynarec: some optimisations in the jump table, to remove one memory fetch on each jump
+* Dynarec: create infrastructure to be able to change easily the reg mapping
+* Dynarec: optimised defered flag handling to limit cases where UpdateFlags is needed
+* Dynarec: Introduced BOX64_DYNAREC_NOHOTPAGE to disable detection of hotpages
+* Dynarec: ARM64: A few more opcode added
+* Dynarec: ARM64: Some small fixes and better handling of undefined behavior in opcodes, as well as undefined opcodes
+* Dynarec: ARM64: Implemented a Dynarec version of UpdateFlags, for improved performances
+* Dynarec; ARM64: Fixes/Improved SSE_FLUSHTO0 support
+* Dynarec: LA64: Added support for AVX (& friends) opcodes. Still need some debugging so AVX still disabled by default on LA64
+* Dynarec: LA64: Changed register mapping to be closer to the x86_64 ABI
+* Dynarec: LA64: RV64: Added limited support to SSE_FLUSHTO0
+* Dynarec: RV64: Many fixes and improvments for MMX opcodes
+* Dynarec: RV64: many Scalar version of AVX opcodes added
+* Dynarec: Many fixes to various OpCodes, on all 3 backends
+* WowBox64: Added minimal runtime, improved overall stability
+* BOX32: Wrapper: many new functions added, plus many fixes
+* BOX32: Improved memory hadnling, using 32bits personality and other tunning to get more reliable 32bits memory allocations
+* BOX64: Wrapper: some more wrapped functions added, including wayland (for Unity games on Wayland) and vulkan (more extensions)
+* BOX64: Wrapper: improved handling of some VarArg wrapped functions on non-ARM64 backend
+* RCFILE: Fixed MAXCPU not working properly with Wine programs
+* RCFILE: Generic Setup profile refined, and more games profile added
+* Trace: Added support for current libZydis
+    
 v0.3.6
 ======
 
