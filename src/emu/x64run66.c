@@ -205,7 +205,8 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x55:
     case 0x56:
     case 0x57:                      /* PUSH Reg */
-        tmp16u = emu->regs[opcode&7].word[0];
+        tmp8u = (opcode&7)+(rex.b<<3);
+        tmp16u = emu->regs[tmp8u].word[0];
         Push16(emu, tmp16u);
         break;
     case 0x58:
@@ -216,7 +217,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x5D:
     case 0x5E:
     case 0x5F:                      /* POP Reg */
-        tmp8u = opcode&7;
+        tmp8u = (opcode&7)+(rex.b<<3);
         emu->regs[tmp8u].word[0] = Pop16(emu);
         break;
     case 0x60:                              /* PUSHA */
