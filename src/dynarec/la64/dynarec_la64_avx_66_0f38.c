@@ -330,7 +330,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x1A:
             INST_NAME("VBROADCASTF128 Gx, Ex");
             nextop = F8;
-            GETGY_empty_EY_xy(q0, q2, 0);
+            GETEYx(q2, 0, 0);
+            GETGYxy_empty(q0);
             XVREPLVE0_Q(q0, q2);
             break;
         case 0x1C:
@@ -787,7 +788,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x5A:
             INST_NAME("VBROADCASTI128 Gx, Ex");
             nextop = F8;
-            GETGY_empty_EY_xy(q0, q2, 0);
+            GETEYx(q2, 0, 0);
+            GETGYxy_empty(q0);
             XVREPLVE0_Q(q0, q2);
             break;
         case 0x78:
