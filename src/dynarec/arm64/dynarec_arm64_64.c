@@ -991,34 +991,47 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
             u8 = (nextop&0x38)>>3;
-            if (MODREG) {
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            if((u8>5) || (u8==1)) {
+                INST_NAME("Invalid MOV Seg,Ew");
+                UDF(0);
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                LDRH_REGz(x1, x4, wback);
-                ed = x1;
+                if (MODREG) {
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                    LDRH_REGz(x1, x4, wback);
+                    ed = x1;
+                }
+                STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+                STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             }
-            STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
-            INST_NAME("POP FS:Ed");
             nextop = F8;
             grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
-            if(MODREG) {
-                POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
-            } else {
-                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
-                if(ed==xRSP) {
-                    STRz_REGz(x2, x4, ed);
-                } else {
-                    // complicated to just allow a segfault that can be recovered correctly
-                    SUBz_U12(xRSP, xRSP, rex.is32bits?4:8);
-                    STRz_REGz(x2, x4, ed);
-                    ADDz_U12(xRSP, xRSP, rex.is32bits?4:8);
-                }
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("POP FS:Ed");
+                    if(MODREG) {
+                        POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else {
+                        POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
+                        if(ed==xRSP) {
+                            STRz_REGz(x2, x4, ed);
+                        } else {
+                            // complicated to just allow a segfault that can be recovered correctly
+                            SUBz_U12(xRSP, xRSP, rex.is32bits?4:8);
+                            STRz_REGz(x2, x4, ed);
+                            ADDz_U12(xRSP, xRSP, rex.is32bits?4:8);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0x90:
@@ -1083,43 +1096,55 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xC6:
-            INST_NAME("MOV Seg:Eb, Ib");
             nextop=F8;
             grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
-            if(MODREG) {   // reg <= u8
-                u8 = F8;
-                if(!rex.rex) {
-                    ed = (nextop&7);
-                    eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
-                    eb2 = (ed&4)>>2;    // L or H
-                } else {
-                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
-                    eb2 = 0;
-                }
-                MOV32w(x3, u8);
-                BFIx(eb1, x3, eb2*8, 8);
-            } else {                    // mem <= u8
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
-                u8 = F8;
-                MOV32w(x3, u8);
-                STRB_REGz(x3, x4, ed);
-                SMWRITE2();
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Seg:Eb, Ib");
+                    if(MODREG) {   // reg <= u8
+                        u8 = F8;
+                        if(!rex.rex) {
+                            ed = (nextop&7);
+                            eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
+                            eb2 = (ed&4)>>2;    // L or H
+                        } else {
+                            eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
+                            eb2 = 0;
+                        }
+                        MOV32w(x3, u8);
+                        BFIx(eb1, x3, eb2*8, 8);
+                    } else {                    // mem <= u8
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        u8 = F8;
+                        MOV32w(x3, u8);
+                        STRB_REGz(x3, x4, ed);
+                        SMWRITE2();
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xC7:
-            INST_NAME("MOV Seg:Ed, Id");
             nextop=F8;
             grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
-            if(MODREG) {   // reg <= i32
-                i64 = F32S;
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                MOV64xw(ed, i64);
-            } else {                    // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 4);
-                i64 = F32S;
-                MOV64xw(x3, i64);
-                STRxw_REGz(x3, x4, ed);
-                SMWRITE2();
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Seg:Ed, Id");
+                    if(MODREG) {   // reg <= i32
+                        i64 = F32S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MOV64xw(ed, i64);
+                    } else {                    // mem <= i32
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 4);
+                        i64 = F32S;
+                        MOV64xw(x3, i64);
+                        STRxw_REGz(x3, x4, ed);
+                        SMWRITE2();
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
 

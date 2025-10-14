@@ -717,28 +717,41 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOV Seg,Ew");
             nextop = F8;
             u8 = (nextop&0x38)>>3;
-            if (MODREG) {
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            if((u8>5) || (u8==1)) {
+                INST_NAME("Invalid MOV Seg,Ew");
+                UDF(0);
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                LDH(x1, wback, fixedaddress);
-                ed = x1;
+                if (MODREG) {
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    LDH(x1, wback, fixedaddress);
+                    ed = x1;
+                }
+                STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+                STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             }
-            STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
-            INST_NAME("POP Ew");
             nextop = F8;
-            POP1_16(x1);
-            if (MODREG) {
-                wback = TO_NAT((nextop & 7) + (rex.b << 3));
-                BFIz(wback, x1, 0, 16);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                STH(x1, wback, fixedaddress);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("POP Ew");
+                    POP1_16(x1);
+                    if (MODREG) {
+                        wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                        BFIz(wback, x1, 0, 16);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                        STH(x1, wback, fixedaddress);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0x90:
@@ -1174,26 +1187,32 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xC7:
-            INST_NAME("MOV Ew, Iw");
             nextop = F8;
-            if(MODREG) {
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                u16 = F16;
-                if(u16) {
-                    MOV32w(x1, u16);
-                    BFIz(ed, x1, 0, 16);
-                } else
-                    BFCz(ed, 0, 16);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 2);
-                u16 = F16;
-                if(u16) {
-                    MOV32w(x1, u16);
-                    STH(x1, ed, fixedaddress);
-                } else {
-                    STH(xZR, ed, fixedaddress);
-                }
-                SMWRITELOCK(lock);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Ew, Iw");
+                    if(MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        u16 = F16;
+                        if(u16) {
+                            MOV32w(x1, u16);
+                            BFIz(ed, x1, 0, 16);
+                        } else
+                            BFCz(ed, 0, 16);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 2);
+                        u16 = F16;
+                        if(u16) {
+                            MOV32w(x1, u16);
+                            STH(x1, ed, fixedaddress);
+                        } else {
+                            STH(xZR, ed, fixedaddress);
+                        }
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
 

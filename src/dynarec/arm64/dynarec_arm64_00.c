@@ -952,17 +952,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0x62:
-            INST_NAME("BOUND Gd, Ed");
             nextop = F8;
-            if(rex.is32bits && MODREG) {
+            if(rex.is32bits && !MODREG) {
+                INST_NAME("BOUND Gd, Ed");
                 addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 LDRxw_U12(x2, wback, 0);
-                LDRxw_U12(x3, wback, 4+(rex.w*4));
+                LDRxw_U12(x3, wback, 4);
                 GETGD;
                 GETIP(ip);
-                CMPSxw_REG(gd, x2);
+                CMPSw_REG(gd, x2);
                 B_MARK(cLT);
-                CMPSxw_REG(gd, x3);
+                CMPSw_REG(gd, x3);
                 B_MARK(cGT);
                 B_NEXT_nocond;
                 MARK;
@@ -970,17 +970,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_S(const_native_br, -1);
                 LOAD_XEMU_CALL(xRIP);
             } else {
+                INST_NAME("Illegal 62");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_PEND);
                 } else {
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 }
                 GETIP(ip);
-                STORE_XEMU_CALL(xRIP);
-                CALL_S(const_native_ud, -1);
-                LOAD_XEMU_CALL(xRIP);
-                jump_to_epilog(dyn, 0, xRIP, ninst);
-                *need_epilog = 0;
+                UDF(0);
+                *need_epilog = 1;
                 *ok = 0;
             }
             break;
@@ -1234,8 +1232,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x82:
             if(!rex.is32bits) {
-                DEFAULT;
-                return ip;
+                INST_NAME("Invalid 82");
+                UDF(0);
+                *need_epilog = 1;
+                *ok = 0;
+                return addr;
             }
             // fallthru
         case 0x80:
@@ -1635,18 +1636,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0x8C:
-            INST_NAME("MOV Ed, Seg");
             nextop=F8;
             u8 = (nextop&0x38)>>3;
-            if (MODREG) {
-                gd = TO_NAT((nextop & 7) + (rex.b << 3));
-                LDRH_U12(gd, xEmu, offsetof(x64emu_t, segs[u8]));
-                UXTHw(gd, gd);
+            if(u8>5) {
+                INST_NAME("Invalid MOV Ed, Seg");
+                UDF(0);
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                STH(x3, wback, fixedaddress);
-                SMWRITE2();
+                INST_NAME("MOV Ed, Seg");
+                if (MODREG) {
+                    gd = TO_NAT((nextop & 7) + (rex.b << 3));
+                    LDRH_U12(gd, xEmu, offsetof(x64emu_t, segs[u8]));
+                    UXTHw(gd, gd);
+                } else {
+                    LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    STH(x3, wback, fixedaddress);
+                    SMWRITE2();
+                }
             }
             break;
         case 0x8D:
@@ -1666,31 +1674,50 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0x8E:
-            INST_NAME("MOV Seg,Ew");
             nextop = F8;
             u8 = (nextop&0x38)>>3;
-            if (MODREG) {
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            if((u8>5) || (u8==1)) {
+                INST_NAME("Invalid MOV Seg,Ed");
+                UDF(0);
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                LDH(x1, wback, fixedaddress);
-                ed = x1;
+                INST_NAME("MOV Seg,Ed");
+                if (MODREG) {
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                    LDH(x1, wback, fixedaddress);
+                    ed = x1;
+                }
+                STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+                STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             }
-            STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
-            INST_NAME("POP Ed");
             nextop = F8;
-            SMREAD();
-            if(MODREG) {
-                POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
-            } else {
-                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<(2+rex.is32bits), (1<<(2+rex.is32bits))-1, rex, NULL, 0, 0);
-                STz(x2, ed, fixedaddress);
-                SMWRITE();
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("POP Ed");
+                    SMREAD();
+                    if(MODREG) {
+                        POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else {
+                        POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<(2+rex.is32bits), (1<<(2+rex.is32bits))-1, rex, NULL, 0, 0);
+                        STz(x2, ed, fixedaddress);
+                        SMWRITE();
+                    }
+                    break;
+                case 3:
+                    INST_NAME("Invalid 8F /3");
+                    UDF(0);
+                    *need_epilog = 1;
+                    *ok = 0;
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0x90:
@@ -2598,65 +2625,77 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xC6:
-            INST_NAME("MOV Eb, Ib");
             nextop=F8;
-            if(MODREG) {   // reg <= u8
-                u8 = F8;
-                if(!rex.rex) {
-                    ed = (nextop&7);
-                    eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
-                    eb2 = (ed&4)>>2;    // L or H
-                } else {
-                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
-                    eb2 = 0;
-                }
-                MOV32w(x3, u8);
-                BFIx(eb1, x3, eb2*8, 8);
-            } else {                    // mem <= u8
-                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 1);
-                u8 = F8;
-                if(u8) {
-                    MOV32w(x3, u8);
-                    ed = x3;
-                } else
-                    ed = xZR;
-                STB(ed, wback, fixedaddress);
-                SMWRITELOCK(lock);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Eb, Ib");
+                    if(MODREG) {   // reg <= u8
+                        u8 = F8;
+                        if(!rex.rex) {
+                            ed = (nextop&7);
+                            eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
+                            eb2 = (ed&4)>>2;    // L or H
+                        } else {
+                            eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
+                            eb2 = 0;
+                        }
+                        MOV32w(x3, u8);
+                        BFIx(eb1, x3, eb2*8, 8);
+                    } else {                    // mem <= u8
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 1);
+                        u8 = F8;
+                        if(u8) {
+                            MOV32w(x3, u8);
+                            ed = x3;
+                        } else
+                            ed = xZR;
+                        STB(ed, wback, fixedaddress);
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xC7:
-            INST_NAME("MOV Ed, Id");
             nextop=F8;
-            if(MODREG) {   // reg <= i32
-                i64 = F32S;
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                MOV64xw(ed, i64);
-            } else {                    // mem <= i32
-                IF_UNALIGNED(ip) {
-                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, &lock, 0, 4);
-                    i64 = F32S;
-                    if(i64) {
-                        MOV64xw(x3, i64);
-                        ed = x3;
-                    } else
-                        ed = xZR;
-                    for(int i=0; i<(1<<(2+rex.w)); ++i) {
-                        STURB_I9(ed, wback, i);
-                        if(ed!=xZR)
-                            RORxw(ed, ed, 8);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Ed, Id");
+                    if(MODREG) {   // reg <= i32
+                        i64 = F32S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MOV64xw(ed, i64);
+                    } else {                    // mem <= i32
+                        IF_UNALIGNED(ip) {
+                            MESSAGE(LOG_DEBUG, "\tUnaligned path");
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, &lock, 0, 4);
+                            i64 = F32S;
+                            if(i64) {
+                                MOV64xw(x3, i64);
+                                ed = x3;
+                            } else
+                                ed = xZR;
+                            for(int i=0; i<(1<<(2+rex.w)); ++i) {
+                                STURB_I9(ed, wback, i);
+                                if(ed!=xZR)
+                                    RORxw(ed, ed, 8);
+                            }
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
+                            i64 = F32S;
+                            if(i64) {
+                                MOV64xw(x3, i64);
+                                ed = x3;
+                            } else
+                                ed = xZR;
+                            STxw(ed, wback, fixedaddress);
+                        }
+                        SMWRITELOCK(lock);
                     }
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
-                    i64 = F32S;
-                    if(i64) {
-                        MOV64xw(x3, i64);
-                        ed = x3;
-                    } else
-                        ed = xZR;
-                    STxw(ed, wback, fixedaddress);
-                }
-                SMWRITELOCK(lock);
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xC8:

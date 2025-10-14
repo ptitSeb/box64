@@ -1389,45 +1389,57 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xC6:
-            INST_NAME("MOV Eb, Ib");
             nextop=F8;
-            if(MODREG) {   // reg <= u8
-                u8 = F8;
-                if(!rex.rex) {
-                    ed = (nextop&7);
-                    eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
-                    eb2 = (ed&4)>>2;    // L or H
-                } else {
-                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
-                    eb2 = 0;
-                }
-                MOV32w(x3, u8);
-                BFIx(eb1, x3, eb2*8, 8);
-            } else {                    // mem <= u8
-                addr = geted32(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 1);
-                u8 = F8;
-                if(u8) {
-                    MOV32w(x3, u8);
-                    ed = x3;
-                } else
-                    ed = xZR;
-                STB(ed, wback, fixedaddress);
-                SMWRITELOCK(lock);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Eb, Ib");
+                    if(MODREG) {   // reg <= u8
+                        u8 = F8;
+                        if(!rex.rex) {
+                            ed = (nextop&7);
+                            eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
+                            eb2 = (ed&4)>>2;    // L or H
+                        } else {
+                            eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
+                            eb2 = 0;
+                        }
+                        MOV32w(x3, u8);
+                        BFIx(eb1, x3, eb2*8, 8);
+                    } else {                    // mem <= u8
+                        addr = geted32(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 1);
+                        u8 = F8;
+                        if(u8) {
+                            MOV32w(x3, u8);
+                            ed = x3;
+                        } else
+                            ed = xZR;
+                        STB(ed, wback, fixedaddress);
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xC7:
-            INST_NAME("MOV Ed, Id");
             nextop=F8;
-            if(MODREG) {   // reg <= i32
-                i64 = F32S;
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                MOV64xw(ed, i64);
-            } else {                    // mem <= i32
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
-                i64 = F32S;
-                MOV64xw(x3, i64);
-                STxw(x3, ed, fixedaddress);
-                SMWRITELOCK(lock);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("MOV Ed, Id");
+                    if(MODREG) {   // reg <= i32
+                        i64 = F32S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MOV64xw(ed, i64);
+                    } else {                    // mem <= i32
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 4);
+                        i64 = F32S;
+                        MOV64xw(x3, i64);
+                        STxw(x3, ed, fixedaddress);
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
 

@@ -88,17 +88,23 @@ uintptr_t dynarec64_6764_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, in
             break;
 
         case 0x8F:
-            INST_NAME("POP Seg:Ed");
             nextop=F8;
-            if(MODREG) {   // reg <= reg
-                POP1_32(x1);
-                MOVxw_REG(TO_NAT((nextop & 7) + (rex.b << 3)), x1);
-            } else {                    // mem <= reg
-                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
-                POP1_32(x1);
-                addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, 0);
-                ADDz_REG(x4, x4, ed);
-                STz(x1, x4, fixedaddress);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("POP Seg:Ed");
+                    if(MODREG) {   // reg <= reg
+                        POP1_32(x1);
+                        MOVxw_REG(TO_NAT((nextop & 7) + (rex.b << 3)), x1);
+                    } else {                    // mem <= reg
+                        grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                        POP1_32(x1);
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, 0);
+                        ADDz_REG(x4, x4, ed);
+                        STz(x1, x4, fixedaddress);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
 
