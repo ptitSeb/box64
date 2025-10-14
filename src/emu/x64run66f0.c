@@ -66,6 +66,10 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
                 case 0xB1:                      /* CMPXCHG Ew,Gw */
                     nextop = F8;
+                    if(MODREG) {
+                        emu->error |= ERR_ILLEGAL;
+                        return 0;
+                    }
                     GETEW(0);
                     GETGW;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -94,6 +98,10 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 case 0xBA: /* BTS Ew, Ib */
                     CHECK_FLAGS(emu);
                     nextop = F8;
+                    if(MODREG) {
+                        emu->error |= ERR_ILLEGAL;
+                        return 0;
+                    }
                     GETEW(0);
                     tmp8u = F8;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -144,6 +152,10 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
                 case 0xC1:                      /* XADD Gw,Ew */
                     nextop = F8;
+                    if(MODREG) {
+                        emu->error |= ERR_ILLEGAL;
+                        return 0;
+                    }
                     GETEW(0);
                     GETGW;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -179,44 +191,30 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
         #define GO(B, OP)                                           \
         case B+1:                                                   \
             nextop = F8;                                            \
+            if(MODREG) {                                            \
+                emu->error |= ERR_ILLEGAL;                          \
+                return 0;                                           \
+            }                                                       \
             GETEW(0);                                               \
             GETGW;                                                  \
             do {                                                    \
                 tmp16u = native_lock_read_h(ED);                    \
                 tmp16u = OP##16(emu, tmp16u, GW->word[0]);          \
             } while (native_lock_write_h(ED, tmp16u));              \
-            break;                                                  \
-        case B+3:                                                   \
-            nextop = F8;                                            \
-            GETEW(0);                                               \
-            GETGW;                                                  \
-            GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);    \
-            break;                                                  \
-        case B+5:                                                   \
-            R_AX = OP##16(emu, R_AX, F16);                          \
             break;
 #else
         #define GO(B, OP)                                           \
         case B+1:                                                   \
             nextop = F8;                                            \
+            if(MODREG) {                                            \
+                emu->error |= ERR_ILLEGAL;                          \
+                return 0;                                           \
+            }                                                       \
             GETEW(0);                                               \
             GETGW;                                                  \
-            pthread_mutex_lock(&my_context->mutex_lock);          \
+            pthread_mutex_lock(&my_context->mutex_lock);            \
             EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);    \
-            pthread_mutex_unlock(&my_context->mutex_lock);        \
-            break;                                                  \
-        case B+3:                                                   \
-            nextop = F8;                                            \
-            GETEW(0);                                               \
-            GETGW;                                                  \
-            pthread_mutex_lock(&my_context->mutex_lock);          \
-            GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);    \
-            pthread_mutex_unlock(&my_context->mutex_lock);        \
-            break;                                                  \
-        case B+5:                                                   \
-            pthread_mutex_lock(&my_context->mutex_lock);          \
-            R_AX = OP##16(emu, R_AX, F16);                          \
-            pthread_mutex_unlock(&my_context->mutex_lock);        \
+            pthread_mutex_unlock(&my_context->mutex_lock);          \
             break;
 #endif
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
@@ -231,32 +229,24 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0x81:              /* GRP Ew,Iw */
         case 0x83:              /* GRP Ew,Ib */
             nextop = F8;
+            if(MODREG) {
+                emu->error |= ERR_ILLEGAL;
+                return 0;
+            }
             GETEW((opcode==0x83)?1:2);
             tmp16s = (opcode==0x83)?(F8S):(F16S);
             tmp16u = (uint16_t)tmp16s;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-            if(MODREG)
-                switch((nextop>>3)&7) {
-                    case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
-                    case 1: EW->word[0] =  or16(emu, EW->word[0], tmp16u); break;
-                    case 2: EW->word[0] = adc16(emu, EW->word[0], tmp16u); break;
-                    case 3: EW->word[0] = sbb16(emu, EW->word[0], tmp16u); break;
-                    case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
-                    case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
-                    case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
-                    case 7:               cmp16(emu, EW->word[0], tmp16u); break;
-                }
-            else
-                switch((nextop>>3)&7) {
-                    case 0: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = add16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 1: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 =  or16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 2: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = adc16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 3: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sbb16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 4: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = and16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 5: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sub16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 6: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = xor16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 7:                                                  cmp16(emu, EW->word[0], tmp16u); break;
-                }
+            switch((nextop>>3)&7) {
+                case 0: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = add16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 1: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 =  or16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 2: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = adc16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 3: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sbb16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 4: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = and16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 5: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sub16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 6: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = xor16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                case 7: emu->error |= ERR_ILLEGAL; return 0;
+            }
 #else
             pthread_mutex_lock(&my_context->mutex_lock);
             switch((nextop>>3)&7) {
@@ -267,7 +257,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
                 case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
                 case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
-                case 7:               cmp16(emu, EW->word[0], tmp16u); break;
+                case 7: emu->error |= ERR_ILLEGAL; return 0;
             }
             pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
@@ -275,9 +265,12 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
         case 0xF7:                      /* GRP3 Ed(,Id) */
             nextop = F8;
-            nextop = (nextop>>3)&7;
-            GETEW((nextop<2)?2:0);
-            switch(nextop) {
+            if(MODREG) {
+                emu->error |= ERR_ILLEGAL;
+                return 0;
+            }
+            GETEW((((nextop>>3)&7)<2)?2:0);
+            switch((nextop>>3)&7) {
                 case 2:                 /* NOT Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     if(rex.w)
@@ -310,6 +303,10 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
+            if(MODREG) {
+                emu->error |= ERR_ILLEGAL;
+                return 0;
+            }
             GETEW(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
@@ -346,10 +343,8 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif
                     break;
                 default:
-                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFF 0x%02X 0x%02X\n", nextop, PK(0));
-                    emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
-                    break;
+                    return 0;
             }
             break;
        default:

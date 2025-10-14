@@ -472,10 +472,10 @@ x64emurun:
             break;
         case 0x62:                  /* BOUND Gd, Ed */
             nextop = F8;
-            if(rex.is32bits && MODREG) {
+            if(rex.is32bits && !MODREG) {
                 GETGD;
                 int* bounds = (int*)GETEA(0);
-                if(bounds[0]<GD->dword[0] || bounds[1]>GD->dword[0])
+                if((GD->sdword[0]<bounds[0]) || (GD->sdword[0]>bounds[1]))
                     EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xb09d);
             } else {
                 unimp = 2;
@@ -758,10 +758,15 @@ x64emurun:
         case 0x8C:                      /* MOV Ed, Seg */
             nextop = F8;
             GETED(0);
+            tmp8u = (nextop&0x38)>>3;
+            if(tmp8u>5) {
+                unimp = 2;
+                goto fini;
+            }
             if(MODREG)
-                ED->q[0] = emu->segs[((nextop&0x38)>>3)];
+                ED->q[0] = emu->segs[tmp8u];
             else
-                ED->word[0] = emu->segs[((nextop&0x38)>>3)];
+                ED->word[0] = emu->segs[tmp8u];
             break;
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
@@ -775,29 +780,44 @@ x64emurun:
         case 0x8E:                      /* MOV Seg, Ew */
             nextop = F8;
             GETED(0);
-            emu->segs[((nextop&0x38)>>3)] = ED->word[0];
-            emu->segs_serial[((nextop&0x38)>>3)] = 0;
-            if(((nextop&0x38)>>3)==_SS && tf)   // disable trace when SS is accessed
+            tmp8u = (nextop&0x38)>>3;
+            if((tmp8u>5) || (tmp8u==1)) {
+                unimp = 2;
+                goto fini;
+            }
+            emu->segs[tmp8u] = ED->word[0];
+            emu->segs_serial[tmp8u] = 0;
+            if(tmp8u==_SS && tf)   // disable trace when SS is accessed
                 no_tf = 1;
             break;
         case 0x8F:                      /* POP Ed */
             nextop = F8;
-            if(MODREG) {
-                emu->regs[(nextop&7)+(rex.b<<3)].q[0] = rex.is32bits?Pop32(emu):Pop64(emu);
-            } else {
-                if(rex.is32bits) {
-                    tmp32u = Pop32(emu);  // this order allows handling POP [ESP] and variant
-                    GETED(0);
-                    R_ESP -= 4; // to prevent issue with SEGFAULT
-                    ED->dword[0] = tmp32u;
-                    R_ESP += 4;
-                } else {
-                    tmp64u = Pop64(emu);  // this order allows handling POP [ESP] and variant
-                    GETED(0);
-                    R_RSP -= sizeof(void*); // to prevent issue with SEGFAULT
-                    ED->q[0] = tmp64u;
-                    R_RSP += sizeof(void*);
-                }
+            switch((nextop>>3)&7) {
+                case 0: 
+                    if(MODREG) {
+                        emu->regs[(nextop&7)+(rex.b<<3)].q[0] = rex.is32bits?Pop32(emu):Pop64(emu);
+                    } else {
+                        if(rex.is32bits) {
+                            tmp32u = Pop32(emu);  // this order allows handling POP [ESP] and variant
+                            GETED(0);
+                            R_ESP -= 4; // to prevent issue with SEGFAULT
+                            ED->dword[0] = tmp32u;
+                            R_ESP += 4;
+                        } else {
+                            tmp64u = Pop64(emu);  // this order allows handling POP [ESP] and variant
+                            GETED(0);
+                            R_RSP -= sizeof(void*); // to prevent issue with SEGFAULT
+                            ED->q[0] = tmp64u;
+                            R_RSP += sizeof(void*);
+                        }
+                    }
+                    break;
+                case 3:
+                    unimp = 2;
+                    goto fini;
+                default:
+                    unimp = 1;
+                    goto fini;
             }
             break;
         case 0x90:                      /* NOP or XCHG R8, RAX*/
@@ -1448,18 +1468,31 @@ x64emurun:
         case 0xC6:                      /* MOV Eb,Ib */
             nextop = F8;
             GETEB(1);
-            EB->byte[0] = F8;
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = F8; break;
+                case 7: unimp = 2; goto fini;
+                default:
+                    unimp = 1;
+                    goto fini;
+            }
             break;
         case 0xC7:                      /* MOV Ed,Id */
             nextop = F8;
             GETED(4);
-            if(rex.w)
-                ED->q[0] = F32S64;
-            else
-                if(MODREG)
-                    ED->q[0] = F32;
-                else
-                    ED->dword[0] = F32;
+            switch((nextop>>3)&7) {
+                case 0: 
+                    if(rex.w)
+                        ED->q[0] = F32S64;
+                    else
+                        if(MODREG)
+                            ED->q[0] = F32;
+                        else
+                            ED->dword[0] = F32;
+                    break;
+                default:
+                    unimp = 1;
+                    goto fini;
+            }
             break;
         case 0xC8:                      /* ENTER Iw,Ib */
             tmp16u = F16;
@@ -2362,8 +2395,7 @@ x64emurun:
                     }
                     break;
                 default:
-                    printf_log(LOG_NONE, "Illegal Opcode %p: (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X\n", (void*)R_RIP, PK(-6), PK(-5), PK(-4), PK(-3), opcode, nextop, PK(0), PK(1), PK(2), PK(3));
-                    EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+                    unimp = 2;
                     goto fini;
             }
             break;
@@ -2389,8 +2421,9 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->quit);
     if(unimp) {
         //emu->quit = 1;
-        if(unimp==1)
+        if(unimp==1 && !(emu->error&ERR_ILLEGAL))
             UnimpOpcode(emu, is32bits);
+        emu->error &= ~ERR_ILLEGAL;
         EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
     }
     // fork handling
