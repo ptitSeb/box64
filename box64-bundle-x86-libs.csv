@@ -1,5 +1,7 @@
 https://archive.debian.org/debian/pool/main/c/curl/libcurl3-gnutls_7.74.0-1.3+deb11u7~bpo11+1_amd64.deb,d5ae55e3a9838d12358530cd03218cc0d18127a84e9cfc73bdf79dacd40b25e4
 https://archive.debian.org/debian/pool/main/c/curl/libcurl3-gnutls_7.74.0-1.3+deb11u7~bpo11+1_i386.deb,625e5189304d4d3bfb27cb821e257816c5ce761b1696b5da5ca4fa1035c48463
+https://archive.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2l-1~bpo8+1_amd64.deb,6e85968afe1a6643f4e82e1cc168f848c5967a131bb1c7392f11974953db0e67
+https://archive.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2l-1~bpo8+1_i386.deb,4e8b924286a064c257ca50b8ecd44fe71226443daef62b6836010590e2157329
 https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libunwind-1.4.0-5.fc34.i686.rpm,eb518e9d073c36fd29862c7afd00a8a7cb186074a0e162983f18fb6c9dc71d2c
 https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libunwind-1.4.0-5.fc34.x86_64.rpm,0f44e37e4eb472508e0dba8505ebbb04c2c1390c6a43970a6af80aad886037e3
 https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/h/hidapi-0.11.2-2.fc34.i686.rpm,386040fc502e2f02b4b072e0cd90c034dc0a30831fbd2ddb116d17c080b6f9a4
@@ -10,6 +12,8 @@ https://cdn.getsol.us/repo/shannon/libj/libjpeg-turbo/libjpeg-turbo-3.0.3-21-1-x
 https://cdn.getsol.us/repo/shannon/libj/libjpeg-turbo/libjpeg-turbo-32bit-3.0.3-21-1-x86_64.eopkg,5624990281f6520026aa2252c711f02d4916099aeac63accc83bd2135b9d3220
 https://repo.almalinux.org/almalinux/8.10/BaseOS/x86_64/os/Packages/nettle-3.4.1-7.el8.i686.rpm,13bc8758355c3ec885f414e0e86efad29a7fe82c0999cdb3754d666949c06cc5
 https://repo.almalinux.org/almalinux/8.10/BaseOS/x86_64/os/Packages/nettle-3.4.1-7.el8.x86_64.rpm,fb4aaa22b2e2f2fc0c451b87ac464e8746d240397d64e79f6bfd38f4e9128a5a
+https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/compat-openssl11-1.1.1k-4.el9_0.i686.rpm,6b9d8e1b34dcc5a5cb1196d746022b04677b7f9a105508392446508c6ae9b4cc,https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/compat-openssl11-1.1.1k-4.el9_0.x86_64.rpm,102eb4355d2dfc8093ed59dd2ebc6bf8616965524faf7e886212fd542f4c1b4b
+https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/compat-openssl11-1.1.1k-4.el9_0.x86_64.rpm,102eb4355d2dfc8093ed59dd2ebc6bf8616965524faf7e886212fd542f4c1b4b
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/fribidi-1.0.10-6.el9.2.i686.rpm,75f808f0f5f93aceb4e477aa5f302edbed07a605a0644f0ea929d4ea609e36a0
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/fribidi-1.0.10-6.el9.2.x86_64.rpm,b4763ca410f8479b2775efb55ba09e6722948af7526180a56309e3e090c27010
 https://vault.almalinux.org/9.5/AppStream/x86_64/os/Packages/libepoxy-1.5.5-4.el9.i686.rpm,fe35e8de9b68c8d7e7b6b525580fc36cf9c86412cdb2b022dc01f95801771981
