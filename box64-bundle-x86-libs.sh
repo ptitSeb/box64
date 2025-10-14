@@ -88,7 +88,7 @@ mkdir -p usr/lib
 mv box64-*-linux-gnu usr/lib
 
 # remove libraries that cannot be emulated
-# https://github.com/ptitSeb/box64/blob/v0.3.6/src/librarian/library.c#L433
+# https://github.com/ptitSeb/box64/blob/v0.3.8/src/librarian/library.c#L433
 set -- libc libpthread librt libGL libX11 libasound libdl libm libbsd libutil \
   libresolv libXxf86vm libXinerama libXrandr libXext libXfixes libXcursor \
   libXrender libXft libXi libXss libXpm libXau libXdmcp libX11-xcb libxcb \
