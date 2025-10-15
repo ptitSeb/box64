@@ -46,6 +46,8 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libbrotli-1.0.9-7.el9_
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libbrotli-1.0.9-7.el9_5.x86_64.rpm,77906ae44bcd42a9f6646d814874768e8befaabf413133d44f71a95ac6c6d68c
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libffi-3.4.2-8.el9.i686.rpm,70daa216ed2a6540e41c455efc95d2b5671db164137f854bceae07e348f58645
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libffi-3.4.2-8.el9.x86_64.rpm,1cf2d122e5c423681394c1bc599ee2281d2eafff5a3749842bc93c37db4bed5e
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libgcc-11.5.0-2.el9.alma.1.i686.rpm,fed64dfadf74bd132ac2675f625ec601ca9d7ae9d05b8d7ff492a204260d0174
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libgcc-11.5.0-5.el9_5.alma.1.x86_64.rpm,7bd3ec130e1712442121b61b27164386006b9bfa6f0fa188316ecb35575a768f
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libgomp-11.5.0-2.el9.alma.1.i686.rpm,686ac26afe2073a3607f26fd1592a8ccd9b78f6eec6e872528634b43c4e04dd7
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libgomp-11.5.0-2.el9.alma.1.x86_64.rpm,9a2bdc6807b22ffb6294b30dcc13e20198abe5facaeefcf1bfacec3e1013e3c2
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libgpg-error-1.42-5.el9.i686.rpm,23f828674bc30752687452dacf4a25ca8c25ef0d25e3e6953d0714b5b33cef08
