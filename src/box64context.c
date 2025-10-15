@@ -72,17 +72,6 @@ int getrand(int maxval)
 
 }
 
-void free_tlsdatasize(void* p)
-{
-    if(!p)
-        return;
-    tlsdatasize_t *data = (tlsdatasize_t*)p;
-    actual_free(data->ptr);
-    actual_free(p);
-    if(my_context)
-        pthread_setspecific(my_context->tlskey, NULL);
-}
-
 void x64Syscall(x64emu_t *emu);
 void x86Syscall(x64emu_t *emu);
 
@@ -217,28 +206,25 @@ box64context_t *NewBox64Context(int argc)
     init_mutexes(context);
     pthread_atfork(NULL, NULL, atfork_child_box64context);
 
-    pthread_key_create(&context->tlskey, free_tlsdatasize);
-
-
     for (int i=0; i<8; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at FS:0x28, value:%08X\n", *(uint32_t*)context->canary);
 
     // init segments
     for(int i=0; i<16; i++) {
-        context->segtls[i].limit = (uintptr_t)-1LL;
+        context->seggdt[i].limit = (uintptr_t)-1LL;
     }
-    context->segtls[10].key_init = 0;    // 0x53 selector
-    context->segtls[10].present = 1;
-    context->segtls[8].key_init = 0;    // 0x43 selector
-    context->segtls[8].present = 1;
-    context->segtls[6].key_init = 0;    // 0x33 selector
-    context->segtls[6].present = 1;
-    context->segtls[5].key_init = 0;    // 0x2b selector
-    context->segtls[5].present = 1;
-    context->segtls[4].key_init = 0;    // 0x23 selector
-    context->segtls[4].present = 1;
-    context->segtls[4].is32bits = 1;
+    // 0x53 selector
+    context->seggdt[10].present = 1;
+    // 0x43 selector
+    context->seggdt[8].present = 1;
+    // 0x33 selector
+    context->seggdt[6].present = 1;
+    // 0x2b selector
+    context->seggdt[5].present = 1;
+    // 0x23 selector
+    context->seggdt[4].present = 1;
+    context->seggdt[4].is32bits = 1;
 
     context->globdata = NewMapSymbols();
     context->uniques = NewMapSymbols();
@@ -329,12 +315,6 @@ void FreeBox64Context(box64context_t** context)
     if(ctx->stack_clone)
         box_free(ctx->stack_clone);
 
-
-    void* ptr;
-    if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {
-        free_tlsdatasize(ptr);
-    }
-    pthread_key_delete(ctx->tlskey);
 
     if(ctx->tlsdata)
         box_free(ctx->tlsdata);

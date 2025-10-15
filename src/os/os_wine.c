@@ -30,12 +30,12 @@ int IsBridgeSignature(char s, char c)
     return FALSE;
 }
 
-void* GetSeg43Base()
+void* GetSeg43Base(void* emu)
 {
     return NULL;
 }
 
-void* GetSegmentBase(uint32_t desc)
+void* GetSegmentBase(void* emu, uint32_t desc)
 {
     printf_log(LOG_NONE, "GetSegmentBase does not apply to Wine dlls\n");
     return NULL;

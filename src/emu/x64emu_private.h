@@ -3,8 +3,8 @@
 
 #include "regs.h"
 #include "os.h"
+#include "box64context.h"
 
-typedef struct box64context_s box64context_t;
 typedef struct x64_ucontext_s x64_ucontext_t;
 #ifdef BOX32
 typedef struct i386_ucontext_s i386_ucontext_t;
@@ -127,6 +127,11 @@ typedef struct x64emu_s {
     #ifdef _WIN32
     uint64_t    win64_teb;
     #endif
+    // local selector handling
+    base_segment_t  segldt[16];
+    base_segment_t  seggdt[16];  // hacky
+    tlsdatasize_t  *tlsdata;
+    // other informations
     int         type;       // EMUTYPE_xxx define
     #ifdef BOX32
     int         libc_err;   // copy of errno from libc

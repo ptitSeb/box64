@@ -45,8 +45,8 @@ int SchedYield(void);
 void EmuX64Syscall(void* emu);
 void EmuX86Syscall(void* emu);
 
-void* GetSeg43Base();
-void* GetSegmentBase(uint32_t desc);
+void* GetSeg43Base(void* emu);
+void* GetSegmentBase(void* emu, uint32_t desc);
 
 // These functions only applies to Linux --------------------------
 int IsBridgeSignature(char s, char c);

@@ -21,10 +21,10 @@ typedef struct my_tls_s {
     unsigned long int   o;
 } my_tls_t;
 
-EXPORT void* my___tls_get_addr(void* p)
+EXPORT void* my___tls_get_addr(x64emu_t* emu, void* p)
 {
     my_tls_t *t = (my_tls_t*)p;
-    tlsdatasize_t* ptr = getTLSData(my_context);
+    tlsdatasize_t* ptr = getTLSData(emu);
     return ptr->data+GetTLSBase(my_context->elfs[t->i])+t->o;
 }
 

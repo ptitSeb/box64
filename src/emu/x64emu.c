@@ -80,6 +80,11 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
         emu->segs[_FS] = 0x43;
         emu->segs[_GS] = default_gs;
     }
+    // init segments
+    for(int i=0; i<16; i++) {
+        emu->segldt[i].limit = (uintptr_t)-1LL;
+    }
+    memcpy(emu->seggdt, context->seggdt, sizeof(emu->seggdt));
     // setup fpu regs
     reset_fpu(emu);
     emu->mxcsr.x32 = 0x1f80;
@@ -149,6 +154,10 @@ static void internalFreeX64(x64emu_t* emu)
         actual_free(emu->res_state_32);
     emu->res_state_32 = NULL;
     #endif
+    if(emu->tlsdata) {
+        free_tlsdatasize(emu->tlsdata);
+        emu->tlsdata = NULL;
+    }
 }
 
 EXPORTDYN
@@ -186,6 +195,8 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memset(newemu->segs_serial, 0, sizeof(newemu->segs_serial));
+    memcpy(newemu->seggdt, emu->seggdt, sizeof(newemu->seggdt));
+    memcpy(newemu->segldt, emu->segldt, sizeof(newemu->segldt));
     memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
     memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
@@ -1585,10 +1596,19 @@ void UpdateFlags(x64emu_t* emu)
     RESET_FLAGS(emu);
 }
 
+void free_tlsdatasize(void* p)
+{
+    if(!p)
+        return;
+    tlsdatasize_t *data = (tlsdatasize_t*)p;
+    actual_free(data->ptr);
+    actual_free(p);
+}
+
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg)
 {
     if (emu->segs_serial[seg] != emu->context->sel_serial) {
-        emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu->segs[seg]);
+        emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu, emu->segs[seg]);
         emu->segs_serial[seg] = emu->context->sel_serial;
     }
     return emu->segs_offs[seg];

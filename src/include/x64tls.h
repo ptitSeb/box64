@@ -7,7 +7,7 @@ typedef struct thread_area_32_s thread_area_32_t;
 uint32_t my_set_thread_area_32(x64emu_t* emu, thread_area_32_t* td);
 uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size);
 
-tlsdatasize_t* getTLSData(box64context_t* context);
+tlsdatasize_t* getTLSData(x64emu_t* emu);
 
 int my_arch_prctl(x64emu_t *emu, int code, void* addr);
 

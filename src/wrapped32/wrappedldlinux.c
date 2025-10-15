@@ -23,14 +23,14 @@ typedef struct __attribute__((packed, aligned(4))) my32_tls_s {
 EXPORT void* my32___tls_get_addr(x64emu_t* emu, void* p)
 {
     my32_tls_t *t = (my32_tls_t*)p;
-    return GetDTatOffset(emu->context, t->i, t->o);
+    return GetDTatOffset(emu, t->i, t->o);
 }
 
 EXPORT void* my32____tls_get_addr(x64emu_t* emu)
 {
     // the GNU version (with 3 '_') use register for the parameter!
     my32_tls_t *t = (my32_tls_t*)from_ptrv(R_EAX);
-    return GetDTatOffset(emu->context, t->i, t->o);
+    return GetDTatOffset(emu, t->i, t->o);
 }
 
 EXPORT ptr_t my32___libc_stack_end;

@@ -27,4 +27,4 @@ DATA(_rtld_global, sizeof(void*))
 DATA(_rtld_global_ro, sizeof(void*))
 #endif
 DATA(__stack_chk_guard, sizeof(void*))
-GOM(__tls_get_addr, pFp)    //%NoE
+GOM(__tls_get_addr, pFEp)

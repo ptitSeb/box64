@@ -1133,14 +1133,14 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
     return 0;
 }
 
-void RefreshElfTLS(elfheader_t* h)
+void RefreshElfTLS(elfheader_t* h, x64emu_t* emu)
 {
     if(h->tlsfilesize) {
         char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
         printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
-        if (pthread_getspecific(my_context->tlskey)) {
-            tlsdatasize_t* ptr = getTLSData(my_context);
+        if (emu->tlsdata) {
+            tlsdatasize_t* ptr = getTLSData(emu);
             // refresh in tlsdata too
             dest = (char*)(ptr->data+h->tlsbase);
             printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
@@ -1166,7 +1166,7 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
     uintptr_t p = h->initentry + h->delta;
     // Refresh no-file part of TLS in case default value changed
-    RefreshElfTLS(h);
+    RefreshElfTLS(h, emu);
     // check if in deferredInit
     if(my_context->deferredInit) {
         if(my_context->deferredInitSz==my_context->deferredInitCap) {
@@ -1438,9 +1438,9 @@ int SameVersionedSymbol(const char* name1, int ver1, const char* vername1, int v
     return 0;
 }
 
-void* GetDTatOffset(box64context_t* context, unsigned long int index, unsigned long int offset)
+void* GetDTatOffset(x64emu_t* emu, unsigned long int index, unsigned long int offset)
 {
-    return (void*)((char*)GetTLSPointer(context, context->elfs[index])+offset);
+    return (void*)((char*)GetTLSPointer(emu, emu->context->elfs[index])+offset);
 }
 
 int32_t GetTLSBase(elfheader_t* h)
@@ -1453,11 +1453,11 @@ uint32_t GetTLSSize(elfheader_t* h)
     return h?h->tlssize:0;
 }
 
-void* GetTLSPointer(box64context_t* context, elfheader_t* h)
+void* GetTLSPointer(x64emu_t* emu, elfheader_t* h)
 {
     if(!h || !h->tlssize)
         return NULL;
-    tlsdatasize_t* ptr = getTLSData(context);
+    tlsdatasize_t* ptr = getTLSData(emu);
     return ptr->data+h->tlsbase;
 }
 
@@ -1774,6 +1774,19 @@ int ElfGetSymTabStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, c
 int ElfGetSymTabStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname)
 {
     return box64_is32bits?ElfGetSymTabStartEnd32(head, offs, end, symname):ElfGetSymTabStartEnd64(head, offs, end, symname);
+}
+
+int NeededLibs(elfheader_t* h)
+{
+    if(!h) return 0;
+    int cnt = 0;
+    // count the number of needed libs, and also grab soname
+    for (size_t i=0; i<h->numDynamic; ++i) {
+        int tag = box64_is32bits?h->Dynamic._32[i].d_tag:h->Dynamic._64[i].d_tag;
+        if(tag==DT_NEEDED)
+            ++cnt;
+    }
+    return cnt;
 }
 
 typedef struct search_symbol_s{

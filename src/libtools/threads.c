@@ -24,6 +24,7 @@
 #include "x64trace.h"
 #include "bridge.h"
 #include "myalign.h"
+#include "x64tls.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/native_lock.h"
@@ -215,6 +216,7 @@ x64emu_t* thread_get_emu()
 			setProtection_stack((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		x64emu_t *emu = NewX64Emu(my_context, my_context->exit_bridge, (uintptr_t)stack, stacksize, 1);
 		SetupX64Emu(emu, NULL);
+		getTLSData(emu);
 		thread_set_emu(emu);
 		return emu;
 	}
@@ -248,6 +250,7 @@ static void* pthread_routine(void* p)
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
+	getTLSData(emu);
 	ResetSegmentsCache(emu);
 	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
 	Push64(emu, 0);	// PUSH BP

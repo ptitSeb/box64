@@ -22,6 +22,7 @@
 #include "debug.h"
 #include "x64tls.h"
 #include "librarian.h"
+#include "emu/x64emu_private.h"
 
 int GetTID(void)
 {
@@ -65,33 +66,33 @@ void EmuX86Syscall(void* emu)
 
 extern int box64_is32bits;
 
-void* GetSeg43Base()
+void* GetSeg43Base(void* emu)
 {
-    tlsdatasize_t* ptr = getTLSData(my_context);
+    tlsdatasize_t* ptr = getTLSData((x64emu_t*)emu);
     return ptr->data;
 }
 
-void* GetSegmentBase(uint32_t desc)
+void* GetSegmentBase(void* emu, uint32_t desc)
 {
     if (!desc) {
         printf_log(LOG_NONE, "Warning, accessing segment NULL\n");
         return NULL;
     }
     int base = desc >> 3;
-    if (!box64_is32bits && base == 0x8 && !my_context->segtls[base].key_init)
-        return GetSeg43Base();
-    if (box64_is32bits && (base == 0x6))
-        return GetSeg43Base();
+    int is_ldt = !!(desc&4);
+    base_segment_t* segs = is_ldt?((x64emu_t*)emu)->segldt:((base>5)?((x64emu_t*)emu)->seggdt:my_context->seggdt);
+    if(!box64_nolibs) {
+        if (!box64_is32bits && (base == 0x8) )
+            return GetSeg43Base((x64emu_t*)emu);
+        if (box64_is32bits && (base == 0x6))
+            return GetSeg43Base((x64emu_t*)emu);
+        }
     if (base > 15) {
         printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
         return NULL;
     }
-    if (my_context->segtls[base].key_init) {
-        void* ptr = pthread_getspecific(my_context->segtls[base].key);
-        return ptr;
-    }
 
-    void* ptr = (void*)my_context->segtls[base].base;
+    void* ptr = (void*)segs[base].base;
     return ptr;
 }
 
