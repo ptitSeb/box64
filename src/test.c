@@ -50,7 +50,7 @@ struct {
     uint8_t data[MAX_MEMORY_DATA_SIZE];
 } memory_data[MAX_MEMORY_DATA] = { { 0 } };
 
-inline uint64_t fromstr(const char* str)
+static inline uint64_t fromstr(const char* str)
 {
     int base = strlen(str) > 2 && (str[1] == 'x' || str[1] == 'X') ? 16 : 10;
     return strtoull(str, NULL, base);
@@ -272,12 +272,13 @@ static void loadTest(const char** filepath, const char* include_path)
         waitpid(fork_result, &status, 0);
         if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
             printf_log(LOG_NONE, NASM " failed with exit code: %d\n", WEXITSTATUS(status));
+            unlink(objname);
             exit(1);
         }
     }
 
     close(mkstemp(binname));
-    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x10000", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
+    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x100000", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
 
     fork_result = fork();
     if (fork_result == 0) {
@@ -288,6 +289,7 @@ static void loadTest(const char** filepath, const char* include_path)
         waitpid(fork_result, &status, 0);
         if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
             printf_log(LOG_NONE, X86_64_LD " failed with exit code: %d\n", WEXITSTATUS(status));
+            unlink(objname);
             exit(1);
         }
     }
