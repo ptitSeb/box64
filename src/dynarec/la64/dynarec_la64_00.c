@@ -2013,6 +2013,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xCD:
             u8 = F8;
+            NOTEST(x1);
             if (box64_wine && (u8 == 0x2D || u8 == 0x2C || u8 == 0x29)) {
                 INST_NAME("INT 29/2c/2d");
                 // lets do nothing

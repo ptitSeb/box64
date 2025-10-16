@@ -2830,8 +2830,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xCD:
             u8 = F8;
-            #ifdef _WIN32
             NOTEST(x1);
+            #ifdef _WIN32
             SMEND();
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
