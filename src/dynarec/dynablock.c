@@ -221,6 +221,16 @@ void cancelFillBlock()
     LongJmp(GET_JUMPBUFF(dynarec_jmpbuf), 1);
 }
 
+#ifndef WIN32
+static int critical_filled = 0;
+static sigset_t critical_prot = {0};
+sigset_t old_sig = {0};
+#endif
+
+void cancelFillBlockCriticalSection()
+{
+    pthread_sigmask(SIG_SETMASK, &old_sig, NULL);
+}
 /* 
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
@@ -238,9 +248,6 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     }
 
     #ifndef WIN32
-    static int critical_filled = 0;
-    static sigset_t critical_prot = {0};
-    sigset_t old_sig = {0};
     if(!critical_filled) {
         critical_filled = 1;
         sigfillset(&critical_prot);
