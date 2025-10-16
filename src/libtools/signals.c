@@ -116,12 +116,6 @@ uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_
     trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 #endif
 #endif
-#ifndef USE_CUSTOM_MEM
-    // because a signal can interupt a malloc-like function
-    // Dynarec cannot be used in signal handling unless custom malloc is used
-    if(dynarec==1)
-        dynarec = 0;
-#endif
     if(!emu)
         emu = thread_get_emu();
     #ifdef DYNAREC
