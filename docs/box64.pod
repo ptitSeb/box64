@@ -65,6 +65,16 @@ Allow missing libraries to be ignored.
  * 1 : Allow missing libraries. 
 
 
+=item B<BOX64_ARCH> =I<`arm64`|`la64`|`rv64`|`<empty>`>
+
+Specify the architecture in rcfiles to which the current entry applies. This option only takes effect when used inside rcfiles.
+
+ * `arm64` : Only apply current entry for AArch64. 
+ * `la64` : Only apply current entry for LoongArch64. 
+ * `rv64` : Only apply current entry for RISC-V. 
+ * `<empty>` : Apply current entry for all architectures, will be replaced by more specific entries. [Default]
+
+
 =item B<BOX64_ARGS> =I<XXXX|XXXX YYYY ZZZZ>
 
 Arguments to pass to the guest program, only valid if there is no existing arguments.

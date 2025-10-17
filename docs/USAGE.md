@@ -217,91 +217,6 @@ Use hardware counter for rdtsc if available.
  * 0: Use hardware counter for rdtsc opcode if available. [Default]
  * 1: Use hardware counter for rdtsc if and only if precision is at least 1GHz. 
 
-## Libraries
-
-### BOX64_ADDLIBS
-
-Add extras to the needed libraries list, rarely needed.
-
- * XXXX: Add library XXXX to the needed libraries list. 
- * XXXX:YYYY:ZZZZ: Add library XXXX, YYYY and ZZZZ to the needed libraries list. 
-
-### BOX64_ALLOWMISSINGLIBS
-
-Allow missing libraries to be ignored.
-
- * 0: Do not allow missing libraries. [Default]
- * 1: Allow missing libraries. 
-
-### BOX64_EMULATED_LIBS
-
-Force the use of emulated libraries.
-
- * XXXX: Force the use of emulated library XXXX. 
- * XXXX:YYYY:ZZZZ: Force the use of emulated libraries XXXX, YYYY and ZZZZ. 
-
-### BOX64_LD_LIBRARY_PATH
-
-Path to look for x86_64 libraries.
-
- * XXXX: Add path XXXX to the library path. 
-
-### BOX64_LD_PRELOAD
-
-Force loading libraries with the binary.
-
- * XXXX: Force the loading of library XXXX. 
- * XXXX:YYYY: Force the loading of libraries XXXX and YYYY. 
-
-### BOX64_LIBGL
-
-Set the name for libGL.
-
- * libXXXX: Set the name for libGL to libXXXX. 
- * /path/to/libXXXX: Set the name and path for libGL to /path/to/libXXXX, you can also use SDL_VIDEO_GL_DRIVER. 
-
-### BOX64_NOGTK
-
-Do not load wrapped GTK libraries.
-
- * 0: Load wrapped GTK libraries. [Default]
- * 1: Do not load wrapped GTK libraries. 
-
-### BOX64_NOPULSE
-
-Do not load PulseAudio libraries (both native and x86_64).
-
- * 0: Load PulseAudio libraries. [Default]
- * 1: Do not load PulseAudio libraries. 
-
-### BOX64_NOVULKAN
-
-Do not load Vulkan libraries.
-
- * 0: Load Vulkan libraries. [Default]
- * 1: Do not load Vulkan libraries, both native and x86_64. 
-
-### BOX64_PREFER_EMULATED
-
-Prefer emulated libraries over native ones.
-
- * 0: Prefer native libraries over emulated ones. [Default]
- * 1: Prefer emulated libraries over native ones. 
-
-### BOX64_PREFER_WRAPPED
-
-Prefer wrapped libs first even if the lib is specified with absolute path.
-
- * 0: Prefer libs with absolute path over wrapped ones. [Default]
- * 1: Prefer wrapped libs first even if the lib is specified with absolute path. 
-
-### BOX64_WRAP_EGL
-
-Prefer wrapped libs for EGL and GLESv2.
-
- * 0: Prefer emulated libs for EGL and GLESv2. [Default]
- * 1: Prefer wrapped libs for EGL and GLESv2. 
-
 ## Arguments
 
 ### BOX64_ARGS
@@ -347,6 +262,15 @@ Add --no-sandbox argument to the guest program.
  * 1: Add --no-sandbox argument to the guest program. 
 
 ## Compatibility
+
+### BOX64_ARCH
+
+Specify the architecture in rcfiles to which the current entry applies. This option only takes effect when used inside rcfiles.
+
+ * `arm64`: Only apply current entry for AArch64. 
+ * `la64`: Only apply current entry for LoongArch64. 
+ * `rv64`: Only apply current entry for RISC-V. 
+ * `<empty>`: Apply current entry for all architectures, will be replaced by more specific entries. [Default]
 
 ### BOX64_AVX
 
@@ -765,4 +689,89 @@ Add an environment variable.
 Add an environment variable.
 
  * XXXX=yyyy: Add environment variable XXXX with value yyyy. 
+
+## Libraries
+
+### BOX64_ADDLIBS
+
+Add extras to the needed libraries list, rarely needed.
+
+ * XXXX: Add library XXXX to the needed libraries list. 
+ * XXXX:YYYY:ZZZZ: Add library XXXX, YYYY and ZZZZ to the needed libraries list. 
+
+### BOX64_ALLOWMISSINGLIBS
+
+Allow missing libraries to be ignored.
+
+ * 0: Do not allow missing libraries. [Default]
+ * 1: Allow missing libraries. 
+
+### BOX64_EMULATED_LIBS
+
+Force the use of emulated libraries.
+
+ * XXXX: Force the use of emulated library XXXX. 
+ * XXXX:YYYY:ZZZZ: Force the use of emulated libraries XXXX, YYYY and ZZZZ. 
+
+### BOX64_LD_LIBRARY_PATH
+
+Path to look for x86_64 libraries.
+
+ * XXXX: Add path XXXX to the library path. 
+
+### BOX64_LD_PRELOAD
+
+Force loading libraries with the binary.
+
+ * XXXX: Force the loading of library XXXX. 
+ * XXXX:YYYY: Force the loading of libraries XXXX and YYYY. 
+
+### BOX64_LIBGL
+
+Set the name for libGL.
+
+ * libXXXX: Set the name for libGL to libXXXX. 
+ * /path/to/libXXXX: Set the name and path for libGL to /path/to/libXXXX, you can also use SDL_VIDEO_GL_DRIVER. 
+
+### BOX64_NOGTK
+
+Do not load wrapped GTK libraries.
+
+ * 0: Load wrapped GTK libraries. [Default]
+ * 1: Do not load wrapped GTK libraries. 
+
+### BOX64_NOPULSE
+
+Do not load PulseAudio libraries (both native and x86_64).
+
+ * 0: Load PulseAudio libraries. [Default]
+ * 1: Do not load PulseAudio libraries. 
+
+### BOX64_NOVULKAN
+
+Do not load Vulkan libraries.
+
+ * 0: Load Vulkan libraries. [Default]
+ * 1: Do not load Vulkan libraries, both native and x86_64. 
+
+### BOX64_PREFER_EMULATED
+
+Prefer emulated libraries over native ones.
+
+ * 0: Prefer native libraries over emulated ones. [Default]
+ * 1: Prefer emulated libraries over native ones. 
+
+### BOX64_PREFER_WRAPPED
+
+Prefer wrapped libs first even if the lib is specified with absolute path.
+
+ * 0: Prefer libs with absolute path over wrapped ones. [Default]
+ * 1: Prefer wrapped libs first even if the lib is specified with absolute path. 
+
+### BOX64_WRAP_EGL
+
+Prefer wrapped libs for EGL and GLESv2.
+
+ * 0: Prefer emulated libs for EGL and GLESv2. [Default]
+ * 1: Prefer wrapped libs for EGL and GLESv2. 
 

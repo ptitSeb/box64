@@ -33,6 +33,7 @@ extern char* ftrace_name;
 #define ENVSUPER1()                                                           \
     STRING(BOX64_ADDLIBS, addlibs, 0)                                         \
     BOOLEAN(BOX64_ALLOWMISSINGLIBS, allow_missing_libs, 0, 0)                 \
+    STRING(BOX64_ARCH, arch, 0)                                               \
     STRING(BOX64_ARGS, args, 0)                                               \
     STRING(BOX64_BASH, bash, 0)                                               \
     BOOLEAN(BOX64_CEFDISABLEGPU, cefdisablegpu, 0, 0)                         \
