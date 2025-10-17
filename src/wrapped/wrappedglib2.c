@@ -70,6 +70,11 @@ GO(6)   \
 GO(7)   \
 GO(8)   \
 GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
+GO(13)  \
+GO(14)  \
 
 // GCopyFct
 #define GO(A)   \
