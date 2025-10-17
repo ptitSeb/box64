@@ -36,6 +36,34 @@
     ]
   },
   {
+    "name": "BOX64_ARCH",
+    "description": "Specify the architecture in rcfiles to which the current entry applies. This option only takes effect when used inside rcfiles.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "`arm64`",
+        "description": "Only apply current entry for AArch64.",
+        "default": false
+      },
+      {
+        "key": "`la64`",
+        "description": "Only apply current entry for LoongArch64.",
+        "default": false
+      },
+      {
+        "key": "`rv64`",
+        "description": "Only apply current entry for RISC-V.",
+        "default": false
+      },
+      {
+        "key": "`<empty>`",
+        "description": "Apply current entry for all architectures, will be replaced by more specific entries.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "BOX64_ARGS",
     "description": "Arguments to pass to the guest program, only valid if there is no existing arguments.",
     "category": "Arguments",

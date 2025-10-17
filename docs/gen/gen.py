@@ -63,8 +63,8 @@ This configuration will apply the specified settings application-wide to any exe
     for entry in data:
       categories[entry["category"]].append(entry)
 
-    # Put "Performance" at the top
-    sorted_categories = sorted(categories.items(), key=lambda x: x[0] != "Performance")
+    # Put "Performance" at the top, then sort the rest alphabetically
+    sorted_categories = sorted(categories.items(), key=lambda x: (x[0] != "Performance", x[0]))
     for category, entries in sorted_categories:
       md_file.write(f"## {category}\n\n")
       for entry in entries:

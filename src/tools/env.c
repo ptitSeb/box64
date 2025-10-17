@@ -288,19 +288,53 @@ static void freeEnv(box64env_t* env)
 #undef STRING
 }
 
+#ifdef ARM64
+#define ENV_ARCH "arm64"
+#elif defined(RV64)
+#define ENV_ARCH "rv64"
+#elif defined(LA64)
+#define ENV_ARCH "la64"
+#else
+#warning "Unknown architecture for ENV_ARCH"
+#define ENV_ARCH "unknown"
+#endif
+
 static void pushNewEntry(const char* name, box64env_t* env, int gen)
 {
+    if (env->is_arch_overridden && *env->arch == '\0') env->is_arch_overridden = 0;
+
+    // Arch specific but not match, ignore
+    if (env->is_arch_overridden && strcasecmp(env->arch, ENV_ARCH)) {
+        freeEnv(env);
+        return;
+    }
     khint_t k;
     kh_box64env_entry_t* khp = gen ? box64env_entries_gen : box64env_entries;
     k = kh_get(box64env_entry, khp, name);
+    // No entry exist, add a new one
     if (k == kh_end(khp)) {
         int ret;
         k = kh_put(box64env_entry, khp, box_strdup(name), &ret);
-    } else {
-        freeEnv(&kh_value(khp, k));
+        box64env_t* p = &kh_value(khp, k);
+        memcpy(p, env, sizeof(box64env_t));
+        return;
     }
+
+    // Entry exists, replace it if the new one is arch specific
+    if (env->is_arch_overridden && !strcasecmp(env->arch, ENV_ARCH)) {
+        freeEnv(&kh_value(khp, k));
+        box64env_t* p = &kh_value(khp, k);
+        memcpy(p, env, sizeof(box64env_t));
+        return;
+    }
+
+    // Entry exists, the new one is generic, replace it only if existing one is also generic
     box64env_t* p = &kh_value(khp, k);
-    memcpy(p, env, sizeof(box64env_t));
+    if (!p->is_arch_overridden) {
+        freeEnv(p);
+        box64env_t* p = &kh_value(khp, k);
+        memcpy(p, env, sizeof(box64env_t));
+    }
 }
 
 #ifdef ANDROID
@@ -612,12 +646,12 @@ void LoadEnvVariables()
         box64env.is_##name##_overridden = 1;               \
         box64env.is_any_overridden = 1;                    \
     }
-#define STRING(NAME, name, wine)             \
-    p = GETENV(#NAME, wine);                 \
-    if (p) {                                 \
-        box64env.name = strdup(p);           \
-        box64env.is_##name##_overridden = 1; \
-        box64env.is_any_overridden = 1;      \
+#define STRING(NAME, name, wine)                \
+    p = GETENV(#NAME, wine);                    \
+    if (p && strcasecmp(#NAME, "BOX64_ARCH")) { \
+        box64env.name = strdup(p);              \
+        box64env.is_##name##_overridden = 1;    \
+        box64env.is_any_overridden = 1;         \
     }
     ENVSUPER()
 #undef INTEGER
