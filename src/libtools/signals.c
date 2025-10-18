@@ -304,7 +304,7 @@ void adjustregs(x64emu_t* emu, void* pc) {
         }
         ++idx;
     }
-    dynarec_log(LOG_INFO, "Checking opcode: rex=%02hhx is32bits=%d, rep=%d is66=%d %02hhX %02hhX %02hhX %02hhX\n", rex.rex, rex.is32bits, rep, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
+    dynarec_log(LOG_INFO, "Checking opcode: at %p rex=%02hhx is32bits=%d, rep=%d is66=%d %02hhX %02hhX %02hhX %02hhX\n", (void*)R_RIP, rex.rex, rex.is32bits, rep, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
 #ifdef DYNAREC
 #ifdef ARM64
     if(mem[idx+0]==0xA4 || mem[idx+0]==0xA5) {
@@ -415,6 +415,13 @@ if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address 
 }
 #endif
 
+#ifdef DYNAREC
+#ifdef ARM64
+#include "dynarec/arm64/arm64_printer.h"
+#elif RV64
+#include "dynarec/rv64/rv64_printer.h"
+#endif
+#endif
 int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, dynablock_t* db, uintptr_t x64pc, int is32bits)
 {
     if((uintptr_t)pc<0x10000)
@@ -769,6 +776,8 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         p->uc_mcontext.regs[src] += offset;
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
+    } else {
+        printf_log(LOG_INFO, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, opcode, arm64_print(opcode, (uintptr_t)pc));
     }
 #elif RV64
 #define GET_FIELD(v, high, low) (((v) >> low) & ((1ULL << (high - low + 1)) - 1))
@@ -793,7 +802,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         p->uc_mcontext.__gregs[0] += 4; // pc += 4
         return 1;
     } else {
-        printf_log(LOG_NONE, "Unsupported SIGBUS special cases with pc=%p, opcode=%x\n", pc, inst);
+        printf_log(LOG_NONE, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, inst, rv64_print(inst, (uintptr_t)pc));
     }
 
 #undef GET_FIELD
@@ -828,6 +837,41 @@ int unlockMutex()
     i = checkUnlockMutex(&A); \
     if (i) {                  \
         ret |= (1 << B);      \
+    }
+    #endif
+
+    GO(mutex_blocks, 0)
+    GO(mutex_prot, 1)
+
+    GO(my_context->mutex_trace, 7)
+    #ifdef DYNAREC
+    GO(my_context->mutex_dyndump, 8)
+    #else
+    GO(my_context->mutex_lock, 8)
+    #endif
+    GO(my_context->mutex_tls, 9)
+    GO(my_context->mutex_thread, 10)
+    GO(my_context->mutex_bridge, 11)
+    #undef GO
+
+    return ret;
+}
+int checkMutex(uint32_t mask)
+{
+    int ret = 0;
+    int i;
+    #ifdef USE_CUSTOM_MUTEX
+    uint32_t tid = (uint32_t)GetTID();
+    #define GO(A, B)                                    \
+    if(mask&(1<<B) i = (A == tid); else i = 0;          \
+    if (i) {                                            \
+        ret |= (1 << B);                                \
+    }
+    #else
+    #define GO(A, B)                            \
+    i = (mask&(1<<B))?checkNolockMutex(&A):0;   \
+    if (i) {                                    \
+        ret |= (1 << B);                        \
     }
     #endif
 
@@ -1383,7 +1427,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int db_searched = 0;
     uintptr_t x64pc = (uintptr_t)-1;
     x64pc = R_RIP;
-    if((sig==X64_SIGBUS) && (addr!=pc) || ((sig==X64_SIGSEGV)) && emu->segs[_CS]==0x23 && ((uintptr_t)addr>>32)==0xffffffff) {
+    if(((sig==X64_SIGBUS) && ((addr!=pc) || ((sig==X64_SIGSEGV)) && emu->segs[_CS]==0x23 && ((uintptr_t)addr>>32)==0xffffffff))
+#ifdef RV64
+    || ((sig==X64_SIGSEGV) && (addr==pc) && (info->si_code==2) && (!checkMutex(is_memprot_locked) && getProtection_fast((uintptr_t)addr)==(PROT_READ|PROT_WRITE|PROT_EXEC)))
+#endif
+    )
+    {
         db = FindDynablockFromNativeAddress(pc);
         if(db)
             x64pc = getX64Address(db, (uintptr_t)pc);
@@ -1483,32 +1532,6 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         info->si_code = 2;
     }
     #endif
-#ifdef RV64
-    if((sig==X64_SIGSEGV) && (addr==pc) && (info->si_code==2) && (prot==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
-        if(!db_searched) {
-            db = FindDynablockFromNativeAddress(pc);
-            if(db)
-                x64pc = getX64Address(db, (uintptr_t)pc);
-            db_searched = 1;
-        }
-        int fixed = 0;
-        if((fixed = sigbus_specialcases(info, ucntx, pc, fpsimd, db, x64pc, emu->segs[_CS]==0x23))) {
-            // special case fixed, restore everything and just continues
-            if (BOX64ENV(log) >= LOG_DEBUG || BOX64ENV(showsegv)) {
-                static void*  old_pc[2] = {0};
-                static int old_pc_i = 0;
-                if(old_pc[0]!=pc && old_pc[1]!=pc) {
-                    old_pc[old_pc_i++] = pc;
-                    if(old_pc_i==2)
-                        old_pc_i = 0;
-                    printf_log(LOG_NONE, "Special unalinged cased fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t *)pc, addr);
-                }
-            }
-            relockMutex(Locks);
-            return;
-        }
-    }
-#endif
 #ifdef DYNAREC
     if((Locks & is_dyndump_locked) && ((sig==X64_SIGSEGV) || (sig==X64_SIGBUS)) && current_helper) {
         printf_log(LOG_INFO, "FillBlock triggered a %s at %p from %p\n", (sig==X64_SIGSEGV)?"segfault":"bus error", addr, pc);

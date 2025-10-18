@@ -31,5 +31,7 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 
 //check and unlock if a mutex is locked by current thread (works only for PTHREAD_MUTEX_ERRORCHECK typed mutex)
 int checkUnlockMutex(void* m);
+//check if a mutex is locked by current thread (works only for PTHREAD_MUTEX_ERRORCHECK typed mutex)
+int checkNolockMutex(void* m);
 
 #endif //_THREADS_H_

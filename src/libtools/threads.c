@@ -1281,3 +1281,16 @@ int checkUnlockMutex(void* m)
 	}
 	return 0;
 }
+
+int checkNolockMutex(void* m)
+{
+	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
+	int ret = pthread_mutex_trylock(mutex);
+	if(ret==0) {
+		pthread_mutex_unlock(mutex);
+		return 0;
+	}
+	if(ret == EDEADLK)
+		return 1;
+	return 0;
+}
