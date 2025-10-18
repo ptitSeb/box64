@@ -47,3 +47,7 @@ GO(eglWaitGL, uFv)
 GO(eglWaitNative, uFi)
 GO(eglWaitSync, uFppi)
 
+// EGL_EXT_platform_base
+GO(eglGetPlatformDisplayEXT, pFupp)
+GO(eglCreatePlatformWindowSurfaceEXT, pFpppp)
+GO(eglCreatePlatformPixmapSurfaceEXT, pFpppp)
