@@ -857,6 +857,33 @@ static void* find_wl_callback_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_callback_listener callback\n");
     return NULL;
 }
+// wp_fractional_scale_v1_listener ...
+typedef struct my_wp_fractional_scale_v1_listener_s {
+    uintptr_t   prefered_scale; //vFppu
+} my_wp_fractional_scale_v1_listener_t;
+#define GO(A)   \
+static my_wp_fractional_scale_v1_listener_t* ref_wp_fractional_scale_v1_listener_##A = NULL;    \
+static void my_wp_fractional_scale_v1_listener_prefered_scale_##A(void* a, void* b, uint32_t c) \
+{                                                                                               \
+    RunFunctionFmt(ref_wp_fractional_scale_v1_listener_##A->prefered_scale, "ppu", a, b, c);    \
+}                                                                                               \
+static my_wp_fractional_scale_v1_listener_t my_wp_fractional_scale_v1_listener_fct_##A = {      \
+    (uintptr_t)my_wp_fractional_scale_v1_listener_prefered_scale_##A,                           \
+};
+SUPER()
+#undef GO
+static void* find_wp_fractional_scale_v1_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_wp_fractional_scale_v1_listener_##A == fct) return &my_wp_fractional_scale_v1_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_wp_fractional_scale_v1_listener_##A == 0) {ref_wp_fractional_scale_v1_listener_##A = fct; return &my_wp_fractional_scale_v1_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_fractional_scale_v1_listener callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -901,6 +928,8 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wl_surface_listener_Fct(l);
     } else if(!strcmp(proxy_name, "wl_callback")) {
         l = find_wl_callback_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "wp_fractional_scale_v1")) {
+        l = find_wp_fractional_scale_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
