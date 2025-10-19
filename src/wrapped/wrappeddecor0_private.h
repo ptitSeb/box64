@@ -4,7 +4,7 @@
 
 GO(libdecor_configuration_get_content_size, iFpppp)
 GO(libdecor_configuration_get_window_state, iFpp)
-GO(libdecor_decorate, pFpppp)
+GOM(libdecor_decorate, pFEpppp)
 GO(libdecor_dispatch, iFpi)
 GO(libdecor_frame_close, vFp)
 GO(libdecor_frame_commit, vFppp)

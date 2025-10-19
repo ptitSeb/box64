@@ -4018,6 +4018,8 @@ wrappeddbusmenuglib:
 - iFppp:
   - dbusmenu_client_add_type_handler
 wrappeddecor0:
+- pFpppp:
+  - libdecor_decorate
 wrappedevent21:
 - vFpiwpp:
   - event_set
