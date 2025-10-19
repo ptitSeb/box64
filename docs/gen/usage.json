@@ -848,6 +848,24 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_INTERP_SIGNAL",
+    "description": "Allow the use of Dynarec in Signal Handlers.",
+    "category": "Compatibility",
+    "wine": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Allow the use of Dynarec in signal handlers.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Only use the Interpreter for signal handlers (as it was in v0.3.8 and earlier).",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNACACHE",
     "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache write file to home folder by default, and can grow without limit.",
     "category": "Performance",

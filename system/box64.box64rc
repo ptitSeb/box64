@@ -957,6 +957,11 @@ BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
 
+[VampireSurvivors.exe]
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_INTERP_SIGNAL=1    #there seems to be some race condition when signal is done with dynarec on this one
+
 [vc_redist.x64.exe]
 BOX64_DYNACACHE=0
 BOX64_DYNAREC_SAFEFLAGS=2

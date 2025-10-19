@@ -399,6 +399,14 @@ Force the use of float/double for x87 emulation. Availble in WowBox64.
  * 2 : Check Precision Control low precision on x87 emulation. 
 
 
+=item B<BOX64_DYNAREC_INTERP_SIGNAL> =I<0|1>
+
+Allow the use of Dynarec in Signal Handlers. Availble in WowBox64.
+
+ * 0 : Allow the use of Dynarec in signal handlers. [Default]
+ * 1 : Only use the Interpreter for signal handlers (as it was in v0.3.8 and earlier). 
+
+
 =item B<BOX64_DYNACACHE> =I<0|1|2>
 
 Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache write file to home folder by default, and can grow without limit.

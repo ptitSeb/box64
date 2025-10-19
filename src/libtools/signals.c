@@ -1147,7 +1147,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     int dynarec = 0;
     #ifdef DYNAREC
     if(!(sig==X64_SIGSEGV || (Locks&is_dyndump_locked) || (Locks&is_memprot_locked)))
-        dynarec = 1;
+        dynarec = BOX64ENV(dynarec_interp_signal)?0:1;
     #endif
     ret = RunFunctionHandler(emu, &exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
     // restore old value from emu

@@ -70,6 +70,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_WAIT, dynarec_wait, 1, 1)                           \
     INTEGER(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 1, 0, 2, 1)       \
     INTEGER(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 0, 0, 2, 1)           \
+    BOOLEAN(BOX64_DYNAREC_INTERP_SIGNAL, dynarec_interp_signal, 0, 1)         \
     STRING(BOX64_EMULATED_LIBS, emulated_libs, 0)                             \
     STRING(BOX64_ENV, env, 0)                                                 \
     STRING(BOX64_ENV1, env1, 0)                                               \
