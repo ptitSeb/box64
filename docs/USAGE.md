@@ -331,7 +331,7 @@ Force the use of float/double for x87 emulation. Availble in WowBox64.
 
 ### BOX64_DYNAREC_INTERP_SIGNAL
 
-Allow the use of Dynarec in Signal Handlers. Availble in WowBox64.
+Allow the use of Dynarec in Signal Handlers.
 
  * 0: Allow the use of Dynarec in signal handlers. [Default]
  * 1: Only use the Interpreter for signal handlers (as it was in v0.3.8 and earlier). 

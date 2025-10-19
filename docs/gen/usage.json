@@ -851,7 +851,7 @@
     "name": "BOX64_DYNAREC_INTERP_SIGNAL",
     "description": "Allow the use of Dynarec in Signal Handlers.",
     "category": "Compatibility",
-    "wine": true,
+    "wine": false,
     "options": [
       {
         "key": "0",
