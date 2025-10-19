@@ -407,7 +407,7 @@ static void* find_wl_pointer_listener_Fct(void* fct)
 // wl_keyboard_listener ...
 typedef struct my_wl_keyboard_listener_s {
     uintptr_t   keymap; //vFppuiu
-    uintptr_t   enter;  //vFppup
+    uintptr_t   enter;  //vFppupp
     uintptr_t   leave;  //vFppup
     uintptr_t   key;  //vFppuuuuu
     uintptr_t   modifiers;   //vFppuuuuu
@@ -419,9 +419,9 @@ static void my_wl_keyboard_listener_keymap_##A(void* a, void* b, uint32_t c, int
 {                                                                                                                                \
     RunFunctionFmt(ref_wl_keyboard_listener_##A->keymap, "ppuiu", a, b, c, d, e);                                                \
 }                                                                                                                                \
-static void my_wl_keyboard_listener_enter_##A(void* a, void* b, uint32_t c, void* d)                                             \
+static void my_wl_keyboard_listener_enter_##A(void* a, void* b, uint32_t c, void* d, void* e)                                    \
 {                                                                                                                                \
-    RunFunctionFmt(ref_wl_keyboard_listener_##A->enter, "ppup", a, b, c, d);                                                     \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->enter, "ppupp", a, b, c, d, e);                                                 \
 }                                                                                                                                \
 static void my_wl_keyboard_listener_leave_##A(void* a, void* b, uint32_t c, void* d)                                             \
 {                                                                                                                                \
