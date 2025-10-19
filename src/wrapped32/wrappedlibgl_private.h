@@ -4053,11 +4053,6 @@ GO(eglDupNativeFenceFDANDROID, iFpp)
 // EGL_NV_post_sub_buffer
 GO(eglPostSubBufferNV, iFppiiii)
 
-// EGL_EXT_platform_base
-GO(eglGetPlatformDisplayEXT, pFupp)
-GO(eglCreatePlatformWindowSurfaceEXT, pFpppp)
-GO(eglCreatePlatformPixmapSurfaceEXT, pFpppp)
-
 // GL_EXT_clip_control
 GO(glClipControlEXT, vFuu)
 
