@@ -917,6 +917,45 @@ static void* find_zwp_primary_selection_device_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_primary_selection_device_v1_listener callback\n");
     return NULL;
 }
+// wl_data_offer_listener ...
+typedef struct my_wl_data_offer_listener_s {
+    uintptr_t   offer; //vFppp
+    uintptr_t   source_actions; //vFppu
+    uintptr_t   action; //vFppu
+} my_wl_data_offer_listener_t;
+#define GO(A)   \
+static my_wl_data_offer_listener_t* ref_wl_data_offer_listener_##A = NULL;              \
+static void my_wl_data_offer_listener_offer_##A(void* a, void* b, void* c)              \
+{                                                                                       \
+    RunFunctionFmt(ref_wl_data_offer_listener_##A->offer, "ppp", a, b, c);              \
+}                                                                                       \
+static void my_wl_data_offer_listener_source_actions_##A(void* a, void* b, uint32_t c)  \
+{                                                                                       \
+    RunFunctionFmt(ref_wl_data_offer_listener_##A->source_actions, "ppu", a, b, c);     \
+}                                                                                       \
+static void my_wl_data_offer_listener_action_##A(void* a, void* b, uint32_t c)          \
+{                                                                                       \
+    RunFunctionFmt(ref_wl_data_offer_listener_##A->action, "ppu", a, b, c);             \
+}                                                                                       \
+static my_wl_data_offer_listener_t my_wl_data_offer_listener_fct_##A = {                \
+    (uintptr_t)my_wl_data_offer_listener_offer_##A,                                     \
+    (uintptr_t)my_wl_data_offer_listener_source_actions_##A,                            \
+    (uintptr_t)my_wl_data_offer_listener_action_##A,                                    \
+};
+SUPER()
+#undef GO
+static void* find_wl_data_offer_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_wl_data_offer_listener_##A == fct) return &my_wl_data_offer_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_wl_data_offer_listener_##A == 0) {ref_wl_data_offer_listener_##A = fct; return &my_wl_data_offer_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_data_offer_listener callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -965,6 +1004,8 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wp_fractional_scale_v1_listener_Fct(l);
     } else if(!strcmp(proxy_name, "zwp_primary_selection_device_v1")) {
         l = find_zwp_primary_selection_device_v1_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "wl_data_offer")) {
+        l = find_wl_data_offer_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
