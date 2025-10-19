@@ -1234,6 +1234,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRPICK_D(xRDX, xRDX, 31, 0);
             }
             break;
+        case 0x9B:
+            INST_NAME("FWAIT");
+            break;
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
@@ -2292,6 +2295,32 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     DEFAULT;
             }
+            break;
+
+        case 0xD8:
+            addr = dynarec64_D8(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0xD9:
+            addr = dynarec64_D9(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0xDA:
+            addr = dynarec64_DA(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0xDB:
+            addr = dynarec64_DB(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0xDC:
+            addr = dynarec64_DC(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0xDD:
+            addr = dynarec64_DD(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+
+        case 0xDE:
+            addr = dynarec64_DE(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0xDF:
+            addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
 #define GO(Z)                                                                               \
