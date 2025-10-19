@@ -3882,7 +3882,7 @@ EXPORT void my__exit(x64emu_t* emu, int code)
     if(emu->flags.quitonexit || emu->quit) {
         _exit(code);
     }
-    printf_log(LOG_INFO, "Fast _exit called\n");
+    dynarec_log(LOG_INFO, "Fast _exit called\n");
     emu->quit = 1;
     box64_exit_code = code;
     SerializeAllMapping();   // just to be safe
