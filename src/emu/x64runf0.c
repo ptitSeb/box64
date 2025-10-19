@@ -861,8 +861,28 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     }
                                 } while(tmp32s);
 #endif
-                            } else
+                            } else {
                                 if(((uintptr_t)ED)&0x7) {
+                                    #ifdef __loongarch64
+                                    tmp64u = R_EAX | (((uint64_t)R_EDX)<<32);
+                                    tmp64u2 = R_EBX | (((uint64_t)R_ECX)<<32);
+                                    do {
+                                        uint64_t tmp64u3 = native_lock_read_dd((void*)(((uintptr_t)ED)&~7LL));
+                                        uint64_t tmp64u4 = ED->q[0];
+                                        if(tmp64u4==tmp64u) {
+                                            tmp32s = native_lock_write_dd((void*)(((uintptr_t)ED)&~7LL), tmp64u2);
+                                            if(!tmp32s) {
+                                                native_lock_store_dd(ED, tmp64u2);
+                                                SET_FLAG(F_ZF);
+                                            }
+                                        } else {
+                                            tmp32s = 0;
+                                            CLEAR_FLAG(F_ZF);
+                                            R_RAX = tmp64u4&0xffffffff;
+                                            R_RDX = (tmp64u4>>32)&0xffffffff;
+                                        }
+                                    } while(tmp32s);
+                                    #else
                                     tmp64u = R_EAX | (((uint64_t)R_EDX)<<32);
                                     do {
                                         native_lock_get_b(ED);
@@ -879,6 +899,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                             tmp32s = 0;
                                         }
                                     } while(tmp32s);
+                                    #endif
                                 } else {
                                     tmp64u = R_EAX | (((uint64_t)R_EDX)<<32);
                                     tmp64u2 = R_EBX | (((uint64_t)R_ECX)<<32);
@@ -891,6 +912,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         R_RDX = (tmp64u2>>32)&0xffffffff;
                                     }
                                 }
+                            }
 #else
                             pthread_mutex_lock(&my_context->mutex_lock);
                             if(rex.w) {
