@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <errno.h>
 
+#include "la64_mapping.h"
 #include "x64_signals.h"
 #include "os.h"
 #include "debug.h"
@@ -1258,6 +1259,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
                 jump_to_epilog(dyn, addr, 0, ninst);
             }
+            break;
+        case 0x9E:
+            INST_NAME("SAHF");
+            SETFLAGS(X_CF | X_PF | X_AF | X_ZF | X_SF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            ADDI_D(x1, xZR, ~0b11010101);
+            AND(xFlags, xFlags, x1);
+            NOR(x1, x1, x1);
+            SRLI_D(x2, xRAX, 8);
+            AND(x1, x1, x2);
+            OR(xFlags, xFlags, x1);
+            SPILL_EFLAGS();
+            SET_DFNONE();
+            break;
+        case 0x9F:
+            INST_NAME("LAHF");
+            READFLAGS(X_CF | X_PF | X_AF | X_ZF | X_SF);
+            RESTORE_EFLAGS(x1);
+            BSTRINS_D(xRAX, xFlags, 15, 8);
             break;
         case 0xA0:
             INST_NAME("MOV AL,Ob");
