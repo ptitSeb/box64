@@ -68,8 +68,6 @@ extern void* create_updateflags();
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) 0
 
-// NYI
-#define NATIVE_RESTORE_X87PC()
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t

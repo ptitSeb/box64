@@ -68,3 +68,7 @@
         PrintFunctionAddr(ip, " => ");                                                                                    \
         dynarec_log_prefix(0, LOG_NONE, "\n");                                                                            \
     }
+
+
+#define NATIVE_RESTORE_X87PC()
+#define X87_CHECK_PRECISION(A)

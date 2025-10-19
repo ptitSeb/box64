@@ -12,6 +12,8 @@ typedef struct dynarec_la64_s dynarec_la64_t;
 int fpu_get_scratch(dynarec_la64_t* dyn);
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_la64_t* dyn);
+// Get an x87 double reg
+int fpu_get_reg_x87(dynarec_la64_t* dyn, int t, int n);
 // Get an XMM quad reg
 int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm);
 // Get an YMM quad reg
@@ -22,6 +24,25 @@ void fpu_free_reg(dynarec_la64_t* dyn, int reg);
 void fpu_reset_reg(dynarec_la64_t* dyn);
 // Get an MMX double reg
 int fpu_get_reg_emm(dynarec_la64_t* dyn, int emm);
+
+// Get type for STx
+int lsxcache_get_st(dynarec_la64_t* dyn, int ninst, int a);
+// Get if STx is FLOAT or DOUBLE
+int lsxcache_get_st_f(dynarec_la64_t* dyn, int ninst, int a);
+// Get if STx is FLOAT or I64
+int lsxcache_get_st_f_i64(dynarec_la64_t* dyn, int ninst, int a);
+// Get actual type for STx
+int lsxcache_get_current_st(dynarec_la64_t* dyn, int ninst, int a);
+// Get actual STx is FLOAT or DOUBLE
+int lsxcache_get_current_st_f(dynarec_la64_t* dyn, int a);
+// Get actual STx is FLOAT or I64
+int lsxcache_get_current_st_f_i64(dynarec_la64_t* dyn, int a);
+// Back-propagate a change float->double
+void lsxcache_promote_double(dynarec_la64_t* dyn, int ninst, int a);
+// Combine and propagate if needed (pass 1 only)
+int lsxcache_combine_st(dynarec_la64_t* dyn, int ninst, int a, int b); // with stack current dyn->n_stack*
+// Do not allow i64 type
+int lsxcache_no_i64(dynarec_la64_t* dyn, int ninst, int st, int a);
 
 // FPU Cache transformation (for loops) // Specific, need to be written by backend
 int fpuCacheNeedsTransform(dynarec_la64_t* dyn, int ninst);
@@ -39,6 +60,8 @@ void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
 // reset the cache
 void fpu_reset(dynarec_native_t* dyn);
 void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
+// is st freed
+int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 
 void updateNativeFlags(dynarec_la64_t* dyn);
 void get_free_scratch(dynarec_la64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5);

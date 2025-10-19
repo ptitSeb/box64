@@ -40,6 +40,14 @@
         PCADDU12I(A, SPLIT20(val64offset));           \
         LD_D(A, A, SPLIT12(val64offset));             \
     } while (0)
+#define FTABLE64(A, V)                              \
+    do {                                            \
+        mmx87_regs_t v = { .d = V };                \
+        int val64offset = Table64(dyn, v.q, 3);     \
+        MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); \
+        PCADDU12I(x1, SPLIT20(val64offset));            \
+        FLD_D(A, x1, SPLIT12(val64offset));           \
+    } while (0)
 #define TABLE64C(A, V)                                       \
     do {                                                     \
         if (dyn->need_reloc && !isTable64(dyn, getConst(V))) \

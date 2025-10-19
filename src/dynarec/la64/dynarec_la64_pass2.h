@@ -33,6 +33,13 @@
         EMIT(0);              \
         EMIT(0);              \
     } while (0)
+#define FTABLE64(A, V)               \
+    do {                             \
+        mmx87_regs_t v = { .d = V }; \
+        Table64(dyn, v.q, 2);        \
+        EMIT(0);                     \
+        EMIT(0);                     \
+    } while (0)
 #define TABLE64C(A, V)                                       \
     do {                                                     \
         if (dyn->need_reloc && !isTable64(dyn, getConst(V))) \
