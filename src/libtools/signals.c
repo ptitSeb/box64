@@ -1568,6 +1568,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 if(Locks & is_dyndump_locked)
                     CancelBlock64(1);
                 emu->test.clean = 0;
+                // will restore unblocked Signal flags too
                 #ifdef ANDROID
                 siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
                 #else

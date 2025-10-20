@@ -20,7 +20,6 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr,
 
 // for use in signal handler
 void cancelFillBlock(void);
-void cancelFillBlockCriticalSection(void);
 
 // clear instruction cache on a range
 void ClearCache(void* start, size_t len);

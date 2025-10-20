@@ -493,10 +493,8 @@ void CancelBlock64(int need_lock)
     }
     current_helper = NULL;
     redundant_helper = NULL;
-    if(need_lock) {
+    if(need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
-        cancelFillBlockCriticalSection();
-    }
 }
 
 uintptr_t native_pass0(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
