@@ -8,6 +8,7 @@
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
 #include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -609,18 +610,28 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        if (i64 <= -2048 || i64 > 2048) {
-                            MOV64xw(x3, i64);
-                        }
+                        MOV64xw(x7, i64);
+                        ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
+                        BNEZ_MARK3(x1);
+                        // Aligned
                         MARKLOCK;
                         LLxw(x1, wback, 0);
-                        if (i64 > -2048 && i64 <= 2048) {
-                            ADDIxw(x4, x1, -i64);
-                        } else {
-                            SUBxw(x4, x1, x3);
-                        }
+                        SUBxw(x4, x1, x7);
                         SCxw(x4, wback, 0);
                         BEQZ_MARKLOCK(x4);
+                        B_MARK_nocond;
+                        MARK3;
+                        // Unaligned
+                        ADDI_D(x5, xZR, -(1 << (rex.w + 2)));
+                        AND(x5, wback, x5);
+                        MARKLOCK2;
+                        LDxw(x1, wback, 0);
+                        LLxw(x6, x5, 0);
+                        SUBxw(x4, x1, x7);
+                        SCxw(x6, x5, 0);
+                        BEQZ_MARKLOCK2(x6);
+                        SDxw(x4, wback, 0);
+                        MARK;
                         IFXORNAT (X_ALL | X_PEND)
                             emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
