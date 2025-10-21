@@ -1422,6 +1422,20 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 F8;
             }
             break;
+        case 0xA5:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, CL");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+            if (BOX64DRENV(dynarec_safeflags) > 1)
+                MAYSETFLAGS();
+            GETGD;
+            GETED(0);
+            if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+            ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+            BEQ_NEXT(x3, xZR);
+            emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            WBACK;
+            break;
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
             SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
@@ -1478,6 +1492,20 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
                 F8;
             }
+            break;
+        case 0xAD:
+            nextop = F8;
+            INST_NAME("SHRD Ed, Gd, CL");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            if (BOX64DRENV(dynarec_safeflags) > 1)
+                MAYSETFLAGS();
+            GETGD;
+            GETED(0);
+            if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+            ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+            BEQ_NEXT(x3, xZR);
+            emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4, x6);
+            WBACK;
             break;
         case 0xAE:
             nextop = F8;
