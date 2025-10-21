@@ -170,7 +170,23 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 break;
             case 2:
                 INST_NAME("FIST Ed, ST0");
-                DEFAULT;
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                u8 = x87_setround(dyn, ninst, x1, x5);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    FSFLAGSI(0); // reset all bits
+                }
+                FCVTWD(x4, v1, RD_DYN);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    FRFLAGS(x5); // get back FPSR to check the IOC bit
+                    ANDI(x5, x5, 1 << FR_NV);
+                    BEQ_MARK2(x5, xZR);
+                    MOV32w(x4, 0x80000000);
+                }
+                MARK2;
+                SW(x4, wback, fixedaddress);
+                x87_restoreround(dyn, ninst, u8);
                 break;
             case 3:
                 INST_NAME("FISTP Ed, ST0");
