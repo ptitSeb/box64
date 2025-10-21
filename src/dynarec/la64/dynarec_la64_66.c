@@ -8,6 +8,7 @@
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
 #include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -697,6 +698,17 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETDIR(x3, x1, 2);
                 ST_H(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
+            }
+            break;
+        case 0xAD:
+            if (rep) {
+                DEFAULT;
+            } else {
+                INST_NAME("LODSW");
+                GETDIR(x1, x2, 2);
+                LD_HU(x2, xRSI, 0);
+                ADD_D(xRSI, xRSI, x1);
+                BSTRINSz(xRAX, x2, 15, 0);
             }
             break;
         case 0xAF:
