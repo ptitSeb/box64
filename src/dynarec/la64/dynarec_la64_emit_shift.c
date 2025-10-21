@@ -1387,3 +1387,122 @@ void emit_shrd32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         SPILL_EFLAGS();
     }
 }
+
+void emit_shrd32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6)
+{
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    int64_t j64;
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s5, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w ? d_shrd64 : d_shrd32);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        ADDI_D(s3, s5, -1);
+        SRA_D(s3, s1, s3);
+        ANDI(s3, s3, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_OF) {
+        // Store current sign for later use.
+        SRLIxw(s6, s1, rex.w ? 63 : 31);
+    }
+    ADDI_D(s4, xZR, (rex.w ? 64 : 32));
+    SUB_D(s4, s4, s5);
+    SRLxw(s3, s1, s5);
+    SLLxw(s4, s2, s4);
+    OR(s1, s4, s3);
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_OF) {
+        ADDI_D(s5, s5, -1);
+        BNEZ_MARK(s5);
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s6);
+        SLLI_D(s3, s3, F_OF);
+        OR(xFlags, xFlags, s3);
+        MARK;
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_SF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+}
+
+void emit_shld32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6)
+{
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+    int64_t j64;
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s5, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w ? d_shld64 : d_shld32);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    CLEAR_FLAGS(s3);
+    MOV32w(s3, (rex.w ? 64 : 32));
+    SUB_D(s3, s3, s5);
+
+    IFX (X_CF) {
+        SRL_D(s4, s1, s3);
+        ANDI(s4, s4, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s4);
+    }
+    IFX (X_OF) {
+        // Store current sign for later use.
+        SRLIxw(s6, s1, rex.w ? 63 : 31);
+    }
+    SLLxw(s4, s1, s5);
+    SRLxw(s3, s2, s3);
+    OR(s1, s3, s4);
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+
+    IFX (X_OF) {
+        ADDI_D(s5, s5, -1);
+        BNEZ_MARK(s5);
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s6);
+        SLLI_D(s3, s3, F_OF);
+        OR(xFlags, xFlags, s3);
+        MARK;
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_SF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+}
