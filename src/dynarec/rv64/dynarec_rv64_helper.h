@@ -1401,7 +1401,7 @@
 #define emit_ror32c         STEPNAME(emit_ror32c)
 #define emit_shrd32c        STEPNAME(emit_shrd32c)
 #define emit_shld32c        STEPNAME(emit_shld32c)
-#define emit_shrd32         STEPNAME(emit_shld32)
+#define emit_shrd32         STEPNAME(emit_shrd32)
 #define emit_shld32         STEPNAME(emit_shld32)
 #define emit_shld16c        STEPNAME(emit_shld16c)
 #define emit_shrd16c        STEPNAME(emit_shrd16c)
