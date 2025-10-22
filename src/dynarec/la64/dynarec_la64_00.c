@@ -280,6 +280,27 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64xw(x2, i64);
             emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
+        case 0x1E:
+            if (rex.is32bits) {
+                INST_NAME("PUSH DS");
+                LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+                PUSH1_32(x1);
+                SMWRITE();
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x1F:
+            if (rex.is32bits) {
+                INST_NAME("POP DS");
+                SMREAD();
+                POP1_32(x1);
+                ST_H(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+                ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -1513,8 +1534,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAC:
-            if (rep) {
-                DEFAULT;
+            if(rep) {
+                INST_NAME("REP LODSB");
+                GETDIR(x1, x2, 1);
+                CBZ_NEXT(xRCX);
+                MARK;
+                LD_BU(x2, xRSI, 0);
+                ADD_D(xRSI, xRSI, x1);
+                BSTRINS_D(xRAX, x2, 7, 0);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
             } else {
                 INST_NAME("LODSB");
                 GETDIR(x1, x2, 1);
@@ -1524,8 +1553,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAD:
-            if (rep) {
-                DEFAULT;
+            if(rep) {
+                INST_NAME("REP LODSD");
+                CBZ_NEXT(xRCX);
+                GETDIR(x1, x2, rex.w ? 8 : 4);
+                MARK;
+                LDxw(xRAX, xRSI, 0);
+                ADD_D(xRSI, xRSI, x1);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
             } else {
                 INST_NAME("LODSD");
                 GETDIR(x1, x2, rex.w ? 8 : 4);
