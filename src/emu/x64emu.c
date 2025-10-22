@@ -442,12 +442,12 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             if(i==_RBX) {
                 if(emu->df) {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "?"
-                    sprintf(tmp, "flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
+                    sprintf(tmp, " flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
                     strcat(buff, tmp);
 #undef FLAG_CHAR
                 } else {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "-"
-                    sprintf(tmp, "FLAGS=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
+                    sprintf(tmp, " FLAGS=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
                     strcat(buff, tmp);
 #undef FLAG_CHAR
                 }
@@ -473,12 +473,12 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 if(i==4) {
                     if(emu->df) {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "?"
-                        sprintf(tmp, "flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
+                        sprintf(tmp, " flags=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
                         strcat(buff, tmp);
 #undef FLAG_CHAR
                     } else {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "-"
-                        sprintf(tmp, "FLAGS=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
+                        sprintf(tmp, " FLAGS=%s%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(D), FLAG_CHAR(S), FLAG_CHAR(Z), FLAG_CHAR(A), FLAG_CHAR(P), FLAG_CHAR(C));
                         strcat(buff, tmp);
 #undef FLAG_CHAR
                     }
