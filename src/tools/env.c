@@ -883,6 +883,7 @@ typedef struct DynaCacheHeader_s {
     DS_GO(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1)\
     DS_GO(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 2)            \
     DS_GO(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 2)                \
+    DS_GO(BOX64_PCLMULQDQ, pclmulqdq, 1)                                \
     DS_GO(BOX64_SHAEXT, shaext, 1)                                      \
     DS_GO(BOX64_SSE42, sse42, 1)                                        \
     DS_GO(BOX64_AVX, avx, 2)                                            \

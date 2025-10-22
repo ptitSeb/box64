@@ -399,6 +399,13 @@ Path to look for x86_64 binaries.
 
  * XXXX: Add path XXXX to the binary path. 
 
+### BOX64_PCLMULQDQ
+
+Expose PCLMULQDQ capabilities.
+
+ * 0: Do not expose PCLMULQDQ capabilities. 
+ * 1: Expose PCLMULQDQ capabilities. [Default]
+
 ### BOX64_RCFILE
 
 Path to the rc file to load.

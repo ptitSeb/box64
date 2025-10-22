@@ -662,6 +662,14 @@ Path to look for x86_64 binaries.
  * XXXX : Add path XXXX to the binary path. 
 
 
+=item B<BOX64_PCLMULQDQ> =I<0|1>
+
+Expose PCLMULQDQ capabilities.
+
+ * 0 : Do not expose PCLMULQDQ capabilities. 
+ * 1 : Expose PCLMULQDQ capabilities. [Default]
+
+
 =item B<BOX64_PREFER_EMULATED> =I<0|1>
 
 Prefer emulated libraries over native ones.
