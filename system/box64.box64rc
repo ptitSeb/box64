@@ -854,6 +854,42 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_FASTROUND=0
 
+# Steam for LA64
+[steam.exe]
+BOX64_ARCH=la64
+BOX64_PCLMULQDQ=0 # helps download speed
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_ARGS=-cef-disable-breakpad -cef-disable-d3d11 -cef-disable-delaypageload -cef-force-occlusion -cef-disable-sandbox -cef-disable-seccomp-sandbox -no-cef-sandbox -disable-winh264 -cef-disable-gpu -vgui -oldtraymenu -cef-single-process
+
+[steamwebhelper.exe]
+BOX64_ARCH=la64
+BOX64_PCLMULQDQ=0 # helps download speed
+BOX64_DYNAREC_STRONGMEM=1
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_FASTROUND=0
+
+# Steam for RV64
+[steam.exe]
+BOX64_ARCH=rv64
+BOX64_PCLMULQDQ=0 # helps download speed
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_ARGS=-cef-disable-breakpad -cef-disable-d3d11 -cef-disable-delaypageload -cef-force-occlusion -cef-disable-sandbox -cef-disable-seccomp-sandbox -no-cef-sandbox -disable-winh264 -cef-disable-gpu -vgui -oldtraymenu -cef-single-process
+
+[steamwebhelper.exe]
+BOX64_ARCH=rv64
+BOX64_PCLMULQDQ=0 # helps download speed
+BOX64_DYNAREC_STRONGMEM=1
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_FASTROUND=0
+
 [SwGame-Win64-Shipping.exe]
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_STRONGMEM=1
