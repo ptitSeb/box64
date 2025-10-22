@@ -357,6 +357,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 #ifdef LA64
     // TODO: move to ADJUST_ARCH
     if (cpuext.lbt) {
+        #ifndef LA64_ABI_1
         struct lbt_context* lbt_ctx = NULL;
         struct sctx_info* info = (struct sctx_info*)p->uc_mcontext.__extcontext;
         while (info->magic && !lbt_ctx) {
@@ -367,7 +368,6 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
         }
 
         if (lbt_ctx) {
-            uint64_t scratch = 0;
             uint64_t flags = CONTEXT_REG(p, xFlags) & ~0b100011010101;
             flags = flags | (lbt_ctx->eflags & 0b100011010101);
             emu->eflags.x64 = flags;
@@ -375,6 +375,11 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
             printf_log(LOG_NONE, "Are you on a non-LBT kernel? Use BOX64_DYNAREC_LA64NOEXT=lbt to prevent Box64 from using it.\n");
             emu->eflags.x64 = CONTEXT_REG(p, xFlags);
         }
+        #else
+        uint64_t flags = CONTEXT_REG(p, xFlags) & ~0b100011010101;
+        flags = flags | (*(uint32_t *)(p->uc_mcontext->sc_reserved) & 0b100011010101);
+        emu->eflags.x64 = flags;
+        #endif
     } else
 #endif
         emu->eflags.x64 = CONTEXT_REG(p, xFlags);
