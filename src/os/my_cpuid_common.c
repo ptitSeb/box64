@@ -210,7 +210,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         0;
                 R_RCX =
                         BOX64ENV(avx)<<9   | //VAES
-                        BOX64ENV(avx2)<<10 | //VPCLMULQDQ.
+                        (BOX64ENV(avx2)&&BOX64ENV(pclmulqdq))<<10 | //VPCLMULQDQ.
                         1<<22 | // RDPID
                         0;
                 R_RDX = 0;
