@@ -438,6 +438,7 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t native_addr)
     uintptr_t armaddr = (uintptr_t)db->block;
     if ((native_addr < (uintptr_t)db->block) || (native_addr > (uintptr_t)db->actual_block + db->size))
         return 0;
+    if (!db->isize) return (uintptr_t)db->x64_addr;
     int i = 0;
     do {
         int x64sz = 0;
