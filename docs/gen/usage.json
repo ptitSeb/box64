@@ -1437,6 +1437,24 @@
     ]
   },
   {
+    "name": "BOX64_PCLMULQDQ",
+    "description": "Expose PCLMULQDQ capabilities.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not expose PCLMULQDQ capabilities.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Expose PCLMULQDQ capabilities.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "BOX64_PREFER_EMULATED",
     "description": "Prefer emulated libraries over native ones.",
     "category": "Libraries",

@@ -105,7 +105,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | (BOX64ENV(cputype)?0:1)<<28     // HT / Multi-core
                     ;
             R_ECX =   1<<0      // SSE3
-                    | 1<<1      // PCLMULQDQ
+                    | BOX64ENV(pclmulqdq)<<1      // PCLMULQDQ
                     | (BOX64ENV(cputype)?0:1)<<2      // DS 64bits
                     | 1<<3      // Monitor/MWait (priviledge instructions)
                     | (BOX64ENV(cputype)?0:1)<<5      // VMX  //is that usefull

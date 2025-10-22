@@ -103,6 +103,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_NOSIGILL, nosigill, 0, 0)                                   \
     BOOLEAN(BOX64_NOVULKAN, novulkan, 0, 0)                                   \
     STRING(BOX64_PATH, path, 0)                                               \
+    BOOLEAN(BOX64_PCLMULQDQ, pclmulqdq, 1, 0)                                 \
     BOOLEAN(BOX64_PREFER_EMULATED, prefer_emulated, 0, 0)                     \
     BOOLEAN(BOX64_PREFER_WRAPPED, prefer_wrapped, 0, 0)                       \
     STRING(BOX64_RCFILE, envfile, 0)                                          \
