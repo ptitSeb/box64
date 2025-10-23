@@ -25,6 +25,7 @@ struct my_XFreeFuncs_32 my32_free_funcs_32[N_DISPLAY] = {0};
 struct my_XLockPtrs_32 my32_lock_fns_32[N_DISPLAY] = {0};
 my_XDisplay_32_t my32_Displays_32[N_DISPLAY] = {0};
 kh_visuals_t* my32_Displays_Visuals[N_DISPLAY] = {0};
+void* my32_XCB_Display[N_DISPLAY] = {0};
 
 void* getDisplay(void* d)
 {
@@ -327,9 +328,30 @@ void delDisplay(void* d)
             kh_foreach_ref(my32_Displays_Visuals[i], k, v, if(v->ref) free(v->_64); else free(v->_32));
             kh_destroy(visuals, my32_Displays_Visuals[i]);
             my32_Displays_Visuals[i] = NULL;
+            if(my32_XCB_Display[i]) {
+                del_xcb_connection32(my32_XCB_Display[i]);
+                my32_XCB_Display[i] = NULL;
+            }
             return;
         }
     }
+}
+
+void regXCBDisplay(void* d, void* xcb)
+{    if(!my_context->libx11) {
+        // the lib has not be loaded directly... need to open it! leaking the lib handle...
+        #ifdef ANDROID
+        my_dlopen(thread_get_emu(), "libX11.so", RTLD_NOW);
+        #else
+        my_dlopen(thread_get_emu(), "libX11.so.6", RTLD_NOW);
+        #endif
+    }
+    my_XDisplay_t* dpy = (my_XDisplay_t*)d;
+    for(int i=0; i<N_DISPLAY; ++i)
+        if(my32_Displays_64[i]==dpy) {
+            my32_XCB_Display[i] = xcb;
+            return;
+        }
 }
 
 void refreshDisplay(void* dpy)

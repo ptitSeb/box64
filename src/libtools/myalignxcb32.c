@@ -70,7 +70,7 @@ typedef struct my_xcb_connection_32_s {
     my_xcb_xid_32_t xid;
 } my_xcb_connection_32_t;
 
-#define NXCB 256
+#define NXCB 32
 static my_xcb_connection_t* my_xcb_connects[NXCB] = {0};
 static my_xcb_connection_32_t i386_xcb_connects[NXCB] = {0};
 static my_xcb_connection_t* tmp_xcb_connect = NULL;
@@ -88,8 +88,9 @@ void* align_xcb_connection32(void* src)
         if(src==&i386_xcb_connects[i])
             dest = my_xcb_connects[i];
     #if 1
-    if(!dest)
+    if(!dest) {
         dest = temp_xcb_connection32(src);
+    }
     #else
     if(!dest) {
         printf_log(LOG_NONE, "Error, xcb_connect %p not found\n", src);
@@ -187,13 +188,13 @@ void* add_xcb_connection32(void* src)
             unalign_xcb_connection32(src, &i386_xcb_connects[i]);
             return &i386_xcb_connects[i];
         }
-    // find a free slot
-    for(int i=0; i<NXCB; ++i)
-        if(!my_xcb_connects[i]) {
-            my_xcb_connects[i] = src;
-            unalign_xcb_connection32(src, &i386_xcb_connects[i]);
-            return &i386_xcb_connects[i];
-        }
+        // find a free slot
+        for(int i=0; i<NXCB; ++i)
+            if(!my_xcb_connects[i]) {
+                my_xcb_connects[i] = src;
+                unalign_xcb_connection32(src, &i386_xcb_connects[i]);
+                return &i386_xcb_connects[i];
+            }
     printf_log(LOG_NONE, "Error, no more free xcb_connect 32bits slot for %p\n", src);
     return src;
 }

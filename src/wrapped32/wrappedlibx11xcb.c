@@ -16,6 +16,7 @@
 #include "box32context.h"
 #include "emu/x64emu_private.h"
 #include "myalign32.h"
+#include "libtools/my_x11_conv.h"
 
 static const char* libx11xcbName = "libX11-xcb.so.1";
 #define ALTNAME "libX11-xcb.so"
@@ -29,7 +30,9 @@ static const char* libx11xcbName = "libX11-xcb.so.1";
 
 EXPORT void* my32_XGetXCBConnection(x64emu_t* emu, void* a)
 {
-    return add_xcb_connection32(my->XGetXCBConnection(a));
+    void* ret = add_xcb_connection32(my->XGetXCBConnection(a));
+    regXCBDisplay(a, ret);
+    return ret;
 }
 
 #include "wrappedlib_init32.h"

@@ -22,6 +22,8 @@ void* getDisplay(void* d);
 void delDisplay(void* d);
 // refresh the 32bits from the 64bits version
 void refreshDisplay(void* dpy);
+// register an xcb for a display
+void regXCBDisplay(void* d, void* xcb);
 
 void convert_Screen_to_32(void* d, void* s);
 void* getScreen64(void* dpy, void* a);
