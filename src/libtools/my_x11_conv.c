@@ -11,6 +11,7 @@
 #include "my_x11_defs.h"
 #include "my_x11_defs_32.h"
 #include "my_x11_conv.h"
+#include "myalign32.h"
 
 typedef struct Visuals_s {
     my_Visual_t* _64;
