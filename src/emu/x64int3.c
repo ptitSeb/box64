@@ -78,7 +78,7 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
 }
 
 
-void printf_function(int level, x64emu_t* emu)
+void print_wrapper_name(int level, x64emu_t* emu)
 {
     onebridge_t* bridge = (onebridge_t*)(R_RIP&~(sizeof(onebridge_t)-1));
     if (IsBridgeSignature(bridge->S, bridge->C)) {
