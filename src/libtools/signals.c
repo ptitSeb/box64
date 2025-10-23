@@ -377,7 +377,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
         }
         #else
         uint64_t flags = CONTEXT_REG(p, xFlags) & ~0b100011010101;
-        flags = flags | (*(uint32_t *)(p->uc_mcontext->sc_reserved) & 0b100011010101);
+        flags = flags | (*(uint32_t*)(((struct sigcontext*)&p->uc_mcontext)->sc_reserved) & 0b100011010101);
         emu->eflags.x64 = flags;
         #endif
     } else
