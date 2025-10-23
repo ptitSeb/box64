@@ -77,6 +77,17 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
     return emu;
 }
 
+
+void printf_function(int level, x64emu_t* emu)
+{
+    onebridge_t* bridge = (onebridge_t*)(R_RIP&~(sizeof(onebridge_t)-1));
+    if (IsBridgeSignature(bridge->S, bridge->C)) {
+        printf_log(level, "calling %s\n", bridge->name?bridge->name:"????");
+    } else {
+        printf_log(level, "Could found the function name for fnc=%p\n", bridge->f);
+    }
+}
+
 static uint64_t F64(uintptr_t* addr) {
     uint64_t ret = *(uint64_t*)*addr;
     *addr+=8;
