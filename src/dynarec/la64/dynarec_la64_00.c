@@ -557,6 +557,47 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+        case 0x60:
+            if (rex.is32bits) {
+                INST_NAME("PUSHAD");
+                MV(x1, xRSP);
+                PUSH1_32(xRAX);
+                PUSH1_32(xRCX);
+                PUSH1_32(xRDX);
+                PUSH1_32(xRBX);
+                PUSH1_32(x1);
+                PUSH1_32(xRBP);
+                PUSH1_32(xRSI);
+                PUSH1_32(xRDI);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x61:
+            if (rex.is32bits) {
+                INST_NAME("POPAD");
+                POP1_32(xRDI);
+                POP1_32(xRSI);
+                POP1_32(xRBP);
+                POP1_32(x1);
+                POP1_32(xRBX);
+                POP1_32(xRDX);
+                POP1_32(xRCX);
+                POP1_32(xRAX);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x62:
+            if (rex.is32bits) {
+                // BOUND here
+                DEFAULT;
+            } else {
+                INST_NAME("BOUND Gd, Ed");
+                nextop = F8;
+                FAKEED;
+            }
+            break;
         case 0x63:
             if (rex.is32bits) {
                 // this is ARPL opcode
@@ -2621,6 +2662,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xF0:
             addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
+        case 0xF1:
+            INST_NAME("INT1");
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
+            GETIP(ip, x7);
+            STORE_XEMU_CALL();
+            CALL(const_native_priv, -1, 0, 0); // is that a privileged opcodes or an int 1??
+            LOAD_XEMU_CALL();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xF4:
             INST_NAME("HLT");
             if (box64_unittest_mode) { // HLT in unittest mode is an exit
@@ -2993,6 +3049,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                     *need_epilog = 0;
                     *ok = 0;
+                    break;
+                case 5: // JMP FAR Ed
+                    if (MODREG) {
+                        DEFAULT;
+                    } else {
+                        INST_NAME("JMP FAR Ed");
+                        READFLAGS(X_PEND);
+                        BARRIER(BARRIER_FLOAT);
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                        LDxw(x1, wback, 0);
+                        ed = x1;
+                        LD_HU(x3, wback, rex.w ? 8 : 4);
+                        ST_H(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+                        jump_to_epilog(dyn, 0, ed, ninst);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
                     break;
                 case 6: // Push Ed
                     INST_NAME("PUSH Ed");
