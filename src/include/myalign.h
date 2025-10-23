@@ -220,6 +220,8 @@ void* align_xcb_connection(void* src);
 void unalign_xcb_connection(void* src, void* dst);
 void* add_xcb_connection(void* src);
 void del_xcb_connection(void* src);
+void register_xcb_display(void* d, void* xcb);
+void unregister_xcb_display(void* d);
 
 uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N);
 void setVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N, uintptr_t a);

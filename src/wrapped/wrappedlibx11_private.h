@@ -57,7 +57,7 @@ GO(XCirculateSubwindowsUp, iFpL)
 GO(XClearArea, iFpLiiuui)
 GO(XClearWindow, iFpL)
 GO(XClipBox, iFpp)
-GO(XCloseDisplay, iFp)
+GOM(XCloseDisplay, iFEp)
 GO(XCloseIM, iFp)
 //GO(_XCloseLC, 
 GO(XCloseOM, iFp)

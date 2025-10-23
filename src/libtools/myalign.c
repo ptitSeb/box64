@@ -1596,6 +1596,7 @@ void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint6
 #define NXCB 8
 static my_xcb_connection_t* my_xcb_connects[NXCB] = {0};
 static x64_xcb_connection_t x64_xcb_connects[NXCB] = {0};
+static xcb_display[NXCB] = {0};
 
 void* align_xcb_connection(void* src)
 {
@@ -1686,6 +1687,7 @@ void* add_xcb_connection(void* src)
     for(int i=0; i<NXCB; ++i)
         if(!my_xcb_connects[i]) {
             my_xcb_connects[i] = src;
+            xcb_display[i] = NULL;
             unalign_xcb_connection(src, &x64_xcb_connects[i]);
             return &x64_xcb_connects[i];
         }
@@ -1701,8 +1703,28 @@ void del_xcb_connection(void* src)
     for(int i=0; i<NXCB; ++i)
         if(src==&x64_xcb_connects[i]) {
             my_xcb_connects[i] = NULL;
+            xcb_display[i] = NULL;
             memset(&x64_xcb_connects[i], 0, sizeof(x64_xcb_connection_t));
             return;
         }
     printf_log(LOG_NONE, "Error, xcb_connect %p not found for deletion\n", src);
+}
+
+void register_xcb_display(void* d, void* xcb)
+{
+    for(int i=0; i<NXCB; ++i)
+        if(&x64_xcb_connects[i] == xcb) {
+            xcb_display[i] = d;
+            return;
+        }
+}
+
+void unregister_xcb_display(void* d)
+{
+    for(int i=0; i<NXCB; ++i)
+        if(&xcb_display[i] == d) {
+            my_xcb_connects[i] = NULL;
+            memset(&x64_xcb_connects[i], 0, sizeof(x64_xcb_connection_t));
+            return;
+        }
 }

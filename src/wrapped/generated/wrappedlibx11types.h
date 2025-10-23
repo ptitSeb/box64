@@ -35,6 +35,7 @@ typedef uintptr_t (*LFpLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XcmsFreeCCC, vFp_t) \
+	GO(XCloseDisplay, iFp_t) \
 	GO(XDestroyImage, iFp_t) \
 	GO(XInitImage, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \

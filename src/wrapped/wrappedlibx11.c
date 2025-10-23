@@ -1662,6 +1662,13 @@ EXPORT void* my_XOpenIM(x64emu_t* emu, my_XDisplay_t* dpy, void* v2, void* v3, v
     return ret;
 }
 
+EXPORT int my_XCloseDisplay(x64emu_t* emu, void* dpy)
+{
+    int ret = my->XCloseDisplay(dpy);
+    if(!ret) unregister_xcb_display(dpy);
+    return ret;
+}
+
 #define CUSTOM_INIT                 \
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XLockMutex_fn"), 0, "_XLockMutex_fn"); \
     AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \

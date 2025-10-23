@@ -29,7 +29,9 @@ const char* libx11xcbName = "libX11-xcb.so.1";
 
 EXPORT void* my_XGetXCBConnection(x64emu_t* emu, void* a)
 {
-    return add_xcb_connection(my->XGetXCBConnection(a));
+    void* ret = add_xcb_connection(my->XGetXCBConnection(a));
+    register_xcb_display(a, ret);
+    return ret;
 }
 
 #include "wrappedlib_init.h"

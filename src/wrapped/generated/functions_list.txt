@@ -5779,6 +5779,7 @@ wrappedlibx11:
 - vFp:
   - XcmsFreeCCC
 - iFp:
+  - XCloseDisplay
   - XDestroyImage
   - XInitImage
   - _XInitImageFuncPtrs
