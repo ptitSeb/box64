@@ -94,6 +94,39 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             nextop = F8;
             switch (nextop) {
+                case 0xAB:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK BTS");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK BTS Ed, Gd");
+                        SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                        SET_DFNONE();
+                        nextop = F8;
+                        GETGD;                        
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SRAI_D(x1, gd, 3);        // bytes offset
+                        ANDI(x2, gd, 0b111);      // bits offset in one byte
+                        ADD_D(x6, wback, x1);     // unaligned target byte addr
+                        ANDI(x7, x6, 0b11);       // aligned offset
+                        BSTRINS_D(x6, xZR, 1, 0); // aligned addr
+                        ALSL_D(x2, x7, x2, 3);    // aligned bit offset
+
+                        ADDI_D(x4, xZR, 1);
+                        SLL_D(x4, x4, x2);
+                        AMOR_DB_W(x5, x4, x6);
+                        IFX (X_CF) {
+                            SRL_D(x5, x5, x2);
+                            if (cpuext.lbt) {
+                                X64_SET_EFLAGS(x5, X_CF);
+                            } else {
+                                BSTRINS_D(xFlags, x5, F_CF, F_CF);
+                            }
+                        }
+                    }
+                    break;
                 case 0xB0:
                     switch (rep) {
                         case 0:
@@ -213,6 +246,125 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 MVxw(xRAX, x1);
                                 MARK;
                                 UFLAG_IF { emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5, x6); }
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0xB3:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK BTR");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK BTR Ed, Gd");
+                        SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                        SET_DFNONE();
+                        nextop = F8;
+                        GETGD;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SRAI_D(x1, gd, 3);        // bytes offset
+                        ANDI(x2, gd, 0b111);      // bits offset in one byte
+                        ADD_D(x6, wback, x1);     // unaligned target byte addr
+                        ANDI(x7, x6, 0b11);       // aligned offset
+                        BSTRINS_D(x6, xZR, 1, 0); // aligned addr
+                        ALSL_D(x2, x7, x2, 3);    // aligned bit offset
+
+                        ADDI_D(x4, xZR, 1);
+                        SLL_D(x4, x4, x2);
+                        NOR(x4, x4, xZR);
+                        AMAND_DB_W(x5, x4, x6);
+                        IFX (X_CF) {
+                            SRL_D(x5, x5, x2);
+                            if (cpuext.lbt) {
+                                X64_SET_EFLAGS(x5, X_CF);
+                            } else {
+                                BSTRINS_D(xFlags, x5, F_CF, F_CF);
+                            }
+                        }
+                    }
+                    break;
+                case 0xBA:
+                    nextop = F8;
+                    switch((nextop>>3)&7) {
+                        case 4:
+                            INST_NAME("Invalid LOCK");
+                            UDF();
+                            *need_epilog = 1;
+                            *ok = 0;
+                            break;
+                        case 5:
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK BTS");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
+                            } else {
+                                INST_NAME("LOCK BTS Ed, Ib");
+                                SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                                SET_DFNONE();
+                                nextop = F8;
+                                GETGD;
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 0, 1);
+                                u8 = F8;
+                                if(u8>>3) {
+                                    ADDI_D(x6, wback, u8>>3);
+                                    MOV64x(x2, u8&3);
+                                }                                
+                                ANDI(x7, x6, 0b11);       // aligned offset
+                                BSTRINS_D(x6, xZR, 1, 0); // aligned addr
+                                ALSL_D(x2, x7, x2, 3);    // aligned bit offset
+
+                                ADDI_D(x4, xZR, 1);
+                                SLL_D(x4, x4, x2);
+                                AMOR_DB_W(x5, x4, x6);
+                                IFX (X_CF) {
+                                    SRL_D(x5, x5, x2);
+                                    if (cpuext.lbt) {
+                                        X64_SET_EFLAGS(x5, X_CF);
+                                    } else {
+                                        BSTRINS_D(xFlags, x5, F_CF, F_CF);
+                                    }
+                                }
+                            }
+                            break;
+                        case 6:
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK BTR");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
+                            } else {
+                                INST_NAME("LOCK BTR Ed, Ib");
+                                SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                                SET_DFNONE();
+                                nextop = F8;
+                                GETGD;
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                                u8 = F8;
+                                if(u8>>3) {
+                                    ADDI_D(x6, wback, u8>>3);
+                                    MOV64x(x2, u8&3);
+                                }                                
+                                ANDI(x7, x6, 0b11);       // aligned offset
+                                BSTRINS_D(x6, xZR, 1, 0); // aligned addr
+                                ALSL_D(x2, x7, x2, 3);    // aligned bit offset
+
+
+                                ADDI_D(x4, xZR, 1);
+                                SLL_D(x4, x4, x2);
+                                NOR(x4, x4, xZR);
+                                AMAND_DB_W(x5, x4, x6);
+                                IFX (X_CF) {
+                                    SRL_D(x5, x5, x2);
+                                    if (cpuext.lbt) {
+                                        X64_SET_EFLAGS(x5, X_CF);
+                                    } else {
+                                        BSTRINS_D(xFlags, x5, F_CF, F_CF);
+                                    }
+                                }
                             }
                             break;
                         default:
