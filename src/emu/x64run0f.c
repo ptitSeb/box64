@@ -317,8 +317,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x22:                      /* MOV cxR, REG */
         case 0x23:                      /* MOV drX, REG */
             // this is a privilege opcode...
+            nextop = F8;
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0);
+            tmp8u = (rex.r*8)+(nextop>>3&7);
+            if((((opcode==20) || (opcode==22)) && ((tmp8u==1) || (tmp8u==5) || (tmp8u==6) || (tmp8u==7) || (tmp8u>8))) || (((opcode==0x21) || (opcode==0x23) && rex.r))) {
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+            } else
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0);
             #endif
             break;
 
