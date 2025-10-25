@@ -403,6 +403,31 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             FAKEED;
             break;
+        case 0x20:                      /* MOV REG, crX */
+        case 0x21:                      /* MOV REG, drX */
+        case 0x22:                      /* MOV cxR, REG */
+        case 0x23:                      /* MOV drX, REG */
+            if(BOX64DRENV(dynarec_safeflags)>1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            }
+            nextop = F8;
+            GETIP(ip);
+            u8 = (rex.r*8)+(nextop>>3&7);
+            if((((opcode==0x20) || (opcode==0x22)) && ((u8==1) || (u8==5) || (u8==6) || (u8==7) || (u8>8))) || (((opcode==0x21) || (opcode==0x23) && rex.r))) {
+                INST_NAME("Illegal 0F 20..23");
+                UDF(0);
+            } else {
+                INST_NAME(opcode==0x20?"MOV REG, crX":(opcode==0x21?"MOV REG, drX":(opcode==0x22?"MOV cxR, REG":"MOV dxR, REG")));
+                STORE_XEMU_CALL(xRIP);
+                CALL_S(const_native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+            }
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
 
         case 0x28:
             INST_NAME("MOVAPS Gx,Ex");
