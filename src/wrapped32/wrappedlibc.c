@@ -342,11 +342,14 @@ static void* findftw64Fct(void* fct)
 // nftw
 #define GO(A)   \
 static uintptr_t my32_nftw_fct_##A = 0;                                                     \
-static int my32_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)                    \
+static int my32_nftw_##A(void* fpath, void* sb, int flag, struct FTW* ftwbuff)              \
 {                                                                                           \
-    struct i386_stat i386st;                                                                \
+    static struct i386_stat i386st;                                                         \
+    static struct FTW ftw;                                                                  \
     FillStatFromStat64(3, sb, &i386st);                                                     \
-    return (int)RunFunctionFmt(my32_nftw_fct_##A, "ppip", fpath, &i386st, flag, ftwbuff);   \
+    ftw.base = ftwbuff->base;                                                               \
+    ftw.level = ftwbuff->level;                                                             \
+    return (int)RunFunctionFmt(my32_nftw_fct_##A, "ppip", fpath, &i386st, flag, &ftw);      \
 }
 SUPER()
 #undef GO
