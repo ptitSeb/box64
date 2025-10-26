@@ -193,7 +193,7 @@ GOM(SDL_GetCPUCount, iFEv)
 GO(SDL_GetCurrentAudioDriver, pFv)
 GOM(SDL_GetCurrentDisplayMode, iFip)    //%noE
 GO(SDL_GetCurrentVideoDriver, pFv)
-//GO(SDL_GetCursor, pFv)
+GO(SDL_GetCursor, pFv)
 // SDL_GetDefaultAssertionHandler
 //GO(SDL_GetDefaultAudioInfo, iFppi)
 //GO(SDL_GetDefaultCursor, pFv)
