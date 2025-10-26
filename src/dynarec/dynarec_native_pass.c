@@ -294,8 +294,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
-                    (((next-addr)<15) && is_nops(dyn, addr, next-addr))
-                    /*||(((next-addr)<30) && is_instructions(dyn, addr, next-addr))*/ ))
+                    (((next-addr)<15) && is_nops(dyn, addr, next-addr))))
                 {
                     ok = 1;
                     if(dyn->insts[ninst].x64.has_callret && !dyn->insts[ninst].x64.has_next) {
