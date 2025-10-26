@@ -1298,6 +1298,24 @@
     ]
   },
   {
+    "name": "BOX64_NODYNAREC_DELAY",
+    "description": "Remove NoDynarec range after a delay",
+    "category": "Debugging",
+    "wine": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not remove NoDynarec range",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Remove the NoDynarec range once 2 threads have been created",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_NOGTK",
     "description": "Do not load wrapped GTK libraries.",
     "category": "Libraries",

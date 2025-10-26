@@ -599,6 +599,14 @@ Forbid dynablock creation in the address range specified, helpful for debugging 
  * 0xXXXXXXXX-0xYYYYYYYY : Define the range where dynablock creation is forbidden (inclusive-exclusive). 
 
 
+=item B<BOX64_NODYNAREC_DELAY> =I<0|1>
+
+Remove NoDynarec range after a delay Availble in WowBox64.
+
+ * 0 : Do not remove NoDynarec range [Default]
+ * 1 : Remove the NoDynarec range once 2 threads have been created 
+
+
 =item B<BOX64_NOGTK> =I<0|1>
 
 Do not load wrapped GTK libraries.

@@ -230,6 +230,8 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     if (hasAlternate((void*)filladdr))
         return NULL;
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
+    if(BOX64ENV(nodynarec_delay) && (addr>=BOX64ENV(nodynarec_start)) && (addr<BOX64ENV(nodynarec_end)))
+        return NULL;
     dynablock_t* block = getDB(addr);
     if(block || !create) {
         if(block && getNeedTest(addr) && (getProtection(addr)&req_prot)!=req_prot)

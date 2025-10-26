@@ -599,6 +599,13 @@ Disable the Box64 banner. Availble in WowBox64.
  * 0: Show the Box64 banner. 
  * 1: Do not show the Box64 banner. 
 
+### BOX64_NODYNAREC_DELAY
+
+Remove NoDynarec range after a delay Availble in WowBox64.
+
+ * 0: Do not remove NoDynarec range [Default]
+ * 1: Remove the NoDynarec range once 2 threads have been created 
+
 ### BOX64_NOSIGSEGV
 
 Disable the handling of SIGSEGV.

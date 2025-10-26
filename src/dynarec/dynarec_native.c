@@ -424,7 +424,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     */
     if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
-        return CreateEmptyBlock(addr, is32bits, is_new);
+        return BOX64ENV(nodynarec_delay)?NULL:CreateEmptyBlock(addr, is32bits, is_new);
     }
     if(checkInHotPage(addr)) {
         dynarec_log(LOG_DEBUG, "Not creating dynablock at %p as in a HotPage\n", (void*)addr);

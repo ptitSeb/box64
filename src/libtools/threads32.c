@@ -229,6 +229,14 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 		// pre-creation of the JIT code for the entry point of the thread
 		DBGetBlock(emu, (uintptr_t)start_routine, 1, 1);
 	}
+	if(BOX64ENV(nodynarec_delay)) {
+		static int num_threads = 0;
+		++num_threads;
+		if(num_threads==2 && BOX64ENV(nodynarec_start)) {
+			BOX64ENV(nodynarec_start) = 0;
+			BOX64ENV(nodynarec_end) = 0;
+		}
+	}
 	#endif
 	// create thread
 	int ret = pthread_create((pthread_t*)t, my_attr?my_attr:get_attr(attr), 
