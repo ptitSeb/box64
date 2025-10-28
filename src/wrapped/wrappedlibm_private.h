@@ -40,8 +40,8 @@ GOW(cacos, XFX)
 GOW(cacosf, xFx)
 GOW(cacosh, XFX)
 GOW(cacoshf, xFx)
-// cacoshl  // Weak
-// cacosl   // Weak
+GOWD(cacoshl, YFY, cacosh)
+GOWD(cacosl, YFY, cacos)
 GOW(carg, XFX)
 GOW(cargf, xFx)
 // cargl    // Weak
@@ -49,14 +49,14 @@ GOW(casin, XFX)
 GOW(casinf, xFx)
 GOW(casinh, XFX)
 GOW(casinhf, xFx)
-// casinhl  // Weak
-// casinl   // Weak
+GOWD(casinhl, YFY, casinh)
+GOWD(casinl, YFY, casin)
 GOW(catan, XFX)
 GOW(catanf, xFx)
 GOW(catanh, XFX)
 GOW(catanhf, xFx)
-// catanhl  // Weak
-// catanl   // Weak
+GOWD(catanhl, YFY, catanh)
+GOWD(catanl, YFY, catan)
 GOW(cbrt, dFd)
 GOW(cbrtf, fFf)
 GOWD(cbrtl, DFD, cbrt)
@@ -152,7 +152,7 @@ GOW(expm1f, fFf)
 GOWD(expm1l, DFD, expm1)
 GOW(fabs, dFd)
 GOW(fabsf, fFf)
-// fabsl    // Weak
+GOWD(fabsl, DFD, fabs)
 GOW(fdim, dFdd)
 GOW(fdimf, fFff)
 // fdiml    // Weak
@@ -184,10 +184,10 @@ GOW(fmaf, fFfff)
 GOWD(fmal, DFDDD, fma)
 GOW(fmax, dFdd)
 GOW(fmaxf, fFff)
-// fmaxl    // Weak
+GOWD(fmaxl, DFDD, fmax)
 GOW(fmin, dFdd)
 GOW(fminf, fFff)
-// fminl    // Weak
+GOWD(fminl, DFDD, fmin)
 GOW(fmod, dFdd)
 GOW(fmodf, fFff)
 GOM(__fmodf_finite, fFff)
@@ -366,7 +366,7 @@ GOW(tgammaf, fFf)
 GOWD(tgammal, DFD, tgamma)
 GOW(trunc, dFd)
 GOW(truncf, fFf)
-// truncl   // Weak
+GOWD(truncl, DFD, trunc)
 GO(y0, dFd)
 GO(y0f, fFf)
 // __y0f_finite
