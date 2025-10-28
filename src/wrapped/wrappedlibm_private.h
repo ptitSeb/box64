@@ -315,7 +315,7 @@ GOW(remquof, fFffp)
 // remquol  // Weak
 GOWM(rint, dFEd)
 GOWM(rintf, fFEf)
-// rintl    // Weak
+GOWD(rintl, DFD, rint)
 GOW(round, dFd)
 GOW(roundf, fFf)
 GO(roundeven, dFd)  //since C23
