@@ -21,7 +21,7 @@
     "name": "BOX64_AES",
     "description": "Expose AES capabilities.",
     "category": "Compatibility",
-    "wine": false,
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1317,36 +1317,36 @@
   },
   {
     "name": "BOX64_NODYNAREC_DELAY",
-    "description": "Remove NoDynarec range after a delay",
+    "description": "Remove NoDynarec range after a delay.",
     "category": "Debugging",
     "wine": true,
     "options": [
       {
         "key": "0",
-        "description": "Do not remove NoDynarec range",
+        "description": "Do not remove NoDynarec range.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Remove the NoDynarec range once 2 threads have been created",
+        "description": "Remove the NoDynarec range once 2 threads have been created.",
         "default": false
       }
     ]
   },
   {
     "name": "BOX64_DYNAREC_NOARCH",
-    "description": "Remove Architecture metatdata from Dynarec blocks (used on signal)",
+    "description": "Remove Architecture metatdata from Dynarec blocks (used on signal).",
     "category": "Performance",
     "wine": true,
     "options": [
       {
         "key": "0",
-        "description": "Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory",
+        "description": "Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails",
+        "description": "Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails.",
         "default": false
       },
       {
@@ -1499,7 +1499,7 @@
     "name": "BOX64_PCLMULQDQ",
     "description": "Expose PCLMULQDQ capabilities.",
     "category": "Compatibility",
-    "wine": false,
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1643,7 +1643,7 @@
     "name": "BOX64_SHAEXT",
     "description": "Expose SHAEXT (a.k.a. SHA_NI) capabilities.",
     "category": "Compatibility",
-    "wine": false,
+    "wine": true,
     "options": [
       {
         "key": "0",
