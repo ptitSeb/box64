@@ -1316,6 +1316,29 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_NOARCH",
+    "description": "Remove Architecture metatdata from Dynarec blocks (used on signal)",
+    "category": "Performance",
+    "wine": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails",
+        "default": false
+      },
+      {
+        "key": "2",
+        "description": "Do not generate metadata for blocks. Saving a bit more memory but might fails on signal handling.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_NOGTK",
     "description": "Do not load wrapped GTK libraries.",
     "category": "Libraries",

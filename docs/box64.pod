@@ -607,6 +607,15 @@ Remove NoDynarec range after a delay Availble in WowBox64.
  * 1 : Remove the NoDynarec range once 2 threads have been created 
 
 
+=item B<BOX64_DYNAREC_NOARCH> =I<0|1|2>
+
+Remove Architecture metatdata from Dynarec blocks (used on signal) Availble in WowBox64.
+
+ * 0 : Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory [Default]
+ * 1 : Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails 
+ * 2 : Do not generate metadata for blocks. Saving a bit more memory but might fails on signal handling. 
+
+
 =item B<BOX64_NOGTK> =I<0|1>
 
 Do not load wrapped GTK libraries.

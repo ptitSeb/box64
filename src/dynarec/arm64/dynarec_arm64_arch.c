@@ -82,7 +82,7 @@ typedef struct arch_build_s
 
 static arch_build_t static_build[MAX_INSTS+2] = {0};
 
-static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
+static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noarch)
 {
     memset(arch, 0, sizeof(arch_build_t));
     // flags
@@ -97,65 +97,67 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch)
         if(arch->flags_.cf)
             arch->flags_.inv_cf = !dyn->insts[ninst].normal_carry;
     }
-    // got through all naoncache to gather regs assignments
-    int idx;
-    for(int i=0; i<32; ++i)
-        if(dyn->insts[ninst].n.neoncache[i].v)
-            switch(dyn->insts[ninst].n.neoncache[i].t) {
-                case NEON_CACHE_XMMW:
-                    arch->sse = 1;
-                    arch->sse_.sse |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                    break;
-                case NEON_CACHE_MM:
-                    arch->mmx = 1;
-                    arch->mmx_.mmx |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                    break;
-                case NEON_CACHE_YMMW:
-                    arch->ymm = 1;
-                    arch->ymm_.ymm |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                    idx = i;
-                    if(idx>=EMM0 && idx<=EMM0+8)
-                        idx-=EMM0;
-                    else
-                        idx-=SCRATCH0-8;
-                    arch->ymm_.ymm_pos |= idx<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                    break;
-                case NEON_CACHE_ST_D:
-                    arch->x87 = 1;
-                    arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                    arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                    arch->x87_.x87_type = (X87_ST_D)<<(dyn->insts[ninst].n.neoncache[i].n*2);
-                    break;
-                case NEON_CACHE_ST_F:
-                    arch->x87 = 1;
-                    arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                    arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                    arch->x87_.x87_type = (X87_ST_F)<<(dyn->insts[ninst].n.neoncache[i].n*2);
-                    break;
-                case NEON_CACHE_ST_I64:
-                    arch->x87 = 1;
-                    arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                    arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                    arch->x87_.x87_type = (X87_ST_I64)<<(dyn->insts[ninst].n.neoncache[i].n*2);
-                    break;
-                case NEON_CACHE_XMMR:
-                case NEON_CACHE_YMMR:
-                default:
-                    // doing nothing, it's just a value read in memory
-                    break;
-            }
-    // ymm0
-    if(dyn->insts[ninst].ymm0_out) {
-        arch->ymm = 1;
-        arch->ymm_.ymm0 = dyn->insts[ninst].ymm0_out;
-    }
-    // x87 top
-    if(dyn->insts[ninst].n.x87stack) {
-        arch->x87 = 1;
-        arch->x87_.delta = dyn->insts[ninst].n.x87stack;
-    }
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
+    if(!noarch) {
+        // got through all naoncache to gather regs assignments
+        int idx;
+        for(int i=0; i<32; ++i)
+            if(dyn->insts[ninst].n.neoncache[i].v)
+                switch(dyn->insts[ninst].n.neoncache[i].t) {
+                    case NEON_CACHE_XMMW:
+                        arch->sse = 1;
+                        arch->sse_.sse |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                        break;
+                    case NEON_CACHE_MM:
+                        arch->mmx = 1;
+                        arch->mmx_.mmx |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                        break;
+                    case NEON_CACHE_YMMW:
+                        arch->ymm = 1;
+                        arch->ymm_.ymm |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                        idx = i;
+                        if(idx>=EMM0 && idx<=EMM0+8)
+                            idx-=EMM0;
+                        else
+                            idx-=SCRATCH0-8;
+                        arch->ymm_.ymm_pos |= idx<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                        break;
+                    case NEON_CACHE_ST_D:
+                        arch->x87 = 1;
+                        arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                        arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                        arch->x87_.x87_type = (X87_ST_D)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                        break;
+                    case NEON_CACHE_ST_F:
+                        arch->x87 = 1;
+                        arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                        arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                        arch->x87_.x87_type = (X87_ST_F)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                        break;
+                    case NEON_CACHE_ST_I64:
+                        arch->x87 = 1;
+                        arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                        arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                        arch->x87_.x87_type = (X87_ST_I64)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                        break;
+                    case NEON_CACHE_XMMR:
+                    case NEON_CACHE_YMMR:
+                    default:
+                        // doing nothing, it's just a value read in memory
+                        break;
+                }
+        // ymm0
+        if(dyn->insts[ninst].ymm0_out) {
+            arch->ymm = 1;
+            arch->ymm_.ymm0 = dyn->insts[ninst].ymm0_out;
+        }
+        // x87 top
+        if(dyn->insts[ninst].n.x87stack) {
+            arch->x87 = 1;
+            arch->x87_.delta = dyn->insts[ninst].n.x87stack;
+        }
+    }
     return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
 }
 
@@ -179,6 +181,8 @@ static int sizeof_arch_build(arch_build_t* build)
 
 size_t get_size_arch(dynarec_arm_t* dyn)
 {
+    int noarch = BOX64ENV(dynarec_noarch);
+    if(noarch>1) return 0;
     arch_build_t* previous = NULL;
     size_t sz = 0;
     int seq = 0;
@@ -187,7 +191,7 @@ size_t get_size_arch(dynarec_arm_t* dyn)
     if(!dyn->size) return 0;
     for(int i=0; i<dyn->size; ++i) {
         arch_build_t* build = static_build+i;
-        last = arch_build(dyn, i, build);
+        last = arch_build(dyn, i, build, noarch);
         if(i && (!memcmp(build, previous, sizeof(arch_build_t))) && (seq<((1<<10)-1))) {
             // same sequence, increment
             ++seq;

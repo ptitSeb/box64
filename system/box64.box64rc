@@ -843,11 +843,6 @@ BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
 
-[steam]
-BOX64_DYNAREC_BIGBLOCK=3
-BOX64_DYNAREC_CALLRET=1
-BOX64_DYNAREC_SAFEFLAGS=0
-
 [steam.exe]
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
@@ -857,9 +852,14 @@ BOX64_ARGS=-cef-disable-breakpad -cef-disable-d3d11 -cef-disable-delaypageload -
 [steamwebhelper]
 BOX64_DYNAREC_STRONGMEM=1
 BOX64_DYNAREC_BIGBLOCK=0    #to save memory
+BOX64_DYNAREC_NOARCH=1
 BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_FASTROUND=0
+
+[steamwebhelper]
+BOX64_ARCH=rv64
+BOX64_DYNAREC_FASTROUND=0 # needed for CVTTSD2SI because on RISC-V the behavior is different than others when src is NaN
 
 [steamwebhelper.exe]
 BOX64_DYNAREC_STRONGMEM=1
@@ -1107,8 +1107,8 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0
 [steam]
 BOX64_CRASHHANDLER=0
 BOX64_EMULATED_LIBS=libudev.so.0
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_NOARCH=1
 BOX64_MAXCPU=8  #on machine with large CPU count, steam can be really unstable and this helps a lot
-
-[steamwebhelper]
-BOX64_ARCH=rv64
-BOX64_DYNAREC_FASTROUND=0 # needed for CVTTSD2SI because on RISC-V the behavior is different than others when src is NaN

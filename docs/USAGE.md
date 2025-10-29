@@ -210,6 +210,14 @@ Forbid dynablock creation in the address range specified, helpful for debugging 
 
  * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynablock creation is forbidden (inclusive-exclusive). 
 
+### BOX64_DYNAREC_NOARCH
+
+Remove Architecture metatdata from Dynarec blocks (used on signal) Availble in WowBox64.
+
+ * 0: Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory [Default]
+ * 1: Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails 
+ * 2: Do not generate metadata for blocks. Saving a bit more memory but might fails on signal handling. 
+
 ### BOX64_RDTSC_1GHZ
 
 Use hardware counter for rdtsc if available.
