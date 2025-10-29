@@ -2387,12 +2387,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
-            IFX(X_ZF) {
-                TSTxw_REG(ed, ed);
-                B_MARK(cEQ);
-            } else {
-                CBZxw_MARK(ed);
-            }
+            TSTxw_REG(ed, ed);
+            CSELxw(gd, xZR, gd, cEQ);   // set gd to 0 if input is 0 (UD behaviour that seems universal)
+            B_MARK(cEQ);
             RBITxw(x1, ed);   // reverse
             CLZxw(gd, x1);    // x2 gets leading 0 == BSF
             MARK;
@@ -2421,12 +2418,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
-            IFX(X_ZF) {
-                TSTxw_REG(ed, ed);
-                B_MARK(cEQ);
-            } else {
-                CBZxw_MARK(ed);
-            }
+            TSTxw_REG(ed, ed);
+            CSELxw(gd, xZR, gd, cEQ);   // set gd to 0 if input is 0 (UD behaviour that seems universal)
+            B_MARK(cEQ);
             CLZxw(gd, ed);    // x2 gets leading 0
             SUBxw_U12(gd, gd, rex.w?63:31);
             NEGxw_REG(gd, gd);   // complement
