@@ -20,11 +20,11 @@ static inline uintptr_t from_ptr(ptr_t p) {
 static inline void* from_ptrv(ptr_t p) {
     return (void*)(uintptr_t)p;
 }
-static inline long from_long(long_t l) {
-    return (long)l;
+static inline long long from_long(long_t l) {
+    return (long long)l;
 }
-static inline unsigned long from_ulong(ulong_t l) {
-    return (unsigned long)l;
+static inline unsigned long long from_ulong(ulong_t l) {
+    return (unsigned long long)l;
 }
 uintptr_t from_hash(ulong_t l);
 uintptr_t from_hash_d(ulong_t l);
@@ -51,13 +51,13 @@ static inline ptr_t to_ptrv(void* p2) {
     }
     return (ptr_t)p;
 }
-static inline long_t to_long(long l) {
+static inline long_t to_long(long long l) {
     long_t ret = (long_t)l;
     if(l!=ret)
         printf_log(LOG_NONE, "Warning, long %ld is not a 32bits value\n", l);
     return ret;
 }
-static inline ulong_t to_ulong(unsigned long l) {
+static inline ulong_t to_ulong(unsigned long long l) {
     if(l!=0xffffffffffffffffLL && (l>>32))
         printf_log(LOG_NONE, "Warning, ulong %p is not a 32bits value\n", (void*)l);
     return (ulong_t)l;
@@ -69,10 +69,10 @@ static inline ptr_t to_ptr(uintptr_t p) {
 static inline ptr_t to_ptrv(void* p) {
     return (ptr_t)(uintptr_t)p;
 }
-static inline long_t to_long(long l) {
+static inline long_t to_long(long long l) {
     return (long_t)l;
 }
-static inline ulong_t to_ulong(unsigned long l) {
+static inline ulong_t to_ulong(unsigned long long l) {
     return (ulong_t)l;
 }
 #endif //TEST32
