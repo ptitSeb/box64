@@ -81,9 +81,11 @@ Box64 的配置文件位于 `/etc/box64.box64rc` 和 `~/.box64rc`，均为 `.ini
 
 Box64 包装了 GTK 库，支持 gtk2 和 gtk3。
 
-### Linux Steam
+### Steam
 
-由于 Linux Steam 客户端应用是 32 位的，需要使用 Box86 或 Box32，但其本地服务器是 64 位的二进制文件。对于内存少于 6GB 的系统，可能需要使用交换文件以获得最佳性能。
+Box64 支持 Linux Steam 和 Windows Steam，更多细节请参考[Steam 文档](docs/STEAM.md)。
+
+> 由于 Linux Steam 客户端应用是 32 位的，需要使用 Box86 或 Box32，但其本地服务器是 64 位的二进制文件。对于内存少于 6GB 的系统，可能需要使用交换文件以获得最佳性能。
 
 ### Wine
 

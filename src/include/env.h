@@ -32,6 +32,7 @@ extern char* ftrace_name;
 
 #define ENVSUPER1()                                                           \
     STRING(BOX64_ADDLIBS, addlibs, 0)                                         \
+    BOOLEAN(BOX64_AES, aes, 1, 1)                                             \
     BOOLEAN(BOX64_ALLOWMISSINGLIBS, allow_missing_libs, 0, 0)                 \
     STRING(BOX64_ARCH, arch, 0)                                               \
     STRING(BOX64_ARGS, args, 0)                                               \
@@ -105,7 +106,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_NOSIGILL, nosigill, 0, 0)                                   \
     BOOLEAN(BOX64_NOVULKAN, novulkan, 0, 0)                                   \
     STRING(BOX64_PATH, path, 0)                                               \
-    BOOLEAN(BOX64_PCLMULQDQ, pclmulqdq, 1, 0)                                 \
+    BOOLEAN(BOX64_PCLMULQDQ, pclmulqdq, 1, 1)                                 \
     BOOLEAN(BOX64_PREFER_EMULATED, prefer_emulated, 0, 0)                     \
     BOOLEAN(BOX64_PREFER_WRAPPED, prefer_wrapped, 0, 0)                       \
     STRING(BOX64_RCFILE, envfile, 0)                                          \
@@ -113,7 +114,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_RESERVE_HIGH, reserve_high, 0, 0)                           \
     INTEGER(BOX64_ROLLING_LOG, cycle_log, 0, 0, 2048, 0)                      \
     BOOLEAN(BOX64_SDL2_JGUID, sdl2_jguid, 0, 0)                               \
-    BOOLEAN(BOX64_SHAEXT, shaext, 1, 0)                                       \
+    BOOLEAN(BOX64_SHAEXT, shaext, 1, 1)                                       \
     BOOLEAN(BOX64_SHOWBT, showbt, 0, 0)                                       \
     BOOLEAN(BOX64_SHOWSEGV, showsegv, 0, 0)                                   \
     BOOLEAN(BOX64_SSE_FLUSHTO0, sse_flushto0, 0, 1)                           \

@@ -57,6 +57,14 @@ Add extras to the needed libraries list, rarely needed.
  * XXXX:YYYY:ZZZZ : Add library XXXX, YYYY and ZZZZ to the needed libraries list. 
 
 
+=item B<BOX64_AES> =I<0|1>
+
+Expose AES capabilities. Availble in WowBox64.
+
+ * 0 : Do not expose AES capabilities. 
+ * 1 : Expose AES capabilities. [Default]
+
+
 =item B<BOX64_ALLOWMISSINGLIBS> =I<0|1>
 
 Allow missing libraries to be ignored.
@@ -601,18 +609,18 @@ Forbid dynablock creation in the address range specified, helpful for debugging 
 
 =item B<BOX64_NODYNAREC_DELAY> =I<0|1>
 
-Remove NoDynarec range after a delay Availble in WowBox64.
+Remove NoDynarec range after a delay. Availble in WowBox64.
 
- * 0 : Do not remove NoDynarec range [Default]
- * 1 : Remove the NoDynarec range once 2 threads have been created 
+ * 0 : Do not remove NoDynarec range. [Default]
+ * 1 : Remove the NoDynarec range once 2 threads have been created. 
 
 
 =item B<BOX64_DYNAREC_NOARCH> =I<0|1|2>
 
-Remove Architecture metatdata from Dynarec blocks (used on signal) Availble in WowBox64.
+Remove Architecture metatdata from Dynarec blocks (used on signal). Availble in WowBox64.
 
- * 0 : Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory [Default]
- * 1 : Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails 
+ * 0 : Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory. [Default]
+ * 1 : Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails. 
  * 2 : Do not generate metadata for blocks. Saving a bit more memory but might fails on signal handling. 
 
 
@@ -681,7 +689,7 @@ Path to look for x86_64 binaries.
 
 =item B<BOX64_PCLMULQDQ> =I<0|1>
 
-Expose PCLMULQDQ capabilities.
+Expose PCLMULQDQ capabilities. Availble in WowBox64.
 
  * 0 : Do not expose PCLMULQDQ capabilities. 
  * 1 : Expose PCLMULQDQ capabilities. [Default]
@@ -745,7 +753,7 @@ Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2.
 
 =item B<BOX64_SHAEXT> =I<0|1>
 
-Expose SHAEXT (a.k.a. SHA_NI) capabilities.
+Expose SHAEXT (a.k.a. SHA_NI) capabilities. Availble in WowBox64.
 
  * 0 : Do not expose SHAEXT capabilities. 
  * 1 : Expose SHAEXT capabilities. [Default]
