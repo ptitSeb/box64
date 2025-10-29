@@ -88,7 +88,7 @@ GO(pthread_join, iEHBp_)
 GOM(__pthread_key_create, iEEpp)
 GOM(pthread_key_create, iEEpp)
 GO(pthread_key_delete, iEu)
-GO(pthread_kill, iEhi)
+GOM(pthread_kill, iEEhi)
 GO2(pthread_kill@GLIBC_2.0, iEEhi, my32_pthread_kill_old)
 // pthread_kill_other_threads_np
 GO(__pthread_mutexattr_destroy, iEp)

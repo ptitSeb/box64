@@ -2910,6 +2910,7 @@ wrappedlibpthread:
   - pthread_rwlock_init
   - sem_getvalue
 - iEhi:
+  - pthread_kill
   - pthread_kill@GLIBC_2.0
 - iEhp:
   - pthread_getattr_np

@@ -97,6 +97,7 @@ typedef int32_t (*iEBh_ppp_t)(struct_h_t*, void*, void*, void*);
 	GO(pthread_once, iEpp_t) \
 	GO(pthread_rwlock_init, iEpp_t) \
 	GO(sem_getvalue, iEpp_t) \
+	GO(pthread_kill, iEhi_t) \
 	GO(pthread_kill@GLIBC_2.0, iEhi_t) \
 	GO(pthread_getattr_np, iEhp_t) \
 	GO(sem_timedwait, iEprLL__t) \

@@ -40,6 +40,7 @@ typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
 typedef int (*iFppip_t)(void*, void*, int, void*);
 typedef int (*iFli_t)(long unsigned int, int);
+typedef struct emuthread_s emuthread_t;
 
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
@@ -131,6 +132,49 @@ void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
 void my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 #endif
 
+#ifdef BAD_PKILL
+// tracking of threads that are alive
+KHASH_MAP_INIT_INT64(threads, emuthread_t*)
+static pthread_mutex_t threads_mutex = PTHREAD_MUTEX_INITIALIZER;
+static kh_threads_t* threads_alive = NULL;
+
+void add_thread(void* t, emuthread_t* et)
+{
+	pthread_mutex_lock(&threads_mutex);
+	if(!threads_alive)
+		threads_alive = kh_init(threads);
+	khint_t k;
+	int ret;
+	k = kh_put(threads, threads_alive, (uintptr_t)t, &ret);
+	kh_value(threads_alive, k) = et;
+	pthread_mutex_unlock(&threads_mutex);
+}
+void del_thread(void* t)
+{
+	pthread_mutex_lock(&threads_mutex);
+	if(threads_alive) {
+		khint_t k;
+		k = kh_get(threads, threads_alive, (uintptr_t)t);
+		if(k!=kh_end(threads_alive))
+			kh_del(threads, threads_alive, k);
+	}
+	pthread_mutex_unlock(&threads_mutex);
+}
+emuthread_t* get_thread(void* t)
+{
+	emuthread_t* ret = NULL;
+	pthread_mutex_lock(&threads_mutex);
+	if(threads_alive) {
+		khint_t k;
+		k = kh_get(threads, threads_alive, (uintptr_t)t);
+		if(k!=kh_end(threads_alive))
+			ret = kh_value(threads_alive, k);
+	}
+	pthread_mutex_unlock(&threads_mutex);
+	return ret;
+}
+#endif
+
 static pthread_key_t thread_key;
 
 void emuthread_destroy(void* p)
@@ -143,6 +187,9 @@ void emuthread_destroy(void* p)
 		to_hash_d(et->self);
 	#endif
 	FreeX64Emu(&et->emu);
+	#ifdef BAD_PKILL
+	del_thread((void*)et->self);
+	#endif
 	box_free(et);
 }
 
@@ -198,6 +245,11 @@ void thread_set_emu(x64emu_t* emu)
 		et->hself = to_hash(et->self);
 	}
 	#endif
+	#ifdef BAD_PKILL
+	if(!et->self)
+		et->self = (uintptr_t)pthread_self();
+	add_thread((void*)et->self, et);
+	#endif
 	pthread_setspecific(thread_key, et);
 }
 
@@ -230,6 +282,11 @@ emuthread_t* thread_get_et()
 
 void thread_set_et(emuthread_t* et)
 {
+	#ifdef BAD_PKILL
+	if(et && !et->self)
+		et->self = (uintptr_t)pthread_self();
+	add_thread((void*)(et?et->self:pthread_self()), et);
+	#endif
 	pthread_setspecific(thread_key, et);
 }
 
@@ -250,6 +307,11 @@ static void* pthread_routine(void* p)
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
+	#ifdef BAD_PKILL
+	if(!et->self)
+		et->self = (uintptr_t)pthread_self();
+	add_thread((void*)et->self, et);
+	#endif
 	getTLSData(emu);
 	ResetSegmentsCache(emu);
 	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
@@ -861,6 +923,10 @@ EXPORT int my_pthread_kill(x64emu_t* emu, void* thread, int sig)
 	// check for old "is everything ok?"
 	if(thread==NULL && sig==0)
 		return pthread_kill(pthread_self(), 0);
+	#ifdef BAD_PKILL
+	if(sig==0 && thread!=(void*)pthread_self())
+		return get_thread(thread)?0:ESRCH;
+	#endif
 	return pthread_kill((pthread_t)thread, sig);
 }
 
@@ -870,6 +936,10 @@ EXPORT int my_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
     // check for old "is everything ok?"
     if((thread==NULL) && (sig==0))
         return real_phtread_kill_old(pthread_self(), 0);
+	#ifdef BAD_PKILL
+	if(sig==0 && thread!=(void*)pthread_self())
+		return get_thread(thread)?0:ESRCH;
+	#endif
     return real_phtread_kill_old((pthread_t)thread, sig);
 }
 

@@ -1,5 +1,6 @@
-#ifndef _THREADS_H_
-#define _THREADS_H_
+#ifndef _BOX64_THREADS_H_
+#define _BOX64_THREADS_H_
+#include <box32.h>
 
 typedef struct box64context_s box64context_t;
 typedef struct x64emu_s x64emu_t;
@@ -34,4 +35,10 @@ int checkUnlockMutex(void* m);
 //check if a mutex is locked by current thread (works only for PTHREAD_MUTEX_ERRORCHECK typed mutex)
 int checkNolockMutex(void* m);
 
-#endif //_THREADS_H_
+#ifdef BAD_PKILL
+void add_thread(void* t, emuthread_t* et);
+void del_thread(void* t);
+emuthread_t* get_thread(void* t);
+#endif
+
+#endif //_BOX64_THREADS_H_

@@ -28,6 +28,7 @@
 #include "bridge.h"
 #include "threads32.h"
 #include "x64tls.h"
+#include "x64_signals.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -867,11 +868,31 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 }
 #endif
 
+EXPORT int my32_pthread_kill(x64emu_t* emu, void* thread, int sig)
+{
+	sig = signal_from_x64(sig);
+	// should ESCHR result be filtered, as this is expected to be the 2.34 behaviour?
+	(void)emu;
+	// check for old "is everything ok?"
+	if(thread==NULL && sig==0)
+		return pthread_kill(pthread_self(), 0);
+	#ifdef BAD_PKILL
+	if(sig==0 && thread!=(void*)pthread_self())
+		return get_thread(thread)?0:ESRCH;
+	#endif
+	return pthread_kill((pthread_t)thread, sig);
+}
+
 EXPORT int my32_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
 {
+	sig = signal_from_x64(sig);
     // check for old "is everything ok?"
     if((thread==NULL) && (sig==0))
         return real_phtread_kill_old(pthread_self(), 0);
+	#ifdef BAD_PKILL
+	if(sig==0 && thread!=(void*)pthread_self())
+		return get_thread(thread)?0:ESRCH;
+	#endif
     return real_phtread_kill_old((pthread_t)thread, sig);
 }
 
