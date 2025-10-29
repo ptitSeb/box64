@@ -69,24 +69,24 @@
 
 // tmp = (GR[rj][31:0] << imm) + GR[rk][31:0]
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
-#define ALSL_W(rd, rj, rk, imm)                                          \
-    do {                                                                 \
-        if (imm)                                                         \
-            EMIT(type_3RI2(0b000000000000010, ((imm) - 1), rk, rj, rd)); \
-        else {                                                           \
-            ADD_W(rd, rj, rk);                                           \
-            ZEROUP(rd);                                                  \
-        }                                                                \
+#define ALSL_W(rd, rj, rk, imm)                                        \
+    do {                                                               \
+        if (imm)                                                       \
+            EMIT(type_3RI2(0b000000000000010, ((imm)-1), rk, rj, rd)); \
+        else                                                           \
+            ADD_W(rd, rj, rk);                                         \
     } while (0)
 
 // tmp = (GR[rj][31:0] << imm) + GR[rk][31:0]
 // GR[rd] = ZeroExtend(tmp[31:0], GRLEN)
-#define ALSL_WU(rd, rj, rk, imm)                                         \
-    do {                                                                 \
-        if (imm)                                                         \
-            EMIT(type_3RI2(0b000000000000011, ((imm) - 1), rk, rj, rd)); \
-        else                                                             \
-            ADD_(rd, rj, rk);                                            \
+#define ALSL_WU(rd, rj, rk, imm)                                       \
+    do {                                                               \
+        if (imm)                                                       \
+            EMIT(type_3RI2(0b000000000000011, ((imm)-1), rk, rj, rd)); \
+        else {                                                         \
+            ADD_W(rd, rj, rk);                                         \
+            ZEROUP(rd);                                                \
+        }                                                              \
     } while (0)
 
 // tmp = (GR[rj][63:0] << imm) + GR[rk][63:0]
