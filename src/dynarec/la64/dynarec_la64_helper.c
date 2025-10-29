@@ -62,7 +62,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if (sib_reg != 4) {
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV64x(scratch, tmp);
-                        ADDSL(ret, scratch, TO_NAT(sib_reg), sib >> 6, ret);
+                        ALSL_D(ret, TO_NAT(sib_reg), scratch, sib >> 6);
                     } else {
                         if (sib >> 6) {
                             SLLI_D(ret, TO_NAT(sib_reg), (sib >> 6));
@@ -82,7 +82,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 }
             } else {
                 if (sib_reg != 4) {
-                    ADDSL(ret, TO_NAT(sib_reg2), TO_NAT(sib_reg), sib >> 6, scratch);
+                    ALSL_D(ret, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
                 } else {
                     ret = TO_NAT(sib_reg2);
                 }
@@ -139,7 +139,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             *fixaddress = i64;
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
-                    ADDSL(ret, TO_NAT(sib_reg2), TO_NAT(sib_reg), sib >> 6, scratch);
+                    ALSL_D(ret, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
                 } else {
                     ret = TO_NAT(sib_reg2);
                 }
@@ -150,7 +150,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if (i64 >= -2048 && i64 <= 2047) {
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        ADDSL(scratch, TO_NAT(sib_reg2), TO_NAT(sib_reg), sib >> 6, scratch);
+                        ALSL_D(scratch, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
                     } else {
                         scratch = TO_NAT(sib_reg2);
                     }
@@ -163,7 +163,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
                         ADD_D(scratch, scratch, TO_NAT(sib_reg2));
-                        ADDSL(ret, scratch, TO_NAT(sib_reg), sib >> 6, ret);
+                        ALSL_D(ret, TO_NAT(sib_reg), scratch, sib >> 6);
                     } else {
                         PASS3(int tmp = TO_NAT(sib_reg2));
                         ADD_D(ret, tmp, scratch);

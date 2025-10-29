@@ -69,13 +69,35 @@
 
 // tmp = (GR[rj][31:0] << imm) + GR[rk][31:0]
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
-#define ALSL_W(rd, rj, rk, imm) EMIT(type_3RI2(0b000000000000010, (imm - 1), rk, rj, rd))
+#define ALSL_W(rd, rj, rk, imm)                                          \
+    do {                                                                 \
+        if (imm)                                                         \
+            EMIT(type_3RI2(0b000000000000010, ((imm) - 1), rk, rj, rd)); \
+        else {                                                           \
+            ADD_W(rd, rj, rk);                                           \
+            ZEROUP(rd);                                                  \
+        }                                                                \
+    } while (0)
+
 // tmp = (GR[rj][31:0] << imm) + GR[rk][31:0]
 // GR[rd] = ZeroExtend(tmp[31:0], GRLEN)
-#define ALSL_WU(rd, rj, rk, imm) EMIT(type_3RI2(0b000000000000011, (imm - 1), rk, rj, rd))
+#define ALSL_WU(rd, rj, rk, imm)                                         \
+    do {                                                                 \
+        if (imm)                                                         \
+            EMIT(type_3RI2(0b000000000000011, ((imm) - 1), rk, rj, rd)); \
+        else                                                             \
+            ADD_(rd, rj, rk);                                            \
+    } while (0)
+
 // tmp = (GR[rj][63:0] << imm) + GR[rk][63:0]
 // GR[rd] = tmp[63:0]
-#define ALSL_D(rd, rj, rk, imm) EMIT(type_3RI2(0b000000000010110, (imm - 1), rk, rj, rd))
+#define ALSL_D(rd, rj, rk, imm)                                          \
+    do {                                                                 \
+        if (imm)                                                         \
+            EMIT(type_3RI2(0b000000000010110, ((imm) - 1), rk, rj, rd)); \
+        else                                                             \
+            ADD_D(rd, rj, rk);                                           \
+    } while (0)
 
 // GR[rd] = SignExtend({imm20, 12'b0}, GRLEN)
 #define LU12I_W(rd, imm20) EMIT(type_1RI20(0b0001010, imm20, rd))
@@ -270,17 +292,6 @@
             ROTRI_W(rd, rs1, imm); \
             ZEROUP(rd);            \
         }                          \
-    } while (0)
-
-// rd = rj + (rk << imm6)
-#define ADDSL(rd, rs1, rs2, imm6, scratch) \
-    do {                                   \
-        if (!(imm6)) {                     \
-            ADD_D(rd, rs1, rs2);           \
-        } else {                           \
-            SLLI_D(scratch, rs2, imm6);    \
-            ADD_D(rd, rs1, scratch);       \
-        }                                  \
     } while (0)
 
 #define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
@@ -488,7 +499,7 @@
             NOP();                                 \
         } else {                                   \
             BNE(rj, rd, 8);                        \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -499,7 +510,7 @@
             NOP();                                 \
         } else {                                   \
             BEQ(rj, rd, 8);                        \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -510,7 +521,7 @@
             NOP();                                 \
         } else {                                   \
             BGE(rj, rd, 8);                        \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -521,7 +532,7 @@
             NOP();                                 \
         } else {                                   \
             BLT(rj, rd, 8);                        \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -532,7 +543,7 @@
             NOP();                                 \
         } else {                                   \
             BGEU(rj, rd, 8);                       \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -543,7 +554,7 @@
             NOP();                                 \
         } else {                                   \
             BLTU(rj, rd, 8);                       \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -554,7 +565,7 @@
             NOP();                                 \
         } else {                                   \
             BLE(rj, rd, 8);                        \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -565,7 +576,7 @@
             NOP();                                 \
         } else {                                   \
             BGT(rj, rd, 8);                        \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -576,7 +587,7 @@
             NOP();                                 \
         } else {                                   \
             BLEU(rj, rd, 8);                       \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -587,7 +598,7 @@
             NOP();                                 \
         } else {                                   \
             BGTU(rj, rd, 8);                       \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -598,7 +609,7 @@
             NOP();                                 \
         } else {                                   \
             BNEZ(rj, 8);                           \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
@@ -609,7 +620,7 @@
             NOP();                                 \
         } else {                                   \
             BEQZ(rj, 8);                           \
-            B(imm - 4);                            \
+            B((imm) - 4);                          \
         }                                          \
     } while (0)
 
