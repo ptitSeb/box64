@@ -272,17 +272,6 @@
         }                          \
     } while (0)
 
-// rd = rj + (rk << imm6)
-#define ADDSL(rd, rs1, rs2, imm6, scratch) \
-    do {                                   \
-        if (!(imm6)) {                     \
-            ADD_D(rd, rs1, rs2);           \
-        } else {                           \
-            SLLI_D(scratch, rs2, imm6);    \
-            ADD_D(rd, rs1, scratch);       \
-        }                                  \
-    } while (0)
-
 #define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
 
 // product = signed(GR[rj][31:0]) * signed(GR[rk][31:0])

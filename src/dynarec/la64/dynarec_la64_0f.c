@@ -1712,7 +1712,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRAI_D(x1, gd, 6);
                 else
                     SRAI_W(x1, gd, 5);
-                ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                ALSL_D(x3, x1, wback, 2 + rex.w);
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1870,7 +1870,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRAI_D(x1, gd, 6);
                 else
                     SRAI_W(x1, gd, 5);
-                ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                ALSL_D(x3, x1, wback, 2 + rex.w);
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
