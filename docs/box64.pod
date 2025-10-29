@@ -57,6 +57,14 @@ Add extras to the needed libraries list, rarely needed.
  * XXXX:YYYY:ZZZZ : Add library XXXX, YYYY and ZZZZ to the needed libraries list. 
 
 
+=item B<BOX64_AES> =I<0|1>
+
+Expose AES capabilities.
+
+ * 0 : Do not expose AES capabilities. 
+ * 1 : Expose AES capabilities. [Default]
+
+
 =item B<BOX64_ALLOWMISSINGLIBS> =I<0|1>
 
 Allow missing libraries to be ignored.

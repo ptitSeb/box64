@@ -271,6 +271,13 @@ Add --no-sandbox argument to the guest program.
 
 ## Compatibility
 
+### BOX64_AES
+
+Expose AES capabilities.
+
+ * 0: Do not expose AES capabilities. 
+ * 1: Expose AES capabilities. [Default]
+
 ### BOX64_ARCH
 
 Specify the architecture in rcfiles to which the current entry applies. This option only takes effect when used inside rcfiles.

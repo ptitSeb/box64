@@ -116,7 +116,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | BOX64ENV(sse42)<<20     // SSE4_2 can be hiden
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
-                    | 1<<25     // aesni
+                    | BOX64ENV(aes)<<25     // aesni
                     | BOX64ENV(avx)<<26 // xsave
                     | BOX64ENV(avx)<<27 // osxsave
                     | BOX64ENV(avx)<<28 // AVX
@@ -209,7 +209,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         BOX64ENV(shaext)<<29|  // SHA extension
                         0;
                 R_RCX =
-                        BOX64ENV(avx)<<9   | //VAES
+                        (BOX64ENV(avx)&&BOX64ENV(aes))<<9   | //VAES
                         (BOX64ENV(avx2)&&BOX64ENV(pclmulqdq))<<10 | //VPCLMULQDQ.
                         1<<22 | // RDPID
                         0;

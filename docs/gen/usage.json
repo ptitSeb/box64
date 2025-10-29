@@ -18,6 +18,24 @@
     ]
   },
   {
+    "name": "BOX64_AES",
+    "description": "Expose AES capabilities.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not expose AES capabilities.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Expose AES capabilities.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "BOX64_ALLOWMISSINGLIBS",
     "description": "Allow missing libraries to be ignored.",
     "category": "Libraries",

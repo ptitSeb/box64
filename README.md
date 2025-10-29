@@ -83,9 +83,9 @@ For more information, check [Usage Documentation](docs/USAGE.md).
 
 Box64 wraps GTK libraries, supporting both gtk2 and gtk3.
 
-### Linux Steam
+### Steam
 
-Linux Steam requires Box86 or Box32 due to its 32-bit client app, but uses 64-bit local server binaries. Systems with less than 6GB RAM may need a swap file for optimal performance.
+See [Steam Documentation](docs/STEAM.md).
 
 ### Wine
 
