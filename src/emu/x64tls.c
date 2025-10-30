@@ -356,7 +356,7 @@ static void* resizeTLSData(box64context_t *context, void* oldptr)
         }
 }
 
-tlsdatasize_t* getTLSData(x64emu_t* emu)
+void refreshTLSData(x64emu_t* emu)
 {
     tlsdatasize_t* ptr = NULL;
     if(!ptr)
@@ -366,5 +366,9 @@ tlsdatasize_t* getTLSData(x64emu_t* emu)
     if(ptr->tlssize != emu->context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(emu->context, ptr);
     emu->tlsdata = ptr;
-    return ptr;
+}
+
+tlsdatasize_t* getTLSData(x64emu_t* emu)
+{
+    return emu->tlsdata;
 }

@@ -16,6 +16,7 @@
 #include "library.h"
 #include "librarian.h"
 #include "box64context.h"
+#include "x64tls.h"
 #include "elfloader.h"
 #include "elfs/elfloader_private.h"
 
@@ -208,6 +209,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                 dl->dllibs[idx].full = 1;
                 IncRefCount(dl->dllibs[idx].lib, emu);
                 SetDlOpenIdx(lib, idx);
+                refreshTLSData(emu);
                 printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
                 return (void*)(idx+1);
 

@@ -1135,6 +1135,7 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
 
 void RefreshElfTLS(elfheader_t* h, x64emu_t* emu)
 {
+    refreshTLSData(emu);
     if(h->tlsfilesize) {
         char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
         printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
@@ -1457,6 +1458,7 @@ void* GetTLSPointer(x64emu_t* emu, elfheader_t* h)
 {
     if(!h || !h->tlssize)
         return NULL;
+    refreshTLSData(emu);    // needed?
     tlsdatasize_t* ptr = getTLSData(emu);
     return ptr->data+h->tlsbase;
 }

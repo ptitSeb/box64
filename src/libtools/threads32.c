@@ -114,7 +114,7 @@ static void* pthread_routine(void* p)
 	et->hself = to_hash(et->self);
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
-	getTLSData(emu);
+	refreshTLSData(emu);
 	Push_32(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
 	Push_32(emu, 0);	// PUSH BP
 	R_EBP = R_ESP;	// MOV BP, SP

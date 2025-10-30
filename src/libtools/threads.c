@@ -268,7 +268,7 @@ x64emu_t* thread_get_emu()
 			setProtection_stack((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		x64emu_t *emu = NewX64Emu(my_context, my_context->exit_bridge, (uintptr_t)stack, stacksize, 1);
 		SetupX64Emu(emu, NULL);
-		getTLSData(emu);
+		refreshTLSData(emu);
 		thread_set_emu(emu);
 		return emu;
 	}
@@ -312,7 +312,7 @@ static void* pthread_routine(void* p)
 		et->self = (uintptr_t)pthread_self();
 	add_thread((void*)et->self, et);
 	#endif
-	getTLSData(emu);
+	refreshTLSData(emu);
 	ResetSegmentsCache(emu);
 	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
 	Push64(emu, 0);	// PUSH BP
