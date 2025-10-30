@@ -351,7 +351,7 @@ int unittest(int argc, const char** argv)
     }
 #endif
 
-    if (!box64env.is_cputype_overridden) SET_BOX64ENV(cputype, cputype);
+    if (!box64env.is_cputype_overridden && cputype) SET_BOX64ENV(cputype, cputype);
 
     PrintEnvVariables(&box64env, LOG_INFO);
     my_context = NewBox64Context(argc - 1);
