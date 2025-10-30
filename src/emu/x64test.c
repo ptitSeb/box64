@@ -48,6 +48,7 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
     if(((uint8_t*)ref->old_ip)[0]==0xf0) {
         // LOCK opcode creates a lot of false positive, so just ignore it
         CopyEmu(emu, ref);
+        emu->tlsdata = ref->tlsdata;
         return;
     }
     if(memcmp(ref->regs, emu->regs, sizeof(emu->regs))) {
@@ -147,8 +148,10 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
             printf_log_prefix(0, LOG_NONE, "\n");
         }
     }
-    if(banner)  // there was an error, re-sync!
+    if(banner) { // there was an error, re-sync!
         CopyEmu(emu, ref);
+        emu->tlsdata = ref->tlsdata;
+    }
 }
 #undef BANNER
 
@@ -163,6 +166,7 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
     if(!test->emu) {
         test->emu = NewX64Emu(my_context, ip, (uintptr_t)ref->init_stack, ref->size_stack, 0);
         CopyEmu(test->emu, ref);
+        test->emu->tlsdata = ref->tlsdata;
     } else {
         // check if IP is same, else, sync
         uintptr_t prev_ip = test->emu->ip.q[0];
@@ -170,6 +174,7 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
             x64test_check(ref, ip);
         if(ip != prev_ip || !test->test || !test->clean) {
             CopyEmu(test->emu, ref);
+            test->emu->tlsdata = ref->tlsdata;
         }
     }
     // do a dry single step
