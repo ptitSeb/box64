@@ -366,6 +366,7 @@ void refreshTLSData(x64emu_t* emu)
     if(ptr->tlssize != emu->context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(emu->context, ptr);
     emu->tlsdata = ptr;
+    if(emu->test.emu) emu->test.emu->tlsdata = ptr;
 }
 
 tlsdatasize_t* getTLSData(x64emu_t* emu)

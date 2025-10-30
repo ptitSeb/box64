@@ -168,6 +168,7 @@ void FreeX64Emu(x64emu_t **emu)
     printf_log(LOG_DEBUG, "%04d|Free a X86_64 Emu (%p)\n", GetTID(), *emu);
 
     if((*emu)->test.emu) {
+        (*emu)->test.emu->tlsdata = NULL; // unlink the tlsdata first
         internalFreeX64((*emu)->test.emu);
         actual_free((*emu)->test.emu);
         (*emu)->test.emu = NULL;
