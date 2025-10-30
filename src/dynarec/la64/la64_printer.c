@@ -843,6 +843,54 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "FST.S", Ft[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
     }
+    if (isMask(opcode, "00111000001100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLDX.S", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000001110000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSTX.S", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLDGT.S", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLDLE.S", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSTGT.S", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSTLE.S", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000001101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLDX.D", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000001111000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSTX.D", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLDGT.D", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLDLE.D", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSTGT.D", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000011101111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSTLE.D", Ft[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
     if (isMask(opcode, "00000001000000001kkkkkjjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FADD.S", Ft[Rd], Ft[Rj], Ft[Rk]);
         return buff;
@@ -2946,6 +2994,14 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     if (isMask(opcode, "0010110001iiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %ld", "VST", Vt[Rd], Xt[Rj], signExtend(imm, 12));
+        return buff;
+    }
+    if (isMask(opcode, "00111000010000000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VLDX", Vt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00111000010001000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSTX", Vt[Rd], Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "000011010001aaaaakkkkkjjjjjddddd", &a)) {

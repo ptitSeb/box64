@@ -80,12 +80,288 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0F:
             opcode = F8;
             switch (opcode) {
+                case 0x10:
+                    switch (rep) {
+                        case 1:
+                            INST_NAME("MOVSD Gx, Seg:Ex");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                ed = (nextop & 7) + (rex.b << 3);
+                                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                v1 = fpu_get_scratch(dyn);
+                                SMREAD();
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    FLD_D(v1, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    FLDX_D(v1, x4, ed);
+                                }
+                            }
+                            VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+                            break;
+                        case 2:
+                            INST_NAME("MOVSS Gx, Seg:Ex");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                ed = (nextop & 7) + (rex.b << 3);
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                v1 = fpu_get_scratch(dyn);
+                                SMREAD();
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    FLD_S(v1, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    FLDX_S(v1, x4, ed);
+                                }                                
+                            }
+                            VEXTRINS_W(v0, v1, 0); // v0[63:0] = v1[63:0]
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0x11:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("MOVUPS Seg:Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                                ed = (nextop & 7) + (rex.b << 3);
+                                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                                VOR_V(v1, v0, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    VST(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    VSTX(v0, x4, ed);
+                                }
+                                SMWRITE2();
+                            }
+                            break;
+                        case 1:
+                            INST_NAME("MOVSD Seg:Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                                ed = (nextop & 7) + (rex.b << 3);
+                                d0 = sse_get_reg(dyn, ninst, x1, ed, 1);
+                                VEXTRINS_D(d0, v0, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    FST_D(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    FSTX_D(v0, x4, ed);
+                                }
+                                SMWRITE2();
+                            }
+                            break;
+                        case 2:
+                            INST_NAME("MOVSS Seg:Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                                ed = (nextop & 7) + (rex.b << 3);
+                                q0 = sse_get_reg(dyn, ninst, x1, ed, 1);
+                                VEXTRINS_W(q0, v0, 0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    FST_S(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    FSTX_S(v0, x4, ed);
+                                }
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0x18:
                 case 0x19:
                 case 0x1F:
                     INST_NAME("NOP (multibyte)");
                     nextop = F8;
                     FAKEED;
+                    break;
+                case 0x28:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("MOVAPS Gx, Seg:Ex");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                                VOR_V(v0, v1, v1);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                SMREAD();
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    VLD(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    VLDX(v0, x4, ed);
+                                }  
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0x29:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("MOVAPS Seg:Ex, Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                            if (MODREG) {
+                                ed = (nextop & 7) + (rex.b << 3);
+                                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                                VOR_V(v1, v0, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    VST(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    VSTX(v0, x4, ed);
+                                }  
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0x6F:
+                    switch (rep) {
+                        case 2:
+                            INST_NAME("MOVDQU Gx, Seg:Ex");
+                            nextop = F8;
+                            GETG;
+                            if (MODREG) {
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                                VOR_V(v0, v1, v1);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                SMREAD();
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    VLD(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    VLDX(v0, x4, ed);
+                                }  
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0x7F:
+                    switch (rep) {
+                        case 2:
+                            INST_NAME("MOVDQU Seg:Ex, Gx");
+                            nextop = F8;
+                            GETGX(v0, 0);
+                            if (MODREG) {
+                                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
+                                VOR_V(v1, v0, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    VST(v0, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    VSTX(v0, x4, ed);
+                                }  
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0xB6:
+                    switch (rep) {
+                        case 0:
+                            INST_NAME("MOVZX Gd, Seg:Eb");
+                            nextop = F8;
+                            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                            GETGD;
+                            if (MODREG) {
+                                if (rex.rex) {
+                                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
+                                    eb2 = 0;
+                                } else {
+                                    ed = (nextop & 7);
+                                    eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
+                                    eb2 = (ed & 4) >> 2;  // L or H
+                                }
+                                if (eb2) {
+                                    BSTRPICK_D(gd, eb1, 15, 8);
+                                } else {
+                                    BSTRPICK_D(gd, eb1, 7, 0);
+                                }
+                            } else {
+                                SMREAD();
+                                if (rex.is32bits) {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
+                                    ADDz(x4, ed, x4);
+                                    LD_BU(gd, x4, fixedaddress);
+                                } else {
+                                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                                    LDX_BU(gd, x4, ed);
+                                }  
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
                     break;
                 default:
                     DEFAULT;
@@ -108,6 +384,24 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETEDO(x4, 0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+        case 0x39:
+            INST_NAME("CMP Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGD;
+            GETEDO(x4, 0);
+            emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            break;
+        case 0x3B:
+            INST_NAME("CMP Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGD;
+            GETEDO(x4, 0);
+            emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
             break;
         case 0x64:
             addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
@@ -475,8 +769,8 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
-                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
-                    eb2 = (ed & 4) >> 2;   // L or H
+                    eb1 = TO_NAT(ed & 3); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;  // L or H
                 } else {
                     eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
