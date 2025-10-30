@@ -33,6 +33,8 @@ bool check_regs[16] = { 0 };
 bool check_xmmregs[16] = { 0 };
 bool check_ymmregs[16] = { 0 };
 
+int cputype = 0;
+
 const char* regname[] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15" };
 
 #define MAX_MEMORY_REGIONS 32
@@ -184,6 +186,12 @@ static void loadTest(const char** filepath, const char* include_path)
         box64_is32bits = true;
         printf_log(LOG_INFO, "Test is in 32bits mode\n");
     }
+
+    struct json_value_s* cputype_value = json_find(config->payload, "CpuType");
+    if (cputype_value && cputype_value->type == json_type_string && !strcasecmp(((struct json_string_s*)cputype_value->payload)->string, "amd"))
+        cputype = 1; // 0 -> Intel[default], 1 -> AMD
+    else
+        cputype = 0;
 
     struct json_value_s* json_memory_regions = json_find(config->payload, "MemoryRegions");
     if (json_memory_regions && json_memory_regions->type == json_type_object) {
@@ -342,6 +350,8 @@ int unittest(int argc, const char** argv)
         SET_BOX64ENV(dynarec, 0);
     }
 #endif
+
+    if (!box64env.is_cputype_overridden && cputype) SET_BOX64ENV(cputype, cputype);
 
     PrintEnvVariables(&box64env, LOG_INFO);
     my_context = NewBox64Context(argc - 1);
