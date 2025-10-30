@@ -173,6 +173,54 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x38:  /* MAP */
+            opcode = F8;
+            switch(opcode) {
+                case 0xF6:
+                    INST_NAME("ADOX Gd, Ed");
+                    nextop = F8;
+                    READFLAGS(X_OF);
+                    SETFLAGS(X_OF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    GETED(0);
+                    GETGD;
+                    if(cpuext.lbt) {
+                        X64_GET_EFLAGS(x3, X_OF);
+                        SRLI_D(x3, x3, F_OF);
+                    } else {
+                        BSTRPICK_D(x3, xFlags, F_OF, F_OF);
+                    }
+                    IFX(X_OF) {
+                        if(rex.w) {
+                            ADD_D(x4, gd, ed);
+                            SLTU(x5, x4, gd);
+                            ADD_D(gd, x4, x3);
+                            SLTU(x6, gd, x4);
+                        } else {
+                            ADD_W(x4, gd, ed);
+                            ZEROUP(x4);
+                            ZEROUP(gd);
+                            SLTU(x5, x4, gd);
+                            ADD_W(gd, x4, x3);
+                            ZEROUP(gd);
+                            SLTU(x6, gd, x4);
+                        }
+                        OR(x5, x5, x6);
+                        if(cpuext.lbt) {
+                            SLLI_D(x5, x5, F_OF);
+                            X64_SET_EFLAGS(x5, X_OF);
+                        } else {
+                            BSTRINS_D(xFlags, x5, F_OF, F_OF);
+                        }
+                    } else {
+                        ADDxw(x5, gd, ed);
+                        ADDxw(gd, x5, x3);
+                        if (!rex.w) ZEROUP(gd);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
