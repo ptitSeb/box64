@@ -116,8 +116,16 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0D:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
-                case 1:
-                    INST_NAME("PREFETCHW");
+                case 0:
+                    INST_NAME("PREFETCH");
+                    FAKEED;
+                    break;
+                 case 1:
+                     INST_NAME("PREFETCHW");
+                     FAKEED;
+                     break;
+                case 2:
+                    INST_NAME("PREFETCHWT1");
                     FAKEED;
                     break;
                 default: //???
