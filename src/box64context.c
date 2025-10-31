@@ -167,7 +167,6 @@ box64context_t *NewBox64Context(int argc)
     initCycleLog(context);
 
     context->deferredInit = 1;
-    context->sel_serial = 1;
 
     init_custommem_helper(context);
 
@@ -375,8 +374,6 @@ void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
         /*if(tlsbase == -ctx->tlssize) {
             // not really correct, but will do for now
             ctx->tlssize -= GetTLSSize(head);
-            if(!(++ctx->sel_serial))
-                ++ctx->sel_serial;
         }*/
     }
     for(int i=0; i<ctx->elfsize; ++i)
@@ -393,12 +390,7 @@ int AddTLSPartition(box64context_t* context, int tlssize) {
     context->tlsdata = box_realloc(context->tlsdata, context->tlssize);
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
     memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
-    // clean GS segment for current emu
-    if(my_context) {
-        //ResetSegmentsCache(thread_get_emu());
-        if(!(++context->sel_serial))
-            ++context->sel_serial;
-    }
+    // clean GS segment for current emu?
 
     return -context->tlssize;   // negative offset
 }

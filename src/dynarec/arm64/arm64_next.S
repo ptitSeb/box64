@@ -23,7 +23,7 @@ arm64_next:
     stp     x18, x27, [sp, (8 * 10)]    // also save x27(rip) to allow change in LinkNext
 
 #ifdef _WIN32
-    ldr     x18, [x0, 3120]
+    ldr     x18, [x0, 3104]
 #endif
     mov     x1, x27     // xRIP, should not be needed most of the time
     mov     x2, x30      // "from" is in lr, so put in x2

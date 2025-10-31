@@ -115,7 +115,6 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("POP ES");
                 POP1_32(x1);
                 SH(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-                SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             } else {
                 DEFAULT;
             }
@@ -279,7 +278,6 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMREAD();
                 POP1_32(x1);
                 SH(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
-                SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
             } else {
                 DEFAULT;
             }
@@ -369,7 +367,6 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMREAD();
                 POP1_32(x1);
                 SH(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             } else {
                 DEFAULT;
             }

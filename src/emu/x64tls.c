@@ -123,10 +123,13 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
     }
 
     if(box64_is32bits) {
-        emu->segs_serial[_GS] = 0;
         emu->segldt[idx].base = td->base_addr;
         emu->segldt[idx].limit = td->limit;
         emu->segldt[idx].present = 1;
+        if((emu->segs[_FS]>>3)==idx)
+            emu->segs_offs[_FS] =emu->segldt[idx].base;
+        if((emu->segs[_GS]>>3)==idx)
+            emu->segs_offs[_GS] =emu->segldt[idx].base;
     }
 
     ResetSegmentsCache(emu);
@@ -197,7 +200,6 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
                 errno = EINVAL;
                 return -1;
             }
-            emu->segs_serial[seg] = 0;
             my_context->seggdt[idx].base = (uintptr_t)addr;
             my_context->seggdt[idx].limit = 0;
             my_context->seggdt[idx].present = 1;
@@ -206,7 +208,8 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
                 emu->seggdt[idx].limit = 0;
                 emu->seggdt[idx].present = 1;
             }
-            ResetSegmentsCache(emu);
+            emu->segs_offs[seg] = (uintptr_t)addr;
+            emu->segs_old[seg] = emu->segs[seg];
             return 0;
         case ARCH_GET_XCOMP_SUPP:
         case ARCH_GET_XCOMP_PERM:
@@ -365,11 +368,27 @@ void refreshTLSData(x64emu_t* emu)
         }
     if(ptr->tlssize != emu->context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(emu->context, ptr);
+    uintptr_t old_offs = (uintptr_t)(emu->tlsdata?emu->tlsdata->data:NULL);
     emu->tlsdata = ptr;
     if(emu->test.emu) emu->test.emu->tlsdata = ptr;
-}
-
-tlsdatasize_t* getTLSData(x64emu_t* emu)
-{
-    return emu->tlsdata;
+    uintptr_t new_offs = (uintptr_t)(emu->tlsdata?emu->tlsdata->data:NULL);
+    // update if needed
+    if(old_offs && (old_offs!=new_offs)) {
+        for(int i=0; i<6; ++i)
+            if(emu->segs_offs[i]==old_offs)
+                emu->segs_offs[i] = new_offs;
+    }
+    if(!old_offs && new_offs) {
+        if(box64_is32bits) {
+            if(emu->segs[_GS]==0x33) {
+                emu->segs_offs[_GS] = new_offs;
+                emu->segs_old[_GS] = 0x33;
+            }
+        } else {
+            if(emu->segs[_FS]==0x43) {
+                emu->segs_offs[_FS] = new_offs;
+                emu->segs_old[_FS] = 0x43;
+            }
+        }
+    }
 }

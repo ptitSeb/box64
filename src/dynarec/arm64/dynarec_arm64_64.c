@@ -1006,7 +1006,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x1;
                 }
                 STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-                STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             }
             break;
         case 0x8F:

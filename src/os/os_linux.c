@@ -68,7 +68,7 @@ extern int box64_is32bits;
 
 void* GetSeg43Base(void* emu)
 {
-    tlsdatasize_t* ptr = getTLSData((x64emu_t*)emu);
+    tlsdatasize_t* ptr = ((x64emu_t*)emu)->tlsdata;
     return ptr?ptr->data:NULL;
 }
 

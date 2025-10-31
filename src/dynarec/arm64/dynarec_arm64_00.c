@@ -128,7 +128,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("POP ES");
                 POP1_32(x1);
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             } else {
                 INST_NAME("Illegal 07");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
@@ -335,7 +334,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMREAD();
                 POP1_32(x1);
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
             } else {
                 INST_NAME("Illegal 17");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
@@ -432,7 +430,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMREAD();
                 POP1_32(x1);
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             } else {
                 INST_NAME("Illegal 1F");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
@@ -1692,7 +1689,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x1;
                 }
                 STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-                STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             }
             break;
         case 0x8F:
@@ -2582,7 +2578,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRw_U12(gd, wback, 0);
                 LDRH_U12(x1, wback, 4);
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             } else {
                 vex_t vex = {0};
                 vex.rex = rex;
@@ -2608,7 +2603,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRw_U12(gd, wback, 0);
                 LDRH_U12(x1, wback, 4);
                 STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             } else {
                 vex_t vex = {0};
                 vex.rex = rex;
@@ -2734,7 +2728,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BARRIER(BARRIER_FLOAT);
             POP2z(xRIP, x3);
             STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-            STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
             if(u16<0x1000)
                 ADDz_U12(xRSP, xRSP, u16);
             else {
@@ -2751,7 +2744,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BARRIER(BARRIER_FLOAT);
             POP2z(xRIP, x3);
             STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-            STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
             *ok = 0;
@@ -4404,7 +4396,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         PUSH1z(x4);
                         PUSH1z(xRIP);
                         STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-                        STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
                         jump_to_epilog(dyn, 0, ed, ninst);
                         *need_epilog = 0;
                         *ok = 0;
@@ -4434,7 +4425,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                         LDH(x3, wback, rex.w?8:4);
                         STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-                        STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
                         jump_to_epilog(dyn, 0, ed, ninst);
                         *need_epilog = 0;
                         *ok = 0;

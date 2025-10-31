@@ -1178,7 +1178,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 emu->segs[_FS] = Pop32(emu);
             else
                 emu->segs[_FS] = Pop64(emu);
-            emu->segs_serial[_FS] = 0;
             break;
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
@@ -1256,7 +1255,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 emu->segs[_GS] = Pop32(emu);
             else
                 emu->segs[_GS] = Pop64(emu);
-            emu->segs_serial[_FS] = 0;
             break;
 
         case 0xAB:                      /* BTS Ed,Gd */

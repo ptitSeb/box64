@@ -91,7 +91,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP ES");
             POP1_16(x1);
             STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             break;
 
         case 0x09:
@@ -198,7 +197,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP DS");
             POP1_16(x1);
             STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             break;
 
         case 0x21:
@@ -732,7 +730,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x1;
                 }
                 STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-                STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             }
             break;
         case 0x8F:

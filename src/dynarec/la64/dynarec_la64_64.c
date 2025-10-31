@@ -729,7 +729,6 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0xA1:
             INST_NAME("MOV EAX, FS:Od");

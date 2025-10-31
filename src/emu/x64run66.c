@@ -110,7 +110,6 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
             return 0;
         }
         emu->segs[_ES] = Pop16(emu);
-        emu->segs_serial[_ES] = 0;
         break;
 
     case 0x0F:                              /* more opcdes */
@@ -147,7 +146,6 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 return 0;
             }
             emu->segs[_DS] = Pop16(emu);    // no check, no use....
-            emu->segs_serial[_DS] = 0;
             break;
 
     case 0x39:
@@ -400,7 +398,6 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEW(0);
         emu->segs[((nextop&0x38)>>3)] = EW->word[0];
-        emu->segs_serial[((nextop&0x38)>>3)] = 0;
         break;
     case 0x8F:                              /* POP Ew */
         nextop = F8;

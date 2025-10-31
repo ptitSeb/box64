@@ -660,7 +660,6 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     }
 
     ST_H(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
-    ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
     // clean EFLAGS
     MOV32w(x1, 0x3F7FD7);
     AND(xFlags, xFlags, x1);
@@ -677,7 +676,6 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     }
     // POP SS
     ST_H(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
-    ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
     // set new RSP
     MV(xRSP, x3);
     // Ret....
@@ -769,16 +767,11 @@ void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int s
     int t1 = x1, t2 = x4;
     if (reg == t1) ++t1;
     if (reg == t2) ++t2;
-    LD_WU(t2, xEmu, offsetof(x64emu_t, segs_serial[segment]));
+    LD_H(t2, xEmu, offsetof(x64emu_t, segs_old[segment]));
     LD_D(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
-    if (segment == _GS) {
-        CBNZ_MARKSEG(t2); // fast check
-    } else {
-        LD_D(t1, xEmu, offsetof(x64emu_t, context));
-        LD_WU(t1, t1, offsetof(box64context_t, sel_serial));
-        SUB_W(t1, t1, t2);
-        CBZ_MARKSEG(t1);
-    }
+    LD_H(t1, xEmu, offsetof(x64emu_t, segs[segment]));
+    SUB_W(t1, t1, t2);
+    CBZ_MARKSEG(t1);
     MOV64x(x1, segment);
     call_c(dyn, ninst, const_getsegmentbase, t2, reg, 0, xFlags, x1, 0, 0, 0, 0, 0);
     MARKSEG;

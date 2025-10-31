@@ -207,7 +207,6 @@ x64emurun:
                 goto fini;
             }
             emu->segs[_ES] = Pop32(emu);    // no check, no use....
-            emu->segs_serial[_ES] = 0;
             break;
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
         case 0x0E:                      /* PUSH CS */
@@ -284,7 +283,6 @@ x64emurun:
                 goto fini;
             }
             emu->segs[_SS] = Pop32(emu);    // no check, no use....
-            emu->segs_serial[_SS] = 0;
             tf = 0;
             break;
 
@@ -301,7 +299,6 @@ x64emurun:
                 goto fini;
             }
             emu->segs[_DS] = Pop32(emu);    // no check, no use....
-            emu->segs_serial[_DS] = 0;
             break;
 
         case 0x27:                  /* DAA */
@@ -786,7 +783,6 @@ x64emurun:
                 goto fini;
             }
             emu->segs[tmp8u] = ED->word[0];
-            emu->segs_serial[tmp8u] = 0;
             if(tmp8u==_SS && tf)   // disable trace when SS is accessed
                 no_tf = 1;
             break;
@@ -871,7 +867,6 @@ x64emurun:
                     goto fini;
                 }
                 emu->segs[_CS] = new_cs;
-                emu->segs_serial[_CS] = 0;
                 R_RIP = new_addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
@@ -1402,7 +1397,6 @@ x64emurun:
                 GETED(0);
                 GETGD;
                 emu->segs[_ES] = *(uint16_t*)(((char*)ED) + 4);
-                emu->segs_serial[_ES] = 0;
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
                 vex_t vex = {0};
@@ -1437,7 +1431,6 @@ x64emurun:
                 GETED(0);
                 GETGD;
                 emu->segs[_DS] = *(uint16_t*)(((char*)ED) + 4);
-                emu->segs_serial[_DS] = 0;
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
                 vex_t vex = {0};
@@ -1535,7 +1528,6 @@ x64emurun:
                 addr = Pop64(emu);
                 emu->segs[_CS] = Pop64(emu);    // no check, no use....
             }
-            emu->segs_serial[_CS] = 0;
             R_RSP += tmp16u;
             is32bits = (R_CS==0x23);    // checking if CS changed
             #ifndef TEST_INTERPRETER
@@ -1552,7 +1544,6 @@ x64emurun:
                 addr = Pop64(emu);
                 emu->segs[_CS] = Pop64(emu);    // no check, no use....
             }
-            emu->segs_serial[_CS] = 0;
             is32bits = (R_CS==0x23);    // checking if CS changed
             #ifndef TEST_INTERPRETER
             if(is32bits)
@@ -1655,12 +1646,10 @@ x64emurun:
                     }
                     R_RSP = new_sp;
                     emu->segs[_SS] = new_sp;
-                    emu->segs_serial[_SS] = 0;
                 }
                 emu->eflags.x64 = new_flags;
                 tf = ACCESS_FLAG(F_TF);
                 emu->segs[_CS] = new_cs;
-                emu->segs_serial[_CS] = 0;
                 addr = new_addr;
                 R_RIP = addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
@@ -2008,7 +1997,6 @@ x64emurun:
                     goto fini;
                 }
                 emu->segs[_CS] = new_cs;
-                emu->segs_serial[_CS] = 0;
                 R_RIP = new_addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);

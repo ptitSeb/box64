@@ -511,7 +511,6 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            ST_H(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x90:
         case 0x91:

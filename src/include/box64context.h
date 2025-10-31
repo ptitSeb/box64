@@ -101,8 +101,6 @@ typedef struct box64context_s {
     int                 x64trace;
     int                 trace_tid;
 
-    uint32_t            sel_serial;     // will be increment each time selectors changes
-
     zydis_t             *zydis;         // dlopen the zydis dissasembler
     void*               box64lib;       // dlopen on box64 itself
 

@@ -751,13 +751,11 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     CBZw_MARK(x5);
     // POP SS
     STRH_U12(x5, xEmu, offsetof(x64emu_t, segs[_SS]));
-    STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
     // set new RSP
     MOVx_REG(xRSP, x4);
     MARKSEG;
     // x2 is CS, x1 is IP, x3 is eFlags
     STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
-    STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
     MOVx_REG(xRIP, x1);
     MOVw_REG(xFlags, x3);
     // Ret....
@@ -942,17 +940,11 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
     #ifdef _WIN32
     LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
     #else
-    LDRw_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[segment]));
-    /*if(segment==_GS) {
-        LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
-        CBNZw_MARKSEG(t2);   // fast check
-    } else*/ {
-        LDRx_U12(reg, xEmu, offsetof(x64emu_t, context));
-        LDRw_U12(reg, reg, offsetof(box64context_t, sel_serial));
-        SUBw_REG(t2, reg, t2);
-        LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
-        CBZw_MARKSEG(t2);
-    }
+    LDRH_U12(t2, xEmu, offsetof(x64emu_t, segs_old[segment]));
+    LDRH_U12(reg, xEmu, offsetof(x64emu_t, segs[segment]));
+    SUBw_REG(t2, reg, t2);
+    LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
+    CBZw_MARKSEG(t2);
     MOVZw(x1, segment);
     call_c(dyn, ninst, const_getsegmentbase, t2, reg, 1, 0);
     MARKSEG;

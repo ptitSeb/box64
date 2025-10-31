@@ -471,7 +471,6 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             SH(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
             INST_NAME("POP FS:Ed");

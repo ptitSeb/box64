@@ -233,7 +233,7 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
 
 #define STATIC_ASSERT(COND, MSG) typedef char static_assertion_##MSG[(!!(COND)) * 2 - 1]
     /* otherwise adjust arm64_epilog.S and arm64_next.S */
-    STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3120, offset_of_b_must_be_4);
+    STATIC_ASSERT(offsetof(x64emu_t, win64_teb) == 3104, offset_of_b_must_be_4);
 #undef STATIC_ASSERT
 
     LoadEnvVariables();

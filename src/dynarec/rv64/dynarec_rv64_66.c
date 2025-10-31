@@ -95,7 +95,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP ES");
             POP1_16(x1);
             SH(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-            SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             break;
         case 0x09:
             INST_NAME("OR Ew, Gw");
@@ -231,7 +230,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP DS");
             POP1_16(x1);
             SH(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-            SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             break;
         case 0x21:
             INST_NAME("AND Ew, Gw");
@@ -729,7 +727,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             SH(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            SH(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x90:
         case 0x91:

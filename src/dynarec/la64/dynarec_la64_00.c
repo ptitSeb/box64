@@ -296,7 +296,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 POP1_32(x1);
                 ST_H(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             } else {
                 DEFAULT;
             }
@@ -1241,7 +1240,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
             INST_NAME("POP Ed");
@@ -3063,7 +3061,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ed = x1;
                         LD_HU(x3, wback, rex.w ? 8 : 4);
                         ST_H(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-                        ST_W(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
                         jump_to_epilog(dyn, 0, ed, ninst);
                         *need_epilog = 0;
                         *ok = 0;

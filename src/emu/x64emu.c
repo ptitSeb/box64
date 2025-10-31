@@ -195,7 +195,8 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
-    memset(newemu->segs_serial, 0, sizeof(newemu->segs_serial));
+    memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
+    memcpy(newemu->segs_old, emu->segs_old, sizeof(emu->segs_old));
     memcpy(newemu->seggdt, emu->seggdt, sizeof(newemu->seggdt));
     memcpy(newemu->segldt, emu->segldt, sizeof(newemu->segldt));
     memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
@@ -226,8 +227,8 @@ void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
     memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
-    memcpy(newemu->segs_serial, emu->segs_serial, sizeof(emu->segs_serial));
     memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
+    memcpy(newemu->segs_old, emu->segs_old, sizeof(emu->segs_old));
     memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
     memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
@@ -344,7 +345,6 @@ uint64_t GetRBP(x64emu_t *emu)
 void SetFS(x64emu_t *emu, uint16_t v)
 {
     emu->segs[_FS] = v;
-    emu->segs_serial[_FS] = 0;
 }
 uint16_t GetFS(x64emu_t *emu)
 {
@@ -599,7 +599,7 @@ void ResetSegmentsCache(x64emu_t *emu)
 {
     if(!emu)
         return;
-    memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
+    memset(emu->segs_old, 0, sizeof(emu->segs_old));
 }
 
 void applyFlushTo0(x64emu_t* emu)
@@ -1608,9 +1608,9 @@ void free_tlsdatasize(void* p)
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg)
 {
-    if (emu->segs_serial[seg] != emu->context->sel_serial) {
+    if (emu->segs_old[seg] != emu->segs[seg]) {
         emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu, emu->segs[seg]);
-        emu->segs_serial[seg] = emu->context->sel_serial;
+        emu->segs_old[seg] = emu->segs[seg];
     }
     return emu->segs_offs[seg];
 }

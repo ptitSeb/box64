@@ -1774,7 +1774,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP FS");
             POP1z(x2);
             STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
-            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_FS]));
             break;
         case 0xA2:
             INST_NAME("CPUID");
@@ -1858,7 +1857,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP GS");
             POP1z(x2);
             STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
-            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_GS]));
             break;
 
         case 0xAB:

@@ -1141,7 +1141,7 @@ void RefreshElfTLS(elfheader_t* h, x64emu_t* emu)
         printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
         if (emu->tlsdata) {
-            tlsdatasize_t* ptr = getTLSData(emu);
+            tlsdatasize_t* ptr = emu->tlsdata;
             // refresh in tlsdata too
             dest = (char*)(ptr->data+h->tlsbase);
             printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
@@ -1164,7 +1164,6 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     if(!h || h->init_done)
         return;
     // reset Segs Cache
-    memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
     uintptr_t p = h->initentry + h->delta;
     // Refresh no-file part of TLS in case default value changed
     RefreshElfTLS(h, emu);
@@ -1459,7 +1458,7 @@ void* GetTLSPointer(x64emu_t* emu, elfheader_t* h)
     if(!h || !h->tlssize)
         return NULL;
     refreshTLSData(emu);    // needed?
-    tlsdatasize_t* ptr = getTLSData(emu);
+    tlsdatasize_t* ptr = emu->tlsdata;
     return ptr->data+h->tlsbase;
 }
 
