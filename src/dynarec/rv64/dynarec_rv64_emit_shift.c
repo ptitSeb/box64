@@ -942,6 +942,19 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
+    IFX (X_CF | X_OF) {
+        ANDI(xFlags, xFlags, ~((1UL << F_CF) | (1UL << F_OF2)));
+    }
+
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     if (cpuext.zbb) {
         if (rex.w) {
             ROL(s1, s1, s2);
@@ -960,22 +973,9 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~((1UL << F_CF) | (1UL << F_OF2)));
-    }
-    IFX (X_CF | X_OF) {
+    IFX (X_CF) {
         ANDI(s4, s1, 1); // LSB == F_CF
-        IFX (X_CF) OR(xFlags, xFlags, s4);
-    }
-    IFX (X_OF) {
-        // the OF flag is set to the exclusive OR of the CF bit (after the rotate) and the most-significant bit of the result.
-        ADDI(s3, s2, -1);
-        BNEZ_MARK(s3);
-        SRLIxw(s3, s1, rex.w ? 63 : 31);
-        XOR(s3, s3, s4); // s3: MSB, s4: CF bit
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
-        MARK;
+        OR(xFlags, xFlags, s4);
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
@@ -996,6 +996,18 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
+    IFX (X_CF | X_OF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+    }
+
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s1);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     if (cpuext.zbb) {
         if (rex.w) {
             ROR(s1, s1, s2);
@@ -1014,24 +1026,9 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
-    }
     IFX (X_CF) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         OR(xFlags, xFlags, s3);
-    }
-    IFX (X_OF) {
-        // the OF flag is set to the exclusive OR of the two most-significant bits of the result
-        ADDI(s3, s2, -1);
-        BNEZ_MARK(s3);
-        SRLIxw(s3, s1, rex.w ? 63 : 31);
-        SRLIxw(s4, s1, rex.w ? 62 : 30);
-        XOR(s3, s3, s4);
-        ANDI(s3, s3, 1);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
-        MARK;
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
@@ -1078,6 +1075,14 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
     }
 
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
     IFX (X_PEND) {
         MOV32w(s3, c);
         SDxw(s3, xEmu, offsetof(x64emu_t, op2));
@@ -1100,18 +1105,9 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX (X_CF | X_OF) {
+    IFX (X_CF) {
         ANDI(s4, s1, 1 << F_CF);
-        IFX (X_CF) OR(xFlags, xFlags, s4);
-    }
-    IFX (X_OF) {
-        // the OF flag is set to the exclusive OR of the CF bit (after the rotate) and the most-significant bit of the result.
-        if (c == 1) {
-            SRLIxw(s3, s1, rex.w ? 63 : 31);
-            XOR(s3, s3, s4);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
+        OR(xFlags, xFlags, s4);
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
@@ -1164,6 +1160,14 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
     }
 
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s1);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     IFX (X_PEND) {
         MOV32w(s3, c);
         SDxw(s3, xEmu, offsetof(x64emu_t, op2));
@@ -1189,17 +1193,6 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     IFX (X_CF) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         OR(xFlags, xFlags, s3);
-    }
-    IFX (X_OF) {
-        // the OF flag is set to the exclusive OR of the two most-significant bits of the result
-        if (c == 1) {
-            SRLI(s3, s1, rex.w ? 62 : 30);
-            SRLI(s4, s3, 1);
-            XOR(s3, s3, s4);
-            ANDI(s3, s3, 1);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
