@@ -658,7 +658,15 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
-    IFX (X_CF | X_OF) {
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
+        SRLI(s5, s3, 1);
+        XOR(s3, s3, s5);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_CF) {
         SUBI(s5, s2, rex.w ? 64 : 32);
         NEG(s5, s5);
         SRL(s3, s1, s5);
@@ -686,15 +694,6 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s3);
     }
-    IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        ADDI(s3, s2, -1);
-        BNEZ(s3, 4 + 4 * 4);
-        SRLIxw(s3, s1, rex.w ? 63 : 31);
-        XOR(s3, s3, s5);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
-    }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -718,7 +717,15 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_DFNONE();
     }
 
-    IFX (X_CF | X_OF) {
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
+        SRLI(s5, s3, 1);
+        XOR(s3, s3, s5);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_CF) {
         SRLI(s3, s1, (rex.w ? 64 : 32) - c);
         ANDI(s5, s3, 1); // LSB == F_CF
         IFX (X_CF) {
@@ -743,15 +750,6 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s3);
-    }
-    IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        if (c == 1) {
-            SRLIxw(s3, s1, rex.w ? 63 : 31);
-            XOR(s3, s3, s5);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -781,10 +779,7 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
-        ADDI(s3, xZR, 1);
-        BNE(s2, s3, 4 + 3 * 4);
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
@@ -842,13 +837,10 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
-        if (c == 1) {
-            SRLIxw(s3, s1, rex.w ? 63 : 31);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
     }
 
     if (rex.w) {

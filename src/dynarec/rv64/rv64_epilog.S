@@ -12,10 +12,11 @@
 rv64_epilog:
 
     // adjust flags bit 5 -> bit 11
-    li      t3, ~(1<<11)
-    and     Flags, Flags, t3
-    andi    t3, Flags, 1<<5
-    slli    t3, t3, 11-5
+    lui     t3, 0xfffff
+    addiw   t3, t3, 0x7df
+    and     t3, Flags, t3
+    andi    Flags, Flags, 1<<5
+    slli    Flags, Flags, 11-5
     or      Flags, Flags, t3
 
     // spill x86 registers to emu
