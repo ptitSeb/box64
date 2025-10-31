@@ -1806,4 +1806,75 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
 #define PURGE_YMM()
 
+#define ALIGNED_ATOMICxw ((fixedaddress && !(fixedaddress & (((1 << (2 + rex.w)) - 1)))) || BOX64ENV(dynarec_aligned_atomics))
+#define ALIGNED_ATOMICH  ((fixedaddress && !(fixedaddress & 1)) || BOX64ENV(dynarec_aligned_atomics))
+
+
+// lock op related macros
+/*
+  LOCK_3264_CROSS_8BYTE cross 8byte, lock lower part 8byte.
+  use ll.d lock lower 8byte. ld.d load ed to likely emulate atomic 4byte/8byte operation
+    op = atomic function
+    x1 = original ed
+    x2 = wback ed addr
+    x4 = result
+    x5 = 8 byte lower block for sc
+    x6 = aligned addr
+*/
+#define LOCK_3264_CROSS_8BYTE(op, x1, wback, x4, x5, x6) \
+    MV(x6, wback);                                       \
+    BSTRINS_D(x6, xZR, 2, 0);                            \
+    MARKLOCK2;                                           \
+    LL_D(x5, x6, 0);                                     \
+    DBAR(0b00101);                                       \
+    LDxw(x1, wback, 0);                                  \
+    op;                                                  \
+    SC_D(x5, x6, 0);                                     \
+    BEQZ_MARKLOCK2(x5);                                  \
+    SDxw(x4, wback, 0);
+
+/*
+    LOCK_3264_IN_8BYTE unaligned but in 8 bytes.
+    use ll.d/sc.d to atomic operation. use amcas.db.d when possible
+    x1 = original ed
+    x2 = wback ed addr / aligned ed addr
+    x3 = offset
+    x4 = result
+    x5 = 8 byte block
+    x6 = mask, amcas orignal val
+    x7 = imm if inst use imm op
+*/
+#define LOCK_32_IN_8BYTE(op, x1, wback, x3, x4, x5, x6, x7) \
+    BSTRINS_D(wback, xZR, 2, 0);                            \
+    if(wback != x2) {                                            \
+        MV(x2, wback);                                           \
+        wback = x2;                                              \
+    }                                                            \
+    SLLI_W(x3, x3, 3);                                      \
+    if (cpuext.lamcas) {                                    \
+        LD_D(x5, wback, 0);                                 \
+        MARKLOCK;                                           \
+    } else {                                                \
+        MARKLOCK;                                           \
+        LL_D(x5, wback, 0);                                 \
+    }                                                       \
+    SRL_D(x1, x5, x3);                                      \
+    BSTRPICK_D(x1, x1, 31, 0);                              \
+    op;                                                     \
+    BSTRPICK_D(x4, x4, 31, 0);                              \
+    SLL_D(x4, x4, x3);                                      \
+    ADDI_D(x6, xZR, -1);                                    \
+    BSTRINS_D(x6, xZR, 63, 32);                             \
+    SLL_D(x6, x6, x3);                                      \
+    ANDN(x6, x5, x6);                                       \
+    OR(x4, x6, x4);                                         \
+    if (cpuext.lamcas) {                                    \
+        MV(x6, x5);                                         \
+        AMCAS_DB_D(x5, x4, wback);                          \
+        BNE_MARKLOCK(x5, x6);                               \
+    } else {                                                \
+        SC_D(x4, wback, 0);                                 \
+        BEQZ_MARKLOCK(x4);                                  \
+    }
+
 #endif //__DYNAREC_LA64_HELPER_H__
