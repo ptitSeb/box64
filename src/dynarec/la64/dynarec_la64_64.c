@@ -59,6 +59,16 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     GETREX();
 
     switch (opcode) {
+        case 0x00:
+            INST_NAME("ADD Seg:Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGB(x1);
+            GETEBO(x4, 0);
+            emit_add8(dyn, ninst,x1, x4, x5, x6);
+            EBBACK();
+            break;
         case 0x03:
             INST_NAME("ADD Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);

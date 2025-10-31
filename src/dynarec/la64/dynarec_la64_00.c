@@ -38,6 +38,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int64_t i64, j64;
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
+    uint16_t u16;
     uint32_t u32;
     uint64_t u64;
     uint8_t wback, wb1, wb2, wb;
@@ -103,6 +104,44 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
+            break;
+        case 0x06:
+            if (rex.is32bits) {
+                INST_NAME("PUSH ES");
+                LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+                PUSH1_32(x1);
+            } else {
+                INST_NAME("Illegal 06");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
+        case 0x07:
+            if (rex.is32bits) {
+                INST_NAME("POP ES");
+                POP1_32(x1);
+                ST_H(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+            } else {
+                INST_NAME("Illegal 07");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
             break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
@@ -451,6 +490,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i64 = F32S;
             emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
+        case 0x36:
+            INST_NAME("SS:");
             break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
@@ -1573,7 +1615,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAC:
-            if(rep) {
+            if (rep) {
                 INST_NAME("REP LODSB");
                 GETDIR(x1, x2, 1);
                 CBZ_NEXT(xRCX);
@@ -1592,7 +1634,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAD:
-            if(rep) {
+            if (rep) {
                 INST_NAME("REP LODSD");
                 CBZ_NEXT(xRCX);
                 GETDIR(x1, x2, rex.w ? 8 : 4);
@@ -2050,10 +2092,44 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+        case 0xC8:
+            INST_NAME("ENTER Iw,Ib");
+            u16 = F16;
+            u8 = (F8) & 0x1f;
+            if (u8) {
+                MV(x1, xRBP);
+            }
+            PUSH1z(xRBP);
+            MV(xRBP, xRSP);
+            if (u8) {
+                for (u32 = 1; u32 < u8; u32++) {
+                    LDz(x2, x1, rex.is32bits ? -4 : -8);
+                    PUSH1z(x2);
+                }
+                PUSH1z(xRBP);
+            }
+            if (u16 < 2047) {
+                ADDI_D(xRSP, xRSP, -u16);
+            } else {
+                MOV32w(x2, u16);
+                SUB_D(xRSP, xRSP, x2);
+            }
+            break;
         case 0xC9:
             INST_NAME("LEAVE");
             MVz(xRSP, xRBP);
             POP1z(xRBP);
+            break;
+        case 0xCB:
+            INST_NAME("FAR RET");
+            READFLAGS(X_PEND);
+            BARRIER(BARRIER_FLOAT);
+            POP1z(xRIP);
+            POP1z(x3);
+            ST_H(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
@@ -2390,7 +2466,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
-
+        case 0xD7:
+            INST_NAME("XLAT");
+            BSTRPICK_D(x1, xRAX, 7, 0);
+            LDXxw(x1, xRBX, x1);
+            BSTRINS_D(xRAX, x1, 7, 0);
+            break;
         case 0xD8:
             addr = dynarec64_D8(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
@@ -2483,7 +2564,29 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GO(1);
             break;
 #undef GO
-
+        case 0xE4: /* IN AL, Ib */
+        case 0xE5: /* IN EAX, Ib */
+        case 0xE6: /* OUT Ib, AL */
+        case 0xE7: /* OUT Ib, EAX */
+            INST_NAME(opcode == 0xE4 ? "IN AL, Ib" : (opcode == 0xE5 ? "IN EAX, Ib" : (opcode == 0xE6 ? "OUT Ib, AL" : "OUT Ib, EAX")));
+            if (rex.is32bits && BOX64ENV(ignoreint3)) {
+                F8;
+            } else {
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                u8 = F8;
+                GETIP(ip, x7);
+                STORE_XEMU_CALL();
+                CALL(const_native_priv, -1, 0, 0);
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
+            break;
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
@@ -2944,6 +3047,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 X64_SET_EFLAGS(x3, X_CF);
             } else {
                 ORI(xFlags, xFlags, 1 << F_CF);
+            }
+            break;
+        case 0xFA:
+        case 0xFB:
+            INST_NAME(opcode == 0xFA ? "CLI" : "STI");
+            if (rex.is32bits && BOX64ENV(ignoreint3)) {
+            } else {
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7); // priviledged instruction, IP not updated
+                STORE_XEMU_CALL();
+                CALL(const_native_priv, -1, 0, 0);
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
             }
             break;
         case 0xFC:
