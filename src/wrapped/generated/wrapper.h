@@ -426,6 +426,7 @@ void SFpp(x64emu_t *emu, uintptr_t fnc);
 void HFII(x64emu_t *emu, uintptr_t fnc);
 void HFll(x64emu_t *emu, uintptr_t fnc);
 void HFpi(x64emu_t *emu, uintptr_t fnc);
+void HFHH(x64emu_t *emu, uintptr_t fnc);
 void xFxx(x64emu_t *emu, uintptr_t fnc);
 void XFXX(x64emu_t *emu, uintptr_t fnc);
 void YFYY(x64emu_t *emu, uintptr_t fnc);

@@ -425,6 +425,7 @@ typedef void* (*SFpp_t)(void*, void*);
 typedef unsigned __int128 (*HFII_t)(int64_t, int64_t);
 typedef unsigned __int128 (*HFll_t)(intptr_t, intptr_t);
 typedef unsigned __int128 (*HFpi_t)(void*, int32_t);
+typedef unsigned __int128 (*HFHH_t)(unsigned __int128, unsigned __int128);
 typedef complexf_t (*xFxx_t)(complexf_t, complexf_t);
 typedef complex_t (*XFXX_t)(complex_t, complex_t);
 typedef int32_t (*iWpi_t)(void*, int32_t);
@@ -4244,6 +4245,7 @@ void SFpp(x64emu_t *emu, uintptr_t fcn) { SFpp_t fn = (SFpp_t)fcn; R_RAX=(uintpt
 void HFII(x64emu_t *emu, uintptr_t fcn) { HFII_t fn = (HFII_t)fcn; unsigned __int128 u128 = fn((int64_t)R_RDI, (int64_t)R_RSI); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL; }
 void HFll(x64emu_t *emu, uintptr_t fcn) { HFll_t fn = (HFll_t)fcn; unsigned __int128 u128 = fn((intptr_t)R_RDI, (intptr_t)R_RSI); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL; }
 void HFpi(x64emu_t *emu, uintptr_t fcn) { HFpi_t fn = (HFpi_t)fcn; unsigned __int128 u128 = fn((void*)R_RDI, (int32_t)R_RSI); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL; }
+void HFHH(x64emu_t *emu, uintptr_t fcn) { HFHH_t fn = (HFHH_t)fcn; unsigned __int128 u128 = fn((unsigned __int128)R_RDI + ((unsigned __int128)R_RSI << 64), (unsigned __int128)R_RDX + ((unsigned __int128)R_RCX << 64)); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL; }
 void xFxx(x64emu_t *emu, uintptr_t fcn) { xFxx_t fn = (xFxx_t)fcn; from_complexf(emu, fn(to_complexf(emu, 0), to_complexf(emu, 1))); }
 void XFXX(x64emu_t *emu, uintptr_t fcn) { XFXX_t fn = (XFXX_t)fcn; from_complex(emu, fn(to_complex(emu, 0), to_complex(emu, 2))); }
 void iWpi(x64emu_t *emu, uintptr_t fcn) { iWpi_t fn = (iWpi_t)fcn; R_RAX=(int32_t)fn((void*)R_RCX, (int32_t)R_RDX); }

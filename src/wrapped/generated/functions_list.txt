@@ -389,6 +389,7 @@
 #() HFII
 #() HFll
 #() HFpi
+#() HFHH
 #() xFxx
 #() XFXX
 #() YFYY
@@ -4995,6 +4996,8 @@ wrappedlibc:
 - SFpp:
   - fopen
   - fopen64
+- HFHH:
+  - __udivti3
 - vFipV:
   - err
   - errx

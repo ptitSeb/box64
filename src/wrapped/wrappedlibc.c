@@ -3843,6 +3843,11 @@ EXPORT int my_register_printf_type(x64emu_t* emu, void* f)
     return my->register_printf_type(findprintf_typeFct(f));
 }
 
+EXPORT __uint128_t my___udivti3(__uint128_t a, __uint128_t b)
+{
+    return a/b;
+}
+
 extern int box64_quit;
 extern int box64_exit_code;
 void endBox64();

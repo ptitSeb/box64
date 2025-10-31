@@ -43,6 +43,7 @@ typedef void* (*pFip_t)(int32_t, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*SFpp_t)(void*, void*);
+typedef unsigned __int128 (*HFHH_t)(unsigned __int128, unsigned __int128);
 typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef void (*vFipA_t)(int32_t, void*, va_list);
 typedef void (*vFpii_t)(void*, int32_t, int32_t);
@@ -206,6 +207,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(realpath, pFpp_t) \
 	GO(fopen, SFpp_t) \
 	GO(fopen64, SFpp_t) \
+	GO(__udivti3, HFHH_t) \
 	GO(err, vFipV_t) \
 	GO(errx, vFipV_t) \
 	GO(syslog, vFipV_t) \

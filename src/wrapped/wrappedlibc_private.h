@@ -2671,6 +2671,8 @@ GOWM(_ITM_RU8, UFp) //%noE
 GOWM(_ITM_memcpyRtWn, vFppL)  //%noE
 GOWM(_ITM_memcpyRnWt, vFppL)  //%noE
 
+GOM(__udivti3, HFHH)    //%noE
+
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GO(__errno, pFv)
