@@ -123,6 +123,8 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                 strncat(tmp, tmp2, sizeof(tmp)-1);  \
                 strncat(tmp, ":", sizeof(tmp)-1);   \
             }
+            GO("/usr/lib/%s-x86_64-linux-gnu", "box64")
+            GO("/usr/lib/%s-i386-linux-gnu/", "box64")
             GO("%s/lib/x86_64-linux-gnu", sniper)
             GO("%s/lib/i386-linux-gnu", sniper)
             GO("%s/lib/x86_64-linux-gnu/openblas", sniper)
