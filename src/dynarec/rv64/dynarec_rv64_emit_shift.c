@@ -1200,26 +1200,15 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5)
 {
-    c &= (rex.w ? 0x3f : 0x1f);
     CLEAR_FLAGS();
 
     IFX (X_PEND) {
-        if (c) {
-            MOV64x(s3, c);
-            SDxw(s3, xEmu, offsetof(x64emu_t, op2));
-        } else
-            SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
+        MOV64x(s3, c);
+        SDxw(s3, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w ? d_shrd64 : d_shrd32);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
-    }
-    if (!c) {
-        if (!rex.w) ZEROUP(s1);
-        IFX (X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
     }
     IFX (X_CF) {
         if (c > 1) {
@@ -1231,8 +1220,11 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // Store sign for later use.
-        if (c == 1) SRLIxw(s4, s1, rex.w ? 63 : 31);
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s2);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
     }
 
     SRLIxw(s3, s1, c);
@@ -1251,15 +1243,6 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s5);
-    }
-    IFX (X_OF) {
-        // the OF flag is set if a sign change occurred
-        if (c == 1) {
-            SRLI(s3, s1, rex.w ? 63 : 31);
-            XOR(s3, s3, s4);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -1346,63 +1329,42 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 
 void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5)
 {
-    c &= (rex.w ? 0x3f : 0x1f);
     CLEAR_FLAGS();
     IFX (X_PEND) {
-        if (c) {
-            MOV64x(s3, c);
-            SDxw(s3, xEmu, offsetof(x64emu_t, op2));
-        } else
-            SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
+        MOV64x(s3, c);
+        SDxw(s3, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w ? d_shld64 : d_shld32);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
 
-    if (!c) {
-        if (!rex.w) {
-            ZEROUP(s1);
-        }
-        IFX (X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
-    }
     IFX (X_CF) {
-        if (c > 0) {
-            SRLI(s3, s1, (rex.w ? 64 : 32) - c);
-            ANDI(s4, s3, 1); // F_CF
-            OR(xFlags, xFlags, s4);
-        }
+        SRLI(s3, s1, (rex.w ? 64 : 32) - c);
+        ANDI(s4, s3, 1); // F_CF
+        OR(xFlags, xFlags, s4);
     }
+
     IFX (X_OF) {
-        // Store sign for later use.
-        if (c == 1) SRLIxw(s4, s1, rex.w ? 63 : 31);
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
     }
 
     SLLIxw(s3, s1, c);
     SRLIxw(s1, s2, (rex.w ? 64 : 32) - c);
     OR(s1, s1, s3);
 
-    if (!rex.w) {
-        ZEROUP(s1);
-    }
+    if (!rex.w) ZEROUP(s1);
 
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s5);
-    }
-    IFX (X_OF) {
-        // the OF flag is set if a sign change occurred
-        if (c == 1) {
-            SRLIxw(s3, s1, rex.w ? 63 : 31);
-            XOR(s3, s3, s4);
-            SLLI(s3, s3, F_OF2);
-            ORI(xFlags, xFlags, s3);
-        }
     }
     IFX (X_SF) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
@@ -1433,8 +1395,11 @@ void emit_shrd32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // Store current sign for later use.
-        SRLIxw(s6, s1, rex.w ? 63 : 31);
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s2);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
     }
     ADDI(s4, xZR, (rex.w ? 64 : 32));
     SUB(s4, s4, s5);
@@ -1447,15 +1412,6 @@ void emit_shrd32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
     if (!rex.w) {
         ZEROUP(s1);
-    }
-    IFX (X_OF) {
-        ADDI(s5, s5, -1);
-        BNEZ_MARK(s5);
-        SRLIxw(s3, s1, rex.w ? 63 : 31);
-        XOR(s3, s3, s6);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
-        MARK;
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s5);
@@ -1490,8 +1446,12 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         OR(xFlags, xFlags, s4);
     }
     IFX (X_OF) {
-        // Store current sign for later use.
-        SRLIxw(s6, s1, rex.w ? 63 : 31);
+        SRLIxw(s6, s1, rex.w ? 62 : 30);
+        SRLI(s4, s6, 1);
+        XOR(s6, s6, s4);
+        ANDI(s6, s6, 1);
+        SLLI(s6, s6, F_OF2);
+        OR(xFlags, xFlags, s6);
     }
     SLLxw(s4, s1, s5);
     SRLxw(s3, s2, s3);
@@ -1502,16 +1462,6 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
     if (!rex.w) {
         ZEROUP(s1);
-    }
-
-    IFX (X_OF) {
-        ADDI(s5, s5, -1);
-        BNEZ_MARK(s5);
-        SRLIxw(s3, s1, rex.w ? 63 : 31);
-        XOR(s3, s3, s6);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
-        MARK;
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s5);
