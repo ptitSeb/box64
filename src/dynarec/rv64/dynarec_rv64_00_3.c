@@ -1311,6 +1311,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             OR(xFlags, xFlags, x6);
                         }
                     }
+                    IFX (X_SF) {
+                        SRLI(x6, xRAX, rex.w ? 63 : 31);
+                        SLLI(x6, x6, F_SF);
+                        OR(xFlags, xFlags, x6);
+                    }
+                    if (X_PF) emit_pf(dyn, ninst, xRAX, x6, x4);
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
@@ -1425,6 +1431,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MV(xRAX, x2);
                         }
                     }
+                    CLEAR_FLAGS();
+                    IFX (X_ZF) ORI(xFlags, xFlags, F_ZF);
+                    IFX (X_PF) ORI(xFlags, xFlags, F_PF);
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
