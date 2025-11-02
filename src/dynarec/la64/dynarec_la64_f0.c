@@ -62,11 +62,35 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                MARKLOCK;
-                LLxw(x1, wback, 0);
-                ADDxw(x4, x1, gd);
-                SCxw(x4, wback, 0);
-                BEQZ_MARKLOCK(x4);
+                if (rex.w) {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b111);
+                        BNEZ_MARK2(x3);
+                    }
+                    AMADD_DB_D(x1, gd, wback);
+                    B_MARK3_nocond;
+                } else {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b11);
+                        BNEZ_MARK(x3);
+                    }
+                    // aligned 4byte
+                    AMADD_DB_W(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) {
+                        B_MARK3_nocond;
+                        MARK;
+                        ANDI(x3, wback, 0b111);
+                        SLTI(x4, x3, 4);
+                        BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                        LOCK_32_IN_8BYTE(ADD_W(x4, x1, gd), x1, wback, x3, x4, x5, x6, x7);
+                        B_MARK3_nocond;
+                    }
+                }
+                if (!ALIGNED_ATOMICxw) {
+                    MARK2;
+                    LOCK_3264_CROSS_8BYTE(ADDxw(x4, x1, gd), x1, wback, x4, x5, x6);
+                    MARK3;
+                }
                 IFXORNAT (X_ALL | X_PEND) {
                     emit_add32(dyn, ninst, rex, x1, gd, x3, x4, x5);
                 }
@@ -662,27 +686,35 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         else
                             i64 = F8S;
                         MOV64xw(x7, i64);
-                        ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
-                        BNEZ_MARK3(x1);
-                        // Aligned
-                        MARKLOCK;
-                        LLxw(x1, wback, 0);
-                        ADDxw(x4, x1, x7);
-                        SCxw(x4, wback, 0);
-                        BEQZ_MARKLOCK(x4);
-                        B_MARK_nocond;
-                        MARK3;
-                        // Unaligned
-                        ADDI_D(x5, xZR, -(1 << (rex.w + 2)));
-                        AND(x5, wback, x5);
-                        MARKLOCK2;
-                        LDxw(x1, wback, 0);
-                        LLxw(x6, x5, 0);
-                        ADDxw(x4, x1, x7);
-                        SCxw(x6, x5, 0);
-                        BEQZ_MARKLOCK2(x6);
-                        SDxw(x4, wback, 0);
-                        MARK;
+                        if (rex.w) {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b111);
+                                BNEZ_MARK2(x3);
+                            }
+                            AMADD_DB_D(x1, x7, wback);
+                            B_MARK3_nocond;
+                        } else {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b11);
+                                BNEZ_MARK(x3);
+                            }
+                            // aligned 4byte
+                            AMADD_DB_W(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) {
+                                B_MARK3_nocond;
+                                MARK;
+                                ANDI(x3, wback, 0b111);
+                                SLTI(x4, x3, 4);
+                                BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                                LOCK_32_IN_8BYTE(ADD_W(x4, x1, x7), x1, wback, x3, x4, x5, x6, x7);
+                                B_MARK3_nocond;
+                            }
+                        }
+                        if (!ALIGNED_ATOMICxw) {
+                            MARK2;
+                            LOCK_3264_CROSS_8BYTE(ADDxw(x4, x1, x7), x1, wback, x4, x5, x6);
+                            MARK3;
+                        }
                         IFXORNAT (X_ALL | X_PEND) {
                             emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                         }
