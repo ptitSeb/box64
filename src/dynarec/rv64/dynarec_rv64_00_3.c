@@ -1311,6 +1311,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             OR(xFlags, xFlags, x6);
                         }
                     }
+                    IFX (X_SF) {
+                        SRLI(x6, xRAX, rex.w ? 63 : 31);
+                        SLLI(x6, x6, F_SF);
+                        OR(xFlags, xFlags, x6);
+                    }
+                    if (X_PF) emit_pf(dyn, ninst, xRAX, x6, x4);
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
@@ -1423,6 +1429,18 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             DIVU(x2, xRAX, ed);
                             REMU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
+                        }
+                    }
+                    CLEAR_FLAGS();
+                    IFX (X_ZF | X_PF) {
+                        ADDI(x6, xZR, 1);
+                        IFX (X_ZF) {
+                            SLLI(x3, x6, F_ZF);
+                            OR(xFlags, xFlags, x3);
+                        }
+                        IFX (X_PF) {
+                            SLLI(x3, x6, F_PF);
+                            OR(xFlags, xFlags, x3);
                         }
                     }
                     break;
