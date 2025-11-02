@@ -554,46 +554,43 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
-            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            if (!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_CF | X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            } else {
+                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            }
             SET_DFNONE();
             nextop = F8;
             GETED(0);
             GETGD;
+            CLEAR_FLAGS();
             if (!rex.w && MODREG) {
                 ZEXTW2(x4, ed);
                 ed = x4;
             }
-            ANDI(xFlags, xFlags, ~((1 << F_ZF) | (1 << F_CF)));
-            BNE_MARK(ed, xZR);
-            ORI(xFlags, xFlags, 1 << F_CF);
-            MOV32w(gd, rex.w ? 64 : 32);
-            B_NEXT_nocond;
-            MARK;
+            IFX (X_CF) SET_FLAGS_EQZ(ed, F_CF, x3);
             CTZxw(gd, ed, rex.w, x3, x5);
-            BNE(gd, xZR, 4 + 4);
-            ORI(xFlags, xFlags, 1 << F_ZF);
+            IFX (X_ZF) SET_FLAGS_EQZ(gd, F_ZF, x3);
             break;
         case 0xBD:
             INST_NAME("LZCNT Gd, Ed");
-            SETFLAGS(X_ZF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            if (!BOX64ENV(dynarec_safeflags)) {
+                SETFLAGS(X_CF | X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            } else {
+                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            }
             SET_DFNONE();
             nextop = F8;
             GETED(0);
             GETGD;
+            CLEAR_FLAGS();
             if (!rex.w && MODREG) {
                 ZEXTW2(x4, ed);
                 ed = x4;
             }
-            BNE_MARK(ed, xZR);
-            MOV32w(gd, rex.w ? 64 : 32);
-            ANDI(xFlags, xFlags, ~(1 << F_ZF));
-            ORI(xFlags, xFlags, 1 << F_CF);
-            B_NEXT_nocond;
-            MARK;
+            IFX (X_CF) SET_FLAGS_EQZ(ed, F_CF, x3);
             CLZxw(gd, ed, rex.w, x5, x2, x3);
-            ANDI(xFlags, xFlags, ~((1 << F_ZF) | (1 << F_CF)));
-            BNE(gd, xZR, 4 + 4);
-            ORI(xFlags, xFlags, 1 << F_ZF);
+            IFX (X_ZF) SET_FLAGS_EQZ(gd, F_ZF, x3);
             break;
 
         case 0xC2:
