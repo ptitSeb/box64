@@ -1432,17 +1432,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     CLEAR_FLAGS();
-                    IFX (X_ZF | X_PF) {
-                        ADDI(x6, xZR, 1);
-                        IFX (X_ZF) {
-                            SLLI(x3, x6, F_ZF);
-                            OR(xFlags, xFlags, x3);
-                        }
-                        IFX (X_PF) {
-                            SLLI(x3, x6, F_PF);
-                            OR(xFlags, xFlags, x3);
-                        }
-                    }
+                    IFX (X_ZF) ORI(xFlags, xFlags, F_ZF);
+                    IFX (X_PF) ORI(xFlags, xFlags, F_PF);
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
