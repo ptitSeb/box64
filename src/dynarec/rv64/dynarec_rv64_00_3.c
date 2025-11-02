@@ -1238,7 +1238,30 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
-                    CALL(const_div8, -1, x1, 0);
+                    ZEXTH(x2, xRAX);
+                    if (BOX64ENV(dynarec_div0)) {
+                        BNE_MARK3(ed, xZR);
+                        GETIP_(ip, x7);
+                        STORE_XEMU_CALL(x3);
+                        CALL(const_native_div0, -1, 0, 0);
+                        CLEARIP();
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
+                    DIVUW(x3, x2, ed);
+                    REMUW(x4, x2, ed);
+                    LUI(x5, 0xffff0);
+                    AND(xRAX, xRAX, x5);
+                    ANDI(x3, x3, 0xff);
+                    OR(xRAX, xRAX, x3);
+                    ANDI(x4, x4, 0xff);
+                    SLLI(x4, x4, 8);
+                    OR(xRAX, xRAX, x4);
+                    SET_DFNONE();
+                    CLEAR_FLAGS();
+                    IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
+                    IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
@@ -1431,9 +1454,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             MV(xRAX, x2);
                         }
                     }
+                    SET_DFNONE();
                     CLEAR_FLAGS();
-                    IFX (X_ZF) ORI(xFlags, xFlags, F_ZF);
-                    IFX (X_PF) ORI(xFlags, xFlags, F_PF);
+                    IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
+                    IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
