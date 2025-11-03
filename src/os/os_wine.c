@@ -49,6 +49,11 @@ void EmuX64Syscall(void* emu)
     printf_log(LOG_NONE, "EmuX64Syscall NYI\n");
 }
 
+void EmuX64Syscall_linux(void* emu)
+{
+    printf_log(LOG_NONE, "EmuX64Syscall_linux NYI\n");
+}
+
 void EmuX86Syscall(void* emu)
 {
     printf_log(LOG_NONE, "EmuX86Syscall NYI\n");

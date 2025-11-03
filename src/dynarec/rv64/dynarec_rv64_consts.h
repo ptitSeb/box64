@@ -52,6 +52,7 @@ typedef enum rv64_consts_s {
     const_int3,
     const_x86syscall,
     const_x64syscall,
+    const_x64syscall_linux,
     const_rcl8,
     const_rcl16,
     const_rcl32,

@@ -39,6 +39,7 @@
 #include "emit_signals.h"
 #include "x64tls.h"
 #include "elfloader.h"
+#include "x64int_private.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
@@ -442,8 +443,6 @@ static int clone_fn(void* arg)
 
 void EXPORT x64Syscall(x64emu_t *emu)
 {
-    RESET_FLAGS(emu);
-    uint32_t s = R_EAX; // EAX? (syscalls only go up to 547 anyways)
     // check if it's a wine process, then filter the syscall (simulate SECCMP)
     if(box64_wine && !box64_is32bits) {
         //64bits only here...
@@ -454,6 +453,12 @@ void EXPORT x64Syscall(x64emu_t *emu)
             return;
         }
     }
+    return x64Syscall_linux(emu);
+}
+void EXPORT x64Syscall_linux(x64emu_t *emu)
+{
+    RESET_FLAGS(emu);
+    uint32_t s = R_EAX; // EAX? (syscalls only go up to 547 anyways)
     int log = 0;
     char t_buff[256] = "\0";
     char t_buffret[128] = "\0";

@@ -59,6 +59,11 @@ void EmuX64Syscall(void* emu)
     x64Syscall((x64emu_t*)emu);
 }
 
+void EmuX64Syscall_linux(void* emu)
+{
+    x64Syscall_linux((x64emu_t*)emu);
+}
+
 void EmuX86Syscall(void* emu)
 {
     x86Syscall((x64emu_t*)emu);

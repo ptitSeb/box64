@@ -87,6 +87,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_int3: return (uintptr_t)EmuInt3;
         case const_x86syscall: return (uintptr_t)EmuX86Syscall;
         case const_x64syscall: return (uintptr_t)EmuX64Syscall;
+        case const_x64syscall_linux: return (uintptr_t)EmuX64Syscall_linux;
         case const_rcl16: return (uintptr_t)rcl16;
         case const_rcl32: return (uintptr_t)rcl32;
         case const_rcl64: return (uintptr_t)rcl64;

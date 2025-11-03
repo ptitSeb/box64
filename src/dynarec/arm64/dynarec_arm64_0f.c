@@ -20,6 +20,9 @@
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
 #include "../dynarec_helper.h"
+#ifndef __WIN32
+#include "elfloader.h"
+#endif
 
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
@@ -165,7 +168,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SMEND();
             GETIP(addr);
             STORE_XEMU_CALL(xRIP);
-            CALL_S(const_x64syscall, -1);
+            #ifndef __WIN32
+            if(!box64_wine || FindElfAddress(my_context, ip)) {
+                CALL_S(const_x64syscall_linux, -1);
+            } else
+            #endif
+            {
+                CALL_S(const_x64syscall, -1);
+            }
             LOAD_XEMU_CALL(xRIP);
             TABLE64(x3, addr); // expected return address
             SUBx_REG(x3, x3, xRIP);

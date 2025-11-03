@@ -43,6 +43,7 @@ int GetTID(void);
 int SchedYield(void);
 
 void EmuX64Syscall(void* emu);
+void EmuX64Syscall_linux(void* emu);
 void EmuX86Syscall(void* emu);
 
 void* GetSeg43Base(void* emu);
