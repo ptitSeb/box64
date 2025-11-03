@@ -20,7 +20,6 @@ void print_wrapper_name(int level, x64emu_t* emu);
 box64context_t* GetEmuContext(x64emu_t* emu);
 
 void ResetFlags(x64emu_t *emu);
-void ResetSegmentsCache(x64emu_t *emu);
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits);
 
 void UnimpOpcode(x64emu_t* emu, int is32bits);

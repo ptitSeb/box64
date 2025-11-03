@@ -397,7 +397,15 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x8E:                               /* MOV Seg,Ew */
         nextop = F8;
         GETEW(0);
-        emu->segs[((nextop&0x38)>>3)] = EW->word[0];
+            tmp8u = (nextop&0x38)>>3;
+            if((tmp8u>5) || (tmp8u==1)) {
+                return 0;
+            }
+            emu->segs[tmp8u] = ED->word[0];
+            if(((tmp8u==_FS) || (tmp8u==_GS)) && emu->segs[tmp8u])
+                GetSegmentBaseEmu(emu, tmp8u);  // refresh segs_offs
+            /*if(tmp8u==_SS && tf)   // disable trace when SS is accessed
+                no_tf = 1;*/    //TODO?
         break;
     case 0x8F:                              /* POP Ew */
         nextop = F8;

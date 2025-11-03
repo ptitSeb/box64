@@ -67,7 +67,6 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
             waitpid(v, NULL, WEXITED);
         }
     } else if(v==0) {
-        ResetSegmentsCache(emu);
         // execute atforks child functions
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].child)

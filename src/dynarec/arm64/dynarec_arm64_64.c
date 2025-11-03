@@ -1006,6 +1006,12 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x1;
                 }
                 STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+                if((u8==_FS) || (u8==_GS)) {
+                    // refresh offset if needed
+                    CBZw_NEXT(ed);
+                    MOV32w(x1, u8);
+                    CALL(const_getsegmentbase, -1);
+                }
             }
             break;
         case 0x8F:

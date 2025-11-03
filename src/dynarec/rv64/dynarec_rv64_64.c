@@ -471,6 +471,12 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             SH(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            if((u8==_FS) || (u8==_GS)) {
+                // refresh offset if needed
+                CBZ_NEXT(ed);
+                MOV32w(x1, u8);
+                CALL(const_getsegmentbase, -1, x1, x2);
+            }
             break;
         case 0x8F:
             INST_NAME("POP FS:Ed");

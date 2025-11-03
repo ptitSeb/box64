@@ -511,6 +511,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            if((u8==_FS) || (u8==_GS)) {
+                // refresh offset if needed
+                CBZ_NEXT(ed);
+                MOV32w(x1, u8);
+                CALL(const_getsegmentbase, -1, x1, x2);
+            }
             break;
         case 0x90:
         case 0x91:

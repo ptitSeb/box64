@@ -77,8 +77,8 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     } else {
         emu->segs[_CS] = 0x33;
         emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
-        emu->segs[_FS] = 0x43;
-        emu->segs[_GS] = default_gs;
+        emu->segs[_FS] = 0;
+        emu->segs[_GS] = 0;
     }
     // init segments
     for(int i=0; i<16; i++) {
@@ -196,7 +196,6 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
-    memcpy(newemu->segs_old, emu->segs_old, sizeof(emu->segs_old));
     memcpy(newemu->seggdt, emu->seggdt, sizeof(newemu->seggdt));
     memcpy(newemu->segldt, emu->segldt, sizeof(newemu->segldt));
     memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
@@ -228,7 +227,6 @@ void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
-    memcpy(newemu->segs_old, emu->segs_old, sizeof(emu->segs_old));
     memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
     memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
@@ -425,6 +423,10 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             if(i!=_GS)
                 strcat(buff, " ");
     }
+    sprintf(tmp, " FSBASE=%zu", emu->segs_offs[_FS]);
+    strcat(buff, tmp);
+    sprintf(tmp, " GSBASE=%zu", emu->segs_offs[_GS]);
+    strcat(buff, tmp);
     strcat(buff, "\n");
     if(is32bits)
         for (int i=_AX; i<=_RDI; ++i) {
@@ -593,13 +595,6 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
         R_RSP = old_rsp;
         R_RIP = old_rip;  // and set back instruction pointer
     }
-}
-
-void ResetSegmentsCache(x64emu_t *emu)
-{
-    if(!emu)
-        return;
-    memset(emu->segs_old, 0, sizeof(emu->segs_old));
 }
 
 void applyFlushTo0(x64emu_t* emu)
@@ -1608,9 +1603,10 @@ void free_tlsdatasize(void* p)
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg)
 {
-    if (emu->segs_old[seg] != emu->segs[seg]) {
+    if(emu->segs[seg]) {
         emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu, emu->segs[seg]);
-        emu->segs_old[seg] = emu->segs[seg];
+        //printf_log(LOG_DEBUG, "%04d|GetSegmentBaseEmu seg=%d(%x), offs=%p\n", GetTID(), seg, emu->segs[seg], (void*)emu->segs_offs[seg]);
     }
+
     return emu->segs_offs[seg];
 }

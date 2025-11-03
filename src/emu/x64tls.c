@@ -94,8 +94,6 @@ uint32_t my_set_thread_area_32(x64emu_t* emu, thread_area_32_t* td)
         emu->seggdt[idx].is32bits = 1;
     }
 
-    ResetSegmentsCache(emu);
-
     return 0;
 }
 
@@ -132,8 +130,6 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
             emu->segs_offs[_GS] =emu->segldt[idx].base;
     }
 
-    ResetSegmentsCache(emu);
-
     return 0;
 }
 
@@ -169,15 +165,21 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
     errno = 0;
     switch(code) {
         case ARCH_GET_GS:
-            *(void**)addr = GetSegmentBase(emu, emu->segs[_GS]);
+            *(uintptr_t*)addr = GetSegmentBaseEmu(emu, _GS);
             return 0;
         case ARCH_GET_FS:
-            *(void**)addr = GetSegmentBase(emu, emu->segs[_FS]);
+            *(uintptr_t*)addr = GetSegmentBaseEmu(emu, _FS);
             return 0;
         case ARCH_SET_FS:
         case ARCH_SET_GS:
             seg=(code==ARCH_SET_FS)?_FS:_GS;
             int idx = -1;
+            if(emu->segs[_CS]!=0x23) {
+                // 64bits version, simply using FSGSBASE....
+                emu->segs[seg] = 0;
+                emu->segs_offs[seg] = (uintptr_t)addr;
+                return 0;
+            }
             // search if it's a TLS base
             if(GetSeg43Base(emu)==addr)
                 idx = 0x43>>3;
@@ -209,7 +211,6 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
                 emu->seggdt[idx].present = 1;
             }
             emu->segs_offs[seg] = (uintptr_t)addr;
-            emu->segs_old[seg] = emu->segs[seg];
             return 0;
         case ARCH_GET_XCOMP_SUPP:
         case ARCH_GET_XCOMP_PERM:
@@ -382,13 +383,10 @@ void refreshTLSData(x64emu_t* emu)
         if(box64_is32bits) {
             if(emu->segs[_GS]==0x33) {
                 emu->segs_offs[_GS] = new_offs;
-                emu->segs_old[_GS] = 0x33;
             }
         } else {
-            if(emu->segs[_FS]==0x43) {
-                emu->segs_offs[_FS] = new_offs;
-                emu->segs_old[_FS] = 0x43;
-            }
+            emu->segs_offs[_FS] = new_offs;
+            emu->segs[_FS] = 0;
         }
     }
 }

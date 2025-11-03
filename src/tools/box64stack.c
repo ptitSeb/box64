@@ -148,7 +148,9 @@ void SetupInitialStack(x64emu_t *emu)
     //Push64(emu, sysconf(_SC_CLK_TCK)); Push64(emu, 17);     //AT_CLKTCK(17)=times() frequency
     Push64(emu, real_getauxval(23)); Push64(emu, 23);       //AT_SECURE(23)
     Push64(emu, p_random); Push64(emu, 25);                 //AT_RANDOM(25)=p_random
-    Push64(emu, 0); Push64(emu, 26);                        //AT_HWCAP2(26)=0
+    Push64(emu, 0 
+            | 1<<1          // FSGSBASE
+    ); Push64(emu, 26);                        //AT_HWCAP2(26)=...
     Push64(emu, p_arg0); Push64(emu, 31);                   //AT_EXECFN(31)=p_arg0
     Push64(emu, emu->context->vsyscall); Push64(emu, 32);                         //AT_SYSINFO(32)=vsyscall
     //Push64(emu, 0); Push64(emu, 33);                         //AT_SYSINFO_EHDR(33)=address of vDSO

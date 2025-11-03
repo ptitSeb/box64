@@ -368,10 +368,6 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
         emu->test.test = 0;
     #endif
 
-    /*SetFS(emu, default_fs);*/
-    for (int i=0; i<6; ++i)
-        emu->segs_old[i] = 0;
-
     int align = nargs&1;
 
     R_ESP -= nargs * sizeof(ptr_t);
@@ -740,8 +736,6 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
             GO(GS);
             GO(FS);
             #undef GO
-            for(int i=0; i<6; ++i)
-                emu->segs_old[i] = 0;
             printf_log((sig==10)?LOG_DEBUG:log_minimum, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p (resume with %s)\n", (void*)R_RIP, (void*)R_RSP, (skip==3)?"Dynarec":"Interp");
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place

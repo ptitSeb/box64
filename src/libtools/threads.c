@@ -313,7 +313,6 @@ static void* pthread_routine(void* p)
 	add_thread((void*)et->self, et);
 	#endif
 	refreshTLSData(emu);
-	ResetSegmentsCache(emu);
 	Push64(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
 	Push64(emu, 0);	// PUSH BP
 	R_RBP = R_RSP;	// MOV BP, SP

@@ -123,10 +123,6 @@ uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_
         emu->test.test = 0;
     #endif
 
-    /*SetFS(emu, default_fs);*/
-    for (int i=0; i<6; ++i)
-        emu->segs_old[i] = 0;
-
     int align = nargs&1;
 
     if(nargs>6)
@@ -1229,8 +1225,6 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
             GO(FS);
             #undef GO
-            for(int i=0; i<6; ++i)
-                emu->segs_old[i] = 0;
             printf_log((sig==10)?LOG_DEBUG:log_minimum, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p (resume with %s)\n", (void*)R_RIP, (void*)R_RSP, (skip==3)?"Dynarec":"Interp");
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
@@ -1273,7 +1267,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
     uint16_t seg;
     seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
-    #define GO(S) emu->segs[_##S]=seg; emu->segs_old[_##S] = 0;
+    #define GO(S) emu->segs[_##S]=seg;
     GO(CS);
     seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 16)&0xffff;
     GO(GS);
@@ -1326,10 +1320,14 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     mmx87_regs_t old_mmx[8];
     mmx87_regs_t old_x87[8];
     uint32_t old_top = emu->top;
+    uint16_t old_segs[6];
+    uintptr_t old_segs_offs[6];
     memcpy(old_xmm, emu->xmm, sizeof(old_xmm));
     memcpy(old_ymm, emu->ymm, sizeof(old_ymm));
     memcpy(old_mmx, emu->mmx, sizeof(old_mmx));
     memcpy(old_x87, emu->x87, sizeof(old_x87));
+    memcpy(old_segs, emu->segs, sizeof(old_segs));
+    memcpy(old_segs_offs, emu->segs_offs, sizeof(old_segs_offs));
     #define GO(A) old_##A = emu->A
     GO(eflags);
     GO(df);
@@ -1383,6 +1381,8 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     memcpy(emu->ymm, old_ymm, sizeof(old_ymm));
     memcpy(emu->mmx, old_mmx, sizeof(old_mmx));
     memcpy(emu->x87, old_x87, sizeof(old_x87));
+    memcpy(emu->segs, old_segs, sizeof(old_segs));
+    memcpy(emu->segs_offs, old_segs_offs, sizeof(old_segs_offs));
     emu->top = old_top;
 }
 
@@ -1882,6 +1882,8 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
                     printf_log_prefix(0, log_minimum, "\n");
                     for (int i=0; i<6; ++i)
                         printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+                    printf_log_prefix(0, log_minimum, "FSBASE=%p ", emu->segs_offs[_FS]);
+                    printf_log_prefix(0, log_minimum, "GSBASE=%p", emu->segs_offs[_GS]);
                 }
                 if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
                     for (int i=-4; i<4; ++i) {
@@ -1895,9 +1897,11 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
                     if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
                     printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
                 }
-                printf_log_prefix(0, log_minimum, "\n");
                 for (int i=0; i<6; ++i)
                     printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+                printf_log_prefix(0, log_minimum, "FSBASE=%p ", emu->segs_offs[_FS]);
+                printf_log_prefix(0, log_minimum, "GSBASE=%p", emu->segs_offs[_GS]);
+                printf_log_prefix(0, log_minimum, "\n");
             }
             zydis_dec_t* dec = emu->segs[_CS] == 0x23 ? my_context->dec32 : my_context->dec;
             if(sig==X64_SIGILL) {

@@ -3763,7 +3763,6 @@ static int clone_fn(void* p)
     thread_set_emu(emu);
     if(arg->flags&CLONE_NEWUSER) {
         init_mutexes(my_context);
-        ResetSegmentsCache(emu);
     }
     int ret = RunFunctionWithEmu(emu, 0, arg->fnc, 1, arg->args);
     int exited = (emu->flags.quitonexit==2);

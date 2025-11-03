@@ -764,17 +764,7 @@ void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int s
     MAYUSE(j64);
     if (modreg) return;
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment == _FS) ? "FS" : "GS");
-    int t1 = x1, t2 = x4;
-    if (reg == t1) ++t1;
-    if (reg == t2) ++t2;
-    LD_H(t2, xEmu, offsetof(x64emu_t, segs_old[segment]));
     LD_D(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
-    LD_H(t1, xEmu, offsetof(x64emu_t, segs[segment]));
-    SUB_W(t1, t1, t2);
-    CBZ_MARKSEG(t1);
-    MOV64x(x1, segment);
-    call_c(dyn, ninst, const_getsegmentbase, t2, reg, 0, xFlags, x1, 0, 0, 0, 0, 0);
-    MARKSEG;
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment == _FS) ? "FS" : "GS");
 }
 

@@ -1178,6 +1178,8 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 emu->segs[_FS] = Pop32(emu);
             else
                 emu->segs[_FS] = Pop64(emu);
+            if(emu->segs[_FS])
+                GetSegmentBaseEmu(emu, _FS);  // refresh segs_offs
             break;
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
@@ -1255,6 +1257,8 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 emu->segs[_GS] = Pop32(emu);
             else
                 emu->segs[_GS] = Pop64(emu);
+            if(emu->segs[_GS])
+                GetSegmentBaseEmu(emu, _GS);  // refresh segs_offs
             break;
 
         case 0xAB:                      /* BTS Ed,Gd */

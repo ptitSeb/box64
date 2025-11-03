@@ -19,6 +19,7 @@
 #include "x64trace.h"
 #include "x87emu_private.h"
 #include "box64context.h"
+#include "emit_signals.h"
 #include "bridge.h"
 
 #include "modrm.h"
@@ -349,6 +350,40 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         memcpy(EX, GX, 16);    // unaligned...
+        break;
+
+    case 0xAE:
+        nextop = F8;
+        switch((nextop>>3)&7) {
+            case 0: /* RDFSBASE */
+            case 1: /* RDGSBASE */
+                if(!rex.is32bits && MODREG) {
+                    GETED(0);
+                    int seg = _FS+((nextop>>3)&7);
+                    uintptr_t addr = emu->segs_offs[seg];
+                    if(rex.w)
+                        ED->q[0] = addr;
+                    else {
+                        ED->dword[0] = addr;
+                        ED->dword[1] = 0;
+                    }
+                } else {
+                    return 0;
+                }
+                break;
+            case 2: /* WRFSBASE */
+            case 3: /* WRGSBASE */
+                if(!rex.is32bits && MODREG) {
+                    GETED(0);
+                    int seg = _FS+((nextop>>3)&7)-2;
+                    uintptr_t base = rex.w?ED->q[0]:ED->dword[0];
+                    emu->segs_offs[seg] = base;
+                } else {
+                    return 0;
+                }
+                break;
+            default: return 0;
+        }
         break;
 
     case 0xB8:  /* POPCNT Gd,Ed */

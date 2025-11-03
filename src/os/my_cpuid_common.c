@@ -193,21 +193,21 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             // extended bits...
             if(R_ECX==0) {
                 R_EAX = 0;
-                R_EBX =
-                        BOX64ENV(avx)<<3 |  // BMI1
-                        BOX64ENV(avx2)<<5 |  //AVX2
-                        (BOX64ENV(cputype)?0:1)<<6 | // FDP_EXCPTN_ONLY
-                        1<<7 | // SMEP
-                        BOX64ENV(avx2)<<8 | //BMI2
-                        (BOX64ENV(cputype)?0:1)<<9 |    // Enhanced REP MOVSB   // is it a good idea?
-                        1<<10 | //INVPCID (priviledge instruction
-                        (BOX64ENV(cputype)?0:1)<<13 | // Deprecates FPU CS and FPU DS
-                        0<<18 | // RDSEED
-                        BOX64ENV(avx2)<<19 | //ADX
-                        1<<23 | // CLFLUSHOPT
-                        1<<24 | // CLWB
-                        BOX64ENV(shaext)<<29|  // SHA extension
-                        0;
+                R_EBX = 1<<0 // FSGSBASE
+                        | BOX64ENV(avx)<<3  // BMI1
+                        | BOX64ENV(avx2)<<5  //AVX2
+                        | (BOX64ENV(cputype)?0:1)<<6 // FDP_EXCPTN_ONLY
+                        | 1<<7 // SMEP
+                        | BOX64ENV(avx2)<<8 //BMI2
+                        | (BOX64ENV(cputype)?0:1)<<9    // Enhanced REP MOVSB   // is it a good idea?
+                        | 1<<10 //INVPCID (priviledge instruction
+                        | (BOX64ENV(cputype)?0:1)<<13 // Deprecates FPU CS and FPU DS
+                        | 0<<18 // RDSEED
+                        | BOX64ENV(avx2)<<19 //ADX
+                        | 1<<23 // CLFLUSHOPT
+                        | 1<<24 // CLWB
+                        | BOX64ENV(shaext)<<29 // SHA extension
+                        ;
                 R_RCX =
                         (BOX64ENV(avx)&&BOX64ENV(aes))<<9   | //VAES
                         (BOX64ENV(avx2)&&BOX64ENV(pclmulqdq))<<10 | //VPCLMULQDQ.

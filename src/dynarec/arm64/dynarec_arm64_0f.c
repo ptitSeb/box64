@@ -1774,6 +1774,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP FS");
             POP1z(x2);
             STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
+            CBZw_NEXT(x2);
+            MOV32w(x1, _FS);
+            CALL(const_getsegmentbase, -1);
             break;
         case 0xA2:
             INST_NAME("CPUID");
@@ -1857,6 +1860,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP GS");
             POP1z(x2);
             STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
+            CBZw_NEXT(x2);
+            MOV32w(x1, _GS);
+            CALL(const_getsegmentbase, -1);
             break;
 
         case 0xAB:
