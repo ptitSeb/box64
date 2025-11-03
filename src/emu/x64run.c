@@ -2072,6 +2072,7 @@ x64emurun:
             } else
             #endif
             {
+                CHECK_FLAGS(emu);
                 printf_log(LOG_DEBUG, "HLT encountered in interpreter, exiting\n");
                 emu->quit = 1;
                 goto fini;
