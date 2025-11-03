@@ -721,8 +721,8 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEW(1);
         tmp8u = F8 /*& 0x1f*/;
         switch((nextop>>3)&7) {
-            case 0: EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
-            case 1: EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
+            case 0: tmp8u2=ACCESS_FLAG(F_OF); EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
+            case 1: tmp8u2=ACCESS_FLAG(F_OF); EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
             case 2: EW->word[0] = rcl16(emu, EW->word[0], tmp8u); break;
             case 3: EW->word[0] = rcr16(emu, EW->word[0], tmp8u); break;
             case 4:
@@ -730,6 +730,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 5: EW->word[0] = shr16(emu, EW->word[0], tmp8u); break;
             case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
         }
+        if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) CONDITIONAL_SET_FLAG(tmp8u2, F_OF);
         break;
 
     case 0xC7:                              /* MOV Ew,Iw */
