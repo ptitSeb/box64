@@ -35,6 +35,15 @@ void native_frstor(x64emu_t* emu, uint8_t* ed);
 void native_frstor16(x64emu_t* emu, uint8_t* ed);
 void native_fprem1(x64emu_t* emu);
 
+double direct_f2xm1(x64emu_t* emu, double a);
+double direct_fyl2x(x64emu_t* emu, double a, double b);
+double direct_fyl2xp1(x64emu_t* emu, double a, double b);
+double direct_fpatan(x64emu_t* emu, double a, double b);
+double direct_fsin(x64emu_t* emu, double a);
+double direct_fcos(x64emu_t* emu, double a);
+double direct_ftan(x64emu_t* emu, double a);
+double direct_fscale(x64emu_t* emu, double a, double b);
+
 void native_aesd(x64emu_t* emu, int xmm);
 void native_aesd_y(x64emu_t* emu, int ymm);
 void native_aese(x64emu_t* emu, int xmm);

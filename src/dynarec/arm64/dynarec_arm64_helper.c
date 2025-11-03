@@ -833,16 +833,16 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
     //SET_NODF();
 }
 
-void call_i(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc)
+void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1, int arg2, int sav1, int sav2)
 {
     MAYUSE(fnc);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
     #endif
-    STPx_S7_preindex(x6, x87pc, xSP, -16);
-    STPx_S7_preindex(x4, x5, xSP, -16);
-    STPx_S7_preindex(x2, x3, xSP, -16);
-    STPx_S7_preindex(xEmu, x1, xSP, -16);   // ARM64 stack needs to be 16byte aligned
+    STPx_S7_preindex(xEmu, x87pc, xSP, -16);
+    if((sav1>0) || (sav2>0)) {
+        STPx_S7_preindex((sav1>0)?sav1:xZR, (sav2>0)?sav2:xZR, xSP, -16);
+    }
     STPx_S7_offset(xRAX, xRCX, xEmu, offsetof(x64emu_t, regs[_AX]));    // x9..x15, x16,x17,x18 those needs to be saved by caller
     STPx_S7_offset(xRDX, xRBX, xEmu, offsetof(x64emu_t, regs[_DX]));
     STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
@@ -854,11 +854,18 @@ void call_i(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc)
     #ifdef _WIN32
     LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
     #endif
+    if(arg1!=-1)
+        FMOVD(0, arg1);
+    if(arg2!=-1)
+        FMOVD(1, arg2);
     TABLE64C(x87pc, fnc);
     BLR(x87pc);
-    LDPx_S7_postindex(xEmu, x1, xSP, 16);
-    LDPx_S7_postindex(x2, x3, xSP, 16);
-    LDPx_S7_postindex(x4, x5, xSP, 16);
+    if(ret!=-1)
+        FMOVD(ret, 0);  // will not work if ret is 0..7 and XMM are used
+    if((sav1>0) || (sav2>0)) {
+        LDPx_S7_postindex((sav1>0)?sav1:xZR, (sav2>0)?sav2:xZR, xSP, 16);
+    }
+    LDPx_S7_postindex(xEmu, x87pc, xSP, 16);
     #define GO(A, B) LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
     GO(RAX, RCX);
     GO(RDX, RBX);
@@ -867,8 +874,7 @@ void call_i(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc)
     GO(R8, R9);
     #undef GO
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    fpu_popcache(dyn, ninst, x87pc, 0);   // savereg will not be used
-    LDPx_S7_postindex(x6, x87pc, xSP, 16);
+    fpu_popcache(dyn, ninst, x1, 0);   // savereg will not be used
     //SET_NODF();
 }
 

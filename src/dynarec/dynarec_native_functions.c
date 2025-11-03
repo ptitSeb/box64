@@ -123,6 +123,50 @@ void native_fcos(x64emu_t* emu)
     emu->sw.f.F87_C2 = 0;
 }
 
+double direct_f2xm1(x64emu_t* emu, double a)
+{
+    return expm1(LN2 * a);
+}
+double direct_fyl2x(x64emu_t* emu, double a, double b)
+{
+    return log2(a)*b;
+}
+double direct_fyl2xp1(x64emu_t* emu, double a, double b)
+{
+    return log1p(a)*b/LN2;
+}
+double direct_fpatan(x64emu_t* emu, double a, double b)
+{
+#pragma STDC FENV_ACCESS ON
+    return atan2(b, a);
+}
+double direct_fsin(x64emu_t* emu, double a)
+{
+#pragma STDC FENV_ACCESS ON
+    // seems that sin of glib doesn't follow the rounding direction mode
+    emu->sw.f.F87_C2 = 0;
+    return sin(a);
+}
+double direct_fcos(x64emu_t* emu, double a)
+{
+#pragma STDC FENV_ACCESS ON
+    // seems that cos of glib doesn't follow the rounding direction mode
+    emu->sw.f.F87_C2 = 0;
+    return cos(a);
+}
+double direct_ftan(x64emu_t* emu, double a)
+{
+#pragma STDC FENV_ACCESS ON
+    // seems that tan of glib doesn't follow the rounding direction mode
+    emu->sw.f.F87_C2 = 0;
+    return tan(a);
+}
+double direct_fscale(x64emu_t* emu, double a, double b)
+{
+#pragma STDC FENV_ACCESS ON
+    return a?ldexp(a, trunc(b)):a;
+}
+
 void native_fbld(x64emu_t* emu, uint8_t* ed)
 {
     fpu_fbld(emu, ed);

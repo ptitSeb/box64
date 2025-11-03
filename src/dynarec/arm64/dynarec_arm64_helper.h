@@ -735,9 +735,9 @@
 // CALL_S will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret) call_c(dyn, ninst, F, x87pc, ret, 0, 0)
-// CALL_ will use x7 for the call address.
-// All regs are saved, including scratch. This is use to call internal function that should not change state
-#define CALL_I(F) call_i(dyn, ninst, F)
+// CALL_D will use x7 for the call address. Use for function having 1 or 2 double args and returning 1 double
+// All regs are saved, including xmm0-7, will move arg1/arg2 to D0, D1, return D0 to ret (unless any is -1)
+#define CALL_D(F, ret, arg1, arg2, sav1, sav2) call_d(dyn, ninst, F, ret, arg1, arg2, sav1, sav2)
 
 #define MARK        dyn->insts[ninst].mark = dyn->native_size
 #define GETMARK     dyn->insts[ninst].mark
@@ -1348,7 +1348,7 @@
 #define retn_to_epilog  STEPNAME(retn_to_epilog)
 #define iret_to_epilog  STEPNAME(iret_to_epilog)
 #define call_c          STEPNAME(call_c)
-#define call_i          STEPNAME(call_i)
+#define call_d          STEPNAME(call_d)
 #define call_n          STEPNAME(call_n)
 #define grab_segdata    STEPNAME(grab_segdata)
 #define emit_cmp8       STEPNAME(emit_cmp8)
@@ -1519,7 +1519,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int save_reg);
-void call_i(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc);
+void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1, int arg2, int sav1, int sav2);
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w);
 void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg);
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
