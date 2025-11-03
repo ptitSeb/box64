@@ -1849,11 +1849,11 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     x7 = imm if inst use imm op
 */
 #define LOCK_32_IN_8BYTE(op, x1, wback, x3, x4, x5, x6, x7) \
+    if (wback != x2) {                                      \
+        MV(x2, wback);                                      \
+        wback = x2;                                         \
+    }                                                       \
     BSTRINS_D(wback, xZR, 2, 0);                            \
-    if(wback != x2) {                                            \
-        MV(x2, wback);                                           \
-        wback = x2;                                              \
-    }                                                            \
     SLLI_W(x3, x3, 3);                                      \
     if (cpuext.lamcas) {                                    \
         LD_D(x5, wback, 0);                                 \
