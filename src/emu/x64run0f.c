@@ -1628,21 +1628,21 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 if(tmp64u) {
                     CLEAR_FLAG(F_ZF);
                     while(!(tmp64u&(1LL<<tmp8u))) ++tmp8u;
+                    GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                }
-                if(tmp64u || !MODREG)
                     GD->q[0] = tmp8u;
+                }
             } else {
                 tmp32u = ED->dword[0];
                 if(tmp32u) {
                     CLEAR_FLAG(F_ZF);
                     while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
+                    GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                }
-                if(tmp32u || !MODREG)
                     GD->q[0] = tmp8u;
+                }
             }
             if(!BOX64ENV(cputype)) {
                 CONDITIONAL_SET_FLAG(PARITY(tmp8u), F_PF);
@@ -1664,11 +1664,11 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     CLEAR_FLAG(F_ZF);
                     tmp8u = 63;
                     while(!(tmp64u&(1LL<<tmp8u))) --tmp8u;
+                    GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                }
-                if(tmp64u || !MODREG)
                     GD->q[0] = tmp8u;
+                }
             } else {
                 tmp32u = ED->dword[0];
                 if(tmp32u) {
@@ -1678,8 +1678,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                    if(!MODREG)
-                        GD->q[0] = tmp8u;
+                    GD->q[0] = tmp8u;
                 }
             }
             if(!BOX64ENV(cputype)) {
