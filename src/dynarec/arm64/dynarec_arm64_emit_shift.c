@@ -1030,7 +1030,7 @@ void emit_rol16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     if (!c) return;
 
     if(!BOX64ENV(cputype))
-        IFX(X_OF) {
+        IFX2(X_OF, && c == 1) {
             LSRw(s3, s1, 14);
             EORw_REG_LSR(s3, s3, s3, 1);
             BFIw(xFlags, s3, F_OF, 1);
@@ -1058,7 +1058,7 @@ void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     if (!c) return;
 
     if(!BOX64ENV(cputype))
-        IFX(X_OF) {
+        IFX2(X_OF, && c == 1) {
             EORw_REG_LSR(s3, s1, s1, 15);
             BFIw(xFlags, s3, F_OF, 1);
         }
