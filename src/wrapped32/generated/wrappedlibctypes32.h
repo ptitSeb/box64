@@ -210,6 +210,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(backtrace, iEpi_t) \
 	GO(__gettimeofday64, iEpp_t) \
 	GO(__lstat64_time64, iEpp_t) \
+	GO(__nanosleep64, iEpp_t) \
 	GO(__stat64_time64, iEpp_t) \
 	GO(alphasort64, iEpp_t) \
 	GO(statvfs, iEpp_t) \

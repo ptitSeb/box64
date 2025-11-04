@@ -2464,6 +2464,7 @@ wrappedlibc:
 - iEpp:
   - __gettimeofday64
   - __lstat64_time64
+  - __nanosleep64
   - __stat64_time64
   - alphasort64
   - statvfs

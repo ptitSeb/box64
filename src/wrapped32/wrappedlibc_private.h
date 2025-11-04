@@ -1177,6 +1177,7 @@ GO(munlockall, iEv)
 GOM(munmap, iEEpL)       //%%
 GO(muntrace, vFv)
 GOWM(nanosleep, iErLL_BLL_)	 //%%,noE
+GO2(__nanosleep64, iEpp, nanosleep)
 // __nanosleep  // Weak
 // netname2host
 // netname2user
@@ -1955,7 +1956,7 @@ GOWM(vsnprintf, iEEpLpp)         //%%
 GOWM(__vsnprintf, iEEpLpp)       //%%
 GOM(__vsnprintf_chk, iEEpLiipp)  //%%
 GOWM(vsprintf, iEEppp)            //%%
-GOM(__vsprintf_chk, iEEpiLpp)     //%% 
+GOM(__vsprintf_chk, iEEpiLpp)     //%%
 GOM(vsscanf, iEEppp) //%%
 // __vsscanf    // Weak
 GOWM(vswprintf, iEEpLpp)         //%%
