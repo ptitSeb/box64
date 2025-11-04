@@ -1282,7 +1282,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            if((u8==_FS) || (u8==_GS)) {
+            if ((u8 == _FS) || (u8 == _GS)) {
                 // refresh offset if needed
                 CBZ_NEXT(ed);
                 MOV32w(x1, u8);
@@ -1811,12 +1811,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(const_rol8, ed, x3, x1, x2);
+                    emit_rol8c(dyn, ninst, rex, ed, u8 & 0x1f, x4, x5, x6);
                     EBBACK();
                     break;
                 case 4:
@@ -2263,15 +2261,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (opcode == 0xD0) {
                         INST_NAME("ROL Eb, 1");
                         GETEB(x1, 0);
-                        MOV32w(x2, 1);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        emit_rol8c(dyn, ninst, rex, ed, 1, x4, x5, x6);
                     } else {
                         INST_NAME("ROL Eb, CL");
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        emit_rol8(dyn, ninst, rex, ed, x2, x4, x5, x6);
                     }
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    CALL_(const_rol8, ed, x3, x1, x2);
                     EBBACK();
                     break;
                 case 4:
@@ -2388,7 +2386,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ed, CL");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
                     emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
