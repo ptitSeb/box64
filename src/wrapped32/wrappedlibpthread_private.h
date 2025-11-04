@@ -169,7 +169,7 @@ GOM(__pthread_unregister_cancel, vEEp)
 // __pthread_unregister_cancel_restore
 // __pthread_unwind
 GOM(__pthread_unwind_next, vEEp)
-GO(pthread_yield, iEv)
+GOM(pthread_yield, iEEv)
 // raise
 // __res_state
 GOM(sem_close, iEp) //%noE

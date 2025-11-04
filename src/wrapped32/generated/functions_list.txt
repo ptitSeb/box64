@@ -2843,6 +2843,8 @@ wrappedlibpthread:
   - __pthread_register_cancel
   - __pthread_unregister_cancel
   - __pthread_unwind_next
+- iEv:
+  - pthread_yield
 - iEp:
   - __pthread_mutex_destroy
   - __pthread_mutex_lock

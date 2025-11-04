@@ -13,6 +13,7 @@
 
 typedef void (*vEv_t)(void);
 typedef void (*vEp_t)(void*);
+typedef int32_t (*iEv_t)(void);
 typedef int32_t (*iEp_t)(void*);
 typedef int32_t (*iEh_t)(uintptr_t);
 typedef void (*vEpi_t)(void*, int32_t);
@@ -37,6 +38,7 @@ typedef int32_t (*iEBh_ppp_t)(struct_h_t*, void*, void*, void*);
 	GO(__pthread_register_cancel, vEp_t) \
 	GO(__pthread_unregister_cancel, vEp_t) \
 	GO(__pthread_unwind_next, vEp_t) \
+	GO(pthread_yield, iEv_t) \
 	GO(__pthread_mutex_destroy, iEp_t) \
 	GO(__pthread_mutex_lock, iEp_t) \
 	GO(__pthread_mutex_trylock, iEp_t) \

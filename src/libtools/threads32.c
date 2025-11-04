@@ -39,6 +39,7 @@
 
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
+typedef int  (*iFv_t)(void);
 typedef int  (*iFLi_t)(unsigned long, int);
 //starting with glibc 2.34+, those 2 functions are in libc.so as versioned symbol only
 // So use dlsym to get the symbol unversioned, as simple link will not work.
@@ -47,6 +48,7 @@ static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 // with glibc 2.34+, pthread_kill changed behaviour and might break some program, so using old version if possible
 // it will be pthread_kill@GLIBC_2.0+, need to be found, while it's GLIBC_2.0 on i386
 static iFLi_t real_phtread_kill_old = NULL;
+static iFv_t real_pthread_yield = NULL;
 // those function can be used simply
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop(void* buffer, int exec);
@@ -1032,6 +1034,11 @@ EXPORT int my32_pthread_mutex_unlock(pthread_mutex_t *m)
 }
 EXPORT int my32___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("my32_pthread_mutex_unlock")));
 
+EXPORT int my32_pthread_yield(x64emu_t* emu)
+{
+	return real_pthread_yield();
+}
+
 static int done = 0;
 void init_pthread_helper_32()
 {
@@ -1053,6 +1060,10 @@ void init_pthread_helper_32()
 		printf_log(LOG_INFO, "Warning, older than 2.34 pthread_kill not found, using current one\n");
 		real_phtread_kill_old = (iFLi_t)pthread_kill;
 	}
+	// pthread_yield (or sched_yield if not found)
+	real_pthread_yield = (iFv_t)dlsym(NULL, "pthread_yield");
+	if(!real_pthread_yield)
+		real_pthread_yield = sched_yield;
 
 	mapcond = kh_init(mapcond);
 }
