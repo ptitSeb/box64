@@ -348,13 +348,20 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         SET_DFNONE();
     }
 
+    IFX (X_OF) {
+        SRLI(s3, s1, 14);
+        SRLI(s5, s3, 1);
+        XOR(s3, s3, s5);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     if (c < 16) {
-        IFX (X_CF | X_OF) {
+        IFX (X_CF) {
             SRLI(s3, s1, 16 - c);
             ANDI(s5, s3, 1); // LSB == F_CF
-            IFX (X_CF) {
-                OR(xFlags, xFlags, s5);
-            }
+            OR(xFlags, xFlags, s5);
         }
 
         SLLI(s1, s1, c + 48);
@@ -369,25 +376,14 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         IFX (X_ZF) {
             SET_FLAGS_EQZ(s1, F_ZF, s3);
         }
-        IFX (X_OF) {
-            // OF flag is affected only on 1-bit shifts
-            if (c == 1) {
-                SRLI(s3, s1, 15);
-                XOR(s3, s3, s5);
-                SLLI(s3, s3, F_OF2);
-                OR(xFlags, xFlags, s3);
-            }
-        }
         IFX (X_PF) {
             emit_pf(dyn, ninst, s1, s3, s4);
         }
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
     } else {
-        IFX (X_CF) {
-            if (c == 16) {
-                ANDI(s3, s1, 1);
-                OR(xFlags, xFlags, s3); // F_CF == 0
-            }
+        IFXA (X_CF, (c == 16)) {
+            ANDI(s3, s1, 1);
+            OR(xFlags, xFlags, s3); // F_CF == 0
         }
         MV(s1, xZR);
 
@@ -434,13 +430,10 @@ void emit_shr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
-        if (c == 1) {
-            SRLI(s3, s1, 15);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
+        SRLI(s3, s1, 15);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
     }
 
     SRLI(s1, s1, c);
@@ -519,14 +512,21 @@ void emit_shl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
 
+    IFX (X_OF) {
+        SRLI(s3, s1, 14);
+        SRLI(s5, s3, 1);
+        XOR(s3, s3, s5);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     SLL(s1, s1, s2);
 
-    IFX (X_CF | X_OF) {
+    IFX (X_CF) {
         SRLI(s5, s1, 16);
         ANDI(s5, s5, 1); // LSB == F_CF
-        IFX (X_CF) {
-            OR(xFlags, xFlags, s5);
-        }
+        OR(xFlags, xFlags, s5);
     }
 
     SLLI(s1, s1, 48);
@@ -540,15 +540,6 @@ void emit_shl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s3);
-    }
-    IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        ADDI(s3, s2, -1);
-        BNEZ(s3, 4 + 4 * 4);
-        SRLI(s3, s1, 15);
-        XOR(s3, s3, s5);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -578,10 +569,7 @@ void emit_shr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
-        ADDI(s3, xZR, 1);
-        BNE(s2, s3, 4 + 3 * 4);
         SRLI(s3, s1, 15);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
@@ -1048,12 +1036,13 @@ void emit_rol16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
 
     IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+        if (c == 1)
+            ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+        else
+            ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ANDI(s4, s1, 1 << F_CF);
         IFX (X_CF) OR(xFlags, xFlags, s4);
-    }
-    IFX (X_OF) {
-        if (c == 1) {
+        IFXA (X_OF, (c == 1)) {
             SRLI(s3, s1, 15);
             XOR(s3, s3, s4);
             SLLI(s3, s3, F_OF2);
@@ -1119,6 +1108,20 @@ void emit_ror16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 
     SET_DFNONE();
 
+    IFX (X_CF | X_OF) {
+        if (c == 1)
+            ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+        else
+            ANDI(xFlags, xFlags, ~(1UL << F_CF));
+    }
+    IFXA (X_OF, (c == 1)) {
+        SRLI(s3, s1, 15);
+        XOR(s3, s3, s1);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     if (c & 15) {
         SRLI(s3, s1, c & 15);
         SLLI(s1, s1, 16 - (c & 15));
@@ -1126,25 +1129,11 @@ void emit_ror16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         ZEXTH(s1, s1);
     }
 
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
-    }
-
     IFX (X_CF) {
         SRLI(s3, s1, 15);
         OR(xFlags, xFlags, s3);
     }
 
-    IFX (X_OF) {
-        if (c == 1) {
-            SRLI(s3, s1, 14);
-            SRLI(s4, s3, 1);
-            XOR(s3, s3, s4);
-            ANDI(s3, s3, 1);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
-    }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
@@ -1272,6 +1261,13 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         }
         return;
     }
+    IFX (X_OF) {
+        SRLI(s3, s1, 15);
+        XOR(s3, s3, s2);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
 
     // create concat first
     SLLI(s5, s2, 16);
@@ -1286,10 +1282,6 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
             ANDI(s3, s1, 1); // LSB == F_CF
         }
         OR(xFlags, xFlags, s3);
-    }
-    IFX (X_OF) {
-        // Store sign for later use.
-        if (c == 1) SRLI(s4, s1, 15);
     }
 
     if (cpuext.zbb) {
@@ -1306,16 +1298,6 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s5);
-    }
-    IFX (X_OF) {
-        // the OF flag is set if a sign change occurred
-        if (c == 1) {
-            SRLI(s3, s1, 15);
-            XOR(s3, s3, s4);
-            ANDI(s3, s3, 1);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
     }
     IFX (X_SF) {
         SLLIW(s3, s1, 16);
@@ -1499,12 +1481,21 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         return;
     }
 
+    IFX (X_OF) {
+        SRLI(s3, s1, 14);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     // create concat first
     SLLI(s5, s2, 16);
     OR(s1, s1, s5);
 
     IFX (X_CF) {
-        if (c < 16) {
+        if (c <= 16) {
             SRLI(s3, s1, 16 - c);
         } else {
             SRLI(s3, s2, 32 - c);
@@ -1512,11 +1503,6 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         ANDI(s5, s3, 1); // LSB == F_CF
         OR(xFlags, xFlags, s5);
     }
-    IFX (X_OF) {
-        // Store sign for later use.
-        if (c == 1) SRLI(s5, s1, 15);
-    }
-
     if (cpuext.zbb) {
         RORIW(s1, s1, 32 - c);
     } else {
@@ -1528,16 +1514,6 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 
     IFX (X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, res));
-    }
-    IFX (X_OF) {
-        // the OF flag is set if a sign change occurred
-        if (c == 1) {
-            SRLI(s3, s1, 15);
-            XOR(s3, s3, s5);
-            ANDI(s3, s3, 1);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
     }
     IFX (X_SF) {
         SLLIW(s4, s1, 16);
@@ -1559,6 +1535,16 @@ void emit_rcl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 
     SET_DFNONE();
 
+    IFX (X_OF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_OF2));
+        SRLI(s3, s1, 14);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     c %= 17;
 
     ANDI(s3, xFlags, 1 << F_CF);
@@ -1571,20 +1557,12 @@ void emit_rcl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     SRLI(s1, s1, 17 - c);
     OR(s1, s1, s3);
 
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
+    IFX (X_CF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_CF));
         SRLI(s4, s4, 63);
-        IFX (X_CF) OR(xFlags, xFlags, s4);
+        OR(xFlags, xFlags, s4);
     }
 
-    IFX (X_OF) {
-        if (c == 1) {
-            SRLI(s3, s1, 15);
-            XOR(s3, s3, s4);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
-    }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
@@ -1599,8 +1577,16 @@ void emit_rcr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 
     SET_DFNONE();
 
-    c %= 17;
+    IFX (X_OF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_OF2));
+        SRLI(s3, s1, 15);
+        XOR(s3, s3, xFlags);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
 
+    c %= 17;
 
     ANDI(s3, xFlags, 1 << F_CF);
     SLLI(s3, s3, 16);
@@ -1612,24 +1598,11 @@ void emit_rcr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     SLLI(s4, s1, 47);
     ZEXTH(s1, s1);
 
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
-    }
-
     IFX (X_CF) {
+        ANDI(xFlags, xFlags, ~(1UL << F_CF));
         SRLI(s4, s4, 63);
         OR(xFlags, xFlags, s4);
     }
 
-    IFX (X_OF) {
-        if (c == 1) {
-            SRLI(s3, s1, 14);
-            SRLI(s4, s3, 1);
-            XOR(s3, s3, s4);
-            ANDI(s3, s3, 1);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
-    }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
