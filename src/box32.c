@@ -88,7 +88,7 @@ uintptr_t from_hash_d(ulong_t l) {
 
 // Convert from 64bits to hash key, creating it if needed
 ulong_t to_hash(uintptr_t p) {
-    if((p>0x100000000LL) && ((p&HASH_MSK)!=HASH_MSK))
+    if((p<0x100000000LL) && ((p&HASH_MSK)!=HASH_MSK))
         return (ulong_t)p;
     if(p==0xffffffffffffffffll) {
         return 0xffffffff;
@@ -120,7 +120,7 @@ ulong_t to_hash(uintptr_t p) {
 
 // Convert from 64bits to hash key and delete the entry from both hash table
 ulong_t to_hash_d(uintptr_t p) {
-    if((p>0x100000000LL) && ((p&HASH_MSK)!=HASH_MSK))
+    if((p<0x100000000LL) && ((p&HASH_MSK)!=HASH_MSK))
         return (ulong_t)p;
     if(p==0xffffffffffffffffll)
         return 0xffffffff;
