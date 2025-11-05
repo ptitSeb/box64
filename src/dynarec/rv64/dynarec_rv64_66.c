@@ -434,7 +434,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("IMUL Gw,Ew,Ib");
             }
-            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETSEW(x1, (opcode == 0x69) ? 2 : 1);
             if (opcode == 0x69)
@@ -442,12 +442,25 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             else
                 i32 = F8S;
             MOV32w(x2, i32);
-            MULW(x2, x2, x1);
-            ZEXTH(x2, x2);
-            UFLAG_RES(x2);
+            MULW(x5, x2, x1);
+            ZEXTH(x2, x5);
+            SET_DFNONE();
+            CLEAR_FLAGS();
+            IFX (X_CF | X_OF) {
+                SRAIW(x6, x5, 15);
+                SRAIW(x7, x5, 31);
+                XOR(x6, x6, x7);
+                IFX (X_CF) SET_FLAGS_NEZ(x6, F_CF, x7);
+                IFX (X_OF) SET_FLAGS_NEZ(x6, F_OF2, x7);
+            }
+            IFX (X_SF) {
+                SRLI(x6, x5, 15 - F_SF);
+                ANDI(x6, x6, 1 << F_SF);
+                OR(xFlags, xFlags, x6);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, x5, x6, x7);
             gd = x2;
             GWBACK;
-            UFLAG_DF(x1, d_imul16);
             break;
         case 0x70:
         case 0x71:
@@ -1445,6 +1458,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     REMUW(x4, x2, ed);
                     INSHz(xRAX, x7, x5, x6, 1, 1);
                     INSHz(xRDX, x4, x5, x6, 0, 1);
+                    SET_DFNONE();
+                    CLEAR_FLAGS();
+                    ADDI(x5, xZR, ((1 << F_ZF) | (1 << F_PF)));
+                    OR(xFlags, xFlags, x5);
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
