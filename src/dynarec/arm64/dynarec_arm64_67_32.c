@@ -84,7 +84,7 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
-        case 64:
+        case 0x64:
             addr = dynarec64_6764_32(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
             break;
 
