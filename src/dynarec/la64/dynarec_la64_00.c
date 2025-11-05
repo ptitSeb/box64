@@ -1133,19 +1133,40 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                ANDI(x3, ed, (1 << (2 + rex.w)) - 1);
-                BNEZ_MARK(x3);
-                MARKLOCK;
-                LLxw(x1, ed, 0);
-                MVxw(x3, gd);
-                SCxw(x3, ed, 0);
-                BEQZ_MARKLOCK(x3);
-                B_MARK2_nocond;
-                MARK;
-                LDxw(x1, ed, 0);
-                SDxw(gd, ed, 0);
-                MARK2;
-                MVxw(gd, x1);
+                if (rex.w) {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b111);
+                        BNEZ_MARK2(x3);
+                    }
+                    /* LoongArch Reference Manual Vol1 2.2.7.1
+                        If the AM* atomic memory access instruction has the same register number as rd and rk, 
+                        the execution result is uncertain. Please software to avoid this situation.
+                    */
+                    AMSWAP_DB_D(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
+                } else {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b11);
+                        BNEZ_MARK(x3);
+                    }
+                    // aligned 4byte
+                    AMSWAP_DB_W(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) {
+                        B_MARK3_nocond;
+                        MARK;
+                        ANDI(x3, wback, 0b111);
+                        SLTI(x4, x3, 4);
+                        BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                        LOCK_32_IN_8BYTE(ADDI_W(x4, gd, 0), x1, wback, x3, x4, x5, x6, x7);
+                        B_MARK3_nocond;
+                    }
+                }
+                if (!ALIGNED_ATOMICxw) {
+                    MARK2;
+                    LOCK_3264_CROSS_8BYTE(ADDI_D(x4, gd, 0), x1, wback, x4, x5, x6);
+                    MARK3;
+                }
+                MV(gd, x1);
             }
             break;
         case 0x88:

@@ -68,7 +68,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNEZ_MARK2(x3);
                     }
                     AMADD_DB_D(x1, gd, wback);
-                    B_MARK3_nocond;
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                 } else {
                     if (!ALIGNED_ATOMICxw) {
                         ANDI(x3, wback, 0b11);
@@ -106,11 +106,35 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                MARKLOCK;
-                LLxw(x1, wback, 0);
-                OR(x4, x1, gd);
-                SCxw(x4, wback, 0);
-                BEQZ_MARKLOCK(x4);
+                if (rex.w) {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b111);
+                        BNEZ_MARK2(x3);
+                    }
+                    AMOR_DB_D(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
+                } else {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b11);
+                        BNEZ_MARK(x3);
+                    }
+                    // aligned 4byte
+                    AMOR_DB_W(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) {
+                        B_MARK3_nocond;
+                        MARK;
+                        ANDI(x3, wback, 0b111);
+                        SLTI(x4, x3, 4);
+                        BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                        LOCK_32_IN_8BYTE(OR(x4, x1, gd), x1, wback, x3, x4, x5, x6, x7);
+                        B_MARK3_nocond;
+                    }
+                }
+                if (!ALIGNED_ATOMICxw) {
+                    MARK2;
+                    LOCK_3264_CROSS_8BYTE(OR(x4, x1, gd), x1, wback, x4, x5, x6);
+                    MARK3;
+                }
                 IFXORNAT (X_ALL | X_PEND)
                     emit_or32(dyn, ninst, rex, x1, gd, x3, x4);
             }
@@ -420,7 +444,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                         BNEZ_MARK2(x3);
                                     }
                                     AMADD_DB_D(x1, gd, wback);
-                                    B_MARK3_nocond;
+                                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                                 } else {
                                     if (!ALIGNED_ATOMICxw) {
                                         ANDI(x3, wback, 0b11);
@@ -615,7 +639,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     ADD_D(x7, gd, x7);
                     AMADD_DB_D(x1, x7, wback);
-                    B_MARK3_nocond;
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                 } else {
                     if (!ALIGNED_ATOMICxw) {
                         ANDI(x3, wback, 0b11);
@@ -670,7 +694,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SUB_D(x7, xZR, gd);
                     SUB_D(x7, x7, x6);
                     AMADD_DB_D(x1, x7, wback);
-                    B_MARK3_nocond;
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                 } else {
                     if (!ALIGNED_ATOMICxw) {
                         ANDI(x3, wback, 0b11);
@@ -714,7 +738,35 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_and32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                AMAND_DBxw(x1, gd, wback);
+                if (rex.w) {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b111);
+                        BNEZ_MARK2(x3);
+                    }
+                    AMAND_DB_D(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
+                } else {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b11);
+                        BNEZ_MARK(x3);
+                    }
+                    // aligned 4byte
+                    AMAND_DB_W(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) {
+                        B_MARK3_nocond;
+                        MARK;
+                        ANDI(x3, wback, 0b111);
+                        SLTI(x4, x3, 4);
+                        BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                        LOCK_32_IN_8BYTE(AND(x4, x1, gd), x1, wback, x3, x4, x5, x6, x7);
+                        B_MARK3_nocond;
+                    }
+                }
+                if (!ALIGNED_ATOMICxw) {
+                    MARK2;
+                    LOCK_3264_CROSS_8BYTE(AND(x4, x1, gd), x1, wback, x4, x5, x6);
+                    MARK3;
+                }
                 IFXORNAT (X_ALL | X_PEND)
                     emit_and32(dyn, ninst, rex, x1, gd, x3, x4);
             }
@@ -736,7 +788,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     NEG_D(x7, gd);
                     AMADD_DB_D(x1, x7, wback);
-                    B_MARK3_nocond;
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                 } else {
                     if (!ALIGNED_ATOMICxw) {
                         ANDI(x3, wback, 0b11);
@@ -762,6 +814,49 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
                 IFXORNAT (X_ALL | X_PEND)
                     emit_sub32(dyn, ninst, rex, x1, gd, x3, x4, x5);
+            }
+            break;
+        case 0x31:
+            INST_NAME("LOCK XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                if (rex.w) {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b111);
+                        BNEZ_MARK2(x3);
+                    }
+                    AMXOR_DB_D(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
+                } else {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b11);
+                        BNEZ_MARK(x3);
+                    }
+                    // aligned 4byte
+                    AMXOR_DB_W(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) {
+                        B_MARK3_nocond;
+                        MARK;
+                        ANDI(x3, wback, 0b111);
+                        SLTI(x4, x3, 4);
+                        BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                        LOCK_32_IN_8BYTE(XOR(x4, x1, gd), x1, wback, x3, x4, x5, x6, x7);
+                        B_MARK3_nocond;
+                    }
+                }
+                if (!ALIGNED_ATOMICxw) {
+                    MARK2;
+                    LOCK_3264_CROSS_8BYTE(XOR(x4, x1, gd), x1, wback, x4, x5, x6);
+                    MARK3;
+                }
+                IFXORNAT (X_ALL | X_PEND)
+                    emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);
             }
             break;
 
@@ -831,7 +926,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK2(x3);
                             }
                             AMADD_DB_D(x1, x7, wback);
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
@@ -880,19 +975,36 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         } else {
                             i64 = F8S;
                         }
-                        if (i64 <= -2048 || i64 > 2048) {
-                            MOV64xw(x3, i64);
-                        }
-                        MARKLOCK;
-                        LLxw(x1, wback, 0);
-                        if (i64 >= -2048 && i64 < 2048) {
-                            ORI(x4, x1, i64);
+                        MOV64xw(x7, i64);
+                        if (rex.w) {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b111);
+                                BNEZ_MARK2(x3);
+                            }
+                            AMOR_DB_D(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
-                            OR(x4, x1, x3);
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b11);
+                                BNEZ_MARK(x3);
+                            }
+                            // aligned 4byte
+                            AMOR_DB_W(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) {
+                                B_MARK3_nocond;
+                                MARK;
+                                ANDI(x3, wback, 0b111);
+                                SLTI(x4, x3, 4);
+                                BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                                LOCK_32_IN_8BYTE(OR(x4, x1, x7), x1, wback, x3, x4, x5, x6, x7);
+                                B_MARK3_nocond;
+                            }
                         }
-                        if (!rex.w) ZEROUP(x4);
-                        SCxw(x4, wback, 0);
-                        BEQZ_MARKLOCK(x4);
+                        if (!ALIGNED_ATOMICxw) {
+                            MARK2;
+                            LOCK_3264_CROSS_8BYTE(OR(x4, x1, x7), x1, wback, x4, x5, x6);
+                            MARK3;
+                        }
                         IFXORNAT (X_ALL | X_PEND)
                             emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
@@ -931,7 +1043,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK2(x3);
                             }
                             AMADD_DB_D(x1, x7, wback);
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
@@ -994,7 +1106,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK2(x3);
                             }
                             AMADD_DB_D(x1, x7, wback);
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
@@ -1045,9 +1157,33 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F8S;
                         MOV64xw(x7, i64);
                         if (rex.w) {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b111);
+                                BNEZ_MARK2(x3);
+                            }
                             AMAND_DB_D(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b11);
+                                BNEZ_MARK(x3);
+                            }
+                            // aligned 4byte
                             AMAND_DB_W(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) {
+                                B_MARK3_nocond;
+                                MARK;
+                                ANDI(x3, wback, 0b111);
+                                SLTI(x4, x3, 4);
+                                BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                                LOCK_32_IN_8BYTE(AND(x4, x1, x7), x1, wback, x3, x4, x5, x6, x7);
+                                B_MARK3_nocond;
+                            }
+                        }
+                        if (!ALIGNED_ATOMICxw) {
+                            MARK2;
+                            LOCK_3264_CROSS_8BYTE(AND(x4, x1, x7), x1, wback, x4, x5, x6);
+                            MARK3;
                         }
                         IFXORNAT (X_ALL | X_PEND)
                             emit_and32c(dyn, ninst, rex, x1, i64, x3, x4);
@@ -1080,7 +1216,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK2(x3);
                             }
                             AMADD_DB_D(x1, x7, wback);
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
@@ -1107,6 +1243,60 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
                     break;
+                case 6:
+                    if (opcode == 0x81) {
+                        INST_NAME("LOCK XOR Ed, Id");
+                    } else {
+                        INST_NAME("LOCK XOR Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (MODREG) {
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        emit_xor32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        MOV64xw(x7, i64);
+                        if (rex.w) {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b111);
+                                BNEZ_MARK2(x3);
+                            }
+                            AMXOR_DB_D(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; };
+                        } else {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b11);
+                                BNEZ_MARK(x3);
+                            }
+                            // aligned 4byte
+                            AMXOR_DB_W(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) {
+                                B_MARK3_nocond;
+                                MARK;
+                                ANDI(x3, wback, 0b111);
+                                SLTI(x4, x3, 4);
+                                BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                                LOCK_32_IN_8BYTE(XOR(x4, x1, x7), x1, wback, x3, x4, x5, x6, x7);
+                                B_MARK3_nocond;
+                            }
+                        }
+                        if (!ALIGNED_ATOMICxw) {
+                            MARK2;
+                            LOCK_3264_CROSS_8BYTE(XOR(x4, x1, x7), x1, wback, x4, x5, x6);
+                            MARK3;
+                        }
+                        IFXORNAT (X_ALL | X_PEND)
+                            emit_xor32c(dyn, ninst, rex, x1, i64, x3, x4);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
@@ -1123,20 +1313,86 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                MARKLOCK;
-                LLxw(x1, wback, 0);
-                MV(x4, gd);
-                SCxw(x4, wback, 0);
-                BEQZ_MARKLOCK(x4);
-                MVxw(gd, x1);
+                if (rex.w) {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b111);
+                        BNEZ_MARK2(x3);
+                    }
+                    /* LoongArch Reference Manual Vol1 2.2.7.1
+                        If the AM* atomic memory access instruction has the same register number as rd and rk, 
+                        the execution result is uncertain. Please software to avoid this situation.
+                    */
+                    AMSWAP_DB_D(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
+                } else {
+                    if (!ALIGNED_ATOMICxw) {
+                        ANDI(x3, wback, 0b11);
+                        BNEZ_MARK(x3);
+                    }
+                    // aligned 4byte
+                    AMSWAP_DB_W(x1, gd, wback);
+                    if (!ALIGNED_ATOMICxw) {
+                        B_MARK3_nocond;
+                        MARK;
+                        ANDI(x3, wback, 0b111);
+                        SLTI(x4, x3, 4);
+                        BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                        LOCK_32_IN_8BYTE(ADDI_W(x4, gd, 0), x1, wback, x3, x4, x5, x6, x7);
+                        B_MARK3_nocond;
+                    }
+                }
+                if (!ALIGNED_ATOMICxw) {
+                    MARK2;
+                    LOCK_3264_CROSS_8BYTE(ADDI_D(x4, gd, 0), x1, wback, x4, x5, x6);
+                    MARK3;
+                }
+                MV(gd, x1);
             }
             break;
         case 0xF7:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("LOCK NOT Ed");
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        NOR(ed, ed, xZR);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        MOV64xw(x7, -1);
+                        if (rex.w) {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b111);
+                                BNEZ_MARK2(x3);
+                            }
+                            AMXOR_DB_D(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
+                        } else {
+                            if (!ALIGNED_ATOMICxw) {
+                                ANDI(x3, wback, 0b11);
+                                BNEZ_MARK(x3);
+                            }
+                            // aligned 4byte
+                            AMXOR_DB_W(x1, x7, wback);
+                            if (!ALIGNED_ATOMICxw) {
+                                B_MARK3_nocond;
+                                MARK;
+                                ANDI(x3, wback, 0b111);
+                                SLTI(x4, x3, 4);
+                                BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
+                                LOCK_32_IN_8BYTE(XOR(x4, x1, x7), x1, wback, x3, x4, x5, x6, x7);
+                                B_MARK3_nocond;
+                            }
+                        }
+                        if (!ALIGNED_ATOMICxw) {
+                            MARK2;
+                            LOCK_3264_CROSS_8BYTE(XOR(x4, x1, x7), x1, wback, x4, x5, x6);
+                            MARK3;
+                        }
+                    }
+                    break;
                 case 3:
                     INST_NAME("LOCK NEG Ed");
-                    READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -1160,7 +1416,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 SC_D(x4, wback, 0);
                                 BEQZ(x4, -4 * 3);
                             }
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
@@ -1222,7 +1478,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             }
                             MV(x7, 1);
                             AMADD_DB_D(x1, x7, wback);
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
@@ -1265,7 +1521,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             }
                             MV(x7, -1);
                             AMADD_DB_D(x1, x7, wback);
-                            B_MARK3_nocond;
+                            if (!ALIGNED_ATOMICxw) { B_MARK3_nocond; }
                         } else {
                             if (!ALIGNED_ATOMICxw) {
                                 ANDI(x3, wback, 0b11);
