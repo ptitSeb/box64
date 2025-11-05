@@ -919,7 +919,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 for (int i = 0; i < (rex.w ? 4 : 8); i++) {
                     XVPICKVE2GRxw(x4, d1, i);
                     BEQZ(x4, 4 + 4 * 4);
-                    XVPICKVE2GR_WU(x4, v1, i);
+                    XVPICKVE2GR_W(x4, v1, i);
                     SLLI_D(x4, x4, wb1);
                     LDXxw(x6, ed, x4);
                     XVINSGR2VRxw(v0, x6, i);
@@ -935,7 +935,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 for (int i = 0; i < (rex.w ? 2 : 4); i++) {
                     VPICKVE2GRxw(x4, d1, i);
                     BEQZ(x4, 4 + 4 * 4);
-                    VPICKVE2GR_WU(x4, v1, i);
+                    VPICKVE2GR_W(x4, v1, i);
                     SLLI_D(x4, x4, wb1);
                     LDXxw(x6, ed, x4);
                     VINSGR2VRxw(v0, x6, i);
@@ -1017,6 +1017,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                     VINSGR2VRxw(v0, x6, i);
                 }
                 VXOR_V(v2, v2, v2);
+                if(!rex.w) VINSGR2VR_D(v0, xZR, 1);     // for set DEST[127:64] to zero, cause 128bit op only gather 2 32bits float.
             }
             break;
         case 0x96:
