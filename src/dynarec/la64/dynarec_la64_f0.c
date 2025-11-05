@@ -1220,7 +1220,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ANDI(x3, wback, 0b111);
                                 BNEZ_MARK2(x3);
                             }
-                            MV(x7, 1);
+                            MOV32w(x7, 1);
                             AMADD_DB_D(x1, x7, wback);
                             B_MARK3_nocond;
                         } else {
@@ -1229,7 +1229,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK(x3);
                             }
                             // aligned 4byte
-                            MV(x7, 1);
+                            MOV32w(x7, 1);
                             AMADD_DB_W(x1, x7, wback);
                             if (!ALIGNED_ATOMICxw) {
                                 B_MARK3_nocond;
@@ -1263,7 +1263,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ANDI(x3, wback, 0b111);
                                 BNEZ_MARK2(x3);
                             }
-                            MV(x7, -1);
+                            MOV64xw(x7, -1);
                             AMADD_DB_D(x1, x7, wback);
                             B_MARK3_nocond;
                         } else {
@@ -1272,7 +1272,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK(x3);
                             }
                             // aligned 4byte
-                            MV(x7, -1);
+                            MOV64xw(x7, -1);
                             AMADD_DB_W(x1, x7, wback);
                             if (!ALIGNED_ATOMICxw) {
                                 B_MARK3_nocond;
