@@ -425,15 +425,32 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xAE:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0:
+                case 1:
+                    if(rex.is32bits || !MODREG) {
+                        INST_NAME("Illegal AE");
+                        FAKEED;
+                        UDF();
+                    } else {
+                        if(((nextop>>3)&7)==1) {INST_NAME("RDGSBASE");} else {INST_NAME("RDFSBASE");}
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        int seg = _FS + ((nextop>>3)&7);
+                        grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                        MV(ed, x4);
+                    }
+                     break;
                 case 2:
-                    INST_NAME("(unsupported) WRFSBASE Ed");
-                    FAKEED;
-                    UDF();
-                    break;
                 case 3:
-                    INST_NAME("(unsupported) WRGSBASE Ed");
-                    FAKEED;
-                    UDF();
+                    if(rex.is32bits || !MODREG) {
+                        INST_NAME("Illegal AE");
+                        FAKEED;
+                        UDF();
+                    } else {
+                        if(((nextop>>3)&7)==3) {INST_NAME("WRGSBASE");} else {INST_NAME("WRFSBASE");}
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        int seg = _FS + ((nextop>>3)&7)-2;
+                        SD(ed, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                    }
                     break;
                 case 5:
                     INST_NAME("(unsupported) INCSSPD/INCSSPQ Ed");
