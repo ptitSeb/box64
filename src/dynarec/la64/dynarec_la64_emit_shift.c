@@ -1085,12 +1085,17 @@ void emit_rol8(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     IFXA ((X_CF | X_OF), cpuext.lbt) {
         X64_ROTL_B(s1, s5);
     }
-
-    SLL_W(s3, s1, s5);
-    NEG_D(s4, s5);
-    ADDI_D(s4, s4, 8);
-    SRL_W(s1, s1, s4);
-    OR(s1, s3, s1);
+    if (cpuext.lbt) {
+        MOV64x(s3, 8);
+        SUB_D(s3, s3, s5);
+        ROTR_B(s1, s1, s3);
+    } else {
+        SLL_D(s3, s1, s5);
+        NEG_D(s4, s5);
+        ADDI_D(s4, s4, 8);
+        SRL_D(s1, s1, s4);
+        OR(s1, s3, s1);
+    }
 
     IFX (X_PEND) {
         ST_B(s1, xEmu, offsetof(x64emu_t, res));
@@ -1137,12 +1142,16 @@ void emit_rol8c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
     IFXA ((X_CF | X_OF), cpuext.lbt) {
         X64_ROTLI_B(s1, c);
     }
+    if (cpuext.lbt) {
+        ROTRI_B(s1, s1, 8 - count);
+    } else {
+        SLLI_D(s3, s1, count);
+        ADDI_D(s4, xZR, -count);
+        ADDI_D(s4, s4, 8);
+        SRL_D(s1, s1, s4);
+        OR(s1, s3, s1);
+    }
 
-    SLLI_W(s3, s1, count);
-    ADDI_D(s4, xZR, -count);
-    ADDI_D(s4, s4, 8);
-    SRL_W(s1, s1, s4);
-    OR(s1, s3, s1);
 
     IFX (X_PEND) {
         ST_B(s1, xEmu, offsetof(x64emu_t, res));
@@ -1187,13 +1196,17 @@ void emit_rol16(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFXA ((X_CF | X_OF), cpuext.lbt) {
         X64_ROTL_H(s1, s5);
     }
-
-    SLL_W(s3, s1, s5);
-    NEG_D(s4, s5);
-    ADDI_D(s4, s4, 16);
-    SRL_W(s1, s1, s4);
-    OR(s1, s3, s1);
-
+    if (cpuext.lbt) {
+        MOV64x(s3, 16);
+        SUB_D(s3, s3, s5);
+        ROTR_H(s1, s1, s3);
+    } else {
+        SLL_D(s3, s1, s5);
+        NEG_D(s4, s5);
+        ADDI_D(s4, s4, 16);
+        SRL_D(s1, s1, s4);
+        OR(s1, s3, s1);
+    }
     IFX (X_PEND) {
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1240,12 +1253,15 @@ void emit_rol16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     IFXA ((X_CF | X_OF), cpuext.lbt) {
         X64_ROTLI_H(s1, c);
     }
-
-    SLLI_W(s3, s1, count);
-    ADDI_D(s4, xZR, -count);
-    ADDI_D(s4, s4, 16);
-    SRL_W(s1, s1, s4);
-    OR(s1, s3, s1);
+    if (cpuext.lbt) {
+        ROTRI_H(s1, s1, 16 - count);
+    } else {
+        SLLI_W(s3, s1, count);
+        ADDI_D(s4, xZR, -count);
+        ADDI_D(s4, s4, 16);
+        SRL_W(s1, s1, s4);
+        OR(s1, s3, s1);
+    }
 
     IFX (X_PEND) {
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
@@ -1294,11 +1310,13 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             X64_ROTL_W(s1, s2);
     }
 
-    SLLxw(s3, s1, s2);
-    NEG_D(s4, s2);
-    ADDI_D(s4, s4, rex.w ? 64 : 32);
-    SRLxw(s1, s1, s4);
-    OR(s1, s3, s1);
+    MOV64x(s3, rex.w ? 64 : 32);
+    SUB_D(s3, s3, s2);
+    if (rex.w) {
+        ROTR_D(s1, s1, s3);
+    } else {
+        ROTR_W(s1, s1, s3);
+    }
 
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
