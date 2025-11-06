@@ -197,7 +197,7 @@
     "options": [
       {
         "key": "0",
-        "description": "Use emulated crashhandler.so library if nedded.",
+        "description": "Use emulated crashhandler.so library if needed.",
         "default": false
       },
       {
