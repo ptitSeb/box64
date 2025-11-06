@@ -909,6 +909,11 @@ EXPORT void PltResolver32(x64emu_t* emu)
         return;
     } else {
         elfheader_t* sym_elf = FindElfSymbol(my_context, elfsym);
+        if(elfsym && (elfsym->st_info&0xf)==STT_GNU_IFUNC) {
+            // this is an IFUNC, needs to evaluate the function first!
+            printf_dump(LOG_DEBUG, "            Indirect function, will call the resolver now at %p\n", from_ptrv(offs));
+            offs = (ptr_t)RunFunction(offs, 0);
+        }
         offs = (uintptr_t)getAlternate(from_ptrv(offs));
 
         if(p) {
