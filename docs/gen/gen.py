@@ -68,7 +68,7 @@ This configuration will apply the specified settings application-wide to any exe
     for category, entries in sorted_categories:
       md_file.write(f"## {category}\n\n")
       for entry in entries:
-        md_file.write(f"### {entry['name']}\n\n{entry['description']}{' Availble in WowBox64.' if entry['wine'] else ''}\n\n")
+        md_file.write(f"### {entry['name']}\n\n{entry['description']}{' Available in WowBox64.' if entry['wine'] else ''}\n\n")
         for option in entry['options']:
           md_file.write(f" * {option['key']}: {option['description']} {'[Default]' if option['default'] else ''}\n")
         md_file.write("\n")
@@ -128,7 +128,7 @@ Example:
 """)
 
     for entry in data:
-      pod_file.write(f"\n=item B<{entry['name']}> =I<{ '|'.join(option['key'] for option in entry['options']) }>\n\n{entry['description']}{' Availble in WowBox64.' if entry['wine'] else ''}\n\n")
+      pod_file.write(f"\n=item B<{entry['name']}> =I<{ '|'.join(option['key'] for option in entry['options']) }>\n\n{entry['description']}{' Available in WowBox64.' if entry['wine'] else ''}\n\n")
       for option in entry['options']:
         pod_file.write(f" * {option['key']} : {option['description']} {'[Default]' if option['default'] else ''}\n")
       pod_file.write("\n")
