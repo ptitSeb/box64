@@ -641,9 +641,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ANDI(x2, xRCX, 0x1f);
                         BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1)
-                        MAYSETFLAGS();
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
@@ -658,9 +660,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ANDI(x2, xRCX, 0x1F);
                         BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1)
-                        MAYSETFLAGS();
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
@@ -675,9 +679,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ANDI(x2, xRCX, 0x1f);
                         BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1)
-                        MAYSETFLAGS();
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
