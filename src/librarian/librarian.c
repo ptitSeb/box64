@@ -500,6 +500,41 @@ int GetNextSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uin
             next = 1;
         }
     }
+    // build a lib list loaded after "self"
+    needed_libs_t* libs = copy_neededlib(GetELfNeededLibs(self));
+    if(!libs) libs = new_neededlib(0);
+    int idx = 0;
+    while(idx!=libs->size) {
+        int cnt = GetNeededLibsN(libs->libs[idx]);
+        for(int i=0; i<cnt; ++i) {
+            library_t* lib = GetNeededLib(libs->libs[idx], i);
+            if(lib && lib->name)
+                add1lib_neededlib_name(libs, lib, lib->name);
+        }
+        ++idx;
+    }
+    // add remainling libs to the list
+    if(maplib) {
+        for(int i=0; i<maplib->libsz && !next; ++i) if(!isLibPreloaded(maplib->libraries[i])) {
+            if(next && maplib->libraries[i]) {
+                add1lib_neededlib_name(libs, maplib->libraries[i], maplib->libraries[i]->name);
+            } else
+            if(self==GetElf(maplib->libraries[i]))
+                next = 1;
+        }
+    }
+    // search the list
+    for(int i=0; i<libs->size; ++i) {
+        if(GetLibGlobalSymbolStartEnd(libs->libs[i], name, start, end, size, &weak, &version, &vername, 0, &veropt, elfsym)) {
+            free_neededlib(libs);
+            return 1;
+        }
+        if(GetLibWeakSymbolStartEnd(libs->libs[i], name, start, end, size, &weak, &version, &vername, 0, &veropt, elfsym)) {
+            free_neededlib(libs);
+            return 1;
+        }
+    }
+
     // search in global symbols
     if(maplib) {
         for(int i=0; i<maplib->libsz; ++i) if(!isLibPreloaded(maplib->libraries[i])) {

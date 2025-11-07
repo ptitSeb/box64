@@ -1116,6 +1116,11 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
     return 0;
 }
 
+needed_libs_t* GetELfNeededLibs(elfheader_t* h)
+{
+    return h?h->needed:NULL;
+}
+
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
 {
     if(!h)
