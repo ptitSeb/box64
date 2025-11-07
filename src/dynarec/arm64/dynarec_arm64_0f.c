@@ -2402,7 +2402,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             GETGD;
             TSTxw_REG(ed, ed);
-            CSELxw(gd, xZR, gd, cEQ);   // set gd to 0 if input is 0 (UD behaviour that seems universal)
             B_MARK(cEQ);
             RBITxw(x1, ed);   // reverse
             CLZxw(gd, x1);    // x2 gets leading 0 == BSF
@@ -2433,7 +2432,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             GETGD;
             TSTxw_REG(ed, ed);
-            CSELxw(gd, xZR, gd, cEQ);   // set gd to 0 if input is 0 (UD behaviour that seems universal)
             B_MARK(cEQ);
             CLZxw(gd, ed);    // x2 gets leading 0
             SUBxw_U12(gd, gd, rex.w?63:31);
