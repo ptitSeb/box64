@@ -73,6 +73,7 @@ static void remove_prereserve(int idx)
     }
 }
 
+void preserve_highest32();
 void wine_prereserve(const char* reserve)
 {
     init_custommem_helper(my_context);
@@ -100,6 +101,8 @@ void wine_prereserve(const char* reserve)
             ++idx;
         }
     }
+
+    preserve_highest32();
 
     wine_preloaded = 1;
 }

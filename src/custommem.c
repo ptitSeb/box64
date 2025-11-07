@@ -2721,6 +2721,21 @@ static void atfork_child_custommem(void)
     // (re)init mutex if it was lock before the fork
     init_mutexes();
 }
+void preserve_highest32()
+{
+    // reserve area close to 0xffffffff too, to avoid roll over on some opcodes...
+    void* cur = InternalMmap((void*)(0x100000000LL-65536), 65536, 0, MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, 0);
+    if(cur!=MAP_FAILED && (cur==(void*)(0x100000000LL-65536))) {
+        rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+65536, MEM_RESERVED);
+    } else {
+        printf_log(LOG_INFO, " Tried to reserve high %p+>%p (%zx)\n", (void*)(0x100000000LL-65536), cur, 65536);
+        if(cur!=(void*)(0x100000000LL-65536))
+            InternalMunmap(cur, 65536);
+        else
+            munmap(cur, 65536);
+    }
+
+}
 #ifdef BOX32
 void reverveHigMem32(void)
 {
