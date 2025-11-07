@@ -2759,10 +2759,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 CBZw_MARK(x1);
             }
             RBITw(x1, x1);   // reverse
-            CLZw(x1, x1);    // x2 gets leading 0 == BSF
-            if(!MODREG) MARK;   // value gets written on 0 input only if input is a memory it seems
+            CLZw(x1, x1);    // x1 gets leading 0
             BFIx(gd, x1, 0, 16);
-            if(MODREG) MARK;
+            MARK;
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
                     CSETw(x2, cEQ);    //ZF not set
@@ -2797,10 +2796,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             LSLw(x1, x1, 16);   // put bits on top
             CLZw(x2, x1);       // x2 gets leading 0
             SUBw_U12(x2, x2, 15);
-            NEGw_REG(x1, x2);   // complement
-            if(!MODREG) MARK;
+            NEGw_REG(x1, x2); // complement
             BFIx(gd, x1, 0, 16);
-            if(MODREG) MARK;
+            MARK;
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
                     CSETw(x2, cEQ);    //ZF not set
