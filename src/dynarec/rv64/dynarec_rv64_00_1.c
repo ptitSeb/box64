@@ -116,13 +116,25 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 PUSH1_32(xRBP);
                 PUSH1_32(xRSI);
                 PUSH1_32(xRDI);
+                SMWRITE();
             } else {
-                DEFAULT;
+                INST_NAME("Illegal 60");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             }
             break;
         case 0x61:
             if (rex.is32bits) {
                 INST_NAME("POPAD");
+                SMREAD();
                 POP1_32(xRDI);
                 POP1_32(xRSI);
                 POP1_32(xRBP);
@@ -132,17 +144,34 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 POP1_32(xRCX);
                 POP1_32(xRAX);
             } else {
-                DEFAULT;
+                INST_NAME("Illegal 61");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             }
             break;
         case 0x62:
-            if (rex.is32bits) {
+            if (rex.is32bits && !MODREG) {
                 // BOUND here
                 DEFAULT;
             } else {
-                INST_NAME("BOUND Gd, Ed");
-                nextop = F8;
-                FAKEED;
+                INST_NAME("Illegal 62");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             }
             break;
         case 0x63:
