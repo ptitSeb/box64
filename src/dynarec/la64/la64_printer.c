@@ -4248,6 +4248,86 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %lu", "X64RCLI.D", Xt[Rj], imm);
         return buff;
     }
+    if (isMask(opcode, "00000000001100000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADC.B", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADC.H", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADC.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADC.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SBC.B", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SBC.H", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SBC.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001100111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SBC.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000000110100kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROTR.B", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000000110101kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROTR.H", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000001001100001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "ROTRI.B", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "000000000100110001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "ROTRI.H", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001101000kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "RCR.B", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001101001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "RCR.H", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001101010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "RCR.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "00000000001101011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "RCR.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    if (isMask(opcode, "0000000001010000001iiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "RCRI.B", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "000000000101000001iiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "RCRI.H", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "00000000010100001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "RCRI.W", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "0000000001010001iiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%lx", "RCRI.D", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
     if (isMask(opcode, "0000000100010100111000jjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCVT.LD.D", Ft[Rd], Ft[Rj]);
         return buff;

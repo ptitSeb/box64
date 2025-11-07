@@ -2365,18 +2365,28 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define X64_RCLI_D(rj, imm6)  EMIT(type_2RI6(0x55, imm6, rj, 0x1b))
 
 // Warning, these are LBT addons that uses LBT4.eflags internally
-#define ADC_B(rd, rj, rk) EMIT(type_3R(0x60, rk, rj, rd))
-#define ADC_H(rd, rj, rk) EMIT(type_3R(0x61, rk, rj, rd))
-#define ADC_W(rd, rj, rk) EMIT(type_3R(0x62, rk, rj, rd))
-#define ADC_D(rd, rj, rk) EMIT(type_3R(0x63, rk, rj, rd))
-#define SBC_B(rd, rj, rk) EMIT(type_3R(0x64, rk, rj, rd))
-#define SBC_H(rd, rj, rk) EMIT(type_3R(0x65, rk, rj, rd))
-#define SBC_W(rd, rj, rk) EMIT(type_3R(0x66, rk, rj, rd))
-#define SBC_D(rd, rj, rk) EMIT(type_3R(0x67, rk, rj, rd))
-#define RCR_B(rd, rj, rk) EMIT(type_3R(0x68, rk, rj, rd))
-#define RCR_H(rd, rj, rk) EMIT(type_3R(0x69, rk, rj, rd))
-#define RCR_W(rd, rj, rk) EMIT(type_3R(0x6a, rk, rj, rd))
-#define RCR_D(rd, rj, rk) EMIT(type_3R(0x6b, rk, rj, rd))
+#define ADC_B(rd, rj, rk)    EMIT(type_3R(0x60, rk, rj, rd))
+#define ADC_H(rd, rj, rk)    EMIT(type_3R(0x61, rk, rj, rd))
+#define ADC_W(rd, rj, rk)    EMIT(type_3R(0x62, rk, rj, rd))
+#define ADC_D(rd, rj, rk)    EMIT(type_3R(0x63, rk, rj, rd))
+#define SBC_B(rd, rj, rk)    EMIT(type_3R(0x64, rk, rj, rd))
+#define SBC_H(rd, rj, rk)    EMIT(type_3R(0x65, rk, rj, rd))
+#define SBC_W(rd, rj, rk)    EMIT(type_3R(0x66, rk, rj, rd))
+#define SBC_D(rd, rj, rk)    EMIT(type_3R(0x67, rk, rj, rd))
+#define RCR_B(rd, rj, rk)    EMIT(type_3R(0x68, rk, rj, rd))
+#define RCR_H(rd, rj, rk)    EMIT(type_3R(0x69, rk, rj, rd))
+#define RCR_W(rd, rj, rk)    EMIT(type_3R(0x6a, rk, rj, rd))
+#define RCR_D(rd, rj, rk)    EMIT(type_3R(0x6b, rk, rj, rd))
+#define RCRI_B(rd, rj, imm3) EMIT(type_2RI3(0b0000000001010000001, imm3, rj, rd))
+#define RCRI_H(rd, rj, imm4) EMIT(type_2RI4(0b000000000101000001, imm4, rj, rd))
+#define RCRI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010100001, imm5, rj, rd))
+#define RCRI_D(rd, rj, imm6) EMIT(type_2RI6(0b0000000001010001, imm6, rj, rd))
+
+// Additional LBT inst
+#define ROTR_B(rd, rj, rk)    EMIT(type_3R(0b00000000000110100, rk, rj, rd))
+#define ROTR_H(rd, rj, rk)    EMIT(type_3R(0b00000000000110101, rk, rj, rd))
+#define ROTRI_B(rd, rj, imm3) EMIT(type_2RI3(0b0000000001001100001, imm3, rj, rd))
+#define ROTRI_H(rd, rj, imm4) EMIT(type_2RI4(0b000000000100110001, imm4, rj, rd))
 
 ////////////////////////////////////////////////////////////////////////////////
 
