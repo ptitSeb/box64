@@ -1504,15 +1504,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGW(x4);
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
-            if (!MODREG) MV(gd, xZR);
             B_MARK2_nocond;
             MARK;
             IFXA (X_ZF, !BOX64ENV(dynarec_safeflags))
                 ANDI(xFlags, xFlags, ~(1 << F_ZF));
             CTZxw(gd, ed, 0, x1, x2);
-            if (!MODREG) MARK2;
             GWBACK;
-            if (MODREG) MARK2;
+            MARK2;
             if (BOX64ENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x1, x2);
             }
@@ -1530,7 +1528,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGW(x4);
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
-            if (!MODREG) MV(gd, xZR);
             B_MARK2_nocond;
             MARK;
             IFXA (X_ZF, !BOX64ENV(dynarec_safeflags))
@@ -1538,9 +1535,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             CLZxw(gd, ed, 1, x1, x2, x6);
             ADDI(x1, xZR, 63);
             SUB(gd, x1, gd);
-            if (!MODREG) MARK2;
             GWBACK;
-            if (MODREG) MARK2;
+            MARK2;
             if (BOX64ENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x1, x2);
             }

@@ -2367,7 +2367,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
-            XOR(gd, gd, gd); // ud behavior
             B_MARK2_nocond;
             MARK;
             CTZxw(gd, ed, rex.w, x3, x5);
@@ -2394,7 +2393,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
-            XOR(gd, gd, gd); // ud behavior
             B_MARK2_nocond;
             MARK;
             CLZxw(gd, ed, rex.w, x3, x5, x7);
