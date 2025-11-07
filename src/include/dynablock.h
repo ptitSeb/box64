@@ -26,5 +26,6 @@ void ClearCache(void* start, size_t len);
 
 uintptr_t getX64Address(dynablock_t* db, uintptr_t native_addr);
 int getX64AddressInst(dynablock_t* db, uintptr_t x64pc);
+uintptr_t getX64InstAddress(dynablock_t* db, int inst);
 
 #endif //__DYNABLOCK_H_

@@ -51,6 +51,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     dyn->forward_size = 0;
     dyn->forward_ninst = 0;
     dyn->ymm_zero = 0;
+    int dynarec_dirty = BOX64ENV(dynarec_dirty);
     #if STEP == 0
     memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
     #endif
@@ -225,6 +226,13 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #endif
         #ifndef PROT_READ
         #define PROT_READ 1
+        #endif
+        #if STEP == 0
+        if(dynarec_dirty && ok && is_addr_autosmc(ip)) {
+            // this is the last opcode, because it will write in current block if not stopped
+            ok = 0;
+            need_epilog = 1;
+        }
         #endif
         #if STEP != 0
         if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {

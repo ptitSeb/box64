@@ -426,7 +426,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return BOX64ENV(nodynarec_delay)?NULL:CreateEmptyBlock(addr, is32bits, is_new);
     }
-    if(checkInHotPage(addr)) {
+    int is_inhotpage = checkInHotPage(addr);
+    if(is_inhotpage && !BOX64ENV(dynarec_dirty)) {
         dynarec_log(LOG_DEBUG, "Not creating dynablock at %p as in a HotPage\n", (void*)addr);
         return NULL;
     }
@@ -479,14 +480,15 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         CancelBlock64(0);
         return CreateEmptyBlock(addr, is32bits, is_new);
     }
-    if(!isprotectedDB(addr, 1)) {
+    if(!is_inhotpage && !isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
         CancelBlock64(0);
         return NULL;
     }
     // protect the block of it goes over the 1st page
-    if((addr&~(box64_pagesize-1))!=(end&~(box64_pagesize-1))) // need to protect some other pages too
-        protectDB(addr, end-addr);  //end is 1byte after actual end
+    if(!is_inhotpage)
+        if((addr&~(box64_pagesize-1))!=(end&~(box64_pagesize-1))) // need to protect some other pages too
+            protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // calculate barriers
@@ -783,7 +785,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
         printf_log(LOG_NONE, "Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }
-    if(!isprotectedDB(addr, end-addr)) {
+    if(!is_inhotpage && !isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_INFO, "Warning, block unprotected while being processed %p:%ld, marking as need_test\n", block->x64_addr, block->x64_size);
         block->dirty = 1;
         //protectDB(addr, end-addr);
@@ -791,6 +793,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     if(getProtection(addr)&PROT_NEVERCLEAN) {
         block->always_test = 1;
     }
+    else if(is_inhotpage)
+        block->always_test = 2;
     if(block->always_test) {
         dynarec_log(LOG_INFO, "Note: block marked as always dirty %p:%ld\n", block->x64_addr, block->x64_size);
         #ifdef ARCH_NOP

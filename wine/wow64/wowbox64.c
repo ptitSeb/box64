@@ -76,6 +76,12 @@ int is_addr_unaligned(uintptr_t addr)
     return 0;
 }
 
+int is_addr_autosmc(uintptr_t addr)
+{
+    // FIXME
+    return 0;
+}
+
 #ifdef DYNAREC
 int nUnalignedRange(uintptr_t start, size_t size)
 {

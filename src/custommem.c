@@ -2195,15 +2195,17 @@ typedef union hotpage_s {
     uint64_t    x;
 } hotpage_t;
 #define HOTPAGE_MAX ((1<<28)-1)
-#define N_HOTPAGE   8
+#define N_HOTPAGE   32
+#define N_HOTPAGE_ALT   8
 #define HOTPAGE_MARK 64
-#define HOTPAGE_DIRTY 1024
+#define HOTPAGE_DIRTY 128
+#define HOTPAGE_DIRTY_ALT 1024
 static hotpage_t hotpage[N_HOTPAGE] = {0};
 void SetHotPage(int idx, uintptr_t page)
 {
     hotpage_t tmp = hotpage[idx];
     tmp.addr = page;
-    tmp.cnt = BOX64ENV(dynarec_dirty)?HOTPAGE_DIRTY:HOTPAGE_MARK;
+    tmp.cnt = BOX64ENV(dynarec_dirty)?(BOX64ENV(dynarec_hotpage_alt)?HOTPAGE_DIRTY_ALT:HOTPAGE_DIRTY):HOTPAGE_MARK;
     //TODO: use Atomics to update hotpage?
     native_lock_store_dd(hotpage+idx, tmp.x);
 }
@@ -2222,28 +2224,38 @@ int IdxOldestHotPage(uintptr_t page)
 {
     int best_idx = -1;
     uint32_t best_cnt = HOTPAGE_MAX+1;
-    // to reset hotpage with new value...
-    hotpage_t tmp;
-    tmp.addr = page;
-    tmp.cnt = HOTPAGE_MAX;
-    for(int i=0; i<N_HOTPAGE; ++i) {
-        if(!hotpage[i].cnt) {
-            native_lock_store_dd(hotpage+i, tmp.x);
-            return i;
-        }
+    if(BOX64ENV(dynarec_hotpage_alt)) {
+        hotpage_t tmp;
+        tmp.addr = page;
+        tmp.cnt = HOTPAGE_MAX;
+        for(int i=0; i<N_HOTPAGE_ALT; ++i) {
+            if(!hotpage[i].cnt) {
+                native_lock_store_dd(hotpage+i, tmp.x);
+                return i;
+            }
         uint32_t cnt = hotpage[i].cnt;
         if(cnt==HOTPAGE_MAX) cnt = 0;
-        if(cnt < best_cnt) {
-            best_idx = i;
-            best_cnt = cnt;
+            if(cnt < best_cnt) {
+                best_idx = i;
+                best_cnt = cnt;
+            }
+        }
+        hotpage_t old = hotpage[best_idx];
+        native_lock_store_dd(hotpage+best_idx, tmp.x);
+        if(old.cnt && old.cnt!=HOTPAGE_MAX && BOX64ENV(dynarec_dirty)==1)
+            CancelHotPage(old.addr);
+    } else {
+        for(int i=0; i<N_HOTPAGE && best_cnt; ++i) {
+            uint32_t cnt = hotpage[i].cnt;
+            if(cnt < best_cnt) {
+                best_idx = i;
+                best_cnt = cnt;
+            }
         }
     }
-    hotpage_t old = hotpage[best_idx];
-    native_lock_store_dd(hotpage+best_idx, tmp.x);
-    if(old.cnt && old.cnt!=HOTPAGE_MAX && BOX64ENV(dynarec_dirty)==1)
-        CancelHotPage(old.addr);
     return best_idx;
 }
+// this function will create a new HotPage, or re-arm it if it's already registered
 void CheckHotPage(uintptr_t addr, uint32_t prot)
 {
     if(addr>=0x1000000000000LL) // more than 48bits
@@ -2253,20 +2265,36 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
     if(BOX64ENV(dynarec_nohotpage))
         return;
     uintptr_t page = addr>>12;
+    if(!BOX64ENV(dynarec_hotpage_alt)) {
+        if(!(prot&PROT_EXEC))
+            return; // needs to be an executable page
+        if(BOX64ENV(dynarec_dirty)>1) {
+            dynarec_log(LOG_INFO, "Detecting a Hotpage at %p, marking page as NEVERCLEAN\n", (void*)(page<<12));
+            neverprotectDB(page<<12, box64_pagesize, 1);
+            return;
+        }
+    }
     // look for idx
     int idx = IdxHotPage(page);
-    if(idx==-1) { IdxOldestHotPage(page); return; }
-    hotpage_t hp = hotpage[idx];
-    /*if(hp.cnt==HOTPAGE_MAX)*/ {
-        if(BOX64ENV(dynarec_dirty)>1) {
-            dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d), marking page as NEVERCLEAN\n", (void*)(page<<12), idx);
-            neverprotectDB(page<<12, box64_pagesize, 1);
-            hp.cnt = 0;
-            native_lock_store_dd(hotpage+idx, hp.x);  // free slot
-        } else {
-            dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d)\n", (void*)(page<<12), idx);
-            SetHotPage(idx, page);
+    if(BOX64ENV(dynarec_hotpage_alt)) {
+        if(idx==-1) { IdxOldestHotPage(page); return; }
+        hotpage_t hp = hotpage[idx];
+        /*if(hp.cnt==HOTPAGE_MAX)*/ {
+            if(BOX64ENV(dynarec_dirty)>1) {
+                dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d), marking page as NEVERCLEAN\n", (void*)(page<<12), idx);
+                neverprotectDB(page<<12, box64_pagesize, 1);
+                hp.cnt = 0;
+                native_lock_store_dd(hotpage+idx, hp.x);  // free slot
+            } else {
+                dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d)\n", (void*)(page<<12), idx);
+                SetHotPage(idx, page);
+            }
         }
+    } else {
+        if(idx==-1) idx = IdxOldestHotPage(page);
+        if(idx==-1) return;
+        dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d)\n", (void*)(page<<12), idx);
+        SetHotPage(idx, page);
     }
 }
 int isInHotPage(uintptr_t addr)
@@ -2274,22 +2302,45 @@ int isInHotPage(uintptr_t addr)
     if(addr>0x1000000000000LL) return 0;
     uintptr_t page = addr>>12;
     int idx = IdxHotPage(page);
-    if(idx==-1 || !hotpage[idx].cnt || (hotpage[idx].cnt==HOTPAGE_MAX))
-        return 0;
-    //TODO: do Atomic stuffs instead
-    hotpage_t hp = hotpage[idx];
-    --hp.cnt;
-    native_lock_store_dd(hotpage+idx, hp.x);
-    if(!hp.cnt && BOX64ENV(dynarec_dirty)==1)
-        CancelHotPage(hp.addr);
-    return 1;
+    if(BOX64ENV(dynarec_hotpage_alt)) {
+        if(idx==-1 || !hotpage[idx].cnt || (hotpage[idx].cnt==HOTPAGE_MAX))
+            return 0;
+        //TODO: do Atomic stuffs instead
+        hotpage_t hp = hotpage[idx];
+        --hp.cnt;
+        native_lock_store_dd(hotpage+idx, hp.x);
+        if(!hp.cnt && BOX64ENV(dynarec_dirty)==1)
+            CancelHotPage(hp.addr);
+        return 1;
+    } else {
+        int ret = ((idx==-1) || !hotpage[idx].cnt)?0:1;
+        // decrement all hotpage, it's a hotpage "tick"
+        for(int i=0; i<N_HOTPAGE; ++i) {
+            int ok = 0;
+            do {
+                hotpage_t hp = hotpage[i];
+                hotpage_t old = hp;
+                if(!hp.cnt || (hp.cnt==HOTPAGE_MAX)) {
+                    ok = 1;
+                } else {
+                    --hp.cnt;
+                    ok = native_lock_storeifref2(hotpage+i, (void*)hp.x, (void*)old.x)==(void*)old.x;
+                }
+            } while(!ok);
+        }
+        return ret;
+    }
 }
 int checkInHotPage(uintptr_t addr)
 {
     if(addr>0x1000000000000LL) return 0;
     uintptr_t page = addr>>12;
     int idx = IdxHotPage(page);
-    return (idx==-1 || !hotpage[idx].cnt || (hotpage[idx].cnt==HOTPAGE_MAX))?0:1;
+    if(BOX64ENV(dynarec_hotpage_alt)) {
+        return (idx==-1 || !hotpage[idx].cnt || (hotpage[idx].cnt==HOTPAGE_MAX))?0:1;
+    } else {
+        return ((idx==-1) || !hotpage[idx].cnt)?0:1;
+    }
 }
 
 

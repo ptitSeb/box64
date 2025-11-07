@@ -201,6 +201,7 @@
 #endif
 
 int is_addr_unaligned(uintptr_t addr);
+int is_addr_autosmc(uintptr_t addr);
 
 #ifdef ARM64
 #include "arm64/dynarec_arm64_helper.h"

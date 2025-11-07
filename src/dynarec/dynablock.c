@@ -346,6 +346,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                     return db;
                 }
                 mutex_unlock(&my_context->mutex_dyndump);
+                dynarec_log(LOG_DEBUG, "Cannot run block (or previous) %p from %p:%p (hash:%X/%X, always_test:%d, previous=%p/hash=%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, hash, db->hash, db->always_test,db->previous, db->previous?db->previous->hash:0,(void*)addr);
                 return NULL;    // will be handle when hotpage is over
             }
             db->done = 0;   // invalidating the block
@@ -483,4 +484,30 @@ int getX64AddressInst(dynablock_t* db, uintptr_t x64pc)
         ret++;
     } while (db->instsize[i].x64 || db->instsize[i].nat);
     return ret;
+}
+
+uintptr_t getX64InstAddress(dynablock_t* db, int inst)
+{
+    uintptr_t x64addr = (uintptr_t)db->x64_addr;
+    uintptr_t armaddr = (uintptr_t)db->block;
+    if (inst < 0 || inst > db->isize)
+        return (uintptr_t)-1LL;
+    int i = 0;
+    int ret = 0;
+    do {
+        if (inst == ret)
+            return x64addr;
+        int x64sz = 0;
+        int armsz = 0;
+        do {
+            x64sz += db->instsize[i].x64;
+            armsz += db->instsize[i].nat * 4;
+            ++i;
+        } while ((db->instsize[i - 1].x64 == 15) || (db->instsize[i - 1].nat == 15));
+        // if the opcode is a NOP on ARM side (so armsz==0), it cannot be an address to find
+        armaddr += armsz;
+        x64addr += x64sz;
+        ret++;
+    } while (db->instsize[i].x64 || db->instsize[i].nat);
+    return (uintptr_t)-1LL;
 }

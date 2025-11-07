@@ -384,6 +384,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 
 KHASH_SET_INIT_INT64(unaligned)
 static kh_unaligned_t    *unaligned = NULL;
+static kh_unaligned_t    *autosmc = NULL;
 
 void add_unaligned_address(uintptr_t addr)
 {
@@ -400,6 +401,23 @@ int is_addr_unaligned(uintptr_t addr)
         return 0;
     khint_t k = kh_get(unaligned, unaligned, addr);
     return (k==kh_end(unaligned))?0:1;
+}
+
+void add_autosmc_address(uintptr_t addr)
+{
+    if(!autosmc)
+        autosmc = kh_init(unaligned);
+    khint_t k;
+    int ret;
+    k = kh_put(unaligned, autosmc, addr, &ret);    // just add
+}
+
+int is_addr_autosmc(uintptr_t addr)
+{
+    if(!autosmc)
+        return 0;
+    khint_t k = kh_get(unaligned, autosmc, addr);
+    return (k==kh_end(autosmc))?0:1;
 }
 
 #ifdef DYNAREC
@@ -437,6 +455,16 @@ int mark_db_unaligned(dynablock_t* db, uintptr_t x64pc)
 if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address %p as needing unaligned handling\n", db, (void*)x64pc);
     return 2;   // marked, exit handling...
 }
+
+int mark_db_autosmc(dynablock_t* db, uintptr_t x64pc)
+{
+    add_autosmc_address(x64pc);
+    db->hash++; // dirty the block
+    MarkDynablock(db);      // and mark it
+if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address %p as creating internal SMC\n", db, (void*)x64pc);
+    return 2;   // marked, exit handling...
+}
+
 #endif
 
 #ifdef DYNAREC
@@ -1590,7 +1618,19 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 adjustregs(emu, pc);
                 if(db && db->arch_size)
                     ARCH_ADJUST(db, emu, p, x64pc);
-                dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) %s, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size))?"Auto-SMC":"unprotected", (void*)R_RIP, (void*)addr);
+                int autosmc = (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size));
+                if(autosmc && BOX64ENV(dynarec_dirty)) {
+                    // check if current block should be cut there
+                    int inst = getX64AddressInst(db, (uintptr_t)pc);
+                    // is it the last instruction
+                    uintptr_t next = getX64InstAddress(db, inst+1);
+                    if(next!=(uintptr_t)-1LL) {
+                        // there is a next, so lets mark the address and dirty the block
+                        mark_db_autosmc(db, x64pc);
+                    }
+
+                }
+                dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) %s, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, autosmc?"Auto-SMC":"unprotected", (void*)R_RIP, (void*)addr);
                 //relockMutex(Locks);
                 unlock_signal();
                 if(Locks & is_dyndump_locked)

@@ -408,6 +408,24 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_HOTPAGE_ALT",
+    "description": "Use alternative way to detect HotPages (legacy way).",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Detect hot page, using new method from v0.3.9+",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Use alternate method to detect HotPage (from v0.3.8 and earlier)",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_DIV0",
     "description": "Enable or disable the generation of division-by-zero exception.",
     "category": "Compatibility",
