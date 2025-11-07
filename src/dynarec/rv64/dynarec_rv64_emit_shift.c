@@ -35,13 +35,20 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         SET_DFNONE();
     }
 
+    IFX (X_OF) {
+        SRLI(s3, s1, 6);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     if (c < 8) {
-        IFX (X_CF | X_OF) {
+        IFX (X_CF) {
             SRLI(s3, s1, 8 - c);
             ANDI(s5, s3, 1); // LSB == F_CF
-            IFX (X_CF) {
-                OR(xFlags, xFlags, s5);
-            }
+            OR(xFlags, xFlags, s5);
         }
 
         SLLI(s1, s1, c + 56);
@@ -55,15 +62,6 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         }
         IFX (X_ZF) {
             SET_FLAGS_EQZ(s1, F_ZF, s3);
-        }
-        IFX (X_OF) {
-            // OF flag is affected only on 1-bit shifts
-            if (c == 1) {
-                SRLI(s3, s1, 7);
-                XOR(s3, s3, s5);
-                SLLI(s3, s3, F_OF2);
-                OR(xFlags, xFlags, s3);
-            }
         }
         IFX (X_PF) {
             emit_pf(dyn, ninst, s1, s3, s4);
@@ -81,7 +79,6 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         IFX (X_PEND) {
             SB(s1, xEmu, offsetof(x64emu_t, res));
         }
-        // OF nop
         // SF nop
         // AF nop
         IFX (X_PF | X_ZF) {
@@ -121,18 +118,13 @@ void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        // OF flag is set to the most-significant bit of the original operand
-        if (c == 1) {
-            SRLI(s3, s1, 7);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
+        SRLI(s3, s1, 7);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
     }
 
     SRLI(s1, s1, c);
     ANDI(s1, s1, 0xff);
-
 
     // SF should be unset
     IFX (X_PEND) {
@@ -206,14 +198,22 @@ void emit_shl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE();
     }
 
+
+    IFX (X_OF) {
+        SRLI(s3, s1, 6);
+        SRLI(s4, s3, 1);
+        XOR(s3, s3, s4);
+        ANDI(s3, s3, 1);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
+
     SLL(s1, s1, s2);
 
-    IFX (X_CF | X_OF) {
+    IFX (X_CF) {
         SRLI(s5, s1, 8);
         ANDI(s5, s5, 1); // LSB == F_CF
-        IFX (X_CF) {
-            OR(xFlags, xFlags, s5);
-        }
+        OR(xFlags, xFlags, s5);
     }
 
     SLLI(s1, s1, 56);
@@ -227,15 +227,6 @@ void emit_shl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
     IFX (X_ZF) {
         SET_FLAGS_EQZ(s1, F_ZF, s3);
-    }
-    IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        ADDI(s3, s2, -1);
-        BNEZ(s3, 4 + 4 * 4);
-        SRLI(s3, s1, 7);
-        XOR(s3, s3, s5);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -265,10 +256,6 @@ void emit_shr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        // OF flag is set to the most-significant bit of the original operand
-        ADDI(s3, xZR, 1);
-        BNE(s2, s3, 4 + 3 * 4);
         SRLI(s3, s1, 7);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
