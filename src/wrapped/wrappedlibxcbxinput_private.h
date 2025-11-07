@@ -375,9 +375,11 @@ GO(xcb_input_xi_query_device_reply, pFbup)
 //GO(xcb_input_xi_set_focus, 
 //GO(xcb_input_xi_get_focus_unchecked, 
 //GO(xcb_input_xi_get_focus_reply, 
-//GO(xcb_input_xi_grab_device_unchecked, 
-//GO(xcb_input_xi_grab_device_reply, 
-//GO(xcb_input_xi_ungrab_device, 
+GO(xcb_input_xi_grab_device, uFbuuuWCCCWp)
+GO(xcb_input_xi_grab_device_unchecked, uFbuuuWCCCWp)
+GO(xcb_input_xi_grab_device_reply, pFbup)
+GO(xcb_input_xi_ungrab_device, uFbuu)
+GO(xcb_input_xi_ungrab_device_checked, uFbuu)
 //GO(xcb_input_xi_allow_events, 
 //GO(xcb_input_grab_modifier_info_next, 
 //GO(xcb_input_grab_modifier_info_end, 
