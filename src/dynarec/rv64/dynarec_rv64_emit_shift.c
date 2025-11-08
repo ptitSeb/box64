@@ -781,10 +781,7 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
-    if (!c) {
-        if (!rex.w) ZEROUP(s1);
-        return;
-    }
+    if (!c) return;
 
     CLEAR_FLAGS();
 
