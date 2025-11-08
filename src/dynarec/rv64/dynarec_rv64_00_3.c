@@ -1345,7 +1345,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SLLI(x6, x6, F_SF);
                         OR(xFlags, xFlags, x6);
                     }
-                    if (X_PF) emit_pf(dyn, ninst, xRAX, x6, x4);
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x6, x4);
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
