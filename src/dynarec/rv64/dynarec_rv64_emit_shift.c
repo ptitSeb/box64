@@ -703,9 +703,7 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     IFX (X_CF) {
         SRLI(s3, s1, (rex.w ? 64 : 32) - c);
         ANDI(s5, s3, 1); // LSB == F_CF
-        IFX (X_CF) {
-            OR(xFlags, xFlags, s5);
-        }
+        OR(xFlags, xFlags, s5);
     }
 
     if (rex.w) {
@@ -1127,10 +1125,7 @@ void emit_ror16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 // emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
-    if (!c) {
-        if (!rex.w) ZEROUP(s1);
-        return;
-    }
+    if (!c) return;
 
     IFX (X_CF | X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
