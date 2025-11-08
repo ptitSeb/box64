@@ -686,7 +686,7 @@ void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
         ADDI_D(s3, xZR, 1);
-        BNE(s2, s3, 4 + 4 * 4);
+        BNE(s2, s3, 4 + 3 * 4);
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         SLLI_D(s3, s3, F_OF);
         OR(xFlags, xFlags, s3);

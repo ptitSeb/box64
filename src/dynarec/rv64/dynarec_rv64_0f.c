@@ -1874,7 +1874,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
-            if (X_CF) {
+            IFX (X_CF) {
                 BEXT(x4, ed, gd, x2);
                 ANDI(xFlags, xFlags, ~1); // F_CF is 1
                 OR(xFlags, xFlags, x4);
@@ -2372,7 +2372,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             CTZxw(gd, ed, rex.w, x3, x5);
             MARK2;
             if (BOX64ENV(dynarec_safeflags)) {
-                if (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
+                IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
             }
             break;
         case 0xBD:
@@ -2400,7 +2400,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SUB(gd, x3, gd);
             MARK2;
             if (BOX64ENV(dynarec_safeflags)) {
-                if (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
+                IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
             }
             break;
         case 0xBE:
