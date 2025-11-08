@@ -2001,7 +2001,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     my_sigactionhandler_oldcode(emu, sig, 0, info, ucntx, NULL, db, x64pc);
 }
-
+#define MY_SIGHANDLER ((signum==X64_SIGSEGV || signum==X64_SIGBUS || signum==X64_SIGILL || signum==X64_SIGABRT)?my_box64signalhandler:my_sigactionhandler)
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
 {
     if(signum<0 || signum>MAX_SIGNAL)
@@ -2023,7 +2023,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
         struct sigaction newact = {0};
         struct sigaction oldact = {0};
         newact.sa_flags = 0x04;
-        newact.sa_sigaction = my_sigactionhandler;
+        newact.sa_sigaction = MY_SIGHANDLER;
         sigaction(signal_from_x64(signum), &newact, &oldact);
         return oldact.sa_handler;
     } else
@@ -2055,7 +2055,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
             my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
             my_context->is_sigaction[signum] = 1;
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                newact.sa_sigaction = my_sigactionhandler;
+                newact.sa_sigaction = MY_SIGHANDLER;
             } else
                 newact.sa_sigaction = act->_u._sa_sigaction;
         } else {
@@ -2063,7 +2063,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
             my_context->is_sigaction[signum] = 0;
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                 newact.sa_flags|=0x04;
-                newact.sa_sigaction = my_sigactionhandler;
+                newact.sa_sigaction = MY_SIGHANDLER;
             } else
                 newact.sa_handler = act->_u._sa_handler;
         }
@@ -2080,7 +2080,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
             oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
         else
             oldact->_u._sa_handler = old.sa_handler;  //TODO should wrap...
-        if((uintptr_t)oldact->_u._sa_sigaction == (uintptr_t)my_sigactionhandler && old_handler)
+        if((uintptr_t)oldact->_u._sa_sigaction == (uintptr_t)MY_SIGHANDLER && old_handler)
             oldact->_u._sa_sigaction = (void*)old_handler;
         oldact->sa_restorer = NULL; // no handling for now...
     }
@@ -2112,7 +2112,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
                 my_context->is_sigaction[signum] = 1;
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    newact.k_sa_handler = (void*)my_sigactionhandler;
+                    newact.k_sa_handler = (void*)MY_SIGHANDLER;
                 } else {
                     newact.k_sa_handler = (void*)act->_u._sa_sigaction;
                 }
@@ -2121,7 +2121,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 my_context->is_sigaction[signum] = 0;
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     newact.sa_flags|=0x4;
-                    newact.k_sa_handler = (void*)my_sigactionhandler;
+                    newact.k_sa_handler = (void*)MY_SIGHANDLER;
                 } else {
                     newact.k_sa_handler = act->_u._sa_handler;
                 }
@@ -2155,7 +2155,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
             if(act->sa_flags&0x04) {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
-                    newact.sa_sigaction = my_sigactionhandler;
+                    newact.sa_sigaction = MY_SIGHANDLER;
                 } else {
                     newact.sa_sigaction = act->_u._sa_sigaction;
                 }
@@ -2163,7 +2163,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                     my_context->is_sigaction[signum] = 0;
-                    newact.sa_sigaction = my_sigactionhandler;
+                    newact.sa_sigaction = MY_SIGHANDLER;
                     newact.sa_flags|=0x4;
                 } else {
                     newact.sa_handler = act->_u._sa_handler;
