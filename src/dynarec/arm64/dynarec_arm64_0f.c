@@ -1796,7 +1796,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xA3:
             INST_NAME("BT Ed, Gd");
-            if(!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
             } else {
                 SETFLAGS(X_CF, SF_SUBSET);
@@ -1877,7 +1877,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
-            if(!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
             } else {
                 SETFLAGS(X_CF, SF_SUBSET);
@@ -2073,7 +2073,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
-            if(BOX64ENV(dynarec_safeflags) && BOX64ENV(cputype)) {
+            if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
                 SETFLAGS(X_OF|X_CF, SF_SET);
             } else {
                 SETFLAGS(X_ALL, SF_SET);
@@ -2166,7 +2166,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
-            if(!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
             } else {
                 SETFLAGS(X_CF, SF_SUBSET);
@@ -2244,7 +2244,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 4:
                     INST_NAME("BT Ed, Ib");
-                    if(!BOX64ENV(dynarec_safeflags)) {
+                    if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                     } else {
                         SETFLAGS(X_CF, SF_SUBSET);
@@ -2266,7 +2266,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5:
                     INST_NAME("BTS Ed, Ib");
-                    if(!BOX64ENV(dynarec_safeflags)) {
+                    if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                     } else {
                         SETFLAGS(X_CF, SF_SUBSET);
@@ -2294,7 +2294,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
-                    if(!BOX64ENV(dynarec_safeflags)) {
+                    if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                     } else {
                         SETFLAGS(X_CF, SF_SUBSET);
@@ -2321,7 +2321,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("BTC Ed, Ib");
-                    if(!BOX64ENV(dynarec_safeflags)) {
+                    if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                     } else {
                         SETFLAGS(X_CF, SF_SUBSET);
@@ -2353,7 +2353,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
-            if(!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
             } else {
                 SETFLAGS(X_CF, SF_SUBSET);
@@ -2392,7 +2392,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
-            if(!BOX64ENV(dynarec_safeflags) || BOX64ENV(cputype)) {
+            if (!BOX64DRENV(dynarec_safeflags) || BOX64ENV(cputype)) {
                 SETFLAGS(X_ZF, SF_SUBSET);
             } else {
                 SETFLAGS(X_ALL, SF_SET);
@@ -2412,7 +2412,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIw(xFlags, x2, F_ZF, 1);
                 }
             }
-            if(BOX64ENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+            if (BOX64DRENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
                 IFX(X_CF) BFCw(xFlags, F_CF, 1);
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 IFX(X_SF) BFCw(xFlags, F_SF, 1);
@@ -2422,7 +2422,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
-            if(!BOX64ENV(dynarec_safeflags) || BOX64ENV(cputype)) {
+            if (!BOX64DRENV(dynarec_safeflags) || BOX64ENV(cputype)) {
                 SETFLAGS(X_ZF, SF_SUBSET);
             } else {
                 SETFLAGS(X_ALL, SF_SET);
@@ -2443,7 +2443,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIw(xFlags, x2, F_ZF, 1);
                 }
             }
-            if(BOX64ENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+            if (BOX64DRENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
                 IFX(X_CF) BFCw(xFlags, F_CF, 1);
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 IFX(X_SF) BFCw(xFlags, F_SF, 1);
