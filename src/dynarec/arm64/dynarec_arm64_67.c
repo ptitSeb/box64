@@ -969,7 +969,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            if(BOX64ENV(dynarec_safeflags)>1 && BOX64ENV(cputype)) {
+            if (BOX64DRENV(dynarec_safeflags) > 1 && BOX64ENV(cputype)) {
                 SETFLAGS(X_OF|X_CF, SF_SET);
             } else {
                 SETFLAGS(X_ALL, SF_SET);
@@ -1527,7 +1527,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    if(BOX64ENV(dynarec_safeflags) && BOX64ENV(cputype)) {
+                    if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
                         SETFLAGS(X_OF|X_CF, SF_SET);
                     } else {
                         SETFLAGS(X_ALL, SF_SET);
@@ -1564,7 +1564,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
-                    if(BOX64ENV(dynarec_safeflags) && BOX64ENV(cputype)) {
+                    if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
                         SETFLAGS(X_OF|X_CF, SF_SET);
                     } else {
                         SETFLAGS(X_ALL, SF_SET);
@@ -1649,9 +1649,9 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("IDIV Ed");
                     NOTEST(x1);
-                    if(!BOX64ENV(dynarec_safeflags)) {
+                    if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL, SF_SET);
-                    } else if(BOX64ENV(cputype)) {
+                    } else if (BOX64ENV(cputype)) {
                         SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SET);
                     }
                     if(!rex.w) {
@@ -1685,7 +1685,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    if(!BOX64ENV(dynarec_safeflags)) {
+                    if (!BOX64DRENV(dynarec_safeflags)) {
                         SET_DFNONE();
                     }
                     IFX2(X_AF, && BOX64ENV(cputype))  {ORRw_mask(xFlags, xFlags, 28, 0);}   //mask=0x10

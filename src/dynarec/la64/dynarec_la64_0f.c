@@ -1906,7 +1906,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
-            if (!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             } else {
                 SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
@@ -1926,14 +1926,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MARK;
             CTZxw(gd, ed);
             MARK2;
-            IFX (BOX64ENV(dynarec_safeflags)) {
+            IFX (BOX64DRENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
             }
             SPILL_EFLAGS();
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
-            if (!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             } else {
                 SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
@@ -1955,7 +1955,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ADDI_D(x1, xZR, rex.w ? 63 : 31);
             SUB_D(gd, x1, gd);
             MARK2;
-            if (BOX64ENV(dynarec_safeflags)) {
+            if (BOX64DRENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
             }
             SPILL_EFLAGS();

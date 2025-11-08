@@ -201,7 +201,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                     } else {
                         INST_NAME("LOCK BTS Ed, Gd");
-                        if(!BOX64ENV(dynarec_safeflags)) {
+                        if (!BOX64DRENV(dynarec_safeflags)) {
                             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                         } else {
                             SETFLAGS(X_CF, SF_SUBSET);
@@ -374,7 +374,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                     } else {
                         INST_NAME("LOCK BTR Ed, Gd");
-                        if(!BOX64ENV(dynarec_safeflags)) {
+                        if (!BOX64DRENV(dynarec_safeflags)) {
                             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                         } else {
                             SETFLAGS(X_CF, SF_SUBSET);
@@ -428,7 +428,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             *ok = 0;
                         } else {
                             INST_NAME("LOCK BTS Ed, Ib");
-                            if(!BOX64ENV(dynarec_safeflags)) {
+                            if (!BOX64DRENV(dynarec_safeflags)) {
                                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                             } else {
                                 SETFLAGS(X_CF, SF_SUBSET);
@@ -468,7 +468,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             *ok = 0;
                         } else {
                             INST_NAME("LOCK BTR Ed, Ib");
-                            if(!BOX64ENV(dynarec_safeflags)) {
+                            if (!BOX64DRENV(dynarec_safeflags)) {
                                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                             } else {
                                 SETFLAGS(X_CF, SF_SUBSET);
@@ -506,7 +506,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             *ok = 0;
                         } else {
                             INST_NAME("LOCK BTC Ed, Ib");
-                            if(!BOX64ENV(dynarec_safeflags)) {
+                            if (!BOX64DRENV(dynarec_safeflags)) {
                                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                             } else {
                                 SETFLAGS(X_CF, SF_SUBSET);
@@ -550,7 +550,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                     } else {
                         INST_NAME("LOCK BTC Ed, Gd");
-                        if(!BOX64ENV(dynarec_safeflags)) {
+                        if (!BOX64DRENV(dynarec_safeflags)) {
                             SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
                         } else {
                             SETFLAGS(X_CF, SF_SUBSET);

@@ -132,7 +132,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                     IFX(X_OF) {
                         IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
                     }
-                    if (BOX64ENV(dynarec_safeflags)) {
+                    if (BOX64DRENV(dynarec_safeflags)) {
                         // those are UD flags
                         IFX(X_AF) BFCw(xFlags, F_AF, 1);
                         if(BOX64ENV(cputype)) {
@@ -176,7 +176,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                     IFX(X_OF) {
                         IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
                     }
-                    if (BOX64ENV(dynarec_safeflags)) {
+                    if (BOX64DRENV(dynarec_safeflags)) {
                         // those are UD flags
                         IFX(X_AF) BFCw(xFlags, F_AF, 1);
                         if(BOX64ENV(cputype)) {
@@ -221,7 +221,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                     IFX(X_OF) {
                         IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
                     }
-                    if (BOX64ENV(dynarec_safeflags)) {
+                    if (BOX64DRENV(dynarec_safeflags)) {
                         // those are UD flags
                         IFX(X_AF) BFCw(xFlags, F_AF, 1);
                         if(BOX64ENV(cputype)) {
@@ -277,7 +277,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             IFX(X_OF) {
                 IFNATIVE(NF_VF) {} else { BFCw(xFlags, F_OF, 1); }
             }
-            if (BOX64ENV(dynarec_safeflags)) {
+            if (BOX64DRENV(dynarec_safeflags)) {
                 // those are UD flags
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 if(BOX64ENV(cputype)) {

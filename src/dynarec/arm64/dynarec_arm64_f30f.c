@@ -591,7 +591,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
-            if(!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_CF|X_ZF, SF_SUBSET);
             } else {
                 if(BOX64ENV(cputype)) {
@@ -616,7 +616,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
             }
-            if(BOX64ENV(dynarec_safeflags)) {
+            if (BOX64DRENV(dynarec_safeflags)) {
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 IFX(X_PF) BFCw(xFlags, F_PF, 1);
                 IFX(X_SF) BFCw(xFlags, F_SF, 1);
@@ -625,7 +625,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
         case 0xBD:
             INST_NAME("LZCNT Gd, Ed");
-            if(!BOX64ENV(dynarec_safeflags)) {
+            if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_CF|X_ZF, SF_SUBSET);
             } else {
                 if(BOX64ENV(cputype)) {
@@ -649,7 +649,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
             }
-            if(BOX64ENV(dynarec_safeflags)) {
+            if (BOX64DRENV(dynarec_safeflags)) {
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 IFX(X_PF) BFCw(xFlags, F_PF, 1);
                 IFX(X_SF) BFCw(xFlags, F_SF, 1);
