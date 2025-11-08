@@ -1820,6 +1820,11 @@
       {
         "key": "stderr",
         "description": "Send all log and trace to `stderr`.",
+        "default": true
+      },
+      {
+        "key": "stdout",
+        "description": "Send all log and trace to `stdout`.",
         "default": false
       }
     ]

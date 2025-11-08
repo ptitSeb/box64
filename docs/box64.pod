@@ -823,13 +823,14 @@ Enable or disable EMM (i.e. MMX) trace output.
  * 1 : Enable EMM trace output. 
 
 
-=item B<BOX64_TRACE_FILE> =I<XXXX|XXXX%pid|stderr>
+=item B<BOX64_TRACE_FILE> =I<XXXX|XXXX%pid|stderr|stdout>
 
 Send all log and trace to a file instead of `stdout`.
 
  * XXXX : Send all log and trace to file XXXX. 
  * XXXX%pid : Send all log and trace to file XXXX with pid appended. 
- * stderr : Send all log and trace to `stderr`. 
+ * stderr : Send all log and trace to `stderr`. [Default]
+ * stdout : Send all log and trace to `stdout`. 
 
 
 =item B<BOX64_TRACE_INIT> =I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY>

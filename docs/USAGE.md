@@ -684,7 +684,8 @@ Send all log and trace to a file instead of `stdout`.
 
  * XXXX: Send all log and trace to file XXXX. 
  * XXXX%pid: Send all log and trace to file XXXX with pid appended. 
- * stderr: Send all log and trace to `stderr`. 
+ * stderr: Send all log and trace to `stderr`. [Default]
+ * stdout: Send all log and trace to `stdout`. 
 
 ### BOX64_TRACE_INIT
 

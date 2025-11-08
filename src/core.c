@@ -137,7 +137,9 @@ static void openFTrace(void)
         p = tmp;
     }
 
-    if (!strcmp(p, "stderr"))
+    if (!strcmp(p, "stdout"))
+        ftrace = stdout;
+    else if (!strcmp(p, "stderr"))
         ftrace = stderr;
     else {
         if (append)
@@ -145,13 +147,12 @@ static void openFTrace(void)
         else
             ftrace = fopen(p, "w");
         if (!ftrace) {
-            ftrace = stdout;
-            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s), fallback to stdout\n", p, strerror(errno));
+            ftrace = stderr;
+            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s), fallback to stderr\n", p, strerror(errno));
         } else {
             ftrace_name = box_strdup(p);
             if (!BOX64ENV(nobanner)) {
-                printf("[BOX64] Trace %s to \"%s\" (set BOX64_NOBANNER=1 to suppress this log)\n", append ? "appended" : "redirected", p);
-                box64_stdout_no_w = 1;
+                fprintf(stderr, "[BOX64] Trace %s to \"%s\" (set BOX64_NOBANNER=1 to suppress this log)\n", append ? "appended" : "redirected", p);
             }
             PrintBox64Version(0);
         }
@@ -205,7 +206,7 @@ static void displayMiscInfo()
 {
     openFTrace();
 
-    if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace==stdout)
+    if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace == stdout)
         box64_stdout_no_w = 1;
 
 #if !defined(DYNAREC) && (defined(ARM64) || defined(RV64) || defined(LA64))
@@ -741,7 +742,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         exit(unittest(argc, argv));
     }
 
-    ftrace = stdout;
+    ftrace = stderr;
 
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);
