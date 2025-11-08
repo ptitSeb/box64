@@ -423,9 +423,9 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             if(i!=_GS)
                 strcat(buff, " ");
     }
-    sprintf(tmp, " FSBASE=%zu", emu->segs_offs[_FS]);
+    sprintf(tmp, " FSBASE=%p", (void*)emu->segs_offs[_FS]);
     strcat(buff, tmp);
-    sprintf(tmp, " GSBASE=%zu", emu->segs_offs[_GS]);
+    sprintf(tmp, " GSBASE=%p", (void*)emu->segs_offs[_GS]);
     strcat(buff, tmp);
     strcat(buff, "\n");
     if(is32bits)
