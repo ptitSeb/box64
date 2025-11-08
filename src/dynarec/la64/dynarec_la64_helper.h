@@ -947,8 +947,8 @@
         IFX (X_AF) {                                                  \
             /* af = bc & 0x8 */                                       \
             ANDI(scratch1, scratch2, 8);                              \
-            BEQZ(scratch1, 8);                                        \
-            ORI(xFlags, xFlags, 1 << F_AF);                           \
+            SLLI_D(scratch1, scratch1, F_AF - 3);                     \
+            OR(xFlags, xFlags, scratch1);                             \
         }                                                             \
         IFX (X_CF) {                                                  \
             /* cf = bc & (1<<(width-1)) */                            \
