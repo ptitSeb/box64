@@ -1953,7 +1953,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETED(1);
                 GETGD;
                 u8 = F8;
-                u8 &= (rex.w ? 0x3f : 0x1f);
+                u8 = F8 & (rex.w ? 63 : 31);
                 emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
                 WBACK;
             } else {
