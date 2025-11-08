@@ -1157,7 +1157,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x3, wback, 0b111);
                         SLTI(x4, x3, 4);
                         BEQZ_MARK2(x4); // addr %8 >4 , cross 8bytes or cross cacheline
-                        LOCK_32_IN_8BYTE(ADDI_W(x4, gd, 0), x1, wback, x3, x4, x5, x6, x7);
+                        LOCK_32_IN_8BYTE(ADDI_W(x4, gd, 0), x1, wback, x3, x4, x5, x6);
                         B_MARK3_nocond;
                     }
                 }
