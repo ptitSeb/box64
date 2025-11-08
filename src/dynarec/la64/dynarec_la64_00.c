@@ -2969,31 +2969,72 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     SET_DFNONE();
-                    // TODO: handle zero divisor
                     if (!rex.w) {
                         GETED(0);
-                        SLLI_D(x3, xRDX, 32);
-                        ZEROUP2(x2, xRAX);
-                        OR(x3, x3, x2);
-                        if (MODREG) {
-                            ZEROUP2(x4, ed);
-                            ed = x4;
+                        if (ninst && (nextop == 0xF0)
+                            && dyn->insts[ninst - 1].x64.addr
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0xB8
+                            && *(uint32_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0) {
+                            // hack for some protection that check a divide by zero actually trigger a divide by zero exception
+                            MESSAGE(LOG_INFO, "Divide by 0 hack\n");
+                            GETIP(ip, x7);
+                            STORE_XEMU_CALL();
+                            CALL(const_native_div0, -1, 0, 0);
+                            LOAD_XEMU_CALL();
+                        } else {
+                            if (BOX64ENV(dynarec_div0)) {
+                                BNE_MARK3(ed, xZR);
+                                GETIP_(ip, x7);
+                                STORE_XEMU_CALL();
+                                CALL(const_native_div0, -1, 0, 0);
+                                CLEARIP();
+                                LOAD_XEMU_CALL();
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
+                            SLLI_D(x3, xRDX, 32);
+                            ZEROUP2(x2, xRAX);
+                            OR(x3, x3, x2);
+                            if (MODREG) {
+                                ZEROUP2(x4, ed);
+                                ed = x4;
+                            }
+                            DIV_DU(x2, x3, ed);
+                            MOD_DU(xRDX, x3, ed);
+                            ZEROUP2(xRAX, x2);
+                            ZEROUP(xRDX);
                         }
-                        DIV_DU(x2, x3, ed);
-                        MOD_DU(xRDX, x3, ed);
-                        ZEROUP2(xRAX, x2);
-                        ZEROUP(xRDX);
                     } else {
                         if (ninst
                             && dyn->insts[ninst - 1].x64.addr
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x31
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0xD2) {
                             GETED(0);
+                            if (BOX64ENV(dynarec_div0)) {
+                                BNE_MARK3(ed, xZR);
+                                GETIP_(ip, x7);
+                                STORE_XEMU_CALL();
+                                CALL(const_native_div0, -1, 0, 0);
+                                CLEARIP();
+                                LOAD_XEMU_CALL();
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             DIV_DU(x2, xRAX, ed);
                             MOD_DU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
                         } else {
                             GETEDH(x4, x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            if (BOX64ENV(dynarec_div0)) {
+                                BNE_MARK3(ed, xZR);
+                                GETIP_(ip, x7);
+                                STORE_XEMU_CALL();
+                                CALL(const_native_div0, -1, 0, 0);
+                                CLEARIP();
+                                LOAD_XEMU_CALL();
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             BEQ_MARK(xRDX, xZR);
                             CALL(const_div64, -1, ed, 0);
                             B_NEXT_nocond;
@@ -3003,6 +3044,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             MV(xRAX, x2);
                         }
                     }
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x7);
+                    IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
+                    IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
+                    SPILL_EFLAGS();
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
