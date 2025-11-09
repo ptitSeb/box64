@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #include <dlfcn.h>
 
 #include "debug.h"
@@ -1334,6 +1335,7 @@ void register_XRandR_events(int event_base)
     events->next = register_events_head;
     register_events_head = events;
 }
+
 void unregister_XRandR_events()
 {
     void* a = (void*)2LL;
@@ -1341,6 +1343,114 @@ void unregister_XRandR_events()
     register_events_t* head = register_events_head;
     while(head) {
         if(head->id == a) {
+            if(!prev)
+                register_events_head = head->next;
+            else
+                prev->next = head->next;
+            box_free(head);
+            return;
+        }
+        prev = head;
+        head = head->next;
+    }
+}
+
+void convert_XkbEvent_to_32(my_XEvent_32_t* d, my_XEvent_t* s)
+{
+    my_XkbEvent_t* src = (my_XkbEvent_t*)s;
+    my_XkbEvent_32_t* dst = (my_XkbEvent_32_t*)d;
+    // convert XkbAnyEvent first, as it's the common part
+    int subtype = src->any.xkb_type;
+    //dst->any.type = src->any.type;
+    //dst->any.serial = src->any.serial;
+    //dst->any.send_event = src->any.send_event;
+    //dst->any.display = src->any.display;
+    dst->any.time = to_ulong(src->any.time);
+    dst->any.xkb_type = src->any.xkb_type;
+    dst->any.device = src->any.device;
+    // only XkbBellNotifyEvent need special conversion
+    switch(subtype) {
+        case 8:
+            dst->bell.percent = src->bell.percent;
+            dst->bell.pitch = src->bell.pitch;
+            dst->bell.duration = src->bell.duration;
+            dst->bell.bell_class = src->bell.bell_class;
+            dst->bell.bell_id = src->bell.bell_id;
+            dst->bell.name = to_ulong(src->bell.name);
+            dst->bell.window = to_ulong(src->bell.window);
+            dst->bell.event_only = src->bell.event_only;
+            break;
+        default:
+            memcpy(&dst->any.device, &src->any.device, sizeof(my_XkbEvent_32_t)-offsetof(my_XkbEvent_32_t, any.device));
+            break;
+    }
+}
+
+void convert_XkbEvent_to_64(my_XEvent_t* d, my_XEvent_32_t* s)
+{
+    my_XkbEvent_32_t* src = (my_XkbEvent_32_t*)s;
+    my_XkbEvent_t* dst = (my_XkbEvent_t*)d;
+    // convert XkbAnyEvent first, as it's the common part
+    int subtype = src->any.xkb_type;
+    //dst->any.type = src->any.type;
+    //dst->any.serial = src->any.serial;
+    //dst->any.send_event = src->any.send_event;
+    //dst->any.display = src->any.display;
+    dst->any.time = from_ulong(src->any.time);
+    dst->any.xkb_type = src->any.xkb_type;
+    dst->any.device = src->any.device;
+    // only XkbBellNotifyEvent need special conversion
+    switch(subtype) {
+        case 8:
+            dst->bell.percent = src->bell.percent;
+            dst->bell.pitch = src->bell.pitch;
+            dst->bell.duration = src->bell.duration;
+            dst->bell.bell_class = src->bell.bell_class;
+            dst->bell.bell_id = src->bell.bell_id;
+            dst->bell.name = from_ulong(src->bell.name);
+            dst->bell.window = from_ulong(src->bell.window);
+            dst->bell.event_only = src->bell.event_only;
+            break;
+        default:
+            memcpy(&dst->any.device, &src->any.device, sizeof(my_XkbEvent_t)-offsetof(my_XkbEvent_t, any.device));
+            break;
+    }
+}
+
+#define XKB     (void*)3LL
+
+void register_Xkb_events(int event_base)
+{
+    // search if device is already in list
+    register_events_t* head = register_events_head;
+    while(head) {
+        if(head->id == XKB)
+            return; // found, nothing to do....
+        head = head->next;
+    }
+    int n = 1;  // 1 event to register!, but there are 12 subevent actualy
+    // create a new event list
+    register_events_t* events = box_malloc(sizeof(register_events_t)+n*sizeof(reg_event_t));
+    events->id = XKB;
+    events->n = n;
+    events->events = (reg_event_t*)(events+1);
+
+    events->events[0].event = event_base+0;
+    events->events[0].to32 = convert_XkbEvent_to_32;
+    events->events[0].to64 = convert_XkbEvent_to_64;
+
+    events->start_event = events->events[0].event;
+    events->end_event = events->events[0].event;
+    events->next = register_events_head;
+    register_events_head = events;
+}
+
+void unregister_Xkb_events()
+{
+    register_events_t* prev = NULL;
+    register_events_t* head = register_events_head;
+    while(head) {
+        if(head->id == XKB) {
             if(!prev)
                 register_events_head = head->next;
             else

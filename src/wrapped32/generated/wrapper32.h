@@ -1781,7 +1781,6 @@ void iFXpuiii_32(x64emu_t *emu, uintptr_t fnc);
 void iFXpLiWL_32(x64emu_t *emu, uintptr_t fnc);
 void iFXpLLiL_32(x64emu_t *emu, uintptr_t fnc);
 void iFXppppi_32(x64emu_t *emu, uintptr_t fnc);
-void iFXppppp_32(x64emu_t *emu, uintptr_t fnc);
 void uFEpippi_32(x64emu_t *emu, uintptr_t fnc);
 void uFupuufp_32(x64emu_t *emu, uintptr_t fnc);
 void uFpppppp_32(x64emu_t *emu, uintptr_t fnc);

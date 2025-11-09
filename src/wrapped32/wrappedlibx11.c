@@ -1662,6 +1662,15 @@ EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* m
     }
     return ret;
 }
+EXPORT int my32_XkbQueryExtension(x64emu_t* emu, void* display, char* opcode, int* event_base, int* error, int* major, int* minor)
+{
+    int fallback;
+    int *event = event_base?event_base:&fallback;
+    int ret = my->XkbQueryExtension(display, opcode, event, error, major, minor);
+    if(!ret) return ret;
+    register_Xkb_events(*event);
+    return ret;
+}
 EXPORT int my32_XAddConnectionWatch(x64emu_t* emu, void* display, char* f, void* data)
 {
     return my->XAddConnectionWatch(display, findXConnectionWatchProcFct(f), data);
@@ -2686,7 +2695,8 @@ EXPORT int my32__XReply(x64emu_t* emu, void* dpy, void* rep, int extra, int disc
     if(BOX64ENV(x11threads)) my->XInitThreads();    \
     my_context->libx11 = lib;
 
-#define CUSTOM_FINI     \
+#define CUSTOM_FINI             \
+    unregister_Xkb_events();    \
     my_context->libx11 = NULL;
 #if 0
 #ifdef ANDROID

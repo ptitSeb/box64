@@ -745,7 +745,7 @@ GO(XkbLookupKeySym, iFXCupbL_)
 //GO(XkbNoteNameChanges, vFbuCCCCCCCCWLC_biLiXLiiuiiiiiiuuuii_u)
 GO(XkbOpenDisplay, XFpppppp)
 //GO(_XkbPeekAtReadBuffer, 
-GO(XkbQueryExtension, iFXppppp)
+GOM(XkbQueryExtension, iFEXppppp)
 //GO(_XkbReadBufferCopy32, 
 //GO(_XkbReadBufferCopyKeySyms, 
 //GO(_XkbReadCopyData32, 

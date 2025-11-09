@@ -101,6 +101,8 @@ void register_XFixes_events(int event_base);
 void unregister_XFixes_events();
 void register_XRandR_events(int event_base);
 void unregister_XRandR_events();
+void register_Xkb_events(int event_base);
+void unregister_Xkb_events();
 
 void convert_XShmSegmentInfo_to_32(void* d, void* s);
 void convert_XShmSegmentInfo_to_64(void* d, void* s);

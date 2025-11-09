@@ -1740,7 +1740,6 @@
 #() iFXpLiWL -> iFXpLiWL
 #() iFXpLLiL -> iFXpLLiL
 #() iFXppppi -> iFXppppi
-#() iFXppppp -> iFXppppp
 #() uFEpippi -> uFEpippi
 #() uFupuufp -> uFupuufp
 #() uFpppppp -> uFpppppp
@@ -3136,6 +3135,7 @@ wrappedlibx11:
 - iFXppppp:
   - XRegisterIMInstantiateCallback
   - XUnregisterIMInstantiateCallback
+  - XkbQueryExtension
 - vFXLpiipi:
   - XmbDrawText
   - Xutf8DrawText

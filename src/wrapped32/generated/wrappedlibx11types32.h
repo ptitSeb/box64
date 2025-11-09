@@ -192,6 +192,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XQueryTree, iFXLpppp_t) \
 	GO(XRegisterIMInstantiateCallback, iFXppppp_t) \
 	GO(XUnregisterIMInstantiateCallback, iFXppppp_t) \
+	GO(XkbQueryExtension, iFXppppp_t) \
 	GO(XmbDrawText, vFXLpiipi_t) \
 	GO(Xutf8DrawText, vFXLpiipi_t) \
 	GO(XwcDrawText, vFXLpiipi_t) \
