@@ -309,7 +309,7 @@
   },
   {
     "name": "BOX64_DYNAREC_BLEEDING_EDGE",
-    "description": "Detect MonoBleedingEdge and apply conservative settings.",
+    "description": "Detect MonoBleedingEdge and apply conservative settings (linux only).",
     "category": "Compatibility",
     "wine": false,
     "options": [
@@ -1939,7 +1939,25 @@
       },
       {
         "key": "1",
-        "description": "Detect UnityPlayer, and apply BOX64_DYNAREC_STRONGMEM=1 when detected.",
+        "description": "Detect UnityPlayer (windows or linux), and apply BOX64_UNITY=1 when detected.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "BOX64_UNITY",
+    "description": "Games is a Unity one.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Does nothing.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Unity Game, so use special detecting code to with StrongMemory emulation (so STRONGMEM=0 can be used)",
         "default": true
       }
     ]

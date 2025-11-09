@@ -128,6 +128,7 @@ extern char* ftrace_name;
     INTEGER64(BOX64_TRACE_START, start_cnt, 0, 0)                             \
     BOOLEAN(BOX64_TRACE_XMM, trace_xmm, 0, 0)                                 \
     STRING(BOX64_TRACE, trace, 0)                                             \
+    BOOLEAN(BOX64_UNITY, unity, 0, 1)                                         \
     BOOLEAN(BOX64_UNITYPLAYER, unityplayer, 1, 0)                             \
     BOOLEAN(BOX64_WRAP_EGL, wrap_egl, 0, 0)                                   \
     BOOLEAN(BOX64_X11GLX, x11glx, 1, 0)                                       \

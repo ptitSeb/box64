@@ -414,6 +414,10 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {
                     SCRATCH_USAGE(0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                        DMB_ISH();
+                        lock = 1;
+                    }
                     SDxw(gd, ed, fixedaddress);
                 }
                 SMWRITELOCK(lock);

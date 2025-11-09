@@ -1210,6 +1210,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                    DMB_ISH();
+                    lock = 1;
+                }
                 if (rex.w) {
                     ST_D(gd, ed, fixedaddress);
                 } else {
