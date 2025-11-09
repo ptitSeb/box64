@@ -86,11 +86,8 @@ static const char default_rcfile[] =
 "[streaming_client]\n"
 "BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0\n"
 "\n"
-"[steam-runtime-check-requirements]\n"
-"BOX64_EXIT=1\n"
-"\n"
 "[steam-runtime-launcher-service]\n"
-"BOX64_EXIT=1\n"
+"BOX64_NOGTK=1\n"
 ;
 
 #ifdef _WIN32
