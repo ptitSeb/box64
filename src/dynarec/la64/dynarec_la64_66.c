@@ -498,6 +498,18 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINSz(gd, x1, 15, 0);
             }
             break;
+        case 0x8C:
+            INST_NAME("MOV Ew, Seg");
+            nextop = F8;
+            LD_HU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+            if (MODREG) {
+                BSTRINSz(TO_NAT((nextop & 7) + (rex.b << 3)), x3, 15, 0);
+            } else { // mem <= seg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                ST_H(x3, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x8E:
             INST_NAME("MOV Seg, Ew");
             nextop = F8;
