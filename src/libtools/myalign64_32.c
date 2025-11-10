@@ -38,6 +38,29 @@ void UnalignStat64_32(const void* source, void* dest)
     i386st->st_ino      = st->st_ino;
 }
 
+void UnalignStat64_32_t64(const void* source, void* dest)
+{
+    struct i386_stat64_t64 *i386st = (struct i386_stat64_t64*)dest;
+    struct stat *st = (struct stat*) source;
+    
+    i386st->st_dev      = st->st_dev;
+    i386st->st_ino      = st->st_ino;
+    i386st->st_mode     = st->st_mode;
+    i386st->st_nlink    = st->st_nlink;
+    i386st->st_uid      = st->st_uid;
+    i386st->st_gid      = st->st_gid;
+    i386st->st_rdev     = st->st_rdev;
+    i386st->st_size     = st->st_size;
+    i386st->st_blksize  = st->st_blksize;
+    i386st->st_blocks   = st->st_blocks;
+    i386st->st_atime    = st->st_atime;
+    i386st->st_atime_nsec   = st->st_atime_nsec;
+    i386st->st_mtime    = st->st_mtime;
+    i386st->st_mtime_nsec   = st->st_mtime_nsec;
+    i386st->st_ctime    = st->st_ctime;
+    i386st->st_ctime_nsec   = st->st_ctime_nsec;
+}
+
 struct native_fsid {
   int     val[2];
 };

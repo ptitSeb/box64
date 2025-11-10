@@ -90,6 +90,7 @@ void* add_xcb_connection32(void* src);
 void del_xcb_connection32(void* src);
 
 void UnalignStat64_32(const void* source, void* dest);
+void UnalignStat64_32_t64(const void* source, void* dest);
 
 void UnalignStatFS_32(const void* source, void* dest);
 void UnalignStatFS64_32(const void* source, void* dest);
@@ -136,6 +137,27 @@ struct i386_stat64 {
 	uint32_t	st_ctime;
 	uint32_t	st_ctime_nsec;
 	uint64_t	st_ino;
+} __attribute__((packed, aligned(4)));  // important for this one
+
+struct i386_stat64_t64 {
+	uint64_t	  st_dev;
+	uint64_t	  st_ino;
+	uint32_t		st_mode;
+	uint32_t		st_nlink;
+	uint32_t		st_uid;
+	uint32_t		st_gid;
+	uint64_t	  st_rdev;
+	int64_t		  st_size;
+	uint32_t		st_blksize;
+	int64_t		  st_blocks;
+	uint64_t	  st_atime;
+	uint64_t	  st_atime_nsec;
+	uint64_t	  st_mtime;
+	uint64_t	  st_mtime_nsec;
+	uint64_t	  st_ctime;
+	uint64_t	  st_ctime_nsec;
+	uint32_t	  __reserved4;
+  uint32_t	  __reserved5;
 } __attribute__((packed, aligned(4)));  // important for this one
 
 struct i386_fsid {

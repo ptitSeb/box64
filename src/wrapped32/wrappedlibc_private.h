@@ -422,7 +422,8 @@ GO(fsetpos, iEpBlii_)
 //GO(fsetpos64, iEpp)
 GO(fsetxattr, iEippLi)
 GOM(fstat, iFip)    //%%,noE
-GO2(__fstat64_time64, iFip, fstat)
+GOM(__fstat64_time64, iFEip)
+GOM(fstatat, iEEippi)
 GO2(__fstatat64_time64, iEippi, fstatat)
 GOWM(fstatfs, iEip) //%%,noE
 GOWM(fstatfs64, iEip)    //%%,noE
@@ -1109,7 +1110,7 @@ GOW(mbsnrtowcs, LEpbp_LLp)
 GOW(mbsrtowcs, LEpbp_Lp)
 // __mbsrtowcs_chk
 GO(mbstowcs, LEppL)
-// __mbstowcs_chk
+GO(__mbstowcs_chk, LEppLL)
 GO(mbtowc, iEppL)
 // mcheck
 // mcheck_check_all
@@ -1240,7 +1241,7 @@ GOW2(open64, iEEpON, my_open64)  //%%
 // __open64 // Weak
 GO(__open64_2, iEpO)
 //GOW(openat, iEipON)
-// __openat_2
+GO(__openat_2, iEipO)
 GOW(openat64, iEipON)
 //GO(__openat64_2, iEipON)
 // __open_catalog
@@ -1250,7 +1251,7 @@ GOW(open_memstream, SEpp)
 // open_wmemstream
 //DATAB(optarg, 4)
 //DATA(opterr, 4)
-//DATA(optind, 4)
+DATA(optind, 4)
 //DATA(optopt, 4)
 // outb // Weak
 // outl // Weak
@@ -1643,9 +1644,9 @@ GOM(sscanf, iEEppV) //%%
 // sstk
 GOM(__stack_chk_fail, vEEv) //%%
 //GOM(lstat64, iEpp)	//%%,noE
-GO2(__lstat64_time64, iEEpp, my_lstat64)
+GOM(__lstat64_time64, iEEpp)
 //GOM(stat64, iEpp)	//%%,noE
-GO2(__stat64_time64, iEEpp, my_stat64)
+GOM(__stat64_time64, iEEpp)
 GOM(stat, iFpp) //%%,noE
 GOWM(statfs, iEpp)  //%%,noE
 // __statfs

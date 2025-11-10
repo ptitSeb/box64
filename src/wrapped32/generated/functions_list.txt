@@ -533,8 +533,8 @@
 #() vFXpl -> vFXpl
 #() vFXpL -> vFXpL
 #() vFXpp -> vFXpp
-#() iEEip -> iEEip
 #() iFEip -> iFEip
+#() iEEip -> iEEip
 #() iEEup -> iEEup
 #() iFEup -> iFEup
 #() iEEpi -> iEEpi
@@ -579,6 +579,7 @@
 #() iEipL -> iEipL
 #() iEipp -> iEipp
 #() iFipp -> iFipp
+#() iEipO -> iEipO
 #() iFuip -> iFuip
 #() iEuui -> iEuui
 #() iEuuu -> iEuuu
@@ -1139,6 +1140,7 @@
 #() LFEpLp -> LFEpLp
 #() LFEXii -> LFEXii
 #() LEpLLS -> LEpLLS
+#() LEppLL -> LEppLL
 #() LEppLp -> LEppLp
 #() LEppLa -> LEppLa
 #() LFXCii -> LFXCii
@@ -1406,6 +1408,7 @@
 #() iEEipii -> iEEipii
 #() iEEipuu -> iEEipuu
 #() iEEipup -> iEEipup
+#() iEEippi -> iEEippi
 #() iEEippL -> iEEippL
 #() iEEuupi -> iEEuupi
 #() iFEpiup -> iFEpiup
@@ -2576,6 +2579,7 @@ wrappedlibc:
   - __xmknod
 - iEippi:
   - __fstatat64_time64
+  - fstatat
   - utimensat
 - iEippL:
   - readlinkat

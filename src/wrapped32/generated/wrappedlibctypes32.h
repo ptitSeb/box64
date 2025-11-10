@@ -267,6 +267,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(sendmmsg, iEipuu_t) \
 	GO(__xmknod, iEipup_t) \
 	GO(__fstatat64_time64, iEippi_t) \
+	GO(fstatat, iEippi_t) \
 	GO(utimensat, iEippi_t) \
 	GO(readlinkat, iEippL_t) \
 	GO(waitid, iEuupi_t) \
