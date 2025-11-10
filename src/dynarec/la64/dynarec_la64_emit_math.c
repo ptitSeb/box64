@@ -843,12 +843,12 @@ void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             else
                 X64_SBC_W(s1, s2);
         }
-        IFXA (X_AF, BOX64DRENV(dynarec_safeflags) > 1) NOR(s5, xZR, s1);
+        IFXA (X_AF, BOX64DRENV(dynarec_safeflags)) NOR(s5, xZR, s1);
         if (rex.w)
             MV(s1, s3);
         else
             ZEROUP2(s1, s3);
-        IFXA (X_AF, BOX64DRENV(dynarec_safeflags) > 1) {
+        IFXA (X_AF, BOX64DRENV(dynarec_safeflags)) {
             // bc = (res & (~op1 | op2)) | (~op1 & op2)
             OR(s3, s5, s2);
             AND(s4, s1, s3);

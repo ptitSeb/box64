@@ -37,6 +37,14 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         IFX (X_ALL) {
             X64_SLL_H(s1, s2);
         }
+
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+            SRLI_D(s3, s1, 14 - F_OF);
+            SRLI_D(s5, s3, 1);
+            XOR(s3, s3, s5);
+            X64_SET_EFLAGS(s3, X_OF);
+        }
+
         SLL_D(s1, s1, s2);
         BSTRPICK_D(s1, s1, 15, 0);
         IFX (X_PEND) {
@@ -46,9 +54,15 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         return;
     }
 
+    CLEAR_FLAGS(s3);
+    IFX (X_OF) {
+        SRLI_D(s3, s1, 14);
+        SRLI_D(s5, s3, 1);
+        XOR(s3, s3, s5);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
     SLL_D(s1, s1, s2);
 
-    CLEAR_FLAGS(s3);
     IFX (X_CF | X_OF) {
         SRLI_D(s5, s1, 16);
         ANDI(s5, s5, 1); // LSB == F_CF
@@ -70,15 +84,6 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX (X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
-    }
-    IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        ADDI_D(s3, s2, -1);
-        BNEZ(s3, 4 + 4 * 4);
-        SRLI_D(s3, s1, 15);
-        XOR(s3, s3, s5);
-        SLLI_D(s3, s3, F_OF);
-        OR(xFlags, xFlags, s3);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -110,6 +115,13 @@ void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             X64_SLL_H(s1, s3);
         }
 
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+            SRLI_D(s3, s1, 14 - F_OF);
+            SRLI_D(s5, s3, 1);
+            XOR(s3, s3, s5);
+            X64_SET_EFLAGS(s3, X_OF);
+        }
+
         SLLI_D(s1, s1, c);
         BSTRPICK_D(s1, s1, 15, 0);
 
@@ -120,19 +132,24 @@ void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
 
     CLEAR_FLAGS(s3);
+
+    IFX (X_OF) {
+        SRLI_D(s3, s1, 14);
+        SRLI_D(s5, s3, 1);
+        XOR(s3, s3, s5);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+
     if (c < 16) {
-        IFX (X_CF | X_OF) {
+        IFX (X_CF) {
             SRLI_D(s3, s1, 16 - c);
-            ANDI(s5, s3, 1); // LSB == F_CF
-            IFX (X_CF) {
-                OR(xFlags, xFlags, s5);
-            }
+            BSTRINS_D(xFlags, s3, F_CF, F_CF);
         }
 
         SLLI_D(s1, s1, c + 48);
         IFX (X_SF) {
-            BGE(s1, xZR, 8);
-            ORI(xFlags, xFlags, 1 << F_SF);
+            SLTI(s3, s1, 0);
+            BSTRINS_D(xFlags, s3, F_SF, F_SF);
         }
         SRLI_D(s1, s1, 48);
 
@@ -143,24 +160,13 @@ void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             BNEZ(s1, 8);
             ORI(xFlags, xFlags, 1 << F_ZF);
         }
-        IFX (X_OF) {
-            // OF flag is affected only on 1-bit shifts
-            if (c == 1) {
-                SRLI_D(s3, s1, 15);
-                XOR(s3, s3, s5);
-                SLLI_D(s3, s3, F_OF);
-                OR(xFlags, xFlags, s3);
-            }
-        }
         IFX (X_PF) {
             emit_pf(dyn, ninst, s1, s3, s4);
         }
     } else {
-        IFX (X_CF) {
-            if (c == 16) {
-                ANDI(s3, s1, 1);
-                OR(xFlags, xFlags, s3); // F_CF == 0
-            }
+        IFXA (X_CF, c == 16) {
+            ANDI(s3, s1, 1);
+            OR(xFlags, xFlags, s3); // F_CF == 0
         }
         MV(s1, xZR);
 
@@ -201,7 +207,7 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             else
                 X64_SLL_W(s1, s2);
         }
-        IFXA (F_OF, (BOX64DRENV(dynarec_safeflags) > 1)) {
+        IFXA (F_OF, BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 62 : 30) - F_OF);
             SRLI_D(s5, s3, 1);
             XOR(s3, s3, s5);
@@ -228,15 +234,16 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SRL_D(s3, s1, s5);
         BSTRINS_D(xFlags, s3, F_CF, F_CF);
     }
-    SLL_D(s1, s1, s2);
-
+    if (rex.w) {
+        SLL_D(s1, s1, s2);
+    } else {
+        SLL_W(s1, s1, s2);
+    }
     IFX (X_SF) {
-        BGE(s1, xZR, 8);
-        ORI(xFlags, xFlags, 1 << F_SF);
+        SLTI(s3, s1, 0);
+        BSTRINS_D(xFlags, s3, F_SF, F_SF);
     }
-    if (!rex.w) {
-        ZEROUP(s1);
-    }
+    if (!rex.w) ZEROUP(s1);
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -279,7 +286,7 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             else
                 X64_SLL_W(s1, s3);
         }
-        IFXA (F_OF, (BOX64DRENV(dynarec_safeflags) > 1)) {
+        IFXA (F_OF, BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 62 : 30) - F_OF);
             SRLI_D(s5, s3, 1);
             XOR(s3, s3, s5);
@@ -312,8 +319,8 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     IFX (X_SF) {
-        BGE(s1, xZR, 8);
-        ORI(xFlags, xFlags, 1 << F_SF);
+        SLTI(s3, s1, 0);
+        BSTRINS_D(xFlags, s3, F_SF, F_SF);
     }
     if (!rex.w) {
         ZEROUP(s1);
@@ -532,6 +539,11 @@ void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
             X64_SRL_H(s1, s2);
         }
 
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+            SRLI_D(s3, s1, 15 - F_OF);
+            X64_SET_EFLAGS(s3, X_OF);
+        }
+
         SRL_D(s1, s1, s2);
         BSTRPICK_D(s1, s1, 15, 0);
 
@@ -549,10 +561,7 @@ void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
-        ADDI_D(s3, xZR, 1);
-        BNE(s2, s3, 4 + 3 * 4);
         SRLI_D(s3, s1, 15);
         SLLI_D(s3, s3, F_OF);
         OR(xFlags, xFlags, s3);
@@ -591,13 +600,16 @@ void emit_shr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
 
     if (cpuext.lbt) {
-        IFX (X_PEND) {
-        } else {
-            MOV64x(s3, c);
-        }
         IFX (X_ALL) {
+            MOV64x(s3, c);
             X64_SRL_H(s1, s3);
         }
+
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+            SRLI_D(s3, s1, 15 - F_OF);
+            X64_SET_EFLAGS(s3, X_OF);
+        }
+
         SRLI_D(s1, s1, c);
         IFX (X_PEND) {
             ST_H(s1, xEmu, offsetof(x64emu_t, res));
@@ -617,13 +629,10 @@ void emit_shr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
-        // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
-        if (c == 1) {
-            SRLI_D(s3, s1, 15);
-            SLLI_D(s3, s3, F_OF);
-            OR(xFlags, xFlags, s3);
-        }
+        SRLI_D(s3, s1, 15);
+        SLLI_D(s3, s3, F_OF);
+        OR(xFlags, xFlags, s3);
     }
 
     SRLI_D(s1, s1, c);
@@ -661,7 +670,7 @@ void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             else
                 X64_SRL_W(s1, s2);
         }
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags) > 1) {
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 63 : 31) - F_OF);
             X64_SET_EFLAGS(s3, X_OF);
         }
@@ -736,7 +745,7 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             else
                 X64_SRL_W(s1, s3);
         }
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags) > 1) {
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 63 : 31) - F_OF);
             X64_SET_EFLAGS(s3, X_OF);
         }
@@ -809,6 +818,7 @@ void emit_sar16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         IFX (X_ALL) {
             X64_SRA_H(s1, s2);
         }
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
 
         SRL_D(s1, s1, s2);
         BSTRPICK_D(s1, s1, 15, 0);
@@ -874,6 +884,7 @@ void emit_sar16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         IFX (X_ALL) {
             X64_SRA_H(s1, s3);
         }
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
         SRLI_D(s1, s1, c);
         BSTRPICK_D(s1, s1, 15, 0);
         IFX (X_PEND) {
@@ -950,7 +961,7 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
                 X64_SRA_W(s1, s3);
         }
 
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags) > 1) X64_SET_EFLAGS(xZR, X_OF);
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
 
         SRAIxw(s1, s1, c);
         if (!rex.w) ZEROUP(s1);
@@ -1033,7 +1044,7 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         ANDN(xFlags, xFlags, s4);
     }
 
-    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags) > 1)) {
+    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags))) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         XOR(s3, s3, s1);
         if (cpuext.lbt) {
@@ -1059,7 +1070,7 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 }
 
 // emit ROL8 instruction, from s1, s2, store result in s1 using s3 s4 and s5 as scratch
-void emit_rol8(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+void emit_rol8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
     int64_t j64;
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
@@ -1115,7 +1126,7 @@ void emit_rol8(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 }
 
 // emit ROL8 instruction, from s1, c, store result in s1 using s3 s4 and s5 as scratch
-void emit_rol8c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
+void emit_rol8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
 {
     int64_t j64;
     if (!c) return;
@@ -1170,7 +1181,7 @@ void emit_rol8c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 }
 
 // emit ROL16 instruction, from s1, s2, store result in s1 using s3 s4 and s5 as scratch
-void emit_rol16(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+void emit_rol16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
     int64_t j64;
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
@@ -1226,7 +1237,7 @@ void emit_rol16(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
 
 // emit ROL16 instruction, from s1, c, store result in s1 using s3 s4 and s5 as scratch
-void emit_rol16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
+void emit_rol16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
 {
     int64_t j64;
     if (!c) return;
@@ -1307,7 +1318,7 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
 
-    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags) > 1)) {
+    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags))) {
         SRLIxw(s3, s1, rex.w ? 62 : 30);
         SRLI_D(s4, s3, 1);
         XOR(s3, s3, s4);
@@ -1368,7 +1379,7 @@ void emit_ror32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ANDN(xFlags, xFlags, s4);
     }
 
-    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags) > 1)) {
+    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags))) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         XOR(s3, s3, s1);
         if (cpuext.lbt) {
@@ -1429,7 +1440,7 @@ void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             X64_ROTLI_W(s1, c);
     }
 
-    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags) > 1)) {
+    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags))) {
         SRLIxw(s3, s1, rex.w ? 62 : 30);
         SRLI_D(s4, s3, 1);
         XOR(s3, s3, s4);
@@ -1670,4 +1681,107 @@ void emit_shld32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+}
+
+// emit RCL16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!(c % 17)) return;
+
+    SET_DFNONE();
+
+    RESTORE_EFLAGS(s3); // TODO
+    IFX (X_OF) {
+        SRLI_D(s3, s1, 14);
+        SRLI_D(s4, s3, 1);
+        XOR(s3, s3, s4);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+
+    c %= 17;
+
+    ANDI(s3, xFlags, 1 << F_CF);
+    SLLI_D(s3, s3, 16);
+    OR(s1, s1, s3); // insert CF to bit 16
+
+    SLLI_D(s4, s1, 47 + c);
+    SLLI_D(s3, s4, 1);
+    SRLI_D(s3, s3, 48);
+    SRLI_D(s1, s1, 17 - c);
+    OR(s1, s1, s3);
+
+    IFX (X_CF) {
+        SRLI_D(s4, s4, 63);
+        BSTRPICK_D(xFlags, s4, F_CF, F_CF);
+    }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    SPILL_EFLAGS(); // TODO
+}
+
+// emit RCR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!(c % 17)) return;
+
+    SET_DFNONE();
+
+    RESTORE_EFLAGS(s3); // TODO
+    IFX (X_OF) {
+        SRLI_D(s3, s1, 15);
+        XOR(s3, s3, xFlags);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+
+    c %= 17;
+
+    ANDI(s3, xFlags, 1 << F_CF);
+    SLLI_D(s3, s3, 16);
+    OR(s1, s1, s3); // insert CF to bit 16
+
+    SRLI_D(s3, s1, c);
+    SLLI_D(s1, s1, 17 - c);
+    OR(s1, s1, s3);
+    SLLI_D(s4, s1, 47);
+    BSTRPICK_D(s1, s1, 15, 0);
+
+    IFX (X_CF) {
+        SRLI_D(s4, s4, 63);
+        BSTRINS_D(xFlags, s4, F_CF, F_CF);
+    }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    SPILL_EFLAGS(); // TODO
+}
+
+// emit ROR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_ror16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+
+    SET_DFNONE();
+
+    IFXA (X_OF, (c == 1)) {
+        SRLI_D(s3, s1, 15);
+        XOR(s3, s3, s1);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+
+    if (c & 15) {
+        SRLI_D(s3, s1, c & 15);
+        SLLI_D(s1, s1, 16 - (c & 15));
+        OR(s1, s1, s3);
+        BSTRPICK_D(s1, s1, 15, 0);
+    }
+
+    IFX (X_CF) {
+        SRLI_D(s3, s1, 15);
+        BSTRINS_D(xFlags, s3, F_CF, F_CF);
+    }
+
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR);
+
+    SPILL_EFLAGS(); // TODO
 }
