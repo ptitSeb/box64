@@ -1548,10 +1548,6 @@ void emit_rcl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 // emit RCR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rcr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
-    MAYUSE(s1);
-    MAYUSE(s3);
-    MAYUSE(s4);
-
     if (!(c % 17)) return;
 
     SET_DFNONE();
