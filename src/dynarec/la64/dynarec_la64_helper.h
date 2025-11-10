@@ -1898,72 +1898,47 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     }
 
 /*
-    LOCK_8_ALIGNED_4BYTE aligned 4 bytes 8bits op
-    use ll.w/sc.w to atomic operation . use amcas.db.w when possible
-    s1 = original ed
-    wback = ed addr / aligned ed addr
-    s3 = 4 byte block for amcas write
-    s4 = result
-    s5 = 4 byte block
-    s6 = temp use
-*/
-#define LOCK_8_ALIGNED_4BYTE(op, s1, wback, s3, s4, s5, s6)   \
-    if (cpuext.lamcas) {                                      \
-        LD_B(s1, wback, 0); /* amcas.b rd is sign extended */ \
-        MARKLOCK;                                             \
-        op;                                                   \
-        MV(s6, s1);                                           \
-        AMCAS_DB_B(s1, s4, wback);                            \
-        BNE_MARKLOCK(s1, s6);                                 \
-    } else {                                                  \
-        MARKLOCK;                                             \
-        LL_W(s5, wback, 0);                                   \
-        BSTRPICK_D(s1, s5, 7, 0);                             \
-        EXT_W_B(s6, s1);                                      \
-        op;                                                   \
-        BSTRINS_W(s5, s4, 7, 0);                              \
-        SC_W(s5, wback, 0);                                   \
-        BEQZ_MARKLOCK(s5);                                    \
-    }
-
-/*
-    LOCK_8_IN_4BYTE unaligned but in 4 bytes 8bits op.
-    use ll.w/sc.w to atomic it. use amcas.db.w when possible
+    LOCK_8_OP 8bits lock opcode macro.
+    use ll.w/sc.w to atomic it. use amcas.db.b when possible
     s1 = original ed
     wback = ed addr / aligned ed addr
     s3 = offset
     s4 = result
     s5 = 4 byte block
     s6 = mask
-    s7 = wback tmp
 */
-#define LOCK_8_IN_4BYTE(op, s1, wback, s3, s4, s5, s6, s7) \
-    if (cpuext.lamcas) {                                   \
-        LD_B(s1, wback, 0);                                \
-        MARKLOCK2;                                         \
-        op;                                                \
-        MV(s6, s1);                                        \
-        AMCAS_DB_W(s1, s4, wback);                         \
-        BNE_MARKLOCK2(s1, s6);                             \
-    } else {                                               \
-        MV(s7, wback);                                     \
-        BSTRINS_D(s7, xZR, 1, 0);                          \
-        SLLI_W(s3, s3, 3);                                 \
-        MARKLOCK2;                                         \
-        LL_W(s5, s7, 0);                                   \
-        SRL_W(s1, s5, s3);                                 \
-        BSTRPICK_W(s1, s1, 7, 0);                          \
-        EXT_W_B(s6, s1);                                   \
-        op;                                                \
-        BSTRPICK_D(s4, s4, 7, 0);                          \
-        SLL_W(s4, s4, s3);                                 \
-        ADDI_W(s6, xZR, -1);                               \
-        BSTRINS_W(s6, xZR, 31, 8);                         \
-        SLL_W(s6, s6, s3);                                 \
-        ANDN(s6, s5, s6);                                  \
-        OR(s4, s6, s4);                                    \
-        SC_W(s4, s7, 0);                                   \
-        BEQZ_MARKLOCK2(s4);                                \
+#define LOCK_8_OP(op, s1, wback, s3, s4, s5, s6)    \
+    if (cpuext.lamcas) {                            \
+        LD_BU(s1, wback, 0);                        \
+        MARKLOCK2;                                  \
+        MV(s6, s1);                                 \
+        op;                                         \
+        AMCAS_DB_B(s1, s4, wback);                  \
+        BSTRPICK_D(s1, s1, 7, 0);                   \
+        BNE_MARKLOCK2(s1, s6);                      \
+    } else {                                        \
+        ANDI(s3, wback, 0b11);                      \
+        if (wback != x2) {                          \
+            ed = x2;                                \
+            MV(ed, wback);                          \
+        } else {                                    \
+            ed = wback; /* wback == x2, change it*/ \
+        }                                           \
+        BSTRINS_D(ed, xZR, 1, 0);                   \
+        SLLI_D(s3, s3, 3);                          \
+        MARKLOCK2;                                  \
+        LL_W(s5, ed, 0);                            \
+        SRL_W(s1, s5, s3);                          \
+        BSTRPICK_D(s1, s1, 7, 0);                   \
+        op;                                         \
+        BSTRPICK_D(s4, s4, 7, 0);                   \
+        SLL_W(s4, s4, s3);                          \
+        ADDI_W(s6, xZR, 0xff);                      \
+        SLL_W(s6, s6, s3);                          \
+        ANDN(s6, s5, s6);                           \
+        OR(s4, s6, s4);                             \
+        SC_W(s4, ed, 0);                            \
+        BEQZ_MARKLOCK2(s4);                         \
     }
 
 
