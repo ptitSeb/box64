@@ -2449,14 +2449,14 @@ wrappedlibc:
   - _obstack_newchunk
 - vEpu:
 - vEpp:
-- iFip:
-  - __fstat64_time64
 - iEip:
   - __futimens64
   - fstatvfs
   - fstatvfs64
   - futimens
   - futimes
+- iFip:
+  - __fstat64_time64
 - iEup:
   - getrlimit
   - setrlimit
@@ -2472,7 +2472,6 @@ wrappedlibc:
   - statvfs
   - statvfs64
   - utimes
-- iFpp:
 - iEpV:
   - execl
   - execlp
@@ -2580,6 +2579,7 @@ wrappedlibc:
 - iEippi:
   - __fstatat64_time64
   - fstatat
+  - fstatat64
   - utimensat
 - iEippL:
   - readlinkat
@@ -2616,6 +2616,9 @@ wrappedlibc:
 - iEuppLp:
   - getgrgid_r
   - getpwuid_r
+- iEpiipi:
+  - res_query
+  - res_search
 - iEpiipV:
 - iEpiLpp:
 - iEpipOi:

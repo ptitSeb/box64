@@ -582,6 +582,14 @@ EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags
 {
     struct stat64 s = {0};
     int ret = fstatat64(fd, name, &s, flags);
+    FillStatFromStat64(3, &s, buff);
+    return ret;
+}
+
+EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int flags)
+{
+    struct stat64 s = {0};
+    int ret = fstatat64(fd, name, &s, flags);
     UnalignStat64_32(&s, buff);
     return ret;
 }
@@ -1278,17 +1286,24 @@ EXPORT int my32_statx(x64emu_t* emu, int dirfd, void* path, int flags, uint32_t 
     return ret;
 }
 
-EXPORT int my32_stat64(x64emu_t* emu, void* path, void* buf)
+EXPORT int my32_stat64(void* path, void* buf)
 {
     struct stat64 st;
     int r = stat64(path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
-EXPORT int my32_lstat64(x64emu_t* emu, void* path, void* buf)
+EXPORT int my32_lstat64(void* path, void* buf)
 {
     struct stat64 st;
     int r = lstat64(path, &st);
+    UnalignStat64_32(&st, buf);
+    return r;
+}
+EXPORT int my32_fstat64(int fd, void* buf)
+{
+    struct stat64 st;
+    int r = fstat64(fd, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
