@@ -1450,7 +1450,6 @@ void emit_ror32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_rol8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_rol8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
-void emit_rol16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_rol16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
