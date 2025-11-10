@@ -711,6 +711,7 @@
 #() pFEiu -> pFEiu
 #() pEEip -> pEEip
 #() pFEiV -> pFEiV
+#() pFELV -> pFELV
 #() pEEpi -> pEEpi
 #() pFEpi -> pFEpi
 #() pEEpp -> pEEpp
@@ -2078,7 +2079,6 @@
 #() iFXLLpiiuuii -> iFXLLpiiuuii
 #() pFEpiiiiuuuu -> pFEpiiiiuuuu
 #() pFEpnCuuuCup -> pFEpnCuuuCup
-#() pFpppppppppp -> pFpppppppppp
 #() pFXpuiipuuii -> pFXpuiipuuii
 #() iFppLpLLpLpbL_ -> iFppLpLLpLpB
 #() iFXiiLiiibiip_ip -> iFXiiLiiiBip
@@ -3015,6 +3015,8 @@ wrappedlibx11:
   - XLookupKeysym
 - pFiV:
   - XVaCreateNestedList
+- pFLV:
+  - XGetICValues
 - pFpV:
   - XCreateIC
   - XGetIMValues

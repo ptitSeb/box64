@@ -24,6 +24,7 @@ typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFXp_t)(void*, void*);
 typedef uintptr_t (*LFpi_t)(void*, int32_t);
 typedef void* (*pFiV_t)(int32_t, ...);
+typedef void* (*pFLV_t)(uintptr_t, ...);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFXi_t)(void*, int32_t);
 typedef void* (*pFXL_t)(void*, uintptr_t);
@@ -116,6 +117,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XPutBackEvent, iFXp_t) \
 	GO(XLookupKeysym, LFpi_t) \
 	GO(XVaCreateNestedList, pFiV_t) \
+	GO(XGetICValues, pFLV_t) \
 	GO(XCreateIC, pFpV_t) \
 	GO(XGetIMValues, pFpV_t) \
 	GO(XSetICValues, pFpV_t) \
