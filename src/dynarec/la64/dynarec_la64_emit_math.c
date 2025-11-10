@@ -777,12 +777,20 @@ void emit_sbb16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
     if (cpuext.lbt) {
+        IFXA (X_AF, BOX64DRENV(dynarec_safeflags)) NOR(s5, xZR, s1);
         SBC_H(s3, s1, s2);
-
-        IFX (X_ALL) {
-            X64_SBC_H(s1, s2);
-        }
+        IFX (X_ALL) X64_SBC_H(s1, s2);
         BSTRPICK_D(s1, s3, 15, 0);
+        IFXA (X_AF, BOX64DRENV(dynarec_safeflags)) {
+            // bc = (res & (~op1 | op2)) | (~op1 & op2)
+            OR(s3, s5, s2);
+            AND(s4, s1, s3);
+            AND(s5, s5, s2);
+            OR(s4, s4, s5);
+            // af = bc & 0x8
+            SLLI_D(s3, s4, F_AF - 3);
+            X64_SET_EFLAGS(s3, X_AF);
+        }
         IFX (X_PEND)
             ST_H(s1, xEmu, offsetof(x64emu_t, res));
         return;

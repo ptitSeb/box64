@@ -1124,6 +1124,11 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOD_WU(x4, x2, ed);
                     BSTRINSz(xRAX, x7, 15, 0);
                     BSTRINSz(xRDX, x4, 15, 0);
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x5);
+                    ADDI_D(x5, xZR, ((1 << F_ZF) | (1 << F_PF)));
+                    OR(xFlags, xFlags, x5);
+                    SPILL_EFLAGS();
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
