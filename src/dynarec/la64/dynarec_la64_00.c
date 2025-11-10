@@ -1836,10 +1836,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEB(x1, 1);
-                    u8 = F8;
-                    emit_rol8c(dyn, ninst, ed, u8 & 0x1f, x4, x5, x6);
+                    u8 = F8 & 0x1f;
+                    emit_rol8c(dyn, ninst, ed, u8, x4, x5, x6);
                     EBBACK();
                     break;
                 case 4:
@@ -2286,13 +2286,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (opcode == 0xD0) {
                         INST_NAME("ROL Eb, 1");
                         GETEB(x1, 0);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                         emit_rol8c(dyn, ninst, ed, 1, x4, x5, x6);
                     } else {
                         INST_NAME("ROL Eb, CL");
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                         emit_rol8(dyn, ninst, ed, x2, x4, x5, x6);
                     }
                     EBBACK();

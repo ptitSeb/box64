@@ -111,12 +111,15 @@ void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
 
-    IFXA (X_ALL, cpuext.lbt) {
-        X64_XOR_W(s1, s2);
-    }
+    IFXA (X_ALL, cpuext.lbt) X64_XOR_W(s1, s2);
 
     XOR(s1, s1, s2);
     BSTRINS_D(s1, s1, 15, 0);
+
+    IFXA (X_SF, BOX64DRENV(dynarec_safeflags)) {
+        SRLI_D(s3, s1, 15 - F_SF);
+        X64_SET_EFLAGS(s3, X_SF);
+    }
 
     IFX (X_PEND) {
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
