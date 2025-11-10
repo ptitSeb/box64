@@ -187,7 +187,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         i64 = F8S;
                     MOV64xw(x5, i64);
-                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x5, x6);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x7);
                     WBACK;
                     break;
                 case 3: // SBB
