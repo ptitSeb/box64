@@ -218,7 +218,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
@@ -238,7 +238,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -258,7 +258,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
