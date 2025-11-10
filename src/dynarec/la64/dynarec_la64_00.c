@@ -1832,7 +1832,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xC0:
             nextop = F8;
-            // TODO: refine these...
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
@@ -1950,6 +1949,30 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         F8;
                     }
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEDW(x4, x1, 0);
+                    u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                    MOV32w(x2, u8);
+                    CALL_(rex.w ? (const_rcl64) : (const_rcl32), ed, x4, x1, x2);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEDW(x4, x1, 0);
+                    u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                    MOV32w(x2, u8);
+                    CALL_(rex.w ? (const_rcr64) : (const_rcr32), ed, x4, x1, x2);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
@@ -2297,6 +2320,53 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     EBBACK();
                     break;
+                case 1:
+                    if (opcode == 0xD0) {
+                        INST_NAME("ROR Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROR Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    CALL_(const_ror8, ed, x3, x1, x2);
+                    EBBACK();
+                    break;
+                case 2:
+                    if (opcode == 0xD0) {
+                        INST_NAME("RCL Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCL Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    CALL_(const_rcl8, ed, x3, x1, x2);
+                    EBBACK();
+                    break;
+                case 3:
+                    if (opcode == 0xD0) {
+                        INST_NAME("RCR Eb, 1");
+                        GETEB(x1, 0);
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCR Eb, CL");
+                        GETEB(x1, 0);
+                        ANDI(x2, xRCX, 0x1f);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    CALL_(const_rcr8, ed, x3, x1, x2);
+                    EBBACK();
+                    break;
                 case 4:
                 case 6:
                     if (opcode == 0xD0) {
@@ -2366,6 +2436,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, 1");
+                    MESSAGE("LOG_DUMP", "Need optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    MOV32w(x2, 1);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w ? (const_rcl64) : (const_rcl32), ed, x4, x1, x2);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -2786,6 +2867,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     B(tmp);
                 }
             }
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0xEC ... 0xEF:
+            if (opcode == 0xEC)
+                INST_NAME("IN AL, DX");
+            else if (opcode == 0xED)
+                INST_NAME("IN EAX, DX");
+            else if (opcode == 0xEE)
+                INST_NAME("OUT DX, AL");
+            else
+                INST_NAME("OUT DX, EAX");
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            GETIP(ip, x7);
+            STORE_XEMU_CALL();
+            CALL(const_native_priv, -1, 0, 0);
+            LOAD_XEMU_CALL();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
             *ok = 0;
             break;

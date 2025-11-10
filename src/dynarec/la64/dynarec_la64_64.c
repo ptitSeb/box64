@@ -69,6 +69,16 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add8(dyn, ninst,x1, x4, x5, x6);
             EBBACK();
             break;
+        case 0x01:
+            INST_NAME("ADD Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGD;
+            GETEDO(x4, 0);
+            emit_add32(dyn, ninst, rex, ed, gd, x3, x5, x6);
+            WBACKO(x4);
+            break;
         case 0x03:
             INST_NAME("ADD Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -376,6 +386,16 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     DEFAULT;
             }
+            break;
+        case 0x1B:
+            INST_NAME("SBB Gd, Seg:Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGD;
+            GETEDO(x4, 0);
+            emit_sbb32(dyn, ninst, rex, gd, ed, x3, x5, x6);
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
@@ -721,6 +741,21 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                     LDXxw(gd, ed, x4);
+                }
+            }
+            break;
+        case 0x8D:
+            INST_NAME("LEA Gd, Ed");
+            nextop = F8;
+            GETGD;
+            if (MODREG) { // reg <= reg? that's an invalid operation
+                DEFAULT;
+            } else { // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                if (gd != ed) { // it's sometimes used as a 3 bytes NOP
+                    MVxw(gd, ed);
+                } else if (!rex.w && !rex.is32bits) {
+                    ZEROUP(gd); // truncate the higher 32bits as asked
                 }
             }
             break;
