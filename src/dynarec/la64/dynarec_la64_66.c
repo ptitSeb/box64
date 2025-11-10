@@ -817,21 +817,61 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
-                    GETEW(x1, 1);
-                    u8 = F8;
-                    emit_rol16c(dyn, ninst, ed, u8, x4, x5, x6);
-                    EWBACK;
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
+                        // removed PENDING on purpose
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        GETEW(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_rol16c(dyn, ninst, x1, u8, x4, x5, x6);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    GETEW(x1, 1);
-                    u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(const_ror16, x1, x3, x1, x2);
-                    EWBACK;
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
+                        // removed PENDING on purpose
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        GETEW(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_ror16c(dyn, ninst, x1, u8, x4, x5);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 2:
+                    INST_NAME("RCL Ew, Ib");
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
+                        READFLAGS(X_CF);
+                        // removed PENDING on purpose
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        GETEW(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_rcl16c(dyn, ninst, ed, u8, x4, x5);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 3:
+                    INST_NAME("RCR Ew, Ib");
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
+                        READFLAGS(X_CF);
+                        // removed PENDING on purpose
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        GETEW(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_rcr16c(dyn, ninst, ed, u8, x4, x5);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 4:
                 case 6:
@@ -873,8 +913,6 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         F8;
                     }
                     break;
-                default:
-                    DEFAULT;
             }
             break;
         case 0xC7:
