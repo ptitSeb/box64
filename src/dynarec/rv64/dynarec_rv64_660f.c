@@ -1202,14 +1202,20 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0xA4:
-            nextop = F8;
             INST_NAME("SHLD Ew, Gw, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            GETEW(x1, 0);
-            GETGW(x2);
-            u8 = F8;
-            emit_shld16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
-            EWBACK;
+            nextop = F8;
+            u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+            if (u8) {
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                GETEW(x1, 1);
+                GETGW(x2);
+                u8 = F8;
+                emit_shld16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
+                EWBACK;
+            } else {
+                FAKEED;
+                F8;
+            }
             break;
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
@@ -1256,15 +1262,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            GETEW(x1, 0);
-            GETGW(x2);
-            u8 = F8;
-            emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
-            EWBACK;
+            u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+            if (u8) {
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                GETEW(x1, 1);
+                GETGW(x2);
+                u8 = F8;
+                emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
+                EWBACK;
+            } else {
+                FAKEED;
+                F8;
+            }
             break;
         case 0xAF:
-            INST_NAME("IMUL Gw,Ew");
+            INST_NAME("IMUL Gw, Ew");
             SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETSEW(x1, 0);
