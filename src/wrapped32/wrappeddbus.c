@@ -709,13 +709,19 @@ EXPORT uint32_t my32_dbus_message_iter_append_basic(x64emu_t* emu, void* iter, i
 {
     void* str;
     void* value_l = value;
-printf_log(LOG_INFO, "dbus_message_iter_append_basic called with type %s(%c)\n", type, type);
-    if(type == ((int) 's')) {
+    switch(type) {
+    case 's':
         str = from_ptrv(*(ptr_t*)value);
-printf_log(LOG_INFO, "  string is %p\n", str);
         value_l = &str;
+        break;
+    case 'b':   // nothing to do
+    case 'i':
+    case 'd':
+        break;
+    default:
+        printf_log(LOG_INFO, "dbus_message_iter_append_basic called with type %d(%c)\n", type, type);
     }
-    return my->dbus_message_iter_append_basic(iter, type, &value_l);
+    return my->dbus_message_iter_append_basic(iter, type, value_l);
 }
 
 EXPORT void my32_dbus_free_string_array(x64emu_t* emu, void* l)
