@@ -246,6 +246,7 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
         setupTraceMapLib(tmp->libs[0]->maplib);
         free_neededlib(tmp);
         lib = GetLibInternal(rfilename);
+        refreshTLSData(emu);
         RunDeferredElfInit(emu);
         my_context->deferredInit = old_deferredInit;
         my_context->deferredInitList = old_deferredInitList;
@@ -457,6 +458,7 @@ int my_dlclose(x64emu_t* emu, void *handle)
     elfheader_t* h = GetElf(dl->dllibs[nlib].lib);
     if((h && !h->gnuunique) || !h || actualy_closing)
         DecRefCount(&dl->dllibs[nlib].lib, emu);
+    refreshTLSData(emu);
     return 0;
 }
 #ifdef ANDROID

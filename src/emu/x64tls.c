@@ -346,13 +346,22 @@ static void* resizeTLSData(box64context_t *context, void* oldptr)
             }
             // adjust DTS
             if(oldata->n_elfs!=context->elfsize) {
-                uintptr_t dtp = (uintptr_t)ptr+POS_TLS;
-                for (int i=oldata->n_elfs; i<context->elfsize; ++i) {
-                    // set pointer
-                    dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
-                    *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16) = dtp;
-                    *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16+8) = i; // index
-                }
+                #ifdef BOX32
+                if(box64_is32bits)
+                    for (int i=oldata->n_elfs; i<context->elfsize; ++i) {
+                        // set pointer
+                        ptr_t dtp = to_ptrv(ptr + GetTLSBase(context->elfs[i]));
+                        memcpy((void*)((uintptr_t)ptr+POS_TLS_32+i*8), &dtp, 4);
+                        memcpy((void*)((uintptr_t)ptr+POS_TLS_32+i*8+4), &i, 4); // index
+                    }
+                else
+                #endif
+                    for (int i=oldata->n_elfs; i<context->elfsize; ++i) {
+                        // set pointer
+                        uintptr_t dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
+                        *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16) = dtp;
+                        *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16+8) = i; // index
+                    }
                 oldata->n_elfs = context->elfsize;
             }
             mutex_unlock(&context->mutex_tls);
@@ -363,13 +372,13 @@ static void* resizeTLSData(box64context_t *context, void* oldptr)
 void refreshTLSData(x64emu_t* emu)
 {
     tlsdatasize_t* ptr = NULL;
+    uintptr_t old_offs = (uintptr_t)(emu->tlsdata?emu->tlsdata->data:NULL);
     if(!ptr)
         if ((ptr = emu->tlsdata) == NULL) {
             ptr = (tlsdatasize_t*)fillTLSData(emu->context);
         }
     if(ptr->tlssize != emu->context->tlssize)
         ptr = (tlsdatasize_t*)resizeTLSData(emu->context, ptr);
-    uintptr_t old_offs = (uintptr_t)(emu->tlsdata?emu->tlsdata->data:NULL);
     emu->tlsdata = ptr;
     if(emu->test.emu) emu->test.emu->tlsdata = ptr;
     uintptr_t new_offs = (uintptr_t)(emu->tlsdata?emu->tlsdata->data:NULL);
@@ -378,8 +387,7 @@ void refreshTLSData(x64emu_t* emu)
         for(int i=0; i<6; ++i)
             if(emu->segs_offs[i]==old_offs)
                 emu->segs_offs[i] = new_offs;
-    }
-    if(!old_offs && new_offs) {
+    } else if(!old_offs && new_offs) {
         if(box64_is32bits) {
             if(emu->segs[_GS]==0x33) {
                 emu->segs_offs[_GS] = new_offs;
