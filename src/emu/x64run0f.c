@@ -1617,7 +1617,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     ED->dword[1] = 0;
             }
             break;
-        case 0xBC:                      /* BSF Ed,Gd */
+        case 0xBC:                      /* BSF Gd,Ed */
             RESET_FLAGS(emu);
             nextop = F8;
             GETED(0);
@@ -1631,7 +1631,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                    GD->q[0] = tmp8u;
                 }
             } else {
                 tmp32u = ED->dword[0];
@@ -1641,7 +1640,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                    GD->q[0] = tmp8u;
                 }
             }
             if(!BOX64ENV(cputype)) {
@@ -1652,7 +1650,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 CLEAR_FLAG(F_OF);
             }
             break;
-        case 0xBD:                      /* BSR Ed,Gd */
+        case 0xBD:                      /* BSR Gd,Ed */
             RESET_FLAGS(emu);
             nextop = F8;
             GETED(0);
@@ -1667,7 +1665,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                    GD->q[0] = tmp8u;
                 }
             } else {
                 tmp32u = ED->dword[0];
@@ -1678,7 +1675,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
-                    GD->q[0] = tmp8u;
                 }
             }
             if(!BOX64ENV(cputype)) {

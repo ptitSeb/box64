@@ -2125,7 +2125,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             EW->word[0] ^= (1<<tmp8u);
         }
         break;
-    case 0xBC:                      /* BSF Ew,Gw */
+    case 0xBC:                      /* BSF Gw,Ew */
         CHECK_FLAGS(emu);
         nextop = F8;
         GETEW(0);
@@ -2136,21 +2136,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             if(tmp64u) {
                 CLEAR_FLAG(F_ZF);
                 while(!(tmp64u&(1LL<<tmp8u))) ++tmp8u;
+                GW->q[0] = tmp8u;
             } else {
                 SET_FLAG(F_ZF);
             }
-            if(tmp64u || !MODREG)
-                GW->q[0] = tmp8u;
         } else {
             tmp16u = EW->word[0];
             if(tmp16u) {
                 CLEAR_FLAG(F_ZF);
                 while(!(tmp16u&(1<<tmp8u))) ++tmp8u;
+                GW->word[0] = tmp8u;
             } else {
                 SET_FLAG(F_ZF);
             }
-            if(tmp16u || !MODREG)
-                GW->word[0] = tmp8u;
         }
         if(!BOX64ENV(cputype)) {
             CONDITIONAL_SET_FLAG(PARITY(tmp8u), F_PF);
@@ -2172,22 +2170,20 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 CLEAR_FLAG(F_ZF);
                 tmp8u = 63;
                 while(!(tmp64u&(1LL<<tmp8u))) --tmp8u;
+                GW->q[0] = tmp8u;
             } else {
                 SET_FLAG(F_ZF);
             }
-            if(tmp64u || !MODREG)
-                GW->q[0] = tmp8u;
         } else {
             tmp16u = EW->word[0];
             if(tmp16u) {
                 CLEAR_FLAG(F_ZF);
                 tmp8u = 15;
                 while(!(tmp16u&(1<<tmp8u))) --tmp8u;
+                GW->word[0] = tmp8u;
             } else {
                 SET_FLAG(F_ZF);
             }
-            if(tmp16u || !MODREG)
-                GW->word[0] = tmp8u;
         }
         if(!BOX64ENV(cputype)) {
             CONDITIONAL_SET_FLAG(PARITY(tmp8u), F_PF);
