@@ -66,7 +66,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         nextop = F8;
                         GETGD;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                        if(rex.w) {
+                        if (rex.w) {
                             SRAI_D(x1, gd, 3);
                         } else {
                             EXT_W_H(x4, gd);
@@ -92,6 +92,53 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
+                case 0xB1:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK CMPXCHG Ew, Gw");
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                        nextop = F8;
+                        GETGD;
+                        BSTRPICK_D(x6, xRAX, 15, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        // Aligned
+                        if (cpuext.lamcas) {
+                            MV(x1, x6);
+                            AMCAS_DB_H(x1, gd, wback);
+                            BSTRPICK_D(x1, x1, 15, 0);
+                            BEQ_MARK(x1, x6); // equal = cas success.
+                        } else {
+                            MV(x7, wback);
+                            BSTRINS_D(x7, xZR, 1, 0);
+                            ANDI(x3, wback, 0b10);
+                            BEQZ(x3, 4 + 4 * 7);
+                            // hi16
+                            LL_W(x5, x7, 0);
+                            BSTRPICK_D(x1, x5, 31, 16);
+                            BNE_MARK2(x1, x6);
+                            BSTRINS_D(x5, gd, 31, 16);
+                            SC_W(x5, x7, 0);
+                            BEQZ(x5, -4 * 5);
+                            B_MARK_nocond;
+                            // lo16
+                            LL_W(x5, x7, 0);
+                            BSTRPICK_D(x1, x5, 15, 0);
+                            BNE_MARK2(x1, x6);
+                            BSTRINS_D(x5, gd, 15, 0);
+                            SC_W(x5, x7, 0);
+                            BEQZ(x5, -4 * 5);
+                            B_MARK_nocond;
+                        }
+                        MARK2;
+                        BSTRINS_D(xRAX, x1, 15, 0);
+                        MARK;
+                        UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5, x6); }
+                    }
+                    break;
                 case 0xB3:
                     if (MODREG) {
                         INST_NAME("Invalid LOCK BTR");
@@ -105,7 +152,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         nextop = F8;
                         GETGD;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                        if(rex.w) {
+                        if (rex.w) {
                             SRAI_D(x1, gd, 3);
                         } else {
                             EXT_W_H(x4, gd);
