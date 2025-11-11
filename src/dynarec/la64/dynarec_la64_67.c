@@ -9,6 +9,7 @@
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
 #include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -37,6 +38,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int cacheupd = 0;
     int lock;
     int v0, v1, s0;
+    int d0, d1;
     MAYUSE(i32);
     MAYUSE(j64);
     MAYUSE(v0);
@@ -51,18 +53,71 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return addr;
     }
 
+    while (opcode == 0x67)
+        opcode = F8;
+
     GETREX();
 
     rep = 0;
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
+    while ((opcode == 0xF2) || (opcode == 0xF3) || (opcode >= 0x40 && opcode <= 0x4F)) {
+        if ((opcode == 0xF2) || (opcode == 0xF3))
+            rep = opcode - 0xF1;
+        if (opcode >= 0x40 && opcode <= 0x4F)
+            rex.rex = opcode;
         opcode = F8;
     }
-
     switch(opcode) {
         case 0x0F:
             opcode = F8;
             switch (opcode) {
+                case 0x2E:
+                    // no special check...
+                case 0x2F:
+                    if (opcode == 0x2F) {
+                        INST_NAME("COMISS Gx, Ex");
+                    } else {
+                        INST_NAME("UCOMISS Gx, Ex");
+                    }
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    SET_DFNONE();
+                    nextop = F8;
+                    GETGX(d0, 0);
+                    if (MODREG) {
+                        v0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                    } else {
+                        v0 = fpu_get_scratch(dyn);
+                        SMREAD();
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                        FLD_S(v0, ed, fixedaddress);
+                    }
+                    CLEAR_FLAGS(x2);
+                    // if isnan(d0) || isnan(v0)
+                    IFX (X_ZF | X_PF | X_CF) {
+                        FCMP_S(fcc0, d0, v0, cUN);
+                        BCEQZ_MARK(fcc0);
+                        ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
+                        B_MARK3_nocond;
+                    }
+                    MARK;
+                    // else if isless(d0, v0)
+                    IFX (X_CF) {
+                        FCMP_S(fcc1, d0, v0, cLT);
+                        BCEQZ_MARK2(fcc1);
+                        ORI(xFlags, xFlags, 1 << F_CF);
+                        B_MARK3_nocond;
+                    }
+                    MARK2;
+                    // else if d0 == v0
+                    IFX (X_ZF) {
+                        FCMP_S(fcc2, d0, v0, cEQ);
+                        BCEQZ_MARK3(fcc2);
+                        ORI(xFlags, xFlags, 1 << F_ZF);
+                    }
+                    MARK3;
+                    IFX (X_ALL) {
+                        SPILL_EFLAGS();
+                    }
+                    break;
                 case 0xB6:
                     INST_NAME("MOVZX Gd, Eb");
                     nextop = F8;
@@ -138,7 +193,55 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64xw(x2, i64);
             emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
-
+        case 0x30:
+            INST_NAME("XOR Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETEB32(x1, 0);
+            GETGB(x2);
+            emit_xor8(dyn, ninst, x1, x2, x4, x5);
+            EBBACK();
+            break;
+        case 0x31:
+            INST_NAME("XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            GETED32(0);
+            emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+        case 0x32:
+            INST_NAME("XOR Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETEB32(x2, 0);
+            GETGB(x1);
+            emit_xor8(dyn, ninst, x1, x2, x3, x4);
+            GBBACK();
+            break;
+        case 0x33:
+            INST_NAME("XOR Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            GETED32(0);
+            emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+        case 0x34:
+            INST_NAME("XOR AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xFF);
+            emit_xor8c(dyn, ninst, x1, u8, x3, x4);
+            BSTRINS_D(xRAX, x1, 7, 0);
+            break;
+        case 0x35:
+            INST_NAME("XOR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            i64 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;

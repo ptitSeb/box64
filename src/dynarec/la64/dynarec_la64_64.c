@@ -387,6 +387,16 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x13:
+            INST_NAME("ADC Gd, Seg:Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGD;
+            GETEDO(x4, 0);
+            emit_adc32(dyn, ninst, rex, gd, ed, x3, x5, x6, x7);
+            break;
         case 0x1B:
             INST_NAME("SBB Gd, Seg:Ed");
             READFLAGS(X_CF);

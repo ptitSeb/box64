@@ -1841,6 +1841,38 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_rol8c(dyn, ninst, ed, u8, x4, x5, x6);
                     EBBACK();
                     break;
+                case 1:
+                    INST_NAME("ROR Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(const_ror8, ed, x3, x1, x2);
+                    EBBACK();
+                    break;
+                case 2:
+                    INST_NAME("RCL Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(const_rcl8, ed, x3, x1, x2);
+                    EBBACK();
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(const_rcr8, ed, x3, x1, x2);
+                    EBBACK();
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
@@ -2982,6 +3014,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(x1);
                     BSTRINS_D(xRAX, x1, 15, 0);
                     UFLAG_DF(x1, d_mul8);
+                    break;
+                case 5:
+                    INST_NAME("IMUL AL, Eb");
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    GETSEB(x1, 0);
+                    SLLI_D(x2, xRAX, 56);
+                    SRAI_D(x2, x2, 56);
+                    MUL_W(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    BSTRINS_D(xRAX, x1, 15, 0);
+                    UFLAG_DF(x1, d_imul8);
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
