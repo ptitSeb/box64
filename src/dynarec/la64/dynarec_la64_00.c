@@ -546,7 +546,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOV64x(x2, i64);
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
             } else
-                emit_cmp32_0(dyn, ninst, rex, nextop, xRAX, x3, x4, x5);
+                emit_cmp32_0(dyn, ninst, rex, 0xC0 /* fake nextop */, xRAX, x3, x4, x5);
             break;
         case 0x40:
         case 0x41:
