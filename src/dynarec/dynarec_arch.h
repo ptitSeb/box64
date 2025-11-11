@@ -67,6 +67,8 @@ extern void* create_updateflags();
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) 0
+extern uint32_t la64_crc(void* p, uint32_t len);
+#define ARCH_CRC(A, B)       return la64_crc(A, B)
 
 #elif defined(RV64)
 

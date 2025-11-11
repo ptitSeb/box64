@@ -31,6 +31,7 @@
 .global la64_lock_get_b
 .global la64_lock_get_d
 .global la64_lock_get_dd
+.global la64_crc
 
 la64_lock_xchg_b:
     .word 0x385e1486 // amswap_db.b $a2, $a1, $a0
@@ -230,4 +231,26 @@ la64_lock_get_d:
 la64_lock_get_dd:
     dbar 0
     ld.d $a0, $a0, 0
+    ret
+
+la64_crc:
+    move        $a2, $a0
+    xor         $a0, $a0, $a0
+    li.d        $a3, 8
+1:
+    bltu        $a1, $a3, 2f
+    ld.d        $a4, $a2, 0
+    crc.w.d.w   $a0, $a0, $a4
+    addi.d      $a2, $a2, 8
+    addi.w      $a1, $a1, -8
+    bnez        $a1, 1b
+2:
+    beqz        $a1, 4f
+3:
+    ld.bu       $a4, $a2, 0
+    crc.w.b.w   $a0, $a0, $a4
+    addi.d      $a2, $a2, 1
+    addi.w      $a1, $a1, -1
+    bnez        $a1, 3b
+4:
     ret
