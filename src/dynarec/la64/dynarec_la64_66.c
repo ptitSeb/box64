@@ -467,6 +467,48 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGW(x2);
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
+        case 0x87:
+            INST_NAME("(LOCK) XCHG Ew, Gw");
+            nextop = F8;
+            if (MODREG) {
+                GETGD;
+                GETED(0);
+                MV(x1, gd);
+                BSTRINS_D(gd, ed, 15, 0);
+                BSTRINS_D(ed, x1, 15, 0);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                if (cpuext.lam_bh) {
+                    AMSWAP_DB_H(x1, gd, wback);
+                } else if (cpuext.lamcas) {
+                    LD_H(x1, wback, 0);
+                    MARKLOCK;
+                    MV(x6, x1);
+                    AMCAS_DB_H(x1, gd, wback);
+                    BNE_MARKLOCK(x1, x6);
+                } else {
+                    MV(x6, wback);
+                    BSTRINS_D(x6, xZR, 1, 0);
+                    ANDI(x3, wback, 0b10);
+                    BEQZ(x3, 4 + 4 * 6);
+                    // hi16
+                    LL_W(x5, x6, 0);
+                    BSTRPICK_D(x1, x5, 31, 16);
+                    BSTRINS_D(x5, gd, 31, 16);
+                    SC_W(x5, x6, 0);
+                    BEQZ(x5, -4 * 4);
+                    B(4 + 4 * 5);
+                    // lo16
+                    LL_W(x5, x6, 0);
+                    BSTRPICK_D(x1, x5, 15, 0);
+                    BSTRINS_D(x5, gd, 15, 0);
+                    SC_W(x5, x6, 0);
+                    BEQZ(x5, -4 * 4);
+                }
+                BSTRINS_D(gd, x1, 15, 0);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
