@@ -108,6 +108,9 @@ static int                 c_blocks = 0;       // capacity of blocks for custom 
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
 static int                 setting_prot = 0;
 
+// Block lookup cache 
+static blocklist_t*        last_found_block = NULL;
+
 typedef union mark_s {
     struct {
         unsigned int    offs:31;
@@ -472,15 +475,23 @@ int blockstree_index = 0;
 
 blocklist_t* findBlock(uintptr_t addr)
 {
+    if (last_found_block && addr >= (uintptr_t)last_found_block->block && addr < (uintptr_t)last_found_block->block + last_found_block->size)
+        return last_found_block;
     if(blockstree) {
         uint32_t i;
         uintptr_t end;
-        if(rb_get_end(blockstree, addr, &i, &end))
+        if(rb_get_end(blockstree, addr, &i, &end)){
+            // Upate cache
+            last_found_block = &p_blocks[i];
             return &p_blocks[i];
+        }
     } else {
         for(int i=0; i<n_blocks; ++i)
-            if((addr>=(uintptr_t)p_blocks[i].block) && (addr<=(uintptr_t)p_blocks[i].block+p_blocks[i].size))
+            if((addr>=(uintptr_t)p_blocks[i].block) && (addr<=(uintptr_t)p_blocks[i].block+p_blocks[i].size)){
+                // Upate cache
+                last_found_block = &p_blocks[i];
                 return &p_blocks[i];
+            }
     }
     return NULL;
 }
@@ -595,6 +606,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     int i = n_blocks++;
     if(n_blocks>c_blocks) {
         c_blocks += box64_is32bits?256:8;
+        last_found_block = NULL; // Prevents use-after-free
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     size_t allocsize = MMAPSIZE128;
@@ -661,6 +673,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     p_blocks[i].maxfree = allocsize - (mapsize+128);
     mutex_unlock(&mutex_blocks);
     add_blockstree((uintptr_t)p, (uintptr_t)p+allocsize, i);
+    last_found_block = &p_blocks[i];
     if(mapallmem) {
         if(setting_prot) {
             // defer the setProtection...
@@ -708,6 +721,7 @@ void* map64_customMalloc(size_t size, int is32bits)
     int i = n_blocks++;
     if (n_blocks > c_blocks) {
         c_blocks += box64_is32bits ? 256 : 8;
+        last_found_block = NULL; // Prevents use-after-free
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks * sizeof(blocklist_t));
     }
 
@@ -762,6 +776,7 @@ void* map64_customMalloc(size_t size, int is32bits)
 
     mutex_unlock(&mutex_blocks);
     add_blockstree((uintptr_t)p, (uintptr_t)p + allocsize, i);
+    last_found_block = &p_blocks[i];
 
     if (mapallmem) {
         if (setting_prot) {
@@ -811,6 +826,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     int i = n_blocks++;
     if(n_blocks>c_blocks) {
         c_blocks += box64_is32bits?256:8;
+        last_found_block = NULL; // Prevents use-after-free
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
@@ -880,6 +896,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
     mutex_unlock(&mutex_blocks);
     add_blockstree((uintptr_t)p, (uintptr_t)p+allocsize, i);
+    last_found_block = &p_blocks[i];
     if(mapallmem) {
         if(setting_prot) {
             // defer the setProtection...
@@ -1107,6 +1124,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     int i = n_blocks++;
     if(n_blocks>c_blocks) {
         c_blocks += 4;
+        last_found_block = NULL; // Prevents use-after-free
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     p_blocks[i].block = NULL;   // incase there is a re-entrance
@@ -1190,6 +1208,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     if(mapallmem)
         setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
     add_blockstree((uintptr_t)p, (uintptr_t)p+allocsize, i);
+    last_found_block = &p_blocks[i];
     return ret;
 }
 void* customMemAligned(size_t align, size_t size)
@@ -2958,6 +2977,7 @@ void fini_custommem_helper(box64context_t *ctx)
     for(int i=0; i<n_blocks; ++i)
         InternalMunmap(p_blocks[i].block, p_blocks[i].size);
     box_free(p_blocks);
+    last_found_block = NULL;
 #if !defined(USE_CUSTOM_MUTEX)
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
