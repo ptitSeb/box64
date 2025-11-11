@@ -165,7 +165,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             nextop = F8;
                             GETGXSS(s0);
                             if (MODREG) {
-                                v0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                                v0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                             } else {
                                 v0 = fpu_get_scratch(dyn);
                                 SMREAD();

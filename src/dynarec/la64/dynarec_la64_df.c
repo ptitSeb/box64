@@ -47,7 +47,24 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // not handling Tag...
                 X87_POP_OR_FAIL(dyn, ninst, x3);
                 break;
-
+            case 0xD0:
+            case 0xD1:
+            case 0xD2:
+            case 0xD3:
+            case 0xD4:
+            case 0xD5:
+            case 0xD6:
+            case 0xD7:
+                INST_NAME("FSTP STx, ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+                v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+                if (ST_IS_F(0)) {
+                    FMOV_S(v2, v1);
+                } else {
+                    FMOV_D(v2, v1);
+                }
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
             case 0xE0:
                 INST_NAME("FNSTSW AX");
                 LD_WU(x2, xEmu, offsetof(x64emu_t, top));

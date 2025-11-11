@@ -7,6 +7,8 @@
 #include "box64context.h"
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
+#include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -151,6 +153,19 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         }
     else
         switch ((nextop >> 3) & 7) {
+            case 6:
+                INST_NAME("FIDIV ST0, word[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, LSX_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                LD_HU(x2, wback, fixedaddress);
+                SLLI_D(x2, x2, 48);
+                SRAI_D(x2, x2, 48);
+                MOVGR2FR_D(v2, x2);
+                FFINT_D_L(v2, v2);
+                FDIV_D(v1, v1, v2);
+                X87_CHECK_PRECISION(v1);
+                break;
             default:
                 DEFAULT;
         }
