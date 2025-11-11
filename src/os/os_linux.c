@@ -212,7 +212,7 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
 
     static const char* names[2] = { "BOX64", "BOX32" };
 
-    if (prefix && ftrace == stdout) {
+    if (prefix && (ftrace == stdout || ftrace == stderr)) {
         if (prefix > 1) {
             fprintf(ftrace, "[\033[31m%s\033[0m] ", names[box64_is32bits]);
         } else {
