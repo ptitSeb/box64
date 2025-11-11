@@ -240,7 +240,7 @@ la64_crc:
 1:
     bltu        $a1, $a3, 2f
     ld.d        $a4, $a2, 0
-    crc.w.d.w   $a0, $a0, $a4
+    crc.w.d.w   $a0, $a4, $a0
     addi.d      $a2, $a2, 8
     addi.w      $a1, $a1, -8
     bnez        $a1, 1b
@@ -248,7 +248,7 @@ la64_crc:
     beqz        $a1, 4f
 3:
     ld.bu       $a4, $a2, 0
-    crc.w.b.w   $a0, $a0, $a4
+    crc.w.b.w   $a0, $a4, $a0
     addi.d      $a2, $a2, 1
     addi.w      $a1, $a1, -1
     bnez        $a1, 3b
