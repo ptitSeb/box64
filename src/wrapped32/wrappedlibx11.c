@@ -2536,7 +2536,7 @@ EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID pro
         unsigned long *src = prop_l;
         ulong_t* dst = prop_l;
         for(int i=0; i<*nitems_return; ++i)
-            dst[i] = to_ulong(src[i]);
+            dst[i] = to_ulong_silent(src[i]);
     }
     return ret;
 }
