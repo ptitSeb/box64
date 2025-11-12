@@ -1287,16 +1287,7 @@ EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
         UnalignStat64(&st, buf);
     return r;
 }
-
-EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
-{
-    (void)emu; (void)vers;
-    struct stat64 st;
-    int r = fstat64(fd, buf?&st:buf);
-    if(buf && !r)
-        UnalignStat64(&st, buf);
-    return r;
-}
+EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf) __attribute__((alias("my___fxstat")));
 
 EXPORT int my_statx(x64emu_t* emu, int dirfd, void* path, int flags, uint32_t mask, void* buf)
 {
@@ -1338,16 +1329,7 @@ EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
         UnalignStat64(&st, buf);
     return r;
 }
-
-EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf)
-{
-    (void)emu; (void)v;
-    struct stat64 st;
-    int r = stat64((const char*)path, buf?&st:buf);
-    if(buf && !r)
-        UnalignStat64(&st, buf);
-    return r;
-}
+EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf) __attribute__((alias("my___xstat")));
 
 EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
@@ -1358,16 +1340,7 @@ EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
         UnalignStat64(&st, buf);
     return r;
 }
-
-EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
-{
-    (void)emu; (void)v;
-    struct stat64 st;
-    int r = lstat64((const char*)name, buf?&st:buf);
-    if(buf && !r)
-        UnalignStat64(&st, buf);
-    return r;
-}
+EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf) __attribute__((alias("my___lxstat")));
 
 EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
@@ -1378,16 +1351,7 @@ EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int
         UnalignStat64(&st, buf);
     return r;
 }
-
-EXPORT int my___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
-{
-    (void)emu; (void)v;
-    struct  stat64 st;
-    int r = fstatat64(d, path, &st, flags);
-    if(!r)
-        UnalignStat64(&st, buf);
-    return r;
-}
+EXPORT int my___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, int flags) __attribute__((alias("my___fxstatat")));
 
 EXPORT int my_stat(x64emu_t *emu, void* filename, void* buf)
 {
