@@ -4,55 +4,63 @@
  * Unlike standard red-black trees, each node here includes two additional fields, "start" and "end," to denote a specific memory range.
  *
  * Box64 currently uses seven red-black trees, each serving distinct purposes:
- * 1. memprot: 
- *    Manages memory protection settings. Each node's data field represents the permissions of its memory range.
- *    
- * 2. mapallmem: 
- *    Mirrors what’s in `/proc/self/maps`. The data field in each node can be:
- *      - MEM_ALLOCATED
- *      - MEM_RESERVED (reserved for box32_dynarec_mmap)
- *      - MEM_MMAP (indicating the range is mapped via mmap)
- * 
- * 3. blockstree: 
+ *
+ * 1. memprot:
+ *    Tracks memory protection flags (PROT_READ, PROT_WRITE, PROT_EXEC, PROT_CUSTOM) for each memory range.
+ *
+ * 2. mapallmem:
+ *    Mirrors `/proc/self/maps`, tracking all memory allocations to prevent overlaps.
+ *    Data field indicates allocation type:
+ *      - MEM_ALLOCATED - Box64's custom allocator and direct mmap64() syscalls
+ *      - MEM_RESERVED - reserved for box32_dynarec_mmap
+ *      - MEM_MMAP - mmap from emulated code 
+ *      - MEM_BOX - mmap from Box64 native code
+ *      - MEM_STACK - thread stacks
+ *      - MEM_EXTERNAL - memory found in /proc/self/maps not allocated by Box64
+ *      - MEM_ELF - ELF binaries and shared libraries
+ *   
+ * 3. blockstree:
  *    Contains memory ranges for a free-list (blocklist_s). Each node represents a different free-list.
  *    The data field stores the index of that free-list in the array `p_blocks` (i.e., the array that holds each free-list pointer).
- * 
+ *
+ *    Free-list structure managed by each blocklist_t:
  *     ┌────────┬────────┬───────────────────────────────┬────────┬────────┐
  *     │ m.prev │ m.next │            PAYLOAD            │ n.prev │ n.next │
  *     │ 0      │ offs   │  (allocsize - 2·sizeof(mark)) │  offs  │  0     │
  *     └────────┴────────┴───────────────────────────────┴────────┴────────┘
  *     ↑                                                                   ↑
  *     p (free-list start)                                      p + allocsize (free-list end)
- * 
+ *
  * 4. db_sizes:
  *    Tracks, for each dynablock size, how many dynablocks of exactly that size currently exist (per-size count).
- * 
+ *
  * 5. envmap:
  *    Maps each live memory range to its mapping_t, which contains:
  *      - the file’s lowercase name,
  *      - a pointer to that file’s per-file box64env_t,
  *      - and the base address;
  *    indicating which module owns that range.
- * 
- * 6. rbt_dynmem: 
- *    Contains memory ranges for a different free-list (chunks) used by dynamic blocks. Each node represents one chunk.
- *    The data field stores the index of that chunk in the array mmaplist_t.
- *    
- *    [ mmaplist0 ] → [ mmaplist1 ] → [ mmaplist2 ] → …  
- *          │              │              │  
- *      chunks[0]      chunks[0]      chunks[0]    (each chunk[i] is a blocklist_t)  
- *      chunks[1]      chunks[1]      chunks[1]  
- *        ...            ...            ...  
- *      chunks[63]     chunks[63]     chunks[63]  
- * 
- * 7. volatileRanges: 
- *    Tracks every “volatile” region inside a loaded PE module. 
+ *
+ * 6. rbt_dynmem:
+ *    Maps dynarec memory ranges to chunk pointers (blocklist_t*) for O(log n) lookup.
+ *    Structure: Each mmaplist_t contains a dynamically-sized array of chunk pointers (blocklist_t**).
+ *
+ *    [ mmaplist0 ] → [ mmaplist1 ] → [ mmaplist2 ] → …
+ *          │              │              │
+ *      chunks[0]      chunks[0]      chunks[0]    (each chunk[i] is a blocklist_t*)
+ *      chunks[1]      chunks[1]      chunks[1]
+ *        ...            ...            ...
+ *      chunks[n-1]    chunks[n-1]    chunks[n-1]  (array grows dynamically as needed)
+ *
+ * 7. volatileRanges:
+ *    Tracks every “volatile” region inside a loaded PE module.
  *
  * Before the introduction of the red-black tree in Box64, the rationale for memory management was a sparse array, which takes O(n) complexity for accessing data.
  * After transitioning from a sparse array to a red-black tree, the memory usage has decreased slightly for processes that consumed a lot of RAM (for example, Steam uses about 100 MB less memory, and each Wine process uses about 15 MB less).
  *
- * Note that each rbnode is allocated by a bitmap allocator (map128_customMalloc), which provides 128 bytes of space for any request <128 bytes.
- * Since each rbtree node is 56 bytes, this results in 72 bytes of internal fragmentation per node. There is therefore a trade-off when using rbtree.
+ * Note that each rbnode is allocated via customMalloc. Since each rbtree node is 56 bytes,
+ * it's handled by the bitmap allocator (map64_customMalloc) which provides 64-byte blocks,
+ * resulting in 8 bytes of internal fragmentation per node (14% overhead).
  */
 
 #ifndef RBTREE_H
@@ -274,36 +282,33 @@ int rb_set_64(rbtree_t* tree, uintptr_t start, uintptr_t end, uint64_t data);
 int rb_unset(rbtree_t* tree, uintptr_t start, uintptr_t end);
 
 /**
- * rb_get_rightmost() - Retrieves the start value of the right-most node in a red-black tree.
- * @tree: Pointer to the red-black tree whose right-most node's start value is to be retrieved.
- *
- * This function traverses the red-black tree from the root to the right-most node, which is the node
- * with the highest key value in the tree. 
- * Return: The start value of the right-most node if the tree is not empty; otherwise, 0.
- */
-
-uint64_t rb_inc(rbtree_t* tree, uintptr_t start, uintptr_t end);
-
-/**
  * rb_inc() - Increment by 1 an address range in a red-black tree. Create the node if needed.
  * @tree: Pointer to the red-black tree where the address range will be set.
  * @start: The starting address of the range to be set.
  * @end: The ending address of the range to be set.
  *
- * Returns the new value for the node
+ * Return: The new value for the node.
  */
-
- uint64_t rb_dec(rbtree_t* tree, uintptr_t start, uintptr_t end);
+uint64_t rb_inc(rbtree_t* tree, uintptr_t start, uintptr_t end);
 
 /**
- * rb_dec() - Decrement by 1 an address range in a red-black tree. Do not create the node not existant. Delete the node if data == 0.
+ * rb_dec() - Decrement by 1 an address range in a red-black tree. Do not create the node if absent. Delete the node if data == 0.
  * @tree: Pointer to the red-black tree where the address range will be set.
  * @start: The starting address of the range to be set.
  * @end: The ending address of the range to be set.
  *
- * Returns the new value for the node (or 0 if non-existant / removed)
+ * Return: The new value for the node (or 0 if absent / removed).
  */
+uint64_t rb_dec(rbtree_t* tree, uintptr_t start, uintptr_t end);
 
+/**
+ * rb_get_rightmost() - Retrieves the start value of the right-most node in a red-black tree.
+ * @tree: Pointer to the red-black tree whose right-most node's start value is to be retrieved.
+ *
+ * This function traverses the red-black tree from the root to the right-most node, which is the node
+ * with the highest key value in the tree.
+ * Return: The start value of the right-most node if the tree is not empty; otherwise, 0.
+ */
 uintptr_t rb_get_rightmost(rbtree_t* tree);
 
 /**
@@ -311,7 +316,7 @@ uintptr_t rb_get_rightmost(rbtree_t* tree);
  * @tree: Pointer to the red-black tree whose left-most node's start value is to be retrieved.
  *
  * This function traverses the red-black tree from the root to the left-most node, which is the node
- * with the lowest key value in the tree. 
+ * with the lowest key value in the tree.
  * Return: The start value of the left-most node if the tree is not empty; otherwise, 0.
  */
 uintptr_t rb_get_leftmost(rbtree_t* tree);
