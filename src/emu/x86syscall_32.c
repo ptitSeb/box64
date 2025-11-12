@@ -254,6 +254,20 @@ struct i386_robust_list_head {
 
 typedef struct i386_stack_s i386_stack_t;
 
+typedef struct i386_linux_dirent_s {
+    uint32_t d_ino;
+    uint32_t d_off;
+    uint16_t d_reclen;
+    char d_name[];
+} i386_linux_dirent_t;
+
+typedef struct native_linux_dirent {
+    unsigned long d_ino;
+    unsigned long d_off;
+    unsigned short d_reclen;
+    char d_name[];
+} native_linux_dirent_t;
+
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 int32_t my32_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 ssize_t my32_read(int fd, void* buf, size_t count);
@@ -423,6 +437,33 @@ void EXPORT x86Syscall(x64emu_t *emu)
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;*/
+        case 141: { // getdents
+            native_linux_dirent_t* dirent_buffer = box_malloc(sizeof(native_linux_dirent_t) * (unsigned int)R_EDX);
+            S_EAX = syscall(__NR_getdents64, (unsigned)R_EBX, dirent_buffer, (unsigned int)R_EDX);
+            if (S_EAX == -1) {
+                if (errno > 0) S_EAX = -errno;
+            } else {
+                size_t total = 0;
+                size_t off = 0;
+                while (off < (size_t)S_EAX) {
+                    native_linux_dirent_t* d = (native_linux_dirent_t*)((char*)dirent_buffer + off);
+                    size_t reclen = sizeof(i386_linux_dirent_t) + strlen(d->d_name) + 1;
+                    reclen = (reclen + 3) & ~3; // align to 4 bytes
+                    if (total + reclen > (size_t)R_EDX)
+                        break; // no more space
+                    i386_linux_dirent_t* d32 = (i386_linux_dirent_t*)((char*)from_ptrv(R_ECX) + total);
+                    d32->d_ino = (uint32_t)d->d_ino;
+                    d32->d_off = (uint32_t)d->d_off;
+                    d32->d_reclen = (uint16_t)reclen;
+                    strcpy(d32->d_name, d->d_name);
+                    total += reclen;
+                    off += d->d_reclen;
+                }
+                S_EAX = total;
+            }
+            box_free(dirent_buffer);
+            break;
+        }
         case 186:   // sigaltstack
             S_EAX = my32_sigaltstack(emu, from_ptrv(R_EBX), from_ptrv(R_ECX));
             if(S_EAX==-1 && errno>0)
