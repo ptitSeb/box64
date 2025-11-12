@@ -465,7 +465,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3, 0);   \
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);     \
                 } else {                                                \
                     CacheTransform(dyn, ninst, cacheupd);               \

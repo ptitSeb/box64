@@ -1824,11 +1824,11 @@ void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
 }
 
 // purge the SSE cache only
-static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
+static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, uint32_t unneeded)
 {
     int old = -1;
     for (int i=0; i<16; ++i)
-        if(dyn->n.ssecache[i].v!=-1) {
+        if(dyn->n.ssecache[i].v!=-1 && !(unneeded&(1<<i))) {
             if(next) dyn->n.xmm_used |= (1<<i);
             if(dyn->n.ssecache[i].write) {
                 if (old==-1) {
@@ -1861,7 +1861,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
             avx_mark_zero_reset(dyn, ninst);
     }
     for(int i=0; i<32; ++i) {
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW) {
+        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW && !(unneeded&(1<<(dyn->n.neoncache[i].n+16)))) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next?"locally ":"");
                 ++old;
@@ -2065,11 +2065,11 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
 }
 
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3)
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3, uint32_t unneeded)
 {
     x87_purgecache(dyn, ninst, next, s1, s2, s3);
     mmx_purgecache(dyn, ninst, next, s1);
-    sse_purgecache(dyn, ninst, next, s1);
+    sse_purgecache(dyn, ninst, next, s1, unneeded);
     if(!next) {
         fpu_reset_reg(dyn);
         dyn->insts[ninst].fpupurge = 1;
@@ -2318,15 +2318,16 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     if(i2<0)
         return;
     MESSAGE(LOG_DUMP, "\tCache Transform ---- ninst=%d -> %d\n", ninst, i2);
+    uint32_t unneeded = dyn->insts[i2].n.xmm_unneeded | (dyn->insts[i2].n.ymm_unneeded<<16);
     if((!i2) || (dyn->insts[i2].x64.barrier&BARRIER_FLOAT)) {
         if(dyn->n.stack_next)  {
-            fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+            fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
             MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
             return;
         }
         for(int i=0; i<24; ++i)
             if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
-                fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+                fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
                 MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
                 return;
             }
@@ -2353,7 +2354,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
             if(cache_i2.neoncache[i].v)
                 purge = 0;
         if(purge) {
-            fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+            fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
             MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
             return;
         }

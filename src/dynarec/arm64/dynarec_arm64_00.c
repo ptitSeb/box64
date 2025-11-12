@@ -1207,7 +1207,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3, 0);   \
                     jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits); \
                 } else {                                                \
                     /* inside the block, cache transform */             \
@@ -3496,7 +3496,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(Z) {CBNZz(xRCX, i32);} else {CBZz(xRCX, i32);};      \
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3, 0);   \
                     jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits); \
                 } else {                                                \
                     CacheTransform(dyn, ninst, cacheupd);               \
@@ -3658,7 +3658,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOV64x(x2, addr);
                     }
                     BARRIER(BARRIER_FLOAT);
-                    //fpu_purgecache(dyn, ninst, 0, x1, x3, x4);
+                    //fpu_purgecache(dyn, ninst, 0, x1, x3, x4, 0);
                     PUSH1z(x2);
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();

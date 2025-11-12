@@ -214,7 +214,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 else { tmp1=x1; tmp2=x2; tmp3=x3; }
                 fpu_purgecache(dyn, ninst, 0, tmp1, tmp2, tmp3);
                 #else
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3, 0);
                 #endif
             }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
@@ -390,14 +390,22 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             #endif
             ++ninst;
             NOTEST(x3);
+            #if defined (RV64) || defined(LA64)
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+            #else
+            fpu_purgecache(dyn, ninst, 0, x1, x2, x3, 0);
+            #endif
             jump_to_next(dyn, addr, 0, ninst, rex.is32bits);
             ok=0; need_epilog=0;
         }
     }
     if(need_epilog) {
         NOTEST(x3);
+        #if defined (RV64) || defined(LA64)
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        #else
+        fpu_purgecache(dyn, ninst, 0, x1, x2, x3, 0);
+        #endif
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknown instruction
     }
     FINI;
