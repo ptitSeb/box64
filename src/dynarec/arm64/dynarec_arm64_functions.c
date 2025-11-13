@@ -91,6 +91,7 @@ int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
     dyn->n.neoncache[i].n = n;
     dyn->n.neoncache[i].t = t;
     dyn->n.news |= (1<<i);
+    dyn->use_x87 = 1;
     return i; // return a Dx
 }
 // Free a FPU double reg
@@ -130,6 +131,7 @@ int fpu_get_reg_emm(dynarec_arm_t* dyn, int ninst, int emm)
     dyn->n.neoncache[ret].t = NEON_CACHE_MM;
     dyn->n.neoncache[ret].n = emm;
     dyn->n.news |= (1<<(ret));
+    dyn->use_mmx = 1;
     return ret;
 }
 // Get an XMM quad reg
@@ -145,10 +147,12 @@ int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm)
     dyn->n.neoncache[i].t = t;
     dyn->n.neoncache[i].n = xmm;
     dyn->n.news |= (1<<i);
+    dyn->use_xmm = 1;
     return i;
 }
 int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
 {
+    dyn->use_ymm = 1;
     if((dyn->n.neoncache[reg].t==NEON_CACHE_YMMR) || (dyn->n.neoncache[reg].t==NEON_CACHE_YMMW)) {
         if(dyn->n.neoncache[reg].n == ymm) {
             // already there!
@@ -1218,6 +1222,8 @@ static void propagateXYMMUneeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x,
 
 void updateUneeded(dynarec_arm_t* dyn)
 {
+    if(!dyn->use_xmm && !dyn->use_ymm)
+        return;
     for(int ninst=0; ninst<dyn->size; ++ninst) {
         if(dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.ymm_unneeded)
             propagateXYMMUneeded(dyn, ninst, dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
@@ -1274,6 +1280,8 @@ void tryEarlyFpuBarrier(dynarec_arm_t* dyn, int last_fpu_used, int ninst)
 
 void propagateFpuBarrier(dynarec_arm_t* dyn)
 {
+    if(!dyn->use_x87)
+        return;
     int last_fpu_used = -1;
     for(int ninst=0; ninst<dyn->size; ++ninst) {
         int fpu_used = dyn->insts[ninst].n.xmm_used || dyn->insts[ninst].n.ymm_used || dyn->insts[ninst].mmx_used || dyn->insts[ninst].x87_used;
@@ -1289,6 +1297,8 @@ void propagateFpuBarrier(dynarec_arm_t* dyn)
 
 void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached)
 {
+    if(!dyn->use_ymm)
+        return;
     int can_incr = ninst == max_ninst_reached; // Are we the top-level call?
     int ok = 1;
     while ((can_incr || ok) && ninst < dyn->size) {

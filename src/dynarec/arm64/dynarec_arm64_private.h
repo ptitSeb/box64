@@ -179,6 +179,10 @@ typedef struct dynarec_arm_s {
     uint8_t             doublepop;
     uint8_t             always_test;
     uint8_t             abort;      // abort the creation of the block
+    uint8_t             use_x87:1;  // set if x87 regs are used
+    uint8_t             use_mmx:1;
+    uint8_t             use_xmm:1;
+    uint8_t             use_ymm:1;
     void*               gdbjit_block;
     uint32_t            need_x87check;  // needs x87 precision control check if non-null, or 0 if not
     uint32_t            need_dump;     // need to dump the block
