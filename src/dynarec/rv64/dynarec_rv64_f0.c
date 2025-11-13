@@ -550,6 +550,28 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x19:
+            INST_NAME("LOCK SBB Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LRxw(x1, wback, 1, 1);
+                SUBxw(x3, x1, gd);
+                ANDI(x4, xFlags, 1 << F_CF);
+                SUBxw(x3, x3, x4);
+                SCxw(x4, x3, wback, 1, 1);
+                BNEZ_MARKLOCK(x4);
+                IFXORNAT (X_ALL | X_PEND)
+                    emit_sbb32(dyn, ninst, rex, x1, gd, x3, x4, x5);
+            }
+            break;
         case 0x21:
             INST_NAME("LOCK AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -579,6 +601,21 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 AMOADDxw(x1, x4, wback, 1, 1);
                 IFXORNAT (X_ALL | X_PEND)
                     emit_sub32(dyn, ninst, rex, x1, gd, x3, x4, x5);
+            }
+            break;
+        case 0x31:
+            INST_NAME("LOCK XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                AMOXORxw(x1, gd, wback, 1, 1);
+                IFXORNAT (X_ALL | X_PEND)
+                    emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);
             }
             break;
         case 0x66:
