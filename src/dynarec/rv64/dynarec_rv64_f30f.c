@@ -586,6 +586,11 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = x4;
             }
             IFX (X_CF) SET_FLAGS_EQZ(ed, F_CF, x3);
+            BNEZ_MARK(ed);
+            IFX (X_ZF) ANDI(xFlags, xFlags, ~(1 << F_ZF));
+            MOV32w(gd, rex.w ? 64 : 32);
+            B_NEXT_nocond;
+            MARK;
             CTZxw(gd, ed, rex.w, x3, x5);
             IFX (X_ZF) SET_FLAGS_EQZ(gd, F_ZF, x3);
             break;
@@ -606,6 +611,11 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = x4;
             }
             IFX (X_CF) SET_FLAGS_EQZ(ed, F_CF, x3);
+            BNEZ_MARK(ed);
+            MOV32w(gd, rex.w ? 64 : 32);
+            IFX (X_ZF) ANDI(xFlags, xFlags, ~(1 << F_ZF));
+            B_NEXT_nocond;
+            MARK;
             CLZxw(gd, ed, rex.w, x5, x2, x3);
             IFX (X_ZF) SET_FLAGS_EQZ(gd, F_ZF, x3);
             break;

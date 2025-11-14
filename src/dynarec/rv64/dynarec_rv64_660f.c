@@ -1217,6 +1217,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 F8;
             }
             break;
+        case 0xA5:
+            nextop = F8;
+            INST_NAME("SHLD Ew, Gw, CL");
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_ALL);
+                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+            } else
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            GETGW(x2);
+            GETEW(x1, 0);
+            ANDI(x4, xRCX, 0x1f);
+            UFLAG_IF { BEQ_NEXT(x4, xZR); }
+            emit_shld16(dyn, ninst, ed, gd, x4, x5, x6, x7);
+            EWBACK;
+            break;
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
             if (!BOX64DRENV(dynarec_safeflags)) {
@@ -1274,6 +1289,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FAKEED;
                 F8;
             }
+            break;
+        case 0xAD:
+            nextop = F8;
+            INST_NAME("SHRD Ew, Gw, CL");
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_ALL);
+                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+            } else
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            GETGW(x2);
+            GETEW(x1, 0);
+            ANDI(x4, xRCX, 0x1f);
+            UFLAG_IF { BEQ_NEXT(x4, xZR); }
+            emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6, x7);
+            EWBACK;
             break;
         case 0xAF:
             INST_NAME("IMUL Gw, Ew");
