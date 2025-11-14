@@ -93,6 +93,9 @@ void updateUneeded(dynarec_arm_t* dyn);
 
 void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached);
 
+// add a preload of SSE/AVX register preload before i2, for a jump in ninst. Might not do it if there is jump in between that goes outside this ninst-i2 interval
+void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload);
+
 // AVX helpers
 void avx_mark_zero(dynarec_arm_t* dyn, int ninst, int reg);
 int is_avx_zero(dynarec_arm_t* dyn, int ninst, int reg);

@@ -137,6 +137,9 @@ typedef struct instruction_arm64_s {
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
+    int                 cacheupd;
+    uint32_t            preload_xmmymm;
+    int                 preload_from;
 } instruction_arm64_t;
 
 typedef struct dynarec_arm_s {

@@ -89,8 +89,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(!ninst && dyn->need_x87check) {
             NATIVE_RESTORE_X87PC();
         }
-        fpu_propagate_stack(dyn, ninst);
         ip = addr;
+        #ifdef ARM64
+        if(!ninst && dyn->insts[0].preload_xmmymm) {
+            doPreload(dyn, 0);
+            ENDPREFIX;
+        }
+        #endif
+        fpu_propagate_stack(dyn, ninst);
         if (reset_n!=-1) {
             dyn->last_ip = 0;
             if(reset_n==-2) {
@@ -201,6 +207,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP > 1
         if (is_opcode_volatile || dyn->insts[ninst].lock)
             DMB_ISH();
+        #endif
+        #ifdef ARM64
+        if(dyn->insts[ninst].x64.has_next && dyn->insts[ninst+1].preload_xmmymm) {
+            doPreload(dyn, ninst+1);
+        }
         #endif
 
         fpu_reset_scratch(dyn);

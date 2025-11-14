@@ -872,6 +872,9 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (dyn->insts[ninst].purge_ymm) {
         length += sprintf(buf + length, " purgeYmm=%04x", dyn->insts[ninst].purge_ymm);
     }
+    if (dyn->insts[ninst].preload_xmmymm) {
+        length += sprintf(buf + length, " preload=%x/%d", dyn->insts[ninst].preload_xmmymm, dyn->insts[ninst].preload_from);
+    }
     if (dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack) {
         length += sprintf(buf + length, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
     }
@@ -1201,6 +1204,25 @@ void fpu_unwind_restore(dynarec_arm_t* dyn, int ninst, neoncache_t* cache)
     memcpy(&dyn->insts[ninst].n, cache, sizeof(neoncache_t));
 }
 
+static uint32_t getXYMMMask(dynarec_arm_t* dyn, int ninst)
+{
+    if(ninst<0) return 0;
+    uint32_t ret = 0;
+    for (int i=0; i<32; ++i) {
+        switch(dyn->insts[ninst].n.neoncache[i].t) {
+            case NEON_CACHE_XMMR:
+            case NEON_CACHE_XMMW:
+                ret |= 1<<dyn->insts[ninst].n.neoncache[i].n;
+                break;
+            case NEON_CACHE_YMMR:
+            case NEON_CACHE_YMMW:
+                ret |= 1<<(16+dyn->insts[ninst].n.neoncache[i].n);
+                break;
+        }
+    }
+    return ret;
+}
+
 static void propagateXYMMUneeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x, uint16_t mask_y)
 {
     if(!ninst) return;
@@ -1228,6 +1250,29 @@ void updateUneeded(dynarec_arm_t* dyn)
         if(dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.ymm_unneeded)
             propagateXYMMUneeded(dyn, ninst, dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
     }
+    // try to add some preload of XYMM on jump were it would make sense
+    for(int ninst=0; ninst<dyn->size; ++ninst)
+        if((ninst && dyn->insts[ninst].pred_sz>1) || (!ninst && dyn->insts[ninst].pred_sz)) {
+            int i2 = dyn->size+1;
+            for(int j=0; j<dyn->insts[ninst].pred_sz; ++j)
+                if(dyn->insts[ninst].pred[j]!=ninst-1 && dyn->insts[ninst].pred[j]<i2)
+                    i2 = dyn->insts[ninst].pred[j];
+            if(i2!=dyn->size+1 && i2>ninst) {
+                uint32_t used = getXYMMMask(dyn, i2);
+                if(used) {
+                    int prev = getNominalPred(dyn, ninst);
+                    if((prev==ninst-1) || !ninst) {
+                        uint32_t dest = getXYMMMask(dyn, prev);
+                        // removed unneeded
+                        uint32_t unnedded = dyn->insts[ninst].n.xmm_unneeded | (dyn->insts[ninst].n.ymm_unneeded<<16);
+                        // create the preload mask
+                        uint32_t preload = (used & ~dest) & ~unnedded;
+                        if(preload)
+                            addSSEPreload(dyn, i2, ninst, preload);
+                    }
+                }
+            }
+        }
 }
 
 void tryEarlyFpuBarrier(dynarec_arm_t* dyn, int last_fpu_used, int ninst)
@@ -1403,4 +1448,87 @@ int is_avx_zero_unset(dynarec_arm_t* dyn, int ninst, int reg)
 void avx_mark_zero_reset(dynarec_arm_t* dyn, int ninst)
 {
     dyn->ymm_zero = 0;
+}
+
+static int xmm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int xmm)
+{
+    return (xmm>7)?(XMM8 + xmm - 8):(XMM0 + xmm);
+}
+
+static int ymm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int ymm)
+{
+    int i = -1;
+    // search for when it will be loaded the first time
+    int start = ninst;
+    for(int ii=0; ii<32 && i==-1; ++ii)
+        if(dyn->insts[last].n.neoncache[ii].n==ymm && (dyn->insts[last].n.neoncache[ii].t==NEON_CACHE_YMMR || dyn->insts[last].n.neoncache[ii].t==NEON_CACHE_YMMW))
+            i = ii;
+    while((ninst<last) && (i!=-1)) {
+        // check if the reg is always free
+        if(!(!dyn->insts[ninst].n.neoncache[i].v ||
+            (dyn->insts[ninst].n.neoncache[i].n==ymm 
+                && (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_YMMR || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_YMMW))))
+            i = -1; // nope
+        else
+            ++ninst;
+    }
+    return i;
+}
+
+void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
+{
+    if((i2<0) || (i2>ninst) || !preload || dyn->insts[i2].preload_from)
+        return;
+    if(i2 && !dyn->insts[i2-1].x64.has_next)    // need a previous opcode to set the preload, unless it's the #0
+        return;
+    // check if there is jump out or outside this loop
+    for(int i=i2; i<ninst; ++i) {
+        if(!dyn->insts[i].x64.has_next || (dyn->insts[i].x64.barrier&BARRIER_FLOAT))
+            return;
+        // for now, unneeded stop at first jump, so this should also stop there
+        if(dyn->insts[i].x64.jmp/* && ((dyn->insts[i].x64.jmp_insts>ninst) || (dyn->insts[i].x64.jmp_insts<i2))*/)
+            return;
+    }
+    uint16_t ymm_mask = 0;
+    for(int i=0; i<16; ++i) {
+        if(preload&(1<<i)) {
+            int v = xmm_preload_reg(dyn, i2?(i2-1):0, ninst, i);
+            // propagate until not needed
+            int i3 = i2;
+            while(i3<ninst) {
+                if(dyn->insts[i3].n.xmm_used&(1<<i))
+                    i3 = ninst;
+                else {
+                    dyn->insts[i3].n.ssecache[i].write = 0;
+                    dyn->insts[i3].n.ssecache[i].reg = v;
+                    dyn->insts[i3].n.neoncache[v].t = NEON_CACHE_XMMR;
+                    dyn->insts[i3].n.neoncache[v].n = i;
+                    ++i3;
+                }
+            }
+        }
+        if(preload&(1<<(16+i))) {
+            int v = ymm_preload_reg(dyn, i2?(i2-1):0, ninst, i);
+            if(v!=-1) {
+                ymm_mask |= 1<<i;
+                // propagate until not needed
+                int i3 = i2;
+                while(i3<ninst) {
+                    if(dyn->insts[i3].n.ymm_used&(1<<i))
+                        i3 = ninst;
+                    else {
+                        dyn->insts[i3].n.neoncache[v].t = NEON_CACHE_YMMR;
+                        dyn->insts[i3].n.neoncache[v].n = i;
+                        ++i3;
+                    }
+                }
+            }
+        }
+    }
+    preload = (preload&0xffff) | (ymm_mask<<16);    // update ymm_mask
+    //TODO: should check native calls too?
+    dyn->insts[i2].preload_xmmymm = preload;
+    dyn->insts[i2].preload_from = ninst;
+    dyn->insts[i2].n.xmm_unneeded |= preload&0xffff;
+    dyn->insts[i2].n.ymm_unneeded |= ymm_mask;
 }

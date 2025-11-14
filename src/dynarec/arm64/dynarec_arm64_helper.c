@@ -2320,17 +2320,15 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     MESSAGE(LOG_DUMP, "\tCache Transform ---- ninst=%d -> %d\n", ninst, i2);
     uint32_t unneeded = dyn->insts[i2].n.xmm_unneeded | (dyn->insts[i2].n.ymm_unneeded<<16);
     if((!i2) || (dyn->insts[i2].x64.barrier&BARRIER_FLOAT)) {
-        if(dyn->n.stack_next)  {
+        int need_purge = 0;
+        if(dyn->n.stack_next)
+            need_purge = 1;
+        for(int i=0; i<24 && !need_purge; ++i)
+            if(dyn->n.neoncache[i].v) 
+                need_purge = 1;
+        if(need_purge) {       // there is something at ninst for i
             fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
-            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-            return;
         }
-        for(int i=0; i<24; ++i)
-            if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
-                fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
-                MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-                return;
-            }
         MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
         return;
     }
@@ -2920,4 +2918,49 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
     #endif
     printf_log(LOG_NONE, "BOX64 Dynarec: Error, unable to free a reg for YMM %d at inst=%d on pass %d\n", ymm, ninst, STEP);
     return i;
+}
+
+// Get an XMM quad reg and preload it (or do nothing if not possible)
+static int xmm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int xmm)
+{
+    dyn->n.ssecache[xmm].reg = fpu_get_reg_xmm(dyn, NEON_CACHE_XMMR, xmm);
+    int ret =  dyn->n.ssecache[xmm].reg;
+    dyn->n.ssecache[xmm].write = 0;
+    VLDR128_U12(ret, xEmu, offsetof(x64emu_t, xmm[xmm]));
+    return ret;
+}
+
+// Get an YMM quad reg and preload it (or do nothing if not possible)
+static int ymm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int ymm)
+{
+    int i = -1;
+    // search for when it will be loaded the first time
+    for(int ii=0; ii<32 && i==-1; ++ii)
+        if(dyn->insts[last].n.neoncache[ii].n==ymm && (dyn->insts[last].n.neoncache[ii].t==NEON_CACHE_YMMR || dyn->insts[last].n.neoncache[ii].t==NEON_CACHE_YMMW))
+            i = ii;
+    if(i!=-1) {
+        VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[ymm]));
+        dyn->n.neoncache[i].t = NEON_CACHE_YMMR;
+        dyn->n.neoncache[i].n = ymm;
+    }
+    return i;
+}
+
+void doPreload(dynarec_arm_t* dyn, int ninst)
+{
+    int n = ninst?(ninst-1):ninst;
+    uint32_t preload = dyn->insts[ninst].preload_xmmymm;
+    int from = dyn->insts[ninst].preload_from;
+    if(!preload) return;
+    // preload XMM
+    MESSAGE(LOG_INFO, "Preload XMM/YMM -------- %x\n", preload);
+    for(int i=0; i<16; ++i) {
+        if(preload&(1<<i)) {
+            xmm_preload_reg(dyn, n, from, i);
+        }
+        if(preload&(1<<(16+i))) {
+            ymm_preload_reg(dyn, n, from, i);
+        }
+    }
+    MESSAGE(LOG_INFO, "-------- Preload XMM/YMM\n");
 }
