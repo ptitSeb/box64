@@ -1507,6 +1507,119 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+void emit_shld16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    CLEAR_FLAGS();
+    IFX (X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, op1));
+        SH(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_shld16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_OF) {
+        SRLI(s5, s1, 14);
+        SRLI(s4, s5, 1);
+        XOR(s5, s5, s4);
+        ANDI(s5, s5, 1);
+        SLLI(s5, s5, F_OF2);
+        OR(xFlags, xFlags, s5);
+    }
+
+    MOV32w(s6, 32);
+    SUBW(s6, s6, s3);
+    IFX (X_CF) {
+        SLLI(s5, s1, 16);
+        OR(s4, s2, s5);
+        SRLW(s5, s4, s6);
+        ANDI(s5, s5, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s5);
+    }
+    // create concat first
+    SLLI(s5, s2, 16);
+    OR(s1, s1, s5);
+
+    if (cpuext.zbb) {
+        RORW(s1, s1, s6);
+    } else {
+        SLLW(s5, s1, s3);
+        SRLW(s1, s1, s6);
+        OR(s1, s1, s5);
+    }
+    ZEXTH(s1, s1);
+
+    IFX (X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_SF) {
+        SLLIW(s4, s1, 16);
+        SET_FLAGS_LTZ(s4, F_SF, s4, s5);
+    }
+    IFX (X_ZF) {
+        SET_FLAGS_EQZ(s1, F_ZF, s4);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s4, s5);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s4, xZR);
+}
+
+void emit_shrd16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    CLEAR_FLAGS();
+    IFX (X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, op1));
+        SH(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_shrd16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    SLLI(s5, s2, 16);
+    OR(s1, s1, s5);
+    IFX (X_OF) {
+        SRLI(s5, s1, 15);
+        XOR(s5, s5, s2);
+        ANDI(s5, s5, 1);
+        SLLI(s5, s5, F_OF2);
+        OR(xFlags, xFlags, s5);
+    }
+
+    IFX (X_CF) {
+        ADDIW(s5, s3, -1);
+        SRLW(s5, s1, s5);
+        ANDI(s5, s5, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s5);
+    }
+
+    if (cpuext.zbb) {
+        RORW(s1, s1, s3);
+    } else {
+        MOV32w(s6, 32);
+        SUBW(s6, s6, s3);
+        SRLW(s5, s1, s3);
+        SLLW(s1, s1, s6);
+        OR(s1, s1, s5);
+    }
+    ZEXTH(s1, s1);
+
+    IFX (X_PEND) {
+        SH(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        SET_FLAGS_EQZ(s1, F_ZF, s5);
+    }
+    IFX (X_SF) {
+        SLLIW(s3, s1, 16);
+        SET_FLAGS_LTZ(s3, F_SF, s4, s5);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s4, s5);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
 // emit RCL16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rcl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
