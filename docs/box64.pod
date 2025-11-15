@@ -183,7 +183,7 @@ Enable building bigger DynaRec code blocks for better performance. Available in 
 
 =item B<BOX64_DYNAREC_BLEEDING_EDGE> =I<0|1>
 
-Detect MonoBleedingEdge and apply conservative settings.
+Detect MonoBleedingEdge and apply conservative settings (Linux only).
 
  * 0 : Do not detect MonoBleedingEdge. 
  * 1 : Detect MonoBleedingEdge and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 when detected. [Default]
@@ -335,6 +335,14 @@ Generate map file for Linux perf tool.
 
  * 0 : Dynarec will not generate perf map. [Default]
  * 1 : Dynarec will generate perf map. 
+
+
+=item B<BOX64_DYNAREC_PURGE> =I<0|1>
+
+Automatically purge old unused dynablocks and save memory, may have impact on performance.
+
+ * 0 : Dynarec will not purge old unused dynablocks. [Default]
+ * 1 : Dynarec will purge old unused dynablocks. 
 
 
 =item B<BOX64_DYNAREC_SAFEFLAGS> =I<0|1|2>
@@ -875,7 +883,15 @@ Only available on box64 build with trace. Adds trace of all instructions execute
 Detect UnityPlayer and apply conservative settings.
 
  * 0 : Does nothing. 
- * 1 : Detect UnityPlayer, and apply BOX64_DYNAREC_STRONGMEM=1 when detected. [Default]
+ * 1 : Detect UnityPlayer (Windows or Linux), and apply BOX64_UNITY=1 when detected. [Default]
+
+
+=item B<BOX64_UNITY> =I<0|1>
+
+Games is a Unity one.
+
+ * 0 : Does nothing. 
+ * 1 : Unity Game, use special detecting code for Windows, apply BOX64_DYNAREC_STRONGMEM=1 for Linux [Default]
 
 
 =item B<BOX64_WRAP_EGL> =I<0|1>
