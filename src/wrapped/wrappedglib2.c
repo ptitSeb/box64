@@ -1088,6 +1088,11 @@ EXPORT void my_g_source_set_callback(x64emu_t* emu, void* source, void* func, vo
     my->g_source_set_callback(source, findGSourceFuncFct(func), data, findFreeFct(notify));
 }
 
+EXPORT void my_g_main_context_invoke(x64emu_t* emu, void* context, void* func, void* data)
+{
+    my->g_main_context_invoke(context, findGSourceFuncFct(func), data);
+}
+
 EXPORT void* my_g_slist_insert_sorted(x64emu_t* emu, void* list, void* d, void* comp)
 {
 
