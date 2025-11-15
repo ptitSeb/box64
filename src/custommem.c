@@ -1507,44 +1507,40 @@ int PurgeDynarecMap(mmaplist_t* list, size_t size)
     // check all blocks where hot==1 and in_used==0 and delete them
     // return 1 as soon as one block has been deleted, 0 else
     // beware that hot=0 blocks means thay should not be touched
-    static int last = 0;
-    if(last>=list->size) {
-        last = 0;
-        return 0;
-    }
-    blocklist_t* bl = list->chunks[last++];
-    if(bl->nopurge) return 0;
-    blockmark_t* p = bl->block;
-    blockmark_t* end = bl->block + bl->size - sizeof(blockmark_t);
-
     int ret = 0;
-    int purgeable = 0;
-    while(p<end) {
-        blockmark_t *n = NEXT_BLOCK(p);
-        if(p->next.fill) {
-            dynablock_t* dynablock = *(dynablock_t**)p->mark;
-            int hot = native_lock_get_d(&dynablock->hot);
-            if(hot==1 && dynablock->done) {
-                int in_used = native_lock_get_d(&dynablock->in_used);
-                if(!in_used) {
-                    // free the block, but unreference it first
-                    //if(setJumpTableDefaultIfRef64(dynablock->x64_addr, dynablock->block)) 
-                    {
-                        dynarec_log(LOG_INFO/*LOG_DEBUG*/, " PurgeDynablock %p\n", dynablock);
-                        if((n<end) && !n->next.fill )
-                            n = NEXT_BLOCK(n);  //because the block will be agglomerated
-                        FreeDynablock(dynablock, 0, 1);
-                        ret = 1;
-                    } // fail to set default jump, so skipping
-                } else purgeable = 1;
+    for(int i=0; i<list->size && !ret; ++i) {
+        blocklist_t* bl = list->chunks[i];
+        if(bl->nopurge) continue;
+        blockmark_t* p = bl->block;
+        blockmark_t* end = bl->block + bl->size - sizeof(blockmark_t);
+
+        int purgeable = 0;
+        while(p<end) {
+            blockmark_t *n = NEXT_BLOCK(p);
+            if(p->next.fill) {
+                dynablock_t* dynablock = *(dynablock_t**)p->mark;
+                int hot = native_lock_get_d(&dynablock->hot);
+                if(hot==1 && dynablock->done) {
+                    int in_used = native_lock_get_d(&dynablock->in_used);
+                    if(!in_used) {
+                        // free the block, but unreference it first
+                        //if(setJumpTableDefaultIfRef64(dynablock->x64_addr, dynablock->block)) 
+                        {
+                            dynarec_log(LOG_INFO/*LOG_DEBUG*/, " PurgeDynablock %p\n", dynablock);
+                            if((n<end) && !n->next.fill )
+                                n = NEXT_BLOCK(n);  //because the block will be agglomerated
+                            FreeDynablock(dynablock, 0, 1);
+                            if((bl->maxfree>=size))
+                                ret = 1;
+                        } // fail to set default jump, so skipping
+                    } else purgeable = 1;
+                } else if(hot<2) purgeable = 1;
             }
+            p = n;
         }
-        p = n;
+        bl->nopurge = purgeable?0:1;
     }
-    if(ret) 
-        return (bl->maxfree>=size)?1:0;
-    bl->nopurge = purgeable?0:1;
-    return 0;
+    return ret;
 }
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
