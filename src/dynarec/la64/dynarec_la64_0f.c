@@ -1995,6 +1995,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if (!rex.w) ZEROUP(gd);
             break;
+        case 0xC1:
+            INST_NAME("XADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            if (ed != gd) MV(x7, ed);
+            emit_add32(dyn, ninst, rex, ed, gd, x4, x5, x6);
+            if (ed != gd) MVxw(gd, x7);
+            WBACK;
+            break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
             nextop = F8;
