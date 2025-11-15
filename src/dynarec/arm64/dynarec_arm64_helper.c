@@ -663,6 +663,8 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         // pop the actual return address for ARM stack
         LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
+        if(dyn->have_purge)
+            doLeaveBlock(dyn, ninst, x4, x5, x3);
         CBNZx(x6, 2*4);
         RET(xLR);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
@@ -670,7 +672,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
-    if(dyn->have_purge)
+    if(dyn->have_purge && !BOX64DRENV(dynarec_callret))
         doLeaveBlock(dyn, ninst, x4, x5, x6);
     #ifdef HAVE_TRACE
     BLR(dest);
@@ -697,6 +699,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int 
         // pop the actual return address for ARM stack
         LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
+        if(dyn->have_purge)
+            doLeaveBlock(dyn, ninst, x4, x5, x3);
         CBNZx(x6, 2*4);
         RET(xLR);
         // not the correct return address, regular jump
@@ -704,7 +708,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int 
     }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
-    if(dyn->have_purge)
+    if(dyn->have_purge && !BOX64DRENV(dynarec_callret))
         doLeaveBlock(dyn, ninst, x4, x5, x6);
     #ifdef HAVE_TRACE
     BLR(dest);
