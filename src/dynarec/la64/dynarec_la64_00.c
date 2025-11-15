@@ -1166,7 +1166,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LOCK_3264_CROSS_8BYTE(ADDI_D(x4, gd, 0), x1, wback, x4, x5, x6);
                     MARK3;
                 }
-                MV(gd, x1);
+                MVxw(gd, x1);
             }
             break;
         case 0x88:
