@@ -628,7 +628,7 @@ GO(g_main_context_find_source_by_id, pFpu)  // sould wrap?
 GO(g_main_context_find_source_by_user_data, pFpp)   // sould wrap?
 GOM(g_main_context_get_poll_func, pFEp)
 GO(g_main_context_get_thread_default, pFv)
-//GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
+GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
 //GOM(g_main_context_invoke_full, vFpippp)  // 3rd is GSourceFuncs
 GO(g_main_context_is_owner, iFp)
 GO(g_main_context_iteration, iFpi)
