@@ -135,7 +135,9 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     IFX (X_PEND | X_AF | X_CF | X_OF) {
         MOV64xw(s2, c);
-    } else if (cpuext.lbt) {
+    } else IFXA (X_ALL, cpuext.lbt) {
+        MOV64xw(s2, c);
+    } else if (c < -2048 || c >= 2048) {
         MOV64xw(s2, c);
     }
     IFX (X_PEND) {
@@ -153,7 +155,11 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             else
                 X64_ADD_W(s1, s2);
         }
-        ADDxw(s1, s1, s2);
+        if (c >= -2048 && c < 2048) {
+            ADDIxw(s1, s1, c);
+        } else {
+            ADDxw(s1, s1, s2);
+        }
         if (!rex.w) ZEROUP(s1);
 
         IFX (X_PEND) SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -191,10 +197,6 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     if (c >= -2048 && c < 2048) {
         ADDIxw(s1, s1, c);
     } else {
-        IFX (X_PEND | X_AF | X_CF | X_OF) {
-        } else {
-            MOV64xw(s2, c);
-        }
         ADDxw(s1, s1, s2);
     }
 
@@ -630,20 +632,21 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         return;
     }
 
+    IFX (X_PEND | X_AF | X_CF | X_OF) {
+        MOV64xw(s2, c);
+    } else IFXA (X_ALL, cpuext.lbt) {
+        MOV64xw(s2, c);
+    } else if (c < -2048 || c >= 2048) {
+        MOV64xw(s2, c);
+    }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
-        MOV64xw(s2, c);
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s3, rex.w ? d_sub64 : d_sub32);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
-
     if (cpuext.lbt) {
-        IFX (X_PEND) {
-        } else {
-            MOV64xw(s2, c);
-        }
         IFX (X_ALL) {
             if (rex.w) {
                 X64_SUB_D(s1, s2);
@@ -651,7 +654,11 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
                 X64_SUB_W(s1, s2);
             }
         }
-        SUBxw(s1, s1, s2);
+        if (c > -2048 && c <= 2048) {
+            ADDIxw(s1, s1, -c);
+        } else {
+            SUBxw(s1, s1, s2);
+        }
         if (!rex.w) ZEROUP(s1);
 
         IFX (X_PEND)
@@ -668,19 +675,9 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     if (c > -2048 && c <= 2048) {
         ADDIxw(s1, s1, -c);
     } else {
-        IFX (X_PEND) {
-        } else {
-            MOV64xw(s2, c);
-        }
         SUBxw(s1, s1, s2);
     }
 
-    IFX (X_AF | X_CF | X_OF) {
-        IFX (X_PEND) {
-        } else if (c > -2048 && c <= 2048) {
-            MOV64xw(s2, c);
-        }
-    }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }

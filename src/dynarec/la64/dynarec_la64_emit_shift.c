@@ -733,7 +733,7 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 
     if (cpuext.lbt) {
         IFX (X_PEND) {
-        } else {
+        } else IFX (X_ALL) {
             MOV64x(s3, c);
         }
         IFX (X_ALL) {
