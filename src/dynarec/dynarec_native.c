@@ -651,7 +651,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     size_t callret_size = helper.callret_size*sizeof(callret_t);
     size_t reloc_size = helper.reloc_size*sizeof(uint32_t);
     // ok, now allocate mapped memory, with executable flag on
-    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size + sizeof(dynablock_t) + reloc_size;
+    size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) + insts_rsize + arch_size + callret_size;
+    size_t dynablock_align = (sz&7)?(8 -(sz&7)):0;    // align dynablock
+    sz += dynablock_align + sizeof(dynablock_t) + reloc_size;
     //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets          dynablock           relocs
     void* actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
@@ -666,7 +668,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         return NULL;
     }
     helper.block = p;
-    dynablock_t* block = (dynablock_t*)(callrets+callret_size);
+    dynablock_t* block = (dynablock_t*)(callrets+callret_size+dynablock_align);
     memset(block, 0, sizeof(dynablock_t));
     void* relocs = helper.need_reloc?(block+1):NULL;
     // fill the block

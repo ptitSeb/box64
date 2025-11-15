@@ -1487,6 +1487,8 @@
 #define ymm_mark_zero     STEPNAME(ymm_mark_zero)
 #define fpu_get_reg_ymm   STEPNAME(fpu_get_reg_ymm)
 #define doPreload         STEPNAME(doPreload)
+#define doEnterBlock      STEPNAME(doEnterBlock)
+#define doLeaveBlock      STEPNAME(doLeaveBlock)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -1757,6 +1759,10 @@ void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a);
 int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3);
 // Preload XMM/YMM regs
 void doPreload(dynarec_arm_t* dyn, int ninst);
+// Enter a block (atomic inrement of hot and in_used)
+void doEnterBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// Leave a block (atomic decrement of in_used)
+void doLeaveBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

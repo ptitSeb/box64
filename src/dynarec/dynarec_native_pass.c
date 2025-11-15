@@ -54,6 +54,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     int dynarec_dirty = BOX64ENV(dynarec_dirty);
     #if STEP == 0
     memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
+    #ifdef ARM64
+    dyn->have_purge = BOX64ENV(dynarec_purge);
+    #endif
     #endif
     fpu_reset(dyn);
     ARCH_INIT();
@@ -91,8 +94,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         ip = addr;
         #ifdef ARM64
-        if(!ninst && dyn->insts[0].preload_xmmymm) {
-            doPreload(dyn, 0);
+        if(!ninst) {
+            if(dyn->have_purge)
+                doEnterBlock(dyn, 0, x1, x2, x3);
+            if(dyn->insts[0].preload_xmmymm)
+                doPreload(dyn, 0);
             ENDPREFIX;
         }
         #endif

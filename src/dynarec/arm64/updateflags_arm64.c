@@ -46,6 +46,7 @@ void* create_updateflags()
     // pass 0
     updateflags_pass0(&helper, jmp_df);
     // check if all flags are handled
+    helper.have_purge = 0;  // force no purge
     int ok = 1;
     for(int i=d_none; i<d_unknown; ++i)
         if(!jmp_df[i]) {

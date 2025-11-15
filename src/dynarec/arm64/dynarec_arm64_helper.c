@@ -561,6 +561,8 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     NOTEST(x2);
     TABLE64C(x2, const_epilog);
     SMEND();
+    if(dyn->have_purge)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     BR(x2);
 }
 
@@ -636,6 +638,8 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
+    if(dyn->have_purge && !dyn->insts[ninst].x64.has_callret)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     #ifdef HAVE_TRACE
     //MOVx(x3, 15);    no access to PC reg
     BLR(dest); // save LR...
@@ -666,6 +670,8 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
+    if(dyn->have_purge)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     #ifdef HAVE_TRACE
     BLR(dest);
     #else
@@ -698,6 +704,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int 
     }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
+    if(dyn->have_purge)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     #ifdef HAVE_TRACE
     BLR(dest);
     #else
@@ -764,6 +772,8 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
         TABLE64C(x2, const_epilog);
     else
         MOV64x(x2, getConst(const_epilog));
+    if(dyn->have_purge)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     BR(x2);
     CLEARIP();
     MARK;
@@ -2963,4 +2973,53 @@ void doPreload(dynarec_arm_t* dyn, int ninst)
         }
     }
     MESSAGE(LOG_INFO, "-------- Preload XMM/YMM\n");
+}
+
+void doEnterBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    // get dynarec address. It is stored just before the start of the block
+    MESSAGE(LOG_INFO, "doEnter --------\n");
+    int delta = -(dyn->native_size + sizeof(void*));
+    LDRx_literal(s1, delta);
+    // now increment in_used
+    ADDx_U12(s1, s1, offsetof(dynablock_t, in_used));
+    if(cpuext.atomics) {
+        MOV32w(s3, 1);
+        STADDLw(s3, s1);
+    } else {
+        LDAXRw(s2, s1);
+        ADDw_U12(s2, s2, 1);
+        STLXRw(s3, s2, s1);
+        CBNZw(s3, -3*4);
+    }
+    // now increment hot
+    ADDx_U12(s1, s1, offsetof(dynablock_t, hot)-offsetof(dynablock_t, in_used));
+    if(cpuext.atomics) {
+        STADDLw(s3, s1);
+    } else {
+        LDAXRw(s2, s1);
+        ADDw_U12(s2, s2, 1);
+        STLXRw(s3, s2, s1);
+        CBNZw(s3, -3*4);
+    }
+    MESSAGE(LOG_INFO, "-------- doEnter\n");
+}
+void doLeaveBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    MESSAGE(LOG_INFO, "doLeave --------\n");
+    // get dynarec address
+    int delta = -(dyn->native_size + sizeof(void*));
+    LDRx_literal(s1, delta);
+    ADDx_U12(s1, s1, offsetof(dynablock_t, in_used));
+    // decrement in_used
+    if(cpuext.atomics) {
+        MOV32w(s3, -1);
+        STADDLw(s3, s1);
+    } else {
+        LDAXRw(s2, s1);
+        SUBw_U12(s2, s2, 1);
+        STLXRw(s3, s2, s1);
+        CBNZw(s3, -3*4);
+    }
+    MESSAGE(LOG_INFO, "-------- doLeave\n");
 }

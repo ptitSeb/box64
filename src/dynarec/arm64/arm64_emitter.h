@@ -2074,6 +2074,7 @@ int convert_bitmask(uint64_t bitmask);
 #define LDADDAxw(Rs, Rt, Rn)            EMIT(ATOMIC_gen(0b10+rex.w, 1, 0, Rs, 0b000, Rn, Rt))
 #define LDADDALxw(Rs, Rt, Rn)           EMIT(ATOMIC_gen(0b10+rex.w, 1, 1, Rs, 0b000, Rn, Rt))
 #define LDADDLxw(Rs, Rt, Rn)            EMIT(ATOMIC_gen(0b10+rex.w, 0, 1, Rs, 0b000, Rn, Rt))
+#define STADDLw(Rs, Rn)                 EMIT(ATOMIC_gen(0b10, 0, 1, Rs, 0b000, Rn, 0b11111))
 #define STADDxw(Rs, Rn)                 EMIT(ATOMIC_gen(0b10+rex.w, 0, 0, Rs, 0b000, Rn, 0b11111))
 #define STADDLxw(Rs, Rn)                EMIT(ATOMIC_gen(0b10+rex.w, 0, 1, Rs, 0b000, Rn, 0b11111))
 #define LDADDB(Rs, Rt, Rn)              EMIT(ATOMIC_gen(0b00, 0, 0, Rs, 0b000, Rn, Rt))

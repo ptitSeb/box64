@@ -53,6 +53,7 @@ int getNeedTest(uintptr_t idx);
 int addJumpTableIfDefault64(void* addr, void* jmp); // return 1 if write was succesfull
 int setJumpTableIfRef64(void* addr, void* jmp, void* ref); // return 1 if write was succesfull
 void setJumpTableDefault64(void* addr);
+int setJumpTableDefaultIfRef64(void* addr, void* jmp);
 void setJumpTableDefaultRef64(void* addr, void* jmp);
 int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64(void);

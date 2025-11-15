@@ -843,7 +843,7 @@ done:
 #else
 #error meh!
 #endif
-#define DYNAREC_VERSION SET_VERSION(0, 0, 7)
+#define DYNAREC_VERSION SET_VERSION(0, 0, 8)
 
 typedef struct DynaCacheHeader_s {
     char sign[10];  //"DynaCache\0"
@@ -958,6 +958,11 @@ void SerializeMmaplist(mapping_t* mapping)
     if(mapping->env && mapping->env->is_dynacache_overridden && (mapping->env->dynacache!=1))
         return;
     if((!mapping->env || !mapping->env->is_dynacache_overridden) && box64env.dynacache!=1)
+        return;
+    // don't do serialize for program that needs purge=1
+    if(mapping->env && mapping->env->is_dynarec_purge_overridden && mapping->env->dynarec_purge)
+        return;
+    if((!mapping->env || !mapping->env->is_dynarec_purge_overridden) && box64env.dynarec_purge)
         return;
     // don't do serialize for program that needs dirty=1
     if(mapping->env && mapping->env->is_dynarec_dirty_overridden && mapping->env->dynarec_dirty)
