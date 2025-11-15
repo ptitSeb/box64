@@ -2540,6 +2540,28 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
+                case 2:
+                    INST_NAME("RCL Ed, CL");
+                    MESSAGE("LOG_DUMP", "Need optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    ANDI(x2, xRCX, rex.w ? 0x3f : 0x1f);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w ? (const_rcl64) : (const_rcl32), ed, x4, x1, x2);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    ANDI(x2, xRCX, rex.w ? 0x3f : 0x1f);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w ? (const_rcr64) : (const_rcr32), ed, x4, x1, x2);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, CL");
@@ -3032,6 +3054,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     CALL(const_div8, -1, x1, 0);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Eb");
+                    SKIPTEST(x1);
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    GETEB(x1, 0);
+                    CALL(const_idiv8, -1, x1, 0);
                     break;
                 default:
                     DEFAULT;

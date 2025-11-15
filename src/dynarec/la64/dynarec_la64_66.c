@@ -596,6 +596,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRAI_D(x1, x1, 56);
             BSTRINSz(xRAX, x1, 15, 0);
             break;
+        case 0x99:
+            INST_NAME("CWD");
+            SLLI_D(x1, xRAX, 48);
+            SRAI_D(x1, x1, 48);
+            SRLI_D(x1, x1, 48);
+            BSTRINS_D(xRDX, x1, 15, 0);
+            break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             if (rex.is32bits)
@@ -1154,6 +1161,19 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 0);
                     emit_neg16(dyn, ninst, ed, x2, x4);
                     EWBACK;
+                    break;
+                case 4:
+                    INST_NAME("MUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    GETEW(x1, 0);
+                    BSTRPICK_D(x2, xRAX, 15, 0);
+                    MUL_W(x1, x2, x1);
+                    ZEROUP(x1);
+                    UFLAG_RES(x1);
+                    BSTRINSz(xRAX, x1, 15, 0);
+                    SRLI_D(x1, x1, 16);
+                    BSTRINS_D(xRDX, x1, 15, 0);
+                    UFLAG_DF(x1, d_mul16);
                     break;
                 case 6:
                     INST_NAME("DIV Ew");
