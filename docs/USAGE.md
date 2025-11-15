@@ -144,6 +144,13 @@ Enable x86 PAUSE emulation, may help the performance of spinlocks. Available in 
  * 2: Use WFI to emulate x86 PAUSE instruction. 
  * 3: Use SEVL+WFE to emulate x86 PAUSE instruction. 
 
+### BOX64_DYNAREC_PURGE
+
+Automatically purge old unused dynablocks and save memory, may have impact on performance.
+
+ * 0: Dynarec will not purge old unused dynablocks. [Default]
+ * 1: Dynarec will purge old unused dynablocks. 
+
 ### BOX64_DYNAREC_SAFEFLAGS
 
 Behaviour of flags emulation on CALL/RET opcodes and other edge cases. Available in WowBox64.
@@ -324,7 +331,7 @@ Use a dummy crash handler or not.
 
 ### BOX64_DYNAREC_BLEEDING_EDGE
 
-Detect MonoBleedingEdge and apply conservative settings.
+Detect MonoBleedingEdge and apply conservative settings (Linux only).
 
  * 0: Do not detect MonoBleedingEdge. 
  * 1: Detect MonoBleedingEdge and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 when detected. [Default]
@@ -481,7 +488,14 @@ Synchronize rounding mode between x86 and native.
 Detect UnityPlayer and apply conservative settings.
 
  * 0: Does nothing. 
- * 1: Detect UnityPlayer, and apply BOX64_DYNAREC_STRONGMEM=1 when detected. [Default]
+ * 1: Detect UnityPlayer (Windows or Linux), and apply BOX64_UNITY=1 when detected. [Default]
+
+### BOX64_UNITY
+
+Games is a Unity one.
+
+ * 0: Does nothing. 
+ * 1: Unity Game, use special detecting code for Windows, apply BOX64_DYNAREC_STRONGMEM=1 for Linux [Default]
 
 ### BOX64_X11GLX
 

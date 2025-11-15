@@ -309,7 +309,7 @@
   },
   {
     "name": "BOX64_DYNAREC_BLEEDING_EDGE",
-    "description": "Detect MonoBleedingEdge and apply conservative settings (linux only).",
+    "description": "Detect MonoBleedingEdge and apply conservative settings (Linux only).",
     "category": "Compatibility",
     "wine": false,
     "options": [
@@ -687,6 +687,24 @@
       {
         "key": "1",
         "description": "Dynarec will generate perf map.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_PURGE",
+    "description": "Automatically purge old unused dynablocks and save memory, may have impact on performance.",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Dynarec will not purge old unused dynablocks.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Dynarec will purge old unused dynablocks.",
         "default": false
       }
     ]
@@ -1939,7 +1957,7 @@
       },
       {
         "key": "1",
-        "description": "Detect UnityPlayer (windows or linux), and apply BOX64_UNITY=1 when detected.",
+        "description": "Detect UnityPlayer (Windows or Linux), and apply BOX64_UNITY=1 when detected.",
         "default": true
       }
     ]
@@ -1957,7 +1975,7 @@
       },
       {
         "key": "1",
-        "description": "Unity Game, so use special detecting code to with StrongMemory emulation (so STRONGMEM=0 can be used)",
+        "description": "Unity Game, use special detecting code for Windows, apply BOX64_DYNAREC_STRONGMEM=1 for Linux",
         "default": true
       }
     ]
