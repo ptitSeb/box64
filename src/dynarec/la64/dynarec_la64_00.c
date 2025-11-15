@@ -696,37 +696,53 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
-            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(4);
             i64 = F32S;
             MOV64xw(x4, i64);
+            CLEAR_FLAGS(x3);
             if (rex.w) {
-                // 64bits imul
                 UFLAG_IF {
                     MULH_D(x3, ed, x4);
                     MUL_D(gd, ed, x4);
-                    UFLAG_OP1(x3);
-                    UFLAG_RES(gd);
-                    UFLAG_DF(x3, d_imul64);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRAI_D(x4, gd, 63);
+                        XOR(x3, x3, x4);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
                 } else {
-                    MULxw(gd, ed, x4);
+                    MUL_D(gd, ed, x4);
                 }
             } else {
-                // 32bits imul
                 UFLAG_IF {
                     SLLI_W(x3, ed, 0);
                     MUL_D(gd, x3, x4);
-                    UFLAG_RES(gd);
                     SRLI_D(x3, gd, 32);
-                    UFLAG_OP1(x3);
-                    UFLAG_DF(x3, d_imul32);
+                    SLLI_W(gd, gd, 0);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRAI_W(x4, gd, 31);
+                        SUB_D(x3, x3, x4);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
                 } else {
-                    MULxw(gd, ed, x4);
+                    MUL_W(gd, ed, x4);
                 }
                 ZEROUP(gd);
             }
+            IFX (X_SF) {
+                SRLI_D(x3, gd, rex.w ? 63 : 31);
+                BSTRINS_D(xFlags, x3, F_SF, F_SF);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
+            IFX (X_ALL) SPILL_EFLAGS();
             break;
         case 0x6A:
             INST_NAME("PUSH Ib");
@@ -736,37 +752,53 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(1);
             i64 = F8S;
             MOV64xw(x4, i64);
+            CLEAR_FLAGS(x3);
             if (rex.w) {
-                // 64bits imul
                 UFLAG_IF {
                     MULH_D(x3, ed, x4);
                     MUL_D(gd, ed, x4);
-                    UFLAG_OP1(x3);
-                    UFLAG_RES(gd);
-                    UFLAG_DF(x3, d_imul64);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRAI_D(x4, gd, 63);
+                        XOR(x3, x3, x4);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
                 } else {
                     MUL_D(gd, ed, x4);
                 }
             } else {
-                // 32bits imul
                 UFLAG_IF {
                     SLLI_W(x3, ed, 0);
                     MUL_D(gd, x3, x4);
-                    UFLAG_RES(gd);
                     SRLI_D(x3, gd, 32);
-                    UFLAG_OP1(x3);
-                    UFLAG_DF(x3, d_imul32);
+                    SLLI_W(gd, gd, 0);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRAI_W(x4, gd, 31);
+                        SUB_D(x3, x3, x4);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
                 } else {
                     MUL_W(gd, ed, x4);
                 }
                 ZEROUP(gd);
             }
+            IFX (X_SF) {
+                SRLI_D(x3, gd, rex.w ? 63 : 31);
+                BSTRINS_D(xFlags, x3, F_SF, F_SF);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
+            IFX (X_ALL) SPILL_EFLAGS();
             break;
         case 0x6C:
         case 0x6D:

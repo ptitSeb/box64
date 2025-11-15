@@ -1636,77 +1636,52 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
-            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(0);
-            if (BOX64ENV(dynarec_test)) {
-                // avoid noise during test
-                CLEAR_FLAGS(x3);
-            }
+            CLEAR_FLAGS(x3);
             if (rex.w) {
-                // 64bits imul
                 UFLAG_IF {
-                    if (cpuext.lbt) {
-                        X64_MUL_D(gd, ed);
-                    }
                     MULH_D(x3, gd, ed);
                     MUL_D(gd, gd, ed);
-                    IFX (X_PEND) {
-                        UFLAG_OP1(x3);
-                        UFLAG_RES(gd);
-                        UFLAG_DF(x3, d_imul64);
-                    } else {
-                        SET_DFNONE();
-                    }
-                    IFXA (X_CF | X_OF, !cpuext.lbt) {
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
                         SRAI_D(x4, gd, 63);
                         XOR(x3, x3, x4);
                         SNEZ(x3, x3);
-                        IFX (X_CF) {
-                            BSTRINS_D(xFlags, x3, F_CF, F_CF);
-                        }
-                        IFX (X_OF) {
-                            BSTRINS_D(xFlags, x3, F_OF, F_OF);
-                        }
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
                     }
                 } else {
-                    MULxw(gd, gd, ed);
+                    MUL_D(gd, gd, ed);
                 }
             } else {
-                // 32bits imul
                 UFLAG_IF {
-                    if (cpuext.lbt) {
-                        X64_MUL_W(gd, ed);
-                    }
                     SLLI_W(gd, gd, 0);
                     SLLI_W(x3, ed, 0);
                     MUL_D(gd, gd, x3);
                     SRLI_D(x3, gd, 32);
                     SLLI_W(gd, gd, 0);
-                    IFX (X_PEND) {
-                        UFLAG_RES(gd);
-                        UFLAG_OP1(x3);
-                        UFLAG_DF(x4, d_imul32);
-                    } else IFX (X_CF | X_OF) {
-                        SET_DFNONE();
-                    }
-                    IFXA (X_CF | X_OF, !cpuext.lbt) {
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
                         SRAI_W(x4, gd, 31);
                         SUB_D(x3, x3, x4);
                         SNEZ(x3, x3);
-                        IFX (X_CF) {
-                            BSTRINS_D(xFlags, x3, F_CF, F_CF);
-                        }
-                        IFX (X_OF) {
-                            BSTRINS_D(xFlags, x3, F_OF, F_OF);
-                        }
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
                     }
                 } else {
-                    MULxw(gd, gd, ed);
+                    MUL_W(gd, gd, ed);
                 }
                 ZEROUP(gd);
             }
+            IFX (X_SF) {
+                SRLI_D(x3, gd, rex.w ? 63 : 31);
+                BSTRINS_D(xFlags, x3, F_SF, F_SF);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
+            IFX (X_ALL) SPILL_EFLAGS();
             break;
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
