@@ -1523,9 +1523,9 @@ int PurgeDynarecMap(mmaplist_t* list, size_t size)
         blockmark_t *n = NEXT_BLOCK(p);
         if(p->next.fill) {
             dynablock_t* dynablock = *(dynablock_t**)p->mark;
-            int hot = native_lock_read_d(&dynablock->hot);
+            int hot = native_lock_get_d(&dynablock->hot);
             if(hot==1 && dynablock->done) {
-                int in_used = native_lock_read_d(&dynablock->in_used);
+                int in_used = native_lock_get_d(&dynablock->in_used);
                 if(!in_used) {
                     // free the block, but unreference it first
                     //if(setJumpTableDefaultIfRef64(dynablock->x64_addr, dynablock->block)) 
