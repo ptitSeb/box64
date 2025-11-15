@@ -769,7 +769,7 @@ x64emurun:
             nextop = F8;
             GETGD;
             tmp64u = GETEA(0);
-            if(rex.w)
+            if (rex.w && !rex.is67)
                 GD->q[0] = tmp64u;
             else
                 GD->q[0] = tmp64u&0xffffffff;
