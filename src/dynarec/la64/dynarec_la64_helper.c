@@ -585,7 +585,11 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     }
     CLEARIP();
     SMEND();
+#ifdef HAVE_TRACE
+    JIRL(xRA, dest, 0x0);
+#else
     JIRL((dyn->insts[ninst].x64.has_callret ? xRA : xZR), dest, 0x0);
+#endif
 }
 
 void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
