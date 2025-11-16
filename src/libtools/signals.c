@@ -1648,7 +1648,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // done
         if((prot&PROT_WRITE)/*|| (prot&PROT_DYNAREC)*/) {
             unlock_signal();
-            dynarec_log(LOG_INFO, "Writting from %04d|%p(%s, native=%s) to %p!\n", GetTID(), (void*)x64pc, getAddrFunctionName(x64pc), db?"Dynablock":GetNativeName(pc),(void*)addr);
+            dynarec_log(LOG_INFO, "Writting from %04d|%p(%s, native=%s) to %p using", GetTID(), (void*)x64pc, getAddrFunctionName(x64pc), db?"Dynablock":GetNativeName(pc),(void*)addr);
+            zydis_dec_t* dec = emu->segs[_CS] == 0x23 ? my_context->dec32 : my_context->dec;
+            if (dec)
+                printf_log_prefix(0, log_minimum, " %sopcode=%s; native opcode=%08x\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", DecodeX64Trace(dec, x64pc, 1), *(uint32_t*)pc);
+            else
+                printf_log_prefix(0, log_minimum, " %sopcode=%02X %02X %02X %02X %02X %02X %02X %02X (opcode=%08x)\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7], *(uint32_t*)pc);
             // if there is no write permission, don't return and continue to program signal handling
             relockMutex(Locks);
             return;
