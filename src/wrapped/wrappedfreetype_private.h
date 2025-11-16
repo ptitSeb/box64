@@ -37,8 +37,8 @@ GO(FT_Face_Properties, iFpup)
 GO(FT_FloorFix, lFl)
 GO(FT_Get_Advance, iFpiup)
 GO(FT_Get_Advances, iFpuuip)
-//GO(FT_Get_BDF_Charset_ID, 
-//GO(FT_Get_BDF_Property, 
+//GO(FT_Get_BDF_Charset_ID,
+GO(FT_Get_BDF_Property, iFppp)
 GO(FT_Get_Char_Index, uFpL)
 GO(FT_Get_Charmap_Index, iFp)
 GO(FT_Get_Color_Glyph_Layer, iFpupp)
