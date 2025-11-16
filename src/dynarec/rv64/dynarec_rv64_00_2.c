@@ -473,6 +473,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MVxw(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                    lock = 1;
+                }
                 SMREADLOCK(lock);
                 LDxw(gd, ed, fixedaddress);
             }
