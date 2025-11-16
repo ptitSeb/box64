@@ -20,6 +20,7 @@ typedef struct dynablock_s {
     void*           x64_addr;
     uintptr_t       x64_size;
     size_t          native_size;
+    uint32_t        prefixsize; // size in byte of the prefix of the block
     int             size;
     uint32_t        hash;
     uint8_t         done;

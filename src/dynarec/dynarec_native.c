@@ -686,6 +686,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     helper.table64cap = helper.table64size;
     helper.table64 = (uint64_t*)helper.tablestart;
     helper.callrets = (callret_t*)callrets;
+    block->prefixsize = helper.prefixsize;
     block->table64 = helper.table64;
     if(callret_size)
         memcpy(helper.callrets, static_callrets, helper.callret_size*sizeof(callret_t));

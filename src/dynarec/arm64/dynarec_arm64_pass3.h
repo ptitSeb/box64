@@ -16,7 +16,7 @@
     do {                                                                  \
         if (dyn->need_dump) dynarec_log(LOG_NONE, __VA_ARGS__); \
     } while (0)
-#define ENDPREFIX   dyn->insts[ninst].address = dyn->native_size; dyn->insts[ninst].size = 0
+#define ENDPREFIX   dyn->insts[ninst].size2 = 0
 #define NEW_INST        \
     if(ninst) {                                                  \
         if(dyn->insts[ninst].address!=(uintptr_t)dyn->block-(uintptr_t)dyn->native_start) dyn->abort = 1;   \

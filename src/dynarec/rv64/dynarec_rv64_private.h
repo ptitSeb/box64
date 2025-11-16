@@ -146,6 +146,7 @@ typedef struct dynarec_rv64_s {
     uintptr_t           start;      // start of the block
     uintptr_t           end;        // maximum end of the block (only used in pass0)
     uint32_t            isize;      // size in byte of x64 instructions included
+    uint32_t            prefixsize; // size in byte of the prefix of the block
     void*               block;      // memory pointer where next instruction is emitted
     uintptr_t           native_start;  // start of the riscv code
     size_t              native_size;   // size of emitted riscv code
