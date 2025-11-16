@@ -471,6 +471,7 @@ int getX64AddressInst(dynablock_t* db, uintptr_t x64pc)
     int ret = 0;
     if (x64pc < (uintptr_t)db->x64_addr || x64pc > (uintptr_t)db->x64_addr + db->x64_size)
         return -1;
+    armaddr += db->prefixsize;
     int i = 0;
     do {
         int x64sz = 0;
@@ -493,7 +494,7 @@ int getX64AddressInst(dynablock_t* db, uintptr_t x64pc)
 uintptr_t getX64InstAddress(dynablock_t* db, int inst)
 {
     uintptr_t x64addr = (uintptr_t)db->x64_addr;
-    uintptr_t armaddr = (uintptr_t)db->block;
+    uintptr_t armaddr = (uintptr_t)db->block + db->prefixsize;
     if (inst < 0 || inst > db->isize)
         return (uintptr_t)-1LL;
     int i = 0;
