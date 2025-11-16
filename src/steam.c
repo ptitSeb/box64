@@ -165,6 +165,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         }
         // should disable native gtk on box86 for now, until better wrapping of gstreamer is done on box86 too
         // setenv("BOX86_NOGTK", "1", 1);
+        setenv("BOX64_PRESSURE_VESSEL_FILES", sniper, 1);
     }
     printf_log(LOG_DEBUG, "Ready to launch \"%s\", nextarg=%d, argc=%d\n", argv[nextarg], nextarg, argc);
     prog = argv[nextarg];

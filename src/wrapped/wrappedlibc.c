@@ -1936,6 +1936,17 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         return tmp;
     }
 
+    if(!strcmp((const char*)pathname, "/etc/os-release")) {
+        char* pv = getenv("BOX64_PRESSURE_VESSEL_FILES");
+        if(pv) {
+            char tmp[MAX_PATH] = {0};
+            snprintf(tmp, sizeof(tmp)-1, "%s/lib/os-release", pv);
+            if(FileExist(tmp, IS_FILE)) {
+                return open(tmp, flags, mode);
+            }
+        }
+    }
+
     int ret = open(pathname, flags, mode);
     return ret;
 }
