@@ -1399,24 +1399,30 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
             #define GO(A) if(bl->A) bl->A = ((void*)bl->A)+delta
             GO(block);
             GO(actual_block);
+            GO(previous);
             GO(instsize);
             GO(arch);
             GO(callrets);
             GO(jmpnext);
             GO(table64);
             GO(relocs);
+            #ifdef GBDJIT
+            GO(gdbjit_block);
+            #endif
             #undef GO
-            bl->previous = NULL;    // that seems safer that way
             // shift the self referece to dynablock
             if(bl->block!=bl->jmpnext) {
                 void** db_ref = (bl->jmpnext-sizeof(void*));
                 *db_ref = (*db_ref)+delta;
+                db_ref = (bl->jmpnext-sizeof(void*)+3*sizeof(void*));
+                *db_ref = native_next;
             }
             // adjust x64_addr with delta_map
             bl->x64_addr += delta_map;
             *(uintptr_t*)(bl->jmpnext+2*sizeof(void*)) = RelocGetNext();
             if(bl->relocs && bl->relocsize)
                 ApplyRelocs(bl, delta, delta_map, mapping_start);
+            ClearCache(bl->jmpnext, 4*sizeof(void*));
             ClearCache(bl->actual_block+sizeof(void*), bl->native_size);
             //add block, as dirty for now
             if(!addJumpTableIfDefault64(bl->x64_addr, bl->jmpnext)) {
