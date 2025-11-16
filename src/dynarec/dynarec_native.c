@@ -656,17 +656,17 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     sz += dynablock_align + sizeof(dynablock_t) + reloc_size;
     //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets          dynablock           relocs
     void* actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
+    if(actual_p==NULL) {
+        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", (void*)addr, sz);
+        CancelBlock64(0);
+        return NULL;
+    }
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
     void* next = tablestart + helper.table64size*sizeof(uint64_t);
     void* instsize = next + 4*sizeof(void*);
     void* arch = instsize + insts_rsize;
     void* callrets = arch + arch_size;
-    if(actual_p==NULL) {
-        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", (void*)addr, sz);
-        CancelBlock64(0);
-        return NULL;
-    }
     helper.block = p;
     dynablock_t* block = (dynablock_t*)(callrets+callret_size+dynablock_align);
     memset(block, 0, sizeof(dynablock_t));
