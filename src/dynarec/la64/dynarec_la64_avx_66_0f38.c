@@ -910,7 +910,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             d1 = fpu_get_scratch(dyn);
 
             if (vex.l) {
-                v1 = avx_get_reg(dyn, ninst, x6, eb2, 0, LSX_AVX_WIDTH_256);
+                v1 = avx_get_reg(dyn, ninst, x6, eb2, 0, rex.w ? LSX_AVX_WIDTH_128 : LSX_AVX_WIDTH_256);
                 if (rex.w) {
                     XVSRLI_D(d1, v2, 63);
                 } else {
@@ -980,8 +980,13 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             // ed is base
             wb1 = u8 >> 6; // scale
-            GETVYxy(v2, 1);
-            GETGYxy(v0, 1);
+            if (rex.w) {
+                GETVYxy(v2, 1);
+                GETGYxy(v0, 1);
+            } else {
+                GETVYx(v2, 1);
+                GETGYx(v0, 1);
+            }
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
 
@@ -1017,7 +1022,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                     VINSGR2VRxw(v0, x6, i);
                 }
                 VXOR_V(v2, v2, v2);
-                if(!rex.w) VINSGR2VR_D(v0, xZR, 1);     // for set DEST[127:64] to zero, cause 128bit op only gather 2 32bits float.
+                if (!rex.w) VINSGR2VR_D(v0, xZR, 1); // for set DEST[127:64] to zero, cause 128bit op only gather 2 32bits float.
             }
             break;
         case 0x96:
