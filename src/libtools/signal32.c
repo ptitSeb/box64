@@ -747,6 +747,9 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
             #ifdef RV64
             emu->xSPSave = emu->old_savedsp;
             #endif
+            #ifdef DYNAREC
+            dynablock_leave_runtime((dynablock_t*)cur_db);
+            #endif
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, skip);
             #else

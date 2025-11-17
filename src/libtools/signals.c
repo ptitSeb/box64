@@ -1264,6 +1264,9 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             #ifdef RV64
             emu->xSPSave = emu->old_savedsp;
             #endif
+            #ifdef DYNAREC
+            dynablock_leave_runtime((dynablock_t*)cur_db);
+            #endif
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, skip);
             #else
@@ -1566,6 +1569,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                         dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty", getAddrFunctionName(R_RIP), (void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
                         emu->test.clean = 0;
                         // use "3" to regen a dynablock at current pc (else it will first do an interp run)
+                        dynablock_leave_runtime(db);
                         #ifdef ANDROID
                         siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 3);
                         #else
@@ -1637,6 +1641,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     CancelBlock64(1);
                 emu->test.clean = 0;
                 // will restore unblocked Signal flags too
+                dynablock_leave_runtime(db);
                 #ifdef ANDROID
                 siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
                 #else
