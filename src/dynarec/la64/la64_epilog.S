@@ -66,6 +66,6 @@ la64_epilog_fast:
     fld.d  $f29, $sp, (8 * 16)
     fld.d  $f30, $sp, (8 * 17)
     fld.d  $f31, $sp, (8 * 18)
-    addi.d $sp,  $sp, (8 * 19)
+    addi.d $sp,  $sp, (8 * 20)
     // end, return
     ret
