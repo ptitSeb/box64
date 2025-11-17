@@ -1655,14 +1655,18 @@ EXPORT int my32_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* d
 extern int my32_xinput_opcode;
 EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
-    int ret = my->XQueryExtension(display, name, major, first_event, first_error);
+    int fevent;
+    int ret = my->XQueryExtension(display, name, major, &fevent, first_error);
+    if(first_event) *first_event = fevent;
     if(!ret && name && !strcmp(name, "GLX") && BOX64ENV(x11glx)) {
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;
     } else if(!strcmp(name, "XInputExtension") && major) {
         my32_xinput_opcode = *major;
-    } /*else if(first_event) {
+    } else if(!strcmp(name, "XFIXES")) {
+        register_XFixes_events(fevent);
+    } /*else if(ret && first_event) {
         printf_log(LOG_INFO, "X11 Extension \"%s\" first XEvent %d\n", name, *first_event);
     }*/
     return ret;

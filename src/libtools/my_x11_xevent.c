@@ -1500,20 +1500,21 @@ void convert_XFixesCursorNotifyEvent_to_64(my_XEvent_t* d, my_XEvent_32_t* s)
     //dst->type = src->type;
 }
 
+#define XFIXES (void*)1LL
+
 void register_XFixes_events(int event_base)
 {
-    void* a = (void*)1LL;
     // search if device is already in list
     register_events_t* head = register_events_head;
     while(head) {
-        if(head->id == a)
+        if(head->id == XFIXES)
             return; // found, nothing to do....
         head = head->next;
     }
     int n = 2;  // 2 events to register!
     // create a new event list
     register_events_t* events = box_malloc(sizeof(register_events_t)+n*sizeof(reg_event_t));
-    events->id = a;
+    events->id = XFIXES;
     events->n = n;
     events->events = (reg_event_t*)(events+1);
 
@@ -1524,17 +1525,17 @@ void register_XFixes_events(int event_base)
     events->events[1].to32 = convert_XFixesCursorNotifyEvent_to_32;
     events->events[1].to64 = convert_XFixesCursorNotifyEvent_to_64;
 
-    events->start_event = events->end_event = events->events[0].event;
+    events->start_event = events->events[0].event;
+    events->end_event = events->events[1].event;
     events->next = register_events_head;
     register_events_head = events;
 }
 void unregister_XFixes_events()
 {
-    void* a = (void*)1LL;
     register_events_t* prev = NULL;
     register_events_t* head = register_events_head;
     while(head) {
-        if(head->id == a) {
+        if(head->id == XFIXES) {
             if(!prev)
                 register_events_head = head->next;
             else
