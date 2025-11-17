@@ -648,7 +648,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                 break;
             case R_X86_64_PC32:
                 // should be "S + A - P" with S=symbol offset, A=addend and P=place of the storage unit, write a word32
-                // can be ignored
+                // can be ignored (so *p = offs + addend - p)
                 break;
             case R_X86_64_RELATIVE:
                 printf_dump(LOG_NEVER, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", BindSym(bind), p, *(void**)p, (void*)(head->delta+ rela[i].r_addend));
