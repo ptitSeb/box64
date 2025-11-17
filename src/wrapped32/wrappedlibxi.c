@@ -38,6 +38,8 @@
 
 #include "wrappercallback32.h"
 
+int my32_xinput_opcode = 0; // used to expand XEvenCookie data
+
 EXPORT void* my32_XIQueryDevice(x64emu_t* emu, void* dpy, int deviceid, int* ndevices)
 {
     void* ret = my->XIQueryDevice(dpy, deviceid, ndevices);

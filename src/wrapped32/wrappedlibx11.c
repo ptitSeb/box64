@@ -1652,6 +1652,7 @@ EXPORT int my32_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* d
 {
     return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(my_lib, cb), data);
 }
+extern int my32_xinput_opcode;
 EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
@@ -1659,7 +1660,11 @@ EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* m
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;
-    }
+    } else if(!strcmp(name, "XInputExtension") && major) {
+        my32_xinput_opcode = *major;
+    } /*else if(first_event) {
+        printf_log(LOG_INFO, "X11 Extension \"%s\" first XEvent %d\n", name, *first_event);
+    }*/
     return ret;
 }
 EXPORT int my32_XkbQueryExtension(x64emu_t* emu, void* display, char* opcode, int* event_base, int* error, int* major, int* minor)
@@ -1788,14 +1793,20 @@ EXPORT int my32_XGetEventData(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
     my_XEvent_t event = {0};
     if(evt) unconvertXEvent(&event, evt);
     int ret = my->XGetEventData(dpy, &event);
-    if(ret) convertXEvent(evt, &event);
+    if(ret) {
+        inplace_XEventData_shring(&event);
+        convertXEvent(evt, &event);
+    }
     return ret;
 }
 
 EXPORT void my32_XFreeEventData(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
 {
     my_XEvent_t event = {0};
-    if(evt) unconvertXEvent(&event, evt);
+    if(evt) {
+        unconvertXEvent(&event, evt);
+        inplace_XEventData_enlarge(&event);
+    }
     my->XFreeEventData(dpy, &event);
     convertXEvent(evt, &event);
 }

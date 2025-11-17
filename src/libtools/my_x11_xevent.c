@@ -32,6 +32,8 @@ typedef struct register_events_s {
 
 static register_events_t* register_events_head = NULL;
 
+extern int my32_xinput_opcode;
+
 void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
 {
     if(!src->type) {
@@ -509,6 +511,415 @@ void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
             }
             printf_log(LOG_INFO, "Warning, unsupported 32bits (un)XEvent type=%d\n", type);
         }
+    }
+}
+
+void inplace_XEventData_shring(my_XEvent_t* evt)
+{
+    if(!evt || evt->type!=XEVT_GenericEvent)
+        return;
+    if(my32_xinput_opcode && evt->xcookie.extension==my32_xinput_opcode) {
+        //XInput2 event
+        // convert Generic event 1st, as it's common
+        my_XIEvent_t *s = evt->xcookie.data;
+        my_XIEvent_32_t* d = evt->xcookie.data;
+        d->type = s->type;
+        d->serial = to_ulong(s->serial);
+        d->send_event = s->send_event;
+        d->display = to_ptrv(FindDisplay(s->display));
+        d->extension = s->extension;
+        d->evtype = s->evtype;
+        d->time = to_ulong(s->time);
+        switch(evt->xcookie.evtype) {
+            case XI_DeviceChanged: {
+                my_XIDeviceChangedEvent_t* s = evt->xcookie.data;
+                my_XIDeviceChangedEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->reason = s->reason;
+                for(int j=0; j<s->num_classes; ++j)
+                    ((ptr_t*)s->classes)[j] = to_ptrv(s->classes[j]);
+                d->num_classes = s->num_classes;
+                d->classes = to_ptrv(s->classes);
+            }
+            break;
+            case XI_KeyPress:
+            case XI_KeyRelease:
+            case XI_ButtonPress:
+            case XI_ButtonRelease:
+            case XI_Motion:
+            case XI_TouchBegin:
+            case XI_TouchUpdate:
+            case XI_TouchEnd:
+            {
+                my_XIDeviceEvent_t* s = evt->xcookie.data;
+                my_XIDeviceEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->detail = s->detail;
+                d->root = to_ulong(s->root);
+                d->event = to_ulong(s->event);
+                d->child = to_ulong(s->child);
+                d->root_x = s->root_x;
+                d->root_y = s->root_y;
+                d->event_x = s->event_x;
+                d->event_y = s->event_y;
+                d->flags = s->flags;
+                d->buttons.mask_len = s->buttons.mask_len;
+                d->buttons.mask = to_ptrv(s->buttons.mask);
+                d->valuators.mask_len = s->valuators.mask_len;
+                d->valuators.mask = to_ptrv(s->valuators.mask);
+                d->valuators.values = to_ptrv(s->valuators.values);
+                d->mods = s->mods;
+                d->group = s->group;
+            }
+            break;
+            case XI_Enter:
+            case XI_Leave:
+            case XI_FocusIn:
+            case XI_FocusOut:
+            {
+                my_XIEnterEvent_t* s = evt->xcookie.data;
+                my_XIEnterEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->detail = s->detail;
+                d->root = to_ulong(s->root);
+                d->event = to_ulong(s->event);
+                d->child = to_ulong(s->child);
+                d->root_x = s->root_x;
+                d->root_y = s->root_y;
+                d->event_x = s->event_x;
+                d->event_y = s->event_y;
+                d->mode = s->mode;
+                d->focus = s->focus;
+                d->same_screen = s->same_screen;
+                d->buttons.mask_len = s->buttons.mask_len;
+                d->buttons.mask = to_ptrv(s->buttons.mask);
+                d->mods = s->mods;
+                d->group = s->group;
+            }
+            break;
+            case XI_HierarchyChanged: {
+                my_XIHierarchyEvent_t* s = evt->xcookie.data;
+                my_XIHierarchyEvent_32_t* d = evt->xcookie.data;
+                d->flags = s->flags;
+                d->num_info = s->num_info;
+                d->info = to_ptrv(s->info);
+            }
+            break;
+            case XI_RawKeyPress:
+            case XI_RawKeyRelease:
+            case XI_RawButtonPress:
+            case XI_RawButtonRelease:
+            case XI_RawMotion:
+            case XI_RawTouchBegin:
+            case XI_RawTouchUpdate:
+            case XI_RawTouchEnd:
+            {
+                my_XIRawEvent_t* s = evt->xcookie.data;
+                my_XIRawEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->detail = s->detail;
+                d->flags = s->flags;
+                d->valuators.mask_len = s->valuators.mask_len;
+                d->valuators.mask = to_ptrv(s->valuators.mask);
+                d->valuators.values = to_ptrv(s->valuators.values);
+                d->raw_values = to_ptrv(s->raw_values);
+            }
+            break;
+            case XI_TouchOwnership: {
+                my_XITouchOwnershipEvent_t* s = evt->xcookie.data;
+                my_XITouchOwnershipEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->touchid = s->touchid;
+                d->root = to_ulong(s->root);
+                d->event = to_ulong(s->event);
+                d->child = to_ulong(s->child);
+                d->flags = s->flags;
+            }
+            break;
+            case XI_BarrierHit:
+            case XI_BarrierLeave:
+            {
+                my_XIBarrierEvent_t* s = evt->xcookie.data;
+                my_XIBarrierEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->event = to_ulong(s->event);
+                d->root = to_ulong(s->root);
+                d->root_x = s->root_x;
+                d->root_y = s->root_y;
+                d->dx = s->dx;
+                d->dy = s->dy;
+                d->dtime = s->dtime;
+                d->flags = s->flags;
+                d->barrier = to_ulong(s->barrier);
+                d->eventid = s->eventid;
+            }
+            break;
+            case XI_GesturePinchBegin:
+            case XI_GesturePinchUpdate:
+            case XI_GesturePinchEnd:
+            {
+                my_XIGesturePinchEvent_t* s = evt->xcookie.data;
+                my_XIGesturePinchEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->detail = s->detail;
+                d->root = to_ulong(s->root);
+                d->event = to_ulong(s->event);
+                d->child = to_ulong(s->child);
+                d->root_x = s->root_x;
+                d->root_y = s->root_y;
+                d->event_x = s->event_x;
+                d->event_y = s->event_y;
+                d->delta_x = s->delta_x;
+                d->delta_y = s->delta_y;
+                d->delta_unaccel_x = s->delta_unaccel_x;
+                d->delta_unaccel_y = s->delta_unaccel_y;
+                d->scale = s->scale;
+                d->delta_angle = s->delta_angle;
+                d->flags = s->flags;
+                d->mods = s->mods;
+                d->group = s->group;
+            }
+            break;
+            case XI_GestureSwipeBegin:
+            case XI_GestureSwipeUpdate:
+            case XI_GestureSwipeEnd:
+            {
+                my_XIGestureSwipeEvent_t* s = evt->xcookie.data;
+                my_XIGestureSwipeEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->sourceid = s->sourceid;
+                d->detail = s->detail;
+                d->root = to_ulong(s->root);
+                d->event = to_ulong(s->event);
+                d->child = to_ulong(s->child);
+                d->root_x = s->root_x;
+                d->root_y = s->root_y;
+                d->event_x = s->event_x;
+                d->event_y = s->event_y;
+                d->delta_x = s->delta_x;
+                d->delta_y = s->delta_y;
+                d->delta_unaccel_x = s->delta_unaccel_x;
+                d->delta_unaccel_y = s->delta_unaccel_y;
+                d->flags = s->flags;
+                d->mods = s->mods;
+                d->group = s->group;
+            }
+            break;
+            default:
+                printf_log(LOG_INFO, "Warning, unsupported 32bits XIEvent type=%d\n", evt->xcookie.evtype);
+                break;
+        }
+    }
+}
+void inplace_XEventData_enlarge(my_XEvent_t* evt)
+{
+    if(!evt || evt->type!=XEVT_GenericEvent)
+        return;
+    if(my32_xinput_opcode && evt->xcookie.extension==my32_xinput_opcode) {
+        switch(evt->xcookie.evtype) {
+            case XI_DeviceChanged: {
+                my_XIDeviceChangedEvent_32_t* s = evt->xcookie.data;
+                my_XIDeviceChangedEvent_t* d = evt->xcookie.data;
+                d->classes = from_ptrv(s->classes);
+                d->num_classes = s->num_classes;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+                d->reason = s->reason;
+                for(int j=d->num_classes-1; j>=0; --j)
+                    d->classes[j] = from_ptrv(((ptr_t*)d->classes)[j]);
+            }
+            break;
+            case XI_KeyPress:
+            case XI_KeyRelease:
+            case XI_ButtonPress:
+            case XI_ButtonRelease:
+            case XI_Motion:
+            case XI_TouchBegin:
+            case XI_TouchUpdate:
+            case XI_TouchEnd:
+            {
+                my_XIDeviceEvent_32_t* s = evt->xcookie.data;
+                my_XIDeviceEvent_t* d = evt->xcookie.data;
+                d->group = s->group;
+                d->mods = s->mods;
+                d->valuators.values = from_ptrv(s->valuators.values);
+                d->valuators.mask = from_ptrv(s->valuators.mask);
+                d->valuators.mask_len = s->valuators.mask_len;
+                d->buttons.mask = from_ptrv(s->buttons.mask);
+                d->buttons.mask_len = s->buttons.mask_len;
+                d->flags = s->flags;
+                d->event_y = s->event_y;
+                d->event_x = s->event_x;
+                d->root_y = s->root_y;
+                d->root_x = s->root_x;
+                d->child = from_ulong(s->child);
+                d->event = from_ulong(s->event);
+                d->root = from_ulong(s->root);
+                d->detail = s->detail;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_Enter:
+            case XI_Leave:
+            case XI_FocusIn:
+            case XI_FocusOut:
+            {
+                my_XIEnterEvent_32_t* s = evt->xcookie.data;
+                my_XIEnterEvent_t* d = evt->xcookie.data;
+                d->group = s->group;
+                d->mods = s->mods;
+                d->buttons.mask = from_ptrv(s->buttons.mask);
+                d->buttons.mask_len = s->buttons.mask_len;
+                d->same_screen = s->same_screen;
+                d->focus = s->focus;
+                d->mode = s->mode;
+                d->event_y = s->event_y;
+                d->event_x = s->event_x;
+                d->root_y = s->root_y;
+                d->root_x = s->root_x;
+                d->child = from_ulong(s->child);
+                d->event = from_ulong(s->event);
+                d->root = from_ulong(s->root);
+                d->detail = s->detail;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_HierarchyChanged: {
+                my_XIHierarchyEvent_32_t* s = evt->xcookie.data;
+                my_XIHierarchyEvent_t* d = evt->xcookie.data;
+                d->info = from_ptrv(s->info);
+                d->num_info = s->num_info;
+                d->flags = s->flags;
+            }
+            break;
+            case XI_RawKeyPress:
+            case XI_RawKeyRelease:
+            case XI_RawButtonPress:
+            case XI_RawButtonRelease:
+            case XI_RawMotion:
+            case XI_RawTouchBegin:
+            case XI_RawTouchUpdate:
+            case XI_RawTouchEnd:
+            {
+                my_XIRawEvent_32_t* s = evt->xcookie.data;
+                my_XIRawEvent_t* d = evt->xcookie.data;
+                d->raw_values = from_ptrv(s->raw_values);
+                d->valuators.values = from_ptrv(s->valuators.values);
+                d->valuators.mask = from_ptrv(s->valuators.mask);
+                d->valuators.mask_len = s->valuators.mask_len;
+                d->flags = s->flags;
+                d->detail = s->detail;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_TouchOwnership: {
+                my_XITouchOwnershipEvent_32_t* s = evt->xcookie.data;
+                my_XITouchOwnershipEvent_t* d = evt->xcookie.data;
+                d->flags = s->flags;
+                d->child = from_ulong(s->child);
+                d->event = from_ulong(s->event);
+                d->root = from_ulong(s->root);
+                d->touchid = s->touchid;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_BarrierHit:
+            case XI_BarrierLeave:
+            {
+                my_XIBarrierEvent_32_t* s = evt->xcookie.data;
+                my_XIBarrierEvent_t* d = evt->xcookie.data;
+                d->eventid = s->eventid;
+                d->barrier = from_ulong(s->barrier);
+                d->flags = s->flags;
+                d->dtime = s->dtime;
+                d->dy = s->dy;
+                d->dx = s->dx;
+                d->root_y = s->root_y;
+                d->root_x = s->root_x;
+                d->root = from_ulong(s->root);
+                d->event = from_ulong(s->event);
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_GesturePinchBegin:
+            case XI_GesturePinchUpdate:
+            case XI_GesturePinchEnd:
+            {
+                my_XIGesturePinchEvent_32_t* s = evt->xcookie.data;
+                my_XIGesturePinchEvent_t* d = evt->xcookie.data;
+                d->group = s->group;
+                d->mods = s->mods;
+                d->flags = s->flags;
+                d->delta_angle = s->delta_angle;
+                d->scale = s->scale;
+                d->delta_unaccel_y = s->delta_unaccel_y;
+                d->delta_unaccel_x = s->delta_unaccel_x;
+                d->delta_y = s->delta_y;
+                d->delta_x = s->delta_x;
+                d->event_y = s->event_y;
+                d->event_x = s->event_x;
+                d->root_y = s->root_y;
+                d->root_x = s->root_x;
+                d->child = from_ulong(s->child);
+                d->event = from_ulong(s->event);
+                d->root = from_ulong(s->root);
+                d->detail = s->detail;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_GestureSwipeBegin:
+            case XI_GestureSwipeUpdate:
+            case XI_GestureSwipeEnd:
+            {
+                my_XIGestureSwipeEvent_32_t* s = evt->xcookie.data;
+                my_XIGestureSwipeEvent_t* d = evt->xcookie.data;
+                d->group = s->group;
+                d->mods = s->mods;
+                d->flags = s->flags;
+                d->delta_unaccel_y = s->delta_unaccel_y;
+                d->delta_unaccel_x = s->delta_unaccel_x;
+                d->delta_y = s->delta_y;
+                d->delta_x = s->delta_x;
+                d->event_y = s->event_y;
+                d->event_x = s->event_x;
+                d->root_y = s->root_y;
+                d->root_x = s->root_x;
+                d->child = from_ulong(s->child);
+                d->event = from_ulong(s->event);
+                d->root = from_ulong(s->root);
+                d->detail = s->detail;
+                d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            default:
+                printf_log(LOG_INFO, "Warning, unsupported 32bits (un)XIEvent type=%d\n", evt->xcookie.evtype);
+                break;
+        }
+        //XInput2 event
+        // convert Generic event last, as it's common and on top of the structure
+        my_XIEvent_32_t* s = evt->xcookie.data;
+        my_XIEvent_t *d = evt->xcookie.data;
+        d->time = from_ulong(s->time);
+        d->evtype = s->evtype;
+        d->extension = s->extension;
+        d->display = getDisplay(from_ptrv(s->display));
+        d->send_event = s->send_event;
+        d->serial = from_ulong(s->serial);
+        d->type = s->type;
     }
 }
 

@@ -1664,4 +1664,229 @@ typedef union my_XkbEvent_32_s {
     my_XEvent_32_t                          core;
 } my_XkbEvent_32_t;
 
+typedef struct my_XIEvent_32_s {
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    int           extension;
+    int           evtype;
+    ulong_t       time;
+} my_XIEvent_32_t;
+
+typedef struct my_XIButtonState_32_s {
+    int           mask_len;
+    ptr_t         mask; //unsigned char*
+} my_XIButtonState_32_t;
+
+typedef struct my_XIValuatorState_32_s {
+    int           mask_len;
+    ptr_t         mask; //unsigned char*
+    ptr_t         values; //double*
+} my_XIValuatorState_32_t;
+
+typedef struct my_XIHierarchyEvent_32_s {
+    int         type;
+    ulong_t     serial;
+    int         send_event;
+    ptr_t       display;
+    int         extension;
+    int         evtype;
+    ulong_t     time;
+    int         flags;
+    int         num_info;
+    ptr_t       info;   //my_XIHierarchyInfo_t*
+} my_XIHierarchyEvent_32_t;
+
+typedef struct my_XIDeviceChangedEvent_32_s {
+    int                     type;
+    ulong_t                 serial;
+    int                     send_event;
+    ptr_t                   display;
+    int                     extension;
+    int                     evtype;
+    ulong_t                 time;
+    int                     deviceid;
+    int                     sourceid;
+    int                     reason;
+    int                     num_classes;
+    ptr_t                   classes;    //my_XIAnyClassInfo_t**
+} my_XIDeviceChangedEvent_32_t;
+
+typedef struct my_XIDeviceEvent_32_s {
+    int                     type;
+    ulong_t                 serial;
+    int                     send_event;
+    ptr_t                   display;
+    int                     extension;
+    int                     evtype;
+    ulong_t                 time;
+    int                     deviceid;
+    int                     sourceid;
+    int                     detail;
+    XID_32                  root;
+    XID_32                  event;
+    XID_32                  child;
+    double                  root_x;
+    double                  root_y;
+    double                  event_x;
+    double                  event_y;
+    int                     flags;
+    my_XIButtonState_32_t   buttons;
+    my_XIValuatorState_32_t valuators;
+    my_XIModifierState_t    mods;
+    my_XIModifierState_t    group;
+} my_XIDeviceEvent_32_t;
+
+typedef struct my_XIRawEvent_32_s {
+    int                     type;
+    ulong_t                 serial;
+    int                     send_event;
+    ptr_t                   display;
+    int                     extension;
+    int                     evtype;
+    ulong_t                 time;
+    int                     deviceid;
+    int                     sourceid;
+    int                     detail;
+    int                     flags;
+    my_XIValuatorState_32_t valuators;
+    ptr_t                   raw_values; //double*
+} my_XIRawEvent_32_t;
+
+typedef struct my_XIEnterEvent_32_s {
+    int                     type;
+    ulong_t                 serial;
+    int                     send_event;
+    ptr_t                   display;
+    int                     extension;
+    int                     evtype;
+    ulong_t                 time;
+    int                     deviceid;
+    int                     sourceid;
+    int                     detail;
+    XID                     root;
+    XID                     event;
+    XID                     child;
+    double                  root_x;
+    double                  root_y;
+    double                  event_x;
+    double                  event_y;
+    int                     mode;
+    int                     focus;
+    int                     same_screen;
+    my_XIButtonState_32_t   buttons;
+    my_XIModifierState_t    mods;
+    my_XIModifierState_t    group;
+} my_XIEnterEvent_32_t;
+// Leave, FocusIn and FocusOut are like Enter
+
+typedef struct my_XIPropertyEvent_32_s {
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    int           extension;
+    int           evtype;
+    ulong_t       time;
+    int           deviceid;
+    XID_32        property;
+    int           what;
+} my_XIPropertyEvent_32_t;
+
+typedef struct my_XITouchOwnershipEvent_32_s {
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    int           extension;
+    int           evtype;
+    ulong_t       time;
+    int           deviceid;
+    int           sourceid;
+    unsigned int  touchid;
+    XID_32        root;
+    XID_32        event;
+    XID_32        child;
+    int           flags;
+} my_XITouchOwnershipEvent_32_t;
+
+typedef struct my_XIBarrierEvent_32_s {
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    int           extension;
+    int           evtype;
+    ulong_t       time;
+    int           deviceid;
+    int           sourceid;
+    XID_32        event;
+    XID_32        root;
+    double        root_x;
+    double        root_y;
+    double        dx;
+    double        dy;
+    int           dtime;
+    int           flags;
+    XID_32        barrier;
+    uint32_t      eventid;
+} my_XIBarrierEvent_32_t;
+
+typedef struct my_XIGesturePinchEvent_32_s {
+    int                     type;
+    ulong_t                 serial;
+    int                     send_event;
+    ptr_t                   display;
+    int                     extension;
+    int                     evtype;
+    ulong_t                 time;
+    int                     deviceid;
+    int                     sourceid;
+    int                     detail;
+    XID_32                  root;
+    XID_32                  event;
+    XID_32                  child;
+    double                  root_x;
+    double                  root_y;
+    double                  event_x;
+    double                  event_y;
+    double                  delta_x;
+    double                  delta_y;
+    double                  delta_unaccel_x;
+    double                  delta_unaccel_y;
+    double                  scale;
+    double                  delta_angle;
+    int                     flags;
+    my_XIModifierState_t    mods;
+    my_XIModifierState_t    group;
+} my_XIGesturePinchEvent_32_t;
+
+typedef struct my_XIGestureSwipeEvent_32_s {
+    int                     type;
+    ulong_t                 serial;
+    int                     send_event;
+    ptr_t                   display;
+    int                     extension;
+    int                     evtype;
+    ulong_t                 time;
+    int                     deviceid;
+    int                     sourceid;
+    int                     detail;
+    XID_32                  root;
+    XID_32                  event;
+    XID_32                  child;
+    double                  root_x;
+    double                  root_y;
+    double                  event_x;
+    double                  event_y;
+    double                  delta_x;
+    double                  delta_y;
+    double                  delta_unaccel_x;
+    double                  delta_unaccel_y;
+    int                     flags;
+    my_XIModifierState_t    mods;
+    my_XIModifierState_t    group;
+} my_XIGestureSwipeEvent_32_t;
+
 #endif//MY_X11_DEFS_32
