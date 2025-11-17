@@ -419,32 +419,24 @@ static void* findkey_destructorFct(void* fct)
 
 #undef SUPER
 
-
-int EXPORT my32_pthread_once(x64emu_t* emu, int* once, void* cb)
+static uintptr_t __thread my32_pthread_once_f = 0;
+static void my32_pthread_once_callback()
 {
-	if(*once)	// quick test first
-		return 0;
-	// slow test now
-	#ifdef DYNAREC
-	int old = native_lock_xchg_d(once, 1);
-	#else
-	int old = *once;	// outside of the mutex in case once is badly formed
-	pthread_mutex_lock(&my_context->mutex_lock);
-	old = *once;
-	*once = 1;
-	pthread_mutex_unlock(&my_context->mutex_lock);
-	#endif
-	if(old)
-		return 0;
-    // make some room and align R_RSP before doing the call (maybe it would be simpler to just use Callback functions)
-    Push_32(emu, R_EBP); // push rbp
-    R_EBP = R_ESP;      // mov rbp, rsp
-    R_ESP -= 0x200;
-    R_ESP &= ~63LL;
-	DynaCall(emu, (uintptr_t)cb);
+	// make some room and align R_RSP before doing the call (maybe it would be simpler to just use Callback functions)
+	printf_log(LOG_DEBUG, " calling %p... ", (void*)my32_pthread_once_f);
+	x64emu_t* emu = thread_get_emu();
+	Push_32(emu, R_EBP); // push rbp
+	R_EBP = R_ESP;      // mov rbp, rsp
+	R_ESP -= 0x200;
+	R_ESP &= ~63LL;
+	DynaCall(emu, my32_pthread_once_f);
 	R_ESP = R_EBP;          // mov rsp, rbp
 	R_EBP = Pop32(emu);     // pop rbp
-	return 0;
+}
+int EXPORT my32_pthread_once(x64emu_t* emu, pthread_once_t* once, void* cb)
+{
+	my32_pthread_once_f = (uintptr_t)cb;
+	return pthread_once(once, my32_pthread_once_callback);
 }
 EXPORT int my32___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__((alias("my32_pthread_once")));
 
