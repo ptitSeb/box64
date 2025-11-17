@@ -16,11 +16,13 @@ typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
+typedef void* (*pFpu_t)(void*, uint32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppiUi_t)(void*, void*, int32_t, uint64_t, int32_t);
 typedef void* (*pFppibp_p_t)(void*, void*, int32_t, struct_p_t*, void*);
+typedef void* (*pFppipipp_t)(void*, void*, int32_t, void*, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FcFontSetDestroy, vFp_t) \
@@ -28,10 +30,12 @@ typedef void* (*pFppibp_p_t)(void*, void*, int32_t, struct_p_t*, void*);
 	GO(FcCacheCopySet, pFp_t) \
 	GO(FcFontSetAdd, iFpp_t) \
 	GO(FcFreeTypeCharIndex, uFpu_t) \
+	GO(FcConfigGetFonts, pFpu_t) \
 	GO(FcObjectSetBuild, pFpV_t) \
 	GO(FcPatternBuild, pFpV_t) \
 	GO(FcFontList, pFppp_t) \
 	GO(FcPatternAdd, iFppiUi_t) \
-	GO(FcFontSort, pFppibp_p_t)
+	GO(FcFontSort, pFppibp_p_t) \
+	GO(FcFontSetSort, pFppipipp_t)
 
 #endif // __wrappedfontconfigTYPES32_H_

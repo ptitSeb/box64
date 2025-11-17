@@ -715,6 +715,7 @@
 #() pFELV -> pFELV
 #() pEEpi -> pEEpi
 #() pFEpi -> pFEpi
+#() pFEpu -> pFEpu
 #() pEEpp -> pEEpp
 #() pFEpp -> pFEpp
 #() pFEpV -> pFEpV
@@ -1984,6 +1985,7 @@
 #() uFulpppppp -> uFulpppppp
 #() LFEXLppuuu -> LFEXLppuuu
 #() LFXLpuuLLu -> LFXLpuuLLu
+#() pFEppipipp -> pFEppipipp
 #() pFEXpLLppp -> pFEXpLLppp
 #() iFXLLiippBL_ -> iFXLLiippB
 #() iFXLpppbL_pp -> iFXLpppBpp
@@ -2231,6 +2233,8 @@ wrappedfontconfig:
   - FcFontSetAdd
 - uFpu:
   - FcFreeTypeCharIndex
+- pFpu:
+  - FcConfigGetFonts
 - pFpp:
 - pFpV:
   - FcObjectSetBuild
@@ -2241,6 +2245,8 @@ wrappedfontconfig:
   - FcPatternAdd
 - pFppibp_p:
   - FcFontSort
+- pFppipipp:
+  - FcFontSetSort
 wrappedfreetype:
 - vFp:
   - FT_Done_Glyph
