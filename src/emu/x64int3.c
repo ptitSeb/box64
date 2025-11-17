@@ -99,6 +99,14 @@ static uint8_t Peek8(uintptr_t addr, uintptr_t offset)
 
 void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int tid, wrapper_t w);
 
+static void concatString(char* buff, int len, void* s, const char* trail)
+{
+    char tmp[len];
+    if(!s) snprintf(tmp, len-1, "%p%s", s, trail);
+    else snprintf(tmp, len-1, "%p\"%s\"%s", s, s, trail);
+    strncat(buff, tmp, len);
+}
+
 void x64Int3(x64emu_t* emu, uintptr_t* addr)
 {
     if(box64_is32bits) {
@@ -288,6 +296,12 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     tmp = (char*)(R_RDI);
                     perr = 1;
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, tmp?tmp:"nil", R_ESI);
+                } else if (!strcmp(s, "dbus_message_new_method_call")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(", tid, *(void**)(R_RSP), s);
+                    concatString(buff, 256, (void*)R_RDI, ", ");
+                    concatString(buff, 256, (void*)R_RSI, ", ");
+                    concatString(buff, 256, (void*)R_RDX, ", ");
+                    concatString(buff, 256, (void*)R_RCX,")");
                 } else if (!strcmp(s, "xcb_wait_for_event") || !strcmp(s, "xcb_poll_for_queued_event") || !strcmp(s, "xcb_poll_for_event")) {
                     post = 9;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_RSP), s, (void*)R_RDI);
