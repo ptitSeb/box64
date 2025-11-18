@@ -396,7 +396,6 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 u8 = sse_setround(dyn, ninst, x6, x4);
             }
             d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
             if(vex.l) {
                 XVFCVTH_D_S(d0, v1);
                 XVFCVTL_D_S(v0, v1);

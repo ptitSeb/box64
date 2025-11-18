@@ -258,14 +258,20 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x13:
             INST_NAME("VCVTPH2PS Gx, Ex");
             nextop = F8;
-            GETEYSD(v1, 0, 0);
-            GETGYxy_empty(v0);
-            d0 = fpu_get_scratch(dyn);
             if (vex.l) {
-                XVFCVTH_S_H(d0, v1);
-                XVFCVTL_S_H(v0, v1);
-                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2));
+                GETEYx(v1, 0, 0);
+                GETGYy_empty(v0);
+                d0 = fpu_get_scratch(dyn);
+                /*  
+                    xvffintl.s.h  convert [h0..h3,h4..h7,h8..h11,h12..h15] to [h0..h3,h8..h11]
+                    xvffinth.s.h  convert [h0..h3,h4..h7,h8..h11,h12..h15] to [h4..h7,h12..h15]
+                    so user xvpermi.d to reorder input [h0..h3,h4..h7,h8..h11,h12..h15] to [h0..h3,h8..h11,h4..h7,h12..h15]
+                */
+                XVPERMI_D(d0, v1, 0b11011000);
+                XVFCVTL_S_H(v0, d0);
             } else {
+                GETEYSD(v1, 0, 0);
+                GETGYx_empty(v0);
                 VFCVTL_S_H(v0, v1);
             }
             break;

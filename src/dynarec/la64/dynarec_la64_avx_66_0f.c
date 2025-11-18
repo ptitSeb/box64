@@ -357,7 +357,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x5A:
-            INST_NAME("CVTPD2PS Gx, Ex");
+            INST_NAME("VCVTPD2PS Gx, Ex");
             nextop = F8;
             GETEYxy(v1, 0, 0);
             GETGYx_empty(v0);
