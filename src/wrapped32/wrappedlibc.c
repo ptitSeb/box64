@@ -1595,6 +1595,13 @@ static int hasDBFromAddress(uintptr_t addr)
 }
 #endif
 
+#ifndef input_event_sec
+#define input_event_sec time.tv_sec
+#endif
+#ifndef input_event_usec
+#define input_event_usec time.tv_usec
+#endif
+
 EXPORT ssize_t my32_write(x64emu_t* emu, int fd, void* buf, size_t count)
 {
     ssize_t ret;
@@ -1619,12 +1626,6 @@ EXPORT ssize_t my32_write(x64emu_t* emu, int fd, void* buf, size_t count)
     return write(fd, buf, count);
 }
 
-#ifndef input_event_sec
-#define input_event_sec time.tv_sec
-#endif
-#ifndef input_event_usec
-#define input_event_usec time.tv_usec
-#endif
 EXPORT ssize_t my32_read(int fd, void* buf, size_t count)
 {
     ssize_t ret;
