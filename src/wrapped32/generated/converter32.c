@@ -1075,8 +1075,8 @@ void to_struct_ppuiiiiiiiiipp(ptr_t d, const struct_ppuiiiiiiiiipp_t *src) {
 	*(int32_t*)dest = src->i9; dest += 4;
 	*(int32_t*)dest = src->i10; dest += 4;
 	*(int32_t*)dest = src->i11; dest += 4;
-	*(ptr_t*)dest = to_ptrv(src->p12); dest += 4;
-	*(ptr_t*)dest = to_ptrv(src->p13); dest += 4;
+	*(ptr_t*)dest = to_ptrv_silent(src->p12); dest += 4;
+	*(ptr_t*)dest = to_ptrv_silent(src->p13); dest += 4;
 }
 
 void from_struct_lii(struct_lii_t *dest, ptr_t s) {
