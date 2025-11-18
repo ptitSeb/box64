@@ -4082,4 +4082,8 @@ GO(glXNamedCopyBufferSubDataNV, vFXppuulll)
 // GLX_NV_delay_before_swap
 GO(glXDelayBeforeSwapNV, iFXLf)
 
+// GL_ARB_viewport_array
+GO(glDepthRangeArraydvNV, vFuip)
+GO(glDepthRangeIndexeddNV, vFudd)
+
 GO(dummmy_vFppi, vFppi)
