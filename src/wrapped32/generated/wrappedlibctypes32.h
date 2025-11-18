@@ -250,6 +250,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(recvmsg, lEipi_t) \
 	GO(sendmsg, lEipi_t) \
 	GO(writev, lEipi_t) \
+	GO(write, lEipL_t) \
 	GO(shmat, pEipi_t) \
 	GO(gethostbyaddr, pFpui_t) \
 	GO(__realpath_chk, pEppi_t) \

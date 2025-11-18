@@ -70,6 +70,7 @@
 #include "box32.h"
 #include "converter32.h"
 #include "cleanup.h"
+#include "box32_inputevent.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -1594,9 +1595,53 @@ static int hasDBFromAddress(uintptr_t addr)
 }
 #endif
 
+EXPORT ssize_t my32_write(x64emu_t* emu, int fd, void* buf, size_t count)
+{
+    ssize_t ret;
+    if(isFDInputEvent(fd) && !(count%sizeof(my_input_event_32_t))) {
+        int n = count/sizeof(my_input_event_32_t);
+        struct input_event events[n];
+        my_input_event_32_t* s = buf;
+        for(int i=0; i<n; ++i) {
+            events[i].input_event_sec = from_ulong(s[i].sec);
+            events[i].input_event_usec = from_ulong(s[i].usec);
+            events[i].type = s[i].type;
+            events[i].code = s[i].code;
+            events[i].value = s[i].value;
+        }
+        ret = write(fd, events, sizeof(events));
+        if(ret>0) {
+            n = ret/sizeof(struct input_event);
+            ret = n*sizeof(my_input_event_32_t);
+        }
+        return ret;
+    }
+    return write(fd, buf, count);
+}
+
 EXPORT ssize_t my32_read(int fd, void* buf, size_t count)
 {
-    int ret = read(fd, buf, count);
+    ssize_t ret;
+    if(isFDInputEvent(fd) && !(count%sizeof(my_input_event_32_t))) {
+        int n = count/sizeof(my_input_event_32_t);
+        struct input_event events[n];
+        ret = read(fd, events, sizeof(events));
+        if(ret>0) {
+            n = ret/sizeof(struct input_event);
+            my_input_event_32_t* d = buf;
+            for(int i=0; i<n; ++i) {
+                d[i].sec = to_ulong(events[i].input_event_sec);
+                d[i].usec = to_ulong(events[i].input_event_usec);
+                d[i].type = events[i].type;
+                d[i].code = events[i].code;
+                d[i].value = events[i].value;
+            }
+            ret = n*sizeof(my_input_event_32_t);
+            // there might be missing bytes if it was interupted...
+        }
+        return ret;
+    }
+    ret = read(fd, buf, count);
 #ifdef DYNAREC
     if(ret!=count && ret>0 && BOX64ENV(dynarec)) {
         // continue reading...
@@ -1814,6 +1859,28 @@ EXPORT long my32_readv(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
         vec[i].iov_base = from_ptrv(iov[i].iov_base);
         vec[i].iov_len = from_ulong(iov[i].iov_len);
     }
+
+    if(isFDInputEvent(fd) && (niov==1) && !(vec[0].iov_len%sizeof(my_input_event_32_t))) {
+        int n = vec[0].iov_len/sizeof(my_input_event_32_t);
+        struct input_event events[n];
+        vec[0].iov_len = n*sizeof(struct input_event);
+        vec[0].iov_base = events;
+        size_t ret = readv(fd, vec, 1);
+        if(ret>0) {
+            n = ret/sizeof(struct input_event);
+            my_input_event_32_t* d = from_ptrv(iov[0].iov_base);
+            for(int i=0; i<n; ++i) {
+                d[i].sec = to_ulong(events[i].input_event_sec);
+                d[i].usec = to_ulong(events[i].input_event_usec);
+                d[i].type = events[i].type;
+                d[i].code = events[i].code;
+                d[i].value = events[i].value;
+            }
+            ret = n*sizeof(my_input_event_32_t);
+        }
+        return ret;
+    }
+
     return readv(fd, vec, niov);
 }
 
@@ -3514,6 +3581,27 @@ EXPORT int my32_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned lo
         return 0;
     }
     return prctl(option, arg2, arg3, arg4, arg5);
+}
+
+int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+EXPORT int my32_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    int ret = my_open(emu, pathname, flags, mode);
+    addInputEventFD(ret);
+    return ret;
+}
+EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+EXPORT int my32_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    int ret = my_open64(emu, pathname, flags, mode);
+    addInputEventFD(ret);
+    return ret;
+}
+
+EXPORT int my32_close(x64emu_t* emu, int fd)
+{
+    removeInputEventFD(fd);
+    return close(fd);
 }
 
 #undef HAS_MY

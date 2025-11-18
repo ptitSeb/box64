@@ -1130,6 +1130,7 @@
 #() uFpppd -> uFpppd
 #() uFpppp -> uFpppp
 #() lEEipi -> lEEipi
+#() lEEipL -> lEEipL
 #() lEEppL -> lEEppL
 #() lEiipL -> lEiipL
 #() lEipLi -> lEipLi
@@ -2545,6 +2546,7 @@ wrappedlibc:
   - sendmsg
   - writev
 - lEipL:
+  - write
 - lEppL:
 - pEipi:
   - shmat

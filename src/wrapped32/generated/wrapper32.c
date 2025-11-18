@@ -1224,6 +1224,7 @@ typedef uint32_t (*uFpppi_t)(void*, void*, void*, int32_t);
 typedef uint32_t (*uFpppd_t)(void*, void*, void*, double);
 typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
 typedef intptr_t (*lEEipi_t)(x64emu_t*, int32_t, void*, int32_t);
+typedef intptr_t (*lEEipL_t)(x64emu_t*, int32_t, void*, uintptr_t);
 typedef intptr_t (*lEEppL_t)(x64emu_t*, void*, void*, uintptr_t);
 typedef intptr_t (*lEiipL_t)(int32_t, int32_t, void*, uintptr_t);
 typedef intptr_t (*lEipLi_t)(int32_t, void*, uintptr_t, int32_t);
@@ -3401,6 +3402,7 @@ void uFpppi_32(x64emu_t *emu, uintptr_t fcn) { uFpppi_t fn = (uFpppi_t)fcn; R_EA
 void uFpppd_32(x64emu_t *emu, uintptr_t fcn) { uFpppd_t fn = (uFpppd_t)fcn; R_EAX = (uint32_t)fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptri(double, R_ESP + 16)); }
 void uFpppp_32(x64emu_t *emu, uintptr_t fcn) { uFpppp_t fn = (uFpppp_t)fcn; R_EAX = (uint32_t)fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptriv(R_ESP + 16)); }
 void lEEipi_32(x64emu_t *emu, uintptr_t fcn) { lEEipi_t fn = (lEEipi_t)fcn; errno = emu->libc_err; R_EAX = to_long(fn(emu, from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); emu->libc_err = errno; }
+void lEEipL_32(x64emu_t *emu, uintptr_t fcn) { lEEipL_t fn = (lEEipL_t)fcn; errno = emu->libc_err; R_EAX = to_long(fn(emu, from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ulong(from_ptri(ulong_t, R_ESP + 12)))); emu->libc_err = errno; }
 void lEEppL_32(x64emu_t *emu, uintptr_t fcn) { lEEppL_t fn = (lEEppL_t)fcn; errno = emu->libc_err; R_EAX = to_long(fn(emu, from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8), from_ulong(from_ptri(ulong_t, R_ESP + 12)))); emu->libc_err = errno; }
 void lEiipL_32(x64emu_t *emu, uintptr_t fcn) { lEiipL_t fn = (lEiipL_t)fcn; errno = emu->libc_err; R_EAX = to_long(fn(from_ptri(int32_t, R_ESP + 4), from_ptri(int32_t, R_ESP + 8), from_ptriv(R_ESP + 12), from_ulong(from_ptri(ulong_t, R_ESP + 16)))); emu->libc_err = errno; }
 void lEipLi_32(x64emu_t *emu, uintptr_t fcn) { lEipLi_t fn = (lEipLi_t)fcn; errno = emu->libc_err; R_EAX = to_long(fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ulong(from_ptri(ulong_t, R_ESP + 12)), from_ptri(int32_t, R_ESP + 16))); emu->libc_err = errno; }

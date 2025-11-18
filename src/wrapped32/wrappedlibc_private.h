@@ -160,7 +160,7 @@ GO(clearerr, vES)
 GO(clock, lEv)
 // clone    // Weak
 // __clone
-GOW(close, iEi)
+GOWM(close, iEEi)   //%%
 // __close  // Weak
 GOW(closedir, iEp)
 GO(closelog, vEv)
@@ -1237,10 +1237,10 @@ GOWM(obstack_vprintf, iEEpppp)  //%%
 // __obstack_vprintf_chk
 //GOWM(on_exit, iEEpp)  //%%
 //GO2(__on_exit, iEEpp, my_on_exit)   //%%
-GOW2(open, iEEpON, my_open)    //%%
-GOW2(__open, iEEpON, my_open)  //%%
+GOWM(open, iEEpON)    //%%
+GOW2(__open, iEEpON, my32_open)  //%%
 GO(__open_2, iEpO)
-GOW2(open64, iEEpON, my_open64)  //%%
+GOWM(open64, iEEpON)  //%%
 // __open64 // Weak
 GO(__open64_2, iEpO)
 //GOW(openat, iEipON)
@@ -2093,7 +2093,7 @@ GO(wmemset, pEpiL)
 // __woverflow
 GOM(wprintf, iEEpV) //%%
 //GOM(__wprintf_chk, iEEipV) //%%
-GOW(write, lEipL)
+GOWM(write, lEEipL)
 //GOW(__write, lEipL)
 GOWM(writev, lEEipi)
 // wscanf

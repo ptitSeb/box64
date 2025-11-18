@@ -450,6 +450,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/tools/box32stack.c"
         "${BOX64_ROOT}/src/emu/x86int3.c"
         "${BOX64_ROOT}/src/librarian/globalsymbols32.c"
+        "${BOX64_ROOT}/src/libtools/box32_inputevent.c"
         "${BOX64_ROOT}/src/libtools/myalign32.c"
         "${BOX64_ROOT}/src/libtools/myalign64_32.c"
         "${BOX64_ROOT}/src/libtools/myalignxcb32.c"

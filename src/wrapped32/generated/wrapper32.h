@@ -1171,6 +1171,7 @@ void uFpppi_32(x64emu_t *emu, uintptr_t fnc);
 void uFpppd_32(x64emu_t *emu, uintptr_t fnc);
 void uFpppp_32(x64emu_t *emu, uintptr_t fnc);
 void lEEipi_32(x64emu_t *emu, uintptr_t fnc);
+void lEEipL_32(x64emu_t *emu, uintptr_t fnc);
 void lEEppL_32(x64emu_t *emu, uintptr_t fnc);
 void lEiipL_32(x64emu_t *emu, uintptr_t fnc);
 void lEipLi_32(x64emu_t *emu, uintptr_t fnc);
