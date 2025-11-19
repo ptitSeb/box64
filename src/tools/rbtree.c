@@ -74,7 +74,7 @@ static int add_range_next_to(rbtree_t *tree, rbnode *prev, uintptr_t start, uint
     node->right = NULL;
 
     if (tree->is_unstable) {
-        printf_log(LOG_NONE, "Warning, unstable Red-Black tree; trying to add a node anyways\n");
+        printf_log(LOG_NONE, "Warning, unstable Red-Black tree \"%s\"; trying to add a node anyways\n", tree->name);
     }
     tree->is_unstable = true;
 
