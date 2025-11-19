@@ -56,7 +56,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("LOCK ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGD;
+            GETGB(x7);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_add8(dyn, ninst, ed, gd, x3, x4);
@@ -65,13 +65,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (cpuext.lam_bh) {
                     AMADD_DB_B(x1, gd, wback);
                 } else {
-                    ANDI(x3, wback, 0b11);
-                    BNEZ_MARK(x3);
-                    LOCK_8_ALIGNED_4BYTE(ADD_W(x4, x1, gd), x1, wback, x3, x4, x5, x6);
-                    B_MARK3_nocond;
-                    MARK;
-                    LOCK_8_IN_4BYTE(ADD_W(x4, x1, gd), x1, wback, x3, x4, x5, x6, x7);
-                    MARK3;
+                    LOCK_8_OP(ADD_D(x4, x1, gd), x1, wback, x3, x4, x5, x6);
                 }
                 IFXORNAT (X_ALL | X_PEND) {
                     emit_add8(dyn, ninst, x1, gd, x3, x4);
@@ -122,6 +116,30 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_add32(dyn, ninst, rex, x1, gd, x3, x4, x5);
                 }
             }
+            break;
+        case 0x08:
+            INST_NAME("LOCK OR Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGB(x7);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                emit_or8(dyn, ninst, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                ANDI(x3, wback, 0b11);
+                SLLI_W(x3, x3, 3);
+                MV(x6, wback);
+                BSTRINS_D(x6, xZR, 1, 0); // aligned to 4-byte
+                SLL_W(x4, gd, x3);        // shift GETGB's BSTRPICK result to pos
+                AMOR_DB_W(x1, x4, x6);
+                SRL_W(x1, x1, x3);
+                BSTRPICK_D(x1, x1, 7, 0);
+                IFXORNAT (X_ALL | X_PEND) {
+                    emit_or8(dyn, ninst, x1, gd, x3, x4);
+                }
+            }
+            SMDMB();
             break;
         case 0x09:
             INST_NAME("LOCK OR Ed, Gd");
