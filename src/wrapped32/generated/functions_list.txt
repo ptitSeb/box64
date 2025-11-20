@@ -2605,6 +2605,10 @@ wrappedlibc:
 - iESipV:
 - uEippu:
   - regerror
+- IEpBp_ia:
+  - __isoc23_strtoll_l
+- UEpBp_ia:
+  - __isoc23_strtoull_l
 - LEpBp_ii:
 - iEiiipu:
   - __setsockopt64

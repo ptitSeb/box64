@@ -1765,6 +1765,7 @@ GO(strtoll, IEpBp_i)
 //GOW(strtol_l, lEppiip)
 GO(__strtoll_internal, IEpBp_ii)
 GO(__strtoll_l, IEpBp_ia)
+GO2(__isoc23_strtoll_l, IEpBp_ia, __strtoll_l)
 GOW(strtoll_l, IEpBp_ia)
 GOW(strtoq, IEppi)  // is that ok?
 GOM(strtoul, LEpBp_i)   //%%,noE
@@ -1774,6 +1775,7 @@ GO(strtoull, UEpBp_i)
 //GOW(strtoul_l, LEppip)
 GO(__strtoull_internal, UEpBp_ii)
 GO(__strtoull_l, UEpBp_ia)
+GO2(__isoc23_strtoull_l, UEpBp_ia, __strtoull_l)
 GOW(strtoull_l, UEpBp_ia)
 //GO(strtoumax, UEppi)
 GOW(strtouq, UEppi) // ok?
