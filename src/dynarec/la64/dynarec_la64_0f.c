@@ -1970,6 +1970,18 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if (!rex.w) ZEROUP(gd);
             break;
+        case 0xC0:
+            INST_NAME("XADD Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGB(x1);
+            GETEB(x2, 0);
+            gd = x2;
+            ed = x1;
+            emit_add8(dyn, ninst, ed, gd, x4, x5);
+            GBBACK();
+            EBBACK();
+            break;
         case 0xC1:
             INST_NAME("XADD Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
