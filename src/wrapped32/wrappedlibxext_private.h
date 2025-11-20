@@ -27,7 +27,7 @@ GO(XdbeBeginIdiom, iFX)
 GO(XdbeDeallocateBackBufferName, iFXL)
 GO(XdbeEndIdiom, iFX)
 GOM(XdbeFreeVisualInfo, vFEp)
-//GO(XdbeGetBackBufferAttributes, bL_FXL)
+GO(XdbeGetBackBufferAttributes, pFXL)   // return a pointer to a struct (allocated) with only an XID, no need to wrap here
 GOM(XdbeGetVisualInfo, pFEXpp)
 GO(XdbeQueryExtension, iFXpp)
 GO(XdbeSwapBuffers, iFXbLC_i)

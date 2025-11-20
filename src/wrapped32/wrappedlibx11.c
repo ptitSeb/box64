@@ -1842,6 +1842,38 @@ EXPORT void* my32_XGetKeyboardMapping(x64emu_t* emu, void* dpy, uint8_t first, i
     return ret;
 }
 
+EXPORT int my32_XkbRefreshKeyboardMapping(x64emu_t* emu, my_XkbMapNotifyEvent_32_t* evt)
+{
+    my_XkbMapNotifyEvent_t event = {0};
+    event.type = evt->type;
+    event.serial = from_ulong(evt->serial);
+    event.send_event = evt->send_event;
+    event.display = getDisplay(from_ptrv(evt->display));
+    event.time = from_ulong(evt->time);
+    event.xkb_type = evt->xkb_type;
+    event.device = evt->device;
+    event.changed = evt->changed;
+    event.flags = evt->flags;
+    event.first_type = evt->first_type;
+    event.num_types = evt->num_types;
+    event.min_key_code = evt->min_key_code;
+    event.max_key_code = evt->max_key_code;
+    event.first_key_sym = evt->first_key_sym;
+    event.first_key_act = evt->first_key_act;
+    event.first_key_behavior = evt->first_key_behavior;
+    event.first_key_explicit = evt->first_key_explicit;
+    event.first_modmap_key = evt->first_modmap_key;
+    event.first_vmodmap_key = evt->first_vmodmap_key;
+    event.num_key_syms = evt->num_key_syms;
+    event.num_key_acts = evt->num_key_acts;
+    event.num_key_behaviors = evt->num_key_behaviors;
+    event.num_key_explicit = evt->num_key_explicit;
+    event.num_modmap_keys = evt->num_modmap_keys;
+    event.num_vmodmap_keys = evt->num_vmodmap_keys;
+    event.vmods = evt->vmods;
+    return my->XkbRefreshKeyboardMapping(&event);
+}
+
 EXPORT unsigned long my32_XLookupKeysym(x64emu_t* emu, my_XEvent_32_t* evt, int index)
 {
     my_XEvent_t event = {0};

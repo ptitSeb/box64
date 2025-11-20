@@ -1515,3 +1515,20 @@ void* inplace_XRRMonitorInfo_enlarge(void* a, int n)
     }
     return a;
 }
+
+void* inplace_XRRCrtcTransformAttributes_shrink(void* a)
+{
+    if(a) {
+        my_XRRCrtcTransformAttributes_t* src = a;
+        my_XRRCrtcTransformAttributes_32_t* dst = a;
+        dst->pendingTransform = src->pendingTransform;
+        dst->pendingFilter = to_ptrv(src->pendingFilter);
+        dst->pendingNparams = src->pendingNparams;
+        dst->pendingParams = to_ptrv(src->pendingParams);
+        dst->currentTransform = src->currentTransform;
+        dst->currentFilter = to_ptrv(src->currentFilter);
+        dst->currentNparams = src->currentNparams;
+        dst->currentParams = to_ptrv(src->currentParams);
+    }
+    return a;
+}

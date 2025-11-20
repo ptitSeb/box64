@@ -14,6 +14,7 @@
 typedef void (*vFp_t)(void*);
 typedef void (*vFX_t)(void*);
 typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iEp_t)(void*);
 typedef int32_t (*iFX_t)(void*);
 typedef uintptr_t (*LFp_t)(void*);
 typedef void* (*pFp_t)(void*);
@@ -96,6 +97,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XRefreshKeyboardMapping, iFp_t) \
 	GO(XScreenNumberOfScreen, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \
+	GO(XkbRefreshKeyboardMapping, iEp_t) \
 	GO(XCloseDisplay, iFX_t) \
 	GO(XGrabServer, iFX_t) \
 	GO(XVisualIDFromVisual, LFp_t) \

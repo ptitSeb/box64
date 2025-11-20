@@ -2126,6 +2126,7 @@
 #() iFXLpppppppppp -> iFXLpppppppppp
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
 #() iFXiLbL_bL_ppppbip_pp -> iFXiLBBppppBpp
+#() iFXiLlliLBL_pBL_BL_bp_ -> iFXiLlliLBpBBB
 #() vFXiLLrLiiwwwwwwwwL_Liiiipi -> vFXiLLBLiiiipi
 #() vFuiiiiiiiiiuup -> vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
@@ -3003,6 +3004,8 @@ wrappedlibx11:
   - XRefreshKeyboardMapping
   - XScreenNumberOfScreen
   - _XInitImageFuncPtrs
+- iEp:
+  - XkbRefreshKeyboardMapping
 - iFX:
   - XCloseDisplay
   - XGrabServer
@@ -3312,6 +3315,8 @@ wrappedlibxrandr:
   - XRRGetProviderResources
   - XRRGetScreenResources
   - XRRGetScreenResourcesCurrent
+- iFXLp:
+  - XRRGetCrtcTransform
 - iFXpp:
   - XRRQueryExtension
 - pFXLL:

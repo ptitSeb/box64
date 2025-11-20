@@ -662,7 +662,7 @@ GO(XkbDeviceBellEvent, iFXLiiiiL)
 //GO(XkbFindOverlayForKey, pFppp)
 GO(XkbForceBell, iFXi)
 GO(XkbForceDeviceBell, iFXiiii)
-//GO(XkbFreeClientMap, vFpui)
+GO(XkbFreeClientMap, vFpui)
 //GO(XkbFreeCompatMap, vFpui)
 //GO(XkbFreeComponentList, vFbiiiiiibWp_bWp_bWp_bWp_bWp_bWp__)
 //GO(XkbFreeControls, vFpui)
@@ -755,7 +755,7 @@ GOM(XkbQueryExtension, iFEXppppp)
 //GO(_XkbReadGetIndicatorMapReply, 
 //GO(_XkbReadGetMapReply, 
 //GO(_XkbReadGetNamesReply, 
-//GO(XkbRefreshKeyboardMapping, iFbiLiXLiiuuiiCCCCCCCCiiiiiiu_)
+GOM(XkbRefreshKeyboardMapping, iEEp)
 //GO(_XkbReloadDpy, 
 //GO(XkbResizeDeviceButtonActions, iFpu)
 //GO(XkbResizeKeyActions, pFpii)

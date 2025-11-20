@@ -14,6 +14,7 @@
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFXL_t)(void*, uintptr_t);
+typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFXpp_t)(void*, void*, void*);
 typedef void* (*pFXLL_t)(void*, uintptr_t, uintptr_t);
 typedef void* (*pFXLp_t)(void*, uintptr_t, void*);
@@ -30,6 +31,7 @@ typedef int32_t (*iFXpLLiiLWpi_t)(void*, void*, uintptr_t, uintptr_t, int32_t, i
 	GO(XRRGetProviderResources, pFXL_t) \
 	GO(XRRGetScreenResources, pFXL_t) \
 	GO(XRRGetScreenResourcesCurrent, pFXL_t) \
+	GO(XRRGetCrtcTransform, iFXLp_t) \
 	GO(XRRQueryExtension, iFXpp_t) \
 	GO(XRRQueryOutputProperty, pFXLL_t) \
 	GO(XRRListOutputProperties, pFXLp_t) \

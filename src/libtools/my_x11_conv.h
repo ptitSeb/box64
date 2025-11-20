@@ -125,4 +125,6 @@ void* inplace_XFilters_enlarge(void* a);
 void* inplace_XRRMonitorInfo_shrink(void* a, int n);
 void* inplace_XRRMonitorInfo_enlarge(void* a, int n);
 
+void* inplace_XRRCrtcTransformAttributes_shrink(void* a);
+
 #endif//MY_X11_CONV

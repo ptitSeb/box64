@@ -1889,4 +1889,15 @@ typedef struct my_XIGestureSwipeEvent_32_s {
     my_XIModifierState_t    group;
 } my_XIGestureSwipeEvent_32_t;
 
+typedef struct my_XRRCrtcTransformAttributes_32_s {
+    my_XTransform_t     pendingTransform;
+    ptr_t               pendingFilter;  //char*
+    int                 pendingNparams;
+    ptr_t               pendingParams;  //int*
+    my_XTransform_t     currentTransform;
+    ptr_t               currentFilter;  //char*
+    int                 currentNparams;
+    ptr_t               currentParams;  //int*
+} my_XRRCrtcTransformAttributes_32_t;
+
 #endif//MY_X11_DEFS_32

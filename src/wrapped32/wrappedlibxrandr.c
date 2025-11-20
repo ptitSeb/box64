@@ -182,6 +182,15 @@ EXPORT void my32_XRRFreeMonitors(x64emu_t* emu, void* monitors)
     my->XRRFreeMonitors(inplace_XRRMonitorInfo_enlarge(monitors, n));
 }
 
+EXPORT int my32_XRRGetCrtcTransform(x64emu_t* emu, void* dpy, XID crtc, ptr_t* attributes)
+{
+    void* attributes_l = NULL;
+    int ret = my->XRRGetCrtcTransform(dpy, crtc, &attributes_l);
+    inplace_XRRCrtcTransformAttributes_shrink(attributes_l);
+    *attributes = to_ptrv(attributes_l);
+    return ret;
+}
+
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
 #else

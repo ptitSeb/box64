@@ -1995,4 +1995,19 @@ typedef struct my_XIGestureSwipeEvent_s {
 #define XI_GestureSwipeUpdate            31
 #define XI_GestureSwipeEnd               32
 
+typedef struct my__XTransform_s {
+    int  matrix[3][3];
+} my_XTransform_t;
+
+typedef struct my_XRRCrtcTransformAttributes_s {
+    my_XTransform_t     pendingTransform;
+    char*               pendingFilter;
+    int                 pendingNparams;
+    int*                pendingParams;
+    my_XTransform_t     currentTransform;
+    char*               currentFilter;
+    int                 currentNparams;
+    int*                currentParams;
+} my_XRRCrtcTransformAttributes_t;
+
 #endif//MY_X11_DEFS
