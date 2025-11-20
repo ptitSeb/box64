@@ -137,6 +137,22 @@ Note: use gcc-11 or higher, older gcc doesn't know cortex-a78ae
 -D TEGRA_T234=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
+#### for DGX Spark/GB10 based devices
+
+On a 64bit OS:
+
+Note: Requires GCC 15.2.0 or higher. Older GCC versions do not support gb10, cortex-a725, or cortex-x925.
+
+For GCC 14 or older, you can use the following march equivalent:
+```
+-march=armv9.2-a+crc+sve2-aes+sve2-bitperm+sve2-sha3+sve2-sm4+memtag+profile
+```
+
+With GCC 15.2.0 or higher:
+```
+-D NVIDIA_GB10=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
 #### for ODROID N2/N2+
 
 On a 64bit OS:
