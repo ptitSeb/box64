@@ -93,9 +93,8 @@ typedef struct blocklist_s {
     size_t              size;
     void*               first;
     uint32_t            lowest;
-    uint8_t             type;       // could use 6bits for type and 1bit for is32bits and nopurge
-    uint8_t             is32bits;   // but that wont really change the size of structure anyway
-    uint8_t             nopurge;    // set when block has no candidate for purge
+    uint8_t             type;
+    uint8_t             is32bits;
 } blocklist_t;
 
 #define MMAPSIZE (512*1024)     // allocate 512kb sized blocks
@@ -1584,23 +1583,21 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
 
 int PurgeDynarecMap(mmaplist_t* list, size_t size)
 {
-    // check all blocks where hot==1 and in_used==0 and delete them
+    // check all blocks where tick is old enough and in_used==0, then delete them
     // return 1 as soon as one block has been deleted, 0 else
-    // beware that hot=0 blocks means thay should not be touched
+    // beware that tick=0 blocks means they were never executed and should not be touched
     int ret = 0;
     for(int i=0; i<list->size && !ret; ++i) {
         blocklist_t* bl = list->chunks[i];
-        if(bl->nopurge) continue;
         blockmark_t* p = bl->block;
         blockmark_t* end = bl->block + bl->size - sizeof(blockmark_t);
 
-        int purgeable = 0;
         while(p<end) {
             blockmark_t *n = NEXT_BLOCK(p);
             if(p->next.fill) {
                 dynablock_t* dynablock = *(dynablock_t**)p->mark;
-                int hot = native_lock_get_d(&dynablock->hot);
-                if(hot==1 && dynablock->done) {
+                int tick = native_lock_get_d(&dynablock->tick);
+                if(tick && dynablock->done && (my_context->tick > tick) && ((my_context->tick-tick)>=BOX64ENV(dynarec_purge_age))) {
                     int in_used = native_lock_get_d(&dynablock->in_used);
                     if(!in_used) {
                         // free the block, but unreference it first
@@ -1613,12 +1610,11 @@ int PurgeDynarecMap(mmaplist_t* list, size_t size)
                             if((bl->maxfree>=size))
                                 ret = 1;
                         } // fail to set default jump, so skipping
-                    } else purgeable = 1;
-                } else if(hot<2) purgeable = 1;
+                    }
+                }
             }
             p = n;
         }
-        bl->nopurge = purgeable?0:1;
     }
     return ret;
 }
@@ -1631,6 +1627,8 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
         return 0;
 
     size = roundSize(size);
+
+    __atomic_fetch_add(&my_context->tick, 1, __ATOMIC_RELAXED);
 
     mmaplist_t* list = GetMmaplistByAddr(x64_addr);
     if(!list)
@@ -1650,7 +1648,6 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
                 void* sub = getFirstBlock(list->chunks[i]->block, size, &rsize, list->chunks[i]->first);
                 if(sub) {
                     void* ret = allocBlock(list->chunks[i]->block, sub, size, &list->chunks[i]->first);
-                    list->chunks[i]->nopurge = 0;
                     if(rsize==list->chunks[i]->maxfree)
                         list->chunks[i]->maxfree = getMaxFreeBlock(list->chunks[i]->block, list->chunks[i]->size, list->chunks[i]->first);
                     //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);

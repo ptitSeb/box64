@@ -93,6 +93,7 @@ typedef struct base_segment_s {
 } base_segment_t;
 
 typedef struct box64context_s {
+    uint32_t            tick;           // for dynarec age
     path_collection_t   box64_path;     // PATH env. variable
     path_collection_t   box64_ld_lib;   // LD_LIBRARY_PATH env. variable
 

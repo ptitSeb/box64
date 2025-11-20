@@ -2782,16 +2782,10 @@ void doEnterBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
         STLXRw(s3, s2, s1);
         CBNZw(s3, -3*4);
     }
-    // now increment hot
-    ADDx_U12(s1, s1, offsetof(dynablock_t, hot)-offsetof(dynablock_t, in_used));
-    if(cpuext.atomics) {
-        STADDLw(s3, s1);
-    } else {
-        LDAXRw(s2, s1);
-        ADDw_U12(s2, s2, 1);
-        STLXRw(s3, s2, s1);
-        CBNZw(s3, -3*4);
-    }
+    // set tick
+    LDRx_U12(s2, xEmu, offsetof(x64emu_t, context));
+    LDRw_U12(s2, s2, offsetof(box64context_t, tick));
+    STRw_U12(s2, s1, offsetof(dynablock_t, tick)-offsetof(dynablock_t, in_used));
     MESSAGE(LOG_INFO, "-------- doEnter\n");
 }
 void doLeaveBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
