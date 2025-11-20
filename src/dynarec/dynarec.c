@@ -118,7 +118,8 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;
-    DynaRun(emu);
+    emu->flags.need_jmpbuf = 1;
+    EmuRun(emu, 1);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
@@ -142,7 +143,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
 }
 
 extern int running32bits;
-void DynaRun(x64emu_t* emu)
+void EmuRun(x64emu_t* emu, int use_dynarec)
 {
     // prepare setjump for signal handling
     JUMPBUFF jmpbuf[1] = {0};
@@ -166,7 +167,7 @@ void DynaRun(x64emu_t* emu)
             if ((skip = SigSetJmp(emu->jmpbuf, 1)))
             #endif
             {
-                dynarec_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x will %sskip dynarec next\n", emu->segs[_FS], (skip==3)?"not ":"");
+                dynarec_log(LOG_DEBUG, "Setjmp EmuRun, fs=0x%x will %sskip dynarec next\n", emu->segs[_FS], (skip==3)?"not ":"");
                 #ifdef DYNAREC
                 if(BOX64ENV(dynarec_test)) {
                     if(emu->test.clean)
@@ -182,7 +183,7 @@ void DynaRun(x64emu_t* emu)
             emu->flags.need_jmpbuf = 0;
 
 #ifdef DYNAREC
-        if(!BOX64ENV(dynarec))
+        if(!BOX64ENV(dynarec) || !use_dynarec)
 #endif
             Run(emu, 0);
 #ifdef DYNAREC
@@ -241,4 +242,9 @@ void DynaRun(x64emu_t* emu)
     #ifdef RV64
     emu->xSPSave = old_savesp;
     #endif
+}
+
+void DynaRun(x64emu_t *emu)
+{
+    EmuRun(emu, 1);
 }
