@@ -1838,7 +1838,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     else {
                         ED->dword[0] = get_random32();
                         if(MODREG)
-                            ED->dword[1] = 1;
+                            ED->dword[1] = 0;
                     }
                     break;
                 case 7:     /* RDPID Ed */
