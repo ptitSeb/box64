@@ -791,7 +791,7 @@ int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 		while(*once!=1) {
 			sched_yield();
 			clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
-			if(t-(ts.tv_sec*1000000000LL + ts.tv_nsec)>10*1000000LL)	// if wait last for more than 10ms, force as completed
+			if((ts.tv_sec*1000000000LL + ts.tv_nsec)-t>10*1000000LL)	// if wait last for more than 10ms, force as completed
 				*once = 1;
 			__sync_synchronize();
 		}
