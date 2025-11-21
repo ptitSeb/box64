@@ -1109,6 +1109,10 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 201: // sys_time
             return (intptr_t)time((void*)R_RSI);
         #endif
+        #ifndef __NR_epoll_create
+        case 213:
+            return epoll_create(S_ESI);
+        #endif
         #if !defined(__NR_epoll_wait) || !defined(NOALIGN)
         case 232:
             return my_epoll_wait(emu, S_ESI, (void*)R_RDX, S_ECX, S_R8d);
@@ -1152,6 +1156,10 @@ long EXPORT my_syscall(x64emu_t *emu)
         #ifndef _NR_eventfd
         case 284:   // sys_eventfd
             return eventfd(S_ESI, 0);
+        #endif
+        #ifndef NOALIGN
+        case 291:   // sys__epoll_create1
+            return epoll_create1(of_convert(S_EDI));
         #endif
         case 317:   // sys_seccomp
             return 0;  // ignoring call
