@@ -37,7 +37,6 @@ jobs:
       matrix:
         platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, ANDROID_GLIBC, WOW64, ARM64-GCC-8]
         type: [Release, Trace, StaticBuild, Box32]
-        os: [ubuntu-latest, ubuntu-22.04-arm]
         exclude:
           - platform: ANDROID
             type: StaticBuild
@@ -49,32 +48,12 @@ jobs:
             type: Box32
           - platform: TERMUX
             type: Box32
-          - platform: X64
-            os: ubuntu-22.04-arm
-          - platform: RISCV
-            os: ubuntu-22.04-arm
-          - platform: RK3588
-            os: ubuntu-latest
-          - platform: ARM64
-            os: ubuntu-latest
-          - platform: ANDROID
-            os: ubuntu-22.04-arm
-          - platform: TERMUX
-            os: ubuntu-22.04-arm
-          - platform: LARCH64
-            os: ubuntu-22.04-arm
-          - platform: ANDROID_GLIBC
-            os: ubuntu-latest
-          - platform: WOW64
-            os: ubuntu-latest
           - platform: WOW64
             type: Trace
           - platform: WOW64
             type: StaticBuild
           - platform: WOW64
             type: Box32
-          - platform: ARM64-GCC-8
-            os: ubuntu-latest
           - platform: ARM64-GCC-8
             type: Trace
           - platform: ARM64-GCC-8
@@ -86,7 +65,35 @@ jobs:
           - platform: LARCH64
             type: Trace
         include:
+          - platform: X64
+            os: ubuntu-latest
+
+          - platform: RISCV
+            os: ubuntu-latest
+
+          - platform: RK3588
+            os: ubuntu-22.04-arm
+
+          - platform: ARM64
+            os: ubuntu-22.04-arm
+
+          - platform: ANDROID
+            os: ubuntu-latest
+
+          - platform: TERMUX
+            os: ubuntu-latest
+
+          - platform: LARCH64
+            os: ubuntu-latest
+
+          - platform: ANDROID_GLIBC
+            os: ubuntu-22.04-arm
+
+          - platform: WOW64
+            os: ubuntu-22.04-arm
+
           - platform: ARM64-GCC-8
+            os: ubuntu-22.04-arm
             image: arm64v8/ubuntu:18.04
 
     runs-on: ${{ matrix.os }}
