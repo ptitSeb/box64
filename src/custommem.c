@@ -477,7 +477,7 @@ int blockstree_index = 0;
 blocklist_t* findBlock(uintptr_t addr)
 {
     blocklist_t* last_found_block = (last_block_index>=0 && last_block_index<n_blocks)?(&p_blocks[last_block_index]):NULL;
-    if (last_found_block>=0 && addr >= (uintptr_t)last_found_block->block && addr < (uintptr_t)last_found_block->block + last_found_block->size)
+    if (last_found_block && addr >= (uintptr_t)last_found_block->block && addr < (uintptr_t)last_found_block->block + last_found_block->size)
         return last_found_block;
     if(blockstree) {
         uint32_t i;
