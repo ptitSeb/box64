@@ -763,25 +763,40 @@ static void* findkey_dtorFct(void* fct)
 
 #undef SUPER
 
-static uintptr_t __thread my_pthread_once_f = 0;
-static void my_pthread_once_callback()
+// custom implementation of pthread_once...
+int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 {
-	// make some room and align R_RSP before doing the call (maybe it would be simpler to just use Callback functions)
-	printf_log(LOG_DEBUG, " calling %p... ", (void*)my_pthread_once_f);
-	x64emu_t* emu = thread_get_emu();
-	Push64(emu, R_RBP); // push rbp
-	R_RBP = R_RSP;      // mov rbp, rsp
-	R_RSP -= 0x200;
-	R_RSP &= ~63LL;
-	DynaCall(emu, my_pthread_once_f);  // using DynaCall, speedup wine 7.21 initialisation
-	R_RSP = R_RBP;          // mov rsp, rbp
-	R_RBP = Pop64(emu);     // pop rbp
-}
+	if(*once==1)	// quick test first
+		return 0;
+	if(__sync_bool_compare_and_swap(once, 0, 2)) {
+		// can run the function
+		// make some room and align R_RSP before doing the call (maybe it would be simpler to just use Callback functions)
+		Push64(emu, R_RBP); // push rbp
+		R_RBP = R_RSP;      // mov rbp, rsp
+		R_RSP &= ~63LL;
 
-int EXPORT my_pthread_once(x64emu_t* emu, pthread_once_t* once, void* cb)
-{
-	my_pthread_once_f = (uintptr_t)cb;
-	return pthread_once(once, my_pthread_once_callback);
+		DynaCall(emu, (uintptr_t)cb);  // using DynaCall, speedup wine 7.21 initialisation
+
+		R_RSP = R_RBP;          // mov rsp, rbp
+		R_RBP = Pop64(emu);     // pop rbp
+		*once = 1;
+		__sync_synchronize();
+	} else {
+		// nope, functionis running, wait until it's done
+		// this is a workaround for an issue in some EA Launcher programs,
+		// were some sort of deadlock happens on a pthread_once for wine's register_builtins
+		struct timespec ts;
+		clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
+		uint64_t t = ts.tv_sec*1000000000LL + ts.tv_nsec;
+		while(*once!=1) {
+			sched_yield();
+			clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
+			if(t-(ts.tv_sec*1000000000LL + ts.tv_nsec)>10*1000000LL)	// if wait last for more than 10ms, force as completed
+				*once = 1;
+			__sync_synchronize();
+		}
+	}
+	return 0;
 }
 EXPORT int my___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
 
