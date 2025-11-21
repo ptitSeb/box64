@@ -154,8 +154,8 @@
     ]
   },
   {
-    "name": "BOX64_CEFDISABLEGPUCOMPOSITOR",
-    "description": "Add -cef-disable-gpu-compositor argument to the guest program.",
+    "name": "BOX64_CEFDISABLEGPUCOMPOSITING",
+    "description": "Add -cef-disable-gpu-compositing argument to the guest program.",
     "category": "Arguments",
     "wine": false,
     "options": [
@@ -166,7 +166,7 @@
       },
       {
         "key": "1",
-        "description": "Add -cef-disable-gpu-compositor argument to the guest program.",
+        "description": "Add -cef-disable-gpu-compositing argument to the guest program.",
         "default": false
       }
     ]

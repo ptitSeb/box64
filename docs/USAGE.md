@@ -255,12 +255,12 @@ Add -cef-disable-gpu argument to the guest program.
  * 0: Does nothing. [Default]
  * 1: Add -cef-disable-gpu argument to the guest program. 
 
-### BOX64_CEFDISABLEGPUCOMPOSITOR
+### BOX64_CEFDISABLEGPUCOMPOSITING
 
-Add -cef-disable-gpu-compositor argument to the guest program.
+Add -cef-disable-gpu-compositing argument to the guest program.
 
  * 0: Does nothing. [Default]
- * 1: Add -cef-disable-gpu-compositor argument to the guest program. 
+ * 1: Add -cef-disable-gpu-compositing argument to the guest program. 
 
 ### BOX64_INSERT_ARGS
 
