@@ -121,6 +121,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_SHOWSEGV, showsegv, 0, 0)                                   \
     BOOLEAN(BOX64_SSE_FLUSHTO0, sse_flushto0, 0, 1)                           \
     BOOLEAN(BOX64_SSE42, sse42, 1, 1)                                         \
+    BOOLEAN(BOX64_STEAM_VULKAN, steam_vulkan, 0, 0)                           \
     BOOLEAN(BOX64_SYNC_ROUNDING, sync_rounding, 0, 0)                         \
     BOOLEAN(BOX64_TRACE_COLOR, trace_regsdiff, 0, 0)                          \
     BOOLEAN(BOX64_TRACE_EMM, trace_emm, 0, 0)                                 \
