@@ -2369,11 +2369,11 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
     if(!BOX64ENV(dynarec_hotpage_alt)) {
         if(!(prot&PROT_EXEC))
             return; // needs to be an executable page
-        if(BOX64ENV(dynarec_dirty)>1) {
+        /*if(BOX64ENV(dynarec_dirty)>1) {
             dynarec_log(LOG_INFO, "Detecting a Hotpage at %p, marking page as NEVERCLEAN\n", (void*)(page<<12));
             neverprotectDB(page<<12, box64_pagesize, 1);
             return;
-        }
+        }*/
     }
     // look for idx
     int idx = IdxHotPage(page);
@@ -2392,6 +2392,11 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
             }
         }
     } else {
+        if(idx!=-1 && BOX64ENV(dynarec_dirty)>1 && !hotpage[idx].cnt) {
+            // Re-arming, so put the page as NEVERCLEAN and stop bothering
+            neverprotectDB(page<<12, box64_pagesize, 1);
+            return;
+        }
         if(idx==-1) idx = IdxOldestHotPage(page);
         if(idx==-1) return;
         dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d)\n", (void*)(page<<12), idx);

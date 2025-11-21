@@ -803,7 +803,6 @@ BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_DIRTY=2   # this is like 50% faster than 1
 BOX64_DYNAREC_CALLRET=2 #1 will not work and 2 is 20% faster than 0 with dirty=2
-BOX64_DYNAREC_HOTPAGE_ALT=1 #is faster with that option
 
 [NeedForSpeedPayback.exe]
 BOX64_DYNAREC_STRONGMEM=0
