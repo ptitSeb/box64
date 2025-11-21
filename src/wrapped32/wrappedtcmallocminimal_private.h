@@ -2,7 +2,7 @@
 #error Meh...
 #endif
 
-GO(aligned_alloc, pFuu)
+GO(aligned_alloc, pFLL)
 GO(calloc, pFLL)
 GO(cfree, vFp)
 //GO(_fini, 
@@ -68,14 +68,14 @@ GO(malloc_size, LFp)
 GO(malloc_stats, vFv)
 GO(malloc_usable_size, LFp)
 GO(mallopt, iFii)
-GO(memalign, pFuu)
+GO(memalign, pFLL)
 GOM(mmap, pFEpLiiii)    // use the my_mmap from wrappedlibc.c
 GOM(mmap64, pFEpLiiiI)
-GO(mremap, pFpuuip)
+GO(mremap, pFpLLip)
 GOM(munmap, iFEpL)
 GO(nallocx, LFLi)
-GO(__posix_memalign, iFpuu)
-GO(posix_memalign, iFpuu)
+GO(__posix_memalign, iFBp_LL)
+GO(posix_memalign, iFBp_LL)
 //GO(RunningOnValgrind, 
 GO(sbrk, pFl)
 //GO(tc_calloc, 
@@ -119,7 +119,7 @@ GO(sbrk, pFl)
 //GO(tc_valloc, 
 //GO(tc_version, 
 //GO(ValgrindSlowdown, 
-GO(valloc, pFu)
+GO(valloc, pFL)
 
 
 //GO(_Z16GetenvBeforeMainPKc, 
