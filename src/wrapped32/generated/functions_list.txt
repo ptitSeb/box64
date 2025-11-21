@@ -445,6 +445,7 @@
 #() uFpbppuiiiiiiiiipp_ -> uFpB
 #() vFbppuuuuup_bppuuuuup_ -> vFBB
 #() iEiBLLLLLLLLLLLLLLLLLL_ -> iEiB
+#() iEiBUUUULLLLLLLLLLLLLL_ -> iEiB
 #() vFbppuiiiiiiiiipp_bppuiiiiiiiiipp_ -> vFBB
 #() uFbppuiiiiiiiiipp_bppuiiiiiiiiipp_ -> uFBB
 #() vEEip -> vEEip
@@ -2508,6 +2509,8 @@ wrappedlibc:
   - localtime_r
 - SEpp:
 - iErLL_BLL_:
+- iEiBUUUULLLLLLLLLLLLLL_:
+  - __getrusage64
 - vEipp:
   - vsyslog
 - vEipV:

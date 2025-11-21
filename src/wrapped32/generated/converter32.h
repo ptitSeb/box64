@@ -552,5 +552,26 @@ typedef struct struct_lii_s {
 } struct_lii_t;
 void from_struct_lii(struct_lii_t *dest, ptr_t src);
 void to_struct_lii(ptr_t dest, const struct_lii_t *src);
-
+typedef struct struct_UUUULLLLLLLLLLLLLL_s {
+	uint64_t 	  U0;
+	uint64_t 	  U1;
+	uint64_t 	  U2;
+	uint64_t 	  U3;
+	unsigned long L4;
+	unsigned long L5;
+	unsigned long L6;
+	unsigned long L7;
+	unsigned long L8;
+	unsigned long L9;
+	unsigned long L10;
+	unsigned long L11;
+	unsigned long L12;
+	unsigned long L13;
+	unsigned long L14;
+	unsigned long L15;
+	unsigned long L16;
+	unsigned long L17;
+} struct_UUUULLLLLLLLLLLLLL_t;
+void from_struct_UUUULLLLLLLLLLLLLL(struct_UUUULLLLLLLLLLLLLL_t *dest, ptr_t src);
+void to_struct_UUUULLLLLLLLLLLLLL(ptr_t dest, const struct_UUUULLLLLLLLLLLLLL_t *src);
 #endif // __CONVERTER_H_

@@ -66,6 +66,7 @@ typedef void* (*pEpL_t)(void*, uintptr_t);
 typedef void* (*pEpp_t)(void*, void*);
 typedef void* (*SEpp_t)(void*, void*);
 typedef int32_t (*iErLL_BLL__t)(struct_LL_t*, struct_LL_t*);
+typedef int32_t (*iEiBUUUULLLLLLLLLLLLLL__t)(int32_t, struct_UUUULLLLLLLLLLLLLL_t*);
 typedef void (*vEipp_t)(int32_t, void*, void*);
 typedef void (*vEipV_t)(int32_t, void*, ...);
 typedef void (*vEpuu_t)(void*, uint32_t, uint32_t);
@@ -233,6 +234,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(getservbyname, pEpp_t) \
 	GO(gmtime_r, pEpp_t) \
 	GO(localtime_r, pEpp_t) \
+	GO(__getrusage64, iEiBUUUULLLLLLLLLLLLLL__t) \
 	GO(vsyslog, vEipp_t) \
 	GO(syslog, vEipV_t) \
 	GO(_ITM_addUserCommitAction, vEpup_t) \

@@ -592,6 +592,7 @@ GO(getrlimit64, iEup)
 // getrpcent_r
 // getrpcport
 GOW(getrusage, iEiBLLLLLLLLLLLLLLLLLL_)
+GO2(__getrusage64, iEiBUUUULLLLLLLLLLLLLL_, getrusage)
 //GOW(gets, pEp)
 // __gets_chk
 // getsecretkey
