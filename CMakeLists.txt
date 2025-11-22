@@ -39,7 +39,7 @@ option(SAVE_MEM "Set to ON to build dynarec with some slower memory saving optim
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info on SIGSEGV" ${BAD_SIGNAL})
-option(BAD_PKILL "Set to ON to activate the workaround for incoherent pthread_kill" ${BAD_SIGNAL})
+option(BAD_PKILL "Set to ON to activate the workaround for incoherent pthread_kill" ${BAD_PKILL})
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
 option(CI "Set to ON if running in CI" ${CI})
 option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
