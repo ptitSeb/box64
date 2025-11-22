@@ -87,8 +87,14 @@ static void emuthread_cancel(void* p)
 	for(int i=et->cancel_size-1; i>=0; --i) {
 		et->emu->flags.quitonlongjmp = 0;
 		et->emu->quit = 0;
-		my32_longjmp(et->emu, ((i386_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
-		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
+		i386_unwind_buff_t* buff = (i386_unwind_buff_t*)et->cancels[i];
+		if(buff->__cancel_jmp_buf->__mask_was_saved==1) {
+			my32_longjmp(et->emu, buff->__cancel_jmp_buf, 1);
+			DynaRun(et->emu);	// will return after a __pthread_unwind_next()
+		} else {
+			printf_log(LOG_INFO, "%04d|Warning: corrupted cancel buffer %p skipped\n", GetTID(), buff->__cancel_jmp_buf);
+			print_rolling_log(LOG_INFO);
+		}
 	}
 	et->emu->regs[_AX].q[0] = rax;
 	box_free(et->cancels);
