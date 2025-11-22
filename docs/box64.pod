@@ -807,6 +807,14 @@ Expose SSE4.2 capabilities. Available in WowBox64.
  * 1 : Expose SSE4.2 capabilities. [Default]
 
 
+=item B<BOX64_STEAM_VULKAN> =I<0|1>
+
+Force Vulkan for Linux Steam UI.
+
+ * 0 : Do nothing. [Default]
+ * 1 : Force Vulkan for Linux Steam UI. 
+
+
 =item B<BOX64_SYNC_ROUNDING> =I<0|1>
 
 Synchronize rounding mode between x86 and native.
