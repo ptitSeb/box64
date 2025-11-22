@@ -49,7 +49,7 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if (elf)
             elfname = ElfName(elf);
-        printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", sig, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr, code);
+        printf_log(LOG_NONE, "%04d|Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", GetTID(), sig, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr, code);
         if(sig==5)
             printf_log(LOG_INFO, "\t Opcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
                 Peek(emu, -4), Peek(emu, -3), Peek(emu, -2), Peek(emu, -1),
