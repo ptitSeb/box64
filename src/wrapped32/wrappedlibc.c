@@ -1945,16 +1945,23 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
     if (BOX64ENV(steam_vulkan) && n == 3 && !strcmp(newargv[0], "sh") && !strcmp(newargv[1], "-c") && strstr(newargv[2], "steamwebhelper.sh")) {
-        size_t bufsize = strlen(newargv[2])+strlen(",Vulkan");
+        static const char* vulkanstr = ",Vulkan";
+        static const char* searchstr = "--enable-features=PlatformHEVCDecoderSupport";
+        size_t bufsize = strlen(newargv[2]) + strlen(vulkanstr);
         char* newstr = (char*)box_calloc(bufsize+1, 1);
-        char* pos = strstr(newargv[2], "PlatformHEVCDecoderSupport");
-        size_t insertat = pos - newargv[2] + strlen("PlatformHEVCDecoderSupport");
+        char* pos = strstr(newargv[2], searchstr);
+        if (!pos) {
+            box_free(newstr);
+            goto do_exec;
+        }
+        size_t insertat = pos - newargv[2] + strlen(searchstr);
         strncpy(newstr, newargv[2], insertat);
         newstr[insertat] = '\0';
-        strcat(newstr, ",Vulkan");
+        strcat(newstr, vulkanstr);
         strcat(newstr, newargv[2] + insertat);
         newargv[2] = newstr;
     }
+do_exec:
     int ret = execv(path, (void*)newargv);
     box_free(newargv);
     return ret;
