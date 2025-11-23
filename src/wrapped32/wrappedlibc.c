@@ -1907,6 +1907,7 @@ EXPORT ptr_t my32___environ = 0;  //char**
 
 EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
 {
+    int ret;
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = FileIsX64ELF(path);
@@ -1934,7 +1935,7 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
             newargv[toadd] = skip_first?from_ptrv(argv[skip_first]):path;
         }
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
-        int ret = execv(newargv[0], (char* const*)newargv);
+        ret = execv(newargv[0], (char* const*)newargv);
         box_free(newargv);
         return ret;
     }
@@ -1962,7 +1963,7 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
         newargv[2] = newstr;
     }
 do_exec:
-    int ret = execv(path, (void*)newargv);
+    ret = execv(path, (void*)newargv);
     box_free(newargv);
     return ret;
 }
