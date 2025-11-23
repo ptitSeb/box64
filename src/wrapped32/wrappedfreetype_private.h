@@ -163,7 +163,7 @@ GOM(FT_Set_Pixel_Sizes, iFEpuu)
 //GO(FT_Set_Renderer, iFppup)
 GOM(FT_Set_Transform, vFEppp)
 GOM(FT_Set_Var_Blend_Coordinates, iFEpup)
-//GO(FT_Set_Var_Design_Coordinates, iFpup)
+GOM(FT_Set_Var_Design_Coordinates, iFEpup)
 //GO(FT_Sfnt_Table_Info, iFpupp)
 //GO(FT_Sin, lFl)
 //GO(FT_Stream_OpenBzip2, 

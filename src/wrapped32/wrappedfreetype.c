@@ -2568,6 +2568,17 @@ EXPORT int my32_FT_Done_MM_Var(x64emu_t* emu, void* face, FT_MM_Var_32_t* amaste
     return ret;
 }
 
+EXPORT int my32_FT_Set_Var_Design_Coordinates(x64emu_t* emu, void* face, uint32_t num_coords, long_t* coords)
+{
+    long coords_l[num_coords];
+    for(int i=0; i<num_coords; ++i)
+        coords_l[i] = from_long(coords[i]);
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Set_Var_Design_Coordinates(face, num_coords, coords_l);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
 EXPORT int my32_FT_Set_Var_Blend_Coordinates(x64emu_t* emu, void* face, uint32_t num_coords, long_t* coords)
 {
     long coords_l[num_coords];

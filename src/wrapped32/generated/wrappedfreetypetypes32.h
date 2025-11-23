@@ -90,6 +90,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Set_Pixel_Sizes, iFpuu_t) \
 	GO(FT_Get_Var_Blend_Coordinates, iFpup_t) \
 	GO(FT_Set_Var_Blend_Coordinates, iFpup_t) \
+	GO(FT_Set_Var_Design_Coordinates, iFpup_t) \
 	GO(FT_Outline_EmboldenXY, iFpll_t) \
 	GO(FT_Load_Char, iFpLi_t) \
 	GO(FT_Get_BDF_Property, iFppp_t) \

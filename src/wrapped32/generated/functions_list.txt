@@ -2313,6 +2313,7 @@ wrappedfreetype:
 - iFpup:
   - FT_Get_Var_Blend_Coordinates
   - FT_Set_Var_Blend_Coordinates
+  - FT_Set_Var_Design_Coordinates
 - iFpll:
   - FT_Outline_EmboldenXY
 - iFpLi:
