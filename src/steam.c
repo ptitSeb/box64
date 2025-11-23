@@ -84,6 +84,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         if(p) {
             *p = '\0';
             strcat(sniper, "/../../");
+            #ifdef ARM64
             if(!getenv("BOX64_PYTHON3"))
             {
                 // find python3 binary
@@ -102,6 +103,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                     globfree(&g);
                 }
             }
+            #endif
             strcat(sniper, runtime);
         } else {
             printf_log(LOG_INFO, "Warning, could not guess sniper runtime path\n");
@@ -110,6 +112,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         printf_log(LOG_DEBUG, "pressure-vessel sniper env: %s\n", sniper);
         // TODO: read metadata from sniper folder and analyse [Environment] section
         strcat(sniper, "/files");  // this is the sniper root
+        #ifdef ARM64
         if(!getenv("BOX64_PYTHON3"))
         {
             // find python3 binary
@@ -128,6 +131,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                 globfree(&g);
             }
         }
+        #endif
         // do LD_LIBRARY_PATH
         {
             const char* usrsbinldconfig = "/usr/sbin/ldconfig";
