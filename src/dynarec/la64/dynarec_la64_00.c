@@ -1353,7 +1353,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP Ed");
             nextop = F8;
             if (MODREG) {
-                POP1z(xRAX + (nextop & 7) + (rex.b << 3));
+                POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
                 POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
