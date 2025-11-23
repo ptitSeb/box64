@@ -110,6 +110,24 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         printf_log(LOG_DEBUG, "pressure-vessel sniper env: %s\n", sniper);
         // TODO: read metadata from sniper folder and analyse [Environment] section
         strcat(sniper, "/files");  // this is the sniper root
+        if(!getenv("BOX64_PYTHON3"))
+        {
+            // find python3 binary
+            glob_t g = {0};
+            char tmp[MAX_PATH] = {0};
+            snprintf(tmp, sizeof(tmp), "%s/bin/python3*", sniper);
+            if(!glob(tmp, 0, NULL, &g)) {
+                int found = 0;
+                for(int i=0; i<g.gl_pathc && !found; ++i) {
+                    if(FileIsX64ELF(g.gl_pathv[i])) {
+                        found = 1;
+                        setenv("BOX64_PYTHON3", g.gl_pathv[i], 1);
+                        printf_log(LOG_DEBUG, "Found x86_64 python3 binary!");
+                    }
+                }
+                globfree(&g);
+            }
+        }
         // do LD_LIBRARY_PATH
         {
             const char* usrsbinldconfig = "/usr/sbin/ldconfig";
