@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
+#include <glob.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -83,6 +84,24 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         if(p) {
             *p = '\0';
             strcat(sniper, "/../../");
+            if(!getenv("BOX64_PYTHON3"))
+            {
+                // find python3 binary
+                glob_t g = {0};
+                char tmp[MAX_PATH] = {0};
+                snprintf(tmp, sizeof(tmp), "%svar/*/usr/bin/python3", sniper);
+                if(!glob(tmp, 0, NULL, &g)) {
+                    int found = 0;
+                    for(int i=0; i<g.gl_pathc && !found; ++i) {
+                        if(FileIsX64ELF(g.gl_pathv[i])) {
+                            found = 1;
+                            setenv("BOX64_PYTHON3", g.gl_pathv[i], 1);
+                            printf_log(LOG_DEBUG, "Found x86_64 python3 binary!");
+                        }
+                    }
+                    globfree(&g);
+                }
+            }
             strcat(sniper, runtime);
         } else {
             printf_log(LOG_INFO, "Warning, could not guess sniper runtime path\n");
