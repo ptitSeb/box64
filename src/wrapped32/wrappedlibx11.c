@@ -2056,13 +2056,22 @@ EXPORT int my32_XGetWindowAttributes(x64emu_t* emu, void* dpy, XID window, my_XW
 
 EXPORT int my32_XChangeProperty(x64emu_t* emu, void* dpy, XID window, XID prop, XID type, int fmt, int mode, void* data, int n)
 {
-    unsigned long data_l[n];
+    unsigned long data_l[10];
+    void* tmp = NULL;
+    unsigned long* pdata_l = (unsigned long*)&data_l;
     if(fmt==32) {
+        if(n>10) {
+            // there can be properties too big to fit on the stack
+            tmp = box_malloc(n*sizeof(unsigned long));
+            pdata_l = tmp;
+        }
         for(int i=0; i<n; ++i)
-            data_l[i] = from_ulong(((ulong_t*)data)[i]);
-        data = data_l;
+            pdata_l[i] = from_ulong(((ulong_t*)data)[i]);
+        data = pdata_l;
     }
-    return my->XChangeProperty(dpy, window, prop, type, fmt, mode, data, n);
+    int ret = my->XChangeProperty(dpy, window, prop, type, fmt, mode, data, n);
+    if(tmp)
+        box_free(tmp);
 }
 
 EXPORT void my32_XSetWMProperties(x64emu_t* emu, void* dpy, XID window, void* window_name, void* icon_name, ptr_t* argv, int argc, void* normal_hints, my_XWMHints_32_t* wm_hints, ptr_t* class_hints)
