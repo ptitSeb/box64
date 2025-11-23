@@ -182,7 +182,7 @@ void myStackAlignWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_
 void myStackAlignScanfValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
 void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va);
 void myStackAlignGVariantNewVa(x64emu_t* emu, const char* fmt, uint64_t* scratch, x64_va_list_t* b);
-void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm);
+void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int pos);
 #endif
 
 struct x64_stat64 {                   /* x86_64       arm64 */
