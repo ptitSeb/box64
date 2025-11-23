@@ -1193,12 +1193,12 @@
       {
         "key": "0",
         "description": "Does nothing.",
-        "default": false
+        "default": true
       },
       {
         "key": "1",
         "description": "Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected.",
-        "default": true
+        "default": false
       }
     ]
   },
