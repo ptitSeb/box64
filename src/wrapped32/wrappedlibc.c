@@ -1774,25 +1774,19 @@ static void convert_glob_to_64(void* d, void* s, int is64)
 
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    glob_t glob_l = {0};
+    glob64_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob\n");
     if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
         convert_glob_to_64(&glob_l, pglob, 0);
-    static iFpipp_t f = NULL;
-    if(!f) {
-        library_t* lib = my_lib;
-        if(!lib) return 0;
-        f = (iFpipp_t)dlsym(NULL, "glob");
-    }
-    int ret = f(pat, flags, findgloberrFct(errfnc), pglob);
+    int ret = glob64(pat, flags, findgloberrFct(errfnc), &glob_l);
     convert_glob_to_32(pglob, &glob_l, 0);
     return ret;
 }
 EXPORT void my32_globfree(x64emu_t* emu, void* pglob)
 {
-    glob_t glob_l = {0};
+    glob64_t glob_l = {0};
     convert_glob_to_64(&glob_l, pglob, 0);
-    globfree(&glob_l);
+    globfree64(&glob_l);
 }
 #ifndef ANDROID
 EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
@@ -1801,7 +1795,7 @@ EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob64\n");
     if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
         convert_glob_to_64(&glob_l, pglob, 1);
-    int ret = glob64(pat, flags, findgloberrFct(errfnc), pglob);
+    int ret = glob64(pat, flags, findgloberrFct(errfnc), &glob_l);
     convert_glob_to_32(pglob, &glob_l, 1);
     return ret;
 }
