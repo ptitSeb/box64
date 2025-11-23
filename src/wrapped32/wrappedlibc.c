@@ -1776,7 +1776,8 @@ EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, 
 {
     glob_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob\n");
-    convert_glob_to_64(&glob_l, pglob, 0);
+    if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
+        convert_glob_to_64(&glob_l, pglob, 0);
     static iFpipp_t f = NULL;
     if(!f) {
         library_t* lib = my_lib;
@@ -1798,7 +1799,8 @@ EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc
 {
     glob64_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob64\n");
-    convert_glob_to_64(&glob_l, pglob, 1);
+    if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
+        convert_glob_to_64(&glob_l, pglob, 1);
     int ret = glob64(pat, flags, findgloberrFct(errfnc), pglob);
     convert_glob_to_32(pglob, &glob_l, 1);
     return ret;
