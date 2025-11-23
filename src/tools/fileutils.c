@@ -20,6 +20,7 @@ static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x
 static const char* bashsign= "#!/bin/bash";
 static const char* shsign  = "#!/bin/sh";
 static const char* bashsign2="#!/usr/bin/env bash";
+static const char* pythonsign="#!/usr/bin/env python3";
 
 static char* ResolvePathInner(const char* path, int resolve_symlink) {
     if (resolve_symlink) {
@@ -114,6 +115,21 @@ int FileIsShell(const char* filename)
     if(!strncmp(head, bashsign, strlen(bashsign)))
         return 1;
     if(!strncmp(head, shsign, strlen(shsign)))
+        return 1;
+    return 0;
+}
+
+int FileIsPython(const char* filename)
+{
+    FILE *f = fopen(filename, "rb");
+    if(!f)
+        return 0;
+    char head[20] = {0};
+    int sz = fread(head, strlen(pythonsign), 1, f);
+    fclose(f);
+    if(sz!=1)
+        return 0;
+    if(!strncmp(head, pythonsign, strlen(pythonsign)))
         return 1;
     return 0;
 }

@@ -2304,24 +2304,26 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, my_context->envv, environ);
+    int python = (my_context->pythonpath && FileIsPython(path))?1:0;
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d python=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, python, my_context->envv, environ);
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
     #if 1
-    if (x64 || x86 || self || script) {
+    if (x64 || x86 || self || script || python) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        int toadd = script?2:1;
+        int toadd = (script || python)?2:1;
         const char** newargv = (const char**)alloca((n+1+toadd-skip_first)*sizeof(char*));
         memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        if(python) newargv[1] = emu->context->pythonpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
         if(self) newargv[toadd] = emu->context->fullpath;
         else {
@@ -2412,16 +2414,18 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
+    int python = (my_context->pythonpath && FileIsPython(fullpath))?1:0;
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x64, fullpath);
-    if (x64 || x86 || script || self) {
+    if (x64 || x86 || script || python || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        int toadd = script?2:1;
+        int toadd = (script || python)?2:1;
         char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
         memset(newargv, 0, (i+toadd+1)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        if(python) newargv[1] = emu->context->pythonpath; // script needs to be launched with bash
         for (int j=0; j<i; ++j)
             newargv[j+toadd] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;

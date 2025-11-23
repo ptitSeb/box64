@@ -119,6 +119,7 @@ typedef struct box64context_s {
     char*               box64path;      // path of current box64 executable
     char*               box86path;      // path of box86 executable (if present)
     char*               bashpath;       // path of x86_64 bash (defined with BOX64_BASH or by running bash directly)
+    char*               pythonpath;     // path of x86_64 python3 (defined with BOX64_PYTHON3)
 
     uint64_t            stacksz;
     size_t              stackalign;

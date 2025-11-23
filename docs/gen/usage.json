@@ -136,6 +136,19 @@
     ]
   },
   {
+    "name": "BOX64_PYTHON3",
+    "description": "Path to a python3 executable.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Use python3 executable at path XXXX.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_CEFDISABLEGPU",
     "description": "Add -cef-disable-gpu argument to the guest program.",
     "category": "Arguments",

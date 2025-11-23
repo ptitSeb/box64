@@ -301,6 +301,7 @@ void FreeBox64Context(box64context_t** context)
     box_free(ctx->fullpath);
     box_free(ctx->box64path);
     box_free(ctx->bashpath);
+    box_free(ctx->pythonpath);
 
     FreeBridge(&ctx->system);
 

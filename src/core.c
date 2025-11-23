@@ -808,6 +808,18 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             }
         }
     }
+    char* pythonpath = NULL;
+    {
+        char* p = BOX64ENV(python3);
+        if(p) {
+            if(FileIsX64ELF(p)) {
+                pythonpath = p;
+                printf_log(LOG_INFO, "Using python3 \"%s\"\n", pythonpath);
+            } else {
+                printf_log(LOG_INFO, "The x86_64 python3 \"%s\" is not an x86_64 binary.\n", p);
+            }
+        }
+    }
 
     // precheck, for win-preload
     const char* prog_ = strrchr(prog, '/');
@@ -1029,6 +1041,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         bashpath = ResolveFile("box64-bash", &my_context->box64_path);
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
+    if(pythonpath)
+        my_context->pythonpath = box_strdup(pythonpath);
 
     ApplyEnvFileEntry(box64_guest_name);
     if (box64_wine && box64_wine_guest_name) {
@@ -1184,6 +1198,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;
         int script = my_context->bashpath?FileIsShell(my_context->fullpath):0;
+        int python3 = my_context->pythonpath?FileIsPython(my_context->fullpath):0;
         printf_log(LOG_NONE, "Error: Reading elf header of %s, Try to launch %s instead\n", my_context->fullpath, x86?"using box86":(script?"using bash":"natively"));
         fclose(f);
         FreeCollection(&ld_preload);
@@ -1200,6 +1215,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             const char** newargv = (const char**)box_calloc(my_context->argc+3, sizeof(char*));
             newargv[0] = my_context->box64path;
             newargv[1] = my_context->bashpath;
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i+2] = my_context->argv[i];
+            ret = execvp(newargv[0], (char * const*)newargv);
+        } else if (python3) {
+            // duplicate the array and insert 1st arg as box64, 2nd is python3
+            const char** newargv = (const char**)box_calloc(my_context->argc+3, sizeof(char*));
+            newargv[0] = my_context->box64path;
+            newargv[1] = my_context->pythonpath;
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i+2] = my_context->argv[i];
             ret = execvp(newargv[0], (char * const*)newargv);

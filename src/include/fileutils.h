@@ -12,6 +12,7 @@ char* ResolveFileSoft(const char* filename, path_collection_t* paths);
 int FileIsX86ELF(const char* filename);
 int FileIsX64ELF(const char* filename);
 int FileIsShell(const char* filename);
+int FileIsPython(const char* filename);
 size_t FileSize(const char* filename);
 
 // return temp folder (will return /tmp if nothing is correct)
