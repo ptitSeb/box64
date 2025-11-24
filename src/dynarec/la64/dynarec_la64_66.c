@@ -289,6 +289,104 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
             break;
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg16 (32bits)");
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+            gd = TO_NAT(opcode & 7);
+            BSTRPICK_D(x1, gd, 15, 0);
+            emit_inc16(dyn, ninst, x1, x2, x3, x4);
+            BSTRINS_D(gd, x1, 15, 0);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg16 (32bits)");
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+            gd = TO_NAT(opcode & 7);
+            BSTRPICK_D(x1, gd, 15, 0);
+            emit_dec16(dyn, ninst, x1, x2, x3, x4, x5);
+            BSTRINS_D(gd, x1, 15, 0);
+            break;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH reg");
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            if (gd == xRSP) {
+                MV(x1, xRSP);
+                PUSH1_16(x1);
+            } else {
+                PUSH1_16(gd);
+            }
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            POP1_16(x1);
+            BSTRINS_D(gd, x1, 15, 0);
+            break;
+        case 0x60:
+            if (rex.is32bits) {
+                INST_NAME("PUSHA 16bits (32bits)");
+                MV(x1, xRSP);
+                PUSH1_16(xRAX);
+                PUSH1_16(xRCX);
+                PUSH1_16(xRDX);
+                PUSH1_16(xRBX);
+                PUSH1_16(x1);
+                PUSH1_16(xRBP);
+                PUSH1_16(xRSI);
+                PUSH1_16(xRDI);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x61:
+            if (rex.is32bits) {
+                INST_NAME("POPA 16bits (32bits)");
+                POP1_16(x1);
+                BSTRINS_D(xRDI, x1, 15, 0);
+                POP1_16(x1);
+                BSTRINS_D(xRSI, x1, 15, 0);
+                POP1_16(x1);
+                BSTRINS_D(xRBP, x1, 15, 0);
+                POP1_16(x1); // RSP ignored
+                POP1_16(x1);
+                BSTRINS_D(xRBX, x1, 15, 0);
+                POP1_16(x1);
+                BSTRINS_D(xRDX, x1, 15, 0);
+                POP1_16(x1);
+                BSTRINS_D(xRCX, x1, 15, 0);
+                POP1_16(x1);
+                BSTRINS_D(xRAX, x1, 15, 0);
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x64:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
             break;
@@ -570,6 +668,25 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 CBZ_NEXT(ed);
                 MOV32w(x1, u8);
                 CALL(const_getsegmentbase, -1, x1, x2);
+            }
+            break;
+        case 0x8F:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("POP Ew");
+                    POP1_16(x1);
+                    if (MODREG) {
+                        wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                        BSTRINS_D(wback, x1, 15, 0);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                        ST_H(x1, wback, fixedaddress);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0x90:
