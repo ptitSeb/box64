@@ -315,6 +315,12 @@ Path to the bash executable.
 
  * XXXX: Use bash executable at path XXXX. 
 
+### BOX64_PYTHON3
+
+Path to a python3 executable.
+
+ * XXXX: Use python3 executable at path XXXX. 
+
 ### BOX64_CPUTYPE
 
 Specify the CPU type to emulate. Available in WowBox64.
@@ -397,8 +403,8 @@ Detect libjvm and apply conservative settings.
 
 Detect libcef and apply BOX64_MALLOC_HACK settings.
 
- * 0: Does nothing. 
- * 1: Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected. [Default]
+ * 0: Does nothing. [Default]
+ * 1: Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected. 
 
 ### BOX64_MALLOC_HACK
 
@@ -603,6 +609,13 @@ Enable DynaRec execution comparison with the interpreter, very slow, only for te
  * 0: No comparison. [Default]
  * 1: Each opcode runs on interpreter and on Dynarec, regs and memory are compared and printed when they differ. 
  * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynarec is tested (inclusive-exclusive). 
+
+### BOX64_DYNAREC_TEST_NODUP
+
+Enable deduplication of IP address where COSIM find a difference Available in WowBox64.
+
+ * 0: Show all addresses in error [Default]
+ * 1: Show address in error only 1 time, even if dump might differs 
 
 ### BOX64_DYNAREC_TRACE
 

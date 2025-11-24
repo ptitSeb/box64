@@ -20,6 +20,24 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
+#include "khash.h"
+
+KHASH_SET_INIT_INT64(testerror)
+static kh_testerror_t    *testerror = NULL;
+
+static int is_duplicate(uintptr_t ip)
+{
+    if(BOX64ENV(dynarec_test_nodup)) {
+        if(!testerror)
+            testerror = kh_init(testerror);
+        khint_t k;
+        int ret;
+        k = kh_put(testerror, testerror, ip, &ret);
+        if(!ret) // key is present, already warned
+            return 1;
+    }
+    return 0;
+}
 
 void print_banner(x64emu_t* ref)
 {
@@ -39,106 +57,96 @@ void print_banner(x64emu_t* ref)
     printf_log(LOG_NONE, "------------------------------------------------\n");
     // printf_log(LOG_NONE, "%s\n", DumpCPURegs(ref, ref->old_ip, ref->segs[_CS]==0x23));
 }
-#define BANNER if(!banner) {banner=1; print_banner(ref);}
+#define BANNER(A) if(!banner) {duplicate=is_duplicate(ref->old_ip); banner=1; if(!duplicate) print_banner(ref);} if(!duplicate) { A }
 void x64test_check(x64emu_t* ref, uintptr_t ip)
 {
     int banner = 0;
+    int duplicate = 0;
     x64test_t* test = &ref->test;
     x64emu_t* emu = test->emu;
-    if(((uint8_t*)ref->old_ip)[0]==0xf0) {
-        // LOCK opcode creates a lot of false positive, so just ignore it
-        CopyEmu(emu, ref);
-        emu->tlsdata = ref->tlsdata;
-        return;
-    }
+
     if(memcmp(ref->regs, emu->regs, sizeof(emu->regs))) {
         static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
                                         " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
-        BANNER;
+        BANNER(
         for(int i=0; i<16; ++i) {
             if(ref->regs[i].q[0]!=emu->regs[i].q[0]) {
                 printf_log(LOG_NONE, "%s: %016zx | %016zx\n", regname[i], ref->regs[i].q[0], emu->regs[i].q[0]);
             }
-        }
+        })
     }
     if(ip!=emu->ip.q[0]) {
-        BANNER;
-        printf_log(LOG_NONE, "RIP: %016zx | %016zx\n", ip, emu->ip.q[0]);
+        BANNER(printf_log(LOG_NONE, "RIP: %016zx | %016zx\n", ip, emu->ip.q[0]);)
     }
     // flags are volatile, so don't test them
     //memcpy(&ref->eflags, &emu->eflags, sizeof(emu->eflags));
-    if(memcmp(ref->segs, emu->segs, sizeof(emu->segs))) {
+    if(!duplicate && memcmp(ref->segs, emu->segs, sizeof(emu->segs))) {
         static const char* segname[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
-        BANNER;
+        BANNER(
         for(int i=0; i<6; ++i) {
             if(ref->segs[i]!=emu->segs[i]) {
                 printf_log(LOG_NONE, "%s: %04x | %04x\n", segname[i], ref->segs[i], emu->segs[i]);
             }
-        }
+        })
     }
     if(ref->top != emu->top) {
-        BANNER;
-        printf_log(LOG_NONE, "X87 TOP: %d | %d\n", ref->top, emu->top);
+        BANNER(printf_log(LOG_NONE, "X87 TOP: %d | %d\n", ref->top, emu->top);)
     }
     if(ref->fpu_stack != emu->fpu_stack) {
-        BANNER;
-        printf_log(LOG_NONE, "X87 STACK: %d | %d\n", ref->fpu_stack, emu->fpu_stack);
+        BANNER(printf_log(LOG_NONE, "X87 STACK: %d | %d\n", ref->fpu_stack, emu->fpu_stack);)
     }
-    if(ref->fpu_stack && memcmp(ref->x87, emu->x87, sizeof(emu->x87))) {
+    if(ref->fpu_stack && !duplicate && memcmp(ref->x87, emu->x87, sizeof(emu->x87))) {
         // need to check each regs, unused one might have different left over value
         for(int i=0; i<ref->fpu_stack; ++i) {
             if(ref->x87[(ref->top+i)&7].d != emu->x87[(emu->top+i)&7].d) {
-                BANNER;
-                printf_log(LOG_NONE, "ST%d: %g(0x%lx) | %g(0x%lx)\n", i, ref->x87[(ref->top+i)&7].d, ref->x87[(ref->top+i)&7].q, emu->x87[(emu->top+i)&7].d, emu->x87[(emu->top+i)&7].q);
+                BANNER(
+                    printf_log(LOG_NONE, "ST%d: %g(0x%lx) | %g(0x%lx)\n", i, ref->x87[(ref->top+i)&7].d, ref->x87[(ref->top+i)&7].q, emu->x87[(emu->top+i)&7].d, emu->x87[(emu->top+i)&7].q);
+                )
             }
         }
     }
     //memcpy(ref->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     //memcpy(ref->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
     if(ref->fpu_tags != emu->fpu_tags) {
-        BANNER;
-        printf_log(LOG_NONE, "X87 TAGS: %x | %x\n", ref->fpu_tags, emu->fpu_tags);
+        BANNER(printf_log(LOG_NONE, "X87 TAGS: %x | %x\n", ref->fpu_tags, emu->fpu_tags);)
     }
     if(ref->cw.x16 != emu->cw.x16) {
-        BANNER;
-        printf_log(LOG_NONE, "X87 CW: %x | %x\n", ref->cw.x16, emu->cw.x16);
+        BANNER(printf_log(LOG_NONE, "X87 CW: %x | %x\n", ref->cw.x16, emu->cw.x16);)
     }
     if(ref->sw.x16 != emu->sw.x16) {
-        BANNER;
-        printf_log(LOG_NONE, "X87 SW: %x | %x\n", ref->sw.x16, emu->sw.x16);
+        BANNER(printf_log(LOG_NONE, "X87 SW: %x | %x\n", ref->sw.x16, emu->sw.x16);)
     }
-    if(memcmp(ref->mmx, emu->mmx, sizeof(emu->mmx))) {
-        BANNER;
+    if(!duplicate && memcmp(ref->mmx, emu->mmx, sizeof(emu->mmx))) {
+        BANNER(
         for(int i=0; i<8; ++i) {
             if(ref->mmx[i].q!=emu->mmx[i].q) {
                 printf_log(LOG_NONE, "EMM[%d]: %016x | %016x\n", i, ref->mmx[i].q, emu->mmx[i].q);
             }
-        }
+        })
     }
     if(ref->mxcsr.x32 != emu->mxcsr.x32) {
-        BANNER;
-        printf_log(LOG_NONE, "MXCSR: %x | %x\n", ref->mxcsr.x32, emu->mxcsr.x32);
+        BANNER(printf_log(LOG_NONE, "MXCSR: %x | %x\n", ref->mxcsr.x32, emu->mxcsr.x32);)
     }
     if(BOX64ENV(avx))
-        if(memcmp(ref->ymm, emu->ymm, sizeof(emu->ymm))) {
-            BANNER;
+        if(!duplicate && memcmp(ref->ymm, emu->ymm, sizeof(emu->ymm))) {
+            BANNER(
             for(int i=0; i<16; ++i) {
                 if(ref->ymm[i].u128!=emu->ymm[i].u128) {
                     printf_log(LOG_NONE, "YMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, ref->ymm[i].q[1], ref->ymm[i].q[0], emu->ymm[i].q[1], emu->ymm[i].q[0]);
                 }
-            }
+            })
         }
-    if(memcmp(ref->xmm, emu->xmm, sizeof(emu->xmm))) {
-        BANNER;
+    if(!duplicate && memcmp(ref->xmm, emu->xmm, sizeof(emu->xmm))) {
+        BANNER(
         for(int i=0; i<16; ++i) {
             if(ref->xmm[i].u128!=emu->xmm[i].u128) {
                 printf_log(LOG_NONE, "XMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, ref->xmm[i].q[1], ref->xmm[i].q[0], emu->xmm[i].q[1], emu->xmm[i].q[0]);
             }
-        }
+        })
     }
     if(test->memsize) {
-        if(memcmp(test->mem, (void*)test->memaddr, test->memsize)) {
-            BANNER;
+        if(!duplicate && memcmp(test->mem, (void*)test->memaddr, test->memsize)) {
+            BANNER(
             printf_log(LOG_NONE, "MEM: @%p :\n", (void*)test->memaddr);
             for(int i=0; i<test->memsize; ++i)
                 printf_log_prefix(0, LOG_NONE, " %02x", ((uint8_t*)test->memaddr)[i]);
@@ -146,6 +154,7 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
             for(int i=0; i<test->memsize; ++i)
                 printf_log_prefix(0, LOG_NONE, " %02x", test->mem[i]);
             printf_log_prefix(0, LOG_NONE, "\n");
+            )
         }
     }
     if(banner) { // there was an error, re-sync!

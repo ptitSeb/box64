@@ -815,6 +815,24 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_TEST_NODUP",
+    "description": "Enable deduplication of IP address where COSIM find a difference",
+    "category": "Debugging",
+    "wine": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Show all addresses in error",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Show address in error only 1 time, even if dump might differs",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_TRACE",
     "description": "Enable or disable DynaRec trace.",
     "category": "Debugging",
