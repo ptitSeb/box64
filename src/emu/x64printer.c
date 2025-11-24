@@ -1325,6 +1325,8 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIi32 ", %" PRIp ", %" PRIu64 ")", tid, *(void**)(R_RSP), func, (int32_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX);
     } else if (w == lFlll) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIi64 ", %" PRIi64 ", %" PRIi64 ")", tid, *(void**)(R_RSP), func, (intptr_t)R_RDI, (intptr_t)R_RSI, (intptr_t)R_RDX);
+    } else if (w == lFpip) {
+        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ", %" PRIi32 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX);
     } else if (w == lFpup) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ", %" PRIu32 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX);
     } else if (w == lFpli) {
@@ -2043,8 +2045,6 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIu32 ", %" PRIp ", %" PRIu32 ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX);
     } else if (w == iFuupp) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIu32 ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (void*)R_RCX);
-    } else if (w == iFupup) {
-        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIu32 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX);
     } else if (w == iFupLp) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIu64 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (void*)R_RCX);
     } else if (w == iFuppi) {
@@ -3273,6 +3273,8 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIu32 ", %" PRIu32 ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (uint32_t)R_RSI, (uint32_t)R_RDX, (void*)R_RCX, (void*)R_R8);
     } else if (w == iFuupid) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIu32 ", %" PRIp ", %" PRIi32 ", %" PRIf ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, emu->xmm[0].d[0]);
+    } else if (w == iFupupp) {
+        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIu32 ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX, (void*)R_R8);
     } else if (w == iFuppLp) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIp ", %" PRIu64 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (void*)R_R8);
     } else if (w == iFLppip) {
@@ -4307,6 +4309,8 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIu32 ", %" PRIi64 ", %" PRIi32 ", %" PRIi32 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (uint32_t)R_RSI, (int64_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (void*)R_R9);
     } else if (w == iFupupLp) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIu32 ", %" PRIp ", %" PRIu64 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX, (uintptr_t)R_R8, (void*)R_R9);
+    } else if (w == iFupuppp) {
+        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIu32 ", %" PRIp ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
     } else if (w == iFupLpLp) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIu32 ", %" PRIp ", %" PRIu64 ", %" PRIp ", %" PRIu64 ", %" PRIp ")", tid, *(void**)(R_RSP), func, (uint32_t)R_RDI, (void*)R_RSI, (uintptr_t)R_RDX, (void*)R_RCX, (uintptr_t)R_R8, (void*)R_R9);
     } else if (w == iFdipppL) {
