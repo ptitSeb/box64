@@ -100,6 +100,29 @@ int FileIsX86ELF(const char* filename)
     return 0;
 }
 
+int FileIsX64X86ELF(const char* filename)
+{
+    FILE *f = fopen(filename, "rb");
+    if(!f)
+        return 0;
+    char head[20] = {0};
+    int sz = fread(head, 20, 1, f);
+    fclose(f);
+    if(sz!=1) {
+        return 0;
+    }
+    head[7] = x64lib[7];   // this one changes
+    head[16]&=0xfe;
+    if(!memcmp(head, x86lib, 20))
+        return 1;
+    head[8] = x64lib[8];   // AppImage customized this
+    head[9] = x64lib[9];   // and this one too
+    head[10] = x64lib[10];   // and that last one too
+    if(!memcmp(head, x64lib, 20))
+        return 1;
+    return 0;
+}
+
 int FileIsShell(const char* filename)
 {
     FILE *f = fopen(filename, "rb");

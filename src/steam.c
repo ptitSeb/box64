@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <glob.h>
+#include <unistd.h>
 
 #include "debug.h"
 #include "box64context.h"
@@ -13,6 +14,53 @@
 #ifndef MAX_PATH
 #define MAX_PATH 4096
 #endif
+
+static void create_lib_symlink(const char* lib)
+{
+    char file[MAX_PATH] = {0};
+    char folder[MAX_PATH] = {0};
+    char tmp[MAX_PATH] = {0};
+    char* p = strrchr(lib, '/');
+    if(!p) return;  // no folder?
+    strcpy(file, p+1);
+    p = strrchr(file, '.');
+    if(!p) return; //no '.' in name?
+    *p = '\0';
+    strcpy(folder, lib);
+    *(strrchr(folder, '/')) = '\0';
+    snprintf(tmp, sizeof(tmp), "%s/%s", folder, file);
+    if(FileExist(tmp, IS_FILE)) return; // already there
+    strcpy(file, strrchr(lib, '/')+1);
+    printf_log(LOG_DEBUG, "Creating symlinks %s -> %s\n", tmp, file);
+    symlink(file, tmp);
+}
+
+static void create_libs_symlink(const char* folder)
+{
+    glob_t g = {0};
+    char tmp[MAX_PATH] = {0};
+    // start with lib*.so.X.X.XXX
+    snprintf(tmp, sizeof(tmp), "%s/lib*.so.*.*.*", folder);
+    if(!glob(tmp, 0, NULL, &g)) {
+        printf_log(LOG_DEBUG, "Creating symlinks for %s\n", folder);
+        for(int i=0; i<g.gl_pathc; ++i) {
+            if(FileIsX64X86ELF(g.gl_pathv[i])) {
+                create_lib_symlink(g.gl_pathv[i]);
+            }
+        }
+        globfree(&g);
+    }
+    // then do lib*.so.X.X
+    snprintf(tmp, sizeof(tmp), "%s/lib*.so.*.*", folder);
+    if(!glob(tmp, 0, NULL, &g)) {
+        for(int i=0; i<g.gl_pathc; ++i) {
+            if(FileIsX64X86ELF(g.gl_pathv[i])) {
+                create_lib_symlink(g.gl_pathv[i]);
+            }
+        }
+        globfree(&g);
+    }
+}
 
 void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 {
@@ -134,26 +182,18 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         #endif
         // do LD_LIBRARY_PATH
         {
-            const char* usrsbinldconfig = "/usr/sbin/ldconfig";
-            const char* sbinldconfig = "/sbin/ldconfig";
-            const char* ldconfig = "ldconfig";
-            const char* ldcmd = ldconfig;
-            if(FileExist(usrsbinldconfig, IS_FILE))
-                ldcmd = usrsbinldconfig;
-            else if(FileExist(sbinldconfig, IS_FILE))
-                ldcmd = sbinldconfig;
-            char tmp[MAX_PATH*5] = {0};
-            // prepare folders, using ldconfig
-            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib/x86_64-linux-gnu", ldcmd, sniper);
-            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib/i386-linux-gnu", ldcmd, sniper);
-            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib", ldcmd, sniper);
-            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib64", ldcmd, sniper);
-            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib32", ldcmd, sniper);
-            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
+            char tmp[MAX_PATH] = {0};
+            // prepare folders, using a fake ldconfig: sp just create the symlinks
+            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu", sniper);
+            create_libs_symlink(tmp);
+            snprintf(tmp, sizeof(tmp), "%s/lib/i386-linux-gnu", sniper);
+            create_libs_symlink(tmp);
+            snprintf(tmp, sizeof(tmp), "%s/lib", sniper);
+            create_libs_symlink(tmp);
+            snprintf(tmp, sizeof(tmp), "%s/lib64", sniper);
+            create_libs_symlink(tmp);
+            snprintf(tmp, sizeof(tmp), "%s/lib32", sniper);
+            create_libs_symlink(tmp);
             // setup LD_LIBRARY_PATH
             const char* ld = getenv("LD_LIBRARY_PATH");
             char tmp2[4096];
