@@ -314,6 +314,15 @@ static const scwrap_t syscallwrap[] = {
     // TODO: implement fallback if __NR_statx is not defined
     [332] = {__NR_statx, 5},
     #endif
+    #ifdef __NR_io_uring_setup
+    [425] = {__NR_io_uring_setup, 2},
+    #endif
+    #ifdef __NR_io_uring_enter
+    [426] = {__NR_io_uring_enter, 6},
+    #endif
+    #ifdef __NR_io_uring_register
+    [427] = {__NR_io_uring_register, 4},
+    #endif
     #ifdef __NR_fchmodat4
     [434] = {__NR_fchmodat4, 4},
     #endif
