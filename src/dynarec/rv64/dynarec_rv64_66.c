@@ -676,8 +676,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 B_MARK2_nocond;
 
                 MARK;
+                SMDMB();
                 LHU(x1, ed, 0);
                 SH(gd, ed, 0);
+                SMDMB();
 
                 MARK2;
                 INSHz(gd, x1, x3, x4, 1, 0);
