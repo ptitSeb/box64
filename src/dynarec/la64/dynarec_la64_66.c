@@ -479,6 +479,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                ANDI(x3, wback, 1);
+                BEQ_MARK(x3, xZR);
+                SMDMB();
+                LD_HU(x1, wback, 0);
+                ST_H(gd, wback, 0);
+                SMDMB();
+                BSTRINS_D(gd, x1, 15, 0);
+                B_NEXT_nocond;
+                MARK;
                 if (cpuext.lam_bh) {
                     AMSWAP_DB_H(x1, gd, wback);
                 } else if (cpuext.lamcas) {
