@@ -136,7 +136,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MARK2;
                         BSTRINS_D(xRAX, x1, 15, 0);
                         MARK;
-                        UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5, x6); }
+                        UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5, x7); }
                     }
                     break;
                 case 0xB3:

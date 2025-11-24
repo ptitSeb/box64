@@ -126,7 +126,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x2, x3);
             }
-            d1 = fpu_get_scratch(dyn);
             if (rex.w) {
                 MOVGR2FR_D(d1, ed);
                 FFINT_D_L(d1, d1);

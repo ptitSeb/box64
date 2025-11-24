@@ -393,11 +393,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             GETGX_empty(v0);
             if (v0 == v1) {
-                // clear upper bits..
-                q1 = fpu_get_scratch(dyn);
-                VXOR_V(q1, q1, q1);
-                VEXTRINS_D(q1, v1, 0); // q1[63:0] = v1[63:0]
-                VOR_V(v0, q1, q1);
+                VINSGR2VR_D(v0, xZR, 1);
             } else {
                 VXOR_V(v0, v0, v0);
                 VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
