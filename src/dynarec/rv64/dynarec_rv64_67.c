@@ -595,8 +595,8 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i64 = F32S;
                     else
                         i64 = F8S;
-                    MOV64xw(x5, i64);
-                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x5);
+                    MOV64xw(x6, i64);
+                    emit_sbb32(dyn, ninst, rex, ed, x6, x3, x4, x5);
                     WBACK;
                     break;
                 case 4: // AND

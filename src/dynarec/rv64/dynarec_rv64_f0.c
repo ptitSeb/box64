@@ -240,22 +240,16 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0xB1:
                     switch (rep) {
                         case 0:
-                            INST_NAME("LOCK CMPXCHG Ed, Gd");
-                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                             nextop = F8;
-                            GETGD;
                             if (MODREG) {
-                                ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                                wback = 0;
-                                UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5, x6); }
-                                MV(x1, ed); // save value
-                                SUBxw(x2, ed, xRAX);
-                                BNE_MARK2(x2, xZR);
-                                MVxw(ed, gd);
-                                if (!rex.w) { B_NEXT_nocond; }
-                                MARK2;
-                                MVxw(xRAX, x1);
+                                INST_NAME("Invalid LOCK");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
                             } else {
+                                INST_NAME("LOCK CMPXCHG Ed, Gd");
+                                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                                GETGD;
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 UFLAG_IF { MVxw(x6, xRAX); }
                                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
@@ -276,17 +270,17 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ANDI(x5, wback, -(1 << (rex.w + 2)));
                                 MARKLOCK2;
                                 LDxw(x1, wback, 0);
-                                LRxw(x6, x5, 1, 1);
+                                LRxw(x7, x5, 1, 1);
                                 SUBxw(x3, x1, xRAX);
                                 BNEZ(x3, 4 + (rex.w ? 12 : 16));
                                 // EAX == Ed
-                                SCxw(x4, x6, x5, 1, 1);
+                                SCxw(x4, x7, x5, 1, 1);
                                 BNEZ_MARKLOCK2(x4);
                                 SDxw(gd, wback, 0);
                                 if (!rex.w) { B_MARK_nocond; }
                                 MVxw(xRAX, x1);
                                 MARK;
-                                UFLAG_IF { emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5, x6); }
+                                UFLAG_IF { emit_cmp32(dyn, ninst, rex, x6, x1, x3, x4, x5, x7); }
                             }
                             break;
                         default:
