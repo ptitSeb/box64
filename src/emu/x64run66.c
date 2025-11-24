@@ -409,8 +409,9 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x8F:                              /* POP Ew */
         nextop = F8;
+        tmp16u = Pop16(emu);    // to handle pop [RSP] stuffs
         GETEW(0);
-        EW->word[0] = Pop16(emu);
+        EW->word[0] = tmp16u;
         break;
     case 0x90:                      /* NOP or XCHG R8d, AX*/
     case 0x91:
