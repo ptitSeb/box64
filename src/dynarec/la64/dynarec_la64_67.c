@@ -33,6 +33,8 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int unscaled;
     int8_t  i8;
     uint8_t u8;
+    uint32_t u32;
+    uint64_t u64;
     int32_t i32;
     int64_t j64, i64;
     int cacheupd = 0;
@@ -242,6 +244,18 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH reg");
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            PUSH1(gd);
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
@@ -441,6 +455,24 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else { // mem <= reg
                 addr = geted32(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
                 ZEROUP2(gd, ed);
+            }
+            break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
+            if (rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
             }
             break;
         case 0xE8:
