@@ -341,7 +341,7 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
     return ret;
 }
 
-void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
+void* my_dlsym_internal(x64emu_t* emu, void *handle, void *symbol, int version, const char* vername)
 {
     (void)emu;
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -352,10 +352,9 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     if(box64_is32bits && handle==(void*)0xffffffff)
         handle = (void*)~0LL;
     CLEARERR;
-    printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, rsymbol, BOX64ENV(dlsym_error)?"":"\n");
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) {
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername, 0, NULL)) {
             printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
             pthread_mutex_unlock(&mutex);
             return (void*)start;
@@ -375,12 +374,15 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         #endif
             ret_addr = *(uintptr_t*)R_RSP;
         elfheader_t *elf = FindElfAddress(my_context, ret_addr); // use return address to guess "self"
-        if(GetNextSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL, 0, NULL)) {
+        if(GetNextSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername, 0, NULL)) {
             printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
             pthread_mutex_unlock(&mutex);
             return (void*)start;
         }
-        SET_ERROR("Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        if(version==-1)
+            SET_ERROR("Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        else
+            SET_ERROR("Symbol \"%s@%s\" not found in %p)\n", rsymbol, vername, handle);
         printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
         pthread_mutex_unlock(&mutex);
         return NULL;
@@ -401,11 +403,17 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         return NULL;
     }
     if(dl->dllibs[nlib].lib) {
-        if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, -1, NULL)==0) {
+        if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, version, vername)==0) {
             // not found
-            printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol);
+            if(version==-1)
+                printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol);
+            else
+                printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", \"%s\") Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol, vername?vername:"NULL");
             printf_log_prefix(0, LOG_DEBUG, " Symbol not found\n");
-            SET_ERROR("Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->dllibs[nlib].lib));
+            if(version==-1)
+                SET_ERROR("Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->dllibs[nlib].lib));
+            else
+                SET_ERROR("Symbol \"%s@%s\" not found in %p(%s)", rsymbol, vername, handle, GetNameLib(dl->dllibs[nlib].lib));
             pthread_mutex_unlock(&mutex);
             return NULL;
         }
@@ -425,7 +433,10 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
             pthread_mutex_unlock(&mutex);
             return (void*)start;
         }
-        SET_ERROR("Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        if(version==-1)
+            SET_ERROR("Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        else
+            SET_ERROR("Symbol \"%s@%s\" not found in %p)\n", rsymbol, vername, handle);
         printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
         pthread_mutex_unlock(&mutex);
         return NULL;
@@ -434,6 +445,18 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     pthread_mutex_unlock(&mutex);
     return (void*)start;
 }
+void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
+{
+    printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, symbol, BOX64ENV(dlsym_error)?"":"\n");
+    return my_dlsym_internal(emu, handle, symbol, -1, NULL);
+}
+void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
+{
+    int version = (vername)?2:-1;
+    printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, symbol, vername?vername:"(nil)", BOX64ENV(dlsym_error)?"":"\n");
+    return my_dlsym_internal(emu, handle, symbol, version, vername);
+}
+
 static int actualy_closing = 0;
 int my_dlclose(x64emu_t* emu, void *handle)
 {
@@ -495,80 +518,6 @@ int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 int my_dladdr(x64emu_t* emu, void *addr, void *i)
 {
     return my_dladdr1(emu, addr, i, NULL, 0);
-}
-void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
-{
-    dlprivate_t *dl = my_context->dlprivate;
-    int version = (vername)?2:-1;
-    uintptr_t start, end;
-    char* rsymbol = (char*)symbol;
-    if(box64_is32bits && handle==(void*)0xffffffff)
-        handle = (void*)~0LL;
-    CLEARERR;
-    printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", BOX64ENV(dlsym_error)?"":"\n");
-    if(handle==NULL) {
-        // special case, look globably
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername, 0, NULL)) {
-            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        SET_ERROR("Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
-        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
-        return NULL;
-    }
-    if(handle==(void*)~0LL) {
-        // special case, look globably but no self (RTLD_NEXT)
-        uintptr_t ret_addr = 0;
-        #ifdef BOX32
-        if(box64_is32bits)
-            ret_addr = from_ptri(ptr_t, R_ESP);
-        else
-        #endif
-            ret_addr = *(uintptr_t*)R_RSP;
-        elfheader_t *elf = FindElfAddress(my_context, ret_addr); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername, 0, NULL)) {
-                printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        SET_ERROR("Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
-            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
-        return NULL;
-    }
-    size_t nlib = (size_t)handle;
-    --nlib;
-    // size_t is unsigned
-    if(nlib>=dl->lib_sz) {
-        SET_ERROR("Bad handle %p)\n", handle);
-        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", NULL);
-        return NULL;
-    }
-    if(!dl->dllibs[nlib].count || !dl->dllibs[nlib].full) {
-        SET_ERROR("Bad handle %p (already closed))\n", handle);
-        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)NULL);
-        return NULL;
-    }
-    if(dl->dllibs[nlib].lib) {
-        if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, version, vername)==0) {
-            // not found
-                printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol, vername?vername:"(nil)");
-            printf_log(LOG_DEBUG, " Symbol not found\n");
-            SET_ERROR("Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->dllibs[nlib].lib));
-            return NULL;
-        }
-    } else {
-        // still usefull?
-        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL, 0, NULL)) {
-            printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        // not found
-            printf_dlsym_prefix(0, LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, "Self", rsymbol, vername?vername:"(nil)");
-        printf_log(LOG_DEBUG, " Symbol not found\n");
-        SET_ERROR("Symbol \"%s\" version %s not found in %p)\n", rsymbol, vername?vername:"(nil)", handle);
-        return NULL;
-    }
-        printf_dlsym_prefix(0, LOG_NEVER, "%p\n", (void*)start);
-    return (void*)start;
 }
 
 int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
