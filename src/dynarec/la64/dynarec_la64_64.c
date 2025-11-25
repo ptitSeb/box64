@@ -88,6 +88,15 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEDO(x4, 0);
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
+        case 0x0A:
+            INST_NAME("OR Gb, Seg:Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+            GETGB(x1);
+            GETEBO(x4, 0);
+            emit_or8(dyn, ninst, gd, ed, x5, x6);
+            break;
         case 0x0B:
             INST_NAME("OR Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -235,6 +244,14 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("NOP (multibyte)");
                     nextop = F8;
                     FAKEED;
+                    break;
+                case 0x24:
+                    INST_NAME("AND AL, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    u8 = F8;
+                    ANDI(x1, xRAX, 0xff);
+                    emit_and8c(dyn, ninst, x1, u8, x3, x4);
+                    BSTRINS_D(xRAX, x1, 7, 0);
                     break;
                 case 0x28:
                     switch (rep) {
@@ -406,6 +423,12 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETEDO(x4, 0);
             emit_sbb32(dyn, ninst, rex, gd, ed, x3, x5, x6);
+            break;
+        case 0x25:
+            INST_NAME("AND EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            i64 = F32S;
+            emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
