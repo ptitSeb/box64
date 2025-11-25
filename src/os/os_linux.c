@@ -194,12 +194,14 @@ int InternalMunmap(void* addr, unsigned long length)
 
 extern FILE* ftrace;
 extern char* ftrace_name;
+static int trace_fd = -1;
 
 static void checkFtrace()
 {
-    int fd = fileno(ftrace);
-    if (fd < 0 || lseek(fd, 0, SEEK_CUR) == (off_t)-1) {
+    trace_fd = fileno(ftrace);
+    if (trace_fd < 0 || lseek(trace_fd, 0, SEEK_CUR) == (off_t)-1) {
         ftrace = fopen(ftrace_name, "a");
+        trace_fd = fileno(ftrace);
         printf_log(LOG_INFO, "%04d|Recreated trace because fd was invalid\n", GetTID());
     }
 }
@@ -208,22 +210,28 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
 {
     if (ftrace_name) {
         checkFtrace();
-    }
+    } else if(trace_fd==-1)
+        trace_fd = fileno(ftrace);
+    // using a combinaison of (v)sprintf an write as it's re-entrant, not like (v)fprintf
 
     static const char* names[2] = { "BOX64", "BOX32" };
 
+    char tmp[8192];
+
     if (prefix && (ftrace == stdout || ftrace == stderr)) {
         if (prefix > 1) {
-            fprintf(ftrace, "[\033[31m%s\033[0m] ", names[box64_is32bits]);
+            sprintf(tmp, "[\033[31m%s\033[0m] ", names[box64_is32bits]);
         } else {
-            fprintf(ftrace, "[%s] ", names[box64_is32bits]);
+            sprintf(tmp, "[%s] ", names[box64_is32bits]);
         }
+        write(trace_fd, tmp, strlen(tmp));
     }
     va_list args;
     va_start(args, fmt);
-    vfprintf(ftrace, fmt, args);
+    vsprintf(tmp, fmt, args);
     fflush(ftrace);
     va_end(args);
+    write(trace_fd, tmp, strlen(tmp));
 }
 
 void* GetEnv(const char* name)
