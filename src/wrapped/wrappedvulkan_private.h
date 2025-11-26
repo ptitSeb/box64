@@ -1073,3 +1073,6 @@ GO(vkGetDataGraphPipelineSessionBindPointRequirementsARM, iFpppp)
 GO(vkGetDataGraphPipelineSessionMemoryRequirementsARM, vFppp)
 GO(vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM, vFppp)
 GO(vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM, iFpupp)
+
+// VK_ARM_performance_counters_by_region
+GO(vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM, iFpuppp)
