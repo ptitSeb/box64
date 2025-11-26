@@ -8,6 +8,7 @@
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
 #include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -50,6 +51,52 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     GETREX();
 
     switch (opcode) {
+        case 0x01:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("Invalid LOCK");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {
+                INST_NAME("LOCK ADD Ew, Gw");
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                GETGW(x5);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                if (cpuext.lam_bh) {
+                    AMADD_DB_H(x1, x5, wback);
+                } else {
+                    ANDI(x3, wback, 0b10);
+                    BNEZ_MARK(x3);
+                    // lower 16 bits
+                    MARKLOCK;
+                    LL_W(x1, wback, 0);
+                    ADD_D(x4, x1, x5);
+                    MV(x3, x1);
+                    BSTRINS_D(x3, x4, 15, 0);
+                    SC_W(x3, wback, 0);
+                    BEQZ_MARKLOCK(x3);
+                    B_MARK3_nocond;
+                    MARK;
+                    // upper 16 bits
+                    XORI(wback, wback, 0b10);
+                    MARK2;
+                    LL_W(x1, wback, 0);
+                    BSTRPICK_D(x3, x1, 15, 0);
+                    SRLI_W(x1, x1, 16);
+                    ADD_D(x4, x1, x5);
+                    BSTRINS_D(x3, x4, 31, 15);
+                    SC_W(x3, wback, 0);
+                    BEQZ_MARK2(x3);
+                    MARK3;
+                }
+                // final
+                IFXORNAT (X_ALL | X_PEND) {
+                    BSTRPICK_D(x6, x1, 15, 0);
+                    emit_add16(dyn, ninst, x6, x5, x3, x4, x6);
+                }
+            }
+            break;
         case 0x0F:
             nextop = F8;
             switch (nextop) {
@@ -258,6 +305,53 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             DEFAULT;
                     }
                     break;
+                case 0xC1:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK XADD Gw, Ew");
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETGD;
+                        BSTRPICK_D(x5, gd, 15, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (cpuext.lam_bh) {
+                            AMADD_DB_H(x1, x5, wback);
+                        } else {
+                            ANDI(x3, wback, 0b10);
+                            BNEZ_MARK(x3);
+                            // lower 16 bits
+                            MARKLOCK;
+                            LL_W(x1, wback, 0);
+                            ADD_D(x4, x1, x5);
+                            MV(x3, x1);
+                            BSTRINS_D(x3, x4, 15, 0);
+                            SC_W(x3, wback, 0);
+                            BEQZ_MARKLOCK(x3);
+                            B_MARK3_nocond;
+                            MARK;
+                            // upper 16 bits
+                            XORI(wback, wback, 0b10);
+                            MARK2;
+                            LL_W(x1, wback, 0);
+                            BSTRPICK_D(x3, x1, 15, 0);
+                            SRLI_W(x1, x1, 16);
+                            ADD_D(x4, x1, x5);
+                            BSTRINS_D(x3, x4, 31, 15);
+                            SC_W(x3, wback, 0);
+                            BEQZ_MARK2(x3);
+                            MARK3;
+                        }
+                        IFXORNAT (X_ALL | X_PEND) {
+                            BSTRPICK_D(x6, x1, 15, 0);
+                            emit_add16(dyn, ninst, x6, gd, x3, x4, x5);
+                        }
+                        BSTRINS_D(gd, x1, 15, 0);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
@@ -267,23 +361,18 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 0: // ADD
-                    if (opcode == 0x81) {
-                        INST_NAME("LOCK ADD Ew, Iw");
-                    } else {
-                        INST_NAME("LOCK ADD Ew, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (MODREG) {
-                        if (opcode == 0x81)
-                            u64 = F16;
-                        else
-                            u64 = (uint16_t)(int16_t)F8S;
-                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        MOV64x(x5, u64);
-                        BSTRPICK_D(x6, ed, 15, 0);
-                        emit_add16(dyn, ninst, x6, x5, x3, x4, x2);
-                        BSTRINS_D(ed, x6, 15, 0);
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
                     } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK ADD Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK ADD Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
                         if (opcode == 0x81)
                             u64 = F16;
@@ -304,9 +393,6 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BSTRINS_D(x3, x4, 15, 0);
                             SC_W(x3, wback, 0);
                             BEQZ_MARKLOCK(x3);
-                            IFXORNAT (X_ALL | X_PEND) {
-                                BSTRPICK_D(x1, x1, 15, 0);
-                            }
                             B_MARK3_nocond;
                             MARK;
                             // upper 16 bits
@@ -323,7 +409,107 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                         // final
                         IFXORNAT (X_ALL | X_PEND) {
-                            emit_add16(dyn, ninst, x1, x5, x3, x4, x6);
+                            BSTRPICK_D(x6, x1, 15, 0);
+                            emit_add16(dyn, ninst, x6, x5, x3, x4, x6);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0xFF:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK INC Ew");
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (cpuext.lam_bh) {
+                            ADDI_D(x5, xZR, 1);
+                            AMADD_DB_H(x1, x5, wback);
+                        } else {
+                            ANDI(x3, wback, 0b10);
+                            BNEZ_MARK(x3);
+                            // lower 16 bits
+                            MARKLOCK;
+                            LL_W(x1, wback, 0);
+                            ADDI_D(x4, x1, 1);
+                            MV(x3, x1);
+                            BSTRINS_D(x3, x4, 15, 0);
+                            SC_W(x3, wback, 0);
+                            BEQZ_MARKLOCK(x3);
+                            B_MARK3_nocond;
+                            MARK;
+                            // upper 16 bits
+                            XORI(wback, wback, 0b10);
+                            MARK2;
+                            LL_W(x1, wback, 0);
+                            BSTRPICK_D(x3, x1, 15, 0);
+                            SRLI_W(x1, x1, 16);
+                            ADDI_D(x4, x1, 1);
+                            BSTRINS_D(x3, x4, 31, 15);
+                            SC_W(x3, wback, 0);
+                            BEQZ_MARK2(x3);
+                            MARK3;
+                        }
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            if (!cpuext.lam_bh) ADDI_D(x5, xZR, 1);
+                            BSTRPICK_D(x6, x1, 15, 0);
+                            emit_add16(dyn, ninst, x6, x5, x3, x4, x6);
+                        }
+                    }
+                    break;
+                case 1:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK DEC Ew");
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (cpuext.lam_bh) {
+                            ADDI_D(x5, xZR, -1);
+                            AMADD_DB_H(x1, x5, wback);
+                        } else {
+                            ANDI(x3, wback, 0b10);
+                            BNEZ_MARK(x3);
+                            // lower 16 bits
+                            MARKLOCK;
+                            LL_W(x1, wback, 0);
+                            ADDI_D(x4, x1, -1);
+                            MV(x3, x1);
+                            BSTRINS_D(x3, x4, 15, 0);
+                            SC_W(x3, wback, 0);
+                            BEQZ_MARKLOCK(x3);
+                            B_MARK3_nocond;
+                            MARK;
+                            // upper 16 bits
+                            XORI(wback, wback, 0b10);
+                            MARK2;
+                            LL_W(x1, wback, 0);
+                            BSTRPICK_D(x3, x1, 15, 0);
+                            SRLI_W(x1, x1, 16);
+                            ADDI_D(x4, x1, -1);
+                            BSTRINS_D(x3, x4, 31, 15);
+                            SC_W(x3, wback, 0);
+                            BEQZ_MARK2(x3);
+                            MARK3;
+                        }
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            if (!cpuext.lam_bh) ADDI_D(x5, xZR, -1);
+                            BSTRPICK_D(x6, x1, 15, 0);
+                            emit_add16(dyn, ninst, x6, x5, x3, x4, x6);
                         }
                     }
                     break;
