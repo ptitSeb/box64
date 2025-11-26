@@ -10,6 +10,7 @@
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
 #include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -759,6 +760,43 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
         NATIVE_RESTORE_X87PC();
     // SET_NODF();
     dyn->last_ip = 0;
+}
+
+void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
+{
+    MAYUSE(fnc);
+    fpu_pushcache(dyn, ninst, x3, 1);
+    ST_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
+    ST_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
+    ST_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
+    // check if additional sextw needed
+    int sextw_mask = ((w > 0 ? w : -w) >> 4) & 0b111111;
+    for (int i = 0; i < 6; i++) {
+        if (sextw_mask & (1 << i)) {
+            SEXT_W(A0 + i, A0 + i);
+        }
+    }
+    // native call
+    if (dyn->need_reloc) {
+        // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
+        TABLE64(x3, (uintptr_t)fnc);
+        LD_D(x3, x3, 0);
+    } else {
+        TABLE64_(x3, *(uintptr_t*)fnc); // using x16 as scratch regs for call address
+    }
+    JIRL(xRA, x3, 0x0);
+    // put return value in x64 regs
+    if (w > 0) {
+        MV(xRAX, A0);
+        MV(xRDX, A1);
+    }
+    // all done, restore all regs
+    LD_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
+    LD_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
+    LD_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
+    fpu_popcache(dyn, ninst, x3, 1);
+    NATIVE_RESTORE_X87PC();
+    // SET_NODF();
 }
 
 void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg)

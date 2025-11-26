@@ -2266,23 +2266,33 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    x87_stackcount(dyn, ninst, x1);
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
-
-                    // FIXME: Even the basic support of isSimpleWrapper is disabled for now.
-
-                    GETIP(ip + 1, x7); // read the 0xCC
-                    STORE_XEMU_CALL();
-                    ADDI_D(x3, xRIP, 8 + 8 + 2);                        // expected return address
-                    ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                    CALL_(const_int3, -1, x3, x1, 0);
-                    LOAD_XEMU_CALL();
-                    addr += 8 + 8;
-                    BNE_MARK(xRIP, x3);
-                    LD_W(x1, xEmu, offsetof(x64emu_t, quit));
-                    CBZ_NEXT(x1);
-                    MARK;
-                    jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                    // Partially support isSimpleWrapper
+                    tmp = isSimpleWrapper(*(wrapper_t*)(addr));
+                    if (isRetX87Wrapper(*(wrapper_t*)(addr)))
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
+                    if (tmp < 0 || (tmp & 15) > 1)
+                        tmp = 0; // TODO: removed when FP is in place
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
+                        call_n(dyn, ninst, (void*)(addr + 8), tmp);
+                        addr += 8 + 8;
+                    } else {
+                        GETIP(ip + 1, x7); // read the 0xCC
+                        STORE_XEMU_CALL();
+                        ADDI_D(x3, xRIP, 8 + 8 + 2);                        // expected return address
+                        ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                        CALL_(const_int3, -1, x3, x1, 0);
+                        LOAD_XEMU_CALL();
+                        addr += 8 + 8;
+                        BNE_MARK(xRIP, x3);
+                        LD_W(x1, xEmu, offsetof(x64emu_t, quit));
+                        CBZ_NEXT(x1);
+                        MARK;
+                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                    }
                 }
             } else {
                 INST_NAME("INT 3");
@@ -2821,18 +2831,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {
-                        // FIXME: Add basic support for isSimpleWrapper
-                        tmp = 0; // isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
+                        // Partially support isSimpleWrapper
+                        tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
                     } else
                         tmp = 0;
-                    if (tmp < 0 || tmp > 1)
+                    if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
-                    // FIXME: if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
-                    //     // return value will be on the stack, so the stack depth needs to be updated
-                    //     x87_purgecache(dyn, ninst, 0, x3, x1, x4);
+                    if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
-                        // GETIP(ip+3+8+8, x7); // read the 0xCC
-                        // FIXME: call_n(dyn, ninst, (void*)(dyn->insts[ninst].natcall + 2 + 8), tmp);
+                        call_n(dyn, ninst, (void*)(dyn->insts[ninst].natcall + 2 + 8), tmp);
                         POP1(xRIP); // pop the return address
                         dyn->last_ip = addr;
                     } else {

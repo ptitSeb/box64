@@ -841,17 +841,17 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	allowed_conv = conventions[allowed_conv_ident]
 	
 	# H could be allowed maybe?
-	allowed_simply: Dict[str, str] = {"ARM64": "v", "RV64": "v"}
-	allowed_regs  : Dict[str, str] = {"ARM64": "cCwWiuIUlLp", "RV64": "CWIUlLp"}
-	allowed_fpr   : Dict[str, str] = {"ARM64": "fd", "RV64": "fd"}
-	allowed_sextw : Dict[str, str] = {"ARM64": "", "RV64": "cwiu"}
+	allowed_simply: Dict[str, str] = {"ARM64": "v", "RV64": "v", "LA64": "v"}
+	allowed_regs  : Dict[str, str] = {"ARM64": "cCwWiuIUlLp", "RV64": "CWIUlLp", "LA64": "CWIUlLp"}
+	allowed_fpr   : Dict[str, str] = {"ARM64": "fd", "RV64": "fd", "LA64": "fd"}
+	allowed_sextw : Dict[str, str] = {"ARM64": "", "RV64": "cwiu", "LA64": "cwiu"}
 	
 	# Detect functions which return in an x87 register
 	retx87_wraps: Dict[ClausesStr, List[FunctionType]] = {}
 	return_x87: str = "D"
 	
 	# Sanity checks
-	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNHPAxXYb", "RV64": "EDVOSNHPAxXYb"}
+	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNHPAxXYb", "RV64": "EDVOSNHPAxXYb", "LA64": "EDVOSNHPAxXYb"}
 	assert(all(k in allowed_simply for k in forbidden_simple))
 	assert(all(k in allowed_regs for k in forbidden_simple))
 	assert(all(k in allowed_fpr for k in forbidden_simple))
