@@ -352,6 +352,18 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VPICKOD_W(v1, q1, q0);
             VFSUB_S(q0, v0, v1);
             break;
+        case 0xAE:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 6:
+                    INST_NAME("(unsupported) UWAIT Ed");
+                    FAKEED;
+                    UDF();
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
