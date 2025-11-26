@@ -325,15 +325,19 @@ void AddNewLibs(const char* list)
 }
 
 void PrintHelp() {
-    PrintfFtrace(0, "This is Box64, the Linux x86_64 emulator with a twist.\n");
-    PrintfFtrace(0, "Usage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
-    PrintfFtrace(0, " options are:\n");
-    PrintfFtrace(0, "    '-v'|'--version' to print box64 version and quit\n");
-    PrintfFtrace(0, "    '-h'|'--help' to print this and quit\n");
-    PrintfFtrace(0, "    '-k'|'--kill-all' to kill all box64 instances\n");
-    PrintfFtrace(0, "    '-t'|'--test' to run a unit test\n");
-    PrintfFtrace(0, "    '--dynacache-list' to list of DynaCache file and their validity\n");
-    PrintfFtrace(0, "    '--dynacache-clean' to remove invalide DynaCache files\n");
+    PrintfFtrace(0, "%s\n", BOX64_BUILD_INFO_STRING);
+    PrintfFtrace(0, "Linux userspace x86-64 emulator with a twist.\n");
+    PrintfFtrace(0, "There are many environment variables to control Box64's behaviour, checkout the documentation here: https://github.com/ptitSeb/box64/blob/main/docs/USAGE.md\n\n");
+    PrintfFtrace(0, "USAGE:\n");
+    PrintfFtrace(0, "\tbox64 [options] path/to/x86_64/executable [args]\n");
+    PrintfFtrace(0, "\tbox64-bash\n");
+    PrintfFtrace(0, "OPTIONS:\n");
+    PrintfFtrace(0, "\t-v, --version          print box64 version and quit\n");
+    PrintfFtrace(0, "\t-h, --help             print this and quit\n");
+    PrintfFtrace(0, "\t-k, --kill-all         kill all box64 instances\n");
+    PrintfFtrace(0, "\t-t, --test             run a unit test\n");
+    PrintfFtrace(0, "\t--dynacache-list       list of DynaCache file and their validity\n");
+    PrintfFtrace(0, "\t--dynacache-clean      remove invalid DynaCache files\n");
 }
 
 void KillAllInstances()
