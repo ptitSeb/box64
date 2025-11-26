@@ -466,10 +466,11 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 } else {
                                     LOCK_8_OP(ADD_D(x4, gd, x1), x1, wback, x3, x4, x5, x6);
                                 }
-                                BSTRINSz(gb1, x1, gb2 + 7, gb2);
                                 IFXORNAT (X_ALL | X_PEND) {
-                                    emit_add8(dyn, ninst, x1, gd, x3, x4);
+                                    ANDI(x6, x1, 0xff);
+                                    emit_add8(dyn, ninst, x6, gd, x3, x4);
                                 }
+                                BSTRINSz(gb1, x1, gb2 + 7, gb2);
                             }
                             break;
                         default:
