@@ -1911,13 +1911,14 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 */
 #define LOCK_8_OP(op, s1, wback, s3, s4, s5, s6)    \
     if (cpuext.lamcas) {                            \
-        LD_BU(s1, wback, 0);                        \
+        LD_BU(s5, wback, 0);                        \
+        MV(s1, s5);                                 \
         MARKLOCK2;                                  \
-        MV(s6, s1);                                 \
+        MV(s6, s5);                                 \
         op;                                         \
-        AMCAS_DB_B(s1, s4, wback);                  \
-        BSTRPICK_D(s1, s1, 7, 0);                   \
-        BNE_MARKLOCK2(s1, s6);                      \
+        AMCAS_DB_B(s5, s4, wback);                  \
+        BSTRPICK_D(s5, s5, 7, 0);                   \
+        BNE_MARKLOCK2(s5, s6);                      \
     } else {                                        \
         ANDI(s3, wback, 0b11);                      \
         if (wback != x2) {                          \

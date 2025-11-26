@@ -228,31 +228,16 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0xB0:
                     switch (rep) {
                         case 0:
-                            INST_NAME("LOCK CMPXCHG Eb, Gb");
-                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
-                            nextop = F8;
-                            ANDI(x6, xRAX, 0xff); // AL
                             if (MODREG) {
-                                if (rex.rex) {
-                                    wback = TO_NAT((nextop & 7) + (rex.b << 3));
-                                    wb2 = 0;
-                                } else {
-                                    wback = (nextop & 7);
-                                    wb2 = (wback >> 2) * 8;
-                                    wback = TO_NAT(wback & 3);
-                                }
-                                BSTRPICK_D(x2, wback, wb2 + 7, wb2);
-                                wb1 = 0;
-                                ed = x2;
-                                UFLAG_IF {
-                                    emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5, x1);
-                                }
-                                BNE_MARK2(x6, x2);
-                                GETGB(x1);
-                                BSTRINS_D(wback, gd, wb2 + 7, wb2);
-                                MARK2;
-                                BSTRINS_D(xRAX, x2, 7, 0);
+                                INST_NAME("Invalid LOCK");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
                             } else {
+                                INST_NAME("LOCK CMPXCHG Eb, Gb");
+                                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                                nextop = F8;
+                                ANDI(x6, xRAX, 0xff); // AL
                                 if (rex.rex) {
                                     gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
                                     gb2 = 0;
@@ -455,6 +440,35 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     } else {
                                         BSTRINS_D(xFlags, x4, F_CF, F_CF);
                                     }
+                                }
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0xC0:
+                    switch (rep) {
+                        case 0:
+                            nextop = F8;
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
+                            } else {
+                                INST_NAME("LOCK XADD Eb, Gb");
+                                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                                GETGB(x7);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                if (cpuext.lam_bh) {
+                                    AMADD_DB_B(x1, gd, wback);
+                                } else {
+                                    LOCK_8_OP(ADD_D(x4, gd, x1), x1, wback, x3, x4, x5, x6);
+                                }
+                                BSTRINSz(gb1, x1, gb2 + 7, gb2);
+                                IFXORNAT (X_ALL | X_PEND) {
+                                    emit_add8(dyn, ninst, x1, gd, x3, x4);
                                 }
                             }
                             break;

@@ -1615,6 +1615,65 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
             }
             break;
+        case 0xA7:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) {
+                        INST_NAME("REPNZ CMPSD");
+                    } else {
+                        INST_NAME("REPZ CMPSD");
+                    }
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    SMREAD();
+                    CBZ_NEXT(xRCX);
+                    ANDI(x1, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x1);
+                    MARK; // Part with DF==0
+                    LDxw(x1, xRSI, 0);
+                    LDxw(x2, xRDI, 0);
+                    ADDI_D(xRSI, xRSI, rex.w ? 8 : 4);
+                    ADDI_D(xRDI, xRDI, rex.w ? 8 : 4);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNEZ_MARK(xRCX);
+                    B_MARK3_nocond;
+                    MARK2; // Part with DF==1
+                    LDxw(x1, xRSI, 0);
+                    LDxw(x2, xRDI, 0);
+                    ADDI_D(xRSI, xRSI, rex.w ? -8 : -4);
+                    ADDI_D(xRDI, xRDI, rex.w ? -8 : -4);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNEZ_MARK2(xRCX);
+                    MARK3; // end
+                    emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("CMPSD");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    GETDIR(x3, x1, rex.w ? 8 : 4);
+                    SMREAD();
+                    LDxw(x1, xRSI, 0);
+                    LDxw(x2, xRDI, 0);
+                    ADD_D(xRSI, xRSI, x3);
+                    ADD_D(xRDI, xRDI, x3);
+                    emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                    break;
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
