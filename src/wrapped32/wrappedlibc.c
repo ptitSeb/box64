@@ -1669,14 +1669,16 @@ EXPORT ssize_t my32_read(int fd, void* buf, size_t count)
     return ret;
 }
 
-#if 0
 EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
 {
-    library_t* lib = my_lib;
+#if 0
+	// No iFpi_t. Redundant until further notice.
+	library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "mkstemps64");
     if(f)
         return ((iFpi_t)f)(template, suffixlen);
+#endif
     // implement own version...
     // TODO: check size of template, and if really XXXXXX is there
     char* fname = strdup(template);
@@ -1690,7 +1692,6 @@ EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
     free(fname);
     return ret;
 }
-#endif
 
 EXPORT int32_t my32_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
