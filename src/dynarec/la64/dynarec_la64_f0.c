@@ -138,9 +138,9 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(x6, xZR, 1, 0); // aligned to 4-byte
                 SLL_W(x4, gd, x3);        // shift GETGB's BSTRPICK result to pos
                 AMOR_DB_W(x1, x4, x6);
-                SRL_W(x1, x1, x3);
-                BSTRPICK_D(x1, x1, 7, 0);
                 IFXORNAT (X_ALL | X_PEND) {
+                    SRL_W(x1, x1, x3);
+                    BSTRPICK_D(x1, x1, 7, 0);
                     emit_or8(dyn, ninst, x1, gd, x3, x4);
                 }
             }
@@ -486,16 +486,16 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0xC1:
                     switch (rep) {
                         case 0:
-                            INST_NAME("LOCK XADD Ed, Gd");
-                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                             nextop = F8;
-                            GETGD;
                             if (MODREG) {
                                 INST_NAME("Invalid LOCK");
                                 UDF();
                                 *need_epilog = 1;
                                 *ok = 0;
                             } else {
+                                INST_NAME("LOCK XADD Ed, Gd");
+                                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                                GETGD;
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 if (rex.w) {
                                     if (!ALIGNED_ATOMICxw) {
@@ -809,9 +809,9 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(x6, xZR, 1, 0);
                 SLL_W(x4, gd, x3);
                 AMAND_DB_W(x1, x4, x6);
-                SRL_W(x1, x1, x3);
-                BSTRPICK_D(x1, x1, 7, 0);
                 IFXORNAT (X_ALL | X_PEND) {
+                    SRL_W(x1, x1, x3);
+                    BSTRPICK_D(x1, x1, 7, 0);
                     emit_and8(dyn, ninst, x1, gd, x3, x4);
                 }
             }
@@ -984,6 +984,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
                         }
                     }
+                    break;
                 case 4: // AND
                     if (MODREG) {
                         INST_NAME("Invalid LOCK");
