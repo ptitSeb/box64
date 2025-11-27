@@ -1722,12 +1722,20 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 // Dummy macros
 #define B__safe(a, b, c) XOR(xZR, xZR, xZR)
 #define B_(a, b, c)      XOR(xZR, xZR, xZR)
+#define S_(a, b, c)      XOR(xZR, xZR, xZR)
+#define MV_(a, b, c, d)  XOR(xZR, xZR, xZR)
 
 #define NATIVEJUMP_safe(COND, val) \
     B##COND##_safe(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
 
 #define NATIVEJUMP(COND, val) \
     B##COND(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
+
+#define NATIVESET(COND, rd) \
+    S##COND(rd, dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2);
+
+#define NATIVEMV(COND, rd, rs) \
+    MV##COND(rd, rs, dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2);
 
 #define NOTEST(s1)                                       \
     if (BOX64ENV(dynarec_test)) {                        \

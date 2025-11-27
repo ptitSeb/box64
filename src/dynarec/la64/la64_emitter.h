@@ -117,10 +117,10 @@
 // GR[rd] = (unsigned(GR[rj]) < unsigned(tmp)) ? 1 : 0
 #define SLTUI(rd, rj, imm12) EMIT(type_2RI12(0b1001, imm12, rj, rd))
 
-// rd = rs1 == 0
-#define SEQZ(rd, rs1) SLTUI(rd, rs1, 1)
-// rd = rs1 != 0
-#define SNEZ(rd, rs1) SLTU(rd, xZR, rs1)
+// rd = rj == 0
+#define SEQZ(rd, rj) SLTUI(rd, rj, 1)
+// rd = rj != 0
+#define SNEZ(rd, rj) SLTU(rd, xZR, rj)
 
 // GR[rd] = PC + SignExtend({imm20, 2'b0}, GRLEN)
 #define PCADDI(rd, imm20) EMIT(type_1RI20(0b0001100, imm20, rd))
@@ -253,48 +253,48 @@
     } while (0)
 
 // Shift Left Immediate
-#define SLLIxw(rd, rs1, imm)      \
-    do {                          \
-        if (rex.w) {              \
-            SLLI_D(rd, rs1, imm); \
-        } else {                  \
-            SLLI_W(rd, rs1, imm); \
-            ZEROUP(rd);           \
-        }                         \
+#define SLLIxw(rd, rj, imm)      \
+    do {                         \
+        if (rex.w) {             \
+            SLLI_D(rd, rj, imm); \
+        } else {                 \
+            SLLI_W(rd, rj, imm); \
+            ZEROUP(rd);          \
+        }                        \
     } while (0)
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm)            \
+#define SRLIxw(rd, rj, imm)             \
     do {                                \
         if (rex.w) {                    \
-            SRLI_D(rd, rs1, imm);       \
+            SRLI_D(rd, rj, imm);        \
         } else {                        \
-            SRLI_W(rd, rs1, imm);       \
+            SRLI_W(rd, rj, imm);        \
             if ((imm) == 0) ZEROUP(rd); \
         }                               \
     } while (0)
 
 // Shift Right Arithmetic Immediate
-#define SRAIxw(rd, rs1, imm)      \
+#define SRAIxw(rd, rj, imm)      \
+    do {                         \
+        if (rex.w) {             \
+            SRAI_D(rd, rj, imm); \
+        } else {                 \
+            SRAI_W(rd, rj, imm); \
+            ZEROUP(rd);          \
+        }                        \
+    } while (0)
+
+#define ROTRIxw(rd, rj, imm)      \
     do {                          \
         if (rex.w) {              \
-            SRAI_D(rd, rs1, imm); \
+            ROTRI_D(rd, rj, imm); \
         } else {                  \
-            SRAI_W(rd, rs1, imm); \
+            ROTRI_W(rd, rj, imm); \
             ZEROUP(rd);           \
         }                         \
     } while (0)
 
-#define ROTRIxw(rd, rs1, imm)      \
-    do {                           \
-        if (rex.w) {               \
-            ROTRI_D(rd, rs1, imm); \
-        } else {                   \
-            ROTRI_W(rd, rs1, imm); \
-            ZEROUP(rd);            \
-        }                          \
-    } while (0)
-
-#define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
+#define SEXT_W(rd, rj) SLLI_W(rd, rj, 0)
 
 // product = signed(GR[rj][31:0]) * signed(GR[rk][31:0])
 // GR[rd] = SignExtend(product[31:0], GRLEN)
@@ -477,6 +477,57 @@
 #define BLE(rj, rd, imm13)  BGE(rd, rj, imm13)
 #define BGTU(rj, rd, imm13) BLTU(rd, rj, imm13)
 #define BLEU(rj, rd, imm13) BGEU(rd, rj, imm13)
+
+#define SEQ(rd, rj, rk)         \
+    do {                        \
+        if (rj == xZR) {        \
+            SEQZ(rd, rk);       \
+        } else if (rk == xZR) { \
+            SEQZ(rd, rj);       \
+        } else {                \
+            XOR(rd, rj, rk);    \
+            SEQZ(rd, rd);       \
+        }                       \
+    } while (0)
+
+#define SNE(rd, rj, rk)         \
+    do {                        \
+        if (rj == xZR) {        \
+            SNEZ(rd, rk);       \
+        } else if (rk == xZR) { \
+            SNEZ(rd, rj);       \
+        } else {                \
+            XOR(rd, rj, rk);    \
+            SNEZ(rd, rd);       \
+        }                       \
+    } while (0)
+
+#define SGE(rd, rj, rk)      \
+    do {                     \
+        if (rj == xZR) {     \
+            SLTI(rd, rk, 1); \
+        } else {             \
+            SLT(rd, rj, rk); \
+            XORI(rd, rd, 1); \
+        }                    \
+    } while (0)
+
+#define SGEU(rd, rj, rk)        \
+    do {                        \
+        if (rj == xZR) {        \
+            SEQZ(rd, rk);       \
+        } else if (rk == xZR) { \
+            ADDI_D(rd, xZR, 1); \
+        } else {                \
+            SLTU(rd, rj, rk);   \
+            XORI(rd, rd, 1);    \
+        }                       \
+    } while (0)
+
+#define SGT(rd, rj, rk)  SLT(rd, rk, rj);
+#define SLE(rd, rj, rk)  SGE(rd, rk, rj);
+#define SGTU(rd, rj, rk) SLTU(rd, rk, rj);
+#define SLEU(rd, rj, rk) SGEU(rd, rk, rj);
 
 #define BCEQZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23) >> 2), 0b00000 | cj))
 #define BCNEZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23) >> 2), 0b01000 | cj))
@@ -2520,7 +2571,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
             ST_D(rd, rj, imm12); \
     } while (0)
 
-#define NEG_D(rd, rs1) SUB_D(rd, xZR, rs1)
+#define NEG_D(rd, rj) SUB_D(rd, xZR, rj)
 
 #define SUBxw(rd, rj, rk)      \
     do {                       \
@@ -2530,7 +2581,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
             SUB_W(rd, rj, rk); \
     } while (0)
 
-#define NEGxw(rd, rs1) SUBxw(rd, xZR, rs1)
+#define NEGxw(rd, rj) SUBxw(rd, xZR, rj)
 
 #define SUBz(rd, rj, rk)       \
     do {                       \
