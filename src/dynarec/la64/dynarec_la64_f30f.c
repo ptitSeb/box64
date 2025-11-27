@@ -34,6 +34,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int v0, v1;
     int q0, q1;
     int d0, d1;
+    uint8_t tmp1, tmp2, tmp3;
     int64_t fixedaddress, gdoffset;
     int unscaled;
     int64_t j64;
@@ -221,6 +222,47 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                               \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                     \
+    if (!dyn->insts[ninst].nat_flags_fusion) {                                                   \
+        if (cpuext.lbt) {                                                                        \
+            X64_SETJ(tmp1, I);                                                                   \
+        } else {                                                                                 \
+            GETFLAGS;                                                                            \
+        }                                                                                        \
+    }                                                                                            \
+    nextop = F8;                                                                                 \
+    GETGD;                                                                                       \
+    if (MODREG) {                                                                                \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                                \
+            NATIVEJUMP(NATNO, 8);                                                                \
+        } else {                                                                                 \
+            if (cpuext.lbt)                                                                      \
+                BEQZ(tmp1, 8);                                                                   \
+            else                                                                                 \
+                B##NO(tmp1, 8);                                                                  \
+        }                                                                                        \
+        MV(gd, ed);                                                                              \
+        if (!rex.w) ZEROUP(gd);                                                                  \
+    } else {                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                                \
+            NATIVEJUMP(NATNO, 8);                                                                \
+        } else {                                                                                 \
+            if (cpuext.lbt)                                                                      \
+                BEQZ(tmp1, 8);                                                                   \
+            else                                                                                 \
+                B##NO(tmp1, 8);                                                                  \
+        }                                                                                        \
+        LDxw(gd, ed, fixedaddress);                                                              \
+    }
+
+            GOCOND(0x40, "CMOV", "Gd, Ed");
+
+#undef GO
+
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
