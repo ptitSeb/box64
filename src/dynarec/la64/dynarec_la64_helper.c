@@ -64,9 +64,11 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV64x(scratch, tmp);
                         ALSL_D(ret, TO_NAT(sib_reg), scratch, sib >> 6);
+                        SCRATCH_USAGE(1);
                     } else {
                         if (sib >> 6) {
                             SLLI_D(ret, TO_NAT(sib_reg), (sib >> 6));
+                            if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                         } else {
                             ret = TO_NAT(sib_reg);
                         }
@@ -80,10 +82,12 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                             break;
                     }
                     MOV64x(ret, tmp);
+                    if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 }
             } else {
                 if (sib_reg != 4) {
                     ALSL_D(ret, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
+                    if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 } else {
                     ret = TO_NAT(sib_reg2);
                 }
@@ -98,11 +102,13 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 GETIP(addr + delta, scratch);
                 ret = xRIP;
                 *fixaddress = tmp;
+                SCRATCH_USAGE(1);
             } else if (adj && (tmp + adj >= -2048) && (tmp + adj <= maxval)) {
                 ADDI_D(ret, xRIP, tmp + adj);
             } else if ((tmp >= -2048) && (tmp <= maxval)) {
                 GETIP(addr + delta, scratch);
                 ADDI_D(ret, xRIP, tmp);
+                SCRATCH_USAGE(1);
             } else if (tmp + addr + delta < 0x80000000LL && !dyn->need_reloc) {
                 MOV64x(ret, tmp + addr + delta);
             } else {
@@ -111,6 +117,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 } else {
                     MOV64x(ret, tmp);
                     GETIP(addr + delta, scratch);
+                    SCRATCH_USAGE(1);
                 }
                 ADD_D(ret, ret, xRIP);
             }
@@ -120,6 +127,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     if (isLockAddress(addr + delta + tmp)) *l = 1;
                     break;
             }
+            if (!IS_GPR(ret)) SCRATCH_USAGE(1);
         } else {
             ret = TO_NAT((nextop & 7) + (rex.b << 3));
         }
@@ -141,6 +149,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
                     ALSL_D(ret, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
+                    if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 } else {
                     ret = TO_NAT(sib_reg2);
                 }
@@ -159,8 +168,10 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     scratch = TO_NAT((nextop & 0x07) + (rex.b << 3));
                 }
                 ADDI_D(ret, scratch, i64);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             } else {
                 MOV64x(scratch, i64);
+                SCRATCH_USAGE(1);
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
                         ADD_D(scratch, scratch, TO_NAT(sib_reg2));
@@ -213,10 +224,12 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
                             ADD_W(ret, TO_NAT(sib_reg), scratch);
                         }
                         ZEROUP(ret);
+                        SCRATCH_USAGE(1);
                     } else {
                         if (sib >> 6) {
                             SLLI_D(ret, TO_NAT(sib_reg), (sib >> 6));
                             ZEROUP(ret);
+                            if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                         } else {
                             ret = TO_NAT(sib_reg);
                         }
@@ -230,14 +243,17 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
                             break;
                     }
                     MOV32w(ret, tmp);
+                    if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 }
             } else {
                 if (sib_reg != 4) {
                     if ((sib >> 6)) {
-                        SLLI_D(ret, TO_NAT(sib_reg), (sib >> 6));
-                        ADD_W(ret, ret, TO_NAT(sib_reg2));
+                        SLLI_D(scratch, TO_NAT(sib_reg), (sib >> 6));
+                        ADD_W(ret, scratch, TO_NAT(sib_reg2));
+                        SCRATCH_USAGE(1);
                     } else {
                         ADD_W(ret, TO_NAT(sib_reg2), TO_NAT(sib_reg));
+                        if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                     }
                     ZEROUP(ret);
                 } else {
@@ -247,6 +263,7 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
         } else if ((nextop & 7) == 5) {
             uint32_t tmp = F32;
             MOV32w(ret, tmp);
+            if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             switch (lock) {
                 case 1: addLockAddress(tmp); break;
                 case 2:
@@ -277,10 +294,12 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
                     if (sib >> 6) {
-                        SLLI_D(ret, TO_NAT(sib_reg), (sib >> 6));
-                        ADD_W(ret, ret, TO_NAT(sib_reg2));
+                        SLLI_D(scratch, TO_NAT(sib_reg), (sib >> 6));
+                        ADD_W(ret, scratch, TO_NAT(sib_reg2));
+                        SCRATCH_USAGE(1);
                     } else {
                         ADD_W(ret, TO_NAT(sib_reg2), TO_NAT(sib_reg));
+                        if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                     }
                     ZEROUP(ret);
                 } else {
@@ -299,11 +318,14 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
                         } else {
                             ADD_W(scratch, TO_NAT(sib_reg2), TO_NAT(sib_reg));
                         }
+                        SCRATCH_USAGE(1);
                     } else {
                         scratch = TO_NAT(sib_reg2);
+                        if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                     }
                 } else {
                     scratch = TO_NAT((nextop & 0x07));
+                    if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 }
                 ADDI_W(ret, scratch, i32);
                 ZEROUP(ret);
@@ -328,6 +350,7 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
                     ADD_W(ret, tmp, scratch);
                 }
                 ZEROUP(ret);
+                SCRATCH_USAGE(1);
             }
         }
     }

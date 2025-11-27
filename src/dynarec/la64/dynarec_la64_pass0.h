@@ -11,15 +11,20 @@
     dyn->f.dfnone = 1;                   \
     dyn->f.pending = SF_SET
 
-#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                 \
-    if (BOX64ENV(dynarec_nativeflags) && ninst > 0 && !dyn->insts[ninst - 1].nat_flags_nofusion) {                  \
-        if ((A) == (X_ZF))                                                                                      \
-            dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
-        else if (dyn->insts[ninst - 1].nat_flags_carry && ((A) == (X_CF) || (A) == (X_CF | X_ZF)))              \
-            dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
-        else if (dyn->insts[ninst - 1].nat_flags_sign && ((A) == (X_SF | X_OF) || (A) == (X_SF | X_OF | X_ZF))) \
-            dyn->insts[ninst].nat_flags_fusion = 1;                                                             \
-    }                                                                                                           \
+#define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                \
+    if (BOX64ENV(dynarec_nativeflags) && ninst > 0) {                                                          \
+        int prev = ninst - 1;                                                                                  \
+        while (prev && dyn->insts[prev].no_scratch_usage)                                                      \
+            prev -= 1;                                                                                         \
+        if (!dyn->insts[prev].nat_flags_nofusion) {                                                            \
+            if ((A) == (X_ZF))                                                                                 \
+                dyn->insts[ninst].nat_flags_fusion = 1;                                                        \
+            else if (dyn->insts[prev].nat_flags_carry && ((A) == (X_CF) || (A) == (X_CF | X_ZF)))              \
+                dyn->insts[ninst].nat_flags_fusion = 1;                                                        \
+            else if (dyn->insts[prev].nat_flags_sign && ((A) == (X_SF | X_OF) || (A) == (X_SF | X_OF | X_ZF))) \
+                dyn->insts[ninst].nat_flags_fusion = 1;                                                        \
+        }                                                                                                      \
+    }                                                                                                          \
     READFLAGS(A);
 
 #define SETFLAGS(A, B, FUSION)                                           \
@@ -74,4 +79,9 @@
 #define X87_CHECK_PRECISION(A)                                      \
     do {                                                            \
         if (dyn->need_x87check) dyn->insts[ninst].x87precision = 1; \
+    } while (0)
+
+#define SCRATCH_USAGE(usage)                         \
+    do {                                             \
+        dyn->insts[ninst].no_scratch_usage = !usage; \
     } while (0)

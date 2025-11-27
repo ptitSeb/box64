@@ -112,9 +112,11 @@ typedef struct instruction_la64_s {
     uint8_t             nat_flags_carry:1;
     uint8_t             nat_flags_sign:1;
     uint8_t             nat_flags_needsign:1;
+    uint8_t             no_scratch_usage : 1; // this opcode does not use scratch register
     uint8_t             nat_flags_op1;
     uint8_t             nat_flags_op2;
     uint8_t             x87precision:1; // this opcode can handle x87pc
+    uint16_t            nat_next_inst;
     flagcache_t         f_exit;     // flags status at end of instruction
     lsxcache_t          lsx;        // lsxcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

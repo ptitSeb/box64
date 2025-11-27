@@ -1726,6 +1726,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOVZX Gd, Eb");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) {
                 if (rex.rex) {
                     eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
