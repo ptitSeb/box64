@@ -3526,10 +3526,12 @@ EXPORT uint32_t userdata[1024];
 EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_t* data)
 {
     if(request == PTRACE_POKEUSER) {
-        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
+        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(my_x64_user_t)) {
+        //printf_log_prefix(2, LOG_INFO, "Using ptrace POKE at %p for 0x%x (userdata 0x%x)\n", addr, pid, data);
             long ret = ptrace(PTRACE_POKEDATA, pid, addr+(uintptr_t)userdata, data);
             return ret;
         }
+        //printf_log_prefix(2, LOG_INFO, "Using ptrace POKE at %p for 0x%x (faked 0x%x)\n", addr, pid, data);
         // fallback to a generic local faking
         if((uintptr_t)addr < sizeof(userdata)) {
             *(uintptr_t*)(addr+(uintptr_t)userdata) = (uintptr_t)data;
@@ -3541,14 +3543,29 @@ EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_
         return -1;
     }
     if(request == PTRACE_PEEKUSER) {
-        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
-            return ptrace(PTRACE_PEEKDATA, pid, addr+(uintptr_t)userdata, data);
+        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(my_x64_user_t)) {
+            long ret = ptrace(PTRACE_PEEKDATA, pid, addr+(uintptr_t)userdata, data);
+            if((uintptr_t)addr==offsetof(my_x64_user_t, u_debugreg[6])) {
+                // clean up DR6...
+                ret |= 0b111111110000ULL;
+                ret &= 0xffffefffULL;
+                ret |= 0xffff0000ULL;
+            }
+            if((uintptr_t)addr==offsetof(my_x64_user_t, u_debugreg[7])) {
+                // clean up DR7...
+                ret |= 1ULL<<10;
+                ret &= (0xffff3fffLL);
+            }
+            //printf_log_prefix(2, LOG_INFO, "Using ptrace PEEK at %p for 0x%x (userdata) => 0x%x\n", addr, pid, ret);
+            return ret;
         }
         // fallback to a generic local faking
         if((uintptr_t)addr < sizeof(userdata)) {
             errno = 0;
+            //printf_log_prefix(2, LOG_INFO, "Using ptrace PEEK at %p for 0x%x (faked) => 0x%x\n", addr, pid, *(uintptr_t*)(addr+(uintptr_t)userdata));
             return *(uintptr_t*)(addr+(uintptr_t)userdata);
         }
+        //printf_log_prefix(2, LOG_INFO, "Using ptrace PEEK at %p for 0x%x (error) => -1)\n", addr, pid);
         errno = EINVAL;
         return -1;
     }
