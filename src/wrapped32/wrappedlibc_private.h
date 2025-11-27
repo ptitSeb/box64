@@ -2200,7 +2200,7 @@ GOM(reallocarray, pEpLL)     //%%,noE
 //GO2(__read_nocancel, lEipL, read)
 GO2(__close_nocancel, iEi, close)
 
-//GOM(mkstemps64, iEEpi)   //%% not always implemented
+GOM(mkstemps64, iEEpi)   //%% not always implemented
 GO(getentropy, iEpL)
 
 // not found (libitm???), but it seems OK to declare dummies:
