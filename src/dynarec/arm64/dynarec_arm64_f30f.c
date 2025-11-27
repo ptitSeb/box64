@@ -212,6 +212,24 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        #define GO(GETFLAGS, NO, YES, F)                                                                                                                  \
+            READFLAGS(F);                                                                                                                                 \
+            GETFLAGS;                                                                                                                                     \
+            nextop = F8;                                                                                                                                  \
+            GETGD;                                                                                                                                        \
+            if (MODREG) {                                                                                                                                 \
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                                 \
+                CSELxw(gd, ed, gd, YES);                                                                                                                  \
+            } else {                                                                                                                                      \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, NULL, 0, 0); \
+                Bcond(NO, +8);                                                                                                                            \
+                LDxw(gd, ed, fixedaddress);                                                                                                               \
+                if (!rex.w) { MOVw_REG(gd, gd); }                                                                                                         \
+            }
+
+        GOCOND(0x40, "CMOV", "Gd, Ed");
+        #undef GO
+
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
