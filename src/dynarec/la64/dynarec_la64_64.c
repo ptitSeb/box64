@@ -784,6 +784,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) { // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else { // mem <= reg
+                SCRATCH_USAGE(0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 if (gd != ed) { // it's sometimes used as a 3 bytes NOP
                     MVxw(gd, ed);

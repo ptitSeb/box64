@@ -194,9 +194,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0F:
             switch (rep) {
-                case 0:
-                    addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
-                    break;
                 case 1:
                     addr = dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;
@@ -204,7 +201,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;
                 default:
-                    DEFAULT;
+                    addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             }
             break;
         case 0x10:
