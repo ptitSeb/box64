@@ -64,6 +64,7 @@ r31     s8     xEmu         Saved register                  The Emu struct      
 
 // convert a x86 register to native according to the register mapping
 #define TO_NAT(A) (((uint8_t[]) { 12, 7, 6, 10, 11, 13, 5, 4, 8, 9, 23, 24, 25, 26, 27, 28 })[(A)])
+#define IS_GPR(A) (((uint8_t[]) { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0 })[(A)])
 
 // scratch registers
 #define x1 14

@@ -328,13 +328,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
+            SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
-            if (gd == xRSP) {
-                MV(x1, xRSP);
-                PUSH1_16(x1);
-            } else {
-                PUSH1_16(gd);
-            }
+            PUSH1_16(gd);
             break;
         case 0x58:
         case 0x59:
@@ -620,11 +616,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                if (ed != gd) {
-                    BSTRINSz(ed, gd, 15, 0);
-                }
+                if (ed != gd) BSTRINSz(ed, gd, 15, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 ST_H(gd, ed, fixedaddress);
@@ -636,10 +631,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
+                SCRATCH_USAGE(0);
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                if (ed != gd) {
-                    BSTRINSz(gd, ed, 15, 0);
-                }
+                if (ed != gd) BSTRINSz(gd, ed, 15, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);

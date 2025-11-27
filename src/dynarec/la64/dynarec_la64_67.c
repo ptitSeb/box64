@@ -124,6 +124,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("MOVZX Gd, Eb");
                     nextop = F8;
                     GETGD;
+                    SCRATCH_USAGE(0);
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
                         if (rex.rex) {
@@ -144,6 +145,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("MOVZX Gd, Ew");
                     nextop = F8;
                     GETGD;
+                    SCRATCH_USAGE(0);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         BSTRPICK_D(gd, ed, 15, 0);
@@ -253,8 +255,54 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
+            SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             PUSH1(gd);
+            break;
+        case 0x63:
+            INST_NAME("MOVSXD Gd, Ed");
+            nextop = F8;
+            GETGD;
+            SCRATCH_USAGE(0);
+            if (rex.w) {
+                if (MODREG) { // reg <= reg
+                    ADDI_W(gd, TO_NAT((nextop & 7) + (rex.b << 3)), 0);
+                } else { // mem <= reg
+                    SMREAD();
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LD_W(gd, ed, fixedaddress);
+                }
+            } else {
+                if (MODREG) { // reg <= reg
+                    ZEROUP2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
+                } else { // mem <= reg
+                    SMREAD();
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LD_WU(gd, ed, fixedaddress);
+                }
+            }
+            break;
+        case 0x66:
+            opcode = F8;
+            switch (opcode) {
+                case 0x89:
+                    INST_NAME("MOV Ew, Gw");
+                    nextop = F8;
+                    GETGD; // don't need GETGW here
+                    SCRATCH_USAGE(0);
+                    if (MODREG) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        if (ed != gd) BSTRINS_D(ed, gd, 15, 0);
+                    } else {
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        ST_H(gd, ed, fixedaddress);
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
             break;
         case 0x81:
         case 0x83:
@@ -426,6 +474,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
@@ -438,6 +487,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Gd, Ed");
             nextop = F8;
             GETGD;
+            SCRATCH_USAGE(0);
             if (MODREG) {
                 MVxw(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
@@ -453,6 +503,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) { // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else { // mem <= reg
+                SCRATCH_USAGE(0);
                 addr = geted32(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
                 ZEROUP2(gd, ed);
             }
@@ -466,6 +517,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xBE:
         case 0xBF:
             INST_NAME("MOV Reg, Id");
+            SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
             if (rex.w) {
                 u64 = F64;
@@ -473,6 +525,22 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 u32 = F32;
                 MOV32w(gd, u32);
+            }
+            break;
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop = F8;
+            if (MODREG) { // reg <= i32
+                SCRATCH_USAGE(0);
+                i64 = F32S;
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MOV64xw(ed, i64);
+            } else { // mem <= i32
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 4);
+                i64 = F32S;
+                MOV64x(x3, i64);
+                SDxw(x3, ed, fixedaddress);
+                SMWRITELOCK(lock);
             }
             break;
         case 0xE8:

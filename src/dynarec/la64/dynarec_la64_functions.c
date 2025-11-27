@@ -599,7 +599,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
     static char buf[4096];
-    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d, sm=%d(%d/%d)",
+    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d)",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
         dyn->f.pending,
@@ -611,6 +611,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         dyn->insts[ninst].x64.need_before,
         dyn->insts[ninst].x64.need_after,
         dyn->insts[ninst].nat_flags_fusion,
+        dyn->insts[ninst].no_scratch_usage,
         dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write);
     if (dyn->insts[ninst].pred_sz) {
         length += sprintf(buf + length, ", pred=");
@@ -808,15 +809,27 @@ void updateNativeFlags(dynarec_la64_t* dyn)
         return;
     for (int i = 1; i < dyn->size; ++i)
         if (dyn->insts[i].nat_flags_fusion) {
-            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == i - 1
-                && (dyn->insts[i].x64.use_flags & dyn->insts[i - 1].x64.set_flags) == dyn->insts[i].x64.use_flags) {
-                dyn->insts[i - 1].nat_flags_fusion = 1;
-                if (dyn->insts[i].x64.use_flags & X_SF) {
-                    dyn->insts[i - 1].nat_flags_needsign = 1;
+            int j = i - 1;
+            int found = 0;
+            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == j) {
+                while (j >= 0) {
+                    if (dyn->insts[j].x64.set_flags && (dyn->insts[i].x64.use_flags & dyn->insts[j].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                        dyn->insts[j].nat_flags_fusion = 1;
+                        if (dyn->insts[i].x64.use_flags & X_SF) {
+                            dyn->insts[j].nat_flags_needsign = 1;
+                        }
+                        dyn->insts[i].x64.use_flags = 0;
+                        dyn->insts[j].nat_next_inst = i;
+                        found = 1;
+                        break;
+                    } else if (j && dyn->insts[j].pred_sz == 1 && dyn->insts[j].pred[0] == j - 1
+                        && dyn->insts[j].no_scratch_usage && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                        j -= 1;
+                    } else
+                        break;
                 }
-                dyn->insts[i].x64.use_flags = 0;
-            } else
-                dyn->insts[i].nat_flags_fusion = 0;
+            }
+            if (!found) dyn->insts[i].nat_flags_fusion = 0;
         }
 }
 

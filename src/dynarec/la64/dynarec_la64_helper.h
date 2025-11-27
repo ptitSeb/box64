@@ -1037,10 +1037,18 @@
     READFLAGS(A)
 #endif
 
-#define NAT_FLAGS_OPS(op1, op2)                    \
-    do {                                           \
-        dyn->insts[ninst + 1].nat_flags_op1 = op1; \
-        dyn->insts[ninst + 1].nat_flags_op2 = op2; \
+#define NAT_FLAGS_OPS(op1, op2, s1, s2)                                     \
+    do {                                                                    \
+        dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = op1;    \
+        dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = op2;    \
+        if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op1)) {        \
+            MV(s1, op1);                                                    \
+            dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = s1; \
+        }                                                                   \
+        if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op2)) {        \
+            MV(s2, op2);                                                    \
+            dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = s2; \
+        }                                                                   \
     } while (0)
 
 #define NAT_FLAGS_ENABLE_CARRY() dyn->insts[ninst].nat_flags_carry = 1
@@ -1952,5 +1960,8 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         BEQZ_MARKLOCK2(s4);                         \
     }
 
+#ifndef SCRATCH_USAGE
+#define SCRATCH_USAGE(usage)
+#endif
 
 #endif //__DYNAREC_LA64_HELPER_H__
