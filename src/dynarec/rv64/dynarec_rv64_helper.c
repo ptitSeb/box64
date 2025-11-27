@@ -743,7 +743,7 @@ void iret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, int is64bits)
 
     SH(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
     // clean EFLAGS
-    MOV32w(x1, 0x3F7FF7);
+    MOV32w(x1, 0x3E7FF7);   // also masking RF
     AND(xFlags, xFlags, x1);
     ORI(xFlags, xFlags, 0x2);
     SET_DFNONE();

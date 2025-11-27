@@ -1803,7 +1803,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
             POP1z(xFlags);
-            MOV32w(x1, 0x3F7FD7);
+            MOV32w(x1, 0x3E7FD7);
             ANDw_REG(xFlags, xFlags, x1);
             MOV32w(x1, 0x202);
             ORRw_REG(xFlags, xFlags, x1);

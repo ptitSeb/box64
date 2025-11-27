@@ -741,7 +741,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     // check CS is NULL, sgfault if it is
     CBZw_MARK3(x1);
     // clean EFLAGS
-    MOV32w(x4, 0x3F7FD7);
+    MOV32w(x4, 0x3E7FD7);   // also mask RF, because it's not really handled
     ANDx_REG(x3, x3, x4);
     ORRx_mask(x3, x3, 1, 0b111111, 0); // xFlags | 0b10
     SET_DFNONE();

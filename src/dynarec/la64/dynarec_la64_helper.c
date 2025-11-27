@@ -689,7 +689,7 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
 
     ST_H(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
     // clean EFLAGS
-    MOV32w(x1, 0x3F7FD7);
+    MOV32w(x1, 0x3E7FD7);   // also mask RF
     AND(xFlags, xFlags, x1);
     ORI(xFlags, xFlags, 0x2);
     SPILL_EFLAGS();

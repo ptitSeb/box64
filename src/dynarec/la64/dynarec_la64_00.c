@@ -1420,7 +1420,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             POP1z(xFlags);
-            MOV32w(x1, 0x3F7FD7);
+            MOV32w(x1, 0x3E7FD7);
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x202);
             SPILL_EFLAGS();

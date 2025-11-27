@@ -904,7 +904,7 @@ x64emurun:
                 Push64(emu, emu->eflags.x64);
             break;
         case 0x9D:                      /* POPF */
-            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x202; // mask off res2 and res3 and on res1
+            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3E7FD7)/* & (0xffff-40)*/ ) | 0x202; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             tf = ACCESS_FLAG(F_TF);
             break;
@@ -1635,7 +1635,7 @@ x64emurun:
                 }
                 #endif
                 RESET_FLAGS(emu);
-                uint64_t new_flags = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+                uint64_t new_flags = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3E7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1 and RF
                 if(!is32bits || (is32bits && (new_cs!=0x23))) {
                     uintptr_t new_sp = (!rex.w)?Pop32(emu):Pop64(emu);
                     uint32_t new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;

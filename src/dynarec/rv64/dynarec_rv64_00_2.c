@@ -598,7 +598,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             POP1z(xFlags);
             FLAGS_ADJUST_FROM11(xFlags, xFlags, x2);
-            MOV32w(x1, 0x3F7FF7);
+            MOV32w(x1, 0x3E7FF7);
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x202);
             SET_DFNONE();

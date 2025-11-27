@@ -1018,7 +1018,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     sigcontext->uc_mcontext.gregs[X64_RBX] = R_RBX;
     sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
     // flags
-    sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
+    sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64 | (1<<F_RF);   // with RF set
     CLEAR_FLAG(F_TF);   // now clear TF flags inside the signal handler
     // get segments
     sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
