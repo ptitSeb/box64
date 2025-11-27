@@ -1353,31 +1353,31 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #undef GO
 
 
-#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                           \
-    READFLAGS(F);                                                                            \
-    tmp1 = x1;                                                                               \
-    tmp3 = x3;                                                                               \
-    if (cpuext.lbt) {                                                                        \
-        X64_SETJ(x3, I);                                                                     \
-    } else {                                                                                 \
-        GETFLAGS;                                                                            \
-        S##YES(x3, x1);                                                                      \
-    }                                                                                        \
-    nextop = F8;                                                                             \
-    if (MODREG) {                                                                            \
-        if (rex.rex) {                                                                       \
-            eb1 = TO_NAT((nextop & 7) + (rex.b << 3));                                       \
-            eb2 = 0;                                                                         \
-        } else {                                                                             \
-            ed = (nextop & 7);                                                               \
-            eb2 = (ed >> 2) * 8;                                                             \
-            eb1 = TO_NAT(ed & 3);                                                            \
-        }                                                                                    \
-        BSTRINS_D(eb1, x3, eb2 + 7, eb2);                                                    \
-    } else {                                                                                 \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
-        ST_B(x3, ed, fixedaddress);                                                          \
-        SMWRITE();                                                                           \
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                               \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                     \
+    nextop = F8;                                                                                 \
+    if (dyn->insts[ninst].nat_flags_fusion) {                                                    \
+        NATIVESET(NATYES, tmp3);                                                                 \
+    } else if (cpuext.lbt) {                                                                     \
+        X64_SETJ(tmp3, I);                                                                       \
+    } else {                                                                                     \
+        GETFLAGS;                                                                                \
+        S##YES(tmp3, x1);                                                                        \
+    }                                                                                            \
+    if (MODREG) {                                                                                \
+        if (rex.rex) {                                                                           \
+            eb1 = TO_NAT((nextop & 7) + (rex.b << 3));                                           \
+            eb2 = 0;                                                                             \
+        } else {                                                                                 \
+            ed = (nextop & 7);                                                                   \
+            eb2 = (ed >> 2) * 8;                                                                 \
+            eb1 = TO_NAT(ed & 3);                                                                \
+        }                                                                                        \
+        BSTRINS_D(eb1, tmp3, eb2 + 7, eb2);                                                      \
+    } else {                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp1, &fixedaddress, rex, NULL, 1, 0); \
+        ST_B(tmp3, ed, fixedaddress);                                                            \
+        SMWRITE();                                                                               \
     }
 
             GOCOND(0x90, "SET", "Eb");
