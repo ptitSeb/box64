@@ -1194,6 +1194,7 @@ void LFXpLp_32(x64emu_t *emu, uintptr_t fnc);
 void pFEupi_32(x64emu_t *emu, uintptr_t fnc);
 void pFEupp_32(x64emu_t *emu, uintptr_t fnc);
 void pEEpii_32(x64emu_t *emu, uintptr_t fnc);
+void pEEpip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEpip_32(x64emu_t *emu, uintptr_t fnc);
 void pFEpui_32(x64emu_t *emu, uintptr_t fnc);
 void pEEppi_32(x64emu_t *emu, uintptr_t fnc);

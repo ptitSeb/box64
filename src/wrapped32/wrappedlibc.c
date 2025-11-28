@@ -21,6 +21,7 @@
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
+#include <fts.h>
 #include <sys/syscall.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
@@ -1484,6 +1485,11 @@ EXPORT void* my32_lsearch(x64emu_t* emu, void* key, void* base, size_t* nmemb, s
 EXPORT void* my32_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
     return lfind(key, base, nmemb, size, findcompareFct(fnc));
+}
+
+EXPORT void* my32_fts_open(x64emu_t* emu, void* path, int options, void* c)
+{
+    return fts_open(path, options, findcompareFct(c));
 }
 
 EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)

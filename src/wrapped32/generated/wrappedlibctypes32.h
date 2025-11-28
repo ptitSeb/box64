@@ -90,6 +90,7 @@ typedef intptr_t (*lEipL_t)(int32_t, void*, uintptr_t);
 typedef intptr_t (*lEppL_t)(void*, void*, uintptr_t);
 typedef void* (*pEipi_t)(int32_t, void*, int32_t);
 typedef void* (*pEpii_t)(void*, int32_t, int32_t);
+typedef void* (*pEpip_t)(void*, int32_t, void*);
 typedef void* (*pEpII_t)(void*, int64_t, int64_t);
 typedef void* (*pFpui_t)(void*, uint32_t, int32_t);
 typedef void* (*pEpLL_t)(void*, uintptr_t, uintptr_t);
@@ -256,6 +257,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(writev, lEipi_t) \
 	GO(write, lEipL_t) \
 	GO(shmat, pEipi_t) \
+	GO(fts_open, pEpip_t) \
 	GO(gethostbyaddr, pFpui_t) \
 	GO(__realpath_chk, pEppi_t) \
 	GO(__isoc23_strtoll, IEpBp_i_t) \
