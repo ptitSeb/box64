@@ -19,11 +19,12 @@ typedef struct rex_s {
             unsigned int s:4;
         };
     };
-    uint8_t     is32bits:1;
-    uint8_t     is66:1;
-    uint8_t     is67:1;
-    uint8_t     seg:3; //seg is 0-5, but 0 is CS, so will always be no-offset
-    uint8_t     rep:2; // 0 none, 1=F2 prefix, 2=F3 prefix
+    uint16_t    is32bits:1;
+    uint16_t    is66:1;
+    uint16_t    is67:1;
+    uint16_t    isf0:1;
+    uint16_t    seg:3; //seg is 0-5, but 0 is CS, so will always be no-offset
+    uint16_t    rep:2; // 0 none, 1=F2 prefix, 2=F3 prefix
     uint64_t    offset;
 } rex_t;
 

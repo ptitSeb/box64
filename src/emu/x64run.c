@@ -104,12 +104,14 @@ x64emurun:
         rex.is32bits = is32bits;
         rex.is66 = 0;
         rex.is67 = 0;
+        rex.isf0 = 0;
         rex.rep = 0;
-        while((opcode==0xF2) || (opcode==0xF3) 
+        while((opcode==0xF2) || (opcode==0xF3) || (opcode==0xF0)
             || (opcode==0x3E) || (opcode==0x26) || (opcode==0x2e) || (opcode==0x36) 
             || (opcode==0x64) || (opcode==0x65) || (opcode==0x66) || (opcode==0x67)
             || (!is32bits && (opcode>=0x40 && opcode<=0x4f))) {
             switch (opcode) {
+                case 0xF0: rex.isf0 = 1; rex.rex = 0; break;
                 case 0xF2: rex.rep = 1; rex.rex = 0; break;
                 case 0xF3: rex.rep = 2; rex.rex = 0; break;
                 case 0x26: /* ES: */
@@ -129,7 +131,36 @@ x64emurun:
         if(rex.seg)
             rex.offset = GetSegmentBaseEmu(emu, rex.seg);
         
-        if(rex.is66) {
+        if(rex.isf0) {
+            /* LOCK prefix */
+            if(rex.is66 && !rex.w) {
+                #ifdef TEST_INTERPRETER
+                if(!(addr = Test66F0(test, rex, addr-1)))
+                    unimp = 1;
+                #else
+                if(!(addr =  Run66F0(emu, rex, addr-1))) {
+                    unimp = 1;
+                    goto fini;
+                }
+                #endif
+            } else {
+                #ifdef TEST_INTERPRETER
+                if(!(addr = TestF0(test, rex, addr-1)))
+                    unimp = 1;
+                #else
+                if(!(addr = RunF0(emu, rex, addr-1))) {
+                    unimp = 1;
+                    goto fini;
+                }
+                #endif
+            }
+            #ifndef TEST_INTERPRETER
+            if(emu->quit) {
+                R_RIP = addr;
+                goto fini;
+            }
+            #endif
+        } else if(rex.is66) {
             /* 16bits prefix */
             #ifdef TEST_INTERPRETER
             if(!(addr = Test66(test, rex, addr-1)))
@@ -2041,21 +2072,7 @@ x64emurun:
             STEP;
             #endif
             break;
-        case 0xF0:                      /* LOCK prefix */
-            #ifdef TEST_INTERPRETER
-            if(!(addr = TestF0(test, rex, addr)))
-                unimp = 1;
-            #else
-            if(!(addr = RunF0(emu, rex, addr))) {
-                unimp = 1;
-                goto fini;
-            }
-            if(emu->quit) {
-                R_RIP = addr;
-                goto fini;
-            }
-            #endif
-            break;
+
         case 0xF1:                      /* INT1 */
             emu->old_ip = R_RIP;
             #ifndef TEST_INTERPRETER

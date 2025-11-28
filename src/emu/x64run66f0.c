@@ -49,14 +49,6 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     opcode = F8;
     // REX prefix before the F0 are ignored
     rex.rex = 0;
-    uintptr_t addr_entry = addr;
-    if(!rex.is32bits)
-        while(opcode>=0x40 && opcode<=0x4f) {
-            rex.rex = opcode;
-            opcode = F8;
-        }
-
-    if(rex.w) return RunF0(emu, rex, addr_entry);
 
     switch(opcode) {
         
