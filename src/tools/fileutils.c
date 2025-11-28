@@ -147,7 +147,7 @@ int FileIsPython(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
+    char head[25] = {0};
     int sz = fread(head, strlen(pythonsign), 1, f);
     fclose(f);
     if(sz!=1)
