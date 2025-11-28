@@ -1247,6 +1247,7 @@ typedef uintptr_t (*LFXpLp_t)(void*, void*, uintptr_t, void*);
 typedef void* (*pFEupi_t)(x64emu_t*, uint32_t, void*, int32_t);
 typedef void* (*pFEupp_t)(x64emu_t*, uint32_t, void*, void*);
 typedef void* (*pEEpii_t)(x64emu_t*, void*, int32_t, int32_t);
+typedef void* (*pEEpip_t)(x64emu_t*, void*, int32_t, void*);
 typedef void* (*pFEpip_t)(x64emu_t*, void*, int32_t, void*);
 typedef void* (*pFEpui_t)(x64emu_t*, void*, uint32_t, int32_t);
 typedef void* (*pEEppi_t)(x64emu_t*, void*, void*, int32_t);
@@ -3428,6 +3429,7 @@ void LFXpLp_32(x64emu_t *emu, uintptr_t fcn) { LFXpLp_t fn = (LFXpLp_t)fcn; R_EA
 void pFEupi_32(x64emu_t *emu, uintptr_t fcn) { pFEupi_t fn = (pFEupi_t)fcn; R_EAX = to_ptrv(fn(emu, from_ptri(uint32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); }
 void pFEupp_32(x64emu_t *emu, uintptr_t fcn) { pFEupp_t fn = (pFEupp_t)fcn; R_EAX = to_ptrv(fn(emu, from_ptri(uint32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12))); }
 void pEEpii_32(x64emu_t *emu, uintptr_t fcn) { pEEpii_t fn = (pEEpii_t)fcn; errno = emu->libc_err; R_EAX = to_ptrv(fn(emu, from_ptriv(R_ESP + 4), from_ptri(int32_t, R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); emu->libc_err = errno; }
+void pEEpip_32(x64emu_t *emu, uintptr_t fcn) { pEEpip_t fn = (pEEpip_t)fcn; errno = emu->libc_err; R_EAX = to_ptrv(fn(emu, from_ptriv(R_ESP + 4), from_ptri(int32_t, R_ESP + 8), from_ptriv(R_ESP + 12))); emu->libc_err = errno; }
 void pFEpip_32(x64emu_t *emu, uintptr_t fcn) { pFEpip_t fn = (pFEpip_t)fcn; R_EAX = to_ptrv(fn(emu, from_ptriv(R_ESP + 4), from_ptri(int32_t, R_ESP + 8), from_ptriv(R_ESP + 12))); }
 void pFEpui_32(x64emu_t *emu, uintptr_t fcn) { pFEpui_t fn = (pFEpui_t)fcn; R_EAX = to_ptrv(fn(emu, from_ptriv(R_ESP + 4), from_ptri(uint32_t, R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); }
 void pEEppi_32(x64emu_t *emu, uintptr_t fcn) { pEEppi_t fn = (pEEppi_t)fcn; errno = emu->libc_err; R_EAX = to_ptrv(fn(emu, from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8), from_ptri(int32_t, R_ESP + 12))); emu->libc_err = errno; }

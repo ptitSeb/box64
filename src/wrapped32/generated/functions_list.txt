@@ -1153,6 +1153,7 @@
 #() pFEupi -> pFEupi
 #() pFEupp -> pFEupp
 #() pEEpii -> pEEpii
+#() pEEpip -> pEEpip
 #() pFEpip -> pFEpip
 #() pFEpui -> pFEpui
 #() pEEppi -> pEEppi
@@ -2557,6 +2558,8 @@ wrappedlibc:
 - pEipi:
   - shmat
 - pEpii:
+- pEpip:
+  - fts_open
 - pEpII:
 - pFpui:
   - gethostbyaddr

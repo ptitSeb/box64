@@ -347,7 +347,7 @@ GOW(fgets, pEpiS)
 GO(__fgets_chk, pEpLiS)
 // fgetspent
 // fgetspent_r  // Weak
-//GO(fgets_unlocked, pEpip)
+GOW(fgets_unlocked, pEpiS)
 // __fgets_unlocked_chk
 //GOW(fgetwc, iEp)
 //GOW(fgetwc_unlocked, iEp)
@@ -442,10 +442,10 @@ GOW(ftruncate, iEil)
 GOW(ftruncate64, iEiI)
 //GOW(ftrylockfile, iEp)
 //GOM(fts_children, pEEpi) //%%
-//GOM(fts_close, iEEp)     //%%
-//GOM(fts_open, pEEpip)    //%%
-//GOM(fts_read, pEEp)      //%%
-// fts_set
+GO(fts_close, iEp)
+GOM(fts_open, pEEpip)
+GO(fts_read, pEp)
+GO(fts_set, iEppi)
 GOM(ftw, iEEppi)         //%%
 GOM(ftw64, iEEppi)       //%%
 GOW(funlockfile, vFS)
@@ -1911,8 +1911,8 @@ GO(__uflow, iES)
 // ulckpwdf // Weak
 // ulimit   // Weak
 GOW(umask, uEu)
-//GOW(umount, iEp)
-//GOW(umount2, iEpi)
+GOW(umount, iEp)
+GOW(umount2, iEpi)
 GOWM(uname, iEp) //%%,noE
 //GO(__underflow, iEp)
 GOW(ungetc, iEiS)
