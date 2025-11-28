@@ -3733,7 +3733,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 JUMP(j64, 0);
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {
                     // out of the block
-                    SET_NODF();
                     BARRIER(BARRIER_FLOAT);
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                 } else {
