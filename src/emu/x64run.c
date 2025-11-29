@@ -129,7 +129,11 @@ x64emurun:
         }
 
         if(rex.seg)
+            #ifdef TEST_INTERPRETER
+            rex.offset = GetSegmentBaseEmu(test->ref, rex.seg);
+            #else
             rex.offset = GetSegmentBaseEmu(emu, rex.seg);
+            #endif
         
         if(rex.isf0) {
             /* LOCK prefix */

@@ -174,6 +174,7 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
     // check if test is a valid emu struct
     if(!test->emu) {
         test->emu = NewX64Emu(my_context, ip, (uintptr_t)ref->init_stack, ref->size_stack, 0);
+        test->ref = ref;
         CopyEmu(test->emu, ref);
         test->emu->tlsdata = ref->tlsdata;
     } else {
@@ -184,6 +185,7 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
         if(ip != prev_ip || !test->test || !test->clean) {
             CopyEmu(test->emu, ref);
             test->emu->tlsdata = ref->tlsdata;
+            test->ref = ref;
         }
     }
     // do a dry single step

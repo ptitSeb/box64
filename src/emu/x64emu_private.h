@@ -37,6 +37,7 @@ typedef struct x64emu_s x64emu_t;
 
 typedef struct x64test_s {
     x64emu_t*   emu;
+    x64emu_t*   ref;
     uintptr_t   memaddr;
     int         memsize;
     int         test;
