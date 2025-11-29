@@ -1495,7 +1495,9 @@ void* inplace_XRRMonitorInfo_enlarge(void* a, int n)
     if(a) {
         my_XRRMonitorInfo_32_t* src = a;
         my_XRRMonitorInfo_t* dst = a;
-        for (int i = 0; i < n; ++i) {
+        src+=n-1;
+        dst+=n-1;
+        for(int i=n-1; i>=0; --i, --src, --dst) {
             for(int j=dst->noutput-1; j>=0; --j)
                 ((unsigned long*)dst->outputs)[j] = from_ulong(dst->outputs[j]);
             dst->outputs = from_ptrv(src->outputs);
@@ -1509,8 +1511,6 @@ void* inplace_XRRMonitorInfo_enlarge(void* a, int n)
             dst->automatic = src->automatic;
             dst->primary = src->primary;
             dst->name = from_ulong(src->name);
-            src++;
-            dst++;
         }
     }
     return a;
