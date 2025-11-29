@@ -17,8 +17,7 @@ const char* gstcontrollerName = "libgstcontroller-1.0.so.0";
 
 #define LIBNAME gstcontroller
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #include "wrappedlib_init.h"

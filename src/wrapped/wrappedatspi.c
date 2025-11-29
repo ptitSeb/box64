@@ -87,8 +87,7 @@ EXPORT void* my_atspi_event_listener_new(x64emu_t* emu, void* f, void* data, voi
     return my->atspi_event_listener_new(find_AtspiEventListenerCB_Fct(f), data, find_GDestroyNotify_Fct(d));
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #include "wrappedlib_init.h"

@@ -639,9 +639,8 @@ EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invoca
     my->g_dbus_method_invocation_return_error(invocation, domain, code, fmt, VARARGS);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     SetGApplicationID(my->g_application_get_type());    \

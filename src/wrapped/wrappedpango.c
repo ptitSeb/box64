@@ -93,9 +93,8 @@ EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass
     my->pango_attribute_init(attr, find_PangoAttrClass_Fct(klass));
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define NEEDED_LIBS "libgobject-2.0.so.0", "libglib-2.0.so.0"
 

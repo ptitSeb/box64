@@ -110,8 +110,7 @@ EXPORT void* my_avio_alloc_context(x64emu_t* emu, void* buffer, int buffer_size,
     return my->avio_alloc_context(buffer, buffer_size, write_flag, opaque, find_read_packet_Fct(read_packet), find_write_packet_Fct(write_packet), find_seek_Fct(seek));
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #include "wrappedlib_init.h"

@@ -96,8 +96,7 @@ void** my_GetGthreadsGotInitialized()
     return (void**)&g_threads_got_initialized;
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #include "wrappedlib_init.h"

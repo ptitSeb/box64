@@ -17,9 +17,8 @@ const char* pangocairoName = "libpangocairo-1.0.so.0";
 
 #define LIBNAME pangocairo
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 
 #define NEEDED_LIBS "libpango-1.0.so.0"

@@ -113,9 +113,8 @@ EXPORT void my_ibus_input_context_process_key_event_async(x64emu_t* emu, void* b
     my->ibus_input_context_process_key_event_async(bus, keyval, keycode, state, timeout, cancel, findGAsyncReadyCallbackFct(f), data);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define NEEDED_LIBS "libgio-2.0.so.0", "libgobject-2.0.so.0", "libglib-2.0.so.0"
 

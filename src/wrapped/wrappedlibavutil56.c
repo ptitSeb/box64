@@ -298,8 +298,7 @@ EXPORT void* my_av_buffer_create(x64emu_t* emu, void* data, int size, void* f, v
     return my->av_buffer_create(data, size, find_free_Fct(f), opaque, flags);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #include "wrappedlib_init.h"

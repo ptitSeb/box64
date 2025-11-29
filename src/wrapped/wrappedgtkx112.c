@@ -1276,9 +1276,8 @@ static void addGtk2Alternate(library_t* lib)
     #undef GO
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     addGtk2Alternate(lib);                                                      \
