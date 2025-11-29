@@ -198,9 +198,8 @@ EXPORT void my3_gdk_threads_set_lock_functions(x64emu_t* emu, void* enter_fn, vo
     my->gdk_threads_set_lock_functions(findGCallbackFct(enter_fn), findGCallbackFct(leave_fn));
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define ALTMY my3_
 

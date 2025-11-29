@@ -1254,9 +1254,8 @@ EXPORT int my_gst_iterator_find_custom(x64emu_t* emu, void* it, void* f, void* e
     return my->gst_iterator_find_custom(it, findGCompareFuncFct(f), elem, data);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     SetGstObjectID(my->gst_object_get_type());                 \

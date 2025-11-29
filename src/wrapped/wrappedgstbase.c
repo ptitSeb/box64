@@ -222,9 +222,8 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
     my->gst_collect_pads_set_buffer_function(pads, findGstCollectPadsBufferFunctionFct(f), data);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     SetGstBaseTransformID(my->gst_base_transform_get_type());\

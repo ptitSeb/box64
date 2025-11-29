@@ -952,9 +952,8 @@ EXPORT size_t my_g_type_module_register_type(x64emu_t* emu, my_GTypeModule_t* mo
     return my->g_type_module_register_type(module, parent_type, type_name, type_info, flags);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     SetGObjectID(my->g_object_get_type());  \

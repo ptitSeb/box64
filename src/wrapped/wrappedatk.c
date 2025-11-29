@@ -150,9 +150,8 @@ EXPORT uint32_t my_atk_add_global_event_listener(x64emu_t* emu, void* f, void* p
     return my->atk_add_global_event_listener(find_GSignalEmissionHook_Fct(f), p);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     SetAtkObjectID(my->atk_object_get_type());  \

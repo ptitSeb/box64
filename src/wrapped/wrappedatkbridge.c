@@ -20,9 +20,8 @@ EXPORT int my_atk_bridge_adaptor_init(void* argc, void** argv)
     return 0;
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define NEEDED_LIBS "libatk-1.0.so.0", "libSM.so.6", "libICE.so.6", "libXau.so.6", "libxcb.so.1"
 

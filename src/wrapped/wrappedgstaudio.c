@@ -35,9 +35,8 @@ typedef size_t  (*LFv_t)();
 
 #include "wrappercallback.h"
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
     SetGstAudioDecoderID(my->gst_audio_decoder_get_type()); \

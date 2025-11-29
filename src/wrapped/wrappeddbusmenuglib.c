@@ -99,8 +99,7 @@ EXPORT void my_dbusmenu_menuitem_send_about_to_show(x64emu_t* emu, void* mi, voi
     my->dbusmenu_menuitem_send_about_to_show(mi, findDbusmenuMenuitemFct(f), data);
 }
 
-#define PRE_INIT    \
-    if(BOX64ENV(nogtk)) \
-        return -1;
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
 
 #include "wrappedlib_init.h"
