@@ -2514,12 +2514,11 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return;
-    if(dyn->f.dfnone || ((dyn->insts[jmp].f_exit.dfnone && !dyn->insts[jmp].f_entry.dfnone) && !dyn->insts[jmp].x64.use_flags))  // flags are fully known, nothing we can do more
+    if((dyn->insts[jmp].f_exit.dfnone && !dyn->insts[jmp].f_entry.dfnone) && !dyn->insts[jmp].x64.use_flags)  // flags will be fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int dfnone = 0;
-    int go = (dyn->insts[jmp].f_entry.dfnone!=dyn->f.dfnone && !dyn->insts[jmp].df_notneeded)?1:0;
-    if(go && dyn->insts[jmp].f_entry.dfnone) { FORCE_DFNONE(); dfnone = 1; }
+    if(dyn->insts[jmp].f_entry.dfnone!=dyn->f.dfnone && !dyn->insts[jmp].df_notneeded && dyn->insts[ninst].f_exit.dfnone) { FORCE_DFNONE(); }
+    int go = dyn->f.dfnone?0:1;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: 
             go = 0;
@@ -2528,12 +2527,10 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
             if(go && !(dyn->insts[jmp].x64.need_before&X_PEND) && (dyn->f.pending!=SF_UNKNOWN)) {
                 // just clear df flags
                 go = 0;
-                if(!dfnone)
-                    FORCE_DFNONE();
             }
             break;
     }
-    if(go) {
+    if(!dyn->f.dfnone) {
         if(dyn->f.pending!=SF_PENDING) {
             LDRw_U12(x1, xEmu, offsetof(x64emu_t, df));
             j64 = (GETMARKF2)-(dyn->native_size);
@@ -2547,6 +2544,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
             MSR_nzcv(x6);
         MARKF2;
     }
+    MESSAGE(LOG_DUMP, "\t---- Flags fetch\n");
 }
 
 static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)

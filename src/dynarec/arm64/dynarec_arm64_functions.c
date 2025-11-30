@@ -784,7 +784,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
 
     static char buf[4096];
-    int length = sprintf(buf, "barrier=%d state=%d/%d/%d(%d:%d->%d:%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",
+    int length = sprintf(buf, "barrier=%d state=%d/%d/%d(%d:%d->%d:%d)/%d, %s=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
         dyn->f.pending,
@@ -793,6 +793,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         dyn->insts[ninst].f_entry.dfnone,
         dyn->insts[ninst].f_exit.pending,
         dyn->insts[ninst].f_exit.dfnone,
+        dyn->insts[ninst].df_notneeded,
         dyn->insts[ninst].x64.may_set ? "may" : "set",
         dyn->insts[ninst].x64.set_flags,
         dyn->insts[ninst].x64.gen_flags,
@@ -1249,6 +1250,8 @@ void updateUneeded(dynarec_arm_t* dyn)
     for(int ninst=0; ninst<dyn->size; ++ninst) {
         if(dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.ymm_unneeded)
             propagateXYMMUneeded(dyn, ninst, dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
+        if(dyn->insts[ninst].df_notneeded)
+            propagate_nodf(dyn, ninst);
     }
     // try to add some preload of XYMM on jump were it would make sense
     for(int ninst=0; ninst<dyn->size; ++ninst)

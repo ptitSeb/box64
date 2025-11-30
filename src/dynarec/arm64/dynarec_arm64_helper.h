@@ -1158,18 +1158,18 @@
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(((A)!=X_PEND && dyn->f.pending!=SF_SET)          \
-    && (dyn->f.pending!=SF_SET_PENDING)) {              \
-        if(dyn->f.pending!=SF_PENDING) {                \
-            LDRw_U12(x3, xEmu, offsetof(x64emu_t, df)); \
-            j64 = (GETMARKF)-(dyn->native_size);        \
-            CBZw(x3, j64);                              \
-        }                                               \
-        TABLE64C(x6, const_updateflags_arm64);          \
-        BLR(x6);                                        \
-        MARKF;                                          \
-        dyn->f.pending = SF_SET;                        \
-        SET_DFNONE();                                   \
+    if(((A)!=X_PEND && dyn->f.pending!=SF_SET)              \
+    && (dyn->f.pending!=SF_SET_PENDING) && !dyn->f.dfnone) {\
+        if(dyn->f.pending!=SF_PENDING) {                    \
+            LDRw_U12(x3, xEmu, offsetof(x64emu_t, df));     \
+            j64 = (GETMARKF)-(dyn->native_size);            \
+            CBZw(x3, j64);                                  \
+        }                                                   \
+        TABLE64C(x6, const_updateflags_arm64);              \
+        BLR(x6);                                            \
+        MARKF;                                              \
+        dyn->f.pending = SF_SET;                            \
+        SET_DFNONE();                                       \
     }
 #endif
 
@@ -1180,13 +1180,14 @@
     && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
         READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A)));\
     if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
-        case SF_SUBSET: SET_DFNONE(); dyn->f.pending = SF_SET; break;                                         \
+        case SF_SUBSET: SET_DFNONE(); dyn->f.pending = SF_SET; break;                           \
         case SF_SET: dyn->f.pending = SF_SET; break;                                            \
         case SF_SET_DF: dyn->f.pending = SF_SET; dyn->f.dfnone = 1; break;                      \
         case SF_SET_NODF: dyn->f.pending = SF_SET; dyn->f.dfnone = 0; break;                    \
-        case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
+        case SF_PENDING: dyn->f.pending = SF_PENDING; dyn->f.dfnone = 0; break;                 \
         case SF_SUBSET_PENDING:                                                                 \
         case SF_SET_PENDING:                                                                    \
+            dyn->f.dfnone = 0;                                                                  \
             dyn->f.pending = (dyn->insts[ninst].x64.gen_flags&X_PEND)?SF_SET_PENDING:SF_SET;    \
             break;                                                                              \
     } else dyn->f.pending = SF_SET

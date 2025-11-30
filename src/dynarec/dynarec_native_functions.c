@@ -819,8 +819,16 @@ void propagate_nodf(dynarec_native_t* dyn, int ninst)
             return; // already flagged
         if(dyn->insts[ninst].x64.gen_flags || dyn->insts[ninst].x64.use_flags)
             return; // flags are use, so maybe it's needed
+        #ifdef ARM64
+        if(dyn->insts[ninst].f_exit.dfnone)
+            return;
+        #endif
         dyn->insts[ninst].df_notneeded = 1;
-        --ninst;
+        if(!dyn->insts[ninst].pred_sz)
+            return;
+        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i)
+            propagate_nodf(dyn, dyn->insts[ninst].pred[i]);
+        ninst = dyn->insts[ninst].pred[0];
     }
 }
 
