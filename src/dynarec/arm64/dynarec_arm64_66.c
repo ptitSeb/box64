@@ -22,7 +22,7 @@
 #include "dynarec_arm64_functions.h"
 
 
-uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
@@ -42,17 +42,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(j64);
     MAYUSE(lock);
 
-    while((opcode==0x2E) || (opcode==0x36) || (opcode==0x26) || (opcode==0x66))   // ignoring CS:, SS:, ES: or multiple 0x66
-        opcode = F8;
-
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
-        opcode = F8;
-    }
-    GETREX();
-
-    if(rex.w && !(opcode==0x0f || opcode==0xf0 || opcode==0x64 || opcode==0x65))   // rex.w cancels "66", but not for 66 0f type of prefix
-        return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
+    if(rex.w && !(opcode==0x0f))   // rex.w cancels "66", but not for 66 0f type of prefix
+        return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog); // addr-1, to "put back" opcode
 
     switch(opcode) {
         case 0x01:
@@ -121,12 +112,18 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x0F:
-            switch(rep) {
-                case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
-                case 1: addr = dynarec64_66F20F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
-                case 2: addr = dynarec64_66F30F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+            switch(rex.rep) {
+            case 1:
+                addr = dynarec64_66F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                break;
+            case 2:
+                addr = dynarec64_66F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                break;
+            default:
+                addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
             }
             break;
+
         case 0x11:
             INST_NAME("ADC Ew, Gw");
             READFLAGS(X_CF);
@@ -382,9 +379,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 PUSH1_16(xRBP);
                 PUSH1_16(xRSI);
                 PUSH1_16(xRDI);
-            } else {
-                DEFAULT;
-            }
+            } else
+                return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             break;
         case 0x61:
             if(rex.is32bits) {
@@ -404,19 +400,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIz(xRCX, x1, 0, 16);
                 POP1_16(x1);
                 BFIz(xRAX, x1, 0, 16);
-            } else {
-                DEFAULT;
-            }
-            break;
-
-        case 0x64:
-            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
-            break;
-        case 0x65:
-            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _GS, ok, need_epilog);
-            break;
-        case 0x66:
-            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            } else 
+                return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             break;
 
         case 0x68:
@@ -471,8 +456,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             PUSH1_16(x2);
             break;
         case 0x6C:
+        case 0x6E:
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
         case 0x6D:
-            INST_NAME(opcode == 0x6C ? "INSB" : "INSW");
+            INST_NAME("INSW");
             if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
@@ -486,9 +473,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *need_epilog = 0;
             *ok = 0;
             break;
-        case 0x6E:
         case 0x6F:
-            INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSW");
+            INST_NAME("OUTSW");
             if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
@@ -520,7 +506,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x7e:
         case 0x7f:
             // just use regular conditional jump
-            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
 
         case 0x81:
         case 0x83:
@@ -704,11 +690,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {   // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else {                    // mem <= reg
+                rex.seg = 0;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                if (rex.w)
-                    MOVx_REG(gd, ed);
-                else
-                    BFIx(gd, ed, 0, 16);
+                BFIx(gd, ed, 0, 16);
             }
             break;
         case 0x8E:
@@ -810,96 +794,80 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xA1:
             INST_NAME("MOV AX,Od");
-            if(rex.is32bits)
-                u64 = F32;
+            if(rex.is32bits && rex.is67)
+                u64 = F16S;
+            else if(rex.is32bits || rex.is67)
+                u64 = F32S;
             else
                 u64 = F64;
-            MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
+            unscaled = 0; fixedaddress = 0;
+            if(rex.seg && (u64<0x1000 || (int64_t)u64>-0x1000 || (u64<(0x1000<<1) && !(u64&1)))) {
+                grab_segdata(dyn, addr, ninst, x1, rex.seg, 0);
+                if(u64) {
+                    if(u64<0x100)
+                        {fixedaddress = u64; unscaled = 1;}
+                    else if(u64<(0x1000<<1) && !(u64&1))
+                        fixedaddress = u64;
+                    else if(u64<0x1000)
+                        ADDx_U12(x1, x1, u64);
+                    else if((int64_t)u64 > -0x100)
+                        {fixedaddress = (int64_t)u64; unscaled = 1;}
+                    else
+                        SUBx_U12(x1, x1, -(int64_t)u64);
+                }
+            } else {
+                MOV64y(x1, u64);
+                if(rex.seg) {
+                    grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
+                    ADDx_REGy(x1, x3, x1);
+                }
+            }
+            lock=(rex.seg)?0:isLockAddress(u64);
             SMREADLOCK(lock);
-            LDRH_U12(x2, x1, 0);
+            LDH(x2, x1, fixedaddress);
             BFIz(xRAX, x2, 0, 16);
             break;
 
         case 0xA3:
             INST_NAME("MOV Od,AX");
-            if(rex.is32bits)
-                u64 = F32;
+            if(rex.is32bits && rex.is67)
+                u64 = F16S;
+            else if(rex.is32bits || rex.is67)
+                u64 = F32S;
             else
                 u64 = F64;
-            MOV64z(x1, u64);
-            lock = isLockAddress(u64);
-            STRH_U12(xRAX, x1, 0);
+            unscaled = 0; fixedaddress = 0;
+            if(rex.seg && (u64<0x1000 || (int64_t)u64>-0x1000 || (u64<(0x1000<<1) && !(u64&1)))) {
+                grab_segdata(dyn, addr, ninst, x1, rex.seg, 0);
+                if(u64) {
+                    if(u64<0x100)
+                        {fixedaddress = u64; unscaled = 1;}
+                    else if(u64<(0x1000<<1) && !(u64&1))
+                        fixedaddress = u64;
+                    else if(u64<0x1000)
+                        ADDx_U12(x1, x1, u64);
+                    else if((int64_t)u64 > -0x100)
+                        {fixedaddress = (int64_t)u64; unscaled = 1;}
+                    else
+                        SUBx_U12(x1, x1, -(int64_t)u64);
+                }
+            } else {
+                MOV64y(x1, u64);
+                if(rex.seg) {
+                    grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
+                    ADDx_REGy(x1, x3, x1);
+                }
+            }
+            lock=(rex.seg)?0:isLockAddress(u64);
+            SMREADLOCK(lock);
+            STH(xRAX, x1, fixedaddress);
             SMWRITELOCK(lock);
             break;
         case 0xA4:
-            SMREAD();
-            if(rep) {
-                INST_NAME("REP MOVSB");
-                CBZx_NEXT(xRCX);
-                TBNZ_MARK2(xFlags, F_DF);
-                IF_UNALIGNED(ip) {
-                    MESSAGE(LOG_DEBUG, "\tUnaligned path");
-                    // special optim for large RCX value on forward case only
-                    // but because it's unaligned path, check if a byte per byt is needed, and do 4-bytes per 4-bytes only instead
-                    if(BOX64DRENV(dynarec_safeflags)) {
-                        SUBx_REG(x2, xRDI, xRSI);
-                        CMPSx_U12(x2, 4);
-                        B_MARK(cCC);
-                    }
-                    ORRw_REG(x1, xRSI, xRDI);
-                    ANDw_mask(x1, x1, 0, 1);    //mask = 3
-                    CBNZw_MARK(x1);
-                    MARK3;
-                    CMPSx_U12(xRCX, 4);
-                    B_MARK(cCC);
-                    LDRw_S9_postindex(x1, xRSI, 4);
-                    STRw_S9_postindex(x1, xRDI, 4);
-                    SUBx_U12(xRCX, xRCX, 4);
-                    CBNZx_MARK3(xRCX);
-                    CBZx_MARKLOCK(xRCX);
-                } else {
-                    if(BOX64DRENV(dynarec_safeflags)) {
-                        SUBx_REG(x2, xRDI, xRSI);
-                        CMPSx_U12(x2, 8);
-                        B_MARK(cCC);
-                    }
-                    // special optim for large RCX value on forward case only
-                    MARK3;
-                    CMPSx_U12(xRCX, 8);
-                    B_MARK(cCC);
-                    LDRx_S9_postindex(x1, xRSI, 8);
-                    STRx_S9_postindex(x1, xRDI, 8);
-                    SUBx_U12(xRCX, xRCX, 8);
-                    CBNZx_MARK3(xRCX);
-                    CBZx_MARKLOCK(xRCX);
-                }
-                MARK;   // Part with DF==0
-                LDRB_S9_postindex(x1, xRSI, 1);
-                STRB_S9_postindex(x1, xRDI, 1);
-                SUBx_U12(xRCX, xRCX, 1);
-                CBNZx_MARK(xRCX);
-                B_MARKLOCK_nocond;
-                MARK2;  // Part with DF==1
-                LDRB_S9_postindex(x1, xRSI, -1);
-                STRB_S9_postindex(x1, xRDI, -1);
-                SUBx_U12(xRCX, xRCX, 1);
-                CBNZx_MARK2(xRCX);
-                MARKLOCK;
-                // done
-            } else {
-                INST_NAME("MOVSB");
-                GETDIR(x3, 1);
-                LDRB_U12(x1, xRSI, 0);
-                STRB_U12(x1, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
-            }
-            SMWRITE();
-            break;
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
         case 0xA5:
             SMREAD();
-            if(rep) {
+            if(rex.rep) {
                 INST_NAME("REP MOVSW");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -928,10 +896,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xA7:
             SMREAD();
-            switch(rep) {
+            switch(rex.rep) {
             case 1:
             case 2:
-                if(rep==1) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
+                if(rex.rep==1) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
                     SETFLAGS(X_ALL, SF_SET);
@@ -944,7 +912,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRH_S9_postindex(x2, xRDI, 2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                B_MARK3((rep==1)?cEQ:cNE);
+                B_MARK3((rex.rep==1)?cEQ:cNE);
                 CBNZx_MARK(xRCX);
                 B_MARK3_nocond;
                 MARK2;  // Part with DF==1
@@ -952,7 +920,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRH_S9_postindex(x2, xRDI, -2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                B_MARK3((rep==1)?cEQ:cNE);
+                B_MARK3((rex.rep==1)?cEQ:cNE);
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
@@ -979,7 +947,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xAB:
-            if(rep) {
+            if(rex.rep) {
                 INST_NAME("REP STOSW");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -1004,7 +972,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xAD:
-            if(rep) {
+            if(rex.rep) {
                 INST_NAME("REP LODSW");
                 CBZx_NEXT(xRCX);
                 TBNZ_MARK2(xFlags, F_DF);
@@ -1030,10 +998,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xAF:
-            switch(rep) {
+            switch(rex.rep) {
             case 1:
             case 2:
-                if(rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
+                if(rex.rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
                     SETFLAGS(X_ALL, SF_SET);
@@ -1046,14 +1014,14 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRH_S9_postindex(x2, xRDI, 2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                B_MARK3((rep==1)?cEQ:cNE);
+                B_MARK3((rex.rep==1)?cEQ:cNE);
                 CBNZx_MARK(xRCX);
                 B_MARK3_nocond;
                 MARK2;  // Part with DF==1
                 LDRH_S9_postindex(x2, xRDI, -2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CMPSw_REG(x1, x2);
-                B_MARK3((rep==1)?cEQ:cNE);
+                B_MARK3((rex.rep==1)?cEQ:cNE);
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
@@ -1469,49 +1437,13 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE5:                      /* IN AX, Ib */
         case 0xE6:                      /* OUT Ib, AL */
         case 0xE7:                      /* OUT Ib, AX */
-            INST_NAME(opcode==0xE4?"IN AL, Ib":(opcode==0xE5?"IN AX, Ib":(opcode==0xE6?"OUT Ib, AL":"OUT Ib, AX")));
-            if (rex.is32bits && BOX64ENV(ignoreint3)) {
-                F8;
-            } else {
-                if(BOX64DRENV(dynarec_safeflags)>1) {
-                    READFLAGS(X_PEND);
-                } else {
-                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-                }
-                u8 = F8;
-                GETIP(ip);
-                STORE_XEMU_CALL(xRIP);
-                CALL_S(const_native_priv, -1);
-                LOAD_XEMU_CALL(xRIP);
-                jump_to_epilog(dyn, 0, xRIP, ninst);
-                *need_epilog = 0;
-                *ok = 0;
-            }
-            break;
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
 
         case 0xEC:                      /* IN AL, DX */
         case 0xED:                      /* IN AX, DX */
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, AX */
-            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN AX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, AX")));
-            if(rex.is32bits && BOX64ENV(ignoreint3))
-            {} else {
-                if(BOX64DRENV(dynarec_safeflags)>1) {
-                    READFLAGS(X_PEND);
-                } else {
-                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-                }
-                GETIP(ip);
-                STORE_XEMU_CALL(xRIP);
-                CALL_S(const_native_priv, -1);
-                LOAD_XEMU_CALL(xRIP);
-                jump_to_epilog(dyn, 0, xRIP, ninst);
-                *need_epilog = 0;
-                *ok = 0;
-            }
-            break;
-        case 0xF0:
-            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
 
         case 0xF7:
             nextop = F8;
@@ -1673,17 +1605,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xF8:
-            INST_NAME("CLC");
-            SETFLAGS(X_CF, SF_SUBSET);
-            SET_DFNONE();
-            BFCx(xFlags, F_CF, 1);
-            break;
         case 0xF9:
-            INST_NAME("STC");
-            SETFLAGS(X_CF, SF_SUBSET);
-            SET_DFNONE();
-            ORRx_mask(xFlags, xFlags, 1, 0, 0); // xFlags | 1
-            break;
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
 
         case 0xFF:
             nextop = F8;

@@ -20,7 +20,7 @@
 #include "dynarec_arm64_functions.h"
 
 
-uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;
 
@@ -39,18 +39,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(wb1);
     MAYUSE(wb2);
     MAYUSE(j64);
-
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
-        opcode = F8;
-    }
-    while((opcode==0x36) || (opcode==0x2e) || (opcode==0x3E) || (opcode==0x26)) {
-        opcode = F8;
-    }
-
-
-    GETREX();
-    //SKIPTEST(x1);   // DYNAREC_TEST doesn't work, by nature, on atomic opration
 
     switch(opcode) {
         case 0x00:
@@ -212,7 +200,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         ASRxw(x1, gd, 3); // r1 = (gd>>3)
                         if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
-                        ADDz_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
+                        ADDy_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
                         wback = x3;
                         MOV32w(x5, 1);
@@ -238,7 +226,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 case 0xB0:
-                    switch(rep) {
+                    switch(rex.rep) {
                         case 0:
                             nextop = F8;
                             if(MODREG) {
@@ -281,7 +269,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 case 0xB1:
-                    switch(rep) {
+                    switch(rex.rep) {
                         case 0:
                             nextop = F8;
                             if(MODREG) {
@@ -385,7 +373,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         ASRx(x1, gd, 3); // r1 = (gd>>3), there might be an issue for negative 32bits values here
                         if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
-                        ADDz_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
+                        ADDy_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
                         wback = x3;
                         MOV32w(x5, 1);
@@ -561,7 +549,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         ASRx(x1, gd, 3); // r1 = (gd>>3), there might be an issue for negative 32bits values here
                         if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
-                        ADDz_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
+                        ADDy_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
                         wback = x3;
                         MOV32w(x5, 1);
@@ -588,7 +576,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
 
                 case 0xC0:
-                    switch(rep) {
+                    switch(rex.rep) {
                         case 0:
                             nextop = F8;
                             if(MODREG) {
@@ -629,7 +617,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 case 0xC1:
-                    switch(rep) {
+                    switch(rex.rep) {
                         case 0:
                             nextop = F8;
                             if(MODREG) {
@@ -1022,9 +1010,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             break;
-
-        case 0x66:
-            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
 
         case 0x80:
             nextop = F8;

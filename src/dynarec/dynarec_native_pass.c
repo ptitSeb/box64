@@ -180,6 +180,49 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #endif
 
+        #ifdef ARM64
+        uint8_t pk = PK(0);
+        
+        rex.rex = 0;
+        rex.seg = 0;
+        rex.offset = 0;
+        rex.is32bits = is32bits;
+        rex.is66 = 0;
+        rex.is67 = 0;
+        rex.isf0 = 0;
+        rex.rep = 0;
+        while((pk==0xF2) || (pk==0xF3) || (pk==0xf0)
+            || (pk==0x3E) || (pk==0x26) || (pk==0x2e) || (pk==0x36) 
+            || (pk==0x64) || (pk==0x65) || (pk==0x66) || (pk==0x67)
+            || (!is32bits && (pk>=0x40 && pk<=0x4f))) {
+            switch (pk) {
+                case 0xF0: rex.isf0 = 1; rex.rex = 0; break;
+                case 0xF2: rex.rep = 1; rex.rex = 0; break;
+                case 0xF3: rex.rep = 2; rex.rex = 0; break;
+                case 0x26: /* ES: */
+                case 0x2E: /* CS: */
+                case 0x36: /* SS; */
+                case 0x3E: /* DS; */ 
+                           rex.seg =   0; rex.rex = 0; break;
+                case 0x64: rex.seg = _FS; rex.rex = 0; break;
+                case 0x65: rex.seg = _GS; rex.rex = 0; break;
+                case 0x66: rex.is66 = 1; rex.rex = 0; break;
+                case 0x67: rex.is67 = 1; rex.rex = 0; break;
+                case 0x40 ... 0x4F: rex.rex = pk; break;
+            }
+            ++addr;
+            pk = PK(0);
+        }
+        if(rex.isf0) {
+            if(rex.is66 && !rex.w)
+                addr = dynarec64_66F0(dyn, addr, ip, ninst, rex, &ok, &need_epilog);
+            else
+                addr = dynarec64_F0(dyn, addr, ip, ninst, rex, &ok, &need_epilog);
+        } else if(rex.is66)
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, &ok, &need_epilog);
+        else
+            addr = dynarec64_00(dyn, addr, ip, ninst, rex, &ok, &need_epilog);
+        #else
         rep = 0;
         rex.is32bits = is32bits;
         uint8_t pk = PK(0);
@@ -206,6 +249,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
 
         addr = dynarec64_00(dyn, addr, ip, ninst, rex, rep, &ok, &need_epilog);
+        #endif
         if(dyn->abort)
             return ip;
         INST_EPILOG;

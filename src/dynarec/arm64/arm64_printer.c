@@ -565,6 +565,16 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "SUB %s, %s, %s %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[sf][shift], imm);
         return buff;
     }
+    if(isMask(opcode, "f0001011001mmmmmoooiiinnnnnddddd", &a)) {
+        const char* shifts[2][8] = {{ "UXTB", "UXTH", "LSL", "UXTX", "SXTB", "SXTH", "SXTW", "SXTX"}, {"UXTB", "UXTH", "UXTW", "LSL", "SXTB", "SXTH", "SXTW", "SXTX" }};
+        if(((sf==0 && shift==2) || (sf==1 && shift==3)) && imm==0)
+            snprintf(buff, sizeof(buff), "ADD %s, %s, %s", sf?XtSp[Rd]:WtSp[Rd], sf?XtSp[Rn]:WtSp[Rn], sf?XtSp[Rm]:WtSp[Rm]);
+        else if(shift==0)
+            snprintf(buff, sizeof(buff), "ADD %s, %s, %s %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[sf][shift]);
+        else
+            snprintf(buff, sizeof(buff), "ADD %s, %s, %s %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[sf][shift], imm);
+        return buff;
+    }
     // ---- LOGIC
     if(isMask(opcode, "f11100100Nrrrrrrssssssnnnnnddddd", &a)) {
         uint64_t i = DecodeBitMasks(a.N, imms, immr);
