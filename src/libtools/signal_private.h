@@ -40,7 +40,7 @@ enum
 # define X64_RIP        X64_RIP
   X64_EFL,
 # define X64_EFL        X64_EFL
-  X64_CSGSFS,           /* Actually short cs, gs, fs, __pad0.  */
+  X64_CSGSFS,           /* Actually short cs, gs, fs, ss.  */
 # define X64_CSGSFS     X64_CSGSFS
   X64_ERR,
 # define X64_ERR        X64_ERR

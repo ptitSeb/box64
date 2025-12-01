@@ -194,7 +194,7 @@ uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_
             // flags
             sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
             // get segments
-            sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
+            sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32) | (((uint64_t)(R_SS))<<48) ;
         } else {
             printf_log(LOG_NONE, "Warning, longjmp in signal but no sigcontext to change\n");
         }
@@ -1021,7 +1021,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64 | (1<<F_RF);   // with RF set
     CLEAR_FLAG(F_TF);   // now clear TF flags inside the signal handler
     // get segments
-    sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
+    sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32) | (((uint64_t)(R_SS))<<48);
     if(R_CS==0x23) {
         // trucate regs to 32bits, just in case
         #define GO(R)   sigcontext->uc_mcontext.gregs[X64_R##R]&=0xFFFFFFFF
@@ -1252,6 +1252,8 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             GO(GS);
             seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
             GO(FS);
+            seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 48)&0xffff;
+            GO(SS);
             #undef GO
             printf_log((sig==10)?LOG_DEBUG:log_minimum, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p (resume with %s)\n", (void*)R_RIP, (void*)R_RSP, (skip==3)?"Dynarec":"Interp");
             if(old_code)
@@ -1304,6 +1306,8 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     GO(GS);
     seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 32)&0xffff;
     GO(FS);
+    seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 48)&0xffff;
+    GO(SS);
     #undef GO
 
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
@@ -2254,7 +2258,7 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
     u->uc_mcontext.gregs[X64_R14] = R_R14;
     u->uc_mcontext.gregs[X64_R15] = R_R15;
     // get segments
-    u->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
+    u->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32) | (((uint64_t)(R_SS))<<48);
     // get FloatPoint status
     u->uc_mcontext.fpregs = ucp + 408;
     fpu_savenv(emu, (void*)u->uc_mcontext.fpregs, 1);
@@ -2295,6 +2299,7 @@ EXPORT int my_setcontext(x64emu_t* emu, void* ucp)
     R_CS = (u->uc_mcontext.gregs[X64_CSGSFS]>> 0)&0xffff;
     R_GS = (u->uc_mcontext.gregs[X64_CSGSFS]>>16)&0xffff;
     R_FS = (u->uc_mcontext.gregs[X64_CSGSFS]>>32)&0xffff;
+    R_SS = (u->uc_mcontext.gregs[X64_CSGSFS]>>48)&0xffff;
     // set FloatPoint status
     fpu_loadenv(emu, (void*)u->uc_mcontext.fpregs, 1);
     emu->mxcsr.x32 = *(uint32_t*)(ucp + 432);

@@ -226,7 +226,7 @@ void EmitWineInt(x64emu_t* emu, int num, void* addr)
         ResetFlags(emu);
         sigcontext->uc_mcontext.gregs[X64_EFL] = emu->eflags.x64;
         // get segments
-        sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
+        sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32) | (((uint64_t)(R_SS))<<48);
         if(R_CS==0x23) {
             // trucate regs to 32bits, just in case
             #define GO(R)   sigcontext->uc_mcontext.gregs[X64_R##R]&=0xFFFFFFFF
@@ -290,6 +290,7 @@ void EmitWineInt(x64emu_t* emu, int num, void* addr)
         R_CS = sigcontext->uc_mcontext.gregs[X64_CSGSFS]&0xffff;
         R_GS = (sigcontext->uc_mcontext.gregs[X64_CSGSFS]>>16)&0xffff;
         R_FS = (sigcontext->uc_mcontext.gregs[X64_CSGSFS]>>32)&0xffff;
+        R_SS = (sigcontext->uc_mcontext.gregs[X64_CSGSFS]>>48)&0xffff;
         // fpu
         fpu_xrstor_mask(emu, xstate, 0, 0b111);
     }
