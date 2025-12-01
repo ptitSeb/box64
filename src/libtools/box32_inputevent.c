@@ -22,7 +22,7 @@ static int event_fd[NEVENTS] = {-1};
 void addInputEventFD(int fd)
 {
     if(fd<0) return;
-    char fullname[MAX_PATH];
+    char fullname[MAX_PATH] = {0};
     char buf[128];
     sprintf(buf, "/proc/self/fd/%d", fd);
     ssize_t r = readlink(buf, fullname, sizeof(fullname) - 1);
