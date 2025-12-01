@@ -1875,7 +1875,7 @@ EXPORT long my32_readv(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
         struct input_event events[n];
         vec[0].iov_len = n*sizeof(struct input_event);
         vec[0].iov_base = events;
-        size_t ret = readv(fd, vec, 1);
+        ssize_t ret = readv(fd, vec, 1);
         if(ret>0) {
             n = ret/sizeof(struct input_event);
             my_input_event_32_t* d = from_ptrv(iov[0].iov_base);
