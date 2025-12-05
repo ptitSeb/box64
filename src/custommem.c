@@ -109,8 +109,12 @@ static int                 c_blocks = 0;       // capacity of blocks for custom 
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
 static int                 setting_prot = 0;
 
-// Block lookup cache 
+// Block lookup cache (shared for findBlock/free)
 static int last_block_index = -1;
+// Per-type allocation caches for better hit rates
+static int last_block_index_map64 = -1;
+static int last_block_index_map128 = -1;
+static int last_block_index_list = -1;
 
 typedef union mark_s {
     struct {
@@ -584,6 +588,25 @@ void* map128_customMalloc(size_t size, int is32bits)
 {
     size = 128;
     mutex_lock(&mutex_blocks);
+    // Try cached hint first
+    if(last_block_index_map128 >= 0 && last_block_index_map128 < n_blocks) {
+        blocklist_t* hint = &p_blocks[last_block_index_map128];
+        if(hint && hint->block && (hint->type == BTYPE_MAP) && hint->maxfree && (hint->is32bits==is32bits)) {
+            uint8_t* map = hint->first;
+            for(uint32_t idx=hint->lowest; idx<(hint->size>>7); ++idx) {
+                if(!(idx&7) && map[idx>>3]==0xff)
+                    idx+=7;
+                else if(!(map[idx>>3]&(1<<(idx&7)))) {
+                    map[idx>>3] |= 1<<(idx&7);
+                    hint->maxfree -= 128;
+                    hint->lowest = idx+1;
+                    last_block_index = last_block_index_map128;
+                    mutex_unlock(&mutex_blocks);
+                    return hint->block+(idx<<7);
+                }
+            }
+        }
+    }
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].block && (p_blocks[i].type == BTYPE_MAP) && p_blocks[i].maxfree && (p_blocks[i].is32bits==is32bits)) {
             // look for a free block
@@ -595,6 +618,8 @@ void* map128_customMalloc(size_t size, int is32bits)
                     map[idx>>3] |= 1<<(idx&7);
                     p_blocks[i].maxfree -= 128;
                     p_blocks[i].lowest = idx+1;
+                    last_block_index = i;
+                    last_block_index_map128 = i;
                     mutex_unlock(&mutex_blocks);
                     return p_blocks[i].block+(idx<<7);
                 }
@@ -676,6 +701,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     mutex_unlock(&mutex_blocks);
     add_blockstree((uintptr_t)p, (uintptr_t)p+allocsize, i);
     last_block_index = i;
+    last_block_index_map128 = i;
     if(mapallmem) {
         if(setting_prot) {
             // defer the setProtection...
@@ -694,6 +720,26 @@ void* map64_customMalloc(size_t size, int is32bits)
 {
     size = 64;
     mutex_lock(&mutex_blocks);
+    // Try cached hint first
+    if(last_block_index_map64 >= 0 && last_block_index_map64 < n_blocks) {
+        blocklist_t* hint = &p_blocks[last_block_index_map64];
+        if (hint && hint->block && hint->type == BTYPE_MAP64 && hint->maxfree && (hint->is32bits==is32bits)) {
+            uint16_t* map = hint->first;
+            uint32_t slices = hint->size >> 6;
+            for (uint32_t idx = hint->lowest; idx < slices; ++idx) {
+                if (!(idx & 15) && map[idx >> 4] == 0xFFFF)
+                    idx += 15;
+                else if (!(map[idx >> 4] & (1u << (idx & 15)))) {
+                    map[idx >> 4] |= 1u << (idx & 15);
+                    hint->maxfree -= 64;
+                    hint->lowest = idx + 1;
+                    last_block_index = last_block_index_map64;
+                    mutex_unlock(&mutex_blocks);
+                    return hint->block + (idx << 6);
+                }
+            }
+        }
+    }
     for(int i = 0; i < n_blocks; ++i) {
         if (p_blocks[i].block
          && p_blocks[i].type == BTYPE_MAP64
@@ -701,7 +747,7 @@ void* map64_customMalloc(size_t size, int is32bits)
          && (p_blocks[i].is32bits==is32bits)
         ) {
             uint16_t* map = p_blocks[i].first;
-            uint32_t slices = p_blocks[i].size >> 6; 
+            uint32_t slices = p_blocks[i].size >> 6;
             for (uint32_t idx = p_blocks[i].lowest; idx < slices; ++idx) {
                 if (!(idx & 15) && map[idx >> 4] == 0xFFFF)
                     idx += 15;
@@ -709,6 +755,8 @@ void* map64_customMalloc(size_t size, int is32bits)
                     map[idx >> 4] |= 1u << (idx & 15);
                     p_blocks[i].maxfree -= 64;
                     p_blocks[i].lowest = idx + 1;
+                    last_block_index = i;
+                    last_block_index_map64 = i;
                     mutex_unlock(&mutex_blocks);
                     return p_blocks[i].block + (idx << 6);
                 }
@@ -779,6 +827,7 @@ void* map64_customMalloc(size_t size, int is32bits)
     mutex_unlock(&mutex_blocks);
     add_blockstree((uintptr_t)p, (uintptr_t)p + allocsize, i);
     last_block_index = i;
+    last_block_index_map64 = i;
 
     if (mapallmem) {
         if (setting_prot) {
@@ -807,6 +856,26 @@ void* internal_customMalloc(size_t size, int is32bits)
     blockmark_t* sub = NULL;
     size_t fullsize = size+2*sizeof(blockmark_t);
     mutex_lock(&mutex_blocks);
+    // Try cached hint first
+    if(last_block_index_list >= 0 && last_block_index_list < n_blocks) {
+        blocklist_t* hint = &p_blocks[last_block_index_list];
+        if(hint && hint->block && (hint->type == BTYPE_LIST) && hint->maxfree>=init_size && (hint->is32bits==is32bits)) {
+            size_t rsize = 0;
+            sub = getFirstBlock(hint->block, init_size, &rsize, hint->first);
+            if(sub) {
+                if(size>rsize)
+                    size = init_size;
+                if(rsize-size<THRESHOLD)
+                    size = rsize;
+                void* ret = allocBlock(hint->block, sub, size, &hint->first);
+                if(rsize==hint->maxfree)
+                    hint->maxfree = getMaxFreeBlock(hint->block, hint->size, hint->first);
+                last_block_index = last_block_index_list;
+                mutex_unlock(&mutex_blocks);
+                return ret;
+            }
+        }
+    }
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].block && (p_blocks[i].type == BTYPE_LIST) && p_blocks[i].maxfree>=init_size && (p_blocks[i].is32bits==is32bits)) {
             size_t rsize = 0;
@@ -819,6 +888,8 @@ void* internal_customMalloc(size_t size, int is32bits)
                 void* ret = allocBlock(p_blocks[i].block, sub, size, &p_blocks[i].first);
                 if(rsize==p_blocks[i].maxfree)
                     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
+                last_block_index = i;
+                last_block_index_list = i;
                 mutex_unlock(&mutex_blocks);
                 return ret;
             }
@@ -899,6 +970,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     mutex_unlock(&mutex_blocks);
     add_blockstree((uintptr_t)p, (uintptr_t)p+allocsize, i);
     last_block_index = i;
+    last_block_index_list = i;
     if(mapallmem) {
         if(setting_prot) {
             // defer the setProtection...
@@ -1211,6 +1283,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     if(mapallmem)
         setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
     last_block_index = i;
+    last_block_index_list = i;
     return ret;
 }
 void* customMemAligned(size_t align, size_t size)
@@ -3065,6 +3138,9 @@ void fini_custommem_helper(box64context_t *ctx)
         InternalMunmap(p_blocks[i].block, p_blocks[i].size);
     box_free(p_blocks);
     last_block_index = -1;
+    last_block_index_map64 = -1;
+    last_block_index_map128 = -1;
+    last_block_index_list = -1;
 #if !defined(USE_CUSTOM_MUTEX)
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
