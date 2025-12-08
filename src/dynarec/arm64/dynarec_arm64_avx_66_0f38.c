@@ -105,7 +105,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
         case 0x04:
-            INST_NAME("PMADDUBSW Gx, Vx, Ex");
+            INST_NAME("VPMADDUBSW Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn, ninst);
             q1 = fpu_get_scratch(dyn, ninst);
