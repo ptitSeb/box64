@@ -699,6 +699,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappednspr4.c"
     "${BOX64_ROOT}/src/wrapped/wrappednss3.c"
     "${BOX64_ROOT}/src/wrapped/wrappednssutil3.c"
+    "${BOX64_ROOT}/src/wrapped/wrappednvml.c"
     "${BOX64_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX64_ROOT}/src/wrapped/wrappedopencl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpango.c"

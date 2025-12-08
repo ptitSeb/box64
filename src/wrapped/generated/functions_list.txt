@@ -696,6 +696,7 @@
 #() uFpup
 #() uFpUu
 #() uFpUL
+#() uFpUp
 #() uFpfu
 #() uFpff
 #() uFpli
@@ -1297,6 +1298,8 @@
 #() uFifff
 #() uFuipi
 #() uFuuuu
+#() uFuupp
+#() uFupup
 #() uFuppU
 #() uFuppd
 #() uFuppp
@@ -1331,6 +1334,7 @@
 #() uFpUUu
 #() uFpULu
 #() uFpULp
+#() uFpUpp
 #() uFplup
 #() uFpLUL
 #() uFpLpU
@@ -1350,6 +1354,7 @@
 #() uFppLp
 #() uFpppi
 #() uFpppu
+#() uFpppU
 #() uFpppd
 #() uFpppL
 #() uFpppp
@@ -1963,10 +1968,13 @@
 #() uFpWuip
 #() uFpuuui
 #() uFpuuuu
+#() uFpuuup
+#() uFpuupu
 #() uFpuupp
 #() uFpupuu
 #() uFpuppp
 #() uFpULuU
+#() uFpUppp
 #() uFpLuUL
 #() uFpLLUU
 #() uFpLpLL
@@ -2520,6 +2528,7 @@
 #() uFpuuuup
 #() uFpuuupp
 #() uFpuuppp
+#() uFpuUppp
 #() uFpupupu
 #() uFpupupp
 #() uFpupppp
@@ -5987,6 +5996,7 @@ wrappednss3:
 - iFpIppp:
   - CERT_PKIXVerifyCert
 wrappednssutil3:
+wrappednvml:
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop
