@@ -11,13 +11,22 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 typedef void* (*pFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
+typedef int32_t (*iFpuppupppp_t)(void*, uint32_t, void*, void*, uint32_t, void*, void*, void*, void*);
+typedef int32_t (*iFppLuppupp_t)(void*, void*, uintptr_t, uint32_t, void*, void*, uint32_t, void*, void*);
+typedef void* (*pFpuppupppp_t)(void*, uint32_t, void*, void*, uint32_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(clSetEventCallback, iFppp_t) \
+	GO(clSetMemObjectDestructorCallback, iFppp_t) \
 	GO(clCreateContextFromType, pFpuppp_t) \
 	GO(clBuildProgram, iFpupppp_t) \
-	GO(clCreateContext, pFpupppp_t)
+	GO(clCreateContext, pFpupppp_t) \
+	GO(clCompileProgram, iFpuppupppp_t) \
+	GO(clEnqueueNativeKernel, iFppLuppupp_t) \
+	GO(clLinkProgram, pFpuppupppp_t)
 
 #endif // __wrappedopenclTYPES_H_

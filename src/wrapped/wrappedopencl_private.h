@@ -4,7 +4,7 @@
 
 GOM(clBuildProgram, iFEpupppp)
 //GO(clCloneKernel, 
-//GO(clCompileProgram, 
+GOM(clCompileProgram, iFEpuppupppp)
 GO(clCreateBuffer, pFpuLpp)
 //GO(clCreateBufferWithProperties, 
 GO(clCreateCommandQueue, pFppup)
@@ -47,7 +47,7 @@ GO(clEnqueueMapImage, pFppuuppppuppp)
 GO(clEnqueueMarker, iFpp)
 GO(clEnqueueMarkerWithWaitList, iFpupp)
 GO(clEnqueueMigrateMemObjects, iFpupuupp)
-//GO(clEnqueueNativeKernel, 
+GOM(clEnqueueNativeKernel, iFEppLuppupp)
 GO(clEnqueueNDRangeKernel, iFppupppupp)
 GO(clEnqueueReadBuffer, iFppuLLpupp)
 GO(clEnqueueReadBufferRect, iFppupppLLLLpupp)
@@ -92,7 +92,7 @@ GO(clGetProgramBuildInfo, iFppuLpp)
 GO(clGetProgramInfo, iFpuLpL)
 GO(clGetSamplerInfo, iFpuLpp)
 GO(clGetSupportedImageFormats, iFpuuupp)
-//GO(clLinkProgram, 
+GOM(clLinkProgram, pFEpuppupppp)
 GO(clReleaseCommandQueue, iFp)
 GO(clReleaseContext, iFp)
 GO(clReleaseDevice, iFp)
@@ -112,11 +112,11 @@ GO(clRetainSampler, iFp)
 //GO(clSetCommandQueueProperty, 
 //GO(clSetContextDestructorCallback, 
 //GO(clSetDefaultDeviceCommandQueue, 
-//GO(clSetEventCallback, 
+GOM(clSetEventCallback, iFEppp)
 GO(clSetKernelArg, iFpuLp)
 //GO(clSetKernelArgSVMPointer, 
 //GO(clSetKernelExecInfo, 
-//GO(clSetMemObjectDestructorCallback, 
+GOM(clSetMemObjectDestructorCallback, iFEppp)
 //GO(clSetProgramReleaseCallback, 
 //GO(clSetProgramSpecializationConstant, 
 GO(clSetUserEventStatus, iFpi)

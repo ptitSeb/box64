@@ -3451,7 +3451,9 @@
 #() vFpppppppppL
 #() vFpppppppppp
 #() iFEpiiiiippp
+#() iFEpuppupppp
 #() iFEpupppLppL
+#() iFEppLuppupp
 #() iFEppppppipp
 #() iFEpppppppip
 #() iFiuuupppppu
@@ -3484,6 +3486,7 @@
 #() pFEiuppppppp
 #() pFEpiiiiiipp
 #() pFEpippppppp
+#() pFEpuppupppp
 #() pFpuupuuuuuu
 #() pFpupLLLLLpp
 #() pFplllllllll
@@ -5994,12 +5997,21 @@ wrappedopenal:
 - vFiiipp:
   - alRequestFoldbackStart
 wrappedopencl:
+- iFppp:
+  - clSetEventCallback
+  - clSetMemObjectDestructorCallback
 - pFpuppp:
   - clCreateContextFromType
 - iFpupppp:
   - clBuildProgram
 - pFpupppp:
   - clCreateContext
+- iFpuppupppp:
+  - clCompileProgram
+- iFppLuppupp:
+  - clEnqueueNativeKernel
+- pFpuppupppp:
+  - clLinkProgram
 wrappedp11kit:
 - vFppp:
   - p11_kit_pin_unregister_callback
