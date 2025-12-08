@@ -54,18 +54,17 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             opcode = F8;
             switch (opcode) {
                 case 0xB1:
-                    INST_NAME("LOCK CMPXCHG Ew, Gw");
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     nextop = F8;
-                    GETGD;
-                    ZEXTH(x6, xRAX);
                     if (MODREG) {
-                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        wback = 0;
-                        ZEXTH(x1, ed);
-                        BNE_MARK(x6, x1);
-                        INSH(ed, gd, x2, x3, 1, 1);
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
                     } else {
+                        INST_NAME("LOCK CMPXCHG Ew, Gw");
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETGD;
+                        ZEXTH(x6, xRAX);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         ANDI(x5, wback, 0b10);
                         BNEZ_MARK2(x5);
@@ -107,25 +106,18 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 0: // ADD
-                    if (opcode == 0x81) {
-                        INST_NAME("LOCK ADD Ew, Iw");
-                    } else {
-                        INST_NAME("LOCK ADD Ew, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (MODREG) {
-                        if (opcode == 0x81)
-                            u64 = F16;
-                        else
-                            u64 = (uint16_t)(int16_t)F8S;
-                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        MOV64x(x5, u64);
-                        ZEXTH(x6, ed);
-                        emit_add16(dyn, ninst, x6, x5, x3, x4, x2);
-                        SRLI(ed, ed, 16);
-                        SLLI(ed, ed, 16);
-                        OR(ed, ed, x6);
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
                     } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK ADD Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK ADD Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
                         if (opcode == 0x81)
                             u64 = F16;
@@ -175,25 +167,18 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     break;
                 case 1: // OR
-                    if (opcode == 0x81) {
-                        INST_NAME("LOCK OR Ew, Iw");
-                    } else {
-                        INST_NAME("LOCK OR Ew, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (MODREG) {
-                        if (opcode == 0x81)
-                            u64 = F16;
-                        else
-                            u64 = (uint16_t)(int16_t)F8S;
-                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        MOV64x(x5, u64);
-                        ZEXTH(x6, ed);
-                        emit_or16(dyn, ninst, x6, x5, x3, x4);
-                        SRLI(ed, ed, 16);
-                        SLLI(ed, ed, 16);
-                        OR(ed, ed, x6);
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
                     } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK OR Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK OR Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
                         if (opcode == 0x81)
                             u64 = F16;
@@ -241,25 +226,18 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     break;
                 case 4: // AND
-                    if (opcode == 0x81) {
-                        INST_NAME("LOCK AND Ew, Iw");
-                    } else {
-                        INST_NAME("LOCK AND Ew, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (MODREG) {
-                        if (opcode == 0x81)
-                            u64 = F16;
-                        else
-                            u64 = (uint16_t)(int16_t)F8S;
-                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        MOV64x(x5, u64);
-                        ZEXTH(x6, ed);
-                        emit_and16(dyn, ninst, x6, x5, x3, x4);
-                        SRLI(ed, ed, 16);
-                        SLLI(ed, ed, 16);
-                        OR(ed, ed, x6);
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
                     } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK AND Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK AND Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
                         if (opcode == 0x81)
                             u64 = F16;
