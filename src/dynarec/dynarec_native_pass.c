@@ -180,7 +180,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #endif
 
-        #ifdef ARM64
+        #if defined (ARM64) || defined (LA64)
         uint8_t pk = PK(0);
         
         rex.rex = 0;

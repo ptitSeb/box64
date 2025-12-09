@@ -69,17 +69,7 @@
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
     }
-// GETED32 can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETED32(D)                                                                                \
-    if (MODREG) {                                                                                 \
-        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                 \
-        wback = 0;                                                                                \
-    } else {                                                                                      \
-        SMREAD();                                                                                 \
-        addr = geted32(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
-        LDxw(x1, wback, fixedaddress);                                                            \
-        ed = x1;                                                                                  \
-    }
+
 // GETEDH can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, ret, D)                                                                       \
     if (MODREG) {                                                                                  \
@@ -119,35 +109,6 @@
 // GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i, D) GETEWW(x3, i, D)
 
-// GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDO(O, D)                                                                                \
-    if (MODREG) {                                                                                   \
-        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                   \
-        wback = 0;                                                                                  \
-    } else {                                                                                        \
-        SMREAD();                                                                                   \
-        if (rex.is32bits) {                                                                         \
-            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
-            ADDz(O, wback, O);                                                                      \
-            LD_WU(x1, O, fixedaddress);                                                             \
-        } else {                                                                                    \
-            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, D); \
-            LDXxw(x1, wback, O);                                                                    \
-        }                                                                                           \
-        ed = x1;                                                                                    \
-    }
-// GETEDOz can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDOz(O, D, S)                                                                       \
-    if (MODREG) {                                                                              \
-        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                              \
-        wback = 0;                                                                             \
-    } else {                                                                                   \
-        SMREAD();                                                                              \
-        addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 1, D); \
-        ADDz(S, wback, O);                                                                     \
-        LDz(x1, S, fixedaddress);                                                              \
-        ed = x1;                                                                               \
-    }
 // GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
 #define GETSED(D)                                                                               \
     if (MODREG) {                                                                               \
@@ -312,35 +273,6 @@
     }                                                        \
     gd = i;                                                  \
     BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
-
-// GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
-#define GETEBO(i, D)                                                                                \
-    if (MODREG) {                                                                                   \
-        if (rex.rex) {                                                                              \
-            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                            \
-            wb2 = 0;                                                                                \
-        } else {                                                                                    \
-            wback = (nextop & 7);                                                                   \
-            wb2 = (wback >> 2) * 8;                                                                 \
-            wback = TO_NAT(wback & 3);                                                              \
-        }                                                                                           \
-        BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                         \
-        wb1 = 0;                                                                                    \
-        ed = i;                                                                                     \
-    } else {                                                                                        \
-        SMREAD();                                                                                   \
-        if (rex.is32bits) {                                                                         \
-            addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
-            ADDz(x3, wback, i);                                                                     \
-            if (wback != x3) wback = x3;                                                            \
-            LD_BU(i, wback, fixedaddress);                                                          \
-        } else {                                                                                    \
-            addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, D); \
-            LDX_BU(i, wback, i);                                                                    \
-        }                                                                                           \
-        wb1 = 1;                                                                                    \
-        ed = i;                                                                                     \
-    }
 
 #define VEXTRINS_IMM_4_0(n, m) ((n & 0xf) << 4 | (m & 0xf))
 #define XVPERMI_IMM_4_0(n, m)  ((n & 0xf) << 4 | (m & 0xf))
@@ -1188,11 +1120,7 @@
 
 #define dynarec64_00          STEPNAME(dynarec64_00)
 #define dynarec64_0F          STEPNAME(dynarec64_0F)
-#define dynarec64_64          STEPNAME(dynarec64_64)
 #define dynarec64_66          STEPNAME(dynarec64_66)
-#define dynarec64_6664        STEPNAME(dynarec64_6664)
-#define dynarec64_67          STEPNAME(dynarec64_67)
-#define dynarec64_6764        STEPNAME(dynarec64_6764)
 #define dynarec64_F30F        STEPNAME(dynarec64_F30F)
 #define dynarec64_660F        STEPNAME(dynarec64_660F)
 #define dynarec64_66F0        STEPNAME(dynarec64_66F0)
@@ -1223,7 +1151,7 @@
 #define dynarec64_F0 STEPNAME(dynarec64_F0)
 
 #define geted               STEPNAME(geted)
-#define geted32             STEPNAME(geted32)
+#define geted16             STEPNAME(geted16)
 #define jump_to_epilog      STEPNAME(jump_to_epilog)
 #define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
 #define jump_to_next        STEPNAME(jump_to_next)
@@ -1377,7 +1305,7 @@
 uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
+uintptr_t geted16(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int i12);
 
 // generic x64 helper
 void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
@@ -1600,19 +1528,19 @@ int lsxcache_st_coherency(dynarec_la64_t* dyn, int ninst, int a, int b);
 #endif
 
 
-uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
-uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
-uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
+uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_6664(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
-uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_6764(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
+uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_6764(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
-uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_66F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_66F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
-uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
@@ -1625,14 +1553,14 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
 uintptr_t dynarec64_AVX_F2_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
-uintptr_t dynarec64_D8(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_DC(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_DD(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
-uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_D8(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_DC(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_DD(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 
 #if STEP < 3
