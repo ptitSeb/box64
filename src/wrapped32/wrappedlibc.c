@@ -1949,19 +1949,36 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
     if (BOX64ENV(steam_vulkan) && n == 3 && !strcmp(newargv[0], "sh") && !strcmp(newargv[1], "-c") && strstr(newargv[2], "steamwebhelper.sh")) {
-        static const char* vulkanstr = ",Vulkan";
-        static const char* searchstr = "--enable-features=PlatformHEVCDecoderSupport";
-        size_t bufsize = strlen(newargv[2]) + strlen(vulkanstr);
-        char* newstr = (char*)box_calloc(bufsize+1, 1);
-        char* pos = strstr(newargv[2], searchstr);
+        // For some reason, Steam UI on RISC-V/LoongArch does not have hardware accel.
+        // To workaround this, we insert `--enable-features=Vulkan` to the exec of steamwebhelper to force Vulkan.
+        // For cases where there is an existing `--enable-features=` string:
+        static const char* vulkanstr1 = "Vulkan,";
+        static const char* searchstr1 = "--enable-features=";
+        // For cases where there is no existing `--enable-features=` string:
+        static const char* vulkanstr2 = "--enable-features=Vulkan ";
+        static const char* searchstr2 = "--disable-features=";
+
+        size_t bufsize = strlen(newargv[2]) + strlen(vulkanstr1);
+        char* pos = strstr(newargv[2], searchstr1);
         if (!pos) {
-            box_free(newstr);
+            size_t bufsize = strlen(newargv[2]) + strlen(vulkanstr2);
+            pos = strstr(newargv[2], searchstr2);
+            if (!pos) goto do_exec;
+
+            char* newstr = (char*)box_calloc(bufsize + 1, 1);
+            size_t insertat = pos - newargv[2];
+            strncpy(newstr, newargv[2], insertat);
+            newstr[insertat] = '\0';
+            strcat(newstr, vulkanstr2);
+            strcat(newstr, newargv[2] + insertat);
+            newargv[2] = newstr;
             goto do_exec;
         }
-        size_t insertat = pos - newargv[2] + strlen(searchstr);
+        char* newstr = (char*)box_calloc(bufsize + 1, 1);
+        size_t insertat = pos - newargv[2] + strlen(searchstr1);
         strncpy(newstr, newargv[2], insertat);
         newstr[insertat] = '\0';
-        strcat(newstr, vulkanstr);
+        strcat(newstr, vulkanstr1);
         strcat(newstr, newargv[2] + insertat);
         newargv[2] = newstr;
     }
