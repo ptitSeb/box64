@@ -706,7 +706,7 @@
   },
   {
     "name": "BOX64_DYNAREC_PURGE",
-    "description": "Automatically purge old unused dynablocks and save memory, may have impact on performance.",
+    "description": "Purge dynablocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).",
     "category": "Performance",
     "wine": false,
     "options": [
@@ -717,7 +717,25 @@
       },
       {
         "key": "1",
-        "description": "Dynarec will purge old unused dynablocks.",
+        "description": "Dynarec will purge old unused dynablocks based on tick age.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNAREC_PURGE_AGE",
+    "description": "Tick age threshold for dynablock purging (requires BOX64_DYNAREC_PURGE=1).",
+    "category": "Performance",
+    "wine": false,
+    "options": [
+      {
+        "key": "4096",
+        "description": "Default age threshold.",
+        "default": true
+      },
+      {
+        "key": "XXXX",
+        "description": "Custom age threshold (range: 10-65536).",
         "default": false
       }
     ]
