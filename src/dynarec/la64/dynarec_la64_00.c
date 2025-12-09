@@ -707,13 +707,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 UFLAG_IF {
                     SLLI_W(x3, ed, 0);
-                    MUL_D(gd, x3, x4);
-                    SRLI_D(x3, gd, 32);
-                    SLLI_W(gd, gd, 0);
+                    MUL_D(x5, x3, x4);
+                    SRLI_D(x3, x5, 32);
+                    SLLI_W(gd, x5, 0);
                     SET_DFNONE();
                     IFX (X_CF | X_OF) {
-                        SRAI_W(x4, gd, 31);
-                        SUB_D(x3, x3, x4);
+                        XOR(x3, gd, x5);
                         SNEZ(x3, x3);
                         IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
                         IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
@@ -763,13 +762,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 UFLAG_IF {
                     SLLI_W(x3, ed, 0);
-                    MUL_D(gd, x3, x4);
-                    SRLI_D(x3, gd, 32);
-                    SLLI_W(gd, gd, 0);
+                    MUL_D(x5, x3, x4);
+                    SRLI_D(x3, x5, 32);
+                    SLLI_W(gd, x5, 0);
                     SET_DFNONE();
                     IFX (X_CF | X_OF) {
-                        SRAI_W(x4, gd, 31);
-                        SUB_D(x3, x3, x4);
+                        XOR(x3, gd, x5);
                         SNEZ(x3, x3);
                         IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
                         IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
