@@ -43,6 +43,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint64_t u64;
     uint8_t wback, wb1, wb2, wb;
     int64_t fixedaddress;
+    uint8_t v0, v1, v2;
     int unscaled;
     int lock;
     int cacheupd = 0;
@@ -1717,15 +1718,64 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP STOSB");
                 CBZ_NEXT(xRCX);
+                v0 = fpu_get_scratch(dyn);
+                VREPLGR2VR_B(v0, xRAX);
+                MOV64x(x4, 16);
+                MOV64x(x5, 8);
+                MOV64x(x6, 4);
+
                 ANDI(x1, xFlags, 1 << F_DF);
-                BNEZ_MARK2(x1);
-                MARK; // Part with DF==0
+                BNEZ_MARK3(x1);
+                // Part with DF==0
+
+                BLT(xRCX, x4, 4 + 4 * 4); // loop in 16bytes
+                VST(v0, xRDI, 0);
+                ADDI_D(xRDI, xRDI, 16);
+                ADDI_D(xRCX, xRCX, -16);
+                BGE(xRCX, x4, -4 * 3);
+
+                BLT(xRCX, x5, 4 + 4 * 4); // try 8 bytes
+                FST_D(v0, xRDI, 0);
+                ADDI_D(xRDI, xRDI, 8);
+                ADDI_D(xRCX, xRCX, -8);
+                BGE(xRCX, x5, -4 * 3);
+
+                BLT(xRCX, x6, 4 + 4 * 4); // try 4 bytes
+                FST_S(v0, xRDI, 0);
+                ADDI_D(xRDI, xRDI, 4);
+                ADDI_D(xRCX, xRCX, -4);
+                BGE(xRCX, x6, -4 * 3);
+
+                BEQZ(xRCX, 4 + 4 * 4);
+                MARK; 
                 ST_B(xRAX, xRDI, 0);
                 ADDI_D(xRDI, xRDI, 1);
                 ADDI_D(xRCX, xRCX, -1);
                 BNEZ_MARK(xRCX);
                 B_NEXT_nocond;
-                MARK2; // Part with DF==1
+
+                // Part with DF==1
+                MARK3;
+                BLT(xRCX, x4, 4 + 4 * 4); // loop in 16bytes
+                VST(v0, xRDI, -15);
+                ADDI_D(xRDI, xRDI, -16);
+                ADDI_D(xRCX, xRCX, -16);
+                BGE(xRCX, x4, -4 * 3);
+
+                BLT(xRCX, x5, 4 + 4 * 4); // try 8 bytes
+                FST_D(v0, xRDI, -7);
+                ADDI_D(xRDI, xRDI, -8);
+                ADDI_D(xRCX, xRCX, -8);
+                BGE(xRCX, x5, -4 * 3);
+
+                BLT(xRCX, x6, 4 + 4 * 4); // try 4 bytes
+                FST_S(v0, xRDI, -3);
+                ADDI_D(xRDI, xRDI, -4);
+                ADDI_D(xRCX, xRCX, -4);
+                BGE(xRCX, x6, -4 * 3);
+
+                BEQZ(xRCX, 4 + 4 * 4);
+                MARK2;                
                 ST_B(xRAX, xRDI, 0);
                 ADDI_D(xRDI, xRDI, -1);
                 ADDI_D(xRCX, xRCX, -1);
