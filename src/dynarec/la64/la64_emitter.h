@@ -99,6 +99,14 @@
             ADD_D(rd, rj, rk);                                           \
     } while (0)
 
+#define ALSLy(rd, rj, rk, imm)        \
+    do {                              \
+        if (rex.is32bits || rex.is67) \
+            ALSL_WU(rd, rj, rk, imm); \
+        else                          \
+            ALSL_D(rd, rj, rk, imm);  \
+    } while (0)
+
 // GR[rd] = SignExtend({imm20, 12'b0}, GRLEN)
 #define LU12I_W(rd, imm20) EMIT(type_1RI20(0b0001010, imm20, rd))
 // GR[rd] = {SignExtend(imm20, 32), GR[rd][31:0]}
@@ -262,6 +270,15 @@
             ZEROUP(rd);          \
         }                        \
     } while (0)
+#define SLLIy(rd, rj, imm)              \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            SLLI_W(rd, rj, imm);        \
+            ZEROUP(rd);                 \
+        } else                          \
+            SLLI_D(rd, rj, imm);        \
+    } while (0)
+
 // Shift Right Logical Immediate
 #define SRLIxw(rd, rj, imm)             \
     do {                                \
@@ -2456,6 +2473,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
     } else {            \
         MOV64x(A, B);   \
     }
+#define MOV64y(A, B)                    \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            MOV32w(A, B);               \
+        } else {                        \
+            MOV64x(A, B);               \
+        }                               \
+    } while (0)
 
 // rd[63:0] = rj[63:0] (pseudo instruction)
 #define MV(rd, rj) ADDI_D(rd, rj, 0)
@@ -2496,6 +2521,15 @@ LSX instruction starts with V, LASX instruction starts with XV.
             ADDI_D(rd, rj, imm12); \
     } while (0)
 
+#define ADDIy(rd, rj, imm12)            \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            ADDI_W(rd, rj, imm12);      \
+            ZEROUP(rd);                 \
+        } else                          \
+            ADDI_D(rd, rj, imm12);      \
+    } while (0)
+
 #define ADDxw(rd, rj, rk)      \
     do {                       \
         if (rex.w)             \
@@ -2506,12 +2540,29 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 #define ADDz(rd, rj, rk)       \
     do {                       \
-        if (!rex.is32bits)     \
-            ADD_D(rd, rj, rk); \
-        else {                 \
+        if (rex.is32bits) {    \
             ADD_W(rd, rj, rk); \
             ZEROUP(rd);        \
-        }                      \
+        } else                 \
+            ADD_D(rd, rj, rk); \
+    } while (0)
+
+#define ADDy(rd, rj, rk)                \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            ADD_W(rd, rj, rk);          \
+            ZEROUP(rd);                 \
+        } else                          \
+            ADD_D(rd, rj, rk);          \
+    } while (0)
+
+#define ADDxREGy(rd, rj, rk)            \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            ADDI_W(rk, rk, 0);          \
+            ADD_D(rd, rj, rk);          \
+        } else                          \
+            ADD_D(rd, rj, rk);          \
     } while (0)
 
 #define LDxw(rd, rj, imm12)       \

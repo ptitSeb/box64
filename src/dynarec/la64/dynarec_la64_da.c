@@ -22,7 +22,7 @@
 #include "dynarec_la64_functions.h"
 
 
-uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
     int64_t j64;

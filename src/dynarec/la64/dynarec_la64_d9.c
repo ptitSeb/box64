@@ -23,10 +23,9 @@
 #include "dynarec_la64_functions.h"
 
 
-uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     (void)ip;
-    (void)rep;
     (void)need_epilog;
 
     uint8_t nextop = F8;

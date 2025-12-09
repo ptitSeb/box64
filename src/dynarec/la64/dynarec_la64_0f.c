@@ -8,6 +8,7 @@
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
 #include "la64_emitter.h"
+#include "la64_mapping.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -1406,7 +1407,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRAI_D(x1, gd, 6);
                 else
                     SRAI_W(x1, gd, 5);
-                ALSL_D(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
+                if (!rex.w && !rex.is32bits) { ADDI_W(x1, x1, 0); }
+                ALSLy(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
@@ -1465,7 +1467,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRAI_D(x1, gd, 6);
                 else
                     SRAI_W(x1, gd, 5);
-                ALSL_D(x3, x1, wback, 2 + rex.w);
+                if (!rex.w && !rex.is32bits) { ADDI_W(x1, x1, 0); }
+                ALSLy(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1699,7 +1702,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRAI_D(x1, gd, 6);
                 else
                     SRAI_W(x1, gd, 5);
-                ALSL_D(x3, x1, wback, 2 + rex.w);
+                if (!rex.w && !rex.is32bits) { ADDI_W(x1, x1, 0); }
+                ALSLy(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1858,7 +1862,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRAI_D(x1, gd, 6);
                 else
                     SRAI_W(x1, gd, 5);
-                ALSL_D(x3, x1, wback, 2 + rex.w);
+                if (!rex.w && !rex.is32bits) { ADDI_W(x1, x1, 0); }
+                ALSLy(x3, x1, wback, 2 + rex.w); // (&ed) += r1*4;
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
