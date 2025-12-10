@@ -74,6 +74,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             BSTRINSz(xRAX, x1, 15, 0);
             break;
+        case 0x06:
+            INST_NAME("PUSH ES");
+            LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+            PUSH1_16(x1);
+            break;
+        case 0x07:
+            INST_NAME("POP ES");
+            POP1_16(x1);
+            ST_H(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+            break;
         case 0x09:
             INST_NAME("OR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -167,6 +177,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64x(x2, u64);
             emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
             BSTRINSz(xRAX, x1, 15, 0);
+            break;
+        case 0x1E:
+            INST_NAME("PUSH DS");
+            LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+            PUSH1_16(x1);
+            break;
+        case 0x1F:
+            INST_NAME("POP DS");
+            POP1_16(x1);
+            ST_H(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
             break;
         case 0x21:
             INST_NAME("AND Ew, Gw");
@@ -744,6 +764,32 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SRAI_D(x1, x1, 48);
             SRLI_D(x1, x1, 48);
             BSTRINS_D(xRDX, x1, 15, 0);
+            break;
+        case 0x9C:
+            INST_NAME("PUSHF");
+            READFLAGS(X_ALL);
+            RESTORE_EFLAGS(x1);
+            PUSH1_16(xFlags);
+            SMWRITE();
+            break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SMREAD();
+            POP1_16(x1);
+            MOV32w(x2, 0x7FD7);
+            AND(x1, x1, x2);
+            ORI(x1, x1, 0x202);
+            // no need to restore eflags here
+            BSTRINS_D(xFlags, x1, 15, 0);
+            SPILL_EFLAGS();
+            SET_DFNONE();
+            if (box64_wine) { // should this be done all the time?
+                ANDI(x1, xFlags, 1 << F_TF);
+                CBZ_NEXT(x1);
+                // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
+                jump_to_epilog(dyn, addr, 0, ninst);
+            }
             break;
         case 0xA1:
             INST_NAME("MOV EAX, Od");

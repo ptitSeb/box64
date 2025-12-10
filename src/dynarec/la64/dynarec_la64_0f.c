@@ -1383,7 +1383,19 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
             GOCOND(0x90, "SET", "Eb");
 #undef GO
-
+        case 0xA0:
+            INST_NAME("PUSH FS");
+            LD_HU(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
+            PUSH1z(x2);
+            break;
+        case 0xA1:
+            INST_NAME("POP FS");
+            POP1z(x2);
+            ST_H(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
+            BEQ_NEXT(x2, xZR);
+            ADDI_D(x1, xZR, _FS);
+            CALL(const_getsegmentbase, -1, x1, 0);
+            break;
         case 0xA2:
             INST_NAME("CPUID");
             NOTEST(x1);
@@ -1450,6 +1462,19 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BEQ_NEXT(x3, xZR);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
+            break;
+        case 0xA8:
+            INST_NAME("PUSH GS");
+            LD_HU(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
+            PUSH1z(x2);
+            break;
+        case 0xA9:
+            INST_NAME("POP GS");
+            POP1z(x2);
+            ST_H(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
+            BEQ_NEXT(x2, xZR);
+            ADDI_D(x1, xZR, _GS);
+            CALL(const_getsegmentbase, -1, x1, 0);
             break;
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
