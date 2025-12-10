@@ -22,7 +22,50 @@ const char* cudaName = "libcuda.so.1";
 
 #include "generated/wrappedcudatypes.h"
 
+#define ADDED_SUPER 1
 #include "wrappercallback.h"
+
+void fillCUDAProcWrapper(box64context_t* context);
+static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname, const char* name, int version);
+
+static void cuda_wrapper_resolver(x64emu_t* emu, const char* name, void** pfn, int cudaVersion)
+{
+    if(!emu->context->cudawrappers)   // could be moved in "my" structure...
+        fillCUDAProcWrapper(emu->context);
+
+    const char* fname = name; // default is name given
+    if(*pfn) {
+        // try to find the right wrapper, first get the real name of the function if possible
+        Dl_info infos = {0};
+        if(!dladdr(*pfn, &infos)) {
+            //is there a name we can use?
+            if(infos.dli_sname && infos.dli_saddr==*pfn) {
+                //we have a name!
+                fname = infos.dli_sname; // use it
+            }
+        }
+        khint_t k = kh_get(symbolmap, emu->context->mycuda, fname);
+        int is_my = (k==kh_end(emu->context->mycuda))?0:1;
+        void* symbol = *pfn;
+        if(!symbol) {
+            printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
+            return;    // easy
+        }
+        if(is_my) {
+            // try again, by using custom "my_" now...
+            char tmp[200];
+            strcpy(tmp, "my_");
+            strcat(tmp, fname);
+            symbol = dlsym(emu->context->box64lib, tmp);
+            // need to update symbol link maybe
+            #define GO(A, W) if(!strcmp(fname, #A)) my->A = *pfn;
+            SUPER()
+            #undef GO
+        }
+        *pfn = resolveSymbol(emu, symbol, fname, name, cudaVersion);
+    }
+}
+#undef SUPER
 
 #define SUPER() \
     GO(0)   \
@@ -55,6 +98,28 @@ static void* find_CUstreamCallback_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for cuda CUstreamCallback callback\n");
+    return NULL;
+}
+// CUasyncNotificationInfo
+#define GO(A)   \
+static uintptr_t my_CUasyncNotificationInfo_fct_##A = 0;                \
+static void my_CUasyncNotificationInfo_##A(void* a, void* b, void* c)   \
+{                                                                       \
+    RunFunctionFmt(my_CUasyncNotificationInfo_fct_##A, "ppp", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_CUasyncNotificationInfo_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_CUasyncNotificationInfo_fct_##A == (uintptr_t)fct) return my_CUasyncNotificationInfo_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_CUasyncNotificationInfo_fct_##A == 0) {my_CUasyncNotificationInfo_fct_##A = (uintptr_t)fct; return my_CUasyncNotificationInfo_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for cuda CUasyncNotificationInfo callback\n");
     return NULL;
 }
 // CuHostFn
@@ -149,6 +214,96 @@ EXPORT uint32_t my_cuGraphExecHostNodeSetParams(x64emu_t* emu, void* g, void* no
     return my->cuGraphExecHostNodeSetParams(g, node, p?(&param_):NULL);
 }
 
+EXPORT uint32_t my_cuUserObjectCreate(x64emu_t* emu, void* obj, void* ptr, void* d, uint32_t ref, uint32_t flags)
+{
+    return my->cuUserObjectCreate(obj, ptr, find_CuHostFn_Fct(d), ref, flags);
+}
+
+static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname, const char* name, int version)
+{
+    // get wrapper
+    symbol1_t *s = NULL;
+    khint_t k = kh_get(symbolmap, emu->context->cudawrappers, rname);
+    if(k==kh_end(emu->context->cudawrappers)) {
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym(LOG_INFO, "Warning, no wrapper for %s(%s version %d)\n", rname, name, version);
+        return NULL;
+    }
+    s = &kh_value(emu->context->cudawrappers, k);
+
+    if(!s->resolved) {
+        khint_t k = kh_get(symbolmap, emu->context->cudawrappers, rname);
+        const char* constname = kh_key(emu->context->cudawrappers, k);
+        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->resolved = 1;
+    }
+    void* ret = (void*)s->addr;
+    printf_dlsym_prefix(0, LOG_DEBUG, "%p (%p)\n", ret, symbol);
+    return ret;
+}
+
+EXPORT uint32_t my_cuGetProcAddress(x64emu_t* emu, char* name, void** pfn, int cudaVersion, uint64_t flags, void* status)
+{
+    printf_dlsym(LOG_DEBUG, "Calling cuGetProcAddress(%s, %p, %i, %llx, %p) ", name, pfn, cudaVersion, flags, status);
+    uint32_t ret = my->cuGetProcAddress(name, pfn, cudaVersion, flags, status);
+    cuda_wrapper_resolver(emu, name, pfn, cudaVersion);
+    return ret;
+}
+EXPORT uint32_t my_cuGetProcAddress_v2(x64emu_t* emu, char* name, void** pfn, int cudaVersion, uint64_t flags, void* status)
+{
+    printf_dlsym(LOG_DEBUG, "Calling cuGetProcAddress_v2(%s, %p, %i, %llx, %p) ", name, pfn, cudaVersion, flags, status);
+    uint32_t ret = my->cuGetProcAddress_v2(name, pfn, cudaVersion, flags, status);
+    cuda_wrapper_resolver(emu, name, pfn, cudaVersion);
+    return ret;
+}
+
+EXPORT uint32_t my_cuDeviceRegisterAsyncNotification(x64emu_t* emu, void* device, void* f, void* data, void* handle)
+{
+    return my->cuDeviceRegisterAsyncNotification(device, find_CUasyncNotificationInfo_Fct(f), data, handle);
+}
+
 #include "wrappedlib_init.h"
+
+void fillCUDAProcWrapper(box64context_t* context)
+{
+    int cnt, ret;
+    khint_t k;
+    kh_symbolmap_t * symbolmap = kh_init(symbolmap);
+    // populates maps...
+    cnt = sizeof(cudasymbolmap)/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, cudasymbolmap[i].name, &ret);
+        kh_value(symbolmap, k).w = cudasymbolmap[i].w;
+        kh_value(symbolmap, k).resolved = 0;
+    }
+    // and the my_ symbols map
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, cudamysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k).w = cudamysymbolmap[i].w;
+        kh_value(symbolmap, k).resolved = 0;
+    }
+    context->cudawrappers = symbolmap;
+    // fill my_* map
+    symbolmap = kh_init(symbolmap);
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, cudamysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k).w = cudamysymbolmap[i].w;
+        kh_value(symbolmap, k).resolved = 0;
+    }
+    context->mycuda = symbolmap;
+}
+void freeCUDAProcWrapper(box64context_t* context)
+{
+    if(!context)
+        return;
+    if(context->cudawrappers)
+        kh_destroy(symbolmap, context->cudawrappers);
+    if(context->mycuda)
+        kh_destroy(symbolmap, context->mycuda);
+    context->cudawrappers = NULL;
+    context->mycuda = NULL;
+}
 
 // see https://github.com/SveSop/nvidia-libs for nvidia libs installation in wine

@@ -238,6 +238,7 @@ box64context_t *NewBox64Context(int argc)
 }
 
 void freeALProcWrapper(box64context_t* context);
+void freeCUDAProcWrapper(box64context_t* context);
 EXPORTDYN
 void FreeBox64Context(box64context_t** context)
 {
@@ -308,6 +309,7 @@ void FreeBox64Context(box64context_t** context)
     #ifndef STATICBUILD
     freeGLProcWrapper(ctx);
     freeALProcWrapper(ctx);
+    freeCUDAProcWrapper(ctx);
     #ifdef BOX32
     #endif
     #endif

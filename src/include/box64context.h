@@ -152,6 +152,8 @@ typedef struct box64context_s {
     kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
     kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
     kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
+    kh_symbolmap_t      *cudawrappers;  // the map of wrapper for cuda
+    kh_symbolmap_t      *mycuda;        // link to the mysymbolmap of cuda
     vkprocaddess_t      vkprocaddress;
 
     #ifndef DYNAREC

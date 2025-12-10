@@ -14,6 +14,9 @@
 typedef uint32_t (*uFpp_t)(void*, void*);
 typedef uint32_t (*uFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFpppu_t)(void*, void*, void*, uint32_t);
+typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
+typedef uint32_t (*uFppiUp_t)(void*, void*, int32_t, uint64_t, void*);
+typedef uint32_t (*uFpppuu_t)(void*, void*, void*, uint32_t, uint32_t);
 typedef uint32_t (*uFpppLp_t)(void*, void*, void*, uintptr_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -24,6 +27,10 @@ typedef uint32_t (*uFpppLp_t)(void*, void*, void*, uintptr_t, void*);
 	GO(cuLaunchHostFunc_ptsz, uFppp_t) \
 	GO(cuStreamAddCallback, uFpppu_t) \
 	GO(cuStreamAddCallback_ptsz, uFpppu_t) \
+	GO(cuDeviceRegisterAsyncNotification, uFpppp_t) \
+	GO(cuGetProcAddress, uFppiUp_t) \
+	GO(cuGetProcAddress_v2, uFppiUp_t) \
+	GO(cuUserObjectCreate, uFpppuu_t) \
 	GO(cuGraphAddHostNode, uFpppLp_t)
 
 #endif // __wrappedcudaTYPES_H_

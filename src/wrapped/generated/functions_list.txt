@@ -1313,6 +1313,7 @@
 #() uFULpL
 #() uFUpLL
 #() uFUpLp
+#() uFLpUp
 #() uFLppp
 #() uFpiii
 #() uFpiip
@@ -1344,6 +1345,7 @@
 #() uFppiu
 #() uFppiL
 #() uFppip
+#() uFppui
 #() uFppuu
 #() uFppuU
 #() uFppup
@@ -1980,6 +1982,7 @@
 #() uFpLpLL
 #() uFpLpLp
 #() uFppiui
+#() uFppiUp
 #() uFppiLu
 #() uFppipp
 #() uFppuup
@@ -1990,6 +1993,8 @@
 #() uFppLLp
 #() uFppLpp
 #() uFpppip
+#() uFpppuu
+#() uFpppLu
 #() uFpppLU
 #() uFpppLp
 #() uFppppL
@@ -2511,6 +2516,7 @@
 #() uFEpippp
 #() uFEpCppp
 #() uFEpuppp
+#() uFEpppuu
 #() uFEpppLp
 #() uFipuppp
 #() uFuuuuuu
@@ -2538,7 +2544,10 @@
 #() uFppLppL
 #() uFpppLUL
 #() uFpppLpp
+#() uFppppuu
 #() uFppppLi
+#() uFppppLu
+#() uFppppLp
 #() uFpppppi
 #() uFpppppp
 #() uFbippup
@@ -3192,6 +3201,7 @@
 #() uFppuuuupp
 #() uFppuuuppu
 #() uFppuppppp
+#() uFpppLppLp
 #() uFppppuppu
 #() uFpppppupp
 #() uFbWWWWWWp
@@ -3965,6 +3975,13 @@ wrappedcuda:
 - uFpppu:
   - cuStreamAddCallback
   - cuStreamAddCallback_ptsz
+- uFpppp:
+  - cuDeviceRegisterAsyncNotification
+- uFppiUp:
+  - cuGetProcAddress
+  - cuGetProcAddress_v2
+- uFpppuu:
+  - cuUserObjectCreate
 - uFpppLp:
   - cuGraphAddHostNode
 wrappedcurl:
