@@ -727,6 +727,9 @@ GO(vkGetPipelineExecutableStatisticsKHR, iFpppp)
 // VK_KHR_present_wait
 GO(vkWaitForPresentKHR, iFpUUU)
 
+// VK_KHR_present_wait2
+GO(vkWaitForPresent2KHR, iFpUp)
+
 // VK_KHR_ray_tracing_pipeline
 GO(vkCmdSetRayTracingPipelineStackSizeKHR, vFpu)
 GO(vkCmdTraceRaysIndirectKHR, vFpppppU)
