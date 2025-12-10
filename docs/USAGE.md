@@ -146,10 +146,17 @@ Enable x86 PAUSE emulation, may help the performance of spinlocks. Available in 
 
 ### BOX64_DYNAREC_PURGE
 
-Automatically purge old unused dynablocks and save memory, may have impact on performance.
+Purge dynablocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
 
  * 0: Dynarec will not purge old unused dynablocks. [Default]
- * 1: Dynarec will purge old unused dynablocks. 
+ * 1: Dynarec will purge old unused dynablocks based on tick age. 
+
+### BOX64_DYNAREC_PURGE_AGE
+
+Tick age threshold for dynablock purging (requires BOX64_DYNAREC_PURGE=1).
+
+ * 4096: Default age threshold. [Default]
+ * XXXX: Custom age threshold (range: 10-65536). 
 
 ### BOX64_DYNAREC_SAFEFLAGS
 
