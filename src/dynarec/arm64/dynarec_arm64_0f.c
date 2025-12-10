@@ -377,22 +377,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else
             switch((nextop>>3)&7) {
                 case 0:
-                    INST_NAME("PREFETCHh Ed");
+                    INST_NAME("PREFETCHNTA Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
                     PLD_L1_STREAM_U12(ed, fixedaddress);
                     break;
                 case 1:
-                    INST_NAME("PREFETCHh Ed");
+                    INST_NAME("PREFETCHT0 Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
                     PLD_L1_KEEP_U12(ed, fixedaddress);
                     break;
                 case 2:
-                    INST_NAME("PREFETCHh Ed");
+                    INST_NAME("PREFETCHT1 Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
                     PLD_L2_KEEP_U12(ed, fixedaddress);
                     break;
                 case 3:
-                    INST_NAME("PREFETCHh Ed");
+                    INST_NAME("PREFETCHT2 Ed");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
                     PLD_L3_KEEP_U12(ed, fixedaddress);
                     break;

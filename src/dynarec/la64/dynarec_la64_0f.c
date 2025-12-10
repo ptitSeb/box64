@@ -124,18 +124,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("PREFETCH");
-                    FAKEED;
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    PRELD(0, ed, 0);
                     break;
                  case 1:
                      INST_NAME("PREFETCHW");
-                     FAKEED;
+                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                     PRELD(8, ed, 0);
                      break;
                 case 2:
                     INST_NAME("PREFETCHWT1");
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    PRELD(8, ed, 0);
+                    break;
+                default: // NOP
                     FAKEED;
                     break;
-                default: //???
-                    DEFAULT;
             }
             break;
         case 0x10:
@@ -251,11 +255,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
                 switch ((nextop >> 3) & 7) {
                     case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        INST_NAME("PREFETCHh Ed");
+                        INST_NAME("PREFETCHNTA Ed");
                         FAKEED;
+                        break;
+                    case 1:
+                        INST_NAME("PREFETCHT0 Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                        PRELD(0, ed, 0);
+                        break;
+                    case 2:
+                        INST_NAME("PREFETCHT1 Ed");
+                        FAKEED;
+                        break;
+                    case 3:
+                        INST_NAME("PREFETCHT2 Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                        PRELDX_LOAD_L3_1CACHELINE(ed, x4); // is this a good idea?
                         break;
                     default:
                         INST_NAME("NOP (multibyte)");
