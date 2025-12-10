@@ -2060,12 +2060,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization (CLFLUSH)?\n");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        if(ed!=x1) {
-                            MOVx_REG(x1, ed);
-                        }
-                        CALL_(const_native_clflush, -1, 0);
+                        DC_CIVAC(ed);
+                        SMDMB();
                         break;
                     default:
                         DEFAULT;

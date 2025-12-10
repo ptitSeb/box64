@@ -2512,21 +2512,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 switch((nextop>>3)&7) {
                     case 6:
                         INST_NAME("CLWB Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization (CLWB)?\n");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        if(ed!=x1) {
-                            MOVx_REG(x1, ed);
-                        }
-                        CALL_(const_native_clflush, -1, 0);
+                        DC_CIVAC(ed);
                         break;
                     case 7:
                         INST_NAME("CLFLUSHOPT Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization (CLFLUSHOPT)?\n");
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        if(ed!=x1) {
-                            MOVx_REG(x1, ed);
-                        }
-                        CALL_(const_native_clflush, -1, 0);
+                        DC_CIVAC(ed);
                         break;
                     default:
                         DEFAULT;

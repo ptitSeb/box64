@@ -401,6 +401,9 @@ int convert_bitmask(uint64_t bitmask);
 #define DSB_ST()                        EMIT(DSB_gen(0b1110))
 #define DSB_SY()                        EMIT(DSB_gen(0b1111))
 
+#define DC_gen(op1, CRm, op2, Xt)       (0b1101010100001<<19 | (op1)<<16 | 0b0111<<12 | (CRm)<<8 | (op2)<<5 | Xt)
+#define DC_CIVAC(Xt)                    EMIT(DC_gen(0b011, 0b1110, 0b001, Xt))
+
 // Break
 #define BRK_gen(imm16)                  (0b11010100<<24 | 0b001<<21 | (((imm16)&0xffff)<<5))
 #define BRK(imm16)                      EMIT(BRK_gen(imm16))
