@@ -26,6 +26,7 @@
 #include "dynarec/dynablock_private.h"
 #include "dynarec/native_lock.h"
 #include "dynarec/dynarec_next.h"
+#include "freq.h"
 
 // init inside dynablocks.c
 static mmaplist_t          *mmaplist = NULL;
@@ -1581,8 +1582,33 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     return NULL;
 }
 
+// To measure speed at wich blocks are created, to avoid purge when lots of blocks are created in burst
+static uint64_t start_time = 0;
+static uint32_t start_tick = 0;
+static uint64_t tick_freq = 0;
+static uint64_t cur_speed = 0;
+
+void UpdateBlockCreationSpeed()
+{
+    if(!tick_freq) {
+        tick_freq = ReadTSCFrequency(NULL);
+        start_tick = my_context->tick;
+        start_time = ReadTSC(NULL);
+    }
+    uint64_t cur_time = ReadTSC(NULL);
+    // compute elapsed time is micro seconds
+    uint64_t elapsed_time = (cur_time-start_time)*1000000LL/tick_freq;
+    if(my_context->tick-start_tick>100 || elapsed_time>1000) {
+        // update speed each 100 blocks created or 1ms elapsed
+        cur_speed = (my_context->tick-start_tick)*1000000LL/elapsed_time;
+        start_tick = my_context->tick;
+        start_time = cur_time;
+    }
+}
+
 int PurgeDynarecMap(mmaplist_t* list, size_t size)
 {
+    if(cur_speed>100) return 0;   // 100 blocks / sec is a burst!
     // check all blocks where tick is old enough and in_used==0, then delete them
     // return 1 as soon as one block has been deleted, 0 else
     // beware that tick=0 blocks means they were never executed and should not be touched
@@ -1628,7 +1654,10 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
 
     size = roundSize(size);
 
-    __atomic_fetch_add(&my_context->tick, 1, __ATOMIC_RELAXED);
+    if(BOX64ENV(dynarec_purge)) {
+        __atomic_fetch_add(&my_context->tick, 1, __ATOMIC_RELAXED);
+        UpdateBlockCreationSpeed();
+    }
 
     mmaplist_t* list = GetMmaplistByAddr(x64_addr);
     if(!list)
