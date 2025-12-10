@@ -755,6 +755,20 @@
 // MemoryStore(GR[rd][63:0], paddr, DOUBLEWORD)
 #define ST_D(rd, rj, imm12) EMIT(type_2RI12(0b0010100111, imm12, rj, rd))
 
+#define PRELD(hint, rj, imm12) EMIT(type_2RI12(0b0010101011, imm12, rj, hint))
+
+#define PRELDX(hint, rj, rk) EMIT(type_3R(0b00111000001011000, rk, rj, hint))
+
+#define PRELDX_LOAD_L3_1CACHELINE(rj, s1)                      \
+    do {                                                       \
+        MOV64x(s1, (0b0000000000000000ULL << 44) /* stride */  \
+                | (0b00000000ULL << 32)          /* 1 block */ \
+                | (0b000000ULL << 20)            /* 16-byte */ \
+                | (0b0ULL << 16)                 /* asc */     \
+                | 0x0000ULL);                    /* offset */  \
+        PRELDX(2 /* L3 load */, rj, s1);                       \
+    } while (0)
+
 #define LDX_B(rd, rj, rk)  EMIT(type_3R(0b00111000000000000, rk, rj, rd))
 #define LDX_H(rd, rj, rk)  EMIT(type_3R(0b00111000000001000, rk, rj, rd))
 #define LDX_W(rd, rj, rk)  EMIT(type_3R(0b00111000000010000, rk, rj, rd))
