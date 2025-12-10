@@ -116,7 +116,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (BOX64DRENV(dynarec_safeflags) > 1) {
                     READFLAGS(X_PEND);
                 } else {
-                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION); // Hack to set flags in "don't care" state
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
                 }
                 GETIP(ip, x7);
                 BARRIER(BARRIER_FLOAT);
@@ -193,6 +193,26 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
+        case 0x0E:
+            if (rex.is32bits) {
+                INST_NAME("PUSH CS");
+                LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_CS]));
+                PUSH1_32(x1);
+                SMWRITE();
+            } else {
+                INST_NAME("Illegal 0E");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
         case 0x0F:
             switch (rex.rep) {
                 case 1:
@@ -261,6 +281,46 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64xw(x1, i64);
             emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
             break;
+        case 0x16:
+            if (rex.is32bits) {
+                INST_NAME("PUSH SS");
+                LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
+                PUSH1_32(x1);
+                SMWRITE();
+            } else {
+                INST_NAME("Illegal 16");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
+        case 0x17:
+            if (rex.is32bits) {
+                INST_NAME("POP SS");
+                SMREAD();
+                POP1_32(x1);
+                ST_H(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
+            } else {
+                INST_NAME("Illegal 17");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
@@ -324,7 +384,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 PUSH1_32(x1);
                 SMWRITE();
             } else {
-                DEFAULT;
+                INST_NAME("Illegal 1E");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             }
             break;
         case 0x1F:
