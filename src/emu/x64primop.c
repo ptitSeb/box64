@@ -491,6 +491,7 @@ uint8_t rcl8(x64emu_t *emu, uint8_t d, uint8_t s)
        3) B_(n-1) <- cf
        4) B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1))
 	 */
+	res = d;
 	if ((cnt = s % 9) != 0) {
         /* extract the new CARRY FLAG. */
         /* CF <-  b_(8-n)             */
@@ -525,7 +526,6 @@ uint8_t rcl8(x64emu_t *emu, uint8_t d, uint8_t s)
 	   else
 		   CONDITIONAL_SET_FLAG((XOR2(d >> 6)), F_OF);
     } else if(s) {
-		res = d;
 		if(BOX64ENV(cputype))
 			CONDITIONAL_SET_FLAG((ACCESS_FLAG(F_CF) ^ (res >> 7)) & 0x1, F_OF);
 	}
@@ -538,6 +538,7 @@ uint16_t rcl16(x64emu_t *emu, uint16_t d, uint8_t s)
 	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
+	res = d;
 	if ((cnt = s % 17) != 0) {
 		cf = (d >> (16 - cnt)) & 0x1;
 		res = (d << cnt) & 0xffff;
