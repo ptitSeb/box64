@@ -720,6 +720,25 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return 0;
+    #ifdef ARM64
+    // df_none is now a defered information
+    if(dyn->insts[ninst].f_exit==dyn->insts[jmp].f_entry)
+        return 0;
+    if(dyn->insts[jmp].df_notneeded)
+        return 0;
+    if((dyn->insts[jmp].f_entry==status_none_pending) && (dyn->insts[ninst].f_exit!=status_none_pending))
+        return 1;
+    switch (dyn->insts[jmp].f_entry) {
+        case status_unk:
+            return (dyn->insts[ninst].f_exit==status_none_pending)?1:0;
+        case status_none:
+            return 1;
+        case status_set:
+            return (dyn->insts[ninst].f_exit==status_none)?0:1;
+        case status_none_pending:
+            return 1;
+    }
+    #else
     if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
         return 0;
     if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone && !dyn->insts[jmp].df_notneeded)
@@ -740,6 +759,7 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
                 return 0;
             return (dyn->insts[jmp].f_entry.dfnone  == dyn->insts[ninst].f_exit.dfnone)?0:1;
     }
+    #endif
     return 0;
 }
 
@@ -809,7 +829,11 @@ void propagate_nodf(dynarec_native_t* dyn, int ninst)
         if(dyn->insts[ninst].x64.gen_flags || dyn->insts[ninst].x64.use_flags)
             return; // flags are use, so maybe it's needed
         dyn->insts[ninst].df_notneeded = 1;
-        --ninst;
+        if(!dyn->insts[ninst].pred_sz)
+            return;
+        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i)
+            propagate_nodf(dyn, dyn->insts[ninst].pred[i]);
+        ninst = dyn->insts[ninst].pred[0];
     }
 }
 

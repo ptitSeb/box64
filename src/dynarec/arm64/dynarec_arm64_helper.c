@@ -343,6 +343,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     NOTEST(x2);
     TABLE64C(x2, const_epilog);
     SMEND();
+    CHECK_DFNONE(0);
     if(dyn->have_purge)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
     BR(x2);
@@ -352,7 +353,6 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 static int indirect_lookup(dynarec_arm_t* dyn, int ninst, int is32bits, int s1, int s2)
 {
     MAYUSE(dyn);
-
     if (!is32bits) {
         // check higher 48bits
         LSRx_IMM(s1, xRIP, 48);
@@ -399,7 +399,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
         ip &= 0xffffffffLL;
 
     SMEND();
-
+    CHECK_DFNONE(0);
     int dest;
     if (reg) {
         if (reg != xRIP) {
@@ -438,6 +438,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Ret to epilog\n");
+    CHECK_DFNONE(0);
     POP1z(xRIP);
     MOVz_REG(x1, xRIP);
     SMEND();
@@ -468,6 +469,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int 
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Retn to epilog\n");
+    CHECK_DFNONE(0);
     POP1z(xRIP);
     if(n>0xfff) {
         MOV32w(w1, n);
@@ -526,7 +528,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     MOV32w(x4, 0x3E7FD7);   // also mask RF, because it's not really handled
     ANDx_REG(x3, x3, x4);
     ORRx_mask(x3, x3, 1, 0b111111, 0); // xFlags | 0b10
-    SET_DFNONE();
+    FORCE_DFNONE();
     if(is32bits) {
         ANDw_mask(x4, x2, 0, 7);   // mask 0xff
         // check if return segment is 64bits, then restore rsp too
@@ -578,6 +580,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int savereg)
 {
     MAYUSE(fnc);
+    CHECK_DFNONE(1);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
     #endif
@@ -632,6 +635,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
 void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1, int arg2, int sav1, int sav2)
 {
     MAYUSE(fnc);
+    CHECK_DFNONE(1);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
     #endif
@@ -677,6 +681,7 @@ void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    CHECK_DFNONE(1);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
     #endif
@@ -2293,24 +2298,38 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return;
-    if(dyn->f.dfnone || ((dyn->insts[jmp].f_exit.dfnone && !dyn->insts[jmp].f_entry.dfnone) && !dyn->insts[jmp].x64.use_flags))  // flags are fully known, nothing we can do more
+    if(dyn->insts[jmp].f_exit==dyn->insts[jmp].f_entry)  // flags will be fully known, nothing we can do more
+        return;
+    if(dyn->insts[jmp].df_notneeded)
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone && !dyn->insts[jmp].df_notneeded)?1:0;
-    switch (dyn->insts[jmp].f_entry.pending) {
-        case SF_UNKNOWN: 
-            go = 0;
-            break;
-        default:
-            if(go && !(dyn->insts[jmp].x64.need_before&X_PEND) && (dyn->f.pending!=SF_UNKNOWN)) {
-                // just clear df flags
-                go = 0;
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, df));
+    int go_fetch = 0;
+    switch(dyn->insts[jmp].f_entry) {
+        case status_unk:
+            if(dyn->insts[ninst].f_exit==status_none_pending) {
+                FORCE_DFNONE();
             }
             break;
+        case status_set:
+            if(dyn->insts[ninst].f_exit==status_none_pending) {
+                FORCE_DFNONE();
+            }
+            if(dyn->insts[ninst].f_exit==status_unk)
+                go_fetch = 1;
+            break;
+        case status_none_pending:
+            if(dyn->insts[ninst].f_exit!=status_none)
+                go_fetch = 1;
+            break;
+        case status_none:
+            if(dyn->insts[ninst].f_exit==status_none_pending) {
+                FORCE_DFNONE();
+            } else
+                go_fetch = 1;
+            break;
     }
-    if(go) {
-        if(dyn->f.pending!=SF_PENDING) {
+    if(go_fetch) {
+        if(dyn->f==status_unk) {
             LDRw_U12(x1, xEmu, offsetof(x64emu_t, df));
             j64 = (GETMARKF2)-(dyn->native_size);
             CBZw(x1, j64);
@@ -2323,6 +2342,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
             MSR_nzcv(x6);
         MARKF2;
     }
+    MESSAGE(LOG_DUMP, "\t---- Flags fetch\n");
 }
 
 static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)

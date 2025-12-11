@@ -1001,70 +1001,48 @@
 #endif
 
 #define FORCE_DFNONE()  STRw_U12(wZR, xEmu, offsetof(x64emu_t, df))
+#define CHECK_DFNONE(N)  do {if(dyn->f==status_none_pending) {FORCE_DFNONE(); if(N) dyn->f = status_none;}} while(0)
 
-#define SET_DFNONE()                                        \
-    do {                                                    \
-        if (!dyn->f.dfnone) {                               \
-            FORCE_DFNONE();                                 \
-        }                                                   \
-        if(!dyn->insts[ninst].x64.may_set) {                \
-            dyn->f.dfnone = 1;                              \
-        }                                                   \
+#define SET_DFNONE()                                                    \
+    do {                                                                \
+        if(!dyn->insts[ninst].x64.may_set && (dyn->f!=status_none)) {   \
+            dyn->f = status_none_pending;                               \
+        }                                                               \
     } while(0)
 
 #define SET_DF(S, N)                                                                                                            \
     if ((N) != d_none) {                                                                                                        \
         MOVZw(S, (N));                                                                                                          \
         STRw_U12(S, xEmu, offsetof(x64emu_t, df));                                                                              \
-        if (dyn->f.pending == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            TABLE64C(x6, const_updateflags_arm64);                                                                              \
-            BLR(x6);                                                                                                            \
-            dyn->f.pending = SF_SET;                                                                                            \
-            SET_NODF();                                                                                                         \
-        }                                                                                                                       \
-        dyn->f.dfnone = 0;                                                                                                      \
+        dyn->f = status_set;                                                                                                    \
     } else                                                                                                                      \
         SET_DFNONE()
 
-#ifndef SET_NODF
-#define SET_NODF()          dyn->f.dfnone = 0
-#endif
-#define SET_DFOK()          dyn->f.dfnone = 1
-
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(((A)!=X_PEND && dyn->f.pending!=SF_SET)          \
-    && (dyn->f.pending!=SF_SET_PENDING)) {              \
-        if(dyn->f.pending!=SF_PENDING) {                \
-            LDRw_U12(x3, xEmu, offsetof(x64emu_t, df)); \
-            j64 = (GETMARKF)-(dyn->native_size);        \
-            CBZw(x3, j64);                              \
-        }                                               \
-        TABLE64C(x6, const_updateflags_arm64);          \
-        BLR(x6);                                        \
-        MARKF;                                          \
-        dyn->f.pending = SF_SET;                        \
-        SET_DFOK();                                     \
+    if((A)!=X_PEND                                          \
+    && (dyn->f==status_unk)) {                              \
+        TABLE64C(x6, const_updateflags_arm64);              \
+        BLR(x6);                                            \
+        dyn->f = status_none;                               \
     }
 #endif
 
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)                                                                          \
-    if(dyn->f.pending!=SF_SET                                                                   \
-    && ((B)&SF_SUB)                                                                             \
+    if (((B)&SF_SUB)                                                                            \
     && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
         READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A)));\
     if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
-        case SF_SUBSET: SET_DFNONE(); dyn->f.pending = SF_SET; break;                           \
-        case SF_SET: dyn->f.pending = SF_SET; break;                                            \
-        case SF_SET_DF: dyn->f.pending = SF_SET; dyn->f.dfnone = 1; break;                      \
-        case SF_SET_NODF: dyn->f.pending = SF_SET; dyn->f.dfnone = 0; break;                    \
-        case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
+        case SF_SET_DF: dyn->f = status_set; break;                                             \
+        case SF_SET_NODF: SET_DFNONE(); break;                                                  \
+        case SF_SUBSET:                                                                         \
         case SF_SUBSET_PENDING:                                                                 \
+        case SF_SET:                                                                            \
+        case SF_PENDING:                                                                        \
         case SF_SET_PENDING:                                                                    \
-            dyn->f.pending = (dyn->insts[ninst].x64.gen_flags&X_PEND)?SF_SET_PENDING:SF_SET;    \
-            break;                                                                              \
-    } else dyn->f.pending = SF_SET
+            SET_DFNONE(); break;                                                                \
+    } else SET_DFNONE()
 #endif
 #ifndef JUMP
 #define JUMP(A, C) SMEND()

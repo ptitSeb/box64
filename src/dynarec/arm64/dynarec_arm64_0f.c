@@ -570,7 +570,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET_NODF);
+            SETFLAGS(X_ALL, SF_SET_DF);
             nextop = F8;
             GETGX(v0, 0);
             GETEXSS(s0, 0, 0);

@@ -86,9 +86,9 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
 {
     memset(arch, 0, sizeof(arch_build_t));
     // flags
-    if((dyn->insts[ninst].f_entry.dfnone==0) || dyn->insts[ninst].need_nat_flags || dyn->insts[ninst].before_nat_flags) {
+    if(((dyn->insts[ninst].f_entry!=status_none && dyn->insts[ninst].f_entry!=status_none_pending)) || dyn->insts[ninst].need_nat_flags || dyn->insts[ninst].before_nat_flags) {
         arch->flags = 1;
-        arch->flags_.defered = dyn->insts[ninst].f_entry.dfnone==0;
+        arch->flags_.defered = (dyn->insts[ninst].f_entry!=status_none && dyn->insts[ninst].f_entry!=status_none_pending);
         uint8_t flags = dyn->insts[ninst].need_nat_flags | dyn->insts[ninst].before_nat_flags;
         arch->flags_.vf = flags&NF_VF;
         arch->flags_.nf = flags&NF_SF;

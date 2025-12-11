@@ -44,8 +44,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     int rep = 0;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
     // Clean up (because there are multiple passes)
+    #ifdef ARM64
+    dyn->f = status_unk;
+    #else
     dyn->f.pending = 0;
     dyn->f.dfnone = 0;
+    #endif
     dyn->forward = 0;
     dyn->forward_to = 0;
     dyn->forward_size = 0;
@@ -107,8 +111,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;
             if(reset_n==-2) {
                 MESSAGE(LOG_DEBUG, "Reset Caches to zero\n");
+                #ifdef ARM64
+                dyn->f = status_unk;
+                #else
                 dyn->f.dfnone = 0;
                 dyn->f.pending = 0;
+                #endif
                 fpu_reset(dyn);
                 ARCH_RESET();
             } else {
@@ -120,8 +128,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 }
                 if(dyn->insts[ninst].x64.barrier&BARRIER_FLAGS) {
                     MESSAGE(LOG_DEBUG, "Apply Barrier Flags\n");
+                    #ifdef ARM64
+                    dyn->f = status_unk;
+                    #else
                     dyn->f.dfnone = 0;
                     dyn->f.pending = 0;
+                    #endif
                 }
             }
             reset_n = -1;
@@ -279,8 +291,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 #endif
             }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
+                #ifdef ARM64
+                dyn->f = status_unk;
+                #else
                 dyn->f.pending = 0;
                 dyn->f.dfnone = 0;
+                #endif
                 dyn->last_ip = 0;
             }
         }
@@ -301,8 +317,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             // we use the 1st predecessor here
             if((ninst+1)<dyn->size && !dyn->insts[ninst+1].x64.alive) {
                 // reset fpu value...
+                #ifdef ARM64
+                dyn->f = status_unk;
+                #else
                 dyn->f.dfnone = 0;
                 dyn->f.pending = 0;
+                #endif
                 fpu_reset(dyn);
                 while((ninst+1)<dyn->size && !dyn->insts[ninst+1].x64.alive) {
                     // may need to skip opcodes to advance
