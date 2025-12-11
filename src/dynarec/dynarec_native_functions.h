@@ -59,8 +59,6 @@ void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8);
 void native_pclmul_y(x64emu_t* emu, int gy, int vy, void* p, uint32_t u8);
 
-void native_clflush(x64emu_t* emu, void* p);
-
 void native_ud(x64emu_t* emu);
 void native_br(x64emu_t* emu);
 void native_priv(x64emu_t* emu);

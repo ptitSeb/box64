@@ -716,11 +716,6 @@ void native_pclmul_y(x64emu_t* emu, int gy, int vy, void* p, uint32_t u8)
     GY->u128 = result;
 }
 
-void native_clflush(x64emu_t* emu, void* p)
-{
-    cleanDBFromAddressRange((uintptr_t)p, 8, 0);
-}
-
 static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
