@@ -45,7 +45,6 @@ uintptr_t getConst(rv64_consts_t which)
         case const_native_int3: return (uintptr_t)native_int3;
         case const_native_int: return (uintptr_t)native_int;
         case const_native_div0: return (uintptr_t)native_div0;
-        case const_native_clflush: return (uintptr_t)native_clflush;
         case const_native_fprem: return (uintptr_t)native_fprem;
         case const_native_fprem1: return (uintptr_t)native_fprem1;
         case const_native_frstor16: return (uintptr_t)native_frstor16;

@@ -1669,9 +1669,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
-                        MESSAGE(LOG_DUMP, "Need Optimization?\n");
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                        CALL_(const_native_clflush, -1, 0, ed, 0);
+                        FAKEED;
+                        // Placebo, TODO: maybe there will be a sycall for this in the future?
+                        DBAR(0);
                         break;
                     default:
                         DEFAULT;

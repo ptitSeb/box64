@@ -2216,6 +2216,30 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6, x7);
             EWBACK;
             break;
+        case 0xAE:
+            nextop = F8;
+            if (MODREG)
+                switch (nextop) {
+                    default: DEFAULT;
+                }
+            else
+                switch ((nextop >> 3) & 7) {
+                    case 6:
+                        INST_NAME("CLWB Ed");
+                        FAKEED;
+                        // Placebo, TODO: maybe there will be a sycall for this in the future?
+                        DBAR(0);
+                        break;
+                    case 7:
+                        INST_NAME("CLFLUSHOPT Ed");
+                        FAKEED;
+                        // Placebo, TODO: maybe there will be a sycall for this in the future?
+                        DBAR(0);
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
