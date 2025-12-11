@@ -1896,20 +1896,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         else
         switch((nextop>>3)&7) {
             case 6:                 /* CLWB Ed */
-                // same code and CLFLUSH, is it ok?
                 _GETED(0);
-                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                if(BOX64ENV(dynarec))
-                    cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
-                #endif
+                __sync_synchronize();
                 break;
             case 7:                 /* CLFLUSHOPT Ed */
-                // same code and CLFLUSH, is it ok?
                 _GETED(0);
-                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                if(BOX64ENV(dynarec))
-                    cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
-                #endif
+                __sync_synchronize();
                 break;
             default:
                 return 0;
