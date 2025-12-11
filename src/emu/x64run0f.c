@@ -1298,12 +1298,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 if(MODREG)
                     ED->dword[1] = 0;
             }
-            if (BOX64ENV(dynarec_test)) {
-                CLEAR_FLAG(F_OF);
-                CLEAR_FLAG(F_SF);
-                CLEAR_FLAG(F_AF);
-                CLEAR_FLAG(F_PF);
-            }
             break;
         case 0xAC:                      /* SHRD Ed,Gd,Ib */
         case 0xAD:                      /* SHRD Ed,Gd,CL */
@@ -1465,12 +1459,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     CLEAR_FLAG(F_CF);
                 if(MODREG)
                     ED->dword[1] = 0;
-            }
-            if (BOX64ENV(dynarec_test)) {
-                CLEAR_FLAG(F_OF);
-                CLEAR_FLAG(F_SF);
-                CLEAR_FLAG(F_AF);
-                CLEAR_FLAG(F_PF);
             }
             break;
 
