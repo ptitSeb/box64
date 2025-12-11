@@ -1568,15 +1568,15 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 switch (nextop) {
                     case 0xE8:
                         INST_NAME("LFENCE");
-                        SMDMB();
+                        DBAR(0);
                         break;
                     case 0xF0:
                         INST_NAME("MFENCE");
-                        SMDMB();
+                        DBAR(0);
                         break;
                     case 0xF8:
                         INST_NAME("SFENCE");
-                        SMDMB();
+                        DBAR(0);
                         break;
                     default:
                         DEFAULT;
@@ -1670,7 +1670,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         FAKEED;
-                        // Placebo, TODO: maybe there will be a sycall for this in the future?
+                        // Full flush... no fine-grained options available
                         DBAR(0);
                         break;
                     default:

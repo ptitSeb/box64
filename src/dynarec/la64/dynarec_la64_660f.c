@@ -2227,13 +2227,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     case 6:
                         INST_NAME("CLWB Ed");
                         FAKEED;
-                        // Placebo, TODO: maybe there will be a sycall for this in the future?
+                        // Full flush... no fine-grained options available
                         DBAR(0);
                         break;
                     case 7:
                         INST_NAME("CLFLUSHOPT Ed");
                         FAKEED;
-                        // Placebo, TODO: maybe there will be a sycall for this in the future?
+                        // Full flush... no fine-grained options available
                         DBAR(0);
                         break;
                     default:
