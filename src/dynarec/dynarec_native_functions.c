@@ -725,16 +725,10 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return 0;
-    #ifdef ARM64
-    // df_none is now a defered information
-    if(dyn->insts[ninst].f_exit.dfnone!=dyn->insts[jmp].f_entry.dfnone && !dyn->insts[jmp].df_notneeded)
-        return 1;
-    #else
     if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
         return 0;
     if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone && !dyn->insts[jmp].df_notneeded)
         return 1;
-    #endif
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: return 0;
         case SF_SET:
@@ -819,16 +813,8 @@ void propagate_nodf(dynarec_native_t* dyn, int ninst)
             return; // already flagged
         if(dyn->insts[ninst].x64.gen_flags || dyn->insts[ninst].x64.use_flags)
             return; // flags are use, so maybe it's needed
-        #ifdef ARM64
-        if(dyn->insts[ninst].f_exit.dfnone)
-            return;
-        #endif
         dyn->insts[ninst].df_notneeded = 1;
-        if(!dyn->insts[ninst].pred_sz)
-            return;
-        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i)
-            propagate_nodf(dyn, dyn->insts[ninst].pred[i]);
-        ninst = dyn->insts[ninst].pred[0];
+        --ninst;
     }
 }
 
