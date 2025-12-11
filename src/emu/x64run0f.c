@@ -1373,10 +1373,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     break;
                 case 7:                 /* CLFLUSH Ed */
                     _GETED(0);
-                    #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(BOX64ENV(dynarec))
-                        cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
-                    #endif
+                    __sync_synchronize();
                     break;
                 default:
                     return 0;
