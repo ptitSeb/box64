@@ -1086,20 +1086,11 @@ void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     if (!c && !BOX64ENV(cputype)) return;
     if(c) {
         BFIw(s1, xFlags, 8, 1); // insert cf
-        if(BOX64ENV(cputype)) {
-            IFX(X_OF|X_CF) {
-                BFXILw(xFlags, s1, 8-c, 1);
-            }
-        } else {
-            IFX(X_CF) {
-                BFXILw(xFlags, s1, 8-c, 1);
-            }
-        }
-    }
-    if(!BOX64ENV(cputype)) {
         IFX(X_OF|X_CF) {
             BFXILw(xFlags, s1, 8-c, 1);
         }
+    }
+    if(!BOX64ENV(cputype)) {
         IFX(X_OF) {
             LSRw(s3, s1, 6);
             EORw_REG_LSR(s3, s3, s3, 1);
