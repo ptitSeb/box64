@@ -17,7 +17,6 @@ typedef enum arm64_consts_s {
     const_native_int3,
     const_native_int,
     const_native_div0,
-    const_native_clflush,
     const_native_frstor16,
     const_native_fsave16,
     const_native_fsave,
