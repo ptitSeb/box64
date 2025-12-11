@@ -38,6 +38,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             branding[0] = ' ';
         }
     }
+    //printf_log(LOG_INFO, "%04d|0x%x: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, R_ECX);
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
@@ -525,4 +526,5 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_ECX = 0;
             R_EDX = 0;
     }
+    //printf_log_prefix(0, LOG_INFO, " => EAX=%08x EBX=%08x ECX=%08x EDX=%08x\n", R_EAX, R_EBX, R_ECX, R_EDX);
 }
