@@ -38,12 +38,12 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         dyn->insts[ninst].lock = 1;
     }
 
+    int lock = l ? ((l == LOCK_LOCK) ? 1 : 2) : 0;
+    if (lock == 2) *l = 0;
+
     if (rex.is32bits && rex.is67)
         return geted16(dyn, addr, ninst, nextop, ed, hint, scratch, fixaddress, rex, i12);
 
-    int lock = l ? ((l == LOCK_LOCK) ? 1 : 2) : 0;
-    if (lock == 2)
-        *l = 0;
     uint8_t ret = x2;
     *fixaddress = 0;
     if (hint > 0) ret = hint;
