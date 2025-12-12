@@ -2944,8 +2944,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(rex.w) {
                 REV64x(gd, gd);
             } else {
-                REV16w(x1, gd);
-                BFIx(gd, x1, 0, 16);
+                // this is undefined behaviour
+                BFCx(gd, 0, 16);
             }
             break;
 
