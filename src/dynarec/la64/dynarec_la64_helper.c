@@ -110,6 +110,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     seg_done = 1;
                 } else
                     MOV32w(ret, tmp);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 if (!rex.seg)
                     switch (lock) {
                         case 1:
@@ -227,6 +228,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
     if (rex.seg && !seg_done) {
         if (scratch == ret)
             scratch = ret + 1;
+        SCRATCH_USAGE(1);
         grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
         // seg offset is 64bits, so no truncation here
         ADDxREGy(hint, scratch, ret);
@@ -266,41 +268,51 @@ uintptr_t geted16(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                 BSTRPICK_D(ret, xRBX, 15, 0);
                 BSTRPICK_D(scratch, xRSI, 15, 0);
                 ADD_D(ret, ret, scratch);
+                SCRATCH_USAGE(1);
                 break;
             case 1: // R_BX + R_DI
                 BSTRPICK_D(ret, xRBX, 15, 0);
                 BSTRPICK_D(scratch, xRDI, 15, 0);
                 ADD_D(ret, ret, scratch);
+                SCRATCH_USAGE(1);
                 break;
             case 2: // R_BP + R_SI
                 BSTRPICK_D(ret, xRBP, 15, 0);
                 BSTRPICK_D(scratch, xRSI, 15, 0);
                 ADD_D(ret, ret, scratch);
+                SCRATCH_USAGE(1);
                 break;
             case 3: // R_BP + R_DI
                 BSTRPICK_D(ret, xRBP, 15, 0);
                 BSTRPICK_D(scratch, xRDI, 15, 0);
                 ADD_D(ret, ret, scratch);
+                SCRATCH_USAGE(1);
                 break;
             case 4: // R_SI
                 BSTRPICK_D(ret, xRSI, 15, 0);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 5: // R_DI
                 BSTRPICK_D(ret, xRDI, 15, 0);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 6: // R_BP
                 BSTRPICK_D(ret, xRBP, 15, 0);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 7: // R_BX
                 BSTRPICK_D(ret, xRBX, 15, 0);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
         }
         if (offset) {
             if (offset >= -2048 && offset < 2048) {
                 ADDI_D(ret, ret, offset);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             } else {
                 MOV64x(scratch, offset);
                 ADD_D(ret, ret, scratch);
+                SCRATCH_USAGE(1);
             }
         }
     }
@@ -308,6 +320,7 @@ uintptr_t geted16(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
     if (rex.seg) {
         if (scratch == ret)
             scratch = ret + 1;
+        SCRATCH_USAGE(1);
         grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
         // seg offset is 64bits, so no truncation here
         if (IS_GPR(ret)) {
