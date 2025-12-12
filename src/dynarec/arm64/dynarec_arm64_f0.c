@@ -760,27 +760,34 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             if(!ALIGNED_ATOMICxw) {
                                 MARK2;
-                                LDPxw_S7_offset(x2, x3, wback, 0);
-                                LDAXRB(x5, wback);
-                                SUBxw_UXTB(x5, x5, x2);
-                                CBNZw_MARK2(x5);
-                                CMPSxw_REG(xRAX, x2);
-                                CCMPxw(xRDX, x3, 0, cEQ);
-                                B_MARKSEG(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
-                                STLXRB(x4, xRBX, wback);
-                                CBNZx_MARK2(x4);
-                                STPxw_S7_offset(xRBX, xRCX, wback, 0);
-                                UFLAG_IF {
-                                    IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
-                                }
-                                B_MARK3_nocond;
-                                MARKSEG;
-                                STLXRB(x4, x5, wback); //write back
-                                CBNZx_MARK2(x4);
-                                MOVxw_REG(xRAX, x2);
-                                MOVxw_REG(xRDX, x3);
-                                UFLAG_IF {
-                                    IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
+                                if(rex.w && BOX64DRENV(dynarec_safeflags)>1) {
+                                    // unaligned memory cause a GPF
+                                    STORE_XEMU_CALL(xRIP);
+                                    CALL_S(const_native_gpf, -1);
+                                    LOAD_XEMU_CALL(xRIP);
+                                } else {
+                                    LDPxw_S7_offset(x2, x3, wback, 0);
+                                    LDAXRB(x5, wback);
+                                    SUBxw_UXTB(x5, x5, x2);
+                                    CBNZw_MARK2(x5);
+                                    CMPSxw_REG(xRAX, x2);
+                                    CCMPxw(xRDX, x3, 0, cEQ);
+                                    B_MARKSEG(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
+                                    STLXRB(x4, xRBX, wback);
+                                    CBNZx_MARK2(x4);
+                                    STPxw_S7_offset(xRBX, xRCX, wback, 0);
+                                    UFLAG_IF {
+                                        IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
+                                    }
+                                    B_MARK3_nocond;
+                                    MARKSEG;
+                                    STLXRB(x4, x5, wback); //write back
+                                    CBNZx_MARK2(x4);
+                                    MOVxw_REG(xRAX, x2);
+                                    MOVxw_REG(xRDX, x3);
+                                    UFLAG_IF {
+                                        IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
+                                    }
                                 }
                             }
                             MARK3;

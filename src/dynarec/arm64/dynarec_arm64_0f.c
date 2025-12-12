@@ -2653,32 +2653,52 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 DEFAULT;
             } else switch((nextop>>3)&7) {
             case 1:
-                INST_NAME("CMPXCHG8B Gq, Eq");
-                SETFLAGS(X_ZF, SF_SUBSET);
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                LDPxw_S7_offset(x2, x3, wback, 0);
-                CMPSxw_REG(xRAX, x2);
-                CCMPxw(xRDX, x3, 0, cEQ);
-                B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
-                STPxw_S7_offset(xRBX, xRCX, wback, 0);
-                UFLAG_IF {
-                    IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
-                }
-                B_MARK3_nocond;
-                MARK;
-                MOVxw_REG(xRAX, x2);
-                MOVxw_REG(xRDX, x3);
-                UFLAG_IF {
-                    IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
-                }
-                MARK3;
-                UFLAG_IF {
-                    IFNATIVE(NF_EQ) {} else {
-                        BFIw(xFlags, x1, F_ZF, 1);
+                if(MODREG) {
+                    INST_NAME("Invalid LOCK");
+                    UDF(0);
+                    *need_epilog = 1;
+                    *ok = 0;
+                } else {
+                    if (rex.w) {
+                        INST_NAME("CMPXCHG16B Gq, Eq");
+                    } else {
+                        INST_NAME("CMPXCHG8B Gq, Eq");
                     }
+                    SETFLAGS(X_ZF, SF_SUBSET);
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                    if(rex.w && BOX64DRENV(dynarec_safeflags)>1) {
+                        // unaligned memory cause a GPF
+                        TSTx_mask(wback, 1, 0, 3);
+                        B_MARK2(cEQ);   // alligned, continue...
+                        STORE_XEMU_CALL(xRIP);
+                        CALL_S(const_native_gpf, -1);
+                        LOAD_XEMU_CALL(xRIP);
+                        MARK2;
+                    }
+                    LDPxw_S7_offset(x2, x3, wback, 0);
+                    CMPSxw_REG(xRAX, x2);
+                    CCMPxw(xRDX, x3, 0, cEQ);
+                    B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
+                    STPxw_S7_offset(xRBX, xRCX, wback, 0);
+                    UFLAG_IF {
+                        IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
+                    }
+                    B_MARK3_nocond;
+                    MARK;
+                    MOVxw_REG(xRAX, x2);
+                    MOVxw_REG(xRDX, x3);
+                    UFLAG_IF {
+                        IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
+                    }
+                    MARK3;
+                    UFLAG_IF {
+                        IFNATIVE(NF_EQ) {} else {
+                            BFIw(xFlags, x1, F_ZF, 1);
+                        }
+                    }
+                    SMWRITE();
                 }
-                SMWRITE();
                 break;
             case 4:
                 INST_NAME("Unsupported XSAVEC Ed");
