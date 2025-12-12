@@ -802,6 +802,10 @@ x64emurun:
             break;
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
+            if(MODREG) {
+                unimp = 2;
+                goto fini;
+            }
             GETGD;
             tmp64u = GETEA(0);
             if (rex.w && !rex.is67)
