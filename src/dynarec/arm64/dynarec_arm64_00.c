@@ -1647,12 +1647,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0x8D:
-            INST_NAME("LEA Gd, Ed");
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg? that's an invalid operation
-                DEFAULT;
+                INST_NAME("Invalid 8D");
+                UDF(0);
+                *need_epilog = 1;
+                *ok = 0;
             } else {                    // mem <= reg
+                INST_NAME("LEA Gd, Ed");
                 rex.seg = 0;    // to be safe
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
