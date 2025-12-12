@@ -1781,10 +1781,16 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xC7:
             CHECK_FLAGS(emu);
             nextop = F8;
+            if(MODREG) {
+                return 0;   // register mode is Undefined Instruction
+            }
             GETE8xw(0);
             switch((nextop>>3)&7) {
-                case 1:     /* CMPXCHG8B Eq */
+                case 1:     /* CMPXCHG8B Eq / CMPXCHG16B Eq */
                     if(rex.w) {
+                        if(((uintptr_t)ED)&0xf) {
+                            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GPF
+                        }
                         tmp64u = ED->q[0];
                         tmp64u2= ED->q[1];
                         if(R_RAX == tmp64u && R_RDX == tmp64u2) {
