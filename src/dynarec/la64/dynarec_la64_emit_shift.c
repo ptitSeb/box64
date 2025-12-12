@@ -38,11 +38,12 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
             X64_SLL_H(s1, s2);
         }
 
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLI_D(s3, s1, 14 - F_OF);
             SRLI_D(s5, s3, 1);
             XOR(s3, s3, s5);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
 
         SLL_D(s1, s1, s2);
@@ -116,11 +117,12 @@ void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             X64_SLL_H(s1, s3);
         }
 
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLI_D(s3, s1, 14 - F_OF);
             SRLI_D(s5, s3, 1);
             XOR(s3, s3, s5);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
 
         SLLI_D(s1, s1, c);
@@ -210,11 +212,12 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             else
                 X64_SLL_W(s1, s2);
         }
-        IFXA (F_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 62 : 30) - F_OF);
             SRLI_D(s5, s3, 1);
             XOR(s3, s3, s5);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
         SLL_D(s1, s1, s2);
         if (!rex.w) { ZEROUP(s1); }
@@ -290,11 +293,12 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             else
                 X64_SLL_W(s1, s3);
         }
-        IFXA (F_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 62 : 30) - F_OF);
             SRLI_D(s5, s3, 1);
             XOR(s3, s3, s5);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
         SLLIxw(s1, s1, c);
         if (!rex.w) ZEROUP(s1);
@@ -356,11 +360,12 @@ void emit_shl8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     if (cpuext.lbt) {
         IFX (X_ALL) X64_SLL_B(s1, s2);
-        IFX (X_OF) {
+        IFXA ((X_OF | X_AF), BOX64DRENV(dynarec_safeflags)) {
             SLLI_D(s3, s1, F_OF - 6);
             SRLI_D(s4, s3, 1);
             XOR(s3, s3, s4);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
         SLL_D(s1, s1, s2);
         ANDI(s1, s1, 0xff);
@@ -422,9 +427,10 @@ void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     if (cpuext.lbt) {
         IFX (X_ALL) X64_SRL_B(s1, s2);
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SLLI_D(s3, s1, F_OF - 7);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
         SRL_D(s1, s1, s2);
         ANDI(s1, s1, 0xff);
@@ -480,7 +486,7 @@ void emit_sar8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     if (cpuext.lbt) {
         IFX (X_ALL) X64_SRA_B(s1, s2);
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, (X_AF | X_OF));
         SRA_D(s1, s1, s2);
         ANDI(s1, s1, 0xff);
 
@@ -539,9 +545,10 @@ void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
             X64_SRL_H(s1, s2);
         }
 
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLI_D(s3, s1, 15 - F_OF);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
 
         SRL_D(s1, s1, s2);
@@ -605,9 +612,10 @@ void emit_shr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             X64_SRL_H(s1, s3);
         }
 
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLI_D(s3, s1, 15 - F_OF);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
 
         SRLI_D(s1, s1, c);
@@ -671,9 +679,10 @@ void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             else
                 X64_SRL_W(s1, s2);
         }
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 63 : 31) - F_OF);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, X_OF | X_AF);
         }
         SRL_D(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -746,9 +755,10 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             else
                 X64_SRL_W(s1, s3);
         }
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) {
             SRLIxw(s3, s1, (rex.w ? 63 : 31) - F_OF);
-            X64_SET_EFLAGS(s3, X_OF);
+            BSTRINS_D(s3, xZR, F_AF, F_AF);
+            X64_SET_EFLAGS(s3, X_OF | X_AF);
         }
         SRLIxw(s1, s1, c);
         if (!rex.w) ZEROUP(s1);
@@ -819,7 +829,7 @@ void emit_sar16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         IFX (X_ALL) {
             X64_SRA_H(s1, s2);
         }
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, (X_AF | X_OF));
 
         SRL_D(s1, s1, s2);
         BSTRPICK_D(s1, s1, 15, 0);
@@ -885,7 +895,7 @@ void emit_sar16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         IFX (X_ALL) {
             X64_SRA_H(s1, s3);
         }
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, (X_AF | X_OF));
         SRLI_D(s1, s1, c);
         BSTRPICK_D(s1, s1, 15, 0);
         IFX (X_PEND) {
@@ -963,7 +973,7 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
                 X64_SRA_W(s1, s3);
         }
 
-        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF);
+        IFXA ((X_AF | X_OF), BOX64DRENV(dynarec_safeflags)) X64_SET_EFLAGS(xZR, X_OF | X_AF);
 
         SRAIxw(s1, s1, c);
         if (!rex.w) ZEROUP(s1);
