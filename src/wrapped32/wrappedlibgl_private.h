@@ -4024,6 +4024,9 @@ GO(eglQueryDisplayAttribEXT, iFpip)
 // EGL_EXT_device_enumeration
 GO(eglQueryDevicesEXT, iFipp)
 
+// EGL_EXT_device_persistent_id
+GO(eglQueryDeviceBinaryEXT, iFpiipp)
+
 // EGL_EXT_image_dma_buf_import_modifiers
 GO(eglQueryDmaBufFormatsEXT, iFpipp)
 GO(eglQueryDmaBufModifiersEXT, iFpiippp)
