@@ -1751,14 +1751,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.w) {
                 REV8xw(gd, gd, x1, x2, x3, x4);
             } else {
-                ANDI(x1, gd, 0xff);
-                SRLI(x2, gd, 8);
-                SLLI(x1, x1, 8);
-                ANDI(x2, x2, 0xff);
+                // undefined behaviour
                 SRLI(gd, gd, 16);
-                OR(x1, x1, x2);
                 SLLI(gd, gd, 16);
-                OR(gd, gd, x1);
             }
             break;
         case 0xD1:
