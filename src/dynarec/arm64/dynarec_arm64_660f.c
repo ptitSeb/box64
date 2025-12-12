@@ -1616,6 +1616,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
 
         #define GO(GETFLAGS, NO, YES, F)                                                                                   \
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);                                   \
             READFLAGS(F);                                                                                                  \
             GETFLAGS;                                                                                                      \
             nextop = F8;                                                                                                   \
@@ -2401,6 +2402,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xA4:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("SHLD Ew, Gw, Ib");
             nextop = F8;
             u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
@@ -2417,6 +2419,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xA5:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             nextop = F8;
             INST_NAME("SHLD Ew, Gw, CL");
             if(BOX64DRENV(dynarec_safeflags)>1) {
@@ -2468,6 +2471,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xAC:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, Ib");
             u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
@@ -2484,6 +2488,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xAD:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, CL");
             if(BOX64DRENV(dynarec_safeflags)>1) {
@@ -2591,6 +2596,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
 
         case 0xB6:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("MOVZX Gw, Eb");
             nextop = F8;
             if(MODREG) {
@@ -2612,6 +2618,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIx(gd, x1, 0, 16);        // insert in Gw
             break;
         case 0xB7:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("MOVZX Gw, Ew");
             nextop = F8;
             if(MODREG) {
@@ -2628,6 +2635,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
 
         case 0xBA:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 4:
@@ -2700,6 +2708,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xBB:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("BTC Ew, Gw");
             if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ALL&~X_ZF, SF_SUBSET);
@@ -2734,6 +2743,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xBC:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("BSF Gw,Ew");
             if (!BOX64DRENV(dynarec_safeflags) || BOX64ENV(cputype)) {
                 SETFLAGS(X_ZF, SF_SUBSET);
@@ -2769,6 +2779,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xBD:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("BSR Gw,Ew");
             if (!BOX64DRENV(dynarec_safeflags) || BOX64ENV(cputype)) {
                 SETFLAGS(X_ZF, SF_SUBSET);
@@ -2806,6 +2817,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xBE:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("MOVSX Gw, Eb");
             nextop = F8;
             GETGD;
@@ -2828,6 +2840,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIx(gd, x1, 0, 16);
             break;
         case 0xBF:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("MOVSX Gw, Ew");
             nextop = F8;
             GETGD;
@@ -2843,6 +2856,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             break;
 
         case 0xC1:
+            if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("XADD Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
