@@ -5,6 +5,7 @@
 #include <sched.h>
 
 #include "my_cpuid.h"
+#include "build_info.h"
 #include "debug.h"
 #include "x64emu.h"
 
@@ -38,7 +39,27 @@ int get_cpuMhz()
         else
             cpucore = -1;
     }
-    #ifndef STATICBUILD
+    // try with /procs/cpuinfo
+    if (!MHz) {
+        FILE* f = fopen("/proc/cpuinfo", "r");
+        if (f) {
+            char line[256];
+            while (fgets(line, sizeof(line), f)) {
+                if (strcasestr(line, "cpu mhz") != NULL) {
+                    char* colon = strchr(line, ':');
+                    if (colon != NULL) {
+                        float mhz;
+                        if (sscanf(colon + 1, "%f", &mhz) == 1) {
+                            MHz = (int)mhz;
+                            break;
+                        }
+                    }
+                }
+            }
+            fclose(f);
+        }
+    }
+#ifndef STATICBUILD
     if(!MHz) {
         // try with lscpu, grabbing the max frequency
         FILE* f = popen("lscpu | grep \"CPU max MHz:\" | sed -r 's/CPU max MHz:\\s{1,}//g'", "r");
@@ -162,7 +183,7 @@ const char* getCpuName()
             return name;
         }
     }
-    // failled, try to get architecture at least
+    // failed, try to get architecture at least
     f = popen("uname -m", "r");
     if(f) {
         char tmp[200] = "";
@@ -192,13 +213,13 @@ const char* getBoxCpuName()
         const char* name = getCpuName();
         if(strstr(name, "MHz") || strstr(name, "GHz")) {
             // name already have the speed in it
-            snprintf(branding, sizeof(branding), "Box64 on %.*s", 39, name);
+            snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s", 39, name);
         } else {
             unsigned int MHz = get_cpuMhz();
             if(MHz>1500) { // swiches to GHz display...
-                snprintf(branding, sizeof(branding), "Box64 on %.*s @%1.2f GHz", 28, name, MHz/1000.);
+                snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%1.2f GHz", 28, name, MHz / 1000.);
             } else {
-                snprintf(branding, sizeof(branding), "Box64 on %.*s @%04d MHz", 28, name, MHz);
+                snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04d MHz", 28, name, MHz);
             }
         }
     }
