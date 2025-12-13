@@ -1272,6 +1272,58 @@ void emit_rcr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
     }
 }
 
+// emit RCL32/RCL64 instruction, from s1 , shift s2 (destroyed), store result in s1 using s3 and s4 as scratch
+void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if(BOX64ENV(cputype)) {
+        IFX(X_OF|X_CF) {
+            MOVZw(s4, rex.w?64:32);
+            SUBx_REG(s4, s4, s2);
+            LSRxw_REG(s3, s1, s4);
+        }
+    } else {
+        IFX(X_CF) {
+            MOVZw(s4, rex.w?64:32);
+            SUBx_REG(s4, s4, s2);
+            LSRxw_REG(s3, s1, s4);
+        }
+    }
+    if(!BOX64ENV(cputype))
+        IFX(X_OF) {
+            LSRxw(s4, s1, rex.w?62:30);
+            EORw_REG_LSR(s4, s4, s4, 1);
+            BFIw(xFlags, s4, F_OF, 1);
+        }
+    SUBw_U12(s4, s2, 1);
+    CBNZw(s4, 4+4*3);
+    /*if(c==1)*/
+    {
+        LSLxw(s1, s1, 1);
+        BFIxw(s1, xFlags, 0, 1);
+        B(4+4*9);
+    }
+    /*else*/
+    {
+        LSLxw_REG(s4, s1, s2);
+        UBFXw(s5, xFlags, 0, 1);
+        SUBw_U12(s2, s2, 1);    //s2 = c-1 now
+        LSLxw_REG(s5, s5, s2);
+        ORRxw_REG(s4, s4, s5);
+        MOVZw(s5, rex.w?64:32); // -1 to compensate from the c-1 is s2
+        SUBw_REG(s5, s5, s2);
+        LSRxw_REG(s1, s1, s5);
+        ORRxw_REG(s1, s1, s4);
+    }
+    IFX(X_CF) {
+        BFIw(xFlags, s3, F_CF, 1);
+    }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        EORxw_REG_LSR(s3, s3, s1, rex.w?63:31);
+        BFIw(xFlags, s3, F_OF, 1);
+    }
+}
 // emit RCR32/RCR64 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch
 void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
