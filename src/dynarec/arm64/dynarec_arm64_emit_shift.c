@@ -1272,6 +1272,50 @@ void emit_rcr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
     }
 }
 
+// emit RCR32/RCR64 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch
+void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    IFX2(X_OF, && !BOX64ENV(cputype)) {
+        EORxw_REG_LSR(s3, xFlags, s1, rex.w?63:31);
+        BFIw(xFlags, s3, F_OF, 1);
+    }
+    SUBw_U12(s4, s2, 1);
+    IFX(X_CF) {
+        LSRxw_REG(s3, s1, s4);
+        BFIw(xFlags, s3, F_res2, 1); // saving the value without reserving s3
+    }
+    CBNZw(s4, 4+4*3);
+    /*if(c==1)*/
+    {
+        LSRxw(s1, s1, 1);
+        BFIxw(s1, xFlags, rex.w?63:31, 1);
+        B(4+4*9);
+    } 
+    /*else*/
+    {
+        LSRxw_REG(s5, s1, s2);
+        UBFXw(s4, xFlags, 0, 1);
+        MOVZw(s3, (rex.w?64:32));
+        SUBx_REG(s3, s3, s2);
+        LSLxw_REG(s4, s4, s3);
+        ORRxw_REG(s5, s5, s4);
+        ADDx_U12(s3, s3, 1);
+        LSLxw_REG(s1, s1, s3);
+        ORRxw_REG(s1, s1, s5);
+    }
+    IFX(X_CF) {
+        BFXILw(xFlags, xFlags, F_res2, 1);
+        BFCw(xFlags, F_res2, 1);
+    }
+    IFX2(X_OF, && BOX64ENV(cputype)) {
+        LSRxw(s4, s1, rex.w?62:30);
+        EORw_REG_LSR(s4, s4, s4, 1);
+        BFIw(xFlags, s4, F_OF, 1);
+    }
+}
+
 // emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
 {
