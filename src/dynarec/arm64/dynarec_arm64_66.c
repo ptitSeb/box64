@@ -1351,18 +1351,41 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 3:
                     INST_NAME("RCR Ew, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization (RCR Ew, CL)\n");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_OF|X_CF);
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    ANDw_mask(x2, xRCX, 0, 0b00100);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     CBZw_NEXT(x2);
+                    // get CL % 17
+                    MOV32w(x3, 0xf10); // 0x10000 / 17 + 1
+                    MULw(x3, x3, x2);
+                    LSRw(x3, x3, 16);   // x3 = CL / 17
+                    MOV32w(x4, 17);
+                    MSUBw(x2, x3, x4, x2);  // CL mod 17
                     GETEW(x1, 0);
-                    CALL_(const_rcr16, x1, x3);
+                    CBZw_MARK(x2);
+                    BFIw(ed, xFlags, 16, 1); // insert CF
+                    ORRx_REG_LSL(ed, ed, ed, 17);    // insert rest of ed
+                    IFX2(X_OF, && !BOX64ENV(cputype)) {
+                        EORw_REG_LSR(x5, xFlags, ed, 15);
+                        BFIw(xFlags, x5, F_OF, 1);
+                    }
+                    IFX(X_CF) {
+                        SUBw_U12(x4, x2, 1);
+                        LSRw_REG(x5, ed, x4);
+                        BFIw(xFlags, x5, F_CF, 1);
+                    }
+                    LSRx_REG(ed, ed, x2);
                     EWBACK;
+                    MARK;
+                    IFX2(X_OF, && BOX64ENV(cputype)) {
+                        LSRw(x4, ed, 14);
+                        EORw_REG_LSR(x4, x4, x4, 1);
+                        BFIw(xFlags, x4, F_OF, 1);
+                    }
                     break;
                 case 4:
                 case 6:
