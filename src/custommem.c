@@ -659,9 +659,9 @@ void* map128_customMalloc(size_t size, int is32bits)
     uint8_t* map = p_blocks[i].first;
     for(int idx=(allocsize-mapsize)>>7;  idx<(allocsize>>7); ++idx)
         map[idx>>3] |= (1<<(idx&7));
-    // 32bits check
-    if(is32bits && p>(void*)0xffffffffLL) {
-        printf_log(LOG_INFO, "Warning: failed to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+    // 32bits check - ensure entire allocation fits in 32-bit space
+    if(is32bits && ((uintptr_t)p + allocsize > 0x100000000ULL)) {
+        printf_log(LOG_INFO, "Warning: failed to allocate 0x%x (0x%x) bytes in 32bits address space (block %d, addr %p)\n", size, allocsize, i, p);
         // failed to allocate memory
         if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
             // mask size from this block
@@ -931,8 +931,9 @@ void* internal_customMalloc(size_t size, int is32bits)
     blockmark_t* n = NEXT_BLOCK(m);
     n->next.x32 = 0;
     n->prev.x32 = m->next.x32;
-    if(is32bits && p>(void*)0xffffffffLL) {
-        printf_log(LOG_INFO, "Warning: failed to allocate 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+    // 32bits check - ensure entire allocation fits in 32-bit space
+    if(is32bits && ((uintptr_t)p + allocsize > 0x100000000ULL)) {
+        printf_log(LOG_INFO, "Warning: failed to allocate 0x%x (0x%x) bytes in 32bits address space (block %d, addr %p)\n", size, allocsize, i, p);
         // failed to allocate memory
         if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
             // mask size from this block
@@ -1222,8 +1223,9 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     p_blocks[i].block = p;
     p_blocks[i].first = p;
     p_blocks[i].size = allocsize;
-    if(is32bits && p>(void*)0xffffffffLL) {
-        printf_log(LOG_INFO, "Warning: failed to allocate aligned 0x%x (0x%x) bytes in 32bits address space (block %d)\n", size, allocsize, i);
+    // 32bits check - ensure entire allocation fits in 32-bit space
+    if(is32bits && ((uintptr_t)p + allocsize > 0x100000000ULL)) {
+        printf_log(LOG_INFO, "Warning: failed to allocate aligned 0x%x (0x%x) bytes in 32bits address space (block %d, addr %p)\n", size, allocsize, i, p);
         // failed to allocate memory
         if(BOX64ENV(showbt) || BOX64ENV(showsegv)) {
             // mask size from this block
