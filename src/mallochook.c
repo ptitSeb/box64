@@ -186,26 +186,27 @@ SUPER()
 
 #ifdef BOX32
 int isCustomAddr(void* p);
-#define SPACE32 (void*)0x100000000LL
+// Check if entire allocation (ptr to ptr+size-1) fits within 32-bit address space
+#define FITS_IN_32BIT(ptr, size) (((uintptr_t)(ptr) + (size)) <= 0x100000000ULL)
 void* box32_calloc(size_t n, size_t s)
 {
     void* ret = box_calloc(n, s);
-    if(ret<SPACE32) return ret;
+    if(ret && FITS_IN_32BIT(ret, n * s)) return ret;
     box_free(ret);
     malloc_trim(0);
     ret = box_calloc(n, s);
-    if(ret<SPACE32) return ret;
+    if(ret && FITS_IN_32BIT(ret, n * s)) return ret;
     box_free(ret);
     return customCalloc32(n, s);
 }
 void* box32_malloc(size_t s)
 {
     void* ret = box_malloc(s);
-    if(ret<SPACE32) return ret;
+    if(ret && FITS_IN_32BIT(ret, s)) return ret;
     box_free(ret);
     malloc_trim(0);
     ret = box_malloc(s);
-    if(ret<SPACE32) return ret;
+    if(ret && FITS_IN_32BIT(ret, s)) return ret;
     box_free(ret);
     return customMalloc32(s);
 }
@@ -214,7 +215,8 @@ void* box32_realloc(void* p, size_t s)
     if(isCustomAddr(p))
         return customRealloc32(p, s);
     void* ret = box_realloc(p, s);
-    if(ret<SPACE32) return ret;
+    if(!ret) return NULL;
+    if(FITS_IN_32BIT(ret, s)) return ret;
     malloc_trim(0);
     void* newret = customMalloc32(s);
     memcpy(newret, ret, s);
@@ -231,7 +233,7 @@ void box32_free(void* p)
 void* box32_memalign(size_t align, size_t s)
 {
     void* ret = box_memalign(align, s);
-    if(ret<SPACE32) return ret;
+    if(ret && FITS_IN_32BIT(ret, s)) return ret;
     box_free(ret);
     malloc_trim(0);
     return customMemAligned32(align, s);
