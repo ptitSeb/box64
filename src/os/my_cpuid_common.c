@@ -38,7 +38,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             branding[0] = ' ';
         }
     }
-    //printf_log(LOG_INFO, "%04d|0x%x: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, R_ECX);
+    //printf_log(LOG_INFO, "%04d|%p: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, R_ECX);
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
