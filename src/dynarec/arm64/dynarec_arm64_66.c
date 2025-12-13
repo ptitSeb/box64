@@ -1308,18 +1308,46 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ew, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization (RCL Ex, CL)\n");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_OF|X_CF);
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    ANDw_mask(x2, xRCX, 0, 0b00100);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     CBZw_NEXT(x2);
+                    // get CL % 17
+                    MOV32w(x3, 0xf10); // 0x10000 / 17 + 1 (this is precise enough in the 0..31 range)
+                    MULw(x3, x3, x2);
+                    LSRw(x3, x3, 16);   // x3 = CL / 17
+                    MOV32w(x4, 17);
+                    MSUBw(x2, x3, x4, x2);  // CL mod 17
                     GETEW(x1, 0);
-                    CALL_(const_rcl16, x1, x3);
+                    CBZw_MARK(x2);
+                    IFX2(X_OF, && !BOX64ENV(cputype)) {
+                        LSRw(x5, ed, 14);
+                        EORw_REG_LSR(x5, x5, x5, 1);
+                        BFIw(xFlags, x5, F_OF, 1);
+                    }
+                    BFIw(ed, xFlags, 16, 1); // insert CF
+                    ORRx_REG_LSL(ed, ed, ed, 17);    // insert rest of ed
+                    SUBw_REG(x2, x4, x2);
+                    IFX(X_OF|X_CF) {
+                        SUBw_U12(x5, x2, 1);
+                        LSRx_REG(x5, ed, x5);   // keep the new CF in x5
+                    }
+                    LSRx_REG(ed, ed, x2);
                     EWBACK;
+                    u8 = X_CF;
+                    if(BOX64ENV(cputype)) u8 |= X_OF;
+                    IFX(u8) {
+                        BFXILw(xFlags, x5, 0, 1);
+                    }
+                    MARK;
+                    IFX2(X_OF, && BOX64ENV(cputype)) {
+                        EORw_REG_LSR(x2, xFlags, ed, 7);
+                        BFIw(xFlags, x2, F_OF, 1);
+                    }
                     break;
                 case 3:
                     INST_NAME("RCR Ew, CL");
