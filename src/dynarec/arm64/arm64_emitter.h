@@ -157,6 +157,7 @@ int convert_bitmask(uint64_t bitmask);
 #define LDRH_S9_postindex(Rt, Rn, imm9)   EMIT(LDR_gen(0b01, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define LDRH_S9_preindex(Rt, Rn, imm9)    EMIT(LDR_gen(0b01, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 #define LDRxw_S9_postindex(Rt, Rn, imm9)  EMIT(LDR_gen(rex.w?0b11:0b10, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
+#define LDRz_S9_preindex(Rt, Rn, imm9)  EMIT(LDR_gen(rex.is32bits?0b10:0b11, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
 
 #define LDRS_gen(size, op1, imm9, op2, Rn, Rt)   ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b10<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
 #define LDRSW_S9_postindex(Rt, Rn, imm9)  EMIT(LDRS_gen(0b10, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))

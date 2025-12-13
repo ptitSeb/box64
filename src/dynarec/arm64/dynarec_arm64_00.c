@@ -2787,23 +2787,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u16 = F16;
             u8 = (F8) & 0x1f;
             if(u8) {
-                MOVx_REG(x1, xRBP);
+                MOVz_REG(x1, xRBP);
             }
             PUSH1z(xRBP);
-            MOVx_REG(xRBP, xRSP);
+            MOVz_REG(xRBP, xRSP);
             if (u8) {
                 for (u32 = 1; u32 < u8; u32++) {
-                    SUBx_U12(x1, x1, rex.is32bits?4:8);
-                    LDRz_U12(x2, x1, 0);
+                    LDRz_S9_preindex(x2, x1, rex.is32bits?-4:-8);
                     PUSH1z(x2);
                 }
                 PUSH1z(xRBP);
             }
             if(u16<4096) {
-                SUBx_U12(xRSP, xRSP, u16);
+                SUBz_U12(xRSP, xRSP, u16);
             } else {
                 MOV32w(x2, u16);
-                SUBx_REG(xRSP, xRSP, x2);
+                SUBz_REG(xRSP, xRSP, x2);
             }
             break;
         case 0xC9:
