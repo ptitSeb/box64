@@ -38,26 +38,27 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             branding[0] = ' ';
         }
     }
-    //printf_log(LOG_INFO, "%04d|%p: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, R_ECX);
+    uint32_t subleaf = R_ECX;
+    //printf_log(LOG_INFO, "%04d|%p: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, subleaf);
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
-            R_EAX = BOX64ENV(cputype)?0x0000000f:0x0000000f;//was 0x15 before, but something seems wrong for leaf 0x15, and cpu-z take that as pure cpu speed...
+            R_RAX = BOX64ENV(cputype)?0x0000000f:0x0000000f;//was 0x15 before, but something seems wrong for leaf 0x15, and cpu-z take that as pure cpu speed...
             if(BOX64ENV(cputype)) {
                 // return AuthenticAMD
-                R_EBX = 0x68747541;
-                R_ECX = 0x444d4163;
-                R_EDX = 0x69746E65;
+                R_RBX = 0x68747541;
+                R_RCX = 0x444d4163;
+                R_RDX = 0x69746E65;
             } else {
                 // return GenuineIntel
-                R_EBX = 0x756E6547;
-                R_ECX = 0x6C65746E;
-                R_EDX = 0x49656E69;
+                R_RBX = 0x756E6547;
+                R_RCX = 0x6C65746E;
+                R_RDX = 0x49656E69;
             }
             break;
         case 0x1:
             if(BOX64ENV(cputype)) {
-                R_EAX = (0xc<<0) | // stepping 0-3
+                R_RAX = (0xc<<0) | // stepping 0-3
                         (0x1<<4) | // base model 4-7
                         (0xf<<8) | // base familly 8-11
                         (0x0<<12)| // reserved 12-15
@@ -66,7 +67,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         (0x0<<28)| // reserved 28-31
                         0 ; // family and all, simulating a Ryzen 5 type of cpu
             } else {
-                R_EAX = (0x1<<0) | // stepping
+                R_RAX = (0x1<<0) | // stepping
                         (0x6<<4) | // model
                         (0x6<<8) | // familly
                         (0x0<<12)| // Processor type
@@ -75,13 +76,13 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         (0x0<<20)| // extended familly
                         0 ; // family and all, simulating Haswell type of cpu
             }
-            R_EBX = 0 | (8<<0x8) | ((BOX64ENV(cputype)?0:ncluster)<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            R_RBX = 0 | (8<<0x8) | ((BOX64ENV(cputype)?0:ncluster)<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
             /*{
                 int cpu = sched_getcpu();
                 if(cpu<0) cpu=0;
-                R_EAX |= cpu<<24;
+                R_RAX |= cpu<<24;
             }*/
-            R_EDX =   1         // fpu
+            R_RDX =   1         // fpu
                     | 1<<1      // vme
                     | 1<<2      // debugging extension
                     | 1<<3      // pse
@@ -105,7 +106,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<26     // SSE2
                     | (BOX64ENV(cputype)?0:1)<<28     // HT / Multi-core
                     ;
-            R_ECX =   1<<0      // SSE3
+            R_RCX =   1<<0      // SSE3
                     | BOX64ENV(pclmulqdq)<<1      // PCLMULQDQ
                     | (BOX64ENV(cputype)?0:1)<<2      // DS 64bits
                     | 1<<3      // Monitor/MWait (priviledge instructions)
@@ -129,72 +130,72 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0x2:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
                 // TLB and Cache info. Sending 1st gen P4 info...
-                R_EAX = 0x665B5001;
-                R_EBX = 0x00000000;
-                R_ECX = 0x00000000;
-                R_EDX = 0x007A7000;
+                R_RAX = 0x665B5001;
+                R_RBX = 0x00000000;
+                R_RCX = 0x00000000;
+                R_RDX = 0x007A7000;
             }
             break;
 
         case 0x4:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
                 // Cache info
-                switch (R_ECX) {
+                switch (subleaf) {
                     case 0: // L1 data cache
-                        R_EAX = (1 | (1<<5) | (1<<8) | ((ncpu-1)<<26));   //type + (26-31):max cores per packages-1
-                        R_EBX = (63 | (7<<22)); // size
-                        R_ECX = 63;
-                        R_EDX = 1;
+                        R_RAX = (1 | (1<<5) | (1<<8) | ((ncpu-1)<<26));   //type + (26-31):max cores per packages-1
+                        R_RBX = (63 | (7<<22)); // size
+                        R_RCX = 63;
+                        R_RDX = 1;
                         break;
                     case 1: // L1 inst cache
-                        R_EAX = (2 | (1<<5) | (1<<8)); //type
-                        R_EBX = (63 | (7<<22)); // size
-                        R_ECX = 63;
-                        R_EDX = 1;
+                        R_RAX = (2 | (1<<5) | (1<<8)); //type
+                        R_RBX = (63 | (7<<22)); // size
+                        R_RCX = 63;
+                        R_RDX = 1;
                         break;
                     case 2: // L2 cache
-                        R_EAX = (3 | (2<<5) | (1<<8)); //type
-                        R_EBX = (63 | (15<<22));    // size
-                        R_ECX = 4095;
-                        R_EDX = 1;
+                        R_RAX = (3 | (2<<5) | (1<<8)); //type
+                        R_RBX = (63 | (15<<22));    // size
+                        R_RCX = 4095;
+                        R_RDX = 1;
                         break;
 
                     default:
-                        R_EAX = 0x00000000;
-                        R_EBX = 0x00000000;
-                        R_ECX = 0x00000000;
-                        R_EDX = 0x00000000;
+                        R_RAX = 0x00000000;
+                        R_RBX = 0x00000000;
+                        R_RCX = 0x00000000;
+                        R_RDX = 0x00000000;
                         break;
                 }
             }
             break;
         case 0x5:   //mwait info
-            R_EAX = 0;
-            R_EBX = 0;
-            R_ECX = 1 | 2;
-            R_EDX = 0;
+            R_RAX = 0;
+            R_RBX = 0;
+            R_RCX = 1 | 2;
+            R_RDX = 0;
             break;
         case 0x3:   // PSN
         case 0x6:   // thermal
         case 0x8:   // more extended capabilities
         case 0x9:   // direct cache access
         case 0xA:   // Architecture performance monitor
-            R_EAX = 0;
-            R_EBX = 0;
-            R_ECX = 0;
-            R_EDX = 0;
+            R_RAX = 0;
+            R_RBX = 0;
+            R_RCX = 0;
+            R_RDX = 0;
             break;
         case 0x7:
             // extended bits...
-            if(R_ECX==0) {
-                R_EAX = 0;
-                R_EBX = 1<<0 // FSGSBASE
+            if(subleaf==0) {
+                R_RAX = 0;
+                R_RBX = 1<<0 // FSGSBASE
                         | BOX64ENV(avx)<<3  // BMI1
                         | BOX64ENV(avx2)<<5  //AVX2
                         | (BOX64ENV(cputype)?0:1)<<6 // FDP_EXCPTN_ONLY
@@ -216,134 +217,135 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         0;
                 R_RDX = 0;
 
-            } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
+            } else {R_RAX = R_RCX = R_RBX = R_RDX = 0;}
             break;
         case 0xB:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
                 // Extended Topology Enumeration Leaf
                 //TODO!
-                R_EAX = 0;
-                R_EBX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
             }
             break;
         case 0xC:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
                 //?
-                R_EAX = 0;
+                R_RAX = 0;
             }
             break;
         case 0xD:
             // Processor Extended State Enumeration Main Leaf / Sub Leaf
-            switch(R_CX) {
+            switch(subleaf) {
             case 0:
-                R_EAX = 0b111;          // x87 SSE AVX saved
-                R_EBX = 512+64+16*16;     // size of xsave/xrstor
-                R_ECX = 512+64+16*16;     // maximum size of xsave area
-                R_EDX = 0;              // more bits
+                R_RAX = 0b111;          // x87 SSE AVX saved
+                R_RBX = 512+64+16*16;     // size of xsave/xrstor
+                R_RCX = 512+64+16*16;     // maximum size of xsave area
+                R_RDX = 0;              // more bits
                 break;
             case 1:
-                R_EAX = 0;      // XSAVEOPT (0) and XSAVEC (1), XGETBV with ECX=1 (2) XSAVES (3) and XFD (4) not supported yet
-                R_ECX = R_EBX = R_EDX = 0;
+                R_RAX = 0;      // XSAVEOPT (0) and XSAVEC (1), XGETBV with ECX=1 (2) XSAVES (3) and XFD (4) not supported yet
+                R_RCX = R_RBX = R_RDX = 0;
                 break;
             case 2:
                 // componant 2: avx
-                R_EAX = 16*16; // size of the avx block
-                R_EBX = 512+64;  // offset
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 16*16; // size of the avx block
+                R_RBX = 512+64;  // offset
+                R_RCX = 0;
+                R_RDX = 0;
                 break;
             default:
-                R_EAX = R_ECX = R_EBX = R_EDX = 0;
+                R_RAX = R_RCX = R_RBX = R_RDX = 0;
                 break;
             }
             break;
         case 0xE:   //?
-            R_EAX = 0;
+            R_RAX = 0;
             break;
         case 0xF:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
                 //L3 Cache
-                switch(R_ECX) {
+                switch(subleaf) {
                     case 0:
-                        R_EAX = 0;
-                        R_EBX = 0; // maximum range of RMID of physical processor
-                        R_ECX = 0;
-                        R_EDX = 0;  // bit 1 support L3 RDT Cache monitoring
+                        R_RAX = 0;
+                        R_RBX = 0; // maximum range of RMID of physical processor
+                        R_RCX = 0;
+                        R_RDX = 0;  // bit 1 support L3 RDT Cache monitoring
                         break;
                     case 1:
-                        R_EAX = 0;
-                        R_EBX = 0;  // Conversion factor
-                        R_EDX = 0;  // bit 0 = occupency monitoring
+                        R_RAX = 0;
+                        R_RCX = 0;
+                        R_RBX = 0;  // Conversion factor
+                        R_RDX = 0;  // bit 0 = occupency monitoring
                         break;
-                    default: R_EAX = 0;
+                    default: R_RAX = R_RBX = R_RCX = R_RDX = 0;
                 }
             }
             break;
         case 0x14:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0;
             } else {
                 // Processor Trace Enumeration Main Leaf
-                switch(R_ECX) {
+                switch(subleaf) {
                     case 0: // main leaf
-                        R_EAX = 0;  // max sub-leaf
-                        R_EBX = 0;
-                        R_ECX = 0;
-                        R_EDX = 0;
+                        R_RAX = 0;  // max sub-leaf
+                        R_RBX = 0;
+                        R_RCX = 0;
+                        R_RDX = 0;
                         break;
-                    default: R_EAX = 0;
+                    default: R_RAX = R_RBX = R_RCX = R_RDX = 0;
                 }
             }
             break;
         case 0x15:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_EAX = R_EBX = R_ECX = R_EDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0;
             } else {
                 // TSC core frenquency
-                R_EAX = 1;  // denominator
-                R_EBX = 1;  // numerator
+                R_RAX = 1;  // denominator
+                R_RBX = 1;  // numerator
                 {
                     uint64_t freq = ReadTSCFrequency(emu);
                     while(freq>100000000) {
                         freq/=10;
-                        R_EAX *= 10;
+                        R_RAX *= 10;
                     }
-                    R_ECX = freq;  // nominal frequency in Hz
+                    R_RCX = freq;  // nominal frequency in Hz
                 }
-                R_EDX = 0;
+                R_RDX = 0;
             }
             break;
         case 0x40000000 ... 0x400000FF:
             // the Hypervisor interface, yeah we don't do this, see also the 31bit of ECX in leaf 0x1.
-            R_EAX = 0;
-            R_EBX = 0;
-            R_ECX = 0;
-            R_EDX = 0;
+            R_RAX = 0;
+            R_RBX = 0;
+            R_RCX = 0;
+            R_RDX = 0;
             break;
         case 0x80000000:        // max extended
             if(BOX64ENV(cputype)) {
-                R_EAX = 0x8000001a;
-                R_EBX = 0x68747541;
-                R_ECX = 0x444d4163;
-                R_EDX = 0x69746E65;
+                R_RAX = 0x8000001a;
+                R_RBX = 0x68747541;
+                R_RCX = 0x444d4163;
+                R_RDX = 0x69746E65;
             } else {
-                R_EAX = 0x80000005; // was 0x80000007 before, but L2 cache description 0x80000006 is not correct and make some AC games to assert about l2 cache value coherency...
+                R_RAX = 0x80000005; // was 0x80000007 before, but L2 cache description 0x80000006 is not correct and make some AC games to assert about l2 cache value coherency...
             }
             break;
         case 0x80000001:        //Extended Processor Signature and Feature Bits
             if(BOX64ENV(cputype)) {
-                R_EAX = (0xc<<0) | // stepping 0-3
+                R_RAX = (0xc<<0) | // stepping 0-3
                         (0x1<<4) | // base model 4-7
                         (0xf<<8) | // base familly 8-11
                         (0x0<<12)| // reserved 12-15
@@ -351,8 +353,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         (0x8<<20)| // extended familly 20-27
                         (0x0<<28)| // reserved 28-31
                         0 ; // family and all, simulating a Ryzen 5 type of cpu
-                R_EBX = 0; //0-15 brandID, 16-27 reserved, 28-31 PkgType
-                R_ECX =   1<<0      // LAHF/SAHF
+                R_RBX = 0; //0-15 brandID, 16-27 reserved, 28-31 PkgType
+                R_RCX =   1<<0      // LAHF/SAHF
                         | 1<<1      // cmplegacy?
                         | 1<<2      // securevm
                         | 1<<5      // ABM (LZCNT)
@@ -363,7 +365,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         //| 1<<11     // XOP
                         //| 1<<16     // FMA4
                         ;
-                R_EDX =   1         // fpu
+                R_RDX =   1         // fpu
                         | 1<<2      // debugging extension
                         | 1<<3      // pse
                         | 1<<4      // rdtsc
@@ -390,13 +392,13 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         //| 1<<31     //3DNow!
                         ;
             } else {
-                R_EAX = 0;  // reserved
-                R_EBX = 0;  // reserved
-                R_ECX = (1<<0)  // LAHF_LM
+                R_RAX = 0;  // reserved
+                R_RBX = 0;  // reserved
+                R_RCX = (1<<0)  // LAHF_LM
                     | (1<<5)    // LZCNT
                     | (1<<8)   // PREFETCHW
                     ;
-                R_EDX = 1       // x87 FPU
+                R_RDX = 1       // x87 FPU
                     | (1<<8)    // cx8: cmpxchg8b opcode
                     | (1<<11)   // syscall
                     | (1<<15)   // cmov: FCMOV opcodes
@@ -408,123 +410,123 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x80000002:    // Brand part 1 (branding signature)
-            R_EAX = ((uint32_t*)branding)[0];
-            R_EBX = ((uint32_t*)branding)[1];
-            R_ECX = ((uint32_t*)branding)[2];
-            R_EDX = ((uint32_t*)branding)[3];
+            R_RAX = ((uint32_t*)branding)[0];
+            R_RBX = ((uint32_t*)branding)[1];
+            R_RCX = ((uint32_t*)branding)[2];
+            R_RDX = ((uint32_t*)branding)[3];
             break;
         case 0x80000003:    // Brand part 2
-            R_EAX = ((uint32_t*)branding)[4];
-            R_EBX = ((uint32_t*)branding)[5];
-            R_ECX = ((uint32_t*)branding)[6];
-            R_EDX = ((uint32_t*)branding)[7];
+            R_RAX = ((uint32_t*)branding)[4];
+            R_RBX = ((uint32_t*)branding)[5];
+            R_RCX = ((uint32_t*)branding)[6];
+            R_RDX = ((uint32_t*)branding)[7];
             break;
         case 0x80000004:    // Brand part 3, with frequency
-            R_EAX = ((uint32_t*)branding)[8];
-            R_EBX = ((uint32_t*)branding)[9];
-            R_ECX = ((uint32_t*)branding)[10];
-            R_EDX = ((uint32_t*)branding)[11];
+            R_RAX = ((uint32_t*)branding)[8];
+            R_RBX = ((uint32_t*)branding)[9];
+            R_RCX = ((uint32_t*)branding)[10];
+            R_RDX = ((uint32_t*)branding)[11];
             break;
         case 0x80000005:
             if(BOX64ENV(cputype)) {
                 //L1 cache and TLB
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             } else {
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             }
             break;
         case 0x80000006:    // L2 cache line size and associativity
             if(BOX64ENV(cputype)) {
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 64 | (0x6<<12) | (256<<16); // bits: 0-7 line size, 15-12: assoc (using special encoding), 31-16: size in K    //TODO: read info from /sys/devices/system/cpu/cpuX/cache/index2
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 64 | (0x6<<12) | (256<<16); // bits: 0-7 line size, 15-12: assoc (using special encoding), 31-16: size in K    //TODO: read info from /sys/devices/system/cpu/cpuX/cache/index2
+                R_RDX = 0;
             } else {
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 64 | (0x6<<12) | (256<<16); // bits: 0-7 line size, 15-12: assoc (using special encoding), 31-16: size in K    //TODO: read info from /sys/devices/system/cpu/cpuX/cache/index2
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 64 | (0x6<<12) | (256<<16); // bits: 0-7 line size, 15-12: assoc (using special encoding), 31-16: size in K    //TODO: read info from /sys/devices/system/cpu/cpuX/cache/index2
+                R_RDX = 0;
             }
             break;
         case 0x80000007:
             if(BOX64ENV(cputype)) {
                 // Advanced Power Management Information
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0 | (1<<8); // Invariant TSC
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0 | (1<<8); // Invariant TSC
             } else {
                 // Invariant TSC
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0 | (1<<8); // Invariant TSC
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0 | (1<<8); // Invariant TSC
             }
             break;
         case 0x80000008:
             if(BOX64ENV(cputype)) {
                 // Address Size And Physical Core Count Information
-                R_EAX = 0;  // 23-16 guest / 15-8 linear / 7-0 phys
-                R_EBX = 0;  // reserved
-                R_ECX = ncpu-1;
-                R_EDX = 0;
+                R_RAX = 0;  // 23-16 guest / 15-8 linear / 7-0 phys
+                R_RBX = 0;  // reserved
+                R_RCX = ncpu-1;
+                R_RDX = 0;
             } else {
                 // ?
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             }
             break;
         case 0x8000000a:
             if(BOX64ENV(cputype)) {
                 // SVM Revision and Feature Identification
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             } else {
                 // ?
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             }
             break;
         case 0x8000001a:
             if(BOX64ENV(cputype)) {
                 // Performance Optimization Identifiers
-                R_EAX =   1<<0  // FP128
+                R_RAX =   1<<0  // FP128
                         | 1<<1  // MOVU
                         | 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             } else {
                 // ?
-                R_EAX = 0;
-                R_EBX = 0;
-                R_ECX = 0;
-                R_EDX = 0;
+                R_RAX = 0;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             }
             break;
         default:
             if(warned) {
-                printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
+                printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_RCX);
                 --warned;
                 if(!warned)
                     printf_log(LOG_INFO, "Stopped logging CPUID issues\n");
             }
-            R_EAX = 0;
-            R_EBX = 0;
-            R_ECX = 0;
-            R_EDX = 0;
+            R_RAX = 0;
+            R_RBX = 0;
+            R_RCX = 0;
+            R_RDX = 0;
     }
-    //printf_log_prefix(0, LOG_INFO, " => EAX=%08x EBX=%08x ECX=%08x EDX=%08x\n", R_EAX, R_EBX, R_ECX, R_EDX);
+    //printf_log_prefix(0, LOG_INFO, " => EAX=%08x EBX=%08x ECX=%08x EDX=%08x\n", R_RAX, R_RBX, R_RCX, R_RDX);
 }
