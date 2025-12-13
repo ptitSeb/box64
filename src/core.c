@@ -848,6 +848,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // pre-check for pressure-vessel-wrap
     if(!strcmp(prog_, "pressure-vessel-wrap")) {
         printf_log(LOG_INFO, "pressure-vessel-wrap detected\n");
+        unsetenv("BOX64_ARG0");
         pressure_vessel(argc, argv, nextarg+1, prog);
     }
     #endif
@@ -1152,8 +1153,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     if(!(my_context->fullpath = box_realpath(my_context->argv[0], NULL)))
         my_context->fullpath = box_strdup(my_context->argv[0]);
-    if(getenv("BOX64_ARG0"))
+    if (getenv("BOX64_ARG0")) {
         my_context->argv[0] = box_strdup(getenv("BOX64_ARG0"));
+        unsetenv("BOX64_ARG0");
+    }
     FILE *f = fopen(my_context->fullpath, "rb");
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", my_context->fullpath);
