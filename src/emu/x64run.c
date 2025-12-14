@@ -25,6 +25,9 @@
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
+#ifdef HAVE_TRACE
+#include "elfloader.h"
+#endif
 
 #include "modrm.h"
 
@@ -2312,6 +2315,11 @@ x64emurun:
                         tmp64u = (uintptr_t)getAlternate((void*)tmp64u);
                         Push64(emu, addr);
                     }
+                    #ifdef HAVE_TRACE
+                    if(!tmp64u) {
+                        printf_log(LOG_INFO, "Warning, calling to NULL address from x64addr=%p/%s\n", R_RIP, getAddrFunctionName(R_RIP));
+                    }
+                    #endif
                     addr = tmp64u;
                     STEP2
                     break;
@@ -2362,6 +2370,11 @@ x64emurun:
                     else
                         addr = (uintptr_t)ED->q[0];
                     addr = (uintptr_t)getAlternate((void*)addr);
+                    #ifdef HAVE_TRACE
+                    if(!addr) {
+                        printf_log(LOG_INFO, "Warning, jumping to NULL address from x64addr=%p/%s\n", R_RIP, getAddrFunctionName(R_RIP));
+                    }
+                    #endif
                     STEP2
                     break;
                 case 5:                 /* JMP FAR Ed */
