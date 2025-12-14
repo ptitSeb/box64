@@ -983,7 +983,134 @@ static void* find_zwp_primary_selection_offer_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_primary_selection_offer_v1_listener callback\n");
     return NULL;
 }
-
+// wp_color_management_output_v1 ...
+typedef struct my_wp_color_management_output_v1_listener_s {
+    uintptr_t image_description_changed; // vFpp
+} my_wp_color_management_output_v1_listener_t;
+#define GO(A)                                                                                                  \
+    static my_wp_color_management_output_v1_listener_t* ref_wp_color_management_output_v1_listener_##A = NULL; \
+    static void my_wp_color_management_output_v1_listener_image_description_changed_##A(void* a, void* b)      \
+    {                                                                                                          \
+        RunFunctionFmt(ref_wp_color_management_output_v1_listener_##A->image_description_changed, "pp", a, b); \
+    }                                                                                                          \
+    static my_wp_color_management_output_v1_listener_t my_wp_color_management_output_v1_listener_fct_##A = {   \
+        (uintptr_t)my_wp_color_management_output_v1_listener_image_description_changed_##A,                    \
+    };
+SUPER()
+#undef GO
+static void* find_wp_color_management_output_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_wp_color_management_output_v1_listener_##A == fct) return &my_wp_color_management_output_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                      \
+    if (ref_wp_color_management_output_v1_listener_##A == 0) {     \
+        ref_wp_color_management_output_v1_listener_##A = fct;      \
+        return &my_wp_color_management_output_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_color_management_output_v1_listener callback\n");
+    return NULL;
+}
+// wp_image_description_info_v1 ...
+typedef struct my_wp_image_description_info_v1_listener_s {
+    uintptr_t done;             // vFpp
+    uintptr_t icc_file;         // vFppiu
+    uintptr_t primaries;        // vFppiiiiiiii
+    uintptr_t primaries_named;  // vFppu
+    uintptr_t tf_power;         // vFppu
+    uintptr_t tf_named;         // vFppu
+    uintptr_t luminances;       // vFppuuu
+    uintptr_t target_primaries; // vFppiiiiiiii
+    uintptr_t target_luminance; // vFppuu
+    uintptr_t target_max_cll;   // vFppu
+    uintptr_t target_max_fall;  // vFppu
+} my_wp_image_description_info_v1_listener_t;
+#define GO(A)                                                                                                                 \
+    static my_wp_image_description_info_v1_listener_t* ref_wp_image_description_info_v1_listener_##A = NULL;                  \
+    static void my_wp_image_description_info_v1_listener_done_##A(void* a, void* b)                                           \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->done, "pp", a, b);                                      \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_icc_file_##A(void* a, void* b, int32_t c, uint32_t d)                \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->icc_file, "ppiu", a, b, c, d);                          \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_primaries_##A(void* a, void* b,                                      \
+        int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7, int32_t i8)                       \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->primaries, "ppiiiiiiii", a, b,                          \
+            i1, i2, i3, i4, i5, i6, i7, i8);                                                                                  \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_primaries_named_##A(void* a, void* b, uint32_t c)                    \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->primaries_named, "ppu", a, b, c);                       \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_tf_power_##A(void* a, void* b, uint32_t c)                           \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->tf_power, "ppu", a, b, c);                              \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_tf_named_##A(void* a, void* b, uint32_t c)                           \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->tf_named, "ppu", a, b, c);                              \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_luminances_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e) \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->luminances, "ppuuu", a, b, c, d, e);                    \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_target_primaries_##A(void* a, void* b,                               \
+        int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7, int32_t i8)                       \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->target_primaries, "ppiiiiiiii", a, b,                   \
+            i1, i2, i3, i4, i5, i6, i7, i8);                                                                                  \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_target_luminance_##A(void* a, void* b, uint32_t c, uint32_t d)       \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->target_luminance, "ppuu", a, b, c, d);                  \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_target_max_cll_##A(void* a, void* b, uint32_t c)                     \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->target_max_cll, "ppu", a, b, c);                        \
+    }                                                                                                                         \
+    static void my_wp_image_description_info_v1_listener_target_max_fall_##A(void* a, void* b, uint32_t c)                    \
+    {                                                                                                                         \
+        RunFunctionFmt(ref_wp_image_description_info_v1_listener_##A->target_max_fall, "ppu", a, b, c);                       \
+    }                                                                                                                         \
+    static my_wp_image_description_info_v1_listener_t my_wp_image_description_info_v1_listener_fct_##A = {                    \
+        (uintptr_t)my_wp_image_description_info_v1_listener_done_##A,                                                         \
+        (uintptr_t)my_wp_image_description_info_v1_listener_icc_file_##A,                                                     \
+        (uintptr_t)my_wp_image_description_info_v1_listener_primaries_##A,                                                    \
+        (uintptr_t)my_wp_image_description_info_v1_listener_primaries_named_##A,                                              \
+        (uintptr_t)my_wp_image_description_info_v1_listener_tf_power_##A,                                                     \
+        (uintptr_t)my_wp_image_description_info_v1_listener_tf_named_##A,                                                     \
+        (uintptr_t)my_wp_image_description_info_v1_listener_luminances_##A,                                                   \
+        (uintptr_t)my_wp_image_description_info_v1_listener_target_primaries_##A,                                             \
+        (uintptr_t)my_wp_image_description_info_v1_listener_target_luminance_##A,                                             \
+        (uintptr_t)my_wp_image_description_info_v1_listener_target_max_cll_##A,                                               \
+        (uintptr_t)my_wp_image_description_info_v1_listener_target_max_fall_##A,                                              \
+    };
+SUPER()
+#undef GO
+static void* find_wp_image_description_info_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_wp_image_description_info_v1_listener_##A == fct) return &my_wp_image_description_info_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                     \
+    if (ref_wp_image_description_info_v1_listener_##A == 0) {     \
+        ref_wp_image_description_info_v1_listener_##A = fct;      \
+        return &my_wp_image_description_info_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_image_description_info_v1_listener callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* data)
@@ -1035,6 +1162,10 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wl_data_offer_listener_Fct(l);
     } else if(!strcmp(proxy_name, "zwp_primary_selection_offer_v1")) {
         l = find_zwp_primary_selection_offer_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "wp_color_management_output_v1")) {
+        l = find_wp_color_management_output_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "wp_image_description_info_v1")) {
+        l = find_wp_image_description_info_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
