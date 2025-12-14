@@ -654,6 +654,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             PUSH1z(gd);
+            SMWRITE();
             break;
         case 0x58:
         case 0x59:
@@ -665,6 +666,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x5F:
             INST_NAME("POP reg");
             SCRATCH_USAGE(0);
+            SMREAD();
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
@@ -680,13 +682,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 PUSH1_32(xRBP);
                 PUSH1_32(xRSI);
                 PUSH1_32(xRDI);
+                SMWRITE();
             } else {
-                DEFAULT;
+                INST_NAME("Illegal 60");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             }
             break;
         case 0x61:
             if (rex.is32bits) {
                 INST_NAME("POPAD");
+                SMREAD();
                 POP1_32(xRDI);
                 POP1_32(xRSI);
                 POP1_32(xRBP);
@@ -696,7 +710,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 POP1_32(xRCX);
                 POP1_32(xRAX);
             } else {
-                DEFAULT;
+                INST_NAME("Illegal 61");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             }
             break;
         case 0x62:
@@ -748,6 +772,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 MOV64z(x3, i64);
                 PUSH1z(x3);
+                SMWRITE();
             }
             break;
         case 0x69:
@@ -804,6 +829,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F8S;
             MOV64z(x3, i64);
             PUSH1z(x3);
+            SMWRITE();
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
@@ -1393,41 +1419,61 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x8E:
-            INST_NAME("MOV Seg, Ew");
             nextop = F8;
             u8 = (nextop & 0x38) >> 3;
-            if (MODREG) {
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            if ((u8 > 5) || (u8 == 1)) {
+                INST_NAME("Invalid MOV Seg, Ed");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                LD_HU(x1, ed, fixedaddress);
-                ed = x1;
-            }
-            ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            if ((u8 == _FS) || (u8 == _GS)) {
-                // refresh offset if needed
-                CBZ_NEXT(ed);
-                MOV32w(x1, u8);
-                CALL(const_getsegmentbase, -1, x1, x2);
+                INST_NAME("MOV Seg, Ed");
+                if (MODREG) {
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LD_HU(x1, ed, fixedaddress);
+                    ed = x1;
+                }
+                ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+                if ((u8 == _FS) || (u8 == _GS)) {
+                    // refresh offset if needed
+                    CBZ_NEXT(ed);
+                    MOV32w(x1, u8);
+                    CALL(const_getsegmentbase, -1, x1, x2);
+                }
             }
             break;
         case 0x8F:
-            INST_NAME("POP Ed");
             nextop = F8;
-            if (MODREG) {
-                POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
-            } else {
-                POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
-                if (ed == xRSP) {
-                    SDz(x2, ed, fixedaddress);
-                } else {
-                    // complicated to just allow a segfault that can be recovered correctly
-                    ADDIz(xRSP, xRSP, rex.is32bits ? -4 : -8);
-                    SDz(x2, ed, fixedaddress);
-                    ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
-                }
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("POP Ed");
+                    SMREAD();
+                    if (MODREG) {
+                        POP1z(TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else {
+                        POP1z(x2); // so this can handle POP [ESP] and maybe some variant too
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                        if (ed == xRSP) {
+                            SDz(x2, ed, fixedaddress);
+                        } else {
+                            // complicated to just allow a segfault that can be recovered correctly
+                            ADDIz(xRSP, xRSP, rex.is32bits ? -4 : -8);
+                            SDz(x2, ed, fixedaddress);
+                            ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
+                        }
+                        SMWRITE();
+                    }
+                    break;
+                case 3:
+                    INST_NAME("Invalid 8F /3");
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
+                    break;
+                default: DEFAULT;
             }
             break;
         case 0x90:
@@ -1579,6 +1625,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SMWRITELOCK(lock);
             break;
         case 0xA4:
+            SMREAD();
             if (rex.rep) {
                 INST_NAME("REP MOVSB");
                 CBZ_NEXT(xRCX);
@@ -1622,8 +1669,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRSI, xRSI, x3);
                 ADD_D(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xA5:
+            SMREAD();
             if (rex.rep) {
                 INST_NAME("REP MOVSD");
                 CBZ_NEXT(xRCX);
@@ -1653,6 +1702,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRSI, xRSI, x3);
                 ADD_D(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xA6:
             switch (rex.rep) {
@@ -1665,6 +1715,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     MAYSETFLAGS();
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    SMREAD();
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
@@ -1700,6 +1751,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("CMPSB");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 1);
+                    SMREAD();
                     LD_BU(x1, xRSI, 0);
                     LD_BU(x2, xRDI, 0);
                     ADD_D(xRSI, xRSI, x3);
@@ -1855,6 +1907,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ST_B(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAB:
             if (rex.rep) {
@@ -1880,11 +1933,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SDxw(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAC:
             if (rex.rep) {
                 INST_NAME("REP LODSB");
                 GETDIR(x1, x2, 1);
+                SMREAD();
                 CBZ_NEXT(xRCX);
                 MARK;
                 LD_BU(x2, xRSI, 0);
@@ -1895,6 +1950,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LODSB");
                 GETDIR(x1, x2, 1);
+                SMREAD();
                 LD_BU(x2, xRSI, 0);
                 ADD_D(xRSI, xRSI, x1);
                 BSTRINS_D(xRAX, x2, 7, 0);
@@ -1928,6 +1984,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     MAYSETFLAGS();
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    SMREAD();
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xRAX, 0xff);
                     ANDI(x2, xFlags, 1 << F_DF);
@@ -1978,6 +2035,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     MAYSETFLAGS();
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    SMREAD();
                     CBZ_NEXT(xRCX);
                     if (rex.w) {
                         MV(x1, xRAX);
@@ -3726,6 +3784,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("PUSH Ed");
                     GETEDz(0);
                     PUSH1z(ed);
+                    SMWRITE();
                     break;
 
                 default:

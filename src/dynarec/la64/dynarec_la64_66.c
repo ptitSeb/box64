@@ -859,6 +859,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRSI, xRSI, x3);
                 ADD_D(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xA7:
             switch (rex.rep) {
@@ -946,6 +947,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ST_H(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAD:
             if (rex.rep) {
