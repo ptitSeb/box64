@@ -1537,6 +1537,7 @@
 #() pFpppL
 #() pFpppp
 #() pFpONN
+#() pFpSuu
 #() pFpbii
 #() pFSppi
 #() pFbuuC
@@ -2136,7 +2137,7 @@
 #() pFppuLi
 #() pFppupp
 #() pFppddu
-#() pFppLii
+#() pFppLuu
 #() pFppLLi
 #() pFppLpp
 #() pFpppii
@@ -2149,6 +2150,7 @@
 #() pFppppu
 #() pFppppL
 #() pFppppp
+#() pFpSpuu
 #() pFbupii
 #() pFbpuii
 #() xFlplpl
@@ -2659,6 +2661,7 @@
 #() pFppuppp
 #() pFpplplp
 #() pFpplppp
+#() pFppLpuu
 #() pFpppiip
 #() pFpppupp
 #() pFpppLii
@@ -2927,6 +2930,7 @@
 #() uFiiiuuuu
 #() uFuippppp
 #() uFpippppp
+#() uFpuuuuuu
 #() uFpuuuupp
 #() uFpuuuppp
 #() uFpuupppp
