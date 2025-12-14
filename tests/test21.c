@@ -18,7 +18,7 @@ static void segv_handler(int sig)
 
 void test()
 {
-	if(!setjmp(context_buf)) {
+	if(!sigsetjmp(context_buf, 1)) {
 		int *bad_ptr = (int*)0xffffffffdeadbeef;
 		printf("*bad_ptr = %d\n", *bad_ptr);
 	} else {
@@ -34,14 +34,21 @@ typedef void(*vFv_t)(void);
 static void segv_action(int sig, siginfo_t* info, ucontext_t* ucntx)
 {
 	printf("sig = %d\n", sig);
-	printf("si_addr: %zx, si_code: %d, si_errno: %d, RIP offset: %zd, TRAPERR=%d TRAPNO=%d\n", 
+	printf("si_addr: %zx, si_code: %d, si_errno: %d", 
 		info->si_addr,
 		info->si_code,
-		info->si_errno,
-		((intptr_t)ucntx->uc_mcontext.gregs[X_IP])-((intptr_t)exec_p),
-		ucntx->uc_mcontext.gregs[X_ERR],
-		ucntx->uc_mcontext.gregs[X_TRAPNO]
+		info->si_errno
 	);
+	if(ucntx->uc_mcontext.gregs[X_IP])
+	        printf(" RIP offset: %zd",
+        	        ((intptr_t)ucntx->uc_mcontext.gregs[X_IP])-((intptr_t)exec_p)
+	        );
+	else
+		printf(" RIP=NULL");
+        printf(" TRAPERR=%d TRAPNO=%d\n",
+                ucntx->uc_mcontext.gregs[X_ERR],
+                ucntx->uc_mcontext.gregs[X_TRAPNO]
+        );
 	siglongjmp(context_buf, 1);
 }
 
@@ -51,20 +58,24 @@ static unsigned char buff_cd2d[] = { 0xcd, 0x2d, 0xc3 };
 void test_cc()
 {
 	memcpy(exec_p, buff_cc, sizeof(buff_cc));
-	if(!setjmp(context_buf)) {
+	if(!sigsetjmp(context_buf, 1)) {
 		vFv_t f = (vFv_t)exec_p;
 		f();
 	}
 	memcpy(exec_p, buff_cd03, sizeof(buff_cd03));
-	if(!setjmp(context_buf)) {
+	if(!sigsetjmp(context_buf, 1)) {
 		vFv_t f = (vFv_t)exec_p;
 		f();
 	}
-	/*memcpy(exec_p, buff_cd2d, sizeof(buff_cd2d));
-	if(!setjmp(context_buf)) {
+	memcpy(exec_p, buff_cd2d, sizeof(buff_cd2d));
+	if(!sigsetjmp(context_buf, 1)) {
 		vFv_t f = (vFv_t)exec_p;
 		f();
-	}*/
+	}
+        if(!sigsetjmp(context_buf, 1)) {
+                vFv_t f = (vFv_t)NULL;
+                f();
+        }
 }
 
 int main()
@@ -77,11 +88,13 @@ int main()
 	test();
     struct sigaction action = {0};
     action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
-    action.sa_sigaction = segv_action;
+    action.sa_sigaction = (void*)segv_action;
     if(sigaction(SIGSEGV, &action, NULL)) {
 		printf("sigaction: Err = %d\n", errno);
 		return -2;
 	}
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_sigaction = (void*)segv_action;
     if(sigaction(SIGTRAP, &action, NULL)) {
 		printf("sigaction 2: Err = %d\n", errno);
 		return -2;
