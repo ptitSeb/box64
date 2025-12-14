@@ -887,6 +887,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, 0);
                     REVB_2H(x1, gd);
                     ST_H(x1, wback, fixedaddress);
+                    SMWRITE();
                     break;
                 case 0xF6:
                     INST_NAME("ADCX Gd, Ed");

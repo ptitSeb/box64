@@ -206,7 +206,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x14:
             INST_NAME("UNPCKLPS Gx, Ex");
             nextop = F8;
-            SMREAD();
             GETEX(q0, 0, 0);
             GETGX(v0, 1);
             VILVL_W(v0, q0, v0);
@@ -214,7 +213,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x15:
             INST_NAME("UNPCKHPS Gx, Ex");
             nextop = F8;
-            SMREAD();
             GETEX(q0, 0, 0);
             GETGX(v0, 1);
             VILVH_W(v0, q0, v0);
