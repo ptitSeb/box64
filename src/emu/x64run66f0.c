@@ -47,8 +47,6 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     x64emu_t* emu = test->emu;
     #endif
     opcode = F8;
-    // REX prefix before the F0 are ignored
-    rex.rex = 0;
 
     switch(opcode) {
         
@@ -303,7 +301,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if((uintptr_t)EW&1) { 
+                    if(((uintptr_t)EW)&1) { 
                         //meh.
                         do {
                             tmp16u = EW->word[0];
@@ -315,11 +313,13 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     } else {
                         do {
                             tmp16u = native_lock_read_h(EW);
-                        } while(native_lock_write_h(EW, inc16(emu, tmp16u)));
+                            tmp16u = inc16(emu, tmp16u);
+                        } while(native_lock_write_h(EW, tmp16u));
                     }
-#else
+                    #else
                     pthread_mutex_lock(&my_context->mutex_lock);
-                    EW->word[0] = inc16(emu, EW->word[0]);
+                    tmp64u2 = EW->word[0];
+                    tmp16u = EW->word[0] = inc16(emu, EW->word[0]);
                     pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
@@ -327,7 +327,8 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
                         tmp16u = native_lock_read_h(EW);
-                    } while(native_lock_write_h(EW, dec16(emu, tmp16u)));
+                        tmp16u = dec16(emu, tmp16u);
+                    } while(native_lock_write_h(EW, tmp16u));
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     ED->word[0] = dec16(emu, ED->word[0]);
