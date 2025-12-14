@@ -524,9 +524,6 @@ uintptr_t GetEA(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t de
     } else return (uintptr_t)GetECommon(emu, addr, rex, m, delta);
 }
 
-#define GetEw GetEd
-#define TestEw TestEd
-
 reg64_t* GetEw16(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 {
     (void)rex;
