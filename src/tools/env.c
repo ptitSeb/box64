@@ -229,6 +229,7 @@ static void applyCustomRules()
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 2);
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 1);
+        } else if (!strcasecmp(box64env.profile, "default")) {
         } else if (!strcasecmp(box64env.profile, "fast")) {
             SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
@@ -243,6 +244,12 @@ static void applyCustomRules()
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_dirty, 1);
             SET_BOX64ENV_IF_EMPTY(dynarec_forward, 1024);
+        } else {
+            static int warned = 0;
+            if (!warned) {
+                printf_log(LOG_INFO, "Warning, unknown choice for BOX64_PROFILE: %s, choices are: safest,safe,default,fast,fastest.\n", box64env.profile);
+                warned = 1;
+            }
         }
     }
 
