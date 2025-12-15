@@ -1551,6 +1551,55 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xFE:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0: // INC Eb
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK INC Eb");
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        MOV64x(x7, 1);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (cpuext.lam_bh) {
+                            AMADD_DB_B(x1, x7, wback);
+                        } else {
+                            LOCK_8_OP(ADD_D(x4, x1, x7), x1, wback, x3, x4, x5, x6);
+                        }
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_inc8(dyn, ninst, x1, x3, x4, x5);
+                        }
+                    }
+                    break;
+                case 1: // DEC Eb
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK DEC Eb");
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        MOV64x(x7, -1);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (cpuext.lam_bh) {
+                            AMADD_DB_B(x1, x7, wback);
+                        } else {
+                            LOCK_8_OP(ADD_D(x4, x1, x7), x1, wback, x3, x4, x5, x6);
+                        }
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_dec8(dyn, ninst, x1, x3, x4, x5);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xFF:
             nextop = F8;
 
