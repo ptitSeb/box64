@@ -750,6 +750,7 @@ void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
 
 void x87_reget_st(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
 {
+    dyn->insts[ninst].x87_used = 1;
     if (dyn->lsx.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     // search in cache first
@@ -797,6 +798,7 @@ void x87_reget_st(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
 
 void x87_free(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int st)
 {
+    dyn->insts[ninst].x87_used = 1;
     int ret = -1;
     for (int i = 0; (i < 8) && (ret == -1); ++i)
         if (dyn->lsx.x87cache[i] == st)
@@ -926,6 +928,7 @@ int lsxcache_st_coherency(dynarec_la64_t* dyn, int ninst, int a, int b)
 // the reg returned is *2 for FLOAT
 int x87_do_push(dynarec_la64_t* dyn, int ninst, int s1, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     if (dyn->lsx.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     dyn->lsx.x87stack += 1;
@@ -959,6 +962,7 @@ int x87_do_push(dynarec_la64_t* dyn, int ninst, int s1, int t)
 }
 void x87_do_push_empty(dynarec_la64_t* dyn, int ninst, int s1)
 {
+    dyn->insts[ninst].x87_used = 1;
     if (dyn->lsx.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     dyn->lsx.x87stack += 1;
@@ -1007,6 +1011,7 @@ static int internal_x87_dofree(dynarec_la64_t* dyn)
 }
 void x87_do_pop(dynarec_la64_t* dyn, int ninst, int s1)
 {
+    dyn->insts[ninst].x87_used = 1;
     if (dyn->lsx.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     do {
@@ -1025,6 +1030,7 @@ void x87_do_pop(dynarec_la64_t* dyn, int ninst, int s1)
 
 void x87_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
+    dyn->insts[ninst].x87_used = 1;
     int ret = 0;
     for (int i = 0; i < 8 && !ret; ++i)
         if (dyn->lsx.x87cache[i] != -1)
@@ -1073,17 +1079,7 @@ void x87_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, in
         for (int i = 0; i < 8; ++i)
             if (dyn->lsx.x87cache[i] != -1) {
                 int st = dyn->lsx.x87cache[i] + dyn->lsx.stack_pop;
-#if STEP == 1
-                if (!next) { // don't force promotion here
-                    // pre-apply pop, because purge happens in-between
-                    lsxcache_promote_double(dyn, ninst, st);
-                }
-#endif
-#if STEP == 3
-                if (!next && lsxcache_get_current_st(dyn, ninst, st) != LSX_CACHE_ST_D) {
-                    MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", st);
-                }
-#endif
+                // don't force promotion here
                 ADDI_D(s3, s2, dyn->lsx.x87cache[i]); // unadjusted count, as it's relative to real top
                 ANDI(s3, s3, 7);                      // (emu->top + st)&7
                 SLLI_D(s1, s3, 3);
@@ -1232,6 +1228,7 @@ void x87_unreflectcount(dynarec_la64_t* dyn, int ninst, int s1, int s2)
 
 int x87_get_current_cache(dynarec_la64_t* dyn, int ninst, int st, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     // search in cache first
     for (int i = 0; i < 8; ++i) {
         if (dyn->lsx.x87cache[i] == st) {
@@ -1252,6 +1249,7 @@ int x87_get_current_cache(dynarec_la64_t* dyn, int ninst, int st, int t)
 
 int x87_get_cache(dynarec_la64_t* dyn, int ninst, int populate, int s1, int s2, int st, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     if (dyn->lsx.mmxcount)
         mmx_purgecache(dyn, ninst, 0, s1);
     int ret = x87_get_current_cache(dyn, ninst, st, t);
@@ -1282,6 +1280,7 @@ int x87_get_cache(dynarec_la64_t* dyn, int ninst, int populate, int s1, int s2, 
 }
 int x87_get_lsxcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
 {
+    dyn->insts[ninst].x87_used = 1;
     for (int ii = 0; ii < 24; ++ii)
         if ((dyn->lsx.lsxcache[ii].t == LSX_CACHE_ST_F
                 || dyn->lsx.lsxcache[ii].t == LSX_CACHE_ST_D
@@ -1293,10 +1292,12 @@ int x87_get_lsxcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
 }
 int x87_get_st(dynarec_la64_t* dyn, int ninst, int s1, int s2, int a, int t)
 {
+    dyn->insts[ninst].x87_used = 1;
     return dyn->lsx.x87reg[x87_get_cache(dyn, ninst, 1, s1, s2, a, t)];
 }
 int x87_get_st_empty(dynarec_la64_t* dyn, int ninst, int s1, int s2, int a, int t)
 {
+    dyn->insts[ninst].x87_used = 1; 
     return dyn->lsx.x87reg[x87_get_cache(dyn, ninst, 0, s1, s2, a, t)];
 }
 
@@ -1321,6 +1322,7 @@ static int isx87Empty(dynarec_la64_t* dyn)
 // get neon register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
+    dyn->insts[ninst].mmx_used = 1;
     if (!dyn->lsx.x87stack && isx87Empty(dyn))
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if (dyn->lsx.mmxcache[a] != -1)
@@ -1333,6 +1335,7 @@ int mmx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a)
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
+    dyn->insts[ninst].mmx_used = 1;
     if (!dyn->lsx.x87stack && isx87Empty(dyn))
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if (dyn->lsx.mmxcache[a] != -1)
@@ -1376,6 +1379,7 @@ static void mmx_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 // get lsx register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)
 {
+    dyn->lsx.xmm_used |= 1 << a;
     if (dyn->lsx.ssecache[a].v != -1) {
         if (forwrite) {
             dyn->lsx.ssecache[a].write = 1; // update only if forwrite
@@ -1400,6 +1404,7 @@ int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)
 // get lsx register for an SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
 {
+    dyn->lsx.xmm_used |= 1 << a;
     if (dyn->lsx.ssecache[a].v != -1) {
         dyn->lsx.ssecache[a].write = 1;
         dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t = LSX_CACHE_XMMW;
@@ -1417,6 +1422,7 @@ int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
 // forget ext register for a SSE reg, does nothing if the regs is not loaded
 void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
+    dyn->lsx.xmm_used |= 1 << a;
     if (dyn->lsx.ssecache[a].v == -1)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t == LSX_CACHE_XMMW) {
@@ -1429,6 +1435,7 @@ void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 
 void sse_reflect_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
+    dyn->lsx.xmm_used |= 1 << a;
     if (dyn->lsx.ssecache[a].v == -1)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t == LSX_CACHE_XMMW) {
@@ -1446,6 +1453,7 @@ void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1)
                 MESSAGE(LOG_DUMP, "\tPurge XMM0..7 Cache ------\n");
                 ++old;
             }
+            dyn->lsx.xmm_used |= 1 << i;
             if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
                 VST(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 if(dyn->lsx.avxcache[i].zero_upper == 1){
@@ -1473,6 +1481,7 @@ static void sse_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
     int old = -1;
     for (int i = 0; i < 16; ++i)
         if (dyn->lsx.ssecache[i].v != -1) {
+            if (next) dyn->lsx.xmm_used |= (1 << i);
             if (dyn->lsx.ssecache[i].write) {
                 if (old == -1) {
                     MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next ? "locally " : "");
@@ -1493,8 +1502,11 @@ static void sse_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
 static void sse_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 {
     for (int i = 0; i < 16; ++i)
-        if (dyn->lsx.ssecache[i].v != -1 && dyn->lsx.ssecache[i].write) {
-            VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+        if (dyn->lsx.ssecache[i].v != -1) {
+            dyn->lsx.xmm_used |= 1 << i;
+            if (dyn->lsx.ssecache[i].write) {
+                VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+            }
         }
 }
 
@@ -1502,6 +1514,7 @@ static void sse_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 // get lasx register for a SSE reg, create the entry if needed
 int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int width)
 {
+    dyn->lsx.ymm_used |= 1 << a;
     if (dyn->lsx.avxcache[a].v != -1) {
         if (forwrite) {
             dyn->lsx.avxcache[a].write = 1; // update only if forwrite
@@ -1550,6 +1563,7 @@ int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int
 
 int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
 {
+    dyn->lsx.ymm_used |= 1 << a;
     if (dyn->lsx.avxcache[a].v != -1) {
         dyn->lsx.avxcache[a].write = 1;
         dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t = LSX_CACHE_YMMW;
@@ -1582,6 +1596,7 @@ int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
 
 void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrite)
 {
+    dyn->lsx.ymm_used |= 1 << a;
     if (dyn->lsx.avxcache[a].v == -1 || forwrite == 0)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
@@ -1598,6 +1613,7 @@ void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrit
 
 void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
+    dyn->lsx.ymm_used |= 1 << a;
     if (dyn->lsx.avxcache[a].v == -1)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
@@ -1616,6 +1632,7 @@ void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 
 void avx_reflect_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
+    dyn->lsx.ymm_used |= 1 << a;
     if (dyn->lsx.avxcache[a].v == -1)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
@@ -1637,6 +1654,7 @@ static void avx_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
     int old = -1;
     for (int i = 0; i < 16; ++i)
         if (dyn->lsx.avxcache[i].v != -1) {
+            dyn->lsx.ymm_used |= 1 << i;
             if (dyn->lsx.avxcache[i].write) {
                 if (old == -1) {
                     MESSAGE(LOG_DUMP, "\tPurge %sAVX Cache ------\n", next ? "locally " : "");
@@ -1665,9 +1683,12 @@ static void avx_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1)
 static void avx_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 {
     for (int i = 0; i < 16; ++i) {
-        if (dyn->lsx.avxcache[i].v != -1 && dyn->lsx.avxcache[i].write) {
-            if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
-                avx_reflect_reg(dyn, ninst, i);
+        if (dyn->lsx.avxcache[i].v != -1) {
+            dyn->lsx.ymm_used |= 1 << i;
+            if (dyn->lsx.avxcache[i].write) {
+                if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
+                    avx_reflect_reg(dyn, ninst, i);
+                }
             }
         }
     }
@@ -1737,8 +1758,10 @@ void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, in
     mmx_purgecache(dyn, ninst, next, s1);
     sse_purgecache(dyn, ninst, next, s1);
     avx_purgecache(dyn, ninst, next, s1);
-    if (!next)
+    if (!next) {
         fpu_reset_reg(dyn);
+        dyn->insts[ninst].fpupurge = 1;
+    }
 }
 
 void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)

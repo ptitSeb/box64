@@ -63,6 +63,8 @@ void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
 // is st freed
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 
+// propage FPU_BARRIER to trigger it as soon as possible (avoiding fetching an FPU reg if it's unused)
+void propagateFpuBarrier(dynarec_la64_t* dyn);
 void updateNativeFlags(dynarec_la64_t* dyn);
 void get_free_scratch(dynarec_la64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5);
 #endif //__DYNAREC_LA64_FUNCTIONS_H__

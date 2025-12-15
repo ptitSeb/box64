@@ -41,6 +41,8 @@ int fpu_get_scratch(dynarec_la64_t* dyn)
 void fpu_reset_scratch(dynarec_la64_t* dyn)
 {
     dyn->lsx.fpu_scratch = 0;
+    dyn->lsx.ymm_used = 0;
+    dyn->lsx.xmm_used = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_la64_t* dyn, int t, int n)
@@ -52,6 +54,7 @@ int fpu_get_reg_x87(dynarec_la64_t* dyn, int t, int n)
     dyn->lsx.lsxcache[i].n = n;
     dyn->lsx.lsxcache[i].t = t;
     dyn->lsx.news |= (1 << i);
+    dyn->use_x87 = 1;
     return i; // return a Dx
 }
 // Free a FPU double reg
@@ -70,6 +73,7 @@ int fpu_get_reg_emm(dynarec_la64_t* dyn, int emm)
     dyn->lsx.lsxcache[ret].t = LSX_CACHE_MM;
     dyn->lsx.lsxcache[ret].n = emm;
     dyn->lsx.news |= (1 << (ret));
+    dyn->use_mmx = 1;
     return ret;
 }
 // Get an XMM quad reg
@@ -82,6 +86,7 @@ int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm)
     dyn->lsx.lsxcache[i].t = t;
     dyn->lsx.lsxcache[i].n = xmm;
     dyn->lsx.news |= (1 << i);
+    dyn->use_xmm = 1;
     return i;
 }
 
@@ -95,6 +100,7 @@ int fpu_get_reg_ymm(dynarec_la64_t* dyn, int t, int ymm)
     dyn->lsx.lsxcache[i].t = t;
     dyn->lsx.lsxcache[i].n = ymm;
     dyn->lsx.news |= (1 << i);
+    dyn->use_ymm = 1;
     return i;
 }
 
@@ -850,4 +856,67 @@ void get_free_scratch(dynarec_la64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tm
     *tmp1 = tmp[0];
     *tmp2 = tmp[1];
     *tmp3 = tmp[2];
+}
+
+void tryEarlyFpuBarrier(dynarec_la64_t* dyn, int last_fpu_used, int ninst)
+{
+    // there is a barrier at ninst
+    // check if, up to last fpu_used, if there is some suspicious jump that would prevent the barrier to be put earlier
+    int usefull = 0;
+    for (int i = ninst - 1; i > last_fpu_used; --i) {
+        if (!dyn->insts[i].x64.has_next)
+            return; // break of chain, don't try to be smart for now
+        if (dyn->insts[i].x64.barrier & BARRIER_FLOAT)
+            return; // already done?
+        if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts == -1)
+            usefull = 1;
+        if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts != -1) {
+            int i2 = dyn->insts[i].x64.jmp_insts;
+            if (i2 < last_fpu_used || i2 > ninst) {
+                // check if some xmm/ymm/x87 stack are used in landing point
+                if (i2 > ninst) {
+                    if (dyn->insts[i2].lsx.xmm_used || dyn->insts[i2].lsx.ymm_used || dyn->insts[i2].lsx.stack)
+                        return;
+                }
+                // we will stop there, not trying to guess too much thing
+                if ((usefull && (i + 1) != ninst)) {
+                    if (BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log) > 1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", i + 1, ninst);
+                    dyn->insts[i + 1].x64.barrier |= BARRIER_FLOAT;
+                }
+                return;
+            }
+            usefull = 1;
+        }
+        for (int pred = 0; pred < dyn->insts[i].pred_sz; ++pred) {
+            if (dyn->insts[i].pred[pred] <= last_fpu_used) {
+                if (usefull && ((i + 1) != ninst)) {
+                    if (BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log) > 1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", i + 1, ninst);
+                    dyn->insts[i + 1].x64.barrier |= BARRIER_FLOAT;
+                }
+                return;
+            }
+        }
+        if (dyn->insts[i].pred_sz > 1)
+            usefull = 1;
+    }
+    if (usefull) {
+        if (BOX64ENV(dynarec_dump) || BOX64ENV(dynarec_log) > 1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", last_fpu_used, ninst);
+        dyn->insts[last_fpu_used + 1].x64.barrier |= BARRIER_FLOAT;
+    }
+}
+
+void propagateFpuBarrier(dynarec_la64_t* dyn)
+{
+    if (!dyn->use_x87)
+        return;
+    int last_fpu_used = -1;
+    for (int ninst = 0; ninst < dyn->size; ++ninst) {
+        int fpu_used = dyn->insts[ninst].lsx.xmm_used || dyn->insts[ninst].lsx.ymm_used || dyn->insts[ninst].mmx_used || dyn->insts[ninst].x87_used;
+        if (fpu_used) last_fpu_used = ninst;
+        dyn->insts[ninst].fpu_used = fpu_used;
+        if (dyn->insts[ninst].fpupurge && (last_fpu_used != -1) && (last_fpu_used != (ninst - 1))) {
+            tryEarlyFpuBarrier(dyn, last_fpu_used, ninst);
+            last_fpu_used = -1; // reset the last_fpu_used...
+        }
+    }
 }
