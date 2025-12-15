@@ -1320,7 +1320,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         j64 = (uint32_t)(addr + i32_);                                                      \
     else                                                                                    \
         j64 = addr + i32_;                                                                  \
-    BARRIER(BARRIER_MAYBE);                                                                 \
     JUMP(j64, 1);                                                                           \
     if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
         if (cpuext.lbt) {                                                                   \
@@ -1585,7 +1584,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("FXSAVE Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         SKIPTEST(x1);
-                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        BARRIER(BARRIER_FLOAT);
                         if (MODREG) {
                             DEFAULT;
                         } else {
@@ -1597,7 +1596,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("FXRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         SKIPTEST(x1);
-                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        BARRIER(BARRIER_FLOAT);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
                         CALL(rex.is32bits ? const_fpu_fxrstor32 : const_fpu_fxrstor64, -1, ed, 0);
                         break;
@@ -1652,7 +1651,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 4:
                         INST_NAME("XSAVE Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        BARRIER(BARRIER_FLOAT);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x2, rex.w ? 0 : 1);
                         CALL(const_fpu_xsave, -1, ed, x2);
@@ -1660,7 +1659,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 5:
                         INST_NAME("XRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        BARRIER(BARRIER_FLOAT);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x2, rex.w ? 0 : 1);
                         CALL(const_fpu_xrstor, -1, ed, x2);

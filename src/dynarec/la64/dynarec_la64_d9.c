@@ -304,7 +304,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 break;
             case 0xF6:
                 INST_NAME("FDECSTP");
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
                 LD_W(x2, xEmu, offsetof(x64emu_t, top));
                 ADDI_D(x2, x2, -1);
                 ANDI(x2, x2, 7);
@@ -312,7 +312,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 break;
             case 0xF7:
                 INST_NAME("FINCSTP");
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
                 LD_W(x2, xEmu, offsetof(x64emu_t, top));
                 ADDI_D(x2, x2, 1);
                 ANDI(x2, x2, 7);
@@ -477,7 +477,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             case 4:
                 INST_NAME("FLDENV Ed");
                 MESSAGE(LOG_DUMP, "Need Optimization\n");
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
+                BARRIER(BARRIER_FLOAT); // maybe only x87, not SSE?
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 MOV32w(x2, 0);
                 CALL(const_fpu_loadenv, -1, ed, x2);
@@ -495,7 +495,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             case 6:
                 INST_NAME("FNSTENV Ed");
                 MESSAGE(LOG_DUMP, "Need Optimization\n");
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
+                BARRIER(BARRIER_FLOAT); // maybe only x87, not SSE?
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 MOV32w(x2, 0);
                 CALL(const_fpu_savenv, -1, ed, x2);
