@@ -2991,7 +2991,7 @@ void EXPORT my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p
     R_EBP = jpbuff->save_ebp;
     R_ESP = jpbuff->save_esp;
     // jmp to saved location, plus restore val to eax
-    R_EAX = __val;
+    R_EAX = __val?__val:1;
     R_EIP = jpbuff->save_eip;
     if(((__jmp_buf_tag_t*)p)->__mask_was_saved) {
         sigprocmask(SIG_SETMASK, &((__jmp_buf_tag_t*)p)->__saved_mask, NULL);
