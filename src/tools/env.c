@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <inttypes.h>
+#include <strings.h>
 #if defined(DYNAREC) && !defined(WIN32)
 #include <sys/types.h>
 #include <dirent.h>
@@ -215,6 +216,34 @@ static void applyCustomRules()
 #if defined(RV64) || defined(LA64)
         SET_BOX64ENV(dynarec_nativeflags, 0);
 #endif
+    }
+
+    if (box64env.is_profile_overridden) {
+        if (!strcasecmp(box64env.profile, "safest")) {
+            SET_BOX64ENV_IF_EMPTY(dynarec_fastnan, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_fastround, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 2);
+            SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 2);
+        } else if (!strcasecmp(box64env.profile, "safe")) {
+            SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 2);
+            SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 1);
+        } else if (!strcasecmp(box64env.profile, "fast")) {
+            SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
+            SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_dirty, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_forward, 1024);
+        } else if (!strcasecmp(box64env.profile, "fastest")) {
+            SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
+            SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 0);
+            SET_BOX64ENV_IF_EMPTY(dynarec_dirty, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_forward, 1024);
+        }
     }
 
     if (box64env.maxcpu == 0 || (box64env.new_maxcpu < box64env.maxcpu)) {

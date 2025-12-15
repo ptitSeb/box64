@@ -107,13 +107,6 @@ Path to the bash executable.
  * XXXX : Use bash executable at path XXXX. 
 
 
-=item B<BOX64_PYTHON3> =I<XXXX>
-
-Path to a python3 executable.
-
- * XXXX : Use python3 executable at path XXXX. 
-
-
 =item B<BOX64_CEFDISABLEGPU> =I<0|1>
 
 Add -cef-disable-gpu argument to the guest program.
@@ -748,6 +741,24 @@ Prefer wrapped libs first even if the lib is specified with absolute path.
 
  * 0 : Prefer libs with absolute path over wrapped ones. [Default]
  * 1 : Prefer wrapped libs first even if the lib is specified with absolute path. 
+
+
+=item B<BOX64_PROFILE> =I<safest|safe|default|fast|fastest>
+
+Predefined sets of environment variables with compatibility or performance in mind. Available in WowBox64.
+
+ * safest : Profile with all the unsafe DynaRec optimizations disabled. 
+ * safe : Well, less safer than safest. 
+ * default : The default settings that most programs runs fine with a handy performance. [Default]
+ * fast : Enable many unsafe optimizations, but also enable strongmem emulation. 
+ * fastest : Enable many unsafe optimizations to have a better performance. 
+
+
+=item B<BOX64_PYTHON3> =I<XXXX>
+
+Path to a python3 executable.
+
+ * XXXX : Use python3 executable at path XXXX. 
 
 
 =item B<BOX64_RCFILE> =I<XXXX>

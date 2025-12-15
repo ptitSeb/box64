@@ -322,12 +322,6 @@ Path to the bash executable.
 
  * XXXX: Use bash executable at path XXXX. 
 
-### BOX64_PYTHON3
-
-Path to a python3 executable.
-
- * XXXX: Use python3 executable at path XXXX. 
-
 ### BOX64_CPUTYPE
 
 Specify the CPU type to emulate. Available in WowBox64.
@@ -447,6 +441,22 @@ Expose PCLMULQDQ capabilities. Available in WowBox64.
 
  * 0: Do not expose PCLMULQDQ capabilities. 
  * 1: Expose PCLMULQDQ capabilities. [Default]
+
+### BOX64_PROFILE
+
+Predefined sets of environment variables with compatibility or performance in mind. Available in WowBox64.
+
+ * safest: Profile with all the unsafe DynaRec optimizations disabled. 
+ * safe: Well, less safer than safest. 
+ * default: The default settings that most programs runs fine with a handy performance. [Default]
+ * fast: Enable many unsafe optimizations, but also enable strongmem emulation. 
+ * fastest: Enable many unsafe optimizations to have a better performance. 
+
+### BOX64_PYTHON3
+
+Path to a python3 executable.
+
+ * XXXX: Use python3 executable at path XXXX. 
 
 ### BOX64_RCFILE
 

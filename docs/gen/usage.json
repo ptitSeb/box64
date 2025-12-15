@@ -136,19 +136,6 @@
     ]
   },
   {
-    "name": "BOX64_PYTHON3",
-    "description": "Path to a python3 executable.",
-    "category": "Compatibility",
-    "wine": false,
-    "options": [
-      {
-        "key": "XXXX",
-        "description": "Use python3 executable at path XXXX.",
-        "default": false
-      }
-    ]
-  },
-  {
     "name": "BOX64_CEFDISABLEGPU",
     "description": "Add -cef-disable-gpu argument to the guest program.",
     "category": "Arguments",
@@ -1630,6 +1617,52 @@
       {
         "key": "1",
         "description": "Prefer wrapped libs first even if the lib is specified with absolute path.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_PROFILE",
+    "description": "Predefined sets of environment variables with compatibility or performance in mind.",
+    "category": "Compatibility",
+    "wine": true,
+    "options": [
+      {
+        "key": "safest",
+        "description": "Profile with all the unsafe DynaRec optimizations disabled.",
+        "default": false
+      },
+      {
+        "key": "safe",
+        "description": "Well, less safer than safest.",
+        "default": false
+      },
+      {
+        "key": "default",
+        "description": "The default settings that most programs runs fine with a handy performance.",
+        "default": true
+      },
+      {
+        "key": "fast",
+        "description": "Enable many unsafe optimizations, but also enable strongmem emulation.",
+        "default": false
+      },
+      {
+        "key": "fastest",
+        "description": "Enable many unsafe optimizations to have a better performance.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_PYTHON3",
+    "description": "Path to a python3 executable.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "XXXX",
+        "description": "Use python3 executable at path XXXX.",
         "default": false
       }
     ]
