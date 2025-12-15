@@ -69,6 +69,7 @@ void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size,
 int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event);
 int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
 int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout, const sigset_t *sigmask);
+int32_t my_epoll_pwait2(x64emu_t* emu, int epfd, void* events, int maxevents, struct timespec *timeout, sigset_t * sigmask);
 #endif
 pid_t my_vfork(x64emu_t* emu);
 int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c);
@@ -278,7 +279,7 @@ static const scwrap_t syscallwrap[] = {
     [274] = {__NR_get_robust_list, 3},
     [280] = {__NR_utimensat, 4},
     #ifdef NOALIGN
-    [281] = {__NR_epoll_pwait, 6},
+    [281] = {__NR_epoll_pwait, 5},
     #endif
     //[282] = {__NR__signalfd, 3},
     #ifdef _NR_eventfd
@@ -328,6 +329,9 @@ static const scwrap_t syscallwrap[] = {
     #endif
     #ifdef __NR_faccessat2
     [439] = {__NR_faccessat2, 4},
+    #endif
+    #if defined(__NR_epoll_pwait2) && defined(NOALIGN)
+    [441] = {__NR_epoll_pwait2, 5},
     #endif
     #ifdef __NR_landlock_create_ruleset	
     [444] = {__NR_landlock_create_ruleset, 3},
@@ -832,7 +836,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #ifndef NOALIGN
-        case 281:   // sys_epool_pwait
+        case 281:   // sys_epoll_pwait
             S_RAX = my_epoll_pwait(emu, S_EDI, (void*)R_RSI, S_EDX, S_R10d, (void*)R_R8);
             if(S_RAX==-1)
                 S_RAX = -errno;
@@ -882,6 +886,13 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         #ifndef __NR_faccessat2
         case 439:
             S_RAX = faccessat(S_EDI, (void*)R_RSI, (mode_t)R_RDX, S_R10d);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
+        #if !defined(__NR_epoll_pwait2) || !defined(NOALIGN)
+        case 441:   // sys_epoll_pwait2
+            S_RAX = my_epoll_pwait2(emu, S_EDI, (void*)R_RSI, S_EDX, (void*)S_R10, (void*)R_R8);
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
@@ -1147,7 +1158,7 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 267:   // sys_readlinkat
             return my_readlinkat(emu, S_RSI, (void*)R_RDX, (void*)R_RCX, R_R8); 
         #ifndef NOALIGN
-        case 281:   // sys_epool_pwait
+        case 281:   // sys_epoll_pwait
             return my_epoll_pwait(emu, S_ESI, (void*)R_RDX, S_ECX, S_R8d, (void*)R_R9);
         #endif
         case 282:   // sys_signalfd
@@ -1179,6 +1190,11 @@ long EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_faccessat2
         case 439:
             return faccessat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
+        #endif
+        #if !defined(__NR_epoll_pwait2) || !defined(NOALIGN)
+        case 441:
+            return my_epoll_pwait2(emu, S_ESI, (void*)R_RDX, S_ECX, (void*)S_R8, (void*)R_R9);
+            break;
         #endif
         case 449:
             #if defined(__NR_futex_waitv) && !defined(BAD_SIGNAL)
