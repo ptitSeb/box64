@@ -7,11 +7,17 @@
 #define BOX64ENV(name)            (box64env.name)
 #define BOX64DRENV(name)          ((dyn->env && dyn->env->is_##name##_overridden)?dyn->env->name:box64env.name)
 #define SET_BOX64ENV(name, value)            \
-    {                                        \
+    do {                                     \
         box64env.name = (value);             \
         box64env.is_any_overridden = 1;      \
         box64env.is_##name##_overridden = 1; \
-    }
+    } while (0)
+#define SET_BOX64ENV_IF_EMPTY(name, value)      \
+    do {                                        \
+        if (!box64env.is_##name##_overridden) { \
+            SET_BOX64ENV(name, value);          \
+        }                                       \
+    } while (0)
 
 /*
     INTEGER(NAME, name, default, min, max, wine)
@@ -76,7 +82,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 0, 0, 2, 1)           \
     BOOLEAN(BOX64_DYNAREC_INTERP_SIGNAL, dynarec_interp_signal, 0, 0)         \
     BOOLEAN(BOX64_DYNAREC_PURGE, dynarec_purge, 0, 0)                         \
-    INTEGER(BOX64_DYNAREC_PURGE_AGE, dynarec_purge_age, 4096, 10, 0x10000, 0)  \
+    INTEGER(BOX64_DYNAREC_PURGE_AGE, dynarec_purge_age, 4096, 10, 65536, 0)   \
     BOOLEAN(BOX64_NODYNAREC_DELAY, nodynarec_delay, 0, 1)                     \
     STRING(BOX64_EMULATED_LIBS, emulated_libs, 0)                             \
     INTEGER(BOX64_DYNAREC_NOARCH, dynarec_noarch, 0, 0, 2, 1)                 \
@@ -114,6 +120,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_PCLMULQDQ, pclmulqdq, 1, 1)                                 \
     BOOLEAN(BOX64_PREFER_EMULATED, prefer_emulated, 0, 0)                     \
     BOOLEAN(BOX64_PREFER_WRAPPED, prefer_wrapped, 0, 0)                       \
+    STRING(BOX64_PROFILE, profile, 1)                                         \
     STRING(BOX64_RCFILE, envfile, 0)                                          \
     BOOLEAN(BOX64_RDTSC_1GHZ, rdtsc_1ghz, 0, 0)                               \
     BOOLEAN(BOX64_RESERVE_HIGH, reserve_high, 0, 0)                           \
