@@ -15,6 +15,9 @@ void grabNCpu() {
     GetSystemInfo(&sysinfo);
     nCPU = sysinfo.dwNumberOfProcessors;
 }
+int get_cpuMhz() {
+    return 2000;    //TODO: find a way to get realy value instead of arbitrary default to 2.0GHz
+}
 int getNCpu()
 {
     if(!nCPU)

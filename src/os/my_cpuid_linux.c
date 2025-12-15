@@ -11,7 +11,8 @@
 
 int get_cpuMhz()
 {
-    int MHz = 0;
+    static int MHz = 0;
+    if(MHz) return MHz;
     char *p = NULL;
     if((p=getenv("BOX64_CPUMHZ"))) {
         MHz = atoi(p);
@@ -90,7 +91,7 @@ int get_cpuMhz()
     }
     #endif
     if(!MHz)
-        MHz = 1000; // default to 1Ghz...
+        MHz = 1500; // default to 1.5Ghz...
     sprintf(cpumhz, "%d", MHz);
     setenv("BOX64_CPUMHZ", cpumhz, 1);  // set actual value
     return MHz;

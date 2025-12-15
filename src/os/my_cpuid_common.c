@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <string.h>
+#include <sched.h>
 
 #include "my_cpuid.h"
 #include "../emu/x64emu_private.h"
@@ -43,7 +44,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
-            R_RAX = BOX64ENV(cputype)?0x0000000f:0x0000000f;//was 0x15 before, but something seems wrong for leaf 0x15, and cpu-z take that as pure cpu speed...
+            R_RAX = BOX64ENV(cputype)?0x0000000f:0x00000016;
             if(BOX64ENV(cputype)) {
                 // return AuthenticAMD
                 R_RBX = 0x68747541;
@@ -132,11 +133,11 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 // reserved
                 R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
-                // TLB and Cache info. Sending 1st gen P4 info...
-                R_RAX = 0x665B5001;
-                R_RBX = 0x00000000;
+                // TLB and Cache info. Sending 9th gen i3 info...
+                R_RAX = 0x76036301;
+                R_RBX = 0x00f0b6ff;
                 R_RCX = 0x00000000;
-                R_RDX = 0x007A7000;
+                R_RDX = 0x00c30000;
             }
             break;
 
@@ -148,24 +149,29 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 // Cache info
                 switch (subleaf) {
                     case 0: // L1 data cache
-                        R_RAX = (1 | (1<<5) | (1<<8) | ((ncpu-1)<<26));   //type + (26-31):max cores per packages-1
-                        R_RBX = (63 | (7<<22)); // size
+                        R_RAX = 0x4121 | ((ncpu-1)<<26);   //type + (26-31):max cores per packages-1
+                        R_RBX = 0x01c0003f; // size
                         R_RCX = 63;
-                        R_RDX = 1;
+                        R_RDX = 0;
                         break;
                     case 1: // L1 inst cache
-                        R_RAX = (2 | (1<<5) | (1<<8)); //type
-                        R_RBX = (63 | (7<<22)); // size
+                        R_RAX = 0x4122 | ((ncpu-1)<<26); //type
+                        R_RBX = 0x01c0003f; // size
                         R_RCX = 63;
-                        R_RDX = 1;
+                        R_RDX = 0;
                         break;
                     case 2: // L2 cache
-                        R_RAX = (3 | (2<<5) | (1<<8)); //type
-                        R_RBX = (63 | (15<<22));    // size
-                        R_RCX = 4095;
-                        R_RDX = 1;
+                        R_RAX = 0x4143 | ((ncpu-1)<<26); //type
+                        R_RBX = 0x00c0003f;    // size
+                        R_RCX = 1023;
+                        R_RDX = 0;
                         break;
-
+                    case 3: // L3 cache
+                        R_RAX = 0x3c63 | ((ncpu-1)<<26); //type
+                        R_RBX = 0x02c0003f;    // size
+                        R_RCX = 8191;
+                        R_RDX = 6;
+                        break;
                     default:
                         R_RAX = 0x00000000;
                         R_RBX = 0x00000000;
@@ -176,10 +182,10 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0x5:   //mwait info
-            R_RAX = 0;
-            R_RBX = 0;
+            R_RAX = 0x40;
+            R_RBX = 0x40;
             R_RCX = 1 | 2;
-            R_RDX = 0;
+            R_RDX = 0x11142120;
             break;
         case 0x3:   // PSN
         case 0x6:   // thermal
@@ -225,18 +231,25 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
             } else {
                 // Extended Topology Enumeration Leaf
-                //TODO!
                 R_RAX = 0;
-                R_RBX = 0;
+                R_RBX = (subleaf==0)?1:((subleaf==1)?ncpu:0);
+                R_RCX |= (subleaf==0)?0x100:((subleaf==1)?0x200:0);
+                #ifdef WIN32
+                int cpu = 0;
+                #else
+                int cpu = sched_getcpu();
+                if(cpu<0) cpu=0;
+                #endif
+                R_RDX = cpu;
             }
             break;
         case 0xC:
             if(BOX64ENV(cputype)) {
                 // reserved
-                R_RAX = R_RBX = R_RCX = R_RDX = 0 ;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0;
             } else {
                 //?
-                R_RAX = 0;
+                R_RAX = R_RBX = R_RCX = R_RDX = 0;
             }
             break;
         case 0xD:
@@ -265,7 +278,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             }
             break;
         case 0xE:   //?
-            R_RAX = 0;
+            R_RAX = R_RCX = R_RBX = R_RDX = 0;
             break;
         case 0xF:
             if(BOX64ENV(cputype)) {
@@ -290,6 +303,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 }
             }
             break;
+        case 0x10:
+        case 0x11:
+        case 0x12:
+        case 0x13:
+            R_RAX = R_RBX = R_RCX = R_RDX = 0;
+            break;
         case 0x14:
             if(BOX64ENV(cputype)) {
                 // reserved
@@ -298,8 +317,14 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 // Processor Trace Enumeration Main Leaf
                 switch(subleaf) {
                     case 0: // main leaf
-                        R_RAX = 0;  // max sub-leaf
-                        R_RBX = 0;
+                        R_RAX = 1;  // max sub-leaf
+                        R_RBX = 0xf;
+                        R_RCX = 0x7;
+                        R_RDX = 0;
+                        break;
+                    case 1:
+                        R_RAX = 0x02490002;
+                        R_RBX = 0x003f3fff;
                         R_RCX = 0;
                         R_RDX = 0;
                         break;
@@ -313,17 +338,29 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_RAX = R_RBX = R_RCX = R_RDX = 0;
             } else {
                 // TSC core frenquency
-                R_RAX = 1;  // denominator
-                R_RBX = 1;  // numerator
-                {
+                R_RAX = 0x02;  // denominator
+                R_RBX = 0x120;  // numerator
+                /*{
                     uint64_t freq = ReadTSCFrequency(emu);
                     while(freq>100000000) {
                         freq/=10;
                         R_RAX *= 10;
                     }
                     R_RCX = freq;  // nominal frequency in Hz
-                }
+                }*/
+                R_RCX = 0;
                 R_RDX = 0;
+            }
+            break;
+        case 0x16:
+            if(BOX64ENV(cputype)) {
+                R_RAX = R_RBX = R_RCX = R_RDX = 0;
+            } else {
+                R_RAX = get_cpuMhz();
+                R_RBX = get_cpuMhz();
+                R_RCX = 100;
+                R_RDX = 0;
+
             }
             break;
         case 0x40000000 ... 0x400000FF:
@@ -340,7 +377,10 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_RCX = 0x444d4163;
                 R_RDX = 0x69746E65;
             } else {
-                R_RAX = 0x80000005; // was 0x80000007 before, but L2 cache description 0x80000006 is not correct and make some AC games to assert about l2 cache value coherency...
+                R_RAX = 0x80000008;
+                R_RBX = 0;
+                R_RCX = 0;
+                R_RDX = 0;
             }
             break;
         case 0x80000001:        //Extended Processor Signature and Feature Bits
@@ -466,7 +506,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_RAX = 0;
                 R_RBX = 0;
                 R_RCX = 0;
-                R_RDX = 0 | (1<<8); // Invariant TSC
+                R_RDX = 0 /*| (1<<8)*/; // Invariant TSC
             }
             break;
         case 0x80000008:
@@ -478,7 +518,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_RDX = 0;
             } else {
                 // ?
-                R_RAX = 0;
+                R_RAX = 0x0000302e;//?
                 R_RBX = 0;
                 R_RCX = 0;
                 R_RDX = 0;
