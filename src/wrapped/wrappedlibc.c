@@ -2930,7 +2930,7 @@ void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, 
     R_R15 = jpbuff->save_r15;
     R_RSP = jpbuff->save_rsp;
     // jmp to saved location, plus restore val to rax
-    R_RAX = __val;
+    R_RAX = __val?__val:1;
     R_RIP = jpbuff->save_rip;
     if(((__jmp_buf_tag_t*)p)->__mask_was_saved) {
         sigprocmask(SIG_SETMASK, &((__jmp_buf_tag_t*)p)->__saved_mask, NULL);
