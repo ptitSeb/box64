@@ -1379,7 +1379,7 @@ void idiv8(x64emu_t *emu, uint8_t s)
 	div_t p = div(dvd, (int8_t)s);
 	quot = p.quot;
 	mod = p.rem;
-	if (abs(quot) > 0x7f) {
+	if ((int8_t)quot != quot) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1406,7 +1406,7 @@ void idiv16(x64emu_t *emu, uint16_t s)
 	div_t p = div(dvd, (int16_t)s);
 	quot = p.quot;
 	mod = p.rem;
-	if (abs(quot) > 0x7fff) {
+	if ((int16_t)quot != quot) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1434,7 +1434,7 @@ void idiv32(x64emu_t *emu, uint32_t s)
 	ldiv_t p = ldiv(dvd, (int32_t)s);
 	quot = p.quot;
 	mod = p.rem;
-	if (llabs(quot) > 0x7fffffff) {
+	 if ((int32_t)quot != quot) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1461,7 +1461,7 @@ void idiv64(x64emu_t *emu, uint64_t s)
 	}
 	quot = dvd/(int64_t)s;
 	mod = dvd%(int64_t)s;
-	if ((quot > 0x7fffffffffffffffLL) || (quot < -0x7fffffffffffffffLL)) {
+	if ((int64_t)quot != quot) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
