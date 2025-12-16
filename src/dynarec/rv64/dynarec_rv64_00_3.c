@@ -28,7 +28,7 @@
 int isSimpleWrapper(wrapper_t fun);
 int isRetX87Wrapper(wrapper_t fun);
 
-uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed;
@@ -878,40 +878,40 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             OR(xRAX, xRAX, x1);
             break;
         case 0xD8:
-            addr = dynarec64_D8(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_D8(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xD9:
-            addr = dynarec64_D9(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_D9(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xDA:
-            addr = dynarec64_DA(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_DA(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xDB:
-            addr = dynarec64_DB(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_DB(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xDC:
-            addr = dynarec64_DC(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_DC(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xDD:
-            addr = dynarec64_DD(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_DD(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
 
         case 0xDE:
-            addr = dynarec64_DE(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_DE(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xDF:
-            addr = dynarec64_DF(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            addr = dynarec64_DF(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
-#define GO(Z)                                                                               \
+#define GO(Z, R)                                                                            \
     BARRIER(BARRIER_MAYBE);                                                                 \
     JUMP(addr + i8, 1);                                                                     \
     if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
         /* out of the block */                                                              \
         i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
         if (Z) {                                                                            \
-            BNE(xRCX, xZR, i32);                                                            \
+            BNE(R, xZR, i32);                                                               \
         } else {                                                                            \
-            BEQ(xRCX, xZR, i32);                                                            \
+            BEQ(R, xZR, i32);                                                               \
         };                                                                                  \
         if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
             if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
@@ -926,39 +926,69 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         /* inside the block */                                                              \
         i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
         if (Z) {                                                                            \
-            BEQ(xRCX, xZR, i32);                                                            \
+            BEQ(R, xZR, i32);                                                               \
         } else {                                                                            \
-            BNE(xRCX, xZR, i32);                                                            \
+            BNE(R, xZR, i32);                                                               \
         };                                                                                  \
     }
         case 0xE0:
             INST_NAME("LOOPNZ");
             READFLAGS(X_ZF);
             i8 = F8S;
-            SUBI(xRCX, xRCX, 1);
-            ANDI(x1, xFlags, 1 << F_ZF);
-            CBNZ_NEXT(x1);
-            GO(0);
+            if (rex.is32bits && rex.is67) {
+                ADDIW(x3, x3, -1);
+                INSH(xRCX, x3, x5, x6, 1, 1); // x3 will be zexth'ed
+                ANDI(x1, xFlags, 1 << F_ZF);
+                CBNZ_NEXT(x1);
+                GO(0, x3);
+            } else {
+                ADDIy(xRCX, xRCX, -1);
+                ANDI(x1, xFlags, 1 << F_ZF);
+                CBNZ_NEXT(x1);
+                GO(0, xRCX);
+            }
             break;
         case 0xE1:
             INST_NAME("LOOPZ");
             READFLAGS(X_ZF);
             i8 = F8S;
-            SUBI(xRCX, xRCX, 1);
-            ANDI(x1, xFlags, 1 << F_ZF);
-            CBZ_NEXT(x1);
-            GO(0);
+            if (rex.is32bits && rex.is67) {
+                ADDIW(x3, x3, -1);
+                INSH(xRCX, x3, x5, x6, 1, 1); // x3 will be zexth'ed
+                ANDI(x1, xFlags, 1 << F_ZF);
+                CBZ_NEXT(x1);
+                GO(0, x3);
+            } else {
+                ADDIy(xRCX, xRCX, -1);
+                ANDI(x1, xFlags, 1 << F_ZF);
+                CBZ_NEXT(x1);
+                GO(0, xRCX);
+            }
             break;
         case 0xE2:
             INST_NAME("LOOP");
             i8 = F8S;
-            SUBI(xRCX, xRCX, 1);
-            GO(0);
+            if (rex.is32bits && rex.is67) {
+                ADDIW(x3, x3, -1);
+                INSH(xRCX, x3, x5, x6, 1, 1); // x3 will be zexth'ed
+                GO(0, x3);
+            } else {
+                ADDIy(xRCX, xRCX, -1);
+                GO(0, xRCX);
+            }
             break;
         case 0xE3:
             INST_NAME("JECXZ");
             i8 = F8S;
-            GO(1);
+            if (rex.is32bits && rex.is67) {
+                ZEXTH(x3, xRCX);
+                GO(1, x3);
+            } else if (rex.is32bits || rex.is67) {
+                ADDIy(x3, xRCX, 0);
+                GO(1, x3);
+            } else {
+                GO(1, xRCX);
+            }
             break;
 #undef GO
 
@@ -1147,9 +1177,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
             *ok = 0;
-            break;
-        case 0xF0:
-            addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
         case 0xF4:
             INST_NAME("HLT");

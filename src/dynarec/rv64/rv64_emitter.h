@@ -23,6 +23,14 @@
             MOV32w(A, B); \
         }                 \
     } while (0)
+#define MOV64y(A, B)                    \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            MOV32w(A, B);               \
+        } else {                        \
+            MOV64x(A, B);               \
+        }                               \
+    } while (0)
 #define MOV64z(A, B)        \
     do {                    \
         if (rex.is32bits) { \
@@ -116,6 +124,24 @@
             ADDW(rd, rs1, rs2); \
             ZEROUP(rd);         \
         }                       \
+    } while (0)
+#define ADDy(rd, rs1, rs2)              \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            ADDW(rd, rs1, rs2);         \
+            ZEROUP(rd);                 \
+        } else {                        \
+            ADD(rd, rs1, rs2);          \
+        }                               \
+    } while (0)
+#define ADDxREGy(rd, rs1, rs2)          \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            ADDIW(rs2, rs2, 0);         \
+            ADD(rd, rs1, rs2);          \
+        } else {                        \
+            ADD(rd, rs1, rs2);          \
+        }                               \
     } while (0)
 // rd = rs1 - rs2
 #define SUB(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b000, rd, 0b0110011))
@@ -534,6 +560,15 @@
             ZEROUP(rd);            \
         }                          \
     } while (0)
+#define ADDIy(rd, rs1, imm12)           \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            ADDIW(rd, rs1, imm12);      \
+            ZEROUP(rd);                 \
+        } else {                        \
+            ADDI(rd, rs1, imm12);       \
+        }                               \
+    } while (0)
 
 // rd = rs1 + (rs2 << imm2)
 #define ADDSL(rd, rs1, rs2, imm2, scratch) \
@@ -546,6 +581,13 @@
     } else {                               \
         SLLI(scratch, rs2, imm2);          \
         ADD(rd, rs1, scratch);             \
+    }
+#define ADDSLy(rd, rs1, rs2, imm2, scratch) \
+    if (rex.is32bits || rex.is67) {         \
+        ADDSL(rd, rs1, rs2, imm2, scratch); \
+        ZEROUP(rd);                         \
+    } else {                                \
+        ADDSL(rd, rs1, rs2, imm2, scratch); \
     }
 
 #define SEXT_W(rd, rs1) ADDIW(rd, rs1, 0)
@@ -598,6 +640,15 @@
             SLLIW(rd, rs1, imm); \
             ZEROUP(rd);          \
         }                        \
+    } while (0)
+#define SLLIy(rd, rs1, imm)             \
+    do {                                \
+        if (rex.is32bits || rex.is67) { \
+            SLLIW(rd, rs1, imm);        \
+            ZEROUP(rd);                 \
+        } else {                        \
+            SLLI(rd, rs1, imm);         \
+        }                               \
     } while (0)
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))

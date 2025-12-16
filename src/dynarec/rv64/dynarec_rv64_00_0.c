@@ -23,7 +23,7 @@
 #include "dynarec_rv64_functions.h"
 #include "../dynarec_helper.h"
 
-uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed;
@@ -212,7 +212,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x0F:
-            switch (rep) {
+            switch (rex.rep) {
                 case 0:
                     if (cpuext.vector)
                         retaddr = dynarec64_0F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
