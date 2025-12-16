@@ -119,6 +119,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     seg_done = 1;
                 } else
                     MOV32w(ret, tmp);
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 if (!rex.seg)
                     switch (lock) {
                         case 1:
@@ -262,6 +263,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
     if (rex.seg && !seg_done) {
         if (scratch == ret)
             scratch = ret + 1;
+        SCRATCH_USAGE(1);
         grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
         // seg offset is 64bits, so no truncation here
         ADDxREGy(hint, scratch, ret);
