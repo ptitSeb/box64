@@ -20,10 +20,9 @@
 #include "dynarec_rv64_functions.h"
 
 
-uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     (void)ip;
-    (void)rep;
     (void)need_epilog;
 
     uint8_t opcode = F8;
@@ -41,13 +40,6 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(wb1);
     MAYUSE(wb2);
     MAYUSE(j64);
-
-    while ((opcode == 0xF2) || (opcode == 0xF3)) {
-        rep = opcode - 0xF1;
-        opcode = F8;
-    }
-
-    GETREX();
 
     switch (opcode) {
         case 0x01:
@@ -130,7 +122,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SRAI(x1, gd, 6);
                         else
                             SRAIW(x1, gd, 5);
-                        ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                        if (!rex.w && !rex.is32bits) { ADDIW(x1, x1, 0); }
+                        ADDSLy(x3, wback, x1, 2 + rex.w, x1);
                         ed = x1;
                         wback = x3;
                         MARKLOCK;
@@ -147,7 +140,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 case 0xB0:
-                    switch (rep) {
+                    switch (rex.rep) {
                         case 0:
                             nextop = F8;
                             if (MODREG) {
@@ -206,7 +199,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 case 0xB1:
-                    switch (rep) {
+                    switch (rex.rep) {
                         case 0:
                             nextop = F8;
                             if (MODREG) {
@@ -272,7 +265,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SRAI(x1, gd, 6);
                         else
                             SRAIW(x1, gd, 5);
-                        ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                        if (!rex.w && !rex.is32bits) { ADDIW(x1, x1, 0); }
+                        ADDSLy(x3, wback, x1, 2 + rex.w, x1);
                         LDxw(x1, x3, fixedaddress);
                         ed = x1;
                         wback = x3;
@@ -291,7 +285,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 case 0xC1:
-                    switch (rep) {
+                    switch (rex.rep) {
                         case 0:
                             nextop = F8;
                             if (MODREG) {
@@ -318,7 +312,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
 
                 case 0xC7:
-                    switch (rep) {
+                    switch (rex.rep) {
                         case 0:
                             switch (rex.w) {
                                 case 0:
@@ -569,9 +563,6 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);
             }
             break;
-        case 0x66:
-            return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
-
         case 0x80:
             nextop = F8;
             switch ((nextop >> 3) & 7) {

@@ -23,16 +23,16 @@
 #include "dynarec_rv64_functions.h"
 #include "../dynarec_helper.h"
 
-uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t opcode;
 
     opcode = PK(0);
     switch (opcode) {
-        case 0x00 ... 0x3f: addr = dynarec64_00_0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;
-        case 0x40 ... 0x7f: addr = dynarec64_00_1(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;
-        case 0x80 ... 0xbf: addr = dynarec64_00_2(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;
-        case 0xc0 ... 0xff: addr = dynarec64_00_3(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;
+        case 0x00 ... 0x3f: addr = dynarec64_00_0(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+        case 0x40 ... 0x7f: addr = dynarec64_00_1(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+        case 0x80 ... 0xbf: addr = dynarec64_00_2(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+        case 0xc0 ... 0xff: addr = dynarec64_00_3(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
     }
 
     return addr;

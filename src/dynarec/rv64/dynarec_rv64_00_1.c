@@ -25,7 +25,7 @@
 
 int isSimpleWrapper(wrapper_t fun);
 
-uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed, tmp1, tmp2, tmp3;
@@ -200,28 +200,6 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LWU(gd, ed, fixedaddress);
                     }
                 }
-            }
-            break;
-        case 0x64:
-            if (cpuext.vector)
-                retaddr = dynarec64_64_vector(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
-            addr = retaddr ? retaddr : dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
-            break;
-        case 0x65:
-            if (cpuext.vector)
-                retaddr = dynarec64_64_vector(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
-            addr = retaddr ? retaddr : dynarec64_64(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
-            break;
-        case 0x66:
-            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
-            break;
-        case 0x67:
-            if (rex.is32bits)
-                addr = dynarec64_67_32(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
-            else {
-                if (cpuext.vector)
-                    retaddr = dynarec64_67_vector(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
-                addr = retaddr ? retaddr : dynarec64_67(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             }
             break;
         case 0x68:
