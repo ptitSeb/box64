@@ -2570,11 +2570,11 @@ LSX instruction starts with V, LASX instruction starts with XV.
             ADD_D(rd, rj, rk);          \
     } while (0)
 
-#define ADDxREGy(rd, rj, rk)            \
+#define ADDxREGy(rd, rj, rk, s1)        \
     do {                                \
         if (rex.is32bits || rex.is67) { \
-            ADDI_W(rk, rk, 0);          \
-            ADD_D(rd, rj, rk);          \
+            ADDI_W(s1, rk, 0);          \
+            ADD_D(rd, rj, s1);          \
         } else                          \
             ADD_D(rd, rj, rk);          \
     } while (0)

@@ -1599,7 +1599,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64y(x1, u64);
             if (rex.seg) {
                 grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
-                ADDxREGy(x1, x3, x1);
+                ADDxREGy(x1, x3, x1, x1);
             }
             lock = (rex.seg) ? 0 : isLockAddress(u64);
             SMREADLOCK(lock);
@@ -1617,7 +1617,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64y(x1, u64);
             if (rex.seg) {
                 grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
-                ADDxREGy(x1, x3, x1);
+                ADDxREGy(x1, x3, x1, x1);
             }
             lock = (rex.seg) ? 0 : isLockAddress(u64);
             SMREADLOCK(lock);
@@ -1634,7 +1634,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64y(x1, u64);
             if (rex.seg) {
                 grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
-                ADDxREGy(x1, x3, x1);
+                ADDxREGy(x1, x3, x1, x1);
             }
             lock = (rex.seg) ? 0 : isLockAddress(u64);
             ST_B(xRAX, x1, 0);
@@ -1651,7 +1651,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64y(x1, u64);
             if (rex.seg) {
                 grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
-                ADDxREGy(x1, x3, x1);
+                ADDxREGy(x1, x3, x1, x1);
             }
             lock = (rex.seg) ? 0 : isLockAddress(u64);
             SDxw(xRAX, x1, 0);

@@ -266,7 +266,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         SCRATCH_USAGE(1);
         grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
         // seg offset is 64bits, so no truncation here
-        ADDxREGy(hint, scratch, ret);
+        ADDxREGy(hint, scratch, ret, hint);
         ret = hint;
     }
     *ed = ret;

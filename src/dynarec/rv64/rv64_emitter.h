@@ -134,11 +134,11 @@
             ADD(rd, rs1, rs2);          \
         }                               \
     } while (0)
-#define ADDxREGy(rd, rs1, rs2)          \
+#define ADDxREGy(rd, rs1, rs2, s1)      \
     do {                                \
         if (rex.is32bits || rex.is67) { \
-            ADDIW(rs2, rs2, 0);         \
-            ADD(rd, rs1, rs2);          \
+            ADDIW(s1, rs2, 0);          \
+            ADD(rd, rs1, s1);           \
         } else {                        \
             ADD(rd, rs1, rs2);          \
         }                               \
