@@ -136,9 +136,9 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
     if (dyn->insts[ninst].nat_flags_fusion) {
         if (dyn->insts[ninst].nat_flags_needsign) {
             EXT_W_B(s3, s1);
-            NAT_FLAGS_OPS(s3, xZR, x4, xZR);
+            NAT_FLAGS_OPS(s3, xZR, s4, xZR);
         } else {
-            NAT_FLAGS_OPS(s1, xZR, x3, xZR);
+            NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         }
     }
 }
@@ -458,7 +458,7 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
             if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
             ST_B(s3, xEmu, offsetof(x64emu_t, res));
         }
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, x4, xZR);
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, s4, xZR);
         return;
     }
 
@@ -483,7 +483,7 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     if (dyn->insts[ninst].nat_flags_fusion && dyn->insts[ninst].nat_flags_needsign) {
         EXT_W_B(s3, s3);
     }
-    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, x4, xZR);
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, s4, xZR);
 }
 
 // emit TEST8 instruction, from test s1, c, using s3, s4 and s5 as scratch
