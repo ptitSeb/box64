@@ -1579,6 +1579,7 @@
 #() vFEppiV
 #() vFEppuu
 #() vFEppup
+#() vFEppLp
 #() vFEpppi
 #() vFEpppp
 #() vFiiiii
@@ -2330,7 +2331,6 @@
 #() vFpppuup
 #() vFpppLpp
 #() vFppppii
-#() vFppppLp
 #() vFpppppi
 #() vFpppppu
 #() vFpppppU
@@ -5548,6 +5548,8 @@ wrappedlibnettle8:
   - nettle_cmac128_set_key
   - nettle_cmac64_set_key
   - nettle_gcm_set_key
+- vFppLp:
+  - nettle_hmac_update
 - vFpppLp:
   - nettle_cmac128_update
   - nettle_cmac64_update
@@ -5556,6 +5558,8 @@ wrappedlibnettle8:
   - nettle_cmac64_digest
 - vFppppLp:
   - nettle_gcm_digest
+  - nettle_hmac_digest
+  - nettle_hmac_set_key
 - vFppLpLpp:
   - nettle_cbc_decrypt
   - nettle_cbc_encrypt

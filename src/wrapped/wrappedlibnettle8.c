@@ -28,6 +28,35 @@ const char* libnettle8Name = "libnettle.so.8";
 
 #include "wrappercallback.h"
 
+typedef void(*vFp_t)(void*);
+typedef void(*vFpp_t)(void*, void*);
+typedef void(*vFpLp_t)(void*, size_t, void*);
+typedef void(*vFpLpp_t)(void*, size_t, void*, void*);
+
+typedef struct my_nettle_hash_s
+{
+  const char*   name;
+  unsigned      context_size;
+  unsigned      digest_size;
+  unsigned      block_size;
+  vFp_t         init;
+  vFpLp_t       update;
+  vFpLp_t       digest;
+} my_nettle_hash_t;
+
+typedef struct my_nettle_cipher_s
+{
+  const char*   name;
+  unsigned      context_size;
+  unsigned      block_size;
+  unsigned      key_size;
+  vFpp_t        set_encrypt_key;
+  vFpp_t        set_decrypt_key;
+  vFpLpp_t      encrypt;
+  vFpLpp_t      decrypt;
+} my_nettle_cipher_t;
+
+
 #define SUPER() \
 GO(0)   \
 GO(1)   \
@@ -61,6 +90,29 @@ static void* findnettle_cipher_funcFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libnettle.so.8 nettle_cipher_func callback\n");
+    return NULL;
+}
+
+// nettle_cipher_set
+#define GO(A)   \
+static uintptr_t my_nettle_cipher_set_fct_##A = 0;              \
+static void my_nettle_cipher_set_##A(void* a, void* b)          \
+{                                                               \
+    RunFunctionFmt(my_nettle_cipher_set_fct_##A, "pp", a, b);   \
+}
+SUPER()
+#undef GO
+static void* findnettle_cipher_setFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_nettle_cipher_set_fct_##A == (uintptr_t)fct) return my_nettle_cipher_set_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_nettle_cipher_set_fct_##A == 0) {my_nettle_cipher_set_fct_##A = (uintptr_t)fct; return my_nettle_cipher_set_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libnettle.so.8 nettle_cipher_set callback\n");
     return NULL;
 }
 
@@ -109,8 +161,49 @@ static void* findnettle_hash_digest_funcFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libnettle.so.8 nettle_hash_digest_func callback\n");
     return NULL;
 }
+// nettle_hash_init
+#define GO(A)   \
+static uintptr_t my_nettle_hash_init_fct_##A = 0;                   \
+static void my_nettle_hash_init_##A(void* a)                        \
+{                                                                   \
+    RunFunctionFmt(my_nettle_hash_init_fct_##A, "p", a);            \
+}
+SUPER()
+#undef GO
+static void* findnettle_hash_initFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_nettle_hash_init_fct_##A == (uintptr_t)fct) return my_nettle_hash_init_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_nettle_hash_init_fct_##A == 0) {my_nettle_hash_init_fct_##A = (uintptr_t)fct; return my_nettle_hash_init_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libnettle.so.8 nettle_hash_init callback\n");
+    return NULL;
+}
+
 
 #undef SUPER
+
+my_nettle_hash_t* Wrap_nettle_hash(my_nettle_hash_t* d, my_nettle_hash_t* s)
+{
+    memcpy(d, s, sizeof(my_nettle_hash_t));
+    d->init = findnettle_hash_initFct(s->init);
+    d->update = findnettle_hash_update_funcFct(s->update);
+    d->digest = findnettle_hash_digest_funcFct(s->digest);
+    return d;
+}
+my_nettle_cipher_t* Wrap_nettle_cipher(my_nettle_cipher_t* d, my_nettle_cipher_t* s)
+{
+    memcpy(d, s, sizeof(my_nettle_cipher_t));
+    d->set_decrypt_key = findnettle_cipher_setFct(s->set_decrypt_key);
+    d->set_encrypt_key = findnettle_cipher_setFct(s->set_encrypt_key);
+    d->encrypt = findnettle_cipher_funcFct(s->encrypt);
+    d->decrypt = findnettle_cipher_funcFct(s->decrypt);
+    return d;
+}
 
 EXPORT void my_nettle_ccm_encrypt_message(x64emu_t* emu, void* cipher, void* f, size_t nlen, void* nonce, size_t alen, void* adata, size_t tlen, size_t clen, void* dst, void* src)
 {
@@ -220,6 +313,24 @@ EXPORT void my_nettle_hkdf_extract(x64emu_t* emu, void* ctx, void* update, void*
 EXPORT void my_nettle_pbkdf2(x64emu_t* emu, void* ctx, void* update, void* digest, size_t dsize, uint32_t iter, size_t ssalt, void* salt, size_t len, void* dst)
 {
     my->nettle_pbkdf2(ctx, findnettle_hash_update_funcFct(update), findnettle_hash_digest_funcFct(digest), dsize, iter, ssalt, salt, len, dst);
+}
+
+EXPORT void my_nettle_hmac_set_key(x64emu_t* emu, void* outer, void* inner, void* state, my_nettle_hash_t* hash, size_t l, void* key)
+{
+    my_nettle_hash_t save = {0};
+    my->nettle_hmac_set_key(outer, inner, state, Wrap_nettle_hash(&save, hash), l, key);
+}
+
+EXPORT void my_nettle_hmac_update(x64emu_t* emu, void* state, my_nettle_hash_t* hash, size_t l, void* key)
+{
+    my_nettle_hash_t save = {0};
+    my->nettle_hmac_update(state, Wrap_nettle_hash(&save, hash), l, key);
+}
+
+EXPORT void my_nettle_hmac_digest(x64emu_t* emu, void* outer, void* inner, void* state, my_nettle_hash_t* hash, size_t l, void* key)
+{
+    my_nettle_hash_t save = {0};
+    my->nettle_hmac_digest(outer, inner, state, Wrap_nettle_hash(&save, hash), l, key);
 }
 
 #include "wrappedlib_init.h"
