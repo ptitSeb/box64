@@ -1152,11 +1152,6 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
         fclose(f);
         return DCERR_DYNARCHVER;
     }
-    if(header.arch_version!=ARCH_VERSION) {
-        if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible Dynarec Arch Version\n");
-        fclose(f);
-        return DCERR_DYNVER;
-    }
     if(header.pagesize!=box64_pagesize) {
         if(verbose) printf_log_prefix(0, LOG_NONE, "Bad pagesize\n");
         fclose(f);
@@ -1260,7 +1255,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
         for(size_t i=0; i<header.nLockAddresses; ++i)
             addLockAddress(lockAddresses[i]+delta_map);
         for(size_t i=0; i<header.nUnalignedAddresses; ++i)
-            add_unaligned_address(lockAddresses[i]+delta_map);
+            add_unaligned_address(unalignedAddresses[i]+delta_map);
         dynarec_log(LOG_INFO, "Loaded DynaCache for %s, with %d blocks\n", mapping->fullname, header.nblocks);
     }
     fclose(f);
