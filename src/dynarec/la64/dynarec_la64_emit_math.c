@@ -1763,6 +1763,7 @@ void emit_neg16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
+    CLEAR_FLAGS(s3);
     IFX (X_AF | X_OF) {
         MV(s3, s1); // s3 = op1
     }
@@ -1773,7 +1774,6 @@ void emit_neg16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
     }
 
-    CLEAR_FLAGS(s3);
     IFX (X_CF) {
         BEQZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_CF);

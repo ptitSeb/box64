@@ -793,6 +793,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 B##NO(tmp1, 8);                                                                  \
         }                                                                                        \
         LDxw(gd, ed, fixedaddress);                                                              \
+        if (!rex.w) ZEROUP(gd);                                                                  \
     }
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
