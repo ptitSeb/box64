@@ -2305,12 +2305,21 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
     int python = (my_context->pythonpath && FileIsPython(path))?1:0;
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d python=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, python, my_context->envv, environ);
+    if(box64env.log>=LOG_DEBUG) {
+        printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\"", path, argv, argv[0]);
+        for(int i=1; argv[i]; ++i)
+            printf_log_prefix(0, LOG_DEBUG, ", \"%s\"", argv[i]);
+        printf_log_prefix(0, LOG_DEBUG, "], %p) is x64=%d x86=%d script=%d python=%d (my_context->envv=%p, environ=%p\n", envp, x64, x86, script, python, my_context->envv, environ);
+    }
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
+    } else if(box64env.log>=LOG_DEBUG) {
+        printf_log(LOG_DEBUG, "envv=[\"%s\'", envp[0]);
+        for(int i=1; envp[i]; ++i)
+            printf_log_prefix(0, LOG_DEBUG, ", \"%s\"", envp[i]);
+        printf_log_prefix(0, LOG_DEBUG, "]\n");
     }
-    #if 1
     if (x64 || x86 || self || script || python) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
@@ -2336,7 +2345,6 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         int ret = execve(newargv[0], (char* const*)newargv, envp);
         return ret;
     }
-    #endif
     if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
      && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
      && !argv[2]) {
