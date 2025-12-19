@@ -153,6 +153,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 if(!s)
                     s = GetNativeName((void*)a);
                 if(a==(uintptr_t)PltResolver64) {
+                    post = 100;
                     if(BOX64ENV(rolling_log)) {
                         uintptr_t addr = *((uint64_t*)(R_RSP));
                         int slot = *((uint64_t*)(R_RSP+8));
@@ -410,7 +411,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                         uint8_t type = *(uint8_t*)(R_RAX);
                         snprintf(buff2, 64, "[type=%d]", type);
                     }
-                    break;
+                    case 100: 
+                        snprintf(buff2, 64, "[function: %p]", (void*)R_RIP);
+                        break;
                 }
                 if(perr==1 && (S_EAX)<0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
