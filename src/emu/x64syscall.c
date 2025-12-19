@@ -434,14 +434,16 @@ typedef struct old_utsname_s {
 typedef struct clone_s {
     x64emu_t* emu;
     void* stack2free;
+    void* tls;
 } clone_t;
 
-static int clone_fn(void* arg)
+static int clone_fn_syscall(void* arg)
 {
     clone_t* args = arg;
     x64emu_t *emu = args->emu;
     thread_forget_emu();
     thread_set_emu(emu);
+    //TODO: do something with TLS. Refresh libc tls with that?
     R_RAX = 0;
     DynaRun(emu);
     int ret = R_EAX;
@@ -495,18 +497,31 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         int sc = syscallwrap[s].nats;
         switch(syscallwrap[s].nbpars) {
             case 0: S_RAX = syscall(sc); break;
-            case 1: S_RAX = syscall(sc, R_RDI); break;
-            case 2: if(s==33) {if(log) snprintf(buff2, 127, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
-            case 3: if(s==42) {if(log) snprintf(buff2, 127, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 127, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
+            case 1: 
+                if(s==80) {if(log) snprintf(buff2, 127, " [sys_chdir(\"%s\")]", (char*)R_RDI);}; 
+                S_RAX = syscall(sc, R_RDI); 
+                break;
+            case 2: 
+                if(s==33) {if(log) snprintf(buff2, 127, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; 
+                S_RAX = syscall(sc, R_RDI, R_RSI); 
+                break;
+            case 3: 
+                if(s==42) {if(log) snprintf(buff2, 127, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; 
+                if(s==258) {if(log) snprintf(buff2, 127, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; 
+                S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); 
+                break;
             case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
-            case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
+            case 5: 
+                if(s==165) {if(log) snprintf(buff2, 127, " [sys_mount(%s, %s, %s, 0x%x, %s]", (char*)R_RDI, (char*)R_RSI, (char*)R_RDX, R_R10, R_R8?(char*)R_R8:"(nil)");}; 
+                S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); 
+                break;
             case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
             default:
                 printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars);
                 emu->quit = 1;
                 return;
         }
-        if(S_RAX==-1 && errno>0)
+        if(S_EAX==-1 && errno>0)
             S_RAX = -errno;
         if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
         if(log && !BOX64ENV(rolling_log)) printf_log(LOG_NONE, "=> %s\n", buffret);
@@ -609,6 +624,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             S_RAX = pipe((void*)R_RDI);
             if(S_RAX==-1)
                 S_RAX = -errno;
+            else if(log) printf_log(LOG_INFO, "[%d, %d]", ((int*)R_RDI)[0], ((int*)R_RDI)[1]);
             break;
         #endif
         #ifndef __NR_select
@@ -639,6 +655,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             } else {
                 if(R_RSI)
                 {
+                    uint64_t flags = R_RDI;
                     void* stack_base = (void*)R_RSI;
                     int stack_size = 0;
                     uintptr_t sp = R_RSI;
@@ -648,6 +665,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                     clone_t* args = box_calloc(1, sizeof(clone_t));
                     newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                     args->emu = newemu;
+                    if(flags&CLONE_SETTLS) args->tls = (void*)R_R9;
                     void* mystack = NULL;
                     if(my_context->stack_clone_used) {
                         args->stack2free = mystack = box_malloc(1024*1024);  // stack for own process...
@@ -657,7 +675,8 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                         mystack = my_context->stack_clone;
                         my_context->stack_clone_used = 1;
                     }
-                    int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_RDI, args, R_RDX, R_R8, R_R10);
+                    flags&=~CLONE_SETTLS;   // to be handled differently
+                    int64_t ret = clone(clone_fn_syscall, (void*)((uintptr_t)mystack+1024*1024), flags, args, R_RDX, R_R8, R_R10);
                     S_RAX = ret;
                 }
                 else
@@ -1051,7 +1070,7 @@ long EXPORT my_syscall(x64emu_t *emu)
                     my_context->stack_clone_used = 1;
                 }
                 // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
-                long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_ESI, newemu, R_RCX, R_R9, R_R8);
+                long ret = clone(clone_fn_syscall, (void*)((uintptr_t)mystack+1024*1024), R_ESI, newemu, R_RCX, R_R9, R_R8);
                 return ret;
             }
             else
