@@ -2679,7 +2679,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xCF:
             INST_NAME("IRET");
-            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
             iret_to_epilog(dyn, ip, ninst, rex.w);
             *need_epilog = 0;

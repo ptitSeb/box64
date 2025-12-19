@@ -720,7 +720,7 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return 0;
-    #if defined(ARM64) || defined(LA64)
+    #ifdef ARM64
     // df_none is now a defered information
     if(dyn->insts[ninst].f_exit==dyn->insts[jmp].f_entry)
         return 0;

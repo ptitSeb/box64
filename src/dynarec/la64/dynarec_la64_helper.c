@@ -349,7 +349,6 @@ void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     TABLE64C(x2, const_epilog);
     SMEND();
-    CHECK_DFNONE(0);
     BR(x2);
 }
 
@@ -369,7 +368,6 @@ void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     TABLE64C(x2, const_epilog_fast);
     SMEND();
-    CHECK_DFNONE(0);
     BR(x2);
 }
 
@@ -409,7 +407,6 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     if (is32bits)
         ip &= 0xffffffffLL;
 
-    CHECK_DFNONE(0);
     int dest;
     if (reg) {
         if (reg != xRIP) {
@@ -444,7 +441,6 @@ void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     MAYUSE(dyn);
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Ret to epilog\n");
-    CHECK_DFNONE(0);
     POP1z(xRIP);
     MVz(x1, xRIP);
     SMEND();
@@ -469,7 +465,6 @@ void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int
     MAYUSE(dyn);
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Retn to epilog\n");
-    CHECK_DFNONE(0);
     POP1z(xRIP);
     if (n > 0x7ff) {
         MOV64x(x1, n);
@@ -518,7 +513,7 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     AND(xFlags, xFlags, x1);
     ORI(xFlags, xFlags, 0x2);
     SPILL_EFLAGS();
-    FORCE_DFNONE();
+    SET_DFNONE();
     // POP RSP
     if (is64bits) {
         POP1(x3); // rsp
@@ -545,7 +540,6 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
 void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
 {
     MAYUSE(fnc);
-    CHECK_DFNONE(1);
     if (savereg == 0)
         savereg = x87pc;
     if (saveflags) {
@@ -614,7 +608,6 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
 void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
-    CHECK_DFNONE(1);
     fpu_pushcache(dyn, ninst, x3, 1);
     ST_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
     ST_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
@@ -2276,36 +2269,24 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if (jmp < 0)
         return;
-    if (dyn->insts[jmp].f_exit == dyn->insts[jmp].f_entry) // flags will be fully known, nothing we can do more
+    if (dyn->f.dfnone || ((dyn->insts[jmp].f_exit.dfnone && !dyn->insts[jmp].f_entry.dfnone) && !dyn->insts[jmp].x64.use_flags)) // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go_fetch = 0;
-    switch (dyn->insts[jmp].f_entry) {
-        case status_unk:
-            if (dyn->insts[ninst].f_exit == status_none_pending) {
-                FORCE_DFNONE();
+    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone && !dyn->insts[jmp].df_notneeded) ? 1 : 0;
+    switch (dyn->insts[jmp].f_entry.pending) {
+        case SF_UNKNOWN:
+            go = 0;
+            break;
+        default:
+            if (go && !(dyn->insts[jmp].x64.need_before & X_PEND) && (dyn->f.pending != SF_UNKNOWN)) {
+                // just clear df flags
+                go = 0;
+                ST_W(xZR, xEmu, offsetof(x64emu_t, df));
             }
-            break;
-        case status_set:
-            if (dyn->insts[ninst].f_exit == status_none_pending) {
-                FORCE_DFNONE();
-            }
-            if (dyn->insts[ninst].f_exit == status_unk)
-                go_fetch = 1;
-            break;
-        case status_none_pending:
-            if (dyn->insts[ninst].f_exit != status_none)
-                go_fetch = 1;
-            break;
-        case status_none:
-            if (dyn->insts[ninst].f_exit == status_none_pending) {
-                FORCE_DFNONE();
-            } else
-                go_fetch = 1;
             break;
     }
-    if (go_fetch) {
-        if (dyn->f == status_unk) {
+    if (go) {
+        if (dyn->f.pending != SF_PENDING) {
             LD_WU(s1, xEmu, offsetof(x64emu_t, df));
             j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
@@ -2313,7 +2294,6 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
         CALL_(const_updateflags, -1, 0, 0, 0);
         MARKF2;
     }
-    MESSAGE(LOG_DUMP, "\t---- Flags fetch\n");
 }
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)

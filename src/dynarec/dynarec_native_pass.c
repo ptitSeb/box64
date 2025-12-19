@@ -44,7 +44,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     int rep = 0;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
     // Clean up (because there are multiple passes)
-    #if defined(ARM64) || defined(LA64)
+    #ifdef ARM64
     dyn->f = status_unk;
     #else
     dyn->f.pending = 0;
@@ -111,7 +111,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;
             if(reset_n==-2) {
                 MESSAGE(LOG_DEBUG, "Reset Caches to zero\n");
-                #if defined(ARM64) || defined(LA64)
+                #ifdef ARM64
                 dyn->f = status_unk;
                 #else
                 dyn->f.dfnone = 0;
@@ -128,7 +128,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 }
                 if(dyn->insts[ninst].x64.barrier&BARRIER_FLAGS) {
                     MESSAGE(LOG_DEBUG, "Apply Barrier Flags\n");
-                    #if defined(ARM64) || defined(LA64)
+                    #ifdef ARM64
                     dyn->f = status_unk;
                     #else
                     dyn->f.dfnone = 0;
@@ -262,7 +262,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 #endif
             }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
-                #if defined(ARM64) || defined(LA64)
+                #ifdef ARM64
                 dyn->f = status_unk;
                 #else
                 dyn->f.pending = 0;
@@ -288,7 +288,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             // we use the 1st predecessor here
             if((ninst+1)<dyn->size && !dyn->insts[ninst+1].x64.alive) {
                 // reset fpu value...
-                #if defined(ARM64) || defined(LA64)
+                #ifdef ARM64
                 dyn->f = status_unk;
                 #else
                 dyn->f.dfnone = 0;
