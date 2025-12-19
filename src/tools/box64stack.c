@@ -8,6 +8,7 @@
 #include "box64context.h"
 #include "box64cpu_util.h"
 #include "elfloader.h"
+#include "elfs/elfloader_private.h"
 #include "debug.h"
 #include "emu/x64emu_private.h"
 #include "auxval.h"
@@ -117,10 +118,12 @@ void SetupInitialStack(x64emu_t *emu)
     31 0x7ffd5074efea
     33 0x7ffd507e6000
     */
+    elfheader_t* main = my_context->elfs[0];
     Push64(emu, 0); Push64(emu, 0);                         //AT_NULL(0)=0
-    //Push64(emu, ); Push64(emu, 3);                          //AT_PHDR(3)=address of the PH of the executable
-    //Push64(emu, ); Push64(emu, 4);                          //AT_PHENT(4)=size of PH entry
-    //Push64(emu, ); Push64(emu, 5);                          //AT_PHNUM(5)=number of elf headers
+    Push64(emu, main->fileno); Push64(emu, 2);   //AT_EXECFD=file desciptor of program
+    Push64(emu, (uintptr_t)main->PHEntries._64); Push64(emu, 3);                          //AT_PHDR(3)=address of the PH of the executable
+    Push64(emu, sizeof(Elf64_Phdr)); Push64(emu, 4);                          //AT_PHENT(4)=size of PH entry
+    Push64(emu, main->numPHEntries); Push64(emu, 5);                          //AT_PHNUM(5)=number of elf headers
     Push64(emu, box64_pagesize); Push64(emu, 6);            //AT_PAGESZ(6)
     //Push64(emu, real_getauxval(7)); Push64(emu, 7);         //AT_BASE(7)=ld-2.27.so start (in memory)
     Push64(emu, 0); Push64(emu, 8);                         //AT_FLAGS(8)=0
@@ -145,15 +148,16 @@ void SetupInitialStack(x64emu_t *emu)
               | 1<<30     // ia64
         );
     Push64(emu, 16);                                      //AT_HWCAP(16)=...
-    //Push64(emu, sysconf(_SC_CLK_TCK)); Push64(emu, 17);     //AT_CLKTCK(17)=times() frequency
+    Push64(emu, real_getauxval(17)); Push64(emu, 17);     //AT_CLKTCK(17)=times() frequency
     Push64(emu, real_getauxval(23)); Push64(emu, 23);       //AT_SECURE(23)
     Push64(emu, p_random); Push64(emu, 25);                 //AT_RANDOM(25)=p_random
     Push64(emu, 0 
             | 1<<1          // FSGSBASE
     ); Push64(emu, 26);                        //AT_HWCAP2(26)=...
     Push64(emu, p_arg0); Push64(emu, 31);                   //AT_EXECFN(31)=p_arg0
-    Push64(emu, emu->context->vsyscall); Push64(emu, 32);                         //AT_SYSINFO(32)=vsyscall
-    //Push64(emu, 0); Push64(emu, 33);                         //AT_SYSINFO_EHDR(33)=address of vDSO
+    Push64(emu, 0); Push64(emu, 32);                        //AT_SYSINFO(32) not available in 64bits
+    //Push64(emu, (uintptr_t)CreatevDSO64()); Push64(emu, 33);                         //AT_SYSINFO_EHDR(33)=address of vDSO
+
     if(!emu->context->auxval_start)       // store auxval start if needed
         emu->context->auxval_start = (uintptr_t*)R_RSP;
 
