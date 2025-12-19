@@ -199,7 +199,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
-            GETGX_empty(v0);
+            GETGX(v0, 1);
             d1 = fpu_get_scratch(dyn);
             GETEXSD(d0, 0, 0);
             FSQRT_D(d1, d0);
