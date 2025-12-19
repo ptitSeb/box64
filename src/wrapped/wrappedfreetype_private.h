@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(FT_Activate_Size, iFp)
@@ -15,7 +15,7 @@ GO(FT_Bitmap_Done, iFpp)
 GO(FT_Bitmap_Embolden, iFppll)
 GO(FT_Bitmap_Init, vFp)
 GO(FT_Bitmap_New, vFp)
-//GO(FT_CeilFix, 
+GO(FT_CeilFix, lFl)
 //GO(FT_ClassicKern_Free, 
 //GO(FT_ClassicKern_Validate, 
 GO(FT_Cos, lFl)
@@ -28,7 +28,7 @@ GO(FT_Done_MM_Var, iFpp)
 GO(FT_Done_Size, iFp)
 //GO(FT_Face_CheckTrueTypePatents, 
 //GO(FT_Face_GetCharsOfVariant, 
-GO(FT_Face_GetCharVariantIndex, uFpuu)
+GO(FT_Face_GetCharVariantIndex, uFpLL)
 //GO(FT_Face_GetCharVariantIsDefault, 
 //GO(FT_Face_GetVariantSelectors, 
 //GO(FT_Face_GetVariantsOfChar, 
@@ -45,9 +45,9 @@ GO(FT_Get_Color_Glyph_Layer, iFpupp)
 GO(FT_Get_Color_Glyph_Paint, iFpuip)
 GO(FT_Get_Color_Glyph_ClipBox, iFpup)
 GO(FT_Get_Colorline_Stops, iFppp)
-//GO(FT_Get_CID_From_Glyph_Index, 
-//GO(FT_Get_CID_Is_Internally_CID_Keyed, 
-//GO(FT_Get_CID_Registry_Ordering_Supplement, 
+GO(FT_Get_CID_From_Glyph_Index, iFpup)
+GO(FT_Get_CID_Is_Internally_CID_Keyed, iFpp)
+GO(FT_Get_CID_Registry_Ordering_Supplement, iFpppp)
 //GO(FT_Get_CMap_Format, 
 //GO(FT_Get_CMap_Language_ID, 
 GO(FT_Get_First_Char, LFpp)
@@ -150,8 +150,8 @@ GO(FT_Reference_Face, iFp)
 GO(FT_Remove_Module, iFpp)
 GO(FT_Render_Glyph, iFpu)
 GO(FT_Request_Size, iFpp)
-//GO(FT_RoundFix, 
-GO(FT_Select_Charmap, iFpi)
+GO(FT_RoundFix, lFl)
+GO(FT_Select_Charmap, iFpu)
 GO(FT_Select_Size, iFpi)
 GO(FT_Set_Charmap, iFpp)
 GO(FT_Set_Char_Size, iFplluu)
