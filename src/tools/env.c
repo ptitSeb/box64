@@ -144,6 +144,8 @@ static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
 void AddNewLibs(const char* list);
 int canNCpuBeChanged();
 
+extern int box64_cycle_log_initialized;
+
 static void applyCustomRules()
 {
     if (BOX64ENV(log) == LOG_NEVER) {
@@ -152,8 +154,7 @@ static void applyCustomRules()
     }
 
 #ifndef _WIN32
-    if(box64env.is_cycle_log_overridden) {
-        freeCycleLog(my_context);
+    if (box64env.is_cycle_log_overridden) {
         box64env.rolling_log = BOX64ENV(cycle_log);
 
         if (BOX64ENV(rolling_log) == 1) {
@@ -162,7 +163,7 @@ static void applyCustomRules()
         if (BOX64ENV(rolling_log) && BOX64ENV(log) > LOG_INFO) {
             box64env.rolling_log = 0;
         }
-        initCycleLog(my_context);
+        if (!box64_cycle_log_initialized) initCycleLog(my_context);
     }
 
     if (box64env.is_dynarec_gdbjit_str_overridden) {
