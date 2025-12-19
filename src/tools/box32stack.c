@@ -7,6 +7,7 @@
 #include "box64stack.h"
 #include "box64context.h"
 #include "elfloader.h"
+#include "elfs/elfloader_private.h"
 #include "debug.h"
 #include "emu/x64emu_private.h"
 #include "auxval.h"
@@ -94,19 +95,21 @@ void SetupInitialStack32(x64emu_t *emu)
     32: f7fbfb40
     33: f7fbf000
     */
+   elfheader_t* main = my_context->elfs[0];
     Push32_32(emu, 0); Push32_32(emu, 0);                            //AT_NULL(0)=0
-    //Push32_32(emu, ); Push32_32(emu, 3);                             //AT_PHDR(3)=address of the PH of the executable
-    //Push32_32(emu, ); Push32_32(emu, 4);                             //AT_PHENT(4)=size of PH entry
-    //Push32_32(emu, ); Push32_32(emu, 5);                             //AT_PHNUM(5)=number of elf headers
-    Push32_32(emu, box64_pagesize); Push32_32(emu, 6);               //AT_PAGESZ(6)
-    //Push32_32(emu, real_getauxval(7)); Push32_32(emu, 7);            //AT_BASE(7)=ld-2.27.so start (in memory)
-    Push32_32(emu, 0); Push32_32(emu, 8);                            //AT_FLAGS(8)=0
-    Push32_32(emu, R_EIP); Push32_32(emu, 9);                        //AT_ENTRY(9)=entrypoint
-    Push32_32(emu, from_ulong(real_getauxval(11))); Push32_32(emu, 11);          //AT_UID(11)
-    Push32_32(emu, from_ulong(real_getauxval(12))); Push32_32(emu, 12);          //AT_EUID(12)
-    Push32_32(emu, from_ulong(real_getauxval(13))); Push32_32(emu, 13);          //AT_GID(13)
-    Push32_32(emu, from_ulong(real_getauxval(14))); Push32_32(emu, 14);          //AT_EGID(14)
-    Push32_32(emu, p_i686); Push32_32(emu, 15);                      //AT_PLATFORM(15)=&"i686"
+    Push32_32(emu, main->fileno); Push32_32(emu, 2);   //AT_EXECFD=file desciptor of program
+    Push32_32(emu, (uintptr_t)main->PHEntries._32); Push32_32(emu, 3);  //AT_PHDR(3)=address of the PH of the executable
+    Push32_32(emu, sizeof(Elf32_Phdr)); Push32_32(emu, 4);              //AT_PHENT(4)=size of PH entry
+    Push32_32(emu, main->numPHEntries); Push32_32(emu, 5);              //AT_PHNUM(5)=number of elf headers
+    Push32_32(emu, box64_pagesize); Push32_32(emu, 6);                  //AT_PAGESZ(6)
+    //Push32_32(emu, real_getauxval(7)); Push32_32(emu, 7);             //AT_BASE(7)=ld-2.27.so start (in memory)
+    Push32_32(emu, 0); Push32_32(emu, 8);                               //AT_FLAGS(8)=0
+    Push32_32(emu, R_EIP); Push32_32(emu, 9);                           //AT_ENTRY(9)=entrypoint
+    Push32_32(emu, from_ulong(real_getauxval(11))); Push32_32(emu, 11); //AT_UID(11)
+    Push32_32(emu, from_ulong(real_getauxval(12))); Push32_32(emu, 12); //AT_EUID(12)
+    Push32_32(emu, from_ulong(real_getauxval(13))); Push32_32(emu, 13); //AT_GID(13)
+    Push32_32(emu, from_ulong(real_getauxval(14))); Push32_32(emu, 14); //AT_EGID(14)
+    Push32_32(emu, p_i686); Push32_32(emu, 15);                         //AT_PLATFORM(15)=&"i686"
     // Push HWCAP:
     //  FPU: 1<<0 ; VME: 1<<1 ; DE : 1<<2 ; PSE: 1<<3 ; TSC: 1<<4 ; MSR: 1<<5 ; PAE: 1<<6 ; MCE: 1<<7
     //  CX8: 1<<8 ; APIC:1<<9 ;             SEP: 1<<11; MTRR:1<<12; PGE: 1<<13; MCA: 1<<14; CMOV:1<<15
