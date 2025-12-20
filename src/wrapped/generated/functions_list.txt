@@ -1596,6 +1596,7 @@
 #() vFEppup
 #() vFEppLp
 #() vFEpppi
+#() vFEpppu
 #() vFEpppp
 #() vFiiiii
 #() vFiiiiu
@@ -1931,6 +1932,7 @@
 #() iFppuuu
 #() iFppuup
 #() iFppuLL
+#() iFppuLp
 #() iFppupi
 #() iFppupu
 #() iFppupp
@@ -2521,6 +2523,7 @@
 #() iFpppuii
 #() iFpppuuu
 #() iFpppuup
+#() iFpppuLp
 #() iFpppupu
 #() iFpppupp
 #() iFppplLp
@@ -3373,6 +3376,7 @@
 #() iFEppuppppp
 #() iFEpppupppp
 #() iFEppplPPPP
+#() iFEppppLppp
 #() iFEpppppupp
 #() iFEppppppuu
 #() iFEppPPPPPP
@@ -5426,10 +5430,11 @@ wrappedlibharfbuzz:
   - hb_blob_create
   - hb_blob_create_or_fail
 wrappedlibhogweed6:
+- vFpppu:
+  - nettle_mpz_random_size
 - vFpppp:
   - nettle_ecdsa_generate_keypair
   - nettle_mpz_random
-  - nettle_mpz_random_size
 - vFpppLpp:
   - nettle_ecdsa_sign
   - nettle_gostdsa_sign
@@ -5438,10 +5443,15 @@ wrappedlibhogweed6:
 - iFppppLpp:
   - nettle_dsa_sign
   - nettle_rsa_pkcs1_sign_tr
+  - nettle_rsa_sec_decrypt
 - iFpppppuu:
   - nettle_dsa_generate_params
 - iFppppppp:
   - nettle_rsa_decrypt_tr
+- iFppppLppp:
+  - nettle_rsa_pss_sha256_sign_digest_tr
+  - nettle_rsa_pss_sha384_sign_digest_tr
+  - nettle_rsa_pss_sha512_sign_digest_tr
 - iFppppppuu:
   - nettle_rsa_generate_keypair
 wrappedlibibus:

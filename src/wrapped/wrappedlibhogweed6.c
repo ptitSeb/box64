@@ -119,7 +119,7 @@ EXPORT void my_nettle_mpz_random(x64emu_t* emu, void* x, void* ctx, void* f, voi
     my->nettle_mpz_random(x, ctx, findnettle_random_funcFct(f), n);
 }
 
-EXPORT void my_nettle_mpz_random_size(x64emu_t* emu, void* x, void* ctx, void* f, void* n)
+EXPORT void my_nettle_mpz_random_size(x64emu_t* emu, void* x, void* ctx, void* f, uint32_t n)
 {
     my->nettle_mpz_random_size(x, ctx, findnettle_random_funcFct(f), n);
 }
@@ -142,6 +142,26 @@ EXPORT int my_nettle_rsa_generate_keypair(x64emu_t* emu, void* pub, void* key, v
 EXPORT int my_nettle_rsa_pkcs1_sign_tr(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* info, void* s)
 {
     return my->nettle_rsa_pkcs1_sign_tr(pub, key, ctx, findnettle_random_funcFct(f), len, info, s);
+}
+
+EXPORT int my_nettle_rsa_pss_sha256_sign_digest_tr(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* salt, void* dig, void* s)
+{
+    return my->nettle_rsa_pss_sha256_sign_digest_tr(pub, key, ctx, findnettle_random_funcFct(f), len, salt, dig, s);
+}
+
+EXPORT int my_nettle_rsa_pss_sha384_sign_digest_tr(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* salt, void* dig, void* s)
+{
+    return my->nettle_rsa_pss_sha384_sign_digest_tr(pub, key, ctx, findnettle_random_funcFct(f), len, salt, dig, s);
+}
+
+EXPORT int my_nettle_rsa_pss_sha512_sign_digest_tr(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* salt, void* dig, void* s)
+{
+    return my->nettle_rsa_pss_sha512_sign_digest_tr(pub, key, ctx, findnettle_random_funcFct(f), len, salt, dig, s);
+}
+
+EXPORT int my_nettle_rsa_sec_decrypt(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* msg, void* s)
+{
+    return my->nettle_rsa_sec_decrypt(pub, key, ctx, findnettle_random_funcFct(f), len, msg, s);
 }
 
 #define NEEDED_LIBS "libnettle.so.8"
