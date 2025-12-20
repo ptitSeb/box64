@@ -465,7 +465,7 @@ GO(uc_is_block, iFup)
 GO(uc_is_cntrl, iFu)
 GO(uc_is_c_whitespace, iFu)
 GO(uc_is_digit, iFu)
-GO(uc_is_general_category, iFuH)
+GO(uc_is_general_category, iFupp)   // using pp instead of H here
 GO(uc_is_general_category_withtable, iFuu)
 GO(uc_is_graph, iFu)
 GO(uc_is_grapheme_break, iFuu)
