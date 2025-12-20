@@ -399,45 +399,45 @@ GO(uc_bidi_class_long_name, pFi)
 GO(uc_bidi_class_name, pFi)
 GO(uc_block, pFu)
 GO(uc_canonical_decomposition, iFup)
-//DATAM(UC_CATEGORY_C, 16)
-//DATAM(UC_CATEGORY_Cc, 16)
-//DATAM(UC_CATEGORY_Cf, 16)
-//DATAM(UC_CATEGORY_Cn, 16)
-//DATAM(UC_CATEGORY_Co, 16)
-//DATAM(UC_CATEGORY_Cs, 16)
-//DATAM(UC_CATEGORY_L, 16)
-//DATAM(UC_CATEGORY_LC, 16)
-//DATAM(UC_CATEGORY_Ll, 16)
-//DATAM(UC_CATEGORY_Lm, 16)
-//DATAM(UC_CATEGORY_Lo, 16)
-//DATAM(UC_CATEGORY_Lt, 16)
-//DATAM(UC_CATEGORY_Lu, 16)
-//DATAM(UC_CATEGORY_M, 16)
-//DATAM(UC_CATEGORY_Mc, 16)
-//DATAM(UC_CATEGORY_Me, 16)
-//DATAM(UC_CATEGORY_Mn, 16)
-//DATAM(UC_CATEGORY_N, 16)
-//DATAM(UC_CATEGORY_Nd, 16)
-//DATAM(UC_CATEGORY_Nl, 16)
-//DATAM(UC_CATEGORY_No, 16)
-//DATAM(_UC_CATEGORY_NONE, 16)
-//DATAM(UC_CATEGORY_P, 16)
-//DATAM(UC_CATEGORY_Pc, 16)
-//DATAM(UC_CATEGORY_Pd, 16)
-//DATAM(UC_CATEGORY_Pe, 16)
-//DATAM(UC_CATEGORY_Pf, 16)
-//DATAM(UC_CATEGORY_Pi, 16)
-//DATAM(UC_CATEGORY_Po, 16)
-//DATAM(UC_CATEGORY_Ps, 16)
-//DATAM(UC_CATEGORY_S, 16)
-//DATAM(UC_CATEGORY_Sc, 16)
-//DATAM(UC_CATEGORY_Sk, 16)
-//DATAM(UC_CATEGORY_Sm, 16)
-//DATAM(UC_CATEGORY_So, 16)
-//DATAM(UC_CATEGORY_Z, 16)
-//DATAM(UC_CATEGORY_Zl, 16)
-//DATAM(UC_CATEGORY_Zp, 16)
-//DATAM(UC_CATEGORY_Zs, 16)
+DATA(UC_CATEGORY_C, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Cc, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Cf, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Cn, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Co, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Cs, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_L, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_LC, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Ll, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Lm, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Lo, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Lt, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Lu, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_M, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Mc, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Me, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Mn, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_N, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Nd, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Nl, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_No, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(_UC_CATEGORY_NONE, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_P, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Pc, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Pd, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Pe, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Pf, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Pi, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Po, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Ps, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_S, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Sc, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Sk, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Sm, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_So, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Z, 16) // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Zl, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Zp, 16)    // this is a uc_general_category_t wich might contain callback functions
+DATA(UC_CATEGORY_Zs, 16)    // this is a uc_general_category_t wich might contain callback functions
 GO(uc_c_ident_category, iFu)
 GO(uc_combining_class, iFu)
 GO(uc_combining_class_byname, iFp)
@@ -448,12 +448,12 @@ GO(uc_decimal_value, iFu)
 GO(uc_decomposition, iFupp)
 GO(uc_digit_value, iFu)
 GO(uc_general_category, HFu)
-//GO(uc_general_category_and, 
-//GO(uc_general_category_and_not, 
+GO(uc_general_category_and, HFHH)
+GO(uc_general_category_and_not, HFHH)
 GO(uc_general_category_byname, HFp)
 //GO(uc_general_category_long_name, 
 //GO(uc_general_category_name, 
-//GO(uc_general_category_or, 
+GO(uc_general_category_or, HFHH)
 GO(uc_grapheme_breaks, vFpLp)
 GO(uc_graphemeclusterbreak_property, iFu)
 GO(uc_is_alnum, iFu)
@@ -465,7 +465,7 @@ GO(uc_is_block, iFup)
 GO(uc_is_cntrl, iFu)
 GO(uc_is_c_whitespace, iFu)
 GO(uc_is_digit, iFu)
-//GO(uc_is_general_category, 
+GO(uc_is_general_category, iFuH)
 GO(uc_is_general_category_withtable, iFuu)
 GO(uc_is_graph, iFu)
 GO(uc_is_grapheme_break, iFuu)
@@ -582,100 +582,100 @@ GO(uc_joining_type_name, pFi)
 GO(uc_locale_language, pFv)
 GO(uc_mirror_char, iFup)
 GO(uc_numeric_value, UFu)
-//DATAM(UC_PROPERTY_ALPHABETIC, 8)
-//DATAM(UC_PROPERTY_ASCII_HEX_DIGIT, 8)
-//DATAM(UC_PROPERTY_BIDI_ARABIC_DIGIT, 8)
-//DATAM(UC_PROPERTY_BIDI_ARABIC_RIGHT_TO_LEFT, 8)
-//DATAM(UC_PROPERTY_BIDI_BLOCK_SEPARATOR, 8)
-//DATAM(UC_PROPERTY_BIDI_BOUNDARY_NEUTRAL, 8)
-//DATAM(UC_PROPERTY_BIDI_COMMON_SEPARATOR, 8)
-//DATAM(UC_PROPERTY_BIDI_CONTROL, 8)
-//DATAM(UC_PROPERTY_BIDI_EMBEDDING_OR_OVERRIDE, 8)
-//DATAM(UC_PROPERTY_BIDI_EUR_NUM_SEPARATOR, 8)
-//DATAM(UC_PROPERTY_BIDI_EUR_NUM_TERMINATOR, 8)
-//DATAM(UC_PROPERTY_BIDI_EUROPEAN_DIGIT, 8)
-//DATAM(UC_PROPERTY_BIDI_HEBREW_RIGHT_TO_LEFT, 8)
-//DATAM(UC_PROPERTY_BIDI_LEFT_TO_RIGHT, 8)
-//DATAM(UC_PROPERTY_BIDI_NON_SPACING_MARK, 8)
-//DATAM(UC_PROPERTY_BIDI_OTHER_NEUTRAL, 8)
-//DATAM(UC_PROPERTY_BIDI_PDF, 8)
-//DATAM(UC_PROPERTY_BIDI_SEGMENT_SEPARATOR, 8)
-//DATAM(UC_PROPERTY_BIDI_WHITESPACE, 8)
+DATA(UC_PROPERTY_ALPHABETIC, 8) //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_ASCII_HEX_DIGIT, 8)    //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_ARABIC_DIGIT, 8)  //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_ARABIC_RIGHT_TO_LEFT, 8)  //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_BLOCK_SEPARATOR, 8)   //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_BOUNDARY_NEUTRAL, 8)  //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_COMMON_SEPARATOR, 8)  //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_CONTROL, 8)   //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_EMBEDDING_OR_OVERRIDE, 8) //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_EUR_NUM_SEPARATOR, 8) //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_EUR_NUM_TERMINATOR, 8)    //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_EUROPEAN_DIGIT, 8)    //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_HEBREW_RIGHT_TO_LEFT, 8)  //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_LEFT_TO_RIGHT, 8) //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_NON_SPACING_MARK, 8)  //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_OTHER_NEUTRAL, 8) //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_PDF, 8)   //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_SEGMENT_SEPARATOR, 8) //this is a uc_property_t which is a callback function
+DATA(UC_PROPERTY_BIDI_WHITESPACE, 8)    //this is a uc_property_t which is a callback function
 GO(uc_property_byname, UFp)
-//DATAM(UC_PROPERTY_CASED, 8)
-//DATAM(UC_PROPERTY_CASE_IGNORABLE, 8)
-//DATAM(UC_PROPERTY_CHANGES_WHEN_CASEFOLDED, 8)
-//DATAM(UC_PROPERTY_CHANGES_WHEN_CASEMAPPED, 8)
-//DATAM(UC_PROPERTY_CHANGES_WHEN_LOWERCASED, 8)
-//DATAM(UC_PROPERTY_CHANGES_WHEN_TITLECASED, 8)
-//DATAM(UC_PROPERTY_CHANGES_WHEN_UPPERCASED, 8)
-//DATAM(UC_PROPERTY_COMBINING, 8)
-//DATAM(UC_PROPERTY_COMPOSITE, 8)
-//DATAM(UC_PROPERTY_CURRENCY_SYMBOL, 8)
-//DATAM(UC_PROPERTY_DASH, 8)
-//DATAM(UC_PROPERTY_DECIMAL_DIGIT, 8)
-//DATAM(UC_PROPERTY_DEFAULT_IGNORABLE_CODE_POINT, 8)
-//DATAM(UC_PROPERTY_DEPRECATED, 8)
-//DATAM(UC_PROPERTY_DIACRITIC, 8)
-//DATAM(UC_PROPERTY_EMOJI, 8)
-//DATAM(UC_PROPERTY_EMOJI_COMPONENT, 8)
-//DATAM(UC_PROPERTY_EMOJI_MODIFIER, 8)
-//DATAM(UC_PROPERTY_EMOJI_MODIFIER_BASE, 8)
-//DATAM(UC_PROPERTY_EMOJI_PRESENTATION, 8)
-//DATAM(UC_PROPERTY_EXTENDED_PICTOGRAPHIC, 8)
-//DATAM(UC_PROPERTY_EXTENDER, 8)
-//DATAM(UC_PROPERTY_FORMAT_CONTROL, 8)
-//DATAM(UC_PROPERTY_GRAPHEME_BASE, 8)
-//DATAM(UC_PROPERTY_GRAPHEME_EXTEND, 8)
-//DATAM(UC_PROPERTY_GRAPHEME_LINK, 8)
-//DATAM(UC_PROPERTY_HEX_DIGIT, 8)
-//DATAM(UC_PROPERTY_HYPHEN, 8)
-//DATAM(UC_PROPERTY_ID_CONTINUE, 8)
-//DATAM(UC_PROPERTY_IDEOGRAPHIC, 8)
-//DATAM(UC_PROPERTY_IDS_BINARY_OPERATOR, 8)
-//DATAM(UC_PROPERTY_ID_START, 8)
-//DATAM(UC_PROPERTY_IDS_TRINARY_OPERATOR, 8)
-//DATAM(UC_PROPERTY_IGNORABLE_CONTROL, 8)
-//DATAM(UC_PROPERTY_ISO_CONTROL, 8)
-//DATAM(UC_PROPERTY_JOIN_CONTROL, 8)
-//DATAM(UC_PROPERTY_LEFT_OF_PAIR, 8)
-//DATAM(UC_PROPERTY_LINE_SEPARATOR, 8)
-//DATAM(UC_PROPERTY_LOGICAL_ORDER_EXCEPTION, 8)
-//DATAM(UC_PROPERTY_LOWERCASE, 8)
-//DATAM(UC_PROPERTY_MATH, 8)
-//DATAM(UC_PROPERTY_NON_BREAK, 8)
-//DATAM(UC_PROPERTY_NOT_A_CHARACTER, 8)
-//DATAM(UC_PROPERTY_NUMERIC, 8)
-//DATAM(UC_PROPERTY_OTHER_ALPHABETIC, 8)
-//DATAM(UC_PROPERTY_OTHER_DEFAULT_IGNORABLE_CODE_POINT, 8)
-//DATAM(UC_PROPERTY_OTHER_GRAPHEME_EXTEND, 8)
-//DATAM(UC_PROPERTY_OTHER_ID_CONTINUE, 8)
-//DATAM(UC_PROPERTY_OTHER_ID_START, 8)
-//DATAM(UC_PROPERTY_OTHER_LOWERCASE, 8)
-//DATAM(UC_PROPERTY_OTHER_MATH, 8)
-//DATAM(UC_PROPERTY_OTHER_UPPERCASE, 8)
-//DATAM(UC_PROPERTY_PAIRED_PUNCTUATION, 8)
-//DATAM(UC_PROPERTY_PARAGRAPH_SEPARATOR, 8)
-//DATAM(UC_PROPERTY_PATTERN_SYNTAX, 8)
-//DATAM(UC_PROPERTY_PATTERN_WHITE_SPACE, 8)
-//DATAM(UC_PROPERTY_PRIVATE_USE, 8)
-//DATAM(UC_PROPERTY_PUNCTUATION, 8)
-//DATAM(UC_PROPERTY_QUOTATION_MARK, 8)
-//DATAM(UC_PROPERTY_RADICAL, 8)
-//DATAM(UC_PROPERTY_REGIONAL_INDICATOR, 8)
-//DATAM(UC_PROPERTY_SENTENCE_TERMINAL, 8)
-//DATAM(UC_PROPERTY_SOFT_DOTTED, 8)
-//DATAM(UC_PROPERTY_SPACE, 8)
-//DATAM(UC_PROPERTY_TERMINAL_PUNCTUATION, 8)
-//DATAM(UC_PROPERTY_TITLECASE, 8)
-//DATAM(UC_PROPERTY_UNASSIGNED_CODE_VALUE, 8)
-//DATAM(UC_PROPERTY_UNIFIED_IDEOGRAPH, 8)
-//DATAM(UC_PROPERTY_UPPERCASE, 8)
-//DATAM(UC_PROPERTY_VARIATION_SELECTOR, 8)
-//DATAM(UC_PROPERTY_WHITE_SPACE, 8)
-//DATAM(UC_PROPERTY_XID_CONTINUE, 8)
-//DATAM(UC_PROPERTY_XID_START, 8)
-//DATAM(UC_PROPERTY_ZERO_WIDTH, 8)
+DATA(UC_PROPERTY_CASED, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CASE_IGNORABLE, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CHANGES_WHEN_CASEFOLDED, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CHANGES_WHEN_CASEMAPPED, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CHANGES_WHEN_LOWERCASED, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CHANGES_WHEN_TITLECASED, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CHANGES_WHEN_UPPERCASED, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_COMBINING, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_COMPOSITE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_CURRENCY_SYMBOL, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_DASH, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_DECIMAL_DIGIT, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_DEFAULT_IGNORABLE_CODE_POINT, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_DEPRECATED, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_DIACRITIC, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EMOJI, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EMOJI_COMPONENT, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EMOJI_MODIFIER, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EMOJI_MODIFIER_BASE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EMOJI_PRESENTATION, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EXTENDED_PICTOGRAPHIC, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_EXTENDER, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_FORMAT_CONTROL, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_GRAPHEME_BASE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_GRAPHEME_EXTEND, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_GRAPHEME_LINK, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_HEX_DIGIT, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_HYPHEN, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_ID_CONTINUE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_IDEOGRAPHIC, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_IDS_BINARY_OPERATOR, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_ID_START, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_IDS_TRINARY_OPERATOR, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_IGNORABLE_CONTROL, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_ISO_CONTROL, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_JOIN_CONTROL, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_LEFT_OF_PAIR, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_LINE_SEPARATOR, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_LOGICAL_ORDER_EXCEPTION, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_LOWERCASE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_MATH, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_NON_BREAK, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_NOT_A_CHARACTER, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_NUMERIC, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_ALPHABETIC, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_DEFAULT_IGNORABLE_CODE_POINT, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_GRAPHEME_EXTEND, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_ID_CONTINUE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_ID_START, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_LOWERCASE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_MATH, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_OTHER_UPPERCASE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_PAIRED_PUNCTUATION, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_PARAGRAPH_SEPARATOR, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_PATTERN_SYNTAX, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_PATTERN_WHITE_SPACE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_PRIVATE_USE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_PUNCTUATION, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_QUOTATION_MARK, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_RADICAL, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_REGIONAL_INDICATOR, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_SENTENCE_TERMINAL, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_SOFT_DOTTED, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_SPACE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_TERMINAL_PUNCTUATION, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_TITLECASE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_UNASSIGNED_CODE_VALUE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_UNIFIED_IDEOGRAPH, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_UPPERCASE, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_VARIATION_SELECTOR, 8) // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_WHITE_SPACE, 8)    // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_XID_CONTINUE, 8)   // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_XID_START, 8)  // this is a uc_property_t wich is a callback
+DATA(UC_PROPERTY_ZERO_WIDTH, 8) // this is a uc_property_t wich is a callback
 GO(uc_script, pFu)
 GO(uc_script_byname, pFp)
 GO(uc_tolower, uFu)
@@ -711,7 +711,7 @@ GO(uninorm_decomposing_form, pFp)
 GO(uninorm_filter_flush, iFp)
 GO(uninorm_filter_free, iFp)
 GO(uninorm_filter_write, iFpu)
-//DATA(uninorm_nfc, 
-//DATA(uninorm_nfd, 
-//DATA(uninorm_nfkc, 
-//DATA(uninorm_nfkd, 
+DATA(uninorm_nfc, 32)   //unicode_normalization_form
+DATA(uninorm_nfd, 32)   //unicode_normalization_form
+DATA(uninorm_nfkc, 32)  //unicode_normalization_form
+DATA(uninorm_nfkd, 32)  //unicode_normalization_form
