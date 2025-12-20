@@ -2152,6 +2152,7 @@ typedef void* (*pFpLpii_t)(void*, uintptr_t, void*, int32_t, int32_t);
 typedef void* (*pFpLpip_t)(void*, uintptr_t, void*, int32_t, void*);
 typedef void* (*pFpLpuu_t)(void*, uintptr_t, void*, uint32_t, uint32_t);
 typedef void* (*pFpLpup_t)(void*, uintptr_t, void*, uint32_t, void*);
+typedef void* (*pFpLppp_t)(void*, uintptr_t, void*, void*, void*);
 typedef void* (*pFppiii_t)(void*, void*, int32_t, int32_t, int32_t);
 typedef void* (*pFppiiu_t)(void*, void*, int32_t, int32_t, uint32_t);
 typedef void* (*pFppiip_t)(void*, void*, int32_t, int32_t, void*);
@@ -2424,7 +2425,6 @@ typedef int32_t (*iFpiIIIi_t)(void*, int32_t, int64_t, int64_t, int64_t, int32_t
 typedef int32_t (*iFpiCCpu_t)(void*, int32_t, uint8_t, uint8_t, void*, uint32_t);
 typedef int32_t (*iFpiuuup_t)(void*, int32_t, uint32_t, uint32_t, uint32_t, void*);
 typedef int32_t (*iFpiuupp_t)(void*, int32_t, uint32_t, uint32_t, void*, void*);
-typedef int32_t (*iFpipiii_t)(void*, int32_t, void*, int32_t, int32_t, int32_t);
 typedef int32_t (*iFpipipi_t)(void*, int32_t, void*, int32_t, void*, int32_t);
 typedef int32_t (*iFpipipp_t)(void*, int32_t, void*, int32_t, void*, void*);
 typedef int32_t (*iFpipupp_t)(void*, int32_t, void*, uint32_t, void*, void*);
@@ -2475,6 +2475,7 @@ typedef int32_t (*iFpLLLLp_t)(void*, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
 typedef int32_t (*iFpLLppp_t)(void*, uintptr_t, uintptr_t, void*, void*, void*);
 typedef int32_t (*iFpLpipi_t)(void*, uintptr_t, void*, int32_t, void*, int32_t);
 typedef int32_t (*iFpLpLui_t)(void*, uintptr_t, void*, uintptr_t, uint32_t, int32_t);
+typedef int32_t (*iFpLpLpp_t)(void*, uintptr_t, void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpLppii_t)(void*, uintptr_t, void*, void*, int32_t, int32_t);
 typedef int32_t (*iFpLpppL_t)(void*, uintptr_t, void*, void*, void*, uintptr_t);
 typedef int32_t (*iFpLpppp_t)(void*, uintptr_t, void*, void*, void*, void*);
@@ -2670,6 +2671,7 @@ typedef void* (*pFpLpLLi_t)(void*, uintptr_t, void*, uintptr_t, uintptr_t, int32
 typedef void* (*pFpLppii_t)(void*, uintptr_t, void*, void*, int32_t, int32_t);
 typedef void* (*pFpLppip_t)(void*, uintptr_t, void*, void*, int32_t, void*);
 typedef void* (*pFpLppup_t)(void*, uintptr_t, void*, void*, uint32_t, void*);
+typedef void* (*pFpLpppp_t)(void*, uintptr_t, void*, void*, void*, void*);
 typedef void* (*pFppiiii_t)(void*, void*, int32_t, int32_t, int32_t, int32_t);
 typedef void* (*pFppiiup_t)(void*, void*, int32_t, int32_t, uint32_t, void*);
 typedef void* (*pFppiipp_t)(void*, void*, int32_t, int32_t, void*, void*);
@@ -2903,6 +2905,7 @@ typedef int32_t (*iFpLpiipi_t)(void*, uintptr_t, void*, int32_t, int32_t, void*,
 typedef int32_t (*iFpLpLuLi_t)(void*, uintptr_t, void*, uintptr_t, uint32_t, uintptr_t, int32_t);
 typedef int32_t (*iFpLpLpip_t)(void*, uintptr_t, void*, uintptr_t, void*, int32_t, void*);
 typedef int32_t (*iFpLpLpLp_t)(void*, uintptr_t, void*, uintptr_t, void*, uintptr_t, void*);
+typedef int32_t (*iFpLpLppp_t)(void*, uintptr_t, void*, uintptr_t, void*, void*, void*);
 typedef int32_t (*iFpLppiii_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, int32_t);
 typedef int32_t (*iFpLppiip_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, void*);
 typedef int32_t (*iFppiiiii_t)(void*, void*, int32_t, int32_t, int32_t, int32_t, int32_t);
@@ -3010,6 +3013,7 @@ typedef void* (*pFpipippp_t)(void*, int32_t, void*, int32_t, void*, void*, void*
 typedef void* (*pFpWppWpp_t)(void*, uint16_t, void*, void*, uint16_t, void*, void*);
 typedef void* (*pFpuiiiii_t)(void*, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 typedef void* (*pFpupiipp_t)(void*, uint32_t, void*, int32_t, int32_t, void*, void*);
+typedef void* (*pFpupLppp_t)(void*, uint32_t, void*, uintptr_t, void*, void*, void*);
 typedef void* (*pFpuppipp_t)(void*, uint32_t, void*, void*, int32_t, void*, void*);
 typedef void* (*pFpuppppp_t)(void*, uint32_t, void*, void*, void*, void*, void*);
 typedef void* (*pFplppppp_t)(void*, intptr_t, void*, void*, void*, void*, void*);
@@ -3184,6 +3188,7 @@ typedef int32_t (*iFpupupuup_t)(void*, uint32_t, void*, uint32_t, void*, uint32_
 typedef int32_t (*iFpupppppp_t)(void*, uint32_t, void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpUuuLpUu_t)(void*, uint64_t, uint32_t, uint32_t, uintptr_t, void*, uint64_t, uint32_t);
 typedef int32_t (*iFpduuulul_t)(void*, double, uint32_t, uint32_t, uint32_t, intptr_t, uint32_t, intptr_t);
+typedef int32_t (*iFpLiiippp_t)(void*, uintptr_t, int32_t, int32_t, int32_t, void*, void*, void*);
 typedef int32_t (*iFpLLiippp_t)(void*, uintptr_t, uintptr_t, int32_t, int32_t, void*, void*, void*);
 typedef int32_t (*iFpLLLiipi_t)(void*, uintptr_t, uintptr_t, uintptr_t, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFpLLppppp_t)(void*, uintptr_t, uintptr_t, void*, void*, void*, void*, void*);
@@ -6002,6 +6007,7 @@ void pFpLpii(x64emu_t *emu, uintptr_t fcn) { pFpLpii_t fn = (pFpLpii_t)fcn; R_RA
 void pFpLpip(x64emu_t *emu, uintptr_t fcn) { pFpLpip_t fn = (pFpLpip_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, (void*)R_R8); }
 void pFpLpuu(x64emu_t *emu, uintptr_t fcn) { pFpLpuu_t fn = (pFpLpuu_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX, (uint32_t)R_R8); }
 void pFpLpup(x64emu_t *emu, uintptr_t fcn) { pFpLpup_t fn = (pFpLpup_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX, (void*)R_R8); }
+void pFpLppp(x64emu_t *emu, uintptr_t fcn) { pFpLppp_t fn = (pFpLppp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8); }
 void pFppiii(x64emu_t *emu, uintptr_t fcn) { pFppiii_t fn = (pFppiii_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8); }
 void pFppiiu(x64emu_t *emu, uintptr_t fcn) { pFppiiu_t fn = (pFppiiu_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (uint32_t)R_R8); }
 void pFppiip(x64emu_t *emu, uintptr_t fcn) { pFppiip_t fn = (pFppiip_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (void*)R_R8); }
@@ -6274,7 +6280,6 @@ void iFpiIIIi(x64emu_t *emu, uintptr_t fcn) { iFpiIIIi_t fn = (iFpiIIIi_t)fcn; R
 void iFpiCCpu(x64emu_t *emu, uintptr_t fcn) { iFpiCCpu_t fn = (iFpiCCpu_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (uint8_t)R_RDX, (uint8_t)R_RCX, (void*)R_R8, (uint32_t)R_R9); }
 void iFpiuuup(x64emu_t *emu, uintptr_t fcn) { iFpiuuup_t fn = (iFpiuuup_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (uint32_t)R_RDX, (uint32_t)R_RCX, (uint32_t)R_R8, (void*)R_R9); }
 void iFpiuupp(x64emu_t *emu, uintptr_t fcn) { iFpiuupp_t fn = (iFpiuupp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (uint32_t)R_RDX, (uint32_t)R_RCX, (void*)R_R8, (void*)R_R9); }
-void iFpipiii(x64emu_t *emu, uintptr_t fcn) { iFpipiii_t fn = (iFpipiii_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (int32_t)R_R9); }
 void iFpipipi(x64emu_t *emu, uintptr_t fcn) { iFpipipi_t fn = (iFpipipi_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, (void*)R_R8, (int32_t)R_R9); }
 void iFpipipp(x64emu_t *emu, uintptr_t fcn) { iFpipipp_t fn = (iFpipipp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, (void*)R_R8, (void*)R_R9); }
 void iFpipupp(x64emu_t *emu, uintptr_t fcn) { iFpipupp_t fn = (iFpipupp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX, (void*)R_R8, (void*)R_R9); }
@@ -6325,6 +6330,7 @@ void iFpLLLLp(x64emu_t *emu, uintptr_t fcn) { iFpLLLLp_t fn = (iFpLLLLp_t)fcn; R
 void iFpLLppp(x64emu_t *emu, uintptr_t fcn) { iFpLLppp_t fn = (iFpLLppp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void iFpLpipi(x64emu_t *emu, uintptr_t fcn) { iFpLpipi_t fn = (iFpLpipi_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, (void*)R_R8, (int32_t)R_R9); }
 void iFpLpLui(x64emu_t *emu, uintptr_t fcn) { iFpLpLui_t fn = (iFpLpLui_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (uint32_t)R_R8, (int32_t)R_R9); }
+void iFpLpLpp(x64emu_t *emu, uintptr_t fcn) { iFpLpLpp_t fn = (iFpLpLpp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (void*)R_R8, (void*)R_R9); }
 void iFpLppii(x64emu_t *emu, uintptr_t fcn) { iFpLppii_t fn = (iFpLppii_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (int32_t)R_R8, (int32_t)R_R9); }
 void iFpLpppL(x64emu_t *emu, uintptr_t fcn) { iFpLpppL_t fn = (iFpLpppL_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (uintptr_t)R_R9); }
 void iFpLpppp(x64emu_t *emu, uintptr_t fcn) { iFpLpppp_t fn = (iFpLpppp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
@@ -6520,6 +6526,7 @@ void pFpLpLLi(x64emu_t *emu, uintptr_t fcn) { pFpLpLLi_t fn = (pFpLpLLi_t)fcn; R
 void pFpLppii(x64emu_t *emu, uintptr_t fcn) { pFpLppii_t fn = (pFpLppii_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (int32_t)R_R8, (int32_t)R_R9); }
 void pFpLppip(x64emu_t *emu, uintptr_t fcn) { pFpLppip_t fn = (pFpLppip_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (int32_t)R_R8, (void*)R_R9); }
 void pFpLppup(x64emu_t *emu, uintptr_t fcn) { pFpLppup_t fn = (pFpLppup_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (uint32_t)R_R8, (void*)R_R9); }
+void pFpLpppp(x64emu_t *emu, uintptr_t fcn) { pFpLpppp_t fn = (pFpLpppp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); }
 void pFppiiii(x64emu_t *emu, uintptr_t fcn) { pFppiiii_t fn = (pFppiiii_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (int32_t)R_R9); }
 void pFppiiup(x64emu_t *emu, uintptr_t fcn) { pFppiiup_t fn = (pFppiiup_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (uint32_t)R_R8, (void*)R_R9); }
 void pFppiipp(x64emu_t *emu, uintptr_t fcn) { pFppiipp_t fn = (pFppiipp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (void*)R_R8, (void*)R_R9); }
@@ -6753,6 +6760,7 @@ void iFpLpiipi(x64emu_t *emu, uintptr_t fcn) { iFpLpiipi_t fn = (iFpLpiipi_t)fcn
 void iFpLpLuLi(x64emu_t *emu, uintptr_t fcn) { iFpLpLuLi_t fn = (iFpLpLuLi_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (uint32_t)R_R8, (uintptr_t)R_R9, *(int32_t*)(R_RSP + 8)); }
 void iFpLpLpip(x64emu_t *emu, uintptr_t fcn) { iFpLpLpip_t fn = (iFpLpLpip_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (void*)R_R8, (int32_t)R_R9, *(void**)(R_RSP + 8)); }
 void iFpLpLpLp(x64emu_t *emu, uintptr_t fcn) { iFpLpLpLp_t fn = (iFpLpLpLp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (void*)R_R8, (uintptr_t)R_R9, *(void**)(R_RSP + 8)); }
+void iFpLpLppp(x64emu_t *emu, uintptr_t fcn) { iFpLpLppp_t fn = (iFpLpLppp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void iFpLppiii(x64emu_t *emu, uintptr_t fcn) { iFpLppiii_t fn = (iFpLppiii_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (int32_t)R_R8, (int32_t)R_R9, *(int32_t*)(R_RSP + 8)); }
 void iFpLppiip(x64emu_t *emu, uintptr_t fcn) { iFpLppiip_t fn = (iFpLppiip_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (int32_t)R_R8, (int32_t)R_R9, *(void**)(R_RSP + 8)); }
 void iFppiiiii(x64emu_t *emu, uintptr_t fcn) { iFppiiiii_t fn = (iFppiiiii_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (int32_t)R_R9, *(int32_t*)(R_RSP + 8)); }
@@ -6860,6 +6868,7 @@ void pFpipippp(x64emu_t *emu, uintptr_t fcn) { pFpipippp_t fn = (pFpipippp_t)fcn
 void pFpWppWpp(x64emu_t *emu, uintptr_t fcn) { pFpWppWpp_t fn = (pFpWppWpp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uint16_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (uint16_t)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void pFpuiiiii(x64emu_t *emu, uintptr_t fcn) { pFpuiiiii_t fn = (pFpuiiiii_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uint32_t)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (int32_t)R_R9, *(int32_t*)(R_RSP + 8)); }
 void pFpupiipp(x64emu_t *emu, uintptr_t fcn) { pFpupiipp_t fn = (pFpupiipp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
+void pFpupLppp(x64emu_t *emu, uintptr_t fcn) { pFpupLppp_t fn = (pFpupLppp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void pFpuppipp(x64emu_t *emu, uintptr_t fcn) { pFpuppipp_t fn = (pFpuppipp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (int32_t)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void pFpuppppp(x64emu_t *emu, uintptr_t fcn) { pFpuppppp_t fn = (pFpuppppp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
 void pFplppppp(x64emu_t *emu, uintptr_t fcn) { pFplppppp_t fn = (pFplppppp_t)fcn; R_RAX=(uintptr_t)fn((void*)R_RDI, (intptr_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8)); }
@@ -7034,6 +7043,7 @@ void iFpupupuup(x64emu_t *emu, uintptr_t fcn) { iFpupupuup_t fn = (iFpupupuup_t)
 void iFpupppppp(x64emu_t *emu, uintptr_t fcn) { iFpupppppp_t fn = (iFpupppppp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16)); }
 void iFpUuuLpUu(x64emu_t *emu, uintptr_t fcn) { iFpUuuLpUu_t fn = (iFpUuuLpUu_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uint64_t)R_RSI, (uint32_t)R_RDX, (uint32_t)R_RCX, (uintptr_t)R_R8, (void*)R_R9, *(uint64_t*)(R_RSP + 8), *(uint32_t*)(R_RSP + 16)); }
 void iFpduuulul(x64emu_t *emu, uintptr_t fcn) { iFpduuulul_t fn = (iFpduuulul_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, emu->xmm[0].d[0], (uint32_t)R_RSI, (uint32_t)R_RDX, (uint32_t)R_RCX, (intptr_t)R_R8, (uint32_t)R_R9, *(intptr_t*)(R_RSP + 8)); }
+void iFpLiiippp(x64emu_t *emu, uintptr_t fcn) { iFpLiiippp_t fn = (iFpLiiippp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (void*)R_R9, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16)); }
 void iFpLLiippp(x64emu_t *emu, uintptr_t fcn) { iFpLLiippp_t fn = (iFpLLiippp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX, (int32_t)R_RCX, (int32_t)R_R8, (void*)R_R9, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16)); }
 void iFpLLLiipi(x64emu_t *emu, uintptr_t fcn) { iFpLLLiipi_t fn = (iFpLLLiipi_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX, (uintptr_t)R_RCX, (int32_t)R_R8, (int32_t)R_R9, *(void**)(R_RSP + 8), *(int32_t*)(R_RSP + 16)); }
 void iFpLLppppp(x64emu_t *emu, uintptr_t fcn) { iFpLLppppp_t fn = (iFpLLppppp_t)fcn; R_RAX=(uint32_t)fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16)); }
@@ -9477,6 +9487,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFpLpip) return 1;
 	if (fun == &pFpLpuu) return 1;
 	if (fun == &pFpLpup) return 1;
+	if (fun == &pFpLppp) return 1;
 	if (fun == &pFppiii) return 1;
 	if (fun == &pFppiiu) return 1;
 	if (fun == &pFppiip) return 1;
@@ -9697,7 +9708,6 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpiCCpu) return 1;
 	if (fun == &iFpiuuup) return 1;
 	if (fun == &iFpiuupp) return 1;
-	if (fun == &iFpipiii) return 1;
 	if (fun == &iFpipipi) return 1;
 	if (fun == &iFpipipp) return 1;
 	if (fun == &iFpipupp) return 1;
@@ -9748,6 +9758,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpLLppp) return 1;
 	if (fun == &iFpLpipi) return 1;
 	if (fun == &iFpLpLui) return 1;
+	if (fun == &iFpLpLpp) return 1;
 	if (fun == &iFpLppii) return 1;
 	if (fun == &iFpLpppL) return 1;
 	if (fun == &iFpLpppp) return 1;
@@ -9903,6 +9914,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFpLppii) return 1;
 	if (fun == &pFpLppip) return 1;
 	if (fun == &pFpLppup) return 1;
+	if (fun == &pFpLpppp) return 1;
 	if (fun == &pFppiiii) return 1;
 	if (fun == &pFppiiup) return 1;
 	if (fun == &pFppiipp) return 1;
@@ -11679,6 +11691,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFpLpip) return 129;
 	if (fun == &pFpLpuu) return 385;
 	if (fun == &pFpLpup) return 129;
+	if (fun == &pFpLppp) return 1;
 	if (fun == &pFppiii) return 449;
 	if (fun == &pFppiiu) return 449;
 	if (fun == &pFppiip) return 193;
@@ -11899,7 +11912,6 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpiCCpu) return 545;
 	if (fun == &iFpiuuup) return 481;
 	if (fun == &iFpiuupp) return 225;
-	if (fun == &iFpipiii) return 929;
 	if (fun == &iFpipipi) return 673;
 	if (fun == &iFpipipp) return 161;
 	if (fun == &iFpipupp) return 161;
@@ -11950,6 +11962,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpLLppp) return 1;
 	if (fun == &iFpLpipi) return 641;
 	if (fun == &iFpLpLui) return 769;
+	if (fun == &iFpLpLpp) return 1;
 	if (fun == &iFpLppii) return 769;
 	if (fun == &iFpLpppL) return 1;
 	if (fun == &iFpLpppp) return 1;
@@ -12105,6 +12118,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFpLppii) return 769;
 	if (fun == &pFpLppip) return 257;
 	if (fun == &pFpLppup) return 257;
+	if (fun == &pFpLpppp) return 1;
 	if (fun == &pFppiiii) return 961;
 	if (fun == &pFppiiup) return 449;
 	if (fun == &pFppiipp) return 193;
@@ -13881,6 +13895,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFpLpip) return 129;
 	if (fun == &pFpLpuu) return 385;
 	if (fun == &pFpLpup) return 129;
+	if (fun == &pFpLppp) return 1;
 	if (fun == &pFppiii) return 449;
 	if (fun == &pFppiiu) return 449;
 	if (fun == &pFppiip) return 193;
@@ -14101,7 +14116,6 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpiCCpu) return 545;
 	if (fun == &iFpiuuup) return 481;
 	if (fun == &iFpiuupp) return 225;
-	if (fun == &iFpipiii) return 929;
 	if (fun == &iFpipipi) return 673;
 	if (fun == &iFpipipp) return 161;
 	if (fun == &iFpipupp) return 161;
@@ -14152,6 +14166,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpLLppp) return 1;
 	if (fun == &iFpLpipi) return 641;
 	if (fun == &iFpLpLui) return 769;
+	if (fun == &iFpLpLpp) return 1;
 	if (fun == &iFpLppii) return 769;
 	if (fun == &iFpLpppL) return 1;
 	if (fun == &iFpLpppp) return 1;
@@ -14307,6 +14322,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &pFpLppii) return 769;
 	if (fun == &pFpLppip) return 257;
 	if (fun == &pFpLppup) return 257;
+	if (fun == &pFpLpppp) return 1;
 	if (fun == &pFppiiii) return 961;
 	if (fun == &pFppiiup) return 449;
 	if (fun == &pFppiipp) return 193;
