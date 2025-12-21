@@ -1002,7 +1002,7 @@ static void register_plugins_from_folder(x64emu_t* emu, const char* folder)
             *strrchr(name, '.') = '\0';
             snprintf(regfunc_name, sizeof(regfunc_name), "gst_plugin_%s_register", name);
             // check if native version exist
-            if(native_folder[0]) {
+            if(native_folder[0] && !FindInCollection(dir->d_name, &my_context->box64_emulated_libs)) {
                 strcpy(filename, native_folder);
                 strcat(filename, dir->d_name);
                 handle = dlopen(filename, 2);
