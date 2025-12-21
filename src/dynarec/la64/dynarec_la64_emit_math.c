@@ -643,7 +643,7 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         MOV64xw(s2, c);
     } else IFXA (X_ALL, cpuext.lbt) {
         MOV64xw(s2, c);
-    } else if (c < -2048 || c >= 2048) {
+    } else if (c <= -2048 || c > 2048) {
         MOV64xw(s2, c);
     }
     IFX (X_PEND) {
