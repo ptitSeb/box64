@@ -1809,7 +1809,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
             R_RIP = 0x0;
         if(log_minimum<=BOX64ENV(log)) {
             elfheader_t* elf = FindElfAddress(my_context, x64pc);
-            if(elf) {
+            {
                 signal_jmpbuf_active = 1;
                 if(sigsetjmp(SIG_JMPBUF, 1)) {
                     // segfault while gathering function name...
