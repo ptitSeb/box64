@@ -5302,10 +5302,9 @@ static void* find_signal7_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal7 callback\n");
     return NULL;
 }
-static const wrapper_t wrappers[] = {pFpp, pFppp, pFpppp, pFpppp, pFppppp, pFpppppp};
 typedef void* (*finder_t)(void*);
 static const finder_t finders[] = {find_signal2_Fct, find_signal3_Fct, find_signal4_Fct, find_signal5_Fct, find_signal6_Fct, find_signal7_Fct};
-#define MAX_SIGNAL_N 7
+#define MAX_SIGNAL_N (7-2)
 
 // ---- GTypeInfo ----
 // let's handle signal with offset, that are used to wrap custom signal function
@@ -5350,10 +5349,13 @@ void my_unwrap_signal_offset(void* klass)
     printf_log(LOG_DEBUG, "my_unwrap_signal_offset(%p) type=0x%zx with %d signals with offset\n", klass, itype, p->sz);
     for(int i=0; i<p->sz; ++i) {
         void** f = (void**)((uintptr_t)klass + p->a[i].offset);
-        if(!GetNativeFnc((uintptr_t)*f)) {
+        void* new_f = GetNativeFnc((uintptr_t)*f);
+        if(!new_f) {
             // Not a native function: autobridge it
-            void* new_f = finders[p->a[i].n-2](f);
-            printf_log(LOG_DEBUG, "Unwrapping %p -> %p (with alternate)\n", *f, new_f);
+            new_f = finders[p->a[i].n](f);
+        }
+        if(new_f != *f) {
+            printf_log(LOG_DEBUG, "Unwrapping %p[%p: offset=0x%x, n=%d] -> %p (with alternate)\n", *f, f, p->a[i].offset, p->a[i].n, new_f);
             if(!hasAlternate(new_f))
                 addAlternate(new_f, *f);
             *f = new_f;
@@ -5420,14 +5422,14 @@ static size_t parent_class_init_##A = 0;                                    \
 static int my_class_init_##A(void* a, void* b)                              \
 {                                                                           \
     printf_log(LOG_DEBUG, "Custom Class init %d for class %p (parent=%p:%s)\n", A, a, (void*)parent_class_init_##A, g_type_name(parent_class_init_##A));\
-    int ret = RunFunctionFmt(my_class_init_fct_##A, "pp", a, b);\
+    int ret = RunFunctionFmt(my_class_init_fct_##A, "pp", a, b);            \
     size_t type = parent_class_init_##A;                                    \
     while(checkRegisteredClass(type))                                       \
         type = g_type_parent(type);                                         \
     unwrapGTKClass(a, type);                                                \
     my_unwrap_signal_offset(a);                                             \
     if(!strcmp(g_type_name(type), "AtkUtil")) {                             \
-        my_AtkUtilClass_t* p = (my_AtkUtilClass_t*)g_type_class_peek(type);\
+        my_AtkUtilClass_t* p = (my_AtkUtilClass_t*)g_type_class_peek(type); \
         unwrapGTKClass(p, type);                                            \
     }                                                                       \
     return ret;                                                             \
@@ -5452,7 +5454,7 @@ void* find_class_init_Fct(void* fct, size_t parent)
 static uintptr_t my_class_finalize_fct_##A = 0;                                 \
 static int my_class_finalize_##A(void* a, void* b)                              \
 {                                                                               \
-    return RunFunctionFmt(my_class_finalize_fct_##A, "pp", a, b);   \
+    return RunFunctionFmt(my_class_finalize_fct_##A, "pp", a, b);               \
 }
 SUPER()
 #undef GO
@@ -5538,22 +5540,22 @@ SUPER()
 #undef GO
 // Then the static functions callback that may be used with the structure
 #define GO(A)   \
-static int fct_gtk_parent_##A = 0 ;                 \
-static uintptr_t fct_gtk_class_init_##A = 0;        \
-static int my_gtk_class_init_##A(void* g_class) {   \
+static int fct_gtk_parent_##A = 0 ;                                                 \
+static uintptr_t fct_gtk_class_init_##A = 0;                                        \
+static int my_gtk_class_init_##A(void* g_class) {                                   \
     printf_log(LOG_DEBUG, "Calling fct_gtk_class_init_" #A " wrapper\n");           \
-    int ret = (int)RunFunctionFmt(fct_gtk_class_init_##A, "p", g_class);\
+    int ret = (int)RunFunctionFmt(fct_gtk_class_init_##A, "p", g_class);            \
     unwrapGTKClass(g_class, fct_gtk_parent_##A);                                    \
     return ret;                                                                     \
-}   \
-static uintptr_t fct_gtk_object_init_##A = 0;                                           \
-static int my_gtk_object_init_##A(void* object, void* data) {                           \
-    printf_log(LOG_DEBUG, "Calling fct_gtk_object_init_" #A " wrapper\n");              \
-    return (int)RunFunctionFmt(fct_gtk_object_init_##A, "pp", object, data);\
-}   \
-static uintptr_t fct_gtk_base_class_init_##A = 0;                                               \
-static int my_gtk_base_class_init_##A(void* instance, void* data) {                             \
-    printf_log(LOG_DEBUG, "Calling fct_gtk_base_class_init_" #A " wrapper\n");                  \
+}                                                                                   \
+static uintptr_t fct_gtk_object_init_##A = 0;                                       \
+static int my_gtk_object_init_##A(void* object, void* data) {                       \
+    printf_log(LOG_DEBUG, "Calling fct_gtk_object_init_" #A " wrapper\n");          \
+    return (int)RunFunctionFmt(fct_gtk_object_init_##A, "pp", object, data);        \
+}                                                                                   \
+static uintptr_t fct_gtk_base_class_init_##A = 0;                                   \
+static int my_gtk_base_class_init_##A(void* instance, void* data) {                 \
+    printf_log(LOG_DEBUG, "Calling fct_gtk_base_class_init_" #A " wrapper\n");      \
     return (int)RunFunctionFmt(fct_gtk_base_class_init_##A, "pp", instance, data);  \
 }
 
