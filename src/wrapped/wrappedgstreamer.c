@@ -33,6 +33,7 @@ typedef size_t  (*LFv_t)();
 typedef void*   (*pFp_t)(void*);
 typedef void    (*vFpp_t)(void*, void*);
 typedef int     (*iFpp_t)(void*, void*);
+typedef void    (*vFpip_t)(void*, int, void*);
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);
 int my_dlclose(x64emu_t* emu, void *handle);
@@ -57,6 +58,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol);
     GO(gst_caps_append_structure, vFpp_t)   \
     GO(gst_bin_add, iFpp_t)                 \
     GO(gst_element_link, iFpp_t)            \
+    GO(gst_query_set_formatsv, vFpip_t)     \
 
 typedef struct my_gst_plugin_s {
     void* handle;
@@ -791,6 +793,121 @@ static void* findGstPadChainListFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPadChainListFunction callback\n");
     return NULL;
 }
+//GstCapsMapFunc
+#define GO(A)   \
+static uintptr_t my_GstCapsMapFunc_fct_##A = 0;                             \
+static int my_GstCapsMapFunc_##A(void* a, void* b, void* c)                 \
+{                                                                           \
+    return (int)RunFunctionFmt(my_GstCapsMapFunc_fct_##A, "ppp", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findGstCapsMapFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstCapsMapFunc_fct_##A == (uintptr_t)fct) return my_GstCapsMapFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstCapsMapFunc_fct_##A == 0) {my_GstCapsMapFunc_fct_##A = (uintptr_t)fct; return my_GstCapsMapFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstCapsMapFunc callback\n");
+    return NULL;
+}
+//GstTagMergeFunc
+#define GO(A)   \
+static uintptr_t my_GstTagMergeFunc_fct_##A = 0;            \
+static void my_GstTagMergeFunc_##A(void* a, void* b)        \
+{                                                           \
+    RunFunctionFmt(my_GstTagMergeFunc_fct_##A, "pp", a, b); \
+}
+SUPER()
+#undef GO
+static void* findGstTagMergeFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstTagMergeFunc_fct_##A == (uintptr_t)fct) return my_GstTagMergeFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstTagMergeFunc_fct_##A == 0) {my_GstTagMergeFunc_fct_##A = (uintptr_t)fct; return my_GstTagMergeFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstTagMergeFunc callback\n");
+    return NULL;
+}
+//GstIteratorForeachFunction
+#define GO(A)   \
+static uintptr_t my_GstIteratorForeachFunction_fct_##A = 0;             \
+static void my_GstIteratorForeachFunction_##A(void* a, void* b)         \
+{                                                                       \
+    RunFunctionFmt(my_GstIteratorForeachFunction_fct_##A, "pp", a, b);  \
+}
+SUPER()
+#undef GO
+static void* findGstIteratorForeachFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstIteratorForeachFunction_fct_##A == (uintptr_t)fct) return my_GstIteratorForeachFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstIteratorForeachFunction_fct_##A == 0) {my_GstIteratorForeachFunction_fct_##A = (uintptr_t)fct; return my_GstIteratorForeachFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstIteratorForeachFunction callback\n");
+    return NULL;
+}
+//GstPadEventFullFunction
+#define GO(A)   \
+static uintptr_t my_GstPadEventFullFunction_fct_##A = 0;                            \
+static int my_GstPadEventFullFunction_##A(void* a, void* b, void* c)                \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_GstPadEventFullFunction_fct_##A, "ppp", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* findGstPadEventFullFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstPadEventFullFunction_fct_##A == (uintptr_t)fct) return my_GstPadEventFullFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstPadEventFullFunction_fct_##A == 0) {my_GstPadEventFullFunction_fct_##A = (uintptr_t)fct; return my_GstPadEventFullFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPadEventFullFunction callback\n");
+    return NULL;
+}
+//GstBufferListFunc
+#define GO(A)   \
+static uintptr_t my_GstBufferListFunc_fct_##A = 0;                              \
+static int my_GstBufferListFunc_##A(void* a, uint32_t b, void* c)               \
+{                                                                               \
+    return (int)RunFunctionFmt(my_GstBufferListFunc_fct_##A, "pup", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* findGstBufferListFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstBufferListFunc_fct_##A == (uintptr_t)fct) return my_GstBufferListFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstBufferListFunc_fct_##A == 0) {my_GstBufferListFunc_fct_##A = (uintptr_t)fct; return my_GstBufferListFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBufferListFunc callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1308,6 +1425,55 @@ EXPORT int my_gst_clock_id_wait_async(x64emu_t* emu, void* id, void* f, void* da
 EXPORT void my_gst_pad_set_chain_list_function_full(x64emu_t* emu, void* pad, void *f, void* data, void* d)
 {
     return my->gst_pad_set_chain_list_function_full(pad, findGstPadChainListFunctionFct(f), data, findDestroyFct(d));
+}
+
+EXPORT int my_gst_caps_map_in_place(x64emu_t* emu, void* caps, void* f, void* data)
+{
+    return my->gst_caps_map_in_place(caps, findGstCapsMapFuncFct(f), data);
+}
+
+EXPORT void my_gst_tag_register(x64emu_t* emu, void* name, uint32_t flag, size_t type, void* nick, void* blurb, void* f)
+{
+    my->gst_tag_register(name, flag, type, nick, blurb, findGstTagMergeFuncFct(f));
+}
+
+EXPORT uint32_t my_gst_iterator_foreach(x64emu_t* emu, void* it, void* f, void* data)
+{
+    return my->gst_iterator_foreach(it, findGstIteratorForeachFunctionFct(f), data);
+}
+
+EXPORT void my_gst_pad_set_event_full_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
+{
+    my->gst_pad_set_event_full_function_full(pad, findGstPadEventFullFunctionFct(f), data, findDestroyFct(d));
+}
+
+EXPORT int my_gst_buffer_list_foreach(x64emu_t* emu, void* list, void* f, void* data)
+{
+    return my->gst_buffer_list_foreach(list, findGstBufferListFuncFct(f), data);
+}
+
+EXPORT void my_gst_query_set_formats(x64emu_t* emu, void* query, int n, uint64_t* b)
+{
+    uint32_t a[n];
+    for(int i=0; i<n; ++i)
+        a[i] = getVArgs(emu, 2, b, i);
+    my->gst_query_set_formatsv(query, n, a);
+}
+
+EXPORT void my_gst_debug_log_id_valist(x64emu_t* emu, void* cat, uint32_t level, void* f, void* func, int l, void* id, void* fmt, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    my->gst_debug_log_id_valist(cat, level, f, func, l, id, fmt, VARARGS);
+}
+
+EXPORT void my_gst_debug_log_id(x64emu_t* emu, void* cat, uint32_t level, void* f, void* func, int l, void* id, void* fmt, void* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 7);
+    my->gst_debug_log_id_valist(cat, level, f, func, l, id, fmt, VARARGS);
 }
 
 #define PRE_INIT \

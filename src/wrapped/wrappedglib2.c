@@ -1604,6 +1604,11 @@ EXPORT void my_g_thread_pool_set_sort_function(x64emu_t* emu, void* pool, void* 
     my->g_thread_pool_set_sort_function(pool, findGCompareDataFuncFct(func), user_data);
 }
 
+EXPORT void my_g_queue_free_full(x64emu_t* emu, void* queue, void* d)
+{
+    my->g_queue_free_full(queue, findGDestroyNotifyFct(d));
+}
+
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;
 

@@ -12,7 +12,9 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFppupi_t)(void*, void*, uint32_t, void*, int32_t);
+typedef int32_t (*iFpppLppp_t)(void*, void*, void*, uintptr_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gst_collect_pads_set_buffer_function, vFppp_t) \
@@ -20,6 +22,8 @@ typedef void* (*pFppupi_t)(void*, void*, uint32_t, void*, int32_t);
 	GO(gst_collect_pads_set_event_function, vFppp_t) \
 	GO(gst_collect_pads_set_function, vFppp_t) \
 	GO(gst_collect_pads_set_query_function, vFppp_t) \
-	GO(gst_collect_pads_add_pad, pFppupi_t)
+	GO(gst_data_queue_new, pFpppp_t) \
+	GO(gst_collect_pads_add_pad, pFppupi_t) \
+	GO(gst_type_find_helper_get_range_full, iFpppLppp_t)
 
 #endif // __wrappedgstbaseTYPES_H_

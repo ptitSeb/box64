@@ -912,6 +912,7 @@
 #() vFELLp
 #() vFEpii
 #() vFEpip
+#() vFEpiV
 #() vFEpup
 #() vFEpuV
 #() vFEpuA
@@ -2796,6 +2797,7 @@
 #() vFpuupppp
 #() vFpupiiiu
 #() vFpupuuup
+#() vFpuppipp
 #() vFpupppui
 #() vFpUiUiup
 #() vFpUuuUip
@@ -3158,6 +3160,7 @@
 #() iFEpuuLppp
 #() iFEpUUuppp
 #() iFEppipppp
+#() iFEpppLppp
 #() iFEppppipp
 #() iFEppppLpp
 #() iFEpppppuu
@@ -4316,6 +4319,7 @@ wrappedglib2:
   - g_main_context_set_poll_func
   - g_ptr_array_set_free_func
   - g_ptr_array_sort
+  - g_queue_free_full
   - g_slist_free_full
   - g_source_set_funcs
   - g_thread_foreach
@@ -4585,8 +4589,12 @@ wrappedgstbase:
   - gst_collect_pads_set_event_function
   - gst_collect_pads_set_function
   - gst_collect_pads_set_query_function
+- pFpppp:
+  - gst_data_queue_new
 - pFppupi:
   - gst_collect_pads_add_pad
+- iFpppLppp:
+  - gst_type_find_helper_get_range_full
 wrappedgstcheck:
 wrappedgstcontroller:
 wrappedgstfft:
@@ -4628,6 +4636,8 @@ wrappedgstreamer:
   - gst_tag_list_new
 - pFpA:
   - gst_caps_features_new_valist
+- vFpiV:
+  - gst_query_set_formats
 - vFppp:
   - gst_pad_sticky_events_foreach
   - gst_structure_filter_and_map_in_place
@@ -4643,7 +4653,9 @@ wrappedgstreamer:
   - gst_structure_set_valist
 - iFppp:
   - gst_buffer_foreach_meta
+  - gst_buffer_list_foreach
   - gst_caps_foreach
+  - gst_caps_map_in_place
   - gst_element_foreach_sink_pad
   - gst_init_check
   - gst_structure_foreach
@@ -4655,6 +4667,7 @@ wrappedgstreamer:
   - gst_structure_get_valist
 - uFppp:
   - gst_bus_add_watch
+  - gst_iterator_foreach
 - pFppp:
   - gst_task_new
 - pFppV:
@@ -4676,6 +4689,7 @@ wrappedgstreamer:
   - gst_pad_set_activatemode_function_full
   - gst_pad_set_chain_function_full
   - gst_pad_set_chain_list_function_full
+  - gst_pad_set_event_full_function_full
   - gst_pad_set_event_function_full
   - gst_pad_set_getrange_function_full
   - gst_pad_set_iterate_internal_links_function_full
@@ -4699,6 +4713,7 @@ wrappedgstreamer:
   - gst_pad_add_probe
 - vFpuLppp:
   - gst_mini_object_init
+  - gst_tag_register
 - pFupLLLpp:
   - gst_buffer_new_wrapped_full
   - gst_memory_new_wrapped
@@ -4706,7 +4721,9 @@ wrappedgstreamer:
   - gst_util_array_binary_search
 - vFpuppippV:
   - gst_debug_log
+  - gst_debug_log_id
 - vFpuppippA:
+  - gst_debug_log_id_valist
   - gst_debug_log_valist
 - iFppuppppp:
   - gst_type_find_register

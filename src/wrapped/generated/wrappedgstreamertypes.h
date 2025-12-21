@@ -18,6 +18,7 @@ typedef void* (*pFuA_t)(uint32_t, va_list);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFpA_t)(void*, va_list);
+typedef void (*vFpiV_t)(void*, int32_t, ...);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
@@ -58,6 +59,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_make_element_message_details, pFpV_t) \
 	GO(gst_tag_list_new, pFpV_t) \
 	GO(gst_caps_features_new_valist, pFpA_t) \
+	GO(gst_query_set_formats, vFpiV_t) \
 	GO(gst_pad_sticky_events_foreach, vFppp_t) \
 	GO(gst_structure_filter_and_map_in_place, vFppp_t) \
 	GO(gst_tag_list_foreach, vFppp_t) \
@@ -69,7 +71,9 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_structure_remove_fields_valist, vFppA_t) \
 	GO(gst_structure_set_valist, vFppA_t) \
 	GO(gst_buffer_foreach_meta, iFppp_t) \
+	GO(gst_buffer_list_foreach, iFppp_t) \
 	GO(gst_caps_foreach, iFppp_t) \
+	GO(gst_caps_map_in_place, iFppp_t) \
 	GO(gst_element_foreach_sink_pad, iFppp_t) \
 	GO(gst_init_check, iFppp_t) \
 	GO(gst_structure_foreach, iFppp_t) \
@@ -78,6 +82,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_info_vasprintf, iFppA_t) \
 	GO(gst_structure_get_valist, iFppA_t) \
 	GO(gst_bus_add_watch, uFppp_t) \
+	GO(gst_iterator_foreach, uFppp_t) \
 	GO(gst_task_new, pFppp_t) \
 	GO(gst_caps_new_simple, pFppV_t) \
 	GO(gst_structure_new, pFppV_t) \
@@ -92,6 +97,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_pad_set_activatemode_function_full, vFpppp_t) \
 	GO(gst_pad_set_chain_function_full, vFpppp_t) \
 	GO(gst_pad_set_chain_list_function_full, vFpppp_t) \
+	GO(gst_pad_set_event_full_function_full, vFpppp_t) \
 	GO(gst_pad_set_event_function_full, vFpppp_t) \
 	GO(gst_pad_set_getrange_function_full, vFpppp_t) \
 	GO(gst_pad_set_iterate_internal_links_function_full, vFpppp_t) \
@@ -107,10 +113,13 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_bus_add_watch_full, uFpippp_t) \
 	GO(gst_pad_add_probe, LFpuppp_t) \
 	GO(gst_mini_object_init, vFpuLppp_t) \
+	GO(gst_tag_register, vFpuLppp_t) \
 	GO(gst_buffer_new_wrapped_full, pFupLLLpp_t) \
 	GO(gst_memory_new_wrapped, pFupLLLpp_t) \
 	GO(gst_util_array_binary_search, pFpuLpupp_t) \
 	GO(gst_debug_log, vFpuppippV_t) \
+	GO(gst_debug_log_id, vFpuppippV_t) \
+	GO(gst_debug_log_id_valist, vFpuppippA_t) \
 	GO(gst_debug_log_valist, vFpuppippA_t) \
 	GO(gst_type_find_register, iFppuppppp_t) \
 	GO(gst_plugin_register_static, iFiipppppppp_t)
