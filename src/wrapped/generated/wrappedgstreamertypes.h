@@ -91,6 +91,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_pad_set_activate_function_full, vFpppp_t) \
 	GO(gst_pad_set_activatemode_function_full, vFpppp_t) \
 	GO(gst_pad_set_chain_function_full, vFpppp_t) \
+	GO(gst_pad_set_chain_list_function_full, vFpppp_t) \
 	GO(gst_pad_set_event_function_full, vFpppp_t) \
 	GO(gst_pad_set_getrange_function_full, vFpppp_t) \
 	GO(gst_pad_set_iterate_internal_links_function_full, vFpppp_t) \
@@ -98,6 +99,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_pad_set_query_function_full, vFpppp_t) \
 	GO(gst_iterator_find_custom, iFpppp_t) \
 	GO(gst_pad_start_task, iFpppp_t) \
+	GO(gst_clock_id_wait_async, uFpppp_t) \
 	GO(gst_iterator_fold, uFpppp_t) \
 	GO(gst_registry_feature_filter, pFppip_t) \
 	GO(gst_pad_create_stream_id_printf, pFpppV_t) \

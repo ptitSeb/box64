@@ -745,6 +745,52 @@ static void* findGstMiniObjectFreeFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstMiniObjectFreeFunction callback\n");
     return NULL;
 }
+//GstClockCallback
+#define GO(A)   \
+static uintptr_t my_GstClockCallback_fct_##A = 0;                                   \
+static int my_GstClockCallback_##A(void* a, uint64_t b, void* c, void* d)           \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_GstClockCallback_fct_##A, "pUpp", a, b, c, d);    \
+}
+SUPER()
+#undef GO
+static void* findGstClockCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstClockCallback_fct_##A == (uintptr_t)fct) return my_GstClockCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstClockCallback_fct_##A == 0) {my_GstClockCallback_fct_##A = (uintptr_t)fct; return my_GstClockCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstClockCallback callback\n");
+    return NULL;
+}
+//GstPadChainListFunction
+#define GO(A)   \
+static uintptr_t my_GstPadChainListFunction_fct_##A = 0;                            \
+static int my_GstPadChainListFunction_##A(void* a, void* b, void* c)                \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_GstPadChainListFunction_fct_##A, "ppp", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* findGstPadChainListFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstPadChainListFunction_fct_##A == (uintptr_t)fct) return my_GstPadChainListFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstPadChainListFunction_fct_##A == 0) {my_GstPadChainListFunction_fct_##A = (uintptr_t)fct; return my_GstPadChainListFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPadChainListFunction callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1252,6 +1298,16 @@ EXPORT void my_gst_mini_object_init(x64emu_t* emu, void* obj, uint32_t flags, si
 EXPORT int my_gst_iterator_find_custom(x64emu_t* emu, void* it, void* f, void* elem, void* data)
 {
     return my->gst_iterator_find_custom(it, findGCompareFuncFct(f), elem, data);
+}
+
+EXPORT int my_gst_clock_id_wait_async(x64emu_t* emu, void* id, void* f, void* data, void* d)
+{
+    return my->gst_clock_id_wait_async(id, findGstClockCallbackFct(f), data, findDestroyFct(d));
+}
+
+EXPORT void my_gst_pad_set_chain_list_function_full(x64emu_t* emu, void* pad, void *f, void* data, void* d)
+{
+    return my->gst_pad_set_chain_list_function_full(pad, findGstPadChainListFunctionFct(f), data, findDestroyFct(d));
 }
 
 #define PRE_INIT \

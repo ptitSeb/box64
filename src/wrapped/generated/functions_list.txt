@@ -4667,6 +4667,7 @@ wrappedgstreamer:
   - gst_pad_set_activate_function_full
   - gst_pad_set_activatemode_function_full
   - gst_pad_set_chain_function_full
+  - gst_pad_set_chain_list_function_full
   - gst_pad_set_event_function_full
   - gst_pad_set_getrange_function_full
   - gst_pad_set_iterate_internal_links_function_full
@@ -4676,6 +4677,7 @@ wrappedgstreamer:
   - gst_iterator_find_custom
   - gst_pad_start_task
 - uFpppp:
+  - gst_clock_id_wait_async
   - gst_iterator_fold
 - pFppip:
   - gst_registry_feature_filter
