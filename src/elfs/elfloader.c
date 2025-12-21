@@ -1956,7 +1956,7 @@ const char* getAddrFunctionName(uintptr_t addr)
     elfheader_t* elf = FindElfAddress(my_context, addr);
     const char* symbname = FindNearestSymbolName(elf, (void*)addr, &start, &sz);
     if (!sz) sz = 0x100; // arbitrary value...
-    if (symbname && addr >= start && (addr < (start + sz) || !sz)) {
+    if (symbname && (addr >= start) && (addr < (start + sz))) {
         if (symbname[0] == '\0')
             sprintf(ret, "%s + 0x%lx + 0x%lx", ElfName(elf), start - (uintptr_t)GetBaseAddress(elf), addr - start);
         else if (addr == start)
