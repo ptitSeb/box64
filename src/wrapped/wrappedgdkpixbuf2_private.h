@@ -96,7 +96,7 @@ GO(gdk_pixbuf_ref, pFp)
 GO(gdk_pixbuf_rotate_simple, pFpi)
 //GO(gdk_pixbuf_rotation_get_type, 
 GO(gdk_pixbuf_saturate_and_pixelate, vFppfi)
-//GO(gdk_pixbuf_save, iFpppppppppppppp)   //vaarg, wrap with gdk_pixbuf_save?
+GOM(gdk_pixbuf_save, iFEppppV)
 //GO(gdk_pixbuf_save_to_buffer, iFpppppppppppppp)   //vaarg, wrap with gdk_pixbuf_save_to_bufferv ?
 GO(gdk_pixbuf_save_to_bufferv, iFppppppp)
 //GOM(gdk_pixbuf_save_to_callback, iFEpppppV)   //wrap with gdk_pixbuf_save_to_callbackv

@@ -46,11 +46,16 @@ typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_
 	GO(gtk_container_forall, vFppp_t) \
 	GO(gtk_container_foreach, vFppp_t) \
 	GO(gtk_menu_attach_to_widget, vFppp_t) \
+	GO(gtk_widget_class_bind_template_callback_full, vFppp_t) \
 	GO(gtk_dialog_add_buttons, vFppV_t) \
+	GO(gtk_list_store_set, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
+	GO(gtk_tree_model_get, vFppV_t) \
 	GO(gtk_tree_store_set, vFppV_t) \
 	GO(gtk_widget_style_get, vFppV_t) \
+	GO(gtk_list_store_set_valist, vFppA_t) \
+	GO(gtk_tree_model_get_valist, vFppA_t) \
 	GO(gtk_tree_store_set_valist, vFppA_t) \
 	GO(gtk_list_store_insert_with_values, vFppiV_t) \
 	GO(gtk_enumerate_printers, vFpppi_t) \

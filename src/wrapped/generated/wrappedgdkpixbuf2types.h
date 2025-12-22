@@ -11,9 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFppppV_t)(void*, void*, void*, void*, ...);
 typedef void* (*pFpiiiiiipp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(gdk_pixbuf_save, iFppppV_t) \
 	GO(gdk_pixbuf_new_from_data, pFpiiiiiipp_t)
 
 #endif // __wrappedgdkpixbuf2TYPES_H_
