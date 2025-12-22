@@ -6398,6 +6398,7 @@ wrappedsdl2:
 - vFpp:
   - SDL_AddEventWatch
   - SDL_DelEventWatch
+  - SDL_FilterEvents
   - SDL_LogGetOutputFunction
   - SDL_LogSetOutputFunction
   - SDL_SetEventFilter
@@ -6444,6 +6445,9 @@ wrappedsdl2:
   - SDL_LogInfo
   - SDL_LogVerbose
   - SDL_LogWarn
+- vFppp:
+  - SDL_AddHintCallback
+  - SDL_DelHintCallback
 - iFupu:
   - SDL_DYNAPI_entry
 - iFupp:
@@ -6478,15 +6482,20 @@ wrappedsdl2:
 % vFGpppp
 wrappedsdl2image:
 - pFp:
+  - IMG_LoadAVIF_RW
   - IMG_LoadBMP_RW
   - IMG_LoadCUR_RW
+  - IMG_LoadGIFAnimation_RW
   - IMG_LoadGIF_RW
   - IMG_LoadICO_RW
   - IMG_LoadJPG_RW
+  - IMG_LoadJXL_RW
   - IMG_LoadLBM_RW
   - IMG_LoadPCX_RW
   - IMG_LoadPNG_RW
   - IMG_LoadPNM_RW
+  - IMG_LoadQOI_RW
+  - IMG_LoadSVG_RW
   - IMG_LoadTGA_RW
   - IMG_LoadTIF_RW
   - IMG_LoadWEBP_RW
@@ -6494,13 +6503,19 @@ wrappedsdl2image:
   - IMG_LoadXPM_RW
   - IMG_LoadXV_RW
 - pFpi:
+  - IMG_LoadAnimation_RW
   - IMG_Load_RW
 - iFppi:
   - IMG_SavePNG_RW
+- pFpii:
+  - IMG_LoadSizedSVG_RW
 - pFpip:
+  - IMG_LoadAnimationTyped_RW
   - IMG_LoadTyped_RW
 - pFppi:
   - IMG_LoadTexture_RW
+- iFppii:
+  - IMG_SaveJPG_RW
 - pFppip:
   - IMG_LoadTextureTyped_RW
 wrappedsdl2mixer:
@@ -6514,6 +6529,8 @@ wrappedsdl2mixer:
   - MinorityMix_SetPosition
 - iFip:
   - Mix_UnregisterEffect
+- iFpp:
+  - Mix_EachSoundFont
 - pFpi:
   - Mix_LoadMUS_RW
   - Mix_LoadWAV_RW

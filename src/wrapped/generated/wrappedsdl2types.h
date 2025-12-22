@@ -33,6 +33,7 @@ typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
+typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFupu_t)(uint32_t, void*, uint32_t);
 typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
@@ -83,6 +84,7 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_LoadObject, pFp_t) \
 	GO(SDL_AddEventWatch, vFpp_t) \
 	GO(SDL_DelEventWatch, vFpp_t) \
+	GO(SDL_FilterEvents, vFpp_t) \
 	GO(SDL_LogGetOutputFunction, vFpp_t) \
 	GO(SDL_LogSetOutputFunction, vFpp_t) \
 	GO(SDL_SetEventFilter, vFpp_t) \
@@ -117,6 +119,8 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_LogInfo, vFipV_t) \
 	GO(SDL_LogVerbose, vFipV_t) \
 	GO(SDL_LogWarn, vFipV_t) \
+	GO(SDL_AddHintCallback, vFppp_t) \
+	GO(SDL_DelHintCallback, vFppp_t) \
 	GO(SDL_DYNAPI_entry, iFupu_t) \
 	GO(SDL_TLSSet, iFupp_t) \
 	GO(SDL_SaveBMP_RW, iFppi_t) \

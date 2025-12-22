@@ -25,9 +25,14 @@ GOM(IMG_LoadWEBP_RW,pFEp)
 GOM(IMG_LoadXCF_RW,pFEp)
 GOM(IMG_LoadXPM_RW,pFEp)
 GOM(IMG_LoadXV_RW,pFEp)
+GOM(IMG_LoadAVIF_RW, pFEp)
+GOM(IMG_LoadJXL_RW, pFEp)
+GOM(IMG_LoadQOI_RW, pFEp)
+GOM(IMG_LoadGIFAnimation_RW, pFEp)
 GOM(IMG_Load_RW,pFEpi)
 GO(IMG_Quit,vFv)
 GO(IMG_ReadXPMFromArray,pFp)
+GO(IMG_ReadXPMFromArrayToRGB888, pFp)
 GO(IMG_isBMP,iFp)
 GO(IMG_isCUR,iFp)
 GO(IMG_isGIF,iFp)
@@ -42,12 +47,16 @@ GO(IMG_isWEBP,iFp)
 GO(IMG_isXCF,iFp)
 GO(IMG_isXPM,iFp)
 GO(IMG_isXV,iFp)
+GO(IMG_isAVIF, iFp)
+GO(IMG_isJXL, iFp)
+GO(IMG_isQOI, iFp)
 // IMG_InitJPG
 // IMG_InitPNG
 // IMG_InitTIF
 // IMG_InitWEBP
-// IMG_isSVG
-// IMG_LoadSVG_RW
+GO(IMG_isSVG, iFp)
+GOM(IMG_LoadSVG_RW, pFEp)
+GOM(IMG_LoadSizedSVG_RW, pFEpii)
 GO(IMG_LoadTexture, pFpp)
 GOM(IMG_LoadTexture_RW, pFEppi)
 GOM(IMG_LoadTextureTyped_RW, pFEppip)
@@ -55,8 +64,8 @@ GOM(IMG_LoadTextureTyped_RW, pFEppip)
 // IMG_QuitPNG
 // IMG_QuitTIF
 // IMG_QuitWEBP
-// IMG_SaveJPG
-// IMG_SaveJPG_RW
+GO(IMG_SaveJPG, iFppi)
+GOM(IMG_SaveJPG_RW, iFEppii)
 GO(IMG_SavePNG, iFpp)
 GOM(IMG_SavePNG_RW, iFEppi)
 // _init
@@ -67,3 +76,7 @@ DATA(nsvg__colors, 4)
 // nsvgParse
 // nsvg__parseXML
 // nsvgRasterize
+GO(IMG_LoadAnimation, pFp)
+GOM(IMG_LoadAnimation_RW, pFEpi)
+GOM(IMG_LoadAnimationTyped_RW, pFEpip)
+GO(IMG_FreeAnimation, vFp)

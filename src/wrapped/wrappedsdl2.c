@@ -224,6 +224,39 @@ static void* reverse_LogOutput_Fct(void* fct)
     return (void*)AddBridge(my_lib->w.bridge, vFpiip, fct, 0, NULL);
 }
 
+// Hint
+#define GO(A) \
+static uintptr_t my_Hint_fct_##A = 0; \
+static void my_Hint_##A(void* userdata, const char* name, const char* oldValue, const char* newValue) \
+{ \
+    RunFunctionFmt(my_Hint_fct_##A, "pppp", userdata, name, oldValue, newValue); \
+}
+SUPER()
+#undef GO
+static void* find_Hint_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_Hint_fct_##A == (uintptr_t)fct) return my_Hint_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_Hint_fct_##A == 0) {my_Hint_fct_##A = (uintptr_t)fct; return my_Hint_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL2 Hint callback\n");
+    return NULL;
+}
+static void* reverse_Hint_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_Hint_##A == fct) return (void*)my_Hint_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFpppp, fct, 0, NULL);
+}
+
 #undef SUPER
 
 // TODO: track the memory for those callback
@@ -504,6 +537,15 @@ EXPORT void my2_SDL_LogSetOutputFunction(x64emu_t* emu, void* f, void* arg)
 {
 
     my->SDL_LogSetOutputFunction(find_LogOutput_Fct(f), arg);
+}
+
+EXPORT void my2_SDL_AddHintCallback(x64emu_t* emu, char* name, void* callback, void* userdata)
+{
+    my->SDL_AddHintCallback(name, find_Hint_Fct(callback), userdata);
+}
+EXPORT void my2_SDL_DelHintCallback(x64emu_t* emu, char* name, void* callback, void* userdata)
+{
+    my->SDL_DelHintCallback(name, reverse_Hint_Fct(callback), userdata);
 }
 
 EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b)
@@ -840,6 +882,15 @@ EXPORT int my2_SDL_GetCPUCount(x64emu_t* emu)
     if(BOX64ENV(maxcpu) && ret>BOX64ENV(maxcpu))
         ret = BOX64ENV(maxcpu);
     return ret;
+}
+
+static uintptr_t my_FilterEvents_callback_f = 0;
+static int my_FilterEvents_callback(void* userdata, void* event) {
+    return (int) RunFunctionFmt(my_FilterEvents_callback_f, "pp", userdata, event);
+}
+EXPORT void my2_SDL_FilterEvents(x64emu_t* emu, void* filter, void* userdata) {
+    my_FilterEvents_callback_f = (uintptr_t) filter;
+    my->SDL_FilterEvents(filter, my_FilterEvents_callback);
 }
 
 #undef HAS_MY
