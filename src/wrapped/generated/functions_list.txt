@@ -515,6 +515,7 @@
 #() vFppL
 #() vFppp
 #() vFppV
+#() vFppA
 #() vFpHi
 #() vFSpi
 #() vFSpL
@@ -2380,6 +2381,7 @@
 #() iFEppupp
 #() iFEppppi
 #() iFEppppp
+#() iFEppppV
 #() iFiiiipp
 #() iFiiiuwp
 #() iFiippiu
@@ -3421,6 +3423,7 @@
 #() iFppppppppu
 #() iFppppppppp
 #() uFEipuppppp
+#() uFEppuipppp
 #() uFEpppufppp
 #() uFuulpiuiuf
 #() uFpuupuppuu
@@ -4193,7 +4196,11 @@ wrappedgdk3:
   - gdk_threads_add_idle_full
 - uFiuppp:
   - gdk_threads_add_timeout_full
+- uFppuipppp:
+  - gdk_seat_grab
 wrappedgdkpixbuf2:
+- iFppppV:
+  - gdk_pixbuf_save
 - pFpiiiiiipp:
   - gdk_pixbuf_new_from_data
 wrappedgdkx112:
@@ -4350,6 +4357,7 @@ wrappedglib2:
   - g_array_sort_with_data
   - g_hash_table_foreach
   - g_list_foreach
+  - g_log_set_writer_func
   - g_main_context_invoke
   - g_option_context_add_main_entries
   - g_option_group_set_parse_hooks
@@ -4736,13 +4744,18 @@ wrappedgtk3:
   - gtk_container_forall
   - gtk_container_foreach
   - gtk_menu_attach_to_widget
+  - gtk_widget_class_bind_template_callback_full
 - vFppV:
   - gtk_dialog_add_buttons
+  - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+  - gtk_tree_model_get
   - gtk_tree_store_set
   - gtk_widget_style_get
 - vFppA:
+  - gtk_list_store_set_valist
+  - gtk_tree_model_get_valist
   - gtk_tree_store_set_valist
 - vFppiV:
   - gtk_list_store_insert_with_values
@@ -5131,6 +5144,7 @@ wrappedlibc:
 - iFppV:
   - __asprintf
   - __isoc23_sscanf
+  - __isoc23_swscanf
   - __isoc99_fscanf
   - __isoc99_sscanf
   - __isoc99_swscanf

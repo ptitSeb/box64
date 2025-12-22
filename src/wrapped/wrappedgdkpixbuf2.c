@@ -16,11 +16,17 @@
 #include "librarian.h"
 #include "box64context.h"
 #include "emu/x64emu_private.h"
+#include "myalign.h"
 
 const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
 #define ALTNAME "libgdk_pixbuf-2.0.so"
 
 #define LIBNAME gdkpixbuf2
+
+typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+
+#define ADDED_FUNCTIONS() \
+    GO(gdk_pixbuf_savev, iFpppppp_t)
 
 #include "generated/wrappedgdkpixbuf2types.h"
 
@@ -60,6 +66,21 @@ static void* finddestroy_pixbufFct(void* fct)
 EXPORT void* my_gdk_pixbuf_new_from_data(x64emu_t* emu, void* data, int32_t colorspace, int32_t has_alpha, int32_t bpp, int32_t w, int32_t h, int32_t stride, void* destroy_func, void* destroy_data)
 {
     return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, finddestroy_pixbufFct(destroy_func), destroy_data);
+}
+
+EXPORT int my_gdk_pixbuf_save(x64emu_t* emu, void* pixbuf, void* filename, void* type, void* error, uintptr_t* b)
+{
+    int n = 0;
+    while ((((void*)getVArgs(emu, 4, b, n * 2))) != NULL)
+        n += 1;
+    char* keys[n];
+    char* vals[n];
+    for (int i = 0; i < n; ++i) {
+        keys[i] = (char*)getVArgs(emu, 4, b, i * 2 + 0);
+        vals[i] = (char*)getVArgs(emu, 4, b, i * 2 + 1);
+    }
+
+    return my->gdk_pixbuf_savev(pixbuf, filename, type, keys, vals, error);
 }
 
 #define PRE_INIT \

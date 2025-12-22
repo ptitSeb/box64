@@ -38,54 +38,57 @@ typedef void          (*vFppp_t)(void*, void*, void*);
 typedef void          (*vFppA_t)(void*, void*, va_list);
 typedef void          (*vFpipV_t)(void*, int, void*, ...);
 typedef void          (*vFppippi_t)(void*, void*, int, void*, void*, int);
+typedef void (*vFppip_t)(void*, void*, int, void*);
 
-#define ADDED_FUNCTIONS()                   \
-GO(g_type_class_ref, pFL_t)                 \
-GO(g_type_class_unref, vFp_t)               \
-GO(gtk_application_window_get_type, LFv_t)  \
-GO(gtk_bin_get_type, LFv_t)                 \
-GO(gtk_widget_get_type, LFv_t)              \
-GO(gtk_button_get_type, LFv_t)              \
-GO(gtk_menu_button_get_type, LFv_t)         \
-GO(gtk_container_get_type, LFv_t)           \
-GO(gtk_misc_get_type, LFv_t)                \
-GO(gtk_label_get_type, LFv_t)               \
-GO(gtk_list_box_get_type, LFv_t)            \
-GO(gtk_image_get_type, LFv_t)               \
-GO(gtk_list_box_row_get_type, LFv_t)        \
-GO(gtk_tree_view_get_type, LFv_t)           \
-GO(gtk_window_get_type, LFv_t)              \
-GO(gtk_table_get_type, LFv_t)               \
-GO(gtk_fixed_get_type, LFv_t)               \
-GO(gtk_combo_box_get_type, LFv_t)           \
-GO(gtk_toggle_button_get_type, LFv_t)       \
-GO(gtk_check_button_get_type, LFv_t)        \
-GO(gtk_text_view_get_type, LFv_t)           \
-GO(gtk_frame_get_type, LFv_t)               \
-GO(gtk_entry_get_type, LFv_t)               \
-GO(gtk_spin_button_get_type, LFv_t)         \
-GO(gtk_progress_get_type, LFv_t)            \
-GO(gtk_progress_bar_get_type, LFv_t)        \
-GO(gtk_menu_shell_get_type, LFv_t)          \
-GO(gtk_menu_bar_get_type, LFv_t)            \
-GO(gtk_action_get_type, LFv_t)              \
-GO(gtk_application_get_type, LFv_t)         \
-GO(gtk_grid_get_type, LFv_t)                \
-GO(gtk_event_controller_get_type, LFv_t)    \
-GO(gtk_gesture_get_type, LFv_t)             \
-GO(gtk_gesture_single_get_type, LFv_t)      \
-GO(gtk_gesture_long_press_get_type, LFv_t)  \
-GO(gtk_dialog_add_button, pFppi_t)          \
-GO(gtk_spin_button_get_value, dFp_t)        \
-GO(gtk_builder_lookup_callback_symbol, pFpp_t)  \
-GO(g_module_symbol, iFppp_t)                \
-GO(g_log, vFpipV_t)                         \
-GO(g_module_open, pFpu_t)                   \
-GO(g_module_close, vFp_t)                   \
-GO(gtk_tree_store_newv, pFup_t)             \
-GO(gtk_widget_style_get_valist, vFppA_t)    \
-GO(gtk_widget_style_get_property, vFppp_t)  \
-GO(gtk_list_store_insert_with_valuesv, vFppippi_t)
+#define ADDED_FUNCTIONS()                              \
+    GO(g_type_class_ref, pFL_t)                        \
+    GO(g_type_class_unref, vFp_t)                      \
+    GO(gtk_application_window_get_type, LFv_t)         \
+    GO(gtk_bin_get_type, LFv_t)                        \
+    GO(gtk_widget_get_type, LFv_t)                     \
+    GO(gtk_button_get_type, LFv_t)                     \
+    GO(gtk_menu_button_get_type, LFv_t)                \
+    GO(gtk_container_get_type, LFv_t)                  \
+    GO(gtk_misc_get_type, LFv_t)                       \
+    GO(gtk_label_get_type, LFv_t)                      \
+    GO(gtk_list_box_get_type, LFv_t)                   \
+    GO(gtk_image_get_type, LFv_t)                      \
+    GO(gtk_list_box_row_get_type, LFv_t)               \
+    GO(gtk_tree_view_get_type, LFv_t)                  \
+    GO(gtk_window_get_type, LFv_t)                     \
+    GO(gtk_table_get_type, LFv_t)                      \
+    GO(gtk_fixed_get_type, LFv_t)                      \
+    GO(gtk_combo_box_get_type, LFv_t)                  \
+    GO(gtk_toggle_button_get_type, LFv_t)              \
+    GO(gtk_check_button_get_type, LFv_t)               \
+    GO(gtk_text_view_get_type, LFv_t)                  \
+    GO(gtk_frame_get_type, LFv_t)                      \
+    GO(gtk_entry_get_type, LFv_t)                      \
+    GO(gtk_spin_button_get_type, LFv_t)                \
+    GO(gtk_progress_get_type, LFv_t)                   \
+    GO(gtk_progress_bar_get_type, LFv_t)               \
+    GO(gtk_menu_shell_get_type, LFv_t)                 \
+    GO(gtk_menu_bar_get_type, LFv_t)                   \
+    GO(gtk_action_get_type, LFv_t)                     \
+    GO(gtk_application_get_type, LFv_t)                \
+    GO(gtk_grid_get_type, LFv_t)                       \
+    GO(gtk_event_controller_get_type, LFv_t)           \
+    GO(gtk_gesture_get_type, LFv_t)                    \
+    GO(gtk_gesture_single_get_type, LFv_t)             \
+    GO(gtk_gesture_long_press_get_type, LFv_t)         \
+    GO(gtk_dialog_add_button, pFppi_t)                 \
+    GO(gtk_spin_button_get_value, dFp_t)               \
+    GO(gtk_builder_lookup_callback_symbol, pFpp_t)     \
+    GO(g_module_symbol, iFppp_t)                       \
+    GO(g_log, vFpipV_t)                                \
+    GO(g_module_open, pFpu_t)                          \
+    GO(g_module_close, vFp_t)                          \
+    GO(gtk_tree_store_newv, pFup_t)                    \
+    GO(gtk_widget_style_get_valist, vFppA_t)           \
+    GO(gtk_widget_style_get_property, vFppp_t)         \
+    GO(gtk_list_store_insert_with_valuesv, vFppippi_t) \
+    GO(gtk_tree_model_get_value, vFppip_t)             \
+    GO(gtk_list_store_set_value, vFppip_t)
 
 #include "generated/wrappedgtk3types.h"
 
@@ -534,6 +537,34 @@ static void* findTranslateEvent(void* fct)
     return NULL;
 }
 
+// GCallback
+#define GO(A)                                     \
+    static uintptr_t my_GCallback_fct_##A = 0;    \
+    static void my_GCallback_##A(void* data)      \
+    {                                             \
+        RunFunctionFmt(my_GCallback_fct_##A, ""); \
+    }
+SUPER()
+#undef GO
+static void* findGCallbackFct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                  \
+    if (my_GCallback_fct_##A == 0) {           \
+        my_GCallback_fct_##A = (uintptr_t)fct; \
+        return my_GCallback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GCallback callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -775,10 +806,11 @@ EXPORT void my3_gtk_style_context_get(x64emu_t* emu, void* context, uint32_t fla
 
 EXPORT void my3_gtk_widget_style_get(x64emu_t* emu, void* widget, void* first, uintptr_t* b)
 {
-    #ifdef PREFER_CONVERT_VAARG
+// #ifdef PREFER_CONVERT_VAARG
+#if 1
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     my->gtk_widget_style_get_valist(widget, first, VARARGS);
-    #else
+#else // breaks DeltaPatcher
     void* prop = first;
     int i=0;
     do {
@@ -786,7 +818,7 @@ EXPORT void my3_gtk_widget_style_get(x64emu_t* emu, void* widget, void* first, u
         my->gtk_widget_style_get_property(widget, prop, val);
         prop = (void*)getVArgs(emu, 2, b, i++);
     } while (prop);
-    #endif
+#endif
 }
 
 EXPORT void my3_gtk_list_store_insert_with_values(x64emu_t* emu, void* list_store, void* iter, int position, uintptr_t* b)
@@ -823,6 +855,64 @@ EXPORT void my3_gtk_list_box_set_header_func(x64emu_t* emu, void* box, void* f, 
     my->gtk_list_box_set_header_func(box, findGtkListBoxUpdateHeaderFunc(f), data, findGDestroyNotifyFct(d));
 }
 
+EXPORT void my3_gtk_tree_model_get(x64emu_t* emu, void* tree_model, void* iter, uintptr_t* b)
+{
+// #ifdef PREFER_CONVERT_VAARG
+#if 1
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_tree_model_get_valist(tree_model, iter, VARARGS);
+#else
+    int i = 0;
+    int col = (int)getVArgs(emu, 2, b, i++);
+    while (col != -1) {
+        void* val = (void*)getVArgs(emu, 2, b, i++);
+        my->gtk_tree_model_get_value(tree_model, iter, col, val);
+        col = (int)getVArgs(emu, 2, b, i++);
+    }
+#endif
+}
+
+EXPORT void my3_gtk_tree_model_get_valist(x64emu_t* emu, void* tree_model, void* iter, x64_va_list_t V)
+{
+#ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+#else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+#endif
+    my->gtk_tree_model_get_valist(tree_model, iter, VARARGS);
+}
+
+EXPORT void my3_gtk_list_store_set(x64emu_t* emu, void* list_store, void* iter, uintptr_t* b)
+{
+// #ifdef PREFER_CONVERT_VAARG
+#if 1
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_list_store_set_valist(list_store, iter, VARARGS);
+#else
+    int i = 0;
+    int col = (int)getVArgs(emu, 2, b, i++);
+    while (col != -1) {
+        void* val = (void*)getVArgs(emu, 2, b, i++);
+        my->gtk_list_store_set_value(list_store, iter, col, val);
+        col = (int)getVArgs(emu, 2, b, i++);
+    }
+#endif
+}
+
+EXPORT void my3_gtk_list_store_set_valist(x64emu_t* emu, void* list_store, void* iter, x64_va_list_t V)
+{
+#ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+#else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+#endif
+    my->gtk_list_store_set_valist(list_store, iter, VARARGS);
+}
+
+EXPORT void my3_gtk_widget_class_bind_template_callback_full(x64emu_t* emu, void* widget_class, void* cb_name, void* cb)
+{
+    my->gtk_widget_class_bind_template_callback_full(widget_class, cb_name, findGCallbackFct(cb));
+}
 
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;

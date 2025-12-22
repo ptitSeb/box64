@@ -146,6 +146,34 @@ static void* findEventHandlerFct(void* fct)
     return NULL;
 }
 
+// GdkSeatGrabPrepareFunc
+#define GO(A)                                                                            \
+    static uintptr_t my_GdkSeatGrabPrepareFunc_fct_##A = 0;                              \
+    static void* my_GdkSeatGrabPrepareFunc_##A(void* a, void* b, void* c)                \
+    {                                                                                    \
+        return (void*)RunFunctionFmt(my_GdkSeatGrabPrepareFunc_fct_##A, "ppp", a, b, c); \
+    }
+SUPER()
+#undef GO
+static void* findGdkSeatGrabPrepareFuncFct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GdkSeatGrabPrepareFunc_fct_##A == (uintptr_t)fct) return my_GdkSeatGrabPrepareFunc_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                               \
+    if (my_GdkSeatGrabPrepareFunc_fct_##A == 0) {           \
+        my_GdkSeatGrabPrepareFunc_fct_##A = (uintptr_t)fct; \
+        return my_GdkSeatGrabPrepareFunc_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gdk3 GdkSeatGrabPrepareFunc\n");
+    return NULL;
+}
+
 #undef SUPER
 
 
@@ -196,6 +224,11 @@ EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, ui
 EXPORT void my3_gdk_threads_set_lock_functions(x64emu_t* emu, void* enter_fn, void* leave_fn)
 {
     my->gdk_threads_set_lock_functions(findGCallbackFct(enter_fn), findGCallbackFct(leave_fn));
+}
+
+EXPORT uint32_t my3_gdk_seat_grab(x64emu_t* emu, void* seat, void* window, uint32_t cap, int oes, void* cursor, void* ev, void* func, void* data)
+{
+    return my->gdk_seat_grab(seat, window, cap, oes, cursor, ev, findGdkSeatGrabPrepareFuncFct(func), data);
 }
 
 #define PRE_INIT \
