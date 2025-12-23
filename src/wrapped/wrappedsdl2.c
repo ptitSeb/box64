@@ -884,13 +884,19 @@ EXPORT int my2_SDL_GetCPUCount(x64emu_t* emu)
     return ret;
 }
 
-static uintptr_t my_FilterEvents_callback_f = 0;
-static int my_FilterEvents_callback(void* userdata, void* event) {
-    return (int) RunFunctionFmt(my_FilterEvents_callback_f, "pp", userdata, event);
+struct my_FilterEvents_data {
+    uintptr_t callback;
+    void *userdata;
+};
+static int my_FilterEvents_callback(struct my_FilterEvents_data* data, void* event) {
+    return (int) RunFunctionFmt(data->callback, "pp", data->userdata, event);
 }
 EXPORT void my2_SDL_FilterEvents(x64emu_t* emu, void* filter, void* userdata) {
-    my_FilterEvents_callback_f = (uintptr_t) filter;
-    my->SDL_FilterEvents(filter, my_FilterEvents_callback);
+    struct my_FilterEvents_data data = {
+        .callback = (uintptr_t) filter,
+        .userdata = userdata,
+    };
+    my->SDL_FilterEvents(my_FilterEvents_callback, &data);
 }
 
 #undef HAS_MY

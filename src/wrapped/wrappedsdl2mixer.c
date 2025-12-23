@@ -225,13 +225,19 @@ EXPORT int my2_MinorityMix_SetPosition(x64emu_t* emu, int channel, int16_t angle
     return my->Mix_SetPosition(channel, angle, 0);
 }
 
-static uintptr_t my_EachSoundFont_callback_f = 0;
-static int my_EachSoundFont_callback(char* a, void* b) {
-    return (int) RunFunctionFmt(my_EachSoundFont_callback_f, "pp", a, b);
+struct my_EachSoundFont_data {
+    uintptr_t callback;
+    void *userdata;
+};
+static int my_EachSoundFont_callback(const char* a, struct my_EachSoundFont_data* data) {
+    return (int) RunFunctionFmt(data->callback, "pp", a, data->userdata);
 }
-EXPORT int my2_Mix_EachSoundFont(x64emu_t* emu, void* callback, void* data) {
-    my_EachSoundFont_callback_f = (uintptr_t) callback;
-    return my->Mix_EachSoundFont(my_EachSoundFont_callback, data);
+EXPORT int my2_Mix_EachSoundFont(x64emu_t* emu, void* callback, void* userdata) {
+    struct my_EachSoundFont_data data = {
+        .callback = (uintptr_t) callback,
+        .userdata = userdata,
+    };
+    return my->Mix_EachSoundFont(my_EachSoundFont_callback, &data);
 }
 
 #define ALTMY my2_
