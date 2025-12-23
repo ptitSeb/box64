@@ -15,6 +15,7 @@ typedef void (*vFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFiw_t)(int32_t, int16_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFippp_t)(int32_t, void*, void*, void*);
@@ -26,6 +27,7 @@ typedef int32_t (*iFippp_t)(int32_t, void*, void*, void*);
 	GO(Mix_SetPostMix, vFpp_t) \
 	GO(MinorityMix_SetPosition, iFiw_t) \
 	GO(Mix_UnregisterEffect, iFip_t) \
+	GO(Mix_EachSoundFont, iFpp_t) \
 	GO(Mix_LoadMUS_RW, pFpi_t) \
 	GO(Mix_LoadWAV_RW, pFpi_t) \
 	GO(Mix_LoadMUSType_RW, pFpii_t) \

@@ -47,6 +47,11 @@ GO(IMG_LoadWEBP_RW)
 GO(IMG_LoadXCF_RW)
 GO(IMG_LoadXPM_RW)
 GO(IMG_LoadXV_RW)
+GO(IMG_LoadAVIF_RW)
+GO(IMG_LoadJXL_RW)
+GO(IMG_LoadSVG_RW)
+GO(IMG_LoadQOI_RW)
+GO(IMG_LoadGIFAnimation_RW)
 #undef GO
 
  EXPORT void *my2_IMG_LoadTyped_RW(x64emu_t* emu, void* a, int32_t b, void* c)
@@ -82,6 +87,14 @@ EXPORT int32_t my2_IMG_SavePNG_RW(x64emu_t* emu, void* s, void* a, int32_t b)
     }
     return r;
 }
+EXPORT int my2_IMG_SaveJPG_RW(x64emu_t* emu, void* surface, void* dst, int freedst, int quality)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)dst);
+    int r = my->IMG_SaveJPG_RW(surface, rw, freedst, quality);
+    if(freedst==0)
+        RWNativeEnd2(rw);
+    return r;
+}
 
 EXPORT void* my2_IMG_LoadTexture_RW(x64emu_t* emu, void* rend, void* a, int32_t b)
 {
@@ -97,6 +110,32 @@ EXPORT void* my2_IMG_LoadTextureTyped_RW(x64emu_t* emu, void* rend, void* a, int
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->IMG_LoadTextureTyped_RW(rend, rw, b, type);
     if(b==0)
+        RWNativeEnd2(rw);
+    return r;
+}
+
+EXPORT void* my2_IMG_LoadSizedSVG_RW(x64emu_t* emu, void* src, int width, int height)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)src);
+    void* r = my->IMG_LoadSizedSVG_RW(rw, width, height);
+    RWNativeEnd2(rw);
+    return r;
+}
+
+EXPORT void* my2_IMG_LoadAnimation_RW(x64emu_t* emu, void* src, int freesrc)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)src);
+    void* r = my->IMG_LoadAnimation_RW(rw, freesrc);
+    if(freesrc==0)
+        RWNativeEnd2(rw);
+    return r;
+}
+
+EXPORT void* my2_IMG_LoadAnimationTyped_RW(x64emu_t* emu, void* src, int freesrc, char* type)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)src);
+    void* r = my->IMG_LoadAnimationTyped_RW(rw, freesrc, type);
+    if(freesrc==0)
         RWNativeEnd2(rw);
     return r;
 }
