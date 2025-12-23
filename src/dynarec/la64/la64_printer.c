@@ -100,15 +100,15 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if (isMask(opcode, "000000000000010iikkkkkjjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %lu", "ALSL.W", Xt[Rd], Xt[Rj], Xt[Rk], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %lu", "ALSL.W", Xt[Rd], Xt[Rj], Xt[Rk], imm + 1);
         return buff;
     }
     if (isMask(opcode, "000000000000011iikkkkkjjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %lu", "ALSL.WU", Xt[Rd], Xt[Rj], Xt[Rk], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %lu", "ALSL.WU", Xt[Rd], Xt[Rj], Xt[Rk], imm + 1);
         return buff;
     }
     if (isMask(opcode, "000000000010110iikkkkkjjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %lu", "ALSL.D", Xt[Rd], Xt[Rj], Xt[Rk], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %lu", "ALSL.D", Xt[Rd], Xt[Rj], Xt[Rk], imm + 1);
         return buff;
     }
     if (isMask(opcode, "0001010iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
