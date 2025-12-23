@@ -1248,6 +1248,7 @@
 #define emit_shrd16c        STEPNAME(emit_shrd16c)
 #define emit_shrd16         STEPNAME(emit_shrd16)
 #define emit_shld16         STEPNAME(emit_shld16)
+#define emit_rcr32c         STEPNAME(emit_rcr32c)
 
 #define emit_pf STEPNAME(emit_pf)
 
@@ -1404,6 +1405,7 @@ void emit_shrd16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 void emit_shld16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
 void emit_shld16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_shrd16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
+void emit_rcr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
 
 void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 
