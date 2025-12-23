@@ -1275,7 +1275,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
             siglongjmp(emu->jmpbuf, skip);
             #endif
         }
-        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
+        printf_log(LOG_DEBUG, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP] != sigcontext_copy.uc_mcontext.gregs[X64_RIP]) ? " (EIP changed)" : "");
     }
     // restore regs...
     #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[X64_##R]
