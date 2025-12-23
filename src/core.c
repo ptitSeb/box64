@@ -1055,7 +1055,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         box64_wine_guest_name = NULL;
     }
     // Try to open ftrace again after applying rcfile.
-    openFTrace();
+    displayMiscInfo();
     setupZydis(my_context);
     PrintEnvVariables(&box64env, LOG_INFO);
 
