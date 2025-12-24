@@ -25,7 +25,7 @@
 #include "box32context.h"
 #endif
 
-KHASH_MAP_INIT_INT64(bridgemap, uintptr_t)
+KHASH_MAP_INIT_INT128(bridgemap, uintptr_t)
 
 typedef struct brick_s brick_t;
 typedef struct brick_s {
@@ -99,12 +99,8 @@ void FreeBridge(bridge_t** bridge)
     *bridge = NULL;
 }
 
-#ifdef HAVE_TRACE
-void addBridgeName(void* addr, const char* name);
-#endif
-
 //static const char* default_bridge = "bridge???";
-uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
+uintptr_t AddBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N, const char* name)
 {
     brick_t *b = NULL;
     int sz = -1;
@@ -120,7 +116,8 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     sz = b->sz;
     b->sz++;
     // add bridge to map, for fast recovery
-    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
+    khint128_t key = (uintptr_t)fnc | (khint128_t)((uintptr_t)fnc2)<<64;
+    khint_t k = kh_put(bridgemap, bridge->bridgemap, key, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
     mutex_unlock(&my_context->mutex_bridge);
 
@@ -130,15 +127,31 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     b->b[sz].f = (uintptr_t)fnc;
     b->b[sz].C3 = N?0xC2:0xC3;
     b->b[sz].N = N;
-    b->b[sz].name = name/*?name:default_bridge*/;
+    b->b[sz].func = fnc2?1:0;
+    b->b[sz].name_or_func = fnc2?(void*)name:fnc2;
 
     return (uintptr_t)&b->b[sz].CC;
+}
+
+uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
+{
+    return AddBridge2(bridge, w, fnc, NULL, N, name);
 }
 
 uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
 {
     // check if function alread have a bridge (the function wrapper will not be tested)
     khint_t k = kh_get(bridgemap, bridge->bridgemap, (uintptr_t)fnc);
+    if(k==kh_end(bridge->bridgemap))
+        return 0;
+    return kh_value(bridge->bridgemap, k);
+}
+
+uintptr_t CheckBridged2(bridge_t* bridge, void* fnc, void* fnc2)
+{
+    // check if function alread have a bridge (the function wrapper will not be tested)
+    khint128_t key = (uintptr_t)fnc | (khint128_t)((uintptr_t)fnc2)<<64;
+    khint_t k = kh_get(bridgemap, bridge->bridgemap, key);
     if(k==kh_end(bridge->bridgemap))
         return 0;
     return kh_value(bridge->bridgemap, k);
@@ -151,6 +164,16 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const 
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
         ret = AddBridge(bridge, w, fnc, N, name);
+    return ret;
+}
+
+uintptr_t AddCheckBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N, const char* name)
+{
+    if(!fnc && w)
+        return 0;
+    uintptr_t ret = CheckBridged2(bridge, fnc, fnc2);
+    if(!ret)
+        ret = AddBridge2(bridge, w, fnc, fnc2, N, name);
     return ret;
 }
 
@@ -260,8 +283,32 @@ const char* getBridgeName(void* addr)
     if (one->C3 == 0xC3 && IsBridgeSignature(one->S, one->C)) {
         if(one->w==NULL)
             return "ExitEmulation";
-        else
-            return one->name;
+        else {
+            if(one->func)
+                return GetNativeName(one->name_or_func);
+            else
+                return one->name_or_func;
+        }
+    }
+    return NULL;
+}
+
+const char* getBridgeFunc2(void* addr)
+{
+    if(!memExist((uintptr_t)addr))
+        return NULL;
+    if(!(getProtection((uintptr_t)addr)&PROT_READ))
+        return NULL;
+    onebridge_t* one = (onebridge_t*)(((uintptr_t)addr&~(sizeof(onebridge_t)-1)));   // align to start of bridge
+    if (one->C3 == 0xC3 && IsBridgeSignature(one->S, one->C)) {
+        if(one->w==NULL)
+            return NULL;
+        else {
+            if(one->func)
+                return one->name_or_func;
+            else
+                return NULL;
+        }
     }
     return NULL;
 }

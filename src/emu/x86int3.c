@@ -83,7 +83,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 uint64_t *pu64 = NULL;
                 uint32_t *pu32 = NULL;
                 uint8_t *pu8 = NULL;
-                const char *s = bridge->name;
+                const char *s = (bridge->func)?GetNativeName(bridge->name_or_func):bridge->name_or_func;
                 if(!s)
                     s = GetNativeName((void*)a);
                 if(a==(uintptr_t)PltResolver32) {

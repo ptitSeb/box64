@@ -14,7 +14,8 @@ typedef union onebridge_s {
     uintptr_t f;    // the function for the wrapper
     uint8_t C3;     // C2 or C3 ret
     uint16_t N;     // N in case of C2 ret
-    const char* name;   // name of the function bridged
+    uint8_t func;   // 1 if name_or_func is actualy a function (so no name in that case)
+    void* name_or_func;   // name of the function bridged
     };
     struct {
     uint8_t B8;     // B8 00 11 22 33 mov eax, num

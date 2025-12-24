@@ -142,6 +142,7 @@ typedef unsigned long khint64_t;
 #else
 typedef unsigned long long khint64_t;
 #endif
+typedef __uint128_t khint128_t;
 
 #ifdef _MSC_VER
 #define kh_inline __inline
@@ -393,6 +394,16 @@ static const double __ac_HASH_UPPER = 0.77;
   @abstract     64-bit integer comparison function
  */
 #define kh_int64_hash_equal(a, b) ((a) == (b))
+/*! @function
+  @abstract     128-bit integer hash function
+  @param  key   The integer [khint128_t]
+  @return       The hash value [khint_t]
+ */
+#define kh_int128_hash_func(key) (khint32_t)((key)>>100^(key)>>66^(key)>>33^(key)^(key)<<11)
+/*! @function
+  @abstract     128-bit integer comparison function
+ */
+#define kh_int128_hash_equal(a, b) ((a) == (b))
 /*! @function
   @abstract     const char* hash function
   @param  s     Pointer to a null terminated string
@@ -696,7 +707,34 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
 #define KHASH_MAP_IMPL_INT64(name, khval_t)								\
 	__KHASH_IMPL(name, , khint64_t, khval_t, 1, kh_int64_hash_func, kh_int64_hash_equal)
 
-typedef const char *kh_cstr_t;
+/*! @function
+  @abstract     Instantiate a hash map containing 128-bit integer keys
+  @param  name  Name of the hash table [symbol]
+ */
+#define KHASH_SET_INIT_INT128(name)										\
+	KHASH_INIT(name, khint128_t, char, 0, kh_int128_hash_func, kh_int128_hash_equal)
+
+#define KHASH_SET_DECLARE_INT128(name)										\
+	KHASH_DECLARE(name, khint128_t, char)
+
+#define KHASH_SET_IMPL_INT128(name)										\
+	__KHASH_IMPL(name, , khint128_t, char, 0, kh_int128_hash_func, kh_int128_hash_equal)
+
+/*! @function
+  @abstract     Instantiate a hash map containing 128-bit integer keys
+  @param  name  Name of the hash table [symbol]
+  @param  khval_t  Type of values [type]
+ */
+#define KHASH_MAP_INIT_INT128(name, khval_t)								\
+	KHASH_INIT(name, khint128_t, khval_t, 1, kh_int128_hash_func, kh_int128_hash_equal)
+
+#define KHASH_MAP_DECLARE_INT128(name, khval_t)								\
+	KHASH_DECLARE(name, khint128_t, khval_t)
+
+#define KHASH_MAP_IMPL_INT128(name, khval_t)								\
+	__KHASH_IMPL(name, , khint128_t, khval_t, 1, kh_int128_hash_func, kh_int128_hash_equal)
+
+	typedef const char *kh_cstr_t;
 /*! @function
   @abstract     Instantiate a hash map containing const char* keys
   @param  name  Name of the hash table [symbol]

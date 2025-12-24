@@ -81,7 +81,12 @@ void print_wrapper_name(int level, x64emu_t* emu)
 {
     onebridge_t* bridge = (onebridge_t*)(R_RIP&~(sizeof(onebridge_t)-1));
     if (IsBridgeSignature(bridge->S, bridge->C)) {
-        printf_log(level, "calling %s\n", bridge->name?bridge->name:"????");
+        const char* name = NULL;
+        if(bridge->func)
+            name = GetNativeName(bridge->name_or_func);
+        else
+            name = bridge->name_or_func;
+        printf_log(level, "calling %s\n", name?name:"????");
     } else {
         printf_log(level, "Could found the function name for fnc=%p\n", bridge->f);
     }
@@ -149,7 +154,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 uint64_t *pu64 = NULL;
                 uint32_t *pu32 = NULL;
                 uint8_t *pu8 = NULL;
-                const char *s = bridge->name;
+                const char *s = (bridge->func)?GetNativeName(bridge->name_or_func):bridge->name_or_func;
                 if(!s)
                     s = GetNativeName((void*)a);
                 if(a==(uintptr_t)PltResolver64) {
