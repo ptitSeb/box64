@@ -15,7 +15,6 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFpUp_t)(void*, uint64_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int32_t (*iFpUp_t)(void*, uint64_t, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpuppp_t)(void*, uint32_t, void*, void*, void*);
@@ -75,9 +74,9 @@ typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*
 	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
 	GO(vkDestroyVideoSessionKHR, vFpUp_t) \
 	GO(vkDestroyVideoSessionParametersKHR, vFpUp_t) \
+	GO(vkFreeMemory, vFpUp_t) \
 	GO(vkDestroyDebugReportCallbackEXT, vFppp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
-	GO(vkFreeMemory, iFpUp_t) \
 	GO(vkCreateDeferredOperationKHR, iFppp_t) \
 	GO(vkCreateInstance, iFppp_t) \
 	GO(vkReleaseCapturedPipelineDataKHR, iFppp_t) \

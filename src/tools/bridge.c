@@ -293,7 +293,7 @@ const char* getBridgeName(void* addr)
     return NULL;
 }
 
-const char* getBridgeFunc2(void* addr)
+void* getBridgeFnc2(void* addr)
 {
     if(!memExist((uintptr_t)addr))
         return NULL;

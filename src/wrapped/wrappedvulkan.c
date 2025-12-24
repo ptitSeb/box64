@@ -29,22 +29,8 @@ typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 
 #include "generated/wrappedvulkantypes.h"
 
-// track current instance and device.
-#define ADDED_STRUCT()                              \
-    void* currentInstance;
-
 #define ADDED_SUPER 1
 #include "wrappercallback.h"
-
-static void updateInstance(x64emu_t* emu, vulkan_my_t* my)
-{
-    void* p;
-    #define GO(A, W) p = my_context->vkprocaddress(my->currentInstance, #A); if(p) my->A = p;
-    SUPER()
-    #undef GO
-    symbol1_t* s;
-    kh_foreach_value_ref(emu->context->vkwrappers, s, s->resolved = 0;)
-}
 
 void fillVulkanProcWrapper(box64context_t*);
 void freeVulkanProcWrapper(box64context_t*);
@@ -69,16 +55,15 @@ static symbol1_t* getWrappedSymbol(x64emu_t* emu, const char* rname, int warning
     return &kh_value(emu->context->vkwrappers, k);
 }
 
-static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname)
+static void* resolveSymbol(x64emu_t* emu, void* symbol, void* fnc, const char* rname)
 {
     // get wrapper
     symbol1_t *s = getWrappedSymbol(emu, rname, 1);
-    if(!s->resolved) {
-        khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
-        const char* constname = kh_key(emu->context->vkwrappers, k);
-        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
-        s->resolved = 1;
-    }
+
+    khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
+    const char* constname = kh_key(emu->context->vkwrappers, k);
+    s->addr = AddCheckBridge2(emu->context->system, s->w, symbol, fnc, 0, constname);
+
     void* ret = (void*)s->addr;
     printf_dlsym_prefix(0, LOG_DEBUG, "%p (%p)\n", ret, symbol);
     return ret;
@@ -92,26 +77,22 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
     printf_dlsym(LOG_DEBUG, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
-    // not caching Device functions
-    /*
-    symbol1_t* s = getWrappedSymbol(emu, rname, 0);
-    if(s && s->resolved) {
-        void* ret = (void*)s->addr;
-        printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
-        return ret;
-    }
-    */
+
+    pFpp_t getprocaddr = getBridgeFnc2((void*)R_RIP);
+   if(!getprocaddr) getprocaddr=my->vkGetDeviceProcAddr;
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
-    void* symbol = my->vkGetDeviceProcAddr(device, name);
+    void* symbol = getprocaddr(device, name);
+    void* fnc = NULL;
     if(symbol && is_my) {   // only wrap if symbol exist
         // try again, by using custom "my_" now...
         char tmp[200];
         strcpy(tmp, "my_");
         strcat(tmp, rname);
+        fnc = symbol;
         symbol = dlsym(emu->context->box64lib, tmp);
         // need to update symbol link maybe
-        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)my->vkGetDeviceProcAddr(device, name);
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)getprocaddr(device, name);
         SUPER()
         #undef GO
     }
@@ -119,7 +100,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
         printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
-    return resolveSymbol(emu, symbol, rname);
+    return resolveSymbol(emu, symbol, fnc, rname);
 }
 
 EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
@@ -127,25 +108,19 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
     khint_t k;
     const char* rname = (const char*)name;
 
-    printf_dlsym(LOG_DEBUG, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
+   pFpp_t getprocaddr = getBridgeFnc2((void*)R_RIP);
+   if(!getprocaddr) getprocaddr=(pFpp_t)my_context->vkprocaddress;
+
+   printf_dlsym(LOG_DEBUG, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
-    if(instance!=my->currentInstance) {
-        printf_dlsym(LOG_DEBUG, "(switch instance from %p to %p) ", my->currentInstance, instance);
-        my->currentInstance = instance;
-        updateInstance(emu, my);
-    }
-    symbol1_t* s = getWrappedSymbol(emu, rname, 0);
-    if(s && s->resolved) {
-        void* ret = (void*)s->addr;
-        printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
-        return ret;
-    }
+
     // check if vkprocaddress is filled, and search for lib and fill it if needed
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
-    void* symbol = my_context->vkprocaddress(instance, rname);
+    void* symbol = getprocaddr(instance, (void*)rname);
+    void* fnc = NULL;
     if(!symbol) {
         printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
@@ -155,13 +130,14 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
         char tmp[200];
         strcpy(tmp, "my_");
         strcat(tmp, rname);
+        fnc = symbol;
         symbol = dlsym(emu->context->box64lib, tmp);
         // need to update symbol link maybe
-        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)my_context->vkprocaddress(instance, rname);;
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)getprocaddr(instance, (void*)rname);;
         SUPER()
         #undef GO
     }
-    return resolveSymbol(emu, symbol, rname);
+    return resolveSymbol(emu, symbol, fnc, rname);
 }
 
 void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
@@ -172,12 +148,7 @@ void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
     printf_dlsym(LOG_DEBUG, "Calling my_GetVkProcAddr(\"%s\", %p) => ", rname, getaddr);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
-    symbol1_t* s = getWrappedSymbol(emu, rname, 0);
-    if(s && s->resolved) {
-        void* ret = (void*)s->addr;
-        printf_dlsym_prefix(0, LOG_DEBUG, "%p (cached)\n", ret);
-        return ret;
-    }
+
     // check if vkprocaddress is filled, and search for lib and fill it if needed
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
@@ -187,18 +158,20 @@ void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
         printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
+    void* fnc = NULL;
     if(is_my) {
         // try again, by using custom "my_" now...
         char tmp[200];
         strcpy(tmp, "my_");
         strcat(tmp, rname);
+        fnc = symbol;
         symbol = dlsym(emu->context->box64lib, tmp);
         // need to update symbol link maybe
         #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)getaddr(rname);
         SUPER()
         #undef GO
     }
-    return resolveSymbol(emu, symbol, rname);
+    return resolveSymbol(emu, symbol, fnc, rname);
 }
 
 void* my_GetVkProcAddr2(x64emu_t* emu, void* a, void* name, void*(*getaddr)(void* a, const char*))
@@ -220,11 +193,13 @@ void* my_GetVkProcAddr2(x64emu_t* emu, void* a, void* name, void*(*getaddr)(void
         printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
+    void* fnc = NULL;
     if(is_my) {
         // try again, by using custom "my_" now...
         char tmp[200];
         strcpy(tmp, "my_");
         strcat(tmp, rname);
+        fnc = symbol;
         symbol = dlsym(emu->context->box64lib, tmp);
         // need to update symbol link maybe
         #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)getaddr(a, rname);
@@ -233,7 +208,7 @@ void* my_GetVkProcAddr2(x64emu_t* emu, void* a, void* name, void*(*getaddr)(void
     }
     void* ret = NULL;
     if(symbol)
-        ret = (void*)AddCheckBridge(emu->context->system, s->w, symbol, 0, rname);
+        ret = (void*)AddCheckBridge2(emu->context->system, s->w, symbol, fnc, 0, rname);
     printf_dlsym_prefix(0, LOG_DEBUG, " => %p\n", ret);
     return ret;
 }
@@ -526,19 +501,33 @@ my_VkAllocationCallbacks_t* find_VkAllocationCallbacks(my_VkAllocationCallbacks_
 EXPORT int my_##A(x64emu_t* emu, void* device, void* pAllocateInfo, my_VkAllocationCallbacks_t* pAllocator, void* p)    \
 {                                                                                                                       \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
-    return my->A(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);                          \
+    iFpppp_t fnc = getBridgeFnc2((void*)R_RIP);                                                                         \
+    if(!fnc) fnc=my->A;                                                                                                 \
+    return fnc(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);                            \
 }
 #define DESTROY(A)   \
 EXPORT void my_##A(x64emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                        \
 {                                                                                                                       \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
-    my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                \
+    vFppp_t fnc = getBridgeFnc2((void*)R_RIP);                                                                          \
+    if(!fnc) fnc=my->A;                                                                                                 \
+    fnc(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                  \
+}
+#define IDESTROY(A)   \
+EXPORT int my_##A(x64emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                         \
+{                                                                                                                       \
+    my_VkAllocationCallbacks_t my_alloc;                                                                                \
+    iFppp_t fnc = getBridgeFnc2((void*)R_RIP);                                                                          \
+    if(!fnc) fnc=my->A;                                                                                                 \
+    return fnc(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                           \
 }
 #define DESTROY64(A)   \
 EXPORT void my_##A(x64emu_t* emu, void* device, uint64_t p, my_VkAllocationCallbacks_t* pAllocator)                     \
 {                                                                                                                       \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
-    my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                \
+    vFpUp_t fnc = getBridgeFnc2((void*)R_RIP);                                                                          \
+    if(!fnc) fnc=my->A;                                                                                                 \
+    fnc(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                  \
 }
 
 CREATE(vkAllocateMemory)
@@ -549,7 +538,9 @@ CREATE(vkCreateCommandPool)
 EXPORT int my_vkCreateComputePipelines(x64emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
     my_VkAllocationCallbacks_t my_alloc;
-    int ret = my->vkCreateComputePipelines(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
+    iFpUuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateComputePipelines;
+    int ret = fnc(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
     return ret;
 }
 
@@ -562,7 +553,9 @@ CREATE(vkCreateDevice)
 EXPORT int my_vkCreateDisplayModeKHR(x64emu_t* emu, void* physical, uint64_t display, void* pCreateInfo, my_VkAllocationCallbacks_t* pAllocator, void* pMode)
 {
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateDisplayModeKHR(physical, display, pCreateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), pMode);
+    iFpUppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateDisplayModeKHR;
+    return fnc(physical, display, pCreateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), pMode);
 }
 
 CREATE(vkCreateDisplayPlaneSurfaceKHR)
@@ -573,7 +566,9 @@ CREATE(vkCreateFramebuffer)
 EXPORT int my_vkCreateGraphicsPipelines(x64emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
     my_VkAllocationCallbacks_t my_alloc;
-    int ret = my->vkCreateGraphicsPipelines(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
+    iFpUuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateGraphicsPipelines;
+    int ret = fnc(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
     return ret;
 }
 
@@ -584,6 +579,8 @@ CREATE(vkCreateImageView)
 #define VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT 1000128004
 EXPORT int my_vkCreateInstance(x64emu_t* emu, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pInstance)
 {
+    iFppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateInstance;
     my_VkAllocationCallbacks_t my_alloc;
     my_VkStruct_t *p = (my_VkStruct_t*)pCreateInfos;
     void* old[20] = {0};
@@ -602,7 +599,7 @@ EXPORT int my_vkCreateInstance(x64emu_t* emu, void* pCreateInfos, my_VkAllocatio
         }
         p = p->pNext;
     }
-    int ret = my->vkCreateInstance(pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pInstance);
+    int ret = fnc(pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pInstance);
     if(old_i) {// restore, just in case it's re-used?
         p = (my_VkStruct_t*)pCreateInfos;
         old_i = 0;
@@ -633,8 +630,10 @@ CREATE(vkCreateShaderModule)
 
 EXPORT int my_vkCreateSharedSwapchainsKHR(x64emu_t* emu, void* device, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pSwapchains)
 {
+    iFpuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateSharedSwapchainsKHR;
     my_VkAllocationCallbacks_t my_alloc;
-    int ret = my->vkCreateSharedSwapchainsKHR(device, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pSwapchains);
+    int ret = fnc(device, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pSwapchains);
     return ret;
 }
 
@@ -642,11 +641,13 @@ CREATE(vkCreateSwapchainKHR)
 CREATE(vkCreateWaylandSurfaceKHR)
 EXPORT int my_vkCreateXcbSurfaceKHR(x64emu_t* emu, void* instance, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
+    iFpppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateXcbSurfaceKHR;
     my_VkAllocationCallbacks_t my_alloc;
     my_VkXcbSurfaceCreateInfoKHR_t* surfaceinfo = info;
     void* old_conn = surfaceinfo->connection;
     surfaceinfo->connection = align_xcb_connection(old_conn);
-    int ret = my->vkCreateXcbSurfaceKHR(instance, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
+    int ret = fnc(instance, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
     surfaceinfo->connection = old_conn;
     return ret;
 }
@@ -657,28 +658,36 @@ CREATE(vkCreateRenderPass2KHR)
 
 EXPORT int my_vkRegisterDeviceEventEXT(x64emu_t* emu, void* device, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
+    iFpppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkRegisterDeviceEventEXT;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkRegisterDeviceEventEXT(device, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
+    return fnc(device, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
 }
 EXPORT int my_vkRegisterDisplayEventEXT(x64emu_t* emu, void* device, uint64_t disp, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
+    iFpUppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkRegisterDisplayEventEXT;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkRegisterDisplayEventEXT(device, disp, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
+    return fnc(device, disp, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
 }
 
 CREATE(vkCreateValidationCacheEXT)
 
 EXPORT int my_vkCreateShadersEXT(x64emu_t* emu, void* device, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pShaders)
 {
+    iFpuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateShadersEXT;
     my_VkAllocationCallbacks_t my_alloc;
-    int ret = my->vkCreateShadersEXT(device, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pShaders);
+    int ret = fnc(device, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pShaders);
     return ret;
 }
 
 EXPORT int my_vkCreateExecutionGraphPipelinesAMDX(x64emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipeLines)
 {
+    iFpUuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateExecutionGraphPipelinesAMDX;
     my_VkAllocationCallbacks_t my_alloc;
-    int ret = my->vkCreateExecutionGraphPipelinesAMDX(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipeLines);
+    int ret = fnc(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipeLines);
     return ret;
 }
 
@@ -695,8 +704,10 @@ DESTROY64(vkDestroyDescriptorUpdateTemplateKHR)
 
 EXPORT void my_vkDestroyDevice(x64emu_t* emu, void* pDevice, my_VkAllocationCallbacks_t* pAllocator)
 {
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkDestroyDevice;
     my_VkAllocationCallbacks_t my_alloc;
-    my->vkDestroyDevice(pDevice, find_VkAllocationCallbacks(&my_alloc, pAllocator));
+    fnc(pDevice, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
 
 DESTROY64(vkDestroyEvent)
@@ -707,8 +718,10 @@ DESTROY64(vkDestroyImageView)
 
 EXPORT void my_vkDestroyInstance(x64emu_t* emu, void* instance, my_VkAllocationCallbacks_t* pAllocator)
 {
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkDestroyInstance;
     my_VkAllocationCallbacks_t my_alloc;
-    my->vkDestroyInstance(instance, find_VkAllocationCallbacks(&my_alloc, pAllocator));
+    fnc(instance, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
 
 DESTROY64(vkDestroyPipeline)
@@ -726,6 +739,8 @@ DESTROY64(vkFreeMemory)
 
 EXPORT int my_vkCreateDebugUtilsMessengerEXT(x64emu_t* emu, void* device, my_VkDebugUtilsMessengerCreateInfoEXT_t* pAllocateInfo, my_VkAllocationCallbacks_t* pAllocator, void* p)
 {
+    iFpppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateDebugUtilsMessengerEXT;
     #define VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT 1000128004
     my_VkAllocationCallbacks_t my_alloc;
     my_VkDebugUtilsMessengerCreateInfoEXT_t* info = pAllocateInfo;
@@ -733,7 +748,7 @@ EXPORT int my_vkCreateDebugUtilsMessengerEXT(x64emu_t* emu, void* device, my_VkD
         info->pfnUserCallback = find_DebugUtilsMessengerCallback_Fct(info->pfnUserCallback);
         info = (my_VkDebugUtilsMessengerCreateInfoEXT_t*)info->pNext;
     }
-    return my->vkCreateDebugUtilsMessengerEXT(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+    return fnc(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
 }
 DESTROY(vkDestroyDebugUtilsMessengerEXT)
 
@@ -759,15 +774,19 @@ DESTROY64(vkDestroyAccelerationStructureKHR)
 
 EXPORT int my_vkCreateDeferredOperationKHR(x64emu_t* emu, void* device, my_VkAllocationCallbacks_t* pAllocator, void* p)
 {
+    iFppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateDeferredOperationKHR;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateDeferredOperationKHR(device, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+    return fnc(device, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
 }
 DESTROY64(vkDestroyDeferredOperationKHR)
 
 EXPORT int my_vkCreateRayTracingPipelinesKHR(x64emu_t* emu, void* device, uint64_t op, uint64_t pipeline, uint32_t count, void* infos, my_VkAllocationCallbacks_t* pAllocator, void* p)
 {
+    iFpUUuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateRayTracingPipelinesKHR;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateRayTracingPipelinesKHR(device, op, pipeline, count, infos, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+    return fnc(device, op, pipeline, count, infos, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
 }
 
 CREATE(vkCreateCuFunctionNVX)
@@ -781,8 +800,10 @@ DESTROY64(vkDestroyIndirectCommandsLayoutNV)
 CREATE(vkCreateAccelerationStructureNV)
 EXPORT int my_vkCreateRayTracingPipelinesNV(x64emu_t* emu, void* device, uint64_t pipeline, uint32_t count, void* infos, my_VkAllocationCallbacks_t* pAllocator, void* p)
 {
+    iFpUuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateRayTracingPipelinesNV;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateRayTracingPipelinesNV(device, pipeline, count, infos, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
+    return fnc(device, pipeline, count, infos, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
 }
 DESTROY64(vkDestroyAccelerationStructureNV)
 
@@ -802,23 +823,29 @@ EXPORT int my_vkCreateDebugReportCallbackEXT(x64emu_t* emu, void* instance,
                                              my_VkDebugReportCallbackCreateInfoEXT_t* create,
                                              my_VkAllocationCallbacks_t* alloc, void* callback)
 {
+    iFpppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateDebugReportCallbackEXT;
     my_VkDebugReportCallbackCreateInfoEXT_t dbg = *create;
     my_VkAllocationCallbacks_t my_alloc;
     dbg.pfnCallback = find_DebugReportCallbackEXT_Fct(dbg.pfnCallback);
-    return my->vkCreateDebugReportCallbackEXT(instance, &dbg, find_VkAllocationCallbacks(&my_alloc, alloc), callback);
+    return fnc(instance, &dbg, find_VkAllocationCallbacks(&my_alloc, alloc), callback);
 }
 
 EXPORT void my_vkDestroyDebugReportCallbackEXT(x64emu_t* emu, void* instance, void* callback, void* alloc)
 {
+    vFppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkDestroyDebugReportCallbackEXT;
     my_VkAllocationCallbacks_t my_alloc;
-    my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
+    fnc(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
 }
 
 CREATE(vkCreateHeadlessSurfaceEXT)
 
 EXPORT void my_vkGetPhysicalDeviceProperties2(x64emu_t* emu, void* device, void* pProps)
 {
-    my->vkGetPhysicalDeviceProperties2(device, pProps);
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkGetPhysicalDeviceProperties2;
+    fnc(device, pProps);
     my_VkStruct_t *p = pProps;
     while (p != NULL) {
         // find VkPhysicalDeviceVulkan12Properties
@@ -839,7 +866,7 @@ DESTROY64(vkDestroyIndirectExecutionSetEXT)
 
 CREATE(vkCreatePipelineBinariesKHR)
 DESTROY64(vkDestroyPipelineBinaryKHR)
-DESTROY(vkReleaseCapturedPipelineDataKHR)
+IDESTROY(vkReleaseCapturedPipelineDataKHR)
 
 CREATE(vkCreateTensorARM)
 CREATE(vkCreateTensorViewARM)
@@ -851,7 +878,9 @@ EXPORT int my_vkCreateDataGraphPipelinesARM(x64emu_t* emu, void* device, uint64_
                                              uint32_t createInfoCount, void* pCreateInfos,
                                              my_VkAllocationCallbacks_t* alloc, void* pPipelines)
 {
+    iFpUUuppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->vkCreateDataGraphPipelinesARM;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateDataGraphPipelinesARM(device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, alloc), pPipelines);
+    return fnc(device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, alloc), pPipelines);
 }
 DESTROY64(vkDestroyDataGraphPipelineSessionARM)

@@ -139,7 +139,7 @@ GO(vkEnumeratePhysicalDevices, iFppp)
 GO(vkFlushMappedMemoryRanges, iFpup)    // should wrap the array of VkMappedMemoryRange
 GO(vkFreeCommandBuffers, vFpUup)
 GO(vkFreeDescriptorSets, iFpUup)
-GOM(vkFreeMemory, iFEpUp)
+GOM(vkFreeMemory, vFEpUp)
 GO(vkGetBufferMemoryRequirements, vFpUp)
 GO(vkGetDeviceMemoryCommitment, vFpUp)
 GOM(vkGetDeviceProcAddr, pFEpp)

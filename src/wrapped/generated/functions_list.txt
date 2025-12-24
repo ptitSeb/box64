@@ -1099,7 +1099,6 @@
 #() iFEpui
 #() iFEpup
 #() iFEpUi
-#() iFEpUp
 #() iFEpLi
 #() iFEpLp
 #() iFEppi
@@ -6721,11 +6720,10 @@ wrappedvulkan:
   - vkDestroyValidationCacheEXT
   - vkDestroyVideoSessionKHR
   - vkDestroyVideoSessionParametersKHR
+  - vkFreeMemory
 - vFppp:
   - vkDestroyDebugReportCallbackEXT
   - vkDestroyDebugUtilsMessengerEXT
-- iFpUp:
-  - vkFreeMemory
 - iFppp:
   - vkCreateDeferredOperationKHR
   - vkCreateInstance
