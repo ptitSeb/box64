@@ -1793,7 +1793,6 @@
 #() iFEpipp
 #() iFEpipV
 #() iFEpipA
-#() iFEpUup
 #() iFEpLpp
 #() iFEpLpV
 #() iFEpLpA
@@ -2205,7 +2204,6 @@
 #() vFEpuipp
 #() vFEpuipV
 #() vFEpuipA
-#() vFEpupup
 #() vFEpuppp
 #() vFEpLLpp
 #() vFEppupp
@@ -3118,6 +3116,7 @@
 #() vFpiiiiiii
 #() vFpiiiiiip
 #() vFpiiiipii
+#() vFpiiiuipp
 #() vFpiUuupup
 #() vFpiLLiipi
 #() vFpiLpiiuu
@@ -3300,7 +3299,6 @@
 #() iWEpuuiipp
 #() iWEpuuuipp
 #() iWpuipuppp
-#() vFEpiiiuipp
 #() vFEpuuuippp
 #() vFEpuppippV
 #() vFEpuppippA
@@ -3499,6 +3497,7 @@
 #() vFffffffffff
 #() vFpiuippppip
 #() vFpipipippip
+#() vFpuuuupupup
 #() vFpuupuuuuuu
 #() vFppiiiiupip
 #() vFppipipippi
@@ -3565,7 +3564,6 @@
 #() iWEpuipupppp
 #() iWEpuuiiuipp
 #() iWEpuuuuiipp
-#() vFEpuuuupupup
 #() vFEppLpLpLLpp
 #() vFiiiiillliip
 #() vFiiiiilllilp
@@ -6672,8 +6670,6 @@ wrappedvulkan:
 - vFpp:
   - vkDestroyDevice
   - vkDestroyInstance
-  - vkGetPhysicalDeviceMemoryProperties
-  - vkGetPhysicalDeviceProperties
   - vkGetPhysicalDeviceProperties2
 - pFpp:
   - vkGetDeviceProcAddr
@@ -6733,10 +6729,7 @@ wrappedvulkan:
 - iFppp:
   - vkCreateDeferredOperationKHR
   - vkCreateInstance
-  - vkGetPhysicalDeviceDisplayPropertiesKHR
   - vkReleaseCapturedPipelineDataKHR
-- iFpUup:
-  - vkGetDisplayPlaneCapabilitiesKHR
 - iFpppp:
   - vkAllocateMemory
   - vkCreateAccelerationStructureKHR
@@ -6793,8 +6786,6 @@ wrappedvulkan:
   - vkCreateXcbSurfaceKHR
   - vkCreateXlibSurfaceKHR
   - vkRegisterDeviceEventEXT
-- vFpupup:
-  - vkUpdateDescriptorSets
 - iFpuppp:
   - vkCreateShadersEXT
   - vkCreateSharedSwapchainsKHR
@@ -6809,10 +6800,6 @@ wrappedvulkan:
 - iFpUUuppp:
   - vkCreateDataGraphPipelinesARM
   - vkCreateRayTracingPipelinesKHR
-- vFpiiiuipp:
-  - vkGetPhysicalDeviceSparseImageFormatProperties
-- vFpuuuupupup:
-  - vkCmdPipelineBarrier
 wrappedwaylandclient:
 - vFp:
   - wl_log_set_handler_client

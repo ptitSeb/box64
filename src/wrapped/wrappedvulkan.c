@@ -184,7 +184,7 @@ void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
     void* symbol = getaddr(rname);
     if(!symbol) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     if(is_my) {
@@ -201,6 +201,42 @@ void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(const char*))
     return resolveSymbol(emu, symbol, rname);
 }
 
+void* my_GetVkProcAddr2(x64emu_t* emu, void* a, void* name, void*(*getaddr)(void* a, const char*))
+{
+    khint_t k;
+    const char* rname = (const char*)name;
+
+    printf_dlsym(LOG_DEBUG, "Calling my_GetVkProcAddr2(%p, \"%s\", %p) => ", a, rname, getaddr);
+    if(!emu->context->vkwrappers)
+        fillVulkanProcWrapper(emu->context);
+    symbol1_t* s = getWrappedSymbol(emu, rname, 0);
+    if(!s) return NULL;
+    // check if vkprocaddress is filled, and search for lib and fill it if needed
+    // get proc adress using actual glXGetProcAddress
+    k = kh_get(symbolmap, emu->context->vkmymap, rname);
+    int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
+    void* symbol = getaddr(a, rname);
+    if(!symbol) {
+        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
+        return NULL;    // easy
+    }
+    if(is_my) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        symbol = dlsym(emu->context->box64lib, tmp);
+        // need to update symbol link maybe
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)getaddr(a, rname);
+        SUPER()
+        #undef GO
+    }
+    void* ret = NULL;
+    if(symbol)
+        ret = (void*)AddCheckBridge(emu->context->system, s->w, symbol, 0, rname);
+    printf_dlsym_prefix(0, LOG_DEBUG, " => %p\n", ret);
+    return ret;
+}
 
 #undef SUPER
 
@@ -761,44 +797,6 @@ CREATE(vkCreateCudaFunctionNV)
 CREATE(vkCreateCudaModuleNV)
 DESTROY64(vkDestroyCudaFunctionNV)
 DESTROY64(vkDestroyCudaModuleNV)
-
-EXPORT void my_vkGetPhysicalDeviceProperties(x64emu_t* emu, void* device, void* pProps)
-{
-    my->vkGetPhysicalDeviceProperties(device, pProps);
-}
-
-EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x64emu_t* emu, void* device, int format, int type, int samples, uint32_t usage, int tiling, uint32_t* count, void** pProps)
-{
-    my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, pProps);
-}
-
-EXPORT void my_vkUpdateDescriptorSets(x64emu_t* emu, void* device, uint32_t writeCount, void* writeSet, uint32_t copyCount, void* copySet)
-{
-    my->vkUpdateDescriptorSets(device, writeCount, writeSet, copyCount, copySet);
-}
-
-EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x64emu_t* emu, void* device, uint64_t mode, uint32_t index, void* pCap)
-{
-    int ret = my->vkGetDisplayPlaneCapabilitiesKHR(device, mode, index, pCap);
-    return ret;
-}
-
-EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x64emu_t* emu, void* device, uint32_t* count, void* pProp)
-{
-    int ret = my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, count, pProp);
-    return ret;
-}
-
-EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x64emu_t* emu, void* device, void* pProps)
-{
-    my->vkGetPhysicalDeviceMemoryProperties(device, pProps);
-}
-
-EXPORT void my_vkCmdPipelineBarrier(x64emu_t* emu, void* device, uint32_t src, uint32_t dst, uint32_t dep,
-    uint32_t barrierCount, void* pBarriers, uint32_t bufferCount, void* pBuffers, uint32_t imageCount, void* pImages)
-{
-    my->vkCmdPipelineBarrier(device, src, dst, dep, barrierCount, pBarriers, bufferCount, pBuffers, imageCount, pImages);
-}
 
 EXPORT int my_vkCreateDebugReportCallbackEXT(x64emu_t* emu, void* instance,
                                              my_VkDebugReportCallbackCreateInfoEXT_t* create,

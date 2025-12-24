@@ -17,21 +17,15 @@ typedef void (*vFpUp_t)(void*, uint64_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpUp_t)(void*, uint64_t, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
-typedef int32_t (*iFpUup_t)(void*, uint64_t, uint32_t, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpupup_t)(void*, uint32_t, void*, uint32_t, void*);
 typedef int32_t (*iFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpUppp_t)(void*, uint64_t, void*, void*, void*);
 typedef int32_t (*iFpUuppp_t)(void*, uint64_t, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*, void*);
-typedef void (*vFpiiiuipp_t)(void*, int32_t, int32_t, int32_t, uint32_t, int32_t, void*, void*);
-typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, void*, uint32_t, void*, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(vkDestroyDevice, vFpp_t) \
 	GO(vkDestroyInstance, vFpp_t) \
-	GO(vkGetPhysicalDeviceMemoryProperties, vFpp_t) \
-	GO(vkGetPhysicalDeviceProperties, vFpp_t) \
 	GO(vkGetPhysicalDeviceProperties2, vFpp_t) \
 	GO(vkGetDeviceProcAddr, pFpp_t) \
 	GO(vkGetInstanceProcAddr, pFpp_t) \
@@ -86,9 +80,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkFreeMemory, iFpUp_t) \
 	GO(vkCreateDeferredOperationKHR, iFppp_t) \
 	GO(vkCreateInstance, iFppp_t) \
-	GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t) \
 	GO(vkReleaseCapturedPipelineDataKHR, iFppp_t) \
-	GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t) \
 	GO(vkAllocateMemory, iFpppp_t) \
 	GO(vkCreateAccelerationStructureKHR, iFpppp_t) \
 	GO(vkCreateAccelerationStructureNV, iFpppp_t) \
@@ -144,7 +136,6 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateXcbSurfaceKHR, iFpppp_t) \
 	GO(vkCreateXlibSurfaceKHR, iFpppp_t) \
 	GO(vkRegisterDeviceEventEXT, iFpppp_t) \
-	GO(vkUpdateDescriptorSets, vFpupup_t) \
 	GO(vkCreateShadersEXT, iFpuppp_t) \
 	GO(vkCreateSharedSwapchainsKHR, iFpuppp_t) \
 	GO(vkCreateDisplayModeKHR, iFpUppp_t) \
@@ -154,8 +145,6 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
 	GO(vkCreateRayTracingPipelinesNV, iFpUuppp_t) \
 	GO(vkCreateDataGraphPipelinesARM, iFpUUuppp_t) \
-	GO(vkCreateRayTracingPipelinesKHR, iFpUUuppp_t) \
-	GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiuipp_t) \
-	GO(vkCmdPipelineBarrier, vFpuuuupupup_t)
+	GO(vkCreateRayTracingPipelinesKHR, iFpUUuppp_t)
 
 #endif // __wrappedvulkanTYPES_H_
