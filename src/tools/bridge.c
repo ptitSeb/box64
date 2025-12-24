@@ -128,7 +128,7 @@ uintptr_t AddBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N
     b->b[sz].C3 = N?0xC2:0xC3;
     b->b[sz].N = N;
     b->b[sz].func = fnc2?1:0;
-    b->b[sz].name_or_func = fnc2?(void*)name:fnc2;
+    b->b[sz].name_or_func = fnc2?fnc2:(void*)name;
 
     return (uintptr_t)&b->b[sz].CC;
 }
