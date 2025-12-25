@@ -126,7 +126,8 @@ typedef union mark_s {
 typedef struct blockmark_s {
     mark_t  prev;
     mark_t  next;
-    uint8_t mark[];
+    // make sure the data always aligned to 16 bytes, this is needed by KHASH_MAP(khint128_t) for example.
+    uint8_t __attribute__((aligned(16))) mark[];
 } blockmark_t;
 
 #define NEXT_BLOCK(b) (blockmark_t*)((uintptr_t)(b) + (b)->next.offs)
