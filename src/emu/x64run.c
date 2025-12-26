@@ -1999,7 +1999,7 @@ x64emurun:
         case 0xE7:                      /* OUT XX, EAX */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            F8;
+            (void)F8;
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else
             EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
@@ -2055,17 +2055,16 @@ x64emurun:
                         R_RSI = R_ESI;
                         R_RDI = R_EDI;
                     }
-                    #ifndef TEST_INTERPRETER
                     if(is32bits)
                         running32bits = 1;
-                    #endif
                 }
                 #endif
             } else {
                 unimp = 2;
                 goto fini;
             }
-            STEP;
+            STEP
+            break;
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
             addr += tmp32s;

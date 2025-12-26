@@ -319,7 +319,7 @@ EXPORT int my32_snd_pcm_mmap_begin(x64emu_t* emu, void* pcm, ptr_t* areas, ulong
         last_nch = nch;
     }
     if(nch>15) {printf_log(LOG_INFO, "Warning, too many channels in pcm of 32bits alsa: %d\n", nch); nch=15; }
-    for(int i=0; i<nch; ++i) {
+    for(unsigned int i=0; i<nch; ++i) {
         my_areas[i].addr = to_ptrv(l_areas[i].addr);
         my_areas[i].first = l_areas[i].first;
         my_areas[i].step = l_areas[i].step;

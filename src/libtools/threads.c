@@ -597,9 +597,9 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 		stacksize = attr_stacksize;
 		own = 0;
 	} else {
-        stack = InternalMmap(NULL, stacksize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_GROWSDOWN, -1, 0);
-        if(stack!=MAP_FAILED)
-	        setProtection_stack((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
+		stack = InternalMmap(NULL, stacksize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_GROWSDOWN, -1, 0);
+		if(stack!=MAP_FAILED)
+			setProtection_stack((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		own = 1;
 	}
 

@@ -411,6 +411,7 @@ EXPORT int my32_getifaddrs(x64emu_t* emu, void** res)
             p = next;
         }
     }
+    return ret;
 }
 
 EXPORT void* my32___h_errno_location(x64emu_t* emu)

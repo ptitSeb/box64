@@ -267,6 +267,12 @@ struct kernel_sigaction {
         unsigned long sa_mask2;
 };
 
+typedef union my_sigval32
+{
+  int sival_int;
+  ptr_t sival_ptr;
+} my_sigval32_t;
+
 typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
 {
     int si_signo;
@@ -281,42 +287,42 @@ typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
 	struct {
 	    int si_tid;
 	    int __si_overrun;
-	    __sigval_t si_sigval;
+	    my_sigval32_t si_sigval;
     } _timer;
 	struct {
 	    __pid_t __si_pid;
 	    __uid_t __si_uid;
-	    __sigval_t si_sigval;
+	    my_sigval32_t si_sigval;
     } _rt;
 	struct {
 	    __pid_t __si_pid;
 	    __uid_t __si_uid;
 	    int __si_status;
-	    __clock_t __si_utime;
-	    __clock_t __si_stime;
+	    int32_t __si_utime;
+	    int32_t __si_stime;
     } _sigchld;
 	struct {
 	    ptr_t __si_addr;
 	    __SI_SIGFAULT_ADDL
-	    short int __si_addr_lsb;
+	    int16_t __si_addr_lsb;
 	    union {
             struct {
                 ptr_t _lower;
                 ptr_t _upper;
             } _addr_bnd;
-            __uint32_t _pkey;
+            uint32_t _pkey;
         } _bounds;
     } _sigfault;
 	struct
 	  {
-	    long int __si_band;
-	    int __si_fd;
+	    int32_t __si_band;
+	    int32_t __si_fd;
 	  } _sigpoll;
 	struct
 	  {
 	    ptr_t _call_addr;
-	    int _syscall;
-	    unsigned int _arch;
+	    int32_t _syscall;
+	    uint32_t _arch;
 	  } _sigsys;
     } _sifields;
 } my_siginfo32_t;
@@ -453,7 +459,10 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
     my_siginfo32_t* dst = d;
     siginfo_t* src = s;
 
-    memcpy(dst, src, sizeof(my_siginfo32_t));
+    dst->si_signo = src->si_signo;
+    dst->si_errno = src->si_errno;
+    dst->si_code = src->si_code;
+    memcpy(&dst->_sifields, &src->_sifields, sizeof(siginfo_t) - offsetof(siginfo_t, _sifields));
     if(sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGSEGV || sig==X64_SIGBUS)
         dst->_sifields._sigfault.__si_addr = to_ptr(((uintptr_t)src->si_addr)&0xffffffff);  // in case addr is not a 32bits value...
     if(sig==X64_SIGCHLD) {
@@ -463,6 +472,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
         dst->_sifields._sigchld.__si_stime = src->si_stime;
         dst->_sifields._sigchld.__si_utime = src->si_utime;
     }
+    // TODO: convert si_sigval when needed
 }
 
 void relockMutex(int locks);

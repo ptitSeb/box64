@@ -43,7 +43,7 @@ static void create_libs_symlink(const char* folder)
     snprintf(tmp, sizeof(tmp), "%s/lib*.so.*.*.*", folder);
     if(!glob(tmp, 0, NULL, &g)) {
         printf_log(LOG_DEBUG, "Creating symlinks for %s\n", folder);
-        for(int i=0; i<g.gl_pathc; ++i) {
+        for(ulong_t i=0; i<g.gl_pathc; ++i) {
             if(FileIsX64X86ELF(g.gl_pathv[i])) {
                 create_lib_symlink(g.gl_pathv[i]);
             }
@@ -53,7 +53,7 @@ static void create_libs_symlink(const char* folder)
     // then do lib*.so.X.X
     snprintf(tmp, sizeof(tmp), "%s/lib*.so.*.*", folder);
     if(!glob(tmp, 0, NULL, &g)) {
-        for(int i=0; i<g.gl_pathc; ++i) {
+        for(ulong_t i=0; i<g.gl_pathc; ++i) {
             if(FileIsX64X86ELF(g.gl_pathv[i])) {
                 create_lib_symlink(g.gl_pathv[i]);
             }
@@ -141,7 +141,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                 snprintf(tmp, sizeof(tmp), "%svar/*/usr/bin/python3", sniper);
                 if(!glob(tmp, 0, NULL, &g)) {
                     int found = 0;
-                    for(int i=0; i<g.gl_pathc && !found; ++i) {
+                    for(ulong_t i=0; i<g.gl_pathc && !found; ++i) {
                         if(FileIsX64ELF(g.gl_pathv[i])) {
                             found = 1;
                             setenv("BOX64_PYTHON3", g.gl_pathv[i], 1);
@@ -169,7 +169,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
             snprintf(tmp, sizeof(tmp), "%s/bin/python3*", sniper);
             if(!glob(tmp, 0, NULL, &g)) {
                 int found = 0;
-                for(int i=0; i<g.gl_pathc && !found; ++i) {
+                for(ulong_t i=0; i<g.gl_pathc && !found; ++i) {
                     if(FileIsX64ELF(g.gl_pathv[i])) {
                         found = 1;
                         setenv("BOX64_PYTHON3", g.gl_pathv[i], 1);

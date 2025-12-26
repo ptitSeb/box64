@@ -79,7 +79,6 @@ typedef struct  va_list {
 void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack);
 size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem); // return the number of long/ptr_t conversion pending
 void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem, int n); // convert the long/ptr_t scanf results
-void myStackAlignGVariantNew32(const char* fmt, uint32_t* st, uint64_t* mystack);
 size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem);
 void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem, int n);
 void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack);

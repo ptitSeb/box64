@@ -133,7 +133,7 @@ typedef struct blockmark_s {
 #define NEXT_BLOCK(b) (blockmark_t*)((uintptr_t)(b) + (b)->next.offs)
 #define PREV_BLOCK(b) (blockmark_t*)(((uintptr_t)(b) - (b)->prev.offs))
 #define LAST_BLOCK(b, s) (blockmark_t*)(((uintptr_t)(b)+(s))-sizeof(blockmark_t))
-#define SIZE_BLOCK(b) (((ssize_t)b.offs)-sizeof(blockmark_t))
+#define SIZE_BLOCK(b) ((size_t)(b).offs-sizeof(blockmark_t))
 
 void printBlock(blockmark_t* b, void* start, size_t sz)
 {
@@ -195,7 +195,7 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
     // get start of block
     if(start) {
         blockmark_t *m = (blockmark_t*)start;
-        ssize_t maxsize = 0;
+        size_t maxsize = 0;
         while(m->next.x32) {    // while there is a subblock
             if(!m->next.fill && SIZE_BLOCK(m->next)>maxsize) {
                 maxsize = SIZE_BLOCK(m->next);
@@ -205,7 +205,7 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
         return maxsize;
     } else {
         blockmark_t *m = LAST_BLOCK(block, block_size); // start with the end
-        ssize_t maxsize = 0;
+        size_t maxsize = 0;
         while(m->prev.x32 && (((uintptr_t)block+maxsize)<(uintptr_t)m)) {    // while there is a subblock
             if(!m->prev.fill && SIZE_BLOCK(m->prev)>maxsize) {
                 maxsize = SIZE_BLOCK(m->prev);
@@ -388,7 +388,7 @@ int printBlockCoherent(int i)
     while(m->next.x32) {
         blockmark_t* n = NEXT_BLOCK(m);
         if(!m->next.fill && !n->next.fill && n!=last) {
-            printf_log(LOG_NONE, "Chain contains 2 subsequent free blocks %p (%d) and %p (%d) for block %d\n", m, SIZE_BLOCK(m->next), n, SIZE_BLOCK(n->next), i);
+            printf_log(LOG_NONE, "Chain contains 2 subsequent free blocks %p (%zu) and %p (%zu) for block %d\n", m, SIZE_BLOCK(m->next), n, SIZE_BLOCK(n->next), i);
             ret = 0;
         }
         m = n;
@@ -409,7 +409,7 @@ static char* niceSize(size_t sz)
     const char* units[] = {"b", "kb", "Mb", "Gb"};
     const size_t vals[] = {1, 1024, 1024*1024, 1024*1024*1024};
     int k = 0;
-    for(int j=0; j<sizeof(vals)/sizeof(vals[0]); ++j)
+    for(size_t j=0; j<sizeof(vals)/sizeof(vals[0]); ++j)
         if(vals[j]<sz)
             k = j;
     sprintf(rets[i], "%zd %s", sz/vals[k], units[k]);
@@ -658,7 +658,7 @@ void* map128_customMalloc(size_t size, int is32bits)
     p_blocks[i].size = allocsize;
     // setup marks
     uint8_t* map = p_blocks[i].first;
-    for(int idx=(allocsize-mapsize)>>7;  idx<(allocsize>>7); ++idx)
+    for(size_t idx=(allocsize-mapsize)>>7; idx<(allocsize>>7); ++idx)
         map[idx>>3] |= (1<<(idx&7));
     // 32bits check - ensure entire allocation fits in 32-bit space
     if(is32bits && ((uintptr_t)p + allocsize > 0x100000000ULL)) {
@@ -719,7 +719,7 @@ void* map128_customMalloc(size_t size, int is32bits)
 // the bitmap itself is also allocated in that mapping, as a slice of 256bytes, at the end of the mapping (and so marked as allocated)
 void* map64_customMalloc(size_t size, int is32bits)
 {
-    size = 64;
+    size = 64; (void)size;
     mutex_lock(&mutex_blocks);
     // Try cached hint first
     if(last_block_index_map64 >= 0 && last_block_index_map64 < n_blocks) {
@@ -2967,11 +2967,11 @@ void reverveHigMem32(void)
     printf_log(LOG_INFO, "Memory higher than 32bits reserved\n");
     if (BOX64ENV(log)>=LOG_DEBUG) {
         uintptr_t start=0x100000000LL;
-        int prot;
+        uint32_t prot;
         uintptr_t bend = start;
         while (bend!=0xffffffffffffffffLL) {
             if(rb_get_end(mapallmem, start, &prot, &bend)) {
-                printf_log(LOG_NONE, " Reserved: %p - %p (%d)\n", (void*)start, (void*)bend, prot);
+                printf_log(LOG_NONE, " Reserved: %p - %p (%u)\n", (void*)start, (void*)bend, prot);
             }
             start = bend;
         }

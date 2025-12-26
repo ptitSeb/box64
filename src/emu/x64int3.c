@@ -108,7 +108,7 @@ static void concatString(char* buff, int len, void* s, const char* trail)
 {
     char tmp[len];
     if(!s) snprintf(tmp, len-1, "%p%s", s, trail);
-    else snprintf(tmp, len-1, "%p\"%s\"%s", s, s, trail);
+    else snprintf(tmp, len-1, "%p\"%s\"%s", s, (char*)s, trail);
     strncat(buff, tmp, len);
 }
 
@@ -416,6 +416,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                         uint8_t type = *(uint8_t*)(R_RAX);
                         snprintf(buff2, 64, "[type=%d]", type);
                     }
+                    break;
                     case 100: 
                         snprintf(buff2, 64, "[function: %p]", (void*)R_RIP);
                         break;

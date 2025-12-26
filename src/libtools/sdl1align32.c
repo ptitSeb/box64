@@ -161,12 +161,13 @@ void convert_SDL_Event_to_32(void* dst_, const void* src_)
             dst->user.code = src->user.code;
             dst->user.data1 = to_ptrv(src->user.data1);
             dst->user.data2 = to_ptrv(src->user.data2);
+            break;
         case SDL_SYSWMEVENT:
             printf_log(LOG_NONE, "TODO: Convert SDL_SYSWMEVENT\n");
             abort();
             break;
         default:
-            printf_log(LOG_INFO, "Warning, unsuported SDL1.2 event %d\n", src->type);
+            printf_log(LOG_INFO, "Warning, unsupported SDL1.2 event %d\n", src->type);
             memcpy(dst, src, sizeof(my_SDL_Event_32_t));
     }
 }
@@ -239,12 +240,13 @@ void convert_SDL_Event_to_64(void* dst_, const void* src_)
             dst->user.code = src->user.code;
             dst->user.data1 = from_ptrv(src->user.data1);
             dst->user.data2 = from_ptrv(src->user.data2);
+            break;
         case SDL_SYSWMEVENT:
             printf_log(LOG_NONE, "TODO: Convert SDL_SYSWMEVENT\n");
             abort();
             break;
         default:
-            printf_log(LOG_INFO, "Warning, unsuported SDL1.2 (un)event %d\n", src->type);
+            printf_log(LOG_INFO, "Warning, unsupported SDL1.2 (un)event %d\n", src->type);
             memcpy(dst, src, sizeof(my_SDL_Event_32_t));
     }
 }

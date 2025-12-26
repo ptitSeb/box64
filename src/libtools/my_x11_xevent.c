@@ -263,9 +263,9 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
         default: {
             register_events_t* head = register_events_head;
             while(head) {
-                if(type>=head->start_event && type<=head->end_event) {
-                    for(int i=0; i<head->n; ++i)
-                        if(type==head->events[i].event) {
+                if((uint32_t)type>=head->start_event && (uint32_t)type<=head->end_event) {
+                    for(size_t i=0; i<head->n; ++i)
+                        if((uint32_t)type==head->events[i].event) {
                             head->events[i].to32(dst, src);
                             return;
                         }
@@ -500,9 +500,9 @@ void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
         default: {
             register_events_t* head = register_events_head;
             while(head) {
-                if(type>=head->start_event && type<=head->end_event) {
-                    for(int i=0; i<head->n; ++i)
-                        if(type==head->events[i].event) {
+                if((uint32_t)type>=head->start_event && (uint32_t)type<=head->end_event) {
+                    for(size_t i=0; i<head->n; ++i)
+                        if((uint32_t)type==head->events[i].event) {
                             head->events[i].to64(dst, src);
                             return;
                         }

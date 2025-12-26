@@ -95,12 +95,12 @@ static my_libmnt_optmap_32_t optmap_32[N] = {0};
 my_libmnt_optmap_32_t* shrink_libmnt_optmap(void* a)
 {
     if(!a) return NULL;
-    for(int i; i<N; ++i) {
+    for(int i=0; i<N; ++i) {
         if(optmap_64[i]==a)
             return &optmap_32[i];
     }
     // look for free slot
-    for(int i; i<N; ++i)
+    for(int i=0; i<N; ++i)
         if(!optmap_64[i]) {
             optmap_64[i] = a;
             convert_libmnt_optmap_32(&optmap_32[i], a);
@@ -119,7 +119,7 @@ my_libmnt_optmap_32_t* shrink_libmnt_optmap(void* a)
 my_libmnt_optmap_t* enlarge_libmnt_optmap(void* a)
 {
     if(!a) return NULL;
-    for(int i; i<N; ++i) {
+    for(int i=0; i<N; ++i) {
         if(&optmap_32[i]==a)
             return optmap_64[i];
     }
@@ -149,4 +149,3 @@ EXPORT int my32_mnt_table_uniq_fs(void* tb, int flags, void* f)
 }
 
 #include "wrappedlib_init32.h"
-

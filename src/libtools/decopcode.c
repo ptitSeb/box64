@@ -88,6 +88,7 @@ int decode_0f(uint8_t* addr, int idx, rex_t rex)
         case 0xC0:
         case 0xC1:
         case 0xC7:
+            nextop = addr[idx++];
             return (MODREG)?0:(OPCODE_READ|OPCODE_WRITE);
         case 0xA0:
         case 0xA8:

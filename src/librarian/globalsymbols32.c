@@ -49,7 +49,7 @@ extern void* UP;
 extern void* BC;
 extern uint8_t PC;
 extern uint16_t ospeed;
-extern void* ttytype;
+extern void* ttytype[32];
 
 void my32_checkGlobalTInfo()
 {

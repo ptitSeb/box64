@@ -215,6 +215,7 @@ EXPORT int my32_FcPatternAdd(void* p, void* object, int type, fcvalue_32_t t, in
             break;
         case 2:
             val.u.d = t.d;
+            break;
         case 1:
         case 4: // just in case
             val.u.i = t.i;
@@ -299,7 +300,7 @@ EXPORT int my32_FcFontSetAdd(x64emu_t* emu, void* set, void* pattern)
 
 EXPORT void* my32_FcConfigGetFonts(x64emu_t* emu, void* config, uint32_t name)
 {
-    inplace_FcFontSet_shrink(my->FcConfigGetFonts(config, name));   // that's probably a bad idea, as the font is own by the config
+    return inplace_FcFontSet_shrink(my->FcConfigGetFonts(config, name));   // that's probably a bad idea, as the font is own by the config
 }
 
 EXPORT void* my32_FcFontSetSort(x64emu_t* emu, void* config, ptr_t* sets, int nsets, void* pattern, int trim, ptr_t* csp, void* result)
