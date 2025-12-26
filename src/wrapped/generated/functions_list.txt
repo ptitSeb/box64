@@ -5401,6 +5401,26 @@ wrappedlibglx:
 - pFp:
   - glXGetProcAddress
   - glXGetProcAddressARB
+wrappedlibglxnvidia:
+- iFi:
+  - glXSwapIntervalMESA
+- pFp:
+  - glGetVkProcAddrNV
+  - glXGetProcAddress
+  - glXGetProcAddressARB
+- vFpp:
+  - glDebugMessageCallback
+  - glDebugMessageCallbackAMD
+  - glDebugMessageCallbackARB
+  - glDebugMessageCallbackKHR
+- iFpp:
+  - eglDebugMessageControlKHR
+- vFipp:
+  - glProgramCallbackMESA
+- vFppi:
+  - glXSwapIntervalEXT
+- vFppp:
+  - eglSetBlobCacheFuncsANDROID
 wrappedlibharfbuzz:
 - vFp:
   - hb_draw_funcs_destroy
