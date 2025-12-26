@@ -40,7 +40,7 @@ EXPORT void* myx32_glXGetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress32(emu, (glprocaddress_t)my->glXGetProcAddress, rname);
+    return getGLProcAddress32(emu, NULL, (glprocaddress_t)my->glXGetProcAddress, rname);
 }
 EXPORT void* myx32_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("myx32_glXGetProcAddress")));
 

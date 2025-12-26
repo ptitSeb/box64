@@ -876,6 +876,7 @@ def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions,
 							 or match("appindicator","appindicator3")\
 							 or match("libgl",        "libegl")     \
 							 or match("libgl",        "libglx")     \
+							 or match("libgl",        "libglxnvidia")\
 							 \
 							 or match("libc",        "tcmallocminimal") \
 							 or match("libc",        "ldlinux") 	\

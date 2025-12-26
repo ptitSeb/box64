@@ -330,7 +330,7 @@ EXPORT void* my32_2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress32(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
+    return getGLProcAddress32(emu, NULL, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 EXPORT void* my32_2_SDL_CreateRGBSurfaceWithFormatFrom(x64emu_t* emu, void* pixels, int width, int height, int depth, int pitch, uint32_t format)

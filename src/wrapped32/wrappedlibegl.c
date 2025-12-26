@@ -24,12 +24,11 @@ static const char* libeglName = "libEGL.so.1";
 
 #include "wrappercallback32.h"
 
-void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
 EXPORT void* my32_eglGetProcAddress(x64emu_t* emu, void* name) 
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress32(emu, (glprocaddress_t)my->eglGetProcAddress, rname);
+    return getGLProcAddress32(emu, NULL, (glprocaddress_t)my->eglGetProcAddress, rname);
 }
 
 #include "wrappedlib_init32.h"

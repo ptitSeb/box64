@@ -27,7 +27,7 @@ GO("ld-linux.so.2", ldlinux)
 
 GO("libGL.so", libgl)
 GO("libGL.so.1", libgl)
-GO("libGLX_nvidia.so.0", libgl)
+GO("libGLX_nvidia.so.0", libglxnvidia)
 GO("libGLU.so.1", libglu)
 GO("libSDL-1.2.so.0", sdl1)
 GO("libSDL2-2.0.so.0", sdl2)

@@ -18,8 +18,9 @@
 #include "gltools.h"
 #include "libtools/my_x11_conv.h"
 
-extern const char* libglName;
-#define LIBNAME libgl
+static const char* libglxnvidiaName = "libGLX_nvidia.so.0";
+#define LIBNAME libglxnvidia
+#define ALTMY my32nv_
 
 #include "generated/wrappedlibgltypes32.h"
 
@@ -28,15 +29,15 @@ extern const char* libglName;
 void* getDisplay(void* d); // define in 32bits wrappedx11.c
 
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
-EXPORT void* my32_glXGetProcAddress(x64emu_t* emu, void* name)
+EXPORT void* my32nv_glXGetProcAddress(x64emu_t* emu, void* name)
 {
     pFp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXGetProcAddress;
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress32(emu, NULL, (void*)fnc, rname);
+    return getGLProcAddress32(emu, "my32nv_" , (void*)fnc, rname);
 }
-EXPORT void* my32_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("my32_glXGetProcAddress")));
+EXPORT void* my32nv_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("my32nv_glXGetProcAddress")));
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
@@ -198,28 +199,28 @@ static void* find_get_blob_func_Fct(void* fct)
     }
 
 // glDebugMessageCallback ...
-static void my32_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
+static void my32nv_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallback;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // glDebugMessageCallbackARB ...
-static void my32_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param)
+static void my32nv_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallbackARB;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // glDebugMessageCallbackAMD ...
-static void my32_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param)
+static void my32nv_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallbackAMD;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // glDebugMessageCallbackKHR ...
-static void my32_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* param)
+static void my32nv_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallbackKHR;
@@ -240,29 +241,29 @@ static void my_eglSetBlobCacheFuncsANDROID(x64emu_t* emu, void* dpy, void* set, 
     fnc(dpy, find_set_blob_func_Fct(set), find_get_blob_func_Fct(get));
 }
 // glXSwapIntervalMESA ...
-static int my32_dummy_glXSwapIntervalMESA(int interval)
+static int my32nv_dummy_glXSwapIntervalMESA(int interval)
 {
     return 5; // GLX_BAD_CONTEXT
 }
-static int my32_glXSwapIntervalMESA(x64emu_t* emu, int interval)
+static int my32nv_glXSwapIntervalMESA(x64emu_t* emu, int interval)
 {
     iFi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXSwapIntervalMESA;
-    if(!fnc) fnc=my32_dummy_glXSwapIntervalMESA;
+    if(!fnc) fnc=my32nv_dummy_glXSwapIntervalMESA;
     return fnc(interval);
 }
 // glXSwapIntervalEXT ...
-static void my32_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
-static void my32_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int interval)
+static void my32nv_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
+static void my32nv_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int interval)
 {
     vFppi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXSwapIntervalEXT;
-    if(!fnc) fnc=my32_dummy_glXSwapIntervalEXT;
+    if(!fnc) fnc=my32nv_dummy_glXSwapIntervalEXT;
     fnc(dpy, drawable, interval);
 }
 
 // glProgramCallbackMESA ...
-static void my32_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
+static void  my32nv_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
 {
     vFipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glProgramCallbackMESA;
@@ -271,14 +272,14 @@ static void my32_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data
 
 void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(void*));  // defined in wrappedvulkan.c
 // glGetVkProcAddrNV ...
-static void* my32_glGetVkProcAddrNV(x64emu_t* emu, void* name)
+static void* my32nv_glGetVkProcAddrNV(x64emu_t* emu, void* name)
 {
     pFp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glGetVkProcAddrNV;
     return my_GetVkProcAddr(emu, name, fnc);
 }
 // glShaderSource ...
-static void my32_glShaderSource(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)
+static void my32nv_glShaderSource(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)
 {
     vFuipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glShaderSource;
@@ -286,9 +287,9 @@ static void my32_glShaderSource(x64emu_t* emu, uint32_t shader, int count, ptr_t
     if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);
     fnc(shader, count, string?str:NULL, length);
 }
-EXPORT void my32_glShaderSourceARB(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length) __attribute__((alias("my32_glShaderSource")));
+EXPORT void my32nv_glShaderSourceARB(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length) __attribute__((alias("my32nv_glShaderSource")));
 // glXChooseFBConfig ...
-EXPORT void* my32_glXChooseFBConfig(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)
+EXPORT void* my32nv_glXChooseFBConfig(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)
 {
     pFpipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXChooseFBConfig;
@@ -301,7 +302,7 @@ EXPORT void* my32_glXChooseFBConfig(x64emu_t* emu, void* dpy, int screen, int* l
     return res;
 }
 // glXChooseFBConfigSGIX ...
-EXPORT void* my32_glXChooseFBConfigSGIX(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)
+EXPORT void* my32nv_glXChooseFBConfigSGIX(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)
 {
     pFpipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXChooseFBConfigSGIX;
@@ -314,7 +315,7 @@ EXPORT void* my32_glXChooseFBConfigSGIX(x64emu_t* emu, void* dpy, int screen, in
     return res;
 }
 // glXGetVisualFromFBConfig ...
-EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* config)
+EXPORT void* my32nv_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* config)
 {
     pFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXGetVisualFromFBConfig;
@@ -326,7 +327,7 @@ EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* confi
     return vinfo;
 }
 // glXGetVisualFromFBConfigSGIX ...
-EXPORT void* my32_glXGetVisualFromFBConfigSGIX(x64emu_t* emu, void* dpy, void* config)
+EXPORT void* my32nv_glXGetVisualFromFBConfigSGIX(x64emu_t* emu, void* dpy, void* config)
 {
     pFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXGetVisualFromFBConfigSGIX;
@@ -338,7 +339,7 @@ EXPORT void* my32_glXGetVisualFromFBConfigSGIX(x64emu_t* emu, void* dpy, void* c
     return vinfo;
 }
 // glXChooseVisual ...
-EXPORT void* my32_glXChooseVisual(x64emu_t* emu, void* dpy, int screen, int* attr)
+EXPORT void* my32nv_glXChooseVisual(x64emu_t* emu, void* dpy, int screen, int* attr)
 {
     pFpip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXChooseVisual;
@@ -348,7 +349,7 @@ EXPORT void* my32_glXChooseVisual(x64emu_t* emu, void* dpy, int screen, int* att
     return vinfo;
 }
 // glXCreateContext ...
-EXPORT void* my32_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info, void* shared, int direct) 
+EXPORT void* my32nv_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info, void* shared, int direct) 
 {
     pFpppi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXCreateContext;
@@ -357,7 +358,7 @@ EXPORT void* my32_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t
     return fnc(dpy, &info_l, shared, direct);
 }
 // glXGetFBConfigFromVisualSGIX ...
-EXPORT void* my32_glXGetFBConfigFromVisualSGIX(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info)
+EXPORT void* my32nv_glXGetFBConfigFromVisualSGIX(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info)
 {
     pFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXGetFBConfigFromVisualSGIX;
@@ -366,7 +367,7 @@ EXPORT void* my32_glXGetFBConfigFromVisualSGIX(x64emu_t* emu, void* dpy, my_XVis
     return fnc(dpy, &info_l);
 }
 // glMultiDrawElements ...
-EXPORT void my32_glMultiDrawElements(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount)
+EXPORT void my32nv_glMultiDrawElements(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount)
 {
     vFupupi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glMultiDrawElements;
@@ -375,9 +376,9 @@ EXPORT void my32_glMultiDrawElements(x64emu_t* emu, uint32_t mode, void* count, 
         indices_l[i] = from_ptrv(indices[i]);
     fnc(mode, count, type, indices_l, drawcount);
 }
-EXPORT void my32_glMultiDrawElementsExt(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount) __attribute__((alias("my32_glMultiDrawElements")));
+EXPORT void my32nv_glMultiDrawElementsExt(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount) __attribute__((alias("my32nv_glMultiDrawElements")));
 // glMultiModeDrawElementsIBM ...
-EXPORT void my32_glMultiModeDrawElementsIBM(x64emu_t* emu, void* mode, void* count, uint32_t type, ptr_t* indices, uint32_t primcount, int modestride)
+EXPORT void my32nv_glMultiModeDrawElementsIBM(x64emu_t* emu, void* mode, void* count, uint32_t type, ptr_t* indices, uint32_t primcount, int modestride)
 {
     vFppupui_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glMultiModeDrawElementsIBM;
@@ -387,7 +388,7 @@ EXPORT void my32_glMultiModeDrawElementsIBM(x64emu_t* emu, void* mode, void* cou
     fnc(mode, count, type, indices_l, primcount, modestride);
 }
 // glTransformFeedbackVaryings ...
-EXPORT void my32_glTransformFeedbackVaryings(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode)
+EXPORT void my32nv_glTransformFeedbackVaryings(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode)
 {
     vFuipu_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glTransformFeedbackVaryings;
@@ -396,9 +397,9 @@ EXPORT void my32_glTransformFeedbackVaryings(x64emu_t* emu, uint32_t prog, int c
         varyings_l[i] = from_ptrv(varyings[i]);
     fnc(prog, count, varyings_l, mode);
 }
-EXPORT void my32_glTransformFeedbackVaryingsEXT(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode) __attribute__((alias("my32_glTransformFeedbackVaryings")));
+EXPORT void my32nv_glTransformFeedbackVaryingsEXT(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode) __attribute__((alias("my32nv_glTransformFeedbackVaryings")));
 // glBindBuffersRange ...
-EXPORT void my32_glBindBuffersRange(x64emu_t* emu, uint32_t target, uint32_t first, int count, void* buffers, ptr_t* offsets, ptr_t* sizes)
+EXPORT void my32nv_glBindBuffersRange(x64emu_t* emu, uint32_t target, uint32_t first, int count, void* buffers, ptr_t* offsets, ptr_t* sizes)
 {
     vFuuippp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glBindBuffersRange;
@@ -411,7 +412,7 @@ EXPORT void my32_glBindBuffersRange(x64emu_t* emu, uint32_t target, uint32_t fir
     fnc(target, first, count, buffers, offsets_l, sizes);
 }
 // glBindVertexBuffers ...
-EXPORT void my32_glBindVertexBuffers(x64emu_t* emu, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides)
+EXPORT void my32nv_glBindVertexBuffers(x64emu_t* emu, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides)
 {
     vFuippp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glBindVertexBuffers;
@@ -421,7 +422,7 @@ EXPORT void my32_glBindVertexBuffers(x64emu_t* emu, uint32_t first, int count, v
     fnc(first, count, buffers, offsets_l, strides);
 }
 // glVertexArrayVertexBuffers ...
-EXPORT void my32_glVertexArrayVertexBuffers(x64emu_t* emu, uint32_t vaobj, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides)
+EXPORT void my32nv_glVertexArrayVertexBuffers(x64emu_t* emu, uint32_t vaobj, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides)
 {
     vFuuippp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glVertexArrayVertexBuffers;
@@ -431,7 +432,7 @@ EXPORT void my32_glVertexArrayVertexBuffers(x64emu_t* emu, uint32_t vaobj, uint3
     fnc(vaobj, first, count, buffers, offsets_l, strides);
 }
 // glMultiDrawElementsBaseVertex ...
-EXPORT void my32_glMultiDrawElementsBaseVertex(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount, void* basevertex)
+EXPORT void my32nv_glMultiDrawElementsBaseVertex(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount, void* basevertex)
 {
     vFupupip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glMultiDrawElementsBaseVertex;
@@ -441,7 +442,7 @@ EXPORT void my32_glMultiDrawElementsBaseVertex(x64emu_t* emu, uint32_t mode, voi
     fnc(mode, count, type, indices_l, drawcount, basevertex);
 }
 // glCreateShaderProgramv ...
-EXPORT uint32_t my32_glCreateShaderProgramv(x64emu_t* emu, uint32_t shader, int count, ptr_t* string)
+EXPORT uint32_t my32nv_glCreateShaderProgramv(x64emu_t* emu, uint32_t shader, int count, ptr_t* string)
 {
     uFuip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glCreateShaderProgramv;
@@ -450,7 +451,7 @@ EXPORT uint32_t my32_glCreateShaderProgramv(x64emu_t* emu, uint32_t shader, int 
     return fnc(shader, count, string?str:NULL);
 }
 // glCompileShaderIncludeARB ...
-EXPORT void my32_glCompileShaderIncludeARB(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)
+EXPORT void my32nv_glCompileShaderIncludeARB(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)
 {
     vFuipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glCompileShaderIncludeARB;
@@ -459,7 +460,7 @@ EXPORT void my32_glCompileShaderIncludeARB(x64emu_t* emu, uint32_t shader, int c
     fnc(shader, count, string?str:NULL, length);
 }
 // glXGetFBConfigs ...
-EXPORT void* my32_glXGetFBConfigs(x64emu_t* emu, void* dpy, int screen, int* n)
+EXPORT void* my32nv_glXGetFBConfigs(x64emu_t* emu, void* dpy, int screen, int* n)
 {
     pFpip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXGetFBConfigs;
@@ -472,7 +473,7 @@ EXPORT void* my32_glXGetFBConfigs(x64emu_t* emu, void* dpy, int screen, int* n)
     return ret;
 }
 // glGetUniformIndices ...
-EXPORT void my32_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, ptr_t* names, void* indices)
+EXPORT void my32nv_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, ptr_t* names, void* indices)
 {
     vFuipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glGetUniformIndices;
@@ -481,7 +482,7 @@ EXPORT void my32_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, pt
     if(names) for(int i=0; i<count; ++i) names[i] = to_ptrv(names_l[i]);
 }
 // glVDPAUMapSurfacesNV ...
-EXPORT void my32_glVDPAUMapSurfacesNV(x64emu_t* emu, int count, long_t* surfaces)
+EXPORT void my32nv_glVDPAUMapSurfacesNV(x64emu_t* emu, int count, long_t* surfaces)
 {
     vFip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glVDPAUMapSurfacesNV;
@@ -490,7 +491,7 @@ EXPORT void my32_glVDPAUMapSurfacesNV(x64emu_t* emu, int count, long_t* surfaces
     fnc(count, surfaces?surfaces_l:NULL);                        \
 }
 // glVDPAUUnmapSurfacesNV ...
-EXPORT void my32_glVDPAUUnmapSurfacesNV(x64emu_t* emu, int count, long_t* surfaces)
+EXPORT void my32nv_glVDPAUUnmapSurfacesNV(x64emu_t* emu, int count, long_t* surfaces)
 {
     vFip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glVDPAUUnmapSurfacesNV;
@@ -501,100 +502,3 @@ EXPORT void my32_glVDPAUUnmapSurfacesNV(x64emu_t* emu, int count, long_t* surfac
 
 #include "wrappedlib_init32.h"
 
-gl_wrappers_t* getGLProcWrapper32(box64context_t* context, glprocaddress_t procaddress)
-{
-    int cnt, ret;
-    khint_t k;
-    if(!gl_wrappers) {
-        gl_wrappers = kh_init(gl_wrappers);
-    }
-    k = kh_put(gl_wrappers, gl_wrappers, (uintptr_t)procaddress, &ret);
-    if(!ret)
-        return kh_value(gl_wrappers, k);
-    gl_wrappers_t* wrappers = kh_value(gl_wrappers, k) = (gl_wrappers_t*)calloc(1, sizeof(gl_wrappers_t));
-
-    wrappers->procaddress = procaddress;
-    wrappers->glwrappers = kh_init(symbolmap);
-    // populates maps...
-    cnt = sizeof(libglsymbolmap)/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, wrappers->glwrappers, libglsymbolmap[i].name, &ret);
-        kh_value(wrappers->glwrappers, k).w = libglsymbolmap[i].w;
-        kh_value(wrappers->glwrappers, k).resolved = 0;
-    }
-    // and the my_ symbols map
-    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, wrappers->glwrappers, libglmysymbolmap[i].name, &ret);
-        kh_value(wrappers->glwrappers, k).w = libglmysymbolmap[i].w;
-        kh_value(wrappers->glwrappers, k).resolved = 0;
-    }
-    // my_* map
-    wrappers->glmymap = kh_init(symbolmap);
-    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, wrappers->glmymap, libglmysymbolmap[i].name, &ret);
-        kh_value(wrappers->glmymap, k).w = libglmysymbolmap[i].w;
-        kh_value(wrappers->glmymap, k).resolved = 0;
-    }
-    return wrappers;
-}
-
-void* getGLProcAddress32(x64emu_t* emu, const char* my, glprocaddress_t procaddr, const char* rname)
-{
-    if(!my) my = "my32_";
-    khint_t k;
-    printf_dlsym(LOG_DEBUG, "Calling getGLProcAddress32[%p](\"%s\") => ", procaddr, rname);
-    gl_wrappers_t* wrappers = getGLProcWrapper32(emu->context, procaddr);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    // get proc adress using actual glXGetProcAddress
-    k = kh_get(symbolmap, wrappers->glmymap, rname);
-    int is_my = (k==kh_end(wrappers->glmymap))?0:1;
-    void* symbol = procaddr(rname);
-    void* fnc = NULL;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, my);
-        strcat(tmp, rname);
-        fnc = symbol;
-        symbol = dlsym(emu->context->box64lib, tmp);
-    }
-    if(!symbol) {
-        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
-        return NULL;    // easy
-    }
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret) {
-        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", (void*)ret);
-        return (void*)ret; // already bridged
-    }
-    // get wrapper
-    k = kh_get(symbolmap, wrappers->glwrappers, rname);
-    if(k==kh_end(wrappers->glwrappers) && strstr(rname, "ARB")==NULL) {
-        // try again, adding ARB at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "ARB");
-        k = kh_get(symbolmap, wrappers->glwrappers, tmp);
-    }
-    if(k==kh_end(wrappers->glwrappers) && strstr(rname, "EXT")==NULL) {
-        // try again, adding EXT at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "EXT");
-        k = kh_get(symbolmap, wrappers->glwrappers, tmp);
-    }
-    if(k==kh_end(wrappers->glwrappers)) {
-        printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
-        printf_dlsym_prefix(2, LOG_INFO, "Warning, no wrapper for %s\n", rname);
-        return NULL;
-    }
-    symbol1_t* s = &kh_value(wrappers->glwrappers, k);
-    const char* constname = kh_key(wrappers->glwrappers, k);
-    ret = AddCheckBridge2(emu->context->system, s->w, symbol, fnc, 0, constname);
-
-    printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", (void*)ret);
-    return (void*)ret;
-}

@@ -2792,6 +2792,63 @@ wrappedlibglx:
   - glXChooseFBConfig
 - pFXppi:
   - glXCreateContext
+wrappedlibglxnvidia:
+- iFi:
+  - glXSwapIntervalMESA
+- pFp:
+  - glGetVkProcAddrNV
+  - glXGetProcAddress
+  - glXGetProcAddressARB
+- vFip:
+  - glVDPAUMapSurfacesNV
+  - glVDPAUUnmapSurfacesNV
+- vFpp:
+  - glDebugMessageCallback
+  - glDebugMessageCallbackAMD
+  - glDebugMessageCallbackARB
+  - glDebugMessageCallbackKHR
+- iFpp:
+  - eglDebugMessageControlKHR
+- pFXp:
+  - glXGetFBConfigFromVisualSGIX
+  - glXGetVisualFromFBConfig
+  - glXGetVisualFromFBConfigSGIX
+- vFipp:
+  - glProgramCallbackMESA
+- vFppp:
+  - eglSetBlobCacheFuncsANDROID
+- vFXpi:
+  - glXSwapIntervalEXT
+- uFuip:
+  - glCreateShaderProgramv
+- pFXip:
+  - glXChooseVisual
+  - glXGetFBConfigs
+- vFuipu:
+  - glTransformFeedbackVaryings
+  - glTransformFeedbackVaryingsEXT
+- vFuipp:
+  - glCompileShaderIncludeARB
+  - glGetUniformIndices
+  - glShaderSource
+  - glShaderSourceARB
+- pFXipp:
+  - glXChooseFBConfig
+  - glXChooseFBConfigSGIX
+- pFXppi:
+  - glXCreateContext
+- vFuippp:
+  - glBindVertexBuffers
+- vFupupi:
+  - glMultiDrawElements
+  - glMultiDrawElementsEXT
+- vFuuippp:
+  - glBindBuffersRange
+  - glVertexArrayVertexBuffers
+- vFupupip:
+  - glMultiDrawElementsBaseVertex
+- vFppupui:
+  - glMultiModeDrawElementsIBM
 wrappedlibm:
 - UEs:
   - cacosf

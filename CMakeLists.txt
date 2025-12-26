@@ -858,6 +858,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibgl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibglu.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibglxnvidia.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedsdl1.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedsdl2.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedsdl2image.c"
