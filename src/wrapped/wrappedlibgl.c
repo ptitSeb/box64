@@ -20,15 +20,20 @@
 const char* libglName = "libGL.so.1";
 #define ALTNAME "libGL.so"
 #define LIBNAME libgl
-static library_t* my_lib = NULL;
+
+#include "generated/wrappedlibgltypes.h"
+
+#include "wrappercallback.h"
 
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 
 EXPORT void* my_glXGetProcAddress(x64emu_t* emu, void* name)
 {
+    pFp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glXGetProcAddress;
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, my_lib->w.priv, rname);
+    return getGLProcAddress(emu, (void*)fnc, rname);
 }
 EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
 
@@ -166,326 +171,97 @@ static void* find_get_blob_func_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL get_blob_func callback\n");
     return NULL;
 }
-
-// glDebugMessageCallback ...
-#define GO(A)                                                                       \
-static vFpp_t my_glDebugMessageCallback_fct_##A = NULL;                             \
-static void my_glDebugMessageCallback_##A(x64emu_t* emu, void* prod, void* param)   \
-{                                                                                   \
-    if(!my_glDebugMessageCallback_fct_##A)                                          \
-        return;                                                                     \
-    my_glDebugMessageCallback_fct_##A(find_debug_callback_Fct(prod), param);        \
-}
-SUPER()
-#undef GO
-static void* find_glDebugMessageCallback_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_glDebugMessageCallback_fct_##A == (vFpp_t)fct) return my_glDebugMessageCallback_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glDebugMessageCallback_fct_##A == 0) {my_glDebugMessageCallback_fct_##A = (vFpp_t)fct; return my_glDebugMessageCallback_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glDebugMessageCallback callback\n");
-    return NULL;
-}
-// glDebugMessageCallbackARB ...
-#define GO(A)                                                                       \
-static vFpp_t my_glDebugMessageCallbackARB_fct_##A = NULL;                             \
-static void my_glDebugMessageCallbackARB_##A(x64emu_t* emu, void* prod, void* param)   \
-{                                                                                   \
-    if(!my_glDebugMessageCallbackARB_fct_##A)                                          \
-        return;                                                                     \
-    my_glDebugMessageCallbackARB_fct_##A(find_debug_callback_Fct(prod), param);        \
-}
-SUPER()
-#undef GO
-static void* find_glDebugMessageCallbackARB_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_glDebugMessageCallbackARB_fct_##A == (vFpp_t)fct) return my_glDebugMessageCallbackARB_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glDebugMessageCallbackARB_fct_##A == 0) {my_glDebugMessageCallbackARB_fct_##A = (vFpp_t)fct; return my_glDebugMessageCallbackARB_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glDebugMessageCallbackARB callback\n");
-    return NULL;
-}
-// glDebugMessageCallbackAMD ...
-#define GO(A)                                                                       \
-static vFpp_t my_glDebugMessageCallbackAMD_fct_##A = NULL;                             \
-static void my_glDebugMessageCallbackAMD_##A(x64emu_t* emu, void* prod, void* param)   \
-{                                                                                   \
-    if(!my_glDebugMessageCallbackAMD_fct_##A)                                          \
-        return;                                                                     \
-    my_glDebugMessageCallbackAMD_fct_##A(find_debug_callback_Fct(prod), param);        \
-}
-SUPER()
-#undef GO
-static void* find_glDebugMessageCallbackAMD_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_glDebugMessageCallbackAMD_fct_##A == (vFpp_t)fct) return my_glDebugMessageCallbackAMD_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glDebugMessageCallbackAMD_fct_##A == 0) {my_glDebugMessageCallbackAMD_fct_##A = (vFpp_t)fct; return my_glDebugMessageCallbackAMD_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glDebugMessageCallbackAMD callback\n");
-    return NULL;
-}
-// glDebugMessageCallbackKHR ...
-#define GO(A)                                                                       \
-static vFpp_t my_glDebugMessageCallbackKHR_fct_##A = NULL;                             \
-static void my_glDebugMessageCallbackKHR_##A(x64emu_t* emu, void* prod, void* param)   \
-{                                                                                   \
-    if(!my_glDebugMessageCallbackKHR_fct_##A)                                          \
-        return;                                                                     \
-    my_glDebugMessageCallbackKHR_fct_##A(find_debug_callback_Fct(prod), param);        \
-}
-SUPER()
-#undef GO
-static void* find_glDebugMessageCallbackKHR_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_glDebugMessageCallbackKHR_fct_##A == (vFpp_t)fct) return my_glDebugMessageCallbackKHR_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glDebugMessageCallbackKHR_fct_##A == 0) {my_glDebugMessageCallbackKHR_fct_##A = (vFpp_t)fct; return my_glDebugMessageCallbackKHR_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glDebugMessageCallbackKHR callback\n");
-    return NULL;
-}
-// eglDebugMessageControlKHR ...
-#define GO(A)                                                                           \
-static vFpp_t my_eglDebugMessageControlKHR_fct_##A = NULL;                             \
-static void my_eglDebugMessageControlKHR_##A(x64emu_t* emu, void* prod, void* param)   \
-{                                                                                       \
-    if(!my_eglDebugMessageControlKHR_fct_##A)                                          \
-        return;                                                                         \
-    my_eglDebugMessageControlKHR_fct_##A(find_egl_debug_callback_Fct(prod), param);    \
-}
-SUPER()
-#undef GO
-static void* find_eglDebugMessageControlKHR_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_eglDebugMessageControlKHR_fct_##A == (vFpp_t)fct) return my_eglDebugMessageControlKHR_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_eglDebugMessageControlKHR_fct_##A == 0) {my_eglDebugMessageControlKHR_fct_##A = (vFpp_t)fct; return my_eglDebugMessageControlKHR_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL eglDebugMessageControlKHR callback\n");
-    return NULL;
-}
-// eglSetBlobCacheFuncsANDROID ...
-#define GO(A)                                                                                               \
-static vFppp_t my_eglSetBlobCacheFuncsANDROID_fct_##A = NULL;                                               \
-static void my_eglSetBlobCacheFuncsANDROID_##A(x64emu_t* emu, void* dpy, void* set, void* get)              \
-{                                                                                                           \
-    if(!my_eglSetBlobCacheFuncsANDROID_fct_##A)                                                             \
-        return;                                                                                             \
-    my_eglSetBlobCacheFuncsANDROID_fct_##A(dpy, find_set_blob_func_Fct(set), find_get_blob_func_Fct(get));  \
-}
-SUPER()
-#undef GO
-static void* find_eglSetBlobCacheFuncsANDROID_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_eglSetBlobCacheFuncsANDROID_fct_##A == (vFppp_t)fct) return my_eglSetBlobCacheFuncsANDROID_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_eglSetBlobCacheFuncsANDROID_fct_##A == 0) {my_eglSetBlobCacheFuncsANDROID_fct_##A = (vFppp_t)fct; return my_eglSetBlobCacheFuncsANDROID_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL eglSetBlobCacheFuncsANDROID callback\n");
-    return NULL;
-}
-// glXSwapIntervalMESA ...
-#define GO(A)                                           \
-static iFi_t my_glXSwapIntervalMESA_fct_##A = NULL;     \
-static int my_glXSwapIntervalMESA_##A(int interval)     \
-{                                                       \
-    if(!my_glXSwapIntervalMESA_fct_##A)                 \
-        return 0;                                       \
-    return my_glXSwapIntervalMESA_fct_##A(interval);    \
-}
-SUPER()
-#undef GO
-
-static int my_dummy_glXSwapIntervalMESA(int interval)
-{
-    return 5; // GLX_BAD_CONTEXT
-}
-
-static void* find_glXSwapIntervalMESA_Fct(void* fct)
-{
-    if(!fct) return my_dummy_glXSwapIntervalMESA;
-    #define GO(A) if(my_glXSwapIntervalMESA_fct_##A == (iFi_t)fct) return my_glXSwapIntervalMESA_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glXSwapIntervalMESA_fct_##A == 0) {my_glXSwapIntervalMESA_fct_##A = (iFi_t)fct; return my_glXSwapIntervalMESA_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glXSwapIntervalMESA callback\n");
-    return NULL;
-}
-
-// glXSwapIntervalEXT ...
-#define GO(A)                                                                   \
-static vFppi_t my_glXSwapIntervalEXT_fct_##A = NULL;                            \
-static void my_glXSwapIntervalEXT_##A(void* dpy, void* drawable, int interval)  \
-{                                                                               \
-    if (!my_glXSwapIntervalEXT_fct_##A)                                         \
-        return;                                                                 \
-    my_glXSwapIntervalEXT_fct_##A(dpy, drawable, interval);                     \
-}
-SUPER()
-#undef GO
-
-static void my_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
-
-static void* find_glXSwapIntervalEXT_Fct(void* fct)
-{
-    if(!fct) return my_dummy_glXSwapIntervalEXT;
-    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == (vFppi_t)fct) return my_glXSwapIntervalEXT_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == 0) {my_glXSwapIntervalEXT_fct_##A = (vFppi_t)fct; return my_glXSwapIntervalEXT_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glXSwapIntervalEXT callback\n");
-    return NULL;
-}
-
-// glProgramCallbackMESA ...
-#define GO(A)                                                               \
-static vFpp_t my_glProgramCallbackMESA_fct_##A = NULL;                      \
-static void my_glProgramCallbackMESA_##A(x64emu_t* emu, void* f, void* data)\
-{                                                                           \
-    if(!my_glProgramCallbackMESA_fct_##A)                                   \
-        return;                                                             \
-    my_glProgramCallbackMESA_fct_##A(find_program_callback_Fct(f), data);   \
-}
-SUPER()
-#undef GO
-static void* find_glProgramCallbackMESA_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_glProgramCallbackMESA_fct_##A == (vFpp_t)fct) return my_glProgramCallbackMESA_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glProgramCallbackMESA_fct_##A == 0) {my_glProgramCallbackMESA_fct_##A = (vFpp_t)fct; return my_glProgramCallbackMESA_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glProgramCallbackMESA callback\n");
-    return NULL;
-}
-void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(void*));  // defined in wrappedvulkan.c
-// glGetVkProcAddrNV ...
-#define GO(A)                                                           \
-static pFp_t my_glGetVkProcAddrNV_fct_##A = NULL;                       \
-static void* my_glGetVkProcAddrNV_##A(x64emu_t* emu, void* name)        \
-{                                                                       \
-    if(!my_glGetVkProcAddrNV_fct_##A)                                   \
-        return NULL;                                                    \
-    return my_GetVkProcAddr(emu, name, my_glGetVkProcAddrNV_fct_##A);   \
-}
-SUPER()
-#undef GO
-static void* find_glGetVkProcAddrNV_Fct(void* fct)
-{
-    if(!fct) return fct;
-    #define GO(A) if(my_glGetVkProcAddrNV_fct_##A == (pFp_t)fct) return my_glGetVkProcAddrNV_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_glGetVkProcAddrNV_fct_##A == 0) {my_glGetVkProcAddrNV_fct_##A = (pFp_t)fct; return my_glGetVkProcAddrNV_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libGL glGetVkProcAddrNV callback\n");
-    return NULL;
-}
 #undef SUPER
 
 #define PRE_INIT                                                                \
-    if(BOX64ENV(libgl)) {                                                           \
-        lib->w.lib = dlopen(BOX64ENV(libgl), RTLD_LAZY | RTLD_GLOBAL);              \
-        lib->path = strdup(BOX64ENV(libgl));                                        \
+    if(BOX64ENV(libgl)) {                                                       \
+        lib->w.lib = dlopen(BOX64ENV(libgl), RTLD_LAZY | RTLD_GLOBAL);          \
+        lib->path = strdup(BOX64ENV(libgl));                                    \
     } else if(strstr(lib->name, "libGLX_nvidia.so.0")) {                        \
         lib->w.lib = dlopen("libGLX_nvidia.so.0", RTLD_LAZY | RTLD_GLOBAL);     \
         if(lib->w.lib) lib->path = strdup("libGLX_nvidia.so.0");                \
     }
-#define CUSTOM_INIT \
-    my_lib = lib;                                                               \
-    lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress");                       \
-    void* symb = dlsym(lib->w.lib, "glDebugMessageCallback");                   \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallback");    \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallback_Fct(symb), 0, "glDebugMessageCallback"); \
-    }                                                                           \
-    symb = dlsym(lib->w.lib, "glDebugMessageCallbackARB");                      \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallbackARB"); \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallbackARB_Fct(symb), 0, "glDebugMessageCallbackARB"); \
-    }                                                                           \
-    symb = dlsym(lib->w.lib, "glDebugMessageCallbackAMD");                      \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallbackAMD"); \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallbackAMD_Fct(symb), 0, "glDebugMessageCallbackAMD"); \
-    }                                                                           \
-    symb = dlsym(lib->w.lib, "glDebugMessageCallbackKHR");                      \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glDebugMessageCallbackKHR"); \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glDebugMessageCallbackKHR_Fct(symb), 0, "glDebugMessageCallbackKHR"); \
-    }                                                                           \
-    symb = dlsym(lib->w.lib, "glXSwapIntervalMESA");                            \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glXSwapIntervalMESA");       \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glXSwapIntervalMESA_Fct(symb), 0, "glXSwapIntervalMESA"); \
-    }                                                                           \
-    symb = dlsym(lib->w.lib, "glXSwapIntervalEXT");                             \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glXSwapIntervalEXT");        \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glXSwapIntervalEXT_Fct(symb), 0, "glXSwapIntervalEXT"); \
-    }                                                                           \
-    symb = dlsym(lib->w.lib, "glGetVkProcAddrNV");                              \
-    if(symb) {                                                                  \
-        k = kh_get(symbolmap, lib->w.mysymbolmap, "glGetVkProcAddrNV");         \
-        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
-        s->resolved = 1;                                                        \
-        s->addr = AddBridge(lib->w.bridge, s->w, find_glGetVkProcAddrNV_Fct(symb), 0, "glGetVkProcAddrNV"); \
-    }                                                                           \
 
 #include "wrappedlib_init.h"
 
-#define SUPER()                             \
- GO(vFpp_t, glDebugMessageCallback)         \
- GO(vFpp_t, glDebugMessageCallbackARB)      \
- GO(vFpp_t, glDebugMessageCallbackAMD)      \
- GO(vFpp_t, glDebugMessageCallbackKHR)      \
- GO(vFpp_t, eglDebugMessageControlKHR)      \
- GO(iFi_t, glXSwapIntervalMESA)             \
- GO(vFppi_t, glXSwapIntervalEXT)            \
- GO(vFpp_t, glProgramCallbackMESA)          \
- GO(pFp_t, glGetVkProcAddrNV)               \
- GO(vFppp_t, eglSetBlobCacheFuncsANDROID)   \
-
+// glDebugMessageCallback
+static void my_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
+{
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glDebugMessageCallback;
+    fnc(find_debug_callback_Fct(prod), param);
+}
+// glDebugMessageCallbackARB
+static void my_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param)
+{
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glDebugMessageCallbackARB;
+    fnc(find_debug_callback_Fct(prod), param);
+}
+// glDebugMessageCallbackAMD
+static void my_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param)
+{
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glDebugMessageCallbackAMD;
+    fnc(find_debug_callback_Fct(prod), param);
+}
+// glDebugMessageCallbackKHR
+static void my_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* param)
+{
+    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glDebugMessageCallbackKHR;
+    fnc(find_debug_callback_Fct(prod), param);
+}
+// eglDebugMessageControlKHR
+static int my_eglDebugMessageControlKHR(x64emu_t* emu, void* prod, void* param)
+{
+    iFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->eglDebugMessageControlKHR;
+    return fnc(find_debug_callback_Fct(prod), param);
+}
+// eglSetBlobCacheFuncsANDROID ...
+static void my_eglSetBlobCacheFuncsANDROID(x64emu_t* emu, void* dpy, void* set, void* get)              \
+{                                                                                                           \
+    vFppp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->eglSetBlobCacheFuncsANDROID;
+    fnc(dpy, find_set_blob_func_Fct(set), find_get_blob_func_Fct(get));
+}
+// glXSwapIntervalMESA ...
+static int my_dummy_glXSwapIntervalMESA(int interval)
+{
+    return 5; // GLX_BAD_CONTEXT
+}
+static int my_glXSwapIntervalMESA(x64emu_t* emu, int interval)
+{
+    iFi_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glXSwapIntervalMESA;
+    if(!fnc) fnc=my_dummy_glXSwapIntervalMESA;
+    return fnc(interval);
+}
+// glXSwapIntervalEXT ...
+static void my_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
+static void my_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int interval)
+{
+    vFppi_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glXSwapIntervalEXT;
+    if(!fnc) fnc=my_dummy_glXSwapIntervalEXT;
+    fnc(dpy, drawable, interval);
+}
+// glProgramCallbackMESA ...
+static void my_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
+{
+    vFipp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glProgramCallbackMESA;
+    fnc(t, find_program_callback_Fct(f), data);
+}
+void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(void*));  // defined in wrappedvulkan.c
+// glGetVkProcAddrNV ...
+static void* my_glGetVkProcAddrNV(x64emu_t* emu, void* name)
+{
+    pFp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glGetVkProcAddrNV;
+    return my_GetVkProcAddr(emu, name, fnc);
+}
 
 gl_wrappers_t* getGLProcWrapper(box64context_t* context, glprocaddress_t procaddress)
 {
@@ -553,31 +329,21 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, wrappers->glmymap, rname);
     int is_my = (k==kh_end(wrappers->glmymap))?0:1;
-    void* symbol;
+    void* symbol = procaddr(rname);
+    void* fnc = NULL;
     if(is_my) {
-        // try again, by using custom "my_" now...
-        #define GO(A, B) else if(!strcmp(rname, #B)) symbol = find_##B##_Fct(procaddr(rname));
-        if(0) {}
-        SUPER()
-        else {
-            if(strcmp(rname, "glXGetProcAddress") && strcmp(rname, "glXGetProcAddressARB")) {
-                printf_log(LOG_NONE, "Warning, %s defined as GOM, but find_%s_Fct not defined\n", rname, rname);
-            }
-            char tmp[200];
-            strcpy(tmp, "my_");
-            strcat(tmp, rname);
-            symbol = dlsym(emu->context->box64lib, tmp);
-        }
-        #undef GO
-        #undef SUPER
-    } else
-        symbol = procaddr(rname);
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        fnc = symbol;
+        symbol = dlsym(emu->context->box64lib, tmp);
+    }
     if(!symbol) {
         printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
     }
     // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
+    uintptr_t ret = CheckBridged2(emu->context->system, symbol, fnc);
     if(ret) {
         printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", (void*)ret);
         return (void*)ret; // already bridged
@@ -604,13 +370,8 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
         return NULL;
     }
     symbol1_t* s = &kh_value(wrappers->glwrappers, k);
-    if(!s->resolved) {
-        const char* constname = kh_key(wrappers->glwrappers, k);
-        AddOffsetSymbol(emu->context->maplib, symbol, rname);
-        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
-        s->resolved = 1;
-    }
-    ret = s->addr;
+    const char* constname = kh_key(wrappers->glwrappers, k);
+    ret = AddCheckBridge2(emu->context->system, s->w, symbol, fnc, 0, constname);
     printf_dlsym_prefix(0, LOG_DEBUG, "%p\n", (void*)ret);
     return (void*)ret;
 }
