@@ -3049,12 +3049,12 @@ GO(glXWaitForMscOML, iFXpIIIppp)
 GO(glXWaitForSbcOML, iFXpIppp)
 
 //GLX_EXT_swap_control
-GOM(glXSwapIntervalEXT, vFXpi)   //%noE
+GOM(glXSwapIntervalEXT, vFEXpi)
 //GLX_EXT_swap_control_tear
 //nothing
 
 //GLX_MESA_swap_control
-GOM(glXSwapIntervalMESA, iFi)    //%noE
+GOM(glXSwapIntervalMESA, iFEi)
 GO(glXGetSwapIntervalMESA, iFv)
 
 //GLX_SGI_swap_control
