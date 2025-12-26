@@ -384,7 +384,7 @@ GO(XGetGeometry, iFXLbL_pppppp)
 GO(_XGetHostname, iFpi)
 GO(XGetIconName, iFXLbp_)
 GO(XGetIconSizes, iFXLbp_p)
-GOM(XGetICValues, pFELV)      // use varargs...
+GOM(XGetICValues, pFEpV)      // use varargs...
 GOM(XGetImage, pFEXLiiuuLi)     // return an XImage with callbacks that needs wrapping
 GOM(XGetIMValues, pFEpV)
 GO(XGetInputFocus, iFXBL_p)

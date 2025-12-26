@@ -713,7 +713,6 @@
 #() pFEiu -> pFEiu
 #() pEEip -> pEEip
 #() pFEiV -> pFEiV
-#() pFELV -> pFELV
 #() pEEpi -> pEEpi
 #() pFEpi -> pFEpi
 #() pFEpu -> pFEpu
@@ -3046,10 +3045,9 @@ wrappedlibx11:
   - XLookupKeysym
 - pFiV:
   - XVaCreateNestedList
-- pFLV:
-  - XGetICValues
 - pFpV:
   - XCreateIC
+  - XGetICValues
   - XGetIMValues
   - XSetICValues
   - XSetIMValues

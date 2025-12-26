@@ -2745,7 +2745,7 @@ EXPORT int my32__XReply(x64emu_t* emu, void* dpy, void* rep, int extra, int disc
     return ret;
 }
 
-EXPORT void* my32_XGetICValues(x64emu_t* emu, size_t ic, ptr_t* V)
+EXPORT void* my32_XGetICValues(x64emu_t* emu, void* ic, ptr_t* V)
 {
     void* ret = NULL;
     while(!ret && *V) {
@@ -2753,12 +2753,12 @@ EXPORT void* my32_XGetICValues(x64emu_t* emu, size_t ic, ptr_t* V)
         void* val = from_ptrv(V[1]);
         V+=2;
         if(!strcmp(name, "filterEvents")) {
-            long fevent;
+            unsigned long fevent;
             ret = my->XGetICValues(ic, name, &fevent, NULL);
-            if(!ret)
-                *(long_t*)val = to_long(fevent);
-        } else
-        {
+            // I got a value of 0xFFFF00000003, but this seems to be a valid
+            // value of KeyPressMask | KeyReleaseMask, so just silently truncate
+            if(!ret) *(ulong_t*)val = to_ulong_silent(fevent);
+        } else {
             printf_log_prefix(2, LOG_INFO, "Warning, unknown XGetICValues of %s\n", name);
             ret = my->XGetICValues(ic, name, val, NULL);
         }
