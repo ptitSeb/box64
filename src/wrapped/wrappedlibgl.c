@@ -31,11 +31,16 @@ EXPORT void* my_glXGetProcAddress(x64emu_t* emu, void* name)
 {
     pFp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXGetProcAddress;
-    khint_t k;
     const char* rname = (const char*)name;
     return getGLProcAddress(emu, NULL, (void*)fnc, rname);
 }
-EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
+EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name)
+{
+    pFp_t fnc = getBridgeFnc2((void*)R_RIP);
+    if(!fnc) fnc=my->glXGetProcAddressARB;
+    const char* rname = (const char*)name;
+    return getGLProcAddress(emu, NULL, (void*)fnc, rname);
+}
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
@@ -182,53 +187,53 @@ static void* find_get_blob_func_Fct(void* fct)
 #include "wrappedlib_init.h"
 
 // glDebugMessageCallback
-static void my_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
+EXPORT void my_glDebugMessageCallback(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallback;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // glDebugMessageCallbackARB
-static void my_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param)
+EXPORT void my_glDebugMessageCallbackARB(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallbackARB;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // glDebugMessageCallbackAMD
-static void my_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param)
+EXPORT void my_glDebugMessageCallbackAMD(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallbackAMD;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // glDebugMessageCallbackKHR
-static void my_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* param)
+EXPORT void my_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* param)
 {
     vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glDebugMessageCallbackKHR;
     fnc(find_debug_callback_Fct(prod), param);
 }
 // eglDebugMessageControlKHR
-static int my_eglDebugMessageControlKHR(x64emu_t* emu, void* prod, void* param)
+EXPORT int my_eglDebugMessageControlKHR(x64emu_t* emu, void* prod, void* param)
 {
     iFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->eglDebugMessageControlKHR;
     return fnc(find_debug_callback_Fct(prod), param);
 }
 // eglSetBlobCacheFuncsANDROID ...
-static void my_eglSetBlobCacheFuncsANDROID(x64emu_t* emu, void* dpy, void* set, void* get)              \
-{                                                                                                           \
+EXPORT void my_eglSetBlobCacheFuncsANDROID(x64emu_t* emu, void* dpy, void* set, void* get)
+{
     vFppp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->eglSetBlobCacheFuncsANDROID;
     fnc(dpy, find_set_blob_func_Fct(set), find_get_blob_func_Fct(get));
 }
 // glXSwapIntervalMESA ...
-static int my_dummy_glXSwapIntervalMESA(int interval)
+EXPORT int my_dummy_glXSwapIntervalMESA(int interval)
 {
     return 5; // GLX_BAD_CONTEXT
 }
-static int my_glXSwapIntervalMESA(x64emu_t* emu, int interval)
+EXPORT int my_glXSwapIntervalMESA(x64emu_t* emu, int interval)
 {
     iFi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXSwapIntervalMESA;
@@ -236,8 +241,8 @@ static int my_glXSwapIntervalMESA(x64emu_t* emu, int interval)
     return fnc(interval);
 }
 // glXSwapIntervalEXT ...
-static void my_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
-static void my_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int interval)
+EXPORT void my_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
+EXPORT void my_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int interval)
 {
     vFppi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXSwapIntervalEXT;
@@ -245,7 +250,7 @@ static void my_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int 
     fnc(dpy, drawable, interval);
 }
 // glProgramCallbackMESA ...
-static void my_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
+EXPORT void my_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
 {
     vFipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glProgramCallbackMESA;
@@ -253,7 +258,7 @@ static void my_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
 }
 void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(void*));  // defined in wrappedvulkan.c
 // glGetVkProcAddrNV ...
-static void* my_glGetVkProcAddrNV(x64emu_t* emu, void* name)
+EXPORT void* my_glGetVkProcAddrNV(x64emu_t* emu, void* name)
 {
     pFp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glGetVkProcAddrNV;
