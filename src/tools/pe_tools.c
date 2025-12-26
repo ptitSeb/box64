@@ -251,7 +251,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
         return;
     }
 
-    if (fread(buffer, 1, size, file) != size) {
+    if ((long)fread(buffer, 1, size, file) != size) {
         free(buffer);
         fclose(file);
         return;

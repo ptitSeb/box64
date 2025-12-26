@@ -421,6 +421,7 @@ static void* inplace_shrink_arraystring(void* a)
     while(src[n]) ++n;
     for(int i=0; i<=n; ++i) // convert last NULL value
         dst[i] = to_ptrv(src[i]);
+    return a;
 }
 
 static void* inplace_expand_arraystring(void* a)

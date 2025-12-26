@@ -659,186 +659,6 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
     }
 }
 
-void myStackAlignGVariantNew32(const char* fmt, uint32_t* st, uint64_t* mystack)
-{
-    if (!fmt)
-        return;
-    
-    const char *p = fmt;
-    int state = 0;
-    int inblocks = 0;
-    int tmp;
-
-    do {
-        switch(state) {
-            case 0: // Nothing
-                switch(*p) {
-                    case 'b': // gboolean
-                    case 'y': // guchar
-                    case 'n': // gint16
-                    case 'q': // guint16
-                    case 'i': // gint32
-                    case 'u': // guint32
-                    case 'h': // gint32
-                    case 's': // const gchar*
-                    case 'o':
-                    case 'g':
-                    case 'v': // GVariant*
-                    case '*': // GVariant* of any type
-                    case '?': // GVariant* of basic type
-                    case 'r': // GVariant* of tuple type
-                        *mystack = *st;
-                        ++mystack;
-                        ++st;
-                        break;
-                    case 'x': // gint64
-                    case 't': // guint64
-                    case 'd': // gdouble
-                        *(uint64_t*)mystack = *(uint64_t*)st;
-                        st+=2; mystack+=1;
-                        break;
-                    case '{':
-                    case '(': ++inblocks; break;
-                    case '}':
-                    case ')': --inblocks; break;
-                    case 'a': state = 1; break; // GVariantBuilder* or GVariantIter**
-                    case 'm': state = 2; break; // maybe types
-                    case '@': state = 3; break; // GVariant* of type [type]
-                    case '^': state = 4; break; // pointer value
-                    case '&': break; // pointer: do nothing
-                }
-                break;
-            case 1: // Arrays
-                switch(*p) {
-                    case '{':
-                    case '(': ++tmp; break;
-                    case '}':
-                    case ')': --tmp; break;
-                }
-                if (*p == 'a') break;
-                if (tmp == 0) {
-                    *mystack = *st;
-                    ++mystack;
-                    ++st;
-                    state = 0;
-                }
-                break;
-            case 2: // Maybe-types
-                switch(*p) {
-                    case 'b': // gboolean
-                    case 'y': // guchar
-                    case 'n': // gint16
-                    case 'q': // guint16
-                    case 'i': // gint32
-                    case 'u': // guint32
-                    case 'h': // gint32
-                    case 'x': // gint64
-                    case 't': // guint64
-                    case 'd': // gdouble
-                    case '{':
-                    case '}':
-                    case '(':
-                    case ')':
-                        // Add a gboolean or gboolean*, no char increment
-                        *mystack = *st;
-                        ++mystack;
-                        ++st;
-                        --p;
-                        state = 0;
-                        break;
-                    case 'a': // GVariantBuilder* or GVariantIter**
-                    case 's': // const gchar*
-                    case 'o':
-                    case 'g':
-                    case 'v': // GVariant*
-                    case '@': // GVariant* of type [type]
-                    case '*': // GVariant* of any type
-                    case '?': // GVariant* of basic type
-                    case 'r': // GVariant* of tuple type
-                    case '&': // pointer
-                    case '^': // pointer value
-                        // Just maybe-NULL
-                        --p;
-                        state = 0;
-                        break;
-
-                    default: // Default to add a gboolean & reinit state?
-                        *mystack = *st;
-                        ++mystack;
-                        ++st;
-                        --p;
-                        state = 0;
-                }
-                break;
-            case 3: // GVariant*
-                switch(*p) {
-                    case '{':
-                    case '(': ++tmp; break;
-                    case '}':
-                    case ')': --tmp; break;
-                    case 'a': // GVariantBuilder* or GVariantIter**
-                        do { ++p; } while(*p == 'a'); // Use next character which is not an array (array definition)
-                        switch(*p) {
-                            case '{':
-                            case '(': ++tmp; break;
-                            case '}':
-                            case ')': --tmp; break;
-                        }
-                        break;
-                }
-                if (tmp == 0) {
-                    *mystack = *st;
-                    ++mystack;
-                    ++st;
-                    state = 0;
-                }
-                break;
-            case 4: // ^
-                if (*p == 'a') state = 5;
-                else if (*p == '&') state = 8;
-                else state = 0; //???
-                break;
-            case 5: // ^a
-                if ((*p == 's') || (*p == 'o') || (*p == 'y')) {
-                    *mystack = *st;
-                    ++mystack;
-                    ++st;
-                    state = 0;
-                } else if (*p == '&') state = 6;
-                else if (*p == 'a') state = 7;
-                else state = 0; //???
-                break;
-            case 6: // ^a&
-                if ((*p == 's') || (*p == 'o')) {
-                    *mystack = *st;
-                    ++mystack;
-                    ++st;
-                    state = 0;
-                } else if (*p == 'a') state = 7;
-                else state = 0; //???
-                break;
-            case 7: // ^aa / ^a&a
-                if (*p == 'y') {
-                    *mystack = *st;
-                    ++mystack;
-                    ++st;
-                    state = 0;
-                } else state = 0; //???
-            case 8: // ^&
-                if (*p == 'a') state = 9;
-                else state = 0; //???
-            case 9: // ^&a
-                if (*p == 'y') {
-                    *mystack = *st;
-                    ++mystack;
-                    ++st;
-                    state = 0;
-                } else state = 0; //???
-        }
-        ++p;
-    } while (*p && (inblocks || state));
-}
-
 void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
 {
     // loop...
@@ -1492,7 +1312,7 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
     d->msg_namelen = s->msg_namelen;
     d->msg_iov = iov;
     // TODO: check if iovlen is too big
-    for(int i=0; i<s->msg_iovlen; ++i) {
+    for(uint32_t i=0; i<s->msg_iovlen; ++i) {
         AlignIOV_32(d->msg_iov+i, s_iov+i);
     }
     d->msg_iovlen = s->msg_iovlen;
@@ -1538,7 +1358,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
     d->msg_name = to_ptrv(s->msg_name);
     d->msg_namelen = s->msg_namelen;
     // TODO: check if iovlen is too big
-    for(int i=0; i<s->msg_iovlen; ++i) {
+    for(uint32_t i=0; i<s->msg_iovlen; ++i) {
         UnalignIOV_32(d_iov+i, s_iov+i);
     }
     d->msg_iovlen = s->msg_iovlen;

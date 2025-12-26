@@ -189,7 +189,7 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
         // grab DT_REL & DT_RELA stuffs
         // also grab the DT_STRTAB string table
         {
-            for (int i=0; i<h->numDynamic; ++i) {
+            for (size_t i=0; i<h->numDynamic; ++i) {
                 Elf32_Dyn d = h->Dynamic._32[i];
                 Elf32_Word val = d.d_un.d_val;
                 Elf32_Addr ptr = d.d_un.d_ptr;

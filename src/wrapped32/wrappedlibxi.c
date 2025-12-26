@@ -139,6 +139,7 @@ EXPORT void* my32_XGetDeviceMotionEvents(x64emu_t* emu, void* dpy, void* d, unsi
             dst[*n].time = 0; dst[*n].data = 0; // mark the end
         }
     }
+    return ret;
 }
 
 EXPORT void my32_XFreeDeviceMotionEvents(x64emu_t* emu, void* l)
@@ -152,7 +153,7 @@ EXPORT void my32_XFreeDeviceMotionEvents(x64emu_t* emu, void* l)
         dst[i].data = from_ptrv(src[i].data);
         dst[i].time = from_ulong(src[i].time);
     }
-    my->XFreeDeviceMotionEvents(l);
+    return my->XFreeDeviceMotionEvents(l);
 }
 
 EXPORT int my32_XGrabDevice(x64emu_t* emu, void* dpy, void* d, XID w, int owner, int count, void* evt, int this_mode, int other_modes, unsigned long time)

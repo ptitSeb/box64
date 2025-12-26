@@ -547,8 +547,8 @@ static void* findon_exitFct(void* fct)
 EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
-    int ret = statvfs(f, &s);
-    if(r>=0)
+    int ret = statvfs(f, r?&s:NULL);
+    if(r)
         UnalignStatVFS64_32(&s, r);
     return ret;
 }
@@ -556,8 +556,8 @@ EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
-    int ret = statvfs(f, &s);
-    if(r>=0)
+    int ret = statvfs(f, r?&s:NULL);
+    if(r)
         UnalignStatVFS_32(&s, r);
     return ret;
 }
@@ -565,8 +565,8 @@ EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 EXPORT int my32_fstatvfs64(x64emu_t* emu, int fd, void* r)
 {
     struct statvfs s = {0};
-    int ret = fstatvfs(fd, &s);
-    if(r>=0)
+    int ret = fstatvfs(fd, r?&s:NULL);
+    if(r)
         UnalignStatVFS64_32(&s, r);
     return ret;
 }
@@ -574,8 +574,8 @@ EXPORT int my32_fstatvfs64(x64emu_t* emu, int fd, void* r)
 EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
 {
     struct statvfs s = {0};
-    int ret = fstatvfs(fd, &s);
-    if(r>=0)
+    int ret = fstatvfs(fd, r?&s:NULL);
+    if(r)
         UnalignStatVFS_32(&s, r);
     return ret;
 }
@@ -583,40 +583,45 @@ EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
 EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags)
 {
     struct stat64 s = {0};
-    int ret = fstatat64(fd, name, &s, flags);
-    FillStatFromStat64(3, &s, buff);
+    int ret = fstatat64(fd, name, buff?&s:NULL, flags);
+    if(buff)
+        FillStatFromStat64(3, &s, buff);
     return ret;
 }
 
 EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int flags)
 {
     struct stat64 s = {0};
-    int ret = fstatat64(fd, name, &s, flags);
-    UnalignStat64_32(&s, buff);
+    int ret = fstatat64(fd, name, buff?&s:NULL, flags);
+    if(buff)
+        UnalignStat64_32(&s, buff);
     return ret;
 }
 
 EXPORT int my32___stat64_time64(x64emu_t* emu, void* f, void* r)
 {
     struct stat64 s = {0};
-    int ret = stat64(f, &s);
-    UnalignStat64_32_t64(&s, r);
+    int ret = stat64(f, r?&s:NULL);
+    if(r)
+        UnalignStat64_32_t64(&s, r);
     return ret;
 }
 
 EXPORT int my32___lstat64_time64(x64emu_t* emu, void* f, void* r)
 {
     struct stat64 s = {0};
-    int ret = lstat64(f, &s);
-    UnalignStat64_32_t64(&s, r);
+    int ret = lstat64(f, r?&s:NULL);
+    if(r)
+        UnalignStat64_32_t64(&s, r);
     return ret;
 }
 
 EXPORT int my32___fstat64_time64(x64emu_t* emu, int fd, void* r)
 {
     struct stat64 s = {0};
-    int ret = fstat64(fd, &s);
-    UnalignStat64_32_t64(&s, r);
+    int ret = fstat64(fd, r?&s:NULL);
+    if(r)
+        UnalignStat64_32_t64(&s, r);
     return ret;
 }
 
@@ -1757,7 +1762,7 @@ static void convert_glob_to_32(void* d, void* s, int is64)
     if(!d || !s) return;
     glob_t* src = s;
     my_glob_32_t* dst = d;
-    for(int i=0; i<src->gl_pathc; ++i)
+    for(ulong_t i=0; i<src->gl_pathc; ++i)
         ((ptr_t*)src->gl_pathv)[i] = to_ptrv(src->gl_pathv[i]);
     dst->gl_pathc = to_ulong(src->gl_pathc);
     dst->gl_pathv = to_ptrv(src->gl_pathv);
@@ -1774,7 +1779,7 @@ static void convert_glob_to_64(void* d, void* s, int is64)
     dst->gl_pathv = from_ptrv(src->gl_pathv);
     dst->gl_offs = from_ulong(src->gl_offs);
     dst->gl_flags = src->gl_flags;
-    for(int i=dst->gl_pathc-1; i>=0; --i)
+    for(ulong_t i=dst->gl_pathc; i--;)
         dst->gl_pathv[i] = from_ptrv(((ptr_t*)dst->gl_pathv)[i]);
     // TODO: functions pointers
 }
@@ -3122,7 +3127,7 @@ int my_mprotect(x64emu_t* emu, void *addr, size_t len, int prot);
 EXPORT void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int64_t offset)
 {
     void* ret = my_mmap64(emu, addr, length, prot, flags|MAP_32BIT, fd, offset);
-    if((ret!=MAP_FAILED && ((uintptr_t)ret>0xffffffff) || ((uintptr_t)ret+length>0xffffffff))) {
+    if((ret!=MAP_FAILED) && (((uintptr_t)ret>0xffffffff) || ((uintptr_t)ret+length>0xffffffff))) {
         my_munmap(emu, ret, length);
         errno = EEXIST;
         return MAP_FAILED;
@@ -3399,9 +3404,9 @@ EXPORT ssize_t my32_process_vm_readv(x64emu_t* emu, int pid, struct i386_iovec* 
 {
     struct iovec local_iovec_l[liovect];
     struct iovec remove_iovec_l[riovect];
-    for (int i=0; i<liovect; ++i)
+    for (size_t i=0; i<liovect; ++i)
         AlignIOV_32(local_iovec_l+i, local_iovec+i);
-    for (int i=0; i<riovect; ++i)
+    for (size_t i=0; i<riovect; ++i)
         AlignIOV_32(remove_iovec_l+i, remote_iovec+i);
     return process_vm_readv(pid, local_iovec_l, liovect, remove_iovec_l, riovect, flags);
 }
@@ -3409,9 +3414,9 @@ EXPORT ssize_t my32_process_vm_writev(x64emu_t* emu, int pid, struct i386_iovec*
 {
     struct iovec local_iovec_l[liovect];
     struct iovec remove_iovec_l[riovect];
-    for (int i=0; i<liovect; ++i)
+    for (size_t i=0; i<liovect; ++i)
         AlignIOV_32(local_iovec_l+i, local_iovec+i);
-    for (int i=0; i<riovect; ++i)
+    for (size_t i=0; i<riovect; ++i)
         AlignIOV_32(remove_iovec_l+i, remote_iovec+i);
     return process_vm_writev(pid, local_iovec_l, liovect, remove_iovec_l, riovect, flags);
 }

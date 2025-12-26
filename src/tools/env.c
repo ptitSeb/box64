@@ -328,6 +328,8 @@ static void freeEnv(box64env_t* env)
 #define ENV_ARCH "rv64"
 #elif defined(LA64)
 #define ENV_ARCH "la64"
+#elif defined(X86_64)
+#define ENV_ARCH "x86_64"
 #else
 #warning "Unknown architecture for ENV_ARCH"
 #define ENV_ARCH "unknown"

@@ -188,13 +188,13 @@ void* add_xcb_connection32(void* src)
             unalign_xcb_connection32(src, &i386_xcb_connects[i]);
             return &i386_xcb_connects[i];
         }
-        // find a free slot
-        for(int i=0; i<NXCB; ++i)
-            if(!my_xcb_connects[i]) {
-                my_xcb_connects[i] = src;
-                unalign_xcb_connection32(src, &i386_xcb_connects[i]);
-                return &i386_xcb_connects[i];
-            }
+    // find a free slot
+    for(int i=0; i<NXCB; ++i)
+        if(!my_xcb_connects[i]) {
+            my_xcb_connects[i] = src;
+            unalign_xcb_connection32(src, &i386_xcb_connects[i]);
+            return &i386_xcb_connects[i];
+        }
     printf_log(LOG_NONE, "Error, no more free xcb_connect 32bits slot for %p\n", src);
     return src;
 }

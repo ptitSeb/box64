@@ -192,7 +192,7 @@ Implements the AAM instruction and side effects.
 ****************************************************************************/
 uint16_t aam16(x64emu_t *emu, uint8_t d, uint8_t base)
 {
-    uint16_t h, l;
+	uint16_t h, l;
 
 	RESET_FLAGS(emu);
 
@@ -206,7 +206,7 @@ uint16_t aam16(x64emu_t *emu, uint8_t d, uint8_t base)
 	CONDITIONAL_SET_FLAG(l & 0x80, F_SF);
 	CONDITIONAL_SET_FLAG((l&0xff) == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(l & 0xff), F_PF);
-    return l;
+	return l;
 }
 
 /****************************************************************************
@@ -355,7 +355,7 @@ uint16_t cmp16(x64emu_t *emu, uint16_t d, uint16_t s)
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the borrow chain.  See note at top */
-    bc = (res & (~d | s)) | (~d & s);
+	bc = (res & (~d | s)) | (~d & s);
 	CONDITIONAL_SET_FLAG(bc & 0x8000, F_CF);
 	CONDITIONAL_SET_FLAG(XOR2(bc >> 14), F_OF);
 	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
@@ -461,71 +461,71 @@ Implements the RCL instruction and side effects.
 ****************************************************************************/
 uint8_t rcl8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-    unsigned int res, cnt, mask, cf;
+	unsigned int res, cnt, mask, cf;
 	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
-    /* s is the rotate distance.  It varies from 0 - 8. */
+	/* s is the rotate distance.  It varies from 0 - 8. */
 	/* have
 
-       CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0 
+	   CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0 
 
-       want to rotate through the carry by "s" bits.  We could 
-       loop, but that's inefficient.  So the width is 9,
-       and we split into three parts:
+	   want to rotate through the carry by "s" bits.  We could 
+	   loop, but that's inefficient.  So the width is 9,
+	   and we split into three parts:
 
-       The new carry flag   (was B_n)
-       the stuff in B_n-1 .. B_0
-       the stuff in B_7 .. B_n+1
+	   The new carry flag   (was B_n)
+	   the stuff in B_n-1 .. B_0
+	   the stuff in B_7 .. B_n+1
 
-       The new rotate is done mod 9, and given this,
-       for a rotation of n bits (mod 9) the new carry flag is
-       then located n bits from the MSB.  The low part is 
-       then shifted up cnt bits, and the high part is or'd
-       in.  Using CAPS for new values, and lowercase for the 
-       original values, this can be expressed as:
+	   The new rotate is done mod 9, and given this,
+	   for a rotation of n bits (mod 9) the new carry flag is
+	   then located n bits from the MSB.  The low part is 
+	   then shifted up cnt bits, and the high part is or'd
+	   in.  Using CAPS for new values, and lowercase for the 
+	   original values, this can be expressed as:
 
-       IF n > 0 
-       1) CF <-  b_(8-n)
-       2) B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0
-       3) B_(n-1) <- cf
-       4) B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1))
+	   IF n > 0 
+	   1) CF <-  b_(8-n)
+	   2) B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0
+	   3) B_(n-1) <- cf
+	   4) B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1))
 	 */
 	res = d;
 	if ((cnt = s % 9) != 0) {
-        /* extract the new CARRY FLAG. */
-        /* CF <-  b_(8-n)             */
-        cf = (d >> (8 - cnt)) & 0x1;
+		/* extract the new CARRY FLAG. */
+		/* CF <-  b_(8-n)             */
+		cf = (d >> (8 - cnt)) & 0x1;
 
-        /* get the low stuff which rotated 
-           into the range B_7 .. B_cnt */
-        /* B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0  */
-        /* note that the right hand side done by the mask */
+		/* get the low stuff which rotated 
+		   into the range B_7 .. B_cnt */
+		/* B_(7) .. B_(n)  <-  b_(8-(n+1)) .. b_0  */
+		/* note that the right hand side done by the mask */
 		res = (d << cnt) & 0xff;
 
-        /* now the high stuff which rotated around 
-           into the positions B_cnt-2 .. B_0 */
-        /* B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1)) */
-        /* shift it downward, 7-(n-2) = 9-n positions. 
-           and mask off the result before or'ing in. 
-         */
-        mask = (1 << (cnt - 1)) - 1;
-        res |= (d >> (9 - cnt)) & mask;
+		/* now the high stuff which rotated around 
+		   into the positions B_cnt-2 .. B_0 */
+		/* B_(n-2) .. B_0 <-  b_7 .. b_(8-(n-1)) */
+		/* shift it downward, 7-(n-2) = 9-n positions. 
+		   and mask off the result before or'ing in. 
+		 */
+		mask = (1 << (cnt - 1)) - 1;
+		res |= (d >> (9 - cnt)) & mask;
 
-        /* if the carry flag was set, or it in.  */
+		/* if the carry flag was set, or it in.  */
 		if (ACCESS_FLAG(F_CF)) {     /* carry flag is set */
-            /*  B_(n-1) <- cf */
-            res |= 1 << (cnt - 1);
-        }
-        /* set the new carry flag, based on the variable "cf" */
+			/* B_(n-1) <- cf */
+			res |= 1 << (cnt - 1);
+		}
+		/* set the new carry flag, based on the variable "cf" */
 		CONDITIONAL_SET_FLAG(cf, F_CF);
-        /* OVERFLOW is set *IFF* cnt==1, then it is the 
-           xor of CF and the most significant bit.  Blecck. */
+		/* OVERFLOW is set *IFF* cnt==1, then it is the 
+		   xor of CF and the most significant bit.  Blecck. */
 		if(BOX64ENV(cputype))
-		   CONDITIONAL_SET_FLAG((cf ^ (res >> 7)) & 0x1, F_OF);
-	   else
-		   CONDITIONAL_SET_FLAG((XOR2(d >> 6)), F_OF);
-    } else if(s) {
+			CONDITIONAL_SET_FLAG((cf ^ (res >> 7)) & 0x1, F_OF);
+		else
+			CONDITIONAL_SET_FLAG((XOR2(d >> 6)), F_OF);
+	} else if(s) {
 		if(BOX64ENV(cputype))
 			CONDITIONAL_SET_FLAG((ACCESS_FLAG(F_CF) ^ (res >> 7)) & 0x1, F_OF);
 	}
@@ -619,31 +619,31 @@ uint8_t rcr8(x64emu_t *emu, uint8_t d, uint8_t s)
 	s = s&0x1f;
 
 	/* rotate right through carry */
-    /* 
-       s is the rotate distance.  It varies from 0 - 8.
-       d is the byte object rotated.  
+	/* 
+	   s is the rotate distance.  It varies from 0 - 8.
+	   d is the byte object rotated.  
 
-       have 
+	   have 
 
-       CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0 
+	   CF  B_7 B_6 B_5 B_4 B_3 B_2 B_1 B_0 
 
-       The new rotate is done mod 9, and given this,
-       for a rotation of n bits (mod 9) the new carry flag is
-       then located n bits from the LSB.  The low part is 
-       then shifted up cnt bits, and the high part is or'd
-       in.  Using CAPS for new values, and lowercase for the 
-       original values, this can be expressed as:
+	   The new rotate is done mod 9, and given this,
+	   for a rotation of n bits (mod 9) the new carry flag is
+	   then located n bits from the LSB.  The low part is 
+	   then shifted up cnt bits, and the high part is or'd
+	   in.  Using CAPS for new values, and lowercase for the 
+	   original values, this can be expressed as:
 
-       IF n > 0 
-       1) CF <-  b_(n-1)
-       2) B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_(n)
-       3) B_(8-n) <- cf
-       4) B_(7) .. B_(8-(n-1)) <-  b_(n-2) .. b_(0)
+	   IF n > 0 
+	   1) CF <-  b_(n-1)
+	   2) B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_(n)
+	   3) B_(8-n) <- cf
+	   4) B_(7) .. B_(8-(n-1)) <-  b_(n-2) .. b_(0)
 	 */
 	res = d;
 	if ((cnt = s % 9) != 0) {
-        /* extract the new CARRY FLAG. */
-        /* CF <-  b_(n-1)              */
+		/* extract the new CARRY FLAG. */
+		/* CF <-  b_(n-1)              */
 		ocf = ACCESS_FLAG(F_CF) != 0;
 		/* OVERFLOW is set *IFF* cnt==1, then it is the 
 		xor of CF and the most significant bit.  Blecck. */
@@ -651,41 +651,41 @@ uint8_t rcr8(x64emu_t *emu, uint8_t d, uint8_t s)
 		if(!BOX64ENV(cputype))
 			CONDITIONAL_SET_FLAG((ocf ^ (d >> 7)) & 0x1, F_OF);
 		if (cnt == 1) {
-            cf = d & 0x1;
-            /* note hackery here.  Access_flag(..) evaluates to either
-               0 if flag not set
-               non-zero if flag is set.
-               doing access_flag(..) != 0 casts that into either 
+			cf = d & 0x1;
+			/* note hackery here.  Access_flag(..) evaluates to either
+			   0 if flag not set
+			   non-zero if flag is set.
+			   doing access_flag(..) != 0 casts that into either 
 			   0..1 in any representation of the flags register
-               (i.e. packed bit array or unpacked.)
-             */
-        } else
-            cf = (d >> (cnt - 1)) & 0x1;
+			   (i.e. packed bit array or unpacked.)
+			 */
+		} else
+			cf = (d >> (cnt - 1)) & 0x1;
 
-        /* B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_n  */
-        /* note that the right hand side done by the mask
-           This is effectively done by shifting the 
-           object to the right.  The result must be masked,
-           in case the object came in and was treated 
-           as a negative number.  Needed??? */
+		/* B_(8-(n+1)) .. B_(0)  <-  b_(7) .. b_n  */
+		/* note that the right hand side done by the mask
+		   This is effectively done by shifting the 
+		   object to the right.  The result must be masked,
+		   in case the object came in and was treated 
+		   as a negative number.  Needed??? */
 
-        mask = (1 << (8 - cnt)) - 1;
-        res = (d >> cnt) & mask;
+		mask = (1 << (8 - cnt)) - 1;
+		res = (d >> cnt) & mask;
 
-        /* now the high stuff which rotated around 
-           into the positions B_cnt-2 .. B_0 */
-        /* B_(7) .. B_(8-(n-1)) <-  b_(n-2) .. b_(0) */
-        /* shift it downward, 7-(n-2) = 9-n positions. 
-           and mask off the result before or'ing in. 
-         */
-        res |= (d << (9 - cnt));
+		/* now the high stuff which rotated around 
+		   into the positions B_cnt-2 .. B_0 */
+		/* B_(7) .. B_(8-(n-1)) <-  b_(n-2) .. b_(0) */
+		/* shift it downward, 7-(n-2) = 9-n positions. 
+		   and mask off the result before or'ing in. 
+		 */
+		res |= (d << (9 - cnt));
 
-        /* if the carry flag was set, or it in.  */
+		/* if the carry flag was set, or it in.  */
 		if (ACCESS_FLAG(F_CF)) {     /* carry flag is set */
-            /*  B_(8-n) <- cf */
-            res |= 1 << (8 - cnt);
-        }
-        /* set the new carry flag, based on the variable "cf" */
+			/* B_(8-n) <- cf */
+			res |= 1 << (8 - cnt);
+		}
+		/* set the new carry flag, based on the variable "cf" */
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 
 	}
@@ -1124,7 +1124,7 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		CLEAR_FLAG(F_SF);
 		CLEAR_FLAG(F_PF);
 	#endif
-    }
+	}
 	if (BOX64ENV(cputype)) {
 		CONDITIONAL_SET_FLAG(XOR2(res>>14), F_OF);
 	} else {
@@ -1205,8 +1205,8 @@ Implements the SBB instruction and side effects.
 ****************************************************************************/
 uint8_t sbb8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-    uint32_t res;   /* all operands in native machine order */
-    uint32_t bc;
+	uint32_t res;   /* all operands in native machine order */
+	uint32_t bc;
 	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
@@ -1227,17 +1227,17 @@ uint8_t sbb8(x64emu_t *emu, uint8_t d, uint8_t s)
 
 uint16_t sbb16(x64emu_t *emu, uint16_t d, uint16_t s)
 {
-    uint32_t res;   /* all operands in native machine order */
-    uint32_t bc;
+	uint32_t res;   /* all operands in native machine order */
+	uint32_t bc;
 	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
-    else
-        res = d - s;
-   	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-   	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-   	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		res = d - s - 1;
+	else
+		res = d - s;
+	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
+	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the borrow chain.  See note at top */
 	bc = (res & (~d | s)) | (~d & s);
@@ -1254,12 +1254,12 @@ uint32_t sbb32(x64emu_t *emu, uint32_t d, uint32_t s)
 	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
-    else
-        res = d - s;
-  	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-  	CONDITIONAL_SET_FLAG(!res, F_ZF);
-  	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		res = d - s - 1;
+	else
+		res = d - s;
+	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+	CONDITIONAL_SET_FLAG(!res, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the borrow chain.  See note at top */
 	bc = (res & (~d | s)) | (~d & s);
@@ -1276,12 +1276,12 @@ uint64_t sbb64(x64emu_t *emu, uint64_t d, uint64_t s)
 	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
-    else
-        res = d - s;
-  	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
-  	CONDITIONAL_SET_FLAG(!res, F_ZF);
-  	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		res = d - s - 1;
+	else
+		res = d - s;
+	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
+	CONDITIONAL_SET_FLAG(!res, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 
 	/* calculate the borrow chain.  See note at top */
 	bc = (res & (~d | s)) | (~d & s);
@@ -1297,13 +1297,13 @@ Implements the TEST instruction and side effects.
 ****************************************************************************/
 void test8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-    uint8_t res;   /* all operands in native machine order */
+	uint8_t res;   /* all operands in native machine order */
 	RESET_FLAGS(emu);
 
-    res = d & s;
+	res = d & s;
 
 	CLEAR_FLAG(F_OF);
-    CLEAR_FLAG(F_AF);	/* AF == dont care */
+	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
 	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
 	CONDITIONAL_SET_FLAG(!res, F_ZF);
@@ -1362,7 +1362,7 @@ Implements the IDIV instruction and side effects.
 
 void idiv8(x64emu_t *emu, uint8_t s)
 {
-    int32_t dvd, quot, mod;
+	int32_t dvd, quot, mod;
 	if(BOX64ENV(cputype)) {
 		CHECK_FLAGS(emu);
 		SET_FLAG(F_AF);
@@ -1374,7 +1374,7 @@ void idiv8(x64emu_t *emu, uint8_t s)
 	dvd = (int16_t)R_AX;
 	if (s == 0) {
 		INTR_RAISE_DIV0(emu);
-        return;
+		return;
 	}
 	div_t p = div(dvd, (int8_t)s);
 	quot = p.quot;
@@ -1492,15 +1492,15 @@ void div8(x64emu_t *emu, uint8_t s)
 	}
 
 	dvd = R_AX;
-    if (s == 0) {
+	if (s == 0) {
 		INTR_RAISE_DIV0(emu);
-        return;
-    }
+		return;
+	}
 	div = dvd / (uint8_t)s;
 	mod = dvd % (uint8_t)s;
 	if (div > 0xff) {
 		INTR_RAISE_DIV0(emu);
-        return;
+		return;
 	}
 	R_AL = (uint8_t)div;
 	R_AH = (uint8_t)mod;
@@ -1526,8 +1526,8 @@ void div16(x64emu_t *emu, uint16_t s)
 	dvd = (((uint32_t)R_DX) << 16) | R_AX;
 	if (s == 0) {
 		INTR_RAISE_DIV0(emu);
-        return;
-    }
+		return;
+	}
 	div = dvd / (uint16_t)s;
 	mod = dvd % (uint16_t)s;
 	if (div > 0xffff) {

@@ -95,6 +95,7 @@ static int my32_rev_wire_to_event_##A(void* dpy, void* re, void* event)         
     static my_XEvent_t re_l = {0};                                                                  \
     int ret = my32_rev_wire_to_event_fct_##A (getDisplay(dpy), &re_l, event);                       \
     convertXEvent(re, &re_l);                                                                       \
+    return ret;                                                                                     \
 }
 SUPER()
 #undef GO
@@ -1945,7 +1946,7 @@ EXPORT void* my32_XGetWMHints(x64emu_t* emu, void* dpy, XID window)
     return ret;
 }
 
-EXPORT int my32_XSetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hints)
+EXPORT void my32_XSetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hints)
 {
     inplace_enlarge_wmsizehints(hints);
     my->XSetWMNormalHints(dpy, window, hints);
@@ -2072,6 +2073,7 @@ EXPORT int my32_XChangeProperty(x64emu_t* emu, void* dpy, XID window, XID prop, 
     int ret = my->XChangeProperty(dpy, window, prop, type, fmt, mode, data, n);
     if(tmp)
         box_free(tmp);
+    return ret;
 }
 
 EXPORT void my32_XSetWMProperties(x64emu_t* emu, void* dpy, XID window, void* window_name, void* icon_name, ptr_t* argv, int argc, void* normal_hints, my_XWMHints_32_t* wm_hints, ptr_t* class_hints)
@@ -2192,7 +2194,7 @@ EXPORT int my32_XQueryTree(x64emu_t* emu, void* dpy, XID window, XID_32* root, X
     *parent = to_ulong(parent_l);
     *children = to_ptrv(children_l);
     if(children_l)
-        for(int i=0; i<*n; ++i)
+        for(uint32_t i=0; i<*n; ++i)
             ((XID_32*)children_l)[i] = to_ulong(children_l[i]);
     return ret;
 }
@@ -2422,6 +2424,7 @@ EXPORT int my32_XFontsOfFontSet(x64emu_t* emu, my_XFontSet_32_t* set, ptr_t* fon
             set->fonts[j][i] = to_ptrv(((void**)fonts_ret_l)[i]);
         *fonts_ret = to_ptrv(set->fonts[j]);
     }
+    return ret;
 }
 
 EXPORT void* my32_XExtentsOfFontSet(x64emu_t* emu, my_XFontSet_32_t* set)
@@ -2591,7 +2594,7 @@ EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID pro
         // inplace shrink
         unsigned long *src = prop_l;
         ulong_t* dst = prop_l;
-        for(int i=0; i<*nitems_return; ++i)
+        for(ulong_t i=0; i<*nitems_return; ++i)
             dst[i] = to_ulong_silent(src[i]);
     }
     return ret;

@@ -258,6 +258,7 @@ static int my32_rev_wire_to_event_##A(void* dpy, void* re, void* event)         
     static my_XEvent_t re_l = {0};                                                                  \
     int ret = my32_rev_wire_to_event_fct_##A (getDisplay(dpy), &re_l, event);                       \
     convertXEvent(re, &re_l);                                                                       \
+    return ret;                                                                                     \
 }
 SUPER()
 #undef GO

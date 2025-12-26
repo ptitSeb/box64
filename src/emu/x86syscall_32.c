@@ -269,7 +269,7 @@ typedef struct native_linux_dirent {
 } native_linux_dirent_t;
 
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
-int32_t my32_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
+int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[]);
 ssize_t my32_read(int fd, void* buf, size_t count);
 void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int64_t offset);
 int my32_munmap(x64emu_t* emu, void* addr, unsigned long length);

@@ -150,8 +150,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     char tmp[50];
                     char tmp2[50] = {0};
                     uint32_t n = from_ptri(uint32_t, R_ESP+8);
-                    for(int ii=0; ii<n; ++ii) {
-                        snprintf(tmp, 49, "%s%d/0x%hx", ii?" ,":"", ((int*)pu32)[ii*2], ((uint16_t*)pu32)[ii*4+2]);
+                    for(uint32_t ii=0; ii<n; ++ii) {
+                        snprintf(tmp, 49, "%s%d/0x%hx", ii?", ":"", ((int*)pu32)[ii*2], ((uint16_t*)pu32)[ii*4+2]);
                         strncat(tmp2, tmp, 49);
                     }
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p[%s], %u, %d)", tid, from_ptriv(R_ESP), (char *)s, from_ptrv(R_ESP+4), tmp2, from_ptri(uint32_t, R_ESP+8), from_ptri(int, R_ESP+12));
@@ -197,7 +197,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     perr = 1;
                 } else  if(strstr(s, "sem_timedwait")==s) {
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+8));
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), pu32?pu32[0]:-1, pu32?pu32[1]:-1);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, from_ptriv(R_ESP), (char *)s, (char *)from_ptriv(R_ESP+4), (char *)from_ptriv(R_ESP+8), pu32?pu32[0]:-1u, pu32?pu32[1]:-1u);
                     perr = 1;
                 } else  if(strstr(s, "waitpid")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, 0x%x)", tid, from_ptriv(R_ESP), (char *)s, from_ptri(int32_t, R_ESP+4), from_ptriv(R_ESP+8), from_ptri(uint32_t, R_ESP+12));
@@ -267,11 +267,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "__snprintf_chk")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %d, \"%s\", %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(long_t, R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), (char*)from_ptriv(R_ESP+20), *(void**)from_ptr(R_ESP+24));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %d, \"%s\", %p)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), (size_t)from_ptri(long_t, R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), (char*)from_ptriv(R_ESP+20), *(void**)from_ptr(R_ESP+24));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "snprintf")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\", ...)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), from_ptri(long_t, R_ESP+8), (char*)from_ptriv(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\", ...)", tid, from_ptriv(R_ESP), (char *)s, from_ptriv(R_ESP+4), (size_t)from_ptri(long_t, R_ESP+8), (char*)from_ptriv(R_ESP+12));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "sprintf")==s) {
@@ -405,7 +405,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     perr = 4;
                 } else if (!strcmp(s, "nanosleep")) {
                     pu32 = (uint32_t*)from_ptrv(*(uint32_t*)from_ptrv(R_ESP+4));
-                    snprintf(buff, 256, "%04d|%p: Calling %s(%p[%d, %d], %p)", tid, from_ptriv(R_ESP), (char *)s, (void*)from_ptriv(R_ESP+4), pu32?pu32[0]:0, pu32?pu32[1]:0, (void*)from_ptriv(R_ESP+8));
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p[%d, %d], %p)", tid, from_ptriv(R_ESP), (char *)s, (void*)from_ptriv(R_ESP+4), pu32?pu32[0]:0u, pu32?pu32[1]:0u, (void*)from_ptriv(R_ESP+8));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptriv(R_ESP), (char *)s, from_ptri(uint32_t, R_ESP+4), from_ptri(uint32_t, R_ESP+8), from_ptri(uint32_t, R_ESP+12));
                 }
@@ -417,7 +417,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 w(emu, a);   // some function never come back, so unlock the mutex first!
                 if(post)
                     switch(post) {
-                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1, pu32?pu32[1]:-1);
+                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1u, pu32?pu32[1]:-1u);
                             break;
                     case 2: snprintf(buff2, 63, "(%s)", R_EAX?((char*)from_ptr(R_EAX)):"nil");
                             break;
@@ -447,19 +447,20 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                                 default:
                                     snprintf(buff2, 63, " [type=%hhd]", *pu8); 
                             }
-                            break;
+                    break;
                     case 11: snprintf(buff2, 63, " [%d / %d / %d /%d]", pu32[0], pu32[1], pu32[2], pu32[3]);
                             break;
                     case 12: if(R_EAX>0) {
                         char tmp[50];
                         char tmp2[50] = {0};
                         uint32_t n = from_ptri(uint32_t, R_ESP+8);
-                        for(int ii=0; ii<n; ++ii) {
-                            snprintf(tmp, 49, "%s%d/0x%hx", ii?" ,":"", pu32[ii*2], pu32[ii*2+1]>>16);
+                        for(uint32_t ii=0; ii<n; ++ii) {
+                            snprintf(tmp, 49, "%s%d/0x%hx", ii?", ":"", pu32[ii*2], pu32[ii*2+1]>>16);
                             strncat(tmp2, tmp, 49);
                         }
                         snprintf(buff2, 63, "[%s]", tmp2);
                     }
+                    break;
                     case 13: if(R_EAX==0x25E)
                                 snprintf(buff2, 63, "%s", "here");
                             break;

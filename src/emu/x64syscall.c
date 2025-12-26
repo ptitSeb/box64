@@ -512,7 +512,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 break;
             case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
             case 5: 
-                if(s==165) {if(log) snprintf(buff2, 127, " [sys_mount(%s, %s, %s, 0x%x, %s]", (char*)R_RDI, (char*)R_RSI, (char*)R_RDX, R_R10, R_R8?(char*)R_R8:"(nil)");}; 
+                if(s==165) {if(log) snprintf(buff2, 127, " [sys_mount(%s, %s, %s, 0x%lx, %s]", (char*)R_RDI, (char*)R_RSI, (char*)R_RDX, R_R10, R_R8?(char*)R_R8:"(nil)");}; 
                 S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); 
                 break;
             case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
