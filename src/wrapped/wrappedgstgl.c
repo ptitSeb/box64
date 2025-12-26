@@ -206,12 +206,12 @@ static void* findGstGLWindowCBFct(void* fct)
 
 EXPORT void* my_gst_gl_context_get_proc_address_with_platform(x64emu_t* emu, int type, int gl_api, const char* name)
 {
-    return getGLProcAddress(emu, findGetProcAddressPlatformFct(type, gl_api), name);
+    return getGLProcAddress(emu, NULL, findGetProcAddressPlatformFct(type, gl_api), name);
 }
 
 EXPORT void* my_gst_gl_context_default_get_proc_address(x64emu_t* emu, int gl_api, const char* name)
 {
-    return getGLProcAddress(emu, findGetProcAddressAPIFct(gl_api), name);
+    return getGLProcAddress(emu, NULL, findGetProcAddressAPIFct(gl_api), name);
 }
 
 EXPORT void my_gst_gl_context_thread_add(x64emu_t* emu, void* context, void* f, void* data)

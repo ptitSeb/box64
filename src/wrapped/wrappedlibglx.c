@@ -39,14 +39,14 @@ EXPORT void* myx_glXGetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, (glprocaddress_t)my->glXGetProcAddress, rname);
+    return getGLProcAddress(emu, NULL, (glprocaddress_t)my->glXGetProcAddress, rname);
 }
 
 EXPORT void* myx_glXGetProcAddressARB(x64emu_t* emu, void* name) 
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, (glprocaddress_t)my->glXGetProcAddressARB, rname);
+    return getGLProcAddress(emu, NULL, (glprocaddress_t)my->glXGetProcAddressARB, rname);
 }
 
 #define ALTMY myx_

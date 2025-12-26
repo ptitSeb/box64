@@ -35,7 +35,7 @@ EXPORT void* my32_glXGetProcAddress(x64emu_t* emu, void* name)
     if(!fnc) fnc=my->glXGetProcAddress;
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress32(emu, fnc, rname);
+    return getGLProcAddress32(emu, (void*)fnc, rname);
 }
 EXPORT void* my32_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("my32_glXGetProcAddress")));
 
@@ -227,11 +227,11 @@ static void my32_glDebugMessageCallbackKHR(x64emu_t* emu, void* prod, void* para
     fnc(find_debug_callback_Fct(prod), param);
 }
 // eglDebugMessageControlKHR ...
-static void my_eglDebugMessageControlKHR(x64emu_t* emu, void* prod, void* param)
+static int my_eglDebugMessageControlKHR(x64emu_t* emu, void* prod, void* param)
 {
-    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    iFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->eglDebugMessageControlKHR;
-    fnc(find_egl_debug_callback_Fct(prod), param);
+    return fnc(find_egl_debug_callback_Fct(prod), param);
 }
 // eglSetBlobCacheFuncsANDROID ...
 static void my_eglSetBlobCacheFuncsANDROID(x64emu_t* emu, void* dpy, void* set, void* get)
@@ -263,11 +263,11 @@ static void my32_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, in
 }
 
 // glProgramCallbackMESA ...
-static void my32_glProgramCallbackMESA(x64emu_t* emu, void* f, void* data)
+static void my32_glProgramCallbackMESA(x64emu_t* emu, int t, void* f, void* data)
 {
-    vFpp_t fnc = getBridgeFnc2((void*)R_RIP);
+    vFipp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glProgramCallbackMESA;
-    fnc(find_program_callback_Fct(f), data);
+    fnc(t, find_program_callback_Fct(f), data);
 }
 
 void* my_GetVkProcAddr(x64emu_t* emu, void* name, void*(*getaddr)(void*));  // defined in wrappedvulkan.c
@@ -442,13 +442,13 @@ EXPORT void my32_glMultiDrawElementsBaseVertex(x64emu_t* emu, uint32_t mode, voi
     fnc(mode, count, type, indices_l, drawcount, basevertex);
 }
 // glCreateShaderProgramv ...
-EXPORT void my32_glCreateShaderProgramv(x64emu_t* emu, uint32_t shader, int count, ptr_t* string)
+EXPORT uint32_t my32_glCreateShaderProgramv(x64emu_t* emu, uint32_t shader, int count, ptr_t* string)
 {
-    vFuip_t fnc = getBridgeFnc2((void*)R_RIP);
+    uFuip_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glCreateShaderProgramv;
     char* str[count];
     if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);
-    fnc(shader, count, string?str:NULL);
+    return fnc(shader, count, string?str:NULL);
 }
 // glCompileShaderIncludeARB ...
 EXPORT void my32_glCompileShaderIncludeARB(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)

@@ -358,7 +358,7 @@ EXPORT void* my_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
+    return getGLProcAddress(emu, NULL, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 // DL functions from wrappedlibdl.c

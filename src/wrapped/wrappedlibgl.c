@@ -33,7 +33,7 @@ EXPORT void* my_glXGetProcAddress(x64emu_t* emu, void* name)
     if(!fnc) fnc=my->glXGetProcAddress;
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, (void*)fnc, rname);
+    return getGLProcAddress(emu, NULL, (void*)fnc, rname);
 }
 EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
 
@@ -317,8 +317,9 @@ void freeGLProcWrapper(box64context_t* context)
     gl_wrappers = NULL;
 }
 
-void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rname)
+void* getGLProcAddress(x64emu_t* emu, const char* my, glprocaddress_t procaddr, const char* rname)
 {
+    if(!my) my = "my_";
     khint_t k;
     printf_dlsym(LOG_DEBUG, "Calling getGLProcAddress[%p](\"%s\") => ", procaddr, rname);
     gl_wrappers_t* wrappers = getGLProcWrapper(emu->context, procaddr);
@@ -330,7 +331,7 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
     void* fnc = NULL;
     if(is_my) {
         char tmp[200];
-        strcpy(tmp, "my_");
+        strcpy(tmp, my);
         strcat(tmp, rname);
         fnc = symbol;
         symbol = dlsym(emu->context->box64lib, tmp);

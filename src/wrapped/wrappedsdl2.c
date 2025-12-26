@@ -703,7 +703,7 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
             // use a my_dlopen to actually open that lib, like SDL2 is doing...
             my_glhandle = my_dlopen(emu, BOX64ENV(libgl)?BOX64ENV(libgl):"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
     }
-    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
+    return getGLProcAddress(emu, NULL, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 #define nb_once 16

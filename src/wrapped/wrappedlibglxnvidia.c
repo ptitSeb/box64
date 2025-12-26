@@ -33,7 +33,7 @@ EXPORT void* mynv_glXGetProcAddress(x64emu_t* emu, void* name)
     if(!fnc) fnc=my->glXGetProcAddress;
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, (void*)fnc, rname);
+    return getGLProcAddress(emu, "mynv_", (void*)fnc, rname);
 }
 EXPORT void* mynv_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((alias("mynv_glXGetProcAddress")));
 

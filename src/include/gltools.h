@@ -7,7 +7,7 @@ typedef void* (*glprocaddress_t)(const char* name);
 
 void freeGLProcWrapper(box64context_t* context);
 
-void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
+void* getGLProcAddress(x64emu_t* emu, const char* my, glprocaddress_t procaddr, const char* rname);
 
 #ifdef BOX32
 void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);

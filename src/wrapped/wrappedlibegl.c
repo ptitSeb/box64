@@ -28,7 +28,7 @@ EXPORT void* my_eglGetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    return getGLProcAddress(emu, (glprocaddress_t)my->eglGetProcAddress, rname);
+    return getGLProcAddress(emu, NULL, (glprocaddress_t)my->eglGetProcAddress, rname);
 }
 
 #include "wrappedlib_init.h"
