@@ -1078,14 +1078,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     {
         add_argv("--in-process-gpu");
     }
-    if(BOX64ENV(cefdisablegpu))
-    {
-        add_argv("-cef-disable-gpu");
-    }
-    if(BOX64ENV(cefdisablegpucompositing))
-    {
-        add_argv("-cef-disable-gpu-compositing");
-    }
     // add new args only if there is no args already
     if(BOX64ENV(args)) {
         char tmp[256];

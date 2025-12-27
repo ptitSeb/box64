@@ -136,42 +136,6 @@
     ]
   },
   {
-    "name": "BOX64_CEFDISABLEGPU",
-    "description": "Add -cef-disable-gpu argument to the guest program.",
-    "category": "Arguments",
-    "wine": false,
-    "options": [
-      {
-        "key": "0",
-        "description": "Does nothing.",
-        "default": true
-      },
-      {
-        "key": "1",
-        "description": "Add -cef-disable-gpu argument to the guest program.",
-        "default": false
-      }
-    ]
-  },
-  {
-    "name": "BOX64_CEFDISABLEGPUCOMPOSITING",
-    "description": "Add -cef-disable-gpu-compositing argument to the guest program.",
-    "category": "Arguments",
-    "wine": false,
-    "options": [
-      {
-        "key": "0",
-        "description": "Does nothing.",
-        "default": true
-      },
-      {
-        "key": "1",
-        "description": "Add -cef-disable-gpu-compositing argument to the guest program.",
-        "default": false
-      }
-    ]
-  },
-  {
     "name": "BOX64_CPUTYPE",
     "description": "Specify the CPU type to emulate.",
     "category": "Compatibility",

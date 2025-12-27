@@ -107,22 +107,6 @@ Path to the bash executable.
  * XXXX : Use bash executable at path XXXX. 
 
 
-=item B<BOX64_CEFDISABLEGPU> =I<0|1>
-
-Add -cef-disable-gpu argument to the guest program.
-
- * 0 : Does nothing. [Default]
- * 1 : Add -cef-disable-gpu argument to the guest program. 
-
-
-=item B<BOX64_CEFDISABLEGPUCOMPOSITING> =I<0|1>
-
-Add -cef-disable-gpu-compositing argument to the guest program.
-
- * 0 : Does nothing. [Default]
- * 1 : Add -cef-disable-gpu-compositing argument to the guest program. 
-
-
 =item B<BOX64_CPUTYPE> =I<0|1>
 
 Specify the CPU type to emulate. Available in WowBox64.
