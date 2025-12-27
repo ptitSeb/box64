@@ -255,20 +255,6 @@ Arguments to pass to the guest program, only valid if there is no existing argum
  * XXXX: Pass argument XXXX to the program. 
  * XXXX YYYY ZZZZ: Pass arguments XXXX, YYYY and ZZZZ to the guest program. 
 
-### BOX64_CEFDISABLEGPU
-
-Add -cef-disable-gpu argument to the guest program.
-
- * 0: Does nothing. [Default]
- * 1: Add -cef-disable-gpu argument to the guest program. 
-
-### BOX64_CEFDISABLEGPUCOMPOSITING
-
-Add -cef-disable-gpu-compositing argument to the guest program.
-
- * 0: Does nothing. [Default]
- * 1: Add -cef-disable-gpu-compositing argument to the guest program. 
-
 ### BOX64_INSERT_ARGS
 
 Prepend arguments to the command line.
