@@ -551,6 +551,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                 helper.insts[i].x64.jmp_insts = k;
                 helper.insts[i].barrier_maybe = 0;
             } else {
+                helper.insts[i].x64.need_after |= X_PEND;
                 if(helper.insts[i].barrier_maybe) {
                     helper.insts[i].x64.barrier|=BARRIER_FLOAT;
                     helper.insts[i].barrier_maybe = 0;
