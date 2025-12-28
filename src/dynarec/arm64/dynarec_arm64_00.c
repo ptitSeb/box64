@@ -4038,7 +4038,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    FORCE_DFNONE();
                     GETEB(x1, 0);
                     UXTHw(x2, xRAX);
                     if(BOX64ENV(dynarec_div0)) {
@@ -4092,6 +4093,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIx(xRAX, x4, 8, 8);
                     if (!BOX64DRENV(dynarec_safeflags)) {
                         SET_DFNONE();
+                        FORCE_DFNONE();
                     }
                     IFX2(X_AF, && BOX64ENV(cputype))  {ORRw_mask(xFlags, xFlags, 28, 0);}   //mask=0x10
                     IFX2(X_ZF, && BOX64ENV(cputype))  {BFCw(xFlags, F_ZF, 1);}
@@ -4200,7 +4202,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    FORCE_DFNONE();
                     if(!rex.w) {
                         GETED(0);
                         if(ninst && (nextop==0xF0)
@@ -4238,8 +4241,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         if(ninst
                            && dyn->insts[ninst-1].x64.addr
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
-                           && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
+                           && ((*(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31 && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2)
+                              || (*(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x33 && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2))
+                        ){
                             GETED(0);
                             if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
@@ -4276,7 +4280,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    SET_DFNONE();
                     IFX(X_OF)                         {BFCw(xFlags, F_OF, 1);}
                     IFX(X_CF)                         {BFCw(xFlags, F_CF, 1);}
                     IFX2(X_AF, && !BOX64ENV(cputype)) {BFCw(xFlags, F_AF, 1);}
@@ -4364,6 +4367,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     if (!BOX64DRENV(dynarec_safeflags)) {
                         SET_DFNONE();
+                        FORCE_DFNONE();
                     }
                     IFX2(X_AF, && BOX64ENV(cputype))  {ORRw_mask(xFlags, xFlags, 28, 0);}   //mask=0x10
                     IFX2(X_ZF, && BOX64ENV(cputype))  {BFCw(xFlags, F_ZF, 1);}
