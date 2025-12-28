@@ -194,7 +194,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x09:                      /* WBINVD */
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0);
+            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             #endif
             break;
 
