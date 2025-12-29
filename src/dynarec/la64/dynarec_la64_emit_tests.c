@@ -689,10 +689,10 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
                 MOV64xw(s3, c);
             AND(s3, s1, s3);
         }
-        if (dyn->insts[ninst].nat_flags_fusion) {
+        if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
             if (dyn->insts[ninst].nat_flags_needsign) {
-                if (!rex.w) SEXT_W(s3, s3);
-            } else if (!rex.w) {
+                SEXT_W(s3, s3);
+            } else if (((uint64_t)c >> 32) != 0) {
                 ZEROUP(s3);
             }
         }
@@ -730,7 +730,7 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     if (dyn->insts[ninst].nat_flags_fusion && !rex.w) {
         if (dyn->insts[ninst].nat_flags_needsign) {
             SEXT_W(s3, s3);
-        } else {
+        } else if (((uint64_t)c >> 32) != 0) {
             ZEROUP(s3);
         }
     }
