@@ -760,8 +760,7 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             BSTRINS_D(s3, xZR, F_AF, F_AF);
             X64_SET_EFLAGS(s3, X_OF | X_AF);
         }
-        SRLIxw(s1, s1, c);
-        if (!rex.w) ZEROUP(s1);
+        SRLIxw(s1, s1, c); // no need to zeroup on !rex.w
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -789,15 +788,12 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     if (rex.w) {
         SRLI_D(s1, s1, c);
     } else {
-        SRLI_W(s1, s1, c);
+        SRLI_W(s1, s1, c); // no need to zeroup
     }
 
     IFX (X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
-    }
-    if (!rex.w) {
-        ZEROUP(s1);
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
