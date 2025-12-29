@@ -2202,14 +2202,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 3:
                     INST_NAME("RCR Eb, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    GETEB(x1, 1);
-                    u8 = F8 & 0x1f;
-                    MOV32w(x2, u8);
-                    CALL_(const_rcr8, ed, x3, x1, x2);
-                    EBBACK();
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_rcr8c(dyn, ninst, x1, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 4:
                 case 6:
@@ -2757,12 +2761,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 3:
                     if (opcode == 0xD0) {
                         INST_NAME("RCR Eb, 1");
-                        GETEB(x1, 0);
-                        MOV32w(x2, 1);
                         READFLAGS(X_CF);
-                        SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 0);
+                        emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
+                        EBBACK();
+                        break;
                     } else {
                         INST_NAME("RCR Eb, CL");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
@@ -2771,11 +2778,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             READFLAGS(X_CF);
                         }
                         SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                        CALL_(const_rcr8, ed, x3, x1, x2);
+                        EBBACK();
+                        break;
                     }
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    CALL_(const_rcr8, ed, x3, x1, x2);
-                    EBBACK();
-                    break;
                 case 4:
                 case 6:
                     if (opcode == 0xD0) {

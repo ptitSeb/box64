@@ -1629,11 +1629,43 @@ void emit_rcl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+// emit RCR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcr8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    c %= 9;
+    if (!c) return;
+
+    IFXORNAT (X_ALL) SET_DFNONE();
+    RESTORE_EFLAGS(s3);
+    IFX (X_OF) {
+        SRLI_D(s3, s1, 7);
+        XOR(s3, s3, xFlags);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+
+    if (c) {
+        BSTRINS_D(s1, xFlags, 8, 8); // insert CF to bit 8
+        IFX (X_CF) {
+            BSTRPICK_D(s3, s1, c - 1, c - 1);
+            BSTRINS_D(xFlags, s3, F_CF, F_CF);
+        }
+        if (c > 1) {
+            SLLI_D(s3, s1, 9);
+            OR(s1, s1, s3);
+        }
+        SRLI_D(s1, s1, c);
+    }
+
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
 // emit RCR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rcr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
-    if (!(c % 17)) return;
     c %= 17;
+    if (!c) return;
+
     IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFX (X_OF) {
@@ -1642,20 +1674,17 @@ void emit_rcr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         BSTRINS_D(xFlags, s3, F_OF, F_OF);
     }
 
-
-    ANDI(s3, xFlags, 1 << F_CF);
-    SLLI_D(s3, s3, 16);
-    OR(s1, s1, s3); // insert CF to bit 16
-
-    SRLI_D(s3, s1, c);
-    SLLI_D(s1, s1, 17 - c);
-    OR(s1, s1, s3);
-    SLLI_D(s4, s1, 47);
-    BSTRPICK_D(s1, s1, 15, 0);
-
-    IFX (X_CF) {
-        SRLI_D(s4, s4, 63);
-        BSTRINS_D(xFlags, s4, F_CF, F_CF);
+    if (c) {
+        BSTRINS_D(s1, xFlags, 16, 16); // insert CF to bit 16
+        IFX (X_CF) {
+            BSTRPICK_D(s3, s1, c - 1, c - 1);
+            BSTRINS_D(xFlags, s3, F_CF, F_CF);
+        }
+        if (c > 1) {
+            SLLI_D(s3, s1, 17);
+            OR(s1, s1, s3);
+        }
+        SRLI_D(s1, s1, c);
     }
 
     IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
