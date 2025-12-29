@@ -709,6 +709,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         REVB_2W(x1, gd);
                     SDxw(x1, wback, fixedaddress);
+                    SMWRITE2();
                     break;
                 default:
                     DEFAULT;

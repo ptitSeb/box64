@@ -1120,6 +1120,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         u8 = (F8) & 15;
                         VPICKVE2GR_BU(x1, q0, u8);
                         ST_B(x1, wback, fixedaddress);
+                        SMWRITE2();
                     }
                     break;
                 case 0x15:
@@ -1136,6 +1137,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         u8 = (F8) & 7;
                         VPICKVE2GR_HU(x1, q0, u8);
                         ST_H(x1, wback, fixedaddress);
+                        SMWRITE2();
                     }
                     break;
                 case 0x16:
