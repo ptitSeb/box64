@@ -387,6 +387,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 0, 1);
                 u8 = (F8) & 15;
                 VSTELM_B(q0, wback, 0, u8);
+                SMWRITE2();
             }
             break;
         case 0x15:
@@ -402,6 +403,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 0, 1);
                 u8 = (F8) & 7;
                 VSTELM_H(q0, wback, 0, u8);
+                SMWRITE2();
             }
             break;
         case 0x16:
