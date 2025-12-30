@@ -4038,7 +4038,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
-                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SETFLAGS(X_ALL, SF_SET);
                     FORCE_DFNONE();
                     GETEB(x1, 0);
                     UXTHw(x2, xRAX);
@@ -4202,7 +4202,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SETFLAGS(X_ALL, SF_SET);
                     FORCE_DFNONE();
                     if(!rex.w) {
                         GETED(0);

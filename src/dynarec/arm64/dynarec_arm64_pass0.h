@@ -13,7 +13,7 @@
 #define SETFLAGS(A,B)   \
         dyn->insts[ninst].x64.set_flags = A;    \
         dyn->insts[ninst].x64.state_flags = (B)&~SF_DF;  \
-        dyn->f=((B)&SF_SET)?(((B)==SF_SET_NODF)?status_none:status_none_pending):(((B)&SF_SET_PENDING)?status_set:status_none_pending);  \
+        dyn->f=((B)&SF_SET)?(((B)==SF_SET_NODF)?dyn->f:status_none_pending):(((B)&SF_SET_PENDING)?status_set:status_none_pending);  \
         if(!BOX64ENV(dynarec_df)) {dyn->f=status_none; if((A)==SF_PENDING){printf_log(LOG_INFO, "Warning, some opcode use SF_PENDING, forcing deferedflags ON\n"); SET_BOX64ENV(dynarec_df, 1); }}
 #define EMIT(A)         dyn->native_size+=4
 #define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C; dyn->insts[ninst].x64.jmp_insts = 0

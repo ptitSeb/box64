@@ -1029,20 +1029,20 @@
 #endif
 
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)                                                                          \
+#define SETFLAGS(A, B) do {                                                                     \
     if (((B)&SF_SUB)                                                                            \
     && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
-        READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A)));\
+        { READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A))); }\
     if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
         case SF_SET_DF: dyn->f = status_set; break;                                             \
-        case SF_SET_NODF: SET_DFNONE(); break;                                                  \
+        case SF_SET_NODF: break;                                                                \
         case SF_SUBSET:                                                                         \
         case SF_SUBSET_PENDING:                                                                 \
         case SF_SET:                                                                            \
         case SF_PENDING:                                                                        \
         case SF_SET_PENDING:                                                                    \
             SET_DFNONE(); break;                                                                \
-    } else SET_DFNONE()
+    } else if((B)!=SF_SET_NODF) SET_DFNONE();} while(0)
 #endif
 #ifndef JUMP
 #define JUMP(A, C) SMEND()
