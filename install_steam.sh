@@ -5,7 +5,7 @@ mkdir -p ~/steam/tmp # makes both ~/steam and ~/steam/tmp in one cmd
 cd ~/steam/tmp
 
 # download latest deb and unpack
-wget https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
+curl -LO https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
 ar x steam.deb
 tar xf data.tar.xz
 
