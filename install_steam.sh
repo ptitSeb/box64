@@ -1,21 +1,17 @@
 #!/bin/bash
 
 # create necessary directories
-mkdir -p ~/steam
-mkdir -p ~/steam/tmp
+mkdir -p ~/steam/tmp # makes both ~/steam and ~/steam/tmp in one cmd
 cd ~/steam/tmp
 
 # download latest deb and unpack
-wget https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
+curl -LO https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
 ar x steam.deb
 tar xf data.tar.xz
 
-# remove deb archives, not needed anymore
-rm ./*.tar.xz ./steam.deb
-
 # move deb contents to steam folder
-mv ./usr/* ../
-cd ../ && rm -rf ./tmp/
+mv ./usr/* ..
+cd .. && rm -rf ./tmp
 
 # create run script
 echo '#!/bin/bash
