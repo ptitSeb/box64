@@ -516,6 +516,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x8E:
             INST_NAME("MOV Seg,Ew");
             nextop = F8;
+            u8 = (nextop & 0x38) >> 3;
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
@@ -524,7 +525,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LHU(x1, ed, fixedaddress);
                 ed = x1;
             }
-            SH(ed, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+            SH(ed, xEmu, offsetof(x64emu_t, segs[u8]));
             if((u8==_FS) || (u8==_GS)) {
                 // refresh offset if needed
                 CBZ_NEXT(ed);
