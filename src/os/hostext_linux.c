@@ -134,6 +134,7 @@ void rv64Detect(void)
 }
 #endif
 
+#ifdef DYNAREC
 int DetectHostCpuFeatures(void)
 {
 #ifdef ARM64
@@ -239,3 +240,4 @@ int DetectHostCpuFeatures(void)
 #endif
     return 1;
 }
+#endif
