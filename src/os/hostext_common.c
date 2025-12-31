@@ -1,5 +1,6 @@
 #include "debug.h"
 
+#ifdef DYNAREC
 void PrintHostCpuFeatures(void)
 {
 #ifdef ARM64
@@ -64,3 +65,4 @@ void PrintHostCpuFeatures(void)
     printf_log_prefix(0, LOG_INFO, "\n");
 #endif
 }
+#endif
