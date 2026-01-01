@@ -195,6 +195,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
                         ALSLy(scratch, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
+                        SCRATCH_USAGE(1);
                     } else {
                         scratch = TO_NAT(sib_reg2);
                     }
