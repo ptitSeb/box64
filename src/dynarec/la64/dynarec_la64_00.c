@@ -1423,7 +1423,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else { // mem <= reg
                 rex.seg = 0; // to be safe
                 SCRATCH_USAGE(0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
                 if (gd != ed) {
                     if (rex.w && rex.is67)
                         ZEROUP2(gd, ed);
