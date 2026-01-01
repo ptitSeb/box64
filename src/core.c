@@ -1160,7 +1160,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     #ifdef BOX32
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
     // try to switch personality, but only if not already tried
-    if(box64_is32bits) {
+    if(box64_is32bits && !box64env.nopersona32bits) {
         int tried = getenv("BOX32_PERSONA32BITS")?1:0;
         if(tried) {
             unsetenv("BOX32_PERSONA32BITS");
