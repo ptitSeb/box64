@@ -22,6 +22,7 @@
 #include <net/if.h>
 #include <resolv.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
 
 #include "box64stack.h"
 #include "x64emu.h"
@@ -739,4 +740,36 @@ void libc32_net_init()
 {
     my32_in6addr_any = in6addr_any;
     my32_in6addr_loopback = in6addr_loopback;
+}
+
+int ioctl_cgifconf(x64emu_t* emu, int fd, void* arg)
+{
+    i386_ifconf_t *i386_conf = (i386_ifconf_t*)arg;
+    if(!i386_conf->i386_ifc_buf)
+    {
+        return ioctl(fd, SIOCGIFCONF, i386_conf);
+    }
+    else
+    {
+        struct ifconf conf;
+        conf.ifc_len = i386_conf->ifc_len;
+        conf.ifc_buf = from_ptrv(i386_conf->i386_ifc_buf);
+        int ret = ioctl(fd, SIOCGIFCONF, &conf);
+        if(ret<0) return ret;
+        i386_ifreq_t *i386_reqs = (i386_ifreq_t*)conf.ifc_buf;
+        struct ifreq *reqs = conf.ifc_req;
+        for(int i=0; i*sizeof(struct ifreq)<conf.ifc_len; ++i)
+        {
+            memmove(i386_reqs + i, reqs + i, offsetof(struct ifreq, ifr_map));
+            i386_reqs[i].i386_ifr_map.mem_start = to_ulong_silent(reqs[i].ifr_map.mem_start);
+            i386_reqs[i].i386_ifr_map.mem_end = to_ulong_silent(reqs[i].ifr_map.mem_end);
+            i386_reqs[i].i386_ifr_map.base_addr = reqs[i].ifr_map.base_addr;
+            i386_reqs[i].i386_ifr_map.irq = reqs[i].ifr_map.irq;
+            i386_reqs[i].i386_ifr_map.dma = reqs[i].ifr_map.dma;
+            i386_reqs[i].i386_ifr_map.port = reqs[i].ifr_map.port;
+            memmove(&i386_reqs[i].i386_ifr_slave, &reqs[i].ifr_slave, sizeof(struct ifreq) - offsetof(struct ifreq, ifr_slave));
+        }
+        i386_conf->ifc_len = conf.ifc_len * sizeof(i386_ifreq_t) / sizeof(struct ifreq);
+        return ret;
+    }
 }

@@ -312,23 +312,27 @@ EXPORT int my32_pthread_rwlock_init(void* rdlock, void* attr)
 	// the structure is bigger, but the "active" part should be the same size, so just save/restoore the padding at init
 	uint8_t buff[sizeof(pthread_rwlock_t)];
 	if(rdlock && sizeof(pthread_rwlock_t)>X86_RWLOCK_SIZE) {
-		memcpy(buff, rdlock+32, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+		memcpy(buff, rdlock+X86_RWLOCK_SIZE, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
 	}
 	int ret = pthread_rwlock_init(rdlock, attr);
-	memcpy(rdlock+32, buff, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+	if(rdlock && sizeof(pthread_rwlock_t)>X86_RWLOCK_SIZE) {
+		memcpy(rdlock+X86_RWLOCK_SIZE, buff, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+	}
 	return ret;
 }
 EXPORT int my32___pthread_rwlock_init(void*, void*) __attribute__((alias("my32_pthread_rwlock_init")));
 
 EXPORT int my32_pthread_rwlock_destroy(void* rdlock)
 {
-	// the structure is bigger, but the "active" part should be the same size, so just save/restoore the padding at init
+	// the structure is bigger, but the "active" part should be the same size, so just save/restore the padding at init
 	uint8_t buff[sizeof(pthread_rwlock_t)];
 	if(rdlock && sizeof(pthread_rwlock_t)>X86_RWLOCK_SIZE) {
-		memcpy(buff, rdlock+32, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+		memcpy(buff, rdlock+X86_RWLOCK_SIZE, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
 	}
 	int ret = pthread_rwlock_destroy(rdlock);
-	memcpy(rdlock+32, buff, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+	if(rdlock && sizeof(pthread_rwlock_t)>X86_RWLOCK_SIZE) {
+		memcpy(rdlock+X86_RWLOCK_SIZE, buff, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+	}
 	return ret;
 }
 
@@ -493,19 +497,15 @@ static pthread_cond_t* get_cond(void* cond)
 	pthread_cond_t* ret;
 	int r;
 	mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
+	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
 	if(k==kh_end(mapcond)) {
-		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
-		if(k==kh_end(mapcond)) {
-			printf_log(LOG_DEBUG, "BOX32: Note: phtread_cond not found, create a new empty one\n");
-			ret = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
-			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
-			kh_value(mapcond, k) = ret;
-			//*(ptr_t*)cond = to_ptrv(cond);
-			//pthread_cond_init(ret, NULL);
-			memcpy(ret, cond, sizeof(pthread_cond_t));
-		} else
-			ret = kh_value(mapcond, k);
+		printf_log(LOG_DEBUG, "BOX32: Note: phtread_cond not found, create a new empty one\n");
+		ret = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
+		k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
+		kh_value(mapcond, k) = ret;
+		//*(ptr_t*)cond = to_ptrv(cond);
+		//pthread_cond_init(ret, NULL);
+		memcpy(ret, cond, sizeof(pthread_cond_t));
 	} else
 		ret = kh_value(mapcond, k);
 	mutex_unlock(&my_context->mutex_thread);
@@ -518,8 +518,8 @@ static void del_cond(void* cond)
 	if(!mapcond)
 		return;
 	mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
-	if(k!=kh_end(mapcond)) {
+	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
+	if(k==kh_end(mapcond)) {
 		box_free(kh_value(mapcond, k));
 		kh_del(mapcond, mapcond, k);
 	}

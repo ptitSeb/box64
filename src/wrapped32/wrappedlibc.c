@@ -3655,6 +3655,18 @@ EXPORT int my32_close(x64emu_t* emu, int fd)
     return close(fd);
 }
 
+extern int ioctl_cgifconf(x64emu_t* emu, int fd, void* arg);
+EXPORT int my32_ioctl(x64emu_t* emu, int fd, unsigned long op, void* arg)
+{
+    switch(op)
+    {
+    case SIOCGIFCONF:
+        return ioctl_cgifconf(emu, fd, arg);
+    default:
+        return ioctl(fd, op, arg);
+    }
+}
+
 #undef HAS_MY
 
 #define PRE_INIT\

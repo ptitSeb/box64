@@ -1420,7 +1420,8 @@ EXPORT int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, vo
 {
     my_XEvent_t event = {0};
     int32_t ret = my->XIfEvent(d, &event, findxifeventFct(h), arg);
-    convertXEvent(ev, &event);
+    if(ret)
+        convertXEvent(ev, &event);
     return ret;
 }
 
@@ -1428,14 +1429,16 @@ EXPORT int32_t my32_XCheckIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler 
 {
     my_XEvent_t event = {0};
     int32_t ret = my->XCheckIfEvent(d, &event, findxifeventFct(h), arg);
-    convertXEvent(ev, &event);
+    if(ret)
+        convertXEvent(ev, &event);
     return ret;
 }
 EXPORT int32_t my32_XPeekIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
     my_XEvent_t event = {0};
     int32_t ret = my->XPeekIfEvent(d, &event, findxifeventFct(h), arg);
-    convertXEvent(ev, &event);
+    if(ret)
+        convertXEvent(ev, &event);
     return ret;
 }
 
@@ -1457,7 +1460,8 @@ EXPORT int my32_XCheckMaskEvent(x64emu_t* emu, void* dpy, long mask, my_XEvent_3
 {
     my_XEvent_t event = {0};
     int32_t ret = my->XCheckMaskEvent(dpy, mask, &event);
-    convertXEvent(evt, &event);
+    if(ret)
+        convertXEvent(evt, &event);
     return ret;
 }
 

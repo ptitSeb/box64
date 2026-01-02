@@ -740,7 +740,7 @@ GO(inotify_rm_watch, iEii)
 //DATA(_IO_2_1_stdout_, 152)
 //GO(_IO_adjust_column, uEupi)
 // _IO_adjust_wcolumn
-GO(ioctl, iEiLp)   //the vararg is just to have optional arg of various type, but only 1 arg
+GOM(ioctl, iEEiLp)   //the vararg is just to have optional arg of various type, but only 1 arg
 GO2(__ioctl_time64, iEiLp, ioctl)
 //GO(_IO_default_doallocate, iES)
 //GO(_IO_default_finish, vESi)

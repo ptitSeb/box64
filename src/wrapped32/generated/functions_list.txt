@@ -991,6 +991,7 @@
 #() cFpiii -> cFpiii
 #() iEEiip -> iEEiip
 #() iEEiiN -> iEEiiN
+#() iEEiLp -> iEEiLp
 #() iEEipp -> iEEipp
 #() iFEipp -> iFEipp
 #() iEEipV -> iEEipV
@@ -2529,6 +2530,7 @@ wrappedlibc:
   - __fcntl_time64
 - iEiLp:
   - __ioctl_time64
+  - ioctl
 - iEipp:
 - iEipV:
 - iEpii:

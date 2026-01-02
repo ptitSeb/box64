@@ -1032,6 +1032,7 @@ void vFXppL_32(x64emu_t *emu, uintptr_t fnc);
 void cFpiii_32(x64emu_t *emu, uintptr_t fnc);
 void iEEiip_32(x64emu_t *emu, uintptr_t fnc);
 void iEEiiN_32(x64emu_t *emu, uintptr_t fnc);
+void iEEiLp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEipp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEipp_32(x64emu_t *emu, uintptr_t fnc);
 void iEEipV_32(x64emu_t *emu, uintptr_t fnc);
