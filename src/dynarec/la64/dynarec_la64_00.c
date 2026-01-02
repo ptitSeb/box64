@@ -2173,21 +2173,31 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
                     GETEB(x1, 1);
                     u8 = F8 & 0x1f;
                     emit_rol8c(dyn, ninst, ed, u8, x4, x5, x6);
                     EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Eb, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    GETEB(x1, 1);
-                    u8 = F8 & 0x1f;
-                    MOV32w(x2, u8);
-                    CALL_(const_ror8, ed, x3, x1, x2);
-                    EBBACK();
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_ror8c(dyn, ninst, x1, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 2:
                     INST_NAME("RCL Eb, Ib");
@@ -2328,16 +2338,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
-                    // MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    // READFLAGS(X_CF);
-                    // SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    // GETEDW(x4, x1, 0);
-                    // u8 = (F8) & (rex.w ? 0x3f : 0x1f);
-                    // MOV32w(x2, u8);
-                    // CALL_(rex.w ? (const_rcl64) : (const_rcl32), ed, x4, x1, x2);
-                    // WBACK;
-                    // if (!wback && !rex.w) ZEROUP(ed);
-
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
                     if (u8) {
                         READFLAGS(X_CF);
@@ -2718,7 +2718,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *ok = 0;
             break;
         case 0xD0:
-        case 0xD2: // TODO: Jump if CL is 0
+        case 0xD2:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 0:
@@ -2727,37 +2727,48 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         GETEB(x1, 0);
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
                         emit_rol8c(dyn, ninst, ed, 1, x4, x5, x6);
+                        EBBACK();
+                        break;
                     } else {
                         INST_NAME("ROL Eb, CL");
                         GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_OF | X_CF);
                         }
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        emit_rol8(dyn, ninst, ed, x2, x4, x5, x6);
+                        UFLAG_IF {
+                            ANDI(x2, xRCX, 0x1f);
+                            BEQ_NEXT(x2, xZR);
+                        }
+                        ANDI(x2, xRCX, 7);
+                        emit_rol8(dyn, ninst, ed, x2, x4, x5);
+                        EBBACK();
+                        break;
                     }
-                    EBBACK();
-                    break;
                 case 1:
                     if (opcode == 0xD0) {
                         INST_NAME("ROR Eb, 1");
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
                         GETEB(x1, 0);
-                        MOV32w(x2, 1);
-                        SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                        emit_ror8c(dyn, ninst, ed, 1, x4, x5);
+                        EBBACK();
+                        break;
                     } else {
                         INST_NAME("ROR Eb, CL");
                         GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_OF | X_CF);
                         }
-                        SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        UFLAG_IF {
+                            ANDI(x2, xRCX, 0x1f);
+                            BEQ_NEXT(x2, xZR);
+                        }
+                        ANDI(x2, xRCX, 7);
+                        emit_ror8(dyn, ninst, ed, x2, x4, x5);
+                        EBBACK();
+                        break;
                     }
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    CALL_(const_ror8, ed, x3, x1, x2);
-                    EBBACK();
-                    break;
                 case 2:
                     if (opcode == 0xD0) {
                         INST_NAME("RCL Eb, 1");
