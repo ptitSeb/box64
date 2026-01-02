@@ -332,6 +332,9 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 [steam-runtime-launcher-service]
 BOX64_NOGTK=1
 
+[steam-runtime-check-requirements]
+BOX64_EXIT=1
+
 [steam]
 BOX64_CRASHHANDLER=0
 BOX64_EMULATED_LIBS=libudev.so.0
