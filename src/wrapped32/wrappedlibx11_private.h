@@ -942,8 +942,8 @@ GO(XOpenOM, pFXppp)
 //GO(_XParseBaseFontNameList, 
 GO(XParseColor, iFXLpbLWWWcc_)
 GO(XParseGeometry, iFppppp)
-GOM(XPeekEvent, iFEXp) // Warning: failed to confirm
-GOM(XPeekIfEvent, iFEpppp)
+GOM(XPeekEvent, iFEXp)
+GOM(XPeekIfEvent, iFEXppp)
 GO(XPending, iFX)
 GO(Xpermalloc, pFu)
 //GOM(XPlanesOfScreen, iFEbpXLiiiiipippLLLiiiil_)

@@ -44,7 +44,6 @@ typedef void* (*pFXip_t)(void*, int32_t, void*);
 typedef void* (*pFXCL_t)(void*, uint8_t, uintptr_t);
 typedef void* (*pFXuu_t)(void*, uint32_t, uint32_t);
 typedef void (*vFXLpL_t)(void*, uintptr_t, void*, uintptr_t);
-typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLLp_t)(void*, uintptr_t, uintptr_t, void*);
@@ -154,7 +153,6 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(_XGetRequest, pFXCL_t) \
 	GO(XkbGetMap, pFXuu_t) \
 	GO(XSetWMSizeHints, vFXLpL_t) \
-	GO(XPeekIfEvent, iFpppp_t) \
 	GO(XCheckTypedWindowEvent, iFXLip_t) \
 	GO(XCheckWindowEvent, iFXLlp_t) \
 	GO(XWindowEvent, iFXLlp_t) \
@@ -168,6 +166,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(_XReply, iFXpii_t) \
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
+	GO(XPeekIfEvent, iFXppp_t) \
 	GO(XCreateColormap, LFXLpi_t) \
 	GO(XGetKeyboardMapping, pFXCip_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
