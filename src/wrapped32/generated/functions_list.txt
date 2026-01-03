@@ -3161,8 +3161,6 @@ wrappedlibx11:
   - XkbGetMap
 - vFXLpL:
   - XSetWMSizeHints
-- iFpppp:
-  - XPeekIfEvent
 - iFXLip:
   - XCheckTypedWindowEvent
 - iFXLlp:
@@ -3183,6 +3181,7 @@ wrappedlibx11:
 - iFXppp:
   - XCheckIfEvent
   - XIfEvent
+  - XPeekIfEvent
 - LFXLpi:
   - XCreateColormap
 - pFXCip:
