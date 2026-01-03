@@ -882,7 +882,7 @@ done:
 #else
 #error meh!
 #endif
-#define DYNAREC_VERSION SET_VERSION(0, 0, 9)
+#define DYNAREC_VERSION SET_VERSION(0, 1, 0)
 
 typedef struct DynaCacheHeader_s {
     char sign[10];  //"DynaCache\0"

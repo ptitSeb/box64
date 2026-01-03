@@ -1,3 +1,12 @@
+box64 (0.4.0) unstable; urgency=low
+
+This version added many important refactors: the opcode prefix decoder for Dynarec, libGL and Vulkan, the FSGSBASE support, making segments handling easier and faster.
+    => Improved compatibility accross all architecture, allowing more DRM protected game to run
+    => the prefix refactor helped removed lots of redundant source file, simplifying maintenance
+    => BOX32 is getting more and more stable, even if still not 100% ok. But Steam is more stable than before, runs on all architecture. And some gameoverlay UI works, on OpenGL games. gameoverlay (and fossilize) support for Vulkan is planned for later.
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Mon, 3 Jan 2026 10:30:33 -0100
+
 box64 (0.3.8) unstable; urgency=low
 
 This version introduce DynaCache, a disk cache for the generated native code. It's not enabled by default for now (but it will use cache file if present by default). It can dramaticaly speedup the load of program (try with linux factorio for example). This version also improve in the volatile metadata handling. There is a massive compatiblity improvment for box32 and on all dynarec in general too. And few more function wrapping...

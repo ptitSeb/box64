@@ -1,3 +1,59 @@
+v0.4.0
+======
+
+Highlights:
+* This version added many important refactors: the opcode prefix decoder for Dynarec, libGL and Vulkan, the FSGSBASE support, making segments handling easier and faster.
+    => Improved compatibility accross all architecture, allowing more DRM protected game to run
+    => the prefix refactor helped removed lots of redundant source file, simplifying maintenance
+    => BOX32 is getting more and more stable, even if still not 100% ok. But Steam is more stable than before, runs on all architecture. And some gameoverlay UI works, on OpenGL games. gameoverlay (and fossilize) support for Vulkan is planned for later.
+
+Version summary:
+
+* Added new BOX64_ARCH to have settings specific to one of the supported cpu architecture (arm64, rv64, la64)
+* Added BAD_PKILL build option, to workaround missing non-mandatory behaviour of pthread_kill (needed on LA64)
+* Improved the handling of invalid opcodes
+* Refactored handling of Selector, Segments and TLS data
+* Added FSGSBASE cpu extension
+* Added support for IFUNC relocation type to ElfLoader (64bits & 32bits)
+* Refactored some internal behaviour to get better Interpreter only build
+* Added BOX64_STEAM_VULKAN to have Vulkan renderer option injected when steamwebhelper is called
+* Introduce BOX64_PYTHON3 to force using an X64 version of python (and use that on arm64 steam)
+* Fixed signal handling when using Wine v10.19+
+* Added some cache to customMalloc / customFree internal functions
+* Some refactor on the cpuid helper function
+* Wrapping: most Wayland listener for wider compatibility
+* Wrapping: refactored libGL & libVulkan wrapping
+* Wrapping: more wrapped functions, reworked some existing one with wrapperhelper
+* Wrapping: Added a few more wrapped libs
+* Wrapping: Better handling of RTLD_NEXT in dlsym function call
+* Wrapping: Reworked wrapping of pthread_one (on Box32 too)
+* Wrapping: a few new syscall implemented
+* Wrapping: Make BOX64_EMULATED_LIBS to also affect gstreamer hacked loading of plugins
+* Wrapping: BOX32: more wrapped function and some fixes to existing ones
+* Wrapping: BOX32: a few new syscall implemented
+* Interpreter: Added LOCK prefix to the generic opcode prefix handling
+* Interpreter: A few fixes to existing opcodes
+* Interpreter: Added F3 0F 40..4F opcodes
+* Dynarec: Refactored HotPages Detection & Handling
+* Dynarec: Introduced DYNAREC_PURGE to allow purging of old (unused?) Dynarec block and save memory
+* Dynarec: Refactored prefix decoding, similar to the Interpreter
+* Dynarec: ARM64: Added detection of loops and preload of xmm/ymm regs before entering
+* Dynarec: ARM64: Refactored the handling of deferred flags
+* Dynarec: ARM64: A few optimisation in some existing opcodes
+* DYnarec: ARM64: Some fixes to existing opcodes
+* Dynarec: LA64: Added x87 opcodes
+* Dynarec: LA64: Added a few missing LOCK prefixed opcodes
+* Dynarec: LA64: Added some more shift/roll opcodes
+* Dynarec: LA64: Added support for native CRC opcodes
+* Dynarec: LA64: Many fixes to some AVX opcodes
+* Dynarec: LA64: Various fixes to some opcodes
+* Dynarec: LA64: Addes a few 66 prefixed opcodes
+* Dynarec: LA64: Added some "simple wrapper" support (allowing direct call of wrapped functions)
+* Dynarec: LA64: Added some more native flags optimisations
+* Dynarec: LA64: optimized REP MOVSB
+* Dynarec: RV64: Fixed/Fine tunning flags on existing opcodes
+* Dynarec: RV64: Various fixes to some opcodes
+
 v0.3.8
 ======
 
