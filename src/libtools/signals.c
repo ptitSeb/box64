@@ -1991,7 +1991,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    sig = signal_from_x64(sig);
+    sig = signal_to_x64(sig);
     void* pc = NULL;
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
