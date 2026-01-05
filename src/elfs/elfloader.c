@@ -1476,23 +1476,40 @@ void* GetDynamicSection(elfheader_t* h)
     return box64_is32bits?((void*)h->Dynamic._32):((void*)h->Dynamic._64);
 }
 
-void* GetLoadedDynamicSection(elfheader_t* h)
+typedef struct {
+    void*   addr;
+    size_t  size;
+} dynamic_info_t;
+
+static int GetLoadedDynamicInfo(elfheader_t* h, dynamic_info_t* info)
 {
-    if(!h)
-        return NULL;
+    if(!h) return 0;
     if(box64_is32bits) {
         for(int i = 0; i < h->numPHEntries; i++) {
             if(h->PHEntries._32[i].p_type == PT_DYNAMIC) {
-                return (void*)(h->delta + h->PHEntries._32[i].p_vaddr);
+                info->addr = (void*)(h->delta + h->PHEntries._32[i].p_vaddr);
+                info->size = h->PHEntries._32[i].p_memsz;
+                return 1;
             }
         }
     } else {
         for(int i = 0; i < h->numPHEntries; i++) {
             if(h->PHEntries._64[i].p_type == PT_DYNAMIC) {
-                return (void*)(h->delta + h->PHEntries._64[i].p_vaddr);
+                info->addr = (void*)(h->delta + h->PHEntries._64[i].p_vaddr);
+                info->size = h->PHEntries._64[i].p_memsz;
+                return 1;
             }
         }
     }
+    return 0;
+}
+
+
+void* GetLoadedDynamicSection(elfheader_t* h)
+{
+    dynamic_info_t info;
+    if(GetLoadedDynamicInfo(h, &info))
+        return info.addr;
     return NULL;
 }
 
@@ -1518,12 +1535,18 @@ static int isDynamicTagPointer(int tag)
         case DT_VERSYM:
 #ifdef DT_GNU_HASH
         case DT_GNU_HASH:
+#else
+        case 0x6ffffef5:
 #endif
 #ifdef DT_TLSDESC_PLT
         case DT_TLSDESC_PLT:
+#else
+        case 0x6ffffef6:
 #endif
 #ifdef DT_TLSDESC_GOT
         case DT_TLSDESC_GOT:
+#else
+        case 0x6ffffef7:
 #endif
             return 1;
         default:
@@ -1533,54 +1556,48 @@ static int isDynamicTagPointer(int tag)
 
 void PatchLoadedDynamicSection(elfheader_t* h)
 {
-    if(!h || !h->delta)
+    if(!h || !h->delta || h->dynamic_patched)
         return;
 
+    dynamic_info_t dyninfo;
+    if(!GetLoadedDynamicInfo(h, &dyninfo))
+        return;
+
+    uintptr_t dyn_addr = (uintptr_t)dyninfo.addr;
+    uintptr_t dyn_size = dyninfo.size;
+
+    uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
+    uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
+
+    uint32_t old_prot = getProtection(page_addr);
+    int need_mprotect = !old_prot || !(old_prot & PROT_WRITE);
+    if(need_mprotect) {
+        uint32_t new_prot = old_prot ? (old_prot | PROT_WRITE) : (PROT_READ | PROT_WRITE);
+        mprotect((void*)page_addr, page_end - page_addr, new_prot);
+    }
+
     if(box64_is32bits) {
-        for(int i = 0; i < h->numPHEntries; i++) {
-            if(h->PHEntries._32[i].p_type == PT_DYNAMIC) {
-                uintptr_t dyn_addr = h->delta + h->PHEntries._32[i].p_vaddr;
-                uintptr_t dyn_size = h->PHEntries._32[i].p_memsz;
-                Elf32_Dyn* dyn = (Elf32_Dyn*)dyn_addr;
-                uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
-                uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
-                uint32_t old_prot = getProtection(page_addr);
-                int need_mprotect = old_prot && !(old_prot & PROT_WRITE);
-                if(need_mprotect)
-                    mprotect((void*)page_addr, page_end - page_addr, old_prot | PROT_WRITE);
-                for(int j = 0; dyn[j].d_tag != DT_NULL; j++) {
-                    if(isDynamicTagPointer(dyn[j].d_tag) && dyn[j].d_un.d_ptr) {
-                        dyn[j].d_un.d_ptr += h->delta;
-                    }
-                }
-                if(need_mprotect)
-                    mprotect((void*)page_addr, page_end - page_addr, old_prot);
-                return;
+        Elf32_Dyn* dyn = (Elf32_Dyn*)dyn_addr;
+        for(int j = 0; dyn[j].d_tag != DT_NULL; j++) {
+            if(isDynamicTagPointer(dyn[j].d_tag) && dyn[j].d_un.d_ptr) {
+                dyn[j].d_un.d_ptr += h->delta;
             }
         }
     } else {
-        for(int i = 0; i < h->numPHEntries; i++) {
-            if(h->PHEntries._64[i].p_type == PT_DYNAMIC) {
-                uintptr_t dyn_addr = h->delta + h->PHEntries._64[i].p_vaddr;
-                uintptr_t dyn_size = h->PHEntries._64[i].p_memsz;
-                Elf64_Dyn* dyn = (Elf64_Dyn*)dyn_addr;
-                uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
-                uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
-                uint32_t old_prot = getProtection(page_addr);
-                int need_mprotect = old_prot && !(old_prot & PROT_WRITE);
-                if(need_mprotect)
-                    mprotect((void*)page_addr, page_end - page_addr, old_prot | PROT_WRITE);
-                for(int j = 0; dyn[j].d_tag != DT_NULL; j++) {
-                    if(isDynamicTagPointer(dyn[j].d_tag) && dyn[j].d_un.d_ptr) {
-                        dyn[j].d_un.d_ptr += h->delta;
-                    }
-                }
-                if(need_mprotect)
-                    mprotect((void*)page_addr, page_end - page_addr, old_prot);
-                return;
+        Elf64_Dyn* dyn = (Elf64_Dyn*)dyn_addr;
+        for(int j = 0; dyn[j].d_tag != DT_NULL; j++) {
+            if(isDynamicTagPointer(dyn[j].d_tag) && dyn[j].d_un.d_ptr) {
+                dyn[j].d_un.d_ptr += h->delta;
             }
         }
     }
+
+    if(need_mprotect) {
+        uint32_t restore_prot = old_prot ? old_prot : PROT_READ;
+        mprotect((void*)page_addr, page_end - page_addr, restore_prot);
+    }
+
+    h->dynamic_patched = 1;
 }
 
 typedef struct my_dl_phdr_info_s {
