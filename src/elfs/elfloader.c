@@ -1504,7 +1504,6 @@ static int GetLoadedDynamicInfo(elfheader_t* h, dynamic_info_t* info)
     return 0;
 }
 
-
 void* GetLoadedDynamicSection(elfheader_t* h)
 {
     dynamic_info_t info;
@@ -1569,11 +1568,20 @@ void PatchLoadedDynamicSection(elfheader_t* h)
     uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
     uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
 
-    uint32_t old_prot = getProtection(page_addr);
-    int need_mprotect = !old_prot || !(old_prot & PROT_WRITE);
-    if(need_mprotect) {
-        uint32_t new_prot = old_prot ? (old_prot | PROT_WRITE) : (PROT_READ | PROT_WRITE);
-        mprotect((void*)page_addr, page_end - page_addr, new_prot);
+    int need_restore = 0;
+    for(uintptr_t page = page_addr; page < page_end; page += box64_pagesize) {
+        uint32_t old_prot = getProtection(page);
+        if(old_prot && !(old_prot & PROT_WRITE)) {
+            if(mprotect((void*)page, box64_pagesize, (old_prot | PROT_WRITE) & ~PROT_CUSTOM)) {
+                for(uintptr_t restore = page_addr; restore < page; restore += box64_pagesize) {
+                    uint32_t restore_prot = getProtection(restore);
+                    if(restore_prot && !(restore_prot & PROT_WRITE))
+                        mprotect((void*)restore, box64_pagesize, restore_prot & ~PROT_CUSTOM);
+                }
+                return;
+            }
+            need_restore = 1;
+        }
     }
 
     if(box64_is32bits) {
@@ -1592,9 +1600,12 @@ void PatchLoadedDynamicSection(elfheader_t* h)
         }
     }
 
-    if(need_mprotect) {
-        uint32_t restore_prot = old_prot ? old_prot : PROT_READ;
-        mprotect((void*)page_addr, page_end - page_addr, restore_prot);
+    if(need_restore) {
+        for(uintptr_t page = page_addr; page < page_end; page += box64_pagesize) {
+            uint32_t old_prot = getProtection(page);
+            if(old_prot && !(old_prot & PROT_WRITE))
+                mprotect((void*)page, box64_pagesize, old_prot & ~PROT_CUSTOM);
+        }
     }
 
     h->dynamic_patched = 1;
