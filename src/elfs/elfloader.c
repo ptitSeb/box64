@@ -432,6 +432,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     head->file = NULL;
     head->fileno = -1;
 
+    PatchLoadedDynamicSection(head);
+
     return 0;
 }
 
@@ -1472,6 +1474,113 @@ void* GetDynamicSection(elfheader_t* h)
     if(!h)
         return NULL;
     return box64_is32bits?((void*)h->Dynamic._32):((void*)h->Dynamic._64);
+}
+
+void* GetLoadedDynamicSection(elfheader_t* h)
+{
+    if(!h)
+        return NULL;
+    if(box64_is32bits) {
+        for(int i = 0; i < h->numPHEntries; i++) {
+            if(h->PHEntries._32[i].p_type == PT_DYNAMIC) {
+                return (void*)(h->delta + h->PHEntries._32[i].p_vaddr);
+            }
+        }
+    } else {
+        for(int i = 0; i < h->numPHEntries; i++) {
+            if(h->PHEntries._64[i].p_type == PT_DYNAMIC) {
+                return (void*)(h->delta + h->PHEntries._64[i].p_vaddr);
+            }
+        }
+    }
+    return NULL;
+}
+
+static int isDynamicTagPointer(int tag)
+{
+    switch(tag) {
+        case DT_PLTGOT:
+        case DT_HASH:
+        case DT_STRTAB:
+        case DT_SYMTAB:
+        case DT_RELA:
+        case DT_REL:
+        case DT_RELR:
+        case DT_DEBUG:
+        case DT_JMPREL:
+        case DT_INIT:
+        case DT_FINI:
+        case DT_INIT_ARRAY:
+        case DT_FINI_ARRAY:
+        case DT_PREINIT_ARRAY:
+        case DT_VERNEED:
+        case DT_VERDEF:
+        case DT_VERSYM:
+#ifdef DT_GNU_HASH
+        case DT_GNU_HASH:
+#endif
+#ifdef DT_TLSDESC_PLT
+        case DT_TLSDESC_PLT:
+#endif
+#ifdef DT_TLSDESC_GOT
+        case DT_TLSDESC_GOT:
+#endif
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+void PatchLoadedDynamicSection(elfheader_t* h)
+{
+    if(!h || !h->delta)
+        return;
+
+    if(box64_is32bits) {
+        for(int i = 0; i < h->numPHEntries; i++) {
+            if(h->PHEntries._32[i].p_type == PT_DYNAMIC) {
+                uintptr_t dyn_addr = h->delta + h->PHEntries._32[i].p_vaddr;
+                uintptr_t dyn_size = h->PHEntries._32[i].p_memsz;
+                Elf32_Dyn* dyn = (Elf32_Dyn*)dyn_addr;
+                uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
+                uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
+                uint32_t old_prot = getProtection(page_addr);
+                int need_mprotect = old_prot && !(old_prot & PROT_WRITE);
+                if(need_mprotect)
+                    mprotect((void*)page_addr, page_end - page_addr, old_prot | PROT_WRITE);
+                for(int j = 0; dyn[j].d_tag != DT_NULL; j++) {
+                    if(isDynamicTagPointer(dyn[j].d_tag) && dyn[j].d_un.d_ptr) {
+                        dyn[j].d_un.d_ptr += h->delta;
+                    }
+                }
+                if(need_mprotect)
+                    mprotect((void*)page_addr, page_end - page_addr, old_prot);
+                return;
+            }
+        }
+    } else {
+        for(int i = 0; i < h->numPHEntries; i++) {
+            if(h->PHEntries._64[i].p_type == PT_DYNAMIC) {
+                uintptr_t dyn_addr = h->delta + h->PHEntries._64[i].p_vaddr;
+                uintptr_t dyn_size = h->PHEntries._64[i].p_memsz;
+                Elf64_Dyn* dyn = (Elf64_Dyn*)dyn_addr;
+                uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
+                uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
+                uint32_t old_prot = getProtection(page_addr);
+                int need_mprotect = old_prot && !(old_prot & PROT_WRITE);
+                if(need_mprotect)
+                    mprotect((void*)page_addr, page_end - page_addr, old_prot | PROT_WRITE);
+                for(int j = 0; dyn[j].d_tag != DT_NULL; j++) {
+                    if(isDynamicTagPointer(dyn[j].d_tag) && dyn[j].d_un.d_ptr) {
+                        dyn[j].d_un.d_ptr += h->delta;
+                    }
+                }
+                if(need_mprotect)
+                    mprotect((void*)page_addr, page_end - page_addr, old_prot);
+                return;
+            }
+        }
+    }
 }
 
 typedef struct my_dl_phdr_info_s {

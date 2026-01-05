@@ -1180,7 +1180,7 @@ void AddMainElfToLinkmap32(elfheader_t* elf)
 
     lm->l_addr = (Elf32_Addr)to_ptrv(GetElfDelta(elf));
     lm->l_name = to_cstring(my_context->fullpath);
-    lm->l_ld = to_ptrv(GetDynamicSection(elf));
+    lm->l_ld = to_ptrv(GetLoadedDynamicSection(elf));
 }
 #endif
 
@@ -1236,7 +1236,7 @@ void AddMainElfToLinkmap(elfheader_t* elf)
 
     lm->l_addr = (Elf64_Addr)GetElfDelta(elf);
     lm->l_name = my_context->fullpath;
-    lm->l_ld = GetDynamicSection(elf);
+    lm->l_ld = GetLoadedDynamicSection(elf);
 }
 
 needed_libs_t* new_neededlib(int n)

@@ -74,6 +74,8 @@ void* GetDTatOffset(x64emu_t* emu, unsigned long int index, unsigned long int of
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box64context_t* context, int fd);
 void* GetDynamicSection(elfheader_t* h);
+void* GetLoadedDynamicSection(elfheader_t* h);
+void PatchLoadedDynamicSection(elfheader_t* h);
 
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
 

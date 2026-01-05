@@ -267,7 +267,7 @@ static int AddNeededLib_add(lib_t** maplib, int local, needed_libs_t* needed, in
             }
             lm->l_addr = (Elf32_Addr)to_ptrv(GetElfDelta(lib->e.elf));
             lm->l_name = to_cstring(lib->name);
-            lm->l_ld = to_ptrv(GetDynamicSection(lib->e.elf));
+            lm->l_ld = to_ptrv(GetLoadedDynamicSection(lib->e.elf));
         } else
         #endif
         {
@@ -279,7 +279,7 @@ static int AddNeededLib_add(lib_t** maplib, int local, needed_libs_t* needed, in
             }
             lm->l_addr = (Elf64_Addr)GetElfDelta(lib->e.elf);
             lm->l_name = lib->name;
-            lm->l_ld = GetDynamicSection(lib->e.elf);
+            lm->l_ld = GetLoadedDynamicSection(lib->e.elf);
         }
         //TODO: it seems to never be removed!
     }
