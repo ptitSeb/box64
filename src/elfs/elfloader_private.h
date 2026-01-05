@@ -128,6 +128,7 @@ typedef struct elfheader_s {
     int         refcnt;     // ref count for the elf
     int         malloc_hook_2;  // this elf hook malloc, hacking it
     int         gnuunique;  // set if contains some STB_GNU_UNIQUE binding, preventing dlclose to unload the lib
+    int         dynamic_patched;
 
     char*       memory;     // char* and not void* to allow math on memory pointer
     multiblock_t*  multiblocks;

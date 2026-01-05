@@ -344,6 +344,8 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
     head->file = NULL;
     head->fileno = -1;
 
+    PatchLoadedDynamicSection(head);
+
     return 0;
 }
 
