@@ -51,6 +51,7 @@ typedef struct emu_flags_s {
     uint32_t    quitonexit:2;     // quit if exit/_exit is called
     uint32_t    longjmp:1;        // if quit because of longjmp
     uint32_t    jmpbuf_ready:1;   // the jmpbuf in the emu is ok and don't need refresh
+    uint32_t    no_tf:1;          // no TF on current opcode (to manage the delay of application of the flag)
 } emu_flags_t;
 
 #define N_SCRATCH 200

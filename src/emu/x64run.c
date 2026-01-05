@@ -56,7 +56,6 @@ int Run(x64emu_t *emu, int step)
     rex_t rex = {0};
     int unimp = 0;
     int is32bits = (emu->segs[_CS]==0x23);
-    int no_tf = 0;
     int tf = ACCESS_FLAG(F_TF);
 
     if(emu->quit)
@@ -89,8 +88,8 @@ x64emurun:
         #ifndef TEST_INTERPRETER
         // check the TRACE flag before going to next
         if(tf) {
-            if(no_tf)
-                no_tf = 0;
+            if(emu->flags.no_tf)
+                emu->flags.no_tf = 0;
             else {
                 R_RIP = addr;
                 EmitSignal(emu, X64_SIGTRAP, (void*)addr, 1);
@@ -828,7 +827,7 @@ x64emurun:
             if(((tmp8u==_FS) || (tmp8u==_GS)) && emu->segs[tmp8u])
                 GetSegmentBaseEmu(emu, tmp8u);  // refresh segs_offs
             if(tmp8u==_SS && tf)   // disable trace when SS is accessed
-                no_tf = 1;
+                emu->flags.no_tf = 1;
             break;
         case 0x8F:                      /* POP Ed */
             nextop = F8;
@@ -948,6 +947,8 @@ x64emurun:
         case 0x9D:                      /* POPF */
             emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3E7FD7)/* & (0xffff-40)*/ ) | 0x202; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
+            if(!tf && ACCESS_FLAG(F_TF))
+                emu->flags.no_tf = 1;   // delay the effect to next opcode
             tf = ACCESS_FLAG(F_TF);
             break;
         case 0x9E:                      /* SAHF */
@@ -1626,7 +1627,7 @@ x64emurun:
                 EmitInterruption(emu, 0x29, (void*)R_RIP);
             } else if (tmp8u==0x80) {
                 R_RIP = addr;
-                if(tf) no_tf = 1;
+                if(tf) emu->flags.no_tf = 1;
                 // 32bits syscall
                 #ifndef TEST_INTERPRETER
                 EmuX86Syscall(emu);
