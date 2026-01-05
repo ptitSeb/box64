@@ -77,12 +77,12 @@ GO(13)  \
 GO(14)  \
 
 // GCopyFct
-#define GO(A)   \
-static uintptr_t my_copy_fct_##A = 0;                                     \
-static void* my_copy_##A(void* data)                                      \
-{                                                                         \
-    return (void*)RunFunctionFmt(my_copy_fct_##A, "p", data); \
-}
+#define GO(A)                                                           \
+    static uintptr_t my_copy_fct_##A = 0;                               \
+    static void* my_copy_##A(void* src, void* data)                     \
+    {                                                                   \
+        return (void*)RunFunctionFmt(my_copy_fct_##A, "pp", src, data); \
+    }
 SUPER()
 #undef GO
 static void* findCopyFct(void* fct)
@@ -789,6 +789,34 @@ static void* findLogWriterFct(void* fct)
     return NULL;
 }
 
+// GDataForeachFunc ...
+#define GO(A)                                                                      \
+    static uintptr_t my_GDataForeachFunc_fct_##A = 0;                              \
+    static void* my_GDataForeachFunc_##A(uint32_t a, void* b, void* c)             \
+    {                                                                              \
+        return (void*)RunFunctionFmt(my_GDataForeachFunc_fct_##A, "upp", a, b, c); \
+    }
+SUPER()
+#undef GO
+static void* findGDataForeachFuncFct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDataForeachFunc_fct_##A == (uintptr_t)fct) return my_GDataForeachFunc_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                         \
+    if (my_GDataForeachFunc_fct_##A == 0) {           \
+        my_GDataForeachFunc_fct_##A = (uintptr_t)fct; \
+        return my_GDataForeachFunc_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GDataForeachFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
@@ -832,6 +860,11 @@ EXPORT void my_g_datalist_id_set_data_full(x64emu_t* emu, void* datalist, uintpt
 {
     void* fc = findFreeFct(freecb);
     my->g_datalist_id_set_data_full(datalist, key, data, fc);
+}
+
+EXPORT void my_g_datalist_foreach(x64emu_t* emu, void* datalist, void* func, void* data)
+{
+    my->g_datalist_foreach(datalist, findGDataForeachFuncFct(func), data);
 }
 
 EXPORT void* my_g_datalist_id_dup_data(x64emu_t* emu, void* datalist, uintptr_t key, void* dupcb, void* data)
@@ -1500,6 +1533,11 @@ EXPORT void my_g_node_traverse(x64emu_t* emu, void* node, int order, int flags, 
 EXPORT void* my_g_node_copy_deep(x64emu_t* emu, void* node, void* f, void* data)
 {
     return my->g_node_copy_deep(node, findCopyFct(f), data);
+}
+
+EXPORT void* my_g_slist_copy_deep(x64emu_t* emu, void* list, void* f, void* data)
+{
+    return my->g_slist_copy_deep(list, findCopyFct(f), data);
 }
 
 EXPORT void* my_g_thread_try_new(x64emu_t* emu, void* name, void* f, void* data, void* err)
