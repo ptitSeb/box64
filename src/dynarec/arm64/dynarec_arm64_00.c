@@ -2815,8 +2815,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u16 = F16;
             READFLAGS(X_PEND);
             BARRIER(BARRIER_FLOAT);
-            POP2z(xRIP, x3);
-            STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+            if(rex.w) {POP2(xRIP, x3);} else {POP2_32(xRIP, x3);}
+            STRH_U12(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
             if(u16<0x1000)
                 ADDz_U12(xRSP, xRSP, u16);
             else {
@@ -2831,8 +2831,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("FAR RET");
             READFLAGS(X_PEND);
             BARRIER(BARRIER_FLOAT);
-            POP2z(xRIP, x3);
-            STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+            if(rex.w) {POP2(xRIP, x3);} else {POP2_32(xRIP, x3);}
+            STRH_U12(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
             *ok = 0;
