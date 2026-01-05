@@ -910,31 +910,16 @@ x64emurun:
                     goto fini;
                 }
                 emu->segs[_CS] = new_cs;
-                R_RIP = new_addr;
+                addr = new_addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
-                    if(is32bits) {
-                        // Zero upper part of the 32bits regs
-                        R_RAX = R_EAX;
-                        R_RBX = R_EBX;
-                        R_RCX = R_ECX;
-                        R_RDX = R_EDX;
-                        R_RSP = R_ESP;
-                        R_RBP = R_EBP;
-                        R_RSI = R_ESI;
-                        R_RDI = R_EDI;
-                    }
-                    #ifndef TEST_INTERPRETER
-                    if(is32bits)
-                        running32bits = 1;
-                    #endif
                 }
                 #endif
             } else {
                 unimp = 2;
                 goto fini;
             }
-            STEP;
+            STEP2;
         case 0x9B:                      /* FWAIT */
             break;
         case 0x9C:                      /* PUSHF */
@@ -1566,7 +1551,7 @@ x64emurun:
             break;
         case 0xCA:                      /* FAR RETN */
             tmp16u = F16;
-            if(rex.is32bits) {
+            if(rex.is32bits || !rex.w) {
                 addr = Pop32(emu);
                 emu->segs[_CS] = Pop32(emu);    // no check, no use....
             } else {
@@ -1582,12 +1567,12 @@ x64emurun:
             STEP2;
             break;
         case 0xCB:                      /* FAR RET */
-            if(rex.is32bits) {
+            if(rex.is32bits || !rex.w) {
                 addr = Pop32(emu);
-                emu->segs[_CS] = Pop32(emu);    // no check, no use....
+                emu->segs[_CS] = Pop32(emu);    // no check....
             } else {
                 addr = Pop64(emu);
-                emu->segs[_CS] = Pop64(emu);    // no check, no use....
+                emu->segs[_CS] = Pop64(emu);    // no check....
             }
             is32bits = (R_CS==0x23);    // checking if CS changed
             #ifndef TEST_INTERPRETER
@@ -2042,7 +2027,7 @@ x64emurun:
                     goto fini;
                 }
                 emu->segs[_CS] = new_cs;
-                R_RIP = new_addr;
+                addr = new_addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
                     if(is32bits) {
@@ -2064,7 +2049,7 @@ x64emurun:
                 unimp = 2;
                 goto fini;
             }
-            STEP
+            STEP2
             break;
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
@@ -2355,6 +2340,7 @@ x64emurun:
                                 R_RBP = R_EBP;
                                 R_RSI = R_ESI;
                                 R_RDI = R_EDI;
+                                addr = addr & 0xffffffff;   // including IP
                             }
                             #ifndef TEST_INTERPRETER
                             if(is32bits)
