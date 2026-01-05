@@ -897,14 +897,14 @@ x64emurun:
             break;
         case 0x9A:                      /* CALL FAR seg:off*/
             if(is32bits) {
+                uint32_t new_addr = (rex.is32bits && rex.is66)?(F16):(F32);
                 uint16_t new_cs = F16;
-                uint32_t new_addr = F32;
                 Push32(emu, emu->segs[_CS]);
                 Push32(emu, addr);
                 #ifndef TEST_INTERPRETER
                 if((new_cs&3)!=3) {
                     // R_RIP doesn't advance
-                    printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x\n", new_cs);
+                    printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x at %p\n", new_cs, (void*)R_RIP);
                     R_RSP-=(rex.w?4:8)*2;
                     EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
                     goto fini;
@@ -1671,7 +1671,7 @@ x64emurun:
                 #ifndef TEST_INTERPRETER
                 if((new_cs&3)!=3) {
                     // R_RIP doesn't advance
-                    printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x\n", new_cs);
+                    printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x at %p\n", new_cs, (void*)R_RIP);
                     R_RSP-=(rex.w?4:8)*2;
                     EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
                     goto fini;
@@ -1684,7 +1684,7 @@ x64emurun:
                     uint32_t new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
                     if(!new_ss) {
                         // R_RIP doesn't advance
-                        printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x\n", new_cs);
+                        printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x at %p\n", new_cs, (void*)R_RIP);
                         R_RSP-=(rex.w?4:8)*5;
                         EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GPF
                         goto fini;
@@ -2031,12 +2031,12 @@ x64emurun:
             break;
         case 0xEA:                      /* JMP FAR seg:off*/
             if(is32bits) {
-                uint16_t new_cs = F16;
                 uint32_t new_addr = (rex.is32bits && rex.is66)?(F16):(F32);
+                uint16_t new_cs = F16;
                 #ifndef TEST_INTERPRETER
                 if((new_cs&3)!=3) {
                     // R_RIP doesn't advance
-                    printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x\n", new_cs);
+                    printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x at %p\n", new_cs, (void*)R_RIP);
                     R_RSP-=(rex.w?4:8)*2;
                     EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
                     goto fini;
