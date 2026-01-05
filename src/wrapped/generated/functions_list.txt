@@ -4220,9 +4220,13 @@ wrappedgdkx112:
 - uFiuppp:
   - gdk_threads_add_timeout_full
 wrappedgio2:
+- vFpp:
+  - g_task_run_in_thread
+  - g_task_run_in_thread_sync
 - vFppp:
   - g_simple_async_result_set_op_res_gpointer
   - g_task_return_pointer
+  - g_task_set_task_data
 - vFippp:
   - g_bus_get
 - vFppip:
@@ -4357,6 +4361,7 @@ wrappedglib2:
   - g_strdup_vprintf
 - vFppp:
   - g_array_sort_with_data
+  - g_datalist_foreach
   - g_hash_table_foreach
   - g_list_foreach
   - g_log_set_writer_func
@@ -4401,6 +4406,7 @@ wrappedglib2:
   - g_node_copy_deep
   - g_once_impl
   - g_queue_find_custom
+  - g_slist_copy_deep
   - g_slist_find_custom
   - g_slist_insert_sorted
   - g_slist_sort_with_data
