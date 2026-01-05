@@ -204,7 +204,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
                     running32bits = 1;
                 }
             }
-            dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
+            dynablock_t* block = (skip || ACCESS_FLAG(F_TF))?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
             if(!block || !block->block || !block->done || ACCESS_FLAG(F_TF)) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
