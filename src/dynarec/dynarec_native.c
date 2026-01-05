@@ -345,11 +345,12 @@ void ClearCache(void* start, size_t len)
         for (uint64_t addr=xstart&~(dcache_line_size-1); addr<xend; addr+=dcache_line_size)
             __asm __volatile("dc cvau, %0" ::"r"(addr));
     }
-    // ignoring idc...
-    if (1/*ctr_el0_idx*/) {
+    __asm __volatile("dsb ish");
+    if (!ctr_el0_dic) {
         // purge each icache line
         for (uint64_t addr=xstart&~(icache_line_size-1); addr<xend; addr+=icache_line_size)
             __asm __volatile("ic ivau, %0" ::"r"(addr));
+        __asm __volatile("dsb ish");
     }
     __asm __volatile("isb sy");
 #else
