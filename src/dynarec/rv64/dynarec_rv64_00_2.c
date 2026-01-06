@@ -611,6 +611,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ANDI(x1, xFlags, 1 << F_TF);
                 CBZ_NEXT(x1);
                 // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
+                LWU(x4, xEmu, offsetof(x64emu_t, flags));
+                ORI(x4, x4, 1<<FLAGS_NO_TF);
+                SW(x4, xEmu, offsetof(x64emu_t, flags));
                 jump_to_epilog(dyn, addr, 0, ninst);
             }
             break;
