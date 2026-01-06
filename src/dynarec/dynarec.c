@@ -225,8 +225,6 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
                 }
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
-                if(!emu->quit && ACCESS_FLAG(F_TF))
-                    emu->flags.no_tf = 1;   // delay the effect
             }
             if(emu->fork) {
                 int forktype = emu->fork;
