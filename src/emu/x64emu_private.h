@@ -45,6 +45,7 @@ typedef struct x64test_s {
     uint8_t     mem[32];
 } x64test_t;
 
+#define FLAGS_NO_TF     7
 typedef struct emu_flags_s {
     uint32_t    need_jmpbuf:1;    // need a new jmpbuff for signal handling
     uint32_t    quitonlongjmp:2;  // quit if longjmp is called
