@@ -2583,8 +2583,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FAR RET");
             READFLAGS(X_PEND);
             BARRIER(BARRIER_FLOAT);
-            POP1z(xRIP);
-            POP1z(x3);
+            if(rex.w) {POP1(xRIP);} else {POP1_32(xRIP);}
+            if(rex.w) {POP1(x3);} else {POP1_32(x3);}
             ST_H(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
