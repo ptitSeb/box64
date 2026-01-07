@@ -1074,7 +1074,7 @@ void emit_adc8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         }
         IFX (X_PEND) {
             // d_adc8 will use 16bits result to check for CF
-            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+            ST_H(s3, xEmu, offsetof(x64emu_t, res));
         }
         ANDI(s1, s3, 0xff);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
