@@ -1406,7 +1406,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP FS");
             POP1z(x2);
             ST_H(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
-            BEQ_NEXT(x2, xZR);
+            CBZ_NEXT(x2);
             ADDI_D(x1, xZR, _FS);
             CALL(const_getsegmentbase, -1, x1, 0);
             break;
@@ -1473,7 +1473,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
-            BEQ_NEXT(x3, xZR);
+            CBZ_NEXT(x3);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
             break;
@@ -1486,7 +1486,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP GS");
             POP1z(x2);
             ST_H(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
-            BEQ_NEXT(x2, xZR);
+            CBZ_NEXT(x2);
             ADDI_D(x1, xZR, _GS);
             CALL(const_getsegmentbase, -1, x1, 0);
             break;
@@ -1557,7 +1557,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
-            BEQ_NEXT(x3, xZR);
+            CBZ_NEXT(x3);
             emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4, x6);
             WBACK;
             break;

@@ -1257,7 +1257,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 5:
                     INST_NAME("SHR Ew, CL");
                     ANDI(x2, xRCX, 0x1f);
-                    BEQ_NEXT(x2, xZR);
+                    CBZ_NEXT(x2);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 0);
@@ -1268,7 +1268,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 6:
                     INST_NAME("SHL Ew, CL");
                     ANDI(x2, xRCX, 0x1f);
-                    BEQ_NEXT(x2, xZR);
+                    CBZ_NEXT(x2);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 0);
@@ -1278,7 +1278,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 7:
                     INST_NAME("SAR Ew, CL");
                     ANDI(x2, xRCX, 0x1f);
-                    BEQ_NEXT(x2, xZR);
+                    CBZ_NEXT(x2);
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETSEW(x1, 0);

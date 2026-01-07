@@ -2678,7 +2678,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 TABLE64(x3, addr); // expected return address
                 BNE_MARK(xRIP, x3);
                 LD_W(x1, xEmu, offsetof(x64emu_t, quit));
-                BEQ_NEXT(x1, xZR);
+                CBZ_NEXT(x1);
                 MARK;
                 LOAD_XEMU_REM();
                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -2741,7 +2741,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
                         UFLAG_IF {
                             ANDI(x2, xRCX, 0x1f);
-                            BEQ_NEXT(x2, xZR);
+                            CBZ_NEXT(x2);
                         }
                         ANDI(x2, xRCX, 7);
                         emit_rol8(dyn, ninst, ed, x2, x4, x5);
@@ -2765,7 +2765,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
                         UFLAG_IF {
                             ANDI(x2, xRCX, 0x1f);
-                            BEQ_NEXT(x2, xZR);
+                            CBZ_NEXT(x2);
                         }
                         ANDI(x2, xRCX, 7);
                         emit_ror8(dyn, ninst, ed, x2, x4, x5);
@@ -2831,7 +2831,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("SHL Eb, CL");
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1F);
-                        BEQ_NEXT(x2, xZR);
+                        CBZ_NEXT(x2);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_ALL);
                             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
@@ -2851,7 +2851,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("SHR Eb, CL");
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1F);
-                        BEQ_NEXT(x2, xZR);
+                        CBZ_NEXT(x2);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_ALL);
                             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
@@ -2871,7 +2871,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("SAR Eb, CL");
                         GETSEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
-                        BEQ_NEXT(x2, xZR);
+                        CBZ_NEXT(x2);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_ALL);
                             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
@@ -2975,18 +2975,20 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 2:
                     INST_NAME("RCL Ed, CL");
-                    MESSAGE("LOG_DUMP", "Need optimization\n");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    ANDI(x2, xRCX, rex.w ? 0x3f : 0x1f);
-                    GETEDW(x4, x1, 0);
-                    CALL_(rex.w ? (const_rcl64) : (const_rcl32), ed, x4, x1, x2);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    ANDI(x3, xRCX, rex.w ? 63 : 31);
+                    GETED(0);
+                    UFLAG_IF {
+                        if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+                    }
+                    CBZ_NEXT(x3);
+                    emit_rcl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
-                    if (!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");

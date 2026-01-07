@@ -2145,7 +2145,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGW(x2);
             GETEW(x1, 0);
             ANDI(x4, xRCX, 0x1f);
-            UFLAG_IF { BEQ_NEXT(x4, xZR); }
+            UFLAG_IF { CBZ_NEXT(x4); }
             emit_shld16(dyn, ninst, ed, gd, x4, x5, x6, x7);
             EWBACK;
             break;
@@ -2215,7 +2215,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGW(x2);
             GETEW(x1, 0);
             ANDI(x4, xRCX, 0x1f);
-            UFLAG_IF { BEQ_NEXT(x4, xZR); }
+            UFLAG_IF { CBZ_NEXT(x4); }
             emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6, x7);
             EWBACK;
             break;
