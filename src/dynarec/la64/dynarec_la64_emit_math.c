@@ -1067,10 +1067,10 @@ void emit_adc8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         IFX (X_ALL) {
             X64_ADC_B(s1, s2);
         }
-        ANDI(s1, s3, 0xff);
         IFX (X_PEND) {
             ST_W(s1, xEmu, offsetof(x64emu_t, res));
         }
+        ANDI(s1, s3, 0xff);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
     }
@@ -1154,7 +1154,7 @@ void emit_adc16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         }
         BSTRPICK_D(s1, s3, 15, 0);
         IFX (X_PEND) {
-            ST_W(s1, xEmu, offsetof(x64emu_t, res));
+            ST_W(s3, xEmu, offsetof(x64emu_t, res));
         }
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
