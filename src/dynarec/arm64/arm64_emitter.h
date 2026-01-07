@@ -131,6 +131,7 @@ int convert_bitmask(uint64_t bitmask);
 #define ADDSUB_ext(sf, op, S, Rm, option, imm3, Rn, Rd)    ((sf)<<31 | (op)<<30 | (S)<<29 | 0b01011<<24 | 1<<21 | (Rm)<<16 | (option)<<13 | (imm3)<<10 | (Rn)<<5 | (Rd))
 #define SUBxw_UXTB(Rd, Rn, Rm)      EMIT(ADDSUB_ext(rex.w, 1, 0, Rm, 0b000, 0, Rn, Rd))
 #define SUBw_UXTB(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 1, 0, Rm, 0b000, 0, Rn, Rd))
+#define SUBw_UXTH(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 1, 0, Rm, 0b001, 0, Rn, Rd))
 #define ADDw_UXTH(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 0, 0, Rm, 0b001, 0, Rn, Rd))
 #define ADDx_UXTW(Rd, Rn, Rm)       EMIT(ADDSUB_ext(1, 0, 0, Rm, 0b010, 0, Rn, Rd))
 #define ADDx_SXTW(Rd, Rn, Rm)       EMIT(ADDSUB_ext(1, 0, 0, Rm, 0b110, 0, Rn, Rd))

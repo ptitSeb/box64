@@ -541,6 +541,33 @@ SETMARK(d_adc8);
     BFIw(xFlags, x3, F_OF, 1);
     emit_pf(dyn, ninst, x1, x4);
     RET(xLR);
+SETMARK(d_adc8b);
+    LDRB_U12(x1, xEmu, offsetof(x64emu_t, res));
+    LDRB_U12(x2, xEmu, offsetof(x64emu_t, op1));
+    LDRB_U12(x3, xEmu, offsetof(x64emu_t, op2));
+    ADDw_REG(x4, x2, x3);
+    SUBw_UXTB(x4, x1, x4);
+    CBZw(x4, 4+4);
+    MOVZw(x4, 1);
+    ADDw_REG(x1, x2, x3);
+    ADDw_REG(x1, x1, x4);   // recompute res as 16bits
+    BFXILw(xFlags, x1, 8, 1);   //F_CF
+    LSRw(x4, x1, 7);
+    BFIw(xFlags, x4, F_SF, 1);
+    TSTw_mask(x1, 0, 7);    // mask 0xff
+    CSETw(x4, cEQ);
+    BFIw(xFlags, x4, F_ZF, 1);
+    ANDw_REG(x4, x2, x3);   // op1 & op2
+    ORRw_REG(x2, x2, x3);   // op1 | op2
+    BICw_REG(x2, x2, x1);   // ~res & (op1 | op2)
+    ORRw_REG(x2, x2, x4); // CC
+    LSRw(x3, x2, 3);
+    BFIw(xFlags, x3, F_AF, 1);
+    LSRw(x3, x2, 6);
+    EORw_REG_LSR(x3, x3, x3, 1);
+    BFIw(xFlags, x3, F_OF, 1);
+    emit_pf(dyn, ninst, x1, x4);
+    RET(xLR);
 SETMARK(d_adc16);
     LDRw_U12(x1, xEmu, offsetof(x64emu_t, res));
     BFXILw(xFlags, x1, 16, 1);   //F_CF
@@ -551,6 +578,33 @@ SETMARK(d_adc16);
     BFIw(xFlags, x2, F_ZF, 1);
     LDRH_U12(x2, xEmu, offsetof(x64emu_t, op1));
     LDRH_U12(x3, xEmu, offsetof(x64emu_t, op2));
+    ANDw_REG(x4, x2, x3);   // op1 & op2
+    ORRw_REG(x2, x2, x3);   // op1 | op2
+    BICw_REG(x2, x2, x1);   // ~res & (op1 | op2)
+    ORRw_REG(x2, x2, x4); // CC
+    LSRw(x3, x2, 3);
+    BFIw(xFlags, x3, F_AF, 1);
+    LSRw(x3, x2, 14);
+    EORw_REG_LSR(x3, x3, x3, 1);
+    BFIw(xFlags, x3, F_OF, 1);
+    emit_pf(dyn, ninst, x1, x4);
+    RET(xLR);
+SETMARK(d_adc16b);
+    LDRH_U12(x1, xEmu, offsetof(x64emu_t, res));
+    LDRH_U12(x2, xEmu, offsetof(x64emu_t, op1));
+    LDRH_U12(x3, xEmu, offsetof(x64emu_t, op2));
+    ADDw_REG(x4, x2, x3);
+    SUBw_UXTH(x4, x1, x4);
+    CBZw(x4, 4+4);
+    MOVZw(x4, 1);
+    ADDw_REG(x1, x2, x3);
+    ADDw_REG(x1, x1, x4);   // recompute res as 16bits
+    BFXILw(xFlags, x1, 16, 1);   //F_CF
+    LSRw(x4, x1, 15);
+    BFIw(xFlags, x4, F_SF, 1);
+    TSTw_mask(x1, 0, 15);    // mask 0xffff
+    CSETw(x4, cEQ);
+    BFIw(xFlags, x4, F_ZF, 1);
     ANDw_REG(x4, x2, x3);   // op1 & op2
     ORRw_REG(x2, x2, x3);   // op1 | op2
     BICw_REG(x2, x2, x1);   // ~res & (op1 | op2)
