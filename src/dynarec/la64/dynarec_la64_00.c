@@ -2783,16 +2783,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         break;
                     } else {
                         INST_NAME("RCL Eb, CL");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_OF | X_CF);
                         } else {
                             READFLAGS(X_CF);
                         }
-                        SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                        CALL_(const_rcl8, ed, x3, x1, x2);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        ANDI(x2, xRCX, 0x1f);
+                        CBZ_NEXT(x2);
+                        emit_rcl8(dyn, ninst, ed, x2, x4, x5, x6);
                         EBBACK();
                         break;
                     }
@@ -2807,16 +2807,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         break;
                     } else {
                         INST_NAME("RCR Eb, CL");
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
                         if (BOX64DRENV(dynarec_safeflags) > 1) {
                             READFLAGS(X_OF | X_CF);
                         } else {
                             READFLAGS(X_CF);
                         }
-                        SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                        CALL_(const_rcr8, ed, x3, x1, x2);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        ANDI(x2, xRCX, 0x1f);
+                        CBZ_NEXT(x2);
+                        emit_rcr8(dyn, ninst, ed, x2, x4, x5, x6);
                         EBBACK();
                         break;
                     }
