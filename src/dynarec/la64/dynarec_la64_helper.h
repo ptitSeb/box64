@@ -758,16 +758,6 @@
     j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
     BCNEZ(fcc, j64)
 
-// Branch to NEXT if reg1==reg2 (use j64)
-#define BEQ_NEXT(reg1, reg2)                                                  \
-    j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
-    BEQ(reg1, reg2, j64)
-
-// Branch to NEXT if reg1!=reg2 (use j64)
-#define BNE_NEXT(reg1, reg2)                                                  \
-    j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
-    BNE(reg1, reg2, j64)
-
 // Branch to MARKSEG if reg is 0 (use j64)
 #define CBZ_MARKSEG(reg)                   \
     j64 = GETMARKSEG - (dyn->native_size); \
@@ -1196,6 +1186,7 @@
 #define emit_or8            STEPNAME(emit_or8)
 #define emit_or8c           STEPNAME(emit_or8c)
 #define emit_rcl16c         STEPNAME(emit_rcl16c)
+#define emit_rcl32          STEPNAME(emit_rcl32)
 #define emit_rcl32c         STEPNAME(emit_rcl32c)
 #define emit_rcl8c          STEPNAME(emit_rcl8c)
 #define emit_rcr16c         STEPNAME(emit_rcr16c)
@@ -1359,6 +1350,7 @@ void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 void emit_or8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_or8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4);
 void emit_rcl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
+void emit_rcl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_rcl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_rcl8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_rcr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
