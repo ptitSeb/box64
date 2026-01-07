@@ -304,7 +304,7 @@ void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_FLAGS_NEZ(s3, F_CF, s4);
     }
     IFX (X_PEND) {
-        SH(s1, xEmu, offsetof(x64emu_t, res));
+        SB(s1, xEmu, offsetof(x64emu_t, res));
     }
     ANDI(s1, s1, 0xff);
     IFX (X_ZF) {
@@ -367,7 +367,7 @@ void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
         SET_FLAGS_NEZ(s3, F_CF, s4);
     }
     IFX (X_PEND) {
-        SH(s1, xEmu, offsetof(x64emu_t, res));
+        SB(s1, xEmu, offsetof(x64emu_t, res));
     }
     ANDI(s1, s1, 0xff);
     IFX (X_ZF) {

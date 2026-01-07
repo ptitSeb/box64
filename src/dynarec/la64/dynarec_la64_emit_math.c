@@ -255,7 +255,7 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
         ADD_D(s1, s1, s2);
         IFX (X_PEND)
-            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+            ST_B(s1, xEmu, offsetof(x64emu_t, res));
         ANDI(s1, s1, 0xff);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
@@ -291,7 +291,7 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         ORI(xFlags, xFlags, 1 << F_CF);
     }
     IFX (X_PEND) {
-        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
     }
     ANDI(s1, s1, 0xff);
     IFX (X_ZF) {
@@ -331,7 +331,7 @@ void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
         }
         ADDI_D(s1, s1, c & 0xff);
         IFX (X_PEND)
-            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+            ST_B(s1, xEmu, offsetof(x64emu_t, res));
         ANDI(s1, s1, 0xff);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
@@ -371,7 +371,7 @@ void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
         ORI(xFlags, xFlags, 1 << F_CF);
     }
     IFX (X_PEND) {
-        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
     }
     ANDI(s1, s1, 0xff);
     IFX (X_ZF) {
@@ -480,7 +480,7 @@ void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SUB_D(s1, s1, s2);
         ANDI(s1, s1, 0xff);
         IFX (X_PEND)
-            ST_H(s1, xEmu, offsetof(x64emu_t, res));
+            ST_B(s1, xEmu, offsetof(x64emu_t, res));
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
     }
