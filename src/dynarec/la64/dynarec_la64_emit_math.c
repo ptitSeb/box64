@@ -254,9 +254,9 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             X64_ADD_B(s1, s2);
         }
         ADD_D(s1, s1, s2);
-        ANDI(s1, s1, 0xff);
         IFX (X_PEND)
             ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        ANDI(s1, s1, 0xff);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
     }
@@ -330,9 +330,9 @@ void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
             X64_ADD_B(s1, s4);
         }
         ADDI_D(s1, s1, c & 0xff);
-        ANDI(s1, s1, 0xff);
         IFX (X_PEND)
             ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        ANDI(s1, s1, 0xff);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
     }
