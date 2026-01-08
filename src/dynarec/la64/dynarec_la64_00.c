@@ -2992,17 +2992,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     } else {
                         READFLAGS(X_CF);
                     }
-                    ANDI(x2, xRCX, rex.w ? 0x3f : 0x1f);
-                    GETEDW(x4, x1, 0);
-                    CALL_(rex.w ? (const_rcr64) : (const_rcr32), ed, x4, x1, x2);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    if (rex.w) {
+                        ANDI(x3, xRCX, 0x3f);
+                    } else {
+                        ANDI(x3, xRCX, 0x1f);
+                    }
+                    GETED(0);
+                    UFLAG_IF {
+                        if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+                    }
+                    CBZ_NEXT(x3);
+                    emit_rcr32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
-                    if (!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
