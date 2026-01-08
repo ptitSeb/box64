@@ -2508,6 +2508,8 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
 int isInHotPage(uintptr_t addr)
 {
     if(addr>0x1000000000000LL) return 0;
+    if(BOX64ENV(dynarec_nohotpage))
+        return 0;
     uintptr_t page = addr>>12;
     int idx = IdxHotPage(page);
     if(BOX64ENV(dynarec_hotpage_alt)) {
