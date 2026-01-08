@@ -873,8 +873,11 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("REPZ CMPSW");
                     }
-                    MAYSETFLAGS();
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
@@ -972,8 +975,11 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         INST_NAME("REPZ SCASW");
                     }
-                    MAYSETFLAGS();
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
                     GETDIR(x3, x1, rex.w ? 8 : 2);
                     if (rex.w) {
@@ -1214,52 +1220,65 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ew, CL");
-                    ANDI(x2, xRCX, 0x1f);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
+                    ANDI(x2, xRCX, 0x1f);
                     GETEW(x1, 1);
                     CALL_(const_rol16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, CL");
-                    ANDI(x2, xRCX, 0x1f);
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
+                    ANDI(x2, xRCX, 0x1f);
                     GETEW(x1, 1);
                     CALL_(const_ror16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 2:
                     INST_NAME("RCL Ew, CL");
-                    ANDI(x2, xRCX, 0x1f);
                     MESSAGE("LOG_DUMP", "Need optimization\n");
-                    READFLAGS(X_CF);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
+                    ANDI(x2, xRCX, 0x1f);
                     GETEW(x1, 1);
                     CALL_(const_rcl16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ew, CL");
-                    ANDI(x2, xRCX, 0x1f);
                     MESSAGE("LOG_DUMP", "Need optimization\n");
-                    READFLAGS(X_CF);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
+                    ANDI(x2, xRCX, 0x1f);
                     GETEW(x1, 1);
                     CALL_(const_rcr16, x1, x3, x1, x2);
                     EWBACK;
                     break;
                 case 5:
                     INST_NAME("SHR Ew, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 0);
                     emit_shr16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
@@ -1267,20 +1286,26 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4:
                 case 6:
                     INST_NAME("SHL Ew, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETEW(x1, 0);
                     emit_shl16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
                     break;
                 case 7:
                     INST_NAME("SAR Ew, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
                     GETSEW(x1, 0);
                     emit_sar16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;

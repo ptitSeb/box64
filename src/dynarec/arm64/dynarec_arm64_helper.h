@@ -1003,12 +1003,12 @@
 #define FORCE_DFNONE()  STRw_U12(wZR, xEmu, offsetof(x64emu_t, df))
 #define CHECK_DFNONE(N)  do {if(dyn->f==status_none_pending) {FORCE_DFNONE(); if(N) dyn->f = status_none;}} while(0)
 
-#define SET_DFNONE()                                                    \
-    do {                                                                \
-        if(!dyn->insts[ninst].x64.may_set && (dyn->f!=status_none)) {   \
-            dyn->f = status_none_pending;                               \
-        }                                                               \
-    } while(0)
+#define SET_DFNONE()                      \
+    do {                                  \
+        if (dyn->f != status_none) {      \
+            dyn->f = status_none_pending; \
+        }                                 \
+    } while (0)
 
 #define SET_DF(S, N)                                                                                                            \
     if ((N) != d_none) {                                                                                                        \
