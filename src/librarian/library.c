@@ -382,6 +382,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             printf_dump(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem, hide SSE 4.2\n");
             SET_BOX64ENV(dynarec_bigblock, 0);
             SET_BOX64ENV(dynarec_strongmem, 1);
+            SET_BOX64ENV(dynarec_safeflags, 2); // for example, SlayTheSpire requires safeflags=2 on the REPZ SCASD opcode
             #else
             printf_dump(LOG_INFO, "libjvm detected, hide SSE 4.2\n");
             #endif
