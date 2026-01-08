@@ -20,6 +20,124 @@
 const char* libresolvName = "libresolv.so.2";
 #define LIBNAME libresolv
 
+#include "generated/wrappedlibresolvtypes.h"
+#include "wrappercallback.h"
+
+static int real_res_search_wrapper(const char *dname, int class, int type, unsigned char *answer, int anslen)
+{
+    if(my->res_search) {
+        return my->res_search((void*)dname, class, type, answer, anslen);
+    }
+    if(my->__res_search) {
+        return my->__res_search((void*)dname, class, type, answer, anslen);
+    }
+
+    printf_log(LOG_NONE, "Error: res_search or __res_search symbol not found in libresolv!\n");
+    return -1;
+}
+
+static int real_dn_expand_wrapper(const void *msg, const void *eomorig, const void *comp_dn, void *exp_dn, int length)
+{
+    if(my->__dn_expand) {
+        return my->__dn_expand((void*)msg, (void*)eomorig, (void*)comp_dn, exp_dn, length);
+    }
+    if(my->dn_expand) {
+        return my->dn_expand((void*)msg, (void*)eomorig, (void*)comp_dn, exp_dn, length);
+    }
+
+    printf_log(LOG_NONE, "Error: dn_expand or __dn_expand symbol not found in libresolv!\n");
+    return -1;
+}
+
+static int real_res_mkquery_wrapper(int op, const char *dname, int class, int type, const unsigned char *data, int datalen, const unsigned char *newrr, unsigned char *buf, int buflen)
+{
+    if(my->__res_mkquery) {
+        return my->__res_mkquery(op, (void*)dname, class, type, (void*)data, datalen, (void*)newrr, buf, buflen);
+    }
+    if(my->res_mkquery) {
+        return my->res_mkquery(op, (void*)dname, class, type, (void*)data, datalen, (void*)newrr, buf, buflen);
+    }
+
+    printf_log(LOG_NONE, "Error: res_mkquery or __res_mkquery symbol not found in libresolv!\n");
+    return -1;
+}
+
+static int real_res_query_wrapper(const char *dname, int class, int type, unsigned char *answer, int anslen)
+{
+    if(my->__res_query) {
+        return my->__res_query((void*)dname, class, type, answer, anslen);
+    }
+    if(my->res_query) {
+        return my->res_query((void*)dname, class, type, answer, anslen);
+    }
+
+    printf_log(LOG_NONE, "Error: res_query or __res_query symbol not found in libresolv!\n");
+    return -1;
+}
+
+static int real_res_querydomain_wrapper(const char *name, const char *domain, int class, int type, unsigned char *answer, int anslen)
+{
+    if(my->__res_querydomain) {
+        return my->__res_querydomain((void*)name, (void*)domain, class, type, answer, anslen);
+    }
+    if(my->res_querydomain) {
+        return my->res_querydomain((void*)name, (void*)domain, class, type, answer, anslen);
+    }
+
+    printf_log(LOG_NONE, "Error: res_querydomain or __res_querydomain symbol not found in libresolv!\n");
+    return -1;
+}
+
+EXPORT int my_res_search(x64emu_t* emu, const char* dname, int class, int type, unsigned char* answer, int anslen)
+{
+    return real_res_search_wrapper(dname, class, type, answer, anslen);
+}
+
+EXPORT int my___res_search(x64emu_t* emu, const char* dname, int class, int type, unsigned char* answer, int anslen)
+{
+    return real_res_search_wrapper(dname, class, type, answer, anslen);
+}
+
+EXPORT int my___dn_expand(x64emu_t* emu, const void* msg, const void* eomorig, const void* comp_dn, void* exp_dn, int length)
+{
+    return real_dn_expand_wrapper(msg, eomorig, comp_dn, exp_dn, length);
+}
+
+EXPORT int my_dn_expand(x64emu_t* emu, const void* msg, const void* eomorig, const void* comp_dn, void* exp_dn, int length)
+{
+    return real_dn_expand_wrapper(msg, eomorig, comp_dn, exp_dn, length);
+}
+
+EXPORT int my___res_query(x64emu_t* emu, const char* dname, int class, int type, unsigned char* answer, int anslen)
+{
+    return real_res_query_wrapper(dname, class, type, answer, anslen);
+}
+
+EXPORT int my_res_query(x64emu_t* emu, const char* dname, int class, int type, unsigned char* answer, int anslen)
+{
+    return real_res_query_wrapper(dname, class, type, answer, anslen);
+}
+
+EXPORT int my___res_querydomain(x64emu_t* emu, const char* name, const char* domain, int class, int type, unsigned char* answer, int anslen)
+{
+    return real_res_querydomain_wrapper(name, domain, class, type, answer, anslen);
+}
+
+EXPORT int my_res_querydomain(x64emu_t* emu, const char* name, const char* domain, int class, int type, unsigned char* answer, int anslen)
+{
+    return real_res_querydomain_wrapper(name, domain, class, type, answer, anslen);
+}
+
+EXPORT int my___res_mkquery(x64emu_t* emu, int op, const char* dname, int class, int type, const unsigned char* data, int datalen, const unsigned char* newrr, unsigned char* buf, int buflen)
+{
+    return real_res_mkquery_wrapper(op, dname, class, type, data, datalen, newrr, buf, buflen);
+}
+
+EXPORT int my_res_mkquery(x64emu_t* emu, int op, const char* dname, int class, int type, const unsigned char* data, int datalen, const unsigned char* newrr, unsigned char* buf, int buflen)
+{
+    return real_res_mkquery_wrapper(op, dname, class, type, data, datalen, newrr, buf, buflen);
+}
+
 #ifdef STATICBUILD
 #include <arpa/inet.h>
 #include <resolv.h>
