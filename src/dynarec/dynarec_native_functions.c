@@ -865,3 +865,21 @@ void x64disas_add_register_mapping_annotations(char* buf, const char* disas, con
     if (tmp[0]) tmp[strlen(tmp) - 1] = '\0';
     sprintf(buf, "%-35s ;%s", disas, tmp);
 }
+
+void dynarec_stopped(uintptr_t ip, int is32bits)
+{
+    #define PKip(A) (((uint8_t*)ip)[A])
+    dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %s Opcode ", (void*)ip, is32bits ? "x86" : "x64");
+    zydis_dec_t* dec = is32bits ? my_context->dec32 : my_context->dec;
+    if(getProtection(ip+14)&PROT_READ) {
+        if (dec) {
+            dynarec_log_prefix(0, LOG_NONE, "%s", DecodeX64Trace(dec, ip, 1));
+        } else {
+            dynarec_log_prefix(0, LOG_NONE, "%02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX %02hhX",
+                PKip(0), PKip(1), PKip(2), PKip(3), PKip(4), PKip(5), PKip(6), PKip(7), PKip(8), PKip(9),
+                PKip(10), PKip(11), PKip(12), PKip(13), PKip(14));
+        }
+    } else dynarec_log_prefix(0, LOG_NONE, "%02hhX", PKip(0));
+    PrintFunctionAddr(ip, " => ");
+    dynarec_log_prefix(0, LOG_NONE, "\n");
+}

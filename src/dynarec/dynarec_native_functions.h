@@ -88,6 +88,7 @@ typedef struct register_mapping_s {
 } register_mapping_t;
 
 void x64disas_add_register_mapping_annotations(char* buf, const char* disas, const register_mapping_t* mappings, size_t mappings_sz);
+void dynarec_stopped(uintptr_t x64addr, int is32bits);
 
 ADDITIONNAL_DEFINITION()
 
