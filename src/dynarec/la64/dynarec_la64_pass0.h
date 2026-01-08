@@ -23,6 +23,8 @@
                 dyn->insts[ninst].nat_flags_fusion = 1;                                                        \
             else if (dyn->insts[prev].nat_flags_sign && ((A) == (X_SF | X_OF) || (A) == (X_SF | X_OF | X_ZF))) \
                 dyn->insts[ninst].nat_flags_fusion = 1;                                                        \
+            else if (dyn->insts[prev].nat_flags_sf && dyn->insts[prev].nat_flags_sign && (A) == X_SF)          \
+                dyn->insts[ninst].nat_flags_fusion = 1;                                                        \
         }                                                                                                      \
     }                                                                                                          \
     READFLAGS(A);
