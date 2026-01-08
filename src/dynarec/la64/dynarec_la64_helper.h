@@ -967,6 +967,7 @@
 
 #define NAT_FLAGS_ENABLE_CARRY() dyn->insts[ninst].nat_flags_carry = 1
 #define NAT_FLAGS_ENABLE_SIGN()  dyn->insts[ninst].nat_flags_sign = 1
+#define NAT_FLAGS_ENABLE_SF()    dyn->insts[ninst].nat_flags_sf = 1
 
 #ifndef SETFLAGS
 #define SETFLAGS(A, B, FUSION)                                                                                      \
@@ -1612,11 +1613,11 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         break;                                                                                               \
     case B + 0x8:                                                                                            \
         INST_NAME(T1 "S " T2);                                                                               \
-        GO(ANDI(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, _, _, X_SF, X64_JMP_JS);                                 \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, GE, LT, X_SF, X64_JMP_JS);                               \
         break;                                                                                               \
     case B + 0x9:                                                                                            \
         INST_NAME(T1 "NS " T2);                                                                              \
-        GO(ANDI(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, _, _, X_SF, X64_JMP_JNS);                                \
+        GO(ANDI(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, LT, GE, X_SF, X64_JMP_JNS);                              \
         break;                                                                                               \
     case B + 0xA:                                                                                            \
         INST_NAME(T1 "P " T2);                                                                               \

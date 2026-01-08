@@ -113,6 +113,7 @@ typedef struct instruction_la64_s {
     uint8_t             nat_flags_nofusion:1;
     uint8_t             nat_flags_carry:1;
     uint8_t             nat_flags_sign:1;
+    uint8_t             nat_flags_sf:1;
     uint8_t             nat_flags_needsign:1;
     uint8_t             no_scratch_usage : 1; // this opcode does not use scratch register
     uint8_t             nat_flags_op1;
