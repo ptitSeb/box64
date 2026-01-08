@@ -11,7 +11,21 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
+typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
+typedef int32_t (*iFppiipi_t)(void*, void*, int32_t, int32_t, void*, int32_t);
+typedef int32_t (*iFipiipippi_t)(int32_t, void*, int32_t, int32_t, void*, int32_t, void*, void*, int32_t);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(__res_query, iFpiipi_t) \
+	GO(__res_search, iFpiipi_t) \
+	GO(res_query, iFpiipi_t) \
+	GO(res_search, iFpiipi_t) \
+	GO(__dn_expand, iFppppi_t) \
+	GO(dn_expand, iFppppi_t) \
+	GO(__res_querydomain, iFppiipi_t) \
+	GO(res_querydomain, iFppiipi_t) \
+	GO(__res_mkquery, iFipiipippi_t) \
+	GO(res_mkquery, iFipiipippi_t)
 
 #endif // __wrappedlibresolvTYPES_H_
