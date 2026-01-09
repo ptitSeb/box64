@@ -76,6 +76,7 @@ typedef void (*vFppip_t)(void*, void*, int, void*);
     GO(gtk_gesture_get_type, LFv_t)                    \
     GO(gtk_gesture_single_get_type, LFv_t)             \
     GO(gtk_gesture_long_press_get_type, LFv_t)         \
+    GO(gtk_drawing_area_get_type, LFv_t)               \
     GO(gtk_dialog_add_button, pFppi_t)                 \
     GO(gtk_spin_button_get_value, dFp_t)               \
     GO(gtk_builder_lookup_callback_symbol, pFpp_t)     \
@@ -373,6 +374,34 @@ static void* findGDestroyNotifyFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GDestroyNotify callback\n");
+    return NULL;
+}
+
+// GTickCallback
+#define GO(A)                                                                 \
+    static uintptr_t my_GTickCallback_fct_##A = 0;                            \
+    static void my_GTickCallback_##A(void* widget, void* clock, void* data)   \
+    {                                                                         \
+        RunFunctionFmt(my_GTickCallback_fct_##A, "ppp", widget, clock, data); \
+    }
+SUPER()
+#undef GO
+static void* findGTickCallbackFct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GTickCallback_fct_##A == (uintptr_t)fct) return my_GTickCallback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                      \
+    if (my_GTickCallback_fct_##A == 0) {           \
+        my_GTickCallback_fct_##A = (uintptr_t)fct; \
+        return my_GTickCallback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GTickCallback callback\n");
     return NULL;
 }
 
@@ -914,6 +943,11 @@ EXPORT void my3_gtk_widget_class_bind_template_callback_full(x64emu_t* emu, void
     my->gtk_widget_class_bind_template_callback_full(widget_class, cb_name, findGCallbackFct(cb));
 }
 
+EXPORT uint32_t my3_gtk_widget_add_tick_callback(x64emu_t* emu, void* widget, void* callback, void* data, void* d)
+{
+    return my->gtk_widget_add_tick_callback(widget, findGTickCallbackFct(callback), data, findGDestroyNotifyFct(d));
+}
+
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;
 
@@ -926,6 +960,7 @@ EXPORT void my3_gtk_widget_class_bind_template_callback_full(x64emu_t* emu, void
     SetGtkContainer3ID(my->gtk_container_get_type());           \
     SetGtkBin3ID(my->gtk_bin_get_type());                       \
     SetGtkButton3ID(my->gtk_button_get_type());                 \
+    SetGtkDrawingArea3ID(my->gtk_drawing_area_get_type());      \
     SetGtkMenuButton3ID(my->gtk_menu_button_get_type());        \
     SetGtkWindow3ID(my->gtk_window_get_type());                 \
     SetGtkApplicationWindowID(my->gtk_application_window_get_type());\

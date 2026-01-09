@@ -1162,6 +1162,34 @@ static void bridgeGtkActionInstance(my_GtkAction_t* class)
     bridgeGObjectInstance(&class->parent);
 }
 
+// ----- GtkDrawingArea3Class ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkDrawingArea3Class(my_GtkDrawingArea3Class_t* class)
+{
+    wrapGtkWidget3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkDrawingArea3Class(my_GtkDrawingArea3Class_t* class)
+{
+    unwrapGtkWidget3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkDrawingArea3Class(my_GtkDrawingArea3Class_t* class)
+{
+    bridgeGtkWidget3Class(&class->parent_class);
+}
+
+static void unwrapGtkDrawingArea3Instance(my_GtkDrawingArea3_t* class)
+{
+    unwrapGtkWidget3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkDrawingArea3Instance(my_GtkDrawingArea3_t* class)
+{
+    bridgeGtkWidget3Instance(&class->parent);
+}
+
 // ----- GtkMisc2Class ------
 
 // wrap (so bridge all calls, just in case)
@@ -1189,6 +1217,7 @@ static void bridgeGtkMisc2Instance(my_GtkMisc2_t* class)
 {
     bridgeGtkWidget2Instance(&class->parent);
 }
+
 // ----- GtkMisc3Class ------
 // no wrapper x86 -> natives of callbacks
 
