@@ -25,6 +25,7 @@ typedef void (*vFppiV_t)(void*, void*, int32_t, ...);
 typedef void (*vFpppi_t)(void*, void*, void*, int32_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void (*vFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
@@ -66,6 +67,7 @@ typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_
 	GO(gtk_tree_view_set_search_equal_func, vFpppp_t) \
 	GO(gtk_text_iter_backward_find_char, iFpppp_t) \
 	GO(gtk_text_iter_forward_find_char, iFpppp_t) \
+	GO(gtk_widget_add_tick_callback, uFpppp_t) \
 	GO(gtk_tree_sortable_set_sort_func, vFpippp_t) \
 	GO(gtk_file_filter_add_custom, vFpuppp_t) \
 	GO(gtk_tree_view_column_set_cell_data_func, vFppppp_t) \

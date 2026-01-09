@@ -4793,6 +4793,8 @@ wrappedgtk3:
 - iFpppp:
   - gtk_text_iter_backward_find_char
   - gtk_text_iter_forward_find_char
+- uFpppp:
+  - gtk_widget_add_tick_callback
 - vFpippp:
   - gtk_tree_sortable_set_sort_func
 - vFpuppp:

@@ -429,6 +429,23 @@ typedef struct my_GtkActionClass_s
   void (*_gtk_reserved4) (void);
 } my_GtkActionClass_t;
 
+typedef struct my_GtkDrawingArea3_s
+{
+  my_GtkWidget3_t  parent;
+  void* draw_data;
+} my_GtkDrawingArea3_t;
+
+typedef struct my_GtkDrawingArea3Class_s
+{
+  my_GtkWidget3Class_t parent_class;
+
+  /* Padding for future expansion */
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkDrawingArea3Class_t;
+
 typedef struct my_GtkMisc2_s
 {
   my_GtkWidget2_t  parent;
@@ -2245,6 +2262,7 @@ GTKCLASS(GObject)                   \
 GTKCLASS(GInitiallyUnowned)         \
 GTKCLASS(GApplication)              \
 GTKCLASS(GtkApplication)            \
+GTKCLASS(GtkDrawingArea3)           \
 GTKCLASS(GtkObject)                 \
 GTKCLASS(GtkWidget2)                \
 GTKCLASS(GtkWidget3)                \
