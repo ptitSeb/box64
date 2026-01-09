@@ -433,12 +433,10 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     #endif
 }
 
-void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
+void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 {
     MAYUSE(dyn); MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "Ret to epilog\n");
     CHECK_DFNONE(0);
-    POP1z(xRIP);
     MOVz_REG(x1, xRIP);
     SMEND();
     if(BOX64DRENV(dynarec_callret)) {
@@ -464,44 +462,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     CLEARIP();
 }
 
-void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n)
-{
-    MAYUSE(dyn); MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "Retn to epilog\n");
-    CHECK_DFNONE(0);
-    POP1z(xRIP);
-    if(n>0xfff) {
-        MOV32w(w1, n);
-        ADDz_REG(xRSP, xRSP, x1);
-    } else {
-        ADDz_U12(xRSP, xRSP, n);
-    }
-    MOVz_REG(x1, xRIP);
-    SMEND();
-    if(BOX64DRENV(dynarec_callret)) {
-        // pop the actual return address for ARM stack
-        LDPx_S7_postindex(xLR, x6, xSP, 16);
-        SUBx_REG(x6, x6, xRIP); // is it the right address?
-        if(dyn->have_purge)
-            doLeaveBlock(dyn, ninst, x4, x5, x3);
-        CBNZx(x6, 2*4);
-        RET(xLR);
-        // not the correct return address, regular jump
-        SUBx_U12(xSP, xSavedSP, 16);
-    }
-    NOTEST(x2);
-    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
-    if(dyn->have_purge && !BOX64DRENV(dynarec_callret))
-        doLeaveBlock(dyn, ninst, x4, x5, x6);
-    #ifdef HAVE_TRACE
-    BLR(dest);
-    #else
-    BR(dest);
-    #endif
-    CLEARIP();
-}
-
-void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
+void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
 {
     int64_t j64;
     //#warning TODO: is64bits
@@ -554,14 +515,10 @@ void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, i
     MOVx_REG(xRIP, x1);
     MOVw_REG(xFlags, x3);
     // Ret....
-    // epilog on purpose, CS might have changed!
-    if(dyn->need_reloc)
-        TABLE64C(x2, const_epilog);
-    else
-        MOV64x(x2, getConst(const_epilog));
-    if(dyn->have_purge)
-        doLeaveBlock(dyn, ninst, x4, x5, x6);
-    BR(x2);
+    rex_t dummy = {0};
+    dummy.is32bits = is32bits;
+    dummy.w = is64bits;
+    ret_to_next(dyn, ip, ninst, dummy);
     CLEARIP();
     MARK;
     if(is64bits)

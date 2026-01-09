@@ -1188,9 +1188,8 @@
 #define geted16         STEPNAME(geted16)
 #define jump_to_epilog  STEPNAME(jump_to_epilog)
 #define jump_to_next    STEPNAME(jump_to_next)
-#define ret_to_epilog   STEPNAME(ret_to_epilog)
-#define retn_to_epilog  STEPNAME(retn_to_epilog)
-#define iret_to_epilog  STEPNAME(iret_to_epilog)
+#define ret_to_next     STEPNAME(ret_to_next)
+#define iret_to_next    STEPNAME(iret_to_next)
 #define call_c          STEPNAME(call_c)
 #define call_d          STEPNAME(call_d)
 #define call_n          STEPNAME(call_n)
@@ -1361,9 +1360,8 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 // generic x64 helper
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
-void ret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex);
-void retn_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
-void iret_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
+void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex);
+void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int save_reg);
 void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1, int arg2, int sav1, int sav2);
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w);

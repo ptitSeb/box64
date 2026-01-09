@@ -2647,7 +2647,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             BARRIER(BARRIER_FLOAT);
             i32 = F16;
-            retn_to_epilog(dyn, ip, ninst, rex, i32);
+            POP1z(xRIP);
+            if(i32>0xfff) {
+                MOV32w(w1, i32);
+                ADDz_REG(xRSP, xRSP, x1);
+            } else {
+                ADDz_U12(xRSP, xRSP, i32);
+            }
+            ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -2658,7 +2665,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             BARRIER(BARRIER_FLOAT);
-            ret_to_epilog(dyn, ip, ninst, rex);
+            POP1z(xRIP);
+            ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -2826,7 +2834,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOV32w(x1, u16);
                 ADDz_REG(xRSP, xRSP, x1);
             }
-            jump_to_epilog(dyn, 0, xRIP, ninst);
+            ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -2836,7 +2844,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BARRIER(BARRIER_FLOAT);
             if(rex.w) {POP2(xRIP, x3);} else {POP2_32(xRIP, x3);}
             STRH_U12(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-            jump_to_epilog(dyn, 0, xRIP, ninst);
+            ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -3018,7 +3026,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET_DF);    // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
-            iret_to_epilog(dyn, ip, ninst, rex.is32bits, rex.w);
+            iret_to_next(dyn, ip, ninst, rex.is32bits, rex.w);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -4517,15 +4525,48 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDxw(x1, wback, 0);
                         ed = x1;
                         LDH(x3, wback, rex.w?8:4);
-                        LDH(x4, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        LDH(x5, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        if (BOX64DRENV(dynarec_callret) && BOX64DRENV(dynarec_bigblock) > 1) {
+                            BARRIER(BARRIER_FULL);
+                        } else {
+                            BARRIER(BARRIER_FLOAT);
+                            *need_epilog = 0;
+                            *ok = 0;
+                        }
                         GETIP_(addr);
-                        // not doing callret because call far will exit the dynablock anyway, to be sure to recompute CS segment
-                        PUSH1z(x4);
+                        if (BOX64DRENV(dynarec_callret)) {
+                            SET_HASCALLRET();
+                            // Push actual return address. Note that CS will not be tested, but that should be ok?
+                            if(addr < (dyn->start+dyn->isize)) {
+                                // there is a next...
+                                if(BOX64DRENV(dynarec_callret)>1)
+                                    j64 = CALLRET_GETRET();
+                                else
+                                    j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                                ADR_S20(x4, j64);
+                                MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                            } else {
+                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                                ADR_S20(x4, j64);
+                                MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                            }
+                            STPx_S7_preindex(x4, xRIP, xSP, -16);
+                        }
+                        PUSH1z(x5);
                         PUSH1z(xRIP);
                         STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-                        jump_to_epilog(dyn, 0, ed, ninst);
-                        *need_epilog = 0;
-                        *ok = 0;
+                        jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                        if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
+                        if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                            // jumps out of current dynablock...
+                            MARK;
+                            j64 = getJumpTableAddress64(addr);
+                            if(dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
+                            TABLE64_(x4, j64);
+                            LDRx_U12(x4, x4, 0);
+                            BR(x4);
+                        }
+                        CLEARIP();
                     }
                     break;
                 case 4: // JMP Ed
@@ -4550,7 +4591,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ed = x1;
                         LDH(x3, wback, rex.w?8:4);
                         STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
-                        jump_to_epilog(dyn, 0, ed, ninst);
+                        jump_to_next(dyn, 0, ed, ninst, rex.w?0:1);
                         *need_epilog = 0;
                         *ok = 0;
                     }
