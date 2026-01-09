@@ -109,6 +109,19 @@
 // GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i, D) GETEWW(x3, i, D)
 
+#define GETGWEW(i, j, D)                                    \
+    GETEW(j, D);                                            \
+    if (MODREG) {                                           \
+        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        if (gd == wback)                                    \
+            gd = ed;                                        \
+        else {                                              \
+            GETGW(i);                                       \
+        }                                                   \
+    } else {                                                \
+        GETGW(i);                                           \
+    }
+
 // GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
 #define GETSED(D)                                                                               \
     if (MODREG) {                                                                               \
@@ -273,6 +286,26 @@
     }                                                        \
     gd = i;                                                  \
     BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
+
+#define GETGBEB(i, j, D)                                         \
+    GETEB(j, D);                                                 \
+    if (MODREG) {                                                \
+        if (rex.rex) {                                           \
+            gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+            gb2 = 0;                                             \
+        } else {                                                 \
+            gd = (nextop & 0x38) >> 3;                           \
+            gb2 = ((gd & 4) << 1);                               \
+            gb1 = TO_NAT((gd & 3));                              \
+        }                                                        \
+        if (gb1 == wback && gb2 == wb2)                          \
+            gd = ed;                                             \
+        else {                                                   \
+            GETGB(i);                                            \
+        }                                                        \
+    } else {                                                     \
+        GETGB(i);                                                \
+    }
 
 #define VEXTRINS_IMM_4_0(n, m) ((n & 0xf) << 4 | (m & 0xf))
 #define XVPERMI_IMM_4_0(n, m)  ((n & 0xf) << 4 | (m & 0xf))

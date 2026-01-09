@@ -2124,8 +2124,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
             if (u8) {
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETEW(x1, 1);
-                GETGW(x2);
+                GETGWEW(x1, x2, 1);
                 u8 = F8;
                 emit_shld16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
                 EWBACK;
@@ -2142,8 +2141,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
             } else
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            GETGW(x2);
-            GETEW(x1, 0);
+            GETGWEW(x1, x2, 0);
             ANDI(x4, xRCX, 0x1f);
             UFLAG_IF { CBZ_NEXT(x4); }
             emit_shld16(dyn, ninst, ed, gd, x4, x5, x6, x7);
@@ -2194,8 +2192,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
             if (u8) {
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETEW(x1, 1);
-                GETGW(x2);
+                GETGWEW(x1, x2, 1);
                 u8 = F8;
                 emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
                 EWBACK;
@@ -2212,8 +2209,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
             } else
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-            GETGW(x2);
-            GETEW(x1, 0);
+            GETGWEW(x1, x2, 0);
             ANDI(x4, xRCX, 0x1f);
             UFLAG_IF { CBZ_NEXT(x4); }
             emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6, x7);
@@ -2461,8 +2457,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
-            GETEW(x5, 0);
-            GETGW(x4);
+            GETGWEW(x4, x5, 0);
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
             B_MARK2_nocond;
@@ -2486,8 +2481,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
-            GETEW(x5, 0);
-            GETGW(x4);
+            GETGWEW(x4, x5, 0);
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
             B_MARK2_nocond;
@@ -2535,8 +2529,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("XADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
+            GETGWEW(x1, x2, 0);
             BSTRINS_D(TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)), ed, 15, 0);
             emit_add16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;

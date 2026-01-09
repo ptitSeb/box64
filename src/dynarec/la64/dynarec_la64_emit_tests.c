@@ -446,19 +446,33 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         IFX(X_ALL) {
             X64_AND_B(s1, s2);
         }
-
-        if (dyn->insts[ninst].nat_flags_fusion) {
-            AND(s3, s1, s2);
-            if (dyn->insts[ninst].nat_flags_needsign) {
-                EXT_W_B(s3, s3);
+        if (s1 == s2) {
+            NAT_FLAGS_ENABLE_SF();
+            int r = s1;
+            if (dyn->insts[ninst].nat_flags_fusion) {
+                if (dyn->insts[ninst].nat_flags_needsign) {
+                    EXT_W_B(s3, s1);
+                    r = s3;
+                }
+                NAT_FLAGS_OPS(r, xZR, s5, xZR);
             }
-        }
+            IFX_PENDOR0 {
+                ST_B(r, xEmu, offsetof(x64emu_t, res));
+            }
+        } else {
+            if (dyn->insts[ninst].nat_flags_fusion) {
+                AND(s3, s1, s2);
+                if (dyn->insts[ninst].nat_flags_needsign) {
+                    EXT_W_B(s3, s3);
+                }
+            }
 
-        IFX_PENDOR0 {
-            if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
-            ST_B(s3, xEmu, offsetof(x64emu_t, res));
+            IFX_PENDOR0 {
+                if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
+                ST_B(s3, xEmu, offsetof(x64emu_t, res));
+            }
+            if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, s4, xZR);
         }
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, s4, xZR);
         return;
     }
 
@@ -557,18 +571,33 @@ void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
             X64_AND_H(s1, s2);
         }
 
-        if (dyn->insts[ninst].nat_flags_fusion) {
-            AND(s3, s1, s2);
-            if (dyn->insts[ninst].nat_flags_needsign) {
-                EXT_W_H(s3, s3);
+        if (s1 == s2) {
+            NAT_FLAGS_ENABLE_SF();
+            int r = s1;
+            if (dyn->insts[ninst].nat_flags_fusion) {
+                if (dyn->insts[ninst].nat_flags_needsign) {
+                    EXT_W_H(s3, s1);
+                    r = s3;
+                }
+                NAT_FLAGS_OPS(r, xZR, s5, xZR);
             }
-        }
+            IFX_PENDOR0 {
+                ST_H(r, xEmu, offsetof(x64emu_t, res));
+            }
+        } else {
+            if (dyn->insts[ninst].nat_flags_fusion) {
+                AND(s3, s1, s2);
+                if (dyn->insts[ninst].nat_flags_needsign) {
+                    EXT_W_H(s3, s3);
+                }
+            }
 
-        IFX_PENDOR0 {
-            if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
-            ST_H(s3, xEmu, offsetof(x64emu_t, res));
+            IFX_PENDOR0 {
+                if (!dyn->insts[ninst].nat_flags_fusion) AND(s3, s1, s2);
+                ST_H(s3, xEmu, offsetof(x64emu_t, res));
+            }
+            if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, xZR, xZR);
         }
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s3, xZR, xZR, xZR);
         return;
     }
     CLEAR_FLAGS(s3);
