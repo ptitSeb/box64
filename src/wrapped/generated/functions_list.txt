@@ -2845,6 +2845,7 @@
 #() vFppppiui
 #() vFpppppip
 #() vFpppppLL
+#() vFppppppi
 #() vFppppppu
 #() vFppppppL
 #() vFppppppp
@@ -3060,6 +3061,7 @@
 #() pFpppLLLi
 #() pFppppiii
 #() pFppppiip
+#() pFppppppi
 #() pFppppppu
 #() pFppppppp
 #() iWpiiuuuu
@@ -4507,6 +4509,8 @@ wrappedgobject2:
   - g_closure_set_marshal
 - LFpp:
   - g_param_type_register_static
+- pFpL:
+  - g_type_check_class_cast
 - pFpp:
   - g_value_array_sort
 - vFLLp:

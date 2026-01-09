@@ -16,6 +16,7 @@ typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef uintptr_t (*LFpp_t)(void*, void*);
+typedef void* (*pFpL_t)(void*, uintptr_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFLLp_t)(uintptr_t, uintptr_t, void*);
 typedef void (*vFpup_t)(void*, uint32_t, void*);
@@ -53,6 +54,7 @@ typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 	GO(g_type_class_peek_parent, pFp_t) \
 	GO(g_closure_set_marshal, vFpp_t) \
 	GO(g_param_type_register_static, LFpp_t) \
+	GO(g_type_check_class_cast, pFpL_t) \
 	GO(g_value_array_sort, pFpp_t) \
 	GO(g_type_add_interface_static, vFLLp_t) \
 	GO(g_value_register_transform_func, vFLLp_t) \

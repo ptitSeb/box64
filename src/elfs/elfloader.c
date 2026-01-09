@@ -37,6 +37,7 @@
 #include "dictionnary.h"
 #include "symbols.h"
 #include "cleanup.h"
+#include "globalsymbols.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -645,6 +646,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
         uint64_t* globp;
         uintptr_t tmp = 0;
         intptr_t delta;
+        int global;
         switch(t) {
             case R_X86_64_NONE:
                 break;
@@ -687,13 +689,15 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                 }
                 break;
             case R_X86_64_GLOB_DAT:
-                if(GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt)) {
+                if((global = GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt))) {
                     globp = (uint64_t*)globoffs;
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT with R_X86_64_COPY @%p/%p (%p/%p -> %p/%p) size=%zd on sym=%s (%sver=%d/%s) \n",
                         BindSym(bind), p, globp, (void*)(p?(*p):0),
                         (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, veropt?"opt":"", version, vername?vername:"(none)");
                     sym_elf = my_context->elfs[0];
                     *p = globoffs;
+                    if(global==2)
+                        addGlobalRef(p, symname);
                 } else {
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start") && strcmp(symname, "collector_func_load"))

@@ -1,9 +1,12 @@
 #ifndef _GLOBAL_SYMBOLS_H_
 #define _GLOBAL_SYMBOLS_H_
 
+void addGlobalRef(void* p, const char* symname);
+
 //GTK stuff
 void my_checkGlobalGdkDisplay(void);
 void my_setGlobalGThreadsInit(void);
+void addGlobalGdkDisplayRef(void* p);
 
 //void** my_GetGTKDisplay(void);
 void** my_GetGthreadsGotInitialized(void);  // defined in wrappedgthread2

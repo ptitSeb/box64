@@ -38,6 +38,7 @@ typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef void          (*vFpipV_t)(void*, int, void*, ...);
 typedef unsigned long (*LFppppi_t)(void*, void*, void*, void*, int);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
+typedef void          (*vFppippi_t)(void*, void*, int, void* , void*, int);
 typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
 
 #define ADDED_FUNCTIONS() \
@@ -81,6 +82,9 @@ typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
     GO(g_module_supported, LFv_t)               \
     GO(g_module_symbol, iFppp_t)                \
     GO(g_log, vFpipV_t)                         \
+    GO(gtk_notebook_get_type, LFv_t)            \
+    GO(gtk_cell_renderer_get_type, LFv_t)       \
+    GO(gtk_list_store_insert_with_valuesv, vFppippi_t)
 
 #include "generated/wrappedgtkx112types.h"
 
@@ -1174,12 +1178,22 @@ EXPORT uint32_t my_gtk_input_add_full(x64emu_t* emu, int source, int condition, 
 
 EXPORT void my_gtk_list_store_insert_with_values(x64emu_t* emu, void* store, void* iter, int pos, uintptr_t* b)
 {
-    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
-    // not 100% exact, but better than nothing
-    my->gtk_list_store_insert(store, iter, pos);
-    my->gtk_list_store_set_valist(store, iter, VARARGS);
-
-    //can't use gtk_list_store_insert_with_valuesv because that one use array or GValue, instead of brute value
+    int n = 0;
+    //sizeof(my_GValue_t) is 24, so 3 pointers, that will be directly in stack
+    // so cannot use getVArg for this...
+    int col;
+    do {
+        if(n==0) col = S_ECX; else col = (int)b[n*4-1];
+        ++n;
+    } while(col==-1);
+    int columns[n];
+    my_GValue_t values[n];
+    for(int i=0; i<n; ++i) {
+        if(i==0) col = S_ECX; else col = (int)b[i*4-1];
+        columns[i] = col;
+        values[i] = *(my_GValue_t*)&b[i*4];
+    }
+    my->gtk_list_store_insert_with_valuesv(store, iter, pos, columns, values, n);
 }
 
 EXPORT void* my_gtk_list_store_new(x64emu_t* emu, int n, uintptr_t* b)
@@ -1303,7 +1317,9 @@ static void addGtk2Alternate(library_t* lib)
     SetGtkFrame2ID(my->gtk_frame_get_type());                                   \
     SetGtkMenuShell2ID(my->gtk_menu_shell_get_type());                          \
     SetGtkMenuBar2ID(my->gtk_menu_bar_get_type());                              \
-    SetGtkTextView2ID(my->gtk_text_view_get_type());
+    SetGtkTextView2ID(my->gtk_text_view_get_type());                            \
+    SetGtkNotebook2ID(my->gtk_notebook_get_type());                             \
+    SetGtkCellRenderer2ID(my->gtk_cell_renderer_get_type());
 
 #define NEEDED_LIBS "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0"
 

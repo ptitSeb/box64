@@ -230,13 +230,33 @@ void AddUniqueSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t ad
     printf_dump(LOG_DEBUG, " Adding unique %s (ver:%d/%s%s) with offert=%p sz=%d\n", name, ver, vername?vername:"(none)", veropt?" veropt":"", (void*)addr, sz);
 }
 
+#ifndef STATICBUILD
+void** my_GetGTKDisplay();
+void** my_GetGthreadsGotInitialized();
+#endif
 int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end, int ver, const char* vername, int local, int veropt)
 {
     if(!mapsymbols)
         return 0;
     khint_t k = kh_get(mapsymbols, mapsymbols, name);
-    if(k==kh_end(mapsymbols))
+    if(k==kh_end(mapsymbols)) {
+        #ifndef STATICBUILD
+        // some special case symbol, defined inside box64 itself
+        if(!strcmp(name, "gdk_display") && !BOX64ENV(nogtk)) {
+            *start = (uintptr_t)my_GetGTKDisplay();
+            *end = *start+sizeof(void*);
+            printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
+            return 2;
+        }
+        if(!strcmp(name, "g_threads_got_initialized") && !BOX64ENV(nogtk)) {
+            *start = (uintptr_t)my_GetGthreadsGotInitialized();
+            *end = *start+sizeof(int);
+            printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
+            return 2;
+        }
+        #endif
         return 0;
+    }
     versymbols_t * v = &kh_val(mapsymbols, k);
     versymbol_t* s = MatchVersion(v, ver, vername, 0, local, veropt);
     if(s) {

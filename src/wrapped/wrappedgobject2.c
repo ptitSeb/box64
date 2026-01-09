@@ -96,23 +96,7 @@ static void addGObject2Alternate(library_t* lib)
     #undef GO
 }
 
-#define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)   \
-GO(10)  \
-GO(11)  \
-GO(12)  \
-GO(13)  \
-GO(14)  \
-GO(15)  \
+#include "super80.h"
 
 #define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;                                     \
@@ -802,6 +786,12 @@ EXPORT void* my_g_type_class_peek_parent(x64emu_t* emu, void* object)
     void* klass = my->g_type_class_peek_parent(object);
     size_t type = klass?*(size_t*)klass:0;
     return wrapCopyGTKClass(klass, type);
+}
+
+EXPORT void* my_g_type_check_class_cast(x64emu_t* emu, void* object, size_t kast)
+{
+    void* klass = my->g_type_check_class_cast(object, kast);
+    return wrapCopyGTKClass(klass, kast);
 }
 
 EXPORT void my_g_signal_emit_valist(x64emu_t* emu, void* inst, uint32_t id, uint32_t quark, x64_va_list_t b)

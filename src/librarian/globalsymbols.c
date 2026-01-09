@@ -13,6 +13,7 @@
 #include "box64context.h"
 #include "librarian.h"
 #include "library.h"
+#include "globalsymbols.h"
 
 // workaround for Globals symbols
 
@@ -37,24 +38,18 @@
     }
 
 
+void addGlobalRef(void* p, const char* symname)
+{
+    if(!strcmp(symname, "gdk_display") && !BOX64ENV(nogtk))
+        addGlobalGdkDisplayRef(p);
+}
+
 // *********** GTK *****************
 EXPORT void* gdk_display = NULL;   // in case it's used...
 
-void my_checkGlobalGdkDisplay()
-{
-    uintptr_t globoffs, globend;
-    GLOB(gdk_display, NULL)
-}
-
-void my_setGlobalGThreadsInit()
-{
-    int val = 1;
-    uintptr_t globoffs, globend;
-    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "g_threads_got_initialized", &globoffs, &globend, -1, NULL, 0, NULL)) {
-        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %d\n", (void*)globoffs, val);
-        memcpy((void*)globoffs, &val, sizeof(val));
-    }
-}
+static void** gdk_display_refs = NULL;
+static size_t gdk_display_cap = 0;
+static size_t gdk_display_size = 0;
 
 char* getGDKX11LibName();
 void** my_GetGTKDisplay()
@@ -68,6 +63,44 @@ void** my_GetGTKDisplay()
     void* s = dlsym(GetHandle(lib), "gdk_display");
     gdk_display = *(void**)s;
     return s;
+}
+
+void my_checkGlobalGdkDisplay()
+{
+    uintptr_t globoffs, globend;
+    void** p_gdk_display = &gdk_display;
+    my_GetGTKDisplay(); // make sure to refresh gdk_display
+    printf_log(LOG_DEBUG, "Refreshing Glbal gdk_diplay with %p\n", gdk_display);
+    GLOB(p_gdk_display, NULL)
+    // also check referenced addresses
+    for(size_t i=0; i<gdk_display_size; ++i)
+        memcpy(gdk_display_refs[i], &p_gdk_display, sizeof(p_gdk_display));
+}
+
+void addGlobalGdkDisplayRef(void* p)
+{
+    // check if address is already there
+    for(size_t i=0; i<gdk_display_size; ++i)
+        if(gdk_display_refs[i] == p)
+            return;
+    // resize if needed
+    if(gdk_display_size==gdk_display_cap) {
+        gdk_display_cap += 4;
+        gdk_display_refs = box_realloc(gdk_display_refs, gdk_display_cap*sizeof(void*));
+    }
+    // add
+    gdk_display_refs[gdk_display_size++] = p;
+    printf_log(LOG_DEBUG, "Added %p ref to gdk_display\n", p);
+}
+
+void my_setGlobalGThreadsInit()
+{
+    int val = 1;
+    uintptr_t globoffs, globend;
+    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "g_threads_got_initialized", &globoffs, &globend, -1, NULL, 0, NULL)) {
+        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %d\n", (void*)globoffs, val);
+        memcpy((void*)globoffs, &val, sizeof(val));
+    }
 }
 
 // **************** NCurses ****************

@@ -591,10 +591,6 @@ typedef struct my_GtkBin2_s
 typedef struct my_GtkBin2Class_s
 {
   my_GtkContainer2Class_t parent_class;
-  void (*_gtk_reserved1) (void);
-  void (*_gtk_reserved2) (void);
-  void (*_gtk_reserved3) (void);
-  void (*_gtk_reserved4) (void);
 } my_GtkBin2Class_t;
 
 typedef struct my_GtkBin3_s
@@ -1303,6 +1299,81 @@ typedef struct my_GtkFixed3Class_s
   my_GtkContainer3Class_t parent_class;
   void*                   padding[8];
 } my_GtkFixed3Class_t;
+
+typedef struct my_GtkNotebook2_s
+{
+  my_GtkContainer2_t parent;
+  void* cur_page;
+  void* children;
+  void* first_tab;
+  void* focus_tab;
+  void* menu;
+  void* event_window;
+  uint32_t timer;
+  uint16_t tab_hborder;
+  uint16_t tab_vborder;
+  uint32_t show_tabs          : 1;
+  uint32_t homogeneous        : 1;
+  uint32_t show_border        : 1;
+  uint32_t tab_pos            : 2;
+  uint32_t scrollable         : 1;
+  uint32_t in_child           : 3;
+  uint32_t click_child        : 3;
+  uint32_t button             : 2;
+  uint32_t need_timer         : 1;
+  uint32_t child_has_focus    : 1;
+  uint32_t have_visible_child : 1;
+  uint32_t focus_out          : 1;
+  uint32_t has_before_previous: 1;
+  uint32_t has_before_next    : 1;
+  uint32_t has_after_previous : 1;
+  uint32_t has_after_next     : 1;
+} my_GtkNotebook2_t;
+
+typedef struct my_GtkNotebook2Class_s
+{
+  my_GtkContainer2Class_t     parent_class;
+  void (* switch_page)        (void* notebook, void* page, uint32_t page_num);
+  int  (* select_page)        (void* notebook, int move_focus);
+  int  (* focus_tab)          (void* notebook, int type);
+  int  (* change_current_page)(void* notebook, int offset);
+  void (* move_focus_out)     (void* notebook, int direction);
+  int  (* reorder_tab)        (void* notebook, int direction, int move_to_last);
+  int  (* insert_page)        (void* notebook, void* child, void* tab_label, void* menu_label, int position);
+  void*(* create_window)      (void* notebook, void* page, int x, int y);
+  void (*_gtk_reserved1)      (void);
+} my_GtkNotebook2Class_t;
+
+typedef struct my_GtkCellRenderer2_s
+{
+  my_GtkObject_t parent;
+  float xalign;
+  float yalign;
+  int width;
+  int height;
+  uint16_t xpad;
+  uint16_t ypad;
+  uint32_t mode : 2;
+  uint32_t visible : 1;
+  uint32_t is_expander : 1;
+  uint32_t is_expanded : 1;
+  uint32_t cell_background_set : 1;
+  uint32_t sensitive : 1;
+  uint32_t editing : 1;
+} my_GtkCellRenderer2_t;
+
+typedef struct my_GtkCellRenderer2Class_s
+{
+  my_GtkObjectClass_t parent_class;
+  void   (* get_size)         (void* cell, void* widget, void* cell_area, int* x_offset, int* y_offset, int* width, int* height);
+  void   (* render)           (void* cell, void* window, void* widget, void* background_area, void* cell_area, void* expose_area, int flags);
+  int    (* activate)         (void* cell, void* event, void* widget, void* path, void* background_area, void* cell_area, int flags);
+  void*  (* start_editing)    (void* cell, void* event, void* widget, void* path, void* background_area, void* cell_area, int flags);
+  void   (* editing_canceled) (void* cell);
+  void   (* editing_started)  (void* cell, void* editable, void* path);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+} my_GtkCellRenderer2Class_t;
 
 typedef struct my_GDBusObjectManagerClient_s
 {
@@ -2307,6 +2378,8 @@ GTKCLASS(GtkEventController)        \
 GTKCLASS(GtkGesture)                \
 GTKCLASS(GtkGestureSingle)          \
 GTKCLASS(GtkGestureLongPress)       \
+GTKCLASS(GtkNotebook2)              \
+GTKCLASS(GtkCellRenderer2)          \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
 GTKCLASS(AtkObject)                 \
