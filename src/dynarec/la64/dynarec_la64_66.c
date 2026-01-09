@@ -51,18 +51,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_add16(dyn, ninst, x1, x2, x4, x5, x6);
+            GETGWEW(x1, x2, 0);
+            emit_add16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
             break;
         case 0x03:
             INST_NAME("ADD Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
+            GETGWEW(x1, x2, 0);
+            emit_add16(dyn, ninst, gd, ed, x3, x4, x6);
             GWBACK;
             break;
         case 0x05:
@@ -88,18 +86,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_or16(dyn, ninst, x1, x2, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_or16(dyn, ninst, ed, gd, x4, x5);
             EWBACK;
             break;
         case 0x0B:
             INST_NAME("OR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_or16(dyn, ninst, x1, x2, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_or16(dyn, ninst, gd, ed, x4, x5);
             GWBACK;
             break;
         case 0x0D:
@@ -123,9 +119,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
+            GETGWEW(x1, x2, 0);
+            emit_adc16(dyn, ninst, ed, gd, x4, x6, x5);
             EWBACK;
             break;
         case 0x13:
@@ -133,9 +128,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
+            GETGWEW(x1, x2, 0);
+            emit_adc16(dyn, ninst, gd, ed, x4, x6, x5);
             GWBACK;
             break;
         case 0x15:
@@ -153,9 +147,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_sbb16(dyn, ninst, x1, x2, x4, x5, x6);
+            GETGWEW(x1, x2, 0);
+            emit_sbb16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
             break;
         case 0x1B:
@@ -163,9 +156,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_sbb16(dyn, ninst, x1, x2, x6, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_sbb16(dyn, ninst, gd, ed, x6, x4, x5);
             GWBACK;
             break;
         case 0x1D:
@@ -192,18 +184,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("AND Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_and16(dyn, ninst, x1, x2, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_and16(dyn, ninst, ed, gd, x4, x5);
             EWBACK;
             break;
         case 0x23:
             INST_NAME("AND Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            GETGWEW(x1, x2, 0);
+            emit_and16(dyn, ninst, gd, ed, x3, x4);
             GWBACK;
             break;
         case 0x25:
@@ -219,18 +209,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_sub16(dyn, ninst, x2, x1, x4, x5, x6);
+            GETGWEW(x1, x2, 0);
+            emit_sub16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
             break;
         case 0x2B:
             INST_NAME("SUB Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_sub16(dyn, ninst, gd, ed, x3, x4, x5);
             GWBACK;
             break;
         case 0x2D:
@@ -246,18 +234,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+            GETGWEW(x1, x2, 0);
+            emit_xor16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
             break;
         case 0x33:
             INST_NAME("XOR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_xor16(dyn, ninst, gd, ed, x3, x4, x5);
             GWBACK;
             break;
         case 0x35:
@@ -273,17 +259,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMP Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            GETGWEW(x1, x2, 0);
+            emit_cmp16(dyn, ninst, ed, gd, x3, x4, x5, x6);
             break;
         case 0x3B:
             INST_NAME("CMP Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            GETGWEW(x1, x2, 0);
+            emit_cmp16(dyn, ninst, gd, ed, x3, x4, x5, x6);
             break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
@@ -587,9 +571,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("TEST Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEW(x1, 0);
-            GETGW(x2);
-            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            GETGWEW(x1, x2, 0);
+            emit_test16(dyn, ninst, ed, gd, x3, x4, x5);
             break;
         case 0x87:
             INST_NAME("(LOCK) XCHG Ew, Gw");

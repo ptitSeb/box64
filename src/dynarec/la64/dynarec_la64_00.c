@@ -61,9 +61,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_add8(dyn, ninst, x1, x2, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_add8(dyn, ninst, ed, gd, x4, x5);
             EBBACK();
             break;
         case 0x01:
@@ -79,9 +78,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_add8(dyn, ninst, x2, x1, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_add8(dyn, ninst, gd, ed, x4, x5);
             GBBACK();
             break;
         case 0x03:
@@ -148,9 +146,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_or8(dyn, ninst, x1, x2, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_or8(dyn, ninst, ed, gd, x4, x5);
             EBBACK();
             break;
         case 0x09:
@@ -166,9 +163,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_or8(dyn, ninst, x2, x1, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_or8(dyn, ninst, gd, ed, x4, x5);
             GBBACK();
             break;
         case 0x0B:
@@ -230,9 +226,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_adc8(dyn, ninst, x1, x2, x4, x5, x6);
+            GETGBEB(x1, x2, 0);
+            emit_adc8(dyn, ninst, ed, gd, x4, x5, x6);
             EBBACK();
             break;
         case 0x11:
@@ -250,9 +245,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x2, 0);
-            GETGB(x1);
-            emit_adc8(dyn, ninst, x1, x2, x4, x6, x5);
+            GETGBEB(x1, x2, 0);
+            emit_adc8(dyn, ninst, gd, ed, x4, x6, x5);
             GBBACK();
             break;
         case 0x13:
@@ -326,9 +320,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_sbb8(dyn, ninst, x1, x2, x4, x5, x6);
+            GETGBEB(x1, x2, 0);
+            emit_sbb8(dyn, ninst, ed, gd, x4, x5, x6);
             EBBACK();
             break;
         case 0x19:
@@ -346,9 +339,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x2, 0);
-            GETGB(x1);
-            emit_sbb8(dyn, ninst, x1, x2, x6, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_sbb8(dyn, ninst, gd, ed, x6, x4, x5);
             GBBACK();
             break;
         case 0x1B:
@@ -421,9 +413,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_and8(dyn, ninst, x1, x2, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_and8(dyn, ninst, ed, gd, x4, x5);
             EBBACK();
             break;
         case 0x21:
@@ -439,9 +430,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("AND Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_and8(dyn, ninst, x2, x1, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_and8(dyn, ninst, gd, ed, x4, x5);
             GBBACK();
             break;
         case 0x23:
@@ -470,9 +460,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_sub8(dyn, ninst, x1, x2, x4, x5, x6);
+            GETGBEB(x1, x2, 0);
+            emit_sub8(dyn, ninst, ed, gd, x4, x5, x6);
             EBBACK();
             break;
         case 0x29:
@@ -488,9 +477,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_sub8(dyn, ninst, x2, x1, x4, x5, x6);
+            GETGBEB(x1, x2, 0);
+            emit_sub8(dyn, ninst, gd, ed, x4, x5, x6);
             GBBACK();
             break;
         case 0x2B:
@@ -522,9 +510,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_xor8(dyn, ninst, x1, x2, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_xor8(dyn, ninst, ed, gd, x4, x5);
             EBBACK();
             break;
         case 0x31:
@@ -542,9 +529,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_xor8(dyn, ninst, x2, x1, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_xor8(dyn, ninst, gd, ed, x4, x5);
             GBBACK();
             break;
         case 0x33:
@@ -576,9 +562,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMP Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            GETGBEB(x1, x2, 0);
+            emit_cmp8(dyn, ninst, ed, gd, x3, x4, x5, x6);
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
@@ -600,9 +585,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMP Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_cmp8(dyn, ninst, x2, x1, x3, x4, x5, x6);
+            GETGBEB(x1, x2, 0);
+            emit_cmp8(dyn, ninst, gd, ed, x3, x4, x5, x6);
             break;
         case 0x3C:
             INST_NAME("CMP AL, Ib");
@@ -1192,9 +1176,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("TEST Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETEB(x1, 0);
-            GETGB(x2);
-            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            GETGBEB(x1, x2, 0);
+            emit_test8(dyn, ninst, ed, gd, x3, x4, x5);
             break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");
