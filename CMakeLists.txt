@@ -606,6 +606,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibcmusl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibcrypt.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibcups.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibcupsimage.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdrm.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdrmamdgpu.c"

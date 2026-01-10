@@ -1458,6 +1458,7 @@
 #() pFEpiV
 #() pFEpCL
 #() pFEppi
+#() pFEppu
 #() pFEppp
 #() pFEppV
 #() pFiiii
@@ -2379,6 +2380,7 @@
 #() iFEpuipp
 #() iFEpuppp
 #() iFEpUppp
+#() iFEppipp
 #() iFEppupp
 #() iFEppppi
 #() iFEppppp
@@ -2943,6 +2945,7 @@
 #() iFppLpppp
 #() iFpppiiii
 #() iFpppiiup
+#() iFpppiipp
 #() iFpppippi
 #() iFpppippp
 #() iFpppuiii
@@ -5343,8 +5346,17 @@ wrappedlibcrypt:
 wrappedlibcups:
 - vFpp:
   - cupsSetPasswordCB2
+- pFppu:
+  - _cupsRasterNew
+- iFppipp:
+  - _cupsRasterInterpretPPD
 - iFuipuupp:
   - cupsEnumDests
+wrappedlibcupsimage:
+- pFppu:
+  - cupsRasterOpenIO
+- iFppipp:
+  - cupsRasterInterpretPPD
 wrappedlibdl:
 - iFp:
   - dlclose
