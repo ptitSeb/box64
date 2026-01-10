@@ -801,6 +801,9 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MV(x6, wback);
                 BSTRINS_D(x6, xZR, 1, 0);
                 SLL_W(x4, gd, x3);
+                ADDI_D(x5, xZR, 0xFF);
+                SLL_W(x5, x5, x3);
+                ORN(x4, x4, x5);
                 AMAND_DB_W(x1, x4, x6);
                 IFXORNAT (X_ALL | X_PEND) {
                     SRL_W(x1, x1, x3);
