@@ -587,6 +587,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VSIGNCOV_W(q0, q1, q0);
                     break;
                 case 0x0B:
+                    if (!cpuext.lasx) {
+                        DEFAULT;
+                        break;
+                    }
                     INST_NAME("PMULHRSW Gm, Em");
                     nextop = F8;
                     GETGM(q0);

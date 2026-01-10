@@ -42,6 +42,7 @@ typedef union cpu_ext_s {
         uint64_t lamcas : 1;
         uint64_t scq : 1;
         uint64_t frecipe : 1;
+        uint64_t lasx : 1;
 #endif
     };
     uint64_t x;

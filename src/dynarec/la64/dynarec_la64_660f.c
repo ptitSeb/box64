@@ -471,6 +471,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VSIGNCOV_W(q0, q1, q0);
                     break;
                 case 0x0B:
+                    if (!cpuext.lasx) {
+                        DEFAULT;
+                        break;
+                    }
                     INST_NAME("PMULHRSW Gx, Ex");
                     nextop = F8;
                     GETGX(q0, 1);
@@ -678,6 +682,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     break;
                 case 0x30:
+                    if (!cpuext.lasx) {
+                        DEFAULT;
+                        break;
+                    }
                     INST_NAME("PMOVZXBW Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
                     GETEX(q1, 0, 0);
