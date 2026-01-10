@@ -218,6 +218,9 @@ extern int __poll_chk(struct pollfd*, size_t, int, size_t);
 extern int __ppoll_chk(struct pollfd*, size_t, const struct timespec *, const __sigset_t *, size_t);
 extern ssize_t __pread64(int, void*, size_t, int64_t);
 extern ssize_t __pread_chk(int, void*, size_t, ssize_t, size_t);
+#ifndef LA64
+extern ssize_t __pread64_chk(int, void*, size_t, ssize_t, size_t);
+#endif
 //extern void __sF(int, void*);
 //extern void __assert2(int, void*);
 //extern void pthread_kill_other_threads_np();
@@ -266,6 +269,7 @@ extern void* __strdup(void*);
 extern void* __strerror_r(int, void*, size_t);
 extern long strfmon_l(void*, size_t, void*, void*, ...);
 extern size_t __strftime_l(void*, size_t, void*, void*, size_t);
+extern size_t __strlcpy_chk(char*, const char*, size_t, size_t);
 extern void* __strncat_chk(char *, const char *, long unsigned int,  long unsigned int);
 extern void* __strncpy_chk(char *, const char *, long unsigned int,  long unsigned int);
 extern void* __strndup(void*, size_t);
