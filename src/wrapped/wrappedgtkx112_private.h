@@ -1434,7 +1434,7 @@ GO(gtk_input_dialog_new, pFv)
 GO(gtk_input_remove, vFu)
 GO(gtk_invisible_get_screen, pFp)
 GO(gtk_invisible_get_type, LFv)
-//GO(gtk_invisible_new, 
+GO(gtk_invisible_new, pFv)
 GO(gtk_invisible_new_for_screen, pFp)
 GO(gtk_invisible_set_screen, vFpp)
 //GO(gtk_item_deselect, 

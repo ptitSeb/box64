@@ -1375,6 +1375,47 @@ typedef struct my_GtkCellRenderer2Class_s
   void (*_gtk_reserved2) (void);
 } my_GtkCellRenderer2Class_t;
 
+typedef struct my_PangoColor_s
+{
+  uint16_t red;
+  uint16_t green;
+  uint16_t blue;
+} my_PangoColor_t;
+
+typedef struct my_GtkCellRendererText2_s
+{
+  my_GtkCellRenderer2_t parent;
+  void* text;
+  void* font;
+  double font_scale;
+  my_PangoColor_t foreground;
+  my_PangoColor_t background;
+  void* extra_attrs;
+  int underline_style;
+  int rise;
+  int fixed_height_rows;
+  uint32_t strikethrough : 1;
+  uint32_t editable  : 1;
+  uint32_t scale_set : 1;
+  uint32_t foreground_set : 1;
+  uint32_t background_set : 1;
+  uint32_t underline_set : 1;
+  uint32_t rise_set : 1;
+  uint32_t strikethrough_set : 1;
+  uint32_t editable_set : 1;
+  uint32_t calc_fixed_height : 1;
+} my_GtkCellRendererText2_t;
+
+typedef struct my_GtkCellRendererText2Class_s
+{
+  my_GtkCellRenderer2Class_t parent_class;
+  void (* edited) (void* cell_renderer_text, void* path, void* new_text);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkCellRendererText2Class_t;
+
 typedef struct my_GDBusObjectManagerClient_s
 {
   my_GObject_t  parent;
@@ -2380,6 +2421,7 @@ GTKCLASS(GtkGestureSingle)          \
 GTKCLASS(GtkGestureLongPress)       \
 GTKCLASS(GtkNotebook2)              \
 GTKCLASS(GtkCellRenderer2)          \
+GTKCLASS(GtkCellRendererText2)      \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
 GTKCLASS(AtkObject)                 \

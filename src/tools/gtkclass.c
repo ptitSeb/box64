@@ -1976,6 +1976,49 @@ static void bridgeGtkCellRenderer2Instance(my_GtkCellRenderer2_t* class)
     bridgeGtkObjectInstance(&class->parent);
 }
 
+// ----- GtkCellRendererText2Class ------
+WRAPPER(GtkCellRendererText2Class, edited, void, (void* cell_renderer_text, void* path, void* new_text), "ppp", cell_renderer_text, path, new_text);
+  
+#define SUPERGO()                   \
+    GO(edited, vFppp);              \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkCellRendererText2Class(my_GtkCellRendererText2Class_t* class)
+{
+    wrapGtkCellRenderer2Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkCellRendererText2Class (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkCellRendererText2Class(my_GtkCellRendererText2Class_t* class)
+{
+    unwrapGtkCellRenderer2Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkCellRendererText2Class (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkCellRendererText2Class(my_GtkCellRendererText2Class_t* class)
+{
+    bridgeGtkCellRenderer2Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkCellRendererText2Class (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+static void unwrapGtkCellRendererText2Instance(my_GtkCellRendererText2_t* class)
+{
+    unwrapGtkCellRenderer2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkCellRendererText2Instance(my_GtkCellRendererText2_t* class)
+{
+    bridgeGtkCellRenderer2Instance(&class->parent);
+}
+
 // ----- GDBusObjectManagerClientClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GDBusObjectManagerClient,interface_proxy_signal, void, (void* manager, void* object_proxy, void* interface_proxy, void* sender_name, void* signal_name, void* parameters), "pppppp", manager, object_proxy, interface_proxy, sender_name, signal_name, parameters);
@@ -4932,11 +4975,11 @@ void unwrapGTKClass(void* cl, size_t type)
         unwrap##A##Class((my_##A##Class_t*)cl);     \
     else
 
-    printf_log(LOG_DEBUG, "unwrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
+    printf_log(LOG_DEBUG, "...unwrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<=8) {}  // GInterface have no structure
     else
-    {}  // else no warning, one is enough...
+        printf_log(LOG_NONE, "Warning: fail to unwrapGTKClass for type %zx (%s)\n", type, g_type_name(type));
     #undef GTKCLASS
     #undef GTKIFACE
 }
