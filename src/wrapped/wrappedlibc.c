@@ -3953,6 +3953,15 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
     return prctl(option, arg2, arg3, arg4, arg5);
 }
 
+size_t __attribute__((weak)) strlcpy(char* dest, const char* src, size_t len)
+{
+    size_t l = strlen(src);
+    if(len) {
+        strncpy(dest, src, len-1);
+        dest[len]=0;
+    }
+    return l;
+}
 size_t __attribute__((weak)) __strlcpy_chk(char* dest, const char* src, size_t len, size_t chk)
 {
     // in case it's not defined... create a weak version with no actual chk
