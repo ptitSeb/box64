@@ -1957,7 +1957,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     if (u8) {
                         if (u8 > 63) {
-                            XVOR_V(q0, q0, q0);
+                            VXOR_V(q0, q0, q0);
                         } else {
                             VSLLI_D(q0, q0, u8);
                         }
