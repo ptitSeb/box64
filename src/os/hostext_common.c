@@ -31,7 +31,9 @@ void PrintHostCpuFeatures(void)
         printf_log_prefix(0, LOG_INFO, " RNDR");
     printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(LA64)
-    printf_log(LOG_INFO, "Dynarec for LoongArch with extension LSX LASX");
+    printf_log(LOG_INFO, "Dynarec for LoongArch with extension LSX");
+    if (cpuext.lasx)
+        printf_log_prefix(0, LOG_INFO, " LASX");
     if (cpuext.lbt)
         printf_log_prefix(0, LOG_INFO, " LBT_X86");
     if (cpuext.lam_bh)

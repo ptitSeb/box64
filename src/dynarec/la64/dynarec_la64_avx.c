@@ -48,8 +48,9 @@ uintptr_t dynarec64_AVX(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t opcode = PK(0);
     rex_t rex = vex.rex;
 
-
-    if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_NONE))
+    if (!cpuext.lasx) {
+        DEFAULT;
+    } else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_NONE))
         addr = dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_NONE))
         addr = dynarec64_AVX_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);

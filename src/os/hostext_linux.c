@@ -189,8 +189,9 @@ int DetectHostCpuFeatures(void)
     if (p == NULL || p[0] != '1') {
         uint32_t cpucfg2 = 0, idx = 2;
         asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
-        if (((cpucfg2 >> 6) & 0b11) != 3) return 0; // LSX/LASX must present
+        if (!((cpucfg2 >> 6) & 0b1)) return 0; // LSX must present
 
+        cpuext.lasx = (cpucfg2 >> 7) & 0b1;
         cpuext.lbt = (cpucfg2 >> 18) & 0b1;
         cpuext.frecipe = (cpucfg2 >> 25) & 0b1;
         cpuext.lam_bh = (cpucfg2 >> 27) & 0b1;
@@ -199,6 +200,7 @@ int DetectHostCpuFeatures(void)
         if (p) {
             p = strtok(p, ",");
             while (p) {
+                if (!strcasecmp(p, "lasx")) cpuext.lasx = 0;
                 if (!strcasecmp(p, "lbt")) cpuext.lbt = 0;
                 if (!strcasecmp(p, "frecipe")) cpuext.frecipe = 0;
                 if (!strcasecmp(p, "lam_bh")) cpuext.lam_bh = 0;
