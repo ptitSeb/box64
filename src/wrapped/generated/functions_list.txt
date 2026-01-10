@@ -1966,6 +1966,7 @@
 #() iFpSuif
 #() iFSppLp
 #() IFppIII
+#() uFEiupp
 #() uFEippp
 #() uFEpipp
 #() uFEpupp
@@ -2959,6 +2960,7 @@
 #() iFppppppi
 #() iFppppppu
 #() iFppppppp
+#() uFEiiuppp
 #() uFEiipppp
 #() uFEpiuppp
 #() uFEpuuppp
@@ -4432,6 +4434,8 @@ wrappedglib2:
   - g_snprintf
 - iFpLpA:
   - g_vsnprintf
+- uFiupp:
+  - g_unix_fd_add
 - uFippp:
   - g_idle_add_full
 - uFpipp:
@@ -4474,6 +4478,8 @@ wrappedglib2:
   - g_node_traverse
 - iFpupppp:
   - g_datalist_id_replace_data
+- uFiiuppp:
+  - g_unix_fd_add_full
 - uFpiuppp:
   - g_io_add_watch_full
 - pFppLipp:

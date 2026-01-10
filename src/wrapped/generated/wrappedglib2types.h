@@ -41,6 +41,7 @@ typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int32_t (*iFpLpA_t)(void*, uintptr_t, void*, va_list);
+typedef uint32_t (*uFiupp_t)(int32_t, uint32_t, void*, void*);
 typedef uint32_t (*uFippp_t)(int32_t, void*, void*, void*);
 typedef uint32_t (*uFpipp_t)(void*, int32_t, void*, void*);
 typedef uint32_t (*uFpupp_t)(void*, uint32_t, void*, void*);
@@ -58,6 +59,7 @@ typedef void* (*pFppiip_t)(void*, void*, int32_t, int32_t, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
 typedef void (*vFpuuipp_t)(void*, uint32_t, uint32_t, int32_t, void*, void*);
 typedef int32_t (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
+typedef uint32_t (*uFiiuppp_t)(int32_t, int32_t, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFpiuppp_t)(void*, int32_t, uint32_t, void*, void*, void*);
 typedef void* (*pFppLipp_t)(void*, void*, uintptr_t, int32_t, void*, void*);
 typedef void* (*pFppLiiup_t)(void*, void*, uintptr_t, int32_t, int32_t, uint32_t, void*);
@@ -163,6 +165,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_source_set_callback, vFpppp_t) \
 	GO(g_snprintf, iFpLpV_t) \
 	GO(g_vsnprintf, iFpLpA_t) \
+	GO(g_unix_fd_add, uFiupp_t) \
 	GO(g_idle_add_full, uFippp_t) \
 	GO(g_log_set_handler, uFpipp_t) \
 	GO(g_io_add_watch, uFpupp_t) \
@@ -188,6 +191,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_option_group_new, pFppppp_t) \
 	GO(g_node_traverse, vFpuuipp_t) \
 	GO(g_datalist_id_replace_data, iFpupppp_t) \
+	GO(g_unix_fd_add_full, uFiiuppp_t) \
 	GO(g_io_add_watch_full, uFpiuppp_t) \
 	GO(g_variant_new_from_data, pFppLipp_t) \
 	GO(g_thread_create_full, pFppLiiup_t) \

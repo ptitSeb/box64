@@ -5490,9 +5490,90 @@ static void* find_signal7_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal7 callback\n");
     return NULL;
 }
+// signal8 ...
+#define GO(A)                                                                                  \
+    static uintptr_t my_signal8_fct_##A = 0;                                                   \
+    static void* my_signal8_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g) \
+    {                                                                                          \
+        return (void*)RunFunctionFmt(my_signal8_fct_##A, "ppppppp", a, b, c, d, e, f, g);      \
+    }
+SUPER()
+#undef GO
+static void* find_signal8_Fct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_signal8_fct_##A == (uintptr_t)fct) return my_signal8_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                \
+    if (my_signal8_fct_##A == 0) {           \
+        my_signal8_fct_##A = (uintptr_t)fct; \
+        return my_signal8_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal8 callback\n");
+    return NULL;
+}
+// signal9 ...
+#define GO(A)                                                                                  \
+    static uintptr_t my_signal9_fct_##A = 0;                                                   \
+    static void* my_signal9_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g) \
+    {                                                                                          \
+        return (void*)RunFunctionFmt(my_signal9_fct_##A, "ppppppp", a, b, c, d, e, f, g);      \
+    }
+SUPER()
+#undef GO
+static void* find_signal9_Fct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_signal9_fct_##A == (uintptr_t)fct) return my_signal9_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                \
+    if (my_signal9_fct_##A == 0) {           \
+        my_signal9_fct_##A = (uintptr_t)fct; \
+        return my_signal9_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal9 callback\n");
+    return NULL;
+}
+// signal10 ...
+#define GO(A)                                                                                   \
+    static uintptr_t my_signal10_fct_##A = 0;                                                   \
+    static void* my_signal10_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g) \
+    {                                                                                           \
+        return (void*)RunFunctionFmt(my_signal10_fct_##A, "ppppppp", a, b, c, d, e, f, g);      \
+    }
+SUPER()
+#undef GO
+static void* find_signal10_Fct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_signal10_fct_##A == (uintptr_t)fct) return my_signal10_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                 \
+    if (my_signal10_fct_##A == 0) {           \
+        my_signal10_fct_##A = (uintptr_t)fct; \
+        return my_signal10_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal10 callback\n");
+    return NULL;
+}
 typedef void* (*finder_t)(void*);
-static const finder_t finders[] = {find_signal2_Fct, find_signal3_Fct, find_signal4_Fct, find_signal5_Fct, find_signal6_Fct, find_signal7_Fct};
-#define MAX_SIGNAL_N (7-2)
+static const finder_t finders[] = { find_signal2_Fct, find_signal3_Fct, find_signal4_Fct, find_signal5_Fct, find_signal6_Fct, find_signal7_Fct, find_signal8_Fct, find_signal9_Fct, find_signal10_Fct };
+#define MAX_SIGNAL_N (10 - 2)
 
 // ---- GTypeInfo ----
 // let's handle signal with offset, that are used to wrap custom signal function
