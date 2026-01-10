@@ -1987,6 +1987,7 @@ GO(strftime, LFpLpp)
 GO(__strftime_l, LFpLppL)
 GOW(strftime_l, LFpLppp)
 GO(strlen, LFp)
+GO(__strlcpy_chk, LFppLL)
 GO(strncasecmp, iFppL)
 //GO(__strncasecmp_l, 
 GO(strncasecmp_l, iFppLp)
