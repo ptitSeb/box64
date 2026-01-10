@@ -817,6 +817,34 @@ static void* findGDataForeachFuncFct(void* fct)
     return NULL;
 }
 
+// GUnixFDSourceFunc ...
+#define GO(A)                                                                \
+    static uintptr_t my_GUnixFDSourceFunc_fct_##A = 0;                       \
+    static int my_GUnixFDSourceFunc_##A(int a, uint32_t b, void* c)          \
+    {                                                                        \
+        return RunFunctionFmt(my_GUnixFDSourceFunc_fct_##A, "iup", a, b, c); \
+    }
+SUPER()
+#undef GO
+static void* findGUnixFDSourceFuncFct(void* fct)
+{
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GUnixFDSourceFunc_fct_##A == (uintptr_t)fct) return my_GUnixFDSourceFunc_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                          \
+    if (my_GUnixFDSourceFunc_fct_##A == 0) {           \
+        my_GUnixFDSourceFunc_fct_##A = (uintptr_t)fct; \
+        return my_GUnixFDSourceFunc_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GUnixFDSourceFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
@@ -1645,6 +1673,16 @@ EXPORT void my_g_thread_pool_set_sort_function(x64emu_t* emu, void* pool, void* 
 EXPORT void my_g_queue_free_full(x64emu_t* emu, void* queue, void* d)
 {
     my->g_queue_free_full(queue, findGDestroyNotifyFct(d));
+}
+
+EXPORT uint32_t my_g_unix_fd_add(x64emu_t* emu, int fd, uint32_t cond, void* f, void* data)
+{
+    return my->g_unix_fd_add(fd, cond, findGUnixFDSourceFuncFct(f), data);
+}
+
+EXPORT uint32_t my_g_unix_fd_add_full(x64emu_t* emu, int priority, int fd, uint32_t cond, void* f, void* data, void* notify)
+{
+    return my->g_unix_fd_add_full(priority, fd, cond, findGUnixFDSourceFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 #define PRE_INIT \
