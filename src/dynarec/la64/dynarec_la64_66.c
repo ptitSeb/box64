@@ -1392,7 +1392,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MARK3;
                     }
                     BSTRPICK_D(x2, xRAX, 15, 0);
-                    BSTRINS_D(x2, xRDX, 31, 16);
+                    BSTRINS_W(x2, xRDX, 31, 16);
                     DIV_W(x3, x2, ed);
                     MOD_W(x4, x2, ed);
                     BSTRINSz(xRAX, x3, 15, 0);
