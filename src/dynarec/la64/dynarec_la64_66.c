@@ -1352,9 +1352,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SET_DFNONE();
                     GETEW(x1, 0);
                     BSTRPICK_D(x2, xRAX, 15, 0);
-                    SLLI_D(x7, xRDX, 48);
-                    SRLI_D(x7, x7, 32);
-                    OR(x2, x2, x7);
+                    BSTRINS_W(x2, xRDX, 31, 16);
                     if (BOX64ENV(dynarec_div0)) {
                         BNE_MARK3(ed, xZR);
                         GETIP_(ip, x6);
@@ -1365,8 +1363,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         jump_to_epilog(dyn, 0, xRIP, ninst);
                         MARK3;
                     }
-                    DIV_WU(x7, x2, ed);
-                    MOD_WU(x4, x2, ed);
+                    DIV_WU(x7, x2, ed); // warning: x2 and ed must be signed extended!
+                    MOD_WU(x4, x2, ed); // warning: x2 and ed must be signed extended!
                     BSTRINSz(xRAX, x7, 15, 0);
                     BSTRINSz(xRDX, x4, 15, 0);
                     SET_DFNONE();
@@ -1393,8 +1391,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     BSTRPICK_D(x2, xRAX, 15, 0);
                     BSTRINS_W(x2, xRDX, 31, 16);
-                    DIV_W(x3, x2, ed);
-                    MOD_W(x4, x2, ed);
+                    DIV_W(x3, x2, ed); // warning: x2 and ed must be signed extended!
+                    MOD_W(x4, x2, ed); // warning: x2 and ed must be signed extended!
                     BSTRINSz(xRAX, x3, 15, 0);
                     BSTRINSz(xRDX, x4, 15, 0);
                     break;
