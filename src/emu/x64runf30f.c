@@ -25,9 +25,9 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr, int* step)
 #else
-uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
 #endif
 {
     uint8_t opcode;
@@ -412,6 +412,14 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         CLEAR_FLAG(F_PF);
         CONDITIONAL_SET_FLAG(GD->q[0]==0, F_ZF);
         break;
+
+    case 0xA5:  // ignore F3 prefix
+    case 0xBA:
+        #ifdef TEST_INTERPRETER 
+        return Test0F(test, rex, addr-1, step);
+        #else
+        return Run0F(emu, rex, addr-1, step);
+        #endif
 
     case 0xBC:  /* TZCNT Ed,Gd */
         CHECK_FLAGS(emu);

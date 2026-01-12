@@ -271,10 +271,10 @@ x64emurun:
                     break;
                 case 2:
                     #ifdef TEST_INTERPRETER 
-                    if(!(addr = TestF30F(test, rex, addr)))
+                    if(!(addr = TestF30F(test, rex, addr, &step)))
                         unimp = 1;
                     #else
-                    if(!(addr = RunF30F(emu, rex, addr))) {
+                    if(!(addr = RunF30F(emu, rex, addr, &step))) {
                         unimp = 1;
                         goto fini;
                     }
