@@ -347,18 +347,22 @@
 
 // quotient = signed(GR[rj][31:0]) / signed(GR[rk][31:0])
 // GR[rd] = SignExtend(quotient[31:0], GRLEN)
+// Warning: rj and rk must be sign-extended!
 #define DIV_W(rd, rj, rk) EMIT(type_3R(0b00000000001000000, rk, rj, rd))
 
 // quotient = unsigned(GR[rj][31:0]) / unsigned(GR[rk][31:0])
 // GR[rd] = SignExtend(quotient[31:0], GRLEN)
+// Warning: rj and rk must be sign-extended!
 #define DIV_WU(rd, rj, rk) EMIT(type_3R(0b00000000001000010, rk, rj, rd))
 
 // remainder = signed(GR[rj][31:0]) % signed(GR[rk][31:0])
 // GR[rd] = SignExtend(remainder[31:0], GRLEN)
+// Warning: rj and rk must be sign-extended!
 #define MOD_W(rd, rj, rk) EMIT(type_3R(0b00000000001000001, rk, rj, rd))
 
 // remainder = unsigned(GR[rj][31:0]) % unsigned(GR[rk][31:0])
 // GR[rd] = SignExtend(remainder[31:0], GRLEN)
+// Warning: rj and rk must be sign-extended!
 #define MOD_WU(rd, rj, rk) EMIT(type_3R(0b00000000001000011, rk, rj, rd))
 
 // GR[rd] = signed(GR[rj][63:0]) / signed(GR[rk][63:0])
