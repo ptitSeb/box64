@@ -471,23 +471,31 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VSIGNCOV_W(q0, q1, q0);
                     break;
                 case 0x0B:
-                    if (!cpuext.lasx) {
-                        DEFAULT;
-                        break;
-                    }
                     INST_NAME("PMULHRSW Gx, Ex");
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    VEXT2XV_W_H(v0, q0);
-                    VEXT2XV_W_H(v1, q1);
-                    XVMUL_W(v0, v0, v1);
-                    XVSRLI_W(v0, v0, 14);
-                    XVADDI_WU(v0, v0, 1);
-                    XVSRLNI_H_W(v0, v0, 1);
-                    XVPERMI_D(q0, v0, 0b1000);
+                    if (cpuext.lasx) {
+                        VEXT2XV_W_H(v0, q0);
+                        VEXT2XV_W_H(v1, q1);
+                        XVMUL_W(v0, v0, v1);
+                        XVSRLI_W(v0, v0, 14);
+                        XVADDI_WU(v0, v0, 1);
+                        XVSRLNI_H_W(v0, v0, 1);
+                        XVPERMI_D(q0, v0, 0b1000);
+                    } else {
+                        VMULWEV_W_H(v0, q0, q1);
+                        VMULWOD_W_H(v1, q0, q1);
+                        VSRLI_W(v0, v0, 14);
+                        VSRLI_W(v1, v1, 14);
+                        VADDI_WU(v0, v0, 1);
+                        VADDI_WU(v1, v1, 1);
+                        VSRLNI_H_W(v1, v0, 1);
+                        VSHUF4I_W(v1, v1, 0b11011000);
+                        VSHUF4I_H(q0, v1, 0b11011000);
+                    }
                     break;
                 case 0x10:
                     INST_NAME("PBLENDVB Gx, Ex");
@@ -682,15 +690,14 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     break;
                 case 0x30:
-                    if (!cpuext.lasx) {
-                        DEFAULT;
-                        break;
-                    }
                     INST_NAME("PMOVZXBW Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX_empty(q0);
-                    VEXT2XV_HU_BU(q0, q1);
+                    if (cpuext.lasx)
+                        VEXT2XV_HU_BU(q0, q1);
+                    else
+                        VSLLWIL_HU_BU(q0, q1, 0);
                     break;
                 case 0x31:
                     INST_NAME("PMOVZXBD Gx, Ex"); // SSE4 opcode!
