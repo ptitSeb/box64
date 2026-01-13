@@ -464,24 +464,37 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         FAKEED;
                         UDF();
                     } else {
-                        if(((nextop>>3)&7)==1) {INST_NAME("RDGSBASE");} else {INST_NAME("RDFSBASE");}
+                        if (((nextop >> 3) & 7) == 1) {
+                            INST_NAME("RDGSBASE");
+                        } else {
+                            INST_NAME("RDFSBASE");
+                        }
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        int seg = _FS + ((nextop>>3)&7);
-                        grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
-                        MV(ed, x4);
+                        int seg = _FS + ((nextop >> 3) & 7);
+                        grab_segdata(dyn, addr, ninst, x4, seg);
+                        MVxw(ed, x4);
                     }
-                     break;
+                    break;
                 case 2:
                 case 3:
-                    if(rex.is32bits || !MODREG) {
+                    if (rex.is32bits || !MODREG) {
                         INST_NAME("Illegal AE");
                         FAKEED;
                         UDF();
                     } else {
-                        if(((nextop>>3)&7)==3) {INST_NAME("WRGSBASE");} else {INST_NAME("WRFSBASE");}
+                        if (((nextop >> 3) & 7) == 3) {
+                            INST_NAME("WRGSBASE");
+                        } else {
+                            INST_NAME("WRFSBASE");
+                        }
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                        int seg = _FS + ((nextop>>3)&7)-2;
-                        ST_D(ed, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                        int seg = _FS + ((nextop >> 3) & 7) - 2;
+                        if (!rex.w) {
+                            ZEROUP2(x4, ed);
+                            ST_D(x4, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                        } else {
+                            ST_D(ed, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                        }
                     }
                     break;
                 case 5:

@@ -531,7 +531,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(((nextop>>3)&7)==1) {INST_NAME("RDGSBASE");} else {INST_NAME("RDFSBASE");}
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         int seg = _FS + ((nextop>>3)&7);
-                        grab_segdata(dyn, addr, ninst, x4, seg, (MODREG));
+                        grab_segdata(dyn, addr, ninst, x4, seg);
                         MOVxw_REG(ed, x4);
                     }
                      break;
@@ -545,7 +545,12 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(((nextop>>3)&7)==3) {INST_NAME("WRGSBASE");} else {INST_NAME("WRFSBASE");}
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
                         int seg = _FS + ((nextop>>3)&7)-2;
-                        STRx_U12(ed, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                        if (!rex.w) {
+                            MOVw_REG(x4, ed);
+                            STRx_U12(x4, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                        } else {
+                            STRx_U12(ed, xEmu, offsetof(x64emu_t, segs_offs[seg]));
+                        }
                     }
                     break;
                 case 5:

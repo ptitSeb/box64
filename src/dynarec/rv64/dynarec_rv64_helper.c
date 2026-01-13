@@ -72,11 +72,11 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     }
                 } else {
                     if (rex.seg && !(tmp && ((tmp < -2048) || (tmp > maxval) || !i12))) {
-                        grab_segdata(dyn, addr, ninst, ret, rex.seg, 0);
+                        grab_segdata(dyn, addr, ninst, ret, rex.seg);
                         seg_done = 1;
                         *fixaddress = tmp;
                     } else if (rex.seg && tmp >= -2048 && tmp < 2048) {
-                        grab_segdata(dyn, addr, ninst, ret, rex.seg, 0);
+                        grab_segdata(dyn, addr, ninst, ret, rex.seg);
                         if (tmp) ADDI(ret, ret, tmp);
                         seg_done = 1;
                     } else
@@ -114,7 +114,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if (rex.is32bits) {
                 int tmp = F32S;
                 if (rex.seg && tmp >= -2048 && tmp < 2048) {
-                    grab_segdata(dyn, addr, ninst, ret, rex.seg, 0);
+                    grab_segdata(dyn, addr, ninst, ret, rex.seg);
                     if (tmp) ADDI(ret, ret, tmp);
                     seg_done = 1;
                 } else
@@ -264,7 +264,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         if (scratch == ret)
             scratch = ret + 1;
         SCRATCH_USAGE(1);
-        grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
+        grab_segdata(dyn, addr, ninst, scratch, rex.seg);
         // seg offset is 64bits, so no truncation here
         ADDxREGy(hint, scratch, ret, hint);
         ret = hint;
@@ -356,7 +356,7 @@ uintptr_t geted16(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
         if (scratch == ret)
             scratch = ret + 1;
         SCRATCH_USAGE(1);
-        grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
+        grab_segdata(dyn, addr, ninst, scratch, rex.seg);
         // seg offset is 64bits, so no truncation here
         if (IS_GPR(ret)) {
             ADD(hint, ret, scratch);
@@ -698,12 +698,11 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     // SET_NODF();
 }
 
-void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg)
+void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
 {
     (void)addr;
     int64_t j64;
     MAYUSE(j64);
-    if (modreg) return;
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment == _FS) ? "FS" : "GS");
     LD(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment == _FS) ? "FS" : "GS");
