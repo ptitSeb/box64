@@ -3551,18 +3551,59 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
-                    CALL(const_div8, -1, x1, 0);
+                    BSTRPICK_D(x2, xRAX, 15, 0);
+                    if (BOX64ENV(dynarec_div0)) {
+                        BNE_MARK3(x1, xZR);
+                        GETIP_(ip, x7);
+                        STORE_XEMU_CALL();
+                        CALL(const_native_div0, -1, 0, 0);
+                        CLEARIP();
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
+                    DIV_WU(x3, x2, ed); // warning: x2 and ed must be signed extended!
+                    MOD_WU(x4, x2, ed); // warning: x2 and ed must be signed extended!
+                    BSTRINS_D(xRAX, x3, 7, 0);
+                    BSTRINS_D(xRAX, x4, 15, 8);
+                    SET_DFNONE();
+                    RESTORE_EFLAGS(x3);
+                    IFX (X_ZF | X_PF) ADDI_D(x6, xZR, 1);
+                    IFX (X_OF) BSTRINS_D(xFlags, xZR, F_OF, F_OF);
+                    IFX (X_CF) BSTRINS_D(xFlags, xZR, F_CF, F_CF);
+                    IFX (X_AF) BSTRINS_D(xFlags, xZR, F_AF, F_AF);
+                    IFX (X_ZF) BSTRINS_D(xFlags, x6, F_ZF, F_ZF);
+                    IFX (X_SF) BSTRINS_D(xFlags, xZR, F_SF, F_SF);
+                    IFX (X_PF) BSTRINS_D(xFlags, x6, F_PF, F_PF);
+                    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
                     SKIPTEST(x1);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    GETEB(x1, 0);
-                    CALL(const_idiv8, -1, x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags)) {
+                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    } else if (BOX64ENV(cputype)) {
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    }
+                    GETSEB(x1, 0);
+                    if (BOX64ENV(dynarec_div0)) {
+                        BNE_MARK3(x1, xZR);
+                        GETIP_(ip, x7);
+                        STORE_XEMU_CALL();
+                        CALL(const_native_div0, -1, 0, 0);
+                        CLEARIP();
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
+                    EXT_W_H(x2, xRAX);
+                    DIV_W(x3, x2, ed); // warning: x2 and ed must be signed extended!
+                    MOD_W(x4, x2, ed); // warning: x2 and ed must be signed extended!
+                    BSTRINS_D(xRAX, x3, 7, 0);
+                    BSTRINS_D(xRAX, x4, 15, 8);
+                    if (!BOX64DRENV(dynarec_safeflags)) SET_DFNONE();
                     break;
                 default:
                     DEFAULT;
