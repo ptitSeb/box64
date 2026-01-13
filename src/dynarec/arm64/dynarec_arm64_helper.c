@@ -249,6 +249,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     int64_t offset = 0;
     int absmin = 0;
     if(s) absmin = -absmax;
+    int need_trunc = 0;
     if(!n && (m&7)==6) {
         offset = F16S;
         MOVZw(ret, offset);
@@ -271,21 +272,25 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 UXTHx(ret, xRBX);
                 UXTHx(scratch, xRSI);
                 ADDx_REG(ret, ret, scratch);
+                need_trunc = 1;
                 break;
             case 1: //R_BX + R_DI
                 UXTHx(ret, xRBX);
                 UXTHx(scratch, xRDI);
                 ADDx_REG(ret, ret, scratch);
+                need_trunc = 1;
                 break;
             case 2: //R_BP + R_SI
                 UXTHx(ret, xRBP);
                 UXTHx(scratch, xRSI);
                 ADDx_REG(ret, ret, scratch);
+                need_trunc = 1;
                 break;
             case 3: //R_BP + R_DI
                 UXTHx(ret, xRBP);
                 UXTHx(scratch, xRDI);
                 ADDx_REG(ret, ret, scratch);
+                need_trunc = 1;
                 break;
             case 4: //R_SI
                 UXTHx(ret, xRSI);
@@ -300,6 +305,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 UXTHx(ret, xRBX);
                 break;
         }
+        if(need_trunc) UXTHx(ret, ret);
         if(offset) {
             if(offset<0 && offset>-0x1000) {
                 SUBx_U12(ret, ret, -offset);
