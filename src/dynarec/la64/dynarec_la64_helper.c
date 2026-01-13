@@ -260,61 +260,56 @@ uintptr_t geted16(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             case 1: offset = F8S; break;
             case 2: offset = F16S; break;
         }
-        if (offset && offset >= -2048 && offset <= 2047) {
+        if (i12 && offset && offset >= -2048 && offset <= 2047) {
             *fixaddress = offset;
             offset = 0;
         }
+        int reg;
         switch (m & 7) {
             case 0: // R_BX + R_SI
-                BSTRPICK_D(ret, xRBX, 15, 0);
-                BSTRPICK_D(scratch, xRSI, 15, 0);
-                ADD_D(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD_D(ret, xRBX, xRSI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 1: // R_BX + R_DI
-                BSTRPICK_D(ret, xRBX, 15, 0);
-                BSTRPICK_D(scratch, xRDI, 15, 0);
-                ADD_D(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD_D(ret, xRBX, xRDI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 2: // R_BP + R_SI
-                BSTRPICK_D(ret, xRBP, 15, 0);
-                BSTRPICK_D(scratch, xRSI, 15, 0);
-                ADD_D(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD_D(ret, xRBP, xRSI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 3: // R_BP + R_DI
-                BSTRPICK_D(ret, xRBP, 15, 0);
-                BSTRPICK_D(scratch, xRDI, 15, 0);
-                ADD_D(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD_D(ret, xRBP, xRDI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 4: // R_SI
-                BSTRPICK_D(ret, xRSI, 15, 0);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRSI;
                 break;
             case 5: // R_DI
-                BSTRPICK_D(ret, xRDI, 15, 0);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRDI;
                 break;
             case 6: // R_BP
-                BSTRPICK_D(ret, xRBP, 15, 0);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRBP;
                 break;
             case 7: // R_BX
-                BSTRPICK_D(ret, xRBX, 15, 0);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRBX;
                 break;
         }
+        BSTRPICK_D(ret, reg, 15, 0);
+        if (!IS_GPR(ret)) SCRATCH_USAGE(1);
         if (offset) {
             if (offset >= -2048 && offset < 2048) {
                 ADDI_D(ret, ret, offset);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             } else {
                 MOV64x(scratch, offset);
                 ADD_D(ret, ret, scratch);
                 SCRATCH_USAGE(1);
             }
+            BSTRPICK_D(ret, ret, 15, 0);
         }
     }
 

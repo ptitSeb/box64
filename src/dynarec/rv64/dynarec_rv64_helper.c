@@ -294,61 +294,56 @@ uintptr_t geted16(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             case 1: offset = F8S; break;
             case 2: offset = F16S; break;
         }
-        if (offset && offset >= -2048 && offset <= 2047) {
+        if (i12 && offset && offset >= -2048 && offset <= 2047) {
             *fixaddress = offset;
             offset = 0;
         }
+        int reg;
         switch (m & 7) {
             case 0: // R_BX + R_SI
-                ZEXTH(ret, xRBX);
-                ZEXTH(scratch, xRSI);
-                ADD(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD(ret, xRBX, xRSI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 1: // R_BX + R_DI
-                ZEXTH(ret, xRBX);
-                ZEXTH(scratch, xRDI);
-                ADD(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD(ret, xRBX, xRDI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 2: // R_BP + R_SI
-                ZEXTH(ret, xRBP);
-                ZEXTH(scratch, xRSI);
-                ADD(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD(ret, xRBP, xRSI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 3: // R_BP + R_DI
-                ZEXTH(ret, xRBP);
-                ZEXTH(scratch, xRDI);
-                ADD(ret, ret, scratch);
-                SCRATCH_USAGE(1);
+                ADD(ret, xRBP, xRDI);
+                reg = ret;
+                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 break;
             case 4: // R_SI
-                ZEXTH(ret, xRSI);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRSI;
                 break;
             case 5: // R_DI
-                ZEXTH(ret, xRDI);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRDI;
                 break;
             case 6: // R_BP
-                ZEXTH(ret, xRBP);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRBP;
                 break;
             case 7: // R_BX
-                ZEXTH(ret, xRBX);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
+                reg = xRBX;
                 break;
         }
+        ZEXTH(ret, reg);
+        if (!IS_GPR(ret)) SCRATCH_USAGE(1);
         if (offset) {
             if (offset >= -2048 && offset < 2048) {
                 ADDI(ret, ret, offset);
-                if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             } else {
                 MOV64x(scratch, offset);
                 ADD(ret, ret, scratch);
                 SCRATCH_USAGE(1);
             }
+            ZEXTH(ret, ret);
         }
     }
 
