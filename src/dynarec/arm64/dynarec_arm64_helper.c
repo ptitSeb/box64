@@ -252,7 +252,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     int need_trunc = 0;
     if(!n && (m&7)==6) {
         offset = F16S;
-        MOVZw(ret, offset);
+        MOVZw(ret, offset); //that's 16bits only, not need to truncate
     } else {
         switch(n) {
             case 0: offset = 0; break;
@@ -269,54 +269,47 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
         }
         switch(m&7) {
             case 0: //R_BX + R_SI
-                UXTHx(ret, xRBX);
-                UXTHx(scratch, xRSI);
-                ADDx_REG(ret, ret, scratch);
-                need_trunc = 1;
+                ADDw_REG(ret, xRBX, xRSI);
+                need_trunc = ret;
                 break;
             case 1: //R_BX + R_DI
-                UXTHx(ret, xRBX);
-                UXTHx(scratch, xRDI);
-                ADDx_REG(ret, ret, scratch);
-                need_trunc = 1;
+                ADDw_REG(ret, xRBX, xRDI);
+                need_trunc = ret;
                 break;
             case 2: //R_BP + R_SI
-                UXTHx(ret, xRBP);
-                UXTHx(scratch, xRSI);
-                ADDx_REG(ret, ret, scratch);
-                need_trunc = 1;
+                ADDw_REG(ret, xRBP, xRSI);
+                need_trunc = ret;
                 break;
             case 3: //R_BP + R_DI
-                UXTHx(ret, xRBP);
-                UXTHx(scratch, xRDI);
-                ADDx_REG(ret, ret, scratch);
-                need_trunc = 1;
+                ADDw_REG(ret, xRBP, xRDI);
+                need_trunc = ret;
                 break;
             case 4: //R_SI
-                UXTHx(ret, xRSI);
+                need_trunc = xRSI;
                 break;
             case 5: //R_DI
-                UXTHx(ret, xRDI);
+                need_trunc = xRDI;
                 break;
             case 6: //R_BP
-                UXTHx(ret, xRBP);
+                need_trunc = xRBP;
                 break;
             case 7: //R_BX
-                UXTHx(ret, xRBX);
+                need_trunc = xRBX;
                 break;
         }
-        if(need_trunc) UXTHx(ret, ret);
         if(offset) {
             if(offset<0 && offset>-0x1000) {
-                SUBx_U12(ret, ret, -offset);
+                SUBw_U12(ret, need_trunc?need_trunc:ret, -offset);
             } else if(offset>0 && offset<0x1000) {
-                ADDx_U12(ret, ret, offset);
+                ADDw_U12(ret, need_trunc?need_trunc:ret, offset);
             } else {
-                MOV64x(scratch, offset);
-                ADDx_REG(ret, ret, scratch);
+                MOV32w(scratch, offset);
+                ADDw_REG(ret, need_trunc?need_trunc:ret, scratch);
             }
+            need_trunc = ret;
         }
     }
+    if(need_trunc) UXTHx(ret, need_trunc);
 
     if(rex.seg) {
         if(scratch==ret)
