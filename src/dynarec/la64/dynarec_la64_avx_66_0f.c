@@ -654,6 +654,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                     if (u8 > 15) u8 = 15;
                     if (u8) {
                         VSRAIxy(H, v0, v1, u8);
+                    } else if (v0 != v1) {
+                        VOR_Vxy(v0, v1, v1);
                     }
                     break;
                 case 6:
@@ -694,6 +696,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                     if (u8 > 31) u8 = 31;
                     if (u8) {
                         VSRAIxy(W, v0, v1, u8);
+                    } else if (v0 != v1) {
+                        VOR_Vxy(v0, v1, v1);
                     }
                     break;
                 case 6:
