@@ -670,8 +670,11 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("LEA Gd, Ed");
             nextop = F8;
             GETGD;
-            if (MODREG) { // reg <= reg? that's an invalid operation
-                DEFAULT;
+            if (MODREG) {
+                INST_NAME("Invalid 8D");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             } else { // mem <= reg
                 rex.seg = 0;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
@@ -679,23 +682,30 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x8E:
-            INST_NAME("MOV Seg, Ew");
             nextop = F8;
             u8 = (nextop & 0x38) >> 3;
-            if (MODREG) {
-                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            if ((u8 > 5) || (u8 == 1)) {
+                INST_NAME("Invalid MOV Seg, Ew");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                LD_HU(x1, wback, fixedaddress);
-                ed = x1;
-            }
-            ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
-            if ((u8 == _FS) || (u8 == _GS)) {
-                // refresh offset if needed
-                CBZ_NEXT(ed);
-                MOV32w(x1, u8);
-                CALL(const_getsegmentbase, -1, x1, x2);
+                INST_NAME("MOV Seg, Ew");
+                if (MODREG) {
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LD_HU(x1, wback, fixedaddress);
+                    ed = x1;
+                }
+                ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+                if ((u8 == _FS) || (u8 == _GS)) {
+                    // refresh offset if needed
+                    CBZ_NEXT(ed);
+                    MOV32w(x1, u8);
+                    CALL(const_getsegmentbase, -1, x1, x2);
+                }
             }
             break;
         case 0x8F:
