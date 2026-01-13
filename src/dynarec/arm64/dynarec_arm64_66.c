@@ -805,7 +805,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u64 = F64;
             unscaled = 0; fixedaddress = 0;
             if(rex.seg && (u64<0x1000 || (int64_t)u64>-0x1000 || (u64<(0x1000<<1) && !(u64&1)))) {
-                grab_segdata(dyn, addr, ninst, x1, rex.seg, 0);
+                grab_segdata(dyn, addr, ninst, x1, rex.seg);
                 if(u64) {
                     if(u64<0x100)
                         {fixedaddress = u64; unscaled = 1;}
@@ -821,7 +821,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 MOV64y(x1, u64);
                 if(rex.seg) {
-                    grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
+                    grab_segdata(dyn, addr, ninst, x3, rex.seg);
                     ADDx_REGy(x1, x3, x1);
                 }
             }
@@ -841,7 +841,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u64 = F64;
             unscaled = 0; fixedaddress = 0;
             if(rex.seg && (u64<0x1000 || (int64_t)u64>-0x1000 || (u64<(0x1000<<1) && !(u64&1)))) {
-                grab_segdata(dyn, addr, ninst, x1, rex.seg, 0);
+                grab_segdata(dyn, addr, ninst, x1, rex.seg);
                 if(u64) {
                     if(u64<0x100)
                         {fixedaddress = u64; unscaled = 1;}
@@ -857,7 +857,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 MOV64y(x1, u64);
                 if(rex.seg) {
-                    grab_segdata(dyn, addr, ninst, x3, rex.seg, 0);
+                    grab_segdata(dyn, addr, ninst, x3, rex.seg);
                     ADDx_REGy(x1, x3, x1);
                 }
             }

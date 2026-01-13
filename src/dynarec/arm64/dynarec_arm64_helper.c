@@ -69,13 +69,13 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     }
                 } else {
                     if(rex.seg && !(tmp && ((!((tmp>=absmin) && (tmp<=absmax) && !(tmp&mask))) || !(unscaled && (tmp>-256) && (tmp<256))))) {
-                        grab_segdata(dyn, addr, ninst, ret, rex.seg, 0);
+                        grab_segdata(dyn, addr, ninst, ret, rex.seg);
                         seg_done = 1;
                         if(unscaled && (tmp>-256) && (tmp<256))
                             *unscaled = 1;
                         *fixaddress = tmp;
                     } else if(rex.seg && tmp>-0x1000 && tmp<0x1000) {
-                        grab_segdata(dyn, addr, ninst, ret, rex.seg, 0);
+                        grab_segdata(dyn, addr, ninst, ret, rex.seg);
                         if(tmp) {
                             if(tmp>0) ADDx_U12(ret, ret, tmp);
                             else SUBx_U12(ret, ret, -tmp);
@@ -99,7 +99,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             if(rex.is32bits) {
                 int tmp = F32S;
                 if(rex.seg && tmp>-0x1000 && tmp<0x1000) {
-                    grab_segdata(dyn, addr, ninst, ret, rex.seg, 0);
+                    grab_segdata(dyn, addr, ninst, ret, rex.seg);
                     if(tmp) {
                         if(tmp>0) ADDx_U12(ret, ret, tmp);
                         else SUBx_U12(ret, ret, -tmp);
@@ -222,7 +222,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     if(rex.seg && !seg_done) {
         if(scratch==ret)
             scratch=ret+1;
-        grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
+        grab_segdata(dyn, addr, ninst, scratch, rex.seg);
         //seg offset is 64bits, so no truncation here
         ADDx_REGy(hint, scratch, ret);
         ret = hint;
@@ -315,7 +315,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     if(rex.seg) {
         if(scratch==ret)
             scratch=ret+1;
-        grab_segdata(dyn, addr, ninst, scratch, rex.seg, 0);
+        grab_segdata(dyn, addr, ninst, scratch, rex.seg);
         //seg offset is 64bits, so no truncation here
         if(IS_GPR(ret)) {
             ADDx_REG(hint, ret, scratch);
@@ -691,12 +691,11 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
     //SET_NODF();
 }
 
-void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment, int modreg)
+void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
 {
     (void)addr;
     int64_t j64;
     MAYUSE(j64);
-    if (modreg) return;
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment==_FS)?"FS":"GS");
     LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
