@@ -27,10 +27,12 @@
 #include "elfloader.h"
 #endif
 
+extern int running32bits;
 #ifdef DYNAREC
 void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
     int is32bits = (R_CS == 0x23);
+    if(!running32bits && is32bits) running32bits=1;
     #ifdef HAVE_TRACE
     uintptr_t new_addr = (uintptr_t)getAlternate((void*)addr);
     if(!addr) {
@@ -142,7 +144,6 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
-extern int running32bits;
 void EmuRun(x64emu_t* emu, int use_dynarec)
 {
     // prepare setjump for signal handling
