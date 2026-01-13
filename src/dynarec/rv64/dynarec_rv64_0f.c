@@ -1885,7 +1885,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xA4:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, Ib");
-            if (geted_ib(dyn, addr, ninst, nextop)) {
+            if (geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 63 : 31)) {
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                 GETED(1);
                 GETGD;
@@ -1951,7 +1951,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, Ib");
-            if (geted_ib(dyn, addr, ninst, nextop)) {
+            if (geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 63 : 31)) {
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                 GETED(1);
                 GETGD;
