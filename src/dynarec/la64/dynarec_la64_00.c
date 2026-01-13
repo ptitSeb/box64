@@ -962,6 +962,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
 #undef GO
 
+        case 0x82:
+            if (!rex.is32bits) {
+                INST_NAME("Invalid 82");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+                return addr;
+            }
+            // fallthru
         case 0x80:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
@@ -1385,25 +1394,37 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x8C:
-            INST_NAME("MOV Ed, Seg");
             nextop = F8;
-            if (MODREG) {
-                SCRATCH_USAGE(0);
-                LD_HU(TO_NAT((nextop & 7) + (rex.b << 3)), xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+            u8 = (nextop & 38) >> 3;
+            if (u8 > 5) {
+                INST_NAME("Invalid MOV Ed, Seg");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                LD_HU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
-                ST_H(x3, ed, fixedaddress);
-                SMWRITE2();
+                INST_NAME("MOV Ed, Seg");
+                if (MODREG) {
+                    SCRATCH_USAGE(0);
+                    gd = TO_NAT((nextop & 7) + (rex.b << 3));
+                    LD_HU(gd, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LD_HU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+                    ST_H(x3, ed, fixedaddress);
+                    SMWRITE2();
+                }
             }
             break;
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop = F8;
             GETGD;
-            if (MODREG) { // reg <= reg? that's an invalid operation
-                DEFAULT;
-            } else { // mem <= reg
+            if (MODREG) {
+                INST_NAME("Invalid 8D");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {         // mem <= reg
                 rex.seg = 0; // to be safe
                 SCRATCH_USAGE(0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
