@@ -2540,6 +2540,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             BSTRINS_D(gd, x1, 15, 0);
             break;
+        case 0xBF:
+            if (rex.w) return dynarec64_00(dyn, addr - 1, ip, ninst, rex, ok, need_epilog);
+            INST_NAME("MOVSX Gw, Ew");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 0);
+                LD_H(x1, wback, fixedaddress);
+                ed = x1;
+            }
+            BSTRINS_D(gd, ed, 15, 0);
+            break;
         case 0xC1:
             INST_NAME("XADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
