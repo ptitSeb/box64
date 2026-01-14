@@ -32,10 +32,12 @@ extern void setprogname(const char *);
 #endif
 
 #ifndef STATICBUILD
-#define PRE_INIT\
-    if(1)                                                           \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
-    else
+#define PRE_INIT \
+    if(1) { \
+        lib->w.lib = dlopen(libbsdName, RTLD_LAZY | RTLD_GLOBAL); \
+        if(!lib->w.lib) lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL); \
+        if(!lib->w.lib) lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
+    } else
 #endif
 
 // define all standard library functions
