@@ -884,7 +884,7 @@ done:
 #elif defined(RV64)
 #define ARCH_VERSION SET_VERSION(0, 0, 4)
 #elif defined(LA64)
-#define ARCH_VERSION SET_VERSION(0, 0, 4)
+#define ARCH_VERSION SET_VERSION(0, 0, 5)
 #else
 #error meh!
 #endif

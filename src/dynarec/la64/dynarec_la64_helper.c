@@ -432,12 +432,11 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 #endif
 }
 
-void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
+void ret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "Ret to epilog\n");
-    POP1z(xRIP);
+    MESSAGE(LOG_DUMP, "Ret to next\n");
     MVz(x1, xRIP);
     SMEND();
     if (BOX64DRENV(dynarec_callret)) {
@@ -456,42 +455,11 @@ void ret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     CLEARIP();
 }
 
-void retn_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n)
-{
-    MAYUSE(dyn);
-    MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "Retn to epilog\n");
-    POP1z(xRIP);
-    if (n > 0x7ff) {
-        MOV64x(x1, n);
-        ADDz(xRSP, xRSP, x1);
-    } else {
-        ADDIz(xRSP, xRSP, n);
-    }
-    MVz(x1, xRIP);
-    SMEND();
-    if (BOX64DRENV(dynarec_callret)) {
-        // pop the actual return address from LA64 stack
-        LD_D(xRA, xSP, 0);    // native addr
-        LD_D(x6, xSP, 8);     // x86 addr
-        ADDI_D(xSP, xSP, 16); // pop
-        BNE(x6, xRIP, 2 * 4); // is it the right address?
-        BR(xRA);
-        // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        ADDI_D(xSP, xSavedSP, -16);
-    }
-
-    NOTEST(x2);
-    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
-    BR(dest);
-    CLEARIP();
-}
-
-void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
+void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
 {
     // #warning TODO: is64bits
     MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "IRet to epilog\n");
+    MESSAGE(LOG_DUMP, "IRet to next\n");
     NOTEST(x2);
     if (is64bits) {
         POP1(xRIP);
@@ -523,13 +491,10 @@ void iret_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is64bits)
     // set new RSP
     MV(xRSP, x3);
     // Ret....
-    // epilog on purpose, CS might have changed!
-    if (dyn->need_reloc)
-        TABLE64C(x2, const_epilog);
-    else
-        MOV64x(x2, getConst(const_epilog));
-    SMEND();
-    BR(x2);
+    rex_t dummy = { 0 };
+    dummy.is32bits = is32bits;
+    dummy.w = is64bits;
+    ret_to_next(dyn, ip, ninst, dummy);
     CLEARIP();
 }
 
