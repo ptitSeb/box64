@@ -457,10 +457,8 @@ void ret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 
 void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
 {
-    // #warning TODO: is64bits
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "IRet to next\n");
-    NOTEST(x2);
     if (is64bits) {
         POP1(xRIP);
         POP1(x2);
@@ -473,6 +471,7 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
 
     ST_H(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
     // clean EFLAGS
+    RESTORE_EFLAGS(x1);
     MOV32w(x1, 0x3E7FD7);   // also mask RF
     AND(xFlags, xFlags, x1);
     ORI(xFlags, xFlags, 0x2);
