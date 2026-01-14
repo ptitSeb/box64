@@ -385,7 +385,7 @@ int unittest(int argc, const char** argv)
     my_context->stacksz = 4096;
     mmap((void*)my_context->stack, my_context->stacksz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     mmap((void*)0xE0000000, 16 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
-    mmap((void*)0xE800F000, 2 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    mmap((void*)0xE8000000, 32 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
 
     for (int i = 0; i < MAX_MEMORY_REGIONS && memory_regions[i].size; ++i) {
         if (!memory_regions[i].start) break;
