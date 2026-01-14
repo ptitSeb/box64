@@ -3168,6 +3168,7 @@
 #() iFEpuuLppp
 #() iFEpUUuppp
 #() iFEppipppp
+#() iFEpppiipi
 #() iFEpppLppp
 #() iFEppppipp
 #() iFEppppLpp
@@ -5824,8 +5825,13 @@ wrappedlibresolv:
   - __dn_expand
   - dn_expand
 - iFppiipi:
+  - __res_nquery
   - __res_querydomain
+  - res_nquery
   - res_querydomain
+- iFpppiipi:
+  - __res_nquerydomain
+  - res_nquerydomain
 - iFipiipippi:
   - __res_mkquery
   - res_mkquery

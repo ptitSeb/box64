@@ -90,8 +90,10 @@ GO(__res_nameinquery, iFpiipp)
 GO(__res_nmkquery, iFpipiipippi)
 #endif
 GO(res_nmkquery, iFpipiipippi)
-GO(__res_nquery, iFppiipi)
-//GO(__res_nquerydomain, 
+GOM(__res_nquery, iFEppiipi)
+GOM(res_nquery, iFEppiipi)
+GOM(__res_nquerydomain, iFEpppiipi)
+GOM(res_nquerydomain, iFEpppiipi)
 GO(__res_nsearch, iFppiipi)
 #ifdef STATICBUILD
 //GO(__res_nsend,
