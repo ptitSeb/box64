@@ -2451,13 +2451,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 READFLAGS(X_PEND); // lets play safe here too
             }
             BARRIER(BARRIER_FLOAT);
-            i32 = F16;
+            u16 = F16;
             POP1z(xRIP);
-            if (i32 >= -2048 && i32 < 2048) {
-                MOV32w(x1, i32);
+            if (u16 < 2048)
+                ADDIz(xRSP, xRSP, u16);
+            else {
+                MOV32w(x1, u16);
                 ADDz(xRSP, xRSP, x1);
-            } else {
-                ADDIz(xRSP, xRSP, i32);
             }
             ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
