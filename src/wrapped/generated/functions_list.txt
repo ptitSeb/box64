@@ -5032,6 +5032,8 @@ wrappedlibc:
   - uname
 - CFp:
   - _ITM_RU1
+- uFv:
+  - arc4random
 - uFp:
   - _ITM_RU4
 - UFp:

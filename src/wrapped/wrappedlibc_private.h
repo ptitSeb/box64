@@ -2690,10 +2690,14 @@ GO(android_set_abort_message, vFp)
 #ifdef STATICBUILD
 GO(dummy_pFLp, pFLp)
 GO(dummy_pFpLLp, pFpLLp)
-GO(arc4random, uFv)
 #else
 // not needed in no-static build
 //GO(dummy_pFLp, pFLp)
 //GO(dummy_pFpLLp, pFpLLp)
-//GO(arc4random, uFv)
+#endif
+
+#ifdef LA64_ABI_1
+GOM(arc4random, uFv)
+#else
+GO(arc4random, uFv)
 #endif

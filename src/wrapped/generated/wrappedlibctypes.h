@@ -18,6 +18,7 @@ typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
 typedef int32_t (*iFp_t)(void*);
 typedef uint8_t (*CFp_t)(void*);
+typedef uint32_t (*uFv_t)(void);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef intptr_t (*lFv_t)(void);
@@ -137,6 +138,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(stime, iFp_t) \
 	GO(uname, iFp_t) \
 	GO(_ITM_RU1, CFp_t) \
+	GO(arc4random, uFv_t) \
 	GO(_ITM_RU4, uFp_t) \
 	GO(_ITM_RU8, UFp_t) \
 	GO(syscall, lFv_t) \
