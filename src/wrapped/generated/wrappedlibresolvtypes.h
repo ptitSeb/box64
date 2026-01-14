@@ -14,6 +14,7 @@
 typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef int32_t (*iFppiipi_t)(void*, void*, int32_t, int32_t, void*, int32_t);
+typedef int32_t (*iFpppiipi_t)(void*, void*, void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFipiipippi_t)(int32_t, void*, int32_t, int32_t, void*, int32_t, void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -23,8 +24,12 @@ typedef int32_t (*iFipiipippi_t)(int32_t, void*, int32_t, int32_t, void*, int32_
 	GO(res_search, iFpiipi_t) \
 	GO(__dn_expand, iFppppi_t) \
 	GO(dn_expand, iFppppi_t) \
+	GO(__res_nquery, iFppiipi_t) \
 	GO(__res_querydomain, iFppiipi_t) \
+	GO(res_nquery, iFppiipi_t) \
 	GO(res_querydomain, iFppiipi_t) \
+	GO(__res_nquerydomain, iFpppiipi_t) \
+	GO(res_nquerydomain, iFpppiipi_t) \
 	GO(__res_mkquery, iFipiipippi_t) \
 	GO(res_mkquery, iFipiipippi_t)
 
