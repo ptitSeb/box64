@@ -729,6 +729,18 @@ int IsSameLib(library_t* lib, const char* path)
         if(lib->type==LIB_EMULATED && lib->e.elf->path && !strcmp(lib->e.elf->path, rpath)) {
             ret=1;
         }
+        /**
+         * EasyAntiCheat would use memfd to create a library on the fly, the real path will be something like
+         *     /memfd:2a87dfdb-d3d2-f6db-46be-dabbbd (deleted)
+         * In this case, handle it by checking the original path.
+         */
+        if (strlen(rpath) >= strlen("/memfd:") && strncmp(rpath, "/memfd:", strlen("/memfd:")) == 0) {
+            if (!strcmp(path, lib->path))
+                ret = 1;
+            if (lib->type == LIB_EMULATED && lib->e.elf->path && !strcmp(lib->e.elf->path, path)) {
+                ret = 1;
+            }
+        }
     }
     if(!ret) {
         int n = NbDot(name);
