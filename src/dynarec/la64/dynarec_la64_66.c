@@ -747,14 +747,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x98:
             INST_NAME("CBW");
-            SLLI_D(x1, xRAX, 56);
-            SRAI_D(x1, x1, 56);
+            EXT_W_B(x1, xRAX);
             BSTRINSz(xRAX, x1, 15, 0);
             break;
         case 0x99:
             INST_NAME("CWD");
-            SLLI_D(x1, xRAX, 48);
-            SRAI_D(x1, x1, 48);
+            EXT_W_H(x1, xRAX);
             SRLI_D(x1, x1, 48);
             BSTRINS_D(xRDX, x1, 15, 0);
             break;

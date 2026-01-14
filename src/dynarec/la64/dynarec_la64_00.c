@@ -1515,10 +1515,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x98:
-            INST_NAME("CWDE");
             if (rex.w) {
+                INST_NAME("CDQE");
                 SEXT_W(xRAX, xRAX);
             } else {
+                INST_NAME("CWDE");
                 EXT_W_H(xRAX, xRAX);
                 ZEROUP(xRAX);
             }
