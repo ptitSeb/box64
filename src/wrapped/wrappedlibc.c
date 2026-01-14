@@ -4000,12 +4000,13 @@ EXPORT char* secure_getenv(const char* name)
     return getenv(name);
 }
 
-#ifdef STATICBUILD
 uint32_t get_random32();
-__attribute__((weak)) uint32_t arc4random()
+__attribute__((weak)) uint32_t arc4random(void)
 {
     return get_random32();
 }
+
+#ifdef STATICBUILD
 #include "libtools/static_libc.h"
 #endif
 
