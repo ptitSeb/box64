@@ -497,7 +497,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         IFXORNAT (X_ALL | X_PEND) {
                             if (!cpuext.lam_bh) ADDI_D(x5, xZR, 1);
                             BSTRPICK_D(x6, x1, 15, 0);
-                            emit_add16(dyn, ninst, x6, x5, x3, x4, x7);
+                            emit_inc16(dyn, ninst, x6, x5, x3, x4);
                         }
                     }
                     break;
@@ -543,7 +543,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         IFXORNAT (X_ALL | X_PEND) {
                             if (!cpuext.lam_bh) ADDI_D(x5, xZR, -1);
                             BSTRPICK_D(x6, x1, 15, 0);
-                            emit_add16(dyn, ninst, x6, x5, x3, x4, x7);
+                            emit_dec16(dyn, ninst, x6, x5, x3, x4, x7);
                         }
                     }
                     break;
