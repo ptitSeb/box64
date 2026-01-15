@@ -4552,8 +4552,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             STPx_S7_preindex(x4, xRIP, xSP, -16);
                         }
-                        PUSH1z(x5);
-                        PUSH1z(xRIP);
+                        if (rex.w) PUSH2(x5, xRIP); else PUSH2_32(x5, xRIP);
                         STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                         if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
