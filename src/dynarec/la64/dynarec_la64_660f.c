@@ -2365,7 +2365,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLI_D(x3, ed, u8);
                         X64_SET_EFLAGS(x3, X_CF);
                     } else {
-                        BSTRINS_D(xFlags, ed, u8, u8);
+                        BSTRPICK_D(x3, ed, u8, u8);
+                        BSTRINS_D(xFlags, x3, F_CF, F_CF);
                     }
                     if (u8 <= 11) {
                         ORI(ed, ed, (1LL << u8));
@@ -2390,7 +2391,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLI_D(x3, ed, u8);
                         X64_SET_EFLAGS(x3, X_CF);
                     } else {
-                        BSTRINS_D(xFlags, ed, u8, u8);
+                        BSTRPICK_D(x3, ed, u8, u8);
+                        BSTRINS_D(xFlags, x3, F_CF, F_CF);
                     }
                     BSTRINS_D(ed, xZR, u8, u8);
                     EWBACK;
@@ -2410,7 +2412,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLI_D(x3, ed, u8);
                         X64_SET_EFLAGS(x3, X_CF);
                     } else {
-                        BSTRINS_D(xFlags, ed, u8, u8);
+                        BSTRPICK_D(x3, ed, u8, u8);
+                        BSTRINS_D(xFlags, x3, F_CF, F_CF);
                     }
                     if (u8 <= 11) {
                         XORI(ed, ed, (1LL << u8));
