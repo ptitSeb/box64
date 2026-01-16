@@ -148,6 +148,15 @@ uintptr_t RunDE(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 ST0.d *= EW->sword[0];
                 if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
                 break;
+            case 2:      /* FICOM ST0, Ew int */
+                GETEW(0);
+                fpu_fcom(emu, EW->sword[0]);
+                break;
+            case 3:     /* FICOMP ST0, Ew int */
+                GETEW(0);
+                fpu_fcom(emu, EW->sword[0]);
+                fpu_do_pop(emu);
+                break;
             case 4:     /* FISUB ST0, Ew int */
                 GETEW(0);
                 ST0.d -= EW->sword[0];
