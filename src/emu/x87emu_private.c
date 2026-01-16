@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "x64emu_private.h"
 #include "x87emu_private.h"
+#include "bitutils.h"
 //#include "x64run_private.h"
 
 void fpu_do_free(x64emu_t* emu, int i)
@@ -551,9 +552,14 @@ uint32_t cvtf16_32(uint16_t v)
     f32_t ret = {0};
     ret.sign = in.sign;
     ret.fraction = in.fraction<<13;
-    if(!in.exponant)
+    if(!in.exponant) {
         ret.exponant = 0;
-    else if(in.exponant==0b11111)
+        if (in.fraction) {
+            int8_t s = 23 - (15 - LeadingZeros16(in.fraction));
+            ret.exponant = 126 - s;
+            ret.fraction = in.fraction << s;
+        }
+    } else if(in.exponant==0b11111)
         ret.exponant = 0b11111111;
     else {
         int e = in.exponant - 15;
