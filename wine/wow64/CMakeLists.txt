@@ -97,6 +97,7 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/os/my_cpuid_wine.c"
     "${BOX64_ROOT}/src/os/my_cpuid_common.c"
     "${BOX64_ROOT}/src/tools/alternate.c"
+    "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/env.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
 )
