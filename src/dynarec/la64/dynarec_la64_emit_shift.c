@@ -1876,7 +1876,7 @@ void emit_rcr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     BSTRINS_D(s4, xFlags, rex.w ? 63 : 31, rex.w ? 63 : 31); // insert cf
     BEQZ(s5, 4 + 4 * 5);                                     // goto label
     SRL_D(s4, s4, s5);
-    ADDI_D(s5, xZR, rex.w ? 65 : 33);
+    ADDI_D(s5, xZR, rex.w ? 64 : 32);
     SUB_D(s2, s5, s2);
     if (rex.w)
         SLL_D(s1, s1, s2);
