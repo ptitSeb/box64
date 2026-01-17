@@ -1141,7 +1141,7 @@
         } else if (_delta_ip < 0 && _delta_ip >= -0x80000000L) {   \
             MOV32w(scratch, -_delta_ip);                          \
             SUB(xRIP, xRIP, scratch);                             \
-        } else if (_delta_ip > 0 && _delta_ip <= 0x7fffffffL) {    \
+        } else if (_delta_ip > 0 && _delta_ip <= 0xffffffffL) {    \
             MOV32w(scratch, _delta_ip);                           \
             ADD(xRIP, xRIP, scratch);                             \
         } else {                                                  \
