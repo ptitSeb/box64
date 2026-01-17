@@ -297,7 +297,7 @@ static void loadTest(const char** filepath, const char* include_path)
     }
 
     close(mkstemp(binname));
-    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x100000", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
+    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x10000", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
 
     fork_result = fork();
     if (fork_result == 0) {
@@ -384,12 +384,12 @@ int unittest(int argc, const char** argv)
     my_context->stack = (void*)0xC0000000;
     my_context->stacksz = 4096;
     mmap((void*)my_context->stack, my_context->stacksz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
-    mmap((void*)0xE0000000, 16 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    mmap((void*)0xE0000000, 16 * 4096, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     mmap((void*)0xE8000000, 32 * 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
 
     for (int i = 0; i < MAX_MEMORY_REGIONS && memory_regions[i].size; ++i) {
         if (!memory_regions[i].start) break;
-        mmap((void*)memory_regions[i].start, memory_regions[i].size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+        mmap((void*)memory_regions[i].start, memory_regions[i].size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     }
 
     for (int i = 0; i < MAX_MEMORY_DATA && memory_data[i].size; ++i) {
