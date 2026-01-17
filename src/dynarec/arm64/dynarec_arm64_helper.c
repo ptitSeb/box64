@@ -481,8 +481,8 @@ void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int
         POP1_32(x2);
         POP1_32(x3);
     }
-    // check CS is NULL, sgfault if it is
-    CBZw_MARK3(x1);
+    // segfault if CS is NULL
+    CBZw_MARK3(x2);
     // clean EFLAGS
     MOV32w(x4, 0x3E7FD7);   // also mask RF, because it's not really handled
     ANDx_REG(x3, x3, x4);
