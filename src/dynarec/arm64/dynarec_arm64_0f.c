@@ -1960,15 +1960,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 switch (nextop) {
                     case 0xE8:
                         INST_NAME("LFENCE");
-                        SMDMB();
+                        DMB_LD();
                         break;
                     case 0xF0:
                         INST_NAME("MFENCE");
-                        SMDMB();
+                        DMB_SY();
                         break;
                     case 0xF8:
                         INST_NAME("SFENCE");
-                        SMDMB();
+                        DMB_ST();
                         break;
                     default:
                         DEFAULT;
