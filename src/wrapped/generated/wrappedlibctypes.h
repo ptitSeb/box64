@@ -30,6 +30,7 @@ typedef void (*vFpu_t)(void*, uint32_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
 typedef void (*vFpA_t)(void*, va_list);
+typedef int32_t (*iFiu_t)(int32_t, uint32_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFup_t)(uint32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
@@ -76,6 +77,7 @@ typedef void (*vFppiV_t)(void*, void*, int32_t, ...);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFiiip_t)(int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFiiiN_t)(int32_t, int32_t, int32_t, ...);
+typedef int32_t (*iFiipu_t)(int32_t, int32_t, void*, uint32_t);
 typedef int32_t (*iFiipV_t)(int32_t, int32_t, void*, ...);
 typedef int32_t (*iFiipA_t)(int32_t, int32_t, void*, va_list);
 typedef int32_t (*iFipii_t)(int32_t, void*, int32_t, int32_t);
@@ -163,6 +165,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(warnx, vFpV_t) \
 	GO(vwarn, vFpA_t) \
 	GO(vwarnx, vFpA_t) \
+	GO(pidfd_open, iFiu_t) \
 	GO(fstat, iFip_t) \
 	GO(fstat64, iFip_t) \
 	GO(setrlimit, iFup_t) \
@@ -292,6 +295,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__libc_init, vFpppp_t) \
 	GO(epoll_ctl, iFiiip_t) \
 	GO(semctl, iFiiiN_t) \
+	GO(pidfd_send_signal, iFiipu_t) \
 	GO(__dprintf_chk, iFiipV_t) \
 	GO(__vdprintf_chk, iFiipA_t) \
 	GO(epoll_wait, iFipii_t) \

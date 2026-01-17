@@ -199,6 +199,11 @@ GO(SRP_Calc_A_param, iFp)
 //GO(ssl3_write_bytes, 
 //GO(ssl3_write_pending, 
 GO(SSL_accept, iFp)
+GOW(SSL_CTX_load_verify_file, iFpp)
+GOW(SSL_has_pending, iFp)
+GOW(SSL_set0_rbio, vFpp)
+GOW(SSL_set0_wbio, vFpp)
+GOW(SSL_set1_host, iFpp)
 //GO(ssl_add_cert_chain, 
 GO(SSL_add_client_CA, iFpp)
 //GO(ssl_add_clienthello_renegotiate_ext, 

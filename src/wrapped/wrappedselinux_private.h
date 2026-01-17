@@ -40,7 +40,7 @@
 //GO(context_user_get, 
 //GO(context_user_set, 
 //DATAB(dir_xattr_list, 
-//GO(fgetfilecon, 
+GO(fgetfilecon, iFip)
 GO(fgetfilecon_raw, iFip)
 //GO(fini_selinuxmnt, 
 GO(freecon, vFp)
@@ -56,7 +56,7 @@ GO(fsetfilecon_raw, iFip)
 //GO(get_default_type, 
 //GO(getexeccon, 
 //GO(getexeccon_raw, 
-//GO(getfilecon, 
+GO(getfilecon, iFpp)
 GO(getfilecon_raw, iFpp)
 //GO(getfscreatecon, 
 //GO(getfscreatecon_raw, 
