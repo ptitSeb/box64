@@ -522,6 +522,7 @@
 #() cFpdp
 #() wFppp
 #() iFEiw
+#() iFEiu
 #() iFEip
 #() iFEWW
 #() iFEup
@@ -1783,6 +1784,7 @@
 #() vFppppu
 #() vFppppL
 #() vFppppp
+#() iFEiipu
 #() iFEiipp
 #() iFEiipV
 #() iFEiipA
@@ -5071,6 +5073,8 @@ wrappedlibc:
 - vFpA:
   - vwarn
   - vwarnx
+- iFiu:
+  - pidfd_open
 - iFip:
   - fstat
   - fstat64
@@ -5246,6 +5250,8 @@ wrappedlibc:
   - epoll_ctl
 - iFiiiN:
   - semctl
+- iFiipu:
+  - pidfd_send_signal
 - iFiipV:
   - __dprintf_chk
 - iFiipA:

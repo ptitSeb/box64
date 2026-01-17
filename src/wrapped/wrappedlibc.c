@@ -3953,6 +3953,42 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
     return prctl(option, arg2, arg3, arg4, arg5);
 }
 
+EXPORT int my_pidfd_open(x64emu_t* emu, int pid, unsigned int flags)
+{
+    (void)emu;
+#if defined(SYS_pidfd_open)
+    return syscall(SYS_pidfd_open, pid, flags);
+#elif defined(__NR_pidfd_open)
+    return syscall(__NR_pidfd_open, pid, flags);
+#else
+    (void)pid;
+    (void)flags;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+EXPORT int my_pidfd_send_signal(x64emu_t* emu, int pidfd, int sig, siginfo_t* info, unsigned int flags)
+{
+    (void)emu;
+    int hsig = signal_from_x64(sig);
+    siginfo_t hinfo;
+    siginfo_t* hptr = NULL;
+    if(info) {
+        memcpy(&hinfo, info, sizeof(hinfo));
+        hinfo.si_signo = hsig;
+        hptr = &hinfo;
+    }
+#if defined(SYS_pidfd_send_signal)
+    return syscall(SYS_pidfd_send_signal, pidfd, hsig, hptr, flags);
+#elif defined(__NR_pidfd_send_signal)
+    return syscall(__NR_pidfd_send_signal, pidfd, hsig, hptr, flags);
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
 size_t __attribute__((weak)) strlcpy(char* dest, const char* src, size_t len)
 {
     size_t l = strlen(src);
@@ -3966,6 +4002,36 @@ size_t __attribute__((weak)) __strlcpy_chk(char* dest, const char* src, size_t l
 {
     // in case it's not defined... create a weak version with no actual chk
     return strlcpy(dest, src, len);
+}
+
+uint32_t get_random32();
+__attribute__((weak)) uint32_t arc4random(void)
+{
+    return get_random32();
+}
+
+__attribute__((weak)) const char* strerrorname_np(int errnum)
+{
+    (void)errnum;
+    return NULL;
+}
+
+__attribute__((weak)) int open_tree(int dfd, const char* path, unsigned int flags)
+{
+#ifdef SYS_open_tree
+    return syscall(SYS_open_tree, dfd, path, flags);
+#else
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+__attribute__((weak)) int dn_skipname(const unsigned char* ptr, const unsigned char* eom)
+{
+    (void)ptr;
+    (void)eom;
+    errno = ENOSYS;
+    return -1;
 }
 
 #ifndef _SC_NPROCESSORS_ONLN
@@ -3998,12 +4064,6 @@ EXPORT char* secure_getenv(const char* name)
     // ignoring the "secure" part for now
     //TODO: better handling of user and process ID
     return getenv(name);
-}
-
-uint32_t get_random32();
-__attribute__((weak)) uint32_t arc4random(void)
-{
-    return get_random32();
 }
 
 #ifdef STATICBUILD
