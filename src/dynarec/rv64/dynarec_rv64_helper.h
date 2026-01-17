@@ -1138,10 +1138,10 @@
         } else if (_delta_ip == 0) {                              \
         } else if (_delta_ip >= -2048 && _delta_ip < 2048) {      \
             ADDI(xRIP, xRIP, _delta_ip);                          \
-        } else if (_delta_ip < 0 && _delta_ip >= -0xffffffff) {   \
+        } else if (_delta_ip < 0 && _delta_ip >= -0xffffffffL) {   \
             MOV32w(scratch, -_delta_ip);                          \
             SUB(xRIP, xRIP, scratch);                             \
-        } else if (_delta_ip > 0 && _delta_ip <= 0xffffffff) {    \
+        } else if (_delta_ip > 0 && _delta_ip <= 0xffffffffL) {    \
             MOV32w(scratch, _delta_ip);                           \
             ADD(xRIP, xRIP, scratch);                             \
         } else {                                                  \
