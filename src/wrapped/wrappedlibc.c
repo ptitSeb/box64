@@ -1763,7 +1763,7 @@ void CreateCPUInfoFile(int fd)
         sprintf(buff, "bogomips\t: %g\n", getBogoMips());
         P;
         sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fxsr cpuid"\
-                      "%s cx16 %s movbe pni "\
+                      "%s cx16%s movbe pni "\
                       "sse4_1%s%s%s lzcnt popcnt%s%s%s%s%s%s%s%s%s\n",
                       BOX64ENV(pclmulqdq)?" pclmulqdq":"",
                       BOX64ENV(aes)?" aes":"",
