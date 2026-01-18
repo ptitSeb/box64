@@ -382,6 +382,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0xA5:  // ignore F2 prefix
     case 0xBA:
+    case 0xBC:  // this one is still BSR, not TZCNT
         #ifdef TEST_INTERPRETER 
         return Test0F(test, rex, addr-1, step);
         #else
