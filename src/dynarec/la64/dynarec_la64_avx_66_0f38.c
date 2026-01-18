@@ -924,10 +924,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 };
                 for (int i = 0; i < (rex.w ? 4 : 8); i++) {
                     XVPICKVE2GRxw(x4, d1, i);
-                    BEQZ(x4, 4 + 4 * 4);
+                    BEQZ(x4, 4 + 4 * (5 + rex.is32bits));
                     XVPICKVE2GR_W(x4, v1, i);
                     SLLI_D(x4, x4, wb1);
-                    LDXxw(x6, ed, x4);
+                    ADD_D(x4, x4, ed);
+                    if (rex.is32bits) ZEROUP(x4);
+                    LDxw(x6, x4, 0);
                     XVINSGR2VRxw(v0, x6, i);
                 }
                 XVXOR_V(v2, v2, v2);
@@ -940,10 +942,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 };
                 for (int i = 0; i < (rex.w ? 2 : 4); i++) {
                     VPICKVE2GRxw(x4, d1, i);
-                    BEQZ(x4, 4 + 4 * 4);
+                    BEQZ(x4, 4 + 4 * (5 + rex.is32bits));
                     VPICKVE2GR_W(x4, v1, i);
                     SLLI_D(x4, x4, wb1);
-                    LDXxw(x6, ed, x4);
+                    ADD_D(x4, x4, ed);
+                    if (rex.is32bits) ZEROUP(x4);
+                    LDxw(x6, x4, 0);
                     VINSGR2VRxw(v0, x6, i);
                 }
                 VXOR_V(v2, v2, v2);
@@ -1005,10 +1009,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 };
                 for (int i = 0; i < 4; i++) {
                     XVPICKVE2GRxw(x4, d1, i);
-                    BEQZ(x4, 4 + 4 * 4);
+                    BEQZ(x4, 4 + 4 * (5 + rex.is32bits));
                     XVPICKVE2GR_D(x4, v1, i);
                     SLLI_D(x4, x4, wb1);
-                    LDXxw(x6, ed, x4);
+                    ADD_D(x4, x4, ed);
+                    if (rex.is32bits) ZEROUP(x4);
+                    LDxw(x6, x4, 0);
                     XVINSGR2VRxw(v0, x6, i);
                 }
                 XVXOR_V(v2, v2, v2);
@@ -1021,10 +1027,12 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 };
                 for (int i = 0; i < 2; i++) {
                     VPICKVE2GRxw(x4, d1, i);
-                    BEQZ(x4, 4 + 4 * 4);
+                    BEQZ(x4, 4 + 4 * (5 + rex.is32bits));
                     VPICKVE2GR_D(x4, v1, i);
                     SLLI_D(x4, x4, wb1);
-                    LDXxw(x6, ed, x4);
+                    ADD_D(x4, x4, ed);
+                    if (rex.is32bits) ZEROUP(x4);
+                    LDxw(x6, x4, 0);
                     VINSGR2VRxw(v0, x6, i);
                 }
                 VXOR_V(v2, v2, v2);
