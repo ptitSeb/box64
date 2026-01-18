@@ -1418,13 +1418,17 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(rex.w) {
                 for(int i=0; i<2; ++i)
                     if(VX->q[i]) {
-                        GX->q[i] = *(uint64_t*)(tmp64u + (EX->sd[i]<<u8));
+                        uint64_t data_addr = (tmp64u + (EX->sd[i]<<u8));
+                        if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                        GX->q[i] = *(uint64_t*)data_addr;
                         VX->q[i] = 0;
                     }
             } else {
                 for(int i=0; i<4; ++i)
                     if(VX->ud[i]) {
-                        GX->ud[i] = *(uint32_t*)(tmp64u + (EX->sd[i]<<u8));
+                        uint64_t data_addr = (tmp64u + (EX->sd[i]<<u8));
+                        if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                        GX->ud[i] = *(uint32_t*)data_addr;
                         VX->ud[i] = 0;
                     }
             }
@@ -1438,13 +1442,17 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
                         if(VY->q[i]) {
-                            GY->q[i] = *(uint64_t*)(tmp64u + (EX->sd[2+i]<<u8));
+                            uint64_t data_addr = (tmp64u + (EX->sd[2+i]<<u8));
+                            if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                            GY->q[i] = *(uint64_t*)data_addr;
                             VY->q[i] = 0;
                         }
                 } else {
                     for(int i=0; i<4; ++i)
                         if(VY->ud[i]) {
-                            GY->ud[i] = *(uint32_t*)(tmp64u + (EY->sd[i]<<u8));
+                            uint64_t data_addr = (tmp64u + (EY->sd[i]<<u8));
+                            if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                            GY->ud[i] = *(uint32_t*)data_addr;
                             VY->ud[i] = 0;
                         }
                 }
@@ -1488,13 +1496,17 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(rex.w) {
                 for(int i=0; i<2; ++i)
                     if(VX->q[i]) {
-                        GX->q[i] = *(uint64_t*)(tmp64u + (EX->sq[i]<<u8));
+                        uint64_t data_addr = (tmp64u + (EX->sq[i]<<u8));
+                        if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                        GX->q[i] = *(uint64_t*)data_addr;
                         VX->q[i] = 0;
                     }
             } else {
                 for(int i=0; i<(vex.l?4:2); ++i)
                     if(VX->ud[i]) {
-                        GX->ud[i] = *(uint32_t*)(tmp64u + (((i>1)?EY->sq[i-2]:EX->sq[i])<<u8));
+                        uint64_t data_addr = (tmp64u + (((i>1)?EY->sq[i-2]:EX->sq[i])<<u8));
+                        if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                        GX->ud[i] = *(uint32_t*)data_addr;
                         VX->ud[i] = 0;
                     }
             }
@@ -1507,7 +1519,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
                         if(VY->q[i]) {
-                            GY->q[i] = *(uint64_t*)(tmp64u + (EY->sq[i]<<u8));
+                            uint64_t data_addr = (tmp64u + (EY->sq[i]<<u8));
+                            if (box64_is32bits) data_addr = (uintptr_t)(uint32_t)data_addr;
+                            GY->q[i] = *(uint64_t*)data_addr;
                             VY->q[i] = 0;
                         }
                 } else {
