@@ -1182,8 +1182,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 GetSegmentBaseEmu(emu, _FS);  // refresh segs_offs
             break;
         case 0xA2:                      /* CPUID */
-            tmp32u = R_EAX;
-            my_cpuid(emu, tmp32u);
+            my_cpuid(emu);
             break;
         case 0xA3:                      /* BT Ed,Gd */
             CHECK_FLAGS(emu);

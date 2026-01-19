@@ -7,7 +7,7 @@
 #include "debug.h"
 #include "freq.h"
 
-void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
+void my_cpuid(x64emu_t* emu)
 {
     emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
     int ncpu = getNCpu();
@@ -39,9 +39,10 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             branding[0] = ' ';
         }
     }
+    uint32_t leaf = (uint32_t)R_EAX;
     uint32_t subleaf = R_ECX;
-    //printf_log(LOG_INFO, "%04d|%p: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, subleaf);
-    switch(tmp32u) {
+    //printf_log(LOG_INFO, "%04d|%p: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, leaf, subleaf);
+    switch(leaf) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
             R_RAX = BOX64ENV(cputype)?0x0000000f:0x00000016;
@@ -558,7 +559,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
         default:
             if(warned) {
-                printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_RCX);
+                printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", leaf, R_RCX);
                 --warned;
                 if(!warned)
                     printf_log(LOG_INFO, "Stopped logging CPUID issues\n");

@@ -1794,8 +1794,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             NOTEST(x1);
             GETIP(ip);  // sync RIP for easier debugging
             STRx_U12(xRIP, xEmu, offsetof(x64emu_t, ip));
-            MOVx_REG(x1, xRAX);
-            CALL_(const_cpuid, -1, 0);
+            CALL(const_cpuid, -1);
             break;
         case 0xA3:
             INST_NAME("BT Ed, Gd");
