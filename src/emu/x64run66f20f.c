@@ -24,9 +24,9 @@
 #include "x64compstrings.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test66F20F(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t Test66F20F(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
 #else
-uintptr_t Run66F20F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t Run66F20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 #endif
 {
     uint8_t opcode;
@@ -60,6 +60,7 @@ uintptr_t Run66F20F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             switch(opcode) {
             
                 case 0xF1:  // CRC32 Gd, Ew
+                    if (rex.w) return RunF20F(emu, rex, addr-2, step);
                     nextop = F8;
                     GETEW(0);
                     GETGD;

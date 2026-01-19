@@ -52,7 +52,8 @@ uintptr_t dynarec64_66F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
         case 0x38: // these are some more SSSE4.2+ opcodes
             opcode = F8;
             switch (opcode) {
-                case 0xF1: // CRC32 Gd, Ew
+                case 0xF1:
+                    if (rex.w) return dynarec64_F20F(dyn, addr - 2, ip, ninst, rex, ok, need_epilog);
                     INST_NAME("CRC32 Gd, Ew");
                     nextop = F8;
                     GETGD;

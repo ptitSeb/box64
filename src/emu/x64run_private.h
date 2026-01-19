@@ -103,9 +103,9 @@ sse_regs_t* GetGy(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v);
 #define RESET_FLAGS(emu) emu->df = d_none
 
 uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
-uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr);
+uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr);
-uintptr_t Run66F20F(x64emu_t *emu, rex_t rex, uintptr_t addr);
+uintptr_t Run66F20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Run66F30F(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t Run66D9(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr);
@@ -135,9 +135,9 @@ uintptr_t RunAVX_F30F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_F30F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 
 uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
-uintptr_t Test66(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t Test66(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr);
-uintptr_t Test66F20F(x64test_t *test, rex_t rex, uintptr_t addr);
+uintptr_t Test66F20F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Test66F30F(x64test_t *test, rex_t rex, uintptr_t addr);
 uintptr_t Test66D9(x64test_t *test, rex_t rex, uintptr_t addr);
 uintptr_t Test66DD(x64test_t *test, rex_t rex, uintptr_t addr);
