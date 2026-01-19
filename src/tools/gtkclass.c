@@ -4955,7 +4955,7 @@ void wrapGTKClass(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "wrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
         if(my_MetaFrames2==(size_t)-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
@@ -4977,7 +4977,7 @@ void unwrapGTKClass(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "...unwrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type<=8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else
         printf_log(LOG_NONE, "Warning: fail to unwrapGTKClass for type %zx (%s)\n", type, g_type_name(type));
     #undef GTKCLASS
@@ -4994,9 +4994,9 @@ static void bridgeGTKClass(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "bridgeGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
-        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type 0w%zx (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
     #undef GTKIFACE
@@ -5012,7 +5012,7 @@ static void wrapGTKInterface(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "wrapGTKInterface(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
         printf_log(LOG_NONE, "Warning, Custom Interface initializer with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
     }
@@ -5030,7 +5030,7 @@ void unwrapGTKInterface(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "unwrapGTKInterface(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else
     {}  // else no warning, one is enough...
     #undef GTKIFACE
@@ -5047,7 +5047,7 @@ static void bridgeGTKInterface(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "bridgeGTKInterface(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
         printf_log(LOG_NONE, "Warning, AutoBridge GTK Interface with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
     }
@@ -5065,7 +5065,7 @@ void unwrapGTKInstance(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "unwrapGTKInstance(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else
     {}  // else no warning, one is enough...
     #undef GTKCLASS
@@ -5082,7 +5082,7 @@ void bridgeGTKInstance(void* cl, size_t type)
 
     printf_log(LOG_DEBUG, "bridgeGTKInstance(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
         printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type 0w%zx (%s)\n", type, g_type_name(type));
     }
@@ -5118,7 +5118,7 @@ void* unwrapCopyGTKClass(void* klass, size_t type)
     #define GTKIFACE(A)
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
         printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
         return klass;
@@ -5151,7 +5151,7 @@ void* unwrapCopyGTKInterface(void* iface, size_t type)
     #define GTKIFACE(A) if(type==my_##A) sz = sizeof(my_##A##Interface_t); else
     #define GTKCLASS(A)
     GTKCLASSES()
-    if(type==8) {}  // GInterface have no structure
+    if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
     else {
         printf_log(LOG_NONE, "Warning, unwrapCopyGTKInterface called with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
         return iface;
