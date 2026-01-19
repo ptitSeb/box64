@@ -1028,11 +1028,19 @@
     }
 #endif
 
+#define GRABFLAGS(A) \
+    if((A)!=X_PEND                                          \
+    && ((dyn->f==status_unk) || (dyn->f==status_set))) {    \
+        TABLE64C(x6, const_updateflags_arm64);              \
+        BLR(x6);                                            \
+        dyn->f = status_none;                               \
+    }
+
 #ifndef SETFLAGS
 #define SETFLAGS(A, B) do {                                                                     \
     if (((B)&SF_SUB)                                                                            \
     && (dyn->insts[ninst].x64.gen_flags&(~(A))))                                                \
-        { READFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A))); }\
+        { GRABFLAGS(((dyn->insts[ninst].x64.gen_flags&X_PEND)?X_ALL:dyn->insts[ninst].x64.gen_flags)&(~(A))); }\
     if(dyn->insts[ninst].x64.gen_flags) switch(B) {                                             \
         case SF_SET_DF: dyn->f = status_set; break;                                             \
         case SF_SET_NODF: break;                                                                \

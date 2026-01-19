@@ -4067,7 +4067,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
                     BFIx(xRAX, x4, 8, 8);
-                    SET_DFNONE();
+                    FORCE_DFNONE();
                     IFX(X_OF)                         {BFCw(xFlags, F_OF, 1);}
                     IFX(X_CF)                         {BFCw(xFlags, F_CF, 1);}
                     IFX2(X_AF, && !BOX64ENV(cputype)) {BFCw(xFlags, F_AF, 1);}
@@ -4102,10 +4102,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
                     BFIx(xRAX, x4, 8, 8);
-                    if (!BOX64DRENV(dynarec_safeflags)) {
-                        SET_DFNONE();
-                        FORCE_DFNONE();
-                    }
+                    FORCE_DFNONE();
                     IFX2(X_AF, && BOX64ENV(cputype))  {ORRw_mask(xFlags, xFlags, 28, 0);}   //mask=0x10
                     IFX2(X_ZF, && BOX64ENV(cputype))  {BFCw(xFlags, F_ZF, 1);}
                     IFX2(X_SF, && BOX64ENV(cputype))  {BFCw(xFlags, F_SF, 1);}
@@ -4291,6 +4288,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
+                    FORCE_DFNONE();
                     IFX(X_OF)                         {BFCw(xFlags, F_OF, 1);}
                     IFX(X_CF)                         {BFCw(xFlags, F_CF, 1);}
                     IFX2(X_AF, && !BOX64ENV(cputype)) {BFCw(xFlags, F_AF, 1);}
@@ -4376,10 +4374,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVx_REG(xRAX, x2);
                         }
                     }
-                    if (!BOX64DRENV(dynarec_safeflags)) {
-                        SET_DFNONE();
-                        FORCE_DFNONE();
-                    }
+                    FORCE_DFNONE();
                     IFX2(X_AF, && BOX64ENV(cputype))  {ORRw_mask(xFlags, xFlags, 28, 0);}   //mask=0x10
                     IFX2(X_ZF, && BOX64ENV(cputype))  {BFCw(xFlags, F_ZF, 1);}
                     IFX2(X_SF, && BOX64ENV(cputype))  {BFCw(xFlags, F_SF, 1);}
