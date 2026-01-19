@@ -28,9 +28,9 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test66(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t Test66(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
 #else
-uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 #endif
 {
     uint8_t opcode;
@@ -122,9 +122,9 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 #endif
             case 1:
                 #ifdef TEST_INTERPRETER
-                return Test66F20F(test, rex, addr);
+                return Test66F20F(test, rex, addr, step);
                 #else
-                return Run66F20F(emu, rex, addr);
+                return Run66F20F(emu, rex, addr, step);
                 #endif
             case 2:
                 #ifdef TEST_INTERPRETER

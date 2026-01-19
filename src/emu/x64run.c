@@ -169,10 +169,10 @@ x64emurun:
         } else if(rex.is66) {
             /* 16bits prefix */
             #ifdef TEST_INTERPRETER
-            if(!(addr = Test66(test, rex, addr-1)))
+            if(!(addr = Test66(test, rex, addr-1, &step)))
                 unimp = 1;
             #else
-            if(!(addr = Run66(emu, rex, addr-1))) {
+            if(!(addr = Run66(emu, rex, addr-1, &step))) {
                 unimp = 1;
                 goto fini;
             }
