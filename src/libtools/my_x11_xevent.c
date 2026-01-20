@@ -628,6 +628,14 @@ void inplace_XEventData_shring(my_XEvent_t* evt)
                 d->raw_values = to_ptrv(s->raw_values);
             }
             break;
+            case XI_PropertyEvent: {
+                my_XIPropertyEvent_t* s = evt->xcookie.data;
+                my_XIPropertyEvent_32_t* d = evt->xcookie.data;
+                d->deviceid = s->deviceid;
+                d->property = to_ulong(s->property);
+                d->what = s->what;
+            }
+            break;
             case XI_TouchOwnership: {
                 my_XITouchOwnershipEvent_t* s = evt->xcookie.data;
                 my_XITouchOwnershipEvent_32_t* d = evt->xcookie.data;
@@ -818,6 +826,14 @@ void inplace_XEventData_enlarge(my_XEvent_t* evt)
                 d->flags = s->flags;
                 d->detail = s->detail;
                 d->sourceid = s->sourceid;
+                d->deviceid = s->deviceid;
+            }
+            break;
+            case XI_PropertyEvent: {
+                my_XIPropertyEvent_32_t* s = evt->xcookie.data;
+                my_XIPropertyEvent_t* d = evt->xcookie.data;
+                d->what = s->what;
+                d->property = from_ulong(s->property);
                 d->deviceid = s->deviceid;
             }
             break;
