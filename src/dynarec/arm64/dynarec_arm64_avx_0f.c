@@ -138,12 +138,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             break;
         case 0x13:
             nextop = F8;
-            INST_NAME("VMOVLPS Ex, Gx");
-            GETGX(v0, 0);
             if(MODREG) {
-                DEFAULT;
-                return addr;
+                INST_NAME("Illegal AVX.0F 13");
+                UDF(0);
             } else {
+                INST_NAME("VMOVLPS Ex, Gx");
+                GETGX(v0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 VST1_64(v0, 0, ed);
                 SMWRITE2();
@@ -262,19 +262,14 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             break;
 
         case 0x2B:
-            INST_NAME("VMOVNTPS Ex, Gx");
             nextop = F8;
-            GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if(MODREG) {
-                ed = (nextop&7)+(rex.b<<3);
-                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
-                VMOVQ(v1, v0);
-                if(vex.l) {
-                    GETGYEY_empty(v0, v1);
-                    VMOVQ(v1, v0);
-                } else YMM0(ed);
+                INST_NAME("Illegal AVX.0F 2B");
+                UDF(0);
             } else {
+                INST_NAME("VMOVNTPS Ex, Gx");
+                GETG;
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 if(vex.l) {
                     GETGY(v1, 0, -1, -1, -1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0x3f<<4, 15, rex, NULL, 1, 0);
