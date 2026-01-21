@@ -132,6 +132,7 @@ int convert_bitmask(uint64_t bitmask);
 #define SUBxw_UXTB(Rd, Rn, Rm)      EMIT(ADDSUB_ext(rex.w, 1, 0, Rm, 0b000, 0, Rn, Rd))
 #define SUBw_UXTB(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 1, 0, Rm, 0b000, 0, Rn, Rd))
 #define SUBw_UXTH(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 1, 0, Rm, 0b001, 0, Rn, Rd))
+#define ADDz_UXTB(Rd, Rn, Rm)       EMIT(ADDSUB_ext(rex.is32bits?0:1, 0, 0, Rm, 0b000, 0, Rn, Rd))
 #define ADDw_UXTH(Rd, Rn, Rm)       EMIT(ADDSUB_ext(0, 0, 0, Rm, 0b001, 0, Rn, Rd))
 #define ADDx_UXTW(Rd, Rn, Rm)       EMIT(ADDSUB_ext(1, 0, 0, Rm, 0b010, 0, Rn, Rd))
 #define ADDx_SXTW(Rd, Rn, Rm)       EMIT(ADDSUB_ext(1, 0, 0, Rm, 0b110, 0, Rn, Rd))

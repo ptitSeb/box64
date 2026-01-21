@@ -1495,6 +1495,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE7:                      /* OUT Ib, AX */
             return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
         case 0xE8:                      /* CALL Imm */
+        case 0xE9:                      /* Jmp Imm */
+        case 0xEB:                      /* Jmp Imm8 */
             return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
         case 0xEC:                      /* IN AL, DX */
         case 0xED:                      /* IN AX, DX */

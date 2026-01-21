@@ -3555,7 +3555,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xD7:
             INST_NAME("XLAT");
-            UXTBw(x1, xRAX);
+            if(rex.seg) {
+                grab_segdata(dyn, addr, ninst, x1, rex.seg);
+                ADDz_UXTB(x1, x1, xRAX);
+            } else {
+                UXTBw(x1, xRAX);
+            }
             LDRB_REG(x1, xRBX, x1);
             BFIx(xRAX, x1, 0, 8);
             break;
@@ -3841,7 +3846,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 if(opcode==0xE9) {
                     INST_NAME("JMP Id");
-                    i32 = F32S;
+                    i32 = (rex.is32bits && rex.is66)?F16S:F32S;
                 } else {
                     INST_NAME("JMP Ib");
                     i32 = F8S;
