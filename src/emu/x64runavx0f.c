@@ -105,7 +105,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x13:                      /* VMOVLPS Ex, Gx */
             nextop = F8;
-            if(!MODREG) {
+            if(MODREG) {
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+            } else {
                 GETEX(0);
                 GETGX;
                 EX->q[0] = GX->q[0];
@@ -207,7 +209,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x2B:                      /* VMOVNTPS Ex,Gx */
             nextop = F8;
-            if(!MODREG) {
+            if(MODREG) {
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+            } else {
                 GETEX(0);
                 GETGX;
                 EX->q[0] = GX->q[0];
