@@ -144,6 +144,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_adc16(dyn, ninst, x1, x2, x4, x3);
             GWBACK;
             break;
+        case 0x14:
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
         case 0x15:
             INST_NAME("ADC AX, Iw");
             READFLAGS(X_CF);
@@ -1492,7 +1494,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE6:                      /* OUT Ib, AL */
         case 0xE7:                      /* OUT Ib, AX */
             return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
-
+        case 0xE8:                      /* CALL Imm */
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
         case 0xEC:                      /* IN AL, DX */
         case 0xED:                      /* IN AX, DX */
         case 0xEE:                      /* OUT DX, AL */

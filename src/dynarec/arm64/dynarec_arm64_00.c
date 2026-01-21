@@ -3689,7 +3689,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xE8:
             INST_NAME("CALL Id");
-            i32 = F32S;
+            i32 = (rex.is32bits && rex.is66)?F16S:F32S;
             if(addr+i32==0) {
                 #if STEP == 3
                 printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
