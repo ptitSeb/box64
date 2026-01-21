@@ -196,6 +196,7 @@ typedef struct box64env_s {
 #undef ADDRESS
 #undef STRING
 
+    int priority;
     /******** Custom ones ********/
     int maxcpu;
     int dynarec_test;
