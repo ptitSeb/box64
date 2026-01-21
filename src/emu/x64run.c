@@ -1787,7 +1787,7 @@ x64emurun:
             };
             break;
         case 0xD7:                      /* XLAT */
-            R_AL = *(uint8_t*)(R_RBX + R_AL);
+            R_AL = *(uint8_t*)(rex.offset + R_RBX + R_AL);
             break;
         case 0xD8:                      /* x87 opcodes */
             #ifdef TEST_INTERPRETER
