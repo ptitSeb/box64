@@ -816,7 +816,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             #endif
             break;
     case 0xE8:                              /* CALL Id */
-        tmp32s = F32S; // call is relative
+        tmp32s = (rex.is32bits)?F16S:F32S; // call is relative
         if(rex.is32bits)
             Push32(emu, addr);
         else
