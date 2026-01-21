@@ -248,6 +248,13 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         }
         break;
 
+    case 0x63:                      /* MOVSXD Gw,Ew */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        GW->sword[0] = EW->sword[0];
+        break;
+
     case 0x68:                       /* PUSH u16 */
         tmp16u = F16;
         Push16(emu, tmp16u);
@@ -821,6 +828,19 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             Push32(emu, addr);
         else
             Push64(emu, addr);
+        addr += tmp32s;
+        break;
+    case 0xE9:                      /* JMP Id */
+        tmp32s = (rex.is32bits)?(F16S):(F32S); // jmp is relative
+        if(rex.is32bits)
+            addr = (uint32_t)(addr+tmp32s);
+        else
+            addr += tmp32s;
+        addr = (uintptr_t)getAlternate((void*)addr);
+        break;
+
+    case 0xEB:                      /* JMP Ib */
+        tmp32s = F8S; // jump is relative
         addr += tmp32s;
         break;
 
