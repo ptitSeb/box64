@@ -286,10 +286,10 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     SUPER()
     #undef GO
     int i = 0;
-    while(i<ninst-1) {
+    while(i<(ninst)) {  // this will look for ninst-1 state
         arch = next;
+        dynarec_log_prefix(0, (i<(ninst-1))?LOG_DEBUG:LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         i += 1+arch->seq;
-        dynarec_log_prefix(0, (i<ninst-1)?LOG_DEBUG:LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     int sz = sizeof(arch_arch_t);
