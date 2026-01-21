@@ -1350,7 +1350,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     MARK;
                     IFX2(X_OF, && BOX64ENV(cputype)) {
-                        EORw_REG_LSR(x2, xFlags, ed, 7);
+                        EORw_REG_LSR(x2, xFlags, ed, 15);
                         BFIw(xFlags, x2, F_OF, 1);
                     }
                     break;
