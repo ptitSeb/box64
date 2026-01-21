@@ -26,7 +26,7 @@ box64env_t box64env = { 0 };
 
 KHASH_MAP_INIT_STR(box64env_entry, box64env_t)
 static kh_box64env_entry_t* box64env_entries = NULL;
-static kh_box64env_entry_t* box64env_entries_gen = NULL;
+static kh_box64env_entry_t* box64env_entries_wildcard = NULL;
 
 mmaplist_t* NewMmaplist();
 void DelMmaplist(mmaplist_t* list);
@@ -341,7 +341,7 @@ static void freeEnv(box64env_t* env)
 #define ENV_ARCH "unknown"
 #endif
 
-static void pushNewEntry(const char* name, box64env_t* env, int gen)
+static void pushNewEntry(const char* name, box64env_t* env, int wildcard)
 {
     if (env->is_arch_overridden && *env->arch == '\0') env->is_arch_overridden = 0;
 
@@ -351,7 +351,7 @@ static void pushNewEntry(const char* name, box64env_t* env, int gen)
         return;
     }
     khint_t k;
-    kh_box64env_entry_t* khp = gen ? box64env_entries_gen : box64env_entries;
+    kh_box64env_entry_t* khp = wildcard ? box64env_entries_wildcard : box64env_entries;
     k = kh_get(box64env_entry, khp, name);
     // No entry exist, add a new one
     if (k == kh_end(khp)) {
@@ -362,8 +362,8 @@ static void pushNewEntry(const char* name, box64env_t* env, int gen)
         return;
     }
 
-    // Entry exists, replace it if the new one is arch specific
-    if (env->is_arch_overridden && !strcasecmp(env->arch, ENV_ARCH)) {
+    // Entry exists, replace it if the new one is arch specific or has higher priority
+    if (env->is_arch_overridden && !strcasecmp(env->arch, ENV_ARCH) || env->priority > kh_value(khp, k).priority) {
         freeEnv(&kh_value(khp, k));
         box64env_t* p = &kh_value(khp, k);
         memcpy(p, env, sizeof(box64env_t));
@@ -388,7 +388,7 @@ static int shm_unlink(const char *name) {
 }
 #endif
 
-static void initializeEnvFile(const char* filename)
+static void initializeEnvFile(const char* filename, int priority)
 {
     if (box64env.noenvfiles) return;
 
@@ -412,10 +412,11 @@ static void initializeEnvFile(const char* filename)
 
     if (!box64env_entries)
         box64env_entries = kh_init(box64env_entry);
-    if (!box64env_entries_gen)
-        box64env_entries_gen = kh_init(box64env_entry);
+    if (!box64env_entries_wildcard)
+        box64env_entries_wildcard = kh_init(box64env_entry);
 
     box64env_t current_env = { 0 };
+    current_env.priority = priority;
     size_t linesize = 0, len = 0;
     char* current_name = NULL;
     bool is_wildcard_name = false;
@@ -525,20 +526,21 @@ static void initializeEnvFile(const char* filename)
 
 void InitializeEnvFiles()
 {
+    int priority = 0;
 #ifndef _WIN32 // FIXME: this needs some consideration on Windows, so for now, only do it on Linux
     if (BOX64ENV(envfile) && FileExist(BOX64ENV(envfile), IS_FILE))
-        initializeEnvFile(BOX64ENV(envfile));
+        initializeEnvFile(BOX64ENV(envfile), priority++);
 #ifndef TERMUX
     else if (FileExist("/etc/box64.box64rc", IS_FILE))
-        initializeEnvFile("/etc/box64.box64rc");
+        initializeEnvFile("/etc/box64.box64rc", priority++);
     else if (FileExist("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc", IS_FILE))
-        initializeEnvFile("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc");
+        initializeEnvFile("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc", priority++);
 #else
     else if (FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
-        initializeEnvFile("/data/data/com.termux/files/usr/etc/box64.box64rc");
+        initializeEnvFile("/data/data/com.termux/files/usr/etc/box64.box64rc", priority++);
 #endif
     else
-        initializeEnvFile(NULL); // load default rcfile
+        initializeEnvFile(NULL, priority++); // load default rcfile
 #endif
 
     char* p = GetEnv(HOME);
@@ -547,7 +549,7 @@ void InitializeEnvFiles()
         strncpy(tmp, p, 4095);
         strncat(tmp, PATHSEP ".box64rc", 4095);
         if (FileExist(tmp, IS_FILE)) {
-            initializeEnvFile(tmp);
+            initializeEnvFile(tmp, priority++);
         }
     }
 }
@@ -605,7 +607,7 @@ void ApplyEnvFileEntry(const char* entryname)
         k1 = kh_get(box64env_entry, box64env_entries, lowercase_entryname);
         box64env_t* env;
         const char* k2;
-        kh_foreach_ref(box64env_entries_gen, k2, env,
+        kh_foreach_ref(box64env_entries_wildcard, k2, env,
             if (strstr(lowercase_entryname, k2))
                 internalApplyEnvFileEntry(entryname, env);
             applyCustomRules();
