@@ -242,13 +242,13 @@ int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* 
     if(k==kh_end(mapsymbols)) {
         #ifndef STATICBUILD
         // some special case symbol, defined inside box64 itself
-        if(!strcmp(name, "gdk_display") && !BOX64ENV(nogtk)) {
+        if(!box64_is32bits && !strcmp(name, "gdk_display") && !BOX64ENV(nogtk)) {
             *start = (uintptr_t)my_GetGTKDisplay();
             *end = *start+sizeof(void*);
             printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
             return 2;
         }
-        if(!strcmp(name, "g_threads_got_initialized") && !BOX64ENV(nogtk)) {
+        if(!box64_is32bits && !strcmp(name, "g_threads_got_initialized") && !BOX64ENV(nogtk)) {
             *start = (uintptr_t)my_GetGthreadsGotInitialized();
             *end = *start+sizeof(int);
             printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
