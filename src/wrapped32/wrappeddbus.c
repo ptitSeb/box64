@@ -445,10 +445,10 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
     int nstr = 0;
     // count
     while(type) {
-        if(type == ((int)'a')) {idx++; nstr++;}
+        if(type == ((int)'a')) {idx+=2; nstr+=2;}
+        else if((type == (int)'s') || (type == (int)'o') || (type == (int)'g')) { nstr++; idx++;}
+        else idx++;
         type = V[idx*2+1];
-        nstr++;
-        idx++;
     }
     int count = idx*2;
     void* array[count + nstr];
@@ -465,8 +465,11 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
             array[idx*2+2] = &array[count + nstr];   // size of the array
             ++nstr;
             ++idx;
-        } else {
+        } else if((type == (int)'s') || (type == (int)'o') || (type == (int)'g')) {
             array[idx*2+0] = &array[count+nstr];
+            ++nstr;
+        } else {
+            array[idx*2+0] = from_ptrv(V[idx*2]);
             ++nstr;
         }
         //go next
@@ -492,9 +495,9 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
                 if((subtype==(int)'s') || subtype==(int)'o' || (subtype==(int)'g')) 
                     inplace_shrink_arraystring(value);
                 ++idx;
-            } else {
+            } else if((type == (int)'s') || (type == (int)'o') || (type == (int)'g')) {
                 void* value = array[count + nstr++];
-                V[idx*2] = to_ptrv(value);
+                from_ptri(ptr_t, V[idx*2]) = to_ptrv(value);
             }
             //go next
             type = V[idx*2+1];
