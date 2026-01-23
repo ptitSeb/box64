@@ -1211,54 +1211,54 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ew, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x2, xRCX, 0x1f);
-                    GETEW(x1, 1);
-                    CALL_(const_rol16, x1, x3, x1, x2);
+                    CBZ_NEXT(x2);
+                    GETEW(x1, 0);
+                    emit_rol16(dyn, ninst, x1, x2, x5, x4);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, CL");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x2, xRCX, 0x1f);
-                    GETEW(x1, 1);
-                    CALL_(const_ror16, x1, x3, x1, x2);
+                    CBZ_NEXT(x2);
+                    GETEW(x1, 0);
+                    emit_ror16(dyn, ninst, x1, x2, x5, x4);
                     EWBACK;
                     break;
                 case 2:
                     INST_NAME("RCL Ew, CL");
-                    MESSAGE("LOG_DUMP", "Need optimization\n");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x2, xRCX, 0x1f);
-                    GETEW(x1, 1);
-                    CALL_(const_rcl16, x1, x3, x1, x2);
+                    CBZ_NEXT(x2);
+                    GETEW(x1, 0);
+                    emit_rcl16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ew, CL");
-                    MESSAGE("LOG_DUMP", "Need optimization\n");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x2, xRCX, 0x1f);
-                    GETEW(x1, 1);
-                    CALL_(const_rcr16, x1, x3, x1, x2);
+                    CBZ_NEXT(x2);
+                    GETEW(x1, 0);
+                    emit_rcr16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
                     break;
                 case 5:
