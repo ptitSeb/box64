@@ -28,15 +28,15 @@
 //GO(avc_sid_to_context, 
 //GO(avc_sid_to_context_raw, 
 //GO(checkPasswdAccess, 
-//GO(context_free, 
-//GO(context_new, 
+GO(context_free, vFp)
+GO(context_new, pFp)
 //GO(context_range_get, 
 //GO(context_range_set, 
 //GO(context_role_get, 
 //GO(context_role_set, 
-//GO(context_str, 
-//GO(context_type_get, 
-//GO(context_type_set, 
+GO(context_str, pFp)
+GO(context_type_get, iFpp)
+GO(context_type_set, iFpp)
 //GO(context_user_get, 
 //GO(context_user_set, 
 //DATAB(dir_xattr_list, 
@@ -48,7 +48,7 @@ GO(freeconary, vFp)
 //GO(fsetfilecon, 
 GO(fsetfilecon_raw, iFip)
 //GO(getcon, 
-//GO(getcon_raw, 
+GO(getcon_raw, iFp)
 //GO(get_default_context, 
 //GO(get_default_context_with_level, 
 //GO(get_default_context_with_role, 
@@ -59,7 +59,7 @@ GO(fsetfilecon_raw, iFip)
 GO(getfilecon, iFpp)
 GO(getfilecon_raw, iFpp)
 //GO(getfscreatecon, 
-//GO(getfscreatecon_raw, 
+GO(getfscreatecon_raw, iFp)
 //GO(getkeycreatecon, 
 //GO(getkeycreatecon_raw, 
 //GO(get_ordered_context_list, 
@@ -95,7 +95,7 @@ GO(lsetfilecon_raw, iFpp)
 //GO(matchpathcon_index, 
 //GO(matchpathcon_init, 
 //GO(matchpathcon_init_prefix, 
-//GO(mode_to_security_class, 
+GO(mode_to_security_class, iFup)
 //DATAB(myprintf_compat, 
 //GO(print_access_vector, 
 //GO(query_user_context, 
@@ -116,7 +116,7 @@ GO(lsetfilecon_raw, iFpp)
 //GO(security_compute_create, 
 //GO(security_compute_create_name, 
 //GO(security_compute_create_name_raw, 
-//GO(security_compute_create_raw, 
+GO(security_compute_create_raw, iFpppp)
 //GO(security_compute_member, 
 //GO(security_compute_member_raw, 
 //GO(security_compute_relabel, 
@@ -149,8 +149,8 @@ GO(lsetfilecon_raw, iFpp)
 //GO(selabel_lookup, 
 //GO(selabel_lookup_best_match, 
 //GO(selabel_lookup_best_match_raw, 
-//GO(selabel_lookup_raw, 
-//GO(selabel_open, 
+GO(selabel_lookup_raw, iFppp)
+GO(selabel_open, pFipL)
 //GO(selabel_partial_match, 
 //GO(selabel_stats, 
 //GO(selinux_binary_policy_path, 
@@ -221,15 +221,15 @@ GO(selinux_trans_to_raw_context, iFpp)
 //GO(selinux_virtual_domain_context_path, 
 //GO(selinux_virtual_image_context_path, 
 //GO(selinux_x_context_path, 
-//GO(setcon, 
+GO(setcon, iFp)
 //GO(setcon_raw, 
 //GO(setexeccon, 
 //GO(setexeccon_raw, 
 //GO(setexecfilecon, 
-//GO(setfilecon, 
+GO(setfilecon, iFpp)
 GO(setfilecon_raw, iFpp)
-//GO(setfscreatecon, 
-//GO(setfscreatecon_raw, 
+GO(setfscreatecon, iFp)
+GO(setfscreatecon_raw, iFp)
 //GO(setkeycreatecon, 
 //GO(setkeycreatecon_raw, 
 //GO(set_matchpathcon_canoncon, 

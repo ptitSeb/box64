@@ -10,7 +10,7 @@ GO(define_key, iFpi)
 GO(def_prog_mode, iFv)
 GO(def_shell_mode, iFv)
 GO(delay_output, iFi)
-GO(del_curterm, iFp)
+GOM(del_curterm, iFEp)
 GO(erasechar, cFv)
 GO(flushinp, iFv)
 GO(halfdelay, iFi)
@@ -29,10 +29,13 @@ GO(killchar, cFv)
 GO(longname, pFv)
 GO(meta, iFpi)
 GO(napms, iFi)
+GO(_nc_basename, pFp)
+GO(_nc_is_abs_path, iFp)
+GO(_nc_rootname, pFp)
+GOM(_nc_tiparm, pFEipV)
 //GO(_nc_access, 
 //GO(_nc_add_to_try, 
 //GO(_nc_align_termtype, 
-//GO(_nc_basename, 
 //GO(_nc_baudrate, 
 //GO(_nc_copy_termtype, 
 //GO(_nc_delink_entry, 
@@ -63,7 +66,6 @@ GO(napms, iFi)
 //GO(_nc_home_terminfo, 
 //GO(_nc_init_acs, 
 //GO(_nc_init_keytry, 
-//GO(_nc_is_abs_path, 
 //GO(_nc_is_dir_path, 
 //GO(_nc_is_file_path, 
 //GO(_nc_keep_tic_dir, 
@@ -85,7 +87,6 @@ GO(napms, iFi)
 //GO(_nc_read_termtype, 
 //GO(_nc_remove_key, 
 //GO(_nc_remove_string, 
-//GO(_nc_rootname, 
 //GO(_nc_safe_strcat, 
 //GO(_nc_safe_strcpy, 
 //GO(_nc_screen_of, 
@@ -124,9 +125,9 @@ GO(reset_prog_mode, iFv)
 GO(reset_shell_mode, iFv)
 GO(resetty, iFv)
 GO(savetty, iFv)
-GO(set_curterm, pFp)
+GOM(set_curterm, pFEp)
 GO(set_tabsize, iFi)
-GO(setupterm, iFpip)
+GOM(setupterm, iFEpip)
 GO(termname, pFv)
 GO(tgetent, iFpp)
 GO(tgetflag, iFp)
@@ -143,6 +144,7 @@ GO(typeahead, iFi)
 GO(unctrl, pFL)
 GO(use_env, vFi)
 GO(use_extended_names, iFi)
+GO(use_tioctl, vFi)
 GO(wtimeout, vFpi)
 
 DATA(COLS, sizeof(int))
@@ -157,3 +159,4 @@ DATA(BC, sizeof(void*))
 DATA(PC, 1)
 DATA(ospeed, 2)
 DATA(ttytype, 32*sizeof(void*))
+DATA(cur_term, sizeof(void*))

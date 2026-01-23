@@ -11,9 +11,16 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFp_t)(void*);
+typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
+typedef void* (*pFipV_t)(int32_t, void*, ...);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(tputs, iFpip_t)
+	GO(del_curterm, iFp_t) \
+	GO(set_curterm, pFp_t) \
+	GO(setupterm, iFpip_t) \
+	GO(tputs, iFpip_t) \
+	GO(_nc_tiparm, pFipV_t)
 
 #endif // __wrappedlibtinfo6TYPES_H_

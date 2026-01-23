@@ -1450,6 +1450,7 @@
 #() LFpppL
 #() LFpppp
 #() pFEipp
+#() pFEipV
 #() pFEuup
 #() pFEupp
 #() pFELpV
@@ -5950,8 +5951,15 @@ wrappedlibtinfo:
 - iFpip:
   - tputs
 wrappedlibtinfo6:
+- iFp:
+  - del_curterm
+- pFp:
+  - set_curterm
 - iFpip:
+  - setupterm
   - tputs
+- pFipV:
+  - _nc_tiparm
 wrappedlibunistring2:
 wrappedlibusb1:
 - vFp:

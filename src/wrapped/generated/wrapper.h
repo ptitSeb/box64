@@ -1487,6 +1487,7 @@ void LFpppl(x64emu_t *emu, uintptr_t fnc);
 void LFpppL(x64emu_t *emu, uintptr_t fnc);
 void LFpppp(x64emu_t *emu, uintptr_t fnc);
 void pFEipp(x64emu_t *emu, uintptr_t fnc);
+void pFEipV(x64emu_t *emu, uintptr_t fnc);
 void pFEuup(x64emu_t *emu, uintptr_t fnc);
 void pFEupp(x64emu_t *emu, uintptr_t fnc);
 void pFELpV(x64emu_t *emu, uintptr_t fnc);
