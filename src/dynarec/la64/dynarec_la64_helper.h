@@ -1236,6 +1236,7 @@
 #define emit_sar32          STEPNAME(emit_sar32)
 #define emit_sar32c         STEPNAME(emit_sar32c)
 #define emit_sar8           STEPNAME(emit_sar8)
+#define emit_sar8c          STEPNAME(emit_sar8c)
 #define emit_sbb16          STEPNAME(emit_sbb16)
 #define emit_sbb32          STEPNAME(emit_sbb32)
 #define emit_sbb8           STEPNAME(emit_sbb8)
@@ -1245,6 +1246,7 @@
 #define emit_shl32          STEPNAME(emit_shl32)
 #define emit_shl32c         STEPNAME(emit_shl32c)
 #define emit_shl8           STEPNAME(emit_shl8)
+#define emit_shl8c          STEPNAME(emit_shl8c)
 #define emit_shld16         STEPNAME(emit_shld16)
 #define emit_shld16c        STEPNAME(emit_shld16c)
 #define emit_shld32         STEPNAME(emit_shld32)
@@ -1254,6 +1256,7 @@
 #define emit_shr32          STEPNAME(emit_shr32)
 #define emit_shr32c         STEPNAME(emit_shr32c)
 #define emit_shr8           STEPNAME(emit_shr8)
+#define emit_shr8c          STEPNAME(emit_shr8c)
 #define emit_shrd16         STEPNAME(emit_shrd16)
 #define emit_shrd16c        STEPNAME(emit_shrd16c)
 #define emit_shrd32         STEPNAME(emit_shrd32)
@@ -1401,6 +1404,7 @@ void emit_sar16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 void emit_sar32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_sar8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_sar8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_sbb16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_sbb8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
@@ -1410,6 +1414,7 @@ void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shl8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_shl8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_shld16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_shld16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
 void emit_shld32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6);
@@ -1419,6 +1424,7 @@ void emit_shr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_shr8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_shrd16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_shrd16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
 void emit_shrd32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6);

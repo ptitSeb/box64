@@ -530,6 +530,145 @@ void emit_sar8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+// emit SHL8 instruction, from s1 , constant c, store result in s1 using s3, s4 as scratch
+void emit_shl8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+    IFX (X_PEND) {
+        MOV64x(s3, c);
+        ST_B(s3, xEmu, offsetof(x64emu_t, op2));
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shl8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_OF) {
+        SRLI_D(s3, s1, 6);
+        SRLI_D(s4, s3, 1);
+        XOR(s3, s3, s4);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+    SLLI_D(s1, s1, c);
+    IFX (X_CF) {
+        BSTRPICK_D(s3, s1, 8, 8);
+        BSTRINS_D(xFlags, s3, F_CF, F_CF);
+    }
+    IFX (X_PEND) {
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    ANDI(s1, s1, 0xff);
+    IFX (X_SF) {
+        SRLI_D(s3, s1, 7);
+        BSTRINS_D(xFlags, s3, F_SF, F_SF);
+    }
+    IFX (X_ZF) {
+        SEQZ(s3, s1);
+        BSTRINS_D(xFlags, s3, F_ZF, F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit SHR8 instruction, from s1 , constant c, store result in s1 using s3, s4 as scratch
+void emit_shr8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+    IFX (X_PEND) {
+        MOV64x(s3, c);
+        ST_B(s3, xEmu, offsetof(x64emu_t, op2));
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shr8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        if (c == 1) {
+            BSTRINS_D(xFlags, s1, F_CF, F_CF);
+        } else {
+            BSTRPICK_D(s3, s1, c - 1, c - 1);
+            BSTRINS_D(xFlags, s3, F_CF, F_CF);
+        }
+    }
+    IFX (X_OF) {
+        BSTRPICK_D(s3, s1, 7, 7);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
+    }
+
+    SRLI_D(s1, s1, c);
+    ANDI(s1, s1, 0xff);
+
+    IFX (X_PEND) {
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        SEQZ(s4, s1);
+        BSTRINS_D(xFlags, s4, F_ZF, F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit SAR8 instruction, from s1 , constant c, store result in s1 using s3, s4 as scratch
+void emit_sar8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+    IFX (X_PEND) {
+        MOV64x(s3, c);
+        ST_B(s3, xEmu, offsetof(x64emu_t, op2));
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_sar8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+    CLEAR_FLAGS(s3);
+    IFXA (X_CF, c < 8) {
+        BSTRPICK_D(s3, s1, c - 1, c - 1);
+        BSTRINS_D(xFlags, s3, F_CF, F_CF);
+    }
+
+    SRAI_D(s1, s1, c);
+    ANDI(s1, s1, 0xff);
+    IFX (X_PEND) {
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    if (c < 8) {
+        IFX (X_ZF) {
+            SEQZ(s3, s1);
+            BSTRINS_D(xFlags, s3, F_ZF, F_ZF);
+        }
+        IFX (X_SF) {
+            SRLI_D(s3, s1, 7);
+            BSTRINS_D(xFlags, s3, F_SF, F_SF);
+        }
+        IFX (X_PF) {
+            emit_pf(dyn, ninst, s1, s3, s4);
+        }
+    } else {
+        IFX (X_CF | X_ZF | X_SF | X_PF) {
+            SRLI_D(s3, s1, 7);
+            IFX (X_CF) BSTRINS_D(xFlags, s3, F_CF, F_CF);
+            IFX (X_SF) BSTRINS_D(xFlags, s3, F_SF, F_SF);
+            IFX (X_ZF) {
+                SEQZ(s4, s1);
+                BSTRINS_D(xFlags, s4, F_ZF, F_ZF);
+            }
+            IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
+        }
+    }
+
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
 // emit SHR16 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3 and s4 as scratch
 void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
