@@ -619,7 +619,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
@@ -632,7 +632,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
@@ -2736,7 +2736,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xCF:
             INST_NAME("IRET");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
+            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
             iret_to_next(dyn, ip, ninst, rex.is32bits, rex.w);
             *need_epilog = 0;
@@ -3568,25 +3568,50 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     EBBACK();
                     break;
                 case 4:
-                    INST_NAME("MUL AL, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    INST_NAME("MUL AL, Eb");
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
                     MUL_W(x1, x2, x1);
-                    UFLAG_RES(x1);
                     BSTRINS_D(xRAX, x1, 15, 0);
-                    UFLAG_DF(x1, d_mul8);
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x3);
+                    IFX (X_CF | X_OF) {
+                        SRLI_D(x3, x1, 8);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
+                    IFX (X_SF) {
+                        SRLI_D(x3, xRAX, 7);
+                        BSTRINS_D(xFlags, x3, F_SF, F_SF);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
+                    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETSEB(x1, 0);
-                    SLLI_D(x2, xRAX, 56);
-                    SRAI_D(x2, x2, 56);
+                    EXT_W_B(x2, xRAX);
                     MUL_W(x1, x2, x1);
-                    UFLAG_RES(x1);
                     BSTRINS_D(xRAX, x1, 15, 0);
-                    UFLAG_DF(x1, d_imul8);
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x3);
+                    IFX (X_CF | X_OF) {
+                        EXT_W_H(x1, xRAX);
+                        EXT_W_B(x2, x1);
+                        XOR(x3, x1, x2);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
+                    IFX (X_SF) {
+                        SRLI_D(x3, xRAX, 7);
+                        BSTRINS_D(xFlags, x3, F_SF, F_SF);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
+                    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
@@ -3607,7 +3632,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOD_WU(x4, x2, ed); // warning: x2 and ed must be signed extended!
                     BSTRINS_D(xRAX, x3, 7, 0);
                     BSTRINS_D(xRAX, x4, 15, 8);
-                    SET_DFNONE();
+                    FORCE_DFNONE();
                     RESTORE_EFLAGS(x3);
                     IFX (X_ZF | X_PF) ADDI_D(x6, xZR, 1);
                     IFX (X_OF) BSTRINS_D(xFlags, xZR, F_OF, F_OF);
@@ -3642,7 +3667,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOD_W(x4, x2, ed); // warning: x2 and ed must be signed extended!
                     BSTRINS_D(xRAX, x3, 7, 0);
                     BSTRINS_D(xRAX, x4, 15, 8);
-                    if (!BOX64DRENV(dynarec_safeflags)) SET_DFNONE();
+                    FORCE_DFNONE();
                     break;
                 default:
                     DEFAULT;
@@ -3676,7 +3701,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     if (rex.w) {
                         if (ed == xRDX)
@@ -3696,13 +3721,23 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ZEROUP2(xRAX, xRDX);
                         SRLI_D(xRDX, xRDX, 32);
                     }
-                    UFLAG_RES(xRAX);
-                    UFLAG_OP1(xRDX);
-                    UFLAG_DF(x2, rex.w ? d_mul64 : d_mul32);
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x3);
+                    IFX (X_CF | X_OF) {
+                        SNEZ(x3, xRDX);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
+                    IFX (X_SF) {
+                        SRLI_D(x3, xRAX, rex.w ? 63 : 31);
+                        BSTRINS_D(xFlags, x3, F_SF, F_SF);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x5);
+                    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETSED(0);
                     if (rex.w) {
                         if (ed == xRDX)
@@ -3718,14 +3753,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ZEROUP2(xRAX, xRDX);
                         SRLI_D(xRDX, xRDX, 32);
                     }
-                    UFLAG_RES(xRAX);
-                    UFLAG_OP1(xRDX);
-                    UFLAG_DF(x2, rex.w ? d_imul64 : d_imul32);
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x3);
+                    IFX (X_CF | X_OF | X_SF) {
+                        SRAIxw(x5, xRAX, rex.w ? 63 : 31);
+                        MVxw(x6, xRDX);
+                        XOR(x3, x6, x5);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                        IFX (X_SF) BSTRINS_D(xFlags, x5, F_SF, F_SF);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x5);
+                    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-                    SET_DFNONE();
+                    FORCE_DFNONE();
                     if (!rex.w) {
                         GETED(0);
                         if (ninst && (nextop == 0xF0)
@@ -3801,7 +3846,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             MV(xRAX, x2);
                         }
                     }
-                    SET_DFNONE();
                     CLEAR_FLAGS(x7);
                     IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
                     IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
@@ -3827,7 +3871,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             && dyn->insts[ninst - 1].x64.addr
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x48
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0x99) {
-                            SET_DFNONE();
+                            FORCE_DFNONE();
                             GETED(0);
                             DIV_D(x2, xRAX, ed);
                             MOD_D(xRDX, xRAX, ed);
@@ -3849,7 +3893,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DIV_D(x2, xRAX, ed);
                             MOD_D(xRDX, xRAX, ed);
                             MV(xRAX, x2);
-                            SET_DFNONE();
+                            FORCE_DFNONE();
                         }
                     }
                     break;
@@ -3909,14 +3953,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_inc8(dyn, ninst, ed, x2, x4, x5);
                     EBBACK();
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_dec8(dyn, ninst, ed, x2, x4, x5);
                     EBBACK();
@@ -3930,14 +3974,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
                     break;
                 case 1: // DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETED(0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
