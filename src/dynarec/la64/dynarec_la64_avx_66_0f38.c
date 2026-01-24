@@ -853,7 +853,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x8E:
             INST_NAME("VPMASKMOVD/Q Ex, Vx, Gx");
             nextop = F8;
-            GETEY_VYGY_xy(v0, v2, v1, 0);
+            GETEY_VYGY_xy(v0, v1, v2, 0);
             d0 = fpu_get_scratch(dyn);
             if (vex.l) {
                 if (rex.w) {
