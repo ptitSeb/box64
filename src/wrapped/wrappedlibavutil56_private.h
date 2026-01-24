@@ -2,9 +2,11 @@
 #error Meh...
 #endif
 
+// AVRational is a struct with 2 int, so a U should do it
+// AVinterger is an array of 16 uint16_t, so p
 //GO(av_add_i, 
 //GO(av_add_q, 
-//GO(av_add_stable, 
+GO(av_add_stable, IFUIUI)
 GO(av_adler32_update, uFupL)
 GO(av_aes_alloc, pFv)
 GO(av_aes_crypt, vFpppipi)
@@ -92,7 +94,7 @@ GO(av_color_space_name, pFu)
 GO(av_color_transfer_from_name, iFp)
 GO(av_color_transfer_name, pFu)
 GO(av_compare_mod, IFUUU)
-//GO(av_compare_ts, 
+GO(av_compare_ts, iFIUIU)
 GO(av_content_light_metadata_alloc, pFp)
 GO(av_content_light_metadata_create_side_data, pFp)
 GO(av_cpu_count, iFv)
@@ -121,8 +123,8 @@ GO(av_display_matrix_flip, vFpii)
 GO(av_display_rotation_get, dFp)
 GO(av_display_rotation_set, vFpd)
 //GO(av_div_i, 
-//GO(av_div_q, 
-//GO(av_dovi_alloc, 
+GO(av_div_q, UFUU)
+GO(av_dovi_alloc, pFp)
 //GO(av_downmix_info_update_side_data, 
 //GO(av_dynamic_hdr_plus_alloc, 
 //GO(av_dynamic_hdr_plus_create_side_data, 
@@ -288,7 +290,7 @@ GO(av_hwframe_transfer_data, iFppi)
 GO(av_hwframe_transfer_get_formats, iFpupi)
 //GO(av_i2int, 
 GO(av_image_alloc, iFppiiii)
-//GO(av_image_check_sar, 
+GO(av_image_check_sar, iFuuU)
 GO(av_image_check_size, iFuuip)
 GO(av_image_check_size2, iFuuIiip)
 GO(av_image_copy, vFppppiii)
@@ -320,7 +322,7 @@ GO(av_log_get_level, iFv)
 GOM(av_log_set_callback, vFEp)
 GO(av_log_set_flags, vFi)
 GO(av_log_set_level, vFi)
-//GO(av_lzo1x_decode, 
+GO(av_lzo1x_decode, iFpppp)
 GO(av_malloc, pFL)
 GOM(av_malloc_tracked, pFEl)
 GO(av_malloc_array, pFLL)
@@ -342,7 +344,7 @@ GO(av_memcpy_backptr, vFpii)
 GO(av_memdup, pFpL)
 //GO(av_mod_i, 
 //GO(av_mul_i, 
-//GO(av_mul_q, 
+GO(av_mul_q, UFUU)
 GO(av_murmur3_alloc, pFv)
 GO(av_murmur3_final, vFpp)
 GO(av_murmur3_init, vFp)
@@ -378,7 +380,7 @@ GO(av_opt_get_video_rate, iFppip)
 GO(av_opt_is_set_to_default, iFpp)
 GO(av_opt_is_set_to_default_by_name, iFppi)
 GO(av_opt_next, pFpp)
-//GOM(av_opt_ptr, pFEppp)
+GO(av_opt_ptr, pFppp)   //1st param is a AVClass*
 GO(av_opt_query_ranges, iFpppi)
 GO(av_opt_query_ranges_default, iFpppi)
 GO(av_opt_serialize, iFpiipcc)
@@ -415,14 +417,14 @@ GO(av_pix_fmt_get_chroma_sub_sample, iFipp)
 GO(av_pix_fmt_swap_endianness, iFi)
 //GO(avpriv_alloc_fixed_dsp, 
 //DATA(avpriv_cga_font, 
-//GO(avpriv_dict_set_timestamp, 
+GO(avpriv_dict_set_timestamp, iFppI)
 //GO(avpriv_float_dsp_alloc, 
-//GO(avpriv_get_gamma_from_trc, 
+GO(avpriv_get_gamma_from_trc, dFi)
 //GO(avpriv_get_trc_function_from_trc, 
 //GO(avpriv_init_lls, 
-//GO(avpriv_open, 
-//GO(avpriv_report_missing_feature, 
-//GO(avpriv_request_sample, 
+GO(avpriv_open, iFpON)  //should wrap like open?
+GO(avpriv_report_missing_feature, vFppppppppppp)    // is a vFppV actually, printf style
+GO(avpriv_request_sample, vFppppppppppp)    // is a vFppV actually, printf style
 //GO(avpriv_scalarproduct_float_c, 
 GO(avpriv_set_systematic_pal2, iFpu)
 GOM(avpriv_slicethread_create, iFEppppi)
@@ -516,12 +518,12 @@ GO(av_thread_message_queue_set_err_recv, vFpi)
 GO(av_thread_message_queue_set_err_send, vFpi)
 //GOM(av_thread_message_queue_set_free_func, vFEpp)
 GO(av_timecode_adjust_ntsc_framenum2, iFii)
-//GO(av_timecode_check_frame_rate, 
+GO(av_timecode_check_frame_rate, iFU)
 //GO(av_timecode_get_smpte, 
 GO(av_timecode_get_smpte_from_framenum, uFpi)
-//GO(av_timecode_init, 
+GO(av_timecode_init, iFpUiip)
 //GO(av_timecode_init_from_components, 
-//GO(av_timecode_init_from_string, 
+GO(av_timecode_init_from_string, iFpUpp)
 GO(av_timecode_make_mpeg_tc_string, pFpu)
 GO(av_timecode_make_smpte_tc_string, pFpui)
 //GO(av_timecode_make_smpte_tc_string2, 

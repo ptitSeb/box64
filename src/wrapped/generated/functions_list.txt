@@ -284,6 +284,7 @@
 #() UFEp
 #() UFii
 #() UFuu
+#() UFUU
 #() UFUp
 #() UFdi
 #() UFpi
@@ -568,6 +569,7 @@
 #() iFuWp
 #() iFuui
 #() iFuuu
+#() iFuuU
 #() iFuup
 #() iFuLL
 #() iFuLp
@@ -633,6 +635,7 @@
 #() iFppp
 #() iFpOi
 #() iFpOu
+#() iFpON
 #() iFpSi
 #() iFpSu
 #() iFpSp
@@ -1149,6 +1152,7 @@
 #() iFippL
 #() iFippp
 #() iFipON
+#() iFIUIU
 #() iFuiup
 #() iFuipp
 #() iFuWWp
@@ -1292,6 +1296,7 @@
 #() IFEpIi
 #() IFIIIu
 #() IFIUUu
+#() IFUIUI
 #() IFpIip
 #() IFppii
 #() IFppip
@@ -1897,6 +1902,7 @@
 #() iFpuppu
 #() iFpuppL
 #() iFpuppp
+#() iFpUiip
 #() iFpUiUi
 #() iFpUupp
 #() iFplupp
@@ -3431,6 +3437,7 @@
 #() iFpppLppupp
 #() iFppppiiupp
 #() iFppppLpLip
+#() iFpppppiIII
 #() iFpppppLupp
 #() iFppppppupp
 #() iFppppppppu

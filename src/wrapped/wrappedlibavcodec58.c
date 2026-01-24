@@ -35,7 +35,16 @@ GO(2)   \
 GO(3)   \
 GO(4)
 
+// will allow wrapped lib if and only if libavutil.so.56 && libavformat.so.58 are also available!
 #define PRE_INIT \
-    if (BOX64ENV(nogtk)) return -2;
+    if (BOX64ENV(nogtk)) return -2;                                     \
+    {                                                                   \
+        void* h = dlopen("libavutil.so.56", RTLD_LAZY | RTLD_GLOBAL);   \
+        if(!h) return -2;                                               \
+        else dlclose(h);                                                \
+        h = dlopen("libavformat.so.58", RTLD_LAZY | RTLD_GLOBAL);       \
+        if(!h) return -2;                                               \
+        else dlclose(h);                                                \
+    }
 
 #include "wrappedlib_init.h"

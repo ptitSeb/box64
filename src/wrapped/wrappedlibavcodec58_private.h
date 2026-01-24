@@ -5,6 +5,7 @@
 GO(av_ac3_parse_header, iFpLpp)
 GO(av_adts_header_parse, iFppp)
 //GOM(av_alloc_vdpaucontext, pFEv)
+GO(av_bitstream_filter_filter, iFppppppii)
 GO(av_bsf_alloc, iFpp)  // AVBSFContext* contains AVClass* which might needs wrapping
 GO(av_bsf_flush, vFp)   // AVBSFContext* contains AVClass* which might needs wrapping
 GO(av_bsf_free, vFp)    // AVBSFContext* contains AVClass* which might needs wrapping
@@ -24,6 +25,7 @@ GO(av_bsf_send_packet, iFpp)    // AVBSFContext* contains AVClass* which might n
 //GOM(avcodec_align_dimensions, vFEppp)
 GO(avcodec_align_dimensions2, vFpppp)
 GO(avcodec_alloc_context3, pFp)
+GO(avcodec_chroma_pos_to_enum, iFii)
 GO(avcodec_close, iFp)
 GO(avcodec_configuration, pFv)
 //GOM(avcodec_dct_alloc, pFEv)
@@ -39,6 +41,7 @@ GO(avcodec_descriptor_get, pFu)
 GO(avcodec_descriptor_get_by_name, pFp)
 GO(avcodec_descriptor_next, pFp)
 //GOM(avcodec_encode_subtitle, iFEppip)
+GO(avcodec_enum_to_chroma_pos, iFppi)
 DATA(av_codec_ffversion, 8) // Warning: failed to confirm
 GO(avcodec_fill_audio_frame, iFpiipii)
 GO(avcodec_find_best_pix_fmt_of_list, iFpiip)
@@ -72,7 +75,7 @@ GO(avcodec_receive_frame, iFpp)
 GO(avcodec_receive_packet, iFpp)
 GO(avcodec_send_frame, iFpp)
 GO(avcodec_send_packet, iFpp)
-//GOM(avcodec_string, vFEpipi)
+GO(avcodec_string, vFpipi)  //3rd param is an AVCodecContext*
 GO(avcodec_version, uFv)
 GO(av_cpb_properties_alloc, pFp)
 //GO(av_d3d11va_alloc_context, 
@@ -89,7 +92,7 @@ GO(av_fft_calc, vFpp)
 GO(av_fft_end, vFp)
 GO(av_fft_init, pFii)
 GO(av_fft_permute, vFpp)
-//GOM(av_get_audio_frame_duration, iFEpi)
+GO(av_get_audio_frame_duration, iFpi)
 GO(av_get_audio_frame_duration2, iFpi)
 GO(av_get_bits_per_sample, iFu)
 GO(av_get_exact_bits_per_sample, iFu)
@@ -124,7 +127,7 @@ GO(av_packet_move_ref, vFpp)
 GO(av_packet_new_side_data, pFpuL)
 GO(av_packet_pack_dictionary, pFpp)
 GO(av_packet_ref, iFpp)
-//GO(av_packet_rescale_ts, 
+GO(av_packet_rescale_ts, vFpUU)
 GO(av_packet_shrink_side_data, iFpuL)
 GO(av_packet_side_data_add, pFppupLi)
 GO(av_packet_side_data_free, vFpp)
@@ -134,31 +137,37 @@ GO(av_packet_side_data_new, pFppuLi)
 GO(av_packet_side_data_remove, vFppu)
 GO(av_packet_unpack_dictionary, iFpLp)
 GO(av_packet_unref, vFp)
-//GOM(av_parser_close, vFEp)
-//GOM(av_parser_init, pFEi)
+GO(av_parser_close, vFp)
+GO(av_parser_init, pFi)
 //GOM(av_parser_iterate, pFEp)
-//GOM(av_parser_parse2, iFEpppppiIII)
+GO(av_parser_parse2, iFpppppiIII)
+DATA(avpriv_ac3_channel_layout_tab, sizeof(void*))
 //GO(avpriv_ac3_parse_header, 
 //GO(avpriv_adts_header_parse, 
-//GO(avpriv_codec_get_cap_skip_frame_fill_param, 
+GO(avpriv_codec_get_cap_skip_frame_fill_param, iFp)
 //GO(avpriv_dca_convert_bitstream, 
 //GO(avpriv_dca_parse_core_frame_header, 
 //GO(avpriv_elbg_do, 
 //GO(avpriv_elbg_free, 
 //GO(avpriv_exif_decode_ifd, 
-//GO(avpriv_find_start_code, 
+GO(avpriv_find_pix_fmt, iFpu)
+GO(avpriv_find_start_code, pFppp)
 //GO(avpriv_fits_header_init, 
 //GO(avpriv_fits_header_parse_line, 
-//GO(avpriv_get_raw_pix_fmt_tags, 
-//GO(avpriv_h264_has_num_reorder_frames, 
-//GO(avpriv_mpeg4audio_get_config2, 
-//GO(avpriv_mpegaudio_decode_header, 
+GO(avpriv_get_raw_pix_fmt_tags, pFv)
+GO(avpriv_h264_has_num_reorder_frames, iFp)
+DATA(avpriv_mpa_freq_tab, sizeof(void*))
+GO(avpriv_mpeg4audio_get_config2, iFppiip)
+GO(avpriv_mpegaudio_decode_header, iFpu)
+DATA(avpriv_mpeg4audio_sample_rates, sizeof(void*))
 //GO(avpriv_packet_list_free, 
 //GO(avpriv_packet_list_get, 
 //GO(avpriv_packet_list_put, 
 //GO(avpriv_pix_fmt_find, 
-//GO(avpriv_split_xiph_headers, 
+DATA(avpriv_pix_fmt_bps_mov, sizeof(void*))
+GO(avpriv_split_xiph_headers, iFpiipp)
 //GO(avpriv_tak_parse_streaminfo, 
+GO(avpriv_toupper4, uFu)
 //GO(av_qsv_alloc_context, 
 GO(av_rdft_calc, vFpp)
 GO(av_rdft_end, vFp)

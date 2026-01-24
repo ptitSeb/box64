@@ -110,7 +110,16 @@ EXPORT void* my_avio_alloc_context(x64emu_t* emu, void* buffer, int buffer_size,
     return my->avio_alloc_context(buffer, buffer_size, write_flag, opaque, find_read_packet_Fct(read_packet), find_write_packet_Fct(write_packet), find_seek_Fct(seek));
 }
 
+// will allow wrapped lib if and only if libavutil.so.56 && libavcodec.so.58 are also available!
 #define PRE_INIT \
-    if (BOX64ENV(nogtk)) return -2;
+    if (BOX64ENV(nogtk)) return -2;                                     \
+    {                                                                   \
+        void* h = dlopen("libavutil.so.56", RTLD_LAZY | RTLD_GLOBAL);   \
+        if(!h) return -2;                                               \
+        else dlclose(h);                                                \
+        h = dlopen("libavcodec.so.58", RTLD_LAZY | RTLD_GLOBAL);        \
+        if(!h) return -2;                                               \
+        else dlclose(h);                                                \
+    }
 
 #include "wrappedlib_init.h"
