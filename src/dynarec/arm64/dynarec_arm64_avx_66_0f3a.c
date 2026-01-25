@@ -540,13 +540,20 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
 
         case 0x20:
-            INST_NAME("VINSERTD Gx, Vx, Ex, Ib");
+            INST_NAME("VPINSRB Gx, Vx, ED, Ib");
             nextop = F8;
             GETGX_empty_VX(v0, v2);
-            GETED(1);
-            u8 = F8;
             if(v0!=v2) VMOVQ(v0, v2);
-            VMOVQBfrom(v0, u8&0xf, ed);
+            if(MODREG) {
+                u8 = (F8)&15;
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                VMOVQBfrom(v0, u8, ed);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                u8 = (F8)&15;
+                VLD1_8(v0, u8, wback);
+            }
             YMM0(gd);
             break;
         case 0x21:
