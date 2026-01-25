@@ -1667,15 +1667,15 @@ x64emurun:
                 if(!is32bits || (is32bits && (new_cs!=0x23))) {
                     uintptr_t new_sp = (!rex.w)?Pop32(emu):Pop64(emu);
                     uint32_t new_ss = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
-                    if(!new_ss) {
+                    if(!new_ss || ((new_ss&3)!=3)) {
                         // R_RIP doesn't advance
-                        printf_log(LOG_INFO, "Warning, unexpected new_cs=0x%x at %p\n", new_cs, (void*)R_RIP);
+                        printf_log(LOG_INFO, "Warning, unexpected new_ss=0x%x at %p\n", new_cs, (void*)R_RIP);
                         R_RSP-=(rex.w?4:8)*5;
                         EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GPF
                         goto fini;
                     }
                     R_RSP = new_sp;
-                    emu->segs[_SS] = new_sp;
+                    emu->segs[_SS] = new_ss;
                 }
                 emu->eflags.x64 = new_flags;
                 tf = ACCESS_FLAG(F_TF);
