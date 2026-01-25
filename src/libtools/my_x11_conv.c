@@ -35,7 +35,7 @@ void* getDisplay(void* d)
         if(((&my32_Displays_32[i])==d) || (my32_Displays_64[i]==d)) {
             return my32_Displays_64[i];
         }
-    printf_log(LOG_INFO, "BOX32: Warning, 32bits Display %p not found\n", d);
+    printf_log(LOG_INFO, "Warning, 32bits Display %p not found\n", d);
     return d;
 }
 
@@ -240,7 +240,7 @@ void* addDisplay(void* d)
         }
     }
     if(!ret) {
-        printf_log(LOG_INFO, "BOX32: No more slot available for libX11 Display!");
+        printf_log(LOG_INFO, "No more slot available for libX11 Display!");
         return d;
     }
 
