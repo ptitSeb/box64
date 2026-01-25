@@ -978,15 +978,15 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = ((uintptr_t)emu->regs[_SP].q[0] - 128) & ~0x0f;
+            frame = ((uintptr_t)emu->regs[_SP].q[0] - 128ULL) & ~0x0fULL;
         } else {
-            frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
+            frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16ULL) & ~0x0fULL);
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
     } else {
-        frame = frame&~15;
-        frame -= 0x200; // redzone
+        frame = frame&~15ULL;
+        frame -= 0x200ULL; // redzone
     }
 
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
@@ -1168,7 +1168,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = info->si_code;
         sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
     } else {
-        skip = 3;   // other signal can resume in interpretor
+        skip = 3;   // other signal can resume in dynarec
     }
     //TODO: SIGABRT generate what?
     printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p, prot=%x, mmapped:%d\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[X64_TRAPNO], sigcontext->uc_mcontext.gregs[X64_ERR],sigcontext->uc_mcontext.gregs[X64_RIP], prot, mmapped);
