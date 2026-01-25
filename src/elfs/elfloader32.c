@@ -768,32 +768,32 @@ void ResetSpecialCaseMainElf32(elfheader_t* h)
             if(strcmp(symname, "_IO_2_1_stderr_")==0 && (from_ptrv(sym->st_value+h->delta))) {
                 memcpy(from_ptrv(sym->st_value+h->delta), stderr, sym->st_size);
                 my__IO_2_1_stderr_ = from_ptrv(sym->st_value+h->delta);
-                printf_log(LOG_DEBUG, "BOX32: Set @_IO_2_1_stderr_ to %p\n", my__IO_2_1_stderr_);
+                printf_log(LOG_DEBUG, "Set @_IO_2_1_stderr_ to %p\n", my__IO_2_1_stderr_);
             } else
             if(strcmp(symname, "_IO_2_1_stdin_")==0 && (from_ptrv(sym->st_value+h->delta))) {
                 memcpy(from_ptrv(sym->st_value+h->delta), stdin, sym->st_size);
                 my__IO_2_1_stdin_ = from_ptrv(sym->st_value+h->delta);
-                printf_log(LOG_DEBUG, "BOX32: Set @_IO_2_1_stdin_ to %p\n", my__IO_2_1_stdin_);
+                printf_log(LOG_DEBUG, "Set @_IO_2_1_stdin_ to %p\n", my__IO_2_1_stdin_);
             } else
             if(strcmp(symname, "_IO_2_1_stdout_")==0 && (from_ptrv(sym->st_value+h->delta))) {
                 memcpy(from_ptrv(sym->st_value+h->delta), stdout, sym->st_size);
                 my__IO_2_1_stdout_ = from_ptrv(sym->st_value+h->delta);
-                printf_log(LOG_DEBUG, "BOX32: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
+                printf_log(LOG_DEBUG, "Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
             } else
             if(strcmp(symname, "_IO_stderr_")==0 && (from_ptrv(sym->st_value+h->delta))) {
                 memcpy(from_ptrv(sym->st_value+h->delta), stderr, sym->st_size);
                 my__IO_2_1_stderr_ = from_ptrv(sym->st_value+h->delta);
-                printf_log(LOG_DEBUG, "BOX32: Set @_IO_stderr_ to %p\n", my__IO_2_1_stderr_);
+                printf_log(LOG_DEBUG, "Set @_IO_stderr_ to %p\n", my__IO_2_1_stderr_);
             } else
             if(strcmp(symname, "_IO_stdin_")==0 && (from_ptrv(sym->st_value+h->delta))) {
                 memcpy(from_ptrv(sym->st_value+h->delta), stdin, sym->st_size);
                 my__IO_2_1_stdin_ = from_ptrv(sym->st_value+h->delta);
-                printf_log(LOG_DEBUG, "BOX32: Set @_IO_stdin_ to %p\n", my__IO_2_1_stdin_);
+                printf_log(LOG_DEBUG, "Set @_IO_stdin_ to %p\n", my__IO_2_1_stdin_);
             } else
             if(strcmp(symname, "_IO_stdout_")==0 && (from_ptrv(sym->st_value+h->delta))) {
                 memcpy(from_ptrv(sym->st_value+h->delta), stdout, sym->st_size);
                 my__IO_2_1_stdout_ = from_ptrv(sym->st_value+h->delta);
-                printf_log(LOG_DEBUG, "BOX32: Set @_IO_stdout_ to %p\n", my__IO_2_1_stdout_);
+                printf_log(LOG_DEBUG, "Set @_IO_stdout_ to %p\n", my__IO_2_1_stdout_);
             }
         }
     }

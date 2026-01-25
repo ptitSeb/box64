@@ -1346,7 +1346,7 @@ void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
                 if(ret!=MAP_FAILED) {
                     //rb_set(mapallmem, cur, cur+size, MEM_BOX);    // mark as allocated by/for box
                 } else
-                    printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", strerror(errno));
+                    printf_log(LOG_INFO, "Error allocating Dynarec memory: %s\n", strerror(errno));
                 cur = cur+size;
                 return ret;
             }
@@ -1355,7 +1355,7 @@ void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
     }
 #endif
     uint32_t map_flags = ((fd==-1)?MAP_ANONYMOUS:0) | MAP_PRIVATE;
-    //printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", "fallback to internal mmap");
+    // printf_log(LOG_INFO, "Error allocating Dynarec memory: %s\n", "fallback to internal mmap");
     void* ret = InternalMmap(box64_isAddressSpace32?NULL:(void*)0x100000000ULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, map_flags, fd, offset);
     //printf_log(LOG_INFO, "fallback on box32_dynarec_mmap: %p\n", ret);
     return ret;

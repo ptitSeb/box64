@@ -715,7 +715,7 @@ pid_t EXPORT my32_fork(x64emu_t* emu)
     if(type == EMUTYPE_MAIN)
         thread_set_emu(emu);
     if(v<0) {
-        printf_log(LOG_NONE, "BOX32: Warning, fork errored... (%d)\n", v);
+        printf_log(LOG_NONE, "Warning, fork errored... (%d)\n", v);
         // error...
     } else if(v>0) {
         // execute atforks parent functions

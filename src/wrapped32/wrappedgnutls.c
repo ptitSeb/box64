@@ -123,7 +123,10 @@ EXPORT void* my32_gnutls_certificate_get_peers(x64emu_t* emu, void* session, int
     if(size) *size = num;
     if(!ret) return NULL;
     static datum_32_t res[128];
-    if(num>128) {printf_log(LOG_NONE, "BOX32: Warning, return buffer for gnutls_certificate_get_peers too small: %d\n", num); num=128;}
+    if (num > 128) {
+        printf_log(LOG_NONE, "Warning, return buffer for gnutls_certificate_get_peers too small: %d\n", num);
+        num = 128;
+    }
     for(int i=0; i<num; ++i) {
         res[i].data = to_ptrv(ret[i].p0);
         res[i].size = ret[i].u1;

@@ -60,7 +60,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     #ifdef BOX32
     if(box64_is32bits) {
         if(stack>=0x100000000LL) {
-            printf_log(LOG_NONE, "BOX32: Stack pointer too high (%p), aborting\n", (void*)stack);
+            printf_log(LOG_NONE, "Stack pointer too high (%p), aborting\n", (void*)stack);
             abort();
         }
         if(R_RSP>=0x100000000LL) {    // special case, stack is just a bit too high

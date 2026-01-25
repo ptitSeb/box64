@@ -355,7 +355,7 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
         va_start (va, nargs);
         int sig = va_arg(va, int);
         va_end (va);
-        printf_log(LOG_NONE, "%04d|BOX32: Warning, calling Signal %d function handler %s\n", GetTID(), sig, fnc?"SIG_IGN":"SIG_DFL");
+        printf_log(LOG_NONE, "%04d|Warning, calling Signal %d function handler %s\n", GetTID(), sig, fnc ? "SIG_IGN" : "SIG_DFL");
         if(fnc==0) {
             printf_log(LOG_NONE, "Unhandled signal caught, aborting\n");
             abort();

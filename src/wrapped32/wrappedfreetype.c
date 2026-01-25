@@ -1633,7 +1633,7 @@ void inplace_FT_Glyph_shrink(void* a)
         dst_b->top = src_b->top;
         convert_FT_Bitmap_to_32(&dst_b->bitmap, &src_b->bitmap);
     } else {
-        printf_log(LOG_NONE, "BOX32: Warning, unsupported glyph format 0x%x (%c%c%c%c)\n", dst->format, dst->format>>24, (dst->format>>16)&0xff, (dst->format>>8)&0xff, dst->format&0xff);
+        printf_log(LOG_NONE, "Warning, unsupported glyph format 0x%x (%c%c%c%c)\n", dst->format, dst->format >> 24, (dst->format >> 16) & 0xff, (dst->format >> 8) & 0xff, dst->format & 0xff);
     }
 }
 
@@ -2335,7 +2335,7 @@ EXPORT void* my32_FT_Get_Sfnt_Table(x64emu_t* emu, void* face, int tag)
         case 5: convert_TT_Postscript_to_32(&tt_post, ret); return &tt_post;
         case 6: convert_TT_PCLT_to_32(&tt_pclt, ret); return &tt_pclt;
     }
-    printf_log(LOG_NONE, "BOX32: Warning, unsupported type %d for FT_Get_Sfnt_Table\n", tag);
+    printf_log(LOG_NONE, "Warning, unsupported type %d for FT_Get_Sfnt_Table\n", tag);
     return ret;
 }
 
