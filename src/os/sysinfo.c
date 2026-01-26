@@ -117,7 +117,7 @@ lscpu:
     }
 
 fallback:
-    if (!info->read_ncpu && getenv("BOX64_NPROC_EXECUTED") /* in case it's the x86 version, prevent infinite loop */) {
+    if (!info->read_ncpu && !getenv("BOX64_NPROC_EXECUTED") /* in case it's the x86 version, prevent infinite loop */) {
         setenv("BOX64_NPROC_EXECUTED", "1", 1);
         FILE* f = popen("nproc", "r");
         if (f) {
