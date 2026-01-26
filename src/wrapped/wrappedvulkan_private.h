@@ -1080,5 +1080,24 @@ GO(vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM, iFpupp)
 // VK_ARM_performance_counters_by_region
 GO(vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM, iFpuppp)
 
+// VK_EXT_descriptor_heap
+GO(vkCmdBindResourceHeapEXT, iFpp)
+GO(vkCmdBindSamplerHeapEXT, iFpp)
+GO(vkCmdPushDataEXT, vFpp)
+GO(vkGetImageOpaqueCaptureDataEXT, iFpupp)
+GO(vkGetPhysicalDeviceDescriptorSizeEXT, UFpu)
+GO(vkWriteResourceDescriptorsEXT, iFpupp)
+GO(vkWriteSamplerDescriptorsEXT, iFpupp)
+
+// VK_EXT_descriptor_heap + VK_ARM_tensors
+GO(vkGetTensorOpaqueCaptureDataARM, iFpupp)
+
+// VK_EXT_descriptor_heap + VK_EXT_custom_border_color
+GO(vkRegisterCustomBorderColorEXT, iFppip)
+GO(vkUnregisterCustomBorderColorEXT, vFpu)
+
+// VK_EXT_custom_border_color
+// no new functions
+
 // Layer stuffs
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)   // structure needs wrapping

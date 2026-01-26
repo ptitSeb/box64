@@ -332,6 +332,7 @@ typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef uint64_t (*UFUp_t)(uint64_t, void*);
 typedef uint64_t (*UFdi_t)(double, int32_t);
 typedef uint64_t (*UFpi_t)(void*, int32_t);
+typedef uint64_t (*UFpu_t)(void*, uint32_t);
 typedef uint64_t (*UFpU_t)(void*, uint64_t);
 typedef uint64_t (*UFpL_t)(void*, uintptr_t);
 typedef uint64_t (*UFpp_t)(void*, void*);
@@ -4257,6 +4258,7 @@ void UFUU(x64emu_t *emu, uintptr_t fcn) { UFUU_t fn = (UFUU_t)fcn; R_RAX=fn((uin
 void UFUp(x64emu_t *emu, uintptr_t fcn) { UFUp_t fn = (UFUp_t)fcn; R_RAX=fn((uint64_t)R_RDI, (void*)R_RSI); }
 void UFdi(x64emu_t *emu, uintptr_t fcn) { UFdi_t fn = (UFdi_t)fcn; R_RAX=fn(emu->xmm[0].d[0], (int32_t)R_RDI); }
 void UFpi(x64emu_t *emu, uintptr_t fcn) { UFpi_t fn = (UFpi_t)fcn; R_RAX=fn((void*)R_RDI, (int32_t)R_RSI); }
+void UFpu(x64emu_t *emu, uintptr_t fcn) { UFpu_t fn = (UFpu_t)fcn; R_RAX=fn((void*)R_RDI, (uint32_t)R_RSI); }
 void UFpU(x64emu_t *emu, uintptr_t fcn) { UFpU_t fn = (UFpU_t)fcn; R_RAX=fn((void*)R_RDI, (uint64_t)R_RSI); }
 void UFpL(x64emu_t *emu, uintptr_t fcn) { UFpL_t fn = (UFpL_t)fcn; R_RAX=fn((void*)R_RDI, (uintptr_t)R_RSI); }
 void UFpp(x64emu_t *emu, uintptr_t fcn) { UFpp_t fn = (UFpp_t)fcn; R_RAX=fn((void*)R_RDI, (void*)R_RSI); }
@@ -8161,6 +8163,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &UFUp) return 1;
 	if (fun == &UFdi) return 2;
 	if (fun == &UFpi) return 1;
+	if (fun == &UFpu) return 1;
 	if (fun == &UFpU) return 1;
 	if (fun == &UFpL) return 1;
 	if (fun == &UFpp) return 1;
@@ -10407,6 +10410,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &UFUp) return 1;
 	if (fun == &UFdi) return 18;
 	if (fun == &UFpi) return 33;
+	if (fun == &UFpu) return 33;
 	if (fun == &UFpU) return 1;
 	if (fun == &UFpL) return 1;
 	if (fun == &UFpp) return 1;
@@ -12653,6 +12657,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &UFUp) return 1;
 	if (fun == &UFdi) return 18;
 	if (fun == &UFpi) return 33;
+	if (fun == &UFpu) return 33;
 	if (fun == &UFpU) return 1;
 	if (fun == &UFpL) return 1;
 	if (fun == &UFpp) return 1;
