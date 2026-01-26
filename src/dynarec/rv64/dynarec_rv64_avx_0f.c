@@ -731,20 +731,15 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, vback, vxoffset + i * 4);
-                if (!BOX64ENV(dynarec_fastnan)) {
-                    FEQS(x3, s0, s0);
-                    FEQS(x4, s1, s1);
-                    AND(x3, x3, x4);
-                    FLTS(x5, s1, s0);
-                    AND(x3, x3, x5);
-                    BNEZ(x3, 4 + 4 * 2);
-                    FSW(s0, gback, gdoffset + i * 4);
-                    B(4 + 4);
-                    FSW(s1, gback, gdoffset + i * 4);
-                } else {
-                    FMINS(s1, s1, s0);
-                    FSW(s1, gback, gdoffset + i * 4);
-                }
+                FEQS(x3, s0, s0);
+                FEQS(x4, s1, s1);
+                AND(x3, x3, x4);
+                FLTS(x5, s1, s0);
+                AND(x3, x3, x5);
+                BNEZ(x3, 4 + 4 * 2);
+                FSW(s0, gback, gdoffset + i * 4);
+                B(4 + 4);
+                FSW(s1, gback, gdoffset + i * 4);
             }
             if (vex.l) {
                 GETEY();
@@ -823,7 +818,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 YMM0(gd);
             break;
         case 0x5F:
-            INST_NAME("VMINPS Gx, Vx, Ex");
+            INST_NAME("VMAXPS Gx, Vx, Ex");
             nextop = F8;
             GETEX(x2, 0, vex.l ? 28 : 12);
             GETGX();
@@ -835,40 +830,30 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, vback, vxoffset + i * 4);
-                if (!BOX64ENV(dynarec_fastnan)) {
-                    FEQS(x3, s0, s0);
-                    FEQS(x4, s1, s1);
-                    AND(x3, x3, x4);
-                    FLTS(x5, s0, s1);
-                    AND(x3, x3, x5);
-                    BNEZ(x3, 4 + 4 * 2);
-                    FSW(s0, gback, gdoffset + i * 4);
-                    B(4 + 4);
-                    FSW(s1, gback, gdoffset + i * 4);
-                } else {
-                    FMAXS(s1, s1, s0);
-                    FSW(s1, gback, gdoffset + i * 4);
-                }
+                FEQS(x3, s0, s0);
+                FEQS(x4, s1, s1);
+                AND(x3, x3, x4);
+                FLTS(x5, s0, s1);
+                AND(x3, x3, x5);
+                BNEZ(x3, 4 + 4 * 2);
+                FSW(s0, gback, gdoffset + i * 4);
+                B(4 + 4);
+                FSW(s1, gback, gdoffset + i * 4);
             }
             if (vex.l) {
                 GETEY();
                 for (int i = 0; i < 4; ++i) {
                     FLW(s0, wback, fixedaddress + i * 4);
                     FLW(s1, vback, vyoffset + i * 4);
-                    if (!BOX64ENV(dynarec_fastnan)) {
-                        FEQS(x3, s0, s0);
-                        FEQS(x4, s1, s1);
-                        AND(x3, x3, x4);
-                        FLTS(x5, s0, s1);
-                        AND(x3, x3, x5);
-                        BNEZ(x3, 4 + 4 * 2);
-                        FSW(s0, gback, gyoffset + i * 4);
-                        B(4 + 4);
-                        FSW(s1, gback, gyoffset + i * 4);
-                    } else {
-                        FMAXS(s1, s1, s0);
-                        FSW(s1, gback, gyoffset + i * 4);
-                    }
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x3, x3, x4);
+                    FLTS(x5, s0, s1);
+                    AND(x3, x3, x5);
+                    BNEZ(x3, 4 + 4 * 2);
+                    FSW(s0, gback, gyoffset + i * 4);
+                    B(4 + 4);
+                    FSW(s1, gback, gyoffset + i * 4);
                 }
             } else
                 YMM0(gd);
