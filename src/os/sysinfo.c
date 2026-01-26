@@ -12,7 +12,7 @@
 #include "freq.h"
 #endif
 
-sysinfo_t box64_sysinfo = { 0 };
+extern sysinfo_t box64_sysinfo;
 
 static void readCpuinfo(sysinfo_t* info)
 {
