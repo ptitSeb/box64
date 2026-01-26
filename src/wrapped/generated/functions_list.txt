@@ -5595,7 +5595,10 @@ wrappedlibm:
 - iFv:
   - fegetround
 - iFi:
+  - feclearexcept
+  - feraiseexcept
   - fesetround
+  - fetestexcept
 - iFf:
   - lrintf
 - iFd:

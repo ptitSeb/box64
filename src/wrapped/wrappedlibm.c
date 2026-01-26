@@ -136,6 +136,39 @@ EXPORT double my___powl_finite(double a, double b) __attribute__((alias("my___po
 #error Unknown architecture!
 #endif
 
+static int x86_to_native_excepts(int e) {
+    int n = 0;
+    if (e & 0x01) n |= FE_INVALID;
+    if (e & 0x04) n |= FE_DIVBYZERO;
+    if (e & 0x08) n |= FE_OVERFLOW;
+    if (e & 0x10) n |= FE_UNDERFLOW;
+    if (e & 0x20) n |= FE_INEXACT;
+    return n;
+}
+
+static int native_to_x86_excepts(int e) {
+    int x = 0;
+    if (e & FE_INVALID)    x |= 0x01;
+    if (e & FE_DIVBYZERO)  x |= 0x04;
+    if (e & FE_OVERFLOW)   x |= 0x08;
+    if (e & FE_UNDERFLOW)  x |= 0x10;
+    if (e & FE_INEXACT)    x |= 0x20;
+    return x;
+}
+
+EXPORT int my_feraiseexcept(x64emu_t* emu, int e){
+    return feraiseexcept(x86_to_native_excepts(e));
+}
+
+EXPORT int my_feclearexcept(x64emu_t* emu, int e) {
+    return feclearexcept(x86_to_native_excepts(e));
+}
+
+EXPORT int my_fetestexcept(x64emu_t* emu, int e) {
+    int r = fetestexcept(x86_to_native_excepts(e));
+    return native_to_x86_excepts(r);
+}
+
 // See https://github.com/bminor/glibc/blob/master/sysdeps/x86_64/fpu/fesetround.c
 EXPORT int my_fesetround(x64emu_t* emu, int round)
 {
