@@ -173,9 +173,9 @@ void InitializeSystemInfo(void)
     box64_sysinfo.ncpu = sysinfo.dwNumberOfProcessors;
     box64_sysinfo.frequency = ReadTSCFrequency(NULL);
     box64_sysinfo.bogomips = box64_sysinfo.frequency;
-    box64_sysinfo.cpuname = (char*)malloc(64);
-    snprintf(box64_sysinfo.cpuname, 64, "Box64 Virtual CPU");
-    box64_sysinfo.box64_cpuname = (char*)calloc(strlen(BOX64_STR) + 1, 1);
+    box64_sysinfo.cpuname = (char*)WinMalloc(64);
+    strcpy(box64_sysinfo.cpuname, "Box64 Virtual CPU");
+    box64_sysinfo.box64_cpuname = (char*)WinCalloc(strlen(BOX64_STR) + 1, 1);
     strcpy(box64_sysinfo.box64_cpuname, BOX64_STR);
 
     box64_sysinfo.emulated_frequency = 0;
