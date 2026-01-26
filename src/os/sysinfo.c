@@ -155,7 +155,7 @@ void InitializeSystemInfo(void)
         if (box64_sysinfo.frequency > 1500000) {
             snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%1.2f GHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000000.);
         } else {
-            snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04d MHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000.);
+            snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04d MHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000);
         }
     }
     box64_sysinfo.box64_cpuname = (char*)calloc(strlen(branding) + 1, 1);
