@@ -1827,6 +1827,7 @@
 #() iFiuuuU
 #() iFiuuup
 #() iFiuUip
+#() iFiuppi
 #() iFillLL
 #() iFiLLpp
 #() iFipiii
@@ -1835,6 +1836,7 @@
 #() iFipipu
 #() iFipuip
 #() iFipuui
+#() iFipupL
 #() iFipLup
 #() iFippuu
 #() iFippLi
@@ -5219,6 +5221,7 @@ wrappedlibc:
   - sscanf
   - swscanf
 - iFppA:
+  - __isoc23_vfscanf
   - __isoc23_vsscanf
   - __isoc99_vfscanf
   - __isoc99_vsscanf
@@ -5595,7 +5598,10 @@ wrappedlibm:
 - iFv:
   - fegetround
 - iFi:
+  - feclearexcept
+  - feraiseexcept
   - fesetround
+  - fetestexcept
 - iFf:
   - lrintf
 - iFd:

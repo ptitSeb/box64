@@ -34,7 +34,10 @@ typedef double (*DFDD_t)(double, double);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(fegetround, iFv_t) \
+	GO(feclearexcept, iFi_t) \
+	GO(feraiseexcept, iFi_t) \
 	GO(fesetround, iFi_t) \
+	GO(fetestexcept, iFi_t) \
 	GO(lrintf, iFf_t) \
 	GO(lrint, iFd_t) \
 	GO(llrintf, IFf_t) \

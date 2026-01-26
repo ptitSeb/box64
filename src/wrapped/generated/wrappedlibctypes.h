@@ -257,6 +257,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
+	GO(__isoc23_vfscanf, iFppA_t) \
 	GO(__isoc23_vsscanf, iFppA_t) \
 	GO(__isoc99_vfscanf, iFppA_t) \
 	GO(__isoc99_vsscanf, iFppA_t) \
