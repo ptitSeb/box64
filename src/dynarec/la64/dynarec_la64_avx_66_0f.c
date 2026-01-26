@@ -436,14 +436,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VMINPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (BOX64ENV(dynarec_fastnan)) {
-                VFMINxy(D, v0, v2, v1);
-            } else {
-                q0 = fpu_get_scratch(dyn);
-                q1 = fpu_get_scratch(dyn);
-                VFCMPxy(D, q0, v2, v1, cULE);
-                VBITSEL_Vxy(v0, v1, v2, q0);
-            }
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VFCMPxy(D, q0, v2, v1, cULE);
+            VBITSEL_Vxy(v0, v1, v2, q0);
             break;
         case 0x5E:
             INST_NAME("VDIVPD Gx, Vx, Ex");

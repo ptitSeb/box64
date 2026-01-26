@@ -1622,13 +1622,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // LoongArch FMIN/FMAX follow IEEE 754-2008 , it wll copy the none NaN value.
             // If both NaN, then copy NaN.
             // but x86 will copy the second if either v0[x] or v1[x] is NaN
-            if (!BOX64ENV(dynarec_fastnan)) {
-                q0 = fpu_get_scratch(dyn);
-                VFCMP_D(q0, v1, v0, cULE);
-                VBITSEL_V(v0, v0, v1, q0);
-            } else {
-                VFMIN_D(v0, v0, v1);
-            }
+            q0 = fpu_get_scratch(dyn);
+            VFCMP_D(q0, v1, v0, cULE);
+            VBITSEL_V(v0, v0, v1, q0);
             break;
         case 0x5E:
             INST_NAME("DIVPD Gx, Ex");
@@ -1659,14 +1655,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // LoongArch FMIN/FMAX follow IEEE 754-2008 , it wll copy the none NaN value.
             // If both NaN, then copy NaN.
             // but x86 will copy the second if either v0[x] or v1[x] is NaN
-            if (!BOX64ENV(dynarec_fastnan) && v0 != v1) {
-                q0 = fpu_get_scratch(dyn);
-                q1 = fpu_get_scratch(dyn);
-                VFCMP_D(q0, v1, v0, cLT);  // ~cLT = un ge eq, if either v0/v1=nan ,choose v1. if eq either is ok,but when +0.0 == -0.0 x86 sse choose v1
-                VBITSEL_V(v0, v1, v0, q0); // swap v0 v1 => v1 v0 for ~cLT
-            } else {
-                VFMAX_D(v0, v0, v1);
-            }
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            VFCMP_D(q0, v1, v0, cLT);  // ~cLT = un ge eq, if either v0/v1=nan ,choose v1. if eq either is ok,but when +0.0 == -0.0 x86 sse choose v1
+            VBITSEL_V(v0, v1, v0, q0); // swap v0 v1 => v1 v0 for ~cLT
             break;
 
         case 0x60:
