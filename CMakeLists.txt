@@ -380,8 +380,9 @@ set(OS_LINUX_SRC
     "${BOX64_ROOT}/src/os/os_linux.c"
     "${BOX64_ROOT}/src/os/perfmap.c"
     "${BOX64_ROOT}/src/os/symbolfuncs_linux.c"
-    "${BOX64_ROOT}/src/os/my_cpuid_linux.c"
-    "${BOX64_ROOT}/src/os/my_cpuid_common.c"
+    "${BOX64_ROOT}/src/os/random_linux.c"
+    "${BOX64_ROOT}/src/os/my_cpuid.c"
+    "${BOX64_ROOT}/src/os/sysinfo.c"
 )
 
 set(ELFLOADER_SRC

@@ -142,7 +142,6 @@ static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
 }
 
 void AddNewLibs(const char* list);
-int canNCpuBeChanged();
 
 extern int box64_cycle_log_initialized;
 
@@ -255,8 +254,7 @@ static void applyCustomRules()
     }
 
     if (box64env.maxcpu == 0 || (box64env.new_maxcpu < box64env.maxcpu)) {
-        if(canNCpuBeChanged())
-            box64env.maxcpu = box64env.new_maxcpu;
+        box64env.maxcpu = box64env.new_maxcpu;
     }
 
 #ifndef _WIN32
@@ -278,7 +276,7 @@ static void applyCustomRules()
         box64env.avx = 1;
         box64env.avx2 = 1;
     }
-#ifdef LA64
+#if defined(LA64) && defined(DYNAREC)
     if (box64env.avx && !cpuext.lasx) {
         box64env.avx = 0;
         box64env.avx2 = 0;

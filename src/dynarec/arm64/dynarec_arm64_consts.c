@@ -22,6 +22,7 @@
 #include "emu/x64compstrings.h"
 #include "x64test.h"
 #include "dynarec/dynarec_next.h"
+#include "random.h"
 
 static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
 static const int8_t mask_string8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };

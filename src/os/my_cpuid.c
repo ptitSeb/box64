@@ -10,8 +10,8 @@
 void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
 {
     emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
-    int ncpu = getNCpu();
-    if(!ncpu) ncpu = 1;
+    int ncpu = box64_sysinfo.box64_ncpu;
+    if (!ncpu) ncpu = 1;
     int ncluster = 1;
     static int warned = 10;
     if(BOX64ENV(cputype)) {
@@ -33,7 +33,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     }
     static char branding[3*4*4+1] = "";
     if(!branding[0]) {
-        strcpy(branding, getBoxCpuName());
+        strncpy(branding, box64_sysinfo.box64_cpuname, 3*4*4);
         while(strlen(branding)<3*4*4) {
             memmove(branding+1, branding, strlen(branding)+1);
             branding[0] = ' ';
@@ -356,8 +356,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             if(BOX64ENV(cputype)) {
                 R_RAX = R_RBX = R_RCX = R_RDX = 0;
             } else {
-                R_RAX = get_cpuMhz();
-                R_RBX = get_cpuMhz();
+                R_RAX = box64_sysinfo.frequency / 1000000;
+                R_RBX = box64_sysinfo.frequency / 1000000;
                 R_RCX = 100;
                 R_RDX = 0;
 

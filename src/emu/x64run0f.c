@@ -25,6 +25,7 @@
 #include "emit_signals.h"
 #include "x64shaext.h"
 #include "freq.h"
+#include "random.h"
 #ifdef DYNAREC
 #include "custommem.h"
 #include "../dynarec/native_lock.h"

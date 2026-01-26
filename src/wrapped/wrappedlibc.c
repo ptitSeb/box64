@@ -70,6 +70,7 @@
 #include "wine_tools.h"
 #include "pe_tools.h"
 #include "cleanup.h"
+#include "random.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -1716,26 +1717,12 @@ EXPORT ssize_t my___readlink_chk(x64emu_t* emu, void* path, void* buf, size_t sz
     return my_readlink(emu, path, buf, sz);
 }
 
-int getNCpu();  // defined in my_cpuid.c
-const char* getBoxCpuName();    // defined in my_cpuid.c
-const char* getCpuName(); // defined in my_cpu_id.c
-double getBogoMips(); // defined in my_cpu_id.c
-
 #ifndef NOALIGN
 void CreateCPUInfoFile(int fd)
 {
     size_t dummy;
     char buff[600];
-    double freq = 600.0; // default to 600 MHz
-    // try to get actual ARM max speed:
-    FILE *f = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
-    if(f) {
-        int r;
-        if(1==fscanf(f, "%d", &r))
-            freq = r/1000.;
-        fclose(f);
-    }
-    int n = getNCpu();
+    int n = box64_sysinfo.box64_ncpu;
     // generate fake CPUINFO
     #define P \
     dummy = write(fd, buff, strlen(buff))
@@ -1748,11 +1735,11 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "model\t\t: 1\n");
         P;
-        sprintf(buff, "model name\t: %s\n", getBoxCpuName());
+        sprintf(buff, "model name\t: %s\n", box64_sysinfo.cpuname);
         P;
         sprintf(buff, "stepping\t: 1\nmicrocode\t: 0x10\n");
         P;
-        sprintf(buff, "cpu MHz\t\t: %g\n", freq);
+        sprintf(buff, "cpu MHz\t\t: %g\n", box64_sysinfo.frequency / 1000000.);
         P;
         sprintf(buff, "cache size\t: %d\n", 4096);
         P;
@@ -1760,7 +1747,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "core id\t\t: %d\ncpu cores\t: %d\n", i, n);
         P;
-        sprintf(buff, "bogomips\t: %g\n", getBogoMips());
+        sprintf(buff, "bogomips\t: %g\n", box64_sysinfo.bogomips / 1000000.);
         P;
         sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fxsr cpuid"\
                       "%s cx16%s movbe pni "\
@@ -1786,7 +1773,7 @@ void CreateCPUPresentFile(int fd)
 {
     size_t dummy;
     char buff[600];
-    int n = getNCpu();
+    int n = box64_sysinfo.box64_ncpu;
     // generate fake CPUINFO
     sprintf(buff, "0-%d\n", n-1);
     dummy = write(fd, buff, strlen(buff));
@@ -2032,7 +2019,7 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
-    if(BOX64ENV(maxcpu) && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (getNCpu()>=BOX64ENV(maxcpu))) {
+    if (BOX64ENV(maxcpu) && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (box64_sysinfo.ncpu >= BOX64ENV(maxcpu))) {
         // special case for cpu present (to limit to 64 cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return open64(pathname, mode); // error fallback
@@ -2103,7 +2090,7 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
     }
-    if(BOX64ENV(maxcpu) && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=BOX64ENV(maxcpu))) {
+    if (BOX64ENV(maxcpu) && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (box64_sysinfo.ncpu >= BOX64ENV(maxcpu))) {
         // special case for cpu present (to limit to 64 cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen64(path, mode); // error fallback
@@ -4004,7 +3991,6 @@ size_t __attribute__((weak)) __strlcpy_chk(char* dest, const char* src, size_t l
     return strlcpy(dest, src, len);
 }
 
-uint32_t get_random32();
 __attribute__((weak)) uint32_t arc4random(void)
 {
     return get_random32();
@@ -4042,10 +4028,10 @@ __attribute__((weak)) int dn_skipname(const unsigned char* ptr, const unsigned c
 #endif
 EXPORT long my_sysconf(x64emu_t* emu, int what) {
     if(what==_SC_NPROCESSORS_ONLN) {
-        return getNCpu();
+        return box64_sysinfo.box64_ncpu;
     }
     if(what==_SC_NPROCESSORS_CONF) {
-        return getNCpu();
+        return box64_sysinfo.box64_ncpu;
     }
     return sysconf(what);
 }
