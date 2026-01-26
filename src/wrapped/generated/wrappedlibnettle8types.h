@@ -14,6 +14,7 @@
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppLp_t)(void*, void*, uintptr_t, void*);
 typedef void (*vFpppLp_t)(void*, void*, void*, uintptr_t, void*);
+typedef void (*vFpppLLp_t)(void*, void*, void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFppppup_t)(void*, void*, void*, void*, uint32_t, void*);
 typedef void (*vFppppLp_t)(void*, void*, void*, void*, uintptr_t, void*);
 typedef void (*vFppLpLpp_t)(void*, void*, uintptr_t, void*, uintptr_t, void*, void*);
@@ -21,21 +22,30 @@ typedef void (*vFpppLLpp_t)(void*, void*, void*, uintptr_t, uintptr_t, void*, vo
 typedef void (*vFppppLpp_t)(void*, void*, void*, void*, uintptr_t, void*, void*);
 typedef void (*vFpppLLpLp_t)(void*, void*, void*, uintptr_t, uintptr_t, void*, uintptr_t, void*);
 typedef void (*vFpppLuLpLp_t)(void*, void*, void*, uintptr_t, uint32_t, uintptr_t, void*, uintptr_t, void*);
+typedef void (*vFppppppLpp_t)(void*, void*, void*, void*, void*, void*, uintptr_t, void*, void*);
 typedef void (*vFppLpLpLLpp_t)(void*, void*, uintptr_t, void*, uintptr_t, void*, uintptr_t, uintptr_t, void*, void*);
 typedef int32_t (*iFppLpLpLLpp_t)(void*, void*, uintptr_t, void*, uintptr_t, void*, uintptr_t, uintptr_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(nettle_cmac128_set_key, vFppp_t) \
 	GO(nettle_cmac64_set_key, vFppp_t) \
+	GO(nettle_eax_set_key, vFppp_t) \
 	GO(nettle_gcm_set_key, vFppp_t) \
+	GO(nettle_ocb_set_key, vFppp_t) \
 	GO(nettle_hmac_update, vFppLp_t) \
 	GO(nettle_cmac128_update, vFpppLp_t) \
 	GO(nettle_cmac64_update, vFpppLp_t) \
+	GO(nettle_ocb_set_nonce, vFpppLLp_t) \
 	GO(nettle_cmac128_digest, vFppppup_t) \
 	GO(nettle_cmac64_digest, vFppppup_t) \
+	GO(nettle_eax_digest, vFppppLp_t) \
+	GO(nettle_eax_set_nonce, vFppppLp_t) \
+	GO(nettle_eax_update, vFppppLp_t) \
 	GO(nettle_gcm_digest, vFppppLp_t) \
 	GO(nettle_hmac_digest, vFppppLp_t) \
 	GO(nettle_hmac_set_key, vFppppLp_t) \
+	GO(nettle_ocb_digest, vFppppLp_t) \
+	GO(nettle_ocb_update, vFppppLp_t) \
 	GO(nettle_cbc_decrypt, vFppLpLpp_t) \
 	GO(nettle_cbc_encrypt, vFppLpLpp_t) \
 	GO(nettle_cfb8_decrypt, vFppLpLpp_t) \
@@ -44,10 +54,14 @@ typedef int32_t (*iFppLpLpLLpp_t)(void*, void*, uintptr_t, void*, uintptr_t, voi
 	GO(nettle_cfb_encrypt, vFppLpLpp_t) \
 	GO(nettle_ctr_crypt, vFppLpLpp_t) \
 	GO(nettle_hkdf_extract, vFpppLLpp_t) \
+	GO(nettle_eax_decrypt, vFppppLpp_t) \
+	GO(nettle_eax_encrypt, vFppppLpp_t) \
 	GO(nettle_gcm_decrypt, vFppppLpp_t) \
 	GO(nettle_gcm_encrypt, vFppppLpp_t) \
+	GO(nettle_ocb_encrypt, vFppppLpp_t) \
 	GO(nettle_hkdf_expand, vFpppLLpLp_t) \
 	GO(nettle_pbkdf2, vFpppLuLpLp_t) \
+	GO(nettle_ocb_decrypt, vFppppppLpp_t) \
 	GO(nettle_ccm_encrypt_message, vFppLpLpLLpp_t) \
 	GO(nettle_ccm_decrypt_message, iFppLpLpLLpp_t)
 

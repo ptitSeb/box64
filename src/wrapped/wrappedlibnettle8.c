@@ -333,4 +333,65 @@ EXPORT void my_nettle_hmac_digest(x64emu_t* emu, void* outer, void* inner, void*
     my->nettle_hmac_digest(outer, inner, state, Wrap_nettle_hash(&save, hash), l, key);
 }
 
+EXPORT void my_nettle_eax_decrypt(x64emu_t* emu, void* eax, void* key, void* cipher, void* f, unsigned long len, void* dst, void* src)
+{
+    my->nettle_eax_decrypt(eax, key, cipher, findnettle_cipher_funcFct(f), len, dst, src);
+}
+
+EXPORT void my_nettle_eax_digest(x64emu_t* emu, void* eax, void* key, void* cipher, void* f, unsigned long len, void* digest)
+{
+    my->nettle_eax_digest(eax, key, cipher, findnettle_cipher_funcFct(f), len, digest);
+}
+
+EXPORT void my_nettle_eax_encrypt(x64emu_t* emu, void* eax, void* key, void* cipher, void* f, unsigned long len, void* dst, void* src)
+{
+    my->nettle_eax_encrypt(eax, key, cipher, findnettle_cipher_funcFct(f), len, dst, src);
+}
+
+
+EXPORT void my_nettle_eax_set_key(x64emu_t* emu, void* key, void* cipher, void* f)
+{
+    my->nettle_eax_set_key(key, cipher, findnettle_cipher_funcFct(f));
+}
+
+EXPORT void my_nettle_eax_set_nonce(x64emu_t* emu, void* eax, void* key, void* cipher)
+{
+
+}
+
+EXPORT void my_nettle_eax_update(x64emu_t* emu, void* eax, void* key, void* cipher, void* f, unsigned long len, void* data)
+{
+    my->nettle_eax_update(eax, key, cipher, findnettle_cipher_funcFct(f), len, data);
+}
+
+EXPORT void my_nettle_ocb_decrypt(x64emu_t* emu, void* ctx, void* key, void* encrypt_ctx, void* encrypt_f, void* decrypt_ctx, void* decrypt_f, unsigned long len, void* dst, void* src)
+{
+    my->nettle_ocb_decrypt(ctx, key, encrypt_ctx, findnettle_cipher_funcFct(encrypt_f), decrypt_ctx, findnettle_cipher_funcFct(decrypt_f), len, dst, src);
+}
+
+EXPORT void my_nettle_ocb_digest(x64emu_t* emu, void* ctx, void* key, void* cipher, void* f, unsigned long len, void* digest)
+{
+    my->nettle_ocb_digest(ctx, key, cipher, findnettle_cipher_funcFct(f), len, digest);
+}
+
+EXPORT void my_nettle_ocb_encrypt(x64emu_t* emu, void* ctx, void* key, void* cipher, void* f, unsigned long len, void* dst, void* src)
+{
+    my->nettle_ocb_encrypt(ctx, key, cipher, findnettle_cipher_funcFct(f), len, dst, src);
+}
+
+EXPORT void my_nettle_ocb_set_key(x64emu_t* emu, void* key, void* cipher, void* f)
+{
+    my->nettle_ocb_set_key(key, cipher, findnettle_cipher_funcFct(f));
+}
+
+EXPORT void my_nettle_ocb_set_nonce(x64emu_t* emu, void* ctx, void* cipher, void* f, unsigned long len1, unsigned long len2, void* nonce)
+{
+    my->nettle_ocb_set_nonce(ctx, cipher, findnettle_cipher_funcFct(f), len1, len2, nonce);
+}
+
+EXPORT void my_nettle_ocb_update(x64emu_t* emu, void* ctx, void* key, void* cipher, void* f, unsigned long len, void* data)
+{
+    my->nettle_ocb_update(ctx, key, cipher, findnettle_cipher_funcFct(f), len, data);
+}
+
 #include "wrappedlib_init.h"
