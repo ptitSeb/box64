@@ -8,6 +8,10 @@
 
 ---
 
+**请查看我们的游戏兼容性列表：[https://box86.org/app/](https://box86.org/app/)，并请帮助我们[改进它](https://github.com/ptitSeb/box86-compatibility-list/issues)！**
+
+---
+
 Box64 可以在非 x86_64 Linux 主机系统（比如 Arm）上运行 x86_64 Linux 程序（比如游戏），目前仅支持 64 位小端主机系统。
 
 Box64 可以使用本机原生的系统库（libc、libm、SDL、OpenGL），有着易于集成的特性和令人惊讶的性能。如需性能基准测试，请查看[此分析](https://box86.org/index.php/2021/06/game-performances/)。

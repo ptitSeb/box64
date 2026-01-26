@@ -8,6 +8,10 @@
 
 ---
 
+**Check out our game compatibility list at [https://box86.org/app/](https://box86.org/app/), please help us [improve it](https://github.com/ptitSeb/box86-compatibility-list/issues)!**
+
+---
+
 Box64 enables running x86_64 Linux programs, including games, on non-x86_64 Linux systems such as Arm (64-bit little-endian host system required).
 
 Box64 leverages native system libraries (libc, libm, SDL, OpenGL), offering ease of integration and surprising performance in many applications. For performance benchmarks, check [this analysis](https://box86.org/index.php/2021/06/game-performances/).
