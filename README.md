@@ -10,11 +10,6 @@
 
 Box64 enables running x86_64 Linux programs, including games, on non-x86_64 Linux systems such as Arm (64-bit little-endian host system required).
 
-Check out Box64 in action on YouTube:
-- [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)
-- [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)
-- [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA)
-
 Box64 leverages native system libraries (libc, libm, SDL, OpenGL), offering ease of integration and surprising performance in many applications. For performance benchmarks, check [this analysis](https://box86.org/index.php/2021/06/game-performances/).
 
 With DynaRec for ARM64, RV64 and LA64 platforms, Box64 achieves a speed boost 5-10x faster than the interpreter alone. For a deeper look at DynaRec, see [Inner workings](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).

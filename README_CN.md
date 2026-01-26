@@ -10,11 +10,6 @@
 
 Box64 可以在非 x86_64 Linux 主机系统（比如 Arm）上运行 x86_64 Linux 程序（比如游戏），目前仅支持 64 位小端主机系统。
 
-在 YouTube 上查看 Box64 的运行效果:
-- [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)
-- [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)
-- [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA)
-
 Box64 可以使用本机原生的系统库（libc、libm、SDL、OpenGL），有着易于集成的特性和令人惊讶的性能。如需性能基准测试，请查看[此分析](https://box86.org/index.php/2021/06/game-performances/)。
 
 借助适用于 ARM64，RV64 以及 LA64 平台的 DynaRec，Box64 的速度比单独使用解释器快 5-10 倍。如需深入了解 DynaRec，请参考[此文章](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/)。
