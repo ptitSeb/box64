@@ -416,7 +416,9 @@ GOW(fgetsgent_r, iFSppLp)
 GO(fgetspent, pFS)
 GOW(fgetspent_r, iFSppLp)
 GOW(fgets_unlocked, pFpiS)
-#ifndef STATICBUILD
+#ifdef STATICBUILD
+//GO(__fgets_unlocked_chk,
+#else
 GO(__fgets_unlocked_chk, pFpLiS)
 #endif
 GOW(fgetwc, uFS)
@@ -2393,7 +2395,9 @@ GOW(wcsncpy, pFppL)
 GO(__wcsncpy_chk, pFppLL)
 GO(wcsnlen, LFpL)
 GO(wcsnrtombs, LFppLLp)
-#ifndef STATICBUILD
+#ifdef STATICBUILD
+//GO(__wcsnrtombs_chk,
+#else
 GO(__wcsnrtombs_chk, LFppLLpL)
 #endif
 GO(wcspbrk, pFpp)
