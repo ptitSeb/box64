@@ -204,6 +204,8 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_mknod
     [133] = {__NR_mknod, 3},
     #endif
+    [137] = {__NR_statfs, 2},
+    [138] = {__NR_fstatfs, 2},
     [140] = {__NR_getpriority, 2},
     [145] = {__NR_sched_getscheduler, 1},
     [148] = {__NR_sched_rr_get_interval, 2},
