@@ -9,6 +9,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include "freq.h"
 #endif
 
 sysinfo_t box64_sysinfo = { 0 };
@@ -168,7 +169,7 @@ void InitializeSystemInfo(void)
     box64_sysinfo.bogomips = box64_sysinfo.frequency;
     box64_sysinfo.cpuname = (char*)malloc(64);
     snprintf(box64_sysinfo.cpuname, 64, "Box64 Virtual CPU");
-    box64_sysinfo.box64_cpuname = (char*)calloc(strlen(BOX64_STR) + 1);
+    box64_sysinfo.box64_cpuname = (char*)calloc(strlen(BOX64_STR) + 1, 1);
     strcpy(box64_sysinfo.box64_cpuname, BOX64_STR);
 
     box64_sysinfo.emulated_frequency = 0;
