@@ -74,7 +74,12 @@ static void readCpuinfo(sysinfo_t* info)
     if (info->ncpu) info->read_ncpu = 1;
     fclose(f);
 
+    if (getenv("BOX64_LSCPU_EXECUTED")) {
+        // in case it's the x86_64 lscpu, prevent infinite loop
+        goto fallback;
+    }
 lscpu:
+    setenv("BOX64_LSCPU_EXECUTED", "1", 1);
     if (!info->read_cpuname || !info->read_ncpu || !info->read_frequency) {
         FILE* f = popen("lscpu", "r");
         if (!f) goto fallback;
@@ -114,7 +119,8 @@ lscpu:
     }
 
 fallback:
-    if (!info->read_ncpu) {
+    if (!info->read_ncpu && getenv("BOX64_NPROC_EXECUTED") /* in case it's the x86 version, prevent infinite loop */) {
+        setenv("BOX64_NPROC_EXECUTED", "1", 1);
         FILE* f = popen("nproc", "r");
         if (f) {
             int ncpu;
