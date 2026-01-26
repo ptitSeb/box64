@@ -77,6 +77,7 @@ uint32_t default_gs = 0x53;
 uint32_t default_fs = 0;
 int box64_isglibc234 = 0;
 int box64_unittest_mode = 0;
+sysinfo_t box64_sysinfo = { 0 };
 
 #ifdef DYNAREC
 cpu_ext_t cpuext = {0};
@@ -1030,7 +1031,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf_log(LOG_INFO, "Bash detected, disabling banner\n");
         if (!BOX64ENV(nobanner)) {
             setenv("BOX86_NOBANNER", "1", 0);
-            setenv("BOX64_NOBANNER", "1", 0);
+            setenv("BOX64_NOBANNER", "0", 0);
+            setenv("BOX64_LOG", "1", 0);
+            setenv("BOX64_SHOWSEGV", "1", 0);
         }
         if (!bashpath) {
             bashpath = (char*)prog;

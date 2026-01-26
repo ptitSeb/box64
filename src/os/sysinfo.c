@@ -12,8 +12,6 @@
 #include "freq.h"
 #endif
 
-extern sysinfo_t box64_sysinfo;
-
 static void readCpuinfo(sysinfo_t* info)
 {
     info->emulated_frequency = 1;
