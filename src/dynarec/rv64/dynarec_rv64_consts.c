@@ -23,6 +23,7 @@
 #include "x64test.h"
 #include "dynarec/dynarec_next.h"
 #include "bitutils.h"
+#include "random.h"
 
 #ifndef HAVE_TRACE
 void PrintTrace() {}

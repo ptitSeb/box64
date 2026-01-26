@@ -6,6 +6,7 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
@@ -37,10 +38,9 @@ EXPORT void my___TBB_internal_deallocate_binding_handler(void* handler)
 EXPORT void my___TBB_internal_destroy_system_topology()
 { }
 
-int getNCpu();
 EXPORT int my___TBB_internal_get_default_concurrency(int numa_id, int core_type, int max_threads_per_core)
 {
-    return getNCpu();
+    return box64_sysinfo.box64_ncpu;
 }
 
 EXPORT void my___TBB_internal_restore_affinity(void* handler, int slot)

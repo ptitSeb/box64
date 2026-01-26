@@ -25,6 +25,7 @@
 #include "wine/compiler.h"
 #include "wine/debug.h"
 #include "hostext.h"
+#include "sysinfo.h"
 
 uintptr_t box64_pagesize = 4096;
 
@@ -36,6 +37,7 @@ uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_unittest_mode = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
+sysinfo_t box64_sysinfo = {0};
 
 static uint32_t x86emu_parity_tab[8] = {
     0x96696996,
@@ -244,6 +246,7 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
 
     LoadEnvVariables();
     InitializeEnvFiles();
+    InitializeSystemInfo();
 
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
     if (DetectHostCpuFeatures())

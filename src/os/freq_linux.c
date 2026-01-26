@@ -81,15 +81,8 @@ static inline uint64_t readFreq()
 {
     static size_t val = -1;
 
-    FILE* f = popen("cat /proc/cpuinfo | grep -i \"CPU MHz\" | head -n 1 | sed -r 's/CPU MHz.+:\\s{1,}//g'", "r");
-    if(f) {
-        char tmp[200] = "";
-        ssize_t s = fread(tmp, 1, 200, f);
-        pclose(f);
-        if (s > 0) return (uint64_t)atof(tmp) * 1e6;
-    }
+    if (box64_sysinfo.read_frequency) return box64_sysinfo.frequency;
 
-    // fallback to rdtime + sleep
     struct timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = 50000000; // 50 milliseconds

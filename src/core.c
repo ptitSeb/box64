@@ -49,6 +49,7 @@
 #include "cleanup.h"
 #include "freq.h"
 #include "hostext.h"
+#include "sysinfo.h"
 
 box64context_t *my_context = NULL;
 extern box64env_t box64env;
@@ -159,9 +160,6 @@ static void openFTrace(void)
     }
 }
 
-const char* getCpuName();
-int getNCpuUnmasked();
-
 void computeRDTSC()
 {
     int hardware  = 0;
@@ -224,13 +222,12 @@ static void displayMiscInfo()
     }
 #endif
 
-    // grab ncpu and cpu name
-    int ncpu = getNCpuUnmasked();
-    const char* cpuname = getCpuName();
-
-    printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd\n", cpuname, ncpu, ncpu > 1 ? "s" : "", box64_pagesize);
-
-    // grab and calibrate hardware counter
+    InitializeSystemInfo();
+    printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd", box64_sysinfo.cpuname, box64_sysinfo.ncpu, box64_sysinfo.ncpu > 1 ? "s" : "", box64_pagesize);
+    if (BOX64ENV(maxcpu))
+        printf_log_prefix(0, LOG_INFO, ", emulating %d core%s\n", BOX64ENV(maxcpu), BOX64ENV(maxcpu) > 1 ? "s" : "");
+    else
+        printf_log_prefix(0, LOG_INFO, "\n");
     computeRDTSC();
 }
 
@@ -716,9 +713,9 @@ extern char** environ;
 
 int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec)
 {
-    #ifndef STATICBUILD
+#ifndef STATICBUILD
     init_malloc_hook();
-    #endif
+#endif
     init_auxval(argc, argv, environ?environ:env);
     // analogue to QEMU_VERSION in qemu-user-mode emulation
     if(getenv("BOX64_VERSION")) {

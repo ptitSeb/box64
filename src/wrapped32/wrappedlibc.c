@@ -1586,8 +1586,6 @@ static int isProcSelf(const char *path, const char* w)
     return 0;
 }
 
-int getNCpu();
-
 #ifdef ANDROID
 static int shm_open(const char *name, int oflag, mode_t mode) {
     return -1;
