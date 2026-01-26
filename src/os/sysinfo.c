@@ -12,6 +12,7 @@
 #include "freq.h"
 #endif
 
+#ifndef _WIN32
 static void readCpuinfo(sysinfo_t* info)
 {
     info->emulated_frequency = 1;
@@ -145,6 +146,7 @@ fallback:
 
     return;
 }
+#endif
 
 void InitializeSystemInfo(void)
 {

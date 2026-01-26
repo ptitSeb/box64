@@ -1031,9 +1031,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf_log(LOG_INFO, "Bash detected, disabling banner\n");
         if (!BOX64ENV(nobanner)) {
             setenv("BOX86_NOBANNER", "1", 0);
-            setenv("BOX64_NOBANNER", "0", 0);
-            setenv("BOX64_LOG", "1", 0);
-            setenv("BOX64_SHOWSEGV", "1", 0);
+            setenv("BOX64_NOBANNER", "1", 0);
         }
         if (!bashpath) {
             bashpath = (char*)prog;
