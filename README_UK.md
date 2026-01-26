@@ -1,3 +1,5 @@
+> Внимание: Этот документ устарел. Пожалуйста, помогите нам его перевести.
+
 ![Official logo](docs/img/Box64Logo.png "Official Logo")
 
 Емулятор простіра користувача x86_64 із родзинкою
@@ -9,8 +11,6 @@
 ----
 
 Box64 дозволяє запускати x86_64 Linux програми (наприклад, ігри) на системах Linux відмінних від x86_64, наприклад ARM (хост-система має мати 64-розрядний порядок редагування).
-
-Ви можете знайти багато відео про Box64 в YouTube каналах [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) або [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA)
 
 Оскільки Box64 використовує рідні версії деяких «системних» бібліотек, таких як libc, libm, SDL і OpenGL, його легко інтегрувати та використовувати з більшістю програм, а продуктивність у багатьох випадках може бути напрочуд високою. Подивіться на цей стендовий аналіз для прикладу [тут](https://box86.org/index.php/2021/06/game-performances/).
 

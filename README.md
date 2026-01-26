@@ -8,12 +8,11 @@
 
 ---
 
-Box64 enables running x86_64 Linux programs, including games, on non-x86_64 Linux systems such as Arm (64-bit little-endian host system required).
+**Check out our game compatibility list at [https://box86.org/app/](https://box86.org/app/), please help us [improve it](https://github.com/ptitSeb/box86-compatibility-list/issues)!**
 
-Check out Box64 in action on YouTube:
-- [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)
-- [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)
-- [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA)
+---
+
+Box64 enables running x86_64 Linux programs, including games, on non-x86_64 Linux systems such as Arm (64-bit little-endian host system required).
 
 Box64 leverages native system libraries (libc, libm, SDL, OpenGL), offering ease of integration and surprising performance in many applications. For performance benchmarks, check [this analysis](https://box86.org/index.php/2021/06/game-performances/).
 
@@ -25,7 +24,7 @@ _Logo and icon by @grayduck - Thank you!_
 
 ---
 
-## 📖 Usage
+## Usage
 
 - `$ box64 ./program [args]` to run Linux x86_64 programs.
 - `$ box64 -k` to kill all the emulated processes.
@@ -36,7 +35,7 @@ Box64 also offers environment variables and rcfile to control its behavior. For 
 
 ---
 
-## 🚀 Compiling and Installation
+## Compiling and Installation
 
 - [Compilation Instructions](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md)
 - [Bundle x86 Libraries](https://github.com/ptitSeb/box64/blob/main/docs/BUNDLE-X86-LIBS.md)
@@ -44,24 +43,24 @@ Box64 also offers environment variables and rcfile to control its behavior. For 
 
 ---
 
-## 🔄 Version History
+## Version History
 
 See the [Changelog](docs/CHANGELOG.md) for version updates.
 
 ---
 
-## 🖥️ Platform Compatibility Notes
+## Platform Compatibility Notes
 
 Box64 requires 64-bit libraries on the host system, as it directly translates x86_64 function calls. For 32-bit binaries, use Box86 or Box32.
 
 **Notes** 
 
-1. Box32 mode is in the making, which aims to support 32-bit binaries on Box64, you can enable it at build time, but do not expect everything to work. There is actually a few things that work, many that don't. It's a known issue, no need to create tickets about it for now.
-2. Some installers may default to x86 on 64-bit host OSes, causing compatibility issues. Workaround: Use a fake `uname` that returns "x86_64" for `-m`.
+1. Box32 is still experimental.
+2. Some shell scripts (such as the GOG game installer) may rely on `uname -m` to determine the current architecture. Please run them as `box64 script.sh` to allow Box64 to take over.
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Box64 has configuration files located in `/etc/box64.box64rc` and `~/.box64rc`, both formatted as `.ini` files. If you don’t want to use the default `/etc/box64.box64rc` file, copy it to `~/.box64rc` to ensure compatibility.
 
@@ -71,17 +70,13 @@ For more information, check [Usage Documentation](docs/USAGE.md).
 
 ---
 
-## 📄 Additional Platform-Specific Notes
+## Additional Platform-Specific Notes
 
 ### Unity Game Emulation
 
 - Many Unity games require OpenGL 3+, which may be challenging on ARM/RISC-V SBCs.
 - **Tip for Pi4 and Pi5 Users**: Set `MESA_GL_VERSION_OVERRIDE=3.2` with `BOX64_DYNAREC_STRONGMEM=1` to prevent freezes and enable strong memory mode.
 - **Using Panfrost**: For better compatibility on ARM, enable `PAN_MESA_DEBUG=gl3` to force higher OpenGL profiles. This can help if a game starts but quits unexpectedly before showing any content.
-
-### GTK Programs
-
-Box64 wraps GTK libraries, supporting both gtk2 and gtk3.
 
 ### Steam
 
@@ -94,10 +89,6 @@ Box64 supports Wine64 and Proton. For 32-bit components, Box86 is required. Syst
 **Note**: You can use Wine WOW64 build to run x86 Windows programs in Box64-only environments, this is still experimental, but it works in most cases.
 
 For more information, check [Wine Documentation](docs/WINE.md).
-
-### Vulkan
-
-Box64 wraps Vulkan libraries.
 
 ----
 Final word
