@@ -133,16 +133,16 @@
 //GO(acc_wait_h_, 
 
 //GO(GOMP_alloc, 
-//GO(GOMP_atomic_end, 
-//GO(GOMP_atomic_start, 
-//GO(GOMP_barrier, 
+GO(GOMP_atomic_end, vFv)
+GO(GOMP_atomic_start, vFv)
+GO(GOMP_barrier, vFv)
 //GO(GOMP_barrier_cancel, 
 //GO(GOMP_cancel, 
 //GO(GOMP_cancellation_point, 
-//GO(GOMP_critical_end, 
-//GO(GOMP_critical_name_end, 
-//GO(GOMP_critical_name_start, 
-//GO(GOMP_critical_start, 
+GO(GOMP_critical_end, vFv)
+GO(GOMP_critical_name_end, vFp)
+GO(GOMP_critical_name_start, vFp)
+GO(GOMP_critical_start, vFv)
 //GO(GOMP_doacross_post, 
 //GO(GOMP_doacross_ull_post, 
 //GO(GOMP_doacross_ull_wait, 
@@ -154,11 +154,11 @@
 //GO(GOMP_loop_doacross_runtime_start, 
 //GO(GOMP_loop_doacross_start, 
 //GO(GOMP_loop_doacross_static_start, 
-//GO(GOMP_loop_dynamic_next, 
-//GO(GOMP_loop_dynamic_start, 
-//GO(GOMP_loop_end, 
+GO(GOMP_loop_dynamic_next, iFpp)
+GO(GOMP_loop_dynamic_start, iFllllpp)
+GO(GOMP_loop_end, vFv)
 //GO(GOMP_loop_end_cancel, 
-//GO(GOMP_loop_end_nowait, 
+GO(GOMP_loop_end_nowait, vFv)
 //GO(GOMP_loop_guided_next, 
 //GO(GOMP_loop_guided_start, 
 //GO(GOMP_loop_maybe_nonmonotonic_runtime_next, 
@@ -169,13 +169,13 @@
 //GO(GOMP_loop_nonmonotonic_guided_start, 
 //GO(GOMP_loop_nonmonotonic_runtime_next, 
 //GO(GOMP_loop_nonmonotonic_runtime_start, 
-//GO(GOMP_loop_ordered_dynamic_next, 
-//GO(GOMP_loop_ordered_dynamic_start, 
+GO(GOMP_loop_ordered_dynamic_next, iFpp)
+GO(GOMP_loop_ordered_dynamic_start, iFllllpp)
 //GO(GOMP_loop_ordered_guided_next, 
 //GO(GOMP_loop_ordered_guided_start, 
 //GO(GOMP_loop_ordered_runtime_next, 
 //GO(GOMP_loop_ordered_runtime_start, 
-//GO(GOMP_loop_ordered_start, 
+//GO(GOMP_loop_ordered_start,
 //GO(GOMP_loop_ordered_static_next, 
 //GO(GOMP_loop_ordered_static_start, 
 //GO(GOMP_loop_runtime_next, 
@@ -218,8 +218,8 @@
 //GO(GOMP_offload_register_ver, 
 //GO(GOMP_offload_unregister, 
 //GO(GOMP_offload_unregister_ver, 
-//GO(GOMP_ordered_end, 
-//GO(GOMP_ordered_start, 
+GO(GOMP_ordered_end, vFv)
+GO(GOMP_ordered_start, vFv)
 GOM(GOMP_parallel, vFEppuu)
 //GO(GOMP_parallel_end, 
 //GO(GOMP_parallel_loop_dynamic, 
@@ -255,12 +255,12 @@ GOM(GOMP_parallel, vFEppuu)
 //GO(GOMP_sections2_start, 
 //GO(GOMP_sections_end, 
 //GO(GOMP_sections_end_cancel, 
-//GO(GOMP_sections_end_nowait, 
-//GO(GOMP_sections_next, 
-//GO(GOMP_sections_start, 
+GO(GOMP_sections_end_nowait, vFv)
+GO(GOMP_sections_next, uFv)
+GO(GOMP_sections_start, uFu)
 //GO(GOMP_single_copy_end, 
 //GO(GOMP_single_copy_start, 
-//GO(GOMP_single_start, 
+GO(GOMP_single_start, iFv)
 //GO(GOMP_target, 
 //GO(GOMP_target_data, 
 //GO(GOMP_target_data_ext, 
@@ -347,7 +347,7 @@ GO(omp_get_max_threads, iFv)
 //GO(omp_get_num_devices_, 
 //GO(omp_get_num_places, 
 //GO(omp_get_num_places_, 
-//GO(omp_get_num_procs, 
+GO(omp_get_num_procs, iFv)
 //GO(omp_get_num_procs_, 
 //GO(omp_get_num_teams, 
 //GO(omp_get_num_teams_, 
@@ -403,7 +403,7 @@ GO(omp_get_thread_num, iFv)
 //GO(omp_init_nest_lock@OMP_1.0
 //GO(omp_init_nest_lock_, 
 //GO(omp_init_nest_lock_@OMP_1.0
-//GO(omp_in_parallel, 
+GO(omp_in_parallel, iFv)
 //GO(omp_in_parallel_, 
 //GO(omp_is_initial_device, 
 //GO(omp_is_initial_device_, 
@@ -439,7 +439,7 @@ GO(omp_get_thread_num, iFv)
 //GO(omp_set_num_teams, 
 //GO(omp_set_num_teams_, 
 //GO(omp_set_num_teams_8_, 
-//GO(omp_set_num_threads, 
+GO(omp_set_num_threads, vFi)
 //GO(omp_set_num_threads_, 
 //GO(omp_set_num_threads_8_, 
 //GO(omp_set_schedule, 
