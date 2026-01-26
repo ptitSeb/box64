@@ -3006,6 +3006,12 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     }
     return readlinkat(fd, path, buf, bufsize);
 }
+
+EXPORT ssize_t my___readlinkat_chk(x64emu_t* emu, int dirfd, void* path, void* buf, size_t sz, size_t buflen)
+{
+    return my_readlinkat(emu, dirfd, path, buf, sz);
+}
+
 extern int have48bits;
 void* last_mmap_addr[2] = {0};
 size_t last_mmap_len[2] = {0};

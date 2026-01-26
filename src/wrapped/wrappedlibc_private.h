@@ -416,7 +416,11 @@ GOW(fgetsgent_r, iFSppLp)
 GO(fgetspent, pFS)
 GOW(fgetspent_r, iFSppLp)
 GOW(fgets_unlocked, pFpiS)
-//GO(__fgets_unlocked_chk, 
+#ifdef STATICBUILD
+//GO(__fgets_unlocked_chk,
+#else
+GO(__fgets_unlocked_chk, pFpLiS)
+#endif
 GOW(fgetwc, uFS)
 GOW(fgetwc_unlocked, uFS)
 GO(fgetws, pFpiS)
@@ -1625,7 +1629,7 @@ GOW(readdir64_r, iFppp)
 GOW(readdir_r, iFppp)
 GOWM(readlink, lFEppL)
 GOM(readlinkat, lFEippL)
-//GO(__readlinkat_chk, 
+GOM(__readlinkat_chk, lFEippLL)
 GOM(__readlink_chk, lFEppLL)
 //GO(__read_nocancel, 
 GOW(readv, lFipi)
@@ -2391,7 +2395,11 @@ GOW(wcsncpy, pFppL)
 GO(__wcsncpy_chk, pFppLL)
 GO(wcsnlen, LFpL)
 GO(wcsnrtombs, LFppLLp)
-//GO(__wcsnrtombs_chk, 
+#ifdef STATICBUILD
+//GO(__wcsnrtombs_chk,
+#else
+GO(__wcsnrtombs_chk, LFppLLpL)
+#endif
 GO(wcspbrk, pFpp)
 GO(wcsrchr, pFpi)
 GO(wcsrtombs, LFppLp)

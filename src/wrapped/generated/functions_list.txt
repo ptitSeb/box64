@@ -1535,6 +1535,7 @@
 #() pFplpp
 #() pFpLii
 #() pFpLip
+#() pFpLiS
 #() pFpLuu
 #() pFpLup
 #() pFpLLp
@@ -2617,6 +2618,7 @@
 #() fFlfplpl
 #() fFpppppL
 #() dFpppppL
+#() lFEippLL
 #() lFEpippp
 #() lFipipLu
 #() lFipLipu
@@ -5344,6 +5346,8 @@ wrappedlibc:
   - __sprintf_chk
 - iFpuppp:
   - __vswprintf_chk
+- lFippLL:
+  - __readlinkat_chk
 - pFpLLiN:
   - mremap
 - pFppLLp:
