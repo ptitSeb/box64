@@ -2744,6 +2744,7 @@
 #() vFEpuLppp
 #() vFEpupppp
 #() vFEppippp
+#() vFEpppLLp
 #() vFEpppLpp
 #() vFEppppup
 #() vFEppppLp
@@ -3501,6 +3502,7 @@
 #() vFEpuppppppp
 #() vFEpppuipppp
 #() vFEpppLuLpLp
+#() vFEppppppLpp
 #() vFiiiiiiiiii
 #() vFiiiiiiiiiu
 #() vFiiiiiiiiui
@@ -5710,19 +5712,28 @@ wrappedlibnettle8:
 - vFppp:
   - nettle_cmac128_set_key
   - nettle_cmac64_set_key
+  - nettle_eax_set_key
   - nettle_gcm_set_key
+  - nettle_ocb_set_key
 - vFppLp:
   - nettle_hmac_update
 - vFpppLp:
   - nettle_cmac128_update
   - nettle_cmac64_update
+- vFpppLLp:
+  - nettle_ocb_set_nonce
 - vFppppup:
   - nettle_cmac128_digest
   - nettle_cmac64_digest
 - vFppppLp:
+  - nettle_eax_digest
+  - nettle_eax_set_nonce
+  - nettle_eax_update
   - nettle_gcm_digest
   - nettle_hmac_digest
   - nettle_hmac_set_key
+  - nettle_ocb_digest
+  - nettle_ocb_update
 - vFppLpLpp:
   - nettle_cbc_decrypt
   - nettle_cbc_encrypt
@@ -5734,12 +5745,17 @@ wrappedlibnettle8:
 - vFpppLLpp:
   - nettle_hkdf_extract
 - vFppppLpp:
+  - nettle_eax_decrypt
+  - nettle_eax_encrypt
   - nettle_gcm_decrypt
   - nettle_gcm_encrypt
+  - nettle_ocb_encrypt
 - vFpppLLpLp:
   - nettle_hkdf_expand
 - vFpppLuLpLp:
   - nettle_pbkdf2
+- vFppppppLpp:
+  - nettle_ocb_decrypt
 - vFppLpLpLLpp:
   - nettle_ccm_encrypt_message
 - iFppLpLpLLpp:

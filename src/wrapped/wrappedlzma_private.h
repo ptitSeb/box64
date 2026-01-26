@@ -68,8 +68,8 @@ GO(lzma_index_stream_padding, uFpL)
 //GO(lzma_index_total_size, 
 GO(lzma_index_uncompressed_size, LFp)
 GO(lzma_lzma_preset, CFpu)
-//GO(lzma_memlimit_get, 
-//GO(lzma_memlimit_set, 
+GO(lzma_memlimit_get, UFp)
+GO(lzma_memlimit_set, iFpU)
 GO(lzma_memusage, UFp)
 GO(lzma_mf_is_supported, CFu)
 GO(lzma_mode_is_supported, CFu)
