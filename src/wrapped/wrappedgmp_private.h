@@ -545,7 +545,7 @@ GO(__gmpz_nextprime, vFpp)
 //GO(__gmpz_n_pow_ui, 
 //GO(__gmpz_oddfac_1, 
 //GO(__gmpz_out_raw, 
-//GO(__gmpz_out_str, 
+GO(__gmpz_out_str, LFpip)
 GO(__gmpz_perfect_power_p, iFp)
 GO(__gmpz_perfect_square_p, iFp)
 GO(__gmpz_popcount, LFp)

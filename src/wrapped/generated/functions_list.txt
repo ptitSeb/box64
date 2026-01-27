@@ -403,6 +403,7 @@
 #() uWpu
 #() pWEp
 #() pWpu
+#() vFEip
 #() vFEpi
 #() vFEpu
 #() vFEpp
@@ -1091,6 +1092,7 @@
 #() vFHHpi
 #() cFpiii
 #() cFpipp
+#() iFEiiu
 #() iFEiip
 #() iFEiiN
 #() iFEipp
@@ -1828,6 +1830,7 @@
 #() iFiuuuU
 #() iFiuuup
 #() iFiuUip
+#() iFiuppi
 #() iFillLL
 #() iFiLLpp
 #() iFipiii
@@ -1836,6 +1839,7 @@
 #() iFipipu
 #() iFipuip
 #() iFipuui
+#() iFipupL
 #() iFipLup
 #() iFippuu
 #() iFippLi
@@ -3897,6 +3901,7 @@
 #() iFEvpp -> iFEpp
 #() pFEppv -> pFEpp
 #() iFEpvpp -> iFEppp
+#() iFppppv -> iFpppp
 #() iFEpvvppp -> iFEpppp
 #() iFEpuvvppp -> iFEpuppp
 wrappedalure:
@@ -5115,6 +5120,7 @@ wrappedlibc:
   - sigsetjmp
 - iFpu:
   - delete_module
+  - fsopen
 - iFpL:
   - munmap
 - iFpp:
@@ -5178,6 +5184,8 @@ wrappedlibc:
 - vFppL:
   - _ITM_memcpyRnWt
   - _ITM_memcpyRtWn
+- iFiiu:
+  - pidfd_getfd
 - iFiip:
   - __fxstat
   - __fxstat64
@@ -5185,6 +5193,10 @@ wrappedlibc:
   - __fcntl
   - fcntl
   - fcntl64
+- iFiuu:
+  - fsmount
+- iFipu:
+  - fspick
 - iFipp:
   - __lxstat
   - __lxstat64
@@ -5225,6 +5237,7 @@ wrappedlibc:
   - sscanf
   - swscanf
 - iFppA:
+  - __isoc23_vfscanf
   - __isoc23_vsscanf
   - __isoc99_vfscanf
   - __isoc99_vsscanf
@@ -5331,14 +5344,20 @@ wrappedlibc:
 - iFiippi:
   - __fxstatat
   - __fxstatat64
+- iFiuppi:
+  - fsconfig
 - iFiLLLL:
   - prctl
 - iFipiip:
   - epoll_pwait
 - iFipiup:
   - statx
+- iFipipu:
+  - move_mount
 - iFipipp:
   - epoll_pwait2
+- iFipupL:
+  - mount_setattr
 - iFipppp:
   - getopt_long
   - getopt_long_only
@@ -6696,6 +6715,8 @@ wrappedsdl2ttf:
   - TTF_OpenFontIndexRW
 wrappedsecret1:
 wrappedselinux:
+- vFip:
+  - selinux_set_callback
 wrappedsmime3:
 - iFpp:
   - SEC_PKCS12DecoderValidateBags
