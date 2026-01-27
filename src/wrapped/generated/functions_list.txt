@@ -2876,6 +2876,7 @@
 #() vFppppppp
 #() cFppppppp
 #() iFElppppp
+#() iFEpipupp
 #() iFEpupppp
 #() iFEpUuppp
 #() iFEpLiLpp
@@ -5359,6 +5360,8 @@ wrappedlibc:
   - lsearch
 - vFiipupV:
   - error_at_line
+- iFpipupp:
+  - argp_parse
 - iFpipppL:
   - __sysctl
   - sysctl

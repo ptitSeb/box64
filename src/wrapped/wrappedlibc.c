@@ -1,6 +1,9 @@
 #define _LARGEFILE_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
+#if !defined(TERMUX) && !defined(ANDROID)
+#include <argp.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -450,7 +453,48 @@ static void* findprintf_typeFct(void* fct)
     return NULL;
 }
 
+// printf_type
+#define GO(A)                                                          \
+    static uintptr_t my_argp_parser_fct_##A = 0;                       \
+    static int my_argp_parser_##A(int a, void* b, void* c)             \
+    {                                                                  \
+        return RunFunctionFmt(my_argp_parser_fct_##A, "ipp", a, b, c); \
+    }
+SUPER()
+#undef GO
+static void* find_argp_parser_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_argp_parser_fct_##A == (uintptr_t)fct) return my_argp_parser_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                    \
+    if (my_argp_parser_fct_##A == 0) {           \
+        my_argp_parser_fct_##A = (uintptr_t)fct; \
+        return my_argp_parser_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc argp_parser callback\n");
+    return NULL;
+}
+
 #undef SUPER
+
+EXPORT int my_argp_parse(x64emu_t* emu, struct argp* argp, int argc, char** argv, int flags, int* index, void* input)
+{
+#if !defined(TERMUX) && !defined(ANDROID)
+    void* fct = (void*)argp->parser;
+    if (fct) argp->parser = find_argp_parser_Fct(fct);
+    return argp_parse(argp, argc, argv, flags, index, input);
+#else
+    printf_log(LOG_NONE, "Warning: unsupported argp_parse called, expecting failure\n");
+    return -1;
+#endif
+}
 
 // some my_XXX declare and defines
 int32_t my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, char * *),

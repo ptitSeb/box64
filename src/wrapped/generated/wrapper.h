@@ -2913,6 +2913,7 @@ void vFppppppL(x64emu_t *emu, uintptr_t fnc);
 void vFppppppp(x64emu_t *emu, uintptr_t fnc);
 void cFppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFElppppp(x64emu_t *emu, uintptr_t fnc);
+void iFEpipupp(x64emu_t *emu, uintptr_t fnc);
 void iFEpupppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpUuppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpLiLpp(x64emu_t *emu, uintptr_t fnc);
