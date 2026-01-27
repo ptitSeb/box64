@@ -1,48 +1,48 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
-//GO(pam_acct_mgmt, 
-//GO(pam_authenticate, 
-//GO(pam_chauthtok, 
-//GO(pam_close_session, 
-//GO(pam_end, 
-//GO(pam_fail_delay, 
-//GO(pam_get_authtok, 
-//GO(pam_get_authtok_noverify, 
-//GO(pam_get_authtok_verify, 
-//GO(pam_get_data, 
-//GO(pam_getenv, 
-//GO(pam_getenvlist, 
-//GO(pam_get_item, 
-//GO(pam_get_user, 
-//GO(pam_modutil_audit_write, 
-//GO(pam_modutil_check_user_in_passwd, 
-//GO(pam_modutil_drop_priv, 
-//GO(pam_modutil_getgrgid, 
-//GO(pam_modutil_getgrnam, 
-//GO(pam_modutil_getlogin, 
-//GO(pam_modutil_getpwnam, 
-//GO(pam_modutil_getpwuid, 
-//GO(pam_modutil_getspnam, 
-//GO(pam_modutil_read, 
-//GO(pam_modutil_regain_priv, 
-//GO(pam_modutil_sanitize_helper_fds, 
-//GO(pam_modutil_search_key, 
-//GO(pam_modutil_user_in_group_nam_gid, 
-//GO(pam_modutil_user_in_group_nam_nam, 
-//GO(pam_modutil_user_in_group_uid_gid, 
-//GO(pam_modutil_user_in_group_uid_nam, 
-//GO(pam_modutil_write, 
-//GO(pam_open_session, 
-//GO(pam_prompt, 
-//GO(pam_putenv, 
-//GO(pam_setcred, 
-//GO(pam_set_data, 
-//GO(pam_set_item, 
-//GO(pam_start, 
-//GO(pam_start_confdir, 
-//GO(pam_strerror, 
-//GO(pam_syslog, 
-//GO(pam_vprompt, 
-//GO(pam_vsyslog, 
+GO(pam_acct_mgmt, iFpi)
+GO(pam_authenticate, iFpi)
+GO(pam_chauthtok, iFpi)
+GO(pam_close_session, iFpi)
+GO(pam_end, iFpi)
+GO(pam_fail_delay, iFpu)
+GO(pam_get_authtok, iFpipp)
+GO(pam_get_authtok_noverify, iFppp)
+GO(pam_get_authtok_verify, iFppp)
+GO(pam_get_data, iFppp)
+GO(pam_getenv, pFpp)
+GO(pam_getenvlist, pFp)
+GO(pam_get_item, iFpip)
+GO(pam_get_user, iFppp)
+GO(pam_modutil_audit_write, iFpipi)
+GO(pam_modutil_check_user_in_passwd, iFppp)
+GO(pam_modutil_drop_priv, iFppp)
+GO(pam_modutil_getgrgid, pFpu)
+GO(pam_modutil_getgrnam, pFpp)
+GO(pam_modutil_getlogin, pFp)
+GO(pam_modutil_getpwnam, pFpp)
+GO(pam_modutil_getpwuid, pFpu)
+GO(pam_modutil_getspnam, pFpp)
+GO(pam_modutil_read, iFipi)
+GO(pam_modutil_regain_priv, iFpp)
+GO(pam_modutil_sanitize_helper_fds, iFpuuu)
+GO(pam_modutil_search_key, pFppp)
+GO(pam_modutil_user_in_group_nam_gid, iFppu)
+GO(pam_modutil_user_in_group_nam_nam, iFppp)
+GO(pam_modutil_user_in_group_uid_gid, iFpuu)
+GO(pam_modutil_user_in_group_uid_nam, iFpup)
+GO(pam_modutil_write, iFipi)
+GO(pam_open_session, iFpi)
+// GOM(pam_prompt, iFEpippV)
+GO(pam_putenv, iFpp)
+GO(pam_setcred, iFpi)
+// GOM(pam_set_data, iFEpppp)
+GO(pam_set_item, iFpip)
+GOM(pam_start, iFEpppp)
+// GOM(pam_start_confdir, iFEppppp)
+GO(pam_strerror, pFpi)
+// GOM(pam_syslog, vFEpipV)
+// GOM(pam_vprompt, iFEpippA)
+// GOM(pam_vsyslog, vFEpipA)

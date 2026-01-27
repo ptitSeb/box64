@@ -6258,6 +6258,8 @@ wrappedp11kit:
 - iFpppp:
   - p11_kit_pin_register_callback
 wrappedpam:
+- iFpppp:
+  - pam_start
 wrappedpango:
 - vFpp:
   - pango_attribute_init

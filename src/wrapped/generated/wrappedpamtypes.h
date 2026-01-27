@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(pam_start, iFpppp_t)
 
 #endif // __wrappedpamTYPES_H_
