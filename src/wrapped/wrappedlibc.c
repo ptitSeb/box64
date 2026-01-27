@@ -3982,6 +3982,124 @@ EXPORT int my_pidfd_send_signal(x64emu_t* emu, int pidfd, int sig, siginfo_t* in
 #endif
 }
 
+EXPORT int my_pidfd_getfd(x64emu_t* emu, int pidfd, int targetfd, unsigned int flags)
+{
+    (void)emu;
+#if defined(SYS_pidfd_getfd)
+    return syscall(SYS_pidfd_getfd, pidfd, targetfd, flags);
+#elif defined(__NR_pidfd_getfd)
+    return syscall(__NR_pidfd_getfd, pidfd, targetfd, flags);
+#else
+    (void)pidfd;
+    (void)targetfd;
+    (void)flags;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+
+EXPORT int my_fsopen(x64emu_t* emu, const char* fs_name, unsigned int flags)
+{
+    (void)emu;
+#if defined(SYS_fsopen)
+    return syscall(SYS_fsopen, fs_name, flags);
+#elif defined(__NR_fsopen)
+    return syscall(__NR_fsopen, fs_name, flags);
+#else
+    (void)fs_name;
+    (void)flags;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+EXPORT int my_fsconfig(x64emu_t* emu, int fs_fd, unsigned int cmd, const char* key, const void* value, int aux)
+{
+    (void)emu;
+#if defined(SYS_fsconfig)
+    return syscall(SYS_fsconfig, fs_fd, cmd, key, value, aux);
+#elif defined(__NR_fsconfig)
+    return syscall(__NR_fsconfig, fs_fd, cmd, key, value, aux);
+#else
+    (void)fs_fd;
+    (void)cmd;
+    (void)key;
+    (void)value;
+    (void)aux;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+EXPORT int my_fsmount(x64emu_t* emu, int fs_fd, unsigned int flags, unsigned int attr_flags)
+{
+    (void)emu;
+#if defined(SYS_fsmount)
+    return syscall(SYS_fsmount, fs_fd, flags, attr_flags);
+#elif defined(__NR_fsmount)
+    return syscall(__NR_fsmount, fs_fd, flags, attr_flags);
+#else
+    (void)fs_fd;
+    (void)flags;
+    (void)attr_flags;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+EXPORT int my_fspick(x64emu_t* emu, int dfd, const char* path, unsigned int flags)
+{
+    (void)emu;
+#if defined(SYS_fspick)
+    return syscall(SYS_fspick, dfd, path, flags);
+#elif defined(__NR_fspick)
+    return syscall(__NR_fspick, dfd, path, flags);
+#else
+    (void)dfd;
+    (void)path;
+    (void)flags;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+EXPORT int my_move_mount(x64emu_t* emu, int from_dfd, const char* from_path, int to_dfd, const char* to_path, unsigned int flags)
+{
+    (void)emu;
+#if defined(SYS_move_mount)
+    return syscall(SYS_move_mount, from_dfd, from_path, to_dfd, to_path, flags);
+#elif defined(__NR_move_mount)
+    return syscall(__NR_move_mount, from_dfd, from_path, to_dfd, to_path, flags);
+#else
+    (void)from_dfd;
+    (void)from_path;
+    (void)to_dfd;
+    (void)to_path;
+    (void)flags;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
+EXPORT int my_mount_setattr(x64emu_t* emu, int dfd, const char* path, unsigned int flags, void* attr, size_t size)
+{
+    (void)emu;
+#if defined(SYS_mount_setattr)
+    return syscall(SYS_mount_setattr, dfd, path, flags, attr, size);
+#elif defined(__NR_mount_setattr)
+    return syscall(__NR_mount_setattr, dfd, path, flags, attr, size);
+#else
+    (void)dfd;
+    (void)path;
+    (void)flags;
+    (void)attr;
+    (void)size;
+    errno = ENOSYS;
+    return -1;
+#endif
+}
+
 size_t __attribute__((weak)) strlcpy(char* dest, const char* src, size_t len)
 {
     size_t l = strlen(src);

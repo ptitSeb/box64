@@ -69,7 +69,7 @@ GO(getfscreatecon_raw, iFp)
 //GO(getpidcon, 
 //GO(getpidcon_raw, 
 //GO(getprevcon, 
-//GO(getprevcon_raw, 
+GO(getprevcon_raw, iFp)
 //GO(getseuser, 
 //GO(getseuserbyname, 
 //GO(getsockcreatecon, 
@@ -129,7 +129,7 @@ GO(security_compute_create_raw, iFpppp)
 //GO(security_get_boolean_names, 
 //GO(security_get_boolean_pending, 
 //GO(security_get_checkreqprot, 
-//GO(security_getenforce, 
+GO(security_getenforce, iFv)
 //GO(security_get_initial_context, 
 //GO(security_get_initial_context_raw, 
 //GO(security_load_booleans, 
@@ -141,7 +141,7 @@ GO(security_compute_create_raw, iFpppp)
 //GO(security_setenforce, 
 //GO(security_validatetrans, 
 //GO(security_validatetrans_raw, 
-//GO(selabel_close, 
+GO(selabel_close, vFp)
 //GO(selabel_cmp, 
 //GO(selabel_digest, 
 //GO(selabel_get_digests_all_partial_matches, 
@@ -157,7 +157,7 @@ GO(selabel_open, pFipL)
 //GO(selinux_booleans_path, 
 //GO(selinux_booleans_subs_path, 
 //GO(selinux_boolean_sub, 
-//GO(selinux_check_access, 
+GO(selinux_check_access, iFppppv)
 //GO(selinux_check_passwd_access, 
 //GO(selinux_check_securetty_context, 
 //GO(selinux_colors_path, 
@@ -202,16 +202,16 @@ GO(selabel_open, pFipL)
 //GO(selinux_restorecon_xattr, 
 //GO(selinux_securetty_types_path, 
 //GO(selinux_sepgsql_context_path, 
-//GO(selinux_set_callback, 
+GOM(selinux_set_callback, vFEip)
 //GO(selinux_set_mapping, 
 //GO(selinux_set_policy_root, 
 //GO(selinux_snapperd_contexts_path, 
-//GO(selinux_status_close, 
+GO(selinux_status_close, vFv)
 //GO(selinux_status_deny_unknown, 
 //GO(selinux_status_getenforce, 
-//GO(selinux_status_open, 
+GO(selinux_status_open, iFi)
 //GO(selinux_status_policyload, 
-//GO(selinux_status_updated, 
+GO(selinux_status_updated, iFv)
 //GO(selinux_systemd_contexts_path, 
 //GO(selinux_translations_path, 
 GO(selinux_trans_to_raw_context, iFpp)
@@ -225,7 +225,7 @@ GO(setcon, iFp)
 //GO(setcon_raw, 
 //GO(setexeccon, 
 //GO(setexeccon_raw, 
-//GO(setexecfilecon, 
+GO(setexecfilecon, iFpp)
 GO(setfilecon, iFpp)
 GO(setfilecon_raw, iFpp)
 GO(setfscreatecon, iFp)

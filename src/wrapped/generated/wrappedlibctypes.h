@@ -50,8 +50,11 @@ typedef void (*vFipA_t)(int32_t, void*, va_list);
 typedef void (*vFpii_t)(void*, int32_t, int32_t);
 typedef void (*vFpup_t)(void*, uint32_t, void*);
 typedef void (*vFppL_t)(void*, void*, uintptr_t);
+typedef int32_t (*iFiiu_t)(int32_t, int32_t, uint32_t);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
+typedef int32_t (*iFiuu_t)(int32_t, uint32_t, uint32_t);
+typedef int32_t (*iFipu_t)(int32_t, void*, uint32_t);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFipV_t)(int32_t, void*, ...);
 typedef int32_t (*iFipA_t)(int32_t, void*, va_list);
@@ -96,10 +99,13 @@ typedef intptr_t (*lFppLL_t)(void*, void*, uintptr_t, uintptr_t);
 typedef void (*vFpLLpp_t)(void*, uintptr_t, uintptr_t, void*, void*);
 typedef int32_t (*iFiipup_t)(int32_t, int32_t, void*, uint32_t, void*);
 typedef int32_t (*iFiippi_t)(int32_t, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFiuppi_t)(int32_t, uint32_t, void*, void*, int32_t);
 typedef int32_t (*iFiLLLL_t)(int32_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 typedef int32_t (*iFipiip_t)(int32_t, void*, int32_t, int32_t, void*);
 typedef int32_t (*iFipiup_t)(int32_t, void*, int32_t, uint32_t, void*);
+typedef int32_t (*iFipipu_t)(int32_t, void*, int32_t, void*, uint32_t);
 typedef int32_t (*iFipipp_t)(int32_t, void*, int32_t, void*, void*);
+typedef int32_t (*iFipupL_t)(int32_t, void*, uint32_t, void*, uintptr_t);
 typedef int32_t (*iFipppp_t)(int32_t, void*, void*, void*, void*);
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
 typedef int32_t (*iFpilpV_t)(void*, int32_t, intptr_t, void*, ...);
@@ -174,6 +180,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(backtrace, iFpi_t) \
 	GO(sigsetjmp, iFpi_t) \
 	GO(delete_module, iFpu_t) \
+	GO(fsopen, iFpu_t) \
 	GO(munmap, iFpL_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
@@ -222,11 +229,14 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_ITM_addUserCommitAction, vFpup_t) \
 	GO(_ITM_memcpyRnWt, vFppL_t) \
 	GO(_ITM_memcpyRtWn, vFppL_t) \
+	GO(pidfd_getfd, iFiiu_t) \
 	GO(__fxstat, iFiip_t) \
 	GO(__fxstat64, iFiip_t) \
 	GO(__fcntl, iFiiN_t) \
 	GO(fcntl, iFiiN_t) \
 	GO(fcntl64, iFiiN_t) \
+	GO(fsmount, iFiuu_t) \
+	GO(fspick, iFipu_t) \
 	GO(__lxstat, iFipp_t) \
 	GO(__lxstat64, iFipp_t) \
 	GO(__sigaction, iFipp_t) \
@@ -258,6 +268,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
+	GO(__isoc23_vfscanf, iFppA_t) \
 	GO(__isoc23_vsscanf, iFppA_t) \
 	GO(__isoc99_vfscanf, iFppA_t) \
 	GO(__isoc99_vsscanf, iFppA_t) \
@@ -329,10 +340,13 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__xmknodat, iFiipup_t) \
 	GO(__fxstatat, iFiippi_t) \
 	GO(__fxstatat64, iFiippi_t) \
+	GO(fsconfig, iFiuppi_t) \
 	GO(prctl, iFiLLLL_t) \
 	GO(epoll_pwait, iFipiip_t) \
 	GO(statx, iFipiup_t) \
+	GO(move_mount, iFipipu_t) \
 	GO(epoll_pwait2, iFipipp_t) \
+	GO(mount_setattr, iFipupL_t) \
 	GO(getopt_long, iFipppp_t) \
 	GO(getopt_long_only, iFipppp_t) \
 	GO(scandirat, iFipppp_t) \
