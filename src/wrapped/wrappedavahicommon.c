@@ -198,7 +198,7 @@ EXPORT void* my_avahi_string_list_add_many_va(x64emu_t* emu, void* list, x64_va_
     (void)emu;
     CONVERT_VALIST(b);
     #else
-    CREATE_VALIST_FROM_VALIST(b, emu->scratch);)
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
     #endif
     return my->avahi_string_list_add_many_va(list, VARARGS);
 }
@@ -233,7 +233,7 @@ EXPORT void* my_avahi_string_list_new_va(x64emu_t* emu, x64_va_list_t b)
     (void)emu;
     CONVERT_VALIST(b);
     #else
-    CREATE_VALIST_FROM_VALIST(b, emu->scratch);)
+    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
     #endif
     return my->avahi_string_list_new_va(VARARGS);
 }
