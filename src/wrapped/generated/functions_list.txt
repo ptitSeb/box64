@@ -246,6 +246,7 @@
 #() IFpi
 #() IFpu
 #() IFpd
+#() IFpp
 #() CFip
 #() CFCi
 #() CFui
@@ -353,6 +354,8 @@
 #() pFEl
 #() pFEL
 #() pFEp
+#() pFEV
+#() pFEA
 #() pFii
 #() pFiu
 #() pFip
@@ -374,6 +377,7 @@
 #() pFLp
 #() pFpc
 #() pFpi
+#() pFpI
 #() pFpC
 #() pFpW
 #() pFpu
@@ -1472,6 +1476,7 @@
 #() pFEppu
 #() pFEppp
 #() pFEppV
+#() pFEppA
 #() pFiiii
 #() pFiiiu
 #() pFiiuu
@@ -2973,6 +2978,7 @@
 #() iFppLippp
 #() iFppLuuii
 #() iFppLLLLu
+#() iFppLpLpL
 #() iFppLpppp
 #() iFpppiiii
 #() iFpppiiup
@@ -3920,6 +3926,25 @@ wrappedatomic:
 wrappedatspi:
 - pFppp:
   - atspi_event_listener_new
+wrappedavahicommon:
+- vFp:
+  - avahi_set_allocator
+- pFV:
+  - avahi_string_list_new
+- pFA:
+  - avahi_string_list_new_va
+- pFpV:
+  - avahi_strdup_printf
+  - avahi_string_list_add_many
+- pFpA:
+  - avahi_strdup_vprintf
+  - avahi_string_list_add_many_va
+- vFppp:
+  - avahi_simple_poll_set_func
+- pFppV:
+  - avahi_string_list_add_printf
+- pFppA:
+  - avahi_string_list_add_vprintf
 wrappedayatanaappindicator3:
 wrappedbrotlidec:
 - pFppp:
