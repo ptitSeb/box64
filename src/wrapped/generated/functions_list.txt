@@ -3220,6 +3220,7 @@
 #() iFupipppip
 #() iFdiippppL
 #() iFpiiiuuup
+#() iFpiiupppp
 #() iFpipiipip
 #() iFpippiiii
 #() iFpippuuui
@@ -3306,6 +3307,7 @@
 #() LFpLpuuLLu
 #() LFppLpLpLi
 #() pFEupLLLpp
+#() pFEpiipupp
 #() pFEpiipppp
 #() pFEpiuCppp
 #() pFEpuLpupp
@@ -3487,6 +3489,9 @@
 #() LFEppppppii
 #() LFpLiiiiiip
 #() LFpLiiuuuLL
+#() pFEpiipiupp
+#() pFEpiipuupp
+#() pFEpiippupp
 #() pFEpLiiuuLi
 #() pFEppuippuu
 #() pFEpppppiiV
@@ -3570,6 +3575,8 @@
 #() iFEpppppppip
 #() iFiuuupppppu
 #() iFuiiiuuiiip
+#() iFpiiupWWupL
+#() iFpiiuppppWp
 #() iFpiiLiiipip
 #() iFpiLLiiipip
 #() iFpiLLdduudd
@@ -3597,6 +3604,7 @@
 #() lFpLppdddddd
 #() pFEiuppppppp
 #() pFEpiiiiiipp
+#() pFEpiipWWupp
 #() pFEpippppppp
 #() pFEpuppupppp
 #() pFpuupuuuuuu
@@ -3678,6 +3686,7 @@
 #() UFbuuuwwwwWWu
 #() fFppppppppLLL
 #() dFppppppppLLL
+#() pFEpiipppiupp
 #() pFEpipppppppi
 #() pFEppiiLpppip
 #() pFEppuiipuuii
@@ -3755,6 +3764,7 @@
 #() vFppppppppppppp
 #() iFiuuuuiiuuuuuu
 #() iFddddpppddpppp
+#() iFpiiuppppppppp
 #() iFpippuuuiipppp
 #() iFpLLlliiLppppp
 #() iFppppppLLLLupp
@@ -3808,6 +3818,7 @@
 #() vFppppppppppppppLL
 #() vFpppppppppppppppL
 #() vFpppppppppppppppp
+#() iFpiiuppppWppppppp
 #() iFpppppppppppppppp
 #() pFpipppppppppppppp
 #() pFppipipipipipipip
@@ -3925,6 +3936,24 @@ wrappedatomic:
 wrappedatspi:
 - pFppp:
   - atspi_event_listener_new
+wrappedavahiclient:
+- pFppp:
+  - avahi_entry_group_new
+- pFpuppp:
+  - avahi_client_new
+- pFpiipupp:
+  - avahi_address_resolver_new
+  - avahi_service_type_browser_new
+- pFpiipiupp:
+  - avahi_host_name_resolver_new
+- pFpiipuupp:
+  - avahi_domain_browser_new
+- pFpiippupp:
+  - avahi_service_browser_new
+- pFpiipWWupp:
+  - avahi_record_browser_new
+- pFpiipppiupp:
+  - avahi_service_resolver_new
 wrappedavahicommon:
 - vFp:
   - avahi_set_allocator

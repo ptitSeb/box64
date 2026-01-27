@@ -410,6 +410,7 @@ GO("libavutil.so.56", libavutil56)
 GO("libavformat.so.58", libavformat58)
 GO("libavcodec.so.58", libavcodec58)
 
+GO("libavahi-client.so.3", avahiclient)
 GO("libavahi-common.so.3", avahicommon)
 
 #ifdef TERMUX
