@@ -1,7 +1,7 @@
 #define _LARGEFILE_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
-#ifndef TERMUX
+#if !defined(TERMUX) && !defined(ANDROID)
 #include <argp.h>
 #endif
 #include <stdlib.h>
@@ -486,12 +486,12 @@ static void* find_argp_parser_Fct(void* fct)
 
 EXPORT int my_argp_parse(x64emu_t* emu, struct argp* argp, int argc, char** argv, int flags, int* index, void* input)
 {
-#ifndef TERMUX
+#if !defined(TERMUX) && !defined(ANDROID)
     void* fct = (void*)argp->parser;
     if (fct) argp->parser = find_argp_parser_Fct(fct);
     return argp_parse(argp, argc, argv, flags, index, input);
 #else
-    printf_log(LOG_NONE, "Warning: unsupported argp_parse called, expected failure\n");
+    printf_log(LOG_NONE, "Warning: unsupported argp_parse called, expecting failure\n");
     return -1;
 #endif
 }
