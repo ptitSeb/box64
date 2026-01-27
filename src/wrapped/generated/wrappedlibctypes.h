@@ -109,6 +109,7 @@ typedef void* (*pFpLLiN_t)(void*, uintptr_t, uintptr_t, int32_t, ...);
 typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
 typedef void* (*pFpppLp_t)(void*, void*, void*, uintptr_t, void*);
 typedef void (*vFiipupV_t)(int32_t, int32_t, void*, uint32_t, void*, ...);
+typedef int32_t (*iFpipupp_t)(void*, int32_t, void*, uint32_t, void*, void*);
 typedef int32_t (*iFpipppL_t)(void*, int32_t, void*, void*, void*, uintptr_t);
 typedef int32_t (*iFpLiLpp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void*);
 typedef int32_t (*iFpLiLpV_t)(void*, uintptr_t, int32_t, uintptr_t, void*, ...);
@@ -345,6 +346,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(lfind, pFpppLp_t) \
 	GO(lsearch, pFpppLp_t) \
 	GO(error_at_line, vFiipupV_t) \
+	GO(argp_parse, iFpipupp_t) \
 	GO(__sysctl, iFpipppL_t) \
 	GO(sysctl, iFpipppL_t) \
 	GO(__vsnprintf_chk, iFpLiLpp_t) \
