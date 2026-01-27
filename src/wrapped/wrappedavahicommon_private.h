@@ -72,7 +72,7 @@ GO(avahi_string_list_get_service_cookie, uFp)
 GO(avahi_string_list_get_size, LFp)
 GO(avahi_string_list_get_text, pFp)
 GO(avahi_string_list_length, uFp)
-GOM(avahi_string_list_new, pFEV)    // removing the 1st pointer as it's part of the V in fact, to stay cohereant with the _va version
+GOM(avahi_string_list_new, pFEpV)
 GO(avahi_string_list_new_from_array, pFpi)
 GOM(avahi_string_list_new_va, pFEA)
 GO(avahi_string_list_parse, iFpLp)

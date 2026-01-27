@@ -12,7 +12,6 @@
 #endif
 
 typedef void (*vFp_t)(void*);
-typedef void* (*pFV_t)(...);
 typedef void* (*pFA_t)(va_list);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFpA_t)(void*, va_list);
@@ -22,10 +21,10 @@ typedef void* (*pFppA_t)(void*, void*, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(avahi_set_allocator, vFp_t) \
-	GO(avahi_string_list_new, pFV_t) \
 	GO(avahi_string_list_new_va, pFA_t) \
 	GO(avahi_strdup_printf, pFpV_t) \
 	GO(avahi_string_list_add_many, pFpV_t) \
+	GO(avahi_string_list_new, pFpV_t) \
 	GO(avahi_strdup_vprintf, pFpA_t) \
 	GO(avahi_string_list_add_many_va, pFpA_t) \
 	GO(avahi_simple_poll_set_func, vFppp_t) \

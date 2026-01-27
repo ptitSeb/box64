@@ -391,7 +391,6 @@ void pFEi(x64emu_t *emu, uintptr_t fnc);
 void pFEl(x64emu_t *emu, uintptr_t fnc);
 void pFEL(x64emu_t *emu, uintptr_t fnc);
 void pFEp(x64emu_t *emu, uintptr_t fnc);
-void pFEV(x64emu_t *emu, uintptr_t fnc);
 void pFEA(x64emu_t *emu, uintptr_t fnc);
 void pFii(x64emu_t *emu, uintptr_t fnc);
 void pFiu(x64emu_t *emu, uintptr_t fnc);

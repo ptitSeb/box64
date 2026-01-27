@@ -354,7 +354,6 @@
 #() pFEl
 #() pFEL
 #() pFEp
-#() pFEV
 #() pFEA
 #() pFii
 #() pFiu
@@ -3929,13 +3928,12 @@ wrappedatspi:
 wrappedavahicommon:
 - vFp:
   - avahi_set_allocator
-- pFV:
-  - avahi_string_list_new
 - pFA:
   - avahi_string_list_new_va
 - pFpV:
   - avahi_strdup_printf
   - avahi_string_list_add_many
+  - avahi_string_list_new
 - pFpA:
   - avahi_strdup_vprintf
   - avahi_string_list_add_many_va

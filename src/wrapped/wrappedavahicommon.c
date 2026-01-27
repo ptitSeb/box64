@@ -20,7 +20,10 @@
 const char* avahicommonName = "libavahi-common.so.3";
 #define LIBNAME avahicommon
 
+typedef void* (*pFpi_t)(void*, int);
+
 #define ADDED_FUNCTIONS()       \
+    GO(avahi_string_list_new_from_array, pFpi_t)
 
 #include "generated/wrappedavahicommontypes.h"
 
@@ -221,10 +224,15 @@ EXPORT void* my_avahi_string_list_add_vprintf(x64emu_t* emu, void* list, void* f
     return my->avahi_string_list_add_vprintf(list, fmt, VARARGS);
 }
 
-EXPORT void* my_avahi_string_list_new(x64emu_t* emu, uint64_t* b)
+EXPORT void* my_avahi_string_list_new(x64emu_t* emu, void* p, uintptr_t* b)
 {
-    CREATE_SYSV_VALIST(b);
-    return my->avahi_string_list_new_va(VARARGS);
+    int cnt = 0;
+    while(getVArgs(emu, 1, b, cnt)) ++cnt;
+    void* arr[cnt+1];
+    arr[0] = p;
+    for(int i=0; i<cnt; ++i)
+        arr[i+1] = (void*)getVArgs(emu, 1, b, i);
+    return my->avahi_string_list_new_from_array(arr, cnt+1);
 }
 
 EXPORT void* my_avahi_string_list_new_va(x64emu_t* emu, x64_va_list_t b)
