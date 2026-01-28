@@ -31,6 +31,7 @@ typedef int32_t (*iFpupppLppL_t)(void*, uint32_t, void*, void*, void*, uintptr_t
 	GO(lzma_alone_encoder, iFpp_t) \
 	GO(lzma_raw_decoder, iFpp_t) \
 	GO(lzma_raw_encoder, iFpp_t) \
+	GO(lzma_stream_decoder_mt, iFpp_t) \
 	GO(lzma_stream_encoder_mt, iFpp_t) \
 	GO(lzma_easy_encoder, iFpui_t) \
 	GO(lzma_stream_decoder, iFpUi_t) \

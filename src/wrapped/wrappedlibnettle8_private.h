@@ -555,8 +555,8 @@ GO(nettle_umac96_update, vFpLp)
 //GO(_nettle_umac_poly128, 
 //GO(_nettle_umac_poly64, 
 //GO(_nettle_umac_set_key, 
-//GO(nettle_version_major, 
-//GO(nettle_version_minor, 
+GO(nettle_version_major, iFv)
+GO(nettle_version_minor, iFv)
 //GO(_nettle_write_be32, 
 //GO(_nettle_write_le32, 
 //GO(_nettle_write_le64, 

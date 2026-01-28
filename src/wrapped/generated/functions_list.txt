@@ -6266,6 +6266,7 @@ wrappedlzma:
   - lzma_alone_encoder
   - lzma_raw_decoder
   - lzma_raw_encoder
+  - lzma_stream_decoder_mt
   - lzma_stream_encoder_mt
 - iFpui:
   - lzma_easy_encoder
