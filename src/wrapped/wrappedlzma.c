@@ -237,7 +237,7 @@ EXPORT int my_lzma_stream_encoder_mt(x64emu_t* emu, lzma_stream_t* stream, void*
     return ret;
 }
 
-EXPORT int my_lzma_stream_decoder_mt(x64emu_t* emu, lzma_stream_t* stream, const void* options)
+EXPORT int my_lzma_stream_decoder_mt(x64emu_t* emu, lzma_stream_t* stream, void* options)
 {
     wrap_alloc_struct(stream->allocator);
     int ret = my->lzma_stream_decoder_mt(stream, options);
