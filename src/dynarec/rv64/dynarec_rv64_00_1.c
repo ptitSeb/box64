@@ -211,8 +211,12 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LW(x1, x3, 0);
                 PUSH1z(x1);
             } else {
-                MOV64z(x3, i64);
-                PUSH1z(x3);
+                if (!i64) {
+                    PUSH1z(xZR);
+                } else {
+                    MOV64z(x3, i64);
+                    PUSH1z(x3);
+                }
             }
             break;
         case 0x69:
@@ -252,8 +256,12 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x6A:
             INST_NAME("PUSH Ib");
             i64 = F8S;
-            MOV64z(x3, i64);
-            PUSH1z(x3);
+            if (!i64) {
+                PUSH1z(xZR);
+            } else {
+                MOV64z(x3, i64);
+                PUSH1z(x3);
+            }
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");

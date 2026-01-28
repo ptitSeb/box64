@@ -1015,8 +1015,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRSW_U12(x1, x3, 0);
                 PUSH1z(x1);
             } else {
-                MOV64z(x3, i64);
-                PUSH1z(x3);
+                if (!i64) {
+                    PUSH1z(xZR);
+                } else {
+                    MOV64z(x3, i64);
+                    PUSH1z(x3);
+                }
                 SMWRITE();
             }
             break;
@@ -1083,8 +1087,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6A:
             INST_NAME("PUSH Ib");
             i64 = F8S;
-            MOV64z(x3, i64);
-            PUSH1z(x3);
+            if (!i64) {
+                PUSH1z(xZR);
+            } else {
+                MOV64z(x3, i64);
+                PUSH1z(x3);
+            }
             SMWRITE();
             break;
         case 0x6B:
