@@ -1603,7 +1603,8 @@ void emit_dec16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         }
     }
     IFX (X_SF) {
-        BSTRINS_D(xFlags, s1, 15, 15);
+        BSTRPICK_D(s5, s1, 15, 15);
+        BSTRINS_D(xFlags, s5, F_SF, F_SF);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s2);
@@ -1663,7 +1664,8 @@ void emit_dec32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
     IFX (X_SF) {
-        BSTRINS_D(xFlags, s1, 31, 31);
+        BSTRPICK_D(s5, s1, 31, 31);
+        BSTRINS_D(xFlags, s5, F_SF, F_SF);
     }
     if (!rex.w) ZEROUP(s1);
     IFX (X_PF) {
