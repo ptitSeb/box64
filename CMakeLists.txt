@@ -622,6 +622,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibglu.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibglx.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibglxnvidia.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibgpgme.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibharfbuzz.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibibus.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibice.c"

@@ -405,6 +405,7 @@ GO("libgnutls.so.30", gnutls)
 GO("libmpg123.so.0", mpg123)
 //GO("libtiff.so.5", libtiff)
 GO("libxml2.so.2", xml2)
+GO("libgpgme.so.11", libgpgme)
 
 GO("libavutil.so.56", libavutil56)
 GO("libavformat.so.58", libavformat58)
