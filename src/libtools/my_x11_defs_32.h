@@ -1736,7 +1736,7 @@ typedef struct my_XIDeviceEvent_32_s {
     my_XIValuatorState_32_t valuators;
     my_XIModifierState_t    mods;
     my_XIModifierState_t    group;
-} my_XIDeviceEvent_32_t;
+} __attribute__((packed)) my_XIDeviceEvent_32_t;
 
 typedef struct my_XIRawEvent_32_s {
     int                     type;
@@ -1778,7 +1778,7 @@ typedef struct my_XIEnterEvent_32_s {
     my_XIButtonState_32_t   buttons;
     my_XIModifierState_t    mods;
     my_XIModifierState_t    group;
-} my_XIEnterEvent_32_t;
+} __attribute__((packed)) my_XIEnterEvent_32_t;
 // Leave, FocusIn and FocusOut are like Enter
 
 typedef struct my_XIPropertyEvent_32_s {
@@ -1831,7 +1831,7 @@ typedef struct my_XIBarrierEvent_32_s {
     int           flags;
     XID_32        barrier;
     uint32_t      eventid;
-} my_XIBarrierEvent_32_t;
+} __attribute__((packed)) my_XIBarrierEvent_32_t;
 
 typedef struct my_XIGesturePinchEvent_32_s {
     int                     type;
@@ -1860,7 +1860,7 @@ typedef struct my_XIGesturePinchEvent_32_s {
     int                     flags;
     my_XIModifierState_t    mods;
     my_XIModifierState_t    group;
-} my_XIGesturePinchEvent_32_t;
+} __attribute__((packed)) my_XIGesturePinchEvent_32_t;
 
 typedef struct my_XIGestureSwipeEvent_32_s {
     int                     type;
@@ -1887,7 +1887,7 @@ typedef struct my_XIGestureSwipeEvent_32_s {
     int                     flags;
     my_XIModifierState_t    mods;
     my_XIModifierState_t    group;
-} my_XIGestureSwipeEvent_32_t;
+} __attribute__((packed)) my_XIGestureSwipeEvent_32_t;
 
 typedef struct my_XRRCrtcTransformAttributes_32_s {
     my_XTransform_t     pendingTransform;
