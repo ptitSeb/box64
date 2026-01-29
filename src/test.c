@@ -350,6 +350,7 @@ int unittest(int argc, const char** argv)
 
     box64_pagesize = 4096;
     LoadEnvVariables();
+    InitializeSystemInfo();
     ftrace = stdout;
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
 
