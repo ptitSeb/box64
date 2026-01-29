@@ -6054,6 +6054,7 @@ wrappedlibssl3:
   - SSL_CTX_set_default_passwd_cb
   - SSL_CTX_set_keylog_callback
   - SSL_CTX_set_msg_callback
+  - SSL_CTX_set_psk_client_callback
   - SSL_CTX_set_psk_server_callback
   - SSL_set_info_callback
   - SSL_set_msg_callback

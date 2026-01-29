@@ -755,6 +755,11 @@ EXPORT void my3_SSL_CTX_set_psk_server_callback(x64emu_t* emu, void* ssl, void* 
     my->SSL_CTX_set_psk_server_callback(ssl, find_psk_server_callback_Fct(cb));
 }
 
+EXPORT void my3_SSL_CTX_set_psk_client_callback(x64emu_t* emu, void* ssl, void* cb)
+{
+    my->SSL_CTX_set_psk_client_callback(ssl, find_client_cb_Fct(cb));
+}
+
 #define ALTMY my3_
 
 #define NEEDED_LIBS "libcrypto.so.3", "libpthread.so.0"
