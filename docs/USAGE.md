@@ -598,6 +598,14 @@ Print missing opcodes. Available in WowBox64.
  * 1: Print missing opcodes. 
  * 2: Print the fallback to scalar opcodes, only valid on RISC-V. 
 
+### BOX64_DYNAREC_NOHOSTEXT
+
+Disable optional host extensions.
+
+ * 0: Disable nothing. [Default]
+ * 1: Disable all the optional extensions. 
+ * xxx,yyy,zzz: Disable selected optional extensions, choices are Arm: `crc32,pmull,aes,atomics,sha1,sha2,uscat,flagm,flagm2,frintts,afp,rndr`, LoongArch: `lasx,lbt,frecipe,lam_bh,lamcas,scq`, and RISC-V: `zba,zbb,zbc,zbs,vector,xtheadba,xtheadbb,xtheadbs,xtheadmemidx,xtheadmempair,xtheadcondmov`. 
+
 ### BOX64_DYNAREC_PERFMAP
 
 Generate map file for Linux perf tool.
