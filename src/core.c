@@ -223,7 +223,6 @@ static void displayMiscInfo()
     }
 #endif
 
-    InitializeSystemInfo();
     printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd", box64_sysinfo.cpuname, box64_sysinfo.ncpu, box64_sysinfo.ncpu > 1 ? "s" : "", box64_pagesize);
     if (BOX64ENV(maxcpu))
         printf_log_prefix(0, LOG_INFO, ", emulating %d core%s\n", BOX64ENV(maxcpu), BOX64ENV(maxcpu) > 1 ? "s" : "");
@@ -794,6 +793,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
 
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
 
+    InitializeSystemInfo();
     displayMiscInfo();
 
     hookMangoHud();
@@ -1047,15 +1047,17 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(pythonpath)
         my_context->pythonpath = box_strdup(pythonpath);
 
-    ApplyEnvFileEntry(box64_guest_name);
+    int applied = ApplyEnvFileEntry(box64_guest_name);
     if (box64_wine && box64_wine_guest_name) {
-        ApplyEnvFileEntry(box64_wine_guest_name);
+        applied |= ApplyEnvFileEntry(box64_wine_guest_name);
         box64_wine_guest_name = NULL;
     }
-    // Try to open ftrace again after applying rcfile.
-    displayMiscInfo();
-    setupZydis(my_context);
-    PrintEnvVariables(&box64env, LOG_INFO);
+    if (applied) {
+        printf_log(LOG_INFO, "Applied settings from rcfile\n");
+        displayMiscInfo();
+        setupZydis(my_context);
+        PrintEnvVariables(&box64env, LOG_INFO);
+    }
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);

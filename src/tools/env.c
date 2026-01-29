@@ -593,11 +593,12 @@ static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* e
 }
 
 static char old_entryname[256] = "";
-void ApplyEnvFileEntry(const char* entryname)
+int ApplyEnvFileEntry(const char* entryname)
 {
-    if (!entryname || !box64env_entries) return;
-    if (!strcasecmp(entryname, old_entryname)) return;
+    if (!entryname || !box64env_entries) return 0;
+    if (!strcasecmp(entryname, old_entryname)) return 0;
 
+    int ret = 0;
     strncpy(old_entryname, entryname, 255);
     khint_t k1;
     {
@@ -605,18 +606,23 @@ void ApplyEnvFileEntry(const char* entryname)
         k1 = kh_get(box64env_entry, box64env_entries, lowercase_entryname);
         box64env_t* env;
         const char* k2;
+        // clang-format off
         kh_foreach_ref(box64env_entries_wildcard, k2, env,
-            if (strstr(lowercase_entryname, k2))
+            if (strstr(lowercase_entryname, k2)) {
                 internalApplyEnvFileEntry(entryname, env);
-            applyCustomRules();
+                applyCustomRules();
+                ret = 1;
+            }
         )
         box_free(lowercase_entryname);
+        // clang-format on
     }
-    if (k1 == kh_end(box64env_entries)) return;
+    if (k1 == kh_end(box64env_entries)) return ret;
 
     box64env_t* env = &kh_value(box64env_entries, k1);
     internalApplyEnvFileEntry(entryname, env);
     applyCustomRules();
+    return 1;
 }
 
 void LoadEnvVariables()

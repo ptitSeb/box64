@@ -137,6 +137,7 @@ void rv64Detect(void)
 #ifdef DYNAREC
 int DetectHostCpuFeatures(void)
 {
+    memset(&cpuext, 0, sizeof(cpu_ext_t));
     char* p = BOX64ENV(dynarec_nohostext);
 #ifdef ARM64 
     unsigned long hwcap = real_getauxval(AT_HWCAP);
