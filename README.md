@@ -28,7 +28,7 @@ _Logo and icon by @grayduck - Thank you!_
 
 - `$ box64 ./program [args]` to run Linux x86_64 programs.
 - `$ box64 -k` to kill all the emulated processes.
-- `$ box64-bash` to have a x86_64 bash environment.
+- `$ box64-bash` to have an x86_64 bash environment.
 - Want to use wine? see [Wine Documentation](docs/WINE.md).
 
 Box64 also offers environment variables and rcfile to control its behavior. For details, see [Usage Documentation](docs/USAGE.md).
