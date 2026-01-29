@@ -1957,6 +1957,7 @@ GO(EVP_MD_free, vFp)
 GO(EVP_MD_get_block_size, iFp)
 GO(EVP_MD_get_flags, LFp)
 GO(EVP_MD_get_size, iFp)
+GO(EVP_MD_CTX_get_size_ex, iFp)
 GO(EVP_MD_get_type, iFp)
 GO(EVP_md_null, pFv)
 GO(EVP_MD_pkey_type, iFp)
@@ -3831,6 +3832,7 @@ GOM(X509_STORE_CTX_set_verify_cb, vFEpp)
 GO(X509_STORE_free, vFp)
 GO(X509_STORE_get0_param, pFp)
 GO(X509_STORE_get0_objects, pFp)
+GO(X509_STORE_get1_objects, pFp)
 //GO(X509_STORE_get1_certs, 
 //GO(X509_STORE_get1_crls, 
 //GO(X509_STORE_get_by_subject, 
@@ -3937,6 +3939,7 @@ GO(X509_VERIFY_PARAM_clear_flags, iFpL)
 //GO(X509_VERIFY_PARAM_get_count, 
 //GO(X509_VERIFY_PARAM_get_depth, 
 GO(X509_VERIFY_PARAM_get_flags, LFp)
+GO(X509_VERIFY_PARAM_get_hostflags, uFp)
 //GO(X509_VERIFY_PARAM_inherit, 
 //GO(X509_VERIFY_PARAM_lookup, 
 //GO(X509_VERIFY_PARAM_new, 
