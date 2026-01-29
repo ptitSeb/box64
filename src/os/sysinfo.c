@@ -15,6 +15,7 @@
 #ifndef _WIN32
 static void readCpuinfo(sysinfo_t* info)
 {
+    memset(info, 0, sizeof(sysinfo_t));
     info->emulated_frequency = 1;
     int cpucore = 0;
     while (1) {
@@ -50,7 +51,9 @@ static void readCpuinfo(sysinfo_t* info)
         } else if (info->ncpu <= 1 && strstr(line, "Model Name") != NULL) { // TODO: big.LITTLE handling?
             char* colon = strchr(line, ':');
             if (colon != NULL) {
-                size_t len = strlen(colon + 2);
+                while (colon[1] == ' ' || colon[1] == '\t')
+                    ++colon;
+                size_t len = strlen(colon);
                 info->cpuname = (char*)malloc(len + 1);
                 strcpy(info->cpuname, colon + 2);
                 char* newline = strchr(info->cpuname, '\n');
@@ -95,7 +98,9 @@ lscpu:
             } else if (!info->read_cpuname && strstr(line, "Model name:") != NULL) {
                 char* colon = strchr(line, ':');
                 if (colon != NULL) {
-                    size_t len = strlen(colon + 2);
+                    while (colon[1] == ' ' || colon[1] == '\t')
+                        ++colon;
+                    size_t len = strlen(colon);
                     info->cpuname = (char*)malloc(len + 1);
                     strcpy(info->cpuname, colon + 2);
                     char* newline = strchr(info->cpuname, '\n');

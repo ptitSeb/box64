@@ -230,7 +230,7 @@ typedef struct DynaCacheBlock_s {
 #endif
 
 void InitializeEnvFiles();
-void ApplyEnvFileEntry(const char* name);
+int ApplyEnvFileEntry(const char* name);
 const char* GetLastApplyEntryName();
 void InitializeEnv();
 void LoadEnvVariables();
