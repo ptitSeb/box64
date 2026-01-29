@@ -248,14 +248,14 @@
 //GO(ZBUFFv07_recommendedDInSize, 
 //GO(ZBUFFv07_recommendedDOutSize, 
 //GO(ZDICT_addEntropyTablesFromBuffer, 
-//GO(ZDICT_finalizeDictionary, 
-//GO(ZDICT_getDictHeaderSize, 
-//GO(ZDICT_getDictID, 
-//GO(ZDICT_getErrorName, 
-//GO(ZDICT_isError, 
+GO(ZDICT_finalizeDictionary, LFpLpLppuH) // last param afet LFpLpLppu is ZDICT_params_t, a struct with iuu
+GO(ZDICT_getDictHeaderSize, LFpL)
+GO(ZDICT_getDictID, uFpL)
+GO(ZDICT_getErrorName, pFL)
+GO(ZDICT_isError, uFL)
 //GO(ZDICT_optimizeTrainFromBuffer_cover, 
 //GO(ZDICT_optimizeTrainFromBuffer_fastCover, 
-//GO(ZDICT_trainFromBuffer, 
+GO(ZDICT_trainFromBuffer, LFpLppu)
 //GO(ZDICT_trainFromBuffer_cover, 
 //GO(ZDICT_trainFromBuffer_fastCover, 
 //GO(ZDICT_trainFromBuffer_legacy, 
@@ -263,22 +263,22 @@
 //GO(ZSTD_adjustCParams, 
 //GO(ZSTD_buildCTable, 
 //GO(ZSTD_buildFSETable, 
-//GO(ZSTD_CCtx_getParameter, 
+GO(ZSTD_CCtx_getParameter, LFpup)
 GO(ZSTD_CCtx_loadDictionary, LFppL)
-//GO(ZSTD_CCtx_loadDictionary_advanced, 
-//GO(ZSTD_CCtx_loadDictionary_byReference, 
-//GO(ZSTD_CCtxParams_getParameter, 
-//GO(ZSTD_CCtxParams_init, 
+GO(ZSTD_CCtx_loadDictionary_advanced, LFppLuu)
+GO(ZSTD_CCtx_loadDictionary_byReference, LFppL)
+GO(ZSTD_CCtxParams_getParameter, LFpup)
+GO(ZSTD_CCtxParams_init, LFpi)
 //GO(ZSTD_CCtxParams_init_advanced, 
-//GO(ZSTD_CCtxParams_reset, 
-//GO(ZSTD_CCtxParams_setParameter, 
+GO(ZSTD_CCtxParams_reset, LFp)
+GO(ZSTD_CCtxParams_setParameter, LFpui)
 GO(ZSTD_CCtx_refCDict, LFpp)
 GO(ZSTD_CCtx_refPrefix, LFppL)
-//GO(ZSTD_CCtx_refPrefix_advanced, 
-//GO(ZSTD_CCtx_refThreadPool, 
+GO(ZSTD_CCtx_refPrefix_advanced, LFppLu)
+GO(ZSTD_CCtx_refThreadPool, LFpp)
 GO(ZSTD_CCtx_reset, LFpu)
 GO(ZSTD_CCtx_setParameter, LFpui)
-//GO(ZSTD_CCtx_setParametersUsingCCtxParams, 
+GO(ZSTD_CCtx_setParametersUsingCCtxParams, LFpp)
 GO(ZSTD_CCtx_setPledgedSrcSize, LFpU)
 //GO(ZSTD_checkContinuity, 
 //GO(ZSTD_checkCParams, 
@@ -286,13 +286,13 @@ GO(ZSTD_compress, LFpLpLi)
 GO(ZSTD_compress2, LFppLpL)
 //GO(ZSTD_compress_advanced, 
 //GO(ZSTD_compress_advanced_internal, 
-//GO(ZSTD_compressBegin, 
+GO(ZSTD_compressBegin, LFpi)
 //GO(ZSTD_compressBegin_advanced, 
 //GO(ZSTD_compressBegin_advanced_internal, 
-//GO(ZSTD_compressBegin_usingCDict, 
+GO(ZSTD_compressBegin_usingCDict, LFpp)
 //GO(ZSTD_compressBegin_usingCDict_advanced, 
-//GO(ZSTD_compressBegin_usingDict, 
-//GO(ZSTD_compressBlock, 
+GO(ZSTD_compressBegin_usingDict, LFppLi)
+GO(ZSTD_compressBlock, LFppLpL)
 //GO(ZSTD_compressBlock_btlazy2, 
 //GO(ZSTD_compressBlock_btlazy2_dictMatchState, 
 //GO(ZSTD_compressBlock_btlazy2_extDict, 
@@ -323,36 +323,36 @@ GO(ZSTD_compress2, LFppLpL)
 //GO(ZSTD_compressBlock_lazy_extDict, 
 GO(ZSTD_compressBound, LFL)
 GO(ZSTD_compressCCtx, LFppLpLi)
-//GO(ZSTD_compressContinue, 
-//GO(ZSTD_compressEnd, 
+GO(ZSTD_compressContinue, LFppLpL)
+GO(ZSTD_compressEnd, LFppLpL)
 //GO(ZSTD_compressLiterals, 
 //GO(ZSTD_compressRleLiteralsBlock, 
-//GO(ZSTD_compressSequences, 
+GO(ZSTD_compressSequences, LFppLpLpL)
 GO(ZSTD_compressStream, LFppp)
 GO(ZSTD_compressStream2, LFpppu)
-//GO(ZSTD_compressStream2_simpleArgs, 
+GO(ZSTD_compressStream2_simpleArgs, LFppLppLpu)
 //GO(ZSTD_compressSuperBlock, 
 GO(ZSTD_compress_usingCDict, LFppLpLp)
 //GO(ZSTD_compress_usingCDict_advanced, 
 GO(ZSTD_compress_usingDict, LFppLpLpLi)
-//GO(ZSTD_copyCCtx, 
-//GO(ZSTD_copyDCtx, 
+GO(ZSTD_copyCCtx, LFppU)
+GO(ZSTD_copyDCtx, vFpp)
 //GO(ZSTD_copyDDictParameters, 
 GO(ZSTD_cParam_getBounds, HFu)
 GO(ZSTD_createCCtx, pFv)
 //GO(ZSTD_createCCtx_advanced, 
-//GO(ZSTD_createCCtxParams, 
+GO(ZSTD_createCCtxParams, pFv)
 GO(ZSTD_createCDict, pFpLi)
 //GO(ZSTD_createCDict_advanced, 
 //GO(ZSTD_createCDict_advanced2, 
-//GO(ZSTD_createCDict_byReference, 
+GO(ZSTD_createCDict_byReference, pFpLi)
 GO(ZSTD_createCStream, pFv)
 //GO(ZSTD_createCStream_advanced, 
 GO(ZSTD_createDCtx, pFv)
 //GO(ZSTD_createDCtx_advanced, 
 GO(ZSTD_createDDict, pFpL)
 //GO(ZSTD_createDDict_advanced, 
-//GO(ZSTD_createDDict_byReference, 
+GO(ZSTD_createDDict_byReference, pFpL)
 GO(ZSTD_createDStream, pFv)
 //GO(ZSTD_createDStream_advanced, 
 //GO(ZSTD_crossEntropyCost, 
@@ -362,71 +362,72 @@ GO(ZSTD_CStreamOutSize, LFv)
 //GO(ZSTD_customFree, 
 //GO(ZSTD_customMalloc, 
 //GO(ZSTD_cycleLog, 
-//GO(ZSTD_DCtx_getParameter, 
+GO(ZSTD_DCtx_getParameter, LFpup)
 GO(ZSTD_DCtx_loadDictionary, LFppL)
-//GO(ZSTD_DCtx_loadDictionary_advanced, 
-//GO(ZSTD_DCtx_loadDictionary_byReference, 
+GO(ZSTD_DCtx_loadDictionary_advanced, LFppLuu)
+GO(ZSTD_DCtx_loadDictionary_byReference, LFppL)
 GO(ZSTD_DCtx_refDDict, LFpp)
 GO(ZSTD_DCtx_refPrefix, LFppL)
-//GO(ZSTD_DCtx_refPrefix_advanced, 
+GO(ZSTD_DCtx_refPrefix_advanced, LFppLu)
 GO(ZSTD_DCtx_reset, LFpu)
-//GO(ZSTD_DCtx_setFormat, 
-//GO(ZSTD_DCtx_setMaxWindowSize, 
+GO(ZSTD_DCtx_setFormat, LFpu)
+GO(ZSTD_DCtx_setMaxWindowSize, LFpL)
 GO(ZSTD_DCtx_setParameter, LFpui)
 //GO(ZSTD_DDict_dictContent, 
 //GO(ZSTD_DDict_dictSize, 
 //GO(ZSTD_decodeLiteralsBlock, 
 //GO(ZSTD_decodeSeqHeaders, 
-//GO(ZSTD_decodingBufferSize_min, 
+GO(ZSTD_decodingBufferSize_min, LFUU)
 GO(ZSTD_decompress, LFpLpL)
-//GO(ZSTD_decompressBegin, 
-//GO(ZSTD_decompressBegin_usingDDict, 
-//GO(ZSTD_decompressBegin_usingDict, 
-//GO(ZSTD_decompressBlock, 
+GO(ZSTD_decompressBegin, LFp)
+GO(ZSTD_decompressBegin_usingDDict, LFpp)
+GO(ZSTD_decompressBegin_usingDict, LFppL)
+GO(ZSTD_decompressBlock, LFppLpL)
 //GO(ZSTD_decompressBlock_internal, 
-//GO(ZSTD_decompressBound, 
-//GO(ZSTD_decompressContinue, 
+GO(ZSTD_decompressBound, UFpL)
+GO(ZSTD_decompressContinue, LFppLpL)
 GO(ZSTD_decompressDCtx, LFppLpL)
 GO(ZSTD_decompressStream, LFppp)
-//GO(ZSTD_decompressStream_simpleArgs, 
+GO(ZSTD_decompressStream_simpleArgs, LFppLppLp)
 GO(ZSTD_decompress_usingDDict, LFppLpLp)
 GO(ZSTD_decompress_usingDict, LFppLpLpL)
 //GO(ZSTD_dedicatedDictSearch_lazy_loadDictionary, 
+GO(ZSTD_defaultCLevel, iFv)
 GO(ZSTD_dParam_getBounds, HFu)
 GO(ZSTD_DStreamInSize, LFv)
 GO(ZSTD_DStreamOutSize, LFv)
 //GO(ZSTD_encodeSequences, 
 GO(ZSTD_endStream, LFpp)
-//GO(ZSTD_estimateCCtxSize, 
-//GO(ZSTD_estimateCCtxSize_usingCCtxParams, 
+GO(ZSTD_estimateCCtxSize, LFi)
+GO(ZSTD_estimateCCtxSize_usingCCtxParams, LFp)
 //GO(ZSTD_estimateCCtxSize_usingCParams, 
-//GO(ZSTD_estimateCDictSize, 
+GO(ZSTD_estimateCDictSize, LFLi)
 //GO(ZSTD_estimateCDictSize_advanced, 
-//GO(ZSTD_estimateCStreamSize, 
-//GO(ZSTD_estimateCStreamSize_usingCCtxParams, 
+GO(ZSTD_estimateCStreamSize, LFi)
+GO(ZSTD_estimateCStreamSize_usingCCtxParams, LFp)
 //GO(ZSTD_estimateCStreamSize_usingCParams, 
-//GO(ZSTD_estimateDCtxSize, 
-//GO(ZSTD_estimateDDictSize, 
-//GO(ZSTD_estimateDStreamSize, 
-//GO(ZSTD_estimateDStreamSize_fromFrame, 
+GO(ZSTD_estimateDCtxSize, LFv)
+GO(ZSTD_estimateDDictSize, LFLu)
+GO(ZSTD_estimateDStreamSize, LFL)
+GO(ZSTD_estimateDStreamSize_fromFrame, LFpL)
 //GO(ZSTD_fillDoubleHashTable, 
 //GO(ZSTD_fillHashTable, 
-//GO(ZSTD_findDecompressedSize, 
+GO(ZSTD_findDecompressedSize, UFpL)
 GO(ZSTD_findFrameCompressedSize, LFpL)
 GO(ZSTD_flushStream, LFpp)
-//GO(ZSTD_frameHeaderSize, 
+GO(ZSTD_frameHeaderSize, LFpL)
 GO(ZSTD_freeCCtx, LFp)
-//GO(ZSTD_freeCCtxParams, 
+GO(ZSTD_freeCCtxParams, LFp)
 GO(ZSTD_freeCDict, LFp)
 GO(ZSTD_freeCStream, LFp)
 GO(ZSTD_freeDCtx, LFp)
 GO(ZSTD_freeDDict, LFp)
 GO(ZSTD_freeDStream, LFp)
 //GO(ZSTD_fseBitCost, 
-//GO(ZSTD_generateSequences, 
-//GO(ZSTD_getBlockSize, 
+GO(ZSTD_generateSequences, LFppLpL)
+GO(ZSTD_getBlockSize, LFp)
 //GO(ZSTD_getcBlockSize, 
-//GO(ZSTD_getCParams, 
+GO(ZSTD_getCParams, pFpiUL)
 //GO(ZSTD_getCParamsFromCCtxParams, 
 //GO(ZSTD_getCParamsFromCDict, 
 GO(ZSTD_getDecompressedSize, UFpL)
@@ -438,32 +439,32 @@ GO(ZSTD_getErrorCode, uFL)
 GO(ZSTD_getErrorName, pFL)
 GO(ZSTD_getErrorString, pFu)
 GO(ZSTD_getFrameContentSize, UFpL)
-//GO(ZSTD_getFrameHeader, 
-//GO(ZSTD_getFrameHeader_advanced, 
-//GO(ZSTD_getFrameProgression, 
-//GO(ZSTD_getParams, 
+GO(ZSTD_getFrameHeader, LFppL)
+GO(ZSTD_getFrameHeader_advanced, LFppLu)
+GO(ZSTD_getFrameProgression, pFpp)
+GO(ZSTD_getParams, pFpiUL)
 //GO(ZSTD_getSeqStore, 
 GO(ZSTD_initCStream, LFpi)
 //GO(ZSTD_initCStream_advanced, 
 //GO(ZSTD_initCStream_internal, 
-//GO(ZSTD_initCStream_srcSize, 
-//GO(ZSTD_initCStream_usingCDict, 
+GO(ZSTD_initCStream_srcSize, LFpiU)
+GO(ZSTD_initCStream_usingCDict, LFpp)
 //GO(ZSTD_initCStream_usingCDict_advanced, 
-//GO(ZSTD_initCStream_usingDict, 
+GO(ZSTD_initCStream_usingDict, LFppLi)
 GO(ZSTD_initDStream, LFp)
-//GO(ZSTD_initDStream_usingDDict, 
-//GO(ZSTD_initDStream_usingDict, 
-//GO(ZSTD_initStaticCCtx, 
+GO(ZSTD_initDStream_usingDDict, LFpp)
+GO(ZSTD_initDStream_usingDict, LFppL)
+GO(ZSTD_initStaticCCtx, pFpL)
 //GO(ZSTD_initStaticCDict, 
-//GO(ZSTD_initStaticCStream, 
-//GO(ZSTD_initStaticDCtx, 
-//GO(ZSTD_initStaticDDict, 
-//GO(ZSTD_initStaticDStream, 
+GO(ZSTD_initStaticCStream, pFpL)
+GO(ZSTD_initStaticDCtx, pFpL)
+GO(ZSTD_initStaticDDict, pFpLpLuu)
+GO(ZSTD_initStaticDStream, pFpL)
 //GO(ZSTD_insertAndFindFirstIndex, 
-//GO(ZSTD_insertBlock, 
+GO(ZSTD_insertBlock, LFppL)
 //GO(ZSTD_invalidateRepCodes, 
 GO(ZSTD_isError, uFL)
-//GO(ZSTD_isFrame, 
+GO(ZSTD_isFrame, uFpL)
 //GO(ZSTD_ldm_adjustParameters, 
 //GO(ZSTD_ldm_blockCompress, 
 //GO(ZSTD_ldm_fillHashTable, 
@@ -475,7 +476,7 @@ GO(ZSTD_isError, uFL)
 //GO(ZSTD_loadCEntropy, 
 //GO(ZSTD_loadDEntropy, 
 GO(ZSTD_maxCLevel, iFv)
-//GO(ZSTD_mergeBlockDelimiters, 
+GO(ZSTD_mergeBlockDelimiters, LFpL)
 GO(ZSTD_minCLevel, iFv)
 //GO(ZSTDMT_compressStream_generic, 
 //GO(ZSTDMT_createCCtx_advanced, 
@@ -486,13 +487,13 @@ GO(ZSTD_minCLevel, iFv)
 //GO(ZSTDMT_sizeof_CCtx, 
 //GO(ZSTDMT_toFlushNow, 
 //GO(ZSTDMT_updateCParams_whileCompressing, 
-//GO(ZSTD_nextInputType, 
-//GO(ZSTD_nextSrcSizeToDecompress, 
+GO(ZSTD_nextInputType, uFp)
+GO(ZSTD_nextSrcSizeToDecompress, LFp)
 //GO(ZSTD_noCompressLiterals, 
 //GO(ZSTD_referenceExternalSequences, 
 //GO(ZSTD_reset_compressedBlockState, 
-//GO(ZSTD_resetCStream, 
-//GO(ZSTD_resetDStream, 
+GO(ZSTD_resetCStream, LFpU)
+GO(ZSTD_resetDStream, LFp)
 //GO(ZSTD_resetSeqStore, 
 //GO(ZSTD_selectBlockCompressor, 
 //GO(ZSTD_selectEncodingType, 
@@ -503,7 +504,7 @@ GO(ZSTD_sizeof_CStream, LFp)
 GO(ZSTD_sizeof_DCtx, LFp)
 GO(ZSTD_sizeof_DDict, LFp)
 GO(ZSTD_sizeof_DStream, LFp)
-//GO(ZSTD_toFlushNow, 
+GO(ZSTD_toFlushNow, LFp)
 //GO(ZSTD_updateTree, 
 //GO(ZSTDv05_copyDCtx, 
 //GO(ZSTDv05_createDCtx, 
