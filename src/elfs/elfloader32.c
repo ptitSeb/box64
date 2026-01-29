@@ -178,9 +178,9 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
     if(image==MAP_FAILED || image!=from_ptrv(head->vaddr?head->vaddr:offs)) {
         printf_log(LOG_NONE, "%s cannot create memory map (@%p 0x%zx) for elf \"%s\"", (image==MAP_FAILED)?"Error:":"Warning:", from_ptrv(head->vaddr?head->vaddr:offs), head->memsz, head->name);
         if(image==MAP_FAILED) {
-            printf_log(LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
+            printf_log_prefix(0, LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
         } else {
-            printf_log(LOG_NONE, " got %p\n", image);
+            printf_log_prefix(0, LOG_NONE, " got %p\n", image);
         }
         if(image==MAP_FAILED)
             return 1;
