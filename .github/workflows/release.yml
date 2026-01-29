@@ -386,11 +386,11 @@ jobs:
               export BOX32_PERSONA32BITS=1 # hack to disable personality setting
             fi
             ctest $CTEST_OPTIONS -E nocosim
-            BOX64_DYNAREC_LA64NOEXT=1 ctest $CTEST_OPTIONS -E nocosim
+            BOX64_DYNAREC_NOHOSTEXT=1 ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC=0 ctest $CTEST_OPTIONS -E nocosim
 
             BOX64_DYNAREC_TEST=1 ctest $CTEST_OPTIONS -E nocosim
-            BOX64_DYNAREC_TEST=1 BOX64_DYNAREC_LA64NOEXT=1 ctest $CTEST_OPTIONS -E nocosim
+            BOX64_DYNAREC_TEST=1 BOX64_DYNAREC_NOHOSTEXT=1 ctest $CTEST_OPTIONS -E nocosim
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             export INTERPRETER=qemu-aarch64-static
             export QEMU_LD_PREFIX=/system/lib64

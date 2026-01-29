@@ -368,7 +368,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
             flags = flags | (lbt_ctx->eflags & 0b100011010101);
             emu->eflags.x64 = flags;
         } else {
-            printf_log(LOG_NONE, "Are you on a non-LBT kernel? Use BOX64_DYNAREC_LA64NOEXT=lbt to prevent Box64 from using it.\n");
+            printf_log(LOG_NONE, "Are you on a non-LBT kernel? Use BOX64_DYNAREC_NOHOSTEXT=lbt to prevent Box64 from using it.\n");
             emu->eflags.x64 = CONTEXT_REG(p, xFlags);
         }
         #else
