@@ -8,7 +8,7 @@ GO(arc4random_buf, vFpL)
 GO(arc4random_stir, vFv)
 GO(arc4random_uniform, uFu)
 //GO(bsd_getopt, 
-//GO(closefrom, 
+GO(closefrom, iFi)
 //GO(dehumanize_number, 
 //GO(errc, 
 //GO(expand_number, 
