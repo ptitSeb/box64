@@ -1226,7 +1226,6 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 {
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     IFXA ((X_CF | X_OF), cpuext.lbt) {
         if (rex.w)
             X64_ROTRI_D(s1, c);
@@ -1267,7 +1266,6 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit ROL8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_rol8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     IFX (X_OF) {
@@ -1341,7 +1339,6 @@ void emit_rol8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_rol16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
 {
     if (!c) return;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     IFXA (X_OF, c == 1) {
@@ -1374,7 +1371,6 @@ void emit_rol16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 // emit ROL32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     IFXA (X_CF | X_OF, !cpuext.lbt) {
         MOV64x(s4, ((1UL << F_CF) | (1UL << F_OF)));
         ANDN(xFlags, xFlags, s4);
@@ -1423,7 +1419,6 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit ROR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_ror32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     IFXA ((X_CF | X_OF), cpuext.lbt) {
         if (rex.w)
             X64_ROTR_D(s1, s2);
@@ -1470,7 +1465,6 @@ void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 {
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     IFXA (X_CF | X_OF, !cpuext.lbt) {
         MOV64x(s3, ((1UL << F_CF) | (1UL << F_OF)));
         ANDN(xFlags, xFlags, s3);
@@ -1725,7 +1719,6 @@ void emit_shld32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 void emit_rcl8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
     int64_t j64;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     ADDI_D(s4, xZR, 9);
@@ -1762,7 +1755,6 @@ void emit_rcl8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     c %= 9;
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     BSTRINS_D(s1, xFlags, 8, 8); // insert CF to bit 8
@@ -1794,7 +1786,6 @@ void emit_rcl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     c %= 17;
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     BSTRINS_D(s1, xFlags, 16, 16); // insert CF to bit 16
@@ -1820,7 +1811,6 @@ void emit_rcl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 // emit RCL32 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
 void emit_rcl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFX (X_CF) {
         ADDI_D(s4, xZR, rex.w ? 64 : 32);
@@ -1864,7 +1854,6 @@ void emit_rcl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 {
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFX (X_CF) {
         SRLI_D(s3, s1, (rex.w ? 64 : 32) - c);
@@ -1903,7 +1892,6 @@ void emit_rcr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 {
 
     int64_t j64;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     ADDI_D(s4, xZR, 9);
@@ -1938,7 +1926,6 @@ void emit_rcr8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     c %= 9;
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFX (X_OF) {
         SRLI_D(s3, s1, 7);
@@ -1954,7 +1941,6 @@ void emit_rcr8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         }
         if (c > 1) {
             BSTRINS_D(s1, s1, 16, 9);
-            OR(s1, s1, s3);
         }
         SRLI_D(s1, s1, c);
     }
@@ -1972,7 +1958,6 @@ void emit_rcr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     c %= 17;
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFX (X_OF) {
         SRLI_D(s3, s1, 15);
@@ -1997,7 +1982,6 @@ void emit_rcr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 // emit RCR32 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
 void emit_rcr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     IFX (X_OF) {
@@ -2035,7 +2019,6 @@ void emit_rcr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 {
     if (!c) return;
 
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFX (X_OF) {
         SRLI_D(s3, s1, rex.w ? 63 : 31);
@@ -2065,7 +2048,6 @@ void emit_rcr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit ROR8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_ror8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     IFX (X_OF) {
@@ -2093,7 +2075,6 @@ void emit_ror8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 void emit_ror8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     if (!c) return;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     IFX (X_OF) {
@@ -2122,7 +2103,6 @@ void emit_ror8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_ror16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     if (!c) return;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
     IFXA (X_OF, (c == 1)) {
         SRLI_D(s3, s1, 15);
@@ -2399,7 +2379,6 @@ void emit_shrd16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
 // emit ROL16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_rol16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     ANDI(s2, s2, 0xf);
@@ -2428,7 +2407,6 @@ void emit_rol16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit ROR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_ror16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     ANDI(s2, s2, 0xf);
@@ -2457,7 +2435,6 @@ void emit_ror16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 void emit_rcl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
     int64_t j64;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     ADDI_D(s4, xZR, 17);
@@ -2492,7 +2469,6 @@ void emit_rcr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 {
 
     int64_t j64;
-    IFXORNAT (X_ALL) SET_DFNONE();
     RESTORE_EFLAGS(s3);
 
     ADDI_D(s4, xZR, 17);

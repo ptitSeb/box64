@@ -2751,168 +2751,63 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *ok = 0;
             break;
         case 0xD0:
-        case 0xD2:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
                 case 0:
-                    if (opcode == 0xD0) {
-                        INST_NAME("ROL Eb, 1");
-                        GETEB(x1, 0);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        emit_rol8c(dyn, ninst, ed, 1, x4, x5, x6);
-                        EBBACK();
-                        break;
-                    } else {
-                        INST_NAME("ROL Eb, CL");
-                        GETEB(x1, 0);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_OF | X_CF);
-                        }
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        UFLAG_IF {
-                            ANDI(x2, xRCX, 0x1f);
-                            CBZ_NEXT(x2);
-                        }
-                        ANDI(x2, xRCX, 7);
-                        emit_rol8(dyn, ninst, ed, x2, x4, x5);
-                        EBBACK();
-                        break;
-                    }
+                    INST_NAME("ROL Eb, 1");
+                    GETEB(x1, 0);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    emit_rol8c(dyn, ninst, ed, 1, x4, x5, x6);
+                    EBBACK();
+                    break;
                 case 1:
-                    if (opcode == 0xD0) {
-                        INST_NAME("ROR Eb, 1");
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        GETEB(x1, 0);
-                        emit_ror8c(dyn, ninst, ed, 1, x4, x5);
-                        EBBACK();
-                        break;
-                    } else {
-                        INST_NAME("ROR Eb, CL");
-                        GETEB(x1, 0);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_OF | X_CF);
-                        }
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        UFLAG_IF {
-                            ANDI(x2, xRCX, 0x1f);
-                            CBZ_NEXT(x2);
-                        }
-                        ANDI(x2, xRCX, 7);
-                        emit_ror8(dyn, ninst, ed, x2, x4, x5);
-                        EBBACK();
-                        break;
-                    }
+                    INST_NAME("ROR Eb, 1");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETEB(x1, 0);
+                    emit_ror8c(dyn, ninst, ed, 1, x4, x5);
+                    EBBACK();
+                    break;
                 case 2:
-                    if (opcode == 0xD0) {
-                        INST_NAME("RCL Eb, 1");
-                        READFLAGS(X_CF);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        GETEB(x1, 0);
-                        emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
-                        EBBACK();
-                        break;
-                    } else {
-                        INST_NAME("RCL Eb, CL");
-                        GETEB(x1, 0);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_OF | X_CF);
-                        } else {
-                            READFLAGS(X_CF);
-                        }
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                        ANDI(x2, xRCX, 0x1f);
-                        CBZ_NEXT(x2);
-                        emit_rcl8(dyn, ninst, ed, x2, x4, x5, x6);
-                        EBBACK();
-                        break;
-                    }
+                    INST_NAME("RCL Eb, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETEB(x1, 0);
+                    emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
+                    EBBACK();
+                    break;
                 case 3:
-                    if (opcode == 0xD0) {
-                        INST_NAME("RCR Eb, 1");
-                        READFLAGS(X_CF);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                        GETEB(x1, 0);
-                        emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
-                        EBBACK();
-                        break;
-                    } else {
-                        INST_NAME("RCR Eb, CL");
-                        GETEB(x1, 0);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_OF | X_CF);
-                        } else {
-                            READFLAGS(X_CF);
-                        }
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                        ANDI(x2, xRCX, 0x1f);
-                        CBZ_NEXT(x2);
-                        emit_rcr8(dyn, ninst, ed, x2, x4, x5, x6);
-                        EBBACK();
-                        break;
-                    }
+                    INST_NAME("RCR Eb, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETEB(x1, 0);
+                    emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
+                    EBBACK();
+                    break;
                 case 4:
                 case 6:
-                    if (opcode == 0xD0) {
-                        INST_NAME("SHL Eb, 1");
-                        GETEB(x1, 0);
-                        MOV32w(x2, 1);
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    } else {
-                        INST_NAME("SHL Eb, CL");
-                        GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1F);
-                        CBZ_NEXT(x2);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_ALL);
-                            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
-                        } else
-                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                    }
+                    INST_NAME("SHL Eb, 1");
+                    GETEB(x1, 0);
+                    MOV32w(x2, 1);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
                 case 5:
-                    if (opcode == 0xD0) {
-                        INST_NAME("SHR Eb, 1");
-                        GETEB(x1, 0);
-                        MOV32w(x2, 1);
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    } else {
-                        INST_NAME("SHR Eb, CL");
-                        GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1F);
-                        CBZ_NEXT(x2);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_ALL);
-                            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
-                        } else
-                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                    }
+                    INST_NAME("SHR Eb, 1");
+                    GETEB(x1, 0);
+                    MOV32w(x2, 1);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
                 case 7:
-                    if (opcode == 0xD0) {
-                        INST_NAME("SAR Eb, 1");
-                        GETSEB(x1, 0);
-                        MOV32w(x2, 1);
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                    } else {
-                        INST_NAME("SAR Eb, CL");
-                        GETSEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
-                        CBZ_NEXT(x2);
-                        if (BOX64DRENV(dynarec_safeflags) > 1) {
-                            READFLAGS(X_ALL);
-                            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
-                        } else
-                            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                    }
+                    INST_NAME("SAR Eb, 1");
+                    GETSEB(x1, 0);
+                    MOV32w(x2, 1);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
-                default:
-                    DEFAULT;
             }
             break;
         case 0xD1:
@@ -2970,8 +2865,109 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     break;
-                default:
-                    DEFAULT;
+            }
+            break;
+        case 0xD2:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    UFLAG_IF {
+                        ANDI(x2, xRCX, 0x1f);
+                        CBZ_NEXT(x2);
+                    }
+                    ANDI(x2, xRCX, 7);
+                    emit_rol8(dyn, ninst, ed, x2, x4, x5);
+                    EBBACK();
+                    break;
+                case 1:
+                    INST_NAME("ROR Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    UFLAG_IF {
+                        ANDI(x2, xRCX, 0x1f);
+                        CBZ_NEXT(x2);
+                    }
+                    ANDI(x2, xRCX, 7);
+                    emit_ror8(dyn, ninst, ed, x2, x4, x5);
+                    EBBACK();
+                    break;
+                case 2:
+                    INST_NAME("RCL Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    ANDI(x2, xRCX, 0x1f);
+                    CBZ_NEXT(x2);
+                    emit_rcl8(dyn, ninst, ed, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    ANDI(x2, xRCX, 0x1f);
+                    CBZ_NEXT(x2);
+                    emit_rcr8(dyn, ninst, ed, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, CL");
+                    GETEB(x1, 0);
+                    ANDI(x2, xRCX, 0x1F);
+                    CBZ_NEXT(x2);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, CL");
+                    GETEB(x1, 0);
+                    ANDI(x2, xRCX, 0x1F);
+                    CBZ_NEXT(x2);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, CL");
+                    GETSEB(x1, 0);
+                    ANDI(x2, xRCX, 0x1f);
+                    CBZ_NEXT(x2);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
             }
             break;
         case 0xD3:
