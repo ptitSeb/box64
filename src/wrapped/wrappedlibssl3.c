@@ -476,6 +476,29 @@ static void* find_psk_server_cb_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for ssl3 psk_server_cb callback\n");
     return NULL;
 }
+// psk_server_callback
+#define GO(A)   \
+static uintptr_t my_psk_server_callback_fct_##A = 0;                                        \
+static uint32_t my_psk_server_callback_##A(void* a, void* b, void* c, int d)                \
+{                                                                                           \
+    return (uint32_t)RunFunctionFmt(my_psk_server_callback_fct_##A, "pppi", a, b, c, d);    \
+}
+SUPER()
+#undef GO
+static void* find_psk_server_callback_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_psk_server_callback_fct_##A == (uintptr_t)fct) return my_psk_server_callback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_psk_server_callback_fct_##A == 0) {my_psk_server_callback_fct_##A = (uintptr_t)fct; return my_psk_server_callback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for ssl3 psk_server_callback callback\n");
+    return NULL;
+}
 // read_write
 #define GO(A)   \
 static uintptr_t my_read_write_fct_##A = 0;                             \
@@ -725,6 +748,11 @@ EXPORT int my3_BIO_meth_set_create(x64emu_t* emu, void* biom, void* f)
 EXPORT int my3_BIO_meth_set_destroy(x64emu_t* emu, void* biom, void* f)
 {
     return my->BIO_meth_set_destroy(biom, find_create_destroy_Fct(f));
+}
+
+EXPORT void my3_SSL_CTX_set_psk_server_callback(x64emu_t* emu, void* ssl, void* cb)
+{
+    my->SSL_CTX_set_psk_server_callback(ssl, find_psk_server_callback_Fct(cb));
 }
 
 #define ALTMY my3_
