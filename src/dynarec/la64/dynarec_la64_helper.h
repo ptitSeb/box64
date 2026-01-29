@@ -862,11 +862,11 @@
         }                                    \
     } while (0)
 
-#define SET_DFNONE()                                                     \
-    do {                                                                 \
-        if (!dyn->insts[ninst].x64.may_set && (dyn->f != status_none)) { \
-            dyn->f = status_none_pending;                                \
-        }                                                                \
+#define SET_DFNONE()                      \
+    do {                                  \
+        if (dyn->f != status_none) {      \
+            dyn->f = status_none_pending; \
+        }                                 \
     } while (0)
 
 #define SET_DF(S, N)                           \
