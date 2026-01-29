@@ -51,11 +51,12 @@ static void readCpuinfo(sysinfo_t* info)
         } else if (info->ncpu <= 1 && strstr(line, "Model Name") != NULL) { // TODO: big.LITTLE handling?
             char* colon = strchr(line, ':');
             if (colon != NULL) {
-                while (colon[1] == ' ' || colon[1] == '\t')
-                    ++colon;
-                size_t len = strlen(colon);
-                info->cpuname = (char*)malloc(len + 1);
-                strcpy(info->cpuname, colon + 2);
+                char* start = colon + 1;
+                while (start[0] == ' ' || start[0] == '\t')
+                    ++start;
+                size_t len = strlen(start);
+                info->cpuname = (char*)calloc(len + 1, 1);
+                strcpy(info->cpuname, start);
                 char* newline = strchr(info->cpuname, '\n');
                 if (newline) *newline = '\0';
                 info->read_cpuname = 1;
@@ -98,11 +99,12 @@ lscpu:
             } else if (!info->read_cpuname && strstr(line, "Model name:") != NULL) {
                 char* colon = strchr(line, ':');
                 if (colon != NULL) {
-                    while (colon[1] == ' ' || colon[1] == '\t')
-                        ++colon;
-                    size_t len = strlen(colon);
-                    info->cpuname = (char*)malloc(len + 1);
-                    strcpy(info->cpuname, colon + 2);
+                    char* start = colon + 1;
+                    while (start[0] == ' ' || start[0] == '\t')
+                        ++start;
+                    size_t len = strlen(start);
+                    info->cpuname = (char*)calloc(len + 1, 1);
+                    strcpy(info->cpuname, start);
                     char* newline = strchr(info->cpuname, '\n');
                     if (newline) *newline = '\0';
                     info->read_cpuname = 1;
