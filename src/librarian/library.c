@@ -898,8 +898,14 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                 return 0;
             }
-            s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
-            s->resolved = 1;
+            void* s2 = dlsym(lib->w.lib, name);
+            if(s2) {
+                s->addr = AddBridge2(lib->w.bridge, s->w, symbol, s2, 0, name);
+                // don't resolve the symbol here, it may change
+            } else {
+                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->resolved = 1;
+            }
         }
         *addr = s->addr;
         *size = sizeof(void*);
@@ -991,8 +997,14 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                     printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                     return 0;
                 }
+            void* s2 = dlsym(lib->w.lib, name);
+            if(s2) {
+                s->addr = AddBridge2(lib->w.bridge, s->w, symbol, s2, 0, name);
+                // don't resolve the symbol here, it may change
+            } else {
                 s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
                 s->resolved = 1;
+            }
             }
             *addr = s->addr;
             *size = sizeof(void*);
