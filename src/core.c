@@ -1055,9 +1055,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if (applied) {
         printf_log(LOG_INFO, "Applied settings from rcfile\n");
         displayMiscInfo();
-        setupZydis(my_context);
         PrintEnvVariables(&box64env, LOG_INFO);
     }
+    setupZydis(my_context);
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
