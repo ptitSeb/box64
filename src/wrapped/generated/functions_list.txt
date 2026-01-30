@@ -1552,7 +1552,6 @@
 #() pFpLip
 #() pFpLuu
 #() pFpLup
-#() pFpLLi
 #() pFpLLp
 #() pFpLpi
 #() pFpLpl
@@ -3233,7 +3232,6 @@
 #() iFEpppppuu
 #() iFEppppppp
 #() iFiiupiupi
-#() iFiiULippp
 #() iFiipppppp
 #() iFiuuCCuup
 #() iFiuuuupip
@@ -3931,9 +3929,11 @@
 #!defined(STATICBUILD) iFLLii
 #!defined(STATICBUILD) WFpLLu
 #!defined(STATICBUILD) pFpLiS
+#!defined(STATICBUILD) pFpLLi
 #!defined(STATICBUILD) iFEipup
 #!defined(STATICBUILD) iFEiipup
 #!defined(STATICBUILD) iFEpipppL
+#!defined(STATICBUILD) iFiiULippp
 #!defined(STATICBUILD) lFpLpdddddd
 #() vFEv -> vFE
 #() iFEv -> iFE

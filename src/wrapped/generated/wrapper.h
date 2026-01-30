@@ -1589,7 +1589,6 @@ void pFpLii(x64emu_t *emu, uintptr_t fnc);
 void pFpLip(x64emu_t *emu, uintptr_t fnc);
 void pFpLuu(x64emu_t *emu, uintptr_t fnc);
 void pFpLup(x64emu_t *emu, uintptr_t fnc);
-void pFpLLi(x64emu_t *emu, uintptr_t fnc);
 void pFpLLp(x64emu_t *emu, uintptr_t fnc);
 void pFpLpi(x64emu_t *emu, uintptr_t fnc);
 void pFpLpl(x64emu_t *emu, uintptr_t fnc);
@@ -3270,7 +3269,6 @@ void iFEppppLpp(x64emu_t *emu, uintptr_t fnc);
 void iFEpppppuu(x64emu_t *emu, uintptr_t fnc);
 void iFEppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFiiupiupi(x64emu_t *emu, uintptr_t fnc);
-void iFiiULippp(x64emu_t *emu, uintptr_t fnc);
 void iFiipppppp(x64emu_t *emu, uintptr_t fnc);
 void iFiuuCCuup(x64emu_t *emu, uintptr_t fnc);
 void iFiuuuupip(x64emu_t *emu, uintptr_t fnc);
@@ -3976,9 +3974,11 @@ void iFLLi(x64emu_t *emu, uintptr_t fnc);
 void iFLLii(x64emu_t *emu, uintptr_t fnc);
 void WFpLLu(x64emu_t *emu, uintptr_t fnc);
 void pFpLiS(x64emu_t *emu, uintptr_t fnc);
+void pFpLLi(x64emu_t *emu, uintptr_t fnc);
 void iFEipup(x64emu_t *emu, uintptr_t fnc);
 void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFEpipppL(x64emu_t *emu, uintptr_t fnc);
+void iFiiULippp(x64emu_t *emu, uintptr_t fnc);
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
 #endif
 

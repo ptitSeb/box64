@@ -2721,13 +2721,15 @@ GO(android_set_abort_message, vFp)
 #ifdef STATICBUILD
 GO(dummy_pFLp, pFLp)
 GO(dummy_pFpLLp, pFpLLp)
+// not needed in static build
+//GO(dummy_pFpLLi, pFpLLi)
+//GO(dummy_iFiiULippp, iFiiULippp)
 #else
+GO(dummy_pFpLLi, pFpLLi)    //needed for vulkanoverlay
+GO(dummy_iFiiULippp, iFiiULippp)    //needed for vulkanoverlay
 // not needed in no-static build
 //GO(dummy_pFLp, pFLp)
 //GO(dummy_pFpLLp, pFpLLp)
 #endif
 
 GO(arc4random, uFv)
-
-GO(pFpLLi_dummy, pFpLLi)    //needed for vulkanoverlay
-GO(iFiiULippp_dummy, iFiiULippp)    //needed for vulkanoverlay
