@@ -1613,6 +1613,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIw(x2, xRDX, 16, 16);
                     if(BOX64ENV(dynarec_div0)) {
                         CBNZw_MARK3(ed);
+                        MARK2;
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
                         CALL_S(const_native_div0, -1);
@@ -1622,6 +1623,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MARK3;
                     }
                     UDIVw(x3, x2, ed);
+                    if(BOX64ENV(dynarec_div0)) {
+                        SUBw_UXTH(x5, x3, x3);
+                        CBNZw_MARK2(x5);
+                    }
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIz(xRAX, x3, 0, 16);
                     BFIz(xRDX, x4, 0, 16);
@@ -1647,6 +1652,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETSEW(x1, 0);
                     if(BOX64ENV(dynarec_div0)) {
                         CBNZw_MARK3(ed);
+                        MARK2;
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
                         CALL_S(const_native_div0, -1);
@@ -1658,6 +1664,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UXTHw(x2, xRAX);
                     BFIw(x2, xRDX, 16, 16);
                     SDIVw(x3, x2, ed);
+                    if(BOX64ENV(dynarec_div0)) {
+                        SUBw_SXTH(x5, x3, x3);
+                        CBNZw_MARK2(x5);
+                    }
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIz(xRAX, x3, 0, 16);
                     BFIz(xRDX, x4, 0, 16);

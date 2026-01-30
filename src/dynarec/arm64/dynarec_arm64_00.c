@@ -4068,6 +4068,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UXTHw(x2, xRAX);
                     if(BOX64ENV(dynarec_div0)) {
                         CBNZw_MARK3(ed);
+                        MARK2;
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
                         CALL_S(const_native_div0, -1);
@@ -4077,6 +4078,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MARK3;
                     }
                     UDIVw(x3, x2, ed);
+                    if(BOX64ENV(dynarec_div0)) {
+                        SUBw_UXTB(x4, x3, x3);
+                        CBNZw_MARK2(x4);
+                    }
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
                     BFIx(xRAX, x4, 8, 8);
@@ -4102,6 +4107,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETSEB(x1, 0);
                     if(BOX64ENV(dynarec_div0)) {
                         CBNZw_MARK3(ed);
+                        MARK2;
                         GETIP_(ip);
                         STORE_XEMU_CALL(xRIP);
                         CALL_S(const_native_div0, -1);
@@ -4112,6 +4118,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     SXTHw(x2, xRAX);
                     SDIVw(x3, x2, ed);
+                    if(BOX64ENV(dynarec_div0)) {
+                        SUBw_SXTB(x4, x3, x3);
+                        CBNZw_MARK2(x4);
+                    }
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
                     BFIx(xRAX, x4, 8, 8);
@@ -4240,6 +4250,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else {
                             if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
+                                MARK2;
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
                                 CALL_S(const_native_div0, -1);
@@ -4255,6 +4266,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 ed = x4;
                             }
                             UDIVx(x2, x3, ed);
+                            if(BOX64ENV(dynarec_div0)) {
+                                SUBx_UXTW(x5, x2, x2);
+                                CBNZw_MARK2(x5);
+                            }
                             MSUBx(x4, x2, ed, xRAX);
                             MOVw_REG(xRAX, x2);
                             MOVw_REG(xRDX, x4);
@@ -4324,6 +4339,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETSEDw(0);
                         if(BOX64ENV(dynarec_div0)) {
                             CBNZx_MARK3(wb);
+                            MARK2;
                             GETIP_(ip);
                             STORE_XEMU_CALL(xRIP);
                             CALL_S(const_native_div0, -1);
@@ -4335,6 +4351,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MOVw_REG(x3, xRAX);
                         ORRx_REG_LSL(x3, x3, xRDX, 32);
                         SDIVx(x2, x3, wb);
+                        if(BOX64ENV(dynarec_div0)) {
+                            SUBx_SXTW(x5, x2, x2);
+                            CBNZw_MARK2(x5);
+                        }
                         MSUBx(x4, x2, wb, x3);
                         MOVw_REG(xRAX, x2);
                         MOVw_REG(xRDX, x4);
@@ -4346,6 +4366,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             GETED(0);
                             if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
+                                MARK2;
                                 GETIP_(ip);
                                 STORE_XEMU_CALL(xRIP);
                                 CALL_S(const_native_div0, -1);
@@ -4355,10 +4376,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 MARK3;
                             }
                             SDIVx(x2, xRAX, ed);
+                            // there is no easy way to check for overflow here
                             MSUBx(xRDX, x2, ed, xRAX);
                             MOVx_REG(xRAX, x2);
                         } else {
-                            GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
+                            GETEDH(x1, 0);  // get ed changed addr, so cannot be called 2 times for same op...
                             if(BOX64ENV(dynarec_div0)) {
                                 CBNZx_MARK3(ed);
                                 GETIP_(ip);
@@ -4371,18 +4393,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             //Need to see if RDX==0 and RAX not signed
                             // or RDX==-1 and RAX signed
-                            CBNZx_MARK2(xRDX);
-                            TBZ_MARK(xRAX, 63);
-                            MARK2;
-                            MVNx_REG(x2, xRDX);
-                            CBNZx_MARK3(x2);
-                            TBNZ_MARK(xRAX, 63);
-                            MARK3;
+                            SUBx_REG_ASR(x2, xRDX, xRAX, 63);
+                            CBZx_MARK(x2);
                             if(ed!=x1) {MOVx_REG(x1, ed);}
                             CALL(const_idiv64, -1);
-                            B_NEXT_nocond;
+                            B_NEXT_nocond;  // flags are done, so can jump to next directly
                             MARK;
                             SDIVx(x2, xRAX, ed);
+                            // no easy way to get overflow it seems
                             MSUBx(xRDX, x2, ed, xRAX);
                             MOVx_REG(xRAX, x2);
                         }
