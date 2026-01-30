@@ -60,64 +60,63 @@ uintptr_t dynarec64_66F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             VPICKVE2GR_HU(x2, v0, 0);
             BSTRINS_D(gd, x2, 15, 0);
             IFX (X_ALL) {
-                if (cpuext.lbt) {
-                    X64_SET_EFLAGS(xZR, X_ALL);
-                    BNEZ_MARK(x2);
-                    ADDI_D(x5, xZR, 1 << F_ZF);
-                    X64_SET_EFLAGS(x5, X_ZF);
-                } else {
-                    CLEAR_FLAGS(x5);
-                    BNEZ_MARK(x2);
-                    ORI(xFlags, xFlags, 1 << F_ZF);
-                }
+                CLEAR_FLAGS(x5);
+                BNEZ_MARK(x2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
                 MARK;
+                SPILL_EFLAGS();
             }
             break;
         case 0xBC:
             INST_NAME("TZCNT Gw, Ew");
-            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            if (!BOX64DRENV(dynarec_safeflags)) {
+                SETFLAGS(X_CF | X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            } else {
+                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            }
             SET_DFNONE();
             nextop = F8;
-            GETEW(x5, 0);
-            GETGD;
-            RESTORE_EFLAGS(x1);
-            /*
-                ZF is set if gd is zero, unset non-zero.
-                CF is set if ed is zero, unset non-zero.
-                OF, SF, PF, and AF flags are undefined
-            */
+            GETEW(x1, 0);
+            GETGW(x2);
             CLEAR_FLAGS(x2);
+            IFX (X_CF) {
+                SEQZ(x3, ed);
+                BSTRINS_D(xFlags, x3, F_CF, F_CF);
+            }
             ADDI_D(x4, xZR, -1);
             BSTRINS_D(x4, ed, 15, 0);
             CTZ_W(gd, x4);
-            BNE(gd, xZR, 4 + 4);
-            ORI(xFlags, xFlags, 1 << F_ZF);
-            SRLI_W(x5, gd, 4); // maximum value is 16, F_CF = 0
-            OR(xFlags, xFlags, x5);
+            IFX (X_ZF) {
+                SEQZ(x3, gd);
+                BSTRINS_D(xFlags, x3, F_ZF, F_ZF);
+            }
             SPILL_EFLAGS();
+            GWBACK;
             break;
         case 0xBD:
             INST_NAME("LZCNT Gw, Ew");
-            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            if (!BOX64DRENV(dynarec_safeflags)) {
+                SETFLAGS(X_CF | X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+            } else {
+                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            }
             SET_DFNONE();
             nextop = F8;
-            GETEW(x5, 0);
-            GETGD;
-            RESTORE_EFLAGS(x1);
-            /*
-                ZF is set if gd is zero, unset non-zero.
-                CF is set if ed is zero, unset non-zero.
-                OF, SF, PF, and AF flags are undefined
-            */
+            GETEW(x1, 0);
+            GETGW(x2);
             CLEAR_FLAGS(x2);
-            ADDI_D(x4, xZR, -1);
-            BSTRINS_D(x4, ed, 31, 16);
-            CLZ_W(gd, x4);
-            BNE(gd, xZR, 4 + 4);
-            ORI(xFlags, xFlags, 1 << F_ZF);
-            SRLI_W(x5, gd, 4); // maximum value is 16, F_CF = 0
-            OR(xFlags, xFlags, x5);
+            IFX (X_CF) {
+                SEQZ(x3, ed);
+                BSTRINS_D(xFlags, x3, F_CF, F_CF);
+            }
+            CLZ_W(gd, ed);
+            ADDI_D(gd, gd, -16);
+            IFX (X_ZF) {
+                SEQZ(x3, gd);
+                BSTRINS_D(xFlags, x3, F_ZF, F_ZF);
+            }
             SPILL_EFLAGS();
+            GWBACK;
             break;
         default:
             DEFAULT;
