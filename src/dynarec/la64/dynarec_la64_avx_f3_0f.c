@@ -476,10 +476,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x0e: VFCMP_S(q0, v2, v1, cLT); break;  // Greater ordered
                 case 0x0f: VSEQ_B(q0, v1, v1); break;        // true
             }
-            XVXOR_V(v0, v0, v0);
             XVPERMI_Q(v0, v1, XVPERMI_IMM_4_0(3, 0));
             XVINSVE0_W(v0, q0, 0);
-            YMM_UNMARK_UPPER_ZERO(v0);
             break;
         case 0xE6:
             INST_NAME("VCVTDQ2PD Gx, Ex");
