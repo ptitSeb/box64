@@ -135,14 +135,15 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             if (MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                VSHUF4I_D(v0, v1, 0b1101);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 v1 = fpu_get_scratch(dyn);
                 ADDI_D(x1, ed, 8);
                 FLD_D(v1, x1, fixedaddress);
+                VSHUF4I_D(v0, v1, 0b1001);
             }
-            VSHUF4I_D(v0, v1, 0xd);
             break;
         case 0x16:
             INST_NAME("MOVHPD Gx, Eq");
