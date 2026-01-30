@@ -2728,3 +2728,6 @@ GO(dummy_pFpLLp, pFpLLp)
 #endif
 
 GO(arc4random, uFv)
+
+GO(pFpLLi_dummy, pFpLLi)    //needed for vulkanoverlay
+GO(iFiiULippp_dummy, iFiiULippp)    //needed for vulkanoverlay

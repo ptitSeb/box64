@@ -1552,6 +1552,7 @@
 #() pFpLip
 #() pFpLuu
 #() pFpLup
+#() pFpLLi
 #() pFpLLp
 #() pFpLpi
 #() pFpLpl
@@ -3232,6 +3233,7 @@
 #() iFEpppppuu
 #() iFEppppppp
 #() iFiiupiupi
+#() iFiiULippp
 #() iFiipppppp
 #() iFiuuCCuup
 #() iFiuuuupip

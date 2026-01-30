@@ -74,12 +74,13 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
     khint_t k;
     const char* rname = (const char*)name;
 
-    printf_dlsym(LOG_DEBUG, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
+    pFpp_t getprocaddr = getBridgeFnc2((void*)R_RIP);
+    if(!getprocaddr) getprocaddr=my->vkGetDeviceProcAddr;
+
+    printf_dlsym(LOG_DEBUG, "Calling my_vkGetDeviceProcAddr[%p](%p, \"%s\") => ", getprocaddr, device, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
 
-    pFpp_t getprocaddr = getBridgeFnc2((void*)R_RIP);
-   if(!getprocaddr) getprocaddr=my->vkGetDeviceProcAddr;
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
     void* symbol = getprocaddr(device, name);
@@ -111,7 +112,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x64emu_t* emu, void* instance, void* name)
    pFpp_t getprocaddr = getBridgeFnc2((void*)R_RIP);
    if(!getprocaddr) getprocaddr=(pFpp_t)my_context->vkprocaddress;
 
-   printf_dlsym(LOG_DEBUG, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
+   printf_dlsym(LOG_DEBUG, "Calling my_vkGetInstanceProcAddr[%p](%p, \"%s\") => ", getprocaddr, instance, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
 
@@ -182,9 +183,7 @@ void* my_GetVkProcAddr2(x64emu_t* emu, void* a, void* name, void*(*getaddr)(void
     printf_dlsym(LOG_DEBUG, "Calling my_GetVkProcAddr2(%p, \"%s\", %p) => ", a, rname, getaddr);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
-    symbol1_t* s = getWrappedSymbol(emu, rname, 0);
-    if(!s) return NULL;
-    // check if vkprocaddress is filled, and search for lib and fill it if needed
+
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
@@ -206,11 +205,7 @@ void* my_GetVkProcAddr2(x64emu_t* emu, void* a, void* name, void*(*getaddr)(void
         SUPER()
         #undef GO
     }
-    void* ret = NULL;
-    if(symbol)
-        ret = (void*)AddCheckBridge2(emu->context->system, s->w, symbol, fnc, 0, rname);
-    printf_dlsym_prefix(0, LOG_DEBUG, " => %p\n", ret);
-    return ret;
+    return resolveSymbol(emu, symbol, fnc, rname);
 }
 
 #undef SUPER

@@ -478,6 +478,8 @@ endif()
 if(NOT ANDROID)
     list(APPEND ELFLOADER_SRC
         "${BOX64_ROOT}/src/libtools/obstack.c"
+        "${BOX64_ROOT}/src/libtools/libdl.c"
+        "${BOX64_ROOT}/src/libtools/vulkanoverlay.c"
     )
 endif()
 
