@@ -847,7 +847,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(1);
             i64 = F8S;
-            MOV64xw(x4, i64);
+            MOV64x(x4, i64);
             CLEAR_FLAGS(x3);
             if (rex.w) {
                 UFLAG_IF {
