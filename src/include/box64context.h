@@ -212,6 +212,8 @@ typedef struct box64context_s {
     int                 clean_sz;
     int                 clean_cap;
 
+    void*               video_mem;
+
     zydis_dec_t         *dec;           // trace
     zydis_dec_t         *dec32;         // trace
 

@@ -1193,6 +1193,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     #endif
     LoadLDPath(my_context);
+    my_context->video_mem = mmap((void*)0xb0000, 0x10000, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if(my_context->video_mem != (void*)0xb0000) {
+        my_context->video_mem = NULL;
+        printf_log(LOG_INFO, "Warning, could not allocate text video memory");
+    }
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;

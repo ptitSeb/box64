@@ -255,6 +255,11 @@ void FreeBox64Context(box64context_t** context)
 
     box64context_t* ctx = *context;   // local copy to do the cleaning
 
+    if(ctx->video_mem) {
+        munmap(ctx->video_mem, 0x10000);
+        ctx->video_mem = NULL;
+    }
+
     //clean_current_emuthread();    // cleaning main thread seems a bad idea
     if(ctx->local_maplib)
         FreeLibrarian(&ctx->local_maplib, NULL);
