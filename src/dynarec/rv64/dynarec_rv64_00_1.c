@@ -270,7 +270,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETED(1);
             i64 = F8S;
-            MOV64xw(x4, i64);
+            MOV64x(x4, i64);
             if (rex.w) {
                 // 64bits imul
                 UFLAG_IF {
