@@ -725,7 +725,18 @@ void emit_sbb8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         IFX (X_ALL) {
             X64_SBC_B(s1, s2);
         }
+        IFX (X_AF) NOR(s5, xZR, s1);
         ANDI(s1, s3, 0xff);
+        IFX (X_AF) {
+            // bc = (res & (~op1 | op2)) | (~op1 & op2)
+            OR(s3, s5, s2);
+            AND(s4, s1, s3);
+            AND(s5, s5, s2);
+            OR(s4, s4, s5);
+            // af = bc & 0x8
+            SLLI_D(s3, s4, F_AF - 3);
+            X64_SET_EFLAGS(s3, X_AF);
+        }
         IFX (X_PEND)
             ST_B(s1, xEmu, offsetof(x64emu_t, res));
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
