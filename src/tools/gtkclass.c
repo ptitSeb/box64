@@ -2066,6 +2066,59 @@ static void bridgeGDBusObjectManagerClientInstance(my_GDBusObjectManagerClient_t
     bridgeGObjectInstance(&class->parent);
 }
 
+// ----- GDBusInterfaceSkeletonClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GDBusInterfaceSkeleton,get_info, void*, (void* interface_), "p", interface_);
+WRAPPER(GDBusInterfaceSkeleton,get_vtable, void*,(void* interface_), "p", interface_);
+WRAPPER(GDBusInterfaceSkeleton,get_properties, void*, (void* interface_), "p", interface_);
+WRAPPER(GDBusInterfaceSkeleton,flush, void, (void* interface_), "p", interface_);
+WRAPPER(GDBusInterfaceSkeleton,g_authorize_method, int, (void* interface_, void* invocation), "pp", interface_, invocation);
+
+#define SUPERGO()                   \
+    GO(get_info, pFp);              \
+    GO(get_vtable, pFp);            \
+    GO(get_properties, pFp);        \
+    GO(flush, vFp);                 \
+    GO(g_authorize_method, iFpp);   \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGDBusInterfaceSkeletonClass(my_GDBusInterfaceSkeletonClass_t* class)
+{
+    wrapGObjectClass(&class->parent);
+    #define GO(A, W) class->A = reverse_##A##_GDBusInterfaceSkeleton (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGDBusInterfaceSkeletonClass(my_GDBusInterfaceSkeletonClass_t* class)
+{
+    unwrapGObjectClass(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_GDBusInterfaceSkeleton (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGDBusInterfaceSkeletonClass(my_GDBusInterfaceSkeletonClass_t* class)
+{
+    bridgeGObjectClass(&class->parent);
+    #define GO(A, W) autobridge_##A##_GDBusInterfaceSkeleton (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+static void unwrapGDBusInterfaceSkeletonInstance(my_GDBusInterfaceSkeleton_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGDBusInterfaceSkeletonInstance(my_GDBusInterfaceSkeleton_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
+
 // ----- GtkButton2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkButton2, pressed, void,  (void* button), "p", button);

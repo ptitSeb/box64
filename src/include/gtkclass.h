@@ -1430,6 +1430,24 @@ typedef struct my_GDBusObjectManagerClientClass_s
   void* padding[8];
 } my_GDBusObjectManagerClientClass_t;
 
+typedef struct my_GDBusInterfaceSkeleton_s
+{
+  my_GObject_t parent;
+  void*        priv;
+} my_GDBusInterfaceSkeleton_t;
+
+typedef struct my_GDBusInterfaceSkeletonClass_s
+{
+  my_GObjectClass_t parent;
+  void* (*get_info)       (void* interface_);
+  void* (*get_vtable)     (void* interface_);
+  void* (*get_properties) (void* interface_);
+  void  (*flush)          (void* interface_);
+  void*  vfunc_padding[8];
+  int   (*g_authorize_method) (void* interface_, void* invocation);
+  void*  signal_padding[8];
+} my_GDBusInterfaceSkeletonClass_t;
+
 typedef struct my_AtkObject_s
 {
   my_GObject_t  parent;
@@ -2424,6 +2442,7 @@ GTKCLASS(GtkCellRenderer2)          \
 GTKCLASS(GtkCellRendererText2)      \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
+GTKCLASS(GDBusInterfaceSkeleton)    \
 GTKCLASS(AtkObject)                 \
 GTKCLASS(AtkUtil)                   \
 GTKCLASS(GstObject)                 \

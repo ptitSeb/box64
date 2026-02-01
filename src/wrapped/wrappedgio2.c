@@ -28,8 +28,10 @@ const char* gio2Name = "libgio-2.0.so.0";
 typedef size_t(*LFv_t)(void);
 
 #define ADDED_FUNCTIONS() \
- GO(g_application_get_type, LFv_t)          \
- GO(g_dbus_proxy_get_type, LFv_t)           \
+ GO(g_application_get_type, LFv_t)                  \
+ GO(g_dbus_proxy_get_type, LFv_t)                   \
+ GO(g_dbus_object_manager_client_get_type, LFv_t)   \
+ GO(g_dbus_interface_skeleton_get_type, LFv_t)      \
 
 #include "wrappedgio2types.h"
 
@@ -686,8 +688,10 @@ EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invoca
     if (BOX64ENV(nogtk)) return -2;
 
 #define CUSTOM_INIT \
-    SetGApplicationID(my->g_application_get_type());    \
-    SetGDBusProxyID(my->g_dbus_proxy_get_type());
+    SetGApplicationID(my->g_application_get_type());                            \
+    SetGDBusProxyID(my->g_dbus_proxy_get_type());                               \
+    SetGDBusObjectManagerClientID(my->g_dbus_object_manager_client_get_type()); \
+    SetGDBusInterfaceSkeletonID(my->g_dbus_interface_skeleton_get_type());
 
 #define NEEDED_LIBS "libgmodule-2.0.so.0"
 
