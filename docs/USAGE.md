@@ -473,7 +473,7 @@ Expose SHAEXT (a.k.a. SHA_NI) capabilities. Available in WowBox64.
 
 ### BOX64_SSE_FLUSHTO0
 
-Behaviour of SSE Flush to 0 flags. Also tracking SSE exception flags Available in WowBox64.
+Behaviour of SSE Flush to 0 flags. Also tracking SSE exception flags. Available in WowBox64.
 
  * 0: Just track the flag. [Default]
  * 1: Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in Dynarec (if available) 
@@ -511,7 +511,7 @@ Detect UnityPlayer and apply conservative settings.
 Games is a Unity one.
 
  * 0: Does nothing. 
- * 1: Unity Game, use special detecting code for Windows, apply BOX64_DYNAREC_STRONGMEM=1 for Linux [Default]
+ * 1: Unity Game, use special detecting code for Windows, apply BOX64_DYNAREC_STRONGMEM=1 for Linux. [Default]
 
 ### BOX64_X11GLX
 
@@ -623,10 +623,17 @@ Enable DynaRec execution comparison with the interpreter, very slow, only for te
 
 ### BOX64_DYNAREC_TEST_NODUP
 
-Enable deduplication of IP address where COSIM find a difference Available in WowBox64.
+Enable deduplication of IP address where COSIM find a difference. Available in WowBox64.
 
- * 0: Show all addresses in error [Default]
- * 1: Show address in error only 1 time, even if dump might differs 
+ * 0: Show all addresses in error. [Default]
+ * 1: Show address in error only 1 time, even if dump might differs. 
+
+### BOX64_DYNAREC_TEST_NODUMP
+
+Do not dump test code when BOX64_DYNAREC_DUMP is enabled. Available in WowBox64.
+
+ * 0: Dump test code. 
+ * 1: Do not dump test code. [Default]
 
 ### BOX64_DYNAREC_TRACE
 

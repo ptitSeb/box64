@@ -166,7 +166,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !ninst) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
+        if (BOX64DRENV(dynarec_dump) && (!BOX64ENV(dynarec_dump_range_end) || (ip >= BOX64ENV(dynarec_dump_range_start) && ip < BOX64ENV(dynarec_dump_range_end)))) {
+            dyn->need_dump = BOX64DRENV(dynarec_dump);
+        }
         if(BOX64ENV(dynarec_test) && (!BOX64ENV(dynarec_test_end) || (ip>=BOX64ENV(dynarec_test_start) && ip<BOX64ENV(dynarec_test_end)))) {
+            int need_dump = dyn->need_dump;
+            if (BOX64ENV(dynarec_test_nodump)) dyn->need_dump = 0;
             MESSAGE(LOG_DUMP, "TEST STEP ----\n");
             extcache_native_t save;
             fpu_save_and_unwind(dyn, ninst, &save);
@@ -175,9 +180,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             fpu_unreflectcache(dyn, ninst, x1, x2, x3);
             fpu_unwind_restore(dyn, ninst, &save);
             MESSAGE(LOG_DUMP, "----------\n");
-        }
-        if (BOX64DRENV(dynarec_dump) && (!BOX64ENV(dynarec_dump_range_end) || (ip >= BOX64ENV(dynarec_dump_range_start) && ip < BOX64ENV(dynarec_dump_range_end)))) {
-            dyn->need_dump = BOX64DRENV(dynarec_dump);
+            dyn->need_dump = need_dump;
         }
         #ifdef HAVE_TRACE
         else if(my_context->dec && BOX64ENV(dynarec_trace)) {
