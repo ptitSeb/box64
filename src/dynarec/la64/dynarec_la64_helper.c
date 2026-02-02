@@ -1764,18 +1764,18 @@ void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
 void fpu_reset_cache(dynarec_la64_t* dyn, int ninst, int reset_n)
 {
     MESSAGE(LOG_DEBUG, "Reset Caches with %d\n", reset_n);
-#if STEP > 1
-    // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
+    #if STEP > 1
+    // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->lsx = dyn->insts[ninst].lsx;
-#else
-    dyn->lsx = dyn->insts[reset_n].lsx;
-#endif
     lsxcacheUnwind(&dyn->lsx);
+#else
+dyn->lsx = dyn->insts[reset_n].lsx;
+#endif
 #if STEP == 0
-    if (dyn->need_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->lsx.x87stack);
+    if(dyn->need_dump && dyn->lsx.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->lsx.x87stack, ninst, reset_n);
 #endif
 #if defined(HAVE_TRACE) && (STEP > 2)
-    if (dyn->need_dump)
+    if (dyn->need_dump && 0) // disable for now
         if (memcmp(&dyn->lsx, &dyn->insts[reset_n].lsx, sizeof(lsx_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in lsxcache: reset=");
             for (int i = 0; i < 24; ++i)
