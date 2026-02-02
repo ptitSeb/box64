@@ -2618,16 +2618,16 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
     // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->e = dyn->insts[ninst].e;
     dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;
+    extcacheUnwind(&dyn->e);
 #else
     dyn->e = dyn->insts[reset_n].e;
     dyn->vector_sew = dyn->insts[reset_n].vector_sew_exit;
 #endif
-    extcacheUnwind(&dyn->e);
 #if STEP == 0
-    if (dyn->need_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->e.x87stack);
+    if(dyn->need_dump && dyn->e.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->e.x87stack, ninst, reset_n);
 #endif
 #if defined(HAVE_TRACE) && (STEP > 2)
-    if (dyn->need_dump)
+    if (dyn->need_dump && 0) // disable for now
         if (memcmp(&dyn->e, &dyn->insts[reset_n].e, sizeof(ext_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in extcache: reset=");
             for (int i = 0; i < 24; ++i)

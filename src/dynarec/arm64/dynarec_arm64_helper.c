@@ -2500,7 +2500,7 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
 {
     MESSAGE(LOG_DEBUG, "Reset Caches with %d\n",reset_n);
     #if STEP > 1
-    // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
+    // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->n = dyn->insts[ninst].n;
     dyn->ymm_zero = dyn->insts[ninst].ymm0_in;
     neoncacheUnwind(&dyn->n);
