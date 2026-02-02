@@ -3826,7 +3826,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     else
                         j64 = addr+i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
-                    if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
+                    CALLRET_RET();
                     if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
@@ -4527,7 +4527,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
+                    CALLRET_RET();
                     if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
