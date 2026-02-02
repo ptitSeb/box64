@@ -409,6 +409,10 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_FASTROUND=0 # needed for CVTTSD2SI because on RISC-V the behavior is different than others when src is NaN
 
+[TIE95.exe]
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_BIGBLOCK=3
+
 [Torchlight2.bin.x86_64]
 # Those are safe to use on 7z and give a bit of a boost
 BOX64_DYNAREC_SAFEFLAGS=0
@@ -419,6 +423,13 @@ BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [ToTheMoon.bin.x86_64]
 BOX64_PREFER_EMULATED=1
+
+[Trackmania.exe]
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_DIV0=1
+BOX64_NODYNAREC=0x6fffff000000-0x700000000000 #there is probbaly some time-based anti-debug that
+BOX64_NODYNAREC_DELAY=1                       #needs this hack. It will not work on 39bits address space machines....
+
 
 [trine3_linux_64bit]
 BOX64_DYNAREC_STRONGMEM=1
