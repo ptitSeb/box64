@@ -1325,7 +1325,25 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
             }
             break;
-
+        case 0xD9:
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+            } else
+                switch ((nextop >> 3) & 7) {
+                    case 6:
+                        INST_NAME("FNSTENV Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization (FNSTENV16)\n");
+                        BARRIER(BARRIER_FLOAT);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        MOV32w(x2, 1);
+                        CALL(const_fpu_savenv, -1, x1, x2);
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            break;
         case 0xE4: /* IN AL, Ib */
         case 0xE5: /* IN AX, Ib */
         case 0xE6: /* OUT Ib, AL */
