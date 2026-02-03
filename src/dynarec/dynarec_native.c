@@ -468,9 +468,15 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits, inst_max);
     if(helper.abort) {
-        if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
-        CancelBlock64(0);
-        return NULL;
+        if(helper.size<2) {
+            if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+            CancelBlock64(0);
+            // return an Empty block to not try again, pass0 abort are definitive
+            return CreateEmptyBlock(addr, is32bits, is_new);
+        }
+        if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Dynablock shorten on pass0 at ninst=%d\n", helper.size);
+        --helper.size;
+        helper.abort = 0;
     }
     if(BOX64ENV(dynarec_x87double)==2) {
         helper.need_x87check = 1;
