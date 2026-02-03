@@ -48,7 +48,8 @@ static void readCpuinfo(sysinfo_t* info)
                     info->read_frequency = 1;
                 }
             }
-        } else if (info->ncpu <= 1 && strstr(line, "Model Name") != NULL) { // TODO: big.LITTLE handling?
+        } else if (info->ncpu <= 1 && (strstr(line, "Model Name") != NULL || strstr(line, "model name") != NULL)) {
+            // TODO: big.LITTLE handling?
             char* colon = strchr(line, ':');
             if (colon != NULL) {
                 char* start = colon + 1;
