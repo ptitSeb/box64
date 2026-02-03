@@ -133,7 +133,7 @@ GOM(pthread_getattr_np, iFELp)
 GOM(pthread_getattr_default_np, iFEp)
 GOM(pthread_setattr_default_np, iFEp)
 #endif
-//GO(pthread_getconcurrency, iFv)
+GO(pthread_getconcurrency, iFv)
 GO(pthread_getcpuclockid, iFLp)
 GO(pthread_getschedparam, iFLpp)
 GO(__pthread_getspecific, pFL)

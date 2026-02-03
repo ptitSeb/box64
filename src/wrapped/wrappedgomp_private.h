@@ -136,8 +136,8 @@
 GO(GOMP_atomic_end, vFv)
 GO(GOMP_atomic_start, vFv)
 GO(GOMP_barrier, vFv)
-//GO(GOMP_barrier_cancel, 
-//GO(GOMP_cancel, 
+GO(GOMP_barrier_cancel, iFv)
+GO(GOMP_cancel, iFii)
 //GO(GOMP_cancellation_point, 
 GO(GOMP_critical_end, vFv)
 GO(GOMP_critical_name_end, vFp)
@@ -269,7 +269,7 @@ GO(GOMP_single_start, iFv)
 //GO(GOMP_target_ext, 
 //GO(GOMP_target_update, 
 //GO(GOMP_target_update_ext, 
-//GO(GOMP_task, 
+GOM(GOMP_task, vFEppplliupi)
 //GO(GOMP_taskgroup_end, 
 //GO(GOMP_taskgroup_reduction_register, 
 //GO(GOMP_taskgroup_reduction_unregister, 

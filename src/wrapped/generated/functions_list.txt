@@ -473,6 +473,7 @@
 #() vFllp
 #() vFlpp
 #() vFLup
+#() vFLpi
 #() vFLpL
 #() vFLpp
 #() vFpcu
@@ -1096,6 +1097,7 @@
 #() vFpppl
 #() vFpppL
 #() vFpppp
+#() vFpppV
 #() vFSppi
 #() vFHHpi
 #() cFpiii
@@ -1623,6 +1625,7 @@
 #() vFEppLp
 #() vFEpppi
 #() vFEpppu
+#() vFEpppL
 #() vFEpppp
 #() vFiiiii
 #() vFiiiiu
@@ -1721,6 +1724,7 @@
 #() vFpiiup
 #() vFpiiff
 #() vFpiipp
+#() vFpiipV
 #() vFpiuuu
 #() vFpiUUu
 #() vFpiUUp
@@ -1892,6 +1896,7 @@
 #() iFpipiu
 #() iFpipiL
 #() iFpipip
+#() iFpiplp
 #() iFpippi
 #() iFpippW
 #() iFpippL
@@ -2414,6 +2419,7 @@
 #() iFEpiipp
 #() iFEpiipV
 #() iFEpilpV
+#() iFEpipip
 #() iFEpippi
 #() iFEpIppp
 #() iFEpuipp
@@ -2663,6 +2669,7 @@
 #() LFplplpl
 #() LFpLippp
 #() LFpLLLLL
+#() LFppipLp
 #() LFpplplp
 #() LFppLLpL
 #() LFppLpLi
@@ -3136,6 +3143,7 @@
 #() vFELippppV
 #() vFELupippp
 #() vFELpAippp
+#() vFEpuppppV
 #() vFEppupppp
 #() vFEppLippp
 #() vFEppLpLpp
@@ -3446,6 +3454,7 @@
 #() vFppppppppL
 #() vFppppppppp
 #() iFEpiiiiipi
+#() iFEppiipppp
 #() iFEppuppppp
 #() iFEpppupppp
 #() iFEppplPPPP
@@ -3539,6 +3548,7 @@
 #() vFEiuppppppp
 #() vFEpuppppppp
 #() vFEpppuipppp
+#() vFEppplliupi
 #() vFEpppLuLpLp
 #() vFEppppppLpp
 #() vFiiiiiiiiii
@@ -3939,6 +3949,7 @@
 #() iFEv -> iFE
 #() lFEv -> lFE
 #() pFEv -> pFE
+#() vFvLpi -> vFLpi
 #() iFEvpp -> iFEpp
 #() pFEppv -> pFEpp
 #() iFEpvpp -> iFEppp
@@ -4081,15 +4092,25 @@ wrappedcrypto3:
 - vFp:
   - CRYPTO_set_id_callback
   - CRYPTO_set_locking_callback
+  - OSSL_PARAM_construct_end
 - pFp:
   - OPENSSL_sk_new
   - X509V3_EXT_get
 - vFpp:
+  - ERR_print_errors_cb
   - OPENSSL_sk_pop_free
   - X509_STORE_CTX_set_verify_cb
   - X509_STORE_set_verify_cb
+- iFpp:
+  - BIO_meth_set_gets
+  - UI_method_set_closer
+  - UI_method_set_opener
+  - UI_method_set_reader
+  - UI_method_set_writer
 - vFppp:
   - EVP_MD_do_all_provided
+  - OSSL_PARAM_construct_int
+  - OSSL_PARAM_construct_uint
 - iFppp:
   - ASN1_i2d_bio
 - iFppV:
@@ -4100,11 +4121,17 @@ wrappedcrypto3:
   - ERR_set_error
 - vFiipA:
   - ERR_vset_error
+- vFpppL:
+  - OSSL_PARAM_construct_octet_string
+  - OSSL_PARAM_construct_utf8_string
 - pFiLpp:
   - RSA_generate_key
 - pFpppp:
   - ASN1_d2i_bio
+  - PEM_X509_INFO_read_bio
   - PEM_read_DHparams
+  - PEM_read_PUBKEY
+  - PEM_read_PrivateKey
   - PEM_read_bio_DHparams
   - PEM_read_bio_DSAPrivateKey
   - PEM_read_bio_DSA_PUBKEY
@@ -4123,6 +4150,8 @@ wrappedcrypto3:
   - PEM_read_bio_X509_REQ
 - iFpiipp:
   - ENGINE_ctrl
+- pFppppp:
+  - OSSL_STORE_open
 - iFpplppi:
   - ENGINE_ctrl_cmd
 - iFppppipp:
@@ -4131,6 +4160,8 @@ wrappedcrypto3:
   - PEM_write_bio_PrivateKey
   - PEM_write_bio_PrivateKey_traditional
   - PEM_write_bio_RSAPrivateKey
+- pFpppppppp:
+  - OSSL_STORE_open_ex
 wrappedcuda:
 - uFpp:
   - cuGraphHostNodeGetParams
@@ -4547,10 +4578,14 @@ wrappedglib2:
   - g_async_queue_push_sorted
   - g_queue_insert_sorted
   - g_source_set_callback
+- vFpppV:
+  - g_propagate_prefixed_error
 - iFpLpV:
   - g_snprintf
 - iFpLpA:
   - g_vsnprintf
+- iFpppp:
+  - g_ptr_array_find_with_equal_func
 - uFiupp:
   - g_unix_fd_add
 - uFippp:
@@ -4601,6 +4636,8 @@ wrappedglib2:
   - g_io_add_watch_full
 - pFppLipp:
   - g_variant_new_from_data
+- vFpuppppV:
+  - g_log_structured_standard
 - pFppLiiup:
   - g_thread_create_full
 - iFpppupppp:
@@ -4710,6 +4747,8 @@ wrappedgobject2:
 wrappedgomp:
 - vFppuu:
   - GOMP_parallel
+- vFppplliupi:
+  - GOMP_task
 wrappedgssapi:
 wrappedgssapikrb5:
 wrappedgstallocators:
@@ -5261,6 +5300,8 @@ wrappedlibc:
 - vFppL:
   - _ITM_memcpyRnWt
   - _ITM_memcpyRtWn
+- vFppV:
+  - argp_error
 - iFiiu:
   - pidfd_getfd
 - iFiip:
@@ -5414,6 +5455,8 @@ wrappedlibc:
   - ptrace
 - lFppLL:
   - __readlink_chk
+- vFpiipV:
+  - argp_failure
 - vFpLLpp:
   - qsort_r
 - iFiipup:
@@ -6023,8 +6066,13 @@ wrappedlibsqlite3:
   - sqlite3_mprintf
 - pFpA:
   - sqlite3_vmprintf
+- iFpipip:
+  - sqlite3_bind_blob
+  - sqlite3_bind_text
 - iFppppp:
   - sqlite3_exec
+- iFppiipppp:
+  - sqlite3_create_function
 wrappedlibssh2:
 - iFppup:
   - libssh2_userauth_keyboard_interactive_ex
@@ -6067,6 +6115,7 @@ wrappedlibssl3:
   - SSL_CTX_set_cookie_generate_cb
   - SSL_CTX_set_cookie_verify_cb
   - SSL_CTX_set_default_passwd_cb
+  - SSL_CTX_set_info_callback
   - SSL_CTX_set_keylog_callback
   - SSL_CTX_set_msg_callback
   - SSL_CTX_set_psk_client_callback

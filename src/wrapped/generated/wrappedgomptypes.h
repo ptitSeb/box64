@@ -12,8 +12,10 @@
 #endif
 
 typedef void (*vFppuu_t)(void*, void*, uint32_t, uint32_t);
+typedef void (*vFppplliupi_t)(void*, void*, void*, intptr_t, intptr_t, int32_t, uint32_t, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(GOMP_parallel, vFppuu_t)
+	GO(GOMP_parallel, vFppuu_t) \
+	GO(GOMP_task, vFppplliupi_t)
 
 #endif // __wrappedgompTYPES_H_

@@ -80,11 +80,95 @@ static void *find_sqlite3_exec_fct(void *fct) {
     printf_log(LOG_NONE, "Warning, no more slot for sqlite3_exec callback\n");
     return NULL;
 }
-#undef SUPER
-
 EXPORT int my_sqlite3_exec(x64emu_t* emu, void *db, char *sql, void* callback, void* data, char **errmsg)
 {
     return my->sqlite3_exec(db, sql, find_sqlite3_exec_fct(callback), data, errmsg);
+}
+
+// sqlite3_destroy ...
+#define GO(A) \
+static uintptr_t my_sqlite3_destroy_fct_##A = 0;    \
+static void my_sqlite3_destroy_##A(void* p) {      \
+    RunFunctionFmt(my_sqlite3_destroy_fct_##A,  "p", p); \
+}
+SUPER()
+#undef GO
+static void *find_sqlite3_destroy_fct(void *fct) {
+    if (!fct) return NULL;
+    if(fct == (void*)-1) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_destroy_fct_##A == (uintptr_t)fct) return my_sqlite3_destroy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_destroy_fct_##A == 0) {my_sqlite3_destroy_fct_##A = (uintptr_t)fct; return my_sqlite3_destroy_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3_destroy callback\n");
+    return NULL;
+}
+
+EXPORT int my_sqlite3_bind_blob(x64emu_t* emu, void* stmt, int idx, void* data, int n, void* dtor) {
+    return my->sqlite3_bind_blob(stmt, idx, data, n, find_sqlite3_destroy_fct(dtor));
+}
+
+EXPORT int my_sqlite3_bind_text(x64emu_t* emu, void* stmt, int idx, void* text, int n, void* dtor) {
+    return my->sqlite3_bind_text(stmt, idx, text, n, find_sqlite3_destroy_fct(dtor));
+}
+
+// sqlite3_func ...
+#define GO(A) \
+static uintptr_t my_sqlite3_func_fct_##A = 0; \
+static void my_sqlite3_func_##A(void* ctx, int argc, void* argv) { \
+    RunFunctionFmt(my_sqlite3_func_fct_##A, "pip", ctx, argc, argv); \
+}
+SUPER()
+#undef GO
+
+static void* find_sqlite3_func_fct(void* fct) {
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_func_fct_##A == (uintptr_t)fct) return my_sqlite3_func_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_func_fct_##A == 0) { my_sqlite3_func_fct_##A = (uintptr_t)fct; return my_sqlite3_func_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3 func callback\n");
+    return NULL;
+}
+
+// salite_final
+#define GO(A) \
+static uintptr_t my_sqlite3_final_fct_##A = 0; \
+static void my_sqlite3_final_##A(void* ctx) { \
+    RunFunctionFmt(my_sqlite3_final_fct_##A, "p", ctx); \
+}
+SUPER()
+#undef GO
+
+static void* find_sqlite3_final_fct(void* fct) {
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_final_fct_##A == (uintptr_t)fct) return my_sqlite3_final_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_final_fct_##A == 0) { my_sqlite3_final_fct_##A = (uintptr_t)fct; return my_sqlite3_final_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3 final callback\n");
+    return NULL;
+}
+
+EXPORT int my_sqlite3_create_function(x64emu_t* emu,
+    void* db, void* name, int nArg, int eTextRep, void* pApp,
+    void* xFunc, void* xStep, void* xFinal)
+{
+    return my->sqlite3_create_function(
+        db, name, nArg, eTextRep, pApp,
+        find_sqlite3_func_fct(xFunc),
+        find_sqlite3_func_fct(xStep),
+        find_sqlite3_final_fct(xFinal)
+    );
 }
 
 EXPORT void* my_sqlite3_vmprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {

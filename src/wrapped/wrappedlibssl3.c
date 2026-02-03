@@ -700,6 +700,12 @@ EXPORT void my3_SSL_set_info_callback(x64emu_t* emmu, void* ctx, void* f)
     my->SSL_set_info_callback(ctx, find_info_cb_Fct(f));
 }
 
+EXPORT void my3_SSL_CTX_set_info_callback(x64emu_t* emu, void* ctx, void* f)
+{
+    (void)emu;
+    my->SSL_CTX_set_info_callback(ctx, find_info_cb_Fct(f));
+}
+
 EXPORT void my3_SSL_set_psk_use_session_callback(x64emu_t* emu, void* ctx, void* f)
 {
     my->SSL_set_psk_use_session_callback(ctx, find_psk_use_session_cb_Fct(f));

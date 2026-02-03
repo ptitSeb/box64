@@ -133,7 +133,7 @@ GO(gss_release_buffer_set, uFpp)
 GO(gss_release_cred, uFpp)
 GO(gss_release_iov_buffer, uFppi)
 GO(gss_release_name, uFpp)
-//GO(gss_release_oid, 
+GO(gss_release_oid, uFpp)
 GO(gss_release_oid_set, uFpp)
 //GO(gss_seal, 
 //GO(gss_set_cred_option, 
