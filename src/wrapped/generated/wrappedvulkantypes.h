@@ -132,6 +132,7 @@ typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*
 	GO(vkCreateVideoSessionKHR, iFpppp_t) \
 	GO(vkCreateVideoSessionParametersKHR, iFpppp_t) \
 	GO(vkCreateWaylandSurfaceKHR, iFpppp_t) \
+	GO(vkCreateWin32SurfaceKHR, iFpppp_t) \
 	GO(vkCreateXcbSurfaceKHR, iFpppp_t) \
 	GO(vkCreateXlibSurfaceKHR, iFpppp_t) \
 	GO(vkRegisterDeviceEventEXT, iFpppp_t) \

@@ -7072,6 +7072,7 @@ wrappedvulkan:
   - vkCreateVideoSessionKHR
   - vkCreateVideoSessionParametersKHR
   - vkCreateWaylandSurfaceKHR
+  - vkCreateWin32SurfaceKHR
   - vkCreateXcbSurfaceKHR
   - vkCreateXlibSurfaceKHR
   - vkRegisterDeviceEventEXT

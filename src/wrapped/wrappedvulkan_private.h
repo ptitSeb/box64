@@ -1099,5 +1099,9 @@ GO(vkUnregisterCustomBorderColorEXT, vFpu)
 // VK_EXT_custom_border_color
 // no new functions
 
+// VK_KHR_win32_surface
+GOM(vkCreateWin32SurfaceKHR, iFEpppp)
+GO(vkGetPhysicalDeviceWin32PresentationSupportKHR, iFpu)
+
 // Layer stuffs
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)   // structure needs wrapping

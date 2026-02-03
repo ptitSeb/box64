@@ -879,3 +879,5 @@ EXPORT int my_vkCreateDataGraphPipelinesARM(x64emu_t* emu, void* device, uint64_
     return fnc(device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, alloc), pPipelines);
 }
 DESTROY64(vkDestroyDataGraphPipelineSessionARM)
+
+CREATE(vkCreateWin32SurfaceKHR)

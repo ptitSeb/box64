@@ -399,10 +399,10 @@ static void addAutoBridgeVkProcAddr(void* f)
     #define GO(N) if(my_getVkXXXXProcAddr_fct_##N==f) return;
     SUPER()
     #undef GO
-    #define GO(N) if(!my_getVkXXXXProcAddr_fct_##N) {   \
-        my_getVkXXXXProcAddr_fct_##N = f;               \
-        AddAutomaticBridgeAlt(my_context->system, pFpp, f, my_getVkXXXXProcAddr_##N, 0, "vulkan_layer_getinstanceprocadr"); \
-        return;                                         \
+    #define GO(N) if(!my_getVkXXXXProcAddr_fct_##N) {                                                                       \
+        my_getVkXXXXProcAddr_fct_##N = f;                                                                                   \
+        AddAutomaticBridgeAlt(my_context->system, pFpp, f, my_getVkXXXXProcAddr_##N, 0, "vulkan_layer_getinstanceprocaddr");\
+        return;                                                                                                             \
     }
     SUPER()
     #undef GO
@@ -567,6 +567,7 @@ CREATE(vkCreateDataGraphPipelineSessionARM)
 CREATE(vkCreateDebugReportCallbackEXT)  // needs better wrapping because of Debug callback?
 CREATE(vkCreateDebugUtilsMessengerEXT)  // Needs better wrapping?
 CREATE(vkRegisterDeviceEventEXT)
+CREATE(vkCreateWin32SurfaceKHR)
 #undef CREATE
 #undef GO
 // DESTROY64
