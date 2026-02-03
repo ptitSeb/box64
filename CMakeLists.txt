@@ -395,6 +395,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/custommmap.c"
     "${BOX64_ROOT}/src/dynarec/dynarec.c"
     "${BOX64_ROOT}/src/elfs/elfloader.c"
+    "${BOX64_ROOT}/src/elfs/elfhacks.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
     "${BOX64_ROOT}/src/elfs/elfhash.c"
     "${BOX64_ROOT}/src/elfs/elfload_dump.c"

@@ -18,6 +18,7 @@
 #include "elfloader.h"
 #include "fileutils.h"
 #include "emu/x64emu_private.h"
+#include "elfhacks.h"
 
 #include "vulkanoverlay.h"
 
@@ -58,7 +59,37 @@ static int RemoveHookedLib(uint32_t i)
 }
 
 static void*(*real_dlopen)(const char*, int) = NULL;
-EXPORT void *dlopen(const char *path, int flags)
+static int (*real_dlclose)(void*) = NULL;
+static void* (*real_dlsym)(void*, const char*) = NULL;
+
+static void get_real_dlsym(void)
+{
+    eh_obj_t libdl;
+    int ret;
+
+    const char* libs[] = {
+        "*libMangoHud_shim.so*",
+#if defined(__GLIBC__)
+        "*libdl.so*",
+#endif
+        "*libc.so*",
+        "*libc.*.so*",
+        "*ld-musl-*.so*",
+    };
+
+    for (size_t i = 0; i < sizeof(libs) / sizeof(*libs); i++) {
+        ret = eh_find_obj(&libdl, libs[i]);
+        if (ret) {
+            continue;
+        }
+        eh_find_sym(&libdl, "dlsym", (void**)&real_dlsym);
+        eh_destroy_obj(&libdl);
+        if (real_dlsym) break;
+    }
+}
+
+
+EXPORT void* dlopen(const char* path, int flags)
 {
     if(!real_dlopen) {
         real_dlopen = GetNativeSymbolUnversioned(RTLD_NEXT, "dlopen");
@@ -87,10 +118,9 @@ EXPORT void *dlopen(const char *path, int flags)
     return real_dlopen(path, flags);
 }
 
-static int(*real_dlclose)(void*) = NULL;
-EXPORT int dlclose(void *handle)
+EXPORT int dlclose(void* handle)
 {
-    if(!real_dlclose) {
+    if (!real_dlclose) {
         real_dlclose = GetNativeSymbolUnversioned(RTLD_NEXT, "dlclose");
     }
 
@@ -105,12 +135,9 @@ EXPORT int dlclose(void *handle)
     return real_dlclose(handle);
 }
 
-static void*(*real_dlsym)(void*, const char*) = NULL;
-EXPORT void* dlsym(void *handle, const char* symbol)
+EXPORT void* dlsym(void* handle, const char* symbol)
 {
-    if(!real_dlsym) {
-        real_dlsym = GetNativeSymbolUnversioned(RTLD_NEXT, "dlsym");
-    }
+    if (!real_dlsym) get_real_dlsym();
 
     if((uintptr_t)handle>=HOOKLIB && (uintptr_t)handle<HOOKLIB+hooked_size) {
         uint32_t i = (uintptr_t)handle-HOOKLIB;
