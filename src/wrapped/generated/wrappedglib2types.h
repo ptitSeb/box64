@@ -39,8 +39,10 @@ typedef void (*vFpipV_t)(void*, int32_t, void*, ...);
 typedef void (*vFpipA_t)(void*, int32_t, void*, va_list);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef void (*vFpppV_t)(void*, void*, void*, ...);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int32_t (*iFpLpA_t)(void*, uintptr_t, void*, va_list);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uint32_t (*uFiupp_t)(int32_t, uint32_t, void*, void*);
 typedef uint32_t (*uFippp_t)(int32_t, void*, void*, void*);
 typedef uint32_t (*uFpipp_t)(void*, int32_t, void*, void*);
@@ -62,6 +64,7 @@ typedef int32_t (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFiiuppp_t)(int32_t, int32_t, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFpiuppp_t)(void*, int32_t, uint32_t, void*, void*, void*);
 typedef void* (*pFppLipp_t)(void*, void*, uintptr_t, int32_t, void*, void*);
+typedef void (*vFpuppppV_t)(void*, uint32_t, void*, void*, void*, void*, ...);
 typedef void* (*pFppLiiup_t)(void*, void*, uintptr_t, int32_t, int32_t, uint32_t, void*);
 typedef int32_t (*iFpppupppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*);
 typedef int32_t (*iFpppupppppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*, void*, void*);
@@ -163,8 +166,10 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_async_queue_push_sorted, vFpppp_t) \
 	GO(g_queue_insert_sorted, vFpppp_t) \
 	GO(g_source_set_callback, vFpppp_t) \
+	GO(g_propagate_prefixed_error, vFpppV_t) \
 	GO(g_snprintf, iFpLpV_t) \
 	GO(g_vsnprintf, iFpLpA_t) \
+	GO(g_ptr_array_find_with_equal_func, iFpppp_t) \
 	GO(g_unix_fd_add, uFiupp_t) \
 	GO(g_idle_add_full, uFippp_t) \
 	GO(g_log_set_handler, uFpipp_t) \
@@ -194,6 +199,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_unix_fd_add_full, uFiiuppp_t) \
 	GO(g_io_add_watch_full, uFpiuppp_t) \
 	GO(g_variant_new_from_data, pFppLipp_t) \
+	GO(g_log_structured_standard, vFpuppppV_t) \
 	GO(g_thread_create_full, pFppLiiup_t) \
 	GO(g_spawn_async, iFpppupppp_t) \
 	GO(g_spawn_sync, iFpppupppppp_t) \

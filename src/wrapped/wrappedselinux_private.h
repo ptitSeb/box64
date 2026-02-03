@@ -58,7 +58,7 @@ GO(getcon_raw, iFp)
 //GO(getexeccon_raw, 
 GO(getfilecon, iFpp)
 GO(getfilecon_raw, iFpp)
-//GO(getfscreatecon, 
+GO(getfscreatecon, iFp)
 GO(getfscreatecon_raw, iFp)
 //GO(getkeycreatecon, 
 //GO(getkeycreatecon_raw, 

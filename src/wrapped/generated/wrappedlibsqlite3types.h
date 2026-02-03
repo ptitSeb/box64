@@ -14,12 +14,17 @@
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFpA_t)(void*, va_list);
+typedef int32_t (*iFpipip_t)(void*, int32_t, void*, int32_t, void*);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
+typedef int32_t (*iFppiipppp_t)(void*, void*, int32_t, int32_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(sqlite3_database_file_object, pFp_t) \
 	GO(sqlite3_mprintf, pFpV_t) \
 	GO(sqlite3_vmprintf, pFpA_t) \
-	GO(sqlite3_exec, iFppppp_t)
+	GO(sqlite3_bind_blob, iFpipip_t) \
+	GO(sqlite3_bind_text, iFpipip_t) \
+	GO(sqlite3_exec, iFppppp_t) \
+	GO(sqlite3_create_function, iFppiipppp_t)
 
 #endif // __wrappedlibsqlite3TYPES_H_

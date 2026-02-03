@@ -23,8 +23,8 @@ GOW(alphasort64, iFpp)
 //GO(__arch_prctl, 
 //GOW(arch_prctl, 
 //DATA(argp_err_exit_status, 4)
-//GOWM(argp_error, vFppV)
-//GOWM(argp_failure, vFpiipV)
+GOWM(argp_error, vFppV)
+GOWM(argp_failure, vFpiipV)
 //GOWM(argp_help, vFpSup)
 GOWM(argp_parse, iFEpipupp)
 //DATAB(argp_program_bug_address, 8)
@@ -1401,7 +1401,7 @@ GO(nice, iFi)
 GO(nl_langinfo, pFi)
 GO(__nl_langinfo_l, pFip)
 GOW(nl_langinfo_l, pFip)
-//DATAB(_nl_msg_cat_cntr, 
+DATAB(_nl_msg_cat_cntr, 4)
 GO(nrand48, lFp)
 GOW(nrand48_r, iFppp)
 //GO(__nss_configure_lookup, 

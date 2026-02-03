@@ -2,7 +2,22 @@
 #define _FILE_OFFSET_BITS 64
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #if !defined(TERMUX) && !defined(ANDROID)
-#include <argp.h>
+# if defined(__has_include)
+#  if __has_include(<argp.h>)
+#   include <argp.h>
+#   define HAVE_ARGP 1
+#  endif
+# else
+#  include <argp.h>
+#  define HAVE_ARGP 1
+# endif
+#endif
+#ifndef HAVE_ARGP
+struct argp;
+struct argp_state;
+#endif
+#ifdef STATICBUILD
+extern int _nl_msg_cat_cntr __attribute__((weak));
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -486,11 +501,12 @@ static void* find_argp_parser_Fct(void* fct)
 
 EXPORT int my_argp_parse(x64emu_t* emu, struct argp* argp, int argc, char** argv, int flags, int* index, void* input)
 {
-#if !defined(TERMUX) && !defined(ANDROID)
+#if defined(HAVE_ARGP)
     void* fct = (void*)argp->parser;
     if (fct) argp->parser = find_argp_parser_Fct(fct);
     return argp_parse(argp, argc, argv, flags, index, input);
 #else
+    (void)emu; (void)argp; (void)argc; (void)argv; (void)flags; (void)index; (void)input;
     printf_log(LOG_NONE, "Warning: unsupported argp_parse called, expecting failure\n");
     return -1;
 #endif
@@ -1180,6 +1196,20 @@ EXPORT int my_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
     return vswscanf(stream, fmt, VARARGS);
 }
 
+EXPORT void my_argp_error(x64emu_t *emu, void* state, void* fmt, void* b) {
+#if defined(HAVE_ARGP)
+    if(!fmt) {
+        argp_error(state, NULL);
+        return;
+    }
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    argp_error(state, fmt, VARARGS);
+#else
+    (void)emu; (void)state; (void)fmt; (void)b;
+#endif
+}
+
 EXPORT void my_error(x64emu_t *emu, int status, int errnum, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
@@ -1251,6 +1281,21 @@ EXPORT void my_vwarnx(x64emu_t* emu, void* fmt, x64_va_list_t b) {
     #endif
     return vwarnx(fmt, VARARGS);
 }
+
+EXPORT void my_argp_failure(x64emu_t* emu, void* state, int status, int errnum, void* fmt, void* b) {
+#if defined(HAVE_ARGP)
+    if(!fmt) { 
+        argp_failure(state, status, errnum, NULL); 
+        return; 
+    }
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
+    PREPARE_VALIST;
+    argp_failure(state, status, errnum, fmt, VARARGS);
+#else
+    (void)emu; (void)state; (void)status; (void)errnum; (void)fmt; (void)b;
+#endif
+}
+
 EXPORT void my_warn(x64emu_t *emu, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;

@@ -1140,6 +1140,11 @@ EXPORT void my_g_ptr_array_foreach(x64emu_t* emu, void* array, void* func, void*
     my->g_ptr_array_foreach(array, findGFuncFct(func), data);
 }
 
+EXPORT int my_g_ptr_array_find_with_equal_func(x64emu_t* emu, void* haystack, void* needle, void* equal_func, void* index_)
+{
+    return my->g_ptr_array_find_with_equal_func(haystack, needle, findEqualFct(equal_func), index_);
+}
+
 EXPORT void* my_g_thread_create(x64emu_t* emu, void* func, void* data, int joinable, void* error)
 {
     void* et = NULL;
@@ -1374,6 +1379,13 @@ EXPORT void* my_g_error_new_valist(x64emu_t* emu, uint32_t domain, int code, voi
     return my->g_error_new_valist(domain, code, fmt, VARARGS);
 }
 
+EXPORT void my_g_propagate_prefixed_error(x64emu_t* emu, void* dest, void* src, void* fmt, uintptr_t* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    my->g_propagate_prefixed_error(dest, src, fmt, VARARGS);
+}
+
 EXPORT int my_g_fprintf(x64emu_t* emu, void* f, void* fmt, uintptr_t* b)
 {
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
@@ -1395,6 +1407,13 @@ EXPORT void my_g_log(x64emu_t* emu, void* domain, int level, void* fmt, uintptr_
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     my->g_logv(domain, level, fmt, VARARGS);
+}
+
+EXPORT void my_g_log_structured_standard(x64emu_t* emu, void* log_domain, uint32_t log_level, void* file, void* line, void* func, void* fmt, uintptr_t* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 6);
+    PREPARE_VALIST;
+    my->g_log_structured_standard(log_domain, log_level, file, line, func, fmt, VARARGS);
 }
 
 EXPORT int my_g_printf(x64emu_t* emu, void* fmt, uintptr_t* b)
