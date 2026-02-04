@@ -2687,6 +2687,7 @@
 #() pFEppiip
 #() pFEppupi
 #() pFEppLLp
+#() pFEpppip
 #() pFEpppLp
 #() pFEppppi
 #() pFEppppp
@@ -7149,6 +7150,8 @@ wrappedxml2:
 - iFppppp:
   - xmlHashRemoveEntry3
   - xmlHashUpdateEntry2
+- pFpppip:
+  - xmlCreatePushParserCtxt
 - pFppppi:
   - xmlSaveToIO
 - vFpppppp:

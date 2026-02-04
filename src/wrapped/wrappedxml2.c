@@ -1503,6 +1503,18 @@ static void restoreSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
 
 #undef SUPER
 
+EXPORT void* my_xmlCreatePushParserCtxt(x64emu_t* emu, my_xmlSAXHandler_t* p, void* user_data, void* chunk,
+					            int size, void* filename)
+{
+    // handling of wine that change the default sax handler of...
+    my_xmlSAXHandler_t* old_saxhandler = p;
+    my_xmlSAXHandler_t sax_handler = {0};
+    wrapSaxHandler(&sax_handler, old_saxhandler);
+    void* ret = my->xmlCreatePushParserCtxt(p, user_data, chunk, size, filename);
+    restoreSaxHandler(&sax_handler, old_saxhandler);
+    return ret;
+}
+
 EXPORT int my_xmlParseDocument(x64emu_t* emu, my_xmlSAXHandler_t** p)
 {
     // handling of wine that change the default sax handler of...
