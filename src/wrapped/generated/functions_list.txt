@@ -191,6 +191,7 @@
 #() cFpp
 #() wFpi
 #() iFEi
+#() iFEu
 #() iFEf
 #() iFEd
 #() iFEL
@@ -627,6 +628,7 @@
 #() iFplp
 #() iFpLi
 #() iFpLu
+#() iFpLf
 #() iFpLl
 #() iFpLL
 #() iFpLp
@@ -932,6 +934,7 @@
 #() vFEpuV
 #() vFEpuA
 #() vFEpUp
+#() vFEpLi
 #() vFEpLp
 #() vFEppi
 #() vFEppp
@@ -1019,6 +1022,7 @@
 #() vFldpl
 #() vFllii
 #() vFlppl
+#() vFLiii
 #() vFLuui
 #() vFLppi
 #() vFLppl
@@ -1066,6 +1070,7 @@
 #() vFpllL
 #() vFplpp
 #() vFpLii
+#() vFpLip
 #() vFpLuu
 #() vFpLLL
 #() vFpLLp
@@ -1493,6 +1498,7 @@
 #() pFiiLp
 #() pFiipi
 #() pFiipp
+#() pFifff
 #() pFiddu
 #() pFillu
 #() pFipip
@@ -1889,6 +1895,7 @@
 #() iFpiuwp
 #() iFpiuuu
 #() iFpiuLi
+#() iFpiupp
 #() iFpiUUU
 #() iFpiLip
 #() iFpiLuu
@@ -1940,6 +1947,7 @@
 #() iFpLilp
 #() iFpLiLi
 #() iFpLipi
+#() iFpLipC
 #() iFpLuLi
 #() iFpLlpp
 #() iFpLLii
@@ -2004,6 +2012,7 @@
 #() iFpSipp
 #() iFpSuif
 #() iFSppLp
+#() IFpLIII
 #() IFppIII
 #() uFEiupp
 #() uFEippp
@@ -2024,6 +2033,7 @@
 #() uFULLUU
 #() uFUpUpL
 #() uFLpppL
+#() uFpiipp
 #() uFpCCCC
 #() uFpWuip
 #() uFpuuui
@@ -2112,6 +2122,7 @@
 #() LFpLppu
 #() LFpLppL
 #() LFpLppp
+#() LFppuup
 #() LFpplLp
 #() LFpplpl
 #() LFppLuu
@@ -2518,6 +2529,7 @@
 #() iFpLiiip
 #() iFpLiiuu
 #() iFpLipLu
+#() iFpLIppp
 #() iFpLuipp
 #() iFpLuupp
 #() iFpLupip
@@ -2611,6 +2623,7 @@
 #() uFULuLLp
 #() uFULULLU
 #() uFUpUpLp
+#() uFpiippp
 #() uFpiuppu
 #() uFpWuipp
 #() uFpWuuCp
@@ -2622,6 +2635,7 @@
 #() uFpupupu
 #() uFpupupp
 #() uFpupppp
+#() uFppiiii
 #() uFppuuup
 #() uFppuupu
 #() uFppLpLp
@@ -3273,6 +3287,7 @@
 #() iFpUuuLpUu
 #() iFpduuulul
 #() iFpLiiippp
+#() iFpLIIIppp
 #() iFpLLiippp
 #() iFpLLLiipi
 #() iFpLLppppp
@@ -3868,6 +3883,7 @@
 #() pFppippipipipipipip
 #() pFbuuuuuwwuuuuUUUup
 #() vFppuiiiiipuiiiiiiii
+#() vFppuuiiiipuuiiiiiii
 #() vFpppipppppppppppppp
 #() vFpppppppppppppppLLL
 #() vFppppppppppppppppLL
@@ -5585,7 +5601,7 @@ wrappedlibfuse:
 - LFppLppU:
   - fuse_add_direntry
 wrappedlibgl:
-- iFi:
+- iFu:
   - glXSwapIntervalMESA
 - pFp:
   - glGetVkProcAddrNV
@@ -5600,7 +5616,7 @@ wrappedlibgl:
   - eglDebugMessageControlKHR
 - vFipp:
   - glProgramCallbackMESA
-- vFppi:
+- vFpLi:
   - glXSwapIntervalEXT
 - vFppp:
   - eglSetBlobCacheFuncsANDROID
