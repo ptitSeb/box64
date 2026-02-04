@@ -243,7 +243,7 @@ GO(xmlCreateFileParserCtxt, pFp)
 GO(xmlCreateIntSubset, pFpppp)
 GOM(xmlCreateIOParserCtxt, pFEpppppi)
 GO(xmlCreateMemoryParserCtxt, pFpi)
-GO(xmlCreatePushParserCtxt, pFpppip)
+GOM(xmlCreatePushParserCtxt, pFEpppip)
 //GO(xmlCreateURI, 
 GO(xmlCreateURLParserCtxt, pFpi)
 GO(xmlCtxtGetLastError, pFp)
