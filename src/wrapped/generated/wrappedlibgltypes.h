@@ -11,16 +11,16 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef int32_t (*iFi_t)(int32_t);
+typedef int32_t (*iFu_t)(uint32_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
-typedef void (*vFppi_t)(void*, void*, int32_t);
+typedef void (*vFpLi_t)(void*, uintptr_t, int32_t);
 typedef void (*vFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(glXSwapIntervalMESA, iFi_t) \
+	GO(glXSwapIntervalMESA, iFu_t) \
 	GO(glGetVkProcAddrNV, pFp_t) \
 	GO(glXGetProcAddress, pFp_t) \
 	GO(glXGetProcAddressARB, pFp_t) \
@@ -30,7 +30,7 @@ typedef void (*vFppp_t)(void*, void*, void*);
 	GO(glDebugMessageCallbackKHR, vFpp_t) \
 	GO(eglDebugMessageControlKHR, iFpp_t) \
 	GO(glProgramCallbackMESA, vFipp_t) \
-	GO(glXSwapIntervalEXT, vFppi_t) \
+	GO(glXSwapIntervalEXT, vFpLi_t) \
 	GO(eglSetBlobCacheFuncsANDROID, vFppp_t)
 
 #endif // __wrappedlibglTYPES_H_

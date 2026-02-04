@@ -670,7 +670,7 @@ GO(glBlendFuncSeparatei, vFuuuuu)
 GO(glBlendFunci, vFuuu)
 GO(glMinSampleShading, vFf)
 //VERSION_4_3
-GO(glInvalidateNamedFramebuffer,  vFiup)
+GO(glInvalidateNamedFramebuffer, vFiup)
 //VERSION_4_4
 GO(glBindBuffersBase, vFuuip)
 GO(glBindBuffersRange, vFuuippp)
@@ -2909,7 +2909,7 @@ GO(glPolygonOffsetClampEXT, vFfff)
 
 //GL_EXT_multisampled_render_to_texture
 GO(glRenderbufferStorageMultisampleEXT, vFuiuii)
-GO(glFramebufferTexture2DMultisampleEXT, vFiiiuil)
+GO(glFramebufferTexture2DMultisampleEXT, vFuuuuii)
 
 //GL_KTX_buffer_region
 GO(glBufferRegionEnabled, uFv)
@@ -2928,108 +2928,108 @@ GO(TexPageCommitmentARB, vFiiiiiiiii)
 
 //glx
 GO(glXBindHyperpipeSGIX, iFpi)
-GO(glXBindTexImageEXT, vFppip)
+GO(glXBindTexImageEXT, vFpLip)
 GO(glXBindSwapBarrierNV, iFpuu)
-GO(glXBindSwapBarrierSGIX,vFii)
-GO(glXBindVideoCaptureDeviceNV, iFpup)
+GO(glXBindSwapBarrierSGIX, vFpLi)
+GO(glXBindVideoCaptureDeviceNV, iFpuL)
 GO(glXBindVideoDeviceNV, iFpuup)
-GO(glXBindVideoImageNV, iFpppi)
+GO(glXBindVideoImageNV, iFpuLi)
 GO(glXChangeDrawableAttributes, vFp)
 GO(glXChangeDrawableAttributesSGIX, vFp)
 GO(glXClientInfo, vFv)
-GO(glXCopyContext, vFppp)
+GO(glXCopyContext, vFpppL)
 GO(glXChooseFBConfig, pFpipp)
 GO(glXChooseFBConfigSGIX, pFpipp)
-GO(glXCreateContext,pFpppi)
+GO(glXCreateContext, pFpppi)
 GO(glXCreateContextAttribsARB, pFpppip)
 GO(glXCreateContextWithConfigSGIX, pFppipi)
-GO(glXCreateGLXPbufferSGIX, pFppuup)
-GO(glXCreateGLXPixmap, pFppp)
-GO(glXCreateGLXPixmapWithConfigSGIX, pFppp)
+GO(glXCreateGLXPbufferSGIX, LFppuup)
+GO(glXCreateGLXPixmap, LFppL)
+GO(glXCreateGLXPixmapWithConfigSGIX, LFppL)
 GO(glXCreateGLXVideoSourceSGIX, pFpippip)
 GO(glXCreateNewContext, pFppipi)
-GO(glXCreatePbuffer, pFppp)
-GO(glXCreatePixmap, pFppp)
-GO(glXCreateWindow, pFpppp)
+GO(glXCreatePbuffer, LFppp)
+GO(glXCreatePixmap, LFppLp)
+GO(glXCreateWindow, LFppLp)
 GO(glXChooseVisual, pFpip)
-GO(glXCopyImageSubDataNV, vFppuiiiiipuiiiiiiii)
-GO(glXCopySubBufferMESA, vFppiiii)
-GO(glXDestroyContext,vFpp)
-GO(glXDestroyGLXPbufferSGIX,vFpp)
-GO(glXDestroyGLXPixmap,vFpp)
-GO(glXDestroyGLXVideoSourceSGIX,vFpp)
-GO(glXDestroyHyperpipeConfigSGIX,iFpi)
-GO(glXDestroyPbuffer,vFpp)
-GO(glXDestroyPixmap,vFpp)
-GO(glXDestroyWindow,vFpp)
+GO(glXCopyImageSubDataNV, vFppuuiiiipuuiiiiiii)
+GO(glXCopySubBufferMESA, vFpLiiii)
+GO(glXDestroyContext, vFpp)
+GO(glXDestroyGLXPbufferSGIX, vFpL)
+GO(glXDestroyGLXPixmap, vFpL)
+GO(glXDestroyGLXVideoSourceSGIX, vFpp)
+GO(glXDestroyHyperpipeConfigSGIX, iFpi)
+GO(glXDestroyPbuffer, vFpL)
+GO(glXDestroyPixmap, vFpL)
+GO(glXDestroyWindow, vFpL)
 GO(glXEnumerateVideoCaptureDevicesNV, pFpip)
 GO(glXEnumerateVideoDevicesNV, pFpip)
 GO(glXFreeContextEXT, vFpp)
 GO(glXGetClientString, pFpi)
 GO(glXGetConfig, iFppip)
-GO(glXGetContextIDEXT, uFp)
+GO(glXGetContextIDEXT, LFp)
 GO(glXGetCurrentContext, pFv)
 GO(glXGetCurrentDisplay, pFv)
-GO(glXGetCurrentDrawable, pFv)
-GO(glXGetCurrentReadDrawable, pFv)
-GO(glXGetDrawableAttributes,vFi)
-GO(glXGetDrawableAttributesSGIX,vFi)
-GO(glXGetFBConfigs,pFpip)
+GO(glXGetCurrentDrawable, LFv)
+GO(glXGetCurrentReadDrawable, LFv)
+GO(glXGetDrawableAttributes, vFi)
+GO(glXGetDrawableAttributesSGIX, vFi)
+GO(glXGetFBConfigs, pFpip)
 GO(glXGetFBConfigAttrib, iFppip)
 GO(glXGetFBConfigAttribSGIX, iFppip)
 GO(glXGetFBConfigFromVisualSGIX, pFpp)
-GO(glXGetFBConfigsSGIX,pFpip)
-GO(glXGetSelectedEvent, vFppp)
-GO(glXGetSelectedEventSGIX, vFppp)
+GO(glXGetFBConfigsSGIX, pFpip)
+GO(glXGetSelectedEvent, vFpLp)
+GO(glXGetSelectedEventSGIX, vFpLp)
 GO(glXGetVideoDeviceNV, iFpiip)
-GO(glXGetVideoInfoNV, iFpippp)
+GO(glXGetVideoInfoNV, iFpiupp)
 GO(glXGetVideoSyncSGI, iFp)
-GO(glXGetVisualConfigs,pFpp)
+GO(glXGetVisualConfigs, pFpp)
 GO(glXGetVisualFromFBConfig, pFpp)
 GO(glXGetVisualFromFBConfigSGIX, pFpp)
-GO(glXHyperpipeAttribSGIX,iFpiiip)
-//GO(glXHyperpipeConfigSGIX, iFpiipp)
-GO(glXImportContextEXT, pFpu)
-GO(glXIsDirect,iFpp)
-GO(glXJoinSwapGroupNV, iFppu)
-GO(glXJoinSwapGroupSGIX,vFpp)
-GO(glXLockVideoCaptureDeviceNV, vFpp)
-GO(glXMakeContextCurrent,iFpppp)
-GO(glXMakeCurrent,iFppp)
-GO(glXQueryContext,iFppip)
-GO(glXQueryContextInfoEXT,iFppip)
-GO(glXQueryDrawable, iFppip)
+GO(glXHyperpipeAttribSGIX, iFpiiip)
+GO(glXHyperpipeConfigSGIX, iFpiipp)
+GO(glXImportContextEXT, pFpL)
+GO(glXIsDirect, iFpp)
+GO(glXJoinSwapGroupNV, iFpLu)
+GO(glXJoinSwapGroupSGIX, vFpLL)
+GO(glXLockVideoCaptureDeviceNV, vFpL)
+GO(glXMakeContextCurrent, iFpLLp)
+GO(glXMakeCurrent, iFpLp)
+GO(glXQueryContext, iFppip)
+GO(glXQueryContextInfoEXT, iFppip)
+GO(glXQueryDrawable, vFpLip)
 GO(glXQueryExtension, iFppp)
-GO(glXQueryExtensionsString,pFpi)
+GO(glXQueryExtensionsString, pFpi)
 GO(glXQueryFrameCountNV, iFpip)
-GO(glXQueryGLXPbufferSGIX, vFppip)
-GO(glXQueryHyperpipeAttribSGIX,iFpiiip)
-GO(glXQueryHyperpipeBestAttribSGIX,iFpiiipp)
-GO(glXQueryHyperpipeConfigSGIX,pFpip)
-GO(glXQueryHyperpipeNetworkSGIX,pFpp)
-GO(glXQueryMaxSwapBarriersSGIX,pFpp) //?
+GO(glXQueryGLXPbufferSGIX, vFpLip)
+GO(glXQueryHyperpipeAttribSGIX, iFpiiip)
+GO(glXQueryHyperpipeBestAttribSGIX, iFpiiipp)
+GO(glXQueryHyperpipeConfigSGIX, pFpip)
+GO(glXQueryHyperpipeNetworkSGIX, pFpp)
+GO(glXQueryMaxSwapBarriersSGIX, iFpip)
 GO(glXQueryMaxSwapGroupsNV, iFpipp)
-GO(glXQueryServerString,pFpii)
-GO(glXQuerySwapGroupNV, iFpipp)
-GO(glXQueryVersion,iFppp)
-GO(glXQueryVideoCaptureDeviceNV, iFppip)
-GO(glXReleaseTexImageEXT, vFppi)
-GO(glXReleaseVideoCaptureDeviceNV, vFpp)
-GO(glXReleaseVideoDeviceNV, iFpip)
-GO(glXReleaseVideoImageNV, iFpp)
+GO(glXQueryServerString, pFpii)
+GO(glXQuerySwapGroupNV, iFpLpp)
+GO(glXQueryVersion, iFppp)
+GO(glXQueryVideoCaptureDeviceNV, iFpLip)
+GO(glXReleaseTexImageEXT, vFpLi)
+GO(glXReleaseVideoCaptureDeviceNV, vFpL)
+GO(glXReleaseVideoDeviceNV, iFpiu)
+GO(glXReleaseVideoImageNV, iFpL)
 //GO(glXRender, vFv)
 //GO(glXRenderLarge, vFv)
 GO(glXResetFrameCountNV, iFpi)
-GO(glXSelectEvent, vFppu)
-GO(glXSelectEventSGIX, vFppu)
-GO(glXSendPbufferToVideoNV, iFppipi)
-GO(glXSwapBuffers,vFpp)
-GO(glXUseXFont,vFpiii)
+GO(glXSelectEvent, vFpLL)
+GO(glXSelectEventSGIX, vFpLL)
+GO(glXSendPbufferToVideoNV, iFpLipC)
+GO(glXSwapBuffers, vFpL)
+GO(glXUseXFont, vFLiii)
 //GO(glXVendorPrivate, vFv)
 //GO(glXVendorPrivateWithReply, vFv)
-GO(glXWaitGL,vFv)
+GO(glXWaitGL, vFv)
 GO(glXWaitVideoSyncSGI, iFiip)
-GO(glXWaitX,vFv)
+GO(glXWaitX, vFv)
 
 GOM(glXGetProcAddress, pFEp)
 GOM(glXGetProcAddressARB, pFEp)
@@ -3041,26 +3041,26 @@ GO(glXQueryRendererStringMESA, pFpiii)
 GO(glXQueryCurrentRendererStringMESA, pFi)
 
 //GLX_OML_sync_control
-GO(glXGetSyncValuesOML, iFppppp)
-GO(glXGetMscRateOML, iFpppp)
-GO(glXSwapBuffersMscOML, IFppIII)
-GO(glXWaitForMscOML, iFppIIIppp)
-GO(glXWaitForSbcOML, iFppIppp)
+GO(glXGetSyncValuesOML, iFpLppp)
+GO(glXGetMscRateOML, iFpLpp)
+GO(glXSwapBuffersMscOML, IFpLIII)
+GO(glXWaitForMscOML, iFpLIIIppp)
+GO(glXWaitForSbcOML, iFpLIppp)
 
 //GLX_EXT_swap_control
-GOM(glXSwapIntervalEXT,vFEppi)
+GOM(glXSwapIntervalEXT, vFEpLi)
 //GLX_EXT_swap_control_tear
 //nothing
 
 //GLX_MESA_swap_control
-GOM(glXSwapIntervalMESA,iFEi)
+GOM(glXSwapIntervalMESA, iFEu)
 GO(glXGetSwapIntervalMESA, iFv)
 
 //GLX_SGI_swap_control
-GO(glXSwapIntervalSGI,iFi)
+GO(glXSwapIntervalSGI, iFi)
 
 //GLX_NV_vertex_array_range
-GO(glXAllocateMemoryNV, pFlfff)
+GO(glXAllocateMemoryNV, pFifff)
 GO(glXFreeMemoryNV, vFp)
 
 //GLX_ARB_????
@@ -3326,7 +3326,7 @@ GO(glGetnUniformuivKHR, vFuilp)
 // GLES stuff
 GO(glDiscardFramebuffer, vFilp)
 GO(glDiscardFramebufferARB, vFilp)
-GO(glDiscardFramebufferEXT, vFilp)
+GO(glDiscardFramebufferEXT, vFuip)
 GO(glDiscardFramebufferOES, vFilp)
 GO(glDiscardFramebufferANGLE, vFilp)
 GO(glDiscardFramebufferNV, vFilp)
@@ -3335,16 +3335,16 @@ GO(glBlendBarrierARB, vFv)
 GO(glBlendBarrierEXT, vFv)
 GO(glBlendBarrierOES, vFv)
 GO(glBlendBarrierANGLE, vFv)
-GO(glClearDepthfARB,vFf)
-GO(glClipPlanefARB,vFup)
-GO(glDepthRangefARB,vFff)
-GO(glFrustumfARB,vFffffff)
-GO(glGetClipPlanefARB,vFup)
-GO(glOrthofARB,vFffffff)
-GO(glClipPlanef,vFup)
-GO(glFrustumf,vFffffff)
-GO(glGetClipPlanef,vFup)
-GO(glOrthof,vFffffff)
+GO(glClearDepthfARB, vFf)
+GO(glClipPlanefARB, vFup)
+GO(glDepthRangefARB, vFff)
+GO(glFrustumfARB, vFffffff)
+GO(glGetClipPlanefARB, vFup)
+GO(glOrthofARB, vFffffff)
+GO(glClipPlanef, vFup)
+GO(glFrustumf, vFffffff)
+GO(glGetClipPlanef, vFup)
+GO(glOrthof, vFffffff)
 GO(glActiveShaderProgramEXT, vFuu)
 GO(glBindProgramPipelineEXT, vFu)
 GO(glCreateShaderProgramvEXT, uFilp)
@@ -3404,15 +3404,15 @@ GO(glNamedRenderbufferStorageMultisampleAdvancedAMD, vFuiiuii)
 GO(glImportSemaphoreFdEXT, vFuui)
 
 // GLX_SGI_make_current_read
-GO(glXMakeCurrentReadSGI, iFpppp)
-GO(glXGetCurrentReadDrawableSGI, pFv)
+GO(glXMakeCurrentReadSGI, iFpLLp)
+GO(glXGetCurrentReadDrawableSGI, LFv)
 
 // GL_IMG_multisampled_render_to_texture
-GO(glFramebufferTexture2DMultisampleIMG, vFiiiuil)
-GO(glRenderbufferStorageMultisampleIMG, vFilill)
+GO(glFramebufferTexture2DMultisampleIMG, vFuuuuii)
+GO(glRenderbufferStorageMultisampleIMG, vFuiuii)
 
 // GL_ANGLE_translated_shader_source
-GO(glGetTranslatedShaderSourceANGLE, vFulpp)
+GO(glGetTranslatedShaderSourceANGLE, vFuipp)
 
 // GL_EXT_EGL_image_storage
 GO(glEGLImageTargetTexStorageEXT, vFupp)
@@ -3522,14 +3522,14 @@ GO(glGetFramebufferParameterfvAMD, vFuuuuip)
 GO(glGetNamedFramebufferParameterfvAMD, vFuuuuip)
 
 // GL_ANGLE_framebuffer_blit
-GO(glBlitFramebufferANGLE, vFiiiiiiiiui)
+GO(glBlitFramebufferANGLE, vFiiiiiiiiuu)
 
 // GL_ANGLE_framebuffer_multisample
-GO(glRenderbufferStorageMultisampleANGLE, vFilill)
+GO(glRenderbufferStorageMultisampleANGLE, vFuiuii)
 
 // GL_ANGLE_instanced_arrays
-GO(glDrawArraysInstancedANGLE, vFiill)
-GO(glDrawElementsInstancedANGLE, vFilipl)
+GO(glDrawArraysInstancedANGLE, vFuiii)
+GO(glDrawElementsInstancedANGLE, vFuiupi)
 GO(glVertexAttribDivisorANGLE, vFuu)
 
 // GL_ANGLE_timer_query
@@ -3546,63 +3546,63 @@ GO(glIsQueryANGLE, iFu)
 GO(glQueryCounterANGLE, vFui)
 
 // GL_APPLE_copy_texture_levels
-GO(glCopyTextureLevelsAPPLE, vFuuil)
+GO(glCopyTextureLevelsAPPLE, vFuuii)
 
 // GL_APPLE_framebuffer_multisample
-GO(glRenderbufferStorageMultisampleAPPLE, vFilill)
+GO(glRenderbufferStorageMultisampleAPPLE, vFuiuii)
 
 // GL_APPLE_sync
-GO(glFenceSyncAPPLE, pFiu)
-GO(glIsSyncAPPLE, iFp)
+GO(glFenceSyncAPPLE, pFuu)
+GO(glIsSyncAPPLE, CFp)
 GO(glDeleteSyncAPPLE, vFp)
-GO(glClientWaitSyncAPPLE, iFpuU)
+GO(glClientWaitSyncAPPLE, uFpuU)
 GO(glWaitSyncAPPLE, vFpuU)
-GO(glGetInteger64vAPPLE, vFip)
-GO(glGetSyncivAPPLE, vFpilpp)
+GO(glGetInteger64vAPPLE, vFup)
+GO(glGetSyncivAPPLE, vFpuipp)
 
 // GL_EXT_base_instance
-GO(glDrawArraysInstancedBaseInstanceEXT, vFiillu)
-GO(glDrawElementsInstancedBaseInstanceEXT, vFiliplu)
-GO(glDrawElementsInstancedBaseVertexBaseInstanceEXT, vFilipliu)
+GO(glDrawArraysInstancedBaseInstanceEXT, vFuiiiu)
+GO(glDrawElementsInstancedBaseInstanceEXT, vFuiupiu)
+GO(glDrawElementsInstancedBaseVertexBaseInstanceEXT, vFuiupiiu)
 
 // GL_EXT_blend_func_extended
 GO(glBindFragDataLocationIndexedEXT, vFuuup)
-GO(glGetProgramResourceLocationIndexEXT, iFuip)
+GO(glGetProgramResourceLocationIndexEXT, iFuup)
 GO(glGetFragDataIndexEXT, iFup)
 
 // GL_EXT_buffer_storage
-GO(glBufferStorageEXT, vFilpu)
+GO(glBufferStorageEXT, vFulpu)
 
 // GL_EXT_clear_texture
-GO(glClearTexImageEXT, vFuiiip)
-GO(glClearTexSubImageEXT, vFuiiiillliip)
+GO(glClearTexImageEXT, vFuiuup)
+GO(glClearTexSubImageEXT, vFuiiiiiiiuup)
 
 // GL_EXT_copy_image
-GO(glCopyImageSubDataEXT, vFuiiiiiuiiiiilll)
+GO(glCopyImageSubDataEXT, vFuuiiiiuuiiiiiii)
 
 // GL_EXT_draw_buffers
-GO(glDrawBuffersEXT, vFlp)
+GO(glDrawBuffersEXT, vFip)
 
 // GL_EXT_draw_buffers_indexed
-GO(glEnableiEXT, vFiu)
-GO(glDisableiEXT, vFiu)
-GO(glBlendEquationiEXT, vFui)
-GO(glBlendEquationSeparateiEXT, vFuii)
-GO(glBlendFunciEXT, vFuii)
-GO(glBlendFuncSeparateiEXT, vFuiiii)
-GO(glColorMaskiEXT, vFuiiii)
-GO(glIsEnablediEXT, iFui)
+GO(glEnableiEXT, vFuu)
+GO(glDisableiEXT, vFuu)
+GO(glBlendEquationiEXT, vFuu)
+GO(glBlendEquationSeparateiEXT, vFuuu)
+GO(glBlendFunciEXT, vFuuu)
+GO(glBlendFuncSeparateiEXT, vFuuuuu)
+GO(glColorMaskiEXT, vFuCCCC)
+GO(glIsEnablediEXT, CFuu)
 
 // GL_EXT_draw_elements_base_vertex
-GO(glDrawElementsBaseVertexEXT, vFilipi)
-GO(glDrawRangeElementsBaseVertexEXT, vFilulipi)
-GO(glDrawElementsInstancedBaseVertexEXT, vFilipli)
+GO(glDrawElementsBaseVertexEXT, vFuiupi)
+GO(glDrawRangeElementsBaseVertexEXT, vFuuuiupi)
+GO(glDrawElementsInstancedBaseVertexEXT, vFuiupii)
 
 // GL_OES_draw_elements_base_vertex
-GO(glDrawElementsBaseVertexOES, vFilipi)
-GO(glDrawRangeElementsBaseVertexOES, vFiuulipi)
-GO(glDrawElementsInstancedBaseVertexOES, vFilipli)
-GO(glMultiDrawElementsBaseVertexEXT, vFipiplp)
+GO(glDrawElementsBaseVertexOES, vFuiupi)
+GO(glDrawRangeElementsBaseVertexOES, vFuuuiupi)
+GO(glDrawElementsInstancedBaseVertexOES, vFuiupii)
+GO(glMultiDrawElementsBaseVertexEXT, vFupupip)
 
 // GL_EXT_fragment_lighting
 GO(glFragmentLightModeliEXT, vFii)
@@ -3628,29 +3628,29 @@ GO(glLightEnviEXT, vFii)
 GO(glVertexAttribDivisorEXT, vFuu)
 
 // GL_EXT_map_buffer_range
-GO(glMapBufferRangeEXT, pFillu)
-GO(glFlushMappedBufferRangeEXT, vFill)
+GO(glMapBufferRangeEXT, pFullu)
+GO(glFlushMappedBufferRangeEXT, vFull)
 
 // GL_EXT_multi_draw_indirect
-GO(glMultiDrawArraysIndirectEXT, vFipll)
-GO(glMultiDrawElementsIndirectEXT, vFiipll)
+GO(glMultiDrawArraysIndirectEXT, vFupii)
+GO(glMultiDrawElementsIndirectEXT, vFuupii)
 
 // GL_EXT_multiview_draw_buffers
-GO(glReadBufferIndexedEXT, vFii)
+GO(glReadBufferIndexedEXT, vFui)
 GO(glDrawBuffersIndexedEXT, vFipp)
-GO(glGetIntegeri_vEXT, vFiup)
+GO(glGetIntegeri_vEXT, vFuup)
 
 // GL_EXT_scene_marker
 GO(glBeginSceneEXT, vFv)
 GO(glEndSceneEXT, vFv)
 
 // GL_EXT_shader_pixel_local_storage2
-GO(glFramebufferPixelLocalStorageSizeEXT, vFul)
-GO(glGetFramebufferPixelLocalStorageSizeEXT, lFu)
-GO(glClearPixelLocalStorageuiEXT, vFllp)
+GO(glFramebufferPixelLocalStorageSizeEXT, vFui)
+GO(glGetFramebufferPixelLocalStorageSizeEXT, iFu)
+GO(glClearPixelLocalStorageuiEXT, vFiip)
 
 // GL_EXT_sparse_texture
-GO(glTexPageCommitmentEXT, vFiiiiillli)
+GO(glTexPageCommitmentEXT, vFuiiiiiiiC)
 
 // GL_EXT_texture_storage
 GO(glTexStorage1DEXT, vFuiui)
@@ -3658,7 +3658,7 @@ GO(glTexStorage2DEXT, vFuiuii)
 GO(glTexStorage3DEXT, vFuiuiii)
 
 // GL_EXT_texture_view
-GO(glTextureViewEXT, vFuiuiuuuu)
+GO(glTextureViewEXT, vFuuuuuuuu)
 
 // GL_EXT_vertex_array_setXXX
 GO(glCreateArraySetExt, pFv)
@@ -3679,34 +3679,34 @@ GO(glStereoParameteriNV, vFii)
 GO(glStereoParameterfNV, vFif)
 
 // GL_NV_copy_buffer
-GO(glCopyBufferSubDataNV, vFiilll)
+GO(glCopyBufferSubDataNV, vFuulll)
 
 // GL_NV_draw_buffers
-GO(glDrawBuffersNV, vFlp)
+GO(glDrawBuffersNV, vFip)
 
 // GL_NV_draw_instanced
-GO(glDrawArraysInstancedNV, vFiill)
-GO(glDrawElementsInstancedNV, vFilipl)
+GO(glDrawArraysInstancedNV, vFuiii)
+GO(glDrawElementsInstancedNV, vFuiupi)
 
 // GL_NV_framebuffer_blit
-GO(glBlitFramebufferNV, vFiiiiiiiiui)
+GO(glBlitFramebufferNV, vFiiiiiiiiuu)
 
 // GL_NV_framebuffer_multisample
-GO(glRenderbufferStorageMultisampleNV, vFilill)
+GO(glRenderbufferStorageMultisampleNV, vFuiuii)
 
 // GL_NV_instanced_arrays
 GO(glVertexAttribDivisorNV, vFuu)
 
 // GL_NV_non_square_matrices
-GO(glUniformMatrix2x3fvNV, vFilip)
-GO(glUniformMatrix3x2fvNV, vFilip)
-GO(glUniformMatrix2x4fvNV, vFilip)
-GO(glUniformMatrix4x2fvNV, vFilip)
-GO(glUniformMatrix3x4fvNV, vFilip)
-GO(glUniformMatrix4x3fvNV, vFilip)
+GO(glUniformMatrix2x3fvNV, vFiiCp)
+GO(glUniformMatrix3x2fvNV, vFiiCp)
+GO(glUniformMatrix2x4fvNV, vFiiCp)
+GO(glUniformMatrix4x2fvNV, vFiiCp)
+GO(glUniformMatrix3x4fvNV, vFiiCp)
+GO(glUniformMatrix4x3fvNV, vFiiCp)
 
 // GL_NV_polygon_mode
-GO(glPolygonModeNV, vFii)
+GO(glPolygonModeNV, vFuu)
 
 // GL_NV_texture_array
 GO(glTexImage3DNV, vFiiillliiip)
@@ -3717,28 +3717,28 @@ GO(glCompressedTexSubImage3DNV, vFiiiiilllilp)
 GO(glFramebufferTextureLayerNV, vFiiuii)
 
 // GL_NV_viewport_array
-GO(glViewportArrayvNV, vFulp)
+GO(glViewportArrayvNV, vFuip)
 GO(glViewportIndexedfNV, vFuffff)
 GO(glViewportIndexedfvNV, vFup)
-GO(glScissorArrayvNV, vFulp)
-GO(glScissorIndexedNV, vFuiill)
+GO(glScissorArrayvNV, vFuip)
+GO(glScissorIndexedNV, vFuiiii)
 GO(glScissorIndexedvNV, vFup)
-GO(glDepthRangeArrayfvNV, vFulp)
+GO(glDepthRangeArrayfvNV, vFuip)
 GO(glDepthRangeIndexedfNV, vFuff)
-GO(glGetFloati_vNV, vFiup)
-GO(glEnableiNV, vFiu)
-GO(glDisableiNV, vFiu)
-GO(glIsEnablediNV, iFiu)
+GO(glGetFloati_vNV, vFuup)
+GO(glEnableiNV, vFuu)
+GO(glDisableiNV, vFuu)
+GO(glIsEnablediNV, CFuu)
 
 // GL_OVR_multiview_multisampled_render_to_texture
-GO(glFramebufferTextureMultisampleMultiviewOVR, vFiiuilil)
+GO(glFramebufferTextureMultisampleMultiviewOVR, vFuuuiiii)
 
 // GL_QCOM_alpha_test
-GO(glAlphaFuncQCOM, vFif)
+GO(glAlphaFuncQCOM, vFuf)
 
 // GL_QCOM_driver_control
-GO(glGetDriverControlsQCOM, vFplp)
-GO(glGetDriverControlStringQCOM, vFulpp)
+GO(glGetDriverControlsQCOM, vFpip)
+GO(glGetDriverControlStringQCOM, vFuipp)
 GO(glEnableDriverControlQCOM, vFu)
 GO(glDisableDriverControlQCOM, vFu)
 
@@ -3747,16 +3747,16 @@ GO(glExtGetTexturesQCOM, vFpip)
 GO(glExtGetBuffersQCOM, vFpip)
 GO(glExtGetRenderbuffersQCOM, vFpip)
 GO(glExtGetFramebuffersQCOM, vFpip)
-GO(glExtGetTexLevelParameterivQCOM, vFuiiip)
-GO(glExtTexObjectStateOverrideiQCOM, vFiii)
-GO(glExtGetTexSubImageQCOM, vFiiiiillliip)
-GO(glExtGetBufferPointervQCOM, vFip)
+GO(glExtGetTexLevelParameterivQCOM, vFuuiup)
+GO(glExtTexObjectStateOverrideiQCOM, vFuui)
+GO(glExtGetTexSubImageQCOM, vFuiiiiiiiuup)
+GO(glExtGetBufferPointervQCOM, vFup)
 
 // GL_QCOM_extended_get2
 GO(glExtGetShadersQCOM, vFpip)
 GO(glExtGetProgramsQCOM, vFpip)
-GO(glExtIsProgramBinaryQCOM, iFu)
-GO(glExtGetProgramBinarySourceQCOM, vFuipp)
+GO(glExtIsProgramBinaryQCOM, CFu)
+GO(glExtGetProgramBinarySourceQCOM, vFuupp)
 
 // GL_QCOM_framebuffer_foveated
 GO(glFramebufferFoveationConfigQCOM, vFuuuup)
@@ -3955,105 +3955,105 @@ GO(glTexturePageCommitmentMemNV, vFuiiiiiiiiuUC)
 GO(glVDPAURegisterVideoSurfaceWithPictureStructureNV, lFpuipC)
 
 // Base EGL
-GO(eglBindAPI, iFi)
-GO(eglBindTexImage, iFppi)
-GO(eglChooseConfig, iFpppip)
+GO(eglBindAPI, uFu)
+GO(eglBindTexImage, uFppi)
+GO(eglChooseConfig, uFpppip)
 GO(eglClientWaitSync, iFppiU)
-GO(eglCopyBuffers, iFppp)
+GO(eglCopyBuffers, uFppL)
 GO(eglCreateContext, pFpppp)
-GO(eglCreateImage, pFppuup)
-GO(eglCreatePbufferFromClientBuffer, pFpippp)
+GO(eglCreateImage, pFppupp)
+GO(eglCreatePbufferFromClientBuffer, pFpuppp)
 GO(eglCreatePbufferSurface, pFppp)
-GO(eglCreatePixmapSurface, pFpppp)
+GO(eglCreatePixmapSurface, pFppLp)
 GO(eglCreatePlatformPixmapSurface, pFpppp)
 GO(eglCreatePlatformWindowSurface, pFpppp)
 GO(eglCreateSync, pFpup)
-GO(eglCreateWindowSurface, pFpppp)
-GO(eglDestroyContext, iFpp)
-GO(eglDestroyImage, iFpp)
-GO(eglDestroySurface, iFpp)
-GO(eglDestroySync, iFpp)
-GO(eglGetConfigAttrib, iFppip)
-GO(eglGetConfigs, iFppip)
+GO(eglCreateWindowSurface, pFppLp)
+GO(eglDestroyContext, uFpp)
+GO(eglDestroyImage, uFpp)
+GO(eglDestroySurface, uFpp)
+GO(eglDestroySync, uFpp)
+GO(eglGetConfigAttrib, uFppip)
+GO(eglGetConfigs, uFppip)
 GO(eglGetCurrentContext, pFv)
 GO(eglGetCurrentDisplay, pFv)
 GO(eglGetCurrentSurface, pFi)
 GO(eglGetDisplay, pFp)
 GO(eglGetError, iFv)
-GO(eglGetPlatformDisplay, pFppp)
+GO(eglGetPlatformDisplay, pFupp)
 //GOM(eglGetProcAddress, pFEp)
-GO(eglGetSyncAttrib, iFppip)
-GO(eglInitialize, iFppp)
-GO(eglMakeCurrent, iFpppp)
-GO(eglQueryAPI, iFv)
-GO(eglQueryContext, iFppip)
+GO(eglGetSyncAttrib, uFppip)
+GO(eglInitialize, uFppp)
+GO(eglMakeCurrent, uFpppp)
+GO(eglQueryAPI, uFv)
+GO(eglQueryContext, uFppip)
 GO(eglQueryString, pFpi)
-GO(eglQuerySurface, iFppip)
-GO(eglReleaseTexImage, iFppi)
-GO(eglReleaseThread, iFv)
-GO(eglSurfaceAttrib, iFppii)
-GO(eglSwapBuffers, iFpp)
-GO(eglSwapInterval, iFpi)
-GO(eglTerminate, iFp)
-GO(eglWaitClient, iFv)
-GO(eglWaitGL, iFv)
-GO(eglWaitNative, iFi)
-GO(eglWaitSync, iFppi)
+GO(eglQuerySurface, uFppip)
+GO(eglReleaseTexImage, uFppi)
+GO(eglReleaseThread, uFv)
+GO(eglSurfaceAttrib, uFppii)
+GO(eglSwapBuffers, uFpp)
+GO(eglSwapInterval, uFpi)
+GO(eglTerminate, uFp)
+GO(eglWaitClient, uFv)
+GO(eglWaitGL, uFv)
+GO(eglWaitNative, uFi)
+GO(eglWaitSync, uFppi)
 
 // EGL_KHR_debug
 GOM(eglDebugMessageControlKHR, iFEpp)
-GO(eglQueryDebugKHR, iFip)
+GO(eglQueryDebugKHR, uFip)
 GO(eglLabelObjectKHR, iFpupp)
 
 // EGL_MESA_image_dma_buf_export
-GO(eglExportDMABUFImageQueryMESA, iFppppp)
-GO(eglExportDMABUFImageMESA, iFppppp)
+GO(eglExportDMABUFImageQueryMESA, uFppppp)
+GO(eglExportDMABUFImageMESA, uFppppp)
 
 // EGL_ANGLE_sync_control_rate
-GO(eglGetMscRateANGLE, iFpppp)
+GO(eglGetMscRateANGLE, uFpppp)
 
 // EGL_CHROMIUM_sync_control
-GO(eglGetSyncValuesCHROMIUM, iFppppp)
+GO(eglGetSyncValuesCHROMIUM, uFppppp)
 
 // EGL_EXT_device_query
-GO(eglQueryDeviceAttribEXT, iFpip)
+GO(eglQueryDeviceAttribEXT, uFpip)
 GO(eglQueryDeviceStringEXT, pFpi)
-GO(eglQueryDisplayAttribEXT, iFpip)
+GO(eglQueryDisplayAttribEXT, uFpip)
 
 // EGL_EXT_device_enumeration
-GO(eglQueryDevicesEXT, iFipp)
+GO(eglQueryDevicesEXT, uFipp)
 
 // EGL_EXT_device_persistent_id
-GO(eglQueryDeviceBinaryEXT, iFpiipp)
+GO(eglQueryDeviceBinaryEXT, uFpiipp)
 
 // EGL_EXT_image_dma_buf_import_modifiers
-GO(eglQueryDmaBufFormatsEXT, iFpipp)
-GO(eglQueryDmaBufModifiersEXT, iFpiippp)
+GO(eglQueryDmaBufFormatsEXT, uFpipp)
+GO(eglQueryDmaBufModifiersEXT, uFpiippp)
 
 // EGL_ANDROID_blob_cache
 GOM(eglSetBlobCacheFuncsANDROID, vFEppp)
 
 // EGL_KHR_swap_buffers_with_damage
-GO(eglSwapBuffersWithDamageKHR, iFpppi)
+GO(eglSwapBuffersWithDamageKHR, uFpppi)
 
 // EGL_KHR_wait_sync
 GO(eglWaitSyncKHR, iFppi)
 
 // EGL_KHR_image_base
 GO(eglCreateImageKHR, pFppupp)
-GO(eglDestroyImageKHR, iFpp)
+GO(eglDestroyImageKHR, uFpp)
 
 // EGL_KHR_fence_sync
 GO(eglCreateSyncKHR, pFpup)
-GO(eglDestroySyncKHR, iFpp)
+GO(eglDestroySyncKHR, uFpp)
 GO(eglClientWaitSyncKHR, iFppiU)
-GO(eglGetSyncAttribKHR, iFppip)
+GO(eglGetSyncAttribKHR, uFppip)
 
 // EGL_ANDROID_native_fence_sync
 GO(eglDupNativeFenceFDANDROID, iFpp)
 
 // EGL_NV_post_sub_buffer
-GO(eglPostSubBufferNV, iFppiiii)
+GO(eglPostSubBufferNV, uFppiiii)
 
 // EGL_EXT_platform_base
 GO(eglGetPlatformDisplayEXT, pFupp)
@@ -4064,9 +4064,9 @@ GO(eglCreatePlatformPixmapSurfaceEXT, pFpppp)
 GO(glClipControlEXT, vFuu)
 
 // GL_EXT_disjoint_timer_query
-GO(glGenQueriesEXT, vFlp)
-GO(glDeleteQueriesEXT, vFlp)
-GO(glIsQueryEXT, iFu)
+GO(glGenQueriesEXT, vFip)
+GO(glDeleteQueriesEXT, vFip)
+GO(glIsQueryEXT, CFu)
 GO(glBeginQueryEXT, vFuu)
 GO(glEndQueryEXT, vFu)
 GO(glQueryCounterEXT, vFuu)
@@ -4080,14 +4080,14 @@ GO(glGetInteger64vEXT, vFup)
 // GL_OES_mapbuffer
 GO(glGetBufferPointervOES, vFuup)
 GO(glMapBufferOES, pFuu)
-GO(glUnmapBufferOES, iFu)
+GO(glUnmapBufferOES, CFu)
 
 // GLX_NV_copy_buffer
 GO(glXCopyBufferSubDataNV, vFpppuulll)
 GO(glXNamedCopyBufferSubDataNV, vFpppuulll)
 
 // GLX_NV_delay_before_swap
-GO(glXDelayBeforeSwapNV, iFppf)
+GO(glXDelayBeforeSwapNV, iFpLf)
 
 // GL_ARB_viewport_array
 GO(glDepthRangeArraydvNV, vFuip)
