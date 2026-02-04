@@ -16,6 +16,37 @@
 static void readCpuinfo(sysinfo_t* info)
 {
     memset(info, 0, sizeof(sysinfo_t));
+
+    if (getenv("BOX64_SYSINFO_CACHED")) {
+        // in case it's the x86_64 lscpu, prevent infinite loop
+        if (getenv("BOX64_SYSINFO_NCPU"))
+            info->ncpu = (uint64_t)strtol(getenv("BOX64_SYSINFO_NCPU"), NULL, 10);
+        else
+            info->ncpu = 1;
+
+        if (getenv("BOX64_SYSINFO_CPUNAME")) {
+            size_t len = strlen(getenv("BOX64_SYSINFO_CPUNAME"));
+            info->cpuname = (char*)calloc(len + 1, 1);
+            strcpy(info->cpuname, getenv("BOX64_SYSINFO_CPUNAME"));
+        } else {
+            info->cpuname = (char*)malloc(20);
+            strcpy(info->cpuname, "Unknown CPU");
+        }
+        info->read_ncpu = 1;
+        info->read_cpuname = 1;
+        if (getenv("BOX64_SYSINFO_FREQUENCY")) {
+            info->frequency = (uint64_t)strtol(getenv("BOX64_SYSINFO_FREQUENCY"), NULL, 10);
+            info->emulated_frequency = 0;
+            info->read_frequency = 1;
+        } else {
+            info->frequency = 1000000000; // 1GHz default
+            info->emulated_frequency = 1;
+        }
+        info->bogomips = info->frequency;
+
+        return;
+    }
+
     info->emulated_frequency = 1;
     int cpucore = 0;
     while (1) {
@@ -79,11 +110,6 @@ static void readCpuinfo(sysinfo_t* info)
     fclose(f);
 
 lscpu:
-    if (getenv("BOX64_LSCPU_EXECUTED")) {
-        // in case it's the x86_64 lscpu, prevent infinite loop
-        goto fallback;
-    }
-    setenv("BOX64_LSCPU_EXECUTED", "1", 1);
     if (!info->read_cpuname || !info->read_ncpu || !info->read_frequency) {
         FILE* f = popen("lscpu", "r");
         if (!f) goto fallback;
@@ -126,19 +152,7 @@ lscpu:
     }
 
 fallback:
-    if (!info->read_ncpu && !getenv("BOX64_NPROC_EXECUTED") /* in case it's the x86 version, prevent infinite loop */) {
-        setenv("BOX64_NPROC_EXECUTED", "1", 1);
-        FILE* f = popen("nproc", "r");
-        if (f) {
-            int ncpu;
-            if (fscanf(f, "%d", &ncpu) == 1) {
-                info->ncpu = (uint64_t)ncpu;
-            }
-            pclose(f);
-        } else {
-            info->ncpu = 1;
-        }
-    }
+    if (!info->read_ncpu) info->ncpu = 1;
     if (!info->read_cpuname) {
         info->cpuname = (char*)malloc(20);
         strcpy(info->cpuname, "Unknown CPU");
@@ -152,6 +166,13 @@ fallback:
         info->bogomips = info->frequency;
     }
 
+    char str[64];
+    sprintf(str, "%d", (info->ncpu) ? (int)info->ncpu : 1);
+    setenv("BOX64_SYSINFO_NCPU", str, 1);
+    setenv("BOX64_SYSINFO_CPUNAME", info->cpuname, 1);
+    sprintf(str, "%llu", info->frequency);
+    setenv("BOX64_SYSINFO_FREQUENCY", str, 1);
+    setenv("BOX64_SYSINFO_CACHED", "1", 1);
     return;
 }
 #endif
