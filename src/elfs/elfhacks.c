@@ -29,7 +29,7 @@
  *  \{
  */
 
-#if defined(__GLIBC__) && !(defined(__riscv) || defined(__mips__))
+#if defined(__GLIBC__) && !(defined(__riscv) || defined(__mips__) || defined(LA64_ABI_1))
 # define ABS_ADDR(obj, ptr) (ptr)
 #else
 # define ABS_ADDR(obj, ptr) ((obj->addr) + (ptr))
