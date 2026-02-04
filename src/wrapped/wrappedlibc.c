@@ -2711,6 +2711,9 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
 EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
+    // Some distros call a statically linked x86 ldconfig in scriptlets; skip it.
+    const char* base = fullpath ? strrchr(fullpath, '/') : NULL;
+    base = base ? base + 1 : fullpath;
     int self = isProcSelf(fullpath, "exe");
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
@@ -2720,6 +2723,12 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
+    }
+    if(base && !strcmp(base, "ldconfig")) {
+        const char* truepath = "/bin/true";
+        char* const trueargv[] = { (char*)truepath, NULL };
+        printf_log(LOG_INFO, "posix_spawn: skip ldconfig (%s)\n", fullpath);
+        return posix_spawn(pid, truepath, actions, attrp, trueargv, envp);
     }
     if (x64 || x86 || script || self) {
         int n=1;
@@ -2753,6 +2762,8 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     // need to use BOX64_PATH / PATH here...
     char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...
+    const char* base = fullpath ? strrchr(fullpath, '/') : NULL;
+    base = base ? base + 1 : fullpath;
     int self = isProcSelf(fullpath, "exe");
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
@@ -2762,6 +2773,14 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
+    }
+    if(base && !strcmp(base, "ldconfig")) {
+        const char* truepath = "/bin/true";
+        char* const trueargv[] = { (char*)truepath, NULL };
+        printf_log(LOG_INFO, "posix_spawnp: skip ldconfig (%s)\n", fullpath);
+        ret = posix_spawn(pid, truepath, actions, attrp, trueargv, envp);
+        box_free(fullpath);
+        return ret;
     }
     if (x64 || x86 || script || self) {
         int n=1;
