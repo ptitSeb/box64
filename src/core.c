@@ -201,7 +201,7 @@ void computeRDTSC()
     printf_log_prefix(0, LOG_INFO, "\n");
 }
 
-static void displayMiscInfo()
+static void displayMiscInfo(void)
 {
     openFTrace();
 
@@ -221,6 +221,13 @@ static void displayMiscInfo()
         printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
         SET_BOX64ENV(dynarec, 0);
     }
+
+#if defined(LA64)
+    if (box64env.avx && !cpuext.lasx) {
+        box64env.avx = 0;
+        box64env.avx2 = 0;
+    }
+#endif
 #endif
 
     printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd", box64_sysinfo.cpuname, box64_sysinfo.ncpu, box64_sysinfo.ncpu > 1 ? "s" : "", box64_pagesize);
