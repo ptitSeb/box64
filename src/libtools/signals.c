@@ -1558,6 +1558,14 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                             ClearCache(db->block, db->size);
                         }
                         protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
+                        for(int i=0; i<db->sep_size; ++i) {
+                            uint32_t x64_offs = db->sep[i].x64_offs;
+                            uint32_t nat_offs = db->sep[i].nat_offs;
+                            if(addJumpTableIfDefault64(db->x64_addr+x64_offs, (db->always_test)?db->jmpnext:(db->block+nat_offs)))
+                                db->sep[i].active = 1;
+                            else
+                                db->sep[i].active = 0;
+                        }
                     }
                     return;
                 } else {

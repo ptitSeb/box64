@@ -3826,8 +3826,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     else
                         j64 = addr+i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
-                    CALLRET_RET();
-                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    int can_continue = (addr < (dyn->start + dyn->isize));
+                    CALLRET_RET(can_continue);
+                    if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
@@ -4527,8 +4528,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                    CALLRET_RET();
-                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    int can_continue = (addr < (dyn->start + dyn->isize));
+                    CALLRET_RET(can_continue);
+                    if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
                         MARK;
                         j64 = getJumpTableAddress64(addr);
@@ -4560,10 +4562,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             *ok = 0;
                         }
                         GETIP_(addr);
+                        int can_continue = (addr < (dyn->start + dyn->isize));
                         if (BOX64DRENV(dynarec_callret)) {
                             SET_HASCALLRET();
                             // Push actual return address. Note that CS will not be tested, but that should be ok?
-                            if(addr < (dyn->start+dyn->isize)) {
+                            if(can_continue) {
                                 // there is a next...
                                 if(BOX64DRENV(dynarec_callret)>1)
                                     j64 = CALLRET_GETRET();
@@ -4581,8 +4584,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if (rex.w) PUSH2(x5, xRIP); else PUSH2_32(x5, xRIP);
                         STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
-                        if(BOX64DRENV(dynarec_callret)>1) CALLRET_RET();
-                        if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                        CALLRET_RET(can_continue);
+                        if (BOX64DRENV(dynarec_callret) && !can_continue) {
                             // jumps out of current dynablock...
                             MARK;
                             j64 = getJumpTableAddress64(addr);

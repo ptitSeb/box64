@@ -1480,6 +1480,7 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
             GO(instsize);
             GO(arch);
             GO(callrets);
+            GO(sep);
             GO(jmpnext);
             GO(table64);
             GO(relocs);
@@ -1506,6 +1507,14 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
                 // cannot add blocks?
                 printf_log(LOG_INFO, "Warning, cannot add DynaCache Block %d to JmpTable\n", i);
             } else {
+                for(int i=0; i<bl->sep_size; ++i) {
+                    uint32_t x64_offs = bl->sep[i].x64_offs;
+                    uint32_t nat_offs = bl->sep[i].nat_offs;
+                    if(addJumpTableIfDefault64(bl->x64_addr+x64_offs, (bl->dirty || bl->always_test)?bl->jmpnext:(bl->block+nat_offs)))
+                        bl->sep[i].active = 1;
+                    else
+                        bl->sep[i].active = 0;
+                }
                 if(bl->x64_size) {
                     dynarec_log(LOG_DEBUG, "Added DynCache bl %p for %p - %p\n", bl, bl->x64_addr, bl->x64_addr+bl->x64_size);
                     if(bl->x64_size>my_context->max_db_size) {

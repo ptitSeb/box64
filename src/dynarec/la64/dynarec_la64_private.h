@@ -87,6 +87,7 @@ typedef enum flagcache_s {
 } flagcache_t;
 
 typedef struct callret_s callret_t;
+typedef struct sep_s sep_t;
 
 typedef struct instruction_la64_s {
     instruction_x64_t   x64;
@@ -161,7 +162,9 @@ typedef struct dynarec_la64_s {
     instsize_t*          instsize;
     size_t               insts_size; // size of the instruction size array (calculated)
     int                  callret_size;   // size of the array
-    callret_t*           callrets;   // arrey of callret return, with NOP / UDF depending if the block is clean or dirty
+    int                  sep_size;   // size of the array
+    callret_t*           callrets;   // array of callret return, with NOP / UDF depending if the block is clean or dirty
+    sep_t*               sep;        // array of secondary entry point
     uintptr_t            forward;    // address of the last end of code while testing forward
     uintptr_t            forward_to; // address of the next jump to (to check if everything is ok)
     int32_t              forward_size;   // size at the forward point

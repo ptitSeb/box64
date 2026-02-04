@@ -880,7 +880,7 @@ done:
 #define HEADER_SIGN "DynaCache"
 #define SET_VERSION(MAJ, MIN, REV) (((MAJ)<<24)|((MIN)<<16)|(REV))
 #ifdef ARM64
-#define ARCH_VERSION SET_VERSION(0, 0, 11)
+#define ARCH_VERSION SET_VERSION(0, 0, 12)
 #elif defined(RV64)
 #define ARCH_VERSION SET_VERSION(0, 0, 4)
 #elif defined(LA64)
@@ -888,7 +888,7 @@ done:
 #else
 #error meh!
 #endif
-#define DYNAREC_VERSION SET_VERSION(0, 1, 0)
+#define DYNAREC_VERSION SET_VERSION(0, 1, 1)
 
 typedef struct DynaCacheHeader_s {
     char sign[10];  //"DynaCache\0"

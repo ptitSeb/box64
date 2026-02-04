@@ -11,6 +11,12 @@ typedef struct callret_s {
     uint32_t    type:1;
 } callret_t;
 
+typedef struct sep_s {
+    uint32_t    active:1;
+    uint32_t    nat_offs:31;
+    uint32_t    x64_offs;
+} sep_t;
+
 typedef struct dynablock_s {
     void*           block;  // block-sizeof(void*) == self
     void*           actual_block;   // the actual start of the block (so block-sizeof(void*))
@@ -30,10 +36,12 @@ typedef struct dynablock_s {
     uint8_t         is32bits:1;
     int             callret_size;   // size of the array
     int             isize;
-    size_t          arch_size;  // size of of arch dependant infos
+    int             arch_size;  // size of of arch dependant infos
+    int             sep_size;   // SEP are the Secondary Entry Point
     instsize_t*     instsize;
     void*           arch;       // arch dependant per inst info (can be NULL)
     callret_t*      callrets;   // array of callret return, with NOP / UDF depending if the block is clean or dirty
+    sep_t*          sep;        // secondary entry point, offsets are relative to x64_addr & block
     void*           jmpnext;    // a branch jmpnext code when block is marked
     size_t          table64size;// to check table64
     void*           table64;    // to relocate the table64

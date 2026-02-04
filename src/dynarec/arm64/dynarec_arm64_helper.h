@@ -875,7 +875,7 @@
 #endif
 
 #ifndef CALLRET_RET
-#define CALLRET_RET()   do {if(BOX64DRENV(dynarec_callret)>1) {NOP;}} while(0)
+#define CALLRET_RET(A)   do {if(BOX64DRENV(dynarec_callret)>1) {NOP;}} while(0)
 #endif
 #ifndef CALLRET_GETRET
 #define CALLRET_GETRET()    (dyn->callrets?(dyn->callrets[dyn->callret_size].offs-dyn->native_size):0)

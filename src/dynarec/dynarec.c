@@ -53,9 +53,9 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     #endif
     void * jblock;
     dynablock_t* block = NULL;
+    uintptr_t old_addr = addr;
     if(hasAlternate((void*)addr)) {
         printf_log(LOG_DEBUG, "Jmp address has alternate: %p\n", (void*)addr);
-        uintptr_t old_addr = addr;
         addr = (uintptr_t)getAlternate((void*)addr);    // set new address
         R_RIP = addr;   // but also new RIP!
         *x3 = addr; // and the RIP in x27 register
@@ -91,6 +91,17 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     if(!(jblock=block->block)) {
         // null block, but done: go to epilog, no linker here
         return native_epilog;
+    }
+    if(block->sep_size && (uintptr_t)block->x64_addr!=old_addr) {
+        jblock = NULL;
+        for(int i=0; i<block->sep_size && !jblock; ++i) {
+            if(old_addr==(uintptr_t)block->x64_addr + block->sep[i].x64_offs)
+                jblock = block->block + block->sep[i].nat_offs;
+        }
+        if(!jblock) {
+            printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", new_addr, block);
+            return native_epilog;
+        }
     }
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
@@ -225,7 +236,19 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
                     CHECK_FLAGS(emu);
                 }
                 // block is here, let's run it!
-                native_prolog(emu, block->block);
+                void* jblock = block->block;
+                if(block->sep_size && R_RIP!=(uintptr_t)block->x64_addr) {
+                    jblock = NULL;
+                    for(int i=0; i<block->sep_size && !jblock; ++i) {
+                        if(R_RIP==(uintptr_t)block->x64_addr + block->sep[i].x64_offs)
+                            jblock = block->block + block->sep[i].nat_offs;
+                    }
+                }
+                if(!jblock) {
+                    printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", (void*)R_RIP, block);
+                    skip = 1;
+                } else
+                    native_prolog(emu, jblock);
             }
             if(emu->fork) {
                 int forktype = emu->fork;
