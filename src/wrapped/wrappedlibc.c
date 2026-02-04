@@ -598,13 +598,13 @@ pid_t EXPORT my_fork(x64emu_t* emu)
         // error...
     } else if(v>0) {
         // execute atforks parent functions
-        for (int i=0; i<my_context->atfork_sz; --i)
+        for (int i=0; i<my_context->atfork_sz; ++i)
             if(my_context->atforks[i].parent)
                 RunFunctionWithEmu(emu, 0, my_context->atforks[i].parent, 0);
 
     } else /*if(v==0)*/ {
         // execute atforks child functions
-        for (int i=0; i<my_context->atfork_sz; --i)
+        for (int i=0; i<my_context->atfork_sz; ++i)
             if(my_context->atforks[i].child)
                 RunFunctionWithEmu(emu, 0, my_context->atforks[i].child, 0);
     }
@@ -2819,10 +2819,11 @@ EXPORT int32_t my___register_atfork(x64emu_t *emu, void* prepare, void* parent, 
         my_context->atfork_cap += 4;
         my_context->atforks = (atfork_fnc_t*)box_realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
-    my_context->atforks[my_context->atfork_sz].prepare = (uintptr_t)prepare;
-    my_context->atforks[my_context->atfork_sz].parent = (uintptr_t)parent;
-    my_context->atforks[my_context->atfork_sz].child = (uintptr_t)child;
-    my_context->atforks[my_context->atfork_sz].handle = handle;
+    int i = my_context->atfork_sz++;
+    my_context->atforks[i].prepare = (uintptr_t)prepare;
+    my_context->atforks[i].parent = (uintptr_t)parent;
+    my_context->atforks[i].child = (uintptr_t)child;
+    my_context->atforks[i].handle = handle;
     return 0;
 }
 
