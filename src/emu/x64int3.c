@@ -202,6 +202,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
                     perr = 2;
+                } else if (strstr(s, "popen")==s) {
+                    tmp = (char*)(R_RDI);
+                    char* tmp2 = (char*)(R_RSI);
+                    snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (tmp2)?tmp2:"nil");
+                    perr = 5;
                 } else if (!strcmp(s, "read") || !strcmp(s, "my_read")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
                     pu8 = (uint8_t*)R_RSI;
@@ -428,6 +433,8 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 else if(perr==3 && (S_RAX)==-1)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
                 else if(perr==4)
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
+                else if(perr==5 && R_RAX==0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", e, strerror(e));
 
                 if(BOX64ENV(rolling_log))
