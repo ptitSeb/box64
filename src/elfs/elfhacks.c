@@ -312,6 +312,8 @@ int eh_find_sym_hash(eh_obj_t *obj, const char *name, eh_sym_t *sym)
 
 	while ((sym->sym == NULL) &&
 	       (chain[idx] != STN_UNDEF)) {
+		if (chain[idx] >= obj->hash[1] /* nchain */) /* some ELF file contains broken chain! */
+			break;
 		esym = &obj->symtab[chain[idx]];
 
 		if (esym->st_name) {
