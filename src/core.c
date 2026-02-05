@@ -853,14 +853,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             if(!prog_) prog_ = prog; else ++prog_;
         }
     }
-    #ifndef STATICBUILD
-    // pre-check for pressure-vessel-wrap
-    if(!strcmp(prog_, "pressure-vessel-wrap")) {
-        printf_log(LOG_INFO, "pressure-vessel-wrap detected\n");
-        unsetenv("BOX64_ARG0");
-        pressure_vessel(argc, argv, nextarg+1, prog);
-    }
-    #endif
     int ld_libs_args = -1;
     int is_custom_gstreamer = 0;
     // check if this is wine
@@ -957,6 +949,17 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
     // allocate extra space for new environment variables such as BOX64_PATH
     my_context->envv = (char**)box_calloc(my_context->envc+1, sizeof(char*));
+
+    #ifndef STATICBUILD
+    // pre-check for pressure-vessel-wrap
+    if(!strcmp(prog_, "pressure-vessel-wrap")) {
+        printf_log(LOG_INFO, "pressure-vessel-wrap detected, bashpath=%s\n", my_context->bashpath?my_context->bashpath:"(nil)");
+        unsetenv("BOX64_ARG0");
+        if(!my_context->bashpath)
+            my_context->bashpath = ResolveFile("box64-bash", &my_context->box64_path);
+        pressure_vessel(argc, argv, nextarg+1, prog);
+    }
+    #endif
 
     path_collection_t ld_preload = {0};
     if(getenv("BOX64_LD_PRELOAD")) {
