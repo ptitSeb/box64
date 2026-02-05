@@ -5948,6 +5948,18 @@ wrappedlibpanel:
 wrappedlibpci:
 wrappedlibpcre:
 wrappedlibpcre216:
+- vFppp:
+  - pcre2_jit_stack_assign_16
+- iFppp:
+  - pcre2_callout_enumerate_16
+  - pcre2_set_callout_16
+  - pcre2_set_compile_recursion_guard_16
+  - pcre2_set_substitute_callout_16
+  - pcre2_set_substitute_case_callout_16
+- pFppp:
+  - pcre2_general_context_create_16
+- iFpppp:
+  - pcre2_set_recursion_memory_management_16
 wrappedlibpthread:
 - vFp:
   - __pthread_register_cancel

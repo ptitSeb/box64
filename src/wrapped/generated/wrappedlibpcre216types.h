@@ -11,7 +11,19 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(pcre2_jit_stack_assign_16, vFppp_t) \
+	GO(pcre2_callout_enumerate_16, iFppp_t) \
+	GO(pcre2_set_callout_16, iFppp_t) \
+	GO(pcre2_set_compile_recursion_guard_16, iFppp_t) \
+	GO(pcre2_set_substitute_callout_16, iFppp_t) \
+	GO(pcre2_set_substitute_case_callout_16, iFppp_t) \
+	GO(pcre2_general_context_create_16, pFppp_t) \
+	GO(pcre2_set_recursion_memory_management_16, iFpppp_t)
 
 #endif // __wrappedlibpcre216TYPES_H_
