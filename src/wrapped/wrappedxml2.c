@@ -20,6 +20,7 @@
 
 const char* xml2Name = "libxml2.so.2";
 #define ALTNAME "libxml2.so"
+#define ALTNAME2 "libxml2.so.16"
 
 #define LIBNAME xml2
 
