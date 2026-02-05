@@ -645,6 +645,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibpanel.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpci.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpcre.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibpcre216.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibresolv.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"

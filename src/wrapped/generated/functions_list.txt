@@ -2532,6 +2532,7 @@
 #() iFpLuipp
 #() iFpLuupp
 #() iFpLupip
+#() iFpLuppp
 #() iFpLLLLu
 #() iFpLLLLL
 #() iFpLLLLp
@@ -2740,6 +2741,7 @@
 #() pFpupppp
 #() pFplpppp
 #() pFpLuLpp
+#() pFpLuppp
 #() pFpLpLuu
 #() pFpLpLLi
 #() pFpLppii
@@ -3016,6 +3018,7 @@
 #() iFppLiWwL
 #() iFppLippp
 #() iFppLuuii
+#() iFppLLupp
 #() iFppLLLLu
 #() iFppLpLpL
 #() iFppLpppp
@@ -3507,6 +3510,7 @@
 #() iFppuppuuuu
 #() iFppupppupp
 #() iFppLiipiiL
+#() iFppLLupppL
 #() iFppLpiuppp
 #() iFpppiiipip
 #() iFpppippipi
@@ -3723,6 +3727,7 @@
 #() iFppippipppip
 #() iFppuupLiupii
 #() iFppuppLLpupp
+#() iFppLLupppLpp
 #() iFpppiiuuiiuu
 #() iFpppippppppp
 #() iFpppppiiuupp
@@ -5927,6 +5932,7 @@ wrappedlibogg:
 wrappedlibpanel:
 wrappedlibpci:
 wrappedlibpcre:
+wrappedlibpcre216:
 wrappedlibpthread:
 - vFp:
   - __pthread_register_cancel
