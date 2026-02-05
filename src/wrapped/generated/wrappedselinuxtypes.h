@@ -11,9 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFi_t)(int32_t);
 typedef void (*vFip_t)(int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(selinux_get_callback, pFi_t) \
 	GO(selinux_set_callback, vFip_t)
 
 #endif // __wrappedselinuxTYPES_H_
