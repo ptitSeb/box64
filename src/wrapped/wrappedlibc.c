@@ -132,6 +132,27 @@ typedef void* (*pFpip_t)(void*, int, void*);
 
 #include "generated/wrappedlibctypes.h"
 
+EXPORT uintptr_t my_error_print_progname = 0;
+static void (*native_error_print_progname)(void) = NULL;
+
+static void my_wrap_error_print_progname(void)
+{
+    if (my_error_print_progname) {
+        RunFunctionFmt(my_error_print_progname, "v");
+        return;
+    }
+    if (native_error_print_progname)
+        native_error_print_progname();
+}
+
+#define ADDED_INIT()                                                                  \
+    void (**p)(void);                                                                 \
+    p = (void (**)(void))dlsym(lib->w.lib, "error_print_progname");                   \
+    if (p) {                                                                          \
+        native_error_print_progname = *p;                                             \
+        *p = my_wrap_error_print_progname;                                            \
+    }
+
 #include "wrappercallback.h"
 
 static int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
@@ -468,7 +489,7 @@ static void* findprintf_typeFct(void* fct)
     return NULL;
 }
 
-// printf_type
+// parse_type
 #define GO(A)                                                          \
     static uintptr_t my_argp_parser_fct_##A = 0;                       \
     static int my_argp_parser_##A(int a, void* b, void* c)             \
@@ -497,14 +518,51 @@ static void* find_argp_parser_Fct(void* fct)
     return NULL;
 }
 
+// help_filter
+#define GO(A)                                                          \
+    static uintptr_t my_help_filter_fct_##A = 0;                       \
+    static void* my_help_filter_##A(int a, void* b, void* c)             \
+    {                                                                  \
+        return (void*)(uintptr_t)RunFunctionFmt(my_help_filter_fct_##A, "ipp", a, b, c); \
+    }
+SUPER()
+#undef GO
+static void* find_help_filter_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_help_filter_fct_##A == (uintptr_t)fct) return my_help_filter_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                    \
+    if (my_help_filter_fct_##A == 0) {           \
+        my_help_filter_fct_##A = (uintptr_t)fct; \
+        return my_help_filter_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc help_filter callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int my_argp_parse(x64emu_t* emu, struct argp* argp, int argc, char** argv, int flags, int* index, void* input)
 {
 #if defined(HAVE_ARGP)
-    void* fct = (void*)argp->parser;
-    if (fct) argp->parser = find_argp_parser_Fct(fct);
-    return argp_parse(argp, argc, argv, flags, index, input);
+    if (!argp) {
+        return argp_parse(argp, argc, argv, flags, index, input);
+    }
+    struct argp local = *argp;
+    if (local.parser) {
+        local.parser = find_argp_parser_Fct((void*)local.parser);
+    }
+    if (local.help_filter) {
+        local.help_filter = find_help_filter_Fct((void*)local.help_filter);
+    }
+    return argp_parse(&local, argc, argv, flags, index, input);
 #else
     (void)emu; (void)argp; (void)argc; (void)argv; (void)flags; (void)index; (void)input;
     printf_log(LOG_NONE, "Warning: unsupported argp_parse called, expecting failure\n");

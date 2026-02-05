@@ -125,8 +125,8 @@ GO(security_compute_create_raw, iFpppp)
 //GO(security_compute_user_raw, 
 //GO(security_deny_unknown, 
 //GO(security_disable, 
-//GO(security_get_boolean_active, 
-//GO(security_get_boolean_names, 
+GO(security_get_boolean_active, iFp)
+GO(security_get_boolean_names, iFpp)
 //GO(security_get_boolean_pending, 
 //GO(security_get_checkreqprot, 
 GO(security_getenforce, iFv)
@@ -137,7 +137,7 @@ GO(security_getenforce, iFv)
 //GO(security_policyvers, 
 //GO(security_reject_unknown, 
 //GO(security_set_boolean, 
-//GO(security_set_boolean_list, 
+GO(security_set_boolean_list, iFLpi)
 //GO(security_setenforce, 
 //GO(security_validatetrans, 
 //GO(security_validatetrans_raw, 
@@ -153,10 +153,10 @@ GO(selabel_lookup_raw, iFppp)
 GO(selabel_open, pFipL)
 //GO(selabel_partial_match, 
 //GO(selabel_stats, 
-//GO(selinux_binary_policy_path, 
+GO(selinux_binary_policy_path, pFv)
 //GO(selinux_booleans_path, 
 //GO(selinux_booleans_subs_path, 
-//GO(selinux_boolean_sub, 
+GO(selinux_boolean_sub, pFp)
 GO(selinux_check_access, iFppppv)
 //GO(selinux_check_passwd_access, 
 //GO(selinux_check_securetty_context, 
@@ -168,14 +168,14 @@ GO(selinux_check_access, iFppppv)
 //GO(selinux_default_type_path, 
 //GO(selinux_failsafe_context_path, 
 //GO(selinux_file_context_cmp, 
-//GO(selinux_file_context_homedir_path, 
-//GO(selinux_file_context_local_path, 
-//GO(selinux_file_context_path, 
+GO(selinux_file_context_homedir_path, pFv)
+GO(selinux_file_context_local_path, pFv)
+GO(selinux_file_context_path, pFv)
 //GO(selinux_file_context_subs_dist_path, 
 //GO(selinux_file_context_subs_path, 
 //GO(selinux_file_context_verify, 
 //GO(selinuxfs_exists, 
-//GO(selinux_get_callback, 
+GOM(selinux_get_callback, pFi)
 //GO(selinux_getenforcemode, 
 //GO(selinux_getpolicytype, 
 //GO(selinux_homedir_context_path, 
@@ -185,26 +185,26 @@ GO(selinux_check_access, iFppppv)
 //GO(selinux_media_context_path, 
 //GO(selinux_mkload_policy, 
 //DATAB(selinux_mnt, 
-//GO(selinux_netfilter_context_path, 
+GO(selinux_netfilter_context_path, pFv)
 //GO(selinux_openrc_contexts_path, 
 //GO(selinux_openssh_contexts_path, 
-//GO(selinux_path, 
-//GO(selinux_policy_root, 
+GO(selinux_path, pFv)
+GO(selinux_policy_root, pFv)
 //GO(selinux_raw_context_to_color, 
 //GO(selinux_raw_to_trans_context, 
 //GO(selinux_removable_context_path, 
 //GO(selinux_reset_config, 
-//GO(selinux_restorecon, 
-//GO(selinux_restorecon_default_handle, 
+GO(selinux_restorecon, iFpu)
+GO(selinux_restorecon_default_handle, pFv)
 //GO(selinux_restorecon_set_alt_rootpath, 
 //GO(selinux_restorecon_set_exclude_list, 
-//GO(selinux_restorecon_set_sehandle, 
+GO(selinux_restorecon_set_sehandle, vFp)
 //GO(selinux_restorecon_xattr, 
 //GO(selinux_securetty_types_path, 
 //GO(selinux_sepgsql_context_path, 
 GOM(selinux_set_callback, vFEip)
 //GO(selinux_set_mapping, 
-//GO(selinux_set_policy_root, 
+GO(selinux_set_policy_root, iFp)
 //GO(selinux_snapperd_contexts_path, 
 GO(selinux_status_close, vFv)
 //GO(selinux_status_deny_unknown, 
@@ -216,7 +216,7 @@ GO(selinux_status_updated, iFv)
 //GO(selinux_translations_path, 
 GO(selinux_trans_to_raw_context, iFpp)
 //GO(selinux_user_contexts_path, 
-//GO(selinux_usersconf_path, 
+GO(selinux_usersconf_path, pFv)
 //GO(selinux_users_path, 
 //GO(selinux_virtual_domain_context_path, 
 //GO(selinux_virtual_image_context_path, 

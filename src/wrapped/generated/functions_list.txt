@@ -589,6 +589,7 @@
 #() iFupp
 #() iFfff
 #() iFLip
+#() iFLpi
 #() iFLpL
 #() iFLpp
 #() iFpwp
@@ -946,7 +947,6 @@
 #() vFiiip
 #() vFiiCp
 #() vFiill
-#() vFiipV
 #() vFiIII
 #() vFiuip
 #() vFiuuu
@@ -2270,7 +2270,6 @@
 #() vFiiiuil
 #() vFiiilpi
 #() vFiiuilp
-#() vFiipupV
 #() vFiffiff
 #() vFiddidd
 #() vFilipli
@@ -2787,6 +2786,7 @@
 #() iWpuiiii
 #() iWpppppi
 #() iWpppppu
+#() vFEiipupV
 #() vFEpuipuV
 #() vFEpuuipp
 #() vFEpuLppp
@@ -6866,6 +6866,8 @@ wrappedsdl2ttf:
   - TTF_OpenFontIndexRW
 wrappedsecret1:
 wrappedselinux:
+- pFi:
+  - selinux_get_callback
 - vFip:
   - selinux_set_callback
 wrappedsmime3:
