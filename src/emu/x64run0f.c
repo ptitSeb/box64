@@ -86,19 +86,20 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     default:
                         return 0;
                 }
-            } else
+            } else {
                 nextop = F8;
                 switch((nextop>>3)&7) {
                     case 0:                 /* SLDT Ew */
                         GETEW(0);
                         if(MODREG)
                             ED->q[0] = 0;
-                        else                            
+                        else
                             EW->word[0] = 0;
                         break;
                     default:
                         return 0;
                 }
+            }
             break;
         case 0x01:                      /* XGETBV, SGDT, etc... */
             nextop = F8;
