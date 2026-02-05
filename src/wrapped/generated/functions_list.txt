@@ -7135,6 +7135,8 @@ wrappedxml2:
   - xmlHashFree
   - xmlSetGenericErrorFunc
   - xmlSetStructuredErrorFunc
+- iFpp:
+  - valuePush
 - pFpp:
   - xmlHashCopy
 - vFppp:

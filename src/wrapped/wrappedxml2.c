@@ -61,6 +61,7 @@ void* my_wrap_xmlMemStrdup(void* p)
 }
 
 #define ADDED_FUNCTIONS() \
+    GO(xmlXPathValuePush, iFpp_t)
 
 #include "generated/wrappedxml2types.h"
 
@@ -1600,6 +1601,14 @@ EXPORT int my_xmlMemSetup(x64emu_t* emu, void* v1, void* v2, void* v3, void* v4)
 {
     int ret = my->xmlMemSetup(find_xmlFreeFunc_Fct(v1), find_xmlMallocFunc_Fct(v2), find_xmlReallocFunc_Fct(v3), find_xmlStrdupFunc_Fct(v4));
     return ret;
+}
+
+EXPORT int my_valuePush(x64emu_t* emu, void* a, void* b)
+{
+    if(my->valuePush)
+        return my->valuePush(a, b);
+    else
+        return my->xmlXPathValuePush(a, b);
 }
 
 #include "wrappedlib_init.h"

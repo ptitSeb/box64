@@ -88,7 +88,7 @@ GO(nodePush, iFpp)
 //GO(UTF8ToHtml, 
 GO(UTF8Toisolat1, iFpppp)
 GO(valuePop, pFp)
-GO(valuePush, iFpp)
+GOM(valuePush, iFEpp)
 //GO(xlinkGetDefaultDetect, 
 //GO(xlinkGetDefaultHandler, 
 //GO(xlinkIsLink, 
@@ -1573,6 +1573,7 @@ GO(xmlXPathTrailingSorted, pFpp)
 GO(xmlXPathTranslateFunction, vFpi)
 GO(xmlXPathTrueFunction, vFpi)
 GO(xmlXPathValueFlipSign, vFp)
+GO(xmlXPathValuePush, iFpp)
 GO(xmlXPathVariableLookup, pFpp)
 GO(xmlXPathVariableLookupNS, pFppp)
 GO(xmlXPathWrapCString, pFp)
