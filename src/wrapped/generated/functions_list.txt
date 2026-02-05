@@ -1286,6 +1286,7 @@
 #() iFppuw
 #() iFppui
 #() iFppuu
+#() iFppuf
 #() iFppul
 #() iFppuL
 #() iFppup
@@ -2563,6 +2564,7 @@
 #() iFppuIII
 #() iFppuupL
 #() iFppuupp
+#() iFppufff
 #() iFppulup
 #() iFppulll
 #() iFppuLpp
@@ -5089,6 +5091,7 @@ wrappedgtkx112:
   - gtk_toolbar_prepend_element
 - pFpipppppppi:
   - gtk_toolbar_insert_element
+wrappedharfbuzzsubset:
 wrappedicui18n64:
 wrappedicui18n66:
 wrappedicui18n67:

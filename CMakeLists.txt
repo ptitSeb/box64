@@ -604,6 +604,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedgthread2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgtk3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgtkx112.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedharfbuzzsubset.c"
     "${BOX64_ROOT}/src/wrapped/wrappedkrb5.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlcms2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
