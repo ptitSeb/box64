@@ -28,8 +28,8 @@ void AddCleanup(x64emu_t *emu, void *p)
 void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, elfheader_t* h)
 {
     (void)emu;
-    if(!h)
-        return;
+    if (!h)
+        h = my_context->elfs[0];
 
     if(h->clean_sz == h->clean_cap) {
         h->clean_cap += 32;
