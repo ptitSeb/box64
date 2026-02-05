@@ -62,38 +62,9 @@ static void*(*real_dlopen)(const char*, int) = NULL;
 static int (*real_dlclose)(void*) = NULL;
 static void* (*real_dlsym)(void*, const char*) = NULL;
 
-static void get_real_dlsym(void)
-{
-    eh_obj_t libdl;
-    int ret;
-
-    const char* libs[] = {
-        "*libMangoHud_shim.so*",
-#if defined(__GLIBC__)
-        "*libdl.so*",
-#endif
-        "*libc.so*",
-        "*libc.*.so*",
-        "*ld-musl-*.so*",
-    };
-
-    for (size_t i = 0; i < sizeof(libs) / sizeof(*libs); i++) {
-        ret = eh_find_obj(&libdl, libs[i]);
-        if (ret) {
-            continue;
-        }
-        eh_find_sym(&libdl, "dlsym", (void**)&real_dlsym);
-        eh_destroy_obj(&libdl);
-        if (real_dlsym) break;
-    }
-}
-
-
 EXPORT void* dlopen(const char* path, int flags)
 {
-    if(!real_dlopen) {
-        real_dlopen = GetNativeSymbolUnversioned(RTLD_NEXT, "dlopen");
-    }
+    if (!real_dlopen) real_dlopen = GetNativeSymbolUnversioned(RTLD_NEXT, "dlopen");
 
     // will look only for libs loaded with full path (and only on 64bits for now)
     if(path && strchr(path, '/') && (/*(box64_is32bits && FileIsX86ELF(path)) ||*/ (!box64_is32bits && FileIsX64ELF(path)))) {
@@ -120,9 +91,7 @@ EXPORT void* dlopen(const char* path, int flags)
 
 EXPORT int dlclose(void* handle)
 {
-    if (!real_dlclose) {
-        real_dlclose = GetNativeSymbolUnversioned(RTLD_NEXT, "dlclose");
-    }
+    if (!real_dlclose) real_dlclose = GetNativeSymbolUnversioned(RTLD_NEXT, "dlclose");
 
     if((uintptr_t)handle>=HOOKLIB && (uintptr_t)handle<HOOKLIB+hooked_size) {
         uint32_t i = (uintptr_t)handle-HOOKLIB;
@@ -137,7 +106,7 @@ EXPORT int dlclose(void* handle)
 
 EXPORT void* dlsym(void* handle, const char* symbol)
 {
-    if (!real_dlsym) get_real_dlsym();
+    if (!real_dlsym) real_dlsym = GetNativeSymbolUnversioned(RTLD_NEXT, "dlsym");
 
     if((uintptr_t)handle>=HOOKLIB && (uintptr_t)handle<HOOKLIB+hooked_size) {
         uint32_t i = (uintptr_t)handle-HOOKLIB;

@@ -10,6 +10,7 @@
 #include <link.h>
 #include <unistd.h>
 #include <errno.h>
+#include <fnmatch.h>
 #ifndef _DLFCN_H
 #include <dlfcn.h>
 #endif
@@ -38,6 +39,7 @@
 #include "symbols.h"
 #include "cleanup.h"
 #include "globalsymbols.h"
+#include "elfhacks.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -1940,29 +1942,32 @@ int NeededLibs(elfheader_t* h)
 
 typedef struct search_symbol_s{
     const char* name;
-    void*       addr;
-    void*       lib;
+    void* addr;
 } search_symbol_t;
-int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* data)
-{
-    search_symbol_t* s = (search_symbol_t*)data;
 
-    for(int j = 0; j<info->dlpi_phnum; ++j) {
-        if (info->dlpi_phdr[j].p_type == PT_DYNAMIC) {
-            ElfW(Sym)* sym = NULL;
-            ElfW(Word) sym_cnt = 0;
+int dl_iterate_phdr_findsymbol(eh_obj_t* obj, search_symbol_t* s)
+{
+    // special case for dlsym -- it's not a versionned symbol in libMangoHud_shim.so.
+    if (!fnmatch("*libMangoHud_shim.so*", obj->name, 0) && !strcmp(s->name, "dlsym")) {
+        eh_find_sym(obj, "dlsym", &s->addr);
+        eh_destroy_obj(obj);
+        return !!s->addr;
+    }
+
+    for (int j = 0; j < obj->phnum; ++j) {
+        if (obj->phdr[j].p_type == PT_DYNAMIC) {
             ElfW(Verdef)* verdef = NULL;
             ElfW(Word) verdef_cnt = 0;
-            char *strtab = NULL;
-            ElfW(Dyn)* dyn = (ElfW(Dyn)*)(info->dlpi_addr +  info->dlpi_phdr[j].p_vaddr); //Dynamic Section
+            char* strtab = NULL;
+            ElfW(Dyn)* dyn = (ElfW(Dyn)*)(obj->addr + obj->phdr[j].p_vaddr);
             // grab the needed info
-            while(dyn->d_tag != DT_NULL) {
-                switch(dyn->d_tag) {
+            while (dyn->d_tag != DT_NULL) {
+                switch (dyn->d_tag) {
                     case DT_STRTAB:
-                        strtab = (char *)(dyn->d_un.d_ptr);
+                        strtab = (char*)(dyn->d_un.d_ptr);
                         break;
                     case DT_VERDEF:
-                        verdef = (ElfW(Verdef)*)(info->dlpi_addr +  dyn->d_un.d_ptr);
+                        verdef = (ElfW(Verdef)*)(obj->addr + dyn->d_un.d_ptr);
                         break;
                     case DT_VERDEFNUM:
                         verdef_cnt = dyn->d_un.d_val;
@@ -1970,42 +1975,27 @@ int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* dat
                 }
                 ++dyn;
             }
-            if(strtab && verdef && verdef_cnt) {
-                if((uintptr_t)strtab < (uintptr_t)info->dlpi_addr) // this test is need for linux-vdso on PI and some other OS (looks like a bug to me)
-                    strtab=(char*)((uintptr_t)strtab + info->dlpi_addr);
-                // Look fr all defined versions now
-                ElfW(Verdef)* v = verdef;
-                while(v) {
-                    ElfW(Verdaux)* vda = (ElfW(Verdaux)*)(((uintptr_t)v) + v->vd_aux);
-                    if(v->vd_version>0 && !v->vd_flags)
-                        for(int i=0; i<v->vd_cnt; ++i) {
-                            const char* vername = (strtab+vda->vda_name);
-                            if(vername && vername[0] && (s->addr = dlvsym(s->lib, s->name, vername))) {
-                                printf_log(/*LOG_DEBUG*/LOG_INFO, "Found symbol with version %s, value = %p\n", vername, s->addr);
-                                return 1;   // stop searching
-                            }
-                            vda = (ElfW(Verdaux)*)(((uintptr_t)vda) + vda->vda_next);
-                        }
-                    v = v->vd_next?(ElfW(Verdef)*)((uintptr_t)v + v->vd_next):NULL;
+
+            if (strtab && verdef && verdef_cnt) {
+                eh_find_sym(obj, s->name, &s->addr);
+                if (s->addr) {
+                    eh_destroy_obj(obj);
+                    return 1;
                 }
             }
         }
     }
+
+    eh_destroy_obj(obj);
     return 0;
 }
 
 void* GetNativeSymbolUnversioned(void* lib, const char* name)
 {
-    // try to find "name" in loaded elf, whithout checking for the symbol version (like dlsym, but no version check)
     search_symbol_t s;
     s.name = name;
     s.addr = NULL;
-    if(lib)
-        s.lib = lib;
-    else
-        s.lib = my_context->box64lib;
-    printf_log(LOG_INFO, "Look for %s in loaded elfs\n", name);
-    dl_iterate_phdr(dl_iterate_phdr_findsymbol, &s);
+    eh_iterate_obj((eh_iterate_obj_callback_func)dl_iterate_phdr_findsymbol, &s);
     return s.addr;
 }
 
