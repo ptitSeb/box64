@@ -66,6 +66,16 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 {
     // skip all the parameter, but parse some of them
     const char* runtime = getenv("PRESSURE_VESSEL_RUNTIME");
+    if (runtime) {
+        char* pos;
+        char* runtime_copy = strdup(runtime);
+        if ((pos = strchr(runtime_copy, '_')) != NULL) {
+            // take only the part before the underscore
+            *pos = '\0';
+            setenv("VERSION_CODENAME", runtime_copy, 1);
+        }
+        free(runtime_copy);
+    }
     // look for the comand first
     const char* cmd = argv[nextarg];
     int i = 0;
