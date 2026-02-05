@@ -415,17 +415,35 @@ static void addLibPaths(box64context_t* context)
     }
 
     // Add libssl and libcrypto (and a few others) to prefer the emulated version because multiple versions exist
-    AddPath("libssl.so.1", &context->box64_emulated_libs, 0);
-    AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
-    AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
-    AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
-    AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
-    AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
-    AddPath("libcurl.so.4", &context->box64_emulated_libs, 0);
+    #define GO(A)   AddPath(A, &context->box64_emulated_libs, 0);
+    GO("libssl.so.1");
+    GO("libssl.so.1.0.0");
+    GO("libcrypto.so.1");
+    GO("libcrypto.so.1.0.0");
+    GO("libunwind.so.8");
+    GO("libpng12.so.0");
+    GO("libcurl.so.4");
     if(getenv("BOX64_PRESSURE_VESSEL_FILES"))   // use emulated gnutls in this case, it's safer
-        AddPath("libgnutls.so.30", &context->box64_emulated_libs, 0);
-    AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
-    AddPath("libtbbmalloc_proxy.so.2", &context->box64_emulated_libs, 0);
+        GO("libgnutls.so.30");
+    GO("libtbbmalloc.so.2");
+    GO("libtbbmalloc_proxy.so.2");
+    GO("libicuuc.so.64");
+    GO("libicui18n.so.64");
+    GO("libicuuc.so.66");
+    GO("libicui18n.so.66");
+    GO("libicuuc.so.67");
+    GO("libicui18n.so.67");
+    GO("libicuuc.so.72");
+    GO("libicui18n.so.72");
+    GO("libicuuc.so.73");
+    GO("libicui18n.so.73");
+    GO("libicuuc.so.74");
+    GO("libicui18n.so.74");
+    GO("libicuuc.so.75");
+    GO("libicui18n.so.75");
+    GO("libicuuc.so.76");
+    GO("libicui18n.so.76");
+    #undef GO
 
     if(BOX64ENV(nosigsegv)) {
         context->no_sigsegv = 1;
