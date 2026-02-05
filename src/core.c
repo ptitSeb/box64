@@ -422,6 +422,7 @@ static void addLibPaths(box64context_t* context)
     GO("libcrypto.so.1.0.0");
     GO("libunwind.so.8");
     GO("libpng12.so.0");
+    GO("libpng16.so.16");
     GO("libcurl.so.4");
     if(getenv("BOX64_PRESSURE_VESSEL_FILES"))   // use emulated gnutls in this case, it's safer
         GO("libgnutls.so.30");
