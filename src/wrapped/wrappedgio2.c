@@ -349,12 +349,6 @@ static void* findGBusNameLostCallbackFct(void* fct)
 
 // GDBusInterfaceVTable....
 // First the structure GDBusInterfaceVTable statics, with paired x64 source pointer
-typedef struct my_GDBusInterfaceVTable_s {
-  void      (*method_call)    (void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* invocation, void* user_data);
-  void*     (*get_property)   (void* connection, void* sender, void* object_path, void* interface_name, void* error, void* user_data);
-  int       (*set_property)   (void* connection, void* sender, void* object_path, void* interface_name, void* value, void* error, void* user_data);
-} my_GDBusInterfaceVTable_t;
-
 #define GO(A)   \
 static my_GDBusInterfaceVTable_t     my_GDBusInterfaceVTable_##A = {0};   \
 static my_GDBusInterfaceVTable_t   *ref_GDBusInterfaceVTable_##A = NULL;
@@ -378,7 +372,7 @@ static int my_funcs_set_property_##A(void* connection, void* sender, void* objec
 SUPER()
 #undef GO
 // and now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
-static my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterfaceVTable_t* fcts)
+my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterfaceVTable_t* fcts)
 {
     if(!fcts) return fcts;
     #define GO(A) if(ref_GDBusInterfaceVTable_##A == fcts) return &my_GDBusInterfaceVTable_##A;
