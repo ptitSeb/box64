@@ -3145,7 +3145,6 @@
 #() pFpppccci
 #() pFpppiiii
 #() pFpppCCCi
-#() pFpppuipp
 #() pFpppuuui
 #() pFpppupuu
 #() pFpppupup
@@ -3670,6 +3669,7 @@
 #() pFEpiipWWupp
 #() pFEpippppppp
 #() pFEpuppupppp
+#() pFEpppuipppp
 #() pFpuupuuuuuu
 #() pFpupLLLLLpp
 #() pFplllllllll
@@ -4485,6 +4485,8 @@ wrappedgio2:
   - g_dbus_proxy_call_with_unix_fd_list
 - pFiuppppppp:
   - g_dbus_object_manager_client_new_for_bus_sync
+- pFpppuipppp:
+  - g_dbus_proxy_call_sync
 - uFppppppuppp:
   - g_dbus_connection_signal_subscribe
 - vFpppppppuippp:

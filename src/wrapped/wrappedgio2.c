@@ -684,6 +684,11 @@ EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invoca
     my->g_dbus_method_invocation_return_error(invocation, domain, code, fmt, VARARGS);
 }
 
+EXPORT void* my_g_dbus_proxy_call_sync(x64emu_t* emu, void* proxy, void* name, void* params, uint32_t flags, int timeout, void* list, void* cancellable, void* cb, void* data)
+{
+    return my->g_dbus_proxy_call_sync(proxy, name, params, flags, timeout, list, cancellable, findGAsyncReadyCallbackFct(cb), data);
+}
+
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;
 
