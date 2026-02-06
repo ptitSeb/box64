@@ -675,7 +675,7 @@ EXPORT void my_g_dbus_method_invocation_return_error_valist(x64emu_t* emu, void*
 EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
-    my->g_dbus_method_invocation_return_error(invocation, domain, code, fmt, VARARGS);
+    my->g_dbus_method_invocation_return_error_valist(invocation, domain, code, fmt, VARARGS);
 }
 
 EXPORT void* my_g_dbus_proxy_call_sync(x64emu_t* emu, void* proxy, void* name, void* params, uint32_t flags, int timeout, void* list, void* cancellable, void* cb, void* data)
