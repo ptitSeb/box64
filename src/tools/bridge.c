@@ -285,7 +285,7 @@ const char* getBridgeName(void* addr)
             return "ExitEmulation";
         else {
             if(one->func)
-                return GetNativeName(one->name_or_func);
+                return GetNativeName(one->name_or_func, 0);
             else
                 return one->name_or_func;
         }

@@ -72,7 +72,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
             if(a==0) {
                 printf_log_prefix(0, LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
             } else {
-                printf_log_prefix(0, LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11)));
+                printf_log_prefix(0, LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+11), 1));
             }
         } else {
             printf_log_prefix(0, LOG_NONE, "%s", DecodeX64Trace(is32bits ? my_context->dec32 : my_context->dec, ip, 1));

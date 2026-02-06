@@ -58,7 +58,7 @@ void* EmuFork(void* emu, int forktype);
 void PersonalityAddrLimit32Bit(void);
 
 int IsAddrElfOrFileMapped(uintptr_t addr);
-const char* GetNativeName(void* p);
+const char* GetNativeName(void* p, int lib);
 const char* GetBridgeName(void* p);
 // ----------------------------------------------------------------
 

@@ -64,7 +64,7 @@ const char* GetBridgeName(void* p)
     return NULL;
 }
 
-const char* GetNativeName(void* p)
+const char* GetNativeName(void* p, int lib)
 {
     return NULL;
 }
