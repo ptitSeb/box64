@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <fenv.h>
 
 #include "debug.h"
 #include "x64emu_private.h"
@@ -79,6 +80,15 @@ void fpu_fbld(x64emu_t* emu, uint8_t* s) {
 #define FPU_t mmx87_regs_t
 #define BIAS80 16383
 #define BIAS64 1023
+// MinGW/wowbox64 builds may lack feraiseexcept; make it a no-op there.
+static inline void box64_feraise(int flags)
+{
+#if defined(_WIN32) || defined(__MINGW32__)
+    (void)flags;
+#else
+    feraiseexcept(flags);
+#endif
+}
 // long double (80bits) -> double (64bits)
 void LD2D(void* ld, void* d)
 {
@@ -126,17 +136,28 @@ void LD2D(void* ld, void* d)
         // denormal, but that's to small value for double 
         uint64_t r = (val.b&0x8000)?0x8000000000000000LL:0LL;
         *(uint64_t*)d = r;
+        if(val.f.q)
+            box64_feraise(FE_UNDERFLOW | FE_INEXACT);
         return;
     }
 
     if(exp64<=0 && val.f.q) {
         // try to see if it can be a denormal
-        int one = -exp64-1022;
+        int shift_amount = -exp64-1022;
         uint64_t r = 0;
         if(val.b&0x8000)
             r |= 0x8000000000000000L;
-        r |= val.f.q>>one;
+        if (shift_amount >= 64) {
+            *(uint64_t*)d = r; 
+            box64_feraise(FE_UNDERFLOW | FE_INEXACT);
+            return;
+        }
+        // track discarded bits to decide inexact/underflow
+        uint64_t lost = val.f.q & ((shift_amount == 64) ? ~0ULL : ((1ULL << shift_amount) - 1ULL));
+        r |= val.f.q >> shift_amount;
         *(uint64_t*)d = r;
+        if(lost)
+            box64_feraise(FE_UNDERFLOW | FE_INEXACT);
         return;
 
     }
@@ -147,6 +168,7 @@ void LD2D(void* ld, void* d)
         if(val.b&0x8000)
             result.ud[1] |= 0x80000000;
         *(uint64_t*)d = result.q;
+        box64_feraise(FE_OVERFLOW | FE_INEXACT);
         return;
     }
 
