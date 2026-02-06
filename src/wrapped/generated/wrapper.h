@@ -1783,8 +1783,6 @@ void vFpuiil(x64emu_t *emu, uintptr_t fnc);
 void vFpuiip(x64emu_t *emu, uintptr_t fnc);
 void vFpuill(x64emu_t *emu, uintptr_t fnc);
 void vFpuipp(x64emu_t *emu, uintptr_t fnc);
-void vFpuipV(x64emu_t *emu, uintptr_t fnc);
-void vFpuipA(x64emu_t *emu, uintptr_t fnc);
 void vFpuuuu(x64emu_t *emu, uintptr_t fnc);
 void vFpuuup(x64emu_t *emu, uintptr_t fnc);
 void vFpuupp(x64emu_t *emu, uintptr_t fnc);

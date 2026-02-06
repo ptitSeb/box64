@@ -662,19 +662,21 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
     my->g_input_stream_read_async(stream, buffer, count, io_prio, cancel, findGAsyncReadyCallbackFct(f), data);
 }
 
-EXPORT void my_g_dbus_method_invocation_return_error_valist(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, x64_va_list_t V)
+EXPORT void my_g_dbus_method_invocation_return_error_valist(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, x64_va_list_t b)
 {
     #ifdef CONVERT_VALIST
-    CONVERT_VALIST(V);
+    CONVERT_VALIST(b);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
     #endif
     my->g_dbus_method_invocation_return_error_valist(invocation, domain, code, fmt, VARARGS);
 }
 
 EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
-    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
+    PREPARE_VALIST;
     my->g_dbus_method_invocation_return_error_valist(invocation, domain, code, fmt, VARARGS);
 }
 

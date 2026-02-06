@@ -313,6 +313,8 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     concatString(buff, 256, (void*)R_RSI, ", ");
                     concatString(buff, 256, (void*)R_RDX, ", ");
                     concatString(buff, 256, (void*)R_RCX,")");
+                } else if (!strcmp(s, "g_dbus_method_invocation_return_error")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, %u, %d, %s, ...)", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_ESI, S_EDX, (char*)R_RCX);
                 } else if (!strcmp(s, "xcb_wait_for_event") || !strcmp(s, "xcb_poll_for_queued_event") || !strcmp(s, "xcb_poll_for_event")) {
                     post = 9;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_RSP), s, (void*)R_RDI);

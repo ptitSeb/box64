@@ -1746,8 +1746,6 @@
 #() vFpuiip
 #() vFpuill
 #() vFpuipp
-#() vFpuipV
-#() vFpuipA
 #() vFpuuuu
 #() vFpuuup
 #() vFpuupp
