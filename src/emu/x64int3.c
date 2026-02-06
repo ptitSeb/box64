@@ -359,7 +359,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, \"%s\" , %p)", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)R_RDX);
                     perr = 1;
-                } else if (!strcmp(s, "__lxstat")) {
+                } else if (strstr(s, "__lxstat")==s) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, \"%s\" , %p)", tid, *(void**)(R_RSP), s, R_EDI, (tmp)?tmp:"(nil)", (void*)R_RDX);
                     perr = 1;
