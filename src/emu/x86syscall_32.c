@@ -438,7 +438,8 @@ void EXPORT x86Syscall(x64emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;*/
         case 141: { // getdents
-            native_linux_dirent_t* dirent_buffer = box_malloc(sizeof(native_linux_dirent_t) * (unsigned int)R_EDX);
+            native_linux_dirent_t dirent_buffer[R_EDX];
+            memset(dirent_buffer, 0, sizeof(dirent_buffer));
             S_EAX = syscall(__NR_getdents64, (unsigned)R_EBX, dirent_buffer, (unsigned int)R_EDX);
             if (S_EAX == -1) {
                 if (errno > 0) S_EAX = -errno;
@@ -461,7 +462,6 @@ void EXPORT x86Syscall(x64emu_t *emu)
                 }
                 S_EAX = total;
             }
-            box_free(dirent_buffer);
             break;
         }
         case 186:   // sigaltstack
