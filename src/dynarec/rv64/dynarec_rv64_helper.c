@@ -594,6 +594,17 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
     MAYUSE(fnc);
     if (savereg == 0)
         savereg = x87pc;
+    // If any arg lives in xRDI (A0), preserve it before overwriting A0 with xEmu.
+    int a1 = arg1, a2 = arg2, a3 = arg3, a4 = arg4, a5 = arg5, a6 = arg6;
+    if (a1 == xRDI || a2 == xRDI || a3 == xRDI || a4 == xRDI || a5 == xRDI || a6 == xRDI) {
+        MV(x3, xRDI);
+        if (a1 == xRDI) a1 = x3;
+        if (a2 == xRDI) a2 = x3;
+        if (a3 == xRDI) a3 = x3;
+        if (a4 == xRDI) a4 = x3;
+        if (a5 == xRDI) a5 = x3;
+        if (a6 == xRDI) a6 = x3;
+    }
     if (saveflags) {
         FLAGS_ADJUST_TO11(xFlags, xFlags, reg);
         SD(xFlags, xEmu, offsetof(x64emu_t, eflags));
@@ -613,12 +624,12 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
     }
     TABLE64C(reg, fnc);
     MV(A0, xEmu);
-    if (arg1) MV(A1, arg1);
-    if (arg2) MV(A2, arg2);
-    if (arg3) MV(A3, arg3);
-    if (arg4) MV(A4, arg4);
-    if (arg5) MV(A5, arg5);
-    if (arg6) MV(A6, arg6);
+    if (a1) MV(A1, a1);
+    if (a2) MV(A2, a2);
+    if (a3) MV(A3, a3);
+    if (a4) MV(A4, a4);
+    if (a5) MV(A5, a5);
+    if (a6) MV(A6, a6);
     JALR(xRA, reg);
     if (ret >= 0) {
         MV(ret, A0);
