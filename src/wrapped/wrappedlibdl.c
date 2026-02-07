@@ -497,7 +497,6 @@ int my_dlclose(x64emu_t* emu, void *handle)
     }
     --dl->dllibs[nlib].count;
     elfheader_t* h = GetElf(dl->dllibs[nlib].lib);
-    RunElfFini(h, emu);
     if((h && !h->gnuunique) || !h || actualy_closing)
         DecRefCount(&dl->dllibs[nlib].lib, emu);
     refreshTLSData(emu);
