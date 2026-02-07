@@ -163,7 +163,7 @@ GO(pthread_spin_lock, iEp)
 GO(pthread_spin_trylock, iEp)
 GO(pthread_spin_unlock, iEp)
 GO(pthread_testcancel, vEv)
-GO(pthread_timedjoin_np, iEhpp) // will leak handle
+GO(pthread_timedjoin_np, iEhprLL_) // will leak handle
 GO(pthread_tryjoin_np, iEhp)    // will leak handle
 GOM(__pthread_unregister_cancel, vEEp)
 // __pthread_unregister_cancel_restore

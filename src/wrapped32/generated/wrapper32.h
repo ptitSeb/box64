@@ -883,6 +883,7 @@ void iEpprLL__32(x64emu_t *emu, uintptr_t fnc);
 void iFppbpu__32(x64emu_t *emu, uintptr_t fnc);
 void iFpbpu_u_32(x64emu_t *emu, uintptr_t fnc);
 void iFpbpu_p_32(x64emu_t *emu, uintptr_t fnc);
+void iEhprLL__32(x64emu_t *emu, uintptr_t fnc);
 void iFXLbpp__32(x64emu_t *emu, uintptr_t fnc);
 void iFXbLC_i_32(x64emu_t *emu, uintptr_t fnc);
 void uFpubpu__32(x64emu_t *emu, uintptr_t fnc);
