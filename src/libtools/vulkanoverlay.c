@@ -841,29 +841,38 @@ void* LoadVulkanOverlay(const char* path, int flags)
             }
         }
         globfree(&pglob);
-        if(json) {
+        int whitelist = 0;
+        if(!json) {
+            char* p = strrchr(path, '/');
+            if(!p) p = path; else ++p;
+            if(!strcmp(p, "libvk_swiftshader.so"))
+                whitelist = 1;
+        }
+        if(json || whitelist) {
             printf_log(LOG_INFO, "Found a keeper: %s\n", path);
             my_vulkanoverlay_t* v = getNewVulkanOverlay();
             if(!v) {
                 printf_log(LOG_INFO, "Warning, no more slot for a new Vulkan Overlay (%s)\n", path);
             } else {
-                json_value_t* layer = json_find(json->payload, "layer");
-                json_value_t* functions = json_find(layer->payload, "functions");
-                if(functions && functions->type==json_type_object) {
-                    json_object_t* funcs = functions->payload;
-                    // there is an array on transformed functions
-                    v->functions = calloc(funcs->length, sizeof(v->functions[0]));
-                    json_object_element_t* e = funcs->start;
-                    uint32_t idx = 0;
-                    while(e) {
-                        if(e->value->type==json_type_string) {
-                            v->functions[idx].name = box_strdup(e->name->string);
-                            v->functions[idx].f = box_strdup(((json_string_t*)e->value->payload)->string);
-                            ++idx;
+                if(json) {
+                    json_value_t* layer = json_find(json->payload, "layer");
+                    json_value_t* functions = json_find(layer->payload, "functions");
+                    if(functions && functions->type==json_type_object) {
+                        json_object_t* funcs = functions->payload;
+                        // there is an array on transformed functions
+                        v->functions = calloc(funcs->length, sizeof(v->functions[0]));
+                        json_object_element_t* e = funcs->start;
+                        uint32_t idx = 0;
+                        while(e) {
+                            if(e->value->type==json_type_string) {
+                                v->functions[idx].name = box_strdup(e->name->string);
+                                v->functions[idx].f = box_strdup(((json_string_t*)e->value->payload)->string);
+                                ++idx;
+                            }
+                            e = e->next;
                         }
-                        e = e->next;
+                        v->n_functions = idx;
                     }
-                    v->n_functions = idx;
                 }
                 printf_log(LOG_INFO, "\twith %d functions name overrides\n", v->n_functions);
             }
