@@ -1168,7 +1168,7 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         #ifndef NOALIGN
         case 257:
-            syscall(__NR_openat, S_ESI, (void*)R_RDX, of_convert(S_ECX), R_R8d);
+            return syscall(__NR_openat, S_ESI, (void*)R_RDX, of_convert(S_ECX), R_R8d);
         #endif
         case 262:
             return my_fstatat(emu, S_RSI, (char*)R_RDX, (void*)R_RCX, S_R8d);
