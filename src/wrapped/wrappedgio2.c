@@ -26,6 +26,17 @@ const char* gio2Name = "libgio-2.0.so.0";
 #define LIBNAME gio2
 
 typedef size_t(*LFv_t)(void);
+typedef void(*vFppp_t)(void*, void*, void*);
+
+typedef struct my_GActionEntry_s
+{
+  void*     name;
+  vFppp_t   activate;
+  void*     parameter_type;
+  void*     state;
+  vFppp_t   change_state;
+  size_t    padding[3];
+} my_GActionEntry_t;
 
 #define ADDED_FUNCTIONS() \
  GO(g_application_get_type, LFv_t)                  \
@@ -344,6 +355,28 @@ static void* findGBusNameLostCallbackFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GBusNameLostCallback callback\n");
+    return NULL;
+}
+// vFppp
+#define GO(A)   \
+static uintptr_t my_vFppp_fct_##A = 0;                  \
+static void my_vFppp_##A(void* a, void* b, void* c)     \
+{                                                       \
+    RunFunctionFmt(my_vFppp_fct_##A, "ppp", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* findvFpppFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_vFppp_fct_##A == (uintptr_t)fct) return my_vFppp_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_vFppp_fct_##A == 0) {my_vFppp_fct_##A = (uintptr_t)fct; return my_vFppp_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gio2 vFppp callback\n");
     return NULL;
 }
 
@@ -680,9 +713,15 @@ EXPORT void my_g_dbus_method_invocation_return_error(x64emu_t* emu, void* invoca
     my->g_dbus_method_invocation_return_error_valist(invocation, domain, code, fmt, VARARGS);
 }
 
-EXPORT void* my_g_dbus_proxy_call_sync(x64emu_t* emu, void* proxy, void* name, void* params, uint32_t flags, int timeout, void* list, void* cancellable, void* cb, void* data)
+EXPORT void my_g_action_map_add_action_entries(x64emu_t* emu, void* map, my_GActionEntry_t* entries, int n, void* data)
 {
-    return my->g_dbus_proxy_call_sync(proxy, name, params, flags, timeout, list, cancellable, findGAsyncReadyCallbackFct(cb), data);
+    my_GActionEntry_t entries_[n];
+    memcpy(entries_, entries, sizeof(my_GActionEntry_t)*n);
+    for(int i=0; i<n; ++i) {
+        entries_[i].activate = findvFpppFct(entries[i].activate);
+        entries_[i].change_state = findvFpppFct(entries[i].change_state);
+    }
+    my->g_action_map_add_action_entries(map, entries_, n, data);
 }
 
 #define PRE_INIT \

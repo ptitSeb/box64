@@ -42,7 +42,6 @@ typedef void (*vFiuppppppp_t)(int32_t, uint32_t, void*, void*, void*, void*, voi
 typedef void (*vFpuppppppp_t)(void*, uint32_t, void*, void*, void*, void*, void*, void*, void*);
 typedef void (*vFpppuipppp_t)(void*, void*, void*, uint32_t, int32_t, void*, void*, void*, void*);
 typedef void* (*pFiuppppppp_t)(int32_t, uint32_t, void*, void*, void*, void*, void*, void*, void*);
-typedef void* (*pFpppuipppp_t)(void*, void*, void*, uint32_t, int32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFppppppuppp_t)(void*, void*, void*, void*, void*, void*, uint32_t, void*, void*, void*);
 typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*, uint32_t, int32_t, void*, void*, void*);
 
@@ -53,6 +52,7 @@ typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_task_return_pointer, vFppp_t) \
 	GO(g_task_set_task_data, vFppp_t) \
 	GO(g_bus_get, vFippp_t) \
+	GO(g_action_map_add_action_entries, vFppip_t) \
 	GO(g_simple_async_result_run_in_thread, vFppip_t) \
 	GO(g_dbus_connection_close, vFpppp_t) \
 	GO(g_dbus_connection_flush, vFpppp_t) \
@@ -91,7 +91,6 @@ typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_dbus_proxy_new, vFpuppppppp_t) \
 	GO(g_dbus_proxy_call_with_unix_fd_list, vFpppuipppp_t) \
 	GO(g_dbus_object_manager_client_new_for_bus_sync, pFiuppppppp_t) \
-	GO(g_dbus_proxy_call_sync, pFpppuipppp_t) \
 	GO(g_dbus_connection_signal_subscribe, uFppppppuppp_t) \
 	GO(g_dbus_connection_call, vFpppppppuippp_t)
 
