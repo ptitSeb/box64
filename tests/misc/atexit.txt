@@ -1,0 +1,4 @@
+JNI_OnLoad: registering atexit handler vm=0x3a5000 reserved=0x3c6000
+In at_exit_handler
+JNI_OnLoad: registering atexit handler vm=0x3a5000 reserved=0x3c6000
+In at_exit_handler
