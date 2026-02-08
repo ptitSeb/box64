@@ -896,14 +896,14 @@ int unlockMutex()
     GO(mutex_prot, 1)
 
     GO(my_context->mutex_trace, 7)
-    #ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
-    #else
-    GO(my_context->mutex_lock, 8)
-    #endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
+    #ifdef DYNAREC
+    #else
+    GO(my_context->mutex_lock, 12)
+    #endif
     #undef GO
 
     return ret;
@@ -931,14 +931,14 @@ int checkMutex(uint32_t mask)
     GO(mutex_prot, 1)
 
     GO(my_context->mutex_trace, 7)
-    #ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
-    #else
-    GO(my_context->mutex_lock, 8)
-    #endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
+    #ifdef DYNAREC
+    #else
+    GO(my_context->mutex_lock, 12)
+    #endif
     #undef GO
 
     return ret;

@@ -83,14 +83,14 @@ void relockMutex(int locks)
             mutex_trylock(&A);          \
 
     GO(my_context->mutex_trace, 7)
-    #ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
-    #else
-    GO(my_context->mutex_lock, 8)
-    #endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
+    #ifdef DYNAREC
+    #else
+    GO(my_context->mutex_lock, 12)
+    #endif
     #undef GO
 }
 
@@ -105,6 +105,7 @@ void init_mutexes(box64context_t* context)
     pthread_mutex_init(&context->mutex_tls, &attr);
     pthread_mutex_init(&context->mutex_thread, &attr);
     pthread_mutex_init(&context->mutex_bridge, &attr);
+    pthread_mutex_init(&context->mutex_dyndump, &attr);
 
     pthread_mutexattr_destroy(&attr);
 #else
@@ -355,6 +356,7 @@ void FreeBox64Context(box64context_t** context)
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
+    pthread_mutex_destroy(&ctx->mutex_dyndump);
 #endif
 
     freeCycleLog(ctx);

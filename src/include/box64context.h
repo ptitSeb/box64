@@ -162,6 +162,7 @@ typedef struct box64context_s {
     pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
     pthread_mutex_t     mutex_bridge;
+    pthread_mutex_t     mutex_dyndump;
     #else
     #ifdef USE_CUSTOM_MUTEX
     uint32_t            mutex_dyndump;
