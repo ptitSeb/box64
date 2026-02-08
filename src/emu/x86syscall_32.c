@@ -282,7 +282,8 @@ pid_t my_vfork(x64emu_t* emu);
 
 typedef struct clone_s {
     x64emu_t* emu;
-    void* stack2free;
+    uint32_t  size;
+    uint32_t  stack_from_context;
 } clone_t;
 
 static int clone32_fn(void* arg)
@@ -296,13 +297,10 @@ static int clone32_fn(void* arg)
     DynaRun(emu);
     int ret = S_EAX;
     printf_log(LOG_DEBUG, "%04d|clone32_fn ending with ret=%d (emu=%p)\n", GetTID(), ret, arg);
-    FreeX64Emu(&emu);
-    void* stack2free = args->stack2free;
-    box_free(args);
-    if(my_context->stack_clone_used && !stack2free)
+    if(my_context->stack_clone_used && !args->stack_from_context)
         my_context->stack_clone_used = 0;
-    if(stack2free)
-        box_free(stack2free);   // this free the stack, so it will crash very soon!
+    if(!args->stack_from_context)
+        munmap(args, args->size);   // this would free the stack, so is it ok to let the system free it instead?
     _exit(ret);
 }
 
@@ -404,23 +402,29 @@ void EXPORT x86Syscall(x64emu_t *emu)
                 if(R_ECX)
                 {
                     void* stack_base = from_ptrv(R_ECX);
-                    int stack_size = 0;
-                    uintptr_t sp = R_ECX;
-                    x64emu_t * newemu = NewX64Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, 0);
-                    SetupX64Emu(newemu, emu);
-                    CloneEmu(newemu, emu);
-                    newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
+                    uint32_t size = sizeof(clone_t) + 16 + sizeof(x64emu_t) +16;
                     void* mystack = NULL;
-                    clone_t* args = box_calloc(1, sizeof(clone_t));
-                    args->emu = newemu;
+                    uint32_t stack_from_context = 1;
                     if(my_context->stack_clone_used) {
-                        args->stack2free = mystack = box_malloc(1024*1024);  // stack for own process...
+                        size += 1024*1024;  // stack for own process...
+                        stack_from_context = 0;
                     } else {
                         if(!my_context->stack_clone)
                             my_context->stack_clone = box_malloc(1024*1024);
                         mystack = my_context->stack_clone;
                         my_context->stack_clone_used = 1;
                     }
+                    size = (size+(box64_pagesize-1))&~(box64_pagesize-1);
+                    uintptr_t sp = R_ECX;
+                    clone_t* args = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+                    args->emu = (x64emu_t*)(((uintptr_t)(args+1)+15)&~15ULL);
+                    args->stack_from_context = stack_from_context;
+                    if(!stack_from_context)
+                        mystack = (void*)((((uintptr_t)(args->emu+1))+15)&~15ULL);
+                    x64emu_t * newemu = NewX64EmuFromStack(args->emu, emu->context, R_EIP, (uintptr_t)stack_base, 0);
+                    SetupX64Emu(newemu, emu);
+                    CloneEmu(newemu, emu);
+                    newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                     int64_t ret = clone(clone32_fn, (void*)((uintptr_t)mystack+1024*1024), R_EBX, args, R_EDX, R_EDI, R_ESI);
                     S_RAX = ret;
                 }
