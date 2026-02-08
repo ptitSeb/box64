@@ -245,33 +245,29 @@ void ParseVolatileMetadata(char* filename, void* addr)
     long size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char* buffer = (char*)malloc(size);
-    if (!buffer) {
-        fclose(file);
-        return;
-    }
+    size_t msize = (size+(box64_pagesize-1))&~(box64_pagesize-1);
 
-    if ((long)fread(buffer, 1, size, file) != size) {
-        free(buffer);
-        fclose(file);
+    char* buffer = mmap(NULL, msize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+    fclose(file);
+
+    if (!buffer) {
         return;
     }
-    fclose(file);
 
     PIMAGE_LOAD_CONFIG_DIRECTORY64 loadConfig = (PIMAGE_LOAD_CONFIG_DIRECTORY64)(buffer + loadConfigOffset);
     if (loadConfig->Size < offsetof(IMAGE_LOAD_CONFIG_DIRECTORY64, VolatileMetadataPointer) + sizeof(ULONGLONG)) {
-        free(buffer);
+        munmap(buffer, msize);
         return;
     }
     DWORD volatileMetadataPointer = (DWORD)(loadConfig->VolatileMetadataPointer - ntHeaders64->OptionalHeader.ImageBase);
     if (volatileMetadataPointer == 0) {
-        free(buffer);
+        munmap(buffer, msize);
         return;
     }
 
     DWORD volatileMetadataOffset = RVAToFileOffset(sectionHeaders, numberOfSections, volatileMetadataPointer, (BYTE*)buffer, ntHeaders64->OptionalHeader.SizeOfImage);
     if (volatileMetadataOffset == 0) {
-        free(buffer);
+        munmap(buffer, msize);
         return;
     }
 
@@ -281,7 +277,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
 
         DWORD volatileAccessTableOffset = RVAToFileOffset(sectionHeaders, numberOfSections, volatileMetadata->VolatileAccessTable, (BYTE*)buffer, ntHeaders64->OptionalHeader.SizeOfImage);
         if (volatileAccessTableOffset == 0) {
-            free(buffer);
+            munmap(buffer, msize);
             return;
         }
 
@@ -299,7 +295,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
     if (volatileMetadata->VolatileInfoRangeTable && volatileMetadata->VolatileInfoRangeTableSize) {
         DWORD volatileInfoRangeTableOffset = RVAToFileOffset(sectionHeaders, numberOfSections, volatileMetadata->VolatileInfoRangeTable, (BYTE*)buffer, ntHeaders64->OptionalHeader.SizeOfImage);
         if (volatileInfoRangeTableOffset == 0) {
-            free(buffer);
+            munmap(buffer, msize);
             return;
         }
 
@@ -313,7 +309,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
             printf_log(LOG_DEBUG, "Volatile range metadata [%d]: %08lx-%08lx\n", i, rva, rva + size);
         }
     }
-    free(buffer);
+    munmap(buffer, msize);
     return;
 }
 
