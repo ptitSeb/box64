@@ -774,15 +774,13 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     if (!filename) return;
 
     char* lowercase_filename = LowerCase(filename);
-
+    mutex_lock(&my_context->mutex_dyndump);
     int ret;
     mapping_t* mapping = NULL;
+    int new_mapping = 0;
     khint_t k = kh_get(mapping_entry, mapping_entries, fullname);
     if(k == kh_end(mapping_entries)) {
-        // First time we see this file
-        if (box64_wine && BOX64ENV(unityplayer)) DetectUnityPlayer(lowercase_filename+1);
-        if (box64_wine && BOX64ENV(dynarec_volatile_metadata)) ParseVolatileMetadata(fullname, (void*)addr);
-
+        new_mapping = 1;
         mapping = box_calloc(1, sizeof(mapping_t));
         mapping->filename = box_strdup(lowercase_filename);
         mapping->fullname = box_strdup(fullname);
@@ -795,19 +793,13 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
                 mapping->env = &kh_value(box64env_entries, k);
         }
         dynarec_log(LOG_INFO, "Mapping %s (%s) in %p-%p\n", fullname, lowercase_filename, (void*)addr, (void*)(addr+length));
-        #if defined(DYNAREC) && !defined(WIN32)
-        int dynacache = box64env.dynacache;
-        if(mapping->env && mapping->env->is_dynacache_overridden)
-            dynacache = mapping->env->dynacache;
-        if(dynacache)
-            MmapDynaCache(mapping);
-        #endif
     } else
         mapping = kh_value(mapping_entries, k);
 
     if(mapping && mapping->start>addr) { 
         dynarec_log(LOG_INFO, "Ignoring Mapping %s (%s) adjusted start: %p from %p\n", fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
         box_free(lowercase_filename);
+        mutex_unlock(&my_context->mutex_dyndump);
         return;
     }
     if(BOX64ENV(dynarec_log)) {
@@ -818,6 +810,19 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
             }
     }
     rb_set_64(envmap, addr, addr + length, (uint64_t)mapping);
+    mutex_unlock(&my_context->mutex_dyndump);
+    if(new_mapping) {
+        // First time we see this file
+        if (box64_wine && BOX64ENV(unityplayer)) DetectUnityPlayer(lowercase_filename+1);
+        if (box64_wine && !box64_is32bits && BOX64ENV(dynarec_volatile_metadata)) ParseVolatileMetadata(fullname, (void*)addr);
+        #if defined(DYNAREC) && !defined(WIN32)
+        int dynacache = box64env.dynacache;
+        if(mapping->env && mapping->env->is_dynacache_overridden)
+            dynacache = mapping->env->dynacache;
+        if(dynacache)
+            MmapDynaCache(mapping);
+        #endif
+    }
     if(mapping->env) {
         printf_log(LOG_DEBUG, "Applied [%s] of range %p:%p\n", filename, addr, addr + length);
         PrintEnvVariables(mapping->env, LOG_DEBUG);
@@ -1369,20 +1374,28 @@ void WillRemoveMapping(uintptr_t addr, size_t length)
 void RemoveMapping(uintptr_t addr, size_t length)
 {
     if(!envmap) return;
+    #ifdef DYNAREC
+    mmaplist_t* list = NULL;
+    #endif
+    mutex_lock(&my_context->mutex_dyndump);
     mapping_t* mapping = (mapping_t*)rb_get_64(envmap, addr);
     rb_unset(envmap, addr, addr+length);
     // quick check at next address
     if(mapping) {
-        if(mapping == (mapping_t*)rb_get_64(envmap, addr+length))
+        if(mapping == (mapping_t*)rb_get_64(envmap, addr+length)) {
+            mutex_unlock(&my_context->mutex_dyndump);
             return; // still present, don't purge mapping
+        }
         // Will traverse the tree to find any left over
         uintptr_t start = rb_get_leftmost(envmap);
         uintptr_t end;
         uint64_t val;
         do {
             rb_get_end_64(envmap, start, &val, &end);
-            if((mapping_t*)val==mapping)
+            if((mapping_t*)val==mapping) {
+                mutex_unlock(&my_context->mutex_dyndump);
                 return; // found more occurance, exiting
+            }
             start = end;
         } while(end!=UINTPTR_MAX);
         // no occurence found, delete mapping
@@ -1391,13 +1404,16 @@ void RemoveMapping(uintptr_t addr, size_t length)
         if(k!=kh_end(mapping_entries))
             kh_del(mapping_entry, mapping_entries, k);
 	#ifdef DYNAREC
-        if(mapping->mmaplist)
-            DelMmaplist(mapping->mmaplist);
+        if(mapping->mmaplist) list = mapping->mmaplist; // deferring the deletion because of
 	#endif
         box_free(mapping->filename);
         box_free(mapping->fullname);
         box_free(mapping);
     }
+    mutex_unlock(&my_context->mutex_dyndump);
+    #ifdef DYNAREC
+    if(list) DelMmaplist(list);
+    #endif
 }
 
 void SerializeAllMapping()
