@@ -3,5 +3,5 @@
 #include <stdint.h>
 typedef struct x64emu_s x64emu_t;
 
-void my_cpuid(x64emu_t* emu, uint32_t tmp32u);
+void my_cpuid(x64emu_t* emu);
 #endif //__MY_CPUID_H__

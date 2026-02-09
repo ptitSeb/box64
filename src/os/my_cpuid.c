@@ -7,7 +7,7 @@
 #include "debug.h"
 #include "freq.h"
 
-void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
+void my_cpuid(x64emu_t* emu)
 {
     emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
     int ncpu = box64_sysinfo.box64_ncpu;
@@ -40,6 +40,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         }
     }
     uint32_t subleaf = R_ECX;
+    uint32_t tmp32u = R_EAX;
     //printf_log(LOG_INFO, "%04d|%p: cpuid leaf=0x%x (subleaf=0x%x)", GetTID(), (void*)R_RIP, tmp32u, subleaf);
     switch(tmp32u) {
         case 0x0:
@@ -77,12 +78,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         (0x0<<20)| // extended familly
                         0 ; // family and all, simulating Haswell type of cpu
             }
-            R_RBX = 0 | (8<<0x8) | ((BOX64ENV(cputype)?0:ncluster)<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
-            /*{
+            R_RBX = 0 | (8<<0x8) /*| ((BOX64ENV(cputype)?0:ncluster)<<16)*/;          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            if(!BOX64ENV(cputype)) {
                 int cpu = sched_getcpu();
                 if(cpu<0) cpu=0;
-                R_RAX |= cpu<<24;
-            }*/
+                R_RBX |= (cpu&0xff)<<24;
+            }
             R_RDX =   1         // fpu
                     | 1<<1      // vme
                     | 1<<2      // debugging extension
@@ -105,7 +106,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<24     // fxsr (fxsave, fxrestore)
                     | 1<<25     // SSE
                     | 1<<26     // SSE2
-                    | (BOX64ENV(cputype)?0:1)<<28     // HT / Multi-core
+                    //| (BOX64ENV(cputype)?0:1)<<28     // HTT / Multi-core
                     ;
             R_RCX =   1<<0      // SSE3
                     | BOX64ENV(pclmulqdq)<<1      // PCLMULQDQ

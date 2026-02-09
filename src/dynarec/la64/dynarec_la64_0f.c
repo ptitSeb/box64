@@ -1416,7 +1416,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xA2:
             INST_NAME("CPUID");
             NOTEST(x1);
-            CALL_(const_cpuid, -1, 0, xRAX, 0);
+            CALL_(const_cpuid, -1, 0, 0, 0);
             // BX and DX are not synchronized durring the call, so need to force the update
             LD_D(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
