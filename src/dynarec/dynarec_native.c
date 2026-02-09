@@ -821,9 +821,11 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         dynarec_log(LOG_INFO, "Note: block marked as always dirty %p:%ld\n", block->x64_addr, block->x64_size);
         #ifdef ARCH_NOP
         // mark callrets to trigger SIGILL to check clean state
-        if(block->callret_size)
+        if(block->callret_size) {
             for(int i=0; i<block->callret_size; ++i)
                 *(uint32_t*)(block->block+block->callrets[i].offs) = ARCH_UDF;
+            ClearCache(block->block, block->size);
+        }
         #endif
     }
     redundant_helper = current_helper = NULL;
