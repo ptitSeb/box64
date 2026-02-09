@@ -79,11 +79,13 @@ void my_cpuid(x64emu_t* emu)
                         0 ; // family and all, simulating Haswell type of cpu
             }
             R_RBX = 0 | (8<<0x8) /*| ((BOX64ENV(cputype)?0:ncluster)<<16)*/;          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            #ifndef WIN32
             if(!BOX64ENV(cputype)) {
                 int cpu = sched_getcpu();
                 if(cpu<0) cpu=0;
                 R_RBX |= (cpu&0xff)<<24;
             }
+            #endif
             R_RDX =   1         // fpu
                     | 1<<1      // vme
                     | 1<<2      // debugging extension
