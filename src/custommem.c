@@ -1565,6 +1565,7 @@ void DelMmaplist(mmaplist_t* list)
             } else
                 rb_unset(mapallmem, (uintptr_t)addr, (uintptr_t)addr+size);
         }
+    box_free(list->chunks);
     box_free(list);
 }
 
@@ -3132,9 +3133,9 @@ void fini_custommem_helper(box64context_t *ctx)
             for (int i=0; i<head->size; ++i) {
                 InternalMunmap(head->chunks[i]->block-sizeof(blocklist_t), head->chunks[i]->size+sizeof(blocklist_t));
             }
-            free(head);
+            box_free(head->chunks);
+            box_free(head);
         }
-        box_free(mmaplist);
         #ifdef JMPTABL_SHIFT4
         uintptr_t**** box64_jmptbl3;
         for(int i4 = 0; i4 < (1<< JMPTABL_SHIFT4); ++i4)
