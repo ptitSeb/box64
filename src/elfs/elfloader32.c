@@ -308,7 +308,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                         return 1;
                     }
                 }
-                if(!(prot&PROT_WRITE) && (paddr==(paddr&(box64_pagesize-1)) && (asize==ALIGN(asize))))
+                if(!(prot&PROT_WRITE) && (paddr==(paddr&~(box64_pagesize-1)) && (asize==ALIGN(asize))))
                     mprotect((void*)paddr, asize, prot);
             }
 #ifdef DYNAREC
