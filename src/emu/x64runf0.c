@@ -401,9 +401,9 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     if(rex.w) {
-                        if(ED->q[0] & (1<<tmp8u)) {
+                        if(ED->q[0] & (1ULL<<tmp8u)) {
                             SET_FLAG(F_CF);
-                            ED->q[0] ^= (1<<tmp8u);
+                            ED->q[0] ^= (1ULL<<tmp8u);
                         } else
                             CLEAR_FLAG(F_CF);
                     } else {
@@ -685,11 +685,11 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     if(rex.w) {
-                        if(ED->q[0] & (1<<tmp8u))
+                        if(ED->q[0] & (1ULL<<tmp8u))
                             SET_FLAG(F_CF);
                         else
                             CLEAR_FLAG(F_CF);
-                        ED->q[0] ^= (1<<tmp8u);
+                        ED->q[0] ^= (1ULL<<tmp8u);
                     } else {
                         if(ED->dword[0] & (1<<tmp8u))
                             SET_FLAG(F_CF);
