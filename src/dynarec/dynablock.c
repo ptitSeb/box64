@@ -189,6 +189,7 @@ void MarkDynablock(dynablock_t* db)
                 // mark all callrets to UDF
                 for(int i=0; i<db->callret_size; ++i)
                     *(uint32_t*)(db->block+db->callrets[i].offs) = ARCH_UDF;
+                ClearCache(db->block, db->size);
             }
         #endif
         }
