@@ -281,6 +281,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     pu64 = (uint64_t*)R_RDI;
                     post = 3;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %zu, %d, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, R_EDX, R_RCX, (tmp)?tmp:"(nil)", (void*)(R_R9));
+                } else if (!strcmp(s, "__vsnprintf_chk") || !strcmp(s, "my___vsnprintf_chk")) {
+                    tmp = (char*)(R_R8);
+                    pu64 = (uint64_t*)R_RDI;
+                    post = 3;
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, %zu, %d, %zu, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI, R_EDX, R_RCX, (tmp)?tmp:"(nil)", (void*)(R_R9));
                 } else if (!strcmp(s, "__vfprintf_chk") || !strcmp(s, "my___vfprintf_chk")) {
                     tmp = (char*)(R_RDX);
                     pu64 = (uint64_t*)R_RDI;
