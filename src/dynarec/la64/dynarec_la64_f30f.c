@@ -361,12 +361,8 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(d0, 1);
             GETEXSS(d1, 0, 0);
             q0 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastnan)) {
-                FMIN_S(q0, d0, d1);
-            } else {
-                FCMP_S(fcc0, d1, d0, cULE);
-                FSEL(q0, d0, d1, fcc0);
-            }
+            FCMP_S(fcc0, d1, d0, cULE);
+            FSEL(q0, d0, d1, fcc0);
             VEXTRINS_W(d0, q0, 0);
             break;
         case 0x5E:
@@ -384,12 +380,8 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(d0, 1);
             GETEXSS(d1, 0, 0);
             q0 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastnan)) {
-                FMAX_S(q0, d0, d1);
-            } else {
-                FCMP_S(fcc0, d1, d0, cLT);
-                FSEL(q0, d1, d0, fcc0);
-            }
+            FCMP_S(fcc0, d1, d0, cLT);
+            FSEL(q0, d1, d0, fcc0);
             VEXTRINS_W(d0, q0, 0);
             break;
         case 0x6F:

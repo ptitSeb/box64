@@ -343,12 +343,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             q0 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastnan)) {
-                FMIN_S(q0, v1, v2);
-            } else {
-                FCMP_S(fcc0, v2, v1, cULE);
-                FSEL(q0, v1, v2, fcc0);
-            }
+            FCMP_S(fcc0, v2, v1, cULE);
+            FSEL(q0, v1, v2, fcc0);
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, q0, 0);
             break;
@@ -378,12 +374,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEYSS(v2, 0, 0);
             GETGYx_empty(v0);
             q0 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastnan)) {
-                FMAX_S(q0, v1, v2);
-            } else {
-                FCMP_S(fcc0, v2, v1, cLT);
-                FSEL(q0, v2, v1, fcc0);
-            }
+            FCMP_S(fcc0, v2, v1, cLT);
+            FSEL(q0, v2, v1, fcc0);
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, q0, 0);
             break;
