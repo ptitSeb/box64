@@ -1881,7 +1881,7 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
         if(ok) {
             // this is a process run with box64, try to grab the cmdline of the process to try gather the real binary launched
             // which might not be possible if the cmdlin as been to much changed, like with a wine process...
-            char cmdline_name[strlen(path)+4];
+            char cmdline_name[4096] = {0};
             sprintf(cmdline_name, "/proc/%d/cmdline", pid);
             FILE* cmdline = fopen(cmdline_name, "r");
             if(cmdline) {
