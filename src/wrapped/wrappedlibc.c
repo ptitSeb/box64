@@ -1815,10 +1815,10 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
 static int isProcAny(const char *path, const char* w)
 {
     if(strncmp(path, "/proc/", 6)==0) {
-        uint32_t pid;
-        char* p;
+        int pid;
+        char p[4096] ={0};
         if(sscanf(path, "/proc/%d/%s", &pid, &p)==2)
-            if(p && strcmp(p, w))
+            if(p && !strcmp(p, w))
                 return pid;
     }
     return -1;
@@ -1869,49 +1869,52 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
         return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
     }
     ssize_t ret = readlink((const char*)path, (char*)buf, sz);
-    uint32_t pid;
-    if(ret>0 && (pid=isProcAny(path, "exe"))!=-1 && strcmp(buf, my_context->box64path)) {
-        // this is a process run with box64, try to grab the cmdline of the process to try gather the real binary launched
-        // which might not be possible if the cmdlin as been to much changed, like with a wine process...
-        char cmdline_name[strlen(path)+4];
-        sprintf(cmdline_name, "/proc/%d/cmdline");
-        FILE* cmdline = fopen(cmdline_name, "r");
-        if(cmdline) {
-            ssize_t sz = 0;
-            fseek(cmdline, 0, SEEK_END);
-            sz = ftell(cmdline);
-            fseek(cmdline, 0, SEEK_SET);
-            void* buff = box_malloc(sz);
-            (void)fread(buff, sz, 1, cmdline);
-            fclose(cmdline);
-            char* filename = (char*)buff;   // first arg should be the program name
-            if(filename[0]=='/') {
-                // absolute path, easy...
-                strncpy(buf, filename, sz);
-                if(strlen(filename)<sz)
-                    sz = strlen(filename);
-                box_free(buff);
-                return sz;
-            }
-            if(filename[0]=='.') {
-                // relative path, need to grap cwd and cannonicalise the path
-                char cwd_name[strlen(path)+4];
-                sprintf(cwd_name, "/proc/%d/cwd");
-                char cwd[MAX_PATH] = {0};
-                if(readlink(cwd_name, cwd, MAX_PATH)>0 && strlen(cwd)+strlen(path)+1<MAX_PATH) {
-                    strcat(cwd, "/");
-                    strcat(cwd, path);
-                    char* real = box_realpath(cwd, NULL);
+    int pid = (ret>0)?isProcAny(path, "exe"):0;
+    if(ret>0 && (pid!=-1) && (strstr(buf, my_context->box64path)==buf)) {
+        int ok = !strcmp(buf, my_context->box64path);
+        if(!ok) {
+            char _deleted[strlen(my_context->box64path)+strlen(" (deleted)")+1];
+            strcpy(_deleted, my_context->box64path);
+            strcat(_deleted, " (deleted)");
+            ok = !strcmp(buf, _deleted);
+        }
+        if(ok) {
+            // this is a process run with box64, try to grab the cmdline of the process to try gather the real binary launched
+            // which might not be possible if the cmdlin as been to much changed, like with a wine process...
+            char cmdline_name[strlen(path)+4];
+            sprintf(cmdline_name, "/proc/%d/cmdline", pid);
+            FILE* cmdline = fopen(cmdline_name, "r");
+            if(cmdline) {
+                ssize_t sz = 0;
+                char filename[4096] = {0};  // first arg should be the program name
+                sz = fread(filename, 1, 4095, cmdline); // keep last char to end the string
+                fclose(cmdline);
+                if(filename[0]=='/') {
+                    // absolute path, easy...
                     strncpy(buf, filename, sz);
                     if(strlen(filename)<sz)
                         sz = strlen(filename);
-                    box_free(real);
                     return sz;
                 }
-                // overflow... so falure
+                if(filename[0]=='.') {
+                    // relative path, need to grap cwd and cannonicalise the path
+                    char cwd_name[strlen(path)+4];
+                    sprintf(cwd_name, "/proc/%d/cwd");
+                    char cwd[MAX_PATH] = {0};
+                    if(readlink(cwd_name, cwd, MAX_PATH)>0 && strlen(cwd)+strlen(path)+1<MAX_PATH) {
+                        strcat(cwd, "/");
+                        strcat(cwd, path);
+                        char* real = box_realpath(cwd, NULL);
+                        strncpy(buf, filename, sz);
+                        if(strlen(filename)<sz)
+                            sz = strlen(filename);
+                        box_free(real);
+                        return sz;
+                    }
+                    // overflow... so falure
+                }
+                // not an absolute or a relative path... forget it
             }
-            // not an absolute or a relative path... forget it
-            box_free(buff);
         }
     }
     return ret;
