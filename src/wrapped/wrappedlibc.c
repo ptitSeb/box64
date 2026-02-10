@@ -1812,6 +1812,18 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
 }
 #endif
 
+static int isProcAny(const char *path, const char* w)
+{
+    if(strncmp(path, "/proc/", 6)==0) {
+        uint32_t pid;
+        char* p;
+        if(sscanf(path, "/proc/%d/%s", &pid, &p)==2)
+            if(p && strcmp(p, w))
+                return pid;
+    }
+    return -1;
+}
+
 static int isProcSelf(const char *path, const char* w)
 {
     if(strncmp(path, "/proc/", 6)==0) {
@@ -1856,7 +1868,53 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
         // special case for self...
         return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
     }
-    return readlink((const char*)path, (char*)buf, sz);
+    ssize_t ret = readlink((const char*)path, (char*)buf, sz);
+    uint32_t pid;
+    if(ret>0 && (pid=isProcAny(path, "exe"))!=-1 && strcmp(buf, my_context->box64path)) {
+        // this is a process run with box64, try to grab the cmdline of the process to try gather the real binary launched
+        // which might not be possible if the cmdlin as been to much changed, like with a wine process...
+        char cmdline_name[strlen(path)+4];
+        sprintf(cmdline_name, "/proc/%d/cmdline");
+        FILE* cmdline = fopen(cmdline_name, "r");
+        if(cmdline) {
+            ssize_t sz = 0;
+            fseek(cmdline, 0, SEEK_END);
+            sz = ftell(cmdline);
+            fseek(cmdline, 0, SEEK_SET);
+            void* buff = box_malloc(sz);
+            (void)fread(buff, sz, 1, cmdline);
+            fclose(cmdline);
+            char* filename = (char*)buff;   // first arg should be the program name
+            if(filename[0]=='/') {
+                // absolute path, easy...
+                strncpy(buf, filename, sz);
+                if(strlen(filename)<sz)
+                    sz = strlen(filename);
+                box_free(buff);
+                return sz;
+            }
+            if(filename[0]=='.') {
+                // relative path, need to grap cwd and cannonicalise the path
+                char cwd_name[strlen(path)+4];
+                sprintf(cwd_name, "/proc/%d/cwd");
+                char cwd[MAX_PATH] = {0};
+                if(readlink(cwd_name, cwd, MAX_PATH)>0 && strlen(cwd)+strlen(path)+1<MAX_PATH) {
+                    strcat(cwd, "/");
+                    strcat(cwd, path);
+                    char* real = box_realpath(cwd, NULL);
+                    strncpy(buf, filename, sz);
+                    if(strlen(filename)<sz)
+                        sz = strlen(filename);
+                    box_free(real);
+                    return sz;
+                }
+                // overflow... so falure
+            }
+            // not an absolute or a relative path... forget it
+            box_free(buff);
+        }
+    }
+    return ret;
 }
 
 EXPORT ssize_t my___readlink_chk(x64emu_t* emu, void* path, void* buf, size_t sz, size_t buflen)
@@ -2218,6 +2276,21 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
 
 EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
 {
+    if(isProcSelf((const char*)path, "cmdline")) {
+        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen64(path, mode);
+        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
+        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        (void)dummy;
+        for (int i=1; i<emu->context->argc; ++i)
+            if(emu->context->argv[i])
+                dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
+    if(isProcSelf((const char*)path, "exe")) {
+        return fopen64(emu->context->fullpath, mode);
+    }
     if(isProcSelf(path, "maps")) {
         // special case for self memory map
         int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
