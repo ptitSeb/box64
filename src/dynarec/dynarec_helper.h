@@ -35,6 +35,7 @@
 #define STRONGMEM_SIMD_WRITE 2 // The level of SIMD memory writes will be tracked
 #define STRONGMEM_LAST_WRITE 1 // The level of a barrier before the last guest memory store will be put
 #define STRONGMEM_SEQ_WRITE  3 // The level of a barrier at every third memory store will be  put
+#define STRONGMEM_QEMU       4 // The level of a mimic to QEMU's strong memory model
 
 #define STRONGMEM_LEVEL() ((box64_wine && VolatileRangesContains(ip)) ? 0 : BOX64DRENV(dynarec_strongmem))
 
@@ -96,23 +97,24 @@
 #else
 
 // An opcode writes guest memory, this need to be put after the STORE instruction manually. It will also end the SEQ automaticaly on last_write immediatly
-#define SMWRITE()                                                         \
-    do {                                                                  \
-        if (dyn->insts[ninst].last_write) {                               \
-            dyn->smwrite = 1;                                             \
-            SMEND();                                                      \
-        } else {                                                          \
-            /* Put a barrier at every third memory write. */              \
-            if (STRONGMEM_LEVEL() >= STRONGMEM_SEQ_WRITE) {               \
-                if (++dyn->smwrite >= 3 /* Every third memory write */) { \
-                    DMB_ISH();                                            \
-                    dyn->smwrite = 1;                                     \
-                }                                                         \
-            } else {                                                      \
-                /* Mark that current sequence writes to guest memory. */  \
-                dyn->smwrite = 1;                                         \
-            }                                                             \
-        }                                                                 \
+#define SMWRITE()                                                        \
+    do {                                                                 \
+        if (dyn->insts[ninst].last_write) {                              \
+            dyn->smwrite = 1;                                            \
+            SMEND();                                                     \
+        } else {                                                         \
+            /* Put a barrier at every third memory write. */             \
+            if (STRONGMEM_LEVEL() >= STRONGMEM_SEQ_WRITE) {              \
+                if (++dyn->smwrite >= 3 /* Every third memory write */   \
+                    || STRONGMEM_LEVEL() >= STRONGMEM_QEMU) {            \
+                    DMB_ISH();                                           \
+                    dyn->smwrite = 1;                                    \
+                }                                                        \
+            } else {                                                     \
+                /* Mark that current sequence writes to guest memory. */ \
+                dyn->smwrite = 1;                                        \
+            }                                                            \
+        }                                                                \
     } while (0)
 
 // Similar to SMWRITE, but checks lock.
@@ -133,7 +135,12 @@
     } while (0)
 
 // An opcode reads guest memory, this need to be put before the LOAD instruction manually.
-#define SMREAD()
+#define SMREAD()                                   \
+    do {                                           \
+        if (STRONGMEM_LEVEL() >= STRONGMEM_QEMU) { \
+            DMB_ISHLD();                           \
+        }                                          \
+    } while (0)
 
 // Similar to SMREAD, but checks lock.
 #define SMREADLOCK(lock) \
