@@ -291,15 +291,19 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
                 printf_dlsym_dump(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
                 break;
             }
-            struct link_map real_lm;
+            struct link_map *real_lm = NULL;
             #ifndef ANDROID
             if(dlinfo(lib->w.lib, RTLD_DI_LINKMAP, &real_lm)) {
                 printf_dlsym_dump(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
             }
             #endif
-            lm->l_addr = real_lm.l_addr;
-            lm->l_name = real_lm.l_name;
-            lm->l_ld = real_lm.l_ld;
+            if(real_lm) {
+                lm->l_addr = real_lm->l_addr;
+                lm->l_name = real_lm->l_name;
+                lm->l_ld = real_lm->l_ld;
+            } else {
+                lm->l_name = lib->path;
+            }
             break;
         }
     }
