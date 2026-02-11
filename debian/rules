@@ -1,13 +1,33 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@  
+	dh $@
+
+DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH 2>/dev/null || echo "unknown")
 
 override_dh_auto_configure:
+	@echo "Configuring for architecture: $(DEB_HOST_ARCH)"
+ifeq ($(DEB_HOST_ARCH),riscv64)
 	dh_auto_configure -- \
-	      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	      -DARM_DYNAREC=1 \
-		  -DNOGIT=1
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DRV64=1 \
+		-DRV64_DYNAREC=1 \
+		-DNOGIT=1
+else ifeq ($(DEB_HOST_ARCH),arm64)
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DARM_DYNAREC=1 \
+		-DNOGIT=1
+else ifeq ($(DEB_HOST_ARCH),aarch64)
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DARM_DYNAREC=1 \
+		-DNOGIT=1
+else
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DNOGIT=1
+endif
 
 override_dh_shlibdeps:
 	dh_shlibdeps --exclude=libgcc_s.so.1 \
@@ -22,4 +42,8 @@ override_dh_shlibdeps:
 	--exclude=libmbedx509.so.1 \
 	--exclude=libcrypto.so.1.0.0 \
 	--exclude=libssl.so.1.0.0 \
+	--exclude=box64-bash
+
+override_dh_strip:
+	dh_strip --exclude=/usr/lib/box64-x86_64-linux-gnu/ \
 	--exclude=box64-bash
