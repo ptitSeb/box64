@@ -21,6 +21,7 @@ option(SD845 "Set to ON if targeting a Snapdragon 845 based device" ${SD845})
 option(SD865 "Set to ON if targeting a Snapdragon 865 based device" ${SD865})
 option(SD888 "Set to ON if targeting a Snapdragon 888 based device" ${SD888})
 option(SD8G2 "Set to ON if targeting a Snapdragon 8 Gen 2 based device" ${SD8G2})
+option(SD8EG5 "Set to ON if targeting a Snapdragon 8 Elite Gen 5 (SM8850) based device" ${SD8EG5})
 option(SDORYON1 "Set to ON if targeting a Snapdragon Oryon 1 (X1E80100/X1E78100) based device" ${SDORYON1})
 option(ADLINK "Set to ON if targeting an ADLink AmpereAltra based device" ${ADLINK})
 option(M1 "Set to ON if targeting a AppleM1 running on Asahi computer" ${M1})
@@ -88,7 +89,7 @@ if(PPC64LE)
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(LARCH64_DYNAREC OFF CACHE BOOL "")
 endif()
-if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR NVIDIA_GB10 OR PHYTIUM OR SD845 OR SD865 OR SD888 OR SD8G2 OR SDORYON1 OR LX2160A OR M1 OR ARM64 OR ADLINK)
+if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR NVIDIA_GB10 OR PHYTIUM OR SD845 OR SD865 OR SD888 OR SD8G2 OR SDORYON1 OR SD8EG5 OR LX2160A OR M1 OR ARM64 OR ADLINK)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
@@ -205,6 +206,17 @@ elseif(SD888)
 elseif(SD8G2)
     add_definitions(-DSD8G2)
     set(CFLAGS -pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2)
+elseif(SD8EG5)
+    add_definitions(-DSD8EG5)
+    # NOTE
+    # Even though Qualcomm Snapdragon 8 Elite Gen 5 relies on 3rd generation Oryon cores, it seems like the support for them 
+    # is not yet present in GCC and Clang, so for now we will use mostly the same optimization flags as SDORYON1, which houses
+    # 1st generation Oryon cores. This should still be fine since the main difference between the 
+    # two is the presence of SVE and SVE2, which are not yet used in Box64's ARM64 dynarec.
+    #
+    # As noted in the SDORYON1 section, GCC 14 and Clang 19 support oryon-1 as a -mcpu/-mtune argument, however it seems like 
+    # Fedora does not like them very much, so this option should be taken with a grain of salt. It worked in my test case just fine.
+    set(CFLAGS -pipe -march=armv8.7-a+crypto+sm4+sha3+fp16+sve+sve2 -mtune=oryon-1)
 elseif(SDORYON1)
     add_definitions(-DSDORYON1)
     # NOTE
