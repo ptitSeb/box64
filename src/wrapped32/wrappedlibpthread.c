@@ -39,7 +39,7 @@ EXPORT int32_t my32_pthread_atfork(x64emu_t *emu, void* prepare, void* parent, v
     // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my32_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
-        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
+        my_context->atforks = (atfork_fnc_t*)box_realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
     int i = my_context->atfork_sz++;
     my_context->atforks[i].prepare = (uintptr_t)prepare;
