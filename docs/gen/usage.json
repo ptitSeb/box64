@@ -762,6 +762,11 @@
         "key": "3",
         "description": "All in 2, plus more memory barriers on a regular basis.",
         "default": false
+      },
+      {
+        "key": "4",
+        "description": "Mimic x86 TSO similarly to QEMU's approach, for evaluation purposes.",
+        "default": false
       }
     ]
   },

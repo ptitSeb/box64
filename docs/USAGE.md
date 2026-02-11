@@ -174,6 +174,7 @@ Enable the emulation of x86 strong memory model. Available in WowBox64.
  * 1: Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way. 
  * 2: All in 1, plus memory barriers on SIMD instructions. 
  * 3: All in 2, plus more memory barriers on a regular basis. 
+ * 4: Mimic x86 TSO similarly to QEMU's approach, for evaluation purposes. 
 
 ### BOX64_DYNAREC_VOLATILE_METADATA
 
