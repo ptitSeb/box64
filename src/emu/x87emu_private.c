@@ -13,7 +13,7 @@
 
 void fpu_do_free(x64emu_t* emu, int i)
 {
-    emu->fpu_tags |= 0b11 << (i);   // empty
+    emu->fpu_tags |= 0b11 << (i*2);   // empty
     // check if all empty
     if(emu->fpu_tags != TAGS_EMPTY)
         return;
