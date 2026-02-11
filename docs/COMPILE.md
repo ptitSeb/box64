@@ -165,14 +165,22 @@ On a 64bit OS:
 
 On a 64bit OS:
 
+Targeting Snapdragon 845:
+
 ```
 -D SD845=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
-or
+Targeting Snapdragon 888:
 
 ```
 -D SD888=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+Targeting Snapdragon 8 Elite Gen 5:
+
+```
+-D SD8EG5=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 Depending on how recent your Snapdragon is
