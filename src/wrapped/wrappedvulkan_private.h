@@ -1103,6 +1103,9 @@ GO(vkUnregisterCustomBorderColorEXT, vFpu)
 GOM(vkCreateWin32SurfaceKHR, iFEpppp)
 GO(vkGetPhysicalDeviceWin32PresentationSupportKHR, iFpu)
 
+// VK_KHR_swapchain_maintenance1
+GO(vkReleaseSwapchainImagesKHR, iFpp)
+
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp)
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)   // structure needs wrapping
