@@ -563,7 +563,7 @@ int convert_bitmask(uint64_t bitmask);
 #define BICw_LSL(Rd, Rn, Rm, lsl)       EMIT(LOGIC_REG_gen(0, 0b00, 0b00, 1, Rm, lsl, Rn, Rd))
 #define BICSx(Rd, Rn, Rm)              FEMIT(LOGIC_REG_gen(1, 0b11, 0b00, 1, Rm, 0, Rn, Rd))
 #define BICSw(Rd, Rn, Rm)              FEMIT(LOGIC_REG_gen(0, 0b11, 0b00, 1, Rm, 0, Rn, Rd))
-#define BICxw(Rd, Rn, Rm)              FEMIT(LOGIC_REG_gen(rex.w, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
+#define BICxw(Rd, Rn, Rm)               EMIT(LOGIC_REG_gen(rex.w, 0b00, 0b00, 1, Rm, 0, Rn, Rd))
 #define BICSxw(Rd, Rn, Rm)             FEMIT(LOGIC_REG_gen(rex.w, 0b11, 0b00, 1, Rm, 0, Rn, Rd))
 #define BICx_REG    BICx
 #define BICw_REG    BICw
