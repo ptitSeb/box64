@@ -4079,7 +4079,7 @@ EXPORT size_t my_strlcat(x64emu_t* emu, void* dst, void* src, size_t l)
     size_t s = strlen(dst);
     if(s>=l)
         return l;
-    strncat(dst, src, l-1);
+    strncat(dst, src, l-s-1);
     ((char*)dst)[l-1] = '\0';
     return s+strlen(src);
 }
@@ -4329,7 +4329,7 @@ size_t __attribute__((weak)) strlcpy(char* dest, const char* src, size_t len)
     size_t l = strlen(src);
     if(len) {
         strncpy(dest, src, len-1);
-        dest[len]=0;
+        dest[len-1]=0;
     }
     return l;
 }
