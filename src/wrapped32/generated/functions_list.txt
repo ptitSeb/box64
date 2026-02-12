@@ -2385,6 +2385,8 @@ wrappedlibasound:
   - snd_pcm_mmap_begin
 wrappedlibc:
 - vEv:
+- vFv:
+  - __cxa_pure_virtual
 - vFi:
   - exit
 - vEp:

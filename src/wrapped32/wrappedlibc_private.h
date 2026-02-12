@@ -2235,6 +2235,8 @@ GOM(__deregister_frame_info, pEp) //%%,noE
 
 GO(name_to_handle_at, iEipppi) // only glibc 2.14+, so may not be present...
 
+GOW2(__cxa_pure_virtual, vFEv, my___cxa_pure_virtual)     // create a function to trap pure virtual call
+
 //GOM(modify_ldt, iEEipL) // there is suposedly no glibc wrapper for this one
 
 // duplicated stuffs from libresolv
