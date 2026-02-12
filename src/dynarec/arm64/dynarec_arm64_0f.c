@@ -422,7 +422,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETIP(ip);
             u8 = (rex.r*8)+(nextop>>3&7);
-            if((((opcode==0x20) || (opcode==0x22)) && ((u8==1) || (u8==5) || (u8==6) || (u8==7) || (u8>8))) || (((opcode==0x21) || (opcode==0x23) && rex.r))) {
+            if((((opcode==0x20) || (opcode==0x22)) && ((u8==1) || (u8==5) || (u8==6) || (u8==7) || (u8>8))) || (((opcode==0x21) || (opcode==0x23)) && rex.r)) {
                 INST_NAME("Illegal 0F 20..23");
                 UDF(0);
             } else {
