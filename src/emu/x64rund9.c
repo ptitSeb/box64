@@ -169,13 +169,30 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
 
         case 0xF5:  /* FPREM1 */
-            // get exponant(ST(0))-exponant(ST(1)) in temp32s
-            ll = (int64_t)round(ST0.d/ST1.d);
-            ST0.d = ST0.d - (ST1.d*ll);
-            emu->sw.f.F87_C2 = 0;
-            emu->sw.f.F87_C1 = (ll&1)?1:0;
-            emu->sw.f.F87_C3 = (ll&2)?1:0;
-            emu->sw.f.F87_C0 = (ll&4)?1:0;
+            {
+                double x = ST0.d, y = ST1.d;
+                int q = 0;
+                if (isnan(x) || isnan(y)) {
+                    ST0.d = NAN;
+                } else if (isinf(x) || y == 0.0) {
+#if !defined(_WIN32) && !defined(__MINGW32__)
+                    feraiseexcept(FE_INVALID);
+#endif
+                    ST0.d = NAN;
+                } else {
+#if defined(_WIN32) || defined(__MINGW32__)
+                    q = (int)round(x / y);
+                    ST0.d = x - (y * q);
+#else
+                    ST0.d = remquo(x, y, &q);
+#endif
+                }
+                q &= 7;
+                emu->sw.f.F87_C2 = 0;
+                emu->sw.f.F87_C1 = q & 1;
+                emu->sw.f.F87_C3 = (q >> 1) & 1;
+                emu->sw.f.F87_C0 = (q >> 2) & 1;
+            }
             break;
         case 0xF6:  /* FDECSTP */
             emu->top=(emu->top-1)&7;    // this will probably break a few things
@@ -187,12 +204,33 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 emu->top=(emu->top+1)&7;    // this will probably break a few things
             break;
         case 0xF8:  /* FPREM */
-            ll = (int64_t)trunc(ST0.d/ST1.d);
-            ST0.d = ST0.d - (ST1.d*ll);
-            emu->sw.f.F87_C2 = 0;
-            emu->sw.f.F87_C1 = (ll&1)?1:0;
-            emu->sw.f.F87_C3 = (ll&2)?1:0;
-            emu->sw.f.F87_C0 = (ll&4)?1:0;
+            {
+                double x = ST0.d, y = ST1.d;
+                int64_t q = 0;
+                if (isnan(x) || isnan(y)) {
+                    ST0.d = NAN;
+                    q = 0;
+                } else if (isinf(x) || y == 0.0) {
+#if !defined(_WIN32) && !defined(__MINGW32__)
+                    feraiseexcept(FE_INVALID);
+#endif
+                    ST0.d = NAN;
+                    q = 0;
+                } else {
+#if defined(_WIN32) || defined(__MINGW32__)
+                    q = (int64_t)trunc(x / y);
+                    ST0.d = x - (y * q);
+#else
+                    ST0.d = fmod(x, y);
+                    q = (int64_t)trunc(x / y);
+#endif
+                }
+                q &= 7;
+                emu->sw.f.F87_C2 = 0;
+                emu->sw.f.F87_C1 = q & 1;
+                emu->sw.f.F87_C3 = (q >> 1) & 1;
+                emu->sw.f.F87_C0 = (q >> 2) & 1;
+            }
             break;
         case 0xF9:  /* FYL2XP1 */
             // Using the log1p instead of log2(ST0+1) can avoid losing precision much,
