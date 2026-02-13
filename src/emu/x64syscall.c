@@ -1200,7 +1200,7 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         #ifndef NOALIGN
         case 291:   // sys__epoll_create1
-            return epoll_create1(of_convert(S_EDI));
+            return epoll_create1(of_convert(S_ESI));
         #endif
         case 317:   // sys_seccomp
             return 0;  // ignoring call
