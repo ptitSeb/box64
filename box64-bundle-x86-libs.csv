@@ -83,3 +83,5 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/pciutils-libs-3.7.0-5.
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/pciutils-libs-3.7.0-5.el9.x86_64.rpm,308bd897d8f9a36020d70edc79089a3595b22b149200d67c37e2d4e6147a9f75
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/sqlite-libs-3.34.1-7.el9_3.i686.rpm,dc6946a8344b8f4f476fef9479d1786c86fdcd045e988ab5d85fef7780e1fae4
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/sqlite-libs-3.34.1-7.el9_3.x86_64.rpm,e7f87444f24a03b37caa02942082b6d4283067ecbbd3f7798f882d22b55713cf
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/zlib-1.2.11-40.el9.i686.rpm,659ee5222028744806be3f822369a726c721aa346eed2882dcf019d83c111e67
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/zlib-1.2.11-40.el9.x86_64.rpm,90d7d5d145c6d397645ffefdff40e3d2783e3bf3bfa7b6c1f089c2cad81a3191
