@@ -80,12 +80,32 @@ void native_fxtract(x64emu_t* emu)
 }
 void native_fprem(x64emu_t* emu)
 {
-    int64_t ll = (int64_t)trunc(ST0.d / ST1.d);
-    ST0.d = ST0.d - (ST1.d * ll);
+    double x = ST0.d, y = ST1.d;
+    int64_t q = 0;
+    if (isnan(x) || isnan(y)) {
+        ST0.d = NAN;
+        q = 0;
+    } else if (isinf(x) || y == 0.0) {
+#if !defined(_WIN32) && !defined(__MINGW32__)
+        feraiseexcept(FE_INVALID);
+#endif
+        ST0.d = NAN;
+        q = 0;
+    } else {
+#if defined(_WIN32) || defined(__MINGW32__)
+        q = (int64_t)trunc(x / y);
+        ST0.d = x - (y * q);
+#else
+        ST0.d = fmod(x, y);
+        q = (int64_t)trunc(x / y);
+#endif
+    }
+    q &= 7;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C1 = (ll & 1) ? 1 : 0;
-    emu->sw.f.F87_C3 = (ll & 2) ? 1 : 0;
-    emu->sw.f.F87_C0 = (ll & 4) ? 1 : 0;
+    emu->sw.f.F87_C1 = q & 1;
+    emu->sw.f.F87_C3 = (q >> 1) & 1;
+    emu->sw.f.F87_C0 = (q >> 2) & 1;
+
 }
 void native_fyl2xp1(x64emu_t* emu)
 {
@@ -315,13 +335,28 @@ void native_frstor16(x64emu_t* emu, uint8_t* ed)
 
 void native_fprem1(x64emu_t* emu)
 {
-    int e0, e1;
-    int64_t ll = (int64_t)round(ST0.d / ST1.d);
-    ST0.d = ST0.d - (ST1.d * ll);
+    double x = ST0.d, y = ST1.d;
+    int q = 0;
+    if (isnan(x) || isnan(y)) {
+        ST0.d = NAN;
+    } else if (isinf(x) || y == 0.0) {
+#if !defined(_WIN32) && !defined(__MINGW32__)
+        feraiseexcept(FE_INVALID);
+#endif
+        ST0.d = NAN;
+    } else {
+#if defined(_WIN32) || defined(__MINGW32__)
+        q = (int)round(x / y);
+        ST0.d = x - (y * q);
+#else
+        ST0.d = remquo(x, y, &q);
+#endif
+    }
+    q &= 7;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C1 = (ll & 1) ? 1 : 0;
-    emu->sw.f.F87_C3 = (ll & 2) ? 1 : 0;
-    emu->sw.f.F87_C0 = (ll & 4) ? 1 : 0;
+    emu->sw.f.F87_C1 = q & 1;
+    emu->sw.f.F87_C3 = (q >> 1) & 1;
+    emu->sw.f.F87_C0 = (q >> 2) & 1;
 }
 
 const uint8_t ff_mult2[4][256] = {
