@@ -1,6 +1,6 @@
 # Bundling x86 Libraries
 
-The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-bundle x86_64 and x86 libraries for use with Box64/Box32 and Box86. These libraries improve Box emulation. This bundle provides a much smaller size compared to using a full root file system of an operating system.
+The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-bundle x86_64 and x86 libraries for use with Box64/Box32 and Box86. This bundle improves Box emulation by providing libraries that are not wrapped yet. In a perfect world, the application or game would already provide these libraries but that is not always the case. The bundle archive provides a much smaller size compared to using a full root file system of an operating system.
 
 ## Usage
 
