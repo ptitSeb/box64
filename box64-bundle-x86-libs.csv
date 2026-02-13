@@ -3,14 +3,14 @@ https://archive.debian.org/debian/pool/main/c/curl/libcurl3-gnutls_7.74.0-1.3+de
 https://archive.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2l-1~bpo8+1_amd64.deb,6e85968afe1a6643f4e82e1cc168f848c5967a131bb1c7392f11974953db0e67
 https://archive.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2l-1~bpo8+1_i386.deb,4e8b924286a064c257ca50b8ecd44fe71226443daef62b6836010590e2157329
 https://archives.fedoraproject.org/pub/archive/epel/9.5/Everything/x86_64/Packages/m/mbedtls-2.28.8-1.el9.x86_64.rpm,54cb7e43e902a7378e912ecfec470ee30fe69af323d3812cbc39ddebd64790ff
+https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libpng12-1.2.57-13.fc34.i686.rpm,5e4f525f44d538e3467dd13c66010d54f3d12ec4a319829e15a23ff2d0195b5b
+https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libpng12-1.2.57-13.fc34.x86_64.rpm,49f956ad143399c29f5ddf6da6b6fc108ce130d1ed598b4ec5a68b1ff26091de
 https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libunwind-1.4.0-5.fc34.i686.rpm,eb518e9d073c36fd29862c7afd00a8a7cb186074a0e162983f18fb6c9dc71d2c
 https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libunwind-1.4.0-5.fc34.x86_64.rpm,0f44e37e4eb472508e0dba8505ebbb04c2c1390c6a43970a6af80aad886037e3
 https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/h/hidapi-0.11.2-2.fc34.i686.rpm,386040fc502e2f02b4b072e0cd90c034dc0a30831fbd2ddb116d17c080b6f9a4
 https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/34/Everything/x86_64/Packages/h/hidapi-0.11.2-2.fc34.x86_64.rpm,2a13461c7d5fcf72ffd682b3eb04833aea8306d61c3b8bdeb42a5081d96d5478
 https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/s/SDL3-3.2.12-1.fc40.i686.rpm,4a3bce6e6358ddd05ed2941e7b8fcc4c8cc02df20741d3f0f9295facbc687769
 https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/s/SDL3-3.2.12-1.fc40.x86_64.rpm,9524803ef42d80dc1b15190d5bb5925200995d5a6152eca04471383ff891af17
-https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libpng12-1.2.57-13.fc34.i686.rpm,5e4f525f44d538e3467dd13c66010d54f3d12ec4a319829e15a23ff2d0195b5b
-https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/34/Everything/x86_64/os/Packages/l/libpng12-1.2.57-13.fc34.x86_64.rpm,49f956ad143399c29f5ddf6da6b6fc108ce130d1ed598b4ec5a68b1ff26091de
 https://cdn.getsol.us/repo/shannon/libj/libjpeg-turbo/libjpeg-turbo-3.0.3-21-1-x86_64.eopkg,c92f19d446b4c2450306f13b1a908f2552400da09301996fe349fee243d964d2
 https://cdn.getsol.us/repo/shannon/libj/libjpeg-turbo/libjpeg-turbo-32bit-3.0.3-21-1-x86_64.eopkg,5624990281f6520026aa2252c711f02d4916099aeac63accc83bd2135b9d3220
 https://repo.almalinux.org/almalinux/8.10/BaseOS/x86_64/os/Packages/nettle-3.4.1-7.el8.i686.rpm,13bc8758355c3ec885f414e0e86efad29a7fe82c0999cdb3754d666949c06cc5
