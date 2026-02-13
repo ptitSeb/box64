@@ -85,3 +85,5 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/sqlite-libs-3.34.1-7.e
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/sqlite-libs-3.34.1-7.el9_3.x86_64.rpm,e7f87444f24a03b37caa02942082b6d4283067ecbbd3f7798f882d22b55713cf
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/zlib-1.2.11-40.el9.i686.rpm,659ee5222028744806be3f822369a726c721aa346eed2882dcf019d83c111e67
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/zlib-1.2.11-40.el9.x86_64.rpm,90d7d5d145c6d397645ffefdff40e3d2783e3bf3bfa7b6c1f089c2cad81a3191
+https://vault.centos.org/6.10/os/x86_64/Packages/compat-libstdc++-33-3.2.3-69.el6.i686.rpm,894abcc5f0b28e39c71d4b0ca27d19540e7eb9d3c32664d5621324c9efbfe11e
+https://vault.centos.org/6.10/os/x86_64/Packages/compat-libstdc++-33-3.2.3-69.el6.x86_64.rpm,41ea0fec16c0ca62722a32b7ffd70bb716beec8b6dd32b57f076be02a5aee00c
