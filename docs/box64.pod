@@ -511,6 +511,14 @@ Fix 64bit inodes.
  * 1 : Fix 64bit inodes. 
 
 
+=item B<BOX64_FORCE_LD_PRELOAD> =I<0|1>
+
+Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT.
+
+ * 0 : Do nothing. [Default]
+ * 1 : Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT. 
+
+
 =item B<BOX64_IGNOREINT3> =I<0|1>
 
 Ignore INT3 instructions.

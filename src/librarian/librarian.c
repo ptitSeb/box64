@@ -473,7 +473,7 @@ int GetNextSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uin
     // search in needed libs from preloaded first, in order
     if(my_context->preload)
         for(int i=0; i<my_context->preload->size; ++i) {
-            if(next) {
+            if (next || BOX64ENV(force_ld_preload)) {
                 if(GetLibGlobalSymbolStartEnd(my_context->preload->libs[i], name, start, end, size, &weak, &version, &vername, 0, &veropt, elfsym)) {
                     return 1;
                 }

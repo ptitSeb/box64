@@ -94,6 +94,7 @@ extern char* ftrace_name;
     STRING(BOX64_ENV5, env5, 0)                                               \
     BOOLEAN(BOX64_EXIT, exit, 0, 0)                                           \
     BOOLEAN(BOX64_FIX_64BIT_INODES, fix_64bit_inodes, 0, 0)                   \
+    BOOLEAN(BOX64_FORCE_LD_PRELOAD, force_ld_preload, 0, 0)                   \
     BOOLEAN(BOX64_IGNOREINT3, ignoreint3, 0, 0)                               \
     STRING(BOX64_INSERT_ARGS, insert_args, 0)                                 \
     BOOLEAN(BOX64_INPROCESSGPU, inprocessgpu, 0, 0)                           \
