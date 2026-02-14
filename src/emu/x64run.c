@@ -518,13 +518,27 @@ x64emurun:
             break;
         case 0x63:                      /* MOVSXD Gd,Ed */
             nextop = F8;
-            GETE4(0);
-            GETGD;
             if(rex.is32bits) {
-                // ARPL here
-                // faking to always happy...
-                SET_FLAG(F_ZF);
+                // ARPL r/m16, r16
+                // If dest.RPL < src.RPL then dest.RPL = src.RPL and ZF=1, else ZF=0.
+                // Only ZF is modified.
+                CHECK_FLAGS(emu);
+
+                GETEW(0);
+                GETGW;
+                uint16_t dst = EW->word[0];
+                uint16_t src = GW->word[0];
+                uint16_t dst_rpl = dst & 0x3;
+                uint16_t src_rpl = src & 0x3;
+                if(dst_rpl < src_rpl) {
+                    EW->word[0] = (dst & 0xFFFC) | src_rpl;
+                    SET_FLAG(F_ZF);
+                } else {
+                    CLEAR_FLAG(F_ZF);
+                }
             } else {
+                GETE4(0);
+                GETGD;
                 if(rex.w)
                     GD->sq[0] = ED->sdword[0];
                 else

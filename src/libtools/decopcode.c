@@ -228,7 +228,6 @@ int decode_opcode(uintptr_t rip, int is32bits)
         case 0x39:
         case 0x3a:
         case 0x3b:
-        case 0x63:
         case 0x69:
         case 0x6B:
         case 0x84:
@@ -237,6 +236,13 @@ int decode_opcode(uintptr_t rip, int is32bits)
         case 0x8B:
         case 0x8E:
             nextop = addr[idx++];
+            return (MODREG)?0:(OPCODE_READ);
+        case 0x63:
+            // In 32-bit mode this opcode is ARPL Ew, Gw (read + conditional write to r/m16).
+            // In 64-bit mode this opcode is MOVSXD Gd, Ed (read-only).
+            nextop = addr[idx++];
+            if(is32bits)
+                return (MODREG)?0:(OPCODE_WRITE|OPCODE_READ);
             return (MODREG)?0:(OPCODE_READ);
         case 0x06: 
         case 0x0E: 
