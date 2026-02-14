@@ -1100,6 +1100,24 @@
     ]
   },
   {
+    "name": "BOX64_FORCE_LD_PRELOAD",
+    "description": "Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do nothing.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_IGNOREINT3",
     "description": "Ignore INT3 instructions.",
     "category": "Compatibility",
