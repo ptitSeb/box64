@@ -1498,8 +1498,6 @@ void* inplace_XRRMonitorInfo_enlarge(void* a, int n)
         src+=n-1;
         dst+=n-1;
         for(int i=n-1; i>=0; --i, --src, --dst) {
-            for(int j=dst->noutput-1; j>=0; --j)
-                ((unsigned long*)dst->outputs)[j] = from_ulong(dst->outputs[j]);
             dst->outputs = from_ptrv(src->outputs);
             dst->mheight = src->mheight;
             dst->mwidth = src->mwidth;
@@ -1511,6 +1509,8 @@ void* inplace_XRRMonitorInfo_enlarge(void* a, int n)
             dst->automatic = src->automatic;
             dst->primary = src->primary;
             dst->name = from_ulong(src->name);
+            for(int j=dst->noutput-1; j>=0; --j)
+                dst->outputs[j] = from_ulong(((ulong_t*)dst->outputs)[j]);
         }
     }
     return a;
