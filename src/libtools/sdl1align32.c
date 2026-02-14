@@ -110,7 +110,7 @@ void convert_SDL_Event_to_32(void* dst_, const void* src_)
             dst->key.keysym.sym = src->key.keysym.sym;
             dst->key.keysym.unicode = src->key.keysym.unicode;
             dst->key.state = src->key.state;
-            dst->key.which = dst->key.which;
+            dst->key.which = src->key.which;
             break;
         case SDL_MOUSEMOTION:
             dst->motion.state = src->motion.state;
@@ -189,7 +189,7 @@ void convert_SDL_Event_to_64(void* dst_, const void* src_)
             dst->key.keysym.sym = src->key.keysym.sym;
             dst->key.keysym.unicode = src->key.keysym.unicode;
             dst->key.state = src->key.state;
-            dst->key.which = dst->key.which;
+            dst->key.which = src->key.which;
             break;
         case SDL_MOUSEMOTION:
             dst->motion.state = src->motion.state;
