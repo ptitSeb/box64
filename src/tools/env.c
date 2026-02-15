@@ -774,6 +774,17 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     if (!filename) return;
 
     char* lowercase_filename = LowerCase(filename);
+    if(strstr(lowercase_filename, "/memfd:")==lowercase_filename) {
+        // memfd, first remove the (deleted) at the end
+        char* p = strstr(lowercase_filename, " (deleted)");
+        if(p=lowercase_filename+strlen(lowercase_filename)-strlen(" (deleted)"))
+            *p = 0;
+        // add the "/fd" at the end to differenciate between memfd
+        char* new_name = box_calloc(1, strlen(lowercase_filename)+100);
+        sprintf(new_name, "%s/%d", lowercase_filename, fd);
+        box_free(lowercase_filename);
+        lowercase_filename = new_name;
+    }
     mutex_lock(&my_context->mutex_dyndump);
     int ret;
     mapping_t* mapping = NULL;
@@ -792,12 +803,12 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
             if (k != kh_end(box64env_entries))
                 mapping->env = &kh_value(box64env_entries, k);
         }
-        dynarec_log(LOG_INFO, "Mapping %s (%s) in %p-%p\n", fullname, lowercase_filename, (void*)addr, (void*)(addr+length));
+        dynarec_log(LOG_INFO, "Mapping of fd:%d %s (%s) in %p-%p\n", fd, fullname, lowercase_filename, (void*)addr, (void*)(addr+length));
     } else
         mapping = kh_value(mapping_entries, k);
 
     if(mapping && mapping->start>addr) { 
-        dynarec_log(LOG_INFO, "Ignoring Mapping %s (%s) adjusted start: %p from %p\n", fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
+        dynarec_log(LOG_INFO, "Ignoring Mapping of fd:%d %s (%s) adjusted start: %p from %p\n", fd, fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
         box_free(lowercase_filename);
         mutex_unlock(&my_context->mutex_dyndump);
         return;
