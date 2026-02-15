@@ -1102,6 +1102,13 @@ BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
 
+[TimeShift.Exe]
+#tested on the Steam version with unofficial 1.2 patch applied
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+BOX64_DYNAREC_STRONGMEM=1
+BOX64_MAXCPU=8  #this is usefull only if the cpu fix patch is not applied
+
 [TheForest.exe]
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
