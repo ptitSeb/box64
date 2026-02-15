@@ -64,7 +64,6 @@ x64_stack_t* sigstack_getstack() {
 }
 
 #ifndef DYNAREC
-typedef void dynablock_t;
 dynablock_t* FindDynablockFromNativeAddress(void* addr) {return NULL;}
 uintptr_t getX64Address(dynablock_t* db, uintptr_t pc) {return 0;}
 #endif
