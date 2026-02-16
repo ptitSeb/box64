@@ -767,7 +767,7 @@ void mctx2emu(x64emu_t* emu, x64_mcontext_t* ctx)
     GO(SS);
     #undef GO
 }
-
+#ifdef DYNAREC
 void copyEmu2USignalCTXreg(ucontext_t* p, x64emu_t* emu, void* new_pc)
 {
     CONTEXT_REG(p, xR8) = R_R8;
@@ -794,3 +794,4 @@ void copyEmu2USignalCTXreg(ucontext_t* p, x64emu_t* emu, void* new_pc)
     #endif
     CONTEXT_PC(p) = (uintptr_t)new_pc;
 }
+#endif

@@ -39,6 +39,9 @@ x30     t5     x5           Temporary                       Scratch             
 x31     t6     x6           Temporary                       Scratch                 Caller
 ******************************************************************************************/
 
+// replacement for F_OF internaly, using a reserved bit. Need to use F_OF2 internaly, never F_OF directly!
+#define F_OF2 F_res3
+
 #ifndef ASM_MAPPING
 
 #include <stdint.h>

@@ -5,9 +5,6 @@
 
 // RV64 Emitter
 
-// replacement for F_OF internaly, using a reserved bit. Need to use F_OF2 internaly, never F_OF directly!
-#define F_OF2 F_res3
-
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)
 #define SPLIT12(A) ((A) & 0xfff)
