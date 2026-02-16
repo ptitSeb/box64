@@ -17,7 +17,4 @@ const char* nvmlName = "libnvidia-ml.so.1";
 
 #define LIBNAME nvml
 
-#define PRE_INIT \
-    if (BOX64ENV(nogtk)) return -2;
-
 #include "wrappedlib_init.h"
