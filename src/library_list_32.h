@@ -108,6 +108,9 @@ GO("libdbus-1.so.3", dbus)
 GO("libcurl.so.4", curl)
 GO("libcurl-gnutls.so.4", curl)
 GO("libcurl.so.3", curl)
+GO("libnvidia-ml.so", nvml)
+GO("libnvidia-ml.so.1", nvml)
+
 
 //GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)

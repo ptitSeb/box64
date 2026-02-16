@@ -574,4 +574,90 @@ typedef struct struct_UUUULLLLLLLLLLLLLL_s {
 } struct_UUUULLLLLLLLLLLLLL_t;
 void from_struct_UUUULLLLLLLLLLLLLL(struct_UUUULLLLLLLLLLLLLL_t *dest, ptr_t src);
 void to_struct_UUUULLLLLLLLLLLLLL(ptr_t dest, const struct_UUUULLLLLLLLLLLLLL_t *src);
+typedef struct struct_uup_s {
+	uint32_t u0;
+	uint32_t u1;
+	void* p2;
+} struct_uup_t;
+void from_struct_uup(struct_uup_t *dest, ptr_t src);
+void to_struct_uup(ptr_t dest, const struct_uup_t *src);
+typedef struct struct_uUp_s {
+	uint32_t u0;
+	uint64_t U1;
+	void* p2;
+} struct_uUp_t;
+void from_struct_uUp(struct_uUp_t *dest, ptr_t src);
+void to_struct_uUp(ptr_t dest, const struct_uUp_t *src);
+typedef struct struct_uupuu_s {
+	uint32_t u0;
+	uint32_t u1;
+	void* p2;
+	uint32_t u3;
+	uint32_t u4;
+} struct_uupuu_t;
+void from_struct_uupuu(struct_uupuu_t *dest, ptr_t src);
+void to_struct_uupuu(ptr_t dest, const struct_uupuu_t *src);
+typedef struct struct_uUUUU_s {
+	uint32_t u0;
+	uint64_t U1;
+	uint64_t U2;
+	uint64_t U3;
+	uint64_t U4;
+} struct_uUUUU_t;
+void from_struct_uUUUU(struct_uUUUU_t *dest, ptr_t src);
+void to_struct_uUUUU(ptr_t dest, const struct_uUUUU_t *src);
+typedef struct struct_uuupu_s {
+	uint32_t u0;
+	uint32_t u1;
+	uint32_t u2;
+	void* p3;
+	uint32_t u4;
+} struct_uuupu_t;
+void from_struct_uuupu(struct_uuupu_t *dest, ptr_t src);
+void to_struct_uuupu(ptr_t dest, const struct_uuupu_t *src);
+typedef struct struct_pUUuu_s {
+	void* p0;
+	uint64_t U1;
+	uint64_t U2;
+	uint32_t u3;
+	uint32_t u4;
+} struct_pUUuu_t;
+void from_struct_pUUuu(struct_pUUuu_t *dest, ptr_t src);
+void to_struct_pUUuu(ptr_t dest, const struct_pUUuu_t *src);
+typedef struct struct_uuppuu_s {
+	uint32_t u0;
+	uint32_t u1;
+	void* p2;
+	void* p3;
+	uint32_t u4;
+	uint32_t u5;
+} struct_uuppuu_t;
+void from_struct_uuppuu(struct_uuppuu_t *dest, ptr_t src);
+void to_struct_uuppuu(ptr_t dest, const struct_uuppuu_t *src);
+typedef struct struct_uuUp_s {
+	uint32_t u0;
+	uint32_t u1;
+	uint64_t U2;
+	void* p3;
+} struct_uuUp_t;
+void from_struct_uuUp(struct_uuUp_t *dest, ptr_t src);
+void to_struct_uuUp(ptr_t dest, const struct_uuUp_t *src);
+typedef struct struct_uUuuuu_s {
+	uint32_t u0;
+	uint64_t U1;
+	uint32_t u2;
+	uint32_t u3;
+	uint32_t u4;
+	uint32_t u5;
+} struct_uUuuuu_t;
+void from_struct_uUuuuu(struct_uUuuuu_t *dest, ptr_t src);
+void to_struct_uUuuuu(ptr_t dest, const struct_uUuuuu_t *src);
+typedef struct struct_uUuu_s {
+	uint32_t u0;
+	uint64_t U1;
+	uint32_t u2;
+	uint32_t u3;
+} struct_uUuu_t;
+void from_struct_uUuu(struct_uUuu_t *dest, ptr_t src);
+void to_struct_uUuu(ptr_t dest, const struct_uUuu_t *src);
 #endif // __CONVERTER_H_

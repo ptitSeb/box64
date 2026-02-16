@@ -1137,3 +1137,165 @@ void to_struct_UUUULLLLLLLLLLLLLL(ptr_t d, const struct_UUUULLLLLLLLLLLLLL_t *sr
 	*(ulong_t*)dest = to_ulong(src->L16); dest += 4;
 	*(ulong_t*)dest = to_ulong(src->L17); dest += 4;
 }
+void from_struct_uup(struct_uup_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_uup(ptr_t d, const struct_uup_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+}
+void from_struct_uUp(struct_uUp_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->U1 = *(uint64_t*)src; src += 8;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_uUp(ptr_t d, const struct_uUp_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint64_t*)dest = src->U1; dest += 8;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+}
+void from_struct_uupuu(struct_uupuu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->u3 = *(uint32_t*)src; src += 4;
+	dest->u4 = *(uint32_t*)src; src += 4;
+}
+void to_struct_uupuu(ptr_t d, const struct_uupuu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+	*(uint32_t*)dest = src->u3; dest += 4;
+	*(uint32_t*)dest = src->u4; dest += 4;
+}
+void from_struct_uUUUU(struct_uUUUU_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->U1 = *(uint64_t*)src; src += 8;
+	dest->U2 = *(uint64_t*)src; src += 8;
+	dest->U3 = *(uint64_t*)src; src += 8;
+	dest->U4 = *(uint64_t*)src; src += 8;
+}
+void to_struct_uUUUU(ptr_t d, const struct_uUUUU_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint64_t*)dest = src->U1; dest += 8;
+	*(uint64_t*)dest = src->U2; dest += 8;
+	*(uint64_t*)dest = src->U3; dest += 8;
+	*(uint64_t*)dest = src->U4; dest += 8;
+}
+void from_struct_uuupu(struct_uuupu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->u2 = *(uint32_t*)src; src += 4;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->u4 = *(uint32_t*)src; src += 4;
+}
+void to_struct_uuupu(ptr_t d, const struct_uuupu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(uint32_t*)dest = src->u2; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
+	*(uint32_t*)dest = src->u4; dest += 4;
+}
+void from_struct_pUUuu(struct_pUUuu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->U1 = *(uint64_t*)src; src += 8;
+	dest->U2 = *(uint64_t*)src; src += 8;
+	dest->u3 = *(uint32_t*)src; src += 4;
+	dest->u4 = *(uint32_t*)src; src += 4;
+}
+void to_struct_pUUuu(ptr_t d, const struct_pUUuu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(uint64_t*)dest = src->U1; dest += 8;
+	*(uint64_t*)dest = src->U2; dest += 8;
+	*(uint32_t*)dest = src->u3; dest += 4;
+	*(uint32_t*)dest = src->u4; dest += 4;
+}
+void from_struct_uuppuu(struct_uuppuu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->u4 = *(uint32_t*)src; src += 4;
+	dest->u5 = *(uint32_t*)src; src += 4;
+}
+void to_struct_uuppuu(ptr_t d, const struct_uuppuu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
+	*(uint32_t*)dest = src->u4; dest += 4;
+	*(uint32_t*)dest = src->u5; dest += 4;
+}
+void from_struct_uuUp(struct_uuUp_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->U2 = *(uint64_t*)src; src += 8;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_uuUp(ptr_t d, const struct_uuUp_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(uint64_t*)dest = src->U2; dest += 8;
+	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
+}
+void from_struct_uUuuuu(struct_uUuuuu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->U1 = *(uint64_t*)src; src += 8;
+	dest->u2 = *(uint32_t*)src; src += 4;
+	dest->u3 = *(uint32_t*)src; src += 4;
+	dest->u4 = *(uint32_t*)src; src += 4;
+	dest->u5 = *(uint32_t*)src; src += 4;
+}
+void to_struct_uUuuuu(ptr_t d, const struct_uUuuuu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint64_t*)dest = src->U1; dest += 8;
+	*(uint32_t*)dest = src->u2; dest += 4;
+	*(uint32_t*)dest = src->u3; dest += 4;
+	*(uint32_t*)dest = src->u4; dest += 4;
+	*(uint32_t*)dest = src->u5; dest += 4;
+}
+void from_struct_uUuu(struct_uUuu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->U1 = *(uint64_t*)src; src += 8;
+	dest->u2 = *(uint32_t*)src; src += 4;
+	dest->u3 = *(uint32_t*)src; src += 4;
+}
+void to_struct_uUuu(ptr_t d, const struct_uUuu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint64_t*)dest = src->U1; dest += 8;
+	*(uint32_t*)dest = src->u2; dest += 4;
+	*(uint32_t*)dest = src->u3; dest += 4;
+}
