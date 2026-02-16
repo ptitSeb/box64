@@ -866,7 +866,7 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
         cpusetsize = sizeof(cpu_set_t);
     } 
 
-    int ret = pthread_attr_setaffinity_np(attr, cpusetsize, cpuset);
+    int ret = pthread_attr_setaffinity_np(get_attr(attr), cpusetsize, cpuset);
     if(ret<0) {
         printf_log(LOG_INFO, "Warning, pthread_attr_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", attr, cpusetsize, cpuset, errno);
     }
