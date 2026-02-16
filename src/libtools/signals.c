@@ -40,6 +40,7 @@
 #include "../dynarec/dynablock_private.h"
 #include "dynarec_native.h"
 #include "dynarec/dynarec_arch.h"
+#include "dynarec/dynarec_next.h"
 #include "gdbjit.h"
 #endif
 #include "sigtools.h"
@@ -258,9 +259,9 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
 #endif
 
 #ifdef BOX32
-void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
+int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
 #endif
-void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
     int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:LOG_DEBUG;
@@ -481,9 +482,9 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
         dynarec = BOX64ENV(dynarec_interp_signal)?0:1;
     #endif
     ret = RunFunctionHandler(emu, &exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
-    // restore old value from emu
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
+    // restore old value from emu
     #define GO(A) R_##A = old_##A
     GO(RAX);
     GO(RDI);
@@ -496,6 +497,15 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     #undef GO
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
+        #if defined(DYNAREC)
+        if(db) {
+            // if signal was inside a dynablock, just mirror all the new regs in the right place to simple run native_next
+            mctx2emu(emu, &sigcontext->uc_mcontext);
+            copyEmu2USignalCTXreg(p, emu, native_next);
+            printf_log((sig==10)?LOG_DEBUG:log_minimum, "Context has been changed in Sigactionhanlder, jumping to native_next from DynaBlock at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
+            return 1;
+        }
+        #endif
         if(emu->jmpbuf) {
             if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[X64_RIP]))
                 skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
@@ -567,6 +577,7 @@ void my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigi
     if(restorer)
         RunFunctionHandler(emu, &exits, 0, NULL, restorer, 0);
     relockMutex(Locks);
+    return 0;
 }
 
 void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc)
@@ -625,12 +636,15 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             ARCH_ADJUST(db, emu, ucntx, x64pc);
     }
     #endif
+    int direct_ret = 0;
     #ifdef BOX32
     if(box64_is32bits) {
-        my_sigactionhandler_oldcode_32(emu, sig, simple, info, ucntx, old_code, cur_db);
+        direct_ret = my_sigactionhandler_oldcode_32(emu, sig, simple, info, ucntx, old_code, cur_db);
     } else
     #endif
-    my_sigactionhandler_oldcode_64(emu, sig, simple, info, ucntx, old_code, cur_db);
+    direct_ret = my_sigactionhandler_oldcode_64(emu, sig, simple, info, ucntx, old_code, cur_db);
+    if(direct_ret)
+        return;
     #define GO(A) R_##A = old_##A
     GO(RAX);
     GO(RBX);
@@ -1015,219 +1029,213 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
 #endif //DYNAREC
     if(!db && (sig==X64_SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
         x64pc--;
-    if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==tid && old_prot==prot) {
-        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, x64pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, x64pc, old_addr, prot);
-        exit(-1);
-    } else {
-        if((sig==X64_SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
-            static uintptr_t old_addr = 0;
-            #ifdef DYNAREC
-            if(prot==(PROT_READ|PROT_WRITE|PROT_EXEC))
-                if(cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0)) {
-                    printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p with DynaBlock(s) in range, db=%p, Lock=0x%x)\n", tid, pc, addr, db, Locks);
-                    refreshProtection((uintptr_t)addr);
-                    relockMutex(Locks);
-                    return;
-                }
-            #endif
-            printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p%s, db=%p, prot=0x%x (old_addr=%p, Lock=0x%x)\n", tid, pc, addr, mapped?" mapped":"", db, prot, (void*)old_addr, Locks);
-            if(!(old_addr==(uintptr_t)addr && old_prot==prot) || mapped) {
-                old_addr = (uintptr_t)addr;
-                old_prot = prot;
-                refreshProtection(old_addr);
+    if((sig==X64_SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
+        static uintptr_t old_addr = 0;
+        #ifdef DYNAREC
+        if(prot==(PROT_READ|PROT_WRITE|PROT_EXEC))
+            if(cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0)) {
+                printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p with DynaBlock(s) in range, db=%p, Lock=0x%x)\n", tid, pc, addr, db, Locks);
+                refreshProtection((uintptr_t)addr);
                 relockMutex(Locks);
-                sched_yield();  // give time to the other process
-                return; // that's probably just a multi-task glitch, like seen in terraria
+                return;
             }
-            old_addr = 0;
+        #endif
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p%s, db=%p, prot=0x%x (old_addr=%p, Lock=0x%x)\n", tid, pc, addr, mapped?" mapped":"", db, prot, (void*)old_addr, Locks);
+        if(!(old_addr==(uintptr_t)addr && old_prot==prot) || mapped) {
+            old_addr = (uintptr_t)addr;
+            old_prot = prot;
+            refreshProtection(old_addr);
+            relockMutex(Locks);
+            sched_yield();  // give time to the other process
+            return; // that's probably just a multi-task glitch, like seen in terraria
         }
-        old_code = info->si_code;
-        old_pc = pc;
-        old_addr = addr;
-        old_tid = tid;
-        old_prot = prot;
-        const char* name = NULL;
-        const char* x64name = NULL;
-        if (log_minimum<=BOX64ENV(log)) {
+        old_addr = 0;
+    }
+    old_code = info->si_code;
+    old_pc = pc;
+    old_addr = addr;
+    old_tid = tid;
+    old_prot = prot;
+    const char* name = NULL;
+    const char* x64name = NULL;
+    if (log_minimum<=BOX64ENV(log)) {
+        signal_jmpbuf_active = 1;
+        if(sigsetjmp(SIG_JMPBUF, 1)) {
+            // segfault while gathering function name...
+            name = "???";
+        } else
+            name = GetNativeName(pc, 1);
+        signal_jmpbuf_active = 0;
+    }
+    // Adjust RIP for special case of NULL function run
+    if(sig==X64_SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
+        R_RIP = 0x0;
+    if(log_minimum<=BOX64ENV(log)) {
+        elfheader_t* elf = FindElfAddress(my_context, x64pc);
+        {
             signal_jmpbuf_active = 1;
             if(sigsetjmp(SIG_JMPBUF, 1)) {
                 // segfault while gathering function name...
-                name = "???";
+                x64name = "?";
             } else
-                name = GetNativeName(pc, 1);
+                x64name = getAddrFunctionName(x64pc);
             signal_jmpbuf_active = 0;
         }
-        // Adjust RIP for special case of NULL function run
-        if(sig==X64_SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
-            R_RIP = 0x0;
-        if(log_minimum<=BOX64ENV(log)) {
-            elfheader_t* elf = FindElfAddress(my_context, x64pc);
-            {
-                signal_jmpbuf_active = 1;
-                if(sigsetjmp(SIG_JMPBUF, 1)) {
-                    // segfault while gathering function name...
-                    x64name = "?";
-                } else
-                    x64name = getAddrFunctionName(x64pc);
-                signal_jmpbuf_active = 0;
+    }
+    if(BOX64ENV(jitgdb)) {
+        pid_t pid = getpid();
+        int v = vfork(); // is this ok in a signal handler???
+        if(v<0) {
+            printf("Error while forking, cannot launch gdb (errp%d/%s)\n", errno, strerror(errno));
+        } else if(v) {
+            // parent process, the one that have the segfault
+            volatile int waiting = 1;
+            printf("Waiting for %s (pid %d)...\n", (BOX64ENV(jitgdb)==2)?"gdbserver":"gdb", pid);
+            while(waiting) {
+                // using gdb, use "set waiting=0" to stop waiting...
+                usleep(1000);
             }
+        } else {
+            char myarg[50] = {0};
+            sprintf(myarg, "%d", pid);
+            if(BOX64ENV(jitgdb)==2)
+                execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
+            else if(BOX64ENV(jitgdb)==3)
+                execlp("lldb", "lldb", "-p", myarg, (char*)NULL);
+            else
+                execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
+            exit(-1);
         }
-        if(BOX64ENV(jitgdb)) {
-            pid_t pid = getpid();
-            int v = vfork(); // is this ok in a signal handler???
-            if(v<0) {
-                printf("Error while forking, cannot launch gdb (errp%d/%s)\n", errno, strerror(errno));
-            } else if(v) {
-                // parent process, the one that have the segfault
-                volatile int waiting = 1;
-                printf("Waiting for %s (pid %d)...\n", (BOX64ENV(jitgdb)==2)?"gdbserver":"gdb", pid);
-                while(waiting) {
-                    // using gdb, use "set waiting=0" to stop waiting...
-                    usleep(1000);
-                }
-            } else {
-                char myarg[50] = {0};
-                sprintf(myarg, "%d", pid);
-                if(BOX64ENV(jitgdb)==2)
-                    execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
-                else if(BOX64ENV(jitgdb)==3)
-                    execlp("lldb", "lldb", "-p", myarg, (char*)NULL);
-                else
-                    execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
-                exit(-1);
-            }
-        }
-        print_rolling_log(log_minimum);
+    }
+    print_rolling_log(log_minimum);
 
-        if((BOX64ENV(showbt) || sig==X64_SIGABRT) && log_minimum<=BOX64ENV(log)) {
-            // show native bt
-            ShowNativeBT(log_minimum);
+    if((BOX64ENV(showbt) || sig==X64_SIGABRT) && log_minimum<=BOX64ENV(log)) {
+        // show native bt
+        ShowNativeBT(log_minimum);
 
 #define BT_BUF_SIZE 100
-            int nptrs;
-            void *buffer[BT_BUF_SIZE];
-            char **strings;
+        int nptrs;
+        void *buffer[BT_BUF_SIZE];
+        char **strings;
 
-            extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
-            extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
-            // save and set real RIP/RSP
-            #define GO(A) uintptr_t old_##A = R_##A;
-            GO(RAX);
-            GO(RBX);
-            GO(RCX);
-            GO(RDX);
-            GO(RBP);
-            GO(RSP);
-            GO(RDI);
-            GO(RSI);
-            GO(R8);
-            GO(R9);
-            GO(R10);
-            GO(R11);
-            GO(R12);
-            GO(R13);
-            GO(R14);
-            GO(R15);
-            GO(RIP);
-            #undef GO
-            #ifdef DYNAREC
-            if(db)
-                copyUCTXreg2Emu(emu, p, x64pc);
-            #endif
-            nptrs = my_backtrace_ip(emu, buffer, BT_BUF_SIZE);
-            strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
-            if(strings) {
-                for (int j = 0; j < nptrs; j++)
-                    printf_log(log_minimum, "EmulatedBT: %s\n", strings[j]);
-                free(strings);
-            } else
-                printf_log(log_minimum, "EmulatedBT: none\n");
-            #define GO(A) R_##A = old_##A
-            GO(RAX);
-            GO(RBX);
-            GO(RCX);
-            GO(RDX);
-            GO(RBP);
-            GO(RSP);
-            GO(RDI);
-            GO(RSI);
-            GO(R8);
-            GO(R9);
-            GO(R10);
-            GO(R11);
-            GO(R12);
-            GO(R13);
-            GO(R14);
-            GO(R15);
-            GO(RIP);
-            #undef GO
-        }
-
-        if(log_minimum<=BOX64ENV(log)) {
-            static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
-            static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
-            int shown_regs = 0;
+        extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
+        extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
+        // save and set real RIP/RSP
+        #define GO(A) uintptr_t old_##A = R_##A;
+        GO(RAX);
+        GO(RBX);
+        GO(RCX);
+        GO(RDX);
+        GO(RBP);
+        GO(RSP);
+        GO(RDI);
+        GO(RSI);
+        GO(R8);
+        GO(R9);
+        GO(R10);
+        GO(R11);
+        GO(R12);
+        GO(R13);
+        GO(R14);
+        GO(R15);
+        GO(RIP);
+        #undef GO
+        #ifdef DYNAREC
+        if(db)
+            copyUCTXreg2Emu(emu, p, x64pc);
+        #endif
+        nptrs = my_backtrace_ip(emu, buffer, BT_BUF_SIZE);
+        strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
+        if(strings) {
+            for (int j = 0; j < nptrs; j++)
+                printf_log(log_minimum, "EmulatedBT: %s\n", strings[j]);
+            free(strings);
+        } else
+            printf_log(log_minimum, "EmulatedBT: none\n");
+        #define GO(A) R_##A = old_##A
+        GO(RAX);
+        GO(RBX);
+        GO(RCX);
+        GO(RDX);
+        GO(RBP);
+        GO(RSP);
+        GO(RDI);
+        GO(RSI);
+        GO(R8);
+        GO(R9);
+        GO(R10);
+        GO(R11);
+        GO(R12);
+        GO(R13);
+        GO(R14);
+        GO(R15);
+        GO(RIP);
+        #undef GO
+    }
+    if(log_minimum<=BOX64ENV(log)) {
+        static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
+        static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
+        int shown_regs = 0;
 #ifdef DYNAREC
-            #ifdef GDBJIT
-            if(db && BOX64ENV(dynarec_gdbjit) == 3) GdbJITBlockReady(db->gdbjit_block);
-            #endif
-            uint32_t hash = 0;
-            if(db)
-                hash = X31_hash_code(db->x64_addr, db->x64_size);
-            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p",
-                GetTID(), signame, pc, name, (void*)x64pc, x64name?:"???", rsp,
-                emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP,
-                addr, info->si_code,
-                prot, db, db?db->block:0, db?(db->block+db->size):0,
-                db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0,
-                getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)),
-                (db && (db->hash!=hash))?"dirty":((db?getNeedTest((uintptr_t)db->x64_addr):0)?"needs_test":"clean"), db?db->hash:0, hash,
-                (void*)my_context->signals[sig]);
-                if(db) {
-                    shown_regs = 1;
-                    for (int i=0; i<16; ++i) {
-                        if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
-                        printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], CONTEXT_REG(p, TO_NAT(i)));
-                    }
-                    printf_log_prefix(0, log_minimum, "\n");
-                    for (int i=0; i<6; ++i)
-                        printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
-                    printf_log_prefix(0, log_minimum, "FSBASE=%p ", emu->segs_offs[_FS]);
-                    printf_log_prefix(0, log_minimum, "GSBASE=%p", emu->segs_offs[_GS]);
-                }
-                if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
-                    for (int i=-4; i<4; ++i) {
-                        printf_log_prefix(0, log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
-                    }
-#else
-            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, x64name?:"???", rsp, addr, info->si_code);
-#endif
-            if(!shown_regs) {
+        #ifdef GDBJIT
+        if(db && BOX64ENV(dynarec_gdbjit) == 3) GdbJITBlockReady(db->gdbjit_block);
+        #endif
+        uint32_t hash = 0;
+        if(db)
+            hash = X31_hash_code(db->x64_addr, db->x64_size);
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p",
+            GetTID(), signame, pc, name, (void*)x64pc, x64name?:"???", rsp,
+            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP,
+            addr, info->si_code,
+            prot, db, db?db->block:0, db?(db->block+db->size):0,
+            db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0,
+            getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)),
+            (db && (db->hash!=hash))?"dirty":((db?getNeedTest((uintptr_t)db->x64_addr):0)?"needs_test":"clean"), db?db->hash:0, hash,
+            (void*)my_context->signals[sig]);
+            if(db) {
+                shown_regs = 1;
                 for (int i=0; i<16; ++i) {
                     if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
-                    printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
+                    printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], CONTEXT_REG(p, TO_NAT(i)));
                 }
+                printf_log_prefix(0, log_minimum, "\n");
                 for (int i=0; i<6; ++i)
                     printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
                 printf_log_prefix(0, log_minimum, "FSBASE=%p ", emu->segs_offs[_FS]);
                 printf_log_prefix(0, log_minimum, "GSBASE=%p", emu->segs_offs[_GS]);
-                printf_log_prefix(0, log_minimum, "\n");
             }
-            zydis_dec_t* dec = emu->segs[_CS] == 0x23 ? my_context->dec32 : my_context->dec;
-            if(sig==X64_SIGILL) {
-                printf_log_prefix(0, log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X ", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
-                if (dec)
-                    printf_log_prefix(0, log_minimum, "(%s)\n", DecodeX64Trace(dec, x64pc, 1));
-                else
-                    printf_log_prefix(0, log_minimum, "(%02X %02X %02X %02X %02X)\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
-            } else if(sig==X64_SIGBUS || (sig==X64_SIGSEGV && (x64pc!=(uintptr_t)addr) && (pc!=addr) && (getProtection_fast(x64pc)&PROT_READ) && (getProtection_fast((uintptr_t)pc)&PROT_READ))) {
-                if (dec)
-                    printf_log_prefix(0, log_minimum, " %sopcode=%s; native opcode=%08x\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", DecodeX64Trace(dec, x64pc, 1), *(uint32_t*)pc);
-                else
-                    printf_log_prefix(0, log_minimum, " %sopcode=%02X %02X %02X %02X %02X %02X %02X %02X (opcode=%08x)\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7], *(uint32_t*)pc);
-            } else {
-                printf_log_prefix(0, log_minimum, "\n");
+            if(rsp!=addr && getProtection((uintptr_t)rsp-4*8) && getProtection((uintptr_t)rsp+4*8))
+                for (int i=-4; i<4; ++i) {
+                    printf_log_prefix(0, log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
+                }
+#else
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, x64name?:"???", rsp, addr, info->si_code);
+#endif
+        if(!shown_regs) {
+            for (int i=0; i<16; ++i) {
+                if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
+                printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
             }
+            for (int i=0; i<6; ++i)
+                printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
+            printf_log_prefix(0, log_minimum, "FSBASE=%p ", emu->segs_offs[_FS]);
+            printf_log_prefix(0, log_minimum, "GSBASE=%p", emu->segs_offs[_GS]);
+            printf_log_prefix(0, log_minimum, "\n");
+        }
+        zydis_dec_t* dec = emu->segs[_CS] == 0x23 ? my_context->dec32 : my_context->dec;
+        if(sig==X64_SIGILL) {
+            printf_log_prefix(0, log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X ", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
+            if (dec)
+                printf_log_prefix(0, log_minimum, "(%s)\n", DecodeX64Trace(dec, x64pc, 1));
+            else
+                printf_log_prefix(0, log_minimum, "(%02X %02X %02X %02X %02X)\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
+        } else if(sig==X64_SIGBUS || (sig==X64_SIGSEGV && (x64pc!=(uintptr_t)addr) && (pc!=addr) && (getProtection_fast(x64pc)&PROT_READ) && (getProtection_fast((uintptr_t)pc)&PROT_READ))) {
+            if (dec)
+                printf_log_prefix(0, log_minimum, " %sopcode=%s; native opcode=%08x\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", DecodeX64Trace(dec, x64pc, 1), *(uint32_t*)pc);
+            else
+                printf_log_prefix(0, log_minimum, " %sopcode=%02X %02X %02X %02X %02X %02X %02X %02X (opcode=%08x)\n", (emu->segs[_CS] == 0x23) ? "x86" : "x64", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7], *(uint32_t*)pc);
+        } else {
+            printf_log_prefix(0, log_minimum, "\n");
         }
     }
     relockMutex(Locks);
@@ -1235,7 +1243,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         my_sigactionhandler_oldcode(emu, sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db, x64pc);
         return;
     }
-    // no handler (or double identical segfault)
+    // no handler
     // set default and that's it, instruction will restart and default segfault handler will be called...
     if(my_context->signals[sig]!=1 || sig==X64_SIGSEGV || sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGABRT) {
         signal(signal_from_x64(sig), (void*)my_context->signals[sig]);

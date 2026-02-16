@@ -50,6 +50,7 @@ int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 void adjustregs(x64emu_t* emu, void* pc);
 
 void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip);
+void copyEmu2USignalCTXreg(ucontext_t* p, x64emu_t* emu, void* new_pc);
 
 //1<<1 is mutex_prot, 1<<8 is mutex_dyndump
 #define is_memprot_locked (1<<1)

@@ -767,3 +767,30 @@ void mctx2emu(x64emu_t* emu, x64_mcontext_t* ctx)
     GO(SS);
     #undef GO
 }
+
+void copyEmu2USignalCTXreg(ucontext_t* p, x64emu_t* emu, void* new_pc)
+{
+    CONTEXT_REG(p, xR8) = R_R8;
+    CONTEXT_REG(p, xR9) = R_R9;
+    CONTEXT_REG(p, xR10) = R_R10;
+    CONTEXT_REG(p, xR11) = R_R11;
+    CONTEXT_REG(p, xR12) = R_R12;
+    CONTEXT_REG(p, xR13) = R_R13;
+    CONTEXT_REG(p, xR14) = R_R14;
+    CONTEXT_REG(p, xR15) = R_R15;
+    CONTEXT_REG(p, xRAX) = R_RAX;
+    CONTEXT_REG(p, xRCX) = R_RCX;
+    CONTEXT_REG(p, xRDX) = R_RDX;
+    CONTEXT_REG(p, xRDI) = R_RDI;
+    CONTEXT_REG(p, xRSI) = R_RSI;
+    CONTEXT_REG(p, xRBP) = R_RBP;
+    CONTEXT_REG(p, xRSP) = R_RSP;
+    CONTEXT_REG(p, xRBX) = R_RBX;
+    CONTEXT_REG(p, xRIP) = R_RIP;
+    CONTEXT_REG(p, xFlags) = emu->eflags.x64;
+    #ifdef RV64
+    CONTEXT_REG(p, xFlags) &= ~(1<<F_OF2);
+    CONTEXT_REG(p, xFlags) |= ((CONTEXT_REG(p, xFlags)>>F_OF)&1)<<F_OF2;
+    #endif
+    CONTEXT_PC(p) = (uintptr_t)new_pc;
+}

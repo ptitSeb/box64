@@ -481,7 +481,7 @@ int unlockMutex();
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 #define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
-void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
     int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:((sig==X64_SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
@@ -801,6 +801,7 @@ void my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigi
     if(restorer)
         RunFunctionHandler32(&exits, 0, NULL, restorer, 0);
     relockMutex(Locks);
+    return 0;
 }
 
 void my32_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
