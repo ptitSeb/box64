@@ -519,7 +519,7 @@ static void del_cond(void* cond)
         return;
     mutex_lock(&my_context->mutex_thread);
     khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
-    if(k==kh_end(mapcond)) {
+    if(k!=kh_end(mapcond)) {
         box_free(kh_value(mapcond, k));
         kh_del(mapcond, mapcond, k);
     }
