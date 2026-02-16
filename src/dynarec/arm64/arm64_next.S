@@ -1,7 +1,5 @@
 //arm update linker table for dynarec
 //called with pointer to emu as 1st parameter
-//and address of table to as 2nd parameter
-//ip is at r12
 
 .text
 .align 4
