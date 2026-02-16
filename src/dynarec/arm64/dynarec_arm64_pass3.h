@@ -42,6 +42,16 @@
                 MESSAGE(LOG_DUMP, "  Table64C: 0x%lx\n", (V)); LDRx_literal(A, val64offset);\
             } while(0)
 #define FTABLE64(A, V)  do {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); VLDR64_literal(A, val64offset);} while(0)
+#ifdef WIN32
+#define CALLRET_RET(A)                                                          \
+    do {                                                                        \
+        if(BOX64DRENV(dynarec_callret)>1) {                                     \
+            dyn->callrets[dyn->callret_size].type = 0;                          \
+            dyn->callrets[dyn->callret_size++].offs = dyn->native_size;         \
+            EMIT(ARCH_NOP);                                                     \
+        }                                                                       \
+    } while(0)
+#else
 #define CALLRET_RET(A)                                                          \
     do {                                                                        \
         if((A) && BOX64DRENV(dynarec_callret)) {                                \
@@ -59,4 +69,5 @@
             EMIT(ARCH_NOP);                                                     \
         }                                                                       \
     } while(0)
+#endif
 #define CALLRET_LOOP()   do {dyn->callrets[dyn->callret_size].type = 1; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP); } while(0)
