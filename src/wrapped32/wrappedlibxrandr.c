@@ -64,8 +64,8 @@ EXPORT void* my32_XRRGetPanning(x64emu_t* emu, void* dpy, void* res, XID crtc)
     inplace_XRRScreenResources_shrink(res);
     if(ret) {
         // shrink XRRPanning: L and 12i
-        *(ulong_t*)res = to_ulong(*(unsigned long*)res);
-        memmove(res+4, res+8, 12*4);
+        *(ulong_t*)ret = to_ulong(*(unsigned long*)ret);
+        memmove(ret+4, ret+8, 12*4);
     }
     return ret;
 }
