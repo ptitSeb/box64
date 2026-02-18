@@ -4748,6 +4748,80 @@ static void bridgeGstAudioDecoderInstance(my_GstAudioDecoder_t* class)
 {
     bridgeGstElementInstance(&class->parent);
 }
+// ----- GstAudioEncoderClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstAudioEncoder, start, int, (void* enc), "p", enc);
+WRAPPER(GstAudioEncoder, stop, int, (void* enc), "p", enc);
+WRAPPER(GstAudioEncoder, set_format, int, (void* enc, void* info), "pp", enc, info);
+WRAPPER(GstAudioEncoder, handle_frame, int, (void* enc, void* buffer), "pp", enc, buffer);
+WRAPPER(GstAudioEncoder, flush, void, (void* enc), "p", enc);
+WRAPPER(GstAudioEncoder, pre_push, int, (void* enc, void* *buffer), "pp", enc, buffer);
+WRAPPER(GstAudioEncoder, sink_event, int, (void* enc, void* event), "pp", enc, event);
+WRAPPER(GstAudioEncoder, src_event, int, (void* enc, void* event), "pp", enc, event);
+WRAPPER(GstAudioEncoder, getcaps, void, (void* enc, void* filter), "pp", enc, filter);
+WRAPPER(GstAudioEncoder, open, int, (void* enc), "p", enc);
+WRAPPER(GstAudioEncoder, close, int, (void* enc), "p", enc);
+WRAPPER(GstAudioEncoder, negotiate, int, (void* enc), "p", enc);
+WRAPPER(GstAudioEncoder, decide_allocation, int, (void* enc, void* query), "pp", enc, query);
+WRAPPER(GstAudioEncoder, propose_allocation, int, (void* enc, void*  query), "pp", enc, query);
+WRAPPER(GstAudioEncoder, transform_meta, int, (void* enc, void* outbuf, void* meta, void* inbuf), "pppp", enc, outbuf, meta, inbuf);
+WRAPPER(GstAudioEncoder, sink_query, int, (void* enc, void* query), "pp", enc, query);
+WRAPPER(GstAudioEncoder, src_query, int, (void* enc, void* query), "pp", enc, query);
+
+#define SUPERGO()                       \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(set_format, iFpp);               \
+    GO(handle_frame, iFpp);             \
+    GO(flush, vFpi);                    \
+    GO(pre_push, iFpp);                 \
+    GO(sink_event, iFpp);               \
+    GO(src_event, iFpp);                \
+    GO(getcaps, vFpp);                  \
+    GO(open, iFp);                      \
+    GO(close, iFp);                     \
+    GO(negotiate, iFp);                 \
+    GO(decide_allocation, iFpp);        \
+    GO(propose_allocation, iFpp);       \
+    GO(transform_meta, iFpppp);         \
+    GO(sink_query, iFpp);               \
+    GO(src_query, iFpp);                \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstAudioEncoderClass(my_GstAudioEncoderClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstAudioEncoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstAudioEncoderClass(my_GstAudioEncoderClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstAudioEncoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAudioEncoderClass(my_GstAudioEncoderClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstAudioEncoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
+static void unwrapGstAudioEncoderInstance(my_GstAudioEncoder_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstAudioEncoderInstance(my_GstAudioEncoder_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstVideoFilterClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoFilter, set_info, int, (void* filter, void* incaps, void* in_info, void* outcaps, void* out_info), "ppppp", filter, incaps, in_info, outcaps, out_info);
