@@ -1676,6 +1676,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
             mmx_purgecache(dyn, ninst, 0, x1);
+            x87_purgecache(dyn, ninst, 1, x1, x2, x3);  // also purge x87 and hard reset it
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, top));
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, fpu_stack));
+            MOV64x(x1, TAGS_EMPTY);
+            STRx_U12(x1, xEmu, offsetof(x64emu_t, fpu_tags));
             /*emu->top = 0;
             emu->fpu_stack = 0;*/ //TODO: Check if something is needed here?
             break;
