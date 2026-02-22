@@ -1153,6 +1153,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             // empty MMX, FPU now usable
             emu->top = 0;
             emu->fpu_stack = 0;
+            emu->fpu_tags = TAGS_EMPTY;
             break;
 
         case 0x7E:                       /* MOVD Ed, Gm */
