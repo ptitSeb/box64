@@ -127,7 +127,7 @@ done
 # Manually create additional symlinks that are useful to have.
 cd "${dir_tmp}"/bundle-libs/usr/lib/box64-x86_64-linux-gnu/
 ln -s libmbedcrypto.so.7 libmbedcrypto.so.3
-ln -s libmbedcrypto.so.14 libmbedcrypto.so.12
+ln -s libmbedtls.so.14 libmbedtls.so.12
 ln -s libmbedx509.so.1 libmbedx509.so.0
 
 # generate the bundle libraries archive
