@@ -418,7 +418,8 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("libc", "androidshmem") \
 							 or match("crypto", "libssl3") \
 							 or match("tcmallocminimal", "tbbmallocproxy") \
-							 or match("iconv", "libunistring2"):
+							 or match("iconv", "libunistring2") \
+							 or match("gomp", "libomp"):
 								continue
 							
 							# Note: this test is very (too) simple. If it ever raises, comment
