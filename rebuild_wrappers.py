@@ -403,6 +403,8 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("sdl1mixer", "sdl2mixer") \
 							 or match("sdl1net", "sdl2net") \
 							 or match("sdl1ttf", "sdl2ttf") \
+							 or match("sdl1ttf", "sdl3ttf") \
+							 or match("sdl2ttf", "sdl3ttf") \
 							 or match("libgl", "libegl") \
 							 or match("libgl", "glesv2") \
 							 or match("libgl", "libglxnvidia") \

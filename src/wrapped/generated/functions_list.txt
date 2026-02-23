@@ -477,6 +477,7 @@
 #() vFulp
 #() vFuLp
 #() vFupu
+#() vFupL
 #() vFupp
 #() vFfff
 #() vFfpp
@@ -890,6 +891,7 @@
 #() pFpcU
 #() pFpii
 #() pFpiu
+#() pFpif
 #() pFpid
 #() pFpil
 #() pFpiL
@@ -1278,6 +1280,7 @@
 #() iFpUUU
 #() iFpULp
 #() iFpUpp
+#() iFpfii
 #() iFpfff
 #() iFpffp
 #() iFpdip
@@ -1615,6 +1618,7 @@
 #() pFppll
 #() pFpplp
 #() pFppLi
+#() pFppLu
 #() pFppLL
 #() pFppLp
 #() pFpppi
@@ -2266,6 +2270,7 @@
 #() pFppupu
 #() pFppupp
 #() pFppddu
+#() pFppLui
 #() pFppLuu
 #() pFppLLi
 #() pFppLpp
@@ -2628,6 +2633,7 @@
 #() iFpplupp
 #() iFpplppi
 #() iFppLiWL
+#() iFppLipp
 #() iFppLupp
 #() iFppLLiL
 #() iFppLLup
@@ -2822,6 +2828,7 @@
 #() pFppuppp
 #() pFpplplp
 #() pFpplppp
+#() pFppLuui
 #() pFppLpuu
 #() pFpppiip
 #() pFpppupp
@@ -6963,6 +6970,7 @@ wrappedsdl2ttf:
 wrappedsdl3:
 - pFp:
   - SDL_GL_GetProcAddress
+wrappedsdl3ttf:
 wrappedsecret1:
 wrappedselinux:
 - pFi:
