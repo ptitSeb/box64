@@ -756,6 +756,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2mixer.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2net.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl2ttf.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsdl3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedselinux.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsmime3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsmpeg2.c"

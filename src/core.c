@@ -444,6 +444,7 @@ static void addLibPaths(box64context_t* context)
     GO("libicui18n.so.75");
     GO("libicuuc.so.76");
     GO("libicui18n.so.76");
+    GO("libSDL3.so.0");
     #undef GO
 
     if(BOX64ENV(nosigsegv)) {
