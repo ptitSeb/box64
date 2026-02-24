@@ -782,9 +782,11 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GETE8xw(0);
                     switch((nextop>>3)&7) {
                         case 1:
+                            #ifndef TEST_INTERPRETER
                             if(rex.w && ((uintptr_t)ED)&0xf) {
                                 EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GPF
                             }
+                            #endif
                             CHECK_FLAGS(emu);
                             GETGD;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
