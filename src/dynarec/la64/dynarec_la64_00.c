@@ -2647,7 +2647,27 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (tmp < 0 || (tmp & 15) > 1)
                         tmp = 0; // TODO: removed when FP is in place
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
+                        int nret = tmp & 0xF;
+                        // Preserve caller-owned arg regs around the fast native wrapper call.
+                        ADDI_D(xSP, xSP, -64);
+                        ST_D(xRAX, xSP, 0);
+                        ST_D(xRDI, xSP, 8);
+                        ST_D(xRSI, xSP, 16);
+                        ST_D(xRDX, xSP, 24);
+                        ST_D(xRCX, xSP, 32);
+                        ST_D(xR8, xSP, 40);
+                        ST_D(xR9, xSP, 48);
                         call_n(dyn, ninst, (void*)(addr + 8), tmp);
+                        if (nret < 1)
+                            LD_D(xRAX, xSP, 0);
+                        LD_D(xRDI, xSP, 8);
+                        LD_D(xRSI, xSP, 16);
+                        if (nret < 2)
+                            LD_D(xRDX, xSP, 24);
+                        LD_D(xRCX, xSP, 32);
+                        LD_D(xR8, xSP, 40);
+                        LD_D(xR9, xSP, 48);
+                        ADDI_D(xSP, xSP, 64);
                         SMWRITE2();
                         addr += 8 + 8;
                     } else {
