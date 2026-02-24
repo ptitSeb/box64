@@ -245,10 +245,10 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     void* image = NULL;
     if(!head->vaddr) {
         sz += head->align;
-        raw = InternalMmap((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        raw = InternalMmap((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE|MAP_FIXED, -1, 0);
         image = (void*)(((uintptr_t)raw+max_align)&~max_align);
     } else {
-        image = raw = InternalMmap((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        image = raw = InternalMmap((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE|MAP_FIXED, -1, 0);
         if(head->vaddr&(box64_pagesize-1)) {
             // load address might be lower
             if((uintptr_t)image == (head->vaddr&~(box64_pagesize-1))) {
