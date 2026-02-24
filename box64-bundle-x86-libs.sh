@@ -107,6 +107,12 @@ if find "${dir_tmp}"/bundle-libs -type l ! -exec test -e {} \; -print | grep bun
     exit 1
 fi
 
+# Manually create additional symlinks that are useful to have.
+cd "${dir_tmp}"/bundle-libs/usr/lib/box64-x86_64-linux-gnu/
+ln -s libmbedcrypto.so.7 libmbedcrypto.so.3
+ln -s libmbedtls.so.14 libmbedtls.so.12
+ln -s libmbedx509.so.1 libmbedx509.so.0
+
 # create shared libraries (.so) symlinks
 # if multiple libraries of the same name exist, it will symlink the oldest version
 # e.g. libcurl-gnutls soname with versioned symbols (CURL_GNUTLS_3, CURL_GNUTLS_4)
@@ -123,12 +129,6 @@ for dir_lib in "${dir_tmp}"/bundle-libs/usr/lib/box64-*-linux-gnu; do
         fi
     done
 done
-
-# Manually create additional symlinks that are useful to have.
-cd "${dir_tmp}"/bundle-libs/usr/lib/box64-x86_64-linux-gnu/
-ln -s libmbedcrypto.so.7 libmbedcrypto.so.3
-ln -s libmbedtls.so.14 libmbedtls.so.12
-ln -s libmbedx509.so.1 libmbedx509.so.0
 
 # generate the bundle libraries archive
 tar -C "${dir_tmp}"/bundle-libs -czvf "${current_dir}"/box64-bundle-x86-libs.tar.gz .
