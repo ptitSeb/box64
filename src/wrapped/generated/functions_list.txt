@@ -5859,6 +5859,9 @@ wrappedlibm:
   - lrintf
 - iFd:
   - lrint
+- iFp:
+  - fesetenv
+  - feupdateenv
 - IFf:
   - llrintf
 - IFd:
