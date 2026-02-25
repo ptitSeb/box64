@@ -187,6 +187,7 @@
 #() vFpS
 #() vFpA
 #() vFSi
+#() vFSl
 #() vFSp
 #() vFbi
 #() vFbu
@@ -545,6 +546,7 @@
 #() vFpHi
 #() vFSpi
 #() vFSpL
+#() vFSpp
 #() cFpdp
 #() wFppp
 #() iFEiw
@@ -2056,6 +2058,7 @@
 #() iFpSipp
 #() iFpSuif
 #() iFSppLp
+#() iFSpppi
 #() IFpLIII
 #() IFppIII
 #() uFEiupp
@@ -2093,6 +2096,7 @@
 #() uFpLLUU
 #() uFpLpLL
 #() uFpLpLp
+#() uFppiip
 #() uFppiui
 #() uFppiUp
 #() uFppiLu
@@ -2565,6 +2569,7 @@
 #() iFpuuupp
 #() iFpuuLpp
 #() iFpuupuu
+#() iFpuuppu
 #() iFpuuppp
 #() iFpuLuLu
 #() iFpuLLpp
@@ -3070,6 +3075,7 @@
 #() iFppiipiL
 #() iFppipiii
 #() iFppipiip
+#() iFppipipi
 #() iFppipipp
 #() iFppipLip
 #() iFppippip
@@ -3457,6 +3463,7 @@
 #() pFpppipipi
 #() pFppplippp
 #() pFppppuppp
+#() pFpppppiip
 #() pFpppppupp
 #() pFbCCuuwwC
 #() pFbWWiCpup
@@ -3628,7 +3635,7 @@
 #() pFppupppppp
 #() pFpppiiiiii
 #() pFpppuipppp
-#() pFpppppiipp
+#() pFpppppuupp
 #() pFbiiCpWWup
 #() pFbupuuuuup
 #() pFbppppuuCC
@@ -7265,6 +7272,7 @@ wrappedxml2:
 - iFpppp:
   - xmlHashRemoveEntry2
   - xmlHashUpdateEntry
+  - xmlMemGet
   - xmlMemSetup
   - xmlRegisterInputCallbacks
   - xmlRegisterOutputCallbacks
@@ -7276,6 +7284,8 @@ wrappedxml2:
   - xmlParserInputBufferCreateIO
 - pFpppp:
   - xmlOutputBufferCreateIO
+- iFppipp:
+  - xmlSchemaValidateStream
 - iFppppp:
   - xmlHashRemoveEntry3
   - xmlHashUpdateEntry2

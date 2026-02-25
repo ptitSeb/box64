@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 //GO(docbCreateFileParserCtxt, 
@@ -15,68 +15,68 @@ GO(docbDefaultSAXHandlerInit, vFv)
 //GO(docbSAXParseDoc, 
 //GO(docbSAXParseFile, 
 //GO(_fini, 
-//GO(htmlAttrAllowed, 
-//GO(htmlAutoCloseTag, 
+GO(htmlAttrAllowed, uFppi)
+GO(htmlAutoCloseTag, iFppp)
 GO(htmlCreateFileParserCtxt, pFpp)
-//GO(htmlCreateMemoryParserCtxt, 
-//GO(htmlCreatePushParserCtxt, 
-//GO(htmlCtxtReadDoc, 
-//GO(htmlCtxtReadFd, 
-//GO(htmlCtxtReadFile, 
-//GO(htmlCtxtReadIO, 
-//GO(htmlCtxtReadMemory, 
-//GO(htmlCtxtReset, 
-//GO(htmlCtxtUseOptions, 
-//GO(__htmlDefaultSAXHandler, 
+//GOM(htmlCreateMemoryParserCtxt, pFEpi)
+//GOM(htmlCreatePushParserCtxt, pFEpppipi)
+//GOM(htmlCtxtReadDoc, pFEppppi)
+//GOM(htmlCtxtReadFd, pFEpippi)
+//GOM(htmlCtxtReadFile, pFEpppi)
+//GOM(htmlCtxtReadIO, pFEppppppi)
+//GOM(htmlCtxtReadMemory, pFEppippi)
+//GOM(htmlCtxtReset, vFEp)
+//GOM(htmlCtxtUseOptions, iFEpi)
+//GOM(__htmlDefaultSAXHandler, pFEv)
 GO(htmlDefaultSAXHandlerInit, vFv)
 GO(htmlDocContentDumpFormatOutput, vFpppi)
 GO(htmlDocContentDumpOutput, vFppp)
-GO(htmlDocDump, iFpp)
+GO(htmlDocDump, iFSp)
 GO(htmlDocDumpMemory, vFppp)
 GO(htmlDocDumpMemoryFormat, vFpppi)
-//GO(htmlElementAllowedHere, 
-//GO(htmlElementStatusHere, 
-//GO(htmlEncodeEntities, 
-//GO(htmlEntityLookup, 
-//GO(htmlEntityValueLookup, 
-//GO(htmlFreeParserCtxt, 
+GO(htmlElementAllowedHere, iFpp)
+GO(htmlElementStatusHere, uFpp)
+GO(htmlEncodeEntities, iFppppi)
+GO(htmlEntityLookup, pFp)
+GO(htmlEntityValueLookup, pFu)
+//GOM(htmlFreeParserCtxt, vFEp)
 GO(htmlGetMetaEncoding, pFp)
-//GO(htmlHandleOmittedElem, 
+GO(htmlHandleOmittedElem, iFi)
 GO(htmlInitAutoClose, vFv)
-//GO(htmlIsAutoClosed, 
+GO(htmlIsAutoClosed, iFpp)
 GO(htmlIsBooleanAttr, iFp)
-//GO(htmlIsScriptAttribute, 
+GO(htmlIsScriptAttribute, iFp)
 GO(htmlNewDoc, pFpp)
 GO(htmlNewDocNoDtD, pFpp)
-//GO(htmlNewParserCtxt, 
+//GOM(htmlNewParserCtxt, pFEv)
 GO(htmlNodeDump, iFppp)
-GO(htmlNodeDumpFile, vFppp)
-GO(htmlNodeDumpFileFormat, iFppppi)
-GO(htmlNodeDumpFormatOutput, vFppppi)
-GO(htmlNodeDumpOutput, vFpppp)
-//GO(htmlNodeStatus, 
-//GO(htmlParseCharRef, 
-//GO(htmlParseChunk, 
+GO(htmlNodeDumpFile, vFSpp)
+GO(htmlNodeDumpFileFormat, iFSpppi)
+//GOM(htmlNodeDumpFormatOutput, vFEppppi)
+//GOM(htmlNodeDumpOutput, vFEpppp)
+GO(htmlNodeStatus, uFpi)
+//GOM(htmlParseCharRef, iFEp)
+//GOM(htmlParseChunk, iFEppii)
 //GO(__htmlParseContent, 
-//GO(htmlParseDoc, 
-//GO(htmlParseDocument, 
-//GO(htmlParseElement, 
-//GO(htmlParseEntityRef, 
-//GO(htmlParseFile, 
-//GO(htmlReadDoc, 
-//GO(htmlReadFd, 
-//GO(htmlReadFile, 
-//GO(htmlReadIO, 
-//GO(htmlReadMemory, 
+GO(htmlParseDoc, pFpp)
+//GOM(htmlParseDocument, iFEp)
+//GOM(htmlParseElement, vFEp)
+//GOM(htmlParseEntityRef, pFEpp)
+GO(htmlParseFile, pFpp)
+GO(htmlReadDoc, pFpppi)
+GO(htmlReadFd, pFippi)
+GO(htmlReadFile, pFppi)
+//GOM(htmlReadIO, pFEpppppi)
+GO(htmlReadMemory, pFpippi)
 GO(htmlSaveFile, iFpp)
 GO(htmlSaveFileEnc, iFppp)
-GO(htmlSaveFileFormat, uFpppi)
-//GO(htmlSAXParseDoc, 
-//GO(htmlSAXParseFile, 
+GO(htmlSaveFileFormat, iFpppi)
+//GOM(htmlSAXParseDoc, pFEpppp)
+//GOM(htmlSAXParseFile, pFEpppp)
 GO(htmlSetMetaEncoding, iFpp)
-//GO(htmlTagLookup, 
+GO(htmlTagLookup, pFp)
 //GO(_init, 
-//GO(initGenericErrorDefaultFunc, 
+//GOM(initGenericErrorDefaultFunc, vFEp)
 GO(inputPop, pFp)
 GO(inputPush, iFpp)
 GO(isolat1ToUTF8, iFpppp)
@@ -84,8 +84,8 @@ GO(namePop, pFp)
 GO(namePush, iFpp)
 GO(nodePop, pFp)
 GO(nodePush, iFpp)
-//GO(__oldXMLWDcompatibility, 
-//GO(UTF8ToHtml, 
+GO(__oldXMLWDcompatibility, pFv)
+GO(UTF8ToHtml, iFpppp)
 GO(UTF8Toisolat1, iFpppp)
 GO(valuePop, pFp)
 GOM(valuePush, iFEpp)
@@ -94,47 +94,47 @@ GOM(valuePush, iFEpp)
 //GO(xlinkIsLink, 
 //GO(xlinkSetDefaultDetect, 
 //GO(xlinkSetDefaultHandler, 
-//GO(xmlACatalogAdd, 
-//GO(xmlACatalogDump, 
-//GO(xmlACatalogRemove, 
-//GO(xmlACatalogResolve, 
-//GO(xmlACatalogResolvePublic, 
-//GO(xmlACatalogResolveSystem, 
-//GO(xmlACatalogResolveURI, 
-GO(xmlAddAttributeDecl, pFpppppiipp)
+GO(xmlACatalogAdd, iFpppp)
+GO(xmlACatalogDump, vFpS)
+GO(xmlACatalogRemove, iFpp)
+GO(xmlACatalogResolve, pFppp)
+GO(xmlACatalogResolvePublic, pFpp)
+GO(xmlACatalogResolveSystem, pFpp)
+GO(xmlACatalogResolveURI, pFpp)
+GO(xmlAddAttributeDecl, pFpppppuupp)
 GO(xmlAddChild, pFpp)
 GO(xmlAddChildList, pFpp)
 GO(xmlAddDocEntity, pFppippp)
 GO(xmlAddDtdEntity, pFppippp)
-GO(xmlAddElementDecl, pFpppip)
+GO(xmlAddElementDecl, pFpppup)
 GO(xmlAddEncodingAlias, iFpp)
 GO(xmlAddID, pFpppp)
 GO(xmlAddNextSibling, pFpp)
 GO(xmlAddNotationDecl, pFppppp)
 GO(xmlAddPrevSibling, pFpp)
 GO(xmlAddRef, pFpppp)
-//GO(xmlAddSibling, 
+GO(xmlAddSibling, pFpp)
 GO(xmlAllocOutputBuffer, pFp)
 GO(xmlAllocOutputBufferInternal, pFp)
 GO(xmlAllocParserInputBuffer, pFi)
 GO(xmlAttrSerializeTxtContent, vFpppp)
-//GO(xmlAutomataCompile, 
-//GO(xmlAutomataGetInitState, 
-//GO(xmlAutomataIsDeterminist, 
-//GO(xmlAutomataNewAllTrans, 
-//GO(xmlAutomataNewCountedTrans, 
-//GO(xmlAutomataNewCounter, 
-//GO(xmlAutomataNewCounterTrans, 
-//GO(xmlAutomataNewCountTrans, 
-//GO(xmlAutomataNewCountTrans2, 
-//GO(xmlAutomataNewEpsilon, 
-//GO(xmlAutomataNewNegTrans, 
-//GO(xmlAutomataNewOnceTrans, 
-//GO(xmlAutomataNewOnceTrans2, 
-//GO(xmlAutomataNewState, 
-//GO(xmlAutomataNewTransition, 
-//GO(xmlAutomataNewTransition2, 
-//GO(xmlAutomataSetFinalState, 
+GO(xmlAutomataCompile, pFp)
+GO(xmlAutomataGetInitState, pFp)
+GO(xmlAutomataIsDeterminist, iFp)
+GO(xmlAutomataNewAllTrans, pFpppi)
+GO(xmlAutomataNewCountedTrans, pFpppi)
+GO(xmlAutomataNewCounter, iFpii)
+GO(xmlAutomataNewCounterTrans, pFpppi)
+GO(xmlAutomataNewCountTrans, pFppppiip)
+GO(xmlAutomataNewCountTrans2, pFpppppiip)
+GO(xmlAutomataNewEpsilon, pFppp)
+GO(xmlAutomataNewNegTrans, pFpppppp)
+GO(xmlAutomataNewOnceTrans, pFppppiip)
+GO(xmlAutomataNewOnceTrans2, pFpppppiip)
+GO(xmlAutomataNewState, pFp)
+GO(xmlAutomataNewTransition, pFppppp)
+GO(xmlAutomataNewTransition2, pFpppppp)
+GO(xmlAutomataSetFinalState, iFpp)
 //GO(xmlAutomataSetFlags, 
 GO(xmlBufContent, pFp)
 GO(xmlBufEnd, pFp)
@@ -144,21 +144,21 @@ GO(xmlBufShrink, LFpL)
 GO(xmlBufUse, LFp)
 GO(xmlBufferAdd, iFppi)
 GO(xmlBufferAddHead, iFppi)
-//GO(__xmlBufferAllocScheme, 
+GO(__xmlBufferAllocScheme, pFv)
 GO(xmlBufferCat, iFpp)
 GO(xmlBufferCCat, iFpp)
 GO(xmlBufferContent, pFp)
 GO(xmlBufferCreate, pFv)
 GO(xmlBufferCreateSize, pFL)
-GO(xmlBufferCreateStatic, pFpp)
-GO(xmlBufferDump, iFpp)
+GO(xmlBufferCreateStatic, pFpL)
+GO(xmlBufferDump, iFSp)
 GO(xmlBufferEmpty, vFp)
 GO(xmlBufferFree, vFp)
 GO(xmlBufferGrow, iFpu)
 GO(xmlBufferLength, iFp)
 GO(xmlBufferResize, iFpu)
-GO(xmlBufferSetAllocationScheme, vFpi)
-GO(xmlBufferShrink, vFpu)
+GO(xmlBufferSetAllocationScheme, vFpu)
+GO(xmlBufferShrink, iFpu)
 GO(xmlBufferWriteChar, vFpp)
 GO(xmlBufferWriteCHAR, vFpp)
 GO(xmlBufferWriteQuotedString, vFpp)
@@ -166,57 +166,57 @@ GO(xmlBuildQName, pFpppi)
 GO(xmlBuildRelativeURI, pFpp)
 GO(xmlBuildURI, pFpp)
 GO(xmlByteConsumed, lFp)
-//GO(xmlC14NDocDumpMemory, 
-//GO(xmlC14NDocSave, 
-//GO(xmlC14NDocSaveTo, 
-//GO(xmlC14NExecute, 
+GO(xmlC14NDocDumpMemory, iFppipip)
+GO(xmlC14NDocSave, iFppipipi)
+//GOM(xmlC14NDocSaveTo, iFEppipip)
+//GOM(xmlC14NExecute, iFEpppipip)
 //GO(xmlCanonicPath, 
-//GO(xmlCatalogAdd, 
-//GO(xmlCatalogAddLocal, 
-//GO(xmlCatalogCleanup, 
-//GO(xmlCatalogConvert, 
-//GO(xmlCatalogDump, 
-//GO(xmlCatalogFreeLocal, 
-//GO(xmlCatalogGetDefaults, 
-//GO(xmlCatalogGetPublic, 
-//GO(xmlCatalogGetSystem, 
-//GO(xmlCatalogIsEmpty, 
-//GO(xmlCatalogLocalResolve, 
-//GO(xmlCatalogLocalResolveURI, 
-//GO(xmlCatalogRemove, 
-//GO(xmlCatalogResolve, 
-//GO(xmlCatalogResolvePublic, 
-//GO(xmlCatalogResolveSystem, 
-//GO(xmlCatalogResolveURI, 
-//GO(xmlCatalogSetDebug, 
-//GO(xmlCatalogSetDefaultPrefer, 
-GO(xmlCatalogSetDefaults, vFi)
+GO(xmlCatalogAdd, iFppp)
+GO(xmlCatalogAddLocal, pFpp)
+GO(xmlCatalogCleanup, vFv)
+GO(xmlCatalogConvert, iFv)
+GO(xmlCatalogDump, vFS)
+GO(xmlCatalogFreeLocal, vFp)
+GO(xmlCatalogGetDefaults, uFv)
+GO(xmlCatalogGetPublic, pFp)
+GO(xmlCatalogGetSystem, pFp)
+GO(xmlCatalogIsEmpty, iFp)
+GO(xmlCatalogLocalResolve, pFppp)
+GO(xmlCatalogLocalResolveURI, pFpp)
+GO(xmlCatalogRemove, iFp)
+GO(xmlCatalogResolve, pFpp)
+GO(xmlCatalogResolvePublic, pFp)
+GO(xmlCatalogResolveSystem, pFp)
+GO(xmlCatalogResolveURI, pFp)
+GO(xmlCatalogSetDebug, iFi)
+GO(xmlCatalogSetDefaultPrefer, uFu)
+GO(xmlCatalogSetDefaults, vFu)
 GO(xmlCharEncCloseFunc, iFp)
 GO(xmlCharEncFirstLine, iFppp)
 //GO(xmlCharEncFirstLineInt, 
 GO(xmlCharEncInFunc, iFppp)
 GO(xmlCharEncOutFunc, iFppp)
-//GO(xmlCharInRange, 
+GO(xmlCharInRange, iFup)
 GO(xmlCharStrdup, pFp)
 GO(xmlCharStrndup, pFpi)
 GO(xmlCheckFilename, iFp)
 GO(xmlCheckHTTPInput, pFpp)
 GO(xmlCheckLanguageID, iFp)
 GO(xmlCheckUTF8, iFp)
-//GO(xmlCheckVersion, 
+GO(xmlCheckVersion, vFi)
 GO(xmlChildElementCount, LFp)
 GO(xmlCleanupCharEncodingHandlers, vFv)
 GO(xmlCleanupEncodingAliases, vFv)
 GO(xmlCleanupGlobals, vFv)
 GO(xmlCleanupInputCallbacks, vFv)
-//GO(xmlCleanupMemory, 
+GO(xmlCleanupMemory, vFv)
 GO(xmlCleanupOutputCallbacks, vFv)
 GO(xmlCleanupParser, vFv)
 GO(xmlCleanupPredefinedEntities, vFv)
-//GO(xmlCleanupThreads, 
+GO(xmlCleanupThreads, vFv)
 GO(xmlClearNodeInfoSeq, vFp)
 GO(xmlClearParserCtxt, vFp)
-//GO(xmlConvertSGMLCatalog, 
+GO(xmlConvertSGMLCatalog, iFp)
 GO(xmlCopyAttributeTable, pFp)
 GO(xmlCopyChar, iFipi)
 GO(xmlCopyCharMultiByte, iFpi)
@@ -227,7 +227,7 @@ GO(xmlCopyElementContent, pFp)
 GO(xmlCopyElementTable, pFp)
 GO(xmlCopyEntitiesTable, pFp)
 GO(xmlCopyEnumeration, pFp)
-//GO(xmlCopyError, 
+GO(xmlCopyError, iFpp)
 GO(xmlCopyNamespace, pFp)
 GO(xmlCopyNamespaceList, pFp)
 GO(xmlCopyNode, pFpi)
@@ -253,18 +253,18 @@ GO(xmlCtxtReadFile, pFpppi)
 GOM(xmlCtxtReadIO, pFEppppppi)
 GO(xmlCtxtReadMemory, pFppippi)
 GO(xmlCtxtReset, vFp)
-//GO(xmlCtxtResetLastError, 
+GO(xmlCtxtResetLastError, vFp)
 GO(xmlCtxtResetPush, iFppipp)
 GO(xmlCtxtUseOptions, iFpi)
 GO(xmlCurrentChar, iFpp)
-GO(xmlDecodeEntities, pFpiiCCC) // deprecated, not always present
-//GO(__xmlDefaultBufferSize, 
-//GO(__xmlDefaultSAXHandler, 
+GO(xmlDecodeEntities, pFpiiCCC)
+GO(__xmlDefaultBufferSize, pFv)
+//GOM(__xmlDefaultSAXHandler, pFEv)
 GO(xmlDefaultSAXHandlerInit, vFv)
-//GO(__xmlDefaultSAXLocator, 
+//GOM(__xmlDefaultSAXLocator, pFEv)
 GO(xmlDelEncodingAlias, iFp)
-//GOM(xmlDeregisterNodeDefault, BFEB)
-//GO(__xmlDeregisterNodeDefaultValue, 
+//GOM(xmlDeregisterNodeDefault, pFEp)
+//GOM(__xmlDeregisterNodeDefaultValue, pFEv)
 GO(xmlDetectCharEncoding, iFpi)
 GO(xmlDictCleanup, vFv)
 GO(xmlDictCreate, pFv)
@@ -280,12 +280,12 @@ GO(xmlDictSetLimit, LFpL)
 GO(xmlDictSize, iFp)
 GO(xmlDocCopyNode, pFppi)
 GO(xmlDocCopyNodeList, pFpp)
-GO(xmlDocDump, iFpp)
+GO(xmlDocDump, iFSp)
 GO(xmlDocDumpFormatMemory, vFpppi)
 GO(xmlDocDumpFormatMemoryEnc, vFppppi)
 GO(xmlDocDumpMemory, vFppp)
 GO(xmlDocDumpMemoryEnc, vFpppp)
-GO(xmlDocFormatDump, iFppi)
+GO(xmlDocFormatDump, iFSpi)
 GO(xmlDocGetRootElement, pFp)
 GO(xmlDocSetRootElement, pFpp)
 GO(xmlDOMWrapAdoptNode, iFpppppi)
@@ -294,7 +294,7 @@ GO(xmlDOMWrapFreeCtxt, vFp)
 GO(xmlDOMWrapNewCtxt, pFv)
 GO(xmlDOMWrapReconcileNamespaces, iFppi)
 GO(xmlDOMWrapRemoveNode, iFppi)
-//GO(__xmlDoValidityCheckingDefaultValue, 
+GO(__xmlDoValidityCheckingDefaultValue, pFv)
 GO(xmlDumpAttributeDecl, vFpp)
 GO(xmlDumpAttributeTable, vFpp)
 GO(xmlDumpElementDecl, vFpp)
@@ -303,7 +303,7 @@ GO(xmlDumpEntitiesTable, vFpp)
 GO(xmlDumpEntityDecl, vFpp)
 GO(xmlDumpNotationDecl, vFpp)
 GO(xmlDumpNotationTable, vFpp)
-GO(xmlElemDump, vFppp)
+GO(xmlElemDump, vFSpp)
 GO(xmlEncodeEntities, pFpp)
 GO(xmlEncodeEntitiesReentrant, pFpp)
 GO(xmlEncodeSpecialChars, pFpp)
@@ -335,8 +335,8 @@ GO(xmlFileRead, iFppi)
 GO(xmlFindCharEncodingHandler, pFp)
 GO(xmlFirstElementChild, pFp)
 GO(xmlFreeAttributeTable, vFp)
-//GO(xmlFreeAutomata, 
-//GO(xmlFreeCatalog, 
+GO(xmlFreeAutomata, vFp)
+GO(xmlFreeCatalog, vFp)
 GO(xmlFreeDoc, vFp)
 GO(xmlFreeDocElementContent, vFpp)
 GO(xmlFreeDtd, vFp)
@@ -346,7 +346,7 @@ GO(xmlFreeEntitiesTable, vFp)
 GO(xmlFreeEnumeration, vFp)
 GO(xmlFreeIDTable, vFp)
 GO(xmlFreeInputStream, vFp)
-//GO(xmlFreeMutex, 
+GO(xmlFreeMutex, vFp)
 GO(xmlFreeNode, vFp)
 GO(xmlFreeNodeList, vFp)
 GO(xmlFreeNotationTable, vFp)
@@ -354,27 +354,27 @@ GO(xmlFreeNs, vFp)
 GO(xmlFreeNsList, vFp)
 GO(xmlFreeParserCtxt, vFp)
 GO(xmlFreeParserInputBuffer, vFp)
-//GO(xmlFreePattern, 
-//GO(xmlFreePatternList, 
+GO(xmlFreePattern, vFp)
+GO(xmlFreePatternList, vFp)
 GO(xmlFreeProp, vFp)
 GO(xmlFreePropList, vFp)
 GO(xmlFreeRefTable, vFp)
-//GO(xmlFreeRMutex, 
-//GO(xmlFreeStreamCtxt, 
+GO(xmlFreeRMutex, vFp)
+GO(xmlFreeStreamCtxt, vFp)
 GO(xmlFreeTextReader, vFp)
 GO(xmlFreeTextWriter, vFp)
 //GO(xmlFreeURI, 
 GO(xmlFreeValidCtxt, vFp)
-//GO(xmlGcMemGet, 
-//GO(xmlGcMemSetup, 
+//GOM(xmlGcMemGet, iFEppppp)
+//GOM(xmlGcMemSetup, iFEppppp)
 GOM(__xmlGenericError, pFEv)
 GO(__xmlGenericErrorContext, pFv)
 //GO(xmlGenericErrorDefaultFunc, 
-GO(xmlGetBufferAllocationScheme, iFv)
-GO(xmlGetCharEncodingHandler, pFp)
+GO(xmlGetBufferAllocationScheme, uFv)
+GO(xmlGetCharEncodingHandler, pFi)
 GO(xmlGetCharEncodingName, pFi)
 GO(xmlGetCompressMode, iFv)
-GO(xmlGetDocCompressMode, iFv)
+GO(xmlGetDocCompressMode, iFp)
 GO(xmlGetDocEntity, pFpp)
 GO(xmlGetDtdAttrDesc, pFppp)
 GO(xmlGetDtdElementDesc, pFpp)
@@ -386,11 +386,11 @@ GO(xmlGetEncodingAlias, pFp)
 GOM(xmlGetExternalEntityLoader, pFEv)
 GO(xmlGetFeature, iFppp)
 GO(xmlGetFeaturesList, iFpp)
-//GO(xmlGetGlobalState, 
+//GOM(xmlGetGlobalState, pFEv)
 GO(xmlGetID, pFpp)
 GO(xmlGetIntSubset, pFp)
 GO(xmlGetLastChild, pFp)
-//GO(xmlGetLastError, 
+GO(xmlGetLastError, pFv)
 GO(xmlGetLineNo, lFp)
 GO(xmlGetNodePath, pFp)
 GO(xmlGetNoNsProp, pFpp)
@@ -400,13 +400,13 @@ GO(xmlGetParameterEntity, pFpp)
 GO(xmlGetPredefinedEntity, pFp)
 GO(xmlGetProp, pFpp)
 GO(xmlGetRefs, pFpp)
-//GO(xmlGetThreadId, 
+GO(xmlGetThreadId, iFv)
 GO(xmlGetUTF8Char, iFpp)
-//GO(__xmlGetWarningsDefaultValue, 
+GO(__xmlGetWarningsDefaultValue, pFv)
 //GO(__xmlGlobalInitMutexDestroy, 
 //GO(__xmlGlobalInitMutexLock, 
 //GO(__xmlGlobalInitMutexUnlock, 
-GO(xmlHandleEntity, vFpp)   // obsolete, might be removed
+GO(xmlHandleEntity, vFpp)
 GO(xmlHashAddEntry, iFppp)
 GO(xmlHashAddEntry2, iFpppp)
 GO(xmlHashAddEntry3, iFppppp)
@@ -431,21 +431,21 @@ GO(xmlHashSize, iFp)
 GOM(xmlHashUpdateEntry, iFEpppp)
 GOM(xmlHashUpdateEntry2, iFEppppp)
 GOM(xmlHashUpdateEntry3, iFEpppppp)
-GO(xmlHasFeature, iFi)
+GO(xmlHasFeature, iFu)
 GO(xmlHasNsProp, pFppp)
 GO(xmlHasProp, pFpp)
 GO(__xmlIndentTreeOutput, pFv)
 GO(xmlInitCharEncodingHandlers, vFv)
 GO(xmlInitializeDict, iFv)
 GO(xmlInitGlobals, vFv)
-//GO(xmlInitializeCatalog, 
+GO(xmlInitializeCatalog, vFv)
 GO(xmlInitializeGlobalState, vFp)
-//GO(xmlInitMemory, 
+GO(xmlInitMemory, iFv)
 GO(xmlInitializePredefinedEntities, vFv)
 GO(xmlInitNodeInfoSeq, vFp)
 GO(xmlInitParser, vFv)
 GO(xmlInitParserCtxt, iFp)
-//GO(xmlInitThreads, 
+GO(xmlInitThreads, vFv)
 //GO(__xmlIOErr, 
 GO(xmlIOFTPClose, iFp)
 GO(xmlIOFTPMatch, iFp)
@@ -456,84 +456,84 @@ GO(xmlIOHTTPMatch, iFp)
 GO(xmlIOHTTPOpen, pFp)
 GO(xmlIOHTTPOpenW, pFpi)
 GO(xmlIOHTTPRead, iFppi)
-GO(xmlIOParseDTD, pFppp)
-//GO(xmlIsBaseChar, 
-//GO(xmlIsBlank, 
+GO(xmlIOParseDTD, pFppi)
+GO(xmlIsBaseChar, iFu)
+GO(xmlIsBlank, iFu)
 GO(xmlIsBlankNode, iFp)
-//GO(xmlIsChar, 
-//GO(xmlIsCombining, 
-//GO(xmlIsDigit, 
-//GO(xmlIsExtender, 
+GO(xmlIsChar, iFu)
+GO(xmlIsCombining, iFu)
+GO(xmlIsDigit, iFu)
+GO(xmlIsExtender, iFu)
 GO(xmlIsID, iFppp)
-//GO(xmlIsIdeographic, 
+GO(xmlIsIdeographic, iFu)
 GO(xmlIsLetter, iFi)
-//GO(xmlIsMainThread, 
+GO(xmlIsMainThread, iFv)
 GO(xmlIsMixedElement, iFpp)
-//GO(xmlIsPubidChar, 
+GO(xmlIsPubidChar, iFu)
 GO(xmlIsRef, iFppp)
 GO(xmlIsXHTML, iFpp)
 GO(xmlKeepBlanksDefault, iFi)
-//GO(__xmlKeepBlanksDefaultValue, 
+GO(__xmlKeepBlanksDefaultValue, pFv)
 GO(xmlLastElementChild, pFp)
-//GO(__xmlLastError, 
+GO(__xmlLastError, pFv)
 GO(xmlLineNumbersDefault, iFi)
-//GO(__xmlLineNumbersDefaultValue, 
-//GO(xmlLinkGetData, 
-//GO(xmlListAppend, 
-//GO(xmlListClear, 
-//GO(xmlListCopy, 
-//GO(xmlListCreate, 
-//GO(xmlListDelete, 
-//GO(xmlListDup, 
-//GO(xmlListEmpty, 
-//GO(xmlListEnd, 
-//GO(xmlListFront, 
-//GO(xmlListInsert, 
-//GO(xmlListMerge, 
-//GO(xmlListPopBack, 
-//GO(xmlListPopFront, 
-//GO(xmlListPushBack, 
-//GO(xmlListPushFront, 
-//GO(xmlListRemoveAll, 
-//GO(xmlListRemoveFirst, 
-//GO(xmlListRemoveLast, 
-//GO(xmlListReverse, 
-//GO(xmlListReverseSearch, 
-//GO(xmlListReverseWalk, 
-//GO(xmlListSearch, 
-//GO(xmlListSize, 
-//GO(xmlListSort, 
-//GO(xmlListWalk, 
-//GO(xmlLoadACatalog, 
-//GO(xmlLoadCatalog, 
-//GO(xmlLoadCatalogs, 
+GO(__xmlLineNumbersDefaultValue, pFv)
+GO(xmlLinkGetData, pFp)
+GO(xmlListAppend, iFpp)
+GO(xmlListClear, vFp)
+GO(xmlListCopy, iFpp)
+//GOM(xmlListCreate, pFEpp)
+GO(xmlListDelete, vFp)
+GO(xmlListDup, pFp)
+GO(xmlListEmpty, iFp)
+GO(xmlListEnd, pFp)
+GO(xmlListFront, pFp)
+GO(xmlListInsert, iFpp)
+GO(xmlListMerge, vFpp)
+GO(xmlListPopBack, vFp)
+GO(xmlListPopFront, vFp)
+GO(xmlListPushBack, iFpp)
+GO(xmlListPushFront, iFpp)
+GO(xmlListRemoveAll, iFpp)
+GO(xmlListRemoveFirst, iFpp)
+GO(xmlListRemoveLast, iFpp)
+GO(xmlListReverse, vFp)
+GO(xmlListReverseSearch, pFpp)
+//GOM(xmlListReverseWalk, vFEppp)
+GO(xmlListSearch, pFpp)
+GO(xmlListSize, iFp)
+GO(xmlListSort, vFp)
+//GOM(xmlListWalk, vFEppp)
+GO(xmlLoadACatalog, pFp)
+GO(xmlLoadCatalog, iFp)
+GO(xmlLoadCatalogs, vFp)
 //GO(__xmlLoaderErr, 
-//GO(__xmlLoadExtDtdDefaultValue, 
+GO(__xmlLoadExtDtdDefaultValue, pFv)
 GO(xmlLoadExternalEntity, pFppp)
-//GO(xmlLoadSGMLSuperCatalog, 
-//GO(xmlLockLibrary, 
-//GO(xmlMallocAtomicLoc, 
+GO(xmlLoadSGMLSuperCatalog, pFp)
+GO(xmlLockLibrary, vFv)
+GO(xmlMallocAtomicLoc, pFLpi)
 //GO(xmlMallocBreakpoint, 
-//GO(xmlMallocLoc, 
-//GO(xmlMemBlocks, 
-//GO(xmlMemDisplay, 
-//GO(xmlMemDisplayLast, 
-//GO(xmlMemFree, 
-GO(xmlMemGet, iFpppp)
-//GO(xmlMemMalloc, 
-//GO(xmlMemoryDump, 
-//GO(xmlMemoryStrdup, 
-//GO(xmlMemRealloc, 
+GO(xmlMallocLoc, pFLpi)
+GO(xmlMemBlocks, iFv)
+GO(xmlMemDisplay, vFS)
+GO(xmlMemDisplayLast, vFSl)
+GO(xmlMemFree, vFp)
+GOM(xmlMemGet, iFpppp)
+GO(xmlMemMalloc, pFL)
+GO(xmlMemoryDump, vFv)
+GO(xmlMemoryStrdup, pFp)
+GO(xmlMemRealloc, pFpL)
 GOM(xmlMemSetup, iFEpppp)
-//GO(xmlMemShow, 
-//GO(xmlMemStrdupLoc, 
-//GO(xmlMemUsed, 
+GO(xmlMemShow, vFSi)
+GO(xmlMemStrdupLoc, pFppi)
+GO(xmlMemUsed, iFv)
 //GO(xmlModuleClose, 
 //GO(xmlModuleFree, 
 //GO(xmlModuleOpen, 
 //GO(xmlModuleSymbol, 
-//GO(xmlMutexLock, 
-//GO(xmlMutexUnlock, 
+GO(xmlMutexLock, vFp)
+GO(xmlMutexUnlock, vFp)
 GO(xmlNamespaceParseNCName, pFp)
 GO(xmlNamespaceParseNSDef, pFp)
 GO(xmlNamespaceParseQName, pFpp)
@@ -559,25 +559,25 @@ GO(xmlNamespaceParseQName, pFpp)
 //GO(xmlNanoFTPRead, 
 //GO(xmlNanoFTPScanProxy, 
 //GO(xmlNanoFTPUpdateURL, 
-//GO(xmlNanoHTTPAuthHeader, 
-//GO(xmlNanoHTTPCleanup, 
-//GO(xmlNanoHTTPClose, 
-//GO(xmlNanoHTTPContentLength, 
-//GO(xmlNanoHTTPEncoding, 
-//GO(xmlNanoHTTPFetch, 
-//GO(xmlNanoHTTPInit, 
-//GO(xmlNanoHTTPMethod, 
-//GO(xmlNanoHTTPMethodRedir, 
-//GO(xmlNanoHTTPMimeType, 
-//GO(xmlNanoHTTPOpen, 
-//GO(xmlNanoHTTPOpenRedir, 
-//GO(xmlNanoHTTPRead, 
-//GO(xmlNanoHTTPRedir, 
-//GO(xmlNanoHTTPReturnCode, 
-//GO(xmlNanoHTTPSave, 
-//GO(xmlNanoHTTPScanProxy, 
-//GO(xmlNewAutomata, 
-//GO(xmlNewCatalog, 
+GO(xmlNanoHTTPAuthHeader, pFp)
+GO(xmlNanoHTTPCleanup, vFv)
+GO(xmlNanoHTTPClose, vFp)
+GO(xmlNanoHTTPContentLength, iFp)
+GO(xmlNanoHTTPEncoding, pFp)
+GO(xmlNanoHTTPFetch, iFppp)
+GO(xmlNanoHTTPInit, vFv)
+GO(xmlNanoHTTPMethod, pFpppppi)
+GO(xmlNanoHTTPMethodRedir, pFppppppi)
+GO(xmlNanoHTTPMimeType, pFp)
+GO(xmlNanoHTTPOpen, pFpp)
+GO(xmlNanoHTTPOpenRedir, pFppp)
+GO(xmlNanoHTTPRead, iFppi)
+GO(xmlNanoHTTPRedir, pFp)
+GO(xmlNanoHTTPReturnCode, iFp)
+GO(xmlNanoHTTPSave, iFpp)
+GO(xmlNanoHTTPScanProxy, vFp)
+GO(xmlNewAutomata, pFv)
+GO(xmlNewCatalog, pFi)
 GO(xmlNewCDataBlock, pFppi)
 GOM(xmlNewCharEncodingHandler, pFEppp)
 GO(xmlNewCharRef, pFpp)
@@ -585,7 +585,7 @@ GO(xmlNewChild, pFpppp)
 GO(xmlNewComment, pFp)
 GO(xmlNewDoc, pFp)
 GO(xmlNewDocComment, pFpp)
-GO(xmlNewDocElementContent, pFppi)
+GO(xmlNewDocElementContent, pFppu)
 GO(xmlNewDocFragment, pFp)
 GO(xmlNewDocNode, pFpppp)
 GO(xmlNewDocNodeEatName, pFpppp)
@@ -595,14 +595,14 @@ GO(xmlNewDocRawNode, pFpppp)
 GO(xmlNewDocText, pFpp)
 GO(xmlNewDocTextLen, pFppi)
 GO(xmlNewDtd, pFpppp)
-GO(xmlNewElementContent, pFpi)
+GO(xmlNewElementContent, pFpu)
 GO(xmlNewEntity, pFppippp)
 GO(xmlNewEntityInputStream, pFpp)
 GO(xmlNewGlobalNs, pFppp)
 GO(xmlNewInputFromFile, pFpp)
 GO(xmlNewInputStream, pFp)
 GO(xmlNewIOInputStream, pFppi)
-//GO(xmlNewMutex, 
+GO(xmlNewMutex, pFv)
 GO(xmlNewNode, pFpp)
 GO(xmlNewNodeEatName, pFpp)
 GO(xmlNewNs, pFppp)
@@ -612,19 +612,19 @@ GO(xmlNewParserCtxt, pFv)
 GO(xmlNewPI, pFpp)
 GO(xmlNewProp, pFppp)
 GO(xmlNewReference, pFpp)
-//GO(xmlNewRMutex, 
+GO(xmlNewRMutex, pFv)
 GO(xmlNewStringInputStream, pFpp)
 GO(xmlNewText, pFp)
 GO(xmlNewTextChild, pFpppp)
 GO(xmlNewTextLen, pFpi)
-//GO(xmlNewTextReader, 
-//GO(xmlNewTextReaderFilename, 
-//GO(xmlNewTextWriter, 
-//GO(xmlNewTextWriterDoc, 
-//GO(xmlNewTextWriterFilename, 
+//GOM(xmlNewTextReader, pFEpp)
+GO(xmlNewTextReaderFilename, pFp)
+//GOM(xmlNewTextWriter, pFEp)
+GO(xmlNewTextWriterDoc, pFpi)
+GO(xmlNewTextWriterFilename, pFpi)
 GO(xmlNewTextWriterMemory, pFpi)
-//GO(xmlNewTextWriterPushParser, 
-//GO(xmlNewTextWriterTree, 
+//GOM(xmlNewTextWriterPushParser, pFEpi)
+GO(xmlNewTextWriterTree, pFppi)
 GO(xmlNewValidCtxt, pFv)
 GO(xmlNextChar, vFp)
 GO(xmlNextElementSibling, pFp)
@@ -653,7 +653,7 @@ GO(xmlNormalizeWindowsPath, pFp)
 GO(xmlOutputBufferClose, iFp)
 GO(xmlOutputBufferCreateBuffer, pFpp)
 GO(xmlOutputBufferCreateFd, pFip)
-GO(xmlOutputBufferCreateFile, pFpp)
+GO(xmlOutputBufferCreateFile, pFSp)
 GO(xmlOutputBufferCreateFilename, pFppi)
 //GO(__xmlOutputBufferCreateFilename, 
 //GOM(xmlOutputBufferCreateFilenameDefault, BFEB)
@@ -661,7 +661,7 @@ GO(xmlOutputBufferCreateFilename, pFppi)
 GOM(xmlOutputBufferCreateIO, pFEpppp)
 GO(xmlOutputBufferFlush, iFp)
 GO(xmlOutputBufferGetContent, pFp)
-GO(xmlOutputBufferWrite, iFppp)
+GO(xmlOutputBufferWrite, iFpip)
 GO(xmlOutputBufferWriteEscape, iFppp)
 GO(xmlOutputBufferWriteString, iFpp)
 GO(xmlParseAttribute, pFpp)
@@ -670,7 +670,7 @@ GO(xmlParseAttributeType, iFpp)
 GO(xmlParseAttValue, pFp)
 GO(xmlParseBalancedChunkMemory, iFpppipp)
 GO(xmlParseBalancedChunkMemoryRecover, iFpppippi)
-//GO(xmlParseCatalogFile, 
+GO(xmlParseCatalogFile, pFp)
 GO(xmlParseCDSect, vFp)
 GO(xmlParseCharData, vFpi)
 GO(xmlParseCharEncoding, iFp)
@@ -701,9 +701,9 @@ GO(xmlParseEnumerationType, pFp)
 GO(xmlParseExternalEntity, iFpppippp)
 GO(xmlParseExternalID, pFppi)
 GO(xmlParseExternalSubset, vFppp)
-//GO(xmlParseExtParsedEnt, 
+//GOM(xmlParseExtParsedEnt, iFEp)
 GO(xmlParseFile, pFp)
-GO(xmlParseInNodeContext, pFppiip)
+GO(xmlParseInNodeContext, uFppiip)
 GO(xmlParseMarkupDecl, vFp)
 GO(xmlParseMemory, pFpi)
 GO(xmlParseMisc, vFp)
@@ -716,21 +716,21 @@ GO(xmlParsePI, vFp)
 GO(xmlParsePITarget, pFp)
 GO(xmlParsePubidLiteral, pFp)
 GO(xmlParserAddNodeInfo, vFpp)
-//GO(__xmlParserDebugEntities, 
+GO(__xmlParserDebugEntities, pFv)
 GO(xmlParseQuotedString, pFp)
 GO(xmlParseReference, vFp)
-//GO(xmlParserError, 
+//GOM(xmlParserError, vFEppV)
 GO(xmlParserFindNodeInfo, pFpp)
 GO(xmlParserFindNodeInfoIndex, LFpp)
 GO(xmlParserGetDirectory, pFp)
 GO(xmlParserHandlePEReference, vFp)
 GO(xmlParserHandleReference, vFp)
 GO(xmlParserInputBufferCreateFd, pFii)
-GO(xmlParserInputBufferCreateFile, pFpi)
+GO(xmlParserInputBufferCreateFile, pFSi)
 GO(xmlParserInputBufferCreateFilename, pFpi)
-//GO(__xmlParserInputBufferCreateFilename, 
-//GOM(xmlParserInputBufferCreateFilenameDefault, BFEB)
-//GO(__xmlParserInputBufferCreateFilenameValue, 
+//GOM(__xmlParserInputBufferCreateFilename, pFEpi)
+//GOM(xmlParserInputBufferCreateFilenameDefault, pFEp)
+//GOM(__xmlParserInputBufferCreateFilenameValue, pFEv)
 GOM(xmlParserInputBufferCreateIO, pFEpppi)
 GO(xmlParserInputBufferCreateMem, pFpii)
 GO(xmlParserInputBufferCreateStatic, pFpii)
@@ -740,12 +740,12 @@ GO(xmlParserInputBufferRead, iFpi)
 GO(xmlParserInputGrow, iFpi)
 GO(xmlParserInputRead, iFpi)
 GO(xmlParserInputShrink, vFp)
-//GO(xmlParserPrintFileContext, 
-//GO(xmlParserPrintFileInfo, 
-//GO(xmlParserValidityError, 
-//GO(xmlParserValidityWarning, 
-//GO(__xmlParserVersion, 
-//GO(xmlParserWarning, 
+//GOM(xmlParserPrintFileContext, vFEp)
+//GOM(xmlParserPrintFileInfo, vFEp)
+//GOM(xmlParserValidityError, vFEppV)
+//GOM(xmlParserValidityWarning, vFEppV)
+GO(__xmlParserVersion, pFv)
+//GOM(xmlParserWarning, vFEppV)
 GO(xmlParseSDDecl, iFp)
 GO(xmlParseStartTag, pFp)
 GO(xmlParseSystemLiteral, pFp)
@@ -757,15 +757,15 @@ GO(xmlParseVersionInfo, pFp)
 GO(xmlParseVersionNum, pFp)
 GO(xmlParseXMLDecl, vFp)
 //GO(xmlPathToURI, 
-//GO(xmlPatterncompile, 
-//GO(xmlPatternFromRoot, 
-//GO(xmlPatternGetStreamCtxt, 
-//GO(xmlPatternMatch, 
-//GO(xmlPatternMaxDepth, 
-//GO(xmlPatternMinDepth, 
-//GO(xmlPatternStreamable, 
+GO(xmlPatterncompile, pFppip)
+GO(xmlPatternFromRoot, iFp)
+GO(xmlPatternGetStreamCtxt, pFp)
+GO(xmlPatternMatch, iFpp)
+GO(xmlPatternMaxDepth, iFp)
+GO(xmlPatternMinDepth, iFp)
+GO(xmlPatternStreamable, iFp)
 GO(xmlPedanticParserDefault, iFi)
-//GO(__xmlPedanticParserDefaultValue, 
+GO(__xmlPedanticParserDefaultValue, pFv)
 GO(xmlPopInput, CFp)
 GO(xmlPopInputCallbacks, iFv)
 GO(xmlPreviousElementSibling, pFp)
@@ -773,78 +773,78 @@ GO(xmlPreviousElementSibling, pFp)
 GO(xmlPushInput, iFpi)
 //GO(__xmlRaiseError, 
 GO(xmlReadDoc, pFpppi)
-//GO(xmlReaderForDoc, 
-//GO(xmlReaderForFd, 
-//GO(xmlReaderForFile, 
+GO(xmlReaderForDoc, pFpppi)
+GO(xmlReaderForFd, pFippi)
+GO(xmlReaderForFile, pFppi)
 GOM(xmlReaderForIO, pFEpppppi)
 GO(xmlReaderForMemory, pFpippi)
-//GO(xmlReaderNewDoc, 
-//GO(xmlReaderNewFd, 
-//GO(xmlReaderNewFile, 
-//GO(xmlReaderNewIO, 
-//GO(xmlReaderNewMemory, 
-//GO(xmlReaderNewWalker, 
-//GO(xmlReaderWalker, 
+GO(xmlReaderNewDoc, iFppppi)
+GO(xmlReaderNewFd, iFpippi)
+GO(xmlReaderNewFile, iFpppi)
+//GOM(xmlReaderNewIO, iFEppppppi)
+GO(xmlReaderNewMemory, iFppippi)
+GO(xmlReaderNewWalker, iFpp)
+GO(xmlReaderWalker, pFp)
 GO(xmlReadFd, pFippi)
 GO(xmlReadFile, pFppi)
-//GOM(xmlReadIO, pFEBBpppi)
+//GOM(xmlReadIO, pFEpppppi)
 GO(xmlReadMemory, pFpippi)
-//GO(xmlReallocLoc, 
+GO(xmlReallocLoc, pFpLpi)
 GO(xmlReconciliateNs, iFpp)
 GO(xmlRecoverDoc, pFp)
 GO(xmlRecoverFile, pFp)
 GO(xmlRecoverMemory, pFpi)
-//GO(xmlRegExecErrInfo, 
-//GO(xmlRegExecNextValues, 
-//GO(xmlRegExecPushString, 
-//GO(xmlRegExecPushString2, 
-//GO(xmlRegexpCompile, 
-//GO(xmlRegexpExec, 
-//GO(xmlRegexpIsDeterminist, 
-//GO(xmlRegexpPrint, 
-//GO(xmlRegFreeExecCtxt, 
-//GO(xmlRegFreeRegexp, 
-GO(xmlRegisterCharEncodingHandler, vFp)
+GO(xmlRegExecErrInfo, iFpppppp)
+GO(xmlRegExecNextValues, iFppppp)
+GO(xmlRegExecPushString, iFppp)
+GO(xmlRegExecPushString2, iFpppp)
+GO(xmlRegexpCompile, pFp)
+GO(xmlRegexpExec, iFpp)
+GO(xmlRegexpIsDeterminist, iFp)
+GO(xmlRegexpPrint, vFSp)
+GO(xmlRegFreeExecCtxt, vFp)
+GO(xmlRegFreeRegexp, vFp)
+//GOM(xmlRegisterCharEncodingHandler, vFEp)
 GO(xmlRegisterDefaultInputCallbacks, vFv)
 GO(xmlRegisterDefaultOutputCallbacks, vFv)
 GO(xmlRegisterHTTPPostCallbacks, vFv)
 GOM(xmlRegisterInputCallbacks, iFEpppp)
-//GOM(xmlRegisterNodeDefault, BFEB)
-//GO(__xmlRegisterNodeDefaultValue, 
+//GOM(xmlRegisterNodeDefault, pFEp)
+//GOM(__xmlRegisterNodeDefaultValue, pFEv)
 GOM(xmlRegisterOutputCallbacks, iFEpppp)
-//GO(xmlRegNewExecCtxt, 
-//GO(xmlRelaxNGCleanupTypes, 
-//GO(xmlRelaxNGDump, 
-//GO(xmlRelaxNGDumpTree, 
-//GO(xmlRelaxNGFree, 
-//GO(xmlRelaxNGFreeParserCtxt, 
-//GO(xmlRelaxNGFreeValidCtxt, 
-//GO(xmlRelaxNGGetParserErrors, 
-//GO(xmlRelaxNGGetValidErrors, 
-//GO(xmlRelaxNGInitTypes, 
-//GO(xmlRelaxNGNewDocParserCtxt, 
-//GO(xmlRelaxNGNewMemParserCtxt, 
-//GO(xmlRelaxNGNewParserCtxt, 
-//GO(xmlRelaxNGNewValidCtxt, 
-//GO(xmlRelaxNGParse, 
-//GO(xmlRelaxNGSetParserErrors, 
-//GO(xmlRelaxNGSetParserStructuredErrors, 
-//GO(xmlRelaxNGSetValidErrors, 
-//GO(xmlRelaxNGSetValidStructuredErrors, 
-//GO(xmlRelaxNGValidateDoc, 
-//GO(xmlRelaxNGValidateFullElement, 
-//GO(xmlRelaxNGValidatePopElement, 
-//GO(xmlRelaxNGValidatePushCData, 
-//GO(xmlRelaxNGValidatePushElement, 
-//GO(xmlRelaxParserSetFlag, 
+//GOM(xmlRegNewExecCtxt, pFEppp)
+GO(xmlRelaxNGCleanupTypes, vFv)
+GO(xmlRelaxNGDump, vFSp)
+GO(xmlRelaxNGDumpTree, vFSp)
+GO(xmlRelaxNGFree, vFp)
+GO(xmlRelaxNGFreeParserCtxt, vFp)
+GO(xmlRelaxNGFreeValidCtxt, vFp)
+//GOM(xmlRelaxNGGetParserErrors, iFEpppp)
+//GOM(xmlRelaxNGGetValidErrors, iFEpppp)
+GO(xmlRelaxNGInitTypes, iFv)
+GO(xmlRelaxNGNewDocParserCtxt, pFp)
+GO(xmlRelaxNGNewMemParserCtxt, pFpi)
+GO(xmlRelaxNGNewParserCtxt, pFp)
+GO(xmlRelaxNGNewValidCtxt, pFp)
+GO(xmlRelaxNGParse, pFp)
+//GOM(xmlRelaxNGSetParserErrors, vFEpppp)
+//GOM(xmlRelaxNGSetParserStructuredErrors, vFEppp)
+//GOM(xmlRelaxNGSetValidErrors, vFEpppp)
+//GOM(xmlRelaxNGSetValidStructuredErrors, vFEppp)
+GO(xmlRelaxNGValidateDoc, iFpp)
+GO(xmlRelaxNGValidateFullElement, iFppp)
+GO(xmlRelaxNGValidatePopElement, iFppp)
+GO(xmlRelaxNGValidatePushCData, iFppi)
+GO(xmlRelaxNGValidatePushElement, iFppp)
+GO(xmlRelaxParserSetFlag, iFpi)
 GO(xmlRemoveID, iFpp)
 GO(xmlRemoveProp, iFp)
 GO(xmlRemoveRef, iFpp)
 GO(xmlReplaceNode, pFpp)
-//GO(xmlResetError, 
-//GO(xmlResetLastError, 
-//GO(xmlRMutexLock, 
-//GO(xmlRMutexUnlock, 
+GO(xmlResetError, vFp)
+GO(xmlResetLastError, vFv)
+GO(xmlRMutexLock, vFp)
+GO(xmlRMutexUnlock, vFp)
 GO(xmlSaveClose, iFp)
 GO(xmlSaveDoc, lFpp)
 GO(xmlSaveFile, iFpp)
@@ -854,7 +854,7 @@ GO(xmlSaveFlush, iFp)
 GO(xmlSaveFormatFile, iFppi)
 GO(xmlSaveFormatFileEnc, iFpppi)
 GO(xmlSaveFormatFileTo, iFpppi)
-//GO(__xmlSaveNoEmptyTags, 
+GO(__xmlSaveNoEmptyTags, pFv)
 //GOM(xmlSaveSetAttrEscape, iFEpB)
 //GOM(xmlSaveSetEscape, iFEpB)
 GO(xmlSaveToBuffer, pFppi)
@@ -908,39 +908,39 @@ GO(xmlSAXUserParseFile, iFppp)
 GO(xmlSAXUserParseMemory, iFpppi)
 GO(xmlSAXVersion, iFpi)
 GO(xmlScanName, pFp)
-//GO(xmlSchemaCheckFacet, 
-//GO(xmlSchemaCleanupTypes, 
-//GO(xmlSchemaCollapseString, 
-//GO(xmlSchemaCompareValues, 
-//GO(xmlSchemaCompareValuesWhtsp, 
-//GO(xmlSchemaCopyValue, 
-GO(xmlSchemaDump, vFpp)
+GO(xmlSchemaCheckFacet, iFpppp)
+GO(xmlSchemaCleanupTypes, vFv)
+GO(xmlSchemaCollapseString, pFp)
+GO(xmlSchemaCompareValues, iFpp)
+GO(xmlSchemaCompareValuesWhtsp, iFpupu)
+GO(xmlSchemaCopyValue, pFp)
+GO(xmlSchemaDump, vFSp)
 GO(xmlSchemaFree, vFp)
-//GO(xmlSchemaFreeFacet, 
+GO(xmlSchemaFreeFacet, vFp)
 GO(xmlSchemaFreeParserCtxt, vFp)
-//GO(xmlSchemaFreeType, 
+GO(xmlSchemaFreeType, vFp)
 GO(xmlSchemaFreeValidCtxt, vFp)
-//GO(xmlSchemaFreeValue, 
-//GO(xmlSchemaFreeWildcard, 
-//GO(xmlSchemaGetBuiltInListSimpleTypeItemType, 
-//GO(xmlSchemaGetBuiltInType, 
-//GO(xmlSchemaGetCanonValue, 
-//GO(xmlSchemaGetCanonValueWhtsp, 
-//GO(xmlSchemaGetFacetValueAsULong, 
-//GOM(xmlSchemaGetParserErrors, iFEpBBp)
-//GO(xmlSchemaGetPredefinedType, 
-//GOM(xmlSchemaGetValidErrors, iFEpBBp)
-//GO(xmlSchemaGetValType, 
-//GO(xmlSchemaInitTypes, 
-//GO(xmlSchemaIsBuiltInTypeFacet, 
+GO(xmlSchemaFreeValue, vFp)
+GO(xmlSchemaFreeWildcard, vFp)
+GO(xmlSchemaGetBuiltInListSimpleTypeItemType, pFp)
+GO(xmlSchemaGetBuiltInType, pFu)
+GO(xmlSchemaGetCanonValue, iFpp)
+GO(xmlSchemaGetCanonValueWhtsp, iFppu)
+GO(xmlSchemaGetFacetValueAsULong, LFp)
+//GOM(xmlSchemaGetParserErrors, iFEpppp)
+GO(xmlSchemaGetPredefinedType, pFpp)
+//GOM(xmlSchemaGetValidErrors, iFEpppp)
+GO(xmlSchemaGetValType, uFp)
+GO(xmlSchemaInitTypes, vFv)
+GO(xmlSchemaIsBuiltInTypeFacet, iFpi)
 GO(xmlSchemaIsValid, iFp)
 GO(xmlSchemaNewDocParserCtxt, pFp)
-//GO(xmlSchemaNewFacet, 
+GO(xmlSchemaNewFacet, pFv)
 GO(xmlSchemaNewMemParserCtxt, pFpi)
-//GO(xmlSchemaNewNOTATIONValue, 
+GO(xmlSchemaNewNOTATIONValue, pFpp)
 GO(xmlSchemaNewParserCtxt, pFp)
-//GO(xmlSchemaNewQNameValue, 
-//GO(xmlSchemaNewStringValue, 
+GO(xmlSchemaNewQNameValue, pFpp)
+GO(xmlSchemaNewStringValue, pFup)
 GO(xmlSchemaNewValidCtxt, pFp)
 GO(xmlSchemaParse, pFp)
 GO(xmlSchemaSAXPlug, pFppp)
@@ -961,29 +961,29 @@ GOM(xmlSchemaSetValidStructuredErrors, vFEppp)
 //GO(xmlSchematronSetValidStructuredErrors, 
 //GO(xmlSchematronValidateDoc, 
 GO(xmlSchemaValidateDoc, iFpp)
-//GO(xmlSchemaValidateFacet, 
-//GO(xmlSchemaValidateFacetWhtsp, 
+GO(xmlSchemaValidateFacet, iFpppp)
+GO(xmlSchemaValidateFacetWhtsp, iFpuuppu)
 GO(xmlSchemaValidateFile, iFppi)
-//GO(xmlSchemaValidateLengthFacet, 
-//GO(xmlSchemaValidateLengthFacetWhtsp, 
-//GO(xmlSchemaValidateListSimpleTypeFacet, 
+GO(xmlSchemaValidateLengthFacet, iFppppp)
+GO(xmlSchemaValidateLengthFacetWhtsp, iFpupppu)
+GO(xmlSchemaValidateListSimpleTypeFacet, iFppLp)
 GO(xmlSchemaValidateOneElement, iFpp)
-//GO(xmlSchemaValidatePredefinedType, 
-GO(xmlSchemaValidateSetFilename, iFpp)
-//GOM(xmlSchemaValidateSetLocator, iFEpBp)
-GO(xmlSchemaValidateStream, iFppipp)
+GO(xmlSchemaValidatePredefinedType, iFppp)
+GO(xmlSchemaValidateSetFilename, vFpp)
+//GOM(xmlSchemaValidateSetLocator, vFEppp)
+GOM(xmlSchemaValidateStream, iFppipp)
 GO(xmlSchemaValidCtxtGetOptions, iFp)
 GO(xmlSchemaValidCtxtGetParserCtxt, pFp)
-//GO(xmlSchemaValPredefTypeNode, 
-//GO(xmlSchemaValPredefTypeNodeNoNorm, 
-//GO(xmlSchemaValueAppend, 
-//GO(xmlSchemaValueGetAsBoolean, 
-//GO(xmlSchemaValueGetAsString, 
-//GO(xmlSchemaValueGetNext, 
-//GO(xmlSchemaWhiteSpaceReplace, 
+GO(xmlSchemaValPredefTypeNode, iFpppp)
+GO(xmlSchemaValPredefTypeNodeNoNorm, iFpppp)
+GO(xmlSchemaValueAppend, iFpp)
+GO(xmlSchemaValueGetAsBoolean, iFp)
+GO(xmlSchemaValueGetAsString, pFp)
+GO(xmlSchemaValueGetNext, pFp)
+GO(xmlSchemaWhiteSpaceReplace, pFp)
 GO(xmlSearchNs, pFppp)
 GO(xmlSearchNsByHref, pFppp)
-GO(xmlSetBufferAllocationScheme, vFi)
+GO(xmlSetBufferAllocationScheme, vFu)
 GO(xmlSetCompressMode, vFi)
 GO(xmlSetDocCompressMode, vFpi)
 GOM(xmlSetExternalEntityLoader, vFEp)
@@ -1010,11 +1010,11 @@ GO(xmlStrcat, pFpp)
 GO(xmlStrchr, pFpC)
 GO(xmlStrcmp, iFpp)
 GO(xmlStrdup, pFp)
-//GO(xmlStreamPop, 
-//GO(xmlStreamPush, 
-//GO(xmlStreamPushAttr, 
-//GO(xmlStreamPushNode, 
-//GO(xmlStreamWantsAnyNode, 
+GO(xmlStreamPop, iFp)
+GO(xmlStreamPush, iFppp)
+GO(xmlStreamPushAttr, iFppp)
+GO(xmlStreamPushNode, iFpppi)
+GO(xmlStreamWantsAnyNode, iFp)
 GO(xmlStrEqual, iFpp)
 GO(xmlStringCurrentChar, iFppp)
 GO(xmlStringDecodeEntities, pFppiCCC)
@@ -1032,127 +1032,127 @@ GO(xmlStrQEqual, iFppp)
 GO(xmlStrstr, pFpp)
 GO(xmlStrsub, pFpii)
 GOM(__xmlStructuredError, pFEv)
-//GO(__xmlStructuredErrorContext, 
+GO(__xmlStructuredErrorContext, pFv)
 GO(xmlStrVPrintf, iFpipp)
 GO(xmlSubstituteEntitiesDefault, iFi)
-//GO(__xmlSubstituteEntitiesDefaultValue, 
+GO(__xmlSubstituteEntitiesDefaultValue, pFv)
 GO(xmlSwitchEncoding, iFpi)
 GO(xmlSwitchInputEncoding, iFppp)
 GO(xmlSwitchToEncoding, iFpp)
 GO(xmlTextConcat, iFppi)
 GO(xmlTextMerge, pFpp)
-//GO(xmlTextReaderAttributeCount, 
-//GO(xmlTextReaderBaseUri, 
-//GO(xmlTextReaderByteConsumed, 
-//GO(xmlTextReaderClose, 
-//GO(xmlTextReaderConstBaseUri, 
-//GO(xmlTextReaderConstEncoding, 
+GO(xmlTextReaderAttributeCount, iFp)
+GO(xmlTextReaderBaseUri, pFp)
+GO(xmlTextReaderByteConsumed, lFp)
+GO(xmlTextReaderClose, iFp)
+GO(xmlTextReaderConstBaseUri, pFp)
+GO(xmlTextReaderConstEncoding, pFp)
 GO(xmlTextReaderConstLocalName, pFp)
 GO(xmlTextReaderConstName, pFp)
-//GO(xmlTextReaderConstNamespaceUri, 
-//GO(xmlTextReaderConstPrefix, 
-//GO(xmlTextReaderConstString, 
+GO(xmlTextReaderConstNamespaceUri, pFp)
+GO(xmlTextReaderConstPrefix, pFp)
+GO(xmlTextReaderConstString, pFpp)
 GO(xmlTextReaderConstValue, pFp)
-//GO(xmlTextReaderConstXmlLang, 
-//GO(xmlTextReaderConstXmlVersion, 
-//GO(xmlTextReaderCurrentDoc, 
-//GO(xmlTextReaderCurrentNode, 
-//GO(xmlTextReaderDepth, 
-//GO(xmlTextReaderExpand, 
+GO(xmlTextReaderConstXmlLang, pFp)
+GO(xmlTextReaderConstXmlVersion, pFp)
+GO(xmlTextReaderCurrentDoc, pFp)
+GO(xmlTextReaderCurrentNode, pFp)
+GO(xmlTextReaderDepth, iFp)
+GO(xmlTextReaderExpand, pFp)
 GO(xmlTextReaderGetAttribute, pFpp)
-//GO(xmlTextReaderGetAttributeNo, 
-//GO(xmlTextReaderGetAttributeNs, 
-//GO(xmlTextReaderGetErrorHandler, 
-//GO(xmlTextReaderGetParserColumnNumber, 
-//GO(xmlTextReaderGetParserLineNumber, 
-//GO(xmlTextReaderGetParserProp, 
-//GO(xmlTextReaderGetRemainder, 
+GO(xmlTextReaderGetAttributeNo, pFpi)
+GO(xmlTextReaderGetAttributeNs, pFppp)
+//GOM(xmlTextReaderGetErrorHandler, vFEppp)
+GO(xmlTextReaderGetParserColumnNumber, iFp)
+GO(xmlTextReaderGetParserLineNumber, iFp)
+GO(xmlTextReaderGetParserProp, iFpi)
+//GOM(xmlTextReaderGetRemainder, pFEp)
 GO(xmlTextReaderHasAttributes, iFp)
-//GO(xmlTextReaderHasValue, 
-//GO(xmlTextReaderIsDefault, 
+GO(xmlTextReaderHasValue, iFp)
+GO(xmlTextReaderIsDefault, iFp)
 GO(xmlTextReaderIsEmptyElement, iFp)
 GO(xmlTextReaderIsNamespaceDecl, iFp)
-//GO(xmlTextReaderIsValid, 
-//GO(xmlTextReaderLocalName, 
-//GO(xmlTextReaderLocatorBaseURI, 
-//GO(xmlTextReaderLocatorLineNumber, 
+GO(xmlTextReaderIsValid, iFp)
+GO(xmlTextReaderLocalName, pFp)
+GO(xmlTextReaderLocatorBaseURI, pFp)
+GO(xmlTextReaderLocatorLineNumber, iFp)
 GO(xmlTextReaderLookupNamespace, pFpp)
-//GO(xmlTextReaderMoveToAttribute, 
-//GO(xmlTextReaderMoveToAttributeNo, 
-//GO(xmlTextReaderMoveToAttributeNs, 
+GO(xmlTextReaderMoveToAttribute, iFpp)
+GO(xmlTextReaderMoveToAttributeNo, iFpi)
+GO(xmlTextReaderMoveToAttributeNs, iFppp)
 GO(xmlTextReaderMoveToElement, iFp)
 GO(xmlTextReaderMoveToFirstAttribute, iFp)
 GO(xmlTextReaderMoveToNextAttribute, iFp)
-//GO(xmlTextReaderName, 
-//GO(xmlTextReaderNamespaceUri, 
-//GO(xmlTextReaderNext, 
-//GO(xmlTextReaderNextSibling, 
+GO(xmlTextReaderName, pFp)
+GO(xmlTextReaderNamespaceUri, pFp)
+GO(xmlTextReaderNext, iFp)
+GO(xmlTextReaderNextSibling, iFp)
 GO(xmlTextReaderNodeType, iFp)
-//GO(xmlTextReaderNormalization, 
-//GO(xmlTextReaderPrefix, 
-//GO(xmlTextReaderPreserve, 
-//GO(xmlTextReaderPreservePattern, 
-//GO(xmlTextReaderQuoteChar, 
+GO(xmlTextReaderNormalization, iFp)
+GO(xmlTextReaderPrefix, pFp)
+GO(xmlTextReaderPreserve, pFp)
+GO(xmlTextReaderPreservePattern, iFppp)
+GO(xmlTextReaderQuoteChar, iFp)
 GO(xmlTextReaderRead, iFp)
-//GO(xmlTextReaderReadAttributeValue, 
-//GO(xmlTextReaderReadInnerXml, 
-//GO(xmlTextReaderReadOuterXml, 
-//GO(xmlTextReaderReadState, 
-//GO(xmlTextReaderReadString, 
-//GO(xmlTextReaderRelaxNGSetSchema, 
-//GO(xmlTextReaderRelaxNGValidate, 
-//GO(xmlTextReaderSchemaValidate, 
-//GO(xmlTextReaderSchemaValidateCtxt, 
+GO(xmlTextReaderReadAttributeValue, iFp)
+GO(xmlTextReaderReadInnerXml, pFp)
+GO(xmlTextReaderReadOuterXml, pFp)
+GO(xmlTextReaderReadState, iFp)
+GO(xmlTextReaderReadString, pFp)
+GO(xmlTextReaderRelaxNGSetSchema, iFpp)
+GO(xmlTextReaderRelaxNGValidate, iFpp)
+GO(xmlTextReaderSchemaValidate, iFpp)
+GO(xmlTextReaderSchemaValidateCtxt, iFppi)
 GOM(xmlTextReaderSetErrorHandler, vFEppp)
-//GO(xmlTextReaderSetParserProp, 
-//GO(xmlTextReaderSetSchema, 
-//GO(xmlTextReaderSetStructuredErrorHandler, 
-//GO(xmlTextReaderSetup, 
-//GO(xmlTextReaderStandalone, 
-//GO(xmlTextReaderValue, 
-//GO(xmlTextReaderXmlLang, 
-//GO(xmlTextWriterEndAttribute, 
-//GO(xmlTextWriterEndCDATA, 
-//GO(xmlTextWriterEndComment, 
+GO(xmlTextReaderSetParserProp, iFpii)
+GO(xmlTextReaderSetSchema, iFpp)
+//GOM(xmlTextReaderSetStructuredErrorHandler, vFEppp)
+//GOM(xmlTextReaderSetup, iFEppppi)
+GO(xmlTextReaderStandalone, iFp)
+GO(xmlTextReaderValue, pFp)
+GO(xmlTextReaderXmlLang, pFp)
+GO(xmlTextWriterEndAttribute, iFp)
+GO(xmlTextWriterEndCDATA, iFp)
+GO(xmlTextWriterEndComment, iFp)
 GO(xmlTextWriterEndDocument, iFp)
-//GO(xmlTextWriterEndDTD, 
-//GO(xmlTextWriterEndDTDAttlist, 
-//GO(xmlTextWriterEndDTDElement, 
-//GO(xmlTextWriterEndDTDEntity, 
+GO(xmlTextWriterEndDTD, iFp)
+GO(xmlTextWriterEndDTDAttlist, iFp)
+GO(xmlTextWriterEndDTDElement, iFp)
+GO(xmlTextWriterEndDTDEntity, iFp)
 GO(xmlTextWriterEndElement, iFp)
-//GO(xmlTextWriterEndPI, 
-//GO(xmlTextWriterFlush, 
-//GO(xmlTextWriterFullEndElement, 
+GO(xmlTextWriterEndPI, iFp)
+GO(xmlTextWriterFlush, iFp)
+GO(xmlTextWriterFullEndElement, iFp)
 GO(xmlTextWriterSetIndent, iFpi)
-//GO(xmlTextWriterSetIndentString, 
-//GO(xmlTextWriterStartAttribute, 
-//GO(xmlTextWriterStartAttributeNS, 
-//GO(xmlTextWriterStartCDATA, 
-//GO(xmlTextWriterStartComment, 
+GO(xmlTextWriterSetIndentString, iFpp)
+GO(xmlTextWriterStartAttribute, iFpp)
+GO(xmlTextWriterStartAttributeNS, iFpppp)
+GO(xmlTextWriterStartCDATA, iFp)
+GO(xmlTextWriterStartComment, iFp)
 GO(xmlTextWriterStartDocument, iFpppp)
-//GO(xmlTextWriterStartDTD, 
-//GO(xmlTextWriterStartDTDAttlist, 
-//GO(xmlTextWriterStartDTDElement, 
-//GO(xmlTextWriterStartDTDEntity, 
+GO(xmlTextWriterStartDTD, iFpppp)
+GO(xmlTextWriterStartDTDAttlist, iFpp)
+GO(xmlTextWriterStartDTDElement, iFpp)
+GO(xmlTextWriterStartDTDEntity, iFpip)
 GO(xmlTextWriterStartElement, iFpp)
-//GO(xmlTextWriterStartElementNS, 
-//GO(xmlTextWriterStartPI, 
+GO(xmlTextWriterStartElementNS, iFpppp)
+GO(xmlTextWriterStartPI, iFpp)
 GO(xmlTextWriterWriteAttribute, iFppp)
-//GO(xmlTextWriterWriteAttributeNS, 
+GO(xmlTextWriterWriteAttributeNS, iFppppp)
 GO(xmlTextWriterWriteBase64, iFppii)
-//GO(xmlTextWriterWriteBinHex, 
-//GO(xmlTextWriterWriteCDATA, 
-//GO(xmlTextWriterWriteComment, 
-//GO(xmlTextWriterWriteDTD, 
-//GO(xmlTextWriterWriteDTDAttlist, 
-//GO(xmlTextWriterWriteDTDElement, 
-//GO(xmlTextWriterWriteDTDEntity, 
-//GO(xmlTextWriterWriteDTDExternalEntity, 
-//GO(xmlTextWriterWriteDTDExternalEntityContents, 
-//GO(xmlTextWriterWriteDTDInternalEntity, 
-//GO(xmlTextWriterWriteDTDNotation, 
-//GO(xmlTextWriterWriteElement, 
-//GO(xmlTextWriterWriteElementNS, 
+GO(xmlTextWriterWriteBinHex, iFppii)
+GO(xmlTextWriterWriteCDATA, iFpp)
+GO(xmlTextWriterWriteComment, iFpp)
+GO(xmlTextWriterWriteDTD, iFppppp)
+GO(xmlTextWriterWriteDTDAttlist, iFppp)
+GO(xmlTextWriterWriteDTDElement, iFppp)
+GO(xmlTextWriterWriteDTDEntity, iFpippppp)
+GO(xmlTextWriterWriteDTDExternalEntity, iFpipppp)
+GO(xmlTextWriterWriteDTDExternalEntityContents, iFpppp)
+GO(xmlTextWriterWriteDTDInternalEntity, iFpipp)
+GO(xmlTextWriterWriteDTDNotation, iFpppp)
+GO(xmlTextWriterWriteElement, iFppp)
+GO(xmlTextWriterWriteElementNS, iFppppp)
 GOM(xmlTextWriterWriteFormatAttribute, iFEpppV)
 //GO(xmlTextWriterWriteFormatAttributeNS, 
 //GO(xmlTextWriterWriteFormatCDATA, 
@@ -1166,9 +1166,9 @@ GOM(xmlTextWriterWriteFormatAttribute, iFEpppV)
 //GO(xmlTextWriterWriteFormatPI, 
 //GO(xmlTextWriterWriteFormatRaw, 
 //GO(xmlTextWriterWriteFormatString, 
-//GO(xmlTextWriterWritePI, 
-//GO(xmlTextWriterWriteRaw, 
-//GO(xmlTextWriterWriteRawLen, 
+GO(xmlTextWriterWritePI, iFppp)
+GO(xmlTextWriterWriteRaw, iFpp)
+GO(xmlTextWriterWriteRawLen, iFppi)
 GO(xmlTextWriterWriteString, iFpp)
 GOM(xmlTextWriterWriteVFormatAttribute, iFEpppA)
 //GO(xmlTextWriterWriteVFormatAttributeNS, 
@@ -1183,194 +1183,194 @@ GOM(xmlTextWriterWriteVFormatAttribute, iFEpppA)
 //GO(xmlTextWriterWriteVFormatPI, 
 //GO(xmlTextWriterWriteVFormatRaw, 
 //GO(xmlTextWriterWriteVFormatString, 
-GO(xmlThrDefBufferAllocScheme, iFi)
+GO(xmlThrDefBufferAllocScheme, uFu)
 GO(xmlThrDefDefaultBufferSize, iFi)
-//GOM(xmlThrDefDeregisterNodeDefault, BFEB)
+//GOM(xmlThrDefDeregisterNodeDefault, pFEp)
 GO(xmlThrDefDoValidityCheckingDefaultValue, iFi)
 GO(xmlThrDefGetWarningsDefaultValue, iFi)
 GO(xmlThrDefIndentTreeOutput, iFi)
 GO(xmlThrDefKeepBlanksDefaultValue, iFi)
 GO(xmlThrDefLineNumbersDefaultValue, iFi)
 GO(xmlThrDefLoadExtDtdDefaultValue, iFi)
-//GOM(xmlThrDefOutputBufferCreateFilenameDefault, BFEB)
+//GOM(xmlThrDefOutputBufferCreateFilenameDefault, pFEp)
 GO(xmlThrDefParserDebugEntities, iFi)
-//GOM(xmlThrDefParserInputBufferCreateFilenameDefault, BFEB)
+//GOM(xmlThrDefParserInputBufferCreateFilenameDefault, pFEp)
 GO(xmlThrDefPedanticParserDefaultValue, iFi)
-//GOM(xmlThrDefRegisterNodeDefault, BFEB)
+//GOM(xmlThrDefRegisterNodeDefault, pFEp)
 GO(xmlThrDefSaveNoEmptyTags, iFi)
-//GOM(xmlThrDefSetGenericErrorFunc, vFEpB)
-//GOM(xmlThrDefSetStructuredErrorFunc, vFEpB)
+//GOM(xmlThrDefSetGenericErrorFunc, vFEpp)
+//GOM(xmlThrDefSetStructuredErrorFunc, vFEpp)
 GO(xmlThrDefSubstituteEntitiesDefaultValue, iFi)
 GO(xmlThrDefTreeIndentString, pFp)
 GO(__xmlTreeIndentString, pFv)
-//GO(xmlUCSIsAegeanNumbers, 
-//GO(xmlUCSIsAlphabeticPresentationForms, 
-//GO(xmlUCSIsArabic, 
-//GO(xmlUCSIsArabicPresentationFormsA, 
-//GO(xmlUCSIsArabicPresentationFormsB, 
-//GO(xmlUCSIsArmenian, 
-//GO(xmlUCSIsArrows, 
-//GO(xmlUCSIsBasicLatin, 
-//GO(xmlUCSIsBengali, 
-//GO(xmlUCSIsBlock, 
-//GO(xmlUCSIsBlockElements, 
-//GO(xmlUCSIsBopomofo, 
-//GO(xmlUCSIsBopomofoExtended, 
-//GO(xmlUCSIsBoxDrawing, 
-//GO(xmlUCSIsBraillePatterns, 
-//GO(xmlUCSIsBuhid, 
-//GO(xmlUCSIsByzantineMusicalSymbols, 
-//GO(xmlUCSIsCat, 
-//GO(xmlUCSIsCatC, 
-//GO(xmlUCSIsCatCc, 
-//GO(xmlUCSIsCatCf, 
-//GO(xmlUCSIsCatCo, 
-//GO(xmlUCSIsCatCs, 
-//GO(xmlUCSIsCatL, 
-//GO(xmlUCSIsCatLl, 
-//GO(xmlUCSIsCatLm, 
-//GO(xmlUCSIsCatLo, 
-//GO(xmlUCSIsCatLt, 
-//GO(xmlUCSIsCatLu, 
-//GO(xmlUCSIsCatM, 
-//GO(xmlUCSIsCatMc, 
-//GO(xmlUCSIsCatMe, 
-//GO(xmlUCSIsCatMn, 
-//GO(xmlUCSIsCatN, 
-//GO(xmlUCSIsCatNd, 
-//GO(xmlUCSIsCatNl, 
-//GO(xmlUCSIsCatNo, 
-//GO(xmlUCSIsCatP, 
-//GO(xmlUCSIsCatPc, 
-//GO(xmlUCSIsCatPd, 
-//GO(xmlUCSIsCatPe, 
-//GO(xmlUCSIsCatPf, 
-//GO(xmlUCSIsCatPi, 
-//GO(xmlUCSIsCatPo, 
-//GO(xmlUCSIsCatPs, 
-//GO(xmlUCSIsCatS, 
-//GO(xmlUCSIsCatSc, 
-//GO(xmlUCSIsCatSk, 
-//GO(xmlUCSIsCatSm, 
-//GO(xmlUCSIsCatSo, 
-//GO(xmlUCSIsCatZ, 
-//GO(xmlUCSIsCatZl, 
-//GO(xmlUCSIsCatZp, 
-//GO(xmlUCSIsCatZs, 
-//GO(xmlUCSIsCherokee, 
-//GO(xmlUCSIsCJKCompatibility, 
-//GO(xmlUCSIsCJKCompatibilityForms, 
-//GO(xmlUCSIsCJKCompatibilityIdeographs, 
-//GO(xmlUCSIsCJKCompatibilityIdeographsSupplement, 
-//GO(xmlUCSIsCJKRadicalsSupplement, 
-//GO(xmlUCSIsCJKSymbolsandPunctuation, 
-//GO(xmlUCSIsCJKUnifiedIdeographs, 
-//GO(xmlUCSIsCJKUnifiedIdeographsExtensionA, 
-//GO(xmlUCSIsCJKUnifiedIdeographsExtensionB, 
-//GO(xmlUCSIsCombiningDiacriticalMarks, 
-//GO(xmlUCSIsCombiningDiacriticalMarksforSymbols, 
-//GO(xmlUCSIsCombiningHalfMarks, 
-//GO(xmlUCSIsCombiningMarksforSymbols, 
-//GO(xmlUCSIsControlPictures, 
-//GO(xmlUCSIsCurrencySymbols, 
-//GO(xmlUCSIsCypriotSyllabary, 
-//GO(xmlUCSIsCyrillic, 
-//GO(xmlUCSIsCyrillicSupplement, 
-//GO(xmlUCSIsDeseret, 
-//GO(xmlUCSIsDevanagari, 
-//GO(xmlUCSIsDingbats, 
-//GO(xmlUCSIsEnclosedAlphanumerics, 
-//GO(xmlUCSIsEnclosedCJKLettersandMonths, 
-//GO(xmlUCSIsEthiopic, 
-//GO(xmlUCSIsGeneralPunctuation, 
-//GO(xmlUCSIsGeometricShapes, 
-//GO(xmlUCSIsGeorgian, 
-//GO(xmlUCSIsGothic, 
-//GO(xmlUCSIsGreek, 
-//GO(xmlUCSIsGreekandCoptic, 
-//GO(xmlUCSIsGreekExtended, 
-//GO(xmlUCSIsGujarati, 
-//GO(xmlUCSIsGurmukhi, 
-//GO(xmlUCSIsHalfwidthandFullwidthForms, 
-//GO(xmlUCSIsHangulCompatibilityJamo, 
-//GO(xmlUCSIsHangulJamo, 
-//GO(xmlUCSIsHangulSyllables, 
-//GO(xmlUCSIsHanunoo, 
-//GO(xmlUCSIsHebrew, 
-//GO(xmlUCSIsHighPrivateUseSurrogates, 
-//GO(xmlUCSIsHighSurrogates, 
-//GO(xmlUCSIsHiragana, 
-//GO(xmlUCSIsIdeographicDescriptionCharacters, 
-//GO(xmlUCSIsIPAExtensions, 
-//GO(xmlUCSIsKanbun, 
-//GO(xmlUCSIsKangxiRadicals, 
-//GO(xmlUCSIsKannada, 
-//GO(xmlUCSIsKatakana, 
-//GO(xmlUCSIsKatakanaPhoneticExtensions, 
-//GO(xmlUCSIsKhmer, 
-//GO(xmlUCSIsKhmerSymbols, 
-//GO(xmlUCSIsLao, 
-//GO(xmlUCSIsLatin1Supplement, 
-//GO(xmlUCSIsLatinExtendedA, 
-//GO(xmlUCSIsLatinExtendedAdditional, 
-//GO(xmlUCSIsLatinExtendedB, 
-//GO(xmlUCSIsLetterlikeSymbols, 
-//GO(xmlUCSIsLimbu, 
-//GO(xmlUCSIsLinearBIdeograms, 
-//GO(xmlUCSIsLinearBSyllabary, 
-//GO(xmlUCSIsLowSurrogates, 
-//GO(xmlUCSIsMalayalam, 
-//GO(xmlUCSIsMathematicalAlphanumericSymbols, 
-//GO(xmlUCSIsMathematicalOperators, 
-//GO(xmlUCSIsMiscellaneousMathematicalSymbolsA, 
-//GO(xmlUCSIsMiscellaneousMathematicalSymbolsB, 
-//GO(xmlUCSIsMiscellaneousSymbols, 
-//GO(xmlUCSIsMiscellaneousSymbolsandArrows, 
-//GO(xmlUCSIsMiscellaneousTechnical, 
-//GO(xmlUCSIsMongolian, 
-//GO(xmlUCSIsMusicalSymbols, 
-//GO(xmlUCSIsMyanmar, 
-//GO(xmlUCSIsNumberForms, 
-//GO(xmlUCSIsOgham, 
-//GO(xmlUCSIsOldItalic, 
-//GO(xmlUCSIsOpticalCharacterRecognition, 
-//GO(xmlUCSIsOriya, 
-//GO(xmlUCSIsOsmanya, 
-//GO(xmlUCSIsPhoneticExtensions, 
-//GO(xmlUCSIsPrivateUse, 
-//GO(xmlUCSIsPrivateUseArea, 
-//GO(xmlUCSIsRunic, 
-//GO(xmlUCSIsShavian, 
-//GO(xmlUCSIsSinhala, 
-//GO(xmlUCSIsSmallFormVariants, 
-//GO(xmlUCSIsSpacingModifierLetters, 
-//GO(xmlUCSIsSpecials, 
-//GO(xmlUCSIsSuperscriptsandSubscripts, 
-//GO(xmlUCSIsSupplementalArrowsA, 
-//GO(xmlUCSIsSupplementalArrowsB, 
-//GO(xmlUCSIsSupplementalMathematicalOperators, 
-//GO(xmlUCSIsSupplementaryPrivateUseAreaA, 
-//GO(xmlUCSIsSupplementaryPrivateUseAreaB, 
-//GO(xmlUCSIsSyriac, 
-//GO(xmlUCSIsTagalog, 
-//GO(xmlUCSIsTagbanwa, 
-//GO(xmlUCSIsTags, 
-//GO(xmlUCSIsTaiLe, 
-//GO(xmlUCSIsTaiXuanJingSymbols, 
-//GO(xmlUCSIsTamil, 
-//GO(xmlUCSIsTelugu, 
-//GO(xmlUCSIsThaana, 
-//GO(xmlUCSIsThai, 
-//GO(xmlUCSIsTibetan, 
-//GO(xmlUCSIsUgaritic, 
-//GO(xmlUCSIsUnifiedCanadianAboriginalSyllabics, 
-//GO(xmlUCSIsVariationSelectors, 
-//GO(xmlUCSIsVariationSelectorsSupplement, 
-//GO(xmlUCSIsYijingHexagramSymbols, 
-//GO(xmlUCSIsYiRadicals, 
-//GO(xmlUCSIsYiSyllables, 
+GO(xmlUCSIsAegeanNumbers, iFi)
+GO(xmlUCSIsAlphabeticPresentationForms, iFi)
+GO(xmlUCSIsArabic, iFi)
+GO(xmlUCSIsArabicPresentationFormsA, iFi)
+GO(xmlUCSIsArabicPresentationFormsB, iFi)
+GO(xmlUCSIsArmenian, iFi)
+GO(xmlUCSIsArrows, iFi)
+GO(xmlUCSIsBasicLatin, iFi)
+GO(xmlUCSIsBengali, iFi)
+GO(xmlUCSIsBlock, iFip)
+GO(xmlUCSIsBlockElements, iFi)
+GO(xmlUCSIsBopomofo, iFi)
+GO(xmlUCSIsBopomofoExtended, iFi)
+GO(xmlUCSIsBoxDrawing, iFi)
+GO(xmlUCSIsBraillePatterns, iFi)
+GO(xmlUCSIsBuhid, iFi)
+GO(xmlUCSIsByzantineMusicalSymbols, iFi)
+GO(xmlUCSIsCat, iFip)
+GO(xmlUCSIsCatC, iFi)
+GO(xmlUCSIsCatCc, iFi)
+GO(xmlUCSIsCatCf, iFi)
+GO(xmlUCSIsCatCo, iFi)
+GO(xmlUCSIsCatCs, iFi)
+GO(xmlUCSIsCatL, iFi)
+GO(xmlUCSIsCatLl, iFi)
+GO(xmlUCSIsCatLm, iFi)
+GO(xmlUCSIsCatLo, iFi)
+GO(xmlUCSIsCatLt, iFi)
+GO(xmlUCSIsCatLu, iFi)
+GO(xmlUCSIsCatM, iFi)
+GO(xmlUCSIsCatMc, iFi)
+GO(xmlUCSIsCatMe, iFi)
+GO(xmlUCSIsCatMn, iFi)
+GO(xmlUCSIsCatN, iFi)
+GO(xmlUCSIsCatNd, iFi)
+GO(xmlUCSIsCatNl, iFi)
+GO(xmlUCSIsCatNo, iFi)
+GO(xmlUCSIsCatP, iFi)
+GO(xmlUCSIsCatPc, iFi)
+GO(xmlUCSIsCatPd, iFi)
+GO(xmlUCSIsCatPe, iFi)
+GO(xmlUCSIsCatPf, iFi)
+GO(xmlUCSIsCatPi, iFi)
+GO(xmlUCSIsCatPo, iFi)
+GO(xmlUCSIsCatPs, iFi)
+GO(xmlUCSIsCatS, iFi)
+GO(xmlUCSIsCatSc, iFi)
+GO(xmlUCSIsCatSk, iFi)
+GO(xmlUCSIsCatSm, iFi)
+GO(xmlUCSIsCatSo, iFi)
+GO(xmlUCSIsCatZ, iFi)
+GO(xmlUCSIsCatZl, iFi)
+GO(xmlUCSIsCatZp, iFi)
+GO(xmlUCSIsCatZs, iFi)
+GO(xmlUCSIsCherokee, iFi)
+GO(xmlUCSIsCJKCompatibility, iFi)
+GO(xmlUCSIsCJKCompatibilityForms, iFi)
+GO(xmlUCSIsCJKCompatibilityIdeographs, iFi)
+GO(xmlUCSIsCJKCompatibilityIdeographsSupplement, iFi)
+GO(xmlUCSIsCJKRadicalsSupplement, iFi)
+GO(xmlUCSIsCJKSymbolsandPunctuation, iFi)
+GO(xmlUCSIsCJKUnifiedIdeographs, iFi)
+GO(xmlUCSIsCJKUnifiedIdeographsExtensionA, iFi)
+GO(xmlUCSIsCJKUnifiedIdeographsExtensionB, iFi)
+GO(xmlUCSIsCombiningDiacriticalMarks, iFi)
+GO(xmlUCSIsCombiningDiacriticalMarksforSymbols, iFi)
+GO(xmlUCSIsCombiningHalfMarks, iFi)
+GO(xmlUCSIsCombiningMarksforSymbols, iFi)
+GO(xmlUCSIsControlPictures, iFi)
+GO(xmlUCSIsCurrencySymbols, iFi)
+GO(xmlUCSIsCypriotSyllabary, iFi)
+GO(xmlUCSIsCyrillic, iFi)
+GO(xmlUCSIsCyrillicSupplement, iFi)
+GO(xmlUCSIsDeseret, iFi)
+GO(xmlUCSIsDevanagari, iFi)
+GO(xmlUCSIsDingbats, iFi)
+GO(xmlUCSIsEnclosedAlphanumerics, iFi)
+GO(xmlUCSIsEnclosedCJKLettersandMonths, iFi)
+GO(xmlUCSIsEthiopic, iFi)
+GO(xmlUCSIsGeneralPunctuation, iFi)
+GO(xmlUCSIsGeometricShapes, iFi)
+GO(xmlUCSIsGeorgian, iFi)
+GO(xmlUCSIsGothic, iFi)
+GO(xmlUCSIsGreek, iFi)
+GO(xmlUCSIsGreekandCoptic, iFi)
+GO(xmlUCSIsGreekExtended, iFi)
+GO(xmlUCSIsGujarati, iFi)
+GO(xmlUCSIsGurmukhi, iFi)
+GO(xmlUCSIsHalfwidthandFullwidthForms, iFi)
+GO(xmlUCSIsHangulCompatibilityJamo, iFi)
+GO(xmlUCSIsHangulJamo, iFi)
+GO(xmlUCSIsHangulSyllables, iFi)
+GO(xmlUCSIsHanunoo, iFi)
+GO(xmlUCSIsHebrew, iFi)
+GO(xmlUCSIsHighPrivateUseSurrogates, iFi)
+GO(xmlUCSIsHighSurrogates, iFi)
+GO(xmlUCSIsHiragana, iFi)
+GO(xmlUCSIsIdeographicDescriptionCharacters, iFi)
+GO(xmlUCSIsIPAExtensions, iFi)
+GO(xmlUCSIsKanbun, iFi)
+GO(xmlUCSIsKangxiRadicals, iFi)
+GO(xmlUCSIsKannada, iFi)
+GO(xmlUCSIsKatakana, iFi)
+GO(xmlUCSIsKatakanaPhoneticExtensions, iFi)
+GO(xmlUCSIsKhmer, iFi)
+GO(xmlUCSIsKhmerSymbols, iFi)
+GO(xmlUCSIsLao, iFi)
+GO(xmlUCSIsLatin1Supplement, iFi)
+GO(xmlUCSIsLatinExtendedA, iFi)
+GO(xmlUCSIsLatinExtendedAdditional, iFi)
+GO(xmlUCSIsLatinExtendedB, iFi)
+GO(xmlUCSIsLetterlikeSymbols, iFi)
+GO(xmlUCSIsLimbu, iFi)
+GO(xmlUCSIsLinearBIdeograms, iFi)
+GO(xmlUCSIsLinearBSyllabary, iFi)
+GO(xmlUCSIsLowSurrogates, iFi)
+GO(xmlUCSIsMalayalam, iFi)
+GO(xmlUCSIsMathematicalAlphanumericSymbols, iFi)
+GO(xmlUCSIsMathematicalOperators, iFi)
+GO(xmlUCSIsMiscellaneousMathematicalSymbolsA, iFi)
+GO(xmlUCSIsMiscellaneousMathematicalSymbolsB, iFi)
+GO(xmlUCSIsMiscellaneousSymbols, iFi)
+GO(xmlUCSIsMiscellaneousSymbolsandArrows, iFi)
+GO(xmlUCSIsMiscellaneousTechnical, iFi)
+GO(xmlUCSIsMongolian, iFi)
+GO(xmlUCSIsMusicalSymbols, iFi)
+GO(xmlUCSIsMyanmar, iFi)
+GO(xmlUCSIsNumberForms, iFi)
+GO(xmlUCSIsOgham, iFi)
+GO(xmlUCSIsOldItalic, iFi)
+GO(xmlUCSIsOpticalCharacterRecognition, iFi)
+GO(xmlUCSIsOriya, iFi)
+GO(xmlUCSIsOsmanya, iFi)
+GO(xmlUCSIsPhoneticExtensions, iFi)
+GO(xmlUCSIsPrivateUse, iFi)
+GO(xmlUCSIsPrivateUseArea, iFi)
+GO(xmlUCSIsRunic, iFi)
+GO(xmlUCSIsShavian, iFi)
+GO(xmlUCSIsSinhala, iFi)
+GO(xmlUCSIsSmallFormVariants, iFi)
+GO(xmlUCSIsSpacingModifierLetters, iFi)
+GO(xmlUCSIsSpecials, iFi)
+GO(xmlUCSIsSuperscriptsandSubscripts, iFi)
+GO(xmlUCSIsSupplementalArrowsA, iFi)
+GO(xmlUCSIsSupplementalArrowsB, iFi)
+GO(xmlUCSIsSupplementalMathematicalOperators, iFi)
+GO(xmlUCSIsSupplementaryPrivateUseAreaA, iFi)
+GO(xmlUCSIsSupplementaryPrivateUseAreaB, iFi)
+GO(xmlUCSIsSyriac, iFi)
+GO(xmlUCSIsTagalog, iFi)
+GO(xmlUCSIsTagbanwa, iFi)
+GO(xmlUCSIsTags, iFi)
+GO(xmlUCSIsTaiLe, iFi)
+GO(xmlUCSIsTaiXuanJingSymbols, iFi)
+GO(xmlUCSIsTamil, iFi)
+GO(xmlUCSIsTelugu, iFi)
+GO(xmlUCSIsThaana, iFi)
+GO(xmlUCSIsThai, iFi)
+GO(xmlUCSIsTibetan, iFi)
+GO(xmlUCSIsUgaritic, iFi)
+GO(xmlUCSIsUnifiedCanadianAboriginalSyllabics, iFi)
+GO(xmlUCSIsVariationSelectors, iFi)
+GO(xmlUCSIsVariationSelectorsSupplement, iFi)
+GO(xmlUCSIsYijingHexagramSymbols, iFi)
+GO(xmlUCSIsYiRadicals, iFi)
+GO(xmlUCSIsYiSyllables, iFi)
 GO(xmlUnlinkNode, vFp)
-//GO(xmlUnlockLibrary, 
+GO(xmlUnlockLibrary, vFv)
 GO(xmlUnsetNsProp, iFppp)
 GO(xmlUnsetProp, iFpp)
 //GO(xmlURIEscape, 
@@ -1385,7 +1385,7 @@ GO(xmlUTF8Strpos, pFpi)
 GO(xmlUTF8Strsize, iFpi)
 GO(xmlUTF8Strsub, pFpii)
 GO(xmlValidateAttributeDecl, iFppp)
-GO(xmlValidateAttributeValue, iFpp)
+GO(xmlValidateAttributeValue, iFup)
 GO(xmlValidateDocument, iFpp)
 GO(xmlValidateDocumentFinal, iFpp)
 GO(xmlValidateDtd, iFpp)
@@ -1454,8 +1454,8 @@ GO(xmlXPathConvertNumber, pFp)
 GO(xmlXPathConvertString, pFp)
 GO(xmlXPathCountFunction, vFpi)
 GO(xmlXPathCtxtCompile, pFpp)
-GO(xmlXPathDebugDumpCompExpr, vFppi)
-GO(xmlXPathDebugDumpObject, vFppi)
+GO(xmlXPathDebugDumpCompExpr, vFSpi)
+GO(xmlXPathDebugDumpObject, vFSpi)
 GO(xmlXPathDifference, pFpp)
 GO(xmlXPathDistinct, pFp)
 GO(xmlXPathDistinctSorted, pFp)
@@ -1466,7 +1466,7 @@ GO(xmlXPatherror, vFppii)
 GO(xmlXPathEval, pFpp)
 GO(xmlXPathEvalExpr, vFp)
 GO(xmlXPathEvalExpression, pFpp)
-GO(xmlXPathEvalPredicate, pFpp)
+GO(xmlXPathEvalPredicate, iFpp)
 GO(xmlXPathEvaluatePredicateResult, iFpp)
 GO(xmlXPathFalseFunction, vFpi)
 GO(xmlXPathFloorFunction, vFpi)
@@ -1478,7 +1478,7 @@ GO(xmlXPathFreeObject, vFp)
 GO(xmlXPathFreeParserContext, vFp)
 //GOM(xmlXPathFunctionLookup, BFEpp)
 //GOM(xmlXPathFunctionLookupNS, BFEppp)
-//GO(xmlXPathHasSameNodes, 
+GO(xmlXPathHasSameNodes, iFpp)
 //GO(xmlXPathIdFunction, 
 GO(xmlXPathInit, vFv)
 GO(xmlXPathIntersection, pFpp)
@@ -1566,7 +1566,7 @@ GO(xmlXPathStringLengthFunction, vFpi)
 GO(xmlXPathSubstringAfterFunction, vFpi)
 GO(xmlXPathSubstringBeforeFunction, vFpi)
 GO(xmlXPathSubstringFunction, vFpi)
-//GO(xmlXPathSubValues, 
+GO(xmlXPathSubValues, vFp)
 GO(xmlXPathSumFunction, vFpi)
 GO(xmlXPathTrailing, pFpp)
 GO(xmlXPathTrailingSorted, pFpp)
@@ -1582,7 +1582,7 @@ GO(xmlXPathWrapNodeSet, pFp)
 GO(xmlXPathWrapString, pFp)
 //GO(xmlXPtrAdvanceNode, 
 //GO(xmlXPtrBuildNodeList, 
-//GO(xmlXPtrEval, 
+//GOM(xmlXPtrEval, pFEpp)
 //GO(xmlXPtrEvalRangePredicate, 
 //GO(xmlXPtrFreeLocationSet, 
 //GO(xmlXPtrLocationSetAdd, 
@@ -1591,7 +1591,7 @@ GO(xmlXPathWrapString, pFp)
 //GO(xmlXPtrLocationSetMerge, 
 //GO(xmlXPtrLocationSetRemove, 
 //GO(xmlXPtrNewCollapsedRange, 
-//GO(xmlXPtrNewContext, 
+//GOM(xmlXPtrNewContext, pFEppp)
 //GO(xmlXPtrNewLocationSetNodes, 
 //GO(xmlXPtrNewLocationSetNodeSet, 
 //GO(xmlXPtrNewRange, 

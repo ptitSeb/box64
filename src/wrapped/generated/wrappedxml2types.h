@@ -26,6 +26,7 @@ typedef int32_t (*iFpppV_t)(void*, void*, void*, ...);
 typedef int32_t (*iFpppA_t)(void*, void*, void*, va_list);
 typedef void* (*pFpppi_t)(void*, void*, void*, int32_t);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppipp_t)(void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFpppip_t)(void*, void*, void*, int32_t, void*);
 typedef void* (*pFppppi_t)(void*, void*, void*, void*, int32_t);
@@ -57,6 +58,7 @@ typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int32_t);
 	GO(xmlSchemaSetValidErrors, vFpppp_t) \
 	GO(xmlHashRemoveEntry2, iFpppp_t) \
 	GO(xmlHashUpdateEntry, iFpppp_t) \
+	GO(xmlMemGet, iFpppp_t) \
 	GO(xmlMemSetup, iFpppp_t) \
 	GO(xmlRegisterInputCallbacks, iFpppp_t) \
 	GO(xmlRegisterOutputCallbacks, iFpppp_t) \
@@ -64,6 +66,7 @@ typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int32_t);
 	GO(xmlTextWriterWriteVFormatAttribute, iFpppA_t) \
 	GO(xmlParserInputBufferCreateIO, pFpppi_t) \
 	GO(xmlOutputBufferCreateIO, pFpppp_t) \
+	GO(xmlSchemaValidateStream, iFppipp_t) \
 	GO(xmlHashRemoveEntry3, iFppppp_t) \
 	GO(xmlHashUpdateEntry2, iFppppp_t) \
 	GO(xmlCreatePushParserCtxt, pFpppip_t) \
