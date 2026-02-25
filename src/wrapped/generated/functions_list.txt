@@ -2785,6 +2785,7 @@
 #() pFpiiuuu
 #() pFpiipip
 #() pFpiippp
+#() pFpidddd
 #() pFpiuuup
 #() pFpiLLLL
 #() pFpipipL
@@ -4063,6 +4064,8 @@
 #() iFEpuvvppp -> iFEpuppp
 wrappedalure:
 wrappedalut:
+wrappedandroidshmem:
+wrappedandroidsupport:
 wrappedanl:
 wrappedatk:
 - vFp:
@@ -4114,6 +4117,8 @@ wrappedavahicommon:
 - pFppA:
   - avahi_string_list_add_vprintf
 wrappedayatanaappindicator3:
+wrappedayatanaido3:
+wrappedayatanaindicator3:
 wrappedbrotlidec:
 - pFppp:
   - BrotliDecoderCreateInstance
@@ -5186,6 +5191,7 @@ wrappedgtkx112:
 - pFpipppppppi:
   - gtk_toolbar_insert_element
 wrappedharfbuzzsubset:
+wrappediconv:
 wrappedicui18n64:
 wrappedicui18n66:
 wrappedicui18n67:
@@ -7106,6 +7112,7 @@ wrappedtcmallocminimal:
 - pFpLiiil:
   - mmap
   - mmap64
+wrappedtermuxexec:
 wrappedudev0:
 wrappedudev1:
 - vFpp:

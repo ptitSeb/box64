@@ -569,6 +569,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedatomic.c"
     "${BOX64_ROOT}/src/wrapped/wrappedatspi.c"
     "${BOX64_ROOT}/src/wrapped/wrappedayatanaappindicator3.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedayatanaindicator3.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedayatanaido3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedavahiclient.c"
     "${BOX64_ROOT}/src/wrapped/wrappedavahicommon.c"
     "${BOX64_ROOT}/src/wrapped/wrappedbz2.c"
