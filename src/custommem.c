@@ -2194,6 +2194,31 @@ uintptr_t getJumpAddress64(uintptr_t addr)
     #endif
 }
 
+// Helper: check if any sub-range in a host page has PROT_WRITE that is NOT part of the
+// dynarec-protected range [prot_start, prot_end). This detects mixed code+data host pages
+// on systems with large pages (e.g. 64KB) where mprotect to remove PROT_WRITE would also
+// strip writability from data regions, causing EFAULT on kernel writes (e.g. read() syscall).
+// Must be called with LOCK_PROT() held.
+static int hostPageHasExternalWrite_locked(uintptr_t host_page, uintptr_t prot_start, uintptr_t prot_end)
+{
+    uintptr_t scan = host_page;
+    uintptr_t host_end = host_page + box64_pagesize;
+    while(scan < host_end) {
+        uint32_t p = 0;
+        uintptr_t bend = 0;
+        rb_get_end(memprot, scan, &p, &bend);
+        if(bend > host_end)
+            bend = host_end;
+        if(p && (p & PROT_WRITE) && !(p & PROT_DYN)) {
+            if(scan < prot_start || bend > prot_end) {
+                return 1;
+            }
+        }
+        scan = bend;
+    }
+    return 0;
+}
+
 // Remove the Write flag from an adress range, so DB can be executed safely
 void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
 {
@@ -2216,8 +2241,19 @@ void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
         if(!(dyn&PROT_NEVERPROT)) {
             prot&=~PROT_CUSTOM;
             if(prot&PROT_WRITE) {
-                if(!dyn) 
-                    mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                if(!dyn) {
+                    if(box64_pagesize > 4096) {
+                        uintptr_t host_page = cur & ~(box64_pagesize-1);
+                        if(hostPageHasExternalWrite_locked(host_page, addr, addr+size)) {
+                            dynarec_log(LOG_INFO, "protectDBJumpTable: mixed code+data host page %p, using always_test instead of mprotect\n", (void*)host_page);
+                            prot |= PROT_NEVERCLEAN;
+                        } else {
+                            mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                        }
+                    } else {
+                        mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                    }
+                }
                 prot |= PROT_DYNAREC;
             } else 
                 prot |= PROT_DYNAREC_R;
@@ -2253,8 +2289,24 @@ void protectDB(uintptr_t addr, uintptr_t size)
         if(!(dyn&PROT_NEVERPROT)) {
             prot&=~PROT_CUSTOM;
             if(prot&PROT_WRITE) {
-                if(!dyn) 
-                    mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                if(!dyn) {
+                    // On large-page systems, check if removing PROT_WRITE from this host page
+                    // would also affect writable data regions sharing the same host page.
+                    // If so, use PROT_NEVERCLEAN (always_test mode) instead of mprotect,
+                    // because kernel syscalls (e.g. read()) cannot be caught via SEGV and
+                    // would return EFAULT if the buffer is on a non-writable page.
+                    if(box64_pagesize > 4096) {
+                        uintptr_t host_page = cur & ~(box64_pagesize-1);
+                        if(hostPageHasExternalWrite_locked(host_page, addr, addr+size)) {
+                            dynarec_log(LOG_INFO, "protectDB: mixed code+data host page %p, using always_test instead of mprotect\n", (void*)host_page);
+                            prot |= PROT_NEVERCLEAN;
+                        } else {
+                            mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                        }
+                    } else {
+                        mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                    }
+                }
                 prot |= PROT_DYNAREC;
             } else 
                 prot |= PROT_DYNAREC_R;
