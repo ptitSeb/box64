@@ -229,8 +229,8 @@ GO(__pthread_rwlock_init, iFpp)
 GO(pthread_rwlock_init, iFpp)
 GO(__pthread_rwlock_rdlock, iFp)
 GO(pthread_rwlock_rdlock, iFp)
-//GO(pthread_rwlock_timedrdlock, 
-//GO(pthread_rwlock_timedwrlock, 
+GO(pthread_rwlock_timedrdlock, iFpp)
+GO(pthread_rwlock_timedwrlock, iFpp)
 //GO(__pthread_rwlock_tryrdlock, 
 GO(pthread_rwlock_tryrdlock, iFp)
 //GO(__pthread_rwlock_trywrlock, 

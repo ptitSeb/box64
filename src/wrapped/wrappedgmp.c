@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
@@ -12,6 +13,7 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
+#include "myalign.h"
 #include "callback.h"
 #include "librarian.h"
 #include "box64context.h"
@@ -143,9 +145,46 @@ EXPORT void my___gmp_get_memory_functions(x64emu_t* emu, void** f_alloc, void** 
     *f_realloc = reverse_realloc_func_Fct(*f_realloc);
     *f_free = reverse_free_func_Fct(*f_free);
 }
+
 EXPORT void my___gmp_set_memory_functions(x64emu_t* emu, void* f_alloc, void* f_realloc, void* f_free)
 {
     my->__gmp_set_memory_functions(find_alloc_func_Fct(f_alloc), find_realloc_func_Fct(f_realloc), find_free_func_Fct(f_free));
+}
+
+EXPORT int my___gmp_asprintf(x64emu_t* emu, char** strp, const char* fmt, void* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->__gmp_vasprintf(strp, fmt, VARARGS);
+}
+
+EXPORT int my___gmp_fprintf(x64emu_t* emu, void* stream, const char* fmt, void* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->__gmp_vfprintf(stream, fmt, VARARGS);
+}
+
+EXPORT int my___gmp_vasprintf(x64emu_t* emu, char** strp, const char* fmt, x64_va_list_t b)
+{
+#ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+#else
+    myStackAlignValist(emu, fmt, emu->scratch, b);
+    PREPARE_VALIST;
+#endif
+    return my->__gmp_vasprintf(strp, fmt, VARARGS);
+}
+
+EXPORT int my___gmp_vfprintf(x64emu_t* emu, void* stream, const char* fmt, x64_va_list_t b)
+{
+#ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+#else
+    myStackAlignValist(emu, fmt, emu->scratch, b);
+    PREPARE_VALIST;
+#endif
+    return my->__gmp_vfprintf(stream, fmt, VARARGS);
 }
 
 #include "wrappedlib_init.h"

@@ -41,6 +41,7 @@ extern int _nl_msg_cat_cntr __attribute__((weak));
 #include <sys/types.h>
 #include <poll.h>
 #include <sys/epoll.h>
+#include <arpa/inet.h>
 #include <ftw.h>
 #include <sys/syscall.h>
 #include <sys/socket.h>
@@ -161,6 +162,24 @@ void* getVargN(x64emu_t *emu, int n)
     if(n<6)
         return (void*)emu->regs[regs_abi[n]].q[0];
     return ((void**)R_RSP)[1+n-6];
+}
+typedef int (*inet_pton_chk_f)(int, const char*, void*, size_t);
+static inet_pton_chk_f real___inet_pton_chk = NULL;
+static int real___inet_pton_chk_resolved = 0;
+
+EXPORT int my___inet_pton_chk(x64emu_t* emu, int af, const char* src, void* dst, size_t dstlen)
+{
+    (void)emu;
+    if(!real___inet_pton_chk_resolved) {
+        real___inet_pton_chk_resolved = 1;
+        real___inet_pton_chk = (inet_pton_chk_f)dlsym(RTLD_DEFAULT, "__inet_pton_chk");
+    }
+
+    if(real___inet_pton_chk)
+        return real___inet_pton_chk(af, src, dst, dstlen);
+
+    (void)dstlen;
+    return inet_pton(af, src, dst);
 }
 
 // utility functions
@@ -2450,6 +2469,12 @@ EXPORT int my_scandirat(x64emu_t *emu, int dirfd, void* dirp, void* namelist, vo
 {
     (void)emu;
     return scandirat(dirfd, dirp, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
+}
+
+EXPORT int my_scandirat64(x64emu_t *emu, int dirfd, void* dirp, void* namelist, void* sel, void* comp)
+{
+    (void)emu;
+    return scandirat64(dirfd, dirp, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)

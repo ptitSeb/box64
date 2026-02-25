@@ -3,9 +3,9 @@
 #endif
 
 // mp_bitcnt_t unsigned long int
-
+DATA(__gmp_bits_per_limb, 4)
 //DATA(__gmp_allocate_func, 
-//GOM(__gmp_asprintf, iFEppV)
+GOM(__gmp_asprintf, iFEppV)
 //GO(__gmp_asprintf_final, 
 //DATA(__gmp_asprintf_funs, 
 //GO(__gmp_asprintf_memory, 
@@ -70,7 +70,7 @@ GO(__gmpf_mul_ui, vFppL)
 GO(__gmpf_neg, vFpp)
 //GO(__gmpf_out_str, 
 GO(__gmpf_pow_ui, vFppL)
-//GO(__gmp_fprintf, 
+GOM(__gmp_fprintf, iFESpV)
 //DATA(__gmp_fprintf_funs, 
 GO(__gmpf_random2, vFpll)
 //DATA(__gmp_free_func, 
@@ -426,9 +426,9 @@ GOM(__gmp_set_memory_functions, vFEppp)
 //GO(__gmp_tmp_reentrant_free, 
 GO(__gmp_urandomb_ui, LFpL)
 GO(__gmp_urandomm_ui, LFpL)
-//GO(__gmp_vasprintf, 
+GOM(__gmp_vasprintf, iFEppA)
 //DATA(__gmp_version, 8)
-//GO(__gmp_vfprintf, 
+GOM(__gmp_vfprintf, iFESpA)
 //GO(__gmp_vfscanf, 
 //GO(__gmp_vprintf, 
 //GO(__gmp_vscanf, 

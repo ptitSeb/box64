@@ -65,6 +65,7 @@ typedef uint32_t (*uFiiuppp_t)(int32_t, int32_t, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFpiuppp_t)(void*, int32_t, uint32_t, void*, void*, void*);
 typedef void* (*pFppLipp_t)(void*, void*, uintptr_t, int32_t, void*, void*);
 typedef void (*vFpuppppV_t)(void*, uint32_t, void*, void*, void*, void*, ...);
+typedef int32_t (*iFppppipV_t)(void*, void*, void*, void*, int32_t, void*, ...);
 typedef void* (*pFppLiiup_t)(void*, void*, uintptr_t, int32_t, int32_t, uint32_t, void*);
 typedef int32_t (*iFpppupppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*);
 typedef int32_t (*iFpppupppppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*, void*, void*);
@@ -88,6 +89,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_main_context_set_poll_func, vFpp_t) \
 	GO(g_ptr_array_set_free_func, vFpp_t) \
 	GO(g_ptr_array_sort, vFpp_t) \
+	GO(g_ptr_array_sort_values, vFpp_t) \
 	GO(g_queue_free_full, vFpp_t) \
 	GO(g_slist_free_full, vFpp_t) \
 	GO(g_source_set_funcs, vFpp_t) \
@@ -130,6 +132,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_static_private_set, vFppp_t) \
 	GO(g_thread_pool_set_sort_function, vFppp_t) \
 	GO(g_tree_foreach, vFppp_t) \
+	GO(g_prefix_error, vFppV_t) \
 	GO(g_string_append_printf, vFppV_t) \
 	GO(g_string_printf, vFppV_t) \
 	GO(g_variant_builder_add, vFppV_t) \
@@ -200,6 +203,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_io_add_watch_full, uFpiuppp_t) \
 	GO(g_variant_new_from_data, pFppLipp_t) \
 	GO(g_log_structured_standard, vFpuppppV_t) \
+	GO(g_markup_collect_attributes, iFppppipV_t) \
 	GO(g_thread_create_full, pFppLiiup_t) \
 	GO(g_spawn_async, iFpppupppp_t) \
 	GO(g_spawn_sync, iFpppupppppp_t) \

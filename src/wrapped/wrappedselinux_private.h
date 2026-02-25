@@ -146,7 +146,7 @@ GO(selabel_close, vFp)
 //GO(selabel_digest, 
 //GO(selabel_get_digests_all_partial_matches, 
 //GO(selabel_hash_all_partial_matches, 
-//GO(selabel_lookup, 
+GO(selabel_lookup, iFpppi)
 //GO(selabel_lookup_best_match, 
 //GO(selabel_lookup_best_match_raw, 
 GO(selabel_lookup_raw, iFppp)

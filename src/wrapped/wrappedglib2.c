@@ -1034,6 +1034,15 @@ EXPORT void my_g_main_context_set_poll_func(x64emu_t* emu, void* context, void* 
     my->g_main_context_set_poll_func(context, findPollFct(func));
 }
 
+EXPORT int my_g_markup_collect_attributes(x64emu_t* emu, void* element_name,
+                                          void* attribute_names, void* attribute_values,
+                                          void* error, int first_type, void* first_attr,
+                                          uintptr_t* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 6);
+    return my->g_markup_collect_attributes(element_name, attribute_names, attribute_values, error, first_type, first_attr, VARARGS);
+}
+
 EXPORT uint32_t my_g_idle_add_full(x64emu_t* emu, int priority, void* f, void* data, void* notify)
 {
     return my->g_idle_add_full(priority, findTimeOutFct(f), data, findGDestroyNotifyFct(notify));
@@ -1128,6 +1137,10 @@ EXPORT void my_g_ptr_array_sort(x64emu_t* emu, void* array, void* comp)
 EXPORT void my_g_ptr_array_sort_with_data(x64emu_t* emu, void* array, void* comp, void* data)
 {
     my->g_ptr_array_sort_with_data(array, findGCompareDataFuncFct(comp), data);
+}
+EXPORT void my_g_ptr_array_sort_values(x64emu_t* emu, void* array, void* comp)
+{
+    my->g_ptr_array_sort_values(array, findGCompareFuncFct(comp));
 }
 
 EXPORT void my_g_qsort_with_data(x64emu_t* emu, void* pbase, int total, unsigned long size, void* comp, void* data)
@@ -1605,6 +1618,13 @@ EXPORT void* my_g_list_insert_sorted_with_data(x64emu_t* emu, void* list, void* 
 EXPORT void my_g_option_group_set_parse_hooks(x64emu_t* emu, void* group, void* preparse, void* postparse)
 {
     my->g_option_group_set_parse_hooks(group, findGOptionParseFct(preparse), findGOptionParseFct(postparse));
+}
+
+EXPORT void my_g_prefix_error(x64emu_t* emu, void* err, void* fmt, uintptr_t* b)
+{
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    my->g_prefix_error(err, fmt, VARARGS);
 }
 
 EXPORT void* my_g_thread_new(x64emu_t* emu, void* name, void* f, void* data)

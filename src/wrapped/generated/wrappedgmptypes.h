@@ -12,9 +12,17 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppV_t)(void*, void*, ...);
+typedef int32_t (*iFppA_t)(void*, void*, va_list);
+typedef int32_t (*iFSpV_t)(void*, void*, ...);
+typedef int32_t (*iFSpA_t)(void*, void*, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__gmp_get_memory_functions, vFppp_t) \
-	GO(__gmp_set_memory_functions, vFppp_t)
+	GO(__gmp_set_memory_functions, vFppp_t) \
+	GO(__gmp_asprintf, iFppV_t) \
+	GO(__gmp_vasprintf, iFppA_t) \
+	GO(__gmp_fprintf, iFSpV_t) \
+	GO(__gmp_vfprintf, iFSpA_t)
 
 #endif // __wrappedgmpTYPES_H_
