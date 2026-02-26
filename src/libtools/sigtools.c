@@ -687,6 +687,10 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip)
     } else
 #endif
         emu->eflags.x64 = CONTEXT_REG(p, xFlags);
+    #ifdef RV64
+    emu->eflags.x64 &= ~(1<<F_OF);
+    emu->eflags.x64 |= ((emu->eflags.x64>>F_OF2)&1)<<F_OF;
+    #endif
 #endif
 }
 
