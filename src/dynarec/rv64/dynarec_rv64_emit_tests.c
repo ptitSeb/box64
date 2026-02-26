@@ -269,7 +269,7 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, uint8_t nextop, int
         if (rex.w) {
             SET_FLAGS_LTZ(s1, F_SF, s3, s4);
         } else {
-            SRLI(s3, s1, 31);
+            SRLIW(s3, s1, 31);
             SET_FLAGS_NEZ(s3, F_SF, s4);
         }
     }
