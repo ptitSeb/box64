@@ -916,10 +916,10 @@ GO2(__isoc99_fscanf, iEESpV, my32_fscanf)
 // __isoc99_scanf
 GOM(__isoc99_sscanf, iEEppV)  //%%
 GOM(__isoc99_swscanf, iEEppV)   //%%
-//GOM(__isoc99_vfscanf, iEEppp) //%%
+GOM(__isoc99_vfscanf, iEEppp) //%%
 // __isoc99_vfwscanf
 // __isoc99_vscanf
-//GOM(__isoc99_vsscanf, iEEppp) //%% TODO: check if ok
+GOM(__isoc99_vsscanf, iEEppp) //%%
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
