@@ -67,7 +67,7 @@ rv64_epilog_fast:
     fld     fs4,  (15*8)(sp)
     fld     fs5,  (16*8)(sp)
     fld     fs6,  (17*8)(sp)
-    fld     fs7,  (19*8)(sp)
+    fld     fs7,  (18*8)(sp)
     fld     fs8,  (19*8)(sp)
     fld     fs9,  (20*8)(sp)
     fld     fs10, (21*8)(sp)
