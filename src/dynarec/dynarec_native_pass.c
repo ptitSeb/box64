@@ -95,16 +95,22 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     #endif
     while(ok) {
         #if STEP == 0
+        int stop_for_guard = 0;
         if(cur_page != ((addr)&~(box64_pagesize-1))) {
             cur_page = (addr)&~(box64_pagesize-1);
             uint32_t prot = getProtection(addr);
-            if(!(prot&PROT_READ) || checkInHotPage(addr) || (addr>dyn->end)) {
-                dynarec_log(LOG_INFO, "Stopping dynablock because of protection, hotpage or mmap crossing at %p -> %p inst=%d\n", (void*)dyn->start, (void*)addr, ninst);
-                need_epilog = 1;
-                break;
+            if(!(prot&PROT_READ) || checkInHotPage(addr) || (addr>dyn->end) || !dynarec_can_read_window(addr, 15)) {
+                stop_for_guard = 1;
             }
             if(prot&PROT_NEVERCLEAN)
                 dyn->always_test = 1;
+        } else if(!dynarec_can_read_window(addr, 15)) {
+            stop_for_guard = 1;
+        }
+        if(stop_for_guard) {
+            dynarec_log(LOG_INFO, "Stopping dynablock because of protection/hotpage/mmap/decode-window at %p -> %p inst=%d\n", (void*)dyn->start, (void*)addr, ninst);
+            need_epilog = 1;
+            break;
         }
         // This test is here to prevent things like TABLE64 to be out of range
         // native_size is not exact at this point, but it should be larger, not smaller, and not by a huge margin anyway
@@ -118,14 +124,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             NATIVE_RESTORE_X87PC();
         }
         ip = addr;
-        #if STEP == 0
-        if(!dynarec_can_read_window(addr, 15)) {
-            if (dyn->need_dump || BOX64ENV(dynarec_log))
-                dynarec_log(LOG_NONE, "Stopping dynablock at %p reason: unreadable decode window (cross-page)\n", (void*)addr);
-            need_epilog = 1;
-            break;
-        }
-        #endif
         #ifdef ARM64
         if(!ninst) {
             if(dyn->have_purge)
