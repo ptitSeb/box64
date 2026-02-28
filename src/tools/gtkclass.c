@@ -5885,7 +5885,7 @@ static int my_class_init_##A(void* a, void* b)                              \
 }
 SUPER()
 #undef GO
-void* find_class_init_Fct(void* fct, size_t parent)
+static void* find_class_init_Fct(void* fct, size_t parent)
 {
     if(!fct) return fct;
     if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
