@@ -30,7 +30,7 @@ GO(clock_gettime, iEuBLL_)   // *timespec
 GO2(__clock_gettime, iEuBLL_, clock_gettime)
 GO2(__clock_gettime64, iEup, clock_gettime)
 GO(clock_nanosleep, iEuirLL_BLL_)
-//GO(clock_settime, iEup)
+GO(clock_settime, iEurLL_)
 // lio_listio
 // lio_listio64
 // mq_close
