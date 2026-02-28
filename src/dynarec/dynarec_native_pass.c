@@ -65,7 +65,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     int rep = 0;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
     // Clean up (because there are multiple passes)
-    #if defined(ARM64) || defined(LA64)
+    #if defined(ARM64) || defined(LA64) || defined(PPC64LE)
     dyn->f = status_unk;
     #else
     dyn->f.pending = 0;
@@ -139,7 +139,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;
             if(reset_n==-2) {
                 MESSAGE(LOG_DEBUG, "Reset Caches to zero\n");
-                #if defined(ARM64) || defined(LA64)
+                #if defined(ARM64) || defined(LA64) || defined(PPC64LE)
                 dyn->f = status_unk;
                 #else
                 dyn->f.dfnone = 0;
@@ -156,7 +156,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 }
                 if(dyn->insts[ninst].x64.barrier&BARRIER_FLAGS) {
                     MESSAGE(LOG_DEBUG, "Apply Barrier Flags\n");
-                    #if defined(ARM64) || defined(LA64)
+                    #if defined(ARM64) || defined(LA64) || defined(PPC64LE)
                     dyn->f = status_unk;
                     #else
                     dyn->f.dfnone = 0;
@@ -280,7 +280,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP > 0
         if(dyn->insts[ninst].x64.has_next && dyn->insts[next].x64.barrier) {
             if(dyn->insts[next].x64.barrier&BARRIER_FLOAT) {
-                #if defined (RV64) || defined(LA64)
+                #if defined (RV64) || defined(LA64) || defined(PPC64LE)
                 uint8_t tmp1, tmp2, tmp3;
                 if(dyn->insts[next].nat_flags_fusion) get_free_scratch(dyn, next, &tmp1, &tmp2, &tmp3, x1, x2, x3, x4, x5);
                 else { tmp1=x1; tmp2=x2; tmp3=x3; }
@@ -290,7 +290,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 #endif
             }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
-                #if defined(ARM64) || defined(LA64)
+                #if defined(ARM64) || defined(LA64) || defined(PPC64LE)
                 dyn->f = status_unk;
                 #else
                 dyn->f.pending = 0;
@@ -316,7 +316,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             // we use the 1st predecessor here
             if((ninst+1)<dyn->size && !dyn->insts[ninst+1].x64.alive) {
                 // reset fpu value...
-                #if defined(ARM64) || defined(LA64)
+                #if defined(ARM64) || defined(LA64) || defined(PPC64LE)
                 dyn->f = status_unk;
                 #else
                 dyn->f.dfnone = 0;
@@ -470,7 +470,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             #endif
             ++ninst;
             NOTEST(x3);
-            #if defined (RV64) || defined(LA64)
+            #if defined (RV64) || defined(LA64) || defined(PPC64LE)
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             #else
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3, 0);
@@ -481,7 +481,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     }
     if(need_epilog) {
         NOTEST(x3);
-        #if defined (RV64) || defined(LA64)
+        #if defined (RV64) || defined(LA64) || defined(PPC64LE)
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
         #else
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3, 0);

@@ -90,7 +90,7 @@ if(PPC64LE)
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(LARCH64_DYNAREC OFF CACHE BOOL "")
-    set(PPC64LE_DYNAREC OFF CACHE BOOL "")
+    set(PPC64LE_DYNAREC ON CACHE BOOL "")
 endif()
 if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR NVIDIA_GB10 OR PHYTIUM OR SD845 OR SD865 OR SD888 OR SD8G2 OR SDORYON1 OR SD8EG5 OR LX2160A OR M1 OR ARM64 OR ADLINK)
     set(LD80BITS OFF CACHE BOOL "")
@@ -357,6 +357,12 @@ elseif(LARCH64_DYNAREC)
     add_definitions(-DLA64)
     enable_language(ASM)
     include_directories("${BOX64_ROOT}/src/dynarec/la64")
+    set(DYNAREC ON)
+elseif(PPC64LE_DYNAREC)
+    add_definitions(-DDYNAREC)
+    add_definitions(-DPPC64LE)
+    enable_language(ASM)
+    include_directories("${BOX64_ROOT}/src/dynarec/ppc64le")
     set(DYNAREC ON)
 else()
     set(DYNAREC OFF)
@@ -1158,6 +1164,33 @@ if(LARCH64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_de.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_df.c"
     )
+endif()
+
+if(PPC64LE_DYNAREC)
+    set(DYNAREC_SRC
+        ${DYNAREC_SRC}
+
+        "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_functions.c"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_arch.c"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/ppc64le_printer.c"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_jmpnext.c"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_consts.c"
+    )
+    set(DYNAREC_ASM
+        ${DYNAREC_ASM}
+        "${BOX64_ROOT}/src/dynarec/ppc64le/ppc64le_prolog.S"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/ppc64le_epilog.S"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/ppc64le_next.S"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/ppc64le_lock.S"
+    )
+
+     set(DYNAREC_PASS
+     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_helper.c"
+     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_00.c"
+     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66.c"
+     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_f0.c"
+     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66f0.c"
+      )
 endif()
 
 

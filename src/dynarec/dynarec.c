@@ -164,14 +164,14 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
     JUMPBUFF jmpbuf[1] = {0};
     int skip = 0;
     JUMPBUFF *old_jmpbuf = emu->jmpbuf;
-    #ifdef RV64
+    #if defined(RV64) || defined(PPC64LE)
     uintptr_t old_savesp = emu->xSPSave;
     #endif
     int is32bits = (emu->segs[_CS]==0x23);
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
-            #ifdef RV64
+            #if defined(RV64) || defined(PPC64LE)
             emu->old_savedsp = emu->xSPSave;
             #endif
             emu->flags.jmpbuf_ready = 1;
@@ -265,7 +265,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
-    #ifdef RV64
+    #if defined(RV64) || defined(PPC64LE)
     emu->xSPSave = old_savesp;
     #endif
 }
