@@ -58,7 +58,6 @@ typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int32_t);
 	GO(xmlSchemaSetValidErrors, vFpppp_t) \
 	GO(xmlHashRemoveEntry2, iFpppp_t) \
 	GO(xmlHashUpdateEntry, iFpppp_t) \
-	GO(xmlMemGet, iFpppp_t) \
 	GO(xmlMemSetup, iFpppp_t) \
 	GO(xmlRegisterInputCallbacks, iFpppp_t) \
 	GO(xmlRegisterOutputCallbacks, iFpppp_t) \
