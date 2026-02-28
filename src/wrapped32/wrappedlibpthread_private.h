@@ -126,10 +126,10 @@ GOM(__pthread_register_cancel, vEEp)
 // __pthread_register_cancel_defer
 GO(pthread_rwlockattr_destroy, vEp)
 GO(pthread_rwlockattr_getkind_np, iEpp)
-// pthread_rwlockattr_getpshared
+GO(pthread_rwlockattr_getpshared, iEpp)
 GO(pthread_rwlockattr_init, iEp)
 GO(pthread_rwlockattr_setkind_np, iEpi)
-// pthread_rwlockattr_setpshared
+GO(pthread_rwlockattr_setpshared, iEpi)
 // __pthread_rwlock_destroy
 GOM(pthread_rwlock_destroy, iEp)    //%noE
 GOM(__pthread_rwlock_init, iEpp)    //%noE
