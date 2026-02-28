@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <dlfcn.h>
 #include <pthread.h>
 #include <sys/mman.h>
@@ -354,6 +355,32 @@ int isNativeCall32(uintptr_t addr, uintptr_t* calladdress, uint16_t* retn)
 }
 #endif
 
+// Strict readable-range guard: native-call probing must fail-closed.
+// Wine mappings can be transient while loader updates protections.
+static int bridge_can_read_range(uintptr_t p, size_t sz)
+{
+    if (!p || !sz)
+        return 0;
+    uintptr_t end = p + sz - 1;
+    if (end < p)
+        return 0;
+
+    uintptr_t cur = p & ~(box64_pagesize - 1);
+    uintptr_t last = end & ~(box64_pagesize - 1);
+    while (1) {
+        if (!memExist(cur))
+            return 0;
+        if (!(getProtection(cur) & PROT_READ))
+            return 0;
+        if (cur == last)
+            break;
+        if (cur > UINTPTR_MAX - box64_pagesize)
+            return 0;
+        cur += box64_pagesize;
+    }
+    return 1;
+}
+
 int isNativeCallInternal(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
 {
     if (is32bits)
@@ -362,13 +389,17 @@ int isNativeCallInternal(uintptr_t addr, int is32bits, uintptr_t* calladdress, u
 #define PK(a)   *(uint8_t*)(addr + a)
 #define PK32(a) *(int32_t*)(addr + a)
 
-    if (!addr || !getProtection(addr))
+    if (!bridge_can_read_range(addr, 2))
         return 0;
     if (PK(0) == 0xff && PK(1) == 0x25) {    // "absolute" jump, maybe the GOT (well, RIP relative in fact)
+        if (!bridge_can_read_range(addr + 2, sizeof(int32_t)))
+            return 0;
         uintptr_t a1 = addr + 6 + (PK32(2)); // need to add a check to see if the address is from the GOT !
+        if (!bridge_can_read_range(a1, sizeof(void*)))
+            return 0;
         addr = (uintptr_t)getAlternate(*(void**)a1);
     }
-    if (!addr || !getProtection(addr))
+    if (!bridge_can_read_range(addr, sizeof(onebridge_t)))
         return 0;
     onebridge_t* b = (onebridge_t*)(addr);
     if (b->CC == 0xCC && IsBridgeSignature(b->S, b->C) && b->w != (wrapper_t)0 && b->f != (uintptr_t)PltResolver64) {

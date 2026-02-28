@@ -31,6 +31,27 @@
 #ifndef PROT_READ
 #define PROT_READ 0x1
 #endif
+
+// Fail-close guard for page-boundary decode hazards:
+// if we cannot read a full x86 max instruction window, stop block build early.
+static int dynarec_can_read_window(uintptr_t addr, uintptr_t size)
+{
+    if(!size)
+        return 1;
+    uintptr_t end = addr + size - 1;
+    if(end < addr)
+        return 0;
+
+    uintptr_t cur = addr;
+    while(1) {
+        if(!(getProtection(cur) & PROT_READ))
+            return 0;
+        uintptr_t page_end = (cur & ~(box64_pagesize - 1)) + box64_pagesize - 1;
+        if(end <= page_end)
+            return 1;
+        cur = page_end + 1;
+    }
+}
 #endif
 
 uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max)
@@ -97,6 +118,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             NATIVE_RESTORE_X87PC();
         }
         ip = addr;
+        #if STEP == 0
+        if(!dynarec_can_read_window(addr, 15)) {
+            if (dyn->need_dump || BOX64ENV(dynarec_log))
+                dynarec_log(LOG_NONE, "Stopping dynablock at %p reason: unreadable decode window (cross-page)\n", (void*)addr);
+            need_epilog = 1;
+            break;
+        }
+        #endif
         #ifdef ARM64
         if(!ninst) {
             if(dyn->have_purge)
