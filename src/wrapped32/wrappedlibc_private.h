@@ -488,7 +488,7 @@ GOW(getcwd, tEpL)
 //GO(getdate, pEp)
 // getdate_err  // type B
 // getdate_r    // Weak
-//GOW(getdelim, iEbp_bL_iS)
+GOW(getdelim, iEbp_bL_iS)
 GOW(__getdelim, iEbp_bL_iS)
 // getdirentries
 // getdirentries64
@@ -526,7 +526,7 @@ GOM(getifaddrs, iEEbp_)
 // getipv4sourcefilter
 //GOW(getitimer, iEip)
 // get_kernel_syms  // Weak
-//GOW(getline, iEppp)
+GOW(getline, iEbp_bL_S)
 GO(getloadavg, iEpi)
 GO(getlogin, pEv)
 GO(getlogin_r, iEpL)
@@ -1498,7 +1498,7 @@ GO2(__secure_getenv, tEp, secure_getenv)
 GO(secure_getenv, tEp)
 // seed48
 // seed48_r // Weak
-//GO(seekdir, vEpi)
+GO(seekdir, vEpl)
 GOW(select, iEippprLL_)
 GO(__select, iEippprLL_)
 GO2(__select64, iEipppp, select)
@@ -1856,7 +1856,7 @@ GO(tcsetpgrp, iEii)
 // tdelete  // Weak
 // tdestroy // Weak
 // tee
-//GO(telldir, iEp)
+GO(telldir, lEp)
 GO(tempnam, pEpp)
 GOW(textdomain, tEp)
 // tfind    // Weak
