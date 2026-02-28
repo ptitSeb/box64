@@ -2778,7 +2778,7 @@ EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
     char* argv[cnt+1];
     memset(argv, 0, sizeof(argv));
     for(int i=0; i<cnt; ++i)
-        argv[i] = getVargN(emu, cnt+1);
+        argv[i] = getVargN(emu, i+1);
     return my_execv(emu, path, argv);
 }
 
@@ -2793,7 +2793,7 @@ EXPORT int32_t my_execle(x64emu_t* emu, const char* path)
     char* argv[cnt+1];
     memset(argv, 0, sizeof(argv));
     for(int i=0; i<cnt; ++i)
-        argv[i] = getVargN(emu, cnt+1);
+        argv[i] = getVargN(emu, i+1);
     return my_execve(emu, path, argv, envp);
 }
 
@@ -2806,7 +2806,7 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     char* argv[cnt+1];
     memset(argv, 0, sizeof(argv));
     for(int i=0; i<cnt; ++i)
-        argv[i] = getVargN(emu, cnt+1);
+        argv[i] = getVargN(emu, i+1);
     return my_execvp(emu, path, argv);
 }
 
