@@ -6343,6 +6343,7 @@ wrappedlibvdpau:
 - iFpipp:
   - vdp_device_create_x11
 wrappedlibvorbis:
+wrappedlibvpx:
 wrappedlibx11:
 - vFp:
   - XcmsFreeCCC
