@@ -18,6 +18,8 @@ This project has been compiled and tested with `GCC 14.2.1 20240805` on an `x86_
 
 You may also use the `make clean` and `make distclean` commands to remove output files (`clean`) and directories (`distclean`).
 
+You may edit the `src/machine_x86.gen` file as you need. This file should be used to populate the `x86`-specific include paths.
+
 ## Usage
 
 To use the wrapper helper, run the following command in the folder containing this `README.md`:
