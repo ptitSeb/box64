@@ -526,7 +526,7 @@ GOM(getifaddrs, iEEbp_)
 // getipv4sourcefilter
 //GOW(getitimer, iEip)
 // get_kernel_syms  // Weak
-GOW(getline, iEbp_bL_S)
+//GOW(getline, iEbp_bL_S)    // converter type iEbp_bL_S_32 doesn't exist yet
 GO(getloadavg, iEpi)
 GO(getlogin, pEv)
 GO(getlogin_r, iEpL)
@@ -1498,7 +1498,7 @@ GO2(__secure_getenv, tEp, secure_getenv)
 GO(secure_getenv, tEp)
 // seed48
 // seed48_r // Weak
-GO(seekdir, vEpl)
+GO(seekdir, vEpL)
 GOW(select, iEippprLL_)
 GO(__select, iEippprLL_)
 GO2(__select64, iEipppp, select)
