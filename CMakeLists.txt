@@ -942,6 +942,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappeddbus.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedcurl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappednvml.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedpulsesimple.c"
     )
     endif()
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})

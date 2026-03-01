@@ -305,6 +305,7 @@
 #() UEuu -> UEuu
 #() UFuu -> UFuu
 #() UEUU -> UEUU
+#() UFpp -> UFpp
 #() UEss -> UEss
 #() fEif -> fEif
 #() fFfi -> fFfi
@@ -2087,6 +2088,7 @@
 #() pFEpnCuuuuu -> pFEpnCuuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
 #() pFpiiiiuuuu -> pFpiiiiuuuu
+#() pFppupppppp -> pFppupppppp
 #() iFXLbL_pppppp -> iFXLBpppppp
 #() iFXiLiiibiip_ip -> iFXiLiiiBip
 #() iFXiLLLiiibiip_ -> iFXiLLLiiiB
@@ -3471,6 +3473,7 @@ wrappedopenal:
   - alcGetProcAddress
 - vFiiipp:
   - alRequestFoldbackStart
+wrappedpulsesimple:
 wrappedsdl1:
 - vFv:
   - SDL_Quit

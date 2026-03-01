@@ -111,6 +111,8 @@ GO("libcurl-gnutls.so.4", curl)
 GO("libcurl.so.3", curl)
 GO("libnvidia-ml.so", nvml)
 GO("libnvidia-ml.so.1", nvml)
+GO("libpulse-simple.so.0", pulsesimple)
+GO("libpulse-simple.so", pulsesimple)
 
 
 //GO("crashhandler.so", crashhandler)
