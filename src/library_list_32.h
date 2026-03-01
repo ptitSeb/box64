@@ -86,6 +86,9 @@ GO("libopenal.so", openal)
 GO("libopenal-soft.so.1", openal)
 GO("openal.so", openal)
 
+GO("libogg.so.0", libogg)
+GO("libogg.so", libogg)
+
 GO("libexpat.so.1", expat)
 GO("libexpat.so", expat)
 
