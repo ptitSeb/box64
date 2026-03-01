@@ -1405,6 +1405,7 @@ void CFppip(x64emu_t *emu, uintptr_t fnc);
 void CFbupp(x64emu_t *emu, uintptr_t fnc);
 void uFEipp(x64emu_t *emu, uintptr_t fnc);
 void uFEupp(x64emu_t *emu, uintptr_t fnc);
+void uFEUpp(x64emu_t *emu, uintptr_t fnc);
 void uFEpup(x64emu_t *emu, uintptr_t fnc);
 void uFEppp(x64emu_t *emu, uintptr_t fnc);
 void uFiiii(x64emu_t *emu, uintptr_t fnc);
