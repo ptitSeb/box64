@@ -257,6 +257,10 @@ static void applyCustomRules()
 
     if (box64env.maxcpu == 0 || (box64env.new_maxcpu < box64env.maxcpu)) {
         box64env.maxcpu = box64env.new_maxcpu;
+        if (box64env.maxcpu && box64_sysinfo.ncpu > (uint64_t)box64env.maxcpu) {
+            box64_sysinfo.box64_ncpu = (uint64_t)box64env.maxcpu;
+        }
+
     }
 
 #ifndef _WIN32
