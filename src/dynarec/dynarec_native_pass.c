@@ -100,12 +100,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(cur_page != ((addr)&~(box64_pagesize-1))) {
             cur_page = (addr)&~(box64_pagesize-1);
             uint32_t prot = getProtection(addr);
-            if(!(prot&PROT_READ) || checkInHotPage(addr) || (addr>dyn->end) || !dynarec_can_read_window(addr, 15)) {
+            if(!(prot&PROT_READ) || checkInHotPage(addr) || (addr>dyn->end) || (!dyn->is_file_mapped && !dynarec_can_read_window(addr, 15))) {
                 stop_for_guard = 1;
             }
             if(prot&PROT_NEVERCLEAN)
                 dyn->always_test = 1;
-        } else if(!dynarec_can_read_window(addr, 15)) {
+        } else if(!dyn->is_file_mapped && !dynarec_can_read_window(addr, 15)) {
             stop_for_guard = 1;
         }
         if(stop_for_guard) {
