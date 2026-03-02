@@ -254,8 +254,8 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_iFpuip(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, int c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpiup(A, B, N)     static int my_##A##_##N(void* a, int b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUip(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, int c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpppU(A, B, N)     static int my_##A##_##N(void* a, void* b, int c, uint64_t d) {return (int)F4(A, #B +2, N);}
 #define GO_iFppLp(A, B, N)     static int my_##A##_##N(void* a, void* b, size_t c, void* d) {return (int)F4(A, #B +2, N);}
+#define GO_iFpppU(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, uint64_t d) {return (int)F4(A, #B +2, N);}
 #define GO_iFppup(A, B, N)     static int my_##A##_##N(void* a, void* b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpupp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUpp(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, void* c, void* d) {return (int)F4(A, #B +2, N);}
