@@ -80,6 +80,7 @@
 #() UEs -> UEs
 #() fFi -> fFi
 #() fEf -> fEf
+#() fEp -> fEp
 #() fFf -> fFf
 #() dEv -> dEv
 #() dFi -> dFi
@@ -2925,6 +2926,8 @@ wrappedlibm:
   - __logf_finite
   - __sinhf_finite
   - __sqrtf_finite
+- fEp:
+  - nanf
 - dEd:
   - __acos_finite
   - __acosh_finite
