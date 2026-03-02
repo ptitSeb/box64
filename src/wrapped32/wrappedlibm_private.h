@@ -339,7 +339,7 @@ GOW(modf, dEdp)
 GOW(modff, fEfp)
 // modfl    // Weak
 GOW(nan, dEp)
-GOW(nanf, fEp)
+//GOW(nanf, fEp)
 // nanl // Weak
 GOW(nearbyint, dEd)
 GOW(nearbyintf, fEf)
