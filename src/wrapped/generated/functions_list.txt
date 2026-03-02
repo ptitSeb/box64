@@ -1369,6 +1369,7 @@
 #() CFbupp
 #() uFEipp
 #() uFEupp
+#() uFEUpp
 #() uFEpup
 #() uFEppp
 #() uFiiii
@@ -7014,6 +7015,23 @@ wrappedsdl3:
   - SDL_Vulkan_GetVkGetInstanceProcAddr
 - pFp:
   - SDL_GL_GetProcAddress
+- vFpp:
+  - SDL_FilterEvents
+  - SDL_GetLogOutputFunction
+  - SDL_RemoveEventWatch
+  - SDL_SetEventFilter
+  - SDL_SetLogOutputFunction
+- iFpp:
+  - SDL_AddEventWatch
+  - SDL_GetEventFilter
+- vFppp:
+  - SDL_RemoveHintCallback
+- iFppp:
+  - SDL_AddHintCallback
+- uFupp:
+  - SDL_AddTimer
+- uFUpp:
+  - SDL_AddTimerNS
 wrappedsdl3ttf:
 wrappedsecret1:
 wrappedselinux:

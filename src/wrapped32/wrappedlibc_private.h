@@ -1124,7 +1124,7 @@ GO(mbtowc, iEppL)
 // _mcount
 GOW(memalign, pELL)
 //DATAV(__memalign_hook, 4)
-//GOW(memccpy, pEppiL)
+GOW(memccpy, pEppiL)
 GO(memchr, pEpiL)
 GO(memcmp, iEppL)
 GO(memcpy, pEppL)
