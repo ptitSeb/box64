@@ -235,7 +235,7 @@ GO(dup3, iEiiO)
 //GOW(duplocale, pEp)
 GO(__duplocale, aEa)
 // dysize
-//GOW(eaccess, iEpi)
+GOW(eaccess, iEpi)
 // ecb_crypt
 // ecvt
 //GO(ecvt_r, iEdipppL)
@@ -1333,7 +1333,7 @@ GOW(pselect, iEippprLL_p)
 // psignal
 //GO(ptrace, iEiupp)  // will that work???
 //GO(ptsname, pEi)
-//GOW(ptsname_r, iEipu)
+GOW(ptsname_r, iEipu)
 // __ptsname_r_chk
 GOW(putc, iEiS)
 GO(putchar, iEi)
@@ -1879,11 +1879,11 @@ GO(toascii, iEi)
 GO(tolower, iEi)
 // _tolower
 // __tolower_l
-//GOW(tolower_l, iEip)
+GOW(tolower_l, iEip)
 GO(toupper, iEi)
 // _toupper
 // __toupper_l
-//GOW(toupper_l, iEip)
+GOW(toupper_l, iEip)
 // towctrans    // Weak
 // __towctrans
 // __towctrans_l
@@ -1895,7 +1895,7 @@ GO(towupper, uEu)
 GO(__towupper_l, uEua)
 GOW(towupper_l, uEua)
 // tr_break
-//GOW(truncate, iEpu)
+GOW(truncate, iEpu)
 GO(truncate64, iESU)
 // tsearch  // Weak
 //GO(ttyname, pEi)
