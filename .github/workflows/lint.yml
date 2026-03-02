@@ -1,0 +1,74 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+jobs:
+  check-line-endings:
+    name: Check for CRLF line endings
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Detect CRLF line endings
+        run: |
+          # Known CRLF files that are excluded from this check (see issue #3605)
+          EXCLUDED_FILES=(
+            "src/dynarec/arm64/arm64_printer.c"
+            "src/dynarec/arm64/dynarec_arm64_0f.c"
+            "src/dynarec/arm64/dynarec_arm64_66.c"
+            "src/dynarec/arm64/dynarec_arm64_660f.c"
+            "src/dynarec/arm64/dynarec_arm64_f20f.c"
+            "src/dynarec/arm64/dynarec_arm64_f30f.c"
+            "src/dynarec/dynarec_arch.h"
+            "src/dynarec/dynarec_helper.h"
+            "src/dynarec/native_lock.h"
+            "src/emu/modrm.h"
+            "src/emu/x64run0f.c"
+            "src/emu/x64run66.c"
+            "src/emu/x64run660f.c"
+            "src/emu/x64run66d9.c"
+            "src/emu/x64run66dd.c"
+            "src/emu/x64rund8.c"
+            "src/emu/x64rund9.c"
+            "src/emu/x64runda.c"
+            "src/emu/x64rundb.c"
+            "src/emu/x64rundd.c"
+            "src/emu/x64rundf.c"
+            "src/emu/x64runf0.c"
+            "src/emu/x64runf20f.c"
+            "src/emu/x64runf30f.c"
+            "src/include/dictionnary.h"
+            "src/include/globalsymbols.h"
+            "src/librarian/dictionnary.c"
+            "src/librarian/globalsymbols.c"
+            "src/wrapped/wrappedandroidshmem.c"
+            "src/wrapped/wrappedandroidshmem_private.h"
+            "tests/test15.c"
+          )
+
+          # Build a grep exclusion pattern
+          EXCLUDE_PATTERN=""
+          for f in "${EXCLUDED_FILES[@]}"; do
+            if [ -z "$EXCLUDE_PATTERN" ]; then
+              EXCLUDE_PATTERN="$f"
+            else
+              EXCLUDE_PATTERN="$EXCLUDE_PATTERN|$f"
+            fi
+          done
+
+          # Find all tracked text files with CRLF, excluding known files
+          CRLF_FILES=$(git grep -rlI $'\r' -- . | grep -Ev "^($EXCLUDE_PATTERN)$" || true)
+
+          if [ -n "$CRLF_FILES" ]; then
+            echo "::error::The following files have DOS (CRLF) line endings. Please convert them to Unix (LF) line endings:"
+            echo "$CRLF_FILES"
+            echo ""
+            echo "You can fix this with: sed -i 's/\r$//' <file> or dos2unix <file>"
+            exit 1
+          fi
+
+          echo "No unexpected CRLF line endings found."
