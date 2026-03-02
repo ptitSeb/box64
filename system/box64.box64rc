@@ -297,6 +297,10 @@ BOX64_DYNAREC_STRONGMEM=1 #needed or else it just crashes
 BOX64_CRASHHANDLER=0
 BOX64_PREFER_EMULATED=1
 
+[portal2_linux]
+BOX64_DYNAREC_BIGBLOCK=3
+BOX64_DYNAREC_CALLRET=1
+
 [ProjectZomboid64]
 # This one is still a bit unstable. This might help, but will also slowdown emulation
 BOX64_DYNAREC_STRONGMEM=3
