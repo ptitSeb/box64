@@ -226,13 +226,6 @@ int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size)
     return 1;
 }
 
-NEW_JUMPBUFF(dynarec_jmpbuf);
-
-void cancelFillBlock()
-{
-    LongJmp(GET_JUMPBUFF(dynarec_jmpbuf), 1);
-}
-
 void dynablock_leave_runtime(dynablock_t* db)
 {
     if(!db) return;
@@ -301,13 +294,6 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         return NULL;
     }
 #endif
-    if (SigSetJmp(GET_JUMPBUFF(dynarec_jmpbuf), 1)) {
-        printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, canceling\n", (void*)addr);
-        if(need_lock)
-            mutex_unlock(&my_context->mutex_dyndump);
-        pthread_sigmask(SIG_SETMASK, &old_sig, NULL);
-        return NULL;
-    }
     block = FillBlock64(filladdr, (addr==filladdr)?0:1, is32bits, MAX_INSTS, is_new);
     if(!block) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);

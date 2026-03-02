@@ -722,6 +722,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
 }
 
 extern void* current_helper;
+extern int fillblock_active;
 #define USE_SIGNAL_MUTEX
 #ifdef USE_SIGNAL_MUTEX
 #ifdef USE_CUSTOM_MUTEX
@@ -908,9 +909,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     #endif
 #ifdef DYNAREC
-    if((Locks & is_dyndump_locked) && ((sig==X64_SIGSEGV) || (sig==X64_SIGBUS)) && current_helper) {
+    if((Locks & is_dyndump_locked) && ((sig==X64_SIGSEGV) || (sig==X64_SIGBUS)) && current_helper && fillblock_active) {
         printf_log(LOG_INFO, "FillBlock triggered a %s at %p from %p\n", (sig==X64_SIGSEGV)?"segfault":"bus error", addr, pc);
-        CancelBlock64(0);
         relockMutex(Locks);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
         // cancelFillBlock does not return
