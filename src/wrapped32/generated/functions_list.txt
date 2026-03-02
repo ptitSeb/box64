@@ -80,8 +80,8 @@
 #() UEs -> UEs
 #() fFi -> fFi
 #() fEf -> fEf
-#() fEp -> fEp
 #() fFf -> fFf
+#() fEp -> fEp
 #() dEv -> dEv
 #() dFi -> dFi
 #() dEd -> dEd
@@ -874,6 +874,7 @@
 #() iFpbp_bp_ -> iFpBB
 #() iFbp_pbp_ -> iFBpB
 #() iFbp_bp_p -> iFBBp
+#() iEbp_bL_S -> iEBBS
 #() iFXbiip_i -> iFXBi
 #() iFXbLip_L -> iFXBL
 #() vFXLbpLiL_ -> vFXLB
@@ -1299,7 +1300,6 @@
 #() iFbp_urp_u -> iFBuBu
 #() iFrpuu_Lui -> iFBLui
 #() iEbp_bL_iS -> iEBBiS
-#() iEbp_bL_S -> iEBBS
 #() iFbp_bp_pi -> iFBBpi
 #() iFXbL_ibp_ -> iFXBiB
 #() iFnubp_bp_ -> iFnuBB
@@ -2926,8 +2926,6 @@ wrappedlibm:
   - __logf_finite
   - __sinhf_finite
   - __sqrtf_finite
-- fEp:
-  - nanf
 - dEd:
   - __acos_finite
   - __acosh_finite
