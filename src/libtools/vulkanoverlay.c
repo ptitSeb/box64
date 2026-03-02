@@ -131,8 +131,10 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_vFppi(A, B, N)      static void my_##A##_##N(void* a, void* b, int c) {F3(A, #B +2, N);}
 #define GO_vFppp(A, B, N)      static void my_##A##_##N(void* a, void* b, void* c) {F3(A, #B +2, N);}
 #define GO_vFpff(A, B, N)      static void my_##A##_##N(void* a, float b, float c) {F3(A, #B +2, N);}
+#define GO_vFppf(A, B, N)      static void my_##A##_##N(void* a, void* b, float c) {F3(A, #B +2, N);}
 #define GO_vFpiU(A, B, N)      static void my_##A##_##N(void* a, int b, uint64_t c) {F3(A, #B +2, N);}
 #define GO_vFpUi(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, int c) {F3(A, #B +2, N);}
+#define GO_vFppu(A, B, N)      static void my_##A##_##N(void* a, void* b, uint32_t c) {F3(A, #B +2, N);}
 #define GO_vFppU(A, B, N)      static void my_##A##_##N(void* a, void* b, uint64_t c) {F3(A, #B +2, N);}
 #define GO_vFpup(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, void* c) {F3(A, #B +2, N);}
 #define GO_vFpUp(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, void* c) {F3(A, #B +2, N);}
@@ -148,24 +150,38 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_vFppLp(A, B, N)     static void my_##A##_##N(void* a, void* b, size_t c, void* d) {F4(A, #B +2, N);}
 #define GO_vFpupp(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, void* c, void* d) {F4(A, #B +2, N);}
 #define GO_vFpUpp(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, void* c, void* d) {F4(A, #B +2, N);}
+#define GO_vFppup(A, B, N)     static void my_##A##_##N(void* a, void* b, uint32_t c, void* d) {F4(A, #B +2, N);}
+#define GO_vFpppu(A, B, N)     static void my_##A##_##N(void* a, void* b, void* c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpiUu(A, B, N)     static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpUUi(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, int d) {F4(A, #B +2, N);}
+#define GO_vFppUu(A, B, N)     static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d) {F4(A, #B +2, N);}
+#define GO_vFppuu(A, B, N)     static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {F4(A, #B +2, N);}
+#define GO_vFpupu(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpuup(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d) {F4(A, #B +2, N);}
 #define GO_vFpUup(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d) {F4(A, #B +2, N);}
 #define GO_vFpUUp(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, void* d) {F4(A, #B +2, N);}
+#define GO_vFpUpu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, void* c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpUUu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpUuu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpuuu(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d) {F4(A, #B +2, N);}
 #define GO_vFpippp(A, B, N)    static void my_##A##_##N(void* a, int b, void* c, void* d, void* e) {F5(A, #B +2, N);}
-#define GO_iFpUiUi(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e) {F5(A, #B +2, N);}
+#define GO_vFpuppp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e) {F5(A, #B +2, N);}
+#define GO_vFpppup(A, B, N)    static void my_##A##_##N(void* a, void* b, void* c, uint32_t d, void* e) {F5(A, #B +2, N);}
 #define GO_vFpiUUp(A, B, N)    static void my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, void* e) {F5(A, #B +2, N);}
 #define GO_vFpiUUu(A, B, N)    static void my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
 #define GO_vFpupup(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, void* e) {F5(A, #B +2, N);}
 #define GO_vFpuupp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e) {F5(A, #B +2, N);}
 #define GO_vFpUUUi(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, int e) {F5(A, #B +2, N);}
+#define GO_vFpuUpp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, void* e) {F5(A, #B +2, N);}
+#define GO_vFppUUp(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, void* e) {F5(A, #B +2, N);}
+#define GO_vFpupUu(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
+#define GO_vFppUUu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
 #define GO_vFpUUUp(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, void* e) {F5(A, #B +2, N);}
 #define GO_vFpuuup(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, void* e) {F5(A, #B +2, N);}
 #define GO_vFpUUup(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d, void* e) {F5(A, #B +2, N);}
+#define GO_vFppUuu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
+#define GO_vFpUpUu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, void* c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
+#define GO_vFppuuu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
 #define GO_vFpuuuu(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
 #define GO_vFpUuuu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
 #define GO_vFpUUUu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
@@ -174,31 +190,49 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_vFpupppp(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpppppU(A, B, N)   static void my_##A##_##N(void* a, void* b, void* c, void* d, void* e, uint64_t f) {F6(A, #B +2, N);}
 #define GO_vFpUipup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, void* d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpUiUup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
+#define GO_vFppupup(A, B, N)   static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f) {F6(A, #B +2, N);}
+#define GO_vFpppuup(A, B, N)   static void my_##A##_##N(void* a, void* b, void* c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpuuppp(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f) {F6(A, #B +2, N);}
+#define GO_vFpUiUup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpiUuup(A, B, N)   static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpUUiup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint64_t c, int d, uint32_t e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpupiUu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, int d, uint64_t e, uint32_t f) {F6(A, #B +2, N);}
+#define GO_vFppuuup(A, B, N)   static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
+#define GO_vFpupupu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, void* e, uint32_t f) {F6(A, #B +2, N);}
+#define GO_vFpupuup(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpuuuiu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, int e, uint32_t f) {F6(A, #B +2, N);}
 #define GO_vFpUuuup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
 #define GO_vFpupuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f) {F6(A, #B +2, N);}
+#define GO_vFpuuuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f) {F6(A, #B +2, N);}
 #define GO_vFpUiUiup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g) {F7(A, #B +2, N);}
 #define GO_vFpuupppp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f, void* g) {F7(A, #B +2, N);}
+#define GO_vFpUuupup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, void* e, uint32_t f, void* g) {F7(A, #B +2, N);}
 #define GO_vFppUuupp(A, B, N)  static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d, uint32_t e, void* f, void* g) {F7(A, #B +2, N);}
+#define GO_vFpupuupp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f, void* g) {F7(A, #B +2, N);}
+#define GO_vFppupuup(A, B, N)  static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, uint32_t f, void* g) {F7(A, #B +2, N);}
 #define GO_vFpUuuUip(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint64_t e, int f, void* g) {F7(A, #B +2, N);}
 #define GO_vFpupuuup(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f, void* g) {F7(A, #B +2, N);}
+#define GO_vFppUpUuu(A, B, N)  static void my_##A##_##N(void* a, void* b, uint64_t c, void* d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
+#define GO_vFpuupUuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
 #define GO_vFpuuuuuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
 #define GO_vFpuuUUuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint64_t d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
 #define GO_vFpUUUUuu(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
 #define GO_vFpiiiuipp(A, B, N) static void my_##A##_##N(void* a, int b, int c, int d, uint32_t e, int f, void* g, void* h) {F8(A, #B +2, N);}
 #define GO_vFpUiUiupi(A, B, N) static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g, int h) {F8(A, #B +2, N);}
-#define GO_vFpiUuupup(A, B, N) static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, #B +2, N);}
 #define GO_vFpuiULipp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, int c, uint64_t d, size_t e, int f, void* g, void* h) {F8(A, #B +2, N);}
+#define GO_vFpuuULipp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint64_t d, size_t e, int f, void* g, void* h) {F8(A, #B +2, N);}
 #define GO_vFpppppuuu(A, B, N) static void my_##A##_##N(void* a, void* b, void* c, void* d, void* e, uint32_t f, uint32_t g, uint32_t h) {F8(A, #B +2, N);}
+#define GO_vFpiUuupup(A, B, N) static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, #B +2, N);}
+#define GO_vFpupuupup(A, B, N) static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, #B +2, N);}
+#define GO_vFppupuupu(A, B, N) static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, uint32_t f, void* g, uint32_t h) {F8(A, #B +2, N);}
+#define GO_vFpuuuuupp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, void* g, void* h) {F8(A, #B +2, N);}
+#define GO_vFppuupUUu(A, B, N) static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, uint64_t f, uint64_t g, uint32_t h) {F8(A, #B +2, N);}
 #define GO_vFpUuuUUUu(A, B, N) static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint64_t e, uint64_t f, uint64_t g, uint32_t h) {F8(A, #B +2, N);}
+#define GO_vFpppUupppU(A, B, N)         static void my_##A##_##N(void* a, void* b, void* c, uint64_t d, uint32_t e, void* f, void* g, void* h, uint64_t i) {F9(A, #B +2, N);}
 #define GO_vFppUUuUUUU(A, B, N)         static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e, uint64_t f, uint64_t g, uint64_t h, uint64_t i) {F9(A, #B +2, N);}
 #define GO_vFpuuuupupup(A, B, N)        static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h, uint32_t i, void* j) {F10(A, #B +2, N);}
 #define GO_vFpupuuupupup(A, B, N)       static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f, void* g, uint32_t h, void* i, uint32_t j, void* k) {F11(A, #B +2, N);}
+#define GO_vFppUpUUpUUpUUuuu(A, B, N)   static void my_##A##_##N(void* a, void* b, uint64_t c, void* d, uint64_t e, uint64_t f, void* g, uint64_t h, uint64_t i, void* j, uint64_t k, uint64_t l, uint32_t m, uint32_t n, uint32_t o) {F15(A, #B +2, N);}
 #define GO_vFpUUUUUUUUUUUuuu(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h, uint64_t i, uint64_t j, uint64_t k, uint64_t l, uint32_t m, uint32_t n, uint32_t o) {F15(A, #B +2, N);}
 #define GO_iFp(A, B, N)        static int my_##A##_##N(void* a) {return (int)F1(A, #B +2, N);}
 #define GO_iFpp(A, B, N)       static int my_##A##_##N(void* a, void* b) {return (int)F2(A, #B +2, N);}
@@ -207,6 +241,7 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_iFpip(A, B, N)      static int my_##A##_##N(void* a, int b, void* c) {return (int)F3(A, #B +2, N);}
 #define GO_iFppp(A, B, N)      static int my_##A##_##N(void* a, void* b, void* c) {return (int)F3(A, #B +2, N);}
 #define GO_iFpiU(A, B, N)      static int my_##A##_##N(void* a, int b, uint64_t c) {return (int)F3(A, #B +2, N);}
+#define GO_iFppu(A, B, N)      static int my_##A##_##N(void* a, void* b, uint32_t c) {return (int)F3(A, #B +2, N);}
 #define GO_iFppU(A, B, N)      static int my_##A##_##N(void* a, void* b, uint64_t c) {return (int)F3(A, #B +2, N);}
 #define GO_iFpup(A, B, N)      static int my_##A##_##N(void* a, uint32_t b, void* c) {return (int)F3(A, #B +2, N);}
 #define GO_iFpUp(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, void* c) {return (int)F3(A, #B +2, N);}
@@ -214,10 +249,13 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_iFpUU(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, uint64_t c) {return (int)F3(A, #B +2, N);}
 #define GO_iFpiip(A, B, N)     static int my_##A##_##N(void* a, int b, int c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpipp(A, B, N)     static int my_##A##_##N(void* a, int b, void* c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpppp(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFppip(A, B, N)     static int my_##A##_##N(void* a, void* b, int c, void* d) {return (int)F4(A, #B +2, N);}
+#define GO_iFpppp(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, void* d) {return (int)F4(A, #B +2, N);}
+#define GO_iFpuip(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, int c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpiup(A, B, N)     static int my_##A##_##N(void* a, int b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUip(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, int c, void* d) {return (int)F4(A, #B +2, N);}
+#define GO_iFpppU(A, B, N)     static int my_##A##_##N(void* a, void* b, int c, uint64_t d) {return (int)F4(A, #B +2, N);}
+#define GO_iFppLp(A, B, N)     static int my_##A##_##N(void* a, void* b, size_t c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFppup(A, B, N)     static int my_##A##_##N(void* a, void* b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpupp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUpp(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, void* c, void* d) {return (int)F4(A, #B +2, N);}
@@ -225,20 +263,33 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_iFpuUp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpupU(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, uint64_t d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUup(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
+#define GO_iFppUU(A, B, N)     static int my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUUu(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d) {return (int)F4(A, #B +2, N);}
 #define GO_iFpUUU(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d) {return (int)F4(A, #B +2, N);}
 #define GO_iFppppp(A, B, N)    static int my_##A##_##N(void* a, void* b, void* c, void* d, void* e) {return (int)F5(A, #B +2, N);}
+#define GO_iFpUiUi(A, B, N)    static int my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpuppp(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e) {return (int)F5(A, #B +2, N);}
+#define GO_iFppupp(A, B, N)    static int my_##A##_##N(void* a, void* b, uint32_t c, void* d, void* e) {return (int)F5(A, #B +2, N);}
+#define GO_iFppupu(A, B, N)    static int my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpUupp(A, B, N)    static int my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d, void* e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpiUUU(A, B, N)    static int my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, uint64_t e) {return (int)F5(A, #B +2, N);}
+#define GO_iFpuUpU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, uint64_t e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpupuU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint64_t e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpUiipp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, int c, int d, void* e, void* f) {return (int)F6(A, #B +2, N);}
+#define GO_iFppUppp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, void* d, void* e, void* f) {return (int)F6(A, #B +2, N);}
+#define GO_iFppuupp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) {return (int)F6(A, #B +2, N);}
+#define GO_iFppuuLp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, #B +2, N);}
+#define GO_iFppUUup(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFpUuuLp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFpUUUup(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint32_t e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFpUUUUp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFpiiiuup(A, B, N)  static int my_##A##_##N(void* a, int b, int c, int d, uint32_t e, uint32_t f, void* g) {return (int)F7(A, #B +2, N);}
 #define GO_iFpupiLpL(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, void* c, int d, size_t e, void* f, size_t g) {return (int)F7(A, #B +2, N);}
+#define GO_iFpupuLpL(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, size_t e, void* f, size_t g) {return (int)F7(A, #B +2, N);}
+#define GO_iFpuuuuup(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, void* g) {return (int)F7(A, #B +2, N);}
 #define GO_iFpiiiuuup(A, B, N) static int my_##A##_##N(void* a, int b, int c, int d, uint32_t e, uint32_t f, uint32_t g, void* h) {return (int)F8(A, #B +2, N);}
+#define GO_iFppuuLpUu(A, B, N) static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f, uint64_t g, uint32_t h) {return (int)F8(A, #B +2, N);}
+#define GO_iFpuuuuuup(A, B, N) static int my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g, void* h) {return (int)F8(A, #B +2, N);}
 #define GO_iFpUuuLpUu(A, B, N) static int my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, size_t e, void* f, uint64_t g, uint32_t h) {return (int)F8(A, #B +2, N);}
 #define GO_uFpp(A, B, N)       static uint32_t my_##A##_##N(void* a, void* b) {return (uint32_t)F2(A, #B +2, N);}
 #define GO_uFpU(A, B, N)       static uint32_t my_##A##_##N(void* a, uint64_t b) {return (uint32_t)F2(A, #B +2, N);}
@@ -247,6 +298,7 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_uFpubp(A, B, N)     static uint32_t my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (uint32_t)F4(A, #B +2, N);}
 #define GO_UFpp(A, B, N)       static uint64_t my_##A##_##N(void* a, void* b) {return (uint64_t)F2(A, #B +2, N);}
 #define GO_UFpu(A, B, N)       static uint64_t my_##A##_##N(void* a, uint32_t b) {return (uint64_t)F2(A, #B +2, N);}
+#define GO_UFppuu(A, B, N)     static uint64_t my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {return (uint64_t)F4(A, #B +2, N);}
 #define GO_UFpUui(A, B, N)     static uint64_t my_##A##_##N(void* a, uint64_t b, uint32_t c, int d) {return (uint64_t)F4(A, #B +2, N);}
 
 #define SUPER(A, B, C, N)    \
@@ -383,7 +435,15 @@ GO(3)           \
 GO(4)           \
 GO(5)           \
 GO(6)           \
-GO(7)
+GO(7)           \
+GO(8)           \
+GO(9)           \
+GO(10)          \
+GO(11)          \
+GO(12)          \
+GO(13)          \
+GO(14)          \
+GO(15)
 
 #define GO(N)   \
 static void* my_getVkXXXXProcAddr_fct_##N = NULL;                                           \
@@ -579,53 +639,8 @@ static void my_##A##_##N(void* a, uint64_t b, my_VkAllocationCallbacks_t* c)  \
     RunFunctionFmt(my_##A##_fct_##N, "pUp", a, b, c);                         \
 }
 #define DESTROY64(A) SUPER(A)
-DESTROY64(vkDestroyShaderEXT)
-DESTROY64(vkDestroyBuffer)
-DESTROY64(vkDestroyBufferView)
-DESTROY64(vkDestroyCommandPool)
-DESTROY64(vkDestroyDescriptorPool)
-DESTROY64(vkDestroyDescriptorSetLayout)
-DESTROY64(vkDestroyDescriptorUpdateTemplate)
-DESTROY64(vkDestroyDescriptorUpdateTemplateKHR)
-DESTROY64(vkDestroyEvent)
-DESTROY64(vkDestroyFence)
-DESTROY64(vkDestroyFramebuffer)
-DESTROY64(vkDestroyImage)
-DESTROY64(vkDestroyImageView)
-DESTROY64(vkDestroyPipeline)
-DESTROY64(vkDestroyPipelineCache)
-DESTROY64(vkDestroyPipelineLayout)
-DESTROY64(vkDestroyQueryPool)
-DESTROY64(vkDestroyRenderPass)
-DESTROY64(vkDestroySampler)
-DESTROY64(vkDestroySamplerYcbcrConversion)
-DESTROY64(vkDestroySemaphore)
-DESTROY64(vkDestroyShaderModule)
-DESTROY64(vkDestroySwapchainKHR)
-DESTROY64(vkFreeMemory)
-DESTROY64(vkDestroySurfaceKHR)
-DESTROY64(vkDestroySamplerYcbcrConversionKHR)
-DESTROY64(vkDestroyValidationCacheEXT)
-DESTROY64(vkDestroyVideoSessionKHR)
-DESTROY64(vkDestroyVideoSessionParametersKHR)
-DESTROY64(vkDestroyPrivateDataSlot)
-DESTROY64(vkDestroyPrivateDataSlotEXT)
-DESTROY64(vkDestroyAccelerationStructureKHR)
-DESTROY64(vkDestroyDeferredOperationKHR)
-DESTROY64(vkDestroyCuFunctionNVX)
-DESTROY64(vkDestroyCuModuleNVX)
-DESTROY64(vkDestroyIndirectCommandsLayoutNV)
-DESTROY64(vkDestroyAccelerationStructureNV)
-DESTROY64(vkDestroyOpticalFlowSessionNV)
-DESTROY64(vkDestroyMicromapEXT)
 DESTROY64(vkDestroyCudaFunctionNV)
 DESTROY64(vkDestroyCudaModuleNV)
-DESTROY64(vkDestroyIndirectCommandsLayoutEXT)
-DESTROY64(vkDestroyIndirectExecutionSetEXT)
-DESTROY64(vkDestroyPipelineBinaryKHR)
-DESTROY64(vkDestroyTensorARM)
-DESTROY64(vkDestroyTensorViewARM)
-DESTROY64(vkDestroyDataGraphPipelineSessionARM)
 #undef DESTROY64
 #undef GO
 // DESTROY
@@ -637,10 +652,68 @@ static void my_##A##_##N(void* a, void* b, my_VkAllocationCallbacks_t* c)     \
     RunFunctionFmt(my_##A##_fct_##N, "ppp", a, b, c);                         \
 }
 #define DESTROY(A) SUPER(A)
+DESTROY(vkDestroyShaderEXT)
+DESTROY(vkDestroyBuffer)
+DESTROY(vkDestroyBufferView)
+DESTROY(vkDestroyCommandPool)
+DESTROY(vkDestroyDescriptorPool)
+DESTROY(vkDestroyDescriptorSetLayout)
+DESTROY(vkDestroyDescriptorUpdateTemplate)
+DESTROY(vkDestroyDescriptorUpdateTemplateKHR)
 DESTROY(vkDestroyDebugUtilsMessengerEXT)
-DESTROY(vkReleaseCapturedPipelineDataKHR)
 DESTROY(vkDestroyDebugReportCallbackEXT)    // needs better wrapping?
+DESTROY(vkDestroyEvent)
+DESTROY(vkDestroyFence)
+DESTROY(vkDestroyFramebuffer)
+DESTROY(vkDestroyImage)
+DESTROY(vkDestroyImageView)
+DESTROY(vkDestroyPipeline)
+DESTROY(vkDestroyPipelineCache)
+DESTROY(vkDestroyPipelineLayout)
+DESTROY(vkDestroyQueryPool)
+DESTROY(vkDestroyRenderPass)
+DESTROY(vkDestroySampler)
+DESTROY(vkDestroySamplerYcbcrConversion)
+DESTROY(vkDestroySemaphore)
+DESTROY(vkDestroyShaderModule)
+DESTROY(vkDestroySwapchainKHR)
+DESTROY(vkFreeMemory)
+DESTROY(vkDestroySurfaceKHR)
+DESTROY(vkDestroySamplerYcbcrConversionKHR)
+DESTROY(vkDestroyValidationCacheEXT)
+DESTROY(vkDestroyVideoSessionKHR)
+DESTROY(vkDestroyVideoSessionParametersKHR)
+DESTROY(vkDestroyPrivateDataSlot)
+DESTROY(vkDestroyPrivateDataSlotEXT)
+DESTROY(vkDestroyAccelerationStructureKHR)
+DESTROY(vkDestroyDeferredOperationKHR)
+DESTROY(vkDestroyCuFunctionNVX)
+DESTROY(vkDestroyCuModuleNVX)
+DESTROY(vkDestroyIndirectCommandsLayoutNV)
+DESTROY(vkDestroyAccelerationStructureNV)
+DESTROY(vkDestroyOpticalFlowSessionNV)
+DESTROY(vkDestroyMicromapEXT)
+DESTROY(vkDestroyIndirectCommandsLayoutEXT)
+DESTROY(vkDestroyIndirectExecutionSetEXT)
+DESTROY(vkDestroyPipelineBinaryKHR)
+DESTROY(vkDestroyTensorARM)
+DESTROY(vkDestroyTensorViewARM)
+DESTROY(vkDestroyDataGraphPipelineSessionARM)
+
 #undef DESTROY
+#undef GO
+// DESTROY
+#define GO(A, N)    \
+static uintptr_t my_##A##_fct_##N = 0;                                      \
+static int my_##A##_##N(void* a, void* b, my_VkAllocationCallbacks_t* c)    \
+{                                                                           \
+    bridge_VkAllocationCallbacks(c);                                        \
+    return (int)RunFunctionFmt(my_##A##_fct_##N, "ppp", a, b, c);           \
+}
+#define IDESTROY(A) SUPER(A)
+IDESTROY(vkReleaseCapturedPipelineDataKHR)
+
+#undef IDESTROY
 #undef GO
 //vkCreate*Pipelines
 #define GO(A, N)   \
