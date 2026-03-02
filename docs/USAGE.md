@@ -458,6 +458,13 @@ Path to the rc file to load.
 
  * XXXX: Load the rc file XXXX, default rc files will not be loaded. 
 
+### BOX64_RDTSC_INV
+
+Report Invariant TSC bit in CPUID for Intel CPU type.
+
+ * 0: Do not report Invariant TSC for Intel CPU type (default). [Default]
+ * 1: Report Invariant TSC bit in CPUID leaf 0x80000007 for Intel CPU type. 
+
 ### BOX64_RESERVE_HIGH
 
 Reserve high memory area for the program, always enabled on Box32.

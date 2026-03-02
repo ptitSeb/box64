@@ -1727,6 +1727,24 @@
     ]
   },
   {
+    "name": "BOX64_RDTSC_INV",
+    "description": "Report Invariant TSC bit in CPUID for Intel CPU type.",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not report Invariant TSC for Intel CPU type (default).",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Report Invariant TSC bit in CPUID leaf 0x80000007 for Intel CPU type.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_RESERVE_HIGH",
     "description": "Reserve high memory area for the program, always enabled on Box32.",
     "category": "Compatibility",
