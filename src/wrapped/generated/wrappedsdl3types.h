@@ -13,9 +13,26 @@
 
 typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
+typedef void (*vFpp_t)(void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+typedef uint32_t (*uFUpp_t)(uint64_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_Vulkan_GetVkGetInstanceProcAddr, pFv_t) \
-	GO(SDL_GL_GetProcAddress, pFp_t)
+	GO(SDL_GL_GetProcAddress, pFp_t) \
+	GO(SDL_FilterEvents, vFpp_t) \
+	GO(SDL_GetLogOutputFunction, vFpp_t) \
+	GO(SDL_RemoveEventWatch, vFpp_t) \
+	GO(SDL_SetEventFilter, vFpp_t) \
+	GO(SDL_SetLogOutputFunction, vFpp_t) \
+	GO(SDL_AddEventWatch, iFpp_t) \
+	GO(SDL_GetEventFilter, iFpp_t) \
+	GO(SDL_RemoveHintCallback, vFppp_t) \
+	GO(SDL_AddHintCallback, iFppp_t) \
+	GO(SDL_AddTimer, uFupp_t) \
+	GO(SDL_AddTimerNS, uFUpp_t)
 
 #endif // __wrappedsdl3TYPES_H_
