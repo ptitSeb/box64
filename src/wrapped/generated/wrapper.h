@@ -2031,6 +2031,7 @@ void iFpLpiL(x64emu_t *emu, uintptr_t fnc);
 void iFpLpuL(x64emu_t *emu, uintptr_t fnc);
 void iFpLpup(x64emu_t *emu, uintptr_t fnc);
 void iFpLpLi(x64emu_t *emu, uintptr_t fnc);
+void iFpLpLp(x64emu_t *emu, uintptr_t fnc);
 void iFpLppi(x64emu_t *emu, uintptr_t fnc);
 void iFpLppL(x64emu_t *emu, uintptr_t fnc);
 void iFpLppp(x64emu_t *emu, uintptr_t fnc);
