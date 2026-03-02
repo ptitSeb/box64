@@ -517,7 +517,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.5);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW8);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
@@ -545,7 +545,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         VMV_V_V(q0, v1);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.25);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW8);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -576,7 +576,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.125);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW8);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -600,8 +600,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                        GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                        GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         if (q0 == q1) {
@@ -628,8 +628,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         VMV_V_V(q0, v1);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                        GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
+                        GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         if (q0 == q1) {
@@ -652,8 +652,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                        GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                        GETEX_vector(q1, 0, 0, VECTOR_SEW32);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         if (q0 == q1) {
@@ -731,7 +731,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.5);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW8);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
@@ -759,7 +759,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         VMV_V_V(q0, v1);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.25);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW8);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -789,7 +789,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.125);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW8);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -813,8 +813,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                        GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                        GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         if (q0 == q1) {
@@ -841,8 +841,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         VMV_V_V(q0, v1);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                        GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
+                        GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         if (q0 == q1) {
@@ -865,8 +865,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         VMV_V_V(q0, v0);
                     } else {
-                        if (!MODREG) SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                        GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                        if (!MODREG) vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                        GETEX_vector(q1, 0, 0, VECTOR_SEW32);
                         GETGX_empty_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         if (q0 == q1) {
