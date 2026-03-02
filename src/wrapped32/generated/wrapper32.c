@@ -174,6 +174,7 @@ typedef uint64_t (*UFp_t)(void*);
 typedef uint64_t (*UEs_t)(void*);
 typedef float (*fFi_t)(int32_t);
 typedef float (*fEf_t)(float);
+typedef float (*fEp_t)(void*);
 typedef float (*fFf_t)(float);
 typedef double (*dEv_t)(void);
 typedef double (*dFi_t)(int32_t);
@@ -2400,6 +2401,7 @@ void UFp_32(x64emu_t *emu, uintptr_t fcn) { UFp_t fn = (UFp_t)fcn; ui64_t r; r.u
 void UEs_32(x64emu_t *emu, uintptr_t fcn) { UEs_t fn = (UEs_t)fcn; errno = emu->libc_err; ui64_t r; r.u = (uint64_t)fn(from_ptrv(R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; emu->libc_err = errno; }
 void fFi_32(x64emu_t *emu, uintptr_t fcn) { fFi_t fn = (fFi_t)fcn; float fl = fn(from_ptri(int32_t, R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void fEf_32(x64emu_t *emu, uintptr_t fcn) { fEf_t fn = (fEf_t)fcn; errno = emu->libc_err; float fl = fn(from_ptri(float, R_ESP + 4)); fpu_do_push(emu); ST0val = fl; emu->libc_err = errno; }
+void fEp_32(x64emu_t *emu, uintptr_t fcn) { fEp_t fn = (fEp_t)fcn; errno = emu->libc_err; float fl = fn(from_ptriv(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; emu->libc_err = errno; }
 void fFf_32(x64emu_t *emu, uintptr_t fcn) { fFf_t fn = (fFf_t)fcn; float fl = fn(from_ptri(float, R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void dEv_32(x64emu_t *emu, uintptr_t fcn) { dEv_t fn = (dEv_t)fcn; errno = emu->libc_err; double db = fn(); fpu_do_push(emu); ST0val = db; emu->libc_err = errno; }
 void dFi_32(x64emu_t *emu, uintptr_t fcn) { dFi_t fn = (dFi_t)fcn; double db = fn(from_ptri(int32_t, R_ESP + 4)); fpu_do_push(emu); ST0val = db; }
