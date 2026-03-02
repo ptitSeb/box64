@@ -2823,6 +2823,7 @@ void pFpiiCCC(x64emu_t *emu, uintptr_t fnc);
 void pFpiiuuu(x64emu_t *emu, uintptr_t fnc);
 void pFpiipip(x64emu_t *emu, uintptr_t fnc);
 void pFpiippp(x64emu_t *emu, uintptr_t fnc);
+void pFpidddd(x64emu_t *emu, uintptr_t fnc);
 void pFpiuuup(x64emu_t *emu, uintptr_t fnc);
 void pFpiLLLL(x64emu_t *emu, uintptr_t fnc);
 void pFpipipL(x64emu_t *emu, uintptr_t fnc);
