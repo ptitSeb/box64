@@ -1339,6 +1339,7 @@ void iFpbupu_up_32(x64emu_t *emu, uintptr_t fnc);
 void iFbp_urp_u_32(x64emu_t *emu, uintptr_t fnc);
 void iFrpuu_Lui_32(x64emu_t *emu, uintptr_t fnc);
 void iEbp_bL_iS_32(x64emu_t *emu, uintptr_t fnc);
+void iEbp_bL_S_32(x64emu_t *emu, uintptr_t fnc);
 void iFbp_bp_pi_32(x64emu_t *emu, uintptr_t fnc);
 void iFXbL_ibp__32(x64emu_t *emu, uintptr_t fnc);
 void iFnubp_bp__32(x64emu_t *emu, uintptr_t fnc);
