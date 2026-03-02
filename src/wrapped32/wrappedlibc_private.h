@@ -526,7 +526,7 @@ GOM(getifaddrs, iEEbp_)
 // getipv4sourcefilter
 //GOW(getitimer, iEip)
 // get_kernel_syms  // Weak
-//GOW(getline, iEbp_bL_S)    // converter type iEbp_bL_S_32 doesn't exist yet
+GOW(getline, iEbp_bL_S)
 GO(getloadavg, iEpi)
 GO(getlogin, pEv)
 GO(getlogin_r, iEpL)
