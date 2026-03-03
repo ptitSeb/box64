@@ -70,6 +70,17 @@ wrappedlib_t wrappedlibs32[] = {
 #endif
 #endif
 };
+
+int IsLibraryWrapped(const char* name, int is_32bits)
+{
+    int nb = (is_32bits ? sizeof(wrappedlibs32) : sizeof(wrappedlibs)) / sizeof(wrappedlib_t);
+    for (int i = 0; i < nb; ++i) {
+        if (strcmp(name, (is_32bits ? wrappedlibs32 : wrappedlibs)[i].name) == 0)
+            return 1;
+    }
+    return 0;
+}
+
 #undef GO
 
 KHASH_MAP_IMPL_STR(symbolmap, symbol1_t)

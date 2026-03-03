@@ -809,6 +809,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             DynaCacheClean();
             exit(0);
         }
+        if (!strcmp(prog, "--ldd")) {
+            if (nextarg + 1 >= argc) {
+                printf("box64: missing operand after '--ldd'\n");
+                exit(1);
+            }
+            PrintLddInfo(argv[nextarg + 1]);
+            exit(0);
+        }
         // other options?
         if(!strcmp(prog, "--")) {
             prog = argv[++nextarg];

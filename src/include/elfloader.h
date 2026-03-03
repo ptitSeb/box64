@@ -106,3 +106,5 @@ void PltResolver64(x64emu_t* emu);
 const char* getAddrFunctionName(uintptr_t addr);
 
 #endif //__ELF_LOADER_H_
+
+void PrintLddInfo(const char* binary_path);

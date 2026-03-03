@@ -39,3 +39,5 @@ int GetRefCount(library_t* lib);
 
 void SetDlOpenIdx(library_t* lib, int dlopen);
 #endif //__LIBRARY_H_
+
+int IsLibraryWrapped(const char* name, int is32bits);

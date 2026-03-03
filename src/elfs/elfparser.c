@@ -3,12 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
+#include <errno.h>
 
 #include "box64version.h"
 #include "elfloader.h"
 #include "debug.h"
 #include "elfload_dump.h"
 #include "elfloader_private.h"
+#include "fileutils.h"
+#include "pathcoll.h"
+#include "box64context.h"
+#include "library.h"
 
 #ifndef PN_XNUM 
 #define PN_XNUM (0xffff)
@@ -421,4 +426,167 @@ const char* BindSymFriendly(int bind)
     static char tmp[50];
     sprintf(tmp, "??? 0x%x", bind);
     return tmp;
+}
+
+static char* LibPath2Name(const char* path)
+{
+    char* name = (char*)box_calloc(1, 4096);
+    char* p = strrchr(path, '/');
+    strcpy(name, (p) ? (p + 1) : path);
+    // name should be libXXX.so.A(.BB.CCCC)
+    // so keep only first version number after ".so"
+    p = strstr(name, ".so");
+    if (p) {
+        p = strchr(p + 3, '.');
+        if (p) p = strchr(p + 1, '.');
+        if (p) *p = '\0';
+    }
+    return name;
+}
+
+static void CollectLddPaths(path_collection_t* paths, int is_32bit)
+{
+    const char* ld_path = BOX64ENV(ld_library_path);
+    if (ld_path) {
+        ParseList(ld_path, paths, 1);
+    } else {
+        if (is_32bit) {
+            ParseList(".:lib:i386:bin:libs", paths, 1);
+        } else {
+            ParseList(".:lib:lib64:x86_64:bin64:libs64", paths, 1);
+        }
+    }
+
+    const char* ld_lib = getenv("LD_LIBRARY_PATH");
+    if (ld_lib) {
+        ParseList(ld_lib, paths, 1);
+    }
+
+    if (is_32bit) {
+        if (FileExist("/lib/i386-linux-gnu", 0))
+            AddPath("/lib/i386-linux-gnu", paths, 1);
+        if (FileExist("/usr/lib/i386-linux-gnu", 0))
+            AddPath("/usr/lib/i386-linux-gnu", paths, 1);
+        if (FileExist("/usr/i386-linux-gnu/lib", 0))
+            AddPath("/usr/i386-linux-gnu/lib", paths, 1);
+        if (FileExist("/usr/lib/box64-i386-linux-gnu", 0))
+            AddPath("/usr/lib/box64-i386-linux-gnu", paths, 1);
+    } else {
+        if (FileExist("/lib/x86_64-linux-gnu", 0))
+            AddPath("/lib/x86_64-linux-gnu", paths, 1);
+        if (FileExist("/usr/lib/x86_64-linux-gnu", 0))
+            AddPath("/usr/lib/x86_64-linux-gnu", paths, 1);
+        if (FileExist("/usr/x86_64-linux-gnu/lib", 0))
+            AddPath("/usr/x86_64-linux-gnu/lib", paths, 1);
+        if (FileExist("/usr/lib/box64-x86_64-linux-gnu", 0))
+            AddPath("/usr/lib/box64-x86_64-linux-gnu", paths, 1);
+    }
+}
+
+static char* FindLibrary(const char* libname, path_collection_t* paths)
+{
+    if (strchr(libname, '/')) {
+        char* resolved = box_realpath(libname, NULL);
+        if (resolved && FileExist(resolved, IS_FILE)) {
+            return resolved;
+        }
+        if (resolved) box_free(resolved);
+        return NULL;
+    }
+
+    for (int i = 0; i < paths->size; ++i) {
+        char path[4096];
+        snprintf(path, sizeof(path), "%s/%s", paths->paths[i], libname);
+        char* resolved = box_realpath(path, NULL);
+        if (resolved && FileExist(resolved, IS_FILE)) {
+            return resolved;
+        }
+        if (resolved) box_free(resolved);
+    }
+    return NULL;
+}
+
+void PrintLddInfo(const char* binary_path)
+{
+    FILE* f = fopen(binary_path, "rb");
+    if (!f) {
+        printf("box64: cannot open '%s': %s\n", binary_path, strerror(errno));
+        exit(1);
+    }
+
+    int is_32bit = FileIsX86ELF(binary_path);
+    int is_64bit = FileIsX64ELF(binary_path);
+
+    if (!is_32bit && !is_64bit) {
+        fclose(f);
+        printf("box64: '%s' is not a valid x86/x86_64 ELF binary\n", binary_path);
+        exit(1);
+    }
+
+    elfheader_t* h;
+    if (is_32bit) {
+        h = ParseElfHeader32(f, binary_path, 0);
+    } else {
+        h = ParseElfHeader64(f, binary_path, 0);
+    }
+
+    if (!h) {
+        fclose(f);
+        printf("box64: '%s' is not a valid %s ELF binary\n", binary_path, is_32bit ? "x86" : "x86_64");
+        exit(1);
+    }
+
+    path_collection_t paths = { 0 };
+    CollectLddPaths(&paths, is_32bit);
+
+    printf("%s:\n", binary_path);
+
+    if (is_32bit) {
+        if (h->Dynamic._32 && h->DynStr) {
+            for (size_t i = 0; i < h->numDynamic; ++i) {
+                if (h->Dynamic._32[i].d_tag == DT_NEEDED) {
+                    const char* libname = h->DynStr + h->Dynamic._32[i].d_un.d_val;
+                    char* norm_name = LibPath2Name(libname);
+                    int is_native = IsLibraryWrapped(norm_name, 1);
+                    char* lib_path = is_native ? norm_name : FindLibrary(libname, &paths);
+
+                    if (lib_path) {
+                        printf("\t%s %s\n",
+                            is_native ? "[native]  " : "[emulated]", lib_path);
+                    } else {
+                        printf("\t%s %s \033[31mnot found\033[0m\n",
+                            is_native ? "[native]  " : "[emulated]", libname);
+                    }
+
+                    box_free(norm_name);
+                    if (norm_name != lib_path) box_free(lib_path);
+                }
+            }
+        }
+    } else {
+        if (h->Dynamic._64 && h->DynStr) {
+            for (size_t i = 0; i < h->numDynamic; ++i) {
+                if (h->Dynamic._64[i].d_tag == DT_NEEDED) {
+                    const char* libname = h->DynStr + h->Dynamic._64[i].d_un.d_val;
+                    char* norm_name = LibPath2Name(libname);
+                    int is_native = IsLibraryWrapped(norm_name, 0);
+                    char* lib_path = is_native ? norm_name : FindLibrary(libname, &paths);
+
+                    if (lib_path) {
+                        printf("\t%s %s\n",
+                            is_native ? "[native]  " : "[emulated]", lib_path);
+                    } else {
+                        // not found in red color
+                        printf("\t%s %s \033[31mnot found\033[0m\n",
+                            is_native ? "[native]  " : "[emulated]", libname);
+                    }
+
+                    box_free(norm_name);
+                    if (norm_name != lib_path) box_free(lib_path);
+                }
+            }
+        }
+    }
+
+    FreeCollection(&paths);
 }
