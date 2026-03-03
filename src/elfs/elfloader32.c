@@ -155,14 +155,14 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
     void* image = NULL;
     if(!head->vaddr) {
         sz += head->align;
-        raw = mmap64(from_ptrv(offs), sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE|MAP_FIXED, -1, 0);
+        raw = mmap64(from_ptrv(offs), sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         image = (void*)(((uintptr_t)raw+max_align)&~max_align);
     } else {
         if(from_ptr(head->vaddr)&(box64_pagesize-1)) {
             // load address is not page-aligned, round down and increase size
             uintptr_t aligned_addr = from_ptr(head->vaddr) & ~(box64_pagesize-1);
             size_t extra = from_ptr(head->vaddr) - aligned_addr;
-            raw = mmap64((void*)aligned_addr, sz + extra, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE|MAP_FIXED, -1, 0);
+            raw = mmap64((void*)aligned_addr, sz + extra, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
             if(raw != MAP_FAILED && (uintptr_t)raw == aligned_addr) {
                 image = from_ptrv(head->vaddr);
                 sz += extra;
@@ -170,7 +170,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 image = raw;
             }
         } else {
-            image = raw = mmap64(from_ptrv(head->vaddr), sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE|MAP_FIXED, -1, 0);
+            image = raw = mmap64(from_ptrv(head->vaddr), sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         }
     }
     if(image!=MAP_FAILED && !head->vaddr && image!=from_ptrv(offs)) {
