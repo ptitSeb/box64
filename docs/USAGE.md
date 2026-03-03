@@ -873,6 +873,13 @@ Do not load Vulkan libraries.
  * 0: Load Vulkan libraries. [Default]
  * 1: Do not load Vulkan libraries, both native and x86_64. 
 
+### BOX64_NOVULKANOVERLAY
+
+Do not load x64 Vulkan overlay.
+
+ * 0: Do try to Load x64 Vulkan overlay. [Default]
+ * 1: Do not load x64 Vulkan overlay. 
+
 ### BOX64_PREFER_EMULATED
 
 Prefer emulated libraries over native ones.

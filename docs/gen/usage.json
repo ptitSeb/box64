@@ -1606,6 +1606,24 @@
     ]
   },
   {
+    "name": "BOX64_NOVULKANOVERLAY",
+    "description": "Do not load x64 Vulkan overlay.",
+    "category": "Libraries",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do try to Load x64 Vulkan overlay.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not load x64 Vulkan overlay.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_PATH",
     "description": "Path to look for x86_64 binaries.",
     "category": "Compatibility",

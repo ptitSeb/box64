@@ -731,6 +731,14 @@ Do not load Vulkan libraries.
  * 1 : Do not load Vulkan libraries, both native and x86_64. 
 
 
+=item B<BOX64_NOVULKANOVERLAY> =I<0|1>
+
+Do not load x64 Vulkan overlay.
+
+ * 0 : Do try to Load x64 Vulkan overlay. [Default]
+ * 1 : Do not load x64 Vulkan overlay. 
+
+
 =item B<BOX64_PATH> =I<XXXX>
 
 Path to look for x86_64 binaries.

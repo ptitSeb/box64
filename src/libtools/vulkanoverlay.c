@@ -853,6 +853,7 @@ static void addVulkanSymbol(my_vulkanoverlay_t* v, const char* name, uintptr_t* 
 void* LoadVulkanOverlay(const char* path, int flags)
 {
     // find the local vulkan/implicit_layer.d
+    if(!BOX64ENV(novulkanoverlay))
     {
         // simplified research pattern...
         glob_t pglob = {0};
