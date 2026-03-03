@@ -630,6 +630,7 @@ void adjustregs(x64emu_t* emu, void* pc)
     }
 #elif defined(LA64)
 #elif defined(RV64)
+#elif defined(PPC64LE)
 #else
 #error  Unsupported architecture
 #endif

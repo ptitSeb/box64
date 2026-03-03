@@ -830,6 +830,10 @@ int of_unconvert32(int a)
     if(!O_LARGEFILE) {
         if((a&(0400000))==(0400000)) {a&=~(0400000); b|=(X86_O_LARGEFILE);}
     }
+    #elif defined(PPC64LE)
+    if(!O_LARGEFILE) {
+        if((a&(0200000))==(0200000)) {a&=~(0200000); b|=(X86_O_LARGEFILE);}
+    }
     #else
     if(!O_LARGEFILE) missing |= X86_O_LARGEFILE;
     #endif

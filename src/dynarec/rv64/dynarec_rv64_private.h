@@ -186,6 +186,7 @@ typedef struct dynarec_rv64_s {
     uint8_t             inst_sew;       // sew inside current instruction, for vsetvli elimination
     uint8_t             inst_vl;        // vl inside current instruction, for vsetvli elimination
     uint8_t             inst_vlmul;     // vlmul inside current instruction
+    uint8_t             is_file_mapped; // if the memory is a mapped file (probably binary, not a memory)
     void*               gdbjit_block;
     uint32_t            need_x87check; // x87 low precision check
     uint32_t            need_dump;     // need to dump the block

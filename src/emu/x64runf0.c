@@ -791,7 +791,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                             GETGD;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                             if (rex.w) {
-#if defined(__riscv) || defined(__loongarch64)
+#if defined(__riscv) || defined(__loongarch64) || defined(__powerpc64__)
 #if defined(__loongarch64)
                                 if (cpuext.scq) {
                                     do {

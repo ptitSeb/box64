@@ -31,6 +31,7 @@ GO("libGLX_nvidia.so.0", libglxnvidia)
 GO("libGLU.so.1", libglu)
 GO("libSDL-1.2.so.0", sdl1)
 GO("libSDL2-2.0.so.0", sdl2)
+GO("libSDL2-2.0.so.1", sdl2)
 GO("libSDL2_image-2.0.so.0", sdl2image)
 GO("libSDL2_image.so", sdl2image)
 GO("libasound.so.2", libasound)
@@ -85,6 +86,9 @@ GO("libopenal.so", openal)
 GO("libopenal-soft.so.1", openal)
 GO("openal.so", openal)
 
+GO("libogg.so.0", libogg)
+GO("libogg.so", libogg)
+
 GO("libexpat.so.1", expat)
 GO("libexpat.so", expat)
 
@@ -110,6 +114,8 @@ GO("libcurl-gnutls.so.4", curl)
 GO("libcurl.so.3", curl)
 GO("libnvidia-ml.so", nvml)
 GO("libnvidia-ml.so.1", nvml)
+GO("libpulse-simple.so.0", pulsesimple)
+GO("libpulse-simple.so", pulsesimple)
 
 
 //GO("crashhandler.so", crashhandler)

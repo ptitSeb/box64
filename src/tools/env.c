@@ -232,6 +232,7 @@ static void applyCustomRules()
         } else if (!strcasecmp(box64env.profile, "default")) {
         } else if (!strcasecmp(box64env.profile, "fast")) {
             SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_sep, 1);
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 1);
@@ -239,6 +240,7 @@ static void applyCustomRules()
             SET_BOX64ENV_IF_EMPTY(dynarec_forward, 1024);
         } else if (!strcasecmp(box64env.profile, "fastest")) {
             SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
+            SET_BOX64ENV_IF_EMPTY(dynarec_sep, 2);
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 0);
@@ -255,6 +257,10 @@ static void applyCustomRules()
 
     if (box64env.maxcpu == 0 || (box64env.new_maxcpu < box64env.maxcpu)) {
         box64env.maxcpu = box64env.new_maxcpu;
+        if (box64env.maxcpu && box64_sysinfo.ncpu > (uint64_t)box64env.maxcpu) {
+            box64_sysinfo.box64_ncpu = (uint64_t)box64env.maxcpu;
+        }
+
     }
 
 #ifndef _WIN32
@@ -326,6 +332,8 @@ static void freeEnv(box64env_t* env)
 #define ENV_ARCH "rv64"
 #elif defined(LA64)
 #define ENV_ARCH "la64"
+#elif defined(PPC64LE)
+#define ENV_ARCH "ppc64le"
 #elif defined(X86_64)
 #define ENV_ARCH "x86_64"
 #else
@@ -901,6 +909,8 @@ done:
 #define ARCH_VERSION SET_VERSION(0, 0, 4)
 #elif defined(LA64)
 #define ARCH_VERSION SET_VERSION(0, 0, 5)
+#elif defined(PPC64LE)
+#define ARCH_VERSION SET_VERSION(0, 0, 1)
 #else
 #error meh!
 #endif
@@ -1477,6 +1487,18 @@ int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start)
         return 1;
     }
     return 0;
+}
+
+int IsAddrFileMappedNoMemFD(uintptr_t addr)
+{
+    const char* filename = NULL;
+    if(!IsAddrFileMapped(addr, &filename, NULL))
+        return 0;
+    if(!filename)
+        return 0;
+    if(strstr(filename, "/memfd:")==filename)
+        return 0;
+    return 1;
 }
 
 size_t SizeFileMapped(uintptr_t addr)

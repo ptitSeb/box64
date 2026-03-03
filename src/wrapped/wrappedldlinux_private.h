@@ -26,5 +26,9 @@ DATA(__pointer_chk_guard, sizeof(void*))
 DATA(_rtld_global, sizeof(void*))
 DATA(_rtld_global_ro, sizeof(void*))
 #endif
+#ifndef PPC64LE
 DATA(__stack_chk_guard, sizeof(void*))
+#else
+//DATA(__stack_chk_guard, sizeof(void*))
+#endif
 GOM(__tls_get_addr, pFEp)

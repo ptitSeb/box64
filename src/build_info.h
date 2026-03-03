@@ -9,13 +9,15 @@
 #define __BUILD_INFO_H__
 
 
-#if defined(DYNAREC) && (defined(ARM64) || defined(RV64) || defined(LA64))
+#if defined(DYNAREC) && (defined(ARM64) || defined(RV64) || defined(LA64) || defined(PPC64LE))
 #if defined(ARM64)
 #define ARCH_STR " arm64"
 #elif defined(RV64)
 #define ARCH_STR " riscv64"
 #elif defined(LA64)
 #define ARCH_STR " loongarch64"
+#elif defined(PPC64LE)
+#define ARCH_STR " ppc64le"
 #endif
 #else
 #define ARCH_STR ""

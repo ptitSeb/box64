@@ -18,10 +18,11 @@
         if (dyn->need_dump) dynarec_log(LOG_NONE, __VA_ARGS__); \
     } while (0)
 #define NEW_INST \
-    if (ninst) {  \
-        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
-        dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero; \
-    }
+    if (ninst) {                                                                                                    \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4);   \
+        dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                               \
+    }                                                                                                               \
+    AREFLAGSNEEDED()
 #define INST_EPILOG
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 #define TABLE64(A, V)                                 \

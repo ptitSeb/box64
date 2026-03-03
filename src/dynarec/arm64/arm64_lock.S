@@ -261,6 +261,7 @@ arm64_atomic_storeifref:
     mov     x3, x2
     casal   x2, x1, [x0]
     cmp     x2, x3
+    bne     2f
     mov     x0, x1
     ret
 2:
@@ -291,6 +292,7 @@ arm64_atomic_storeifref_d:
     // address is x0, value is w1, w1 store to x0 only if [x0] is w2. return new [x0] value (so w1 or old value)
     mov     w3, w2
     casal   w2, w1, [x0]
+    bne     2f
     cmp     w2, w3
     mov     w0, w1
     ret

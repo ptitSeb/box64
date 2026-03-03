@@ -81,6 +81,7 @@
 #() fFi -> fFi
 #() fEf -> fEf
 #() fFf -> fFf
+#() fEp -> fEp
 #() dEv -> dEv
 #() dFi -> dFi
 #() dEd -> dEd
@@ -305,6 +306,7 @@
 #() UEuu -> UEuu
 #() UFuu -> UFuu
 #() UEUU -> UEUU
+#() UFpp -> UFpp
 #() UEss -> UEss
 #() fEif -> fEif
 #() fFfi -> fFfi
@@ -324,6 +326,7 @@
 #() dEll -> dEll
 #() dFpp -> dFpp
 #() lEEi -> lEEi
+#() lFEp -> lFEp
 #() lEES -> lEES
 #() lEii -> lEii
 #() lFiL -> lFiL
@@ -415,6 +418,7 @@
 #() vFBll_l -> vFBl
 #() vFnbpi_ -> vFnB
 #() iEuBLL_ -> iEuB
+#() iEurLL_ -> iEuB
 #() iEprll_ -> iEpB
 #() iEpbup_ -> iEpB
 #() iEprLL_ -> iEpB
@@ -462,7 +466,9 @@
 #() vEEip -> vEEip
 #() vFEip -> vFEip
 #() vEEpi -> vEEpi
+#() vFEpi -> vFEpi
 #() vEEpu -> vEEpu
+#() vFEpl -> vFEpl
 #() vFEpp -> vFEpp
 #() vFEpV -> vFEpV
 #() vFEXp -> vFEXp
@@ -699,6 +705,7 @@
 #() dEddd -> dEddd
 #() dEddp -> dEddp
 #() lEEuV -> lEEuV
+#() lFEpi -> lFEpi
 #() lEili -> lEili
 #() lEipi -> lEipi
 #() lEipL -> lEipL
@@ -871,6 +878,7 @@
 #() iFpbp_bp_ -> iFpBB
 #() iFbp_pbp_ -> iFBpB
 #() iFbp_bp_p -> iFBBp
+#() iEbp_bL_S -> iEBBS
 #() iFXbiip_i -> iFXBi
 #() iFXbLip_L -> iFXBL
 #() vFXLbpLiL_ -> vFXLB
@@ -906,6 +914,7 @@
 #() vEEpup -> vEEpup
 #() vFEpup -> vFEpup
 #() vFEpll -> vFEpll
+#() vFEppi -> vFEppi
 #() vEEppp -> vEEppp
 #() vFEppp -> vFEppp
 #() vFEXLp -> vFEXLp
@@ -1217,6 +1226,7 @@
 #() pEpLiS -> pEpLiS
 #() pEpLpL -> pEpLpL
 #() pFpLpL -> pFpLpL
+#() pEppiL -> pEppiL
 #() pEppLL -> pEppLL
 #() pFppLp -> pFppLp
 #() pFpppi -> pFpppi
@@ -2087,6 +2097,7 @@
 #() pFEpnCuuuuu -> pFEpnCuuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
 #() pFpiiiiuuuu -> pFpiiiiuuuu
+#() pFppupppppp -> pFppupppppp
 #() iFXLbL_pppppp -> iFXLBpppppp
 #() iFXiLiiibiip_ip -> iFXiLiiiBip
 #() iFXiLLLiiibiip_ -> iFXiLLLiiiB
@@ -2964,6 +2975,69 @@ wrappedlibm:
   - lgammal_r
 - UEsvvs:
   - cpowf
+wrappedlibogg:
+- vFp:
+  - oggpackB_reset
+  - oggpackB_writeclear
+  - oggpackB_writeinit
+  - oggpack_reset
+  - oggpack_writeclear
+  - oggpack_writeinit
+- iFp:
+  - ogg_page_bos
+  - ogg_page_checksum_set
+  - ogg_page_continued
+  - ogg_page_eos
+  - ogg_page_packets
+  - ogg_page_serialno
+  - ogg_stream_clear
+  - ogg_stream_reset
+  - ogg_sync_clear
+  - ogg_sync_init
+  - ogg_sync_reset
+  - oggpackB_bytes
+  - oggpackB_writecheck
+  - oggpack_writecheck
+- IFp:
+  - ogg_page_granulepos
+- lFp:
+  - ogg_page_pageno
+  - oggpack_bytes
+- pFp:
+  - oggpackB_get_buffer
+  - oggpack_get_buffer
+- vFpi:
+  - oggpack_adv
+- vFpl:
+  - oggpack_writetrunc
+- iFpi:
+  - ogg_stream_init
+  - ogg_stream_reset_serialno
+  - ogg_sync_wrote
+- iFpp:
+  - ogg_stream_flush
+  - ogg_stream_packetin
+  - ogg_stream_packetout
+  - ogg_stream_packetpeek
+  - ogg_stream_pagein
+  - ogg_stream_pageout
+  - ogg_sync_pageout
+  - ogg_sync_pageseek
+- lFpi:
+  - oggpackB_read
+  - oggpack_look
+  - oggpack_read
+- pFpi:
+  - ogg_sync_buffer
+- vFpui:
+  - oggpackB_write
+  - oggpack_write
+- vFppi:
+  - oggpackB_readinit
+  - oggpack_readinit
+- iFppi:
+  - ogg_stream_flush_fill
+  - ogg_stream_pageout_fill
 wrappedlibpthread:
 - vEv:
   - __pthread_initialize
@@ -3471,6 +3545,7 @@ wrappedopenal:
   - alcGetProcAddress
 - vFiiipp:
   - alRequestFoldbackStart
+wrappedpulsesimple:
 wrappedsdl1:
 - vFv:
   - SDL_Quit

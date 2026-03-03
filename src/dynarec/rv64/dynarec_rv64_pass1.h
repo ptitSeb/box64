@@ -16,7 +16,8 @@
     dyn->inst_vlmul = VECTOR_LMUL1;                       \
     dyn->inst_vl = 0;                                     \
     dyn->e.swapped = 0;                                   \
-    dyn->e.barrier = 0
+    dyn->e.barrier = 0;                                   \
+    AREFLAGSNEEDED()
 
 #define INST_EPILOG                    \
     dyn->insts[ninst].e = dyn->e;      \

@@ -500,7 +500,6 @@
 #() vFpii
 #() vFpiC
 #() vFpiu
-#() vFpiU
 #() vFpif
 #() vFpid
 #() vFpiL
@@ -518,10 +517,7 @@
 #() vFpul
 #() vFpuL
 #() vFpup
-#() vFpUi
-#() vFpUu
 #() vFpUU
-#() vFpUf
 #() vFpUp
 #() vFpff
 #() vFpdu
@@ -626,6 +622,7 @@
 #() iFpil
 #() iFpiL
 #() iFpip
+#() iFpiN
 #() iFpIi
 #() iFpIp
 #() iFpCu
@@ -1069,7 +1066,6 @@
 #() vFpiui
 #() vFpiuL
 #() vFpiup
-#() vFpiUu
 #() vFpidd
 #() vFpiLu
 #() vFpiLL
@@ -1089,11 +1085,8 @@
 #() vFpupu
 #() vFpupp
 #() vFpUuu
-#() vFpUup
-#() vFpUUi
 #() vFpUUu
-#() vFpUUp
-#() vFpUpp
+#() vFpUpu
 #() vFpfff
 #() vFpdii
 #() vFpdup
@@ -1122,6 +1115,7 @@
 #() vFppui
 #() vFppuu
 #() vFppup
+#() vFppUu
 #() vFppfi
 #() vFppff
 #() vFppdu
@@ -1266,7 +1260,6 @@
 #() iFpuul
 #() iFpuuL
 #() iFpuup
-#() iFpuUp
 #() iFpufp
 #() iFpuLi
 #() iFpuLL
@@ -1274,16 +1267,12 @@
 #() iFpupi
 #() iFpupC
 #() iFpupu
-#() iFpupU
 #() iFpupl
 #() iFpupL
 #() iFpupp
 #() iFpupV
-#() iFpUip
 #() iFpUup
 #() iFpUUu
-#() iFpUUU
-#() iFpULp
 #() iFpUpp
 #() iFpfii
 #() iFpfff
@@ -1330,6 +1319,7 @@
 #() iFppul
 #() iFppuL
 #() iFppup
+#() iFppUU
 #() iFppdi
 #() iFppdd
 #() iFppdp
@@ -1368,6 +1358,7 @@
 #() CFbupp
 #() uFEipp
 #() uFEupp
+#() uFEUpp
 #() uFEpup
 #() uFEppp
 #() uFiiii
@@ -1442,9 +1433,9 @@
 #() uFbuWp
 #() uFbuuC
 #() uFbuuu
-#() UFpUui
 #() UFppii
 #() UFppip
+#() UFppuu
 #() UFbipp
 #() UFbCWp
 #() UFbCuW
@@ -1779,13 +1770,10 @@
 #() vFpiipp
 #() vFpiipV
 #() vFpiuuu
-#() vFpiUUu
-#() vFpiUUp
 #() vFpilpp
 #() vFpipii
 #() vFpipiu
 #() vFpippi
-#() vFpippp
 #() vFpuiii
 #() vFpuiil
 #() vFpuiip
@@ -1794,17 +1782,15 @@
 #() vFpuuuu
 #() vFpuuup
 #() vFpuupp
+#() vFpuUpp
 #() vFpuddd
 #() vFpulul
 #() vFpulll
 #() vFpupiu
 #() vFpupup
-#() vFpUuuu
-#() vFpUUuu
-#() vFpUUup
-#() vFpUUUi
-#() vFpUUUu
-#() vFpUUUp
+#() vFpupUu
+#() vFpuppp
+#() vFpUpUu
 #() vFpfffi
 #() vFpffff
 #() vFpdull
@@ -1844,6 +1830,9 @@
 #() vFppupi
 #() vFppupu
 #() vFppupp
+#() vFppUuu
+#() vFppUUu
+#() vFppUUp
 #() vFppfff
 #() vFppddp
 #() vFpplll
@@ -1943,7 +1932,6 @@
 #() iFpiuuu
 #() iFpiuLi
 #() iFpiupp
-#() iFpiUUU
 #() iFpiUpi
 #() iFpiLip
 #() iFpiLuu
@@ -1971,6 +1959,7 @@
 #() iFpuuLL
 #() iFpuuLp
 #() iFpuupp
+#() iFpuUpU
 #() iFpulup
 #() iFpulpp
 #() iFpuLup
@@ -1987,8 +1976,6 @@
 #() iFpuppL
 #() iFpuppp
 #() iFpUiip
-#() iFpUiUi
-#() iFpUupp
 #() iFpffff
 #() iFpffpp
 #() iFplupp
@@ -2007,6 +1994,7 @@
 #() iFpLpuL
 #() iFpLpup
 #() iFpLpLi
+#() iFpLpLp
 #() iFpLppi
 #() iFpLppL
 #() iFpLppp
@@ -2033,6 +2021,7 @@
 #() iFppuLp
 #() iFppupi
 #() iFppupu
+#() iFppupl
 #() iFppupp
 #() iFppUup
 #() iFpplii
@@ -2052,6 +2041,7 @@
 #() iFpppup
 #() iFpppUi
 #() iFpppfp
+#() iFpppli
 #() iFpppLi
 #() iFpppLu
 #() iFpppLp
@@ -2403,7 +2393,6 @@
 #() vFpiilli
 #() vFpiippi
 #() vFpiippp
-#() vFpiUuup
 #() vFpiLppi
 #() vFpipiii
 #() vFpipipp
@@ -2413,21 +2402,18 @@
 #() vFpuiiiu
 #() vFpuiipp
 #() vFpuuuiu
+#() vFpuuuuu
 #() vFpuuuup
 #() vFpuuupp
 #() vFpuupuu
 #() vFpuuppp
 #() vFpudddd
 #() vFpuLuuu
-#() vFpupiUu
 #() vFpupuuu
+#() vFpupuup
 #() vFpupupu
 #() vFpuppuu
 #() vFpupppp
-#() vFpUiUup
-#() vFpUipup
-#() vFpUuuup
-#() vFpUUiup
 #() vFpdddii
 #() vFpddddd
 #() vFpddddp
@@ -2451,8 +2437,10 @@
 #() vFppuiiu
 #() vFppuiip
 #() vFppuuuu
+#() vFppuuup
 #() vFppuUUU
 #() vFppupii
+#() vFppupup
 #() vFppuppp
 #() vFppffff
 #() vFppdidd
@@ -2497,7 +2485,6 @@
 #() iFEpIppp
 #() iFEpuipp
 #() iFEpuppp
-#() iFEpUppp
 #() iFEppipp
 #() iFEppupp
 #() iFEppppi
@@ -2586,10 +2573,6 @@
 #() iFpupLpp
 #() iFpupppu
 #() iFpupppp
-#() iFpUiipp
-#() iFpUuuLp
-#() iFpUUUup
-#() iFpUUUUp
 #() iFpdpipp
 #() iFpLiiiL
 #() iFpLiiip
@@ -2623,11 +2606,13 @@
 #() iFppippi
 #() iFppippu
 #() iFppippp
+#() iFppILlL
 #() iFppIppp
 #() iFppCupp
 #() iFppuiii
 #() iFppuipp
 #() iFppuIII
+#() iFppuuLp
 #() iFppuupL
 #() iFppuupp
 #() iFppufff
@@ -2639,7 +2624,9 @@
 #() iFppupul
 #() iFppuppu
 #() iFppuppp
+#() iFppUUup
 #() iFppUUpp
+#() iFppUppp
 #() iFppfipp
 #() iFppdidd
 #() iFpplupp
@@ -2799,6 +2786,8 @@
 #() pFpiiuuu
 #() pFpiipip
 #() pFpiippp
+#() pFpiuuup
+#() pFpidddd
 #() pFpiLLLL
 #() pFpipipL
 #() pFpipipp
@@ -2942,16 +2931,15 @@
 #() vFpuiippp
 #() vFpuipppp
 #() vFpuuuuuu
-#() vFpuuUUuu
 #() vFpuupupu
+#() vFpuupUuu
 #() vFpuupppp
 #() vFpupiiiu
 #() vFpupuuup
+#() vFpupuupp
 #() vFpuppipp
 #() vFpupppui
-#() vFpUiUiup
-#() vFpUuuUip
-#() vFpUUUUuu
+#() vFpUuupup
 #() vFpfffppp
 #() vFpddiidd
 #() vFpdddddd
@@ -2978,7 +2966,8 @@
 #() vFppuuuii
 #() vFppuupii
 #() vFppupipp
-#() vFppUuupp
+#() vFppupuup
+#() vFppUpUuu
 #() vFppddddu
 #() vFppddpiu
 #() vFpplplpl
@@ -3031,7 +3020,6 @@
 #() iFupupppu
 #() iFpiiiiii
 #() iFpiiiuwp
-#() iFpiiiuup
 #() iFpiiifff
 #() iFpiiCCCC
 #() iFpiiffff
@@ -3056,8 +3044,9 @@
 #() iFpWppppp
 #() iFpuiCuCp
 #() iFpuiuupp
-#() iFpupiLpL
+#() iFpuuuuup
 #() iFpupuupp
+#() iFpupuLpL
 #() iFpupupui
 #() iFpuppppp
 #() iFpllpppp
@@ -3106,6 +3095,7 @@
 #() iFpppiiii
 #() iFpppiiup
 #() iFpppiipp
+#() iFpppilpi
 #() iFpppipip
 #() iFpppippi
 #() iFpppippp
@@ -3290,16 +3280,14 @@
 #() vFpiiiiiii
 #() vFpiiiiiip
 #() vFpiiiipii
-#() vFpiiiuipp
-#() vFpiUuupup
 #() vFpiLLiipi
 #() vFpiLpiiuu
-#() vFpuiULipp
+#() vFpuuuuupp
+#() vFpuuULipp
 #() vFpudddddd
+#() vFpupuupup
 #() vFpuppippp
 #() vFpuppLLLL
-#() vFpUiUiupi
-#() vFpUuuUUUu
 #() vFpliicppp
 #() vFpLiiiLii
 #() vFpLLLiipi
@@ -3311,6 +3299,8 @@
 #() vFppippppi
 #() vFppippppp
 #() vFppuuiiii
+#() vFppuupUUu
+#() vFppupuupu
 #() vFppuppiii
 #() vFppuppiiu
 #() vFpplpLplp
@@ -3331,9 +3321,9 @@
 #() iFEuipuupp
 #() iFEpippppp
 #() iFEpuuLppp
-#() iFEpUUuppp
 #() iFEppipppp
 #() iFEpppiipi
+#() iFEpppuppp
 #() iFEpppLppp
 #() iFEppppipp
 #() iFEppppipV
@@ -3349,7 +3339,6 @@
 #() iFuuuuuuuu
 #() iFupipppip
 #() iFdiippppL
-#() iFpiiiuuup
 #() iFpiiupppp
 #() iFpipiipip
 #() iFpippiiii
@@ -3363,6 +3352,7 @@
 #() iFpuuiiuuu
 #() iFpuuipppp
 #() iFpuuuiiii
+#() iFpuuuuuup
 #() iFpuuupupu
 #() iFpuupuupp
 #() iFpuuppiip
@@ -3370,7 +3360,6 @@
 #() iFpuLLLppL
 #() iFpupupuup
 #() iFpupppppp
-#() iFpUuuLpUu
 #() iFpduuulul
 #() iFpLiiippp
 #() iFpLIIIppp
@@ -3389,6 +3378,7 @@
 #() iFppIIIppp
 #() iFppuiiuuu
 #() iFppuuuuuu
+#() iFppuuLpUu
 #() iFppuppppp
 #() iFppLpLpLi
 #() iFppLpLpLp
@@ -3545,11 +3535,11 @@
 #() vFppupppiii
 #() vFppupppiiu
 #() vFppupppiip
-#() vFppUUuUUUU
 #() vFppddddudd
 #() vFpplpppppi
 #() vFpppiiiiii
 #() vFpppiiiipp
+#() vFpppUupppU
 #() vFpppffffff
 #() vFppppiiiii
 #() vFppppipiip
@@ -3950,7 +3940,7 @@
 #() vFuiiiiiuiiiiilll
 #() vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff
-#() vFpUUUUUUUUUUUuuu
+#() vFppUpUUpUUpUUuuu
 #() vFpppippppppppppp
 #() vFpppppppppppppLL
 #() vFppppppppppppppL
@@ -4126,6 +4116,8 @@ wrappedavahicommon:
 - pFppA:
   - avahi_string_list_add_vprintf
 wrappedayatanaappindicator3:
+wrappedayatanaido3:
+wrappedayatanaindicator3:
 wrappedbrotlidec:
 - pFppp:
   - BrotliDecoderCreateInstance
@@ -6337,6 +6329,7 @@ wrappedlibvdpau:
 - iFpipp:
   - vdp_device_create_x11
 wrappedlibvorbis:
+wrappedlibvpx:
 wrappedlibx11:
 - vFp:
   - XcmsFreeCCC
@@ -7007,6 +7000,23 @@ wrappedsdl3:
   - SDL_Vulkan_GetVkGetInstanceProcAddr
 - pFp:
   - SDL_GL_GetProcAddress
+- vFpp:
+  - SDL_FilterEvents
+  - SDL_GetLogOutputFunction
+  - SDL_RemoveEventWatch
+  - SDL_SetEventFilter
+  - SDL_SetLogOutputFunction
+- iFpp:
+  - SDL_AddEventWatch
+  - SDL_GetEventFilter
+- vFppp:
+  - SDL_RemoveHintCallback
+- iFppp:
+  - SDL_AddHintCallback
+- uFupp:
+  - SDL_AddTimer
+- uFUpp:
+  - SDL_AddTimerNS
 wrappedsdl3ttf:
 wrappedsecret1:
 wrappedselinux:
@@ -7128,6 +7138,9 @@ wrappedvulkan:
   - vkGetDeviceProcAddr
   - vkGetInstanceProcAddr
 - vFpUp:
+  - vkDestroyCudaFunctionNV
+  - vkDestroyCudaModuleNV
+- vFppp:
   - vkDestroyAccelerationStructureKHR
   - vkDestroyAccelerationStructureNV
   - vkDestroyBuffer
@@ -7135,9 +7148,9 @@ wrappedvulkan:
   - vkDestroyCommandPool
   - vkDestroyCuFunctionNVX
   - vkDestroyCuModuleNVX
-  - vkDestroyCudaFunctionNV
-  - vkDestroyCudaModuleNV
   - vkDestroyDataGraphPipelineSessionARM
+  - vkDestroyDebugReportCallbackEXT
+  - vkDestroyDebugUtilsMessengerEXT
   - vkDestroyDeferredOperationKHR
   - vkDestroyDescriptorPool
   - vkDestroyDescriptorSetLayout
@@ -7175,9 +7188,6 @@ wrappedvulkan:
   - vkDestroyVideoSessionKHR
   - vkDestroyVideoSessionParametersKHR
   - vkFreeMemory
-- vFppp:
-  - vkDestroyDebugReportCallbackEXT
-  - vkDestroyDebugUtilsMessengerEXT
 - iFppp:
   - vkCreateDeferredOperationKHR
   - vkCreateInstance
@@ -7242,15 +7252,16 @@ wrappedvulkan:
 - iFpuppp:
   - vkCreateShadersEXT
   - vkCreateSharedSwapchainsKHR
-- iFpUppp:
+- iFppppp:
   - vkCreateDisplayModeKHR
   - vkRegisterDisplayEventEXT
 - iFpUuppp:
-  - vkCreateComputePipelines
   - vkCreateExecutionGraphPipelinesAMDX
+- iFppuppp:
+  - vkCreateComputePipelines
   - vkCreateGraphicsPipelines
   - vkCreateRayTracingPipelinesNV
-- iFpUUuppp:
+- iFpppuppp:
   - vkCreateDataGraphPipelinesARM
   - vkCreateRayTracingPipelinesKHR
 wrappedwaylandclient:
@@ -7300,7 +7311,6 @@ wrappedxml2:
 - iFpppp:
   - xmlHashRemoveEntry2
   - xmlHashUpdateEntry
-  - xmlMemGet
   - xmlMemSetup
   - xmlRegisterInputCallbacks
   - xmlRegisterOutputCallbacks

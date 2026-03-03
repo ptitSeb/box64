@@ -18,9 +18,10 @@ typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpuppp_t)(void*, uint32_t, void*, void*, void*);
-typedef int32_t (*iFpUppp_t)(void*, uint64_t, void*, void*, void*);
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpUuppp_t)(void*, uint64_t, uint32_t, void*, void*, void*);
-typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*, void*);
+typedef int32_t (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
+typedef int32_t (*iFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(vkDestroyDevice, vFpp_t) \
@@ -28,55 +29,55 @@ typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*
 	GO(vkGetPhysicalDeviceProperties2, vFpp_t) \
 	GO(vkGetDeviceProcAddr, pFpp_t) \
 	GO(vkGetInstanceProcAddr, pFpp_t) \
-	GO(vkDestroyAccelerationStructureKHR, vFpUp_t) \
-	GO(vkDestroyAccelerationStructureNV, vFpUp_t) \
-	GO(vkDestroyBuffer, vFpUp_t) \
-	GO(vkDestroyBufferView, vFpUp_t) \
-	GO(vkDestroyCommandPool, vFpUp_t) \
-	GO(vkDestroyCuFunctionNVX, vFpUp_t) \
-	GO(vkDestroyCuModuleNVX, vFpUp_t) \
 	GO(vkDestroyCudaFunctionNV, vFpUp_t) \
 	GO(vkDestroyCudaModuleNV, vFpUp_t) \
-	GO(vkDestroyDataGraphPipelineSessionARM, vFpUp_t) \
-	GO(vkDestroyDeferredOperationKHR, vFpUp_t) \
-	GO(vkDestroyDescriptorPool, vFpUp_t) \
-	GO(vkDestroyDescriptorSetLayout, vFpUp_t) \
-	GO(vkDestroyDescriptorUpdateTemplate, vFpUp_t) \
-	GO(vkDestroyDescriptorUpdateTemplateKHR, vFpUp_t) \
-	GO(vkDestroyEvent, vFpUp_t) \
-	GO(vkDestroyFence, vFpUp_t) \
-	GO(vkDestroyFramebuffer, vFpUp_t) \
-	GO(vkDestroyImage, vFpUp_t) \
-	GO(vkDestroyImageView, vFpUp_t) \
-	GO(vkDestroyIndirectCommandsLayoutEXT, vFpUp_t) \
-	GO(vkDestroyIndirectCommandsLayoutNV, vFpUp_t) \
-	GO(vkDestroyIndirectExecutionSetEXT, vFpUp_t) \
-	GO(vkDestroyMicromapEXT, vFpUp_t) \
-	GO(vkDestroyOpticalFlowSessionNV, vFpUp_t) \
-	GO(vkDestroyPipeline, vFpUp_t) \
-	GO(vkDestroyPipelineBinaryKHR, vFpUp_t) \
-	GO(vkDestroyPipelineCache, vFpUp_t) \
-	GO(vkDestroyPipelineLayout, vFpUp_t) \
-	GO(vkDestroyPrivateDataSlot, vFpUp_t) \
-	GO(vkDestroyPrivateDataSlotEXT, vFpUp_t) \
-	GO(vkDestroyQueryPool, vFpUp_t) \
-	GO(vkDestroyRenderPass, vFpUp_t) \
-	GO(vkDestroySampler, vFpUp_t) \
-	GO(vkDestroySamplerYcbcrConversion, vFpUp_t) \
-	GO(vkDestroySamplerYcbcrConversionKHR, vFpUp_t) \
-	GO(vkDestroySemaphore, vFpUp_t) \
-	GO(vkDestroyShaderEXT, vFpUp_t) \
-	GO(vkDestroyShaderModule, vFpUp_t) \
-	GO(vkDestroySurfaceKHR, vFpUp_t) \
-	GO(vkDestroySwapchainKHR, vFpUp_t) \
-	GO(vkDestroyTensorARM, vFpUp_t) \
-	GO(vkDestroyTensorViewARM, vFpUp_t) \
-	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
-	GO(vkDestroyVideoSessionKHR, vFpUp_t) \
-	GO(vkDestroyVideoSessionParametersKHR, vFpUp_t) \
-	GO(vkFreeMemory, vFpUp_t) \
+	GO(vkDestroyAccelerationStructureKHR, vFppp_t) \
+	GO(vkDestroyAccelerationStructureNV, vFppp_t) \
+	GO(vkDestroyBuffer, vFppp_t) \
+	GO(vkDestroyBufferView, vFppp_t) \
+	GO(vkDestroyCommandPool, vFppp_t) \
+	GO(vkDestroyCuFunctionNVX, vFppp_t) \
+	GO(vkDestroyCuModuleNVX, vFppp_t) \
+	GO(vkDestroyDataGraphPipelineSessionARM, vFppp_t) \
 	GO(vkDestroyDebugReportCallbackEXT, vFppp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
+	GO(vkDestroyDeferredOperationKHR, vFppp_t) \
+	GO(vkDestroyDescriptorPool, vFppp_t) \
+	GO(vkDestroyDescriptorSetLayout, vFppp_t) \
+	GO(vkDestroyDescriptorUpdateTemplate, vFppp_t) \
+	GO(vkDestroyDescriptorUpdateTemplateKHR, vFppp_t) \
+	GO(vkDestroyEvent, vFppp_t) \
+	GO(vkDestroyFence, vFppp_t) \
+	GO(vkDestroyFramebuffer, vFppp_t) \
+	GO(vkDestroyImage, vFppp_t) \
+	GO(vkDestroyImageView, vFppp_t) \
+	GO(vkDestroyIndirectCommandsLayoutEXT, vFppp_t) \
+	GO(vkDestroyIndirectCommandsLayoutNV, vFppp_t) \
+	GO(vkDestroyIndirectExecutionSetEXT, vFppp_t) \
+	GO(vkDestroyMicromapEXT, vFppp_t) \
+	GO(vkDestroyOpticalFlowSessionNV, vFppp_t) \
+	GO(vkDestroyPipeline, vFppp_t) \
+	GO(vkDestroyPipelineBinaryKHR, vFppp_t) \
+	GO(vkDestroyPipelineCache, vFppp_t) \
+	GO(vkDestroyPipelineLayout, vFppp_t) \
+	GO(vkDestroyPrivateDataSlot, vFppp_t) \
+	GO(vkDestroyPrivateDataSlotEXT, vFppp_t) \
+	GO(vkDestroyQueryPool, vFppp_t) \
+	GO(vkDestroyRenderPass, vFppp_t) \
+	GO(vkDestroySampler, vFppp_t) \
+	GO(vkDestroySamplerYcbcrConversion, vFppp_t) \
+	GO(vkDestroySamplerYcbcrConversionKHR, vFppp_t) \
+	GO(vkDestroySemaphore, vFppp_t) \
+	GO(vkDestroyShaderEXT, vFppp_t) \
+	GO(vkDestroyShaderModule, vFppp_t) \
+	GO(vkDestroySurfaceKHR, vFppp_t) \
+	GO(vkDestroySwapchainKHR, vFppp_t) \
+	GO(vkDestroyTensorARM, vFppp_t) \
+	GO(vkDestroyTensorViewARM, vFppp_t) \
+	GO(vkDestroyValidationCacheEXT, vFppp_t) \
+	GO(vkDestroyVideoSessionKHR, vFppp_t) \
+	GO(vkDestroyVideoSessionParametersKHR, vFppp_t) \
+	GO(vkFreeMemory, vFppp_t) \
 	GO(vkCreateDeferredOperationKHR, iFppp_t) \
 	GO(vkCreateInstance, iFppp_t) \
 	GO(vkReleaseCapturedPipelineDataKHR, iFppp_t) \
@@ -138,13 +139,13 @@ typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*
 	GO(vkRegisterDeviceEventEXT, iFpppp_t) \
 	GO(vkCreateShadersEXT, iFpuppp_t) \
 	GO(vkCreateSharedSwapchainsKHR, iFpuppp_t) \
-	GO(vkCreateDisplayModeKHR, iFpUppp_t) \
-	GO(vkRegisterDisplayEventEXT, iFpUppp_t) \
-	GO(vkCreateComputePipelines, iFpUuppp_t) \
+	GO(vkCreateDisplayModeKHR, iFppppp_t) \
+	GO(vkRegisterDisplayEventEXT, iFppppp_t) \
 	GO(vkCreateExecutionGraphPipelinesAMDX, iFpUuppp_t) \
-	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
-	GO(vkCreateRayTracingPipelinesNV, iFpUuppp_t) \
-	GO(vkCreateDataGraphPipelinesARM, iFpUUuppp_t) \
-	GO(vkCreateRayTracingPipelinesKHR, iFpUUuppp_t)
+	GO(vkCreateComputePipelines, iFppuppp_t) \
+	GO(vkCreateGraphicsPipelines, iFppuppp_t) \
+	GO(vkCreateRayTracingPipelinesNV, iFppuppp_t) \
+	GO(vkCreateDataGraphPipelinesARM, iFpppuppp_t) \
+	GO(vkCreateRayTracingPipelinesKHR, iFpppuppp_t)
 
 #endif // __wrappedvulkanTYPES_H_

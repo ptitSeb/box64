@@ -53,6 +53,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_BLEEDING_EDGE, dynarec_bleeding_edge, 1, 0)         \
     INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 2, 1)               \
     BOOLEAN(BOX64_DYNAREC_CALLN_RESTORE, dynarec_calln_restore, 0, 1)         \
+    INTEGER(BOX64_DYNAREC_SEP, dynarec_sep, 1, 0, 2, 1)                       \
     BOOLEAN(BOX64_DYNAREC_DF, dynarec_df, 1, 1)                               \
     INTEGER(BOX64_DYNAREC_DIRTY, dynarec_dirty, 0, 0, 2, 0)                   \
     BOOLEAN(BOX64_DYNAREC_HOTPAGE_ALT, dynarec_hotpage_alt, 1, 0)             \
@@ -243,6 +244,7 @@ void WillRemoveMapping(uintptr_t addr, size_t length);
 void RemoveMapping(uintptr_t addr, size_t length);
 box64env_t* GetCurEnvByAddr(uintptr_t addr);
 int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start);
+int IsAddrFileMappedNoMemFD(uintptr_t addr);
 size_t SizeFileMapped(uintptr_t addr);
 mmaplist_t* GetMmaplistByAddr(uintptr_t addr);
 int IsAddrNeedReloc(uintptr_t addr);

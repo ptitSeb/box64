@@ -18,11 +18,12 @@
     } while (0)
 #define ENDPREFIX   dyn->insts[ninst].size2 = 0
 #define NEW_INST        \
-    if(ninst) {                                                  \
+    if(ninst) {                                                                                             \
         if(dyn->insts[ninst].address!=(uintptr_t)dyn->block-(uintptr_t)dyn->native_start) dyn->abort = 1;   \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
-        dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;   \
-    }
+        dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                       \
+    }                                                                                                       \
+    AREFLAGSNEEDED()
 #define INST_EPILOG
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 #define TABLE64(A, V)  do {                                                                 \
@@ -42,19 +43,9 @@
                 MESSAGE(LOG_DUMP, "  Table64C: 0x%lx\n", (V)); LDRx_literal(A, val64offset);\
             } while(0)
 #define FTABLE64(A, V)  do {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); VLDR64_literal(A, val64offset);} while(0)
-#ifdef WIN32
 #define CALLRET_RET(A)                                                          \
     do {                                                                        \
-        if(BOX64DRENV(dynarec_callret)>1) {                                     \
-            dyn->callrets[dyn->callret_size].type = 0;                          \
-            dyn->callrets[dyn->callret_size++].offs = dyn->native_size;         \
-            EMIT(ARCH_NOP);                                                     \
-        }                                                                       \
-    } while(0)
-#else
-#define CALLRET_RET(A)                                                          \
-    do {                                                                        \
-        if((A) && BOX64DRENV(dynarec_callret)) {                                \
+        if((A) && ISSEP() && BOX64DRENV(dynarec_callret)) {                     \
             MESSAGE(LOG_DUMP, "   Dynablock*\n");                               \
             dyn->block += sizeof(void*);                                        \
             dyn->native_size+=sizeof(void*);                                    \
@@ -69,5 +60,4 @@
             EMIT(ARCH_NOP);                                                     \
         }                                                                       \
     } while(0)
-#endif
 #define CALLRET_LOOP()   do {dyn->callrets[dyn->callret_size].type = 1; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP); } while(0)

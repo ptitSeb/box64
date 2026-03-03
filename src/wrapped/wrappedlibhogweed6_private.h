@@ -200,9 +200,9 @@ GO(nettle_pkcs1_rsa_sha512_encode_digest, iFpLp)
 //GO(_nettle_pkcs1_sec_decrypt, 
 //GO(_nettle_pkcs1_sec_decrypt_variable, 
 //GO(_nettle_pkcs1_signature_prefix, 
-//GOM(nettle_pss_encode_mgf1, iFEpLpLpp)
-//GOM(nettle_pss_mgf1, vFEppLp)
-//GOM(nettle_pss_verify_mgf1, iFEpLpLp)
+GO(nettle_pss_encode_mgf1, iFpLpLpp)
+GO(nettle_pss_mgf1, vFppLp)
+GO(nettle_pss_verify_mgf1, iFpLpLp)
 //GOM(nettle_random_prime, vFEpuipppp)
 //GO(_nettle_rsa_blind, 
 //GO(_nettle_rsa_check_size, 

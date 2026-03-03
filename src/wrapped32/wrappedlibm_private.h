@@ -149,8 +149,8 @@ GOWM(ctanhf, UEs)   //%noE return complex
 // ctanhl   // Weak
 // ctanl    // Weak
 // __cxa_finalize  // Weak
-// drem // Weak
-// dremf    // Weak
+GOW(drem, dEdd)
+GOW(dremf, fEff)
 // dreml    // Weak
 GOW(erf, dEd)
 GOW(erfc, dEd)
@@ -187,8 +187,8 @@ GOW(expm1f, fEf)
 GOW(fabs, dEd)
 GOW(fabsf, fEf)
 // fabsl    // Weak
-// fdim // Weak
-// fdimf    // Weak
+GOW(fdim, dEdd)
+GOW(fdimf, fEff)
 // fdiml    // Weak
 GO(feclearexcept, iEi)
 GO(fedisableexcept, iEi)
@@ -240,8 +240,8 @@ GOW(frexpl, DEDp)
 #else
 GOW2(frexpl, KEKp, frexp)
 #endif
-// gamma    // Weak
-// gammaf   // Weak
+GOW(gamma, dEd)
+GOW(gammaf, fEf)
 // __gammaf_r_finite
 // gammal   // Weak
 // __gamma_r_finite
@@ -338,8 +338,8 @@ GOW(lroundf, iEf)
 GOW(modf, dEdp)
 GOW(modff, fEfp)
 // modfl    // Weak
-// nan  // Weak
-// nanf // Weak
+GOW(nan, dEp)
+GOW(nanf, fEp)
 // nanl // Weak
 GOW(nearbyint, dEd)
 GOW(nearbyintf, fEf)
@@ -380,8 +380,8 @@ GOW(rintf, fEf)
 GOW(round, dEd)
 GOW(roundf, fEf)
 // roundl   // Weak
-// scalb    // Weak
-// scalbf   // Weak
+GOW(scalb, dEdd)
+GOW(scalbf, fEff)
 // __scalbf_finite
 // __scalb_finite
 // scalbl   // Weak
@@ -394,8 +394,8 @@ GOW(scalbnf, fEfi)
 // __signbit
 // __signbitf
 DATAB(signgam, 4)
-// significand  // Weak
-// significandf // Weak
+GOW(significand, dEd)
+GOW(significandf, fEf)
 // significandl // Weak
 GOW(sin, dEd)
 GOW(sincos, vEdpp)

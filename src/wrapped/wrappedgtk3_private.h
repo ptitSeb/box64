@@ -4590,4 +4590,5 @@ GO(gtk_wrap_mode_get_type, LFv)
 
 GO(dummy_iFppdd, iFppdd)    // for GtkEventController wrapping
 GO(dummy_iFppUup, iFppUup)
+GO(dummy_iFpUup, iFpUup)
 GO(dummy_pFpLi, pFpLi)

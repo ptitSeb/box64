@@ -76,6 +76,14 @@ Optimize CALL/RET opcodes. Available in WowBox64.
  * 1: Try to optimize CALL/RET, skipping the jump table when possible. 
  * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64. 
 
+### BOX64_DYNAREC_SEP
+
+Optimize CALL/RET further with Secondary Entry Points (SEP). Have no effect is CALLRET is not enabled Available in WowBox64.
+
+ * 0: Do not add SEP at CALLRET return 
+ * 1: Add SEP at CALLRET return, on meory that are from known binary files [Default]
+ * 2: Add SEP at CALLRET return for all type of memory. 
+
 ### BOX64_DYNAREC_DF
 
 Enable or disable the use of deferred flags. Available in WowBox64.

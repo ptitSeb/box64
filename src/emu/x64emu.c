@@ -88,6 +88,8 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     // setup fpu regs
     reset_fpu(emu);
     emu->mxcsr.x32 = 0x1f80;
+    // want some new jmpbuf for error recovery
+    emu->flags.need_jmpbuf = 1;
 }
 
 EXPORTDYN
@@ -578,7 +580,8 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
         PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;
-    emu->flags.need_jmpbuf = 1;
+    if(emu->flags.quitonlongjmp)
+        emu->flags.need_jmpbuf = 1;
     EmuRun(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;

@@ -41,7 +41,9 @@ void stSetup(box64context_t* context)
 #ifdef STATICBUILD
 #include <link.h>
 extern void* __libc_enable_secure;
+#ifndef PPC64LE
 extern void* __stack_chk_guard;
+#endif
 //extern void* __pointer_chk_guard;
 //extern void* _rtld_global;
 //extern void* _rtld_global_ro;

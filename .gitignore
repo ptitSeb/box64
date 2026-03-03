@@ -68,6 +68,8 @@ backup/
 /wrapperhelper/sanleak
 /wrapperhelper/sanundefined
 /wrapperhelper/src/machine.gen
+/wrapperhelper/src/machine_x86.gen
+/wrapperhelper/src/machine_x86_64.gen
 /wrapperhelper/*.h
 !/wrapperhelper/example-libc.h
 

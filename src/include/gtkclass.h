@@ -2424,7 +2424,6 @@ typedef struct my_GtkTypeInfo_s {
 my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts);
 my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent);
 my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent);
-void* find_class_init_Fct(void* fct, size_t parent);
 // defined in wrappedgio2.c
 my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterfaceVTable_t* fcts);
 

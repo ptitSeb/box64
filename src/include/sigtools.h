@@ -17,6 +17,10 @@
 #include "dynarec/rv64/rv64_mapping.h"
 #define CONTEXT_REG(P, X)   (P)->uc_mcontext.__gregs[X]
 #define CONTEXT_PC(P)       (P)->uc_mcontext.__gregs[REG_PC]
+#elif defined(PPC64LE)
+#include "dynarec/ppc64le/ppc64le_mapping.h"
+#define CONTEXT_REG(P, X)   (P)->uc_mcontext.gp_regs[X]
+#define CONTEXT_PC(P)       (P)->uc_mcontext.gp_regs[PT_NIP]
 #else
 #error Unsupported Architecture
 #endif //arch

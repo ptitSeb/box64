@@ -313,6 +313,29 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_SEP",
+    "description": "Optimize CALL/RET further with Secondary Entry Points (SEP). Have no effect is CALLRET is not enabled",
+    "category": "Performance",
+    "wine": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not add SEP at CALLRET return",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Add SEP at CALLRET return, on meory that are from known binary files",
+        "default": true
+      },
+      {
+        "key": "2",
+        "description": "Add SEP at CALLRET return for all type of memory.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_DF",
     "description": "Enable or disable the use of deferred flags.",
     "category": "Performance",

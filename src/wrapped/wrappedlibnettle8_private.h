@@ -439,7 +439,7 @@ GO(nettle_sha1_update, vFpLp)
 //DATA(nettle_sha224, 
 GO(nettle_sha224_digest, vFpLp)
 GO(nettle_sha224_init, vFp)
-//DATA(nettle_sha256, 
+DATA(nettle_sha256, 48)
 //GO(nettle_sha256_compress, 
 //GO(_nettle_sha256_compress_n, 
 //GO(_nettle_sha256_compress_n_c, 
@@ -468,7 +468,7 @@ GO(nettle_sha3_384_update, vFpLp)
 GO(nettle_sha3_512_digest, vFpLp)
 GO(nettle_sha3_512_init, vFp)
 GO(nettle_sha3_512_update, vFpLp)
-//DATA(nettle_sha384, 
+DATA(nettle_sha384, 48)
 GO(nettle_sha384_digest, vFpip)
 GO(nettle_sha384_init, vFp)
 //GO(_nettle_sha3_pad, 
@@ -476,7 +476,7 @@ GO(nettle_sha3_permute, vFp)
 //GO(_nettle_sha3_shake, 
 //GO(_nettle_sha3_shake_output, 
 //GO(_nettle_sha3_update, 
-//DATA(nettle_sha512, 
+DATA(nettle_sha512, 48)
 //DATA(nettle_sha512_224, 
 //GO(nettle_sha512_224_digest, 
 //GO(nettle_sha512_224_init, 

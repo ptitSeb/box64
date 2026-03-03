@@ -233,14 +233,19 @@ $(eval $(call compile_wrapperhelper_c,,parse,parse))
 $(eval $(call compile_wrapperhelper_c,,prepare,prepare))
 $(eval $(call compile_wrapperhelper_c,,preproc,preproc))
 $(eval $(call compile_wrapperhelper_c,,vector,vector))
-$(call wrapperhelper_o,,machine,machine): src/machine.gen
+$(call wrapperhelper_o,,machine,machine) makedir/machine.mk: src/machine.gen src/machine_x86.gen src/machine_x86_64.gen
+$(call wrapperhelper_o,,machine,machine): CFLAGS+= -Wno-unused-macros
 $(call wrapperhelper_o,,generator,generator): CFLAGS+= -fno-analyzer # Too slow
 $(call wrapperhelper_o,,preproc,preproc): CFLAGS+= -fno-analyzer
 $(call wrapperhelper_o,,parse,parse): CFLAGS+= -fno-analyzer
 
+src/machine_x86.gen src/machine_x86_64.gen:
+	$(call colorize,96,GEN,33,Generating $@)
+	$(SILENCER)touch $@
+
 src/machine.gen:
 	$(call colorize,96,GEN,33,Generating $@)
-	$(SILENCER)echo | LC_ALL=C LANG=C $(CC) $(CPPFLAGS) -E -v - 2>&1 | sed ':l; $$ ! { N; b l }; s/.*#include <...> search starts here:\n//; s/End of search list.*//; s/^ /DO_PATH("/; s/\n /")\nDO_PATH("/g; s/\n$$/")/' >src/machine.gen
+	$(SILENCER)echo | LC_ALL=C LANG=C $(CC) $(CPPFLAGS) -E -v - 2>&1 | sed ':l; $$ ! { N; b l }; s/.*#include <...> search starts here:\n//; s/End of search list.*//; s/^ /DO_PATH("/; s/\n /")\nDO_PATH("/g; s/\n$$/")/' >$@
 
 #$(eval $(call compile_test_cxx,core/number))
 
@@ -257,9 +262,9 @@ all: wrapperhelper alltests
 clean:
 	$(call remove,$(OBJLIST))
 	$(call remove,bin/wrapperhelper)
-	$(call remove,$(TESTS:%=obj/$(OBJDIR)/tests/%.o))
-	$(call remove,$(TESTS:%=tests/%))
-	$(call remove,src/machine.gen)
+#	$(call remove,$(TESTS:%=obj/$(OBJDIR)/tests/%.o))
+#	$(call remove,$(TESTS:%=tests/%))
+	$(call remove,src/machine.gen src/machine_x86.gen src/machine_x86_64.gen)
 .PHONY: clean
 distclean:
 	$(call remove,makedir)

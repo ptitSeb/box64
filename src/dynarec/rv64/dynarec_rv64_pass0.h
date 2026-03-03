@@ -67,7 +67,8 @@
     dyn->inst_vlmul = VECTOR_LMUL1;                              \
     dyn->inst_vl = 0;                                            \
     if (ninst)                                                   \
-        dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;
+        dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;\
+    AREFLAGSNEEDED()
 
 #define INST_EPILOG                                      \
     dyn->insts[ninst].f_exit = dyn->f;                   \

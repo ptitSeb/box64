@@ -938,10 +938,7 @@ EXPORT void my_g_type_module_add_interface(x64emu_t* emu, my_GTypeModule_t* modu
 
 EXPORT size_t my_g_type_module_register_type(x64emu_t* emu, my_GTypeModule_t* module, size_t parent_type, char* type_name, my_GTypeInfo_t* type_info, uint32_t flags)
 {
-    if (type_info) {
-        type_info->class_init = find_class_init_Fct(type_info->class_init, parent_type);
-    }
-    return my->g_type_module_register_type(module, parent_type, type_name, type_info, flags);
+    return my->g_type_module_register_type(module, parent_type, type_name, findFreeGTypeInfo(type_info, parent_type), flags);
 }
 
 #define PRE_INIT \

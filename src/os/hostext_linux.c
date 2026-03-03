@@ -9,6 +9,11 @@
 #include <asm/hwcap.h>
 #endif
 
+#ifdef PPC64LE
+#include <linux/auxvec.h>
+#include <asm/cputable.h>
+#endif
+
 #ifdef RV64
 #include <setjmp.h>
 #include <signal.h>
@@ -251,6 +256,33 @@ int DetectHostCpuFeatures(void)
                 if (!strcasecmp(p, "xtheadmemidx")) cpuext.xtheadmemidx = 0;
                 if (!strcasecmp(p, "xtheadmempair")) cpuext.xtheadmempair = 0;
                 if (!strcasecmp(p, "xtheadcondmov")) cpuext.xtheadcondmov = 0;
+                p = strtok(NULL, ",");
+            }
+        }
+    }
+#elif defined(PPC64LE)
+    unsigned long hwcap = real_getauxval(AT_HWCAP);
+    unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
+    // Minimum: ALTIVEC + VSX + ISA 3.0 (POWER9)
+    if (!(hwcap & PPC_FEATURE_HAS_ALTIVEC)) return 0;
+    if (!(hwcap & PPC_FEATURE_HAS_VSX)) return 0;
+    if (!(hwcap2 & PPC_FEATURE2_ARCH_3_00)) return 0;
+    if (p == NULL || p[0] != '1') {
+        if (hwcap2 & PPC_FEATURE2_VEC_CRYPTO)
+            cpuext.crypto = 1;
+        if (hwcap2 & PPC_FEATURE2_DARN)
+            cpuext.darn = 1;
+        if (hwcap2 & PPC_FEATURE2_ARCH_3_1)
+            cpuext.isa31 = 1;
+        if (hwcap2 & PPC_FEATURE2_MMA)
+            cpuext.mma = 1;
+        if (p) {
+            p = strtok(p, ",");
+            while (p) {
+                if (!strcasecmp(p, "crypto")) cpuext.crypto = 0;
+                if (!strcasecmp(p, "darn")) cpuext.darn = 0;
+                if (!strcasecmp(p, "isa31")) cpuext.isa31 = 0;
+                if (!strcasecmp(p, "mma")) cpuext.mma = 0;
                 p = strtok(NULL, ",");
             }
         }

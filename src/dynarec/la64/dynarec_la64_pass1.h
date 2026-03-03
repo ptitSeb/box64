@@ -6,7 +6,8 @@
     dyn->insts[ninst].f_entry = dyn->f;          \
     dyn->lsx.combined1 = dyn->lsx.combined2 = 0; \
     dyn->lsx.swapped = 0;                        \
-    dyn->lsx.barrier = 0
+    dyn->lsx.barrier = 0;                        \
+    AREFLAGSNEEDED()
 
 #define INST_EPILOG                   \
     dyn->insts[ninst].lsx = dyn->lsx; \

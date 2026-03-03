@@ -1985,9 +1985,9 @@ int addJumpTableIfDefault64(void* addr, void* jmp)
     idx0 = (((uintptr_t)addr)                )&JMPTABLE_MASK0;
 
     #ifdef JMPTABL_SHIFT4
-    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), jmp, native_next)==jmp)?1:0;
+    return (native_lock_storeifref2(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), jmp, native_next)==native_next)?1:0;
     #else
-    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3), jmp, native_next)==jmp)?1:0;
+    return (native_lock_storeifref2(create_jmptbl(0, idx0, idx1, idx2, idx3), jmp, native_next)==native_next)?1:0;
     #endif
 }
 void setJumpTableDefault64(void* addr)
@@ -2033,9 +2033,9 @@ int setJumpTableDefaultIfRef64(void* addr, void* jmp)
         return 0;
     idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     #ifdef JMPTABL_SHIFT4
-    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), native_next, jmp)==native_next)?1:0;
+    return (native_lock_storeifref2(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), native_next, jmp)==jmp)?1:0;
     #else
-    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3), native_next, jmp)==native_next)?1:0;
+    return (native_lock_storeifref2(create_jmptbl(0, idx0, idx1, idx2, idx3), native_next, jmp)==jmp)?1:0;
     #endif
 }
 void setJumpTableDefaultRef64(void* addr, void* jmp)
@@ -2058,7 +2058,7 @@ void setJumpTableDefaultRef64(void* addr, void* jmp)
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return;
     idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
-    native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1][idx0], native_next, jmp);
+    native_lock_storeifref2(&box64_jmptbl3[idx3][idx2][idx1][idx0], native_next, jmp);
 }
 int setJumpTableIfRef64(void* addr, void* jmp, void* ref)
 {
@@ -2071,9 +2071,9 @@ int setJumpTableIfRef64(void* addr, void* jmp, void* ref)
     idx1 = (((uintptr_t)addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
     idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     #ifdef JMPTABL_SHIFT4
-    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), jmp, ref)==jmp)?1:0;
+    return (native_lock_storeifref2(create_jmptbl(0, idx0, idx1, idx2, idx3, idx4), jmp, ref)==ref)?1:0;
     #else
-    return (native_lock_storeifref(create_jmptbl(0, idx0, idx1, idx2, idx3), jmp, ref)==jmp)?1:0;
+    return (native_lock_storeifref2(create_jmptbl(0, idx0, idx1, idx2, idx3), jmp, ref)==ref)?1:0;
     #endif
 }
 int isJumpTableDefault64(void* addr)
@@ -2139,7 +2139,7 @@ uintptr_t getJumpTableAddress64(uintptr_t addr)
     #endif
 }
 
-dynablock_t* getDB(uintptr_t addr)
+dynablock_t* getDBBlock(uintptr_t addr, void** jblock)
 {
     uintptr_t idx3, idx2, idx1, idx0;
     #ifdef JMPTABL_SHIFT4
@@ -2154,27 +2154,23 @@ dynablock_t* getDB(uintptr_t addr)
     #else
     uintptr_t ret = (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
     #endif
+    if(jblock) *jblock = (void*)ret;
 
     return *(dynablock_t**)(ret - sizeof(void*));
 }
 
+dynablock_t* getDB(uintptr_t addr)
+{
+    return getDBBlock(addr, NULL);
+}
+
 int getNeedTest(uintptr_t addr)
 {
-    uintptr_t idx3, idx2, idx1, idx0;
-    #ifdef JMPTABL_SHIFT4
-    uintptr_t idx4 = (((uintptr_t)addr)>>JMPTABL_START4)&JMPTABLE_MASK4;
-    #endif
-    idx3 = ((addr)>>JMPTABL_START3)&JMPTABLE_MASK3;
-    idx2 = ((addr)>>JMPTABL_START2)&JMPTABLE_MASK2;
-    idx1 = ((addr)>>JMPTABL_START1)&JMPTABLE_MASK1;
-    idx0 = ((addr)                )&JMPTABLE_MASK0;
-    #ifdef JMPTABL_SHIFT4
-    uintptr_t ret = (uintptr_t)box64_jmptbl4[idx4][idx3][idx2][idx1][idx0];
-    #else
-    uintptr_t ret = (uintptr_t)box64_jmptbl3[idx3][idx2][idx1][idx0];
-    #endif
-    dynablock_t* db = *(dynablock_t**)(ret - sizeof(void*));
-    return db?((ret!=(uintptr_t)db->block)?1:0):0;
+    void* jblock = NULL;
+    dynablock_t* db = getDBBlock(addr, &jblock);
+    if(!db) return 0;
+    if(jblock==db->jmpnext) return 1;
+    return 0;
 }
 
 uintptr_t getJumpAddress64(uintptr_t addr)

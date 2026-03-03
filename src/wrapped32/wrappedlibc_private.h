@@ -235,7 +235,7 @@ GO(dup3, iEiiO)
 //GOW(duplocale, pEp)
 GO(__duplocale, aEa)
 // dysize
-//GOW(eaccess, iEpi)
+GOW(eaccess, iEpi)
 // ecb_crypt
 // ecvt
 //GO(ecvt_r, iEdipppL)
@@ -488,7 +488,7 @@ GOW(getcwd, tEpL)
 //GO(getdate, pEp)
 // getdate_err  // type B
 // getdate_r    // Weak
-//GOW(getdelim, iEbp_bL_iS)
+GOW(getdelim, iEbp_bL_iS)
 GOW(__getdelim, iEbp_bL_iS)
 // getdirentries
 // getdirentries64
@@ -526,7 +526,7 @@ GOM(getifaddrs, iEEbp_)
 // getipv4sourcefilter
 //GOW(getitimer, iEip)
 // get_kernel_syms  // Weak
-//GOW(getline, iEppp)
+GOW(getline, iEbp_bL_S)
 GO(getloadavg, iEpi)
 GO(getlogin, pEv)
 GO(getlogin_r, iEpL)
@@ -1124,7 +1124,7 @@ GO(mbtowc, iEppL)
 // _mcount
 GOW(memalign, pELL)
 //DATAV(__memalign_hook, 4)
-//GOW(memccpy, pEppiL)
+GOW(memccpy, pEppiL)
 GO(memchr, pEpiL)
 GO(memcmp, iEppL)
 GO(memcpy, pEppL)
@@ -1333,7 +1333,7 @@ GOW(pselect, iEippprLL_p)
 // psignal
 //GO(ptrace, iEiupp)  // will that work???
 //GO(ptsname, pEi)
-//GOW(ptsname_r, iEipu)
+GOW(ptsname_r, iEipu)
 // __ptsname_r_chk
 GOW(putc, iEiS)
 GO(putchar, iEi)
@@ -1498,7 +1498,7 @@ GO2(__secure_getenv, tEp, secure_getenv)
 GO(secure_getenv, tEp)
 // seed48
 // seed48_r // Weak
-//GO(seekdir, vEpi)
+GO(seekdir, vEpL)
 GOW(select, iEippprLL_)
 GO(__select, iEippprLL_)
 GO2(__select64, iEipppp, select)
@@ -1856,7 +1856,7 @@ GO(tcsetpgrp, iEii)
 // tdelete  // Weak
 // tdestroy // Weak
 // tee
-//GO(telldir, iEp)
+GO(telldir, lEp)
 GO(tempnam, pEpp)
 GOW(textdomain, tEp)
 // tfind    // Weak
@@ -1879,11 +1879,11 @@ GO(toascii, iEi)
 GO(tolower, iEi)
 // _tolower
 // __tolower_l
-//GOW(tolower_l, iEip)
+GOW(tolower_l, iEip)
 GO(toupper, iEi)
 // _toupper
 // __toupper_l
-//GOW(toupper_l, iEip)
+GOW(toupper_l, iEip)
 // towctrans    // Weak
 // __towctrans
 // __towctrans_l
@@ -1895,7 +1895,7 @@ GO(towupper, uEu)
 GO(__towupper_l, uEua)
 GOW(towupper_l, uEua)
 // tr_break
-//GOW(truncate, iEpu)
+GOW(truncate, iEpu)
 GO(truncate64, iESU)
 // tsearch  // Weak
 //GO(ttyname, pEi)

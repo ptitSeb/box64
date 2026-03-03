@@ -157,7 +157,7 @@ void PersonalityAddrLimit32Bit(void)
 
 int IsAddrElfOrFileMapped(uintptr_t addr)
 {
-    return FindElfAddress(my_context, addr) || IsAddrFileMapped(addr, NULL, NULL);
+    return FindElfAddress(my_context, addr) || IsAddrFileMappedNoMemFD(addr);
 }
 
 void* InternalMmap(void* addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
