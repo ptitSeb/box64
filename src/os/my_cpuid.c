@@ -503,13 +503,13 @@ void my_cpuid(x64emu_t* emu)
                 R_RAX = 0;
                 R_RBX = 0;
                 R_RCX = 0;
-                R_RDX = 0 | (1<<8); // Invariant TSC
+                R_RDX = 0 | (BOX64ENV(rdtsc_inv)?(1<<8):0); // Invariant TSC
             } else {
                 // Invariant TSC
                 R_RAX = 0;
                 R_RBX = 0;
                 R_RCX = 0;
-                R_RDX = 0 /*| (1<<8)*/; // Invariant TSC
+                R_RDX = 0 | (BOX64ENV(rdtsc_inv)?(1<<8):0); // Invariant TSC
             }
             break;
         case 0x80000008:

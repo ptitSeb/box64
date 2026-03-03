@@ -795,6 +795,14 @@ Use hardware counter for rdtsc if available.
  * 1 : Use hardware counter for rdtsc if and only if precision is at least 1GHz. 
 
 
+=item B<BOX64_RDTSC_INV> =I<0|1>
+
+Report Invariant TSC bit in CPUID for Intel CPU type.
+
+ * 0 : Do not report Invariant TSC for Intel CPU type (default). [Default]
+ * 1 : Report Invariant TSC bit in CPUID leaf 0x80000007 for Intel CPU type. 
+
+
 =item B<BOX64_RESERVE_HIGH> =I<0|1>
 
 Reserve high memory area for the program, always enabled on Box32.
