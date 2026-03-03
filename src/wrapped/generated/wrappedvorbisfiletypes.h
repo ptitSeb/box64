@@ -12,9 +12,11 @@
 #endif
 
 typedef int32_t (*iFppplPPPP_t)(void*, void*, void*, intptr_t, void*, void*, void*, void*);
+typedef int32_t (*iFppiiiippp_t)(void*, void*, int32_t, int32_t, int32_t, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(ov_open_callbacks, iFppplPPPP_t) \
-	GO(ov_test_callbacks, iFppplPPPP_t)
+	GO(ov_test_callbacks, iFppplPPPP_t) \
+	GO(ov_read_filter, iFppiiiippp_t)
 
 #endif // __wrappedvorbisfileTYPES_H_
