@@ -657,10 +657,17 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    int calln_restore = BOX64DRENV(dynarec_calln_restore);
     fpu_pushcache(dyn, ninst, x3, 1);
     // save RSP in case there are x86 callbacks...
     SD(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
     SD(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
+    if (calln_restore) {
+        // Save caller-saved x86 regs that alias RISC-V return value regs (a0/a1).
+        // Needed for ABI-violating code that depends on caller-saved regs surviving calls.
+        STORE_REG(RDI);     // xRDI = a0 = RISC-V return value register
+        STORE_REG(RSI);     // xRSI = a1 = RISC-V second return value register
+    }
     // check if additional sextw needed
     int sextw_mask = ((w > 0 ? w : -w) >> 4) & 0b111111;
     for (int i = 0; i < 6; i++) {
@@ -682,7 +689,11 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
         MV(xRAX, A0);
         MV(xRDX, A1);
     }
-    // all done, restore all regs
+    if (calln_restore) {
+        // Restore xRDI/xRSI from emu state, since native call clobbered a0/a1
+        LOAD_REG(RDI);
+        LOAD_REG(RSI);
+    }
 
     // reinitialize sew
     if (dyn->vector_sew != VECTOR_SEWNA)
