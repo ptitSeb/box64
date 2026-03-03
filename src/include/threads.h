@@ -4,7 +4,6 @@
 
 typedef struct box64context_s box64context_t;
 typedef struct x64emu_s x64emu_t;
-
 typedef struct emuthread_s {
 	uintptr_t 	fnc;
 	void*		arg;
@@ -16,7 +15,7 @@ typedef struct emuthread_s {
 	int			cancel_cap, cancel_size;
 	void**		cancels;
 } emuthread_t;
-
+int get_active_emu_workers(void);
 void CleanStackSize(box64context_t* context);
 
 void init_pthread_helper(void);

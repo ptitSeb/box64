@@ -34,7 +34,9 @@
 #include "box32.h"
 #include "threads32.h"
 #endif
+#include <stdatomic.h>
 
+static _Atomic int g_active_emu_workers = 0;
 //void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 //void _pthread_cleanup_pop_restore(void* buffer, int exec);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -218,6 +220,7 @@ static void emuthread_cancel(void* p)
 	box_free(et->cancels);
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
+	atomic_fetch_sub_explicit(&g_active_emu_workers, 1, memory_order_relaxed);
 }
 void thread_forget_emu()
 {
@@ -298,6 +301,7 @@ void thread_set_et(emuthread_t* et)
 
 static void* pthread_routine(void* p)
 {
+	atomic_fetch_add_explicit(&g_active_emu_workers, 1, memory_order_relaxed);
 	// free current emuthread if it exist
 	{
 		void* t = pthread_getspecific(thread_key);
@@ -333,8 +337,13 @@ static void* pthread_routine(void* p)
 	DynaRun(emu);
 	pthread_cleanup_pop(0);
 	void* ret = (void*)R_RAX;
+	atomic_fetch_sub_explicit(&g_active_emu_workers, 1, memory_order_relaxed);
 	//void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 	return ret;
+}
+
+	int get_active_emu_workers(void) {
+		return atomic_load_explicit(&g_active_emu_workers, memory_order_relaxed);
 }
 
 #ifdef NOALIGN
