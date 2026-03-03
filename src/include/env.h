@@ -124,7 +124,7 @@ extern char* ftrace_name;
     STRING(BOX64_PROFILE, profile, 1)                                         \
     STRING(BOX64_RCFILE, envfile, 0)                                          \
     BOOLEAN(BOX64_RDTSC_1GHZ, rdtsc_1ghz, 0, 0)                               \
-    BOOLEAN(BOX64_RDTSC_INV, rdtsc_inv, 0, 0)                                 \
+    BOOLEAN(BOX64_RDTSC_INV, rdtsc_inv, 0, 1)                                 \
     BOOLEAN(BOX64_RESERVE_HIGH, reserve_high, 0, 0)                           \
     INTEGER(BOX64_ROLLING_LOG, cycle_log, 0, 0, 2048, 0)                      \
     BOOLEAN(BOX64_SDL2_JGUID, sdl2_jguid, 0, 0)                               \
