@@ -326,14 +326,13 @@
 #() dEll -> dEll
 #() dFpp -> dFpp
 #() lEEi -> lEEi
-#() lEES -> lEES
 #() lFEp -> lFEp
+#() lEES -> lEES
 #() lEii -> lEii
 #() lFiL -> lFiL
 #() lFui -> lFui
 #() lFll -> lFll
 #() lEpi -> lEpi
-#() lFpi -> lFpi
 #() lFpu -> lFpu
 #() lFpl -> lFpl
 #() lFpL -> lFpL
@@ -467,8 +466,8 @@
 #() vEEip -> vEEip
 #() vFEip -> vFEip
 #() vEEpi -> vEEpi
-#() vEEpu -> vEEpu
 #() vFEpi -> vFEpi
+#() vEEpu -> vEEpu
 #() vFEpl -> vFEpl
 #() vFEpp -> vFEpp
 #() vFEpV -> vFEpV
@@ -915,6 +914,7 @@
 #() vEEpup -> vEEpup
 #() vFEpup -> vFEpup
 #() vFEpll -> vFEpll
+#() vFEppi -> vFEppi
 #() vEEppp -> vEEppp
 #() vFEppp -> vFEppp
 #() vFEXLp -> vFEXLp
@@ -1356,7 +1356,6 @@
 #() vFEuipp -> vFEuipp
 #() vEEpLLp -> vEEpLLp
 #() vEEppiV -> vEEppiV
-#() vFEppi -> vFEppi
 #() vFEpppp -> vFEpppp
 #() vFEXLpL -> vFEXLpL
 #() vFiiiii -> vFiiiii
@@ -2976,6 +2975,69 @@ wrappedlibm:
   - lgammal_r
 - UEsvvs:
   - cpowf
+wrappedlibogg:
+- vFp:
+  - oggpackB_reset
+  - oggpackB_writeclear
+  - oggpackB_writeinit
+  - oggpack_reset
+  - oggpack_writeclear
+  - oggpack_writeinit
+- iFp:
+  - ogg_page_bos
+  - ogg_page_checksum_set
+  - ogg_page_continued
+  - ogg_page_eos
+  - ogg_page_packets
+  - ogg_page_serialno
+  - ogg_stream_clear
+  - ogg_stream_reset
+  - ogg_sync_clear
+  - ogg_sync_init
+  - ogg_sync_reset
+  - oggpackB_bytes
+  - oggpackB_writecheck
+  - oggpack_writecheck
+- IFp:
+  - ogg_page_granulepos
+- lFp:
+  - ogg_page_pageno
+  - oggpack_bytes
+- pFp:
+  - oggpackB_get_buffer
+  - oggpack_get_buffer
+- vFpi:
+  - oggpack_adv
+- vFpl:
+  - oggpack_writetrunc
+- iFpi:
+  - ogg_stream_init
+  - ogg_stream_reset_serialno
+  - ogg_sync_wrote
+- iFpp:
+  - ogg_stream_flush
+  - ogg_stream_packetin
+  - ogg_stream_packetout
+  - ogg_stream_packetpeek
+  - ogg_stream_pagein
+  - ogg_stream_pageout
+  - ogg_sync_pageout
+  - ogg_sync_pageseek
+- lFpi:
+  - oggpackB_read
+  - oggpack_look
+  - oggpack_read
+- pFpi:
+  - ogg_sync_buffer
+- vFpui:
+  - oggpackB_write
+  - oggpack_write
+- vFppi:
+  - oggpackB_readinit
+  - oggpack_readinit
+- iFppi:
+  - ogg_stream_flush_fill
+  - ogg_stream_pageout_fill
 wrappedlibpthread:
 - vEv:
   - __pthread_initialize
