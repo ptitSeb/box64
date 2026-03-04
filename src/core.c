@@ -771,6 +771,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     init_malloc_hook();
 #endif
     init_auxval(argc, argv, environ?environ:env);
+    ftrace = stderr;    // init early: BOX64_VERSION path below uses PrintfFtrace
     // analogue to QEMU_VERSION in qemu-user-mode emulation
     if(getenv("BOX64_VERSION")) {
         PrintBox64Version(0);
