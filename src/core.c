@@ -666,6 +666,8 @@ void setupTrace()
 void endMallocHook();
 #endif
 
+void finiPendingDLOpenedNoUnload(x64emu_t* emu);
+
 void endBox64()
 {
     if(!my_context || box64_quit)
@@ -682,6 +684,8 @@ void endBox64()
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
+    finiPendingDLOpenedNoUnload(emu);   // call fini for dlopened libs, but don't unload them, as they might be needed by the main elf fini
+    printf_log(LOG_DEBUG, "Finished calling fini for dlopened libs\n");
     //void closeAllDLOpened();
     //closeAllDLOpened();    // close residual dlopened libs. Disabled, seems like a bad idea, better to unload with proper dependancies
     RunElfFini(my_context->elfs[0], emu);

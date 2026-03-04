@@ -613,6 +613,22 @@ void closeAllDLOpened()
     }
 }
 
+void finiPendingDLOpenedNoUnload(x64emu_t* emu)
+{
+    if (!my_context || !my_context->dlprivate)
+        return;
+
+    dlprivate_t* dl = my_context->dlprivate;
+    for (size_t i = dl->lib_sz; i-- > MIN_NLIB;) {
+        if (!dl->dllibs[i].full || dl->dllibs[i].count <= 0 || !dl->dllibs[i].lib)
+            continue;
+        elfheader_t* h = GetElf(dl->dllibs[i].lib);
+        if (!h || h == my_context->elfs[0])
+            continue;
+        RunElfFini(h, emu);
+    }
+}
+
 #ifdef STATICBUILD
 //extern void* _dlfcn_hook;
 #endif
