@@ -31,10 +31,12 @@ typedef struct {
 } ov_callbacks;
 
 typedef int32_t (*iFppplC_t)(void*, void*, void*, long, ov_callbacks);
+typedef int32_t (*iFppiiiippp_t)(void*, void*, int, int, int, int, void*, void(*)(float**, long, long, void*), void*);
 
 #define SUPER() \
     GO(ov_open_callbacks, iFppplC_t)    \
     GO(ov_test_callbacks, iFppplC_t)    \
+    GO(ov_read_filter, iFppiiiippp_t)   \
 
 #include "wrappercallback.h"
 
@@ -136,6 +138,28 @@ static void* findtellFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for vorbisfile tell callback\n");
     return NULL;
 }
+// filter (for ov_read_filter: void (*filter)(float **pcm, long channels, long samples, void *filter_param))
+#define GO(A)   \
+static uintptr_t my_filter_fct_##A = 0;   \
+static void my_filter_##A(float** pcm, long channels, long samples, void* filter_param)     \
+{                                       \
+    RunFunctionFmt(my_filter_fct_##A, "pllp", pcm, channels, samples, filter_param);\
+}
+SUPER()
+#undef GO
+static void* findfilterFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_filter_fct_##A == (uintptr_t)fct) return my_filter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_filter_fct_##A == 0) {my_filter_fct_##A = (uintptr_t)fct; return my_filter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for vorbisfile filter callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -159,6 +183,11 @@ EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, v
     cbs.tell_func = findtellFct(tell_fnc);
     int32_t ret =  my->ov_test_callbacks(datasource, vf, initial, ibytes, cbs);
     return ret;
+}
+
+EXPORT int32_t my_ov_read_filter(x64emu_t* emu, void* vf, void* buffer, int length, int bigendianp, int word, int sgned, void* bitstream, void* filter, void* filter_param)
+{
+    return my->ov_read_filter(vf, buffer, length, bigendianp, word, sgned, bitstream, findfilterFct(filter), filter_param);
 }
 
 #include "wrappedlib_init.h"
