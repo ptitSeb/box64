@@ -1175,9 +1175,11 @@
 #define SET_ELEMENT_WIDTH(s1, sew, set)                                               \
     do {                                                                              \
         if ((sew) == VECTOR_SEWANY && dyn->vector_sew != VECTOR_SEWNA) {              \
-            dyn->vector_eew = dyn->vector_sew;                                        \
-        } else if ((sew) == dyn->vector_sew) {                                        \
-            dyn->vector_eew = dyn->vector_sew;                                        \
+            dyn->vector_eew = vector_vsetvli(dyn, ninst, s1,                          \
+                dyn->vector_sew, VECTOR_LMUL1, 1);                                    \
+        } else if ((sew) == VECTOR_SEWANY || (sew) == VECTOR_SEWNA) {                 \
+            dyn->vector_eew = vector_vsetvli(dyn, ninst, s1,                          \
+                VECTOR_SEW8, VECTOR_LMUL1, 1);                                        \
         } else {                                                                      \
             dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, (sew), VECTOR_LMUL1, 1); \
         }                                                                             \
