@@ -25,52 +25,52 @@ ppc64le_next:
     // Save volatile registers that the dynarec uses
     // We need to preserve: r3-r10 (args/scratch used by dynarec)
     // and RIP (r9), plus the LR (return "from" address)
-    mflr    0
+    mflr    %r0
 
     // Allocate save area on stack
-    stdu    1, -128(1)
+    stdu    %r1, -128(%r1)
 
     // Save registers
-    std     0,   16(1)        // LR (the "from" address)
-    std     3,   32(1)        // x1 / A0
-    std     4,   40(1)        // x2 / A1
-    std     5,   48(1)        // x3 / A2
-    std     6,   56(1)        // x4 / A3
-    std     7,   64(1)        // x5 / A4
-    std     8,   72(1)        // x6 / A5
-    std     9,   80(1)        // xRIP - also save to allow change in LinkNext
-    std     10,  88(1)        // x7 / A7
+    std     %r0,   16(%r1)        // LR (the "from" address)
+    std     %r3,   32(%r1)        // x1 / A0
+    std     %r4,   40(%r1)        // x2 / A1
+    std     %r5,   48(%r1)        // x3 / A2
+    std     %r6,   56(%r1)        // x4 / A3
+    std     %r7,   64(%r1)        // x5 / A4
+    std     %r8,   72(%r1)        // x6 / A5
+    std     %r9,   80(%r1)        // xRIP - also save to allow change in LinkNext
+    std     %r10,  88(%r1)        // x7 / A7
 
     // Call LinkNext(emu, ip, from, &rip_on_stack)
-    mr      3, Emu             // arg0 = emu (r31)
-    mr      4, RIP             // arg1 = xRIP (r9)
-    ld      5, 16(1)           // arg2 = "from" (saved LR)
-    addi    6, 1, 80           // arg3 = address of saved RIP on stack
+    mr      %r3, Emu               // arg0 = emu (r31)
+    mr      %r4, RIP               // arg1 = xRIP (r9)
+    ld      %r5, 16(%r1)           // arg2 = "from" (saved LR)
+    addi    %r6, %r1, 80           // arg3 = address of saved RIP on stack
 
     // Restore TOC for calling C code
     // We need to load the TOC for LinkNext - use the saved TOC
     // Note: In ELFv2, r12 must point to the function entry for local calls
     // For external calls via PLT, the linker handles it
     bl      LinkNext
-    nop                          // TOC restore slot (linker fills if needed)
+    nop                            // TOC restore slot (linker fills if needed)
 
     // Preserve return value (jump target) in r12
-    mr      12, 3
+    mr      %r12, %r3
 
     // Restore registers
-    ld      3,   32(1)
-    ld      4,   40(1)
-    ld      5,   48(1)
-    ld      6,   56(1)
-    ld      7,   64(1)
-    ld      8,   72(1)
-    ld      9,   80(1)        // RIP may have been modified by LinkNext
-    ld      10,  88(1)
+    ld      %r3,   32(%r1)
+    ld      %r4,   40(%r1)
+    ld      %r5,   48(%r1)
+    ld      %r6,   56(%r1)
+    ld      %r7,   64(%r1)
+    ld      %r8,   72(%r1)
+    ld      %r9,   80(%r1)        // RIP may have been modified by LinkNext
+    ld      %r10,  88(%r1)
 
     // Deallocate save area
-    addi    1, 1, 128
+    addi    %r1, %r1, 128
 
     // Jump to resolved target
-    mtctr   12
+    mtctr   %r12
     bctr
 .size ppc64le_next, .-ppc64le_next

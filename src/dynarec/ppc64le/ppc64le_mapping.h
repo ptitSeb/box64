@@ -153,29 +153,27 @@ Note: In little-endian mode, SIMD element ordering matches x86 — minimal swizz
 
 #else
 
-// Assembly-time register mapping
-// x86 Register mapping for .S files
-// PPC64LE GAS needs numeric register operands (no 'r' prefix in instructions)
-// but some assemblers require it - we'll use numeric here
-#define RAX     14
-#define RCX     15
-#define RDX     16
-#define RBX     17
-#define RSP     18
-#define RBP     19
-#define RSI     20
-#define RDI     21
-#define R8      22
-#define R9      23
-#define R10     24
-#define R11     25
-#define R12     26
-#define R13     27
-#define R14     28
-#define R15     29
-#define Flags   30
-#define RIP     9
-#define Emu     31
+// Assembly-time register mapping for .S files
+// Uses %rN prefix syntax (matches GCC output and PPC64LE GAS convention)
+#define RAX     %r14
+#define RCX     %r15
+#define RDX     %r16
+#define RBX     %r17
+#define RSP     %r18
+#define RBP     %r19
+#define RSI     %r20
+#define RDI     %r21
+#define R8      %r22
+#define R9      %r23
+#define R10     %r24
+#define R11     %r25
+#define R12     %r26
+#define R13     %r27
+#define R14     %r28
+#define R15     %r29
+#define Flags   %r30
+#define RIP     %r9
+#define Emu     %r31
 // SavedSP is no longer a register — stored in emu->xSPSave (offset 808)
 
 #endif // ASM_MAPPING

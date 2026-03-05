@@ -43,18 +43,18 @@
 ppc64le_lock_read_b:
     // address is r3, return is r3
     lwsync
-    lbarx   3, 0, 3
+    lbarx   %r3, 0, %r3
     blr
 .size ppc64le_lock_read_b, .-ppc64le_lock_read_b
 
 .type ppc64le_lock_write_b, @function
 ppc64le_lock_write_b:
     // address is r3, value is r4, return is r3 (0=success, 1=fail)
-    mr      5, 3
-    stbcx.  4, 0, 5
-    mfcr    3
-    rlwinm  3, 3, 3, 31, 31     // extract CR0[EQ]: 1 if success
-    xori    3, 3, 1              // invert: 0 = success, 1 = fail
+    mr      %r5, %r3
+    stbcx.  %r4, 0, %r5
+    mfcr    %r3
+    rlwinm  %r3, %r3, 3, 31, 31     // extract CR0[EQ]: 1 if success
+    xori    %r3, %r3, 1              // invert: 0 = success, 1 = fail
     lwsync
     blr
 .size ppc64le_lock_write_b, .-ppc64le_lock_write_b
@@ -66,18 +66,18 @@ ppc64le_lock_write_b:
 ppc64le_lock_read_h:
     // address is r3, return is r3
     lwsync
-    lharx   3, 0, 3
+    lharx   %r3, 0, %r3
     blr
 .size ppc64le_lock_read_h, .-ppc64le_lock_read_h
 
 .type ppc64le_lock_write_h, @function
 ppc64le_lock_write_h:
     // address is r3, value is r4, return is r3
-    mr      5, 3
-    sthcx.  4, 0, 5
-    mfcr    3
-    rlwinm  3, 3, 3, 31, 31
-    xori    3, 3, 1
+    mr      %r5, %r3
+    sthcx.  %r4, 0, %r5
+    mfcr    %r3
+    rlwinm  %r3, %r3, 3, 31, 31
+    xori    %r3, %r3, 1
     lwsync
     blr
 .size ppc64le_lock_write_h, .-ppc64le_lock_write_h
@@ -89,18 +89,18 @@ ppc64le_lock_write_h:
 ppc64le_lock_read_d:
     // address is r3, return is r3
     lwsync
-    lwarx   3, 0, 3
+    lwarx   %r3, 0, %r3
     blr
 .size ppc64le_lock_read_d, .-ppc64le_lock_read_d
 
 .type ppc64le_lock_write_d, @function
 ppc64le_lock_write_d:
     // address is r3, value is r4, return is r3
-    mr      5, 3
-    stwcx.  4, 0, 5
-    mfcr    3
-    rlwinm  3, 3, 3, 31, 31
-    xori    3, 3, 1
+    mr      %r5, %r3
+    stwcx.  %r4, 0, %r5
+    mfcr    %r3
+    rlwinm  %r3, %r3, 3, 31, 31
+    xori    %r3, %r3, 1
     lwsync
     blr
 .size ppc64le_lock_write_d, .-ppc64le_lock_write_d
@@ -112,18 +112,18 @@ ppc64le_lock_write_d:
 ppc64le_lock_read_dd:
     // address is r3, return is r3
     lwsync
-    ldarx   3, 0, 3
+    ldarx   %r3, 0, %r3
     blr
 .size ppc64le_lock_read_dd, .-ppc64le_lock_read_dd
 
 .type ppc64le_lock_write_dd, @function
 ppc64le_lock_write_dd:
     // address is r3, value is r4, return is r3
-    mr      5, 3
-    stdcx.  4, 0, 5
-    mfcr    3
-    rlwinm  3, 3, 3, 31, 31
-    xori    3, 3, 1
+    mr      %r5, %r3
+    stdcx.  %r4, 0, %r5
+    mfcr    %r3
+    rlwinm  %r3, %r3, 3, 31, 31
+    xori    %r3, %r3, 1
     lwsync
     blr
 .size ppc64le_lock_write_dd, .-ppc64le_lock_write_dd
@@ -136,11 +136,11 @@ ppc64le_lock_xchg_dd:
     // address is r3, value is r4, return old value in r3
     lwsync
 1:
-    ldarx   5, 0, 3
-    stdcx.  4, 0, 3
+    ldarx   %r5, 0, %r3
+    stdcx.  %r4, 0, %r3
     bne     1b
     lwsync
-    mr      3, 5
+    mr      %r3, %r5
     blr
 .size ppc64le_lock_xchg_dd, .-ppc64le_lock_xchg_dd
 
@@ -149,11 +149,11 @@ ppc64le_lock_xchg_d:
     // address is r3, value is r4, return old value in r3
     lwsync
 1:
-    lwarx   5, 0, 3
-    stwcx.  4, 0, 3
+    lwarx   %r5, 0, %r3
+    stwcx.  %r4, 0, %r3
     bne     1b
     lwsync
-    mr      3, 5
+    mr      %r3, %r5
     blr
 .size ppc64le_lock_xchg_d, .-ppc64le_lock_xchg_d
 
@@ -162,11 +162,11 @@ ppc64le_lock_xchg_h:
     // address is r3, value is r4, return old value in r3
     lwsync
 1:
-    lharx   5, 0, 3
-    sthcx.  4, 0, 3
+    lharx   %r5, 0, %r3
+    sthcx.  %r4, 0, %r3
     bne     1b
     lwsync
-    mr      3, 5
+    mr      %r3, %r5
     blr
 .size ppc64le_lock_xchg_h, .-ppc64le_lock_xchg_h
 
@@ -175,11 +175,11 @@ ppc64le_lock_xchg_b:
     // address is r3, value is r4, return old value in r3
     lwsync
 1:
-    lbarx   5, 0, 3
-    stbcx.  4, 0, 3
+    lbarx   %r5, 0, %r3
+    stbcx.  %r4, 0, %r3
     bne     1b
     lwsync
-    mr      3, 5
+    mr      %r3, %r5
     blr
 .size ppc64le_lock_xchg_b, .-ppc64le_lock_xchg_b
 
@@ -192,14 +192,14 @@ ppc64le_lock_storeifnull:
     // store r4 to [r3] only if [r3] is 0. return old [r3] value
     lwsync
 1:
-    ldarx   5, 0, 3
-    cmpdi   5, 0
+    ldarx   %r5, 0, %r3
+    cmpdi   %r5, 0
     bne     2f
-    stdcx.  4, 0, 3
+    stdcx.  %r4, 0, %r3
     bne     1b
 2:
     lwsync
-    mr      3, 5
+    mr      %r3, %r5
     blr
 .size ppc64le_lock_storeifnull, .-ppc64le_lock_storeifnull
 
@@ -209,14 +209,14 @@ ppc64le_lock_storeifnull_d:
     // store r4 (word) to [r3] only if [r3] is 0. return old [r3] value
     lwsync
 1:
-    lwarx   5, 0, 3
-    cmpwi   5, 0
+    lwarx   %r5, 0, %r3
+    cmpwi   %r5, 0
     bne     2f
-    stwcx.  4, 0, 3
+    stwcx.  %r4, 0, %r3
     bne     1b
 2:
     lwsync
-    mr      3, 5
+    mr      %r3, %r5
     blr
 .size ppc64le_lock_storeifnull_d, .-ppc64le_lock_storeifnull_d
 
@@ -226,15 +226,15 @@ ppc64le_lock_storeifref:
     // store r4 to [r3] only if [r3] == r5. return new [r3] value (r4 or old)
     lwsync
 1:
-    ldarx   6, 0, 3
-    cmpd    5, 6
+    ldarx   %r6, 0, %r3
+    cmpd    %r5, %r6
     bne     2f
-    stdcx.  4, 0, 3
+    stdcx.  %r4, 0, %r3
     bne     1b
-    mr      3, 4
+    mr      %r3, %r4
     blr
 2:
-    mr      3, 6
+    mr      %r3, %r6
     blr
 .size ppc64le_lock_storeifref, .-ppc64le_lock_storeifref
 
@@ -244,13 +244,13 @@ ppc64le_lock_storeifref2:
     // store r4 to [r3] only if [r3] == r5. return old [r3] value
     lwsync
 1:
-    ldarx   6, 0, 3
-    cmpd    5, 6
+    ldarx   %r6, 0, %r3
+    cmpd    %r5, %r6
     bne     2f
-    stdcx.  4, 0, 3
+    stdcx.  %r4, 0, %r3
     bne     1b
 2:
-    mr      3, 6
+    mr      %r3, %r6
     blr
 .size ppc64le_lock_storeifref2, .-ppc64le_lock_storeifref2
 
@@ -260,15 +260,15 @@ ppc64le_lock_storeifref_d:
     // store r4 to [r3] only if [r3] == r5. return new [r3] value
     lwsync
 1:
-    lwarx   6, 0, 3
-    cmpw    5, 6
+    lwarx   %r6, 0, %r3
+    cmpw    %r5, %r6
     bne     2f
-    stwcx.  4, 0, 3
+    stwcx.  %r4, 0, %r3
     bne     1b
-    mr      3, 4
+    mr      %r3, %r4
     blr
 2:
-    mr      3, 6
+    mr      %r3, %r6
     blr
 .size ppc64le_lock_storeifref_d, .-ppc64le_lock_storeifref_d
 
@@ -278,13 +278,13 @@ ppc64le_lock_storeifref2_d:
     // store r4 to [r3] only if [r3] == r5. return old [r3] value
     lwsync
 1:
-    lwarx   6, 0, 3
-    cmpw    5, 6
+    lwarx   %r6, 0, %r3
+    cmpw    %r5, %r6
     bne     2f
-    stwcx.  4, 0, 3
+    stwcx.  %r4, 0, %r3
     bne     1b
 2:
-    mr      3, 6
+    mr      %r3, %r6
     blr
 .size ppc64le_lock_storeifref2_d, .-ppc64le_lock_storeifref2_d
 
@@ -296,11 +296,11 @@ ppc64le_lock_decifnot0b:
     // address is r3, decrement byte at [r3] if not 0
     lwsync
 1:
-    lbarx   4, 0, 3
-    cmpwi   4, 0
+    lbarx   %r4, 0, %r3
+    cmpwi   %r4, 0
     beq     2f
-    addi    4, 4, -1
-    stbcx.  4, 0, 3
+    addi    %r4, %r4, -1
+    stbcx.  %r4, 0, %r3
     bne     1b
 2:
     blr
@@ -309,7 +309,7 @@ ppc64le_lock_decifnot0b:
 .type ppc64le_lock_storeb, @function
 ppc64le_lock_storeb:
     // address is r3, value is r4
-    stb     4, 0(3)
+    stb     %r4, 0(%r3)
     lwsync
     blr
 .size ppc64le_lock_storeb, .-ppc64le_lock_storeb
@@ -319,14 +319,14 @@ ppc64le_lock_decifnot0:
     // address is r3, return old value in r3
     lwsync
 1:
-    lwarx   4, 0, 3
-    cmpwi   4, 0
+    lwarx   %r4, 0, %r3
+    cmpwi   %r4, 0
     beq     2f
-    addi    5, 4, -1
-    stwcx.  5, 0, 3
+    addi    %r5, %r4, -1
+    stwcx.  %r5, 0, %r3
     bne     1b
 2:
-    mr      3, 4
+    mr      %r3, %r4
     blr
 .size ppc64le_lock_decifnot0, .-ppc64le_lock_decifnot0
 
@@ -335,21 +335,21 @@ ppc64le_lock_incif0:
     // address is r3, increment word at [r3] if 0. return old value in r3
     lwsync
 1:
-    lwarx   4, 0, 3
-    cmpwi   4, 0
+    lwarx   %r4, 0, %r3
+    cmpwi   %r4, 0
     bne     2f
-    addi    5, 4, 1
-    stwcx.  5, 0, 3
+    addi    %r5, %r4, 1
+    stwcx.  %r5, 0, %r3
     bne     1b
 2:
-    mr      3, 4
+    mr      %r3, %r4
     blr
 .size ppc64le_lock_incif0, .-ppc64le_lock_incif0
 
 .type ppc64le_lock_store, @function
 ppc64le_lock_store:
     // address is r3, value is r4 (word)
-    stw     4, 0(3)
+    stw     %r4, 0(%r3)
     lwsync
     blr
 .size ppc64le_lock_store, .-ppc64le_lock_store
@@ -357,7 +357,7 @@ ppc64le_lock_store:
 .type ppc64le_lock_store_dd, @function
 ppc64le_lock_store_dd:
     // address is r3, value is r4 (doubleword)
-    std     4, 0(3)
+    std     %r4, 0(%r3)
     lwsync
     blr
 .size ppc64le_lock_store_dd, .-ppc64le_lock_store_dd
@@ -365,21 +365,21 @@ ppc64le_lock_store_dd:
 .type ppc64le_lock_get_b, @function
 ppc64le_lock_get_b:
     // address is r3, return byte in r3
-    lbarx   3, 0, 3
+    lbarx   %r3, 0, %r3
     blr
 .size ppc64le_lock_get_b, .-ppc64le_lock_get_b
 
 .type ppc64le_lock_get_d, @function
 ppc64le_lock_get_d:
     // address is r3, return word in r3
-    lwarx   3, 0, 3
+    lwarx   %r3, 0, %r3
     blr
 .size ppc64le_lock_get_d, .-ppc64le_lock_get_d
 
 .type ppc64le_lock_get_dd, @function
 ppc64le_lock_get_dd:
     // address is r3, return doubleword in r3
-    ldarx   3, 0, 3
+    ldarx   %r3, 0, %r3
     blr
 .size ppc64le_lock_get_dd, .-ppc64le_lock_get_dd
 
@@ -406,83 +406,83 @@ ppc64le_crc:
     //   r11 = temp (table lookup result)
     //   r12 = temp (table lookup result)
     //   r0  = temp (table lookup result)
-    mr      5, 3                // address in r5
-    li      3, 0                // crc = 0
-    cmpwi   4, 0
-    beqlr                       // return 0 if length == 0
+    mr      %r5, %r3                // address in r5
+    li      %r3, 0                  // crc = 0
+    cmpwi   %r4, 0
+    beqlr                           // return 0 if length == 0
 
     // Load table base address (PC-relative via bcl/mflr trick)
-    mflr    10                  // save LR in r10
-    bcl     20, 31, .+4         // branch-and-link to next insn (sets LR = here+4)
+    mflr    %r10                    // save LR in r10
+    bcl     20, 31, .+4             // branch-and-link to next insn (sets LR = here+4)
 .Lcrc_here:
-    mflr    6                   // r6 = address of .Lcrc_here
-    mtlr    10                  // restore LR
-    addis   6, 6, (.Lcrc32c_tab0 - .Lcrc_here)@ha
-    addi    6, 6, (.Lcrc32c_tab0 - .Lcrc_here)@l
+    mflr    %r6                     // r6 = address of .Lcrc_here
+    mtlr    %r10                    // restore LR
+    addis   %r6, %r6, (.Lcrc32c_tab0 - .Lcrc_here)@ha
+    addi    %r6, %r6, (.Lcrc32c_tab0 - .Lcrc_here)@l
 
     // Set up table base pointers: tab1 = tab0+1024, tab2 = tab0+2048, tab3 = tab0+3072
-    addi    7, 6, 1024          // r7 = tab1
-    addi    8, 6, 2048          // r8 = tab2
-    addi    9, 6, 3072          // r9 = tab3
+    addi    %r7, %r6, 1024          // r7 = tab1
+    addi    %r8, %r6, 2048          // r8 = tab2
+    addi    %r9, %r6, 3072          // r9 = tab3
 
     // Main loop: slicing-by-4, process 4 bytes per iteration
-    cmplwi  4, 4
+    cmplwi  %r4, 4
     blt     .Lcrc_tail
 
 .Lcrc_4byte_loop:
     // Load 4 bytes as a little-endian word and XOR with crc
-    lwz     10, 0(5)            // r10 = *(uint32_t*)addr (LE on LE machine)
-    xor     10, 3, 10           // r10 = crc ^ word
+    lwz     %r10, 0(%r5)            // r10 = *(uint32_t*)addr (LE on LE machine)
+    xor     %r10, %r3, %r10         // r10 = crc ^ word
 
     // 4 independent table lookups — good ILP on superscalar POWER9
     // tab3[(r10 >> 0) & 0xFF]
-    clrldi  11, 10, 56          // r11 = r10 & 0xFF (byte 0)
-    sldi    11, 11, 2           // r11 *= 4
-    lwzx    11, 9, 11           // r11 = tab3[byte0]
+    clrldi  %r11, %r10, 56          // r11 = r10 & 0xFF (byte 0)
+    sldi    %r11, %r11, 2           // r11 *= 4
+    lwzx    %r11, %r9, %r11         // r11 = tab3[byte0]
 
     // tab2[(r10 >> 8) & 0xFF]
-    srwi    12, 10, 8
-    clrldi  12, 12, 56          // r12 = (r10 >> 8) & 0xFF (byte 1)
-    sldi    12, 12, 2           // r12 *= 4
-    lwzx    12, 8, 12           // r12 = tab2[byte1]
+    srwi    %r12, %r10, 8
+    clrldi  %r12, %r12, 56          // r12 = (r10 >> 8) & 0xFF (byte 1)
+    sldi    %r12, %r12, 2           // r12 *= 4
+    lwzx    %r12, %r8, %r12         // r12 = tab2[byte1]
 
     // tab1[(r10 >> 16) & 0xFF]
-    srwi    0, 10, 16
-    clrldi  0, 0, 56            // r0 = (r10 >> 16) & 0xFF (byte 2)
-    sldi    0, 0, 2             // r0 *= 4
-    lwzx    0, 7, 0             // r0 = tab1[byte2]
+    srwi    %r0, %r10, 16
+    clrldi  %r0, %r0, 56            // r0 = (r10 >> 16) & 0xFF (byte 2)
+    sldi    %r0, %r0, 2             // r0 *= 4
+    lwzx    %r0, %r7, %r0           // r0 = tab1[byte2]
 
     // tab0[(r10 >> 24) & 0xFF]
-    srwi    10, 10, 24          // r10 = (r10 >> 24) & 0xFF (byte 3)
-    sldi    10, 10, 2           // r10 *= 4
-    lwzx    10, 6, 10           // r10 = tab0[byte3]
+    srwi    %r10, %r10, 24          // r10 = (r10 >> 24) & 0xFF (byte 3)
+    sldi    %r10, %r10, 2           // r10 *= 4
+    lwzx    %r10, %r6, %r10         // r10 = tab0[byte3]
 
     // XOR all 4 results together
-    xor     3, 11, 12           // crc = tab3[b0] ^ tab2[b1]
-    xor     3, 3, 0             // crc ^= tab1[b2]
-    xor     3, 3, 10            // crc ^= tab0[b3]
+    xor     %r3, %r11, %r12         // crc = tab3[b0] ^ tab2[b1]
+    xor     %r3, %r3, %r0           // crc ^= tab1[b2]
+    xor     %r3, %r3, %r10          // crc ^= tab0[b3]
 
-    addi    5, 5, 4
-    addi    4, 4, -4
-    cmplwi  4, 4
+    addi    %r5, %r5, 4
+    addi    %r4, %r4, -4
+    cmplwi  %r4, 4
     bge     .Lcrc_4byte_loop
 
 .Lcrc_tail:
     // Process remaining 0-3 bytes one at a time using tab0
-    cmpwi   4, 0
+    cmpwi   %r4, 0
     beqlr
 
 .Lcrc_tail_loop:
-    lbz     10, 0(5)
-    xor     11, 3, 10
-    clrldi  11, 11, 56
-    sldi    11, 11, 2
-    lwzx    11, 6, 11
-    srwi    3, 3, 8
-    xor     3, 3, 11
-    addi    5, 5, 1
-    addi    4, 4, -1
-    cmpwi   4, 0
+    lbz     %r10, 0(%r5)
+    xor     %r11, %r3, %r10
+    clrldi  %r11, %r11, 56
+    sldi    %r11, %r11, 2
+    lwzx    %r11, %r6, %r11
+    srwi    %r3, %r3, 8
+    xor     %r3, %r3, %r11
+    addi    %r5, %r5, 1
+    addi    %r4, %r4, -1
+    cmpwi   %r4, 0
     bne     .Lcrc_tail_loop
 
     blr

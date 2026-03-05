@@ -17,82 +17,82 @@
 ppc64le_epilog:
     // Store x86 registers back to emu struct
     // Emu (r31) points to x64emu_t
-    std     RAX, (8 *  0)(Emu)   // r14
-    std     RCX, (8 *  1)(Emu)   // r15
-    std     RDX, (8 *  2)(Emu)   // r16
-    std     RBX, (8 *  3)(Emu)   // r17
-    std     RSP, (8 *  4)(Emu)   // r18
-    std     RBP, (8 *  5)(Emu)   // r19
-    std     RSI, (8 *  6)(Emu)   // r20
-    std     RDI, (8 *  7)(Emu)   // r21
-    std     R8,  (8 *  8)(Emu)   // r22
-    std     R9,  (8 *  9)(Emu)   // r23
-    std     R10, (8 * 10)(Emu)   // r24
-    std     R11, (8 * 11)(Emu)   // r25
-    std     R12, (8 * 12)(Emu)   // r26
-    std     R13, (8 * 13)(Emu)   // r27
-    std     R14, (8 * 14)(Emu)   // r28
-    std     R15, (8 * 15)(Emu)   // r29
+    std     RAX, (8 *  0)(Emu)      // r14
+    std     RCX, (8 *  1)(Emu)      // r15
+    std     RDX, (8 *  2)(Emu)      // r16
+    std     RBX, (8 *  3)(Emu)      // r17
+    std     RSP, (8 *  4)(Emu)      // r18
+    std     RBP, (8 *  5)(Emu)      // r19
+    std     RSI, (8 *  6)(Emu)      // r20
+    std     RDI, (8 *  7)(Emu)      // r21
+    std     R8,  (8 *  8)(Emu)      // r22
+    std     R9,  (8 *  9)(Emu)      // r23
+    std     R10, (8 * 10)(Emu)      // r24
+    std     R11, (8 * 11)(Emu)      // r25
+    std     R12, (8 * 12)(Emu)      // r26
+    std     R13, (8 * 13)(Emu)      // r27
+    std     R14, (8 * 14)(Emu)      // r28
+    std     R15, (8 * 15)(Emu)      // r29
 
     // Store flags
-    std     Flags, (8 * 16)(Emu) // r30
+    std     Flags, (8 * 16)(Emu)    // r30
 
     // Store RIP (r9 = xRIP, must contain current IP)
-    std     RIP, (8 * 17)(Emu)   // r9
+    std     RIP, (8 * 17)(Emu)      // r9
 
     // Restore stack pointer from emu->xSPSave
     // xSPSave stores the frame base SP saved by the prolog
-    ld      1, 808(Emu)
+    ld      %r1, 808(Emu)
 
     // Restore old xSPSave for nested dynarec calls
-    ld      0, 192(1)
-    std     0, 808(Emu)
+    ld      %r0, 192(%r1)
+    std     %r0, 808(Emu)
 
     // Restore TOC
-    ld      2, 24(1)
+    ld      %r2, 24(%r1)
 
     // Restore CR
-    lwz     0, 8(1)
-    mtcrf   0xFF, 0
+    lwz     %r0, 8(%r1)
+    mtcrf   0xFF, %r0
 
     // Restore callee-saved VMX registers
     // vr20 (= vs52): scratch register index 28
-    lxv     52, 208(1)
+    lxv     52, 208(%r1)
     // vr24-vr31 (= vs56-vs63): MMX registers 0-7
-    lxv     56, 224(1)
-    lxv     57, 240(1)
-    lxv     58, 256(1)
-    lxv     59, 272(1)
-    lxv     60, 288(1)
-    lxv     61, 304(1)
-    lxv     62, 320(1)
-    lxv     63, 336(1)
+    lxv     56, 224(%r1)
+    lxv     57, 240(%r1)
+    lxv     58, 256(%r1)
+    lxv     59, 272(%r1)
+    lxv     60, 288(%r1)
+    lxv     61, 304(%r1)
+    lxv     62, 320(%r1)
+    lxv     63, 336(%r1)
 
     // Restore callee-saved GPRs
-    ld      14, 32(1)
-    ld      15, 40(1)
-    ld      16, 48(1)
-    ld      17, 56(1)
-    ld      18, 64(1)
-    ld      19, 72(1)
-    ld      20, 80(1)
-    ld      21, 88(1)
-    ld      22, 96(1)
-    ld      23, 104(1)
-    ld      24, 112(1)
-    ld      25, 120(1)
-    ld      26, 128(1)
-    ld      27, 136(1)
-    ld      28, 144(1)
-    ld      29, 152(1)
-    ld      30, 160(1)
-    ld      31, 168(1)
+    ld      %r14, 32(%r1)
+    ld      %r15, 40(%r1)
+    ld      %r16, 48(%r1)
+    ld      %r17, 56(%r1)
+    ld      %r18, 64(%r1)
+    ld      %r19, 72(%r1)
+    ld      %r20, 80(%r1)
+    ld      %r21, 88(%r1)
+    ld      %r22, 96(%r1)
+    ld      %r23, 104(%r1)
+    ld      %r24, 112(%r1)
+    ld      %r25, 120(%r1)
+    ld      %r26, 128(%r1)
+    ld      %r27, 136(%r1)
+    ld      %r28, 144(%r1)
+    ld      %r29, 152(%r1)
+    ld      %r30, 160(%r1)
+    ld      %r31, 168(%r1)
 
     // Deallocate frame
-    addi    1, 1, 352
+    addi    %r1, %r1, 352
 
     // Restore LR and return
-    ld      0, 16(1)
-    mtlr    0
+    ld      %r0, 16(%r1)
+    mtlr    %r0
     blr
 .size ppc64le_epilog, .-ppc64le_epilog
