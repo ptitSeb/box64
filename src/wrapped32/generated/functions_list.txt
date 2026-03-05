@@ -197,6 +197,7 @@
 #() vFdd -> vFdd
 #() vFlu -> vFlu
 #() vFlp -> vFlp
+#() vFLp -> vFLp
 #() vEpi -> vEpi
 #() vFpi -> vFpi
 #() vFpC -> vFpC
@@ -207,6 +208,7 @@
 #() vFpL -> vFpL
 #() vEpp -> vEpp
 #() vFpp -> vFpp
+#() vFpS -> vFpS
 #() vESp -> vESp
 #() vFXi -> vFXi
 #() vFXu -> vFXu
@@ -527,6 +529,7 @@
 #() vFpii -> vFpii
 #() vFpiL -> vFpiL
 #() vFpip -> vFpip
+#() vFpiS -> vFpiS
 #() vFpui -> vFpui
 #() vFpuI -> vFpuI
 #() vFpuC -> vFpuC
@@ -607,6 +610,7 @@
 #() iFUip -> iFUip
 #() iFfff -> iFfff
 #() iELLi -> iELLi
+#() iFLpL -> iFLpL
 #() iFpii -> iFpii
 #() iEpiu -> iEpiu
 #() iFpiu -> iFpiu
@@ -750,6 +754,7 @@
 #() pFuuu -> pFuuu
 #() pFulu -> pFulu
 #() pFupi -> pFupi
+#() pFupL -> pFupL
 #() pFupp -> pFupp
 #() pFddd -> pFddd
 #() pFLpi -> pFLpi
@@ -772,6 +777,7 @@
 #() pEppL -> pEppL
 #() pFppL -> pFppL
 #() pFppp -> pFppp
+#() pFppS -> pFppS
 #() pEpOM -> pEpOM
 #() pFXii -> pFXii
 #() pFXip -> pFXip
@@ -1073,6 +1079,7 @@
 #() iEippi -> iEippi
 #() iFippu -> iFippu
 #() iEippL -> iEippL
+#() iFippL -> iFippL
 #() iFippp -> iFippp
 #() iEipON -> iEipON
 #() iFuiup -> iFuiup
@@ -1101,6 +1108,7 @@
 #() iFpupL -> iFpupL
 #() iFpupp -> iFpupp
 #() iFpLuu -> iFpLuu
+#() iFpLpL -> iFpLpL
 #() iFpLpp -> iFpLpp
 #() iFppii -> iFppii
 #() iFppiU -> iFppiU
@@ -1227,6 +1235,7 @@
 #() pEpLpL -> pEpLpL
 #() pFpLpL -> pFpLpL
 #() pEppiL -> pEppiL
+#() pFppiS -> pFppiS
 #() pEppLL -> pEppLL
 #() pFppLp -> pFppLp
 #() pFpppi -> pFpppi
@@ -1518,6 +1527,7 @@
 #() iFppuip -> iFppuip
 #() iFppupu -> iFppupu
 #() iFppLpL -> iFppLpL
+#() iFppLpp -> iFppLpp
 #() iFpppip -> iFpppip
 #() iFpppuu -> iFpppuu
 #() iEpppLi -> iEpppLi
@@ -1570,6 +1580,7 @@
 #() pFEXLip -> pFEXLip
 #() pFEXpip -> pFEXpip
 #() pFEXppi -> pFEXppi
+#() pFipipL -> pFipipL
 #() pFuiupp -> pFuiupp
 #() pFpiiii -> pFpiiii
 #() pFpiiuu -> pFpiiuu
@@ -1781,6 +1792,7 @@
 #() iFppulll -> iFppulll
 #() iFpppuuu -> iFpppuuu
 #() iFpppupu -> iFpppupu
+#() iFpppppL -> iFpppppL
 #() iFpppppp -> iFpppppp
 #() iFpppppS -> iFpppppS
 #() iFXiiiii -> iFXiiiii
@@ -2178,6 +2190,7 @@
 #() vFffffffffffff -> vFffffffffffff
 #() vFXiLLpiiiipii -> vFXiLLpiiiipii
 #() iFEXLppiiiiuui -> iFEXLppiiiiuui
+#() iFpLpuuLpLpppL -> iFpLpuuLpLpppL
 #() iFXLpppppppppp -> iFXLpppppppppp
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
 #() iFXiLbL_bL_ppppbip_pp -> iFXiLBBppppBpp
@@ -3170,6 +3183,52 @@ wrappedlibuuid:
 wrappedlibvdpau:
 - iFpipp:
   - vdp_device_create_x11
+wrappedlibvorbis:
+- vFp:
+  - vorbis_comment_clear
+  - vorbis_comment_init
+  - vorbis_dsp_clear
+  - vorbis_info_clear
+  - vorbis_info_init
+- iFp:
+  - vorbis_bitrate_addblock
+  - vorbis_block_clear
+  - vorbis_synthesis_halfrate_p
+  - vorbis_synthesis_idheader
+  - vorbis_synthesis_restart
+- vFpp:
+  - vorbis_comment_add
+- iFpi:
+  - vorbis_analysis_wrote
+  - vorbis_info_blocksize
+  - vorbis_synthesis_halfrate
+  - vorbis_synthesis_read
+- iFpp:
+  - vorbis_analysis
+  - vorbis_analysis_blockout
+  - vorbis_analysis_init
+  - vorbis_bitrate_flushpacket
+  - vorbis_block_init
+  - vorbis_comment_query_count
+  - vorbis_commentheader_out
+  - vorbis_packet_blocksize
+  - vorbis_synthesis
+  - vorbis_synthesis_blockin
+  - vorbis_synthesis_init
+  - vorbis_synthesis_lapout
+  - vorbis_synthesis_pcmout
+  - vorbis_synthesis_trackonly
+- pFpi:
+  - vorbis_analysis_buffer
+  - vorbis_window
+- vFppp:
+  - vorbis_comment_add_tag
+- iFppp:
+  - vorbis_synthesis_headerin
+- pFppi:
+  - vorbis_comment_query
+- iFppppp:
+  - vorbis_analysis_headerout
 wrappedlibx11:
 - vFp:
   - XFreeStringList
