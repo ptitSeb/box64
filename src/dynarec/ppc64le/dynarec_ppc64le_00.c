@@ -36,6 +36,8 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     uint8_t gb1, gb2, eb1, eb2;
     uint8_t wback, wb2;
     uint8_t u8;
+    uint32_t u32;
+    uint64_t u64;
     int64_t j64;
     int v0, v1;
     int i32;
@@ -253,6 +255,53 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 MVxw(x2, xRAX);
                 MVxw(xRAX, gd);
                 MVxw(gd, x2);
+            }
+            break;
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+            INST_NAME("MOV xL, Ib");
+            u8 = F8;
+            if (rex.rex)
+                gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
+            else
+                gb1 = TO_NAT(opcode & 3);
+            BF_INSERT(gb1, xZR, 7, 0);
+            ORI(gb1, gb1, u8);
+            break;
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            INST_NAME("MOV xH, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if (rex.rex) {
+                gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
+                BF_INSERT(gb1, x1, 7, 0);
+            } else {
+                gb1 = TO_NAT(opcode & 3);
+                BF_INSERT(gb1, x1, 15, 8);
+            }
+            break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
+            SCRATCH_USAGE(0);
+            if (rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
             }
             break;
         case 0x98:
