@@ -161,7 +161,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             MVz(xRSP, xRBP);
             POP1z(xRBP);
             break;
-
         default:
             DEFAULT;
     }
