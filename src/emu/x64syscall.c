@@ -46,6 +46,7 @@ typedef struct x64_stack_s x64_stack_t;
 
 extern int mkdir(const char *path, mode_t mode);
 extern int mknod(const char *path, mode_t mode, dev_t dev);
+extern int chmod(const char *path, mode_t mode);
 extern int fchmodat (int __fd, const char *__file, mode_t __mode, int __flag);
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
@@ -106,6 +107,7 @@ static const scwrap_t syscallwrap[] = {
     [12] = {__NR_brk, 1},
     //[13] = {__NR_rt_sigaction, 4},   // wrapped to use my_ version
     [14] = {__NR_rt_sigprocmask, 4},
+    [15] = {__NR_rt_sigreturn, 1},
     [16] = {__NR_ioctl, 3},
     [17] = {__NR_pread64, 4},
     [18] = {__NR_pwrite64, 4},
@@ -128,6 +130,7 @@ static const scwrap_t syscallwrap[] = {
     [33] = {__NR_dup2, 2},
     #endif
     [35] = {__NR_nanosleep, 2},
+    [38] = {__NR_setitimer, 3},
     [39] = {__NR_getpid, 0},
     [41] = {__NR_socket, 3},
     [42] = {__NR_connect, 3},
@@ -176,6 +179,9 @@ static const scwrap_t syscallwrap[] = {
     [88] = {__NR_symlink, 2},
     #endif
     //[89] = {__NR_readlink, 3},  // not always existing, better use the wrapped version anyway
+    #ifdef __NR_chmod
+    [90] = {__NR_chmod, 2},
+    #endif
     [96] = {__NR_gettimeofday, 2},
     #ifdef __NR_getrlimit
     [97] = {__NR_getrlimit, 2},
@@ -771,6 +777,13 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        #ifndef __NR_chmod
+        case 90:
+            S_RAX = chmod((void*)R_RDI, R_ESI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
         #ifndef __NR_getrlimit
         case 97:
             S_RAX = getrlimit(S_EDI, (void*)R_RSI);
@@ -1140,6 +1153,10 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 89: // sys_readlink
             return my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
+        #ifndef __NR_chmod
+        case 90:
+            return chmod((void*)R_RSI, R_EDX);
+        #endif
         #ifndef __NR_getrlimit
         case 97:
             return getrlimit(S_ESI, (void*)R_RDX);
