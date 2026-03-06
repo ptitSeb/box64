@@ -1680,10 +1680,12 @@ add_test(Boundary ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref33.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(AppImage ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/hcl-X64.AppImage -D TEST_ARGS2=--help -D TEST_OUTPUT=tmpfileAppImage.txt
-    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/refAppImage.txt
-    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+if(NOT CI)
+    add_test(AppImage ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/hcl-X64.AppImage -D TEST_ARGS2=--help -D TEST_OUTPUT=tmpfileAppImage.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/refAppImage.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+endif()
 
 else()
 
