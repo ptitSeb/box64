@@ -186,6 +186,7 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_getrlimit
     [97] = {__NR_getrlimit, 2},
     #endif
+    [99] = {__NR_sysinfo, 1},
     [101] = {__NR_ptrace, 4},
     [102] = {__NR_getuid, 0},
     [104] = {__NR_getgid, 0},
