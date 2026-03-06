@@ -6,75 +6,10 @@
 #include "la64_printer.h"
 #include "debug.h"
 
-static const char* gpr_names[] = {
-    "$zero",
-    "$ra",
-    "$tp",
-    "$sp",
-    "$a0",
-    "$a1",
-    "$a2",
-    "$a3",
-    "$a4",
-    "$a5",
-    "$a6",
-    "$a7",
-    "$t0",
-    "$t1",
-    "$t2",
-    "$t3",
-    "$t4",
-    "$t5",
-    "$t6",
-    "$t7",
-    "$t8",
-    "$r21",
-    "$fp",
-    "$s0",
-    "$s1",
-    "$s2",
-    "$s3",
-    "$s4",
-    "$s5",
-    "$s6",
-    "$s7",
-    "$s8",
-};
-
-static const char* fpr_names[] = {
-    "$fa0",
-    "$fa1",
-    "$fa2",
-    "$fa3",
-    "$fa4",
-    "$fa5",
-    "$fa6",
-    "$fa7",
-    "$ft0",
-    "$ft1",
-    "$ft2",
-    "$ft3",
-    "$ft4",
-    "$ft5",
-    "$ft6",
-    "$ft7",
-    "$ft8",
-    "$ft9",
-    "$ft10",
-    "$ft11",
-    "$ft12",
-    "$ft13",
-    "$ft14",
-    "$ft15",
-    "$fs0",
-    "$fs1",
-    "$fs2",
-    "$fs3",
-    "$fs4",
-    "$fs5",
-    "$fs6",
-    "$fs7",
-};
+static const char* Xt[] = { "xZR", "r1", "r2", "sp", "xRDI", "xRSI", "xRDX", "xRCX", "xR8", "xR9", "xRBX", "xRSP", "xRAX", "xRBP", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "r21", "xSavedSP", "xR10", "xR11", "xR12", "xR13", "xR14", "xR15", "xRIP", "xFlags", "xEmu" };
+static const char* Ft[] = { "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7", "ft8", "ft9", "ft10", "ft11", "ft12", "ft13", "ft14", "ft15", "fs0", "fs1", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7" };
+static const char* Vt[] = { "vra0", "vra1", "vra2", "vra3", "vra4", "vra5", "vra6", "vra7", "vrt0", "vrt1", "vrt2", "vrt3", "vrt4", "vrt5", "vrt6", "vrt7", "vrt8", "vrt9", "vrt10", "vrt11", "vrt12", "vrt13", "vrt14", "vrt15", "vrs0", "vrs1", "vrs2", "vrs3", "vrs4", "vrs5", "vrs6", "vrs7" };
+static const char* XVt[] = { "xvra0", "xvra1", "xvra2", "xvra3", "xvra4", "xvra5", "xvra6", "xvra7", "xvrt0", "xvrt1", "xvrt2", "xvrt3", "xvrt4", "xvrt5", "xvrt6", "xvrt7", "xvrt8", "xvrt9", "xvrt10", "xvrt11", "xvrt12", "xvrt13", "xvrt14", "xvrt15", "xvrs0", "xvrs1", "xvrs2", "xvrs3", "xvrs4", "xvrs5", "xvrs6", "xvrs7" };
 
 void la_disasm_one(uint32_t word, lagoon_insn_t* insn)
 {
@@ -8576,6 +8511,17 @@ void la_disasm_one(uint32_t word, lagoon_insn_t* insn)
         insn->operands[0].vpr = (((word >> 0) & 0x1f));
         insn->operands[1].kind = LA_OP_VPR;
         insn->operands[1].vpr = (((word >> 5) & 0x1f));
+        insn->operands[2].kind = LA_OP_UIMM;
+        insn->operands[2].uimm = (((word >> 10) & 0x1f));
+        return;
+    }
+    if ((word & 0xffff8000u) == 0x729b8000u) {
+        insn->mnemonic = "vmepatmsk.v";
+        insn->operand_count = 3;
+        insn->operands[0].kind = LA_OP_VPR;
+        insn->operands[0].vpr = (((word >> 0) & 0x1f));
+        insn->operands[1].kind = LA_OP_UIMM;
+        insn->operands[1].uimm = (((word >> 5) & 0x1f));
         insn->operands[2].kind = LA_OP_UIMM;
         insn->operands[2].uimm = (((word >> 10) & 0x1f));
         return;
@@ -17279,6 +17225,17 @@ void la_disasm_one(uint32_t word, lagoon_insn_t* insn)
         insn->operands[2].uimm = (((word >> 10) & 0x1f));
         return;
     }
+    if ((word & 0xffff8000u) == 0x769b8000u) {
+        insn->mnemonic = "xvmepatmsk.v";
+        insn->operand_count = 3;
+        insn->operands[0].kind = LA_OP_XVPR;
+        insn->operands[0].xvpr = (((word >> 0) & 0x1f));
+        insn->operands[1].kind = LA_OP_UIMM;
+        insn->operands[1].uimm = (((word >> 5) & 0x1f));
+        insn->operands[2].kind = LA_OP_UIMM;
+        insn->operands[2].uimm = (((word >> 10) & 0x1f));
+        return;
+    }
     if ((word & 0xffff8000u) == 0x74720000u) {
         insn->mnemonic = "xvmin.b";
         insn->operand_count = 3;
@@ -21459,16 +21416,16 @@ void la_insn_to_str(const lagoon_insn_t* insn, char* buf, size_t buf_size)
         char tmp[32];
         switch (op->kind) {
             case LA_OP_GPR:
-                snprintf(tmp, sizeof(tmp), "%s", gpr_names[op->gpr & 31]);
+                snprintf(tmp, sizeof(tmp), "%s", Xt[op->gpr & 31]);
                 break;
             case LA_OP_FPR:
-                snprintf(tmp, sizeof(tmp), "%s", fpr_names[op->fpr & 31]);
+                snprintf(tmp, sizeof(tmp), "%s", Ft[op->fpr & 31]);
                 break;
             case LA_OP_VPR:
-                snprintf(tmp, sizeof(tmp), "$vr%d", op->vpr & 31);
+                snprintf(tmp, sizeof(tmp), "%s", Vt[op->vpr & 31]);
                 break;
             case LA_OP_XVPR:
-                snprintf(tmp, sizeof(tmp), "$xr%d", op->xvpr & 31);
+                snprintf(tmp, sizeof(tmp), "%s", XVt[op->xvpr & 31]);
                 break;
             case LA_OP_FCC:
                 snprintf(tmp, sizeof(tmp), "$fcc%d", op->fcc & 7);
@@ -21480,10 +21437,10 @@ void la_insn_to_str(const lagoon_insn_t* insn, char* buf, size_t buf_size)
                 snprintf(tmp, sizeof(tmp), "$fcsr%d", op->fcsr & 3);
                 break;
             case LA_OP_SIMM:
-                snprintf(tmp, sizeof(tmp), "%d", op->simm);
+                snprintf(tmp, sizeof(tmp), "0x%x(%d)", op->simm, op->simm);
                 break;
             case LA_OP_UIMM: {
-                snprintf(tmp, sizeof(tmp), "%u", op->uimm);
+                snprintf(tmp, sizeof(tmp), "0x%x(%u)", op->uimm, op->uimm);
             } break;
         }
         pos += snprintf(buf + pos, buf_size - (size_t)pos, "%s%s",
