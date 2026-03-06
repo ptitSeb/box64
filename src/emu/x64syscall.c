@@ -129,6 +129,9 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_dup2
     [33] = {__NR_dup2, 2},
     #endif
+    #ifdef __NR_pause
+    [34] = {__NR_pause, 0},
+    #endif
     [35] = {__NR_nanosleep, 2},
     [38] = {__NR_setitimer, 3},
     [39] = {__NR_getpid, 0},
@@ -659,6 +662,13 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #endif
+        #ifndef __NR_pause
+        case 34: // sys_pause
+            S_RAX = pause();
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
         case 56: // sys_clone
             // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
             // so flags=R_RDI, stack=R_RSI, parent_tid=R_RDX, child_tid=R_R10, tls=R_R8
@@ -1067,6 +1077,14 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 25: // sys_mremap
             return (intptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
+        #ifndef __NR_dup2
+        case 33:
+            return dup2(S_ESI, S_EDX);
+        #endif
+        #ifndef __NR_pause
+        case 34:
+            return pause();
+        #endif
         case 56: // sys_clone
             // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
             // so flags=R_RSI, stack=R_RDX, parent_tid=R_RCX, child_tid=R_R8, tls=R_R9
@@ -1116,10 +1134,6 @@ long EXPORT my_syscall(x64emu_t *emu)
                 return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
                 #endif
             break;
-        #ifndef __NR_dup2
-        case 33:
-            return  dup2(S_ESI, S_EDX);
-        #endif
         #ifndef __NR_fork
         case 57:
             return fork();
