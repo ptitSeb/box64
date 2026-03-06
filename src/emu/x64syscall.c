@@ -172,6 +172,9 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_mkdir
     [83] = {__NR_mkdir, 2},
     #endif
+    #ifdef __NR_rmdir
+    [84] = {__NR_rmdir, 1},
+    #endif
     #ifdef __NR_unlink
     [87] = {__NR_unlink, 1},
     #endif
@@ -759,6 +762,13 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 S_RAX = -errno;
         break;
         #endif
+        #ifndef __NR_rmdir
+        case 84: // sys_rmdir
+            S_RAX = rmdir((void*)R_RDI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+        break;
+        #endif
         #ifndef __NR_unlink
         case 87: //sys_unlink
             S_RAX = unlink((void*)R_RDI);
@@ -1143,6 +1153,10 @@ long EXPORT my_syscall(x64emu_t *emu)
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
             return mkdir((void*)R_RSI, R_EDX);
+        #endif
+        #ifndef __NR_rmdir
+        case 84: // sys_rmdir
+            return rmdir((void*)R_RSI);
         #endif
         #ifndef __NR_unlink
         case 87: //sys_unlink
