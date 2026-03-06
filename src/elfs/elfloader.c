@@ -1533,7 +1533,7 @@ void* GetLoadedDynamicSection(elfheader_t* h)
     return NULL;
 }
 
-static int isDynamicTagPointer(int tag)
+int isDynamicTagPointer(int tag)
 {
     switch(tag) {
         case DT_PLTGOT:

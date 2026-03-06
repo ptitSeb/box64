@@ -141,7 +141,7 @@ int GetVersionIndice64(elfheader_t* h, const char* vername)
 {
     if(!vername)
         return 0;
-    if(h->VerDef._64) {
+    if(h->VerDef._64 && h->DynStr) {
         Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef._64 + h->delta);
         while(def) {
             Elf64_Verdaux *aux = (Elf64_Verdaux*)((uintptr_t)def + def->vd_aux);
@@ -167,7 +167,7 @@ int GetNeededVersionCnt64(elfheader_t* h, const char* libname)
 {
     if(!libname)
         return 0;
-    if(h->VerNeed._64) {
+    if(h->VerNeed._64 && h->DynStr) {
         Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed._64 + h->delta);
         while(ver) {
             char *filename = h->DynStr + ver->vn_file;
@@ -398,7 +398,7 @@ Elf64_Sym* ElfLookup64(elfheader_t* h, const char* symname, int ver, const char*
 
 Elf64_Sym* ElfSymTabLookup64(elfheader_t* h, const char* symname)
 {
-    if(!h->SymTab._64)
+    if(!h->SymTab._64 || !h->StrTab)
         return 0;
     for(size_t i=0; i<h->numSymTab; ++i) {
         Elf64_Sym* sym = &h->SymTab._64[i];
@@ -414,7 +414,7 @@ Elf64_Sym* ElfSymTabLookup64(elfheader_t* h, const char* symname)
 
 Elf64_Sym* ElfDynSymLookup64(elfheader_t* h, const char* symname)
 {
-    if(!h->DynSym._64)
+    if(!h->DynSym._64 || !h->DynStr)
         return 0;
     for(size_t i=0; i<h->numDynSym; ++i) {
         Elf64_Sym* sym = &h->DynSym._64[i];

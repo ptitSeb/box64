@@ -18,7 +18,7 @@ static const char* DumpSection(Elf64_Shdr *s, char* SST) {
         #define GO(A) \
         case A:     \
             sprintf(buff, #A " Name=\"%s\"(%d) off=0x%" PRIX64 ", size=%" PRId64 ", attr=0x%04" PRIX64 ", addr=%p(%02" PRIX64 "), link/info=%d/%d", \
-                SST+s->sh_name, s->sh_name, s->sh_offset, s->sh_size, s->sh_flags, (void*)s->sh_addr, s->sh_addralign, s->sh_link, s->sh_info); \
+                SST?(SST+s->sh_name):"???", s->sh_name, s->sh_offset, s->sh_size, s->sh_flags, (void*)s->sh_addr, s->sh_addralign, s->sh_link, s->sh_info); \
             break
         GO(SHT_PROGBITS);
         GO(SHT_SYMTAB);
