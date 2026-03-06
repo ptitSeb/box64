@@ -772,9 +772,9 @@ EXPORT int my32_2_SDL_ShowMessageBox(my_SDL_MessageBoxData_32_t* msgbox, int* bt
     msgbox_l.colorScheme = from_ptrv(msgbox->colorScheme);
     my_SDL_MessageBoxButtonData_32_t* src = from_ptrv(msgbox->buttons);
     for(int i=0; i<msgbox_l.numbuttons; ++i) {
-        btns_l[i].flags = src[i].buttonid;
+        btns_l[i].flags = src[i].flags;
         btns_l[i].buttonid = src[i].buttonid;
-        btns_l[i].text = from_ptrv(src[i].buttonid);
+        btns_l[i].text = from_ptrv(src[i].text);
     }
     return my->SDL_ShowMessageBox(&msgbox_l, btn);
 }
