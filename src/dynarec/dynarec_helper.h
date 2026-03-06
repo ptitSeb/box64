@@ -225,6 +225,8 @@ int is_addr_autosmc(uintptr_t addr);
 #include "la64/dynarec_la64_helper.h"
 #elif defined(RV64)
 #include "rv64/dynarec_rv64_helper.h"
+#elif defined(PPC64LE)
+#include "ppc64le/dynarec_ppc64le_helper.h"
 #else
 #error Unsupported architecture
 #endif

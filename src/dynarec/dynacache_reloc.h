@@ -10,6 +10,9 @@
 #elif defined(LA64)
 #include "dynarec/la64/dynarec_la64_consts.h"
 #define native_consts_t la64_consts_t
+#elif defined(PPC64LE)
+#include "dynarec/ppc64le/dynarec_ppc64le_consts.h"
+#define native_consts_t ppc64le_consts_t
 #else
 #error Unsupported architecture
 #endif

@@ -120,6 +120,44 @@
 #define native_lock_get_d(A)          la64_lock_get_d(A)
 #define native_lock_get_dd(A)         la64_lock_get_dd(A)
 
+#elif defined(PPC64LE)
+#include "ppc64le/ppc64le_lock.h"
+
+// PPC64LE has LL/SC at all widths (lbarx/stbcx., lharx/sthcx., lwarx/stwcx., ldarx/stdcx.)
+// so it follows the ARM64 separate read/write pattern, NOT the CAS pattern
+
+#define native_lock_read_b(A)               ppc64le_lock_read_b(A)
+#define native_lock_write_b(A, B)           ppc64le_lock_write_b(A, B)
+#define native_lock_read_h(A)               ppc64le_lock_read_h(A)
+#define native_lock_write_h(A, B)           ppc64le_lock_write_h(A, B)
+#define native_lock_read_d(A)               ppc64le_lock_read_d(A)
+#define native_lock_write_d(A, B)           ppc64le_lock_write_d(A, B)
+#define native_lock_read_dd(A)              ppc64le_lock_read_dd(A)
+#define native_lock_write_dd(A, B)          ppc64le_lock_write_dd(A, B)
+// PPC64LE (pre-POWER10) lacks 128-bit LL/SC. Use plain reads for read_dq;
+// callers that need true atomicity should use the spinlock (mutex_16b) path.
+#define native_lock_read_dq(A, B, C)        do { *(A) = ((uint64_t*)(C))[0]; *(B) = ((uint64_t*)(C))[1]; } while(0)
+#define native_lock_write_dq(A, B, C)       0               // not truly atomic; callers must use mutex_16b
+#define native_lock_xchg_dd(A, B)           ppc64le_lock_xchg_dd(A, B)
+#define native_lock_xchg_d(A, B)            ppc64le_lock_xchg_d(A, B)
+#define native_lock_xchg_h(A, B)            ppc64le_lock_xchg_h(A, B)
+#define native_lock_xchg_b(A, B)            ppc64le_lock_xchg_b(A, B)
+#define native_lock_storeifref(A, B, C)     ppc64le_lock_storeifref(A, B, C)
+#define native_lock_storeifref2(A, B, C)    ppc64le_lock_storeifref2(A, B, C)
+#define native_lock_storeifref_d(A, B, C)   ppc64le_lock_storeifref_d(A, B, C)
+#define native_lock_storeifref2_d(A, B, C)  ppc64le_lock_storeifref2_d(A, B, C)
+#define native_lock_storeifnull(A, B)       ppc64le_lock_storeifnull(A, B)
+#define native_lock_storeifnull_d(A, B)     ppc64le_lock_storeifnull_d(A, B)
+// #define native_lock_decifnot0b(A)           ppc64le_lock_decifnot0b(A)
+#define native_lock_storeb(A, B)            ppc64le_lock_storeb(A, B)
+#define native_lock_incif0(A)               ppc64le_lock_incif0(A)
+#define native_lock_decifnot0(A)            ppc64le_lock_decifnot0(A)
+#define native_lock_store(A, B)             ppc64le_lock_store(A, B)
+#define native_lock_store_dd(A, B)          ppc64le_lock_store_dd(A, B)
+#define native_lock_get_b(A)                ppc64le_lock_get_b(A)
+#define native_lock_get_d(A)                ppc64le_lock_get_d(A)
+#define native_lock_get_dd(A)               ppc64le_lock_get_dd(A)
+
 #else
 #error Unsupported architecture
 #endif
