@@ -535,7 +535,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         if(S_EAX==-1 && errno>0)
             S_RAX = -errno;
         if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
-        if(log && !BOX64ENV(rolling_log)) printf_log(LOG_NONE, "=> %s\n", buffret);
+        if(log && !BOX64ENV(rolling_log)) printf_log_prefix(0, LOG_NONE, "=> %s\n", buffret);
         return;
     }
     switch (s) {
@@ -635,7 +635,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             S_RAX = pipe((void*)R_RDI);
             if(S_RAX==-1)
                 S_RAX = -errno;
-            else if(log) printf_log(LOG_INFO, "[%d, %d]", ((int*)R_RDI)[0], ((int*)R_RDI)[1]);
+            else if(log) printf_log_prefix(0, LOG_INFO, "[%d, %d]", ((int*)R_RDI)[0], ((int*)R_RDI)[1]);
             break;
         #endif
         #ifndef __NR_select
