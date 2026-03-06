@@ -1,0 +1,7 @@
+Quick help
+-f|--fullscreen	Use fullscreen
+-d|--desktop	desktop fullscreen
+-x1|-x2|-x3|-x4	Use screenScale of *1..*4 (default *2 = 640x480)
+-j|-nojoy	do not use Joystick
+--xbrz	Use xBRZ scaling
+--no-xbrz	No xBRZ scaling

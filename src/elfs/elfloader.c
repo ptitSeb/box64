@@ -447,8 +447,6 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     head->file = NULL;
     head->fileno = -1;
 
-    PatchLoadedDynamicSection(head);
-
     return 0;
 }
 
@@ -1190,6 +1188,9 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)
         return;
+    // adjust elf Dynamic section header with the delta of the load address if needed
+    // but do not adjust if there is no libs loaded as it will use it's own loader to do similar stuffs
+    if(!box64_nolibs) PatchLoadedDynamicSection(h);
     // reset Segs Cache
     uintptr_t p = h->initentry + h->delta;
     // Refresh no-file part of TLS in case default value changed

@@ -1680,6 +1680,11 @@ add_test(Boundary ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref33.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
+add_test(AppImage ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/hcl-X64.AppImage -D TEST_ARGS2=--help -D TEST_OUTPUT=tmpfileAppImage.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/refAppImage.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
 else()
 
 add_test(bootSyscall ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
@@ -1824,6 +1829,10 @@ add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 #
 #set_tests_properties(avx_intrinsics PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0 BOX64_AVX=2")
 
+#add_test(AppImage ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/hcl-X64.AppImage -D TEST_ARGS2=--help -D TEST_OUTPUT=tmpfileAppImage.txt
+#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/refAppImage.txt
+#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 endif()
 
