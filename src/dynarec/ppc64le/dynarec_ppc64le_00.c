@@ -54,6 +54,34 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     opcode = F8;
 
     switch (opcode) {
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH reg");
+            SCRATCH_USAGE(0);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            PUSH1z(gd);
+            SMWRITE();
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            SCRATCH_USAGE(0);
+            SMREAD();
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            POP1z(gd);
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
