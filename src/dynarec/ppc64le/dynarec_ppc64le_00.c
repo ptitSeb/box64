@@ -33,6 +33,8 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed, tmp1, tmp2, tmp3;
+    uint8_t gb1, gb2, eb1, eb2;
+    uint8_t wback, wb2;
     uint8_t u8;
     int64_t j64;
     int v0, v1;
@@ -43,6 +45,8 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     MAYUSE(tmp1);
     MAYUSE(tmp2);
     MAYUSE(tmp3);
+    MAYUSE(eb1);
+    MAYUSE(eb2);
     MAYUSE(j64);
     MAYUSE(v0);
     MAYUSE(v1);
@@ -110,6 +114,39 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+        case 0x88:
+            INST_NAME("MOV Eb, Gb");
+            nextop = F8;
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (rex.rex) {
+                gb2 = 0;
+                gb1 = TO_NAT(gd);
+            } else {
+                gb2 = ((gd & 4) << 1);
+                gb1 = TO_NAT(gd & 3);
+            }
+            if (gb2) {
+                gd = x4;
+                BF_EXTRACT(gd, gb1, gb2 + 7, gb2);
+            } else {
+                gd = gb1; // no need to extract
+            }
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (rex.rex) {
+                    eb1 = TO_NAT(ed);
+                    eb2 = 0;
+                } else {
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
+                    eb2 = ((ed & 4) >> 2); // L or H
+                }
+                BF_INSERT(eb1, gd, eb2 * 8 + 7, eb2 * 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
+                STB(gd, fixedaddress, ed);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
@@ -126,6 +163,40 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 SDxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
+            break;
+        case 0x8A:
+            INST_NAME("MOV Gb, Eb");
+            nextop = F8;
+            if (rex.rex) {
+                gb1 = gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+                gb2 = 0;
+            } else {
+                gd = (nextop & 0x38) >> 3;
+                gb1 = TO_NAT(gd & 3);
+                gb2 = ((gd & 4) << 1);
+            }
+            if (MODREG) {
+                if (rex.rex) {
+                    wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                    wb2 = 0;
+                } else {
+                    wback = (nextop & 7);
+                    wb2 = (wback >> 2);
+                    wback = TO_NAT(wback & 3);
+                }
+                if (wb2) {
+                    BF_EXTRACT(x4, wback, 7 + wb2 * 8, wb2 * 8);
+                    ed = x4;
+                } else {
+                    ed = wback;
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
+                SMREADLOCK(lock);
+                LBZ(x4, fixedaddress, wback);
+                ed = x4;
+            }
+            BF_INSERT(gb1, ed, gb2 + 7, gb2);
             break;
         case 0x8B:
             INST_NAME("MOV Gd, Ed");
