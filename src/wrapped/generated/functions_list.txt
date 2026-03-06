@@ -3701,6 +3701,7 @@
 #() iFEpiiiiippp
 #() iFEpuppupppp
 #() iFEpupppLppL
+#() iFEppiiiippp
 #() iFEppLuppupp
 #() iFEppppppipp
 #() iFEpppppppip
@@ -7129,6 +7130,8 @@ wrappedvorbisfile:
 - iFppplPPPP:
   - ov_open_callbacks
   - ov_test_callbacks
+- iFppiiiippp:
+  - ov_read_filter
 wrappedvulkan:
 - vFpp:
   - vkDestroyDevice
