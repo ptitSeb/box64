@@ -54,6 +54,34 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     opcode = F8;
 
     switch (opcode) {
+        case 0x63:
+            if (rex.is32bits) {
+                // this is ARPL opcode
+                DEFAULT;
+            } else {
+                INST_NAME("MOVSXD Gd, Ed");
+                nextop = F8;
+                GETGD;
+                SCRATCH_USAGE(0);
+                if (rex.w) {
+                    if (MODREG) { // reg <= reg
+                        EXTSW(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else { // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
+                        LWA(gd, fixedaddress, ed);
+                    }
+                } else {
+                    if (MODREG) { // reg <= reg
+                        ZEROUP2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else { // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
+                        LWZ(gd, fixedaddress, ed);
+                    }
+                }
+            }
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -154,6 +182,25 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 MVxw(x2, xRAX);
                 MVxw(xRAX, gd);
                 MVxw(gd, x2);
+            }
+            break;
+        case 0x98:
+            if (rex.w) {
+                INST_NAME("CDQE");
+                EXTSW(xRAX, xRAX);
+            } else {
+                INST_NAME("CWDE");
+                EXTSH(xRAX, xRAX);
+                ZEROUP(xRAX);
+            }
+            break;
+        case 0x99:
+            INST_NAME("CDQ");
+            if (rex.w) {
+                SRADI(xRDX, xRAX, 63);
+            } else {
+                SRAWI(xRDX, xRAX, 31);
+                ZEROUP(xRDX);
             }
             break;
         case 0xC9:
