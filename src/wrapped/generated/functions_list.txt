@@ -1134,6 +1134,7 @@
 #() vFpppL
 #() vFpppp
 #() vFpppV
+#() vFSpii
 #() vFSppi
 #() vFHHpi
 #() cFpiii
@@ -1345,6 +1346,8 @@
 #() iFpONN
 #() iFSpii
 #() iFSpiL
+#() iFSpip
+#() iFSppp
 #() iFbupp
 #() iFbUpp
 #() iFbpiU
@@ -1434,6 +1437,7 @@
 #() uFpppd
 #() uFpppL
 #() uFpppp
+#() uFSuup
 #() uFbipp
 #() uFbuWp
 #() uFbuuC
@@ -2674,6 +2678,7 @@
 #() iFpppppp
 #() iFpppppS
 #() iFpSipip
+#() iFSpppuu
 #() IFppuuuW
 #() uFEiippp
 #() uFEiuppp
@@ -7296,6 +7301,7 @@ wrappedxkbcommon:
 - vFppp:
   - xkb_keymap_key_for_each
 wrappedxkbcommonx11:
+wrappedxkbfile:
 wrappedxkbregistry:
 wrappedxml2:
 - vFp:
