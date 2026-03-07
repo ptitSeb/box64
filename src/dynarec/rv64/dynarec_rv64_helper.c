@@ -1752,6 +1752,7 @@ int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwri
     dyn->e.ssecache[a].write = forwrite;
     dyn->e.ssecache[a].vector = 1;
     dyn->e.ssecache[a].single = 0; // just to be clean
+    SET_ELEMENT_WIDTH(s1, sew, 1);
     ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
     VLE_V(ret, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
     return ret;
