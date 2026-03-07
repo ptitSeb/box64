@@ -733,6 +733,7 @@
 #() uFpWf
 #() uFpWp
 #() uFpui
+#() uFpuW
 #() uFpuu
 #() uFpuU
 #() uFpuL
@@ -759,6 +760,7 @@
 #() uFbuu
 #() uFbuU
 #() uFbup
+#() UFpup
 #() UFppi
 #() UFbCC
 #() UFbCu
@@ -1150,6 +1152,7 @@
 #() iFEpiA
 #() iFEpui
 #() iFEpup
+#() iFEpuV
 #() iFEpUi
 #() iFEpLi
 #() iFEpLp
@@ -1314,6 +1317,7 @@
 #() iFppCC
 #() iFppuw
 #() iFppui
+#() iFppuW
 #() iFppuu
 #() iFppuf
 #() iFppul
@@ -1349,6 +1353,7 @@
 #() IFIUUu
 #() IFUIUI
 #() IFpIip
+#() IFpupI
 #() IFppii
 #() IFppip
 #() IFSIii
@@ -1954,10 +1959,12 @@
 #() iFpuipu
 #() iFpuipp
 #() iFpuuip
+#() iFpuuuW
 #() iFpuuuu
 #() iFpuuup
 #() iFpuuLL
 #() iFpuuLp
+#() iFpuupi
 #() iFpuupp
 #() iFpuUpU
 #() iFpulup
@@ -2080,6 +2087,7 @@
 #() uFpCCCC
 #() uFpWuip
 #() uFpuuui
+#() uFpuuuW
 #() uFpuuuu
 #() uFpuuup
 #() uFpuupu
@@ -2562,6 +2570,7 @@
 #() iFpuuupu
 #() iFpuuupp
 #() iFpuuLpp
+#() iFpuupii
 #() iFpuupuu
 #() iFpuuppu
 #() iFpuuppp
@@ -2665,6 +2674,7 @@
 #() iFpppppp
 #() iFpppppS
 #() iFpSipip
+#() IFppuuuW
 #() uFEiippp
 #() uFEiuppp
 #() uFEpippi
@@ -3826,6 +3836,7 @@
 #() pFEpipppppppi
 #() pFEppiiLpppip
 #() pFEppuiipuuii
+#() pFEpppppppppp
 #() pFpppppppuipp
 #() pFppppppppppp
 #() iWEpuipuppppp
@@ -6294,6 +6305,12 @@ wrappedlibssl3:
   - SSL_get_ex_new_index
 wrappedlibtasn1:
 wrappedlibtiff5:
+- vFppV:
+  - TIFFError
+- iFpuV:
+  - TIFFSetField
+- pFpppppppppp:
+  - TIFFClientOpen
 wrappedlibtinfo:
 - iFpip:
   - tputs

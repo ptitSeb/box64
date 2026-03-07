@@ -1,147 +1,150 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
-// GO(TIFFGetFieldDefaulted
-// GO(TIFFSetField
-// GO(TIFFReadEncodedStrip
-// GO(TIFFTileSize
-// GO(TIFFWarningExt
-// GO(TIFFGetTagListCount
-// GO(TIFFWriteCheck
-// GO(TIFFReadRawTile
-// GO(TIFFCurrentStrip
-// GO(TIFFFieldTag
-// GO(TIFFCurrentDirOffset
-// GO(TIFFSetClientInfo
-// GO(TIFFJPEGIsFullStripRequired
-// GO(TIFFGetSeekProc
-// GO(TIFFGetStrileOffset
-// GO(TIFFReadTile
-// GO(TIFFCurrentRow
-// GO(TIFFSwabArrayOfDouble
-// GO(TIFFFlushData1
-// GO(TIFFGetReadProc
-// GO(TIFFInitPackBits
-// GO(TIFFComputeStrip
-// GO(TIFFInitZIP
-// GO(TIFFErrorExt
+GO(TIFFGetFieldDefaulted, iFpuppp)  // signature should be iFpuV but it only return up to 3 value, that are all pointer based, so this signature will work fine
+GOM(TIFFSetField, iFEpuV)
+GO(TIFFReadEncodedStrip, IFpupI)
+GO(TIFFTileSize, IFp)
+//GOM(TIFFWarningExt, vFEpppV)
+GO(TIFFGetTagListCount, iFp)
+GO(TIFFWriteCheck, iFpip)
+GO(TIFFReadRawTile, IFpupI)
+GO(TIFFCurrentStrip, uFp)
+GO(TIFFFieldTag, uFp)
+GO(TIFFCurrentDirOffset, UFp)
+GOM(TIFFClientOpen, pFEpppppppppp)
+GO(TIFFSetClientInfo, vFppp)
+//GO(TIFFJPEGIsFullStripRequired, 
+//GOM(TIFFGetSeekProc, pFEp)
+GO(TIFFGetStrileOffset, UFpu)
+GO(TIFFReadTile, IFppuuuW)
+GO(TIFFCurrentRow, uFp)
+GO(TIFFSwabArrayOfDouble, vFpI)
+//GO(TIFFFlushData1, 
+//GOM(TIFFGetReadProc, pFEp)
+//GO(TIFFInitPackBits, 
+GO(TIFFComputeStrip, uFpuW)
+//GO(TIFFInitZIP, 
+//GOM(TIFFErrorExt, vFEpppV)
 GO(TIFFSwabLong8, vFp)
 GO(TIFFSwabLong, vFp)
-// GO(TIFFCreateDirectory
-// GO(TIFFPredictorInit
-// GO(TIFFPredictorCleanup
-// GO(TIFFUnRegisterCODEC
-// GO(TIFFFlushData
-// GO(TIFFRGBAImageEnd
-// GO(TIFFInitSGILog
-// GO(TIFFGetTagListEntry
-// GO(TIFFWriteEncodedStrip
+GO(TIFFCreateDirectory, iFp)
+//GO(TIFFPredictorInit, 
+//GO(TIFFPredictorCleanup, 
+//GOM(TIFFUnRegisterCODEC, vFEp)
+GO(TIFFFlushData, iFp)
+//GOM(TIFFRGBAImageEnd, vFEp)
+//GO(TIFFInitSGILog, 
+GO(TIFFGetTagListEntry, uFpi)
+GO(TIFFWriteEncodedStrip, IFpupI)
 GO(TIFFClose, vFp)
-// GO(TIFFIsBigEndian
-// GO(TIFFSwabDouble
-// GO(TIFFReadRGBAStripExt
-// GO(TIFFLastDirectory
-// GO(TIFFInitCCITTRLE
-// GO(TIFFSetWriteOffset
-// GO(TIFFFieldName
-// GO(TIFFFileName
-// GO(TIFFScanlineSize
-// GO(TIFFDataWidth
-// GO(TIFFIsByteSwapped
-// GO(TIFFReadBufferSetup
+GO(TIFFIsBigEndian, iFp)
+GO(TIFFSwabDouble, vFp)
+GO(TIFFReadRGBAStripExt, iFpupi)
+GO(TIFFLastDirectory, iFp)
+//GO(TIFFInitCCITTRLE, 
+GO(TIFFSetWriteOffset, vFpU)
+GO(TIFFFieldName, pFp)
+GO(TIFFFileName, pFp)
+GO(TIFFScanlineSize, IFp)
+GO(TIFFDataWidth, iFu)
+GO(TIFFIsByteSwapped, iFp)
+GO(TIFFIsTiled, iFp)
+GO(TIFFReadBufferSetup, iFppI)
 GO(TIFFCIELabToXYZ, vFpuiippp)
-// GO(TIFFReadDirectory
-// GO(TIFFFieldDataType
-// GO(TIFFSetErrorHandlerExt
+GO(TIFFReadDirectory, iFp)
+GO(TIFFFieldDataType, uFp)
+//GOM(TIFFSetErrorHandlerExt, pFEp)
 GO(TIFFIsCODECConfigured, iFW)
-// GO(TIFFFaxMainTable
-// GO(TIFFReadEXIFDirectory
-// GO(TIFFAccessTagMethods
-// GO(TIFFGetMapFileProc
-// GO(TIFFSetErrorHandler
-// GO(TIFFCheckpointDirectory
-// GO(TIFFSetClientdata
-// GO(TIFFGetVersion
-// GO(TIFFWriteRawStrip
-// GO(TIFFInitCCITTFax3
-// GO(TIFFInitCCITTFax4
-// GO(TIFFWriteEncodedTile
-// GO(TIFFFieldPassCount
-// GO(TIFFReadRGBAImageOriented
-// GO(TIFFRGBAImageBegin
-// GO(TIFFTileRowSize64
-// GO(TIFFRasterScanlineSize
-// GO(TIFFSetWarningHandlerExt
-// GO(TIFFInitLZW
-// GO(TIFFWriteTile
+//GO(TIFFFaxMainTable, 
+GO(TIFFReadEXIFDirectory, iFpU)
+//GOM(TIFFAccessTagMethods, pFEp)
+//GOM(TIFFGetMapFileProc, pFEp)
+//GOM(TIFFSetErrorHandler, pFEp)
+GO(TIFFCheckpointDirectory, iFp)
+GO(TIFFSetClientdata, pFpp)
+GO(TIFFGetVersion, pFv)
+GO(TIFFWriteRawStrip, IFpupI)
+//GO(TIFFInitCCITTFax3, 
+//GO(TIFFInitCCITTFax4, 
+GO(TIFFWriteEncodedTile, IFpupI)
+GO(TIFFFieldPassCount, iFp)
+GO(TIFFReadRGBAImageOriented, iFpuupii)
+//GOM(TIFFRGBAImageBegin, iFEppip)
+GO(TIFFTileRowSize64, UFp)
+GO(TIFFRasterScanlineSize, IFp)
+//GOM(TIFFSetWarningHandlerExt, pFEp)
+//GO(TIFFInitLZW, 
+GO(TIFFWriteTile, IFppuuuW)
 GO(TIFFYCbCrtoRGB, vFpuiippp)
-// GO(TIFFSetMode
-// GO(TIFFRasterScanlineSize64
-// GO(TIFFSwabArrayOfFloat
-// GO(TIFFRGBAImageGet
-// GO(TIFFVStripSize
-// GO(TIFFDefaultTileSize
-// GO(TIFFSetFileno
-// GO(TIFFGetSizeProc
-// GO(TIFFIsUpSampled
-// GO(TIFFGetClientInfo
-// GO(TIFFDefaultDirectory
-// GO(TIFFGetBitRevTable
-// GO(TIFFError
-// GO(TIFFGetStrileByteCount
-// GO(TIFFSetDirectory
-// GO(TIFFGetStrileByteCountWithErr
-// GO(TIFFFieldWithName
-// GO(TIFFRGBAImageOK
-GO(TIFFGetConfiguredCODECs, pFW)
-// GO(TIFFTileRowSize
-// GO(TIFFCreateEXIFDirectory
-// GO(TIFFInitJBIG
+GO(TIFFSetMode, iFpi)
+GO(TIFFRasterScanlineSize64, UFp)
+GO(TIFFSwabArrayOfFloat, vFpI)
+//GOM(TIFFRGBAImageGet, iFEppuu)
+GO(TIFFVStripSize, IFpu)
+GO(TIFFDefaultTileSize, vFppp)
+GO(TIFFSetFileno, iFpi)
+//GOM(TIFFGetSizeProc, pFEp)
+GO(TIFFIsUpSampled, iFp)
+GO(TIFFGetClientInfo, pFpp)
+//GO(TIFFDefaultDirectory, 
+GO(TIFFGetBitRevTable, pFi)
+GOM(TIFFError, vFEppV)
+GO(TIFFGetStrileByteCount, UFpu)
+GO(TIFFSetDirectory, iFpu)
+GO(TIFFGetStrileByteCountWithErr, UFpup)
+GO(TIFFFieldWithName, pFpp)
+GO(TIFFRGBAImageOK, iFpp)
+//GOM(TIFFGetConfiguredCODECs, pFEv)
+GO(TIFFTileRowSize, IFp)
+GO(TIFFCreateEXIFDirectory, iFp)
+//GO(TIFFInitJBIG, 
 GO(TIFFXYZToRGB, vFpfffppp)
-// GO(TIFFFillTile
-// GO(TIFFInitZSTD
-// GO(TIFFWriteScanline
-// GO(TIFFCreateCustomDirectory
-// GO(TIFFVGetFieldDefaulted
-// GO(TIFFSetTagExtender
-// GO(TIFFStripSize64
-// GO(TIFFCurrentDirectory
-// GO(TIFFReadRawStrip
-// GO(TIFFNumberOfStrips
-// GO(TIFFSetupStrips
-// GO(TIFFIsMSB2LSB
-// GO(TIFFSwabFloat
-// GO(TIFFReadRGBAImage
-GO(TIFFFreeDirectory, iFp)
+//GO(TIFFFillTile, 
+//GO(TIFFInitZSTD, 
+GO(TIFFWriteScanline, iFppuW)
+GO(TIFFCreateCustomDirectory, iFpp)
+//GOM(TIFFVGetFieldDefaulted, iFEpuA)
+//GOM(TIFFSetTagExtender, pFEp)
+GO(TIFFStripSize64, UFp)
+GO(TIFFCurrentDirectory, uFp)
+GO(TIFFReadRawStrip, IFpupI)
+GO(TIFFNumberOfStrips, uFp)
+GO(TIFFSetupStrips, iFp)
+GO(TIFFIsMSB2LSB, iFp)
+GO(TIFFSwabFloat, vFp)
+GO(TIFFReadRGBAImage, iFpuupi)
+GO(TIFFReadScanline, iFppuW)
+GO(TIFFFreeDirectory, vFp)
 GO(TIFFCleanup, vFp)
 GO(TIFFFlush, iFp)
-GO(TIFFSetCompressionScheme, iFpi)
+GO(TIFFSetCompressionScheme, iFpi) // Warning: failed to confirm
 GO(TIFFSwabShort, vFp)
-// GO(TIFFInitNeXT
-// GO(TIFFInitDumpMode
-// GO(TIFFSwabArrayOfLong8
-// GO(TIFFWriteCustomDirectory
-// GO(TIFFReverseBits
-// GO(TIFFInitWebP
-// GO(TIFFCheckTile
-// GO(TIFFVGetField
-// GO(TIFFTileSize64
-// GO(TIFFReadRGBATileExt
-// GO(TIFFVTileSize64
-// GO(TIFFVSetField
-// GO(TIFFDefaultStripSize
-// GO(TIFFInitJPEG
-// GO(TIFFOpen
-// GO(TIFFFaxWhiteCodes
-// GO(TIFFUnsetField
-// GO(TIFFVTileSize
-// GO(TIFFRawStripSize
-// GO(TIFFDeferStrileArrayWriting
-// GO(TIFFStripSize
+//GO(TIFFInitNeXT, 
+//GO(TIFFInitDumpMode, 
+GO(TIFFSwabArrayOfLong8, vFpI)
+GO(TIFFWriteCustomDirectory, iFpp)
+GO(TIFFReverseBits, vFpI)
+//GO(TIFFInitWebP, 
+GO(TIFFCheckTile, iFpuuuW)
+//GOM(TIFFVGetField, iFEpuA)
+GO(TIFFTileSize64, UFp)
+GO(TIFFReadRGBATileExt, iFpuupi)
+GO(TIFFVTileSize64, UFpu)
+//GOM(TIFFVSetField, iFEpuA)
+GO(TIFFDefaultStripSize, uFpu)
+//GO(TIFFInitJPEG, 
+GO(TIFFOpen, pFpp)
+//GO(TIFFFaxWhiteCodes, 
+GO(TIFFUnsetField, iFpu)
+GO(TIFFVTileSize, IFpu)
+GO(TIFFRawStripSize, IFpu)
+GO(TIFFDeferStrileArrayWriting, iFp)
+GO(TIFFStripSize, IFp)
 GO(TIFFCIELabToRGBInit, iFppp)
-// GO(TIFFComputeTile
-// GO(TIFFGetField
-// GO(TIFFFaxWhiteTable
-// GO(TIFFGetUnmapFileProc
-// GO(TIFFFillStrip
+GO(TIFFComputeTile, uFpuuuW)
+GO(TIFFGetField, iFpuppp)   // see TIFFGetFieldDefaulted
+//GO(TIFFFaxWhiteTable, 
+//GOM(TIFFGetUnmapFileProc, pFEp)
+//GO(TIFFFillStrip, 
