@@ -944,7 +944,7 @@ void checkHookedSymbols(elfheader_t* h)
 {
     int hooked = 0;
     int hooked_symtab = 0;
-    if(BOX64ENV(malloc_hack)==1)
+    if(BOX64ENV(malloc_hack)==1 || box64_nolibs)
         return;
     if(box64_is32bits) {
 #if defined(BOX32) && defined(PPC64LE)
