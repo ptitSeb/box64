@@ -4016,7 +4016,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("NEG Eb");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETSEB(x1, 0);
+                    GETEB(x1, 0);
                     emit_neg8(dyn, ninst, x1, x2, x4);
                     EBBACK;
                     break;
