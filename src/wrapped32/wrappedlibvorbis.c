@@ -69,6 +69,7 @@ typedef struct {
     int64_t  floor_bits;
     int64_t  res_bits;
     void    *backend_state;
+    ptr_t    pcm32[256];    // buffer for converting native float** to ptr_t[] for 32-bit code
 } my_vorbis_dsp_state_t;
 
 typedef struct {
@@ -538,12 +539,20 @@ EXPORT int my32_vorbis_synthesis_init(x64emu_t* emu, void* vd, void* vi)
     return ret;
 }
 
-EXPORT void* my32_vorbis_analysis_buffer(x64emu_t* emu, void* vd, int vals)
+EXPORT ptr_t my32_vorbis_analysis_buffer(x64emu_t* emu, void* vd, int vals)
 {
     my_vorbis_dsp_state_t* dsp_shadow = getDspShadow(vd);
-    void* ret = my->vorbis_analysis_buffer(dsp_shadow, vals);
+    float** native_buf = my->vorbis_analysis_buffer(dsp_shadow, vals);
     vorbis_dsp_state_to_32(vd, dsp_shadow);
-    return ret;
+    if(native_buf) {
+        my_vorbis_info_t* vi = (my_vorbis_info_t*)dsp_shadow->vi;
+        int channels = vi ? vi->channels : 0;
+        if(channels > 256) channels = 256;
+        for(int i = 0; i < channels; i++)
+            dsp_shadow->pcm32[i] = to_ptrv(native_buf[i]);
+        return to_ptrv(dsp_shadow->pcm32);
+    }
+    return 0;
 }
 
 EXPORT int my32_vorbis_analysis_wrote(x64emu_t* emu, void* vd, int vals)
@@ -663,21 +672,46 @@ EXPORT int my32_vorbis_synthesis_blockin(x64emu_t* emu, void* vd, void* vb)
     return ret;
 }
 
-EXPORT int my32_vorbis_synthesis_pcmout(x64emu_t* emu, void* vd, void* pcm)
+EXPORT int my32_vorbis_synthesis_pcmout(x64emu_t* emu, void* vd, ptr_t* pcm)
 {
     my_vorbis_dsp_state_t* dsp_shadow = getDspShadow(vd);
-    // pcm is float***, the library writes a pointer to its internal float** array
-    // The float** and float* data are native pointers allocated by the library
-    int ret = my->vorbis_synthesis_pcmout(dsp_shadow, pcm);
+    float** native_pcm = NULL;
+    int ret = my->vorbis_synthesis_pcmout(dsp_shadow, pcm ? &native_pcm : NULL);
     vorbis_dsp_state_to_32(vd, dsp_shadow);
+    if(pcm) {
+        if(native_pcm) {
+            // Convert the float** (array of native float* per channel) to ptr_t[]
+            my_vorbis_info_t* vi = (my_vorbis_info_t*)dsp_shadow->vi;
+            int channels = vi ? vi->channels : 0;
+            if(channels > 256) channels = 256;
+            for(int i = 0; i < channels; i++)
+                dsp_shadow->pcm32[i] = to_ptrv(native_pcm[i]);
+            *pcm = to_ptrv(dsp_shadow->pcm32);
+        } else {
+            *pcm = 0;
+        }
+    }
     return ret;
 }
 
-EXPORT int my32_vorbis_synthesis_lapout(x64emu_t* emu, void* vd, void* pcm)
+EXPORT int my32_vorbis_synthesis_lapout(x64emu_t* emu, void* vd, ptr_t* pcm)
 {
     my_vorbis_dsp_state_t* dsp_shadow = getDspShadow(vd);
-    int ret = my->vorbis_synthesis_lapout(dsp_shadow, pcm);
+    float** native_pcm = NULL;
+    int ret = my->vorbis_synthesis_lapout(dsp_shadow, pcm ? &native_pcm : NULL);
     vorbis_dsp_state_to_32(vd, dsp_shadow);
+    if(pcm) {
+        if(native_pcm) {
+            my_vorbis_info_t* vi = (my_vorbis_info_t*)dsp_shadow->vi;
+            int channels = vi ? vi->channels : 0;
+            if(channels > 256) channels = 256;
+            for(int i = 0; i < channels; i++)
+                dsp_shadow->pcm32[i] = to_ptrv(native_pcm[i]);
+            *pcm = to_ptrv(dsp_shadow->pcm32);
+        } else {
+            *pcm = 0;
+        }
+    }
     return ret;
 }
 
