@@ -461,6 +461,23 @@
         VLE_V(a, ed, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
     }
 
+#define GETEX_PARTIAL_vector(a, w, D, sew, multiple)                                         \
+    if (MODREG) {                                                                            \
+        SET_ELEMENT_WIDTH(x1, sew, 1);                                                       \
+        a = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, sew);         \
+    } else {                                                                                 \
+        vector_vsetvli(dyn, ninst, x1, sew, VECTOR_LMUL1, multiple);                         \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        VLE_V(a, ed, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
+        dyn->vector_sew = VECTOR_SEWNA;                                                      \
+    }
+
+#define GETEX64_vector(a, w, D, sew)   GETEX_PARTIAL_vector(a, w, D, sew, 0.5)
+#define GETEX32_vector(a, w, D, sew)   GETEX_PARTIAL_vector(a, w, D, sew, 0.25)
+#define GETEX16_vector(a, w, D, sew)   GETEX_PARTIAL_vector(a, w, D, sew, 0.125)
+
 // Put Back EX if it was a memory and not an emm register
 #define PUTEX_vector(a, sew)                                \
     if (!MODREG) {                                          \
