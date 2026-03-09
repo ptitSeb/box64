@@ -41,6 +41,8 @@ https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gnutls-3.8.3-4.el9_4.i
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/gnutls-3.8.3-4.el9_4.x86_64.rpm,16c48c504fe62f8e19cac7c6442d3e08bba487f610c2f533116dac32357cda86
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/harfbuzz-2.7.4-10.el9.i686.rpm,5157daf2ab0a03b403d37c60b150b8f0f866754714f81e3d96368e06a16339ce
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/harfbuzz-2.7.4-10.el9.x86_64.rpm,1f81073019abe4176d4496723a89b55a349c31f507e96397a0b3efa7cea0ff61
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libassuan-2.5.5-3.el9.i686.rpm,9ab4028be7d7c0631944476fb2e083eeb185c3d01468c8def3e3aa235dc5c12d
+https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libassuan-2.5.5-3.el9.x86_64.rpm,3201aaeb3240c3497673200c50fc27c2b07effd1c3fdd2fbd17a83373e80afb4
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libblkid-2.37.4-20.el9.i686.rpm,f9e62d2768c31948b53268b7de51bd1c7342cdf39a328a0d89d933b4aa0c5dd1
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libblkid-2.37.4-20.el9.x86_64.rpm,ed02d978a36488b38bad62af21d4045367c1f0b00d00c90ded01e2fc8e190536
 https://vault.almalinux.org/9.5/BaseOS/x86_64/os/Packages/libbrotli-1.0.9-7.el9_5.i686.rpm,d18c20fccbb9497222059d475161a55c0c6279344f214fe551b8b0f87d3c054a
