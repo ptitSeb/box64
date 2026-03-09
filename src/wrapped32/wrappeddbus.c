@@ -316,9 +316,9 @@ static void* findDBusObjectPathUnregisterFunctionFct(void* fct)
 // DBusObjectPathMessageFunction
 #define GO(A)   \
 static uintptr_t my_DBusObjectPathMessageFunction_fct_##A = 0;   \
-static void my_DBusObjectPathMessageFunction_##A(void* connection, void* message, void* data)     \
+static int my_DBusObjectPathMessageFunction_##A(void* connection, void* message, void* data)     \
 {                                       \
-    RunFunctionFmt(my_DBusObjectPathMessageFunction_fct_##A, "ppp", connection, message, data);\
+    return (int)RunFunctionFmt(my_DBusObjectPathMessageFunction_fct_##A, "ppp", connection, message, data);\
 }
 SUPER()
 #undef GO
@@ -364,7 +364,7 @@ static void* finddbus_internal_padFct(void* fct)
 static uintptr_t my_DBusNewConnectionFunction_fct_##A = 0;                      \
 static void my_DBusNewConnectionFunction_##A(void* a, void* b, void* c)         \
 {                                                                               \
-    RunFunctionFmt(my_DBusNewConnectionFunction_fct_##A, "pppp", a, b, c);  \
+    RunFunctionFmt(my_DBusNewConnectionFunction_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
