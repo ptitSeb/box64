@@ -54,6 +54,34 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     opcode = F8;
 
     switch (opcode) {
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH reg");
+            SCRATCH_USAGE(0);
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            PUSH1z(gd);
+            SMWRITE();
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            SCRATCH_USAGE(0);
+            SMREAD();
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            POP1z(gd);
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
@@ -109,6 +137,29 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                     ZEROUP(gd); // truncate the higher 32bits as asked
                 }
             }
+            break;
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
+            if (gd == xRAX) {
+                INST_NAME("NOP");
+            } else {
+                INST_NAME("XCHG EAX, Reg");
+                MVxw(x2, xRAX);
+                MVxw(xRAX, gd);
+                MVxw(gd, x2);
+            }
+            break;
+        case 0xC9:
+            INST_NAME("LEAVE");
+            MVz(xRSP, xRBP);
+            POP1z(xRBP);
             break;
 
         default:
