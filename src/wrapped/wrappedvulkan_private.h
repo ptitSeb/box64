@@ -1106,6 +1106,12 @@ GO(vkGetPhysicalDeviceWin32PresentationSupportKHR, iFpu) // Warning: failed to c
 // VK_KHR_swapchain_maintenance1
 GO(vkReleaseSwapchainImagesKHR, iFpp)
 
+// VK_EXT_present_timing
+GO(vkGetPastPresentationTimingEXT, iFppp)
+GO(vkGetSwapchainTimeDomainPropertiesEXT, iFpppp)
+GO(vkGetSwapchainTimingPropertiesEXT, iFpppp)
+GO(vkSetSwapchainPresentTimingQueueSizeEXT, iFppu)
+
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp) // Warning: failed to confirm
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)
