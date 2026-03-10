@@ -2511,7 +2511,6 @@
 #() iFiuuUpU
 #() iFiuuppp
 #() iFiuUuUu
-#() iFilpppp
 #() iFiLpppi
 #() iFipipip
 #() iFipippp
@@ -3006,6 +3005,7 @@
 #() vFppppppL
 #() vFppppppp
 #() cFppppppp
+#() iFEilpppp
 #() iFElppppp
 #() iFEpipupp
 #() iFEpupppp
@@ -4207,6 +4207,8 @@ wrappedcrypto:
   - PEM_read_bio_X509_REQ
 - iFpiipp:
   - ENGINE_ctrl
+- iFilpppp:
+  - CRYPTO_get_ex_new_index
 - iFpplppi:
   - ENGINE_ctrl_cmd
 - iFppppipp:
@@ -4278,6 +4280,8 @@ wrappedcrypto3:
   - ENGINE_ctrl
 - pFppppp:
   - OSSL_STORE_open
+- iFilpppp:
+  - CRYPTO_get_ex_new_index
 - iFpplppi:
   - ENGINE_ctrl_cmd
 - iFppppipp:

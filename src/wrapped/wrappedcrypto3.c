@@ -500,6 +500,83 @@ static void* find_do_all_provided_cb_Fct(void* fct)
     return NULL;
 }
 
+// ex_new
+#define GO(A)   \
+static uintptr_t my3_ex_new_fct_##A = 0;                                                        \
+static void my3_ex_new_##A(void* parent, void* ptr, void* ad, int idx, long argl, void* argp)   \
+{                                                                                               \
+    RunFunctionFmt(my3_ex_new_fct_##A, "pppilp", parent, ptr, ad, idx, argl, argp);             \
+}
+SUPER()
+#undef GO
+static void* find_ex_new_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_ex_new_fct_##A == (uintptr_t)fct) return my3_ex_new_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_ex_new_fct_##A == 0) {my3_ex_new_fct_##A = (uintptr_t)fct; return my3_ex_new_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL ex_new callback\n");
+    return NULL;
+}
+
+// ex_dup
+#define GO(A)   \
+static uintptr_t my3_ex_dup_fct_##A = 0;                                                            \
+static int my3_ex_dup_##A(void* to, void* from, void* from_d, int idx, long argl, void* argp)       \
+{                                                                                                   \
+    return (int) RunFunctionFmt(my3_ex_dup_fct_##A, "pppilp", to, from, from_d, idx, argl, argp);   \
+}
+SUPER()
+#undef GO
+static void* find_ex_dup_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_ex_dup_fct_##A == (uintptr_t)fct) return my3_ex_dup_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_ex_dup_fct_##A == 0) {my3_ex_dup_fct_##A = (uintptr_t)fct; return my3_ex_dup_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL ex_dup callback\n");
+    return NULL;
+}
+
+// ex_free
+#define GO(A)   \
+static uintptr_t my3_ex_free_fct_##A = 0;                                                       \
+static void my3_ex_free_##A(void* parent, void* ptr, void* ad, int idx, long argl, void* argp)  \
+{                                                                                               \
+    RunFunctionFmt(my3_ex_free_fct_##A, "pppilp", parent, ptr, ad, idx, argl, argp);            \
+}
+SUPER()
+#undef GO
+static void* find_ex_free_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_ex_free_fct_##A == (uintptr_t)fct) return my3_ex_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_ex_free_fct_##A == 0) {my3_ex_free_fct_##A = (uintptr_t)fct; return my3_ex_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL ex_free callback\n");
+    return NULL;
+}
+
+EXPORT int my3_CRYPTO_get_ex_new_index(x64emu_t* emu, int idx, long argl, void* argp, void* new_func, 
+    void* dup_func, void* free_func) {
+    (void)emu;
+    return my->CRYPTO_get_ex_new_index(idx, argl, argp, find_ex_new_Fct(new_func), find_ex_dup_Fct(dup_func), find_ex_free_Fct(free_func));
+}
 
 EXPORT int32_t my3_ENGINE_ctrl(x64emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
 {

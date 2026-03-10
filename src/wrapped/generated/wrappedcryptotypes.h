@@ -19,6 +19,7 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
+typedef int32_t (*iFilpppp_t)(int32_t, intptr_t, void*, void*, void*, void*);
 typedef int32_t (*iFpplppi_t)(void*, void*, intptr_t, void*, void*, int32_t);
 typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*);
 
@@ -55,6 +56,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(PEM_read_bio_X509_CRL, pFpppp_t) \
 	GO(PEM_read_bio_X509_REQ, pFpppp_t) \
 	GO(ENGINE_ctrl, iFpiipp_t) \
+	GO(CRYPTO_get_ex_new_index, iFilpppp_t) \
 	GO(ENGINE_ctrl_cmd, iFpplppi_t) \
 	GO(PEM_write_bio_DSAPrivateKey, iFppppipp_t) \
 	GO(PEM_write_bio_ECPrivateKey, iFppppipp_t) \

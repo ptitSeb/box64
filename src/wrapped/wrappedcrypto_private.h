@@ -866,7 +866,7 @@ GO(CRYPTO_free, vFppi)
 //GO(CRYPTO_get_dynlock_value, 
 //GO(CRYPTO_get_ex_data, 
 //GO(CRYPTO_get_ex_data_implementation, 
-GO(CRYPTO_get_ex_new_index, iFilpppp)
+GOM(CRYPTO_get_ex_new_index, iFEilpppp)
 //GO(CRYPTO_get_id_callback, 
 //GO(CRYPTO_get_locked_mem_ex_functions, 
 //GO(CRYPTO_get_locked_mem_functions, 
