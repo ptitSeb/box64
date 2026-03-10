@@ -60,6 +60,53 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     opcode = F8;
 
     switch (opcode) {
+        case 0x00:
+            INST_NAME("ADD Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGBEB(x1, x2, 0);
+            emit_add8(dyn, ninst, ed, gd, x4, x5);
+            EBBACK();
+            break;
+        case 0x01:
+            INST_NAME("ADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
+        case 0x02:
+            INST_NAME("ADD Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGBEB(x1, x2, 0);
+            emit_add8(dyn, ninst, gd, ed, x4, x5);
+            GBBACK();
+            break;
+        case 0x03:
+            INST_NAME("ADD Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+        case 0x04:
+            INST_NAME("ADD AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
+            BF_INSERT(xRAX, x1, 7, 0);
+            break;
+        case 0x05:
+            INST_NAME("ADD EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+            i64 = F32S;
+            emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
+            break;
         case 0x63:
             if (rex.is32bits) {
                 // this is ARPL opcode
