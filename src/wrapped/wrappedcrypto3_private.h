@@ -305,6 +305,7 @@ GO(BIO_get_callback_arg, pFp)
 GO(BIO_get_close, iFp)
 GO(BIO_get_ex_data, pFpi)
 //GO(BIO_get_ex_new_index, 
+GO(BIO_get_new_index, iFv)
 GO(BIO_gethostbyname, pFp)
 GO(BIO_get_host_ip, iFpp)
 GO(BIO_get_port, iFpp)
@@ -860,7 +861,7 @@ GO(CRYPTO_free_ex_data, vFipp)
 //GO(CRYPTO_get_dynlock_value, 
 GO(CRYPTO_get_ex_data, pFpi)
 //GO(CRYPTO_get_ex_data_implementation, 
-GO(CRYPTO_get_ex_new_index, iFilpppp)   // might need GOM, last 3 pointers are functions
+GOM(CRYPTO_get_ex_new_index, iFEilpppp)
 //GO(CRYPTO_get_id_callback, 
 //GO(CRYPTO_get_locked_mem_ex_functions, 
 //GO(CRYPTO_get_locked_mem_functions, 
@@ -3586,7 +3587,7 @@ GO(X509_check_ca, iFp)
 //GO(X509_check_email, 
 GO(X509_check_host, iFppLup)
 //GO(X509_check_ip, 
-//GO(X509_check_ip_asc, 
+GO(X509_check_ip_asc, iFppu)
 GO(X509_check_issued, iFpp)
 //GO(X509_check_private_key, 
 GO(X509_check_purpose, iFpii)
@@ -3683,6 +3684,7 @@ GO(X509_get0_pubkey, pFp)
 GO(X509_get0_serialNumber, pFp)
 GO(X509_get_serialNumber, pFp)
 GO(X509_get_signature_nid, iFp)
+GO(X509_get_signature_info, iFppppp)
 GO(X509_get_subject_name, pFp)
 GO(X509_get_version, lFp)
 GO(X509_get_X509_PUBKEY, pFp)
@@ -3920,7 +3922,7 @@ GO(X509_STORE_get_ex_data, pFpi)
 GO(X509_STORE_load_file, iFpp)
 GO(X509_STORE_load_path, iFpp)
 GO(X509_STORE_load_store, iFpp)
-//GO(X509_STORE_load_locations, iFppp)
+GO(X509_STORE_load_locations, iFppp)
 GO(X509_STORE_lock, iFp)
 GO(X509_STORE_unlock, iFp)
 GO(X509_STORE_new, pFv)
