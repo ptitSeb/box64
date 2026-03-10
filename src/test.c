@@ -297,7 +297,7 @@ static void loadTest(const char** filepath, const char* include_path)
     }
 
     close(mkstemp(binname));
-    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x10000", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
+    const char* ld_cmd[] = { X86_64_LD, objname, "-Ttext=0x10000", "-n", "-w", "-m", box64_is32bits ? "elf_i386" : "elf_x86_64", "-o", binname, NULL };
 
     fork_result = fork();
     if (fork_result == 0) {
@@ -348,7 +348,7 @@ int unittest(int argc, const char** argv)
         include_path = argv[4];
     }
 
-    box64_pagesize = 4096;
+    box64_pagesize = sysconf(_SC_PAGESIZE);
     LoadEnvVariables();
     InitializeSystemInfo();
     ftrace = stdout;
