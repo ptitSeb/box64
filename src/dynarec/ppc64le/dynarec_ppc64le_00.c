@@ -64,34 +64,127 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGBEB(x1, x2, 0);
-            emit_add8(dyn, ninst, ed, gd, x4, x5);
-            EBBACK();
+            SCRATCH_USAGE(0);
+            // Get Gb (source byte register)
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (rex.rex) {
+                gb2 = 0;
+                gb1 = TO_NAT(gd);
+            } else {
+                gb2 = ((gd & 4) << 1);
+                gb1 = TO_NAT(gd & 3);
+            }
+            if (gb2) {
+                gd = x4;
+                BF_EXTRACT(gd, gb1, gb2 + 7, gb2);
+            } else {
+                gd = gb1; // no need to extract
+            }
+            // Get Eb (dest byte register/memory)
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (rex.rex) {
+                    eb1 = TO_NAT(ed);
+                    eb2 = 0;
+                } else {
+                    eb1 = TO_NAT(ed & 3);
+                    eb2 = ((ed & 4) >> 2);
+                }
+                if (eb2) {
+                    ed = x5;
+                    BF_EXTRACT(ed, eb1, eb2 * 8 + 7, eb2 * 8);
+                } else {
+                    ed = eb1;
+                }
+                emit_add8(dyn, ninst, ed, gd, x1, x2);
+                BF_INSERT(eb1, ed, eb2 * 8 + 7, eb2 * 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
+                SMREADLOCK(lock);
+                LBZ(x5, fixedaddress, ed);
+                emit_add8(dyn, ninst, x5, gd, x1, x2);
+                STB(x5, fixedaddress, ed);
+                SMWRITELOCK(lock);
+            }
             break;
         case 0x01:
             INST_NAME("ADD Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            GETED(0);
-            emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
-            WBACK;
+            SCRATCH_USAGE(0);
+            if (MODREG) { // reg <= reg
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            } else { // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
+                SMREADLOCK(lock);
+                LDxw(x5, fixedaddress, ed);
+                emit_add32(dyn, ninst, rex, x5, gd, x3, x4, x1);
+                SDxw(x5, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
             break;
         case 0x02:
             INST_NAME("ADD Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            GETGBEB(x1, x2, 0);
-            emit_add8(dyn, ninst, gd, ed, x4, x5);
-            GBBACK();
+            SCRATCH_USAGE(0);
+            // Get Gb (dest byte register)
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (rex.rex) {
+                gb2 = 0;
+                gb1 = TO_NAT(gd);
+            } else {
+                gb2 = ((gd & 4) << 1);
+                gb1 = TO_NAT(gd & 3);
+            }
+            if (gb2) {
+                tmp1 = x4;
+                BF_EXTRACT(tmp1, gb1, gb2 + 7, gb2);
+            } else {
+                tmp1 = gb1;
+            }
+            // Get Eb (source byte register/memory)
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (rex.rex) {
+                    eb1 = TO_NAT(ed);
+                    eb2 = 0;
+                } else {
+                    eb1 = TO_NAT(ed & 3);
+                    eb2 = ((ed & 4) >> 2);
+                }
+                if (eb2) {
+                    ed = x5;
+                    BF_EXTRACT(ed, eb1, eb2 * 8 + 7, eb2 * 8);
+                } else {
+                    ed = eb1;
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
+                SMREAD();
+                LBZ(x5, fixedaddress, ed);
+                ed = x5;
+            }
+            emit_add8(dyn, ninst, tmp1, ed, x1, x2);
+            BF_INSERT(gb1, tmp1, gb2 + 7, gb2);
             break;
         case 0x03:
             INST_NAME("ADD Gd, Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            GETED(0);
-            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            SCRATCH_USAGE(0);
+            if (MODREG) { // reg <= reg
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            } else { // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
+                SMREAD();
+                LDxw(x5, fixedaddress, ed);
+                emit_add32(dyn, ninst, rex, gd, x5, x3, x4, x1);
+            }
             break;
         case 0x04:
             INST_NAME("ADD AL, Ib");
