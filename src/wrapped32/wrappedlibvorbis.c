@@ -69,6 +69,7 @@ typedef struct {
     int64_t  floor_bits;
     int64_t  res_bits;
     void    *backend_state;
+    ptr_t    pcm32[256];    // buffer for converting native float** to ptr_t[] for 32-bit code
 } my_vorbis_dsp_state_t;
 
 typedef struct {
@@ -213,10 +214,6 @@ static kh_infostate_t* info_shadows = NULL;
 
 KHASH_MAP_INIT_INT(commentstate, my_vorbis_comment_t*);
 static kh_commentstate_t* comment_shadows = NULL;
-
-// Buffer for converting native float** (per-channel pointers) to ptr_t[] for 32-bit code
-// Max 256 channels as per vorbis spec
-static ptr_t pcm32_buf[256];
 
 // Get or create a native shadow for a 32-bit vorbis_info
 static my_vorbis_info_t* getInfoShadow(void* a)
@@ -552,8 +549,8 @@ EXPORT ptr_t my32_vorbis_analysis_buffer(x64emu_t* emu, void* vd, int vals)
         int channels = vi ? vi->channels : 0;
         if(channels > 256) channels = 256;
         for(int i = 0; i < channels; i++)
-            pcm32_buf[i] = to_ptrv(native_buf[i]);
-        return to_ptrv(pcm32_buf);
+            dsp_shadow->pcm32[i] = to_ptrv(native_buf[i]);
+        return to_ptrv(dsp_shadow->pcm32);
     }
     return 0;
 }
@@ -688,8 +685,8 @@ EXPORT int my32_vorbis_synthesis_pcmout(x64emu_t* emu, void* vd, ptr_t* pcm)
             int channels = vi ? vi->channels : 0;
             if(channels > 256) channels = 256;
             for(int i = 0; i < channels; i++)
-                pcm32_buf[i] = to_ptrv(native_pcm[i]);
-            *pcm = to_ptrv(pcm32_buf);
+                dsp_shadow->pcm32[i] = to_ptrv(native_pcm[i]);
+            *pcm = to_ptrv(dsp_shadow->pcm32);
         } else {
             *pcm = 0;
         }
@@ -709,8 +706,8 @@ EXPORT int my32_vorbis_synthesis_lapout(x64emu_t* emu, void* vd, ptr_t* pcm)
             int channels = vi ? vi->channels : 0;
             if(channels > 256) channels = 256;
             for(int i = 0; i < channels; i++)
-                pcm32_buf[i] = to_ptrv(native_pcm[i]);
-            *pcm = to_ptrv(pcm32_buf);
+                dsp_shadow->pcm32[i] = to_ptrv(native_pcm[i]);
+            *pcm = to_ptrv(dsp_shadow->pcm32);
         } else {
             *pcm = 0;
         }
