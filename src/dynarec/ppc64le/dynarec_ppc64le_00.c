@@ -327,6 +327,7 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("MOV Eb, Ib");
             nextop = F8;
             if (MODREG) { // reg <= u8
+                SCRATCH_USAGE(1);
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
@@ -351,12 +352,12 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop = F8;
-            SCRATCH_USAGE(1);
             if (MODREG) { // reg <= i32
                 i64 = F32S;
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
             } else { // mem <= i32
+                SCRATCH_USAGE(1);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 4);
                 i64 = F32S;
                 MOV64xw(x3, i64);
