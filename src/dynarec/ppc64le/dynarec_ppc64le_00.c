@@ -339,18 +339,11 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 MOV32w(x3, u8);
                 BF_INSERT(eb1, x3, eb2 * 8 + 7, eb2 * 8);
             } else { // mem <= u8
-                SCRATCH_USAGE(0);
+                SCRATCH_USAGE(1);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 1);
                 u8 = F8;
-                if (u8) {
-                    SCRATCH_USAGE(1);
-                    LI(x3, u8);
-                    ed = x3;
-                } else {
-                    SCRATCH_USAGE(1);
-                    LI(x3, 0);
-                    ed = x3;
-                }
+                LI(x3, u8);
+                ed = x3;
                 STB(ed, fixedaddress, wback);
                 SMWRITELOCK(lock);
             }
@@ -358,7 +351,7 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop = F8;
-            SCRATCH_USAGE(0);
+            SCRATCH_USAGE(1);
             if (MODREG) { // reg <= i32
                 i64 = F32S;
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -366,15 +359,8 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             } else { // mem <= i32
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 4);
                 i64 = F32S;
-                if (i64) {
-                    SCRATCH_USAGE(1);
-                    MOV64x(x3, i64);
-                    ed = x3;
-                } else {
-                    SCRATCH_USAGE(1);
-                    LI(x3, 0);
-                    ed = x3;
-                }
+                MOV64xw(x3, i64);
+                ed = x3;
                 SDxw(ed, wback, fixedaddress);
                 SMWRITELOCK(lock);
             }
