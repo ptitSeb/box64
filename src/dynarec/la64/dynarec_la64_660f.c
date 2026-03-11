@@ -2387,17 +2387,17 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
                     if (cpuext.lbt) {
-                        SRLI_D(x3, ed, u8);
-                        X64_SET_EFLAGS(x3, X_CF);
+                        SRLI_D(x5, ed, u8);
+                        X64_SET_EFLAGS(x5, X_CF);
                     } else {
-                        BSTRPICK_D(x3, ed, u8, u8);
-                        BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        BSTRPICK_D(x5, ed, u8, u8);
+                        BSTRINS_D(xFlags, x5, F_CF, F_CF);
                     }
                     if (u8 <= 11) {
                         ORI(ed, ed, (1LL << u8));
                     } else {
-                        ADDI_D(x3, xZR, -1);
-                        BSTRINS_D(ed, x3, u8, u8);
+                        ADDI_D(x5, xZR, -1);
+                        BSTRINS_D(ed, x5, u8, u8);
                     }
                     EWBACK;
                     break;
@@ -2413,11 +2413,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
                     if (cpuext.lbt) {
-                        SRLI_D(x3, ed, u8);
-                        X64_SET_EFLAGS(x3, X_CF);
+                        SRLI_D(x5, ed, u8);
+                        X64_SET_EFLAGS(x5, X_CF);
                     } else {
-                        BSTRPICK_D(x3, ed, u8, u8);
-                        BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        BSTRPICK_D(x5, ed, u8, u8);
+                        BSTRINS_D(xFlags, x5, F_CF, F_CF);
                     }
                     BSTRINS_D(ed, xZR, u8, u8);
                     EWBACK;
@@ -2434,11 +2434,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
                     if (cpuext.lbt) {
-                        SRLI_D(x3, ed, u8);
-                        X64_SET_EFLAGS(x3, X_CF);
+                        SRLI_D(x5, ed, u8);
+                        X64_SET_EFLAGS(x5, X_CF);
                     } else {
-                        BSTRPICK_D(x3, ed, u8, u8);
-                        BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        BSTRPICK_D(x5, ed, u8, u8);
+                        BSTRINS_D(xFlags, x5, F_CF, F_CF);
                     }
                     if (u8 <= 11) {
                         XORI(ed, ed, (1LL << u8));
