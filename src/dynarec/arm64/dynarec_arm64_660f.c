@@ -768,6 +768,26 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     VMULQ_32(q0, q0, q1);
                     break;
+                case 0x41:
+                    INST_NAME("PHMINPOSUW Gx, Ex");
+                    nextop = F8;
+                    GETEX(v1, 0, 0);
+                    GETGX_empty(v0);
+                    q0 = fpu_get_scratch(dyn, ninst);
+                    q1 = fpu_get_scratch(dyn, ninst);
+                    // get the min value
+                    UMINVQ_16(q0, v1);      //q0.uw[0] = min value
+                    VDUPQ_16(q1, q0, 0);    // vector of min value
+                    VCMEQQ_16(q1, q1, v1);  // bit field of the element that are the min value
+                    UQXTN_8(q1, q1);        // same bit field, but on 8bits elements only, easier to handle
+                    VMOVQDto(x1, q1, 0);    // grab the bit field as a 64bits value
+                    VEORQ(v0, v0, v0);      // RAZ everything
+                    RBITx(x1, x1);          // reverse, we want trailling zero but can only count leading ones
+                    CLZx(x1, x1);
+                    VMOVeH(v0, 0, q0, 0);   // set up min
+                    LSRw(x1, x1, 3);        // divide by 8, that's our index...
+                    VMOVQHfrom(v0, 1, x1);
+                    break;
 
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex");  // AES-NI
