@@ -812,6 +812,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n66.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc67.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n67.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedicuuc68.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedicui18n68.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc72.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n72.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc73.c"
