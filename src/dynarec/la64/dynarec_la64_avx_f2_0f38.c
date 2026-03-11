@@ -100,14 +100,15 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 MULH_DU(gb1, xRDX, ed);
                 if (gd != vd) { MUL_D(vd, xRDX, ed); }
                 if (gb1 == x3) {
-                    OR(gd, gb1, gb1);
+                    MV(gd, gb1);
                 }
             } else {
                 MULH_WU(gb1, xRDX, ed);
-                if (gd != vd) { MUL_W(vd, xRDX, ed); }
-            }
-            if (gb1 == x3) {
-                BSTRINS_D(gd, gb1, 31, 0);
+                ZEROUP2(gd, gb1);
+                if (gd != vd) {
+                    MUL_W(vd, xRDX, ed);
+                    ZEROUP(vd);
+                }
             }
             break;
         case 0xF7:
