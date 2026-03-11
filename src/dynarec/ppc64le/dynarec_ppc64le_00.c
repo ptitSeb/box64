@@ -33,7 +33,11 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed, tmp1, tmp2, tmp3;
+    uint8_t gb1, gb2, eb1, eb2;
+    uint8_t wback, wb2;
     uint8_t u8;
+    uint32_t u32;
+    uint64_t u64;
     int64_t j64;
     int v0, v1;
     int i32;
@@ -43,6 +47,8 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     MAYUSE(tmp1);
     MAYUSE(tmp2);
     MAYUSE(tmp3);
+    MAYUSE(eb1);
+    MAYUSE(eb2);
     MAYUSE(j64);
     MAYUSE(v0);
     MAYUSE(v1);
@@ -54,6 +60,34 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     opcode = F8;
 
     switch (opcode) {
+        case 0x63:
+            if (rex.is32bits) {
+                // this is ARPL opcode
+                DEFAULT;
+            } else {
+                INST_NAME("MOVSXD Gd, Ed");
+                nextop = F8;
+                GETGD;
+                SCRATCH_USAGE(0);
+                if (rex.w) {
+                    if (MODREG) { // reg <= reg
+                        EXTSW(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else { // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
+                        LWA(gd, fixedaddress, ed);
+                    }
+                } else {
+                    if (MODREG) { // reg <= reg
+                        ZEROUP2(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
+                    } else { // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
+                        LWZ(gd, fixedaddress, ed);
+                    }
+                }
+            }
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -82,6 +116,39 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+        case 0x88:
+            INST_NAME("MOV Eb, Gb");
+            nextop = F8;
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (rex.rex) {
+                gb2 = 0;
+                gb1 = TO_NAT(gd);
+            } else {
+                gb2 = ((gd & 4) << 1);
+                gb1 = TO_NAT(gd & 3);
+            }
+            if (gb2) {
+                gd = x4;
+                BF_EXTRACT(gd, gb1, gb2 + 7, gb2);
+            } else {
+                gd = gb1; // no need to extract
+            }
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (rex.rex) {
+                    eb1 = TO_NAT(ed);
+                    eb2 = 0;
+                } else {
+                    eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
+                    eb2 = ((ed & 4) >> 2); // L or H
+                }
+                BF_INSERT(eb1, gd, eb2 * 8 + 7, eb2 * 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
+                STB(gd, fixedaddress, ed);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
@@ -98,6 +165,40 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 SDxw(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
+            break;
+        case 0x8A:
+            INST_NAME("MOV Gb, Eb");
+            nextop = F8;
+            if (rex.rex) {
+                gb1 = gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+                gb2 = 0;
+            } else {
+                gd = (nextop & 0x38) >> 3;
+                gb1 = TO_NAT(gd & 3);
+                gb2 = ((gd & 4) << 1);
+            }
+            if (MODREG) {
+                if (rex.rex) {
+                    wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                    wb2 = 0;
+                } else {
+                    wback = (nextop & 7);
+                    wb2 = (wback >> 2);
+                    wback = TO_NAT(wback & 3);
+                }
+                if (wb2) {
+                    BF_EXTRACT(x4, wback, 7 + wb2 * 8, wb2 * 8);
+                    ed = x4;
+                } else {
+                    ed = wback;
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
+                SMREADLOCK(lock);
+                LBZ(x4, fixedaddress, wback);
+                ed = x4;
+            }
+            BF_INSERT(gb1, ed, gb2 + 7, gb2);
             break;
         case 0x8B:
             INST_NAME("MOV Gd, Ed");
@@ -156,12 +257,120 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 MVxw(gd, x2);
             }
             break;
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+            INST_NAME("MOV xL, Ib");
+            u8 = F8;
+            if (rex.rex)
+                gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
+            else
+                gb1 = TO_NAT(opcode & 3);
+            BF_INSERT(gb1, xZR, 7, 0);
+            ORI(gb1, gb1, u8);
+            break;
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            INST_NAME("MOV xH, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if (rex.rex) {
+                gb1 = TO_NAT((opcode & 7) + (rex.b << 3));
+                BF_INSERT(gb1, x1, 7, 0);
+            } else {
+                gb1 = TO_NAT(opcode & 3);
+                BF_INSERT(gb1, x1, 15, 8);
+            }
+            break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = TO_NAT((opcode & 7) + (rex.b << 3));
+            SCRATCH_USAGE(0);
+            if (rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
+            }
+            break;
+        case 0x98:
+            if (rex.w) {
+                INST_NAME("CDQE");
+                EXTSW(xRAX, xRAX);
+            } else {
+                INST_NAME("CWDE");
+                EXTSH(xRAX, xRAX);
+                ZEROUP(xRAX);
+            }
+            break;
+        case 0x99:
+            INST_NAME("CDQ");
+            if (rex.w) {
+                SRADI(xRDX, xRAX, 63);
+            } else {
+                SRAWI(xRDX, xRAX, 31);
+                ZEROUP(xRDX);
+            }
+            break;
+        case 0xC6:
+            INST_NAME("MOV Eb, Ib");
+            nextop = F8;
+            if (MODREG) { // reg <= u8
+                SCRATCH_USAGE(1);
+                u8 = F8;
+                if (!rex.rex) {
+                    ed = (nextop & 7);
+                    eb1 = TO_NAT((ed & 3)); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;    // L or H
+                } else {
+                    eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
+                    eb2 = 0;
+                }
+                MOV32w(x3, u8);
+                BF_INSERT(eb1, x3, eb2 * 8 + 7, eb2 * 8);
+            } else { // mem <= u8
+                SCRATCH_USAGE(1);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 1);
+                u8 = F8;
+                LI(x3, u8);
+                ed = x3;
+                STB(ed, fixedaddress, wback);
+                SMWRITELOCK(lock);
+            }
+            break;
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop = F8;
+            if (MODREG) { // reg <= i32
+                i64 = F32S;
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MOV64xw(ed, i64);
+            } else { // mem <= i32
+                SCRATCH_USAGE(1);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 4);
+                i64 = F32S;
+                MOV64xw(x3, i64);
+                ed = x3;
+                SDxw(ed, wback, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0xC9:
             INST_NAME("LEAVE");
             MVz(xRSP, xRBP);
             POP1z(xRBP);
             break;
-
         default:
             DEFAULT;
     }
