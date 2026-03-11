@@ -270,6 +270,13 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d1 = fpu_get_scratch(dyn);
             GETEXSS(d0, 0, 0);
             FSQRT_S(d1, d0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v1 = fpu_get_scratch(dyn);
+                MOVGR2FR_W(v1, xZR);
+                FCMP_S(fcc0, d0, v1, cLT);
+                BCEQZ(fcc0, 4 + 4);
+                FNEG_S(d1, d1);
+            }
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x52:
