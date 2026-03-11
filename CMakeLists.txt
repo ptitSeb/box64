@@ -150,6 +150,7 @@ endif()
 project(box64 C ASM)
 
 enable_testing()
+add_subdirectory(unittests)
 
 set(default_build_type "RelWithDebInfo")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
