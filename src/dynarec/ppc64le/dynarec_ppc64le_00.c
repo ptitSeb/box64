@@ -327,7 +327,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("MOV Eb, Ib");
             nextop = F8;
             if (MODREG) { // reg <= u8
-                SCRATCH_USAGE(1);
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
