@@ -13,6 +13,8 @@
 
 const char* pcapName = "libpcap.so.0.8";
 #define LIBNAME pcap
+#define ALTNAME "libpcap.so.1"
+#define ALTNAME2 "libpcap.so.1.10.6"
 
 #include "wrappedlib_init.h"
 
