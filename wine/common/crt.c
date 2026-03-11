@@ -129,6 +129,17 @@ long long strtoll(const char* restrict str, char** restrict str_end, int base)
     return (LONGLONG)tmp;
 }
 
+int strcasecmp(const char *s1, const char *s2)
+{
+    while (*s1 && *s2) {
+        int diff = tolower(*s1) - tolower(*s2);
+        if (diff) return diff;
+        s1++;
+        s2++;
+    }
+    return tolower(*s1) - tolower(*s2);
+}
+
 BOXFILE* box_fopen(const char* filename, const char* mode)
 {
     DWORD dwDesiredAccess = 0;
