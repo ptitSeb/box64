@@ -434,6 +434,8 @@ static void addLibPaths(box64context_t* context)
     GO("libicui18n.so.66");
     GO("libicuuc.so.67");
     GO("libicui18n.so.67");
+    GO("libicuuc.so.68");
+    GO("libicui18n.so.68");
     GO("libicuuc.so.72");
     GO("libicui18n.so.72");
     GO("libicuuc.so.73");

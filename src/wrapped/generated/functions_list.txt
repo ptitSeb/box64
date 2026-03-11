@@ -5214,6 +5214,7 @@ wrappedharfbuzzsubset:
 wrappedicui18n64:
 wrappedicui18n66:
 wrappedicui18n67:
+wrappedicui18n68:
 wrappedicui18n72:
 wrappedicui18n73:
 wrappedicui18n74:
@@ -5222,6 +5223,7 @@ wrappedicui18n76:
 wrappedicuuc64:
 wrappedicuuc66:
 wrappedicuuc67:
+wrappedicuuc68:
 wrappedicuuc72:
 wrappedicuuc73:
 wrappedicuuc74:
