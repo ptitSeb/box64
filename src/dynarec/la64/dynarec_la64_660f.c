@@ -809,6 +809,25 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q0, 1);
                     VMUL_W(q0, q0, q1);
                     break;
+                case 0x41:
+                    INST_NAME("PHMINPOSUW Gx, Ex");
+                    nextop = F8;
+                    GETEX(v1, 0, 0);
+                    GETGX(v0, 1);
+                    q0 = fpu_get_scratch(dyn);
+                    q1 = fpu_get_scratch(dyn);
+                    q2 = fpu_get_scratch(dyn);
+                    // v1[a,b,c,d,e,f,g,h]
+                    VSHUF4I_W(q0, v1, 0b01001110); // q0[e,f,g,h,a,b,c,d]
+                    VMIN_HU(q1, v1, q0);           // q1[ae,bf,cg,dh ...]
+                    VSHUF4I_H(q2, q1, 0b10110001); // q2[bf,ae,dh,cg ...]
+                    VMIN_HU(q1, q1, q2);           // q1[aebf,aebf,cgdh,cgdh ...]
+                    VSHUF4I_H(q0, q1, 0b01001110); // q0[cgdh,cgdh,aebf,aebf]
+                    VMIN_HU(q2, q0, q1);           // all lane is min(abcdefgh)
+                    VSEQ_H(q0, q2, v1);            // get mask(0xffff)
+                    VFRSTPI_H(q2, q0, 1);          // find first neg(0xffff),insert index to q2
+                    XVPICKVE_W(v0, q2, 0);
+                    break;
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex"); // AES-NI
                     nextop = F8;
