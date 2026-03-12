@@ -88,16 +88,16 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                     eb2 = 0;
                 } else {
                     eb1 = TO_NAT(ed & 3);
-                    eb2 = ((ed & 4) >> 2);
+                    eb2 = ((ed & 4) << 1);
                 }
                 if (eb2) {
                     ed = x5;
-                    BF_EXTRACT(ed, eb1, eb2 * 8 + 7, eb2 * 8);
+                    BF_EXTRACT(ed, eb1, eb2 + 7, eb2);
                 } else {
                     ed = eb1;
                 }
                 emit_add8(dyn, ninst, ed, gd, x1, x2);
-                BF_INSERT(eb1, ed, eb2 * 8 + 7, eb2 * 8);
+                BF_INSERT(eb1, ed, eb2 + 7, eb2);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
                 SMREADLOCK(lock);
@@ -153,11 +153,11 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                     eb2 = 0;
                 } else {
                     eb1 = TO_NAT(ed & 3);
-                    eb2 = ((ed & 4) >> 2);
+                    eb2 = ((ed & 4) << 1);
                 }
                 if (eb2) {
                     ed = x5;
-                    BF_EXTRACT(ed, eb1, eb2 * 8 + 7, eb2 * 8);
+                    BF_EXTRACT(ed, eb1, eb2 + 7, eb2);
                 } else {
                     ed = eb1;
                 }
@@ -280,9 +280,9 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                     eb2 = 0;
                 } else {
                     eb1 = TO_NAT(ed & 3);  // Ax, Cx, Dx or Bx
-                    eb2 = ((ed & 4) >> 2); // L or H
+                    eb2 = ((ed & 4) << 1); // L or H
                 }
-                BF_INSERT(eb1, gd, eb2 * 8 + 7, eb2 * 8);
+                BF_INSERT(eb1, gd, eb2 + 7, eb2);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
                 STB(gd, fixedaddress, ed);
@@ -471,13 +471,13 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 if (!rex.rex) {
                     ed = (nextop & 7);
                     eb1 = TO_NAT((ed & 3)); // Ax, Cx, Dx or Bx
-                    eb2 = (ed & 4) >> 2;    // L or H
+                    eb2 = (ed & 4) << 1;    // L or H
                 } else {
                     eb1 = TO_NAT((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
                 }
                 MOV32w(x3, u8);
-                BF_INSERT(eb1, x3, eb2 * 8 + 7, eb2 * 8);
+                BF_INSERT(eb1, x3, eb2 + 7, eb2);
             } else { // mem <= u8
                 SCRATCH_USAGE(1);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 1);
