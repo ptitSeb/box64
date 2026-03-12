@@ -119,7 +119,7 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             } else { // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, DS_DISP, 0);
                 SMREADLOCK(lock);
-                LDxw(x5, fixedaddress, ed);
+                LDxw(x5, ed, fixedaddress);
                 emit_add32(dyn, ninst, rex, x5, gd, x3, x4, x1);
                 SDxw(x5, ed, fixedaddress);
                 SMWRITELOCK(lock);
@@ -182,7 +182,7 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             } else { // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, 0);
                 SMREAD();
-                LDxw(x5, fixedaddress, ed);
+                LDxw(x5, ed, fixedaddress);
                 emit_add32(dyn, ninst, rex, gd, x5, x3, x4, x1);
             }
             break;
