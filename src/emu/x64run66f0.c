@@ -388,6 +388,31 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     }
 #endif
                     break;
+                case 3: /* NEG Ed */
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    if (rex.w)
+                        do {
+                            tmp64u = native_lock_read_dd(ED);
+                            tmp64u = neg64(emu, tmp64u);
+                        } while (native_lock_write_dd(ED, tmp64u));
+                    else {
+                        do {
+                            tmp16u = native_lock_read_h(ED);
+                            tmp16u = neg16(emu, tmp16u);
+                        } while (native_lock_write_h(ED, tmp16u));
+                    }
+#else
+                    if (rex.w) {
+                        pthread_mutex_lock(&my_context->mutex_lock);
+                        ED->q[0] = neg64(emu, ED->q[0]);
+                        pthread_mutex_unlock(&my_context->mutex_lock);
+                    } else {
+                        pthread_mutex_lock(&my_context->mutex_lock);
+                        ED->word[0] = neg16(emu, ED->dword[0]);
+                        pthread_mutex_unlock(&my_context->mutex_lock);
+                    }
+#endif
+                    break;
                 default:
                     return 0;
             }
