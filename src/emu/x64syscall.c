@@ -188,6 +188,7 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_chmod
     [90] = {__NR_chmod, 2},
     #endif
+    [91] = {__NR_fchmod, 2},
     [96] = {__NR_gettimeofday, 2},
     #ifdef __NR_getrlimit
     [97] = {__NR_getrlimit, 2},
