@@ -1500,11 +1500,11 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 BNEZ_MARK2(x3);
                             }
                             if (cpuext.lamcas) {
-                                LD_D(x5, wback, 0);
-                                SUB_D(x4, xZR, x5);
-                                MV(x6, x5);
-                                AMCAS_DB_D(x5, x4, wback);
-                                BNE(x6, x5, -4 * 3);
+                                LD_D(x1, wback, 0);
+                                SUB_D(x4, xZR, x1);
+                                MV(x6, x1);
+                                AMCAS_DB_D(x1, x4, wback);
+                                BNE(x6, x1, -4 * 3);
                             } else {
                                 LL_D(x1, wback, 0);
                                 SUB_D(x4, xZR, x1);
@@ -1519,11 +1519,11 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             }
                             // aligned 4byte
                             if (cpuext.lamcas) {
-                                LD_WU(x5, wback, 0);
-                                SUB_W(x4, xZR, x5);
-                                MV(x6, x5);
-                                AMCAS_DB_W(x5, x4, wback);
-                                BNE(x6, x5, -4 * 3);
+                                LD_WU(x1, wback, 0);
+                                SUB_W(x4, xZR, x1);
+                                MV(x6, x1);
+                                AMCAS_DB_W(x1, x4, wback);
+                                BNE(x6, x1, -4 * 3);
                             } else {
                                 LL_W(x1, wback, 0);
                                 SUB_W(x4, xZR, x1);
