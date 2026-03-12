@@ -1323,7 +1323,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                         ed = x1;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x5, &fixedaddress, rex, NULL, 0, 1);
                     }
                     u8 = F8;
                     MOV32w(x3, u8);
