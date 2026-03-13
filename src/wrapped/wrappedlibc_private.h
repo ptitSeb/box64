@@ -2238,10 +2238,18 @@ GO(thrd_exit, vFi)
 //GO(thrd_equal, 
 //GO(thrd_sleep, 
 //GO(thrd_yield, 
+//GO(tss_create,
+//GO(tss_get,
+//GO(tss_delete,
+//GO(tss_set,
 #else
 GO(thrd_equal, iFLL)
 GO(thrd_sleep, iFpp)
 GO(thrd_yield, vFv)
+GOM(tss_create, iFEpp)
+GO(tss_get, pFL)
+GO(tss_delete, vFL)
+GO(tss_set, iFLp)
 #endif
 GO(time, lFp)
 GO(timegm, lFp)

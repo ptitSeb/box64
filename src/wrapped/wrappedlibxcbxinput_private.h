@@ -1,479 +1,480 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 // xcb_XXX_iterator_t is H / pp
 
 DATA(xcb_input_id, 2*sizeof(void*))
-//GO(xcb_input_input_info_info, 
-//GO(xcb_input_send_extension_event_sizeof, 
-//GO(xcb_input_device_class_data_sizeof, 
-//GO(xcb_input_close_device, 
-//GO(xcb_input_feedback_state_data, 
-//GO(xcb_input_feedback_ctl_data, 
-//GO(xcb_input_input_state_data, 
-//GO(xcb_input_device_state_data, 
-//GO(xcb_input_device_ctl_data, 
-//GO(xcb_input_hierarchy_change_data, 
-//GO(xcb_input_device_class_data, 
-//GO(xcb_input_event_class_next, 
+GO(xcb_input_input_info_info, pFp)
+GO(xcb_input_send_extension_event_sizeof, iFp)
+GO(xcb_input_device_class_data_sizeof, iFpW)
+GO(xcb_input_close_device, UFbC)
+GO(xcb_input_feedback_state_data, pFp)
+GO(xcb_input_feedback_ctl_data, pFp)
+GO(xcb_input_input_state_data, pFp)
+GO(xcb_input_device_state_data, pFp)
+GO(xcb_input_device_ctl_data, pFp)
+GO(xcb_input_hierarchy_change_data, pFp)
+GO(xcb_input_device_class_data, pFp)
+GO(xcb_input_event_class_next, vFp)
 //GO(xcb_input_event_class_end, 
-//GO(xcb_input_key_code_next, 
+GO(xcb_input_key_code_next, vFp)
 //GO(xcb_input_key_code_end, 
-//GO(xcb_input_device_id_next, 
+GO(xcb_input_device_id_next, vFp)
 //GO(xcb_input_device_id_end, 
-//GO(xcb_input_fp1616_next, 
+GO(xcb_input_fp1616_next, vFp)
 //GO(xcb_input_fp1616_end, 
-//GO(xcb_input_fp3232_next, 
+GO(xcb_input_fp3232_next, vFp)
 //GO(xcb_input_fp3232_end, 
-//GO(xcb_input_get_extension_version_unchecked, 
-//GO(xcb_input_get_extension_version_reply, 
-//GO(xcb_input_device_info_next, 
+GO(xcb_input_get_extension_version_unchecked, UFbWp)
+GO(xcb_input_get_extension_version_reply, pFbup)
+GO(xcb_input_device_info_next, vFp)
 //GO(xcb_input_device_info_end, 
-//GO(xcb_input_key_info_next, 
+GO(xcb_input_key_info_next, vFp)
 //GO(xcb_input_key_info_end, 
-//GO(xcb_input_button_info_next, 
+GO(xcb_input_button_info_next, vFp)
 //GO(xcb_input_button_info_end, 
-//GO(xcb_input_axis_info_next, 
+GO(xcb_input_axis_info_next, vFp)
 //GO(xcb_input_axis_info_end, 
-//GO(xcb_input_valuator_info_axes, 
-//GO(xcb_input_valuator_info_axes_length, 
-//GO(xcb_input_valuator_info_axes_iterator, 
-//GO(xcb_input_valuator_info_next, 
+GO(xcb_input_valuator_info_axes, pFp)
+GO(xcb_input_valuator_info_axes_length, iFp)
+GO(xcb_input_valuator_info_axes_iterator, HFp)
+GO(xcb_input_valuator_info_next, vFp)
 //GO(xcb_input_valuator_info_end, 
-//GO(xcb_input_input_info_info_valuator_axes, 
-//GO(xcb_input_input_info_info_valuator_axes_length, 
-//GO(xcb_input_input_info_info_valuator_axes_iterator, 
-//GO(xcb_input_input_info_info_serialize, 
-//GO(xcb_input_input_info_info_unpack, 
-//GO(xcb_input_input_state_data_sizeof, 
-//GO(xcb_input_input_info_next, 
+GO(xcb_input_input_info_info_valuator_axes, pFp)
+GO(xcb_input_input_info_info_valuator_axes_length, iFpp)
+GO(xcb_input_input_info_info_valuator_axes_iterator, HFpp)
+GO(xcb_input_input_info_info_serialize, iFpCp)
+GO(xcb_input_input_info_info_unpack, iFpCp)
+GO(xcb_input_input_state_data_sizeof, iFpC)
+GO(xcb_input_input_info_next, vFp)
 //GO(xcb_input_input_info_end, 
-//GO(xcb_input_device_name_string, 
-//GO(xcb_input_device_name_string_length, 
-//GO(xcb_input_device_name_string_end, 
-//GO(xcb_input_device_name_next, 
+GO(xcb_input_device_name_string, pFp)
+GO(xcb_input_device_name_string_length, iFp)
+GO(xcb_input_device_name_string_end, HFp)
+GO(xcb_input_device_name_next, vFp)
 //GO(xcb_input_device_name_end, 
-//GO(xcb_input_list_input_devices_unchecked, 
-//GO(xcb_input_list_input_devices_devices, 
-//GO(xcb_input_list_input_devices_names_length, 
-//GO(xcb_input_list_input_devices_devices_iterator, 
-//GO(xcb_input_list_input_devices_infos_iterator, 
-//GO(xcb_input_list_input_devices_names_iterator, 
-//GO(xcb_input_list_input_devices_reply, 
-//GO(xcb_input_event_type_base_next, 
+GO(xcb_input_list_input_devices_unchecked, UFb)
+GO(xcb_input_list_input_devices_devices, pFp)
+GO(xcb_input_list_input_devices_names_length, iFp)
+GO(xcb_input_list_input_devices_devices_iterator, HFp)
+GO(xcb_input_list_input_devices_infos_iterator, HFp)
+GO(xcb_input_list_input_devices_names_iterator, HFp)
+GO(xcb_input_list_input_devices_reply, pFbup)
+GO(xcb_input_event_type_base_next, vFp)
 //GO(xcb_input_event_type_base_end, 
-//GO(xcb_input_input_class_info_next, 
+GO(xcb_input_input_class_info_next, vFp)
 //GO(xcb_input_input_class_info_end, 
-//GO(xcb_input_open_device_unchecked, 
-//GO(xcb_input_open_device_class_info, 
-//GO(xcb_input_open_device_class_info_length, 
-//GO(xcb_input_open_device_class_info_iterator, 
-//GO(xcb_input_open_device_reply, 
-//GO(xcb_input_set_device_mode_unchecked, 
-//GO(xcb_input_set_device_mode_reply, 
-//GO(xcb_input_select_extension_event, 
-//GO(xcb_input_select_extension_event_classes, 
-//GO(xcb_input_select_extension_event_classes_length, 
-//GO(xcb_input_select_extension_event_classes_end, 
-//GO(xcb_input_get_selected_extension_events_unchecked, 
-//GO(xcb_input_get_selected_extension_events_all_classes, 
-//GO(xcb_input_get_selected_extension_events_all_classes_length, 
-//GO(xcb_input_get_selected_extension_events_all_classes_end, 
-//GO(xcb_input_get_selected_extension_events_reply, 
-//GO(xcb_input_change_device_dont_propagate_list, 
-//GO(xcb_input_change_device_dont_propagate_list_classes, 
-//GO(xcb_input_change_device_dont_propagate_list_classes_length, 
-//GO(xcb_input_change_device_dont_propagate_list_classes_end, 
-//GO(xcb_input_get_device_dont_propagate_list_unchecked, 
-//GO(xcb_input_get_device_dont_propagate_list_classes, 
-//GO(xcb_input_get_device_dont_propagate_list_classes_length, 
-//GO(xcb_input_get_device_dont_propagate_list_classes_end, 
-//GO(xcb_input_get_device_dont_propagate_list_reply, 
-//GO(xcb_input_device_time_coord_axisvalues, 
-//GO(xcb_input_device_time_coord_axisvalues_length, 
-//GO(xcb_input_device_time_coord_axisvalues_end, 
-//GO(xcb_input_device_time_coord_next, 
+GO(xcb_input_open_device_unchecked, UFbC)
+GO(xcb_input_open_device_class_info, pFp)
+GO(xcb_input_open_device_class_info_length, iFp)
+GO(xcb_input_open_device_class_info_iterator, HFp)
+GO(xcb_input_open_device_reply, pFbup)
+GO(xcb_input_set_device_mode_unchecked, UFbCC)
+GO(xcb_input_set_device_mode_reply, pFbup)
+GO(xcb_input_select_extension_event, UFbuWp)
+GO(xcb_input_select_extension_event_classes, pFp)
+GO(xcb_input_select_extension_event_classes_length, iFp)
+GO(xcb_input_select_extension_event_classes_end, HFp)
+GO(xcb_input_get_selected_extension_events_unchecked, UFbu)
+GO(xcb_input_get_selected_extension_events_all_classes, pFp)
+GO(xcb_input_get_selected_extension_events_all_classes_length, iFp)
+GO(xcb_input_get_selected_extension_events_all_classes_end, HFp)
+GO(xcb_input_get_selected_extension_events_reply, pFbup)
+GO(xcb_input_change_device_dont_propagate_list, UFbuWCp)
+GO(xcb_input_change_device_dont_propagate_list_classes, pFp)
+GO(xcb_input_change_device_dont_propagate_list_classes_length, iFp)
+GO(xcb_input_change_device_dont_propagate_list_classes_end, HFp)
+GO(xcb_input_get_device_dont_propagate_list_unchecked, UFbu)
+GO(xcb_input_get_device_dont_propagate_list_classes, pFp)
+GO(xcb_input_get_device_dont_propagate_list_classes_length, iFp)
+GO(xcb_input_get_device_dont_propagate_list_classes_end, HFp)
+GO(xcb_input_get_device_dont_propagate_list_reply, pFbup)
+GO(xcb_input_device_time_coord_axisvalues, pFp)
+GO(xcb_input_device_time_coord_axisvalues_length, iFpC)
+GO(xcb_input_device_time_coord_axisvalues_end, HFpC)
+GO(xcb_input_device_time_coord_next, vFp)
 //GO(xcb_input_device_time_coord_end, 
-//GO(xcb_input_get_device_motion_events_unchecked, 
-//GO(xcb_input_get_device_motion_events_events_length, 
-//GO(xcb_input_get_device_motion_events_events_iterator, 
-//GO(xcb_input_get_device_motion_events_reply, 
-//GO(xcb_input_change_keyboard_device_unchecked, 
-//GO(xcb_input_change_keyboard_device_reply, 
-//GO(xcb_input_change_pointer_device_unchecked, 
-//GO(xcb_input_change_pointer_device_reply, 
-//GO(xcb_input_grab_device_unchecked, 
-//GO(xcb_input_grab_device_reply, 
-//GO(xcb_input_ungrab_device, 
-//GO(xcb_input_grab_device_key, 
-//GO(xcb_input_grab_device_key_classes, 
-//GO(xcb_input_grab_device_key_classes_length, 
-//GO(xcb_input_grab_device_key_classes_end, 
-//GO(xcb_input_ungrab_device_button, 
-//GO(xcb_input_grab_device_button, 
-//GO(xcb_input_grab_device_button_classes, 
-//GO(xcb_input_grab_device_button_classes_length, 
-//GO(xcb_input_grab_device_button_classes_end, 
-//GO(xcb_input_allow_device_events, 
-//GO(xcb_input_get_device_focus_unchecked, 
-//GO(xcb_input_get_device_focus_reply, 
-//GO(xcb_input_set_device_focus, 
-//GO(xcb_input_kbd_feedback_state_next, 
+GO(xcb_input_get_device_motion_events_unchecked, UFbuuC)
+GO(xcb_input_get_device_motion_events_events_length, iFp)
+GO(xcb_input_get_device_motion_events_events_iterator, pFpp)
+GO(xcb_input_get_device_motion_events_reply, pFbup)
+GO(xcb_input_change_keyboard_device_unchecked, UFbC)
+GO(xcb_input_change_keyboard_device_reply, pFbup)
+GO(xcb_input_change_pointer_device_unchecked, UFbCCC)
+GO(xcb_input_change_pointer_device_reply, pFbup)
+GO(xcb_input_grab_device_unchecked, UFbuuWCCCCp)
+GO(xcb_input_grab_device_reply, pFbup)
+GO(xcb_input_ungrab_device, UFbuC)
+GO(xcb_input_grab_device_key, UFbuWWCCCCCCp)
+GO(xcb_input_grab_device_key_classes, pFp)
+GO(xcb_input_grab_device_key_classes_length, iFp)
+GO(xcb_input_grab_device_key_classes_end, HFp)
+GO(xcb_input_ungrab_device_button, UFbuWCCC)
+GO(xcb_input_grab_device_button, UFbuCCWWCCCCp)
+GO(xcb_input_grab_device_button_classes, pFp)
+GO(xcb_input_grab_device_button_classes_length, iFp)
+GO(xcb_input_grab_device_button_classes_end, HFp)
+GO(xcb_input_allow_device_events, UFbuCC)
+GO(xcb_input_get_device_focus_unchecked, UFbC)
+GO(xcb_input_get_device_focus_reply, pFbup)
+GO(xcb_input_set_device_focus, UFbuuCC)
+GO(xcb_input_kbd_feedback_state_next, vFp)
 //GO(xcb_input_kbd_feedback_state_end, 
-//GO(xcb_input_ptr_feedback_state_next, 
+GO(xcb_input_ptr_feedback_state_next, vFp)
 //GO(xcb_input_ptr_feedback_state_end, 
-//GO(xcb_input_integer_feedback_state_next, 
+GO(xcb_input_integer_feedback_state_next, vFp)
 //GO(xcb_input_integer_feedback_state_end, 
-//GO(xcb_input_string_feedback_state_keysyms, 
-//GO(xcb_input_string_feedback_state_keysyms_length, 
-//GO(xcb_input_string_feedback_state_keysyms_end, 
-//GO(xcb_input_string_feedback_state_next, 
+GO(xcb_input_string_feedback_state_keysyms, pFp)
+GO(xcb_input_string_feedback_state_keysyms_length, iFp)
+GO(xcb_input_string_feedback_state_keysyms_end, HFp)
+GO(xcb_input_string_feedback_state_next, vFp)
 //GO(xcb_input_string_feedback_state_end, 
-//GO(xcb_input_bell_feedback_state_next, 
+GO(xcb_input_bell_feedback_state_next, vFp)
 //GO(xcb_input_bell_feedback_state_end, 
-//GO(xcb_input_led_feedback_state_next, 
+GO(xcb_input_led_feedback_state_next, vFp)
 //GO(xcb_input_led_feedback_state_end, 
-//GO(xcb_input_feedback_state_data_string_keysyms, 
-//GO(xcb_input_feedback_state_data_string_keysyms_length, 
-//GO(xcb_input_feedback_state_data_string_keysyms_end, 
-//GO(xcb_input_feedback_state_data_serialize, 
-//GO(xcb_input_feedback_state_data_unpack, 
-//GO(xcb_input_feedback_state_next, 
+GO(xcb_input_feedback_state_data_string_keysyms, pFp)
+GO(xcb_input_feedback_state_data_string_keysyms_length, iFpp)
+GO(xcb_input_feedback_state_data_string_keysyms_end, HFpp)
+GO(xcb_input_feedback_state_data_serialize, iFpCp)
+GO(xcb_input_feedback_state_data_unpack, iFpCp)
+GO(xcb_input_feedback_state_next, vFp)
 //GO(xcb_input_feedback_state_end, 
-//GO(xcb_input_get_feedback_control_unchecked, 
-//GO(xcb_input_get_feedback_control_feedbacks_length, 
-//GO(xcb_input_get_feedback_control_feedbacks_iterator, 
-//GO(xcb_input_get_feedback_control_reply, 
-//GO(xcb_input_kbd_feedback_ctl_next, 
+GO(xcb_input_get_feedback_control_unchecked, UFbC)
+GO(xcb_input_get_feedback_control_feedbacks_length, iFp)
+GO(xcb_input_get_feedback_control_feedbacks_iterator, HFp)
+GO(xcb_input_get_feedback_control_reply, pFbup)
+GO(xcb_input_kbd_feedback_ctl_next, vFp)
 //GO(xcb_input_kbd_feedback_ctl_end, 
-//GO(xcb_input_ptr_feedback_ctl_next, 
+GO(xcb_input_ptr_feedback_ctl_next, vFp)
 //GO(xcb_input_ptr_feedback_ctl_end, 
-//GO(xcb_input_integer_feedback_ctl_next, 
+GO(xcb_input_integer_feedback_ctl_next, vFp)
 //GO(xcb_input_integer_feedback_ctl_end, 
-//GO(xcb_input_string_feedback_ctl_keysyms, 
-//GO(xcb_input_string_feedback_ctl_keysyms_length, 
-//GO(xcb_input_string_feedback_ctl_keysyms_end, 
-//GO(xcb_input_string_feedback_ctl_next, 
+GO(xcb_input_string_feedback_ctl_keysyms, pFp)
+GO(xcb_input_string_feedback_ctl_keysyms_length, iFp)
+GO(xcb_input_string_feedback_ctl_keysyms_end, HFp)
+GO(xcb_input_string_feedback_ctl_next, vFp)
 //GO(xcb_input_string_feedback_ctl_end, 
-//GO(xcb_input_bell_feedback_ctl_next, 
+GO(xcb_input_bell_feedback_ctl_next, vFp)
 //GO(xcb_input_bell_feedback_ctl_end, 
-//GO(xcb_input_led_feedback_ctl_next, 
+GO(xcb_input_led_feedback_ctl_next, vFp)
 //GO(xcb_input_led_feedback_ctl_end, 
-//GO(xcb_input_feedback_ctl_data_string_keysyms, 
-//GO(xcb_input_feedback_ctl_data_string_keysyms_length, 
-//GO(xcb_input_feedback_ctl_data_string_keysyms_end, 
-//GO(xcb_input_feedback_ctl_data_serialize, 
-//GO(xcb_input_feedback_ctl_data_unpack, 
-//GO(xcb_input_feedback_ctl_next, 
+GO(xcb_input_feedback_ctl_data_string_keysyms, pFp)
+GO(xcb_input_feedback_ctl_data_string_keysyms_length, iFpp)
+GO(xcb_input_feedback_ctl_data_string_keysyms_end, HFpp)
+GO(xcb_input_feedback_ctl_data_serialize, iFpCp)
+GO(xcb_input_feedback_ctl_data_unpack, iFpCp)
+GO(xcb_input_feedback_ctl_next, vFp)
 //GO(xcb_input_feedback_ctl_end, 
-//GO(xcb_input_change_feedback_control, 
-//GO(xcb_input_change_feedback_control_feedback, 
-//GO(xcb_input_get_device_key_mapping_unchecked, 
-//GO(xcb_input_get_device_key_mapping_keysyms, 
-//GO(xcb_input_get_device_key_mapping_keysyms_length, 
-//GO(xcb_input_get_device_key_mapping_keysyms_end, 
-//GO(xcb_input_get_device_key_mapping_reply, 
-//GO(xcb_input_change_device_key_mapping, 
-//GO(xcb_input_change_device_key_mapping_keysyms, 
-//GO(xcb_input_change_device_key_mapping_keysyms_length, 
-//GO(xcb_input_change_device_key_mapping_keysyms_end, 
-//GO(xcb_input_get_device_modifier_mapping_unchecked, 
-//GO(xcb_input_get_device_modifier_mapping_keymaps, 
-//GO(xcb_input_get_device_modifier_mapping_keymaps_length, 
-//GO(xcb_input_get_device_modifier_mapping_keymaps_end, 
-//GO(xcb_input_get_device_modifier_mapping_reply, 
-//GO(xcb_input_set_device_modifier_mapping_unchecked, 
-//GO(xcb_input_set_device_modifier_mapping_reply, 
-//GO(xcb_input_get_device_button_mapping_unchecked, 
-//GO(xcb_input_get_device_button_mapping_map, 
-//GO(xcb_input_get_device_button_mapping_map_length, 
-//GO(xcb_input_get_device_button_mapping_map_end, 
-//GO(xcb_input_get_device_button_mapping_reply, 
-//GO(xcb_input_set_device_button_mapping_unchecked, 
-//GO(xcb_input_set_device_button_mapping_reply, 
-//GO(xcb_input_key_state_next, 
+GO(xcb_input_change_feedback_control, UFbuCCp)
+GO(xcb_input_change_feedback_control_feedback, pFp)
+GO(xcb_input_get_device_key_mapping_unchecked, UFbCCC)
+GO(xcb_input_get_device_key_mapping_keysyms, pFp)
+GO(xcb_input_get_device_key_mapping_keysyms_length, iFp)
+GO(xcb_input_get_device_key_mapping_keysyms_end, HFp)
+GO(xcb_input_get_device_key_mapping_reply, pFbup)
+GO(xcb_input_change_device_key_mapping, UFbCCCCp)
+GO(xcb_input_change_device_key_mapping_keysyms, pFp)
+GO(xcb_input_change_device_key_mapping_keysyms_length, iFp)
+GO(xcb_input_change_device_key_mapping_keysyms_end, HFp)
+GO(xcb_input_get_device_modifier_mapping_unchecked, UFbC)
+GO(xcb_input_get_device_modifier_mapping_keymaps, pFp)
+GO(xcb_input_get_device_modifier_mapping_keymaps_length, iFp)
+GO(xcb_input_get_device_modifier_mapping_keymaps_end, HFp)
+GO(xcb_input_get_device_modifier_mapping_reply, pFbup)
+GO(xcb_input_set_device_modifier_mapping_unchecked, UFbCCp)
+GO(xcb_input_set_device_modifier_mapping_reply, pFbup)
+GO(xcb_input_get_device_button_mapping_unchecked, UFbC)
+GO(xcb_input_get_device_button_mapping_map, pFp)
+GO(xcb_input_get_device_button_mapping_map_length, iFp)
+GO(xcb_input_get_device_button_mapping_map_end, HFp)
+GO(xcb_input_get_device_button_mapping_reply, pFbup)
+GO(xcb_input_set_device_button_mapping_unchecked, UFbCCp)
+GO(xcb_input_set_device_button_mapping_reply, pFbup)
+GO(xcb_input_key_state_next, vFp)
 //GO(xcb_input_key_state_end, 
-//GO(xcb_input_button_state_next, 
+GO(xcb_input_button_state_next, vFp)
 //GO(xcb_input_button_state_end, 
-//GO(xcb_input_valuator_state_valuators, 
-//GO(xcb_input_valuator_state_valuators_length, 
-//GO(xcb_input_valuator_state_valuators_end, 
-//GO(xcb_input_valuator_state_next, 
+GO(xcb_input_valuator_state_valuators, pFp)
+GO(xcb_input_valuator_state_valuators_length, iFp)
+GO(xcb_input_valuator_state_valuators_end, HFp)
+GO(xcb_input_valuator_state_next, vFp)
 //GO(xcb_input_valuator_state_end, 
-//GO(xcb_input_input_state_data_valuator_valuators, 
-//GO(xcb_input_input_state_data_valuator_valuators_length, 
-//GO(xcb_input_input_state_data_valuator_valuators_end, 
-//GO(xcb_input_input_state_data_serialize, 
-//GO(xcb_input_input_state_data_unpack, 
-//GO(xcb_input_input_state_next, 
+GO(xcb_input_input_state_data_valuator_valuators, pFp)
+GO(xcb_input_input_state_data_valuator_valuators_length, iFpp)
+GO(xcb_input_input_state_data_valuator_valuators_end, HFpp)
+GO(xcb_input_input_state_data_serialize, iFpCp)
+GO(xcb_input_input_state_data_unpack, iFpCp)
+GO(xcb_input_input_state_next, vFp)
 //GO(xcb_input_input_state_end, 
-//GO(xcb_input_query_device_state_unchecked, 
-//GO(xcb_input_query_device_state_classes_length, 
-//GO(xcb_input_query_device_state_classes_iterator, 
-//GO(xcb_input_query_device_state_reply, 
-//GO(xcb_input_device_bell, 
-//GO(xcb_input_set_device_valuators_unchecked, 
-//GO(xcb_input_set_device_valuators_reply, 
-//GO(xcb_input_device_resolution_state_resolution_max, 
-//GO(xcb_input_device_resolution_state_resolution_max_length, 
-//GO(xcb_input_device_resolution_state_resolution_max_end, 
-//GO(xcb_input_device_resolution_state_next, 
+GO(xcb_input_query_device_state_unchecked, UFbC)
+GO(xcb_input_query_device_state_classes_length, iFp)
+GO(xcb_input_query_device_state_classes_iterator, HFp)
+GO(xcb_input_query_device_state_reply, pFbup)
+GO(xcb_input_device_bell, UFbCCCc)
+GO(xcb_input_set_device_valuators_unchecked, UFbCCCp)
+GO(xcb_input_set_device_valuators_reply, pFbup)
+GO(xcb_input_device_resolution_state_resolution_max, pFp)
+GO(xcb_input_device_resolution_state_resolution_max_length, iFp)
+GO(xcb_input_device_resolution_state_resolution_max_end, HFp)
+GO(xcb_input_device_resolution_state_next, vFp)
 //GO(xcb_input_device_resolution_state_end, 
-//GO(xcb_input_device_abs_calib_state_next, 
+GO(xcb_input_device_abs_calib_state_next, vFp)
 //GO(xcb_input_device_abs_calib_state_end, 
-//GO(xcb_input_device_abs_area_state_next, 
+GO(xcb_input_device_abs_area_state_next, vFp)
 //GO(xcb_input_device_abs_area_state_end, 
-//GO(xcb_input_device_core_state_next, 
+GO(xcb_input_device_core_state_next, vFp)
 //GO(xcb_input_device_core_state_end, 
-//GO(xcb_input_device_enable_state_next, 
+GO(xcb_input_device_enable_state_next, vFp)
 //GO(xcb_input_device_enable_state_end, 
-//GO(xcb_input_device_state_data_resolution_resolution_max, 
-//GO(xcb_input_device_state_data_resolution_resolution_max_length, 
-//GO(xcb_input_device_state_data_resolution_resolution_max_end, 
-//GO(xcb_input_device_state_data_serialize, 
-//GO(xcb_input_device_state_data_unpack, 
-//GO(xcb_input_device_state_next, 
+GO(xcb_input_device_state_data_resolution_resolution_max, pFp)
+GO(xcb_input_device_state_data_resolution_resolution_max_length, iFpp)
+GO(xcb_input_device_state_data_resolution_resolution_max_end, HFpp)
+GO(xcb_input_device_state_data_serialize, iFpWp)
+GO(xcb_input_device_state_data_unpack, iFpWp)
+GO(xcb_input_device_state_next, vFp)
 //GO(xcb_input_device_state_end, 
-//GO(xcb_input_get_device_control_unchecked, 
-//GO(xcb_input_get_device_control_control, 
-//GO(xcb_input_get_device_control_reply, 
-//GO(xcb_input_device_resolution_ctl_resolution_values, 
-//GO(xcb_input_device_resolution_ctl_resolution_values_length, 
-//GO(xcb_input_device_resolution_ctl_resolution_values_end, 
-//GO(xcb_input_device_resolution_ctl_next, 
+GO(xcb_input_get_device_control_unchecked, UFbWC)
+GO(xcb_input_get_device_control_control, pFp)
+GO(xcb_input_get_device_control_reply, pFbup)
+GO(xcb_input_device_resolution_ctl_resolution_values, pFp)
+GO(xcb_input_device_resolution_ctl_resolution_values_length, iFp)
+GO(xcb_input_device_resolution_ctl_resolution_values_end, HFp)
+GO(xcb_input_device_resolution_ctl_next, vFp)
 //GO(xcb_input_device_resolution_ctl_end, 
-//GO(xcb_input_device_abs_calib_ctl_next, 
+GO(xcb_input_device_abs_calib_ctl_next, vFp)
 //GO(xcb_input_device_abs_calib_ctl_end, 
-//GO(xcb_input_device_abs_area_ctrl_next, 
+GO(xcb_input_device_abs_area_ctrl_next, vFp)
 //GO(xcb_input_device_abs_area_ctrl_end, 
-//GO(xcb_input_device_core_ctrl_next, 
+GO(xcb_input_device_core_ctrl_next, vFp)
 //GO(xcb_input_device_core_ctrl_end, 
-//GO(xcb_input_device_enable_ctrl_next, 
+GO(xcb_input_device_enable_ctrl_next, vFp)
 //GO(xcb_input_device_enable_ctrl_end, 
-//GO(xcb_input_device_ctl_data_resolution_resolution_values, 
-//GO(xcb_input_device_ctl_data_resolution_resolution_values_length, 
-//GO(xcb_input_device_ctl_data_resolution_resolution_values_end, 
-//GO(xcb_input_device_ctl_data_serialize, 
-//GO(xcb_input_device_ctl_data_unpack, 
-//GO(xcb_input_device_ctl_next, 
+GO(xcb_input_device_ctl_data_resolution_resolution_values, pFp)
+GO(xcb_input_device_ctl_data_resolution_resolution_values_length, iFpp)
+GO(xcb_input_device_ctl_data_resolution_resolution_values_end, HFpp)
+GO(xcb_input_device_ctl_data_serialize, iFpWp)
+GO(xcb_input_device_ctl_data_unpack, iFpWp)
+GO(xcb_input_device_ctl_next, vFp)
 //GO(xcb_input_device_ctl_end, 
-//GO(xcb_input_change_device_control_unchecked, 
-//GO(xcb_input_change_device_control_reply, 
-//GO(xcb_input_list_device_properties_unchecked, 
-//GO(xcb_input_list_device_properties_atoms, 
-//GO(xcb_input_list_device_properties_atoms_length, 
-//GO(xcb_input_list_device_properties_atoms_end, 
-//GO(xcb_input_list_device_properties_reply, 
-//GO(xcb_input_change_device_property_items_data_8, 
-//GO(xcb_input_change_device_property_items_data_32_length, 
-//GO(xcb_input_change_device_property_items_data_32_end, 
-//GO(xcb_input_change_device_property_items_data_16, 
-//GO(xcb_input_change_device_property_items_data_32, 
-//GO(xcb_input_change_device_property_items_serialize, 
-//GO(xcb_input_change_device_property_items_unpack, 
-//GO(xcb_input_xi_get_property_items_sizeof, 
-//GO(xcb_input_change_device_property, 
-//GO(xcb_input_change_device_property_aux, 
-//GO(xcb_input_change_device_property_items, 
-//GO(xcb_input_delete_device_property, 
-//GO(xcb_input_get_device_property_items_data_8, 
-//GO(xcb_input_get_device_property_items_data_32_length, 
-//GO(xcb_input_get_device_property_items_data_32_end, 
-//GO(xcb_input_get_device_property_items_data_16, 
-//GO(xcb_input_get_device_property_items_data_32, 
-//GO(xcb_input_get_device_property_items_serialize, 
-//GO(xcb_input_get_device_property_items_unpack, 
-//GO(xcb_input_get_device_property_unchecked, 
-//GO(xcb_input_get_device_property_items, 
-//GO(xcb_input_get_device_property_reply, 
-//GO(xcb_input_group_info_next, 
+GO(xcb_input_change_device_control_unchecked, UFbWCp)
+GO(xcb_input_change_device_control_reply, pFbup)
+GO(xcb_input_list_device_properties_unchecked, UFbC)
+GO(xcb_input_list_device_properties_atoms, pFp)
+GO(xcb_input_list_device_properties_atoms_length, iFp)
+GO(xcb_input_list_device_properties_atoms_end, HFp)
+GO(xcb_input_list_device_properties_reply, pFbup)
+GO(xcb_input_change_device_property_items_data_8, pFp)
+GO(xcb_input_change_device_property_items_data_32_length, iFpp)
+GO(xcb_input_change_device_property_items_data_32_end, HFpp)
+GO(xcb_input_change_device_property_items_data_16, pFp)
+GO(xcb_input_change_device_property_items_data_32, pFp)
+GO(xcb_input_change_device_property_items_serialize, iFpuCp)
+GO(xcb_input_change_device_property_items_unpack, iFpuCp)
+GO(xcb_input_xi_get_property, UFbWCuuuu)
+GO(xcb_input_xi_get_property_items_sizeof, iFpuC)
+GO(xcb_input_change_device_property, UFbuuCCCup)
+GO(xcb_input_change_device_property_aux, UFbuuCCCup)
+GO(xcb_input_change_device_property_items, pFp)
+GO(xcb_input_delete_device_property, UFbuC)
+GO(xcb_input_get_device_property_items_data_8, pFp)
+GO(xcb_input_get_device_property_items_data_32_length, iFpp)
+GO(xcb_input_get_device_property_items_data_32_end, HFpp)
+GO(xcb_input_get_device_property_items_data_16, pFp)
+GO(xcb_input_get_device_property_items_data_32, pFp)
+GO(xcb_input_get_device_property_items_serialize, iFpuCp)
+GO(xcb_input_get_device_property_items_unpack, iFpuCp)
+GO(xcb_input_get_device_property_unchecked, UFbuuuuCC)
+GO(xcb_input_get_device_property_items, pFp)
+GO(xcb_input_get_device_property_reply, pFbup)
+GO(xcb_input_group_info_next, vFp)
 //GO(xcb_input_group_info_end, 
-//GO(xcb_input_modifier_info_next, 
+GO(xcb_input_modifier_info_next, vFp)
 //GO(xcb_input_modifier_info_end, 
-//GO(xcb_input_xi_query_pointer_unchecked, 
-//GO(xcb_input_xi_query_pointer_buttons, 
-//GO(xcb_input_xi_query_pointer_buttons_length, 
-//GO(xcb_input_xi_query_pointer_buttons_end, 
-//GO(xcb_input_xi_query_pointer_reply, 
-//GO(xcb_input_xi_warp_pointer, 
-//GO(xcb_input_xi_change_cursor, 
-//GO(xcb_input_add_master_name, 
-//GO(xcb_input_add_master_name_length, 
-//GO(xcb_input_add_master_name_end, 
-//GO(xcb_input_add_master_next, 
+GO(xcb_input_xi_query_pointer_unchecked, UFbuW)
+GO(xcb_input_xi_query_pointer_buttons, pFp)
+GO(xcb_input_xi_query_pointer_buttons_length, iFp)
+GO(xcb_input_xi_query_pointer_buttons_end, HFp)
+GO(xcb_input_xi_query_pointer_reply, pFbup)
+GO(xcb_input_xi_warp_pointer, UFbuuiiWWiiW)
+GO(xcb_input_xi_change_cursor, UFbuuW)
+GO(xcb_input_add_master_name, pFp)
+GO(xcb_input_add_master_name_length, iFp)
+GO(xcb_input_add_master_name_end, HFp)
+GO(xcb_input_add_master_next, vFp)
 //GO(xcb_input_add_master_end, 
-//GO(xcb_input_remove_master_next, 
+GO(xcb_input_remove_master_next, vFp)
 //GO(xcb_input_remove_master_end, 
-//GO(xcb_input_attach_slave_next, 
+GO(xcb_input_attach_slave_next, vFp)
 //GO(xcb_input_attach_slave_end, 
-//GO(xcb_input_detach_slave_next, 
+GO(xcb_input_detach_slave_next, vFp)
 //GO(xcb_input_detach_slave_end, 
-//GO(xcb_input_hierarchy_change_data_add_master_name, 
-//GO(xcb_input_hierarchy_change_data_add_master_name_length, 
-//GO(xcb_input_hierarchy_change_data_add_master_name_end, 
-//GO(xcb_input_hierarchy_change_data_serialize, 
-//GO(xcb_input_hierarchy_change_data_unpack, 
-//GO(xcb_input_hierarchy_change_next, 
+GO(xcb_input_hierarchy_change_data_add_master_name, pFp)
+GO(xcb_input_hierarchy_change_data_add_master_name_length, iFpp)
+GO(xcb_input_hierarchy_change_data_add_master_name_end, HFpp)
+GO(xcb_input_hierarchy_change_data_serialize, iFpWp)
+GO(xcb_input_hierarchy_change_data_unpack, iFpWp)
+GO(xcb_input_hierarchy_change_next, vFp)
 //GO(xcb_input_hierarchy_change_end, 
-//GO(xcb_input_xi_change_hierarchy, 
-//GO(xcb_input_xi_change_hierarchy_changes_length, 
-//GO(xcb_input_xi_change_hierarchy_changes_iterator, 
-//GO(xcb_input_xi_set_client_pointer, 
-//GO(xcb_input_xi_get_client_pointer_unchecked, 
-//GO(xcb_input_xi_get_client_pointer_reply, 
-//GO(xcb_input_event_mask_mask, 
-//GO(xcb_input_event_mask_mask_length, 
-//GO(xcb_input_event_mask_mask_end, 
-//GO(xcb_input_event_mask_next, 
+GO(xcb_input_xi_change_hierarchy, UFbCp)
+GO(xcb_input_xi_change_hierarchy_changes_length, iFp)
+GO(xcb_input_xi_change_hierarchy_changes_iterator, HFp)
+GO(xcb_input_xi_set_client_pointer, UFbuW)
+GO(xcb_input_xi_get_client_pointer_unchecked, UFbu)
+GO(xcb_input_xi_get_client_pointer_reply, pFbup)
+GO(xcb_input_event_mask_mask, pFp)
+GO(xcb_input_event_mask_mask_length, iFp)
+GO(xcb_input_event_mask_mask_end, HFp)
+GO(xcb_input_event_mask_next, vFp)
 //GO(xcb_input_event_mask_end, 
-GO(xcb_input_xi_select_events, uFbuWp)
-//GO(xcb_input_xi_select_events_masks_length, 
-//GO(xcb_input_xi_select_events_masks_iterator, 
-GO(xcb_input_xi_query_version_unchecked, uFbWW)
-GO(xcb_input_xi_query_version, uFbWW)
+GO(xcb_input_xi_select_events, UFbuWp)
+GO(xcb_input_xi_select_events_masks_length, iFp)
+GO(xcb_input_xi_select_events_masks_iterator, HFp)
+GO(xcb_input_xi_query_version_unchecked, UFbWW)
+GO(xcb_input_xi_query_version, UFbWW)
 GO(xcb_input_xi_query_version_reply, pFbup)
-//GO(xcb_input_button_class_state, 
+GO(xcb_input_button_class_state, pFp)
 GO(xcb_input_button_class_labels_length, iFp)
 GO(xcb_input_button_class_labels_end, HFp)
 GO(xcb_input_button_class_labels, pFp)
-//GO(xcb_input_button_class_next, 
+GO(xcb_input_button_class_next, vFp)
 //GO(xcb_input_button_class_end, 
-//GO(xcb_input_key_class_keys, 
-//GO(xcb_input_key_class_keys_length, 
-//GO(xcb_input_key_class_keys_end, 
-//GO(xcb_input_key_class_next, 
+GO(xcb_input_key_class_keys, pFp)
+GO(xcb_input_key_class_keys_length, iFp)
+GO(xcb_input_key_class_keys_end, HFp)
+GO(xcb_input_key_class_next, vFp)
 //GO(xcb_input_key_class_end, 
-//GO(xcb_input_scroll_class_next, 
+GO(xcb_input_scroll_class_next, vFp)
 //GO(xcb_input_scroll_class_end, 
-//GO(xcb_input_touch_class_next, 
+GO(xcb_input_touch_class_next, vFp)
 //GO(xcb_input_touch_class_end, 
-//GO(xcb_input_gesture_class_next, 
+GO(xcb_input_gesture_class_next, vFp)
 //GO(xcb_input_gesture_class_end, 
-//GO(xcb_input_valuator_class_next, 
+GO(xcb_input_valuator_class_next, vFp)
 //GO(xcb_input_valuator_class_end, 
-//GO(xcb_input_device_class_data_button_state, 
-//GO(xcb_input_device_class_data_button_labels_length, 
-//GO(xcb_input_device_class_data_button_labels_end, 
-//GO(xcb_input_device_class_data_button_labels, 
-//GO(xcb_input_device_class_data_serialize, 
-//GO(xcb_input_device_class_data_unpack, 
+GO(xcb_input_device_class_data_button_state, pFp)
+GO(xcb_input_device_class_data_button_labels_length, iFpp)
+GO(xcb_input_device_class_data_button_labels_end, HFpp)
+GO(xcb_input_device_class_data_button_labels, pFp)
+GO(xcb_input_device_class_data_serialize, iFpWp)
+GO(xcb_input_device_class_data_unpack, iFpWp)
 GO(xcb_input_device_class_next, vFp)
-GO(xcb_input_device_class_end, HFH)
+GO(xcb_input_device_class_end, HFH) // Warning: failed to confirm
 GO(xcb_input_xi_device_info_classes_length, iFp)
 GO(xcb_input_xi_device_info_classes_iterator, HFp)
 GO(xcb_input_xi_device_info_name, pFp)
 GO(xcb_input_xi_device_info_name_length, iFp)
-GO(xcb_input_xi_device_info_name_end, pFp)
+GO(xcb_input_xi_device_info_name_end, HFp)
 GO(xcb_input_xi_device_info_next, vFp)
-GO(xcb_input_xi_device_info_end, HFH)
-GO(xcb_input_xi_query_device, uFbu)
-GO(xcb_input_xi_query_device_unchecked, uFbu)
+GO(xcb_input_xi_device_info_end, HFH) // Warning: failed to confirm
+GO(xcb_input_xi_query_device, UFbW)
+GO(xcb_input_xi_query_device_unchecked, UFbW)
 GO(xcb_input_xi_query_device_infos_length, iFp)
 GO(xcb_input_xi_query_device_infos_iterator, HFp)
 GO(xcb_input_xi_query_device_reply, pFbup)
-//GO(xcb_input_xi_set_focus, 
-//GO(xcb_input_xi_get_focus_unchecked, 
-//GO(xcb_input_xi_get_focus_reply, 
-GO(xcb_input_xi_grab_device, uFbuuuWCCCWp)
-GO(xcb_input_xi_grab_device_unchecked, uFbuuuWCCCWp)
+GO(xcb_input_xi_set_focus, UFbuuW)
+GO(xcb_input_xi_get_focus_unchecked, UFbW)
+GO(xcb_input_xi_get_focus_reply, pFbup)
+GO(xcb_input_xi_grab_device, UFbuuuWCCCWp)
+GO(xcb_input_xi_grab_device_unchecked, UFbuuuWCCCWp)
 GO(xcb_input_xi_grab_device_reply, pFbup)
-GO(xcb_input_xi_ungrab_device, uFbuu)
-GO(xcb_input_xi_ungrab_device_checked, uFbuu)
-//GO(xcb_input_xi_allow_events, 
-//GO(xcb_input_grab_modifier_info_next, 
+GO(xcb_input_xi_ungrab_device, UFbuW)
+GO(xcb_input_xi_ungrab_device_checked, UFbuW)
+GO(xcb_input_xi_allow_events, UFbuWCuu)
+GO(xcb_input_grab_modifier_info_next, vFp)
 //GO(xcb_input_grab_modifier_info_end, 
-//GO(xcb_input_xi_passive_grab_device_unchecked, 
-//GO(xcb_input_xi_passive_grab_device_modifiers, 
-//GO(xcb_input_xi_passive_grab_device_modifiers_length, 
-//GO(xcb_input_xi_passive_grab_device_modifiers_iterator, 
-//GO(xcb_input_xi_passive_grab_device_reply, 
-//GO(xcb_input_xi_passive_ungrab_device, 
-//GO(xcb_input_xi_passive_ungrab_device_modifiers, 
-//GO(xcb_input_xi_passive_ungrab_device_modifiers_length, 
-//GO(xcb_input_xi_passive_ungrab_device_modifiers_end, 
-//GO(xcb_input_xi_list_properties_unchecked, 
-//GO(xcb_input_xi_list_properties_properties, 
-//GO(xcb_input_xi_list_properties_properties_length, 
-//GO(xcb_input_xi_list_properties_properties_end, 
-//GO(xcb_input_xi_list_properties_reply, 
-//GO(xcb_input_xi_change_property_items_data_8, 
-//GO(xcb_input_xi_change_property_items_data_32_length, 
-//GO(xcb_input_xi_change_property_items_data_32_end, 
-//GO(xcb_input_xi_change_property_items_data_16, 
-//GO(xcb_input_xi_change_property_items_data_32, 
-//GO(xcb_input_xi_change_property_items_serialize, 
-//GO(xcb_input_xi_change_property_items_unpack, 
-//GO(xcb_input_xi_change_property, 
-//GO(xcb_input_xi_change_property_aux, 
-//GO(xcb_input_xi_change_property_items, 
-//GO(xcb_input_xi_delete_property, 
-//GO(xcb_input_xi_get_property_items_data_8, 
-//GO(xcb_input_xi_get_property_items_data_32_length, 
-//GO(xcb_input_xi_get_property_items_data_32_end, 
-//GO(xcb_input_xi_get_property_items_data_16, 
-//GO(xcb_input_xi_get_property_items_data_32, 
-//GO(xcb_input_xi_get_property_items_serialize, 
-//GO(xcb_input_xi_get_property_items_unpack, 
-//GO(xcb_input_xi_get_property_unchecked, 
-//GO(xcb_input_xi_get_property_items, 
-//GO(xcb_input_xi_get_property_reply, 
-//GO(xcb_input_xi_get_selected_events_unchecked, 
-//GO(xcb_input_xi_get_selected_events_masks_length, 
-//GO(xcb_input_xi_get_selected_events_masks_iterator, 
-//GO(xcb_input_xi_get_selected_events_reply, 
-//GO(xcb_input_barrier_release_pointer_info_next, 
+GO(xcb_input_xi_passive_grab_device_unchecked, UFbuuuuWWWCCCCpp)
+GO(xcb_input_xi_passive_grab_device_modifiers, pFp)
+GO(xcb_input_xi_passive_grab_device_modifiers_length, iFp)
+GO(xcb_input_xi_passive_grab_device_modifiers_iterator, HFp)
+GO(xcb_input_xi_passive_grab_device_reply, pFbup)
+GO(xcb_input_xi_passive_ungrab_device, UFbuuWWCp)
+GO(xcb_input_xi_passive_ungrab_device_modifiers, pFp)
+GO(xcb_input_xi_passive_ungrab_device_modifiers_length, iFp)
+GO(xcb_input_xi_passive_ungrab_device_modifiers_end, HFp)
+GO(xcb_input_xi_list_properties_unchecked, UFbW)
+GO(xcb_input_xi_list_properties_properties, pFp)
+GO(xcb_input_xi_list_properties_properties_length, iFp)
+GO(xcb_input_xi_list_properties_properties_end, HFp)
+GO(xcb_input_xi_list_properties_reply, pFbup)
+GO(xcb_input_xi_change_property_items_data_8, pFp)
+GO(xcb_input_xi_change_property_items_data_32_length, iFpp)
+GO(xcb_input_xi_change_property_items_data_32_end, HFpp)
+GO(xcb_input_xi_change_property_items_data_16, pFp)
+GO(xcb_input_xi_change_property_items_data_32, pFp)
+GO(xcb_input_xi_change_property_items_serialize, iFpuCp)
+GO(xcb_input_xi_change_property_items_unpack, iFpuCp)
+GO(xcb_input_xi_change_property, UFbWCCuuup)
+GO(xcb_input_xi_change_property_aux, UFbWCCuuup)
+GO(xcb_input_xi_change_property_items, pFp)
+GO(xcb_input_xi_delete_property, UFbWu)
+GO(xcb_input_xi_get_property_items_data_8, pFp)
+GO(xcb_input_xi_get_property_items_data_32_length, iFpp)
+GO(xcb_input_xi_get_property_items_data_32_end, HFpp)
+GO(xcb_input_xi_get_property_items_data_16, pFp)
+GO(xcb_input_xi_get_property_items_data_32, pFp)
+GO(xcb_input_xi_get_property_items_serialize, iFpuCp)
+GO(xcb_input_xi_get_property_items_unpack, iFpuCp)
+GO(xcb_input_xi_get_property_unchecked, UFbWCuuuu)
+GO(xcb_input_xi_get_property_items, pFp)
+GO(xcb_input_xi_get_property_reply, pFbup)
+GO(xcb_input_xi_get_selected_events_unchecked, UFbu)
+GO(xcb_input_xi_get_selected_events_masks_length, iFp)
+GO(xcb_input_xi_get_selected_events_masks_iterator, HFp)
+GO(xcb_input_xi_get_selected_events_reply, pFbup)
+GO(xcb_input_barrier_release_pointer_info_next, vFp)
 //GO(xcb_input_barrier_release_pointer_info_end, 
-//GO(xcb_input_xi_barrier_release_pointer, 
-//GO(xcb_input_xi_barrier_release_pointer_barriers, 
-//GO(xcb_input_xi_barrier_release_pointer_barriers_length, 
-//GO(xcb_input_xi_barrier_release_pointer_barriers_iterator, 
-GO(xcb_input_xi_select_events_checked, uFbuWp)
-//GO(xcb_input_device_changed_classes_length, 
-//GO(xcb_input_device_changed_classes_iterator, 
-//GO(xcb_input_key_press_valuator_mask, 
-//GO(xcb_input_key_press_axisvalues_length, 
-//GO(xcb_input_key_press_valuator_mask_end, 
-//GO(xcb_input_key_press_axisvalues, 
-//GO(xcb_input_key_press_axisvalues_iterator, 
-//GO(xcb_input_button_press_valuator_mask, 
-//GO(xcb_input_button_press_axisvalues_length, 
-//GO(xcb_input_button_press_valuator_mask_end, 
-//GO(xcb_input_button_press_axisvalues, 
-//GO(xcb_input_button_press_axisvalues_iterator, 
-//GO(xcb_input_enter_buttons, 
-//GO(xcb_input_enter_buttons_length, 
-//GO(xcb_input_enter_buttons_end, 
-//GO(xcb_input_hierarchy_info_next, 
+GO(xcb_input_xi_barrier_release_pointer, UFbup)
+GO(xcb_input_xi_barrier_release_pointer_barriers, pFp)
+GO(xcb_input_xi_barrier_release_pointer_barriers_length, iFp)
+GO(xcb_input_xi_barrier_release_pointer_barriers_iterator, HFp)
+GO(xcb_input_xi_select_events_checked, UFbuWp)
+GO(xcb_input_device_changed_classes_length, iFp)
+GO(xcb_input_device_changed_classes_iterator, HFp)
+GO(xcb_input_key_press_valuator_mask, pFp)
+GO(xcb_input_key_press_axisvalues_length, iFp)
+GO(xcb_input_key_press_valuator_mask_end, HFp)
+GO(xcb_input_key_press_axisvalues, pFp)
+GO(xcb_input_key_press_axisvalues_iterator, HFp)
+GO(xcb_input_button_press_valuator_mask, pFp)
+GO(xcb_input_button_press_axisvalues_length, iFp)
+GO(xcb_input_button_press_valuator_mask_end, HFp)
+GO(xcb_input_button_press_axisvalues, pFp)
+GO(xcb_input_button_press_axisvalues_iterator, HFp)
+GO(xcb_input_enter_buttons, pFp)
+GO(xcb_input_enter_buttons_length, iFp)
+GO(xcb_input_enter_buttons_end, HFp)
+GO(xcb_input_hierarchy_info_next, vFp)
 //GO(xcb_input_hierarchy_info_end, 
-//GO(xcb_input_hierarchy_infos, 
-//GO(xcb_input_hierarchy_infos_length, 
-//GO(xcb_input_hierarchy_infos_iterator, 
-//GO(xcb_input_raw_key_press_valuator_mask, 
-//GO(xcb_input_raw_key_press_axisvalues_raw_length, 
-//GO(xcb_input_raw_key_press_valuator_mask_end, 
-//GO(xcb_input_raw_key_press_axisvalues_raw, 
-//GO(xcb_input_raw_key_press_axisvalues_raw_iterator, 
-//GO(xcb_input_raw_button_press_valuator_mask, 
-//GO(xcb_input_raw_button_press_axisvalues_raw_length, 
-//GO(xcb_input_raw_button_press_valuator_mask_end, 
-//GO(xcb_input_raw_button_press_axisvalues_raw, 
-//GO(xcb_input_raw_button_press_axisvalues_raw_iterator, 
-//GO(xcb_input_touch_begin_valuator_mask, 
-//GO(xcb_input_touch_begin_axisvalues_length, 
-//GO(xcb_input_touch_begin_valuator_mask_end, 
-//GO(xcb_input_touch_begin_axisvalues, 
-//GO(xcb_input_touch_begin_axisvalues_iterator, 
-//GO(xcb_input_raw_touch_begin_valuator_mask, 
-//GO(xcb_input_raw_touch_begin_axisvalues_raw_length, 
-//GO(xcb_input_raw_touch_begin_valuator_mask_end, 
-//GO(xcb_input_raw_touch_begin_axisvalues_raw, 
-//GO(xcb_input_raw_touch_begin_axisvalues_raw_iterator, 
-//GO(xcb_input_event_for_send_next, 
+GO(xcb_input_hierarchy_infos, pFp)
+GO(xcb_input_hierarchy_infos_length, iFp)
+GO(xcb_input_hierarchy_infos_iterator, HFp)
+GO(xcb_input_raw_key_press_valuator_mask, pFp)
+GO(xcb_input_raw_key_press_axisvalues_raw_length, iFp)
+GO(xcb_input_raw_key_press_valuator_mask_end, HFp)
+GO(xcb_input_raw_key_press_axisvalues_raw, pFp)
+GO(xcb_input_raw_key_press_axisvalues_raw_iterator, HFp)
+GO(xcb_input_raw_button_press_valuator_mask, pFp)
+GO(xcb_input_raw_button_press_axisvalues_raw_length, iFp)
+GO(xcb_input_raw_button_press_valuator_mask_end, HFp)
+GO(xcb_input_raw_button_press_axisvalues_raw, pFp)
+GO(xcb_input_raw_button_press_axisvalues_raw_iterator, HFp)
+GO(xcb_input_touch_begin_valuator_mask, pFp)
+GO(xcb_input_touch_begin_axisvalues_length, iFp)
+GO(xcb_input_touch_begin_valuator_mask_end, HFp)
+GO(xcb_input_touch_begin_axisvalues, pFp)
+GO(xcb_input_touch_begin_axisvalues_iterator, HFp)
+GO(xcb_input_raw_touch_begin_valuator_mask, pFp)
+GO(xcb_input_raw_touch_begin_axisvalues_raw_length, iFp)
+GO(xcb_input_raw_touch_begin_valuator_mask_end, HFp)
+GO(xcb_input_raw_touch_begin_axisvalues_raw, pFp)
+GO(xcb_input_raw_touch_begin_axisvalues_raw_iterator, HFp)
+GO(xcb_input_event_for_send_next, vFp)
 //GO(xcb_input_event_for_send_end, 
-//GO(xcb_input_send_extension_event, 
-//GO(xcb_input_send_extension_event_events, 
-//GO(xcb_input_send_extension_event_classes_length, 
-//GO(xcb_input_send_extension_event_events_iterator, 
-//GO(xcb_input_send_extension_event_classes, 
-//GO(xcb_input_send_extension_event_classes_end, 
+GO(xcb_input_send_extension_event, UFbuCCWCpp)
+GO(xcb_input_send_extension_event_events, pFp)
+GO(xcb_input_send_extension_event_classes_length, iFp)
+GO(xcb_input_send_extension_event_events_iterator, HFp)
+GO(xcb_input_send_extension_event_classes, pFp)
+GO(xcb_input_send_extension_event_classes_end, HFp)

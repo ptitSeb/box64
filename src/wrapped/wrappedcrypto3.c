@@ -572,6 +572,35 @@ static void* find_ex_free_Fct(void* fct)
     return NULL;
 }
 
+// ECDH_KDF
+#define GO(A)                                                                               \
+    static uintptr_t my3_ECDH_KDF_fct_##A = 0;                                              \
+    static void* my3_ECDH_KDF_##A(void* in, size_t inlen, void* out, size_t outlen)         \
+    {                                                                                       \
+        return (void*)RunFunctionFmt(my3_ECDH_KDF_fct_##A, "pLpL", in, inlen, out, outlen); \
+    }
+SUPER()
+#undef GO
+static void* find_ECDH_KDF_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my3_ECDH_KDF_fct_##A == (uintptr_t)fct) return my3_ECDH_KDF_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                  \
+    if (my3_ECDH_KDF_fct_##A == 0) {           \
+        my3_ECDH_KDF_fct_##A = (uintptr_t)fct; \
+        return my3_ECDH_KDF_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL ECDH_KDF callback\n");
+    return NULL;
+}
+
 EXPORT int my3_CRYPTO_get_ex_new_index(x64emu_t* emu, int idx, long argl, void* argp, void* new_func, 
     void* dup_func, void* free_func) {
     (void)emu;
@@ -930,6 +959,11 @@ EXPORT void* my3_X509V3_EXT_get(x64emu_t* emu, void* x)
         #undef GO
     }
     return ret;
+}
+
+EXPORT int my3_ECDH_compute_key(x64emu_t* emu, void* out, size_t outlen, void* pub_key, void* ecdh, void* kdf)
+{
+    return my->ECDH_compute_key(out, outlen, pub_key, ecdh, find_ECDH_KDF_Fct(kdf));
 }
 
 #define ALTMY my3_

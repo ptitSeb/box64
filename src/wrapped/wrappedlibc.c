@@ -224,6 +224,34 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare callback\n");
     return NULL;
 }
+// tss dtor
+#define GO(A)                                    \
+    static uintptr_t my_Dtor_fct_##A = 0;        \
+    static void my_Dtor_##A(void* a)             \
+    {                                            \
+        RunFunctionFmt(my_Dtor_fct_##A, "p", a); \
+    }
+SUPER()
+#undef GO
+static void* findDtorFct(void* fct)
+{
+    if (!fct) return NULL;
+    void* p;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_Dtor_fct_##A == (uintptr_t)fct) return my_Dtor_##A;
+    SUPER()
+#undef GO
+#define GO(A)                             \
+    if (my_Dtor_fct_##A == 0) {           \
+        my_Dtor_fct_##A = (uintptr_t)fct; \
+        return my_Dtor_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc tss dtor callback\n");
+    return NULL;
+}
 // action
 #define GO(A)   \
 static uintptr_t my_action_fct_##A = 0;                 \
@@ -1718,6 +1746,10 @@ EXPORT void* my_tfind(x64emu_t* emu, void* key, void** root, void* fnc)
 {
     (void)emu;
     return tfind(key, root, findcompareFct(fnc));
+}
+EXPORT int my_tss_create(x64emu_t* emu, void* tss_id, void* destructor)
+{
+    return my->tss_create(tss_id, findDtorFct(destructor));
 }
 EXPORT void my_twalk(x64emu_t* emu, void* root, void* fnc)
 {

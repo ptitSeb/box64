@@ -82,6 +82,7 @@ GOM(pthread_barrier_init, iFEppu)
 #endif
 GO(pthread_barrier_wait, iFp)
 GO(pthread_cancel, iFL)
+GO(pthread_clockjoin_np, iFppip)
 GOM(_pthread_cleanup_pop, vFEpi)
 GOM(_pthread_cleanup_pop_restore, vFEpi)
 GOM(_pthread_cleanup_push, vFEppp)
@@ -193,6 +194,7 @@ GOM(__pthread_mutexattr_settype, iFEpi)
 GOM(pthread_mutexattr_settype, iFEpi)
 #endif
 //GO(pthread_mutex_consistent_np, 
+GO(pthread_mutex_clocklock, iFpip)
 GO(pthread_mutex_consistent, iFp)
 GO(__pthread_mutex_destroy, iFp)
 GO(pthread_mutex_destroy, iFp)

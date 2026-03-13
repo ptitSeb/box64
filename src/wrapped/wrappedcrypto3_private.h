@@ -970,7 +970,7 @@ GO(d2i_DSA_PUBKEY, pFppl)
 GO(d2i_DSA_PUBKEY_bio, pFpp)
 GO(d2i_DSA_PUBKEY_fp, pFpp)
 //GO(d2i_DSAPublicKey, 
-//GO(d2i_DSA_SIG, 
+GO(d2i_DSA_SIG, pFppl)
 GO(d2i_ECDSA_SIG, pFppl)
 //GO(d2i_ECParameters, 
 //GO(d2i_ECPKParameters, 
@@ -1164,13 +1164,15 @@ GO(DES_xcbc_encrypt, vFpplppppi)
 GO(DH_bits, iFp)
 GO(DH_check, iFpp)
 //GO(DH_check_pub_key, 
-//GO(DH_compute_key, 
+GO(DH_compute_key, iFppp)
 //GO(DH_compute_key_padded, 
 GO(DH_free, vFp)
-//GO(DH_generate_key, 
+GO(DH_generate_key, iFp)
 //GO(DH_generate_parameters, 
 //GO(DH_generate_parameters_ex, 
 GO(DH_get0_pqg, vFpppp)
+GO(DH_get0_key, vFppp)
+GO(DH_set0_key, iFppp)
 //GO(DH_get_1024_160, 
 //GO(DH_get_2048_224, 
 //GO(DH_get_2048_256, 
@@ -1184,11 +1186,12 @@ GO(DH_new, pFv)
 //GO(DHparams_dup, 
 //GO(DHparams_print, 
 //GO(DHparams_print_fp, 
+GO(DH_set0_pqg, iFpppp)
 //GO(DH_set_default_method, 
 //GO(DH_set_ex_data, 
 //GO(DH_set_method, 
-//GO(DH_size, 
-//GO(DH_up_ref, 
+GO(DH_size, iFp)
+// GO(DH_up_ref,
 GO(DIRECTORYSTRING_free, vFp)
 GO(DIRECTORYSTRING_new, pFv)
 GO(DISPLAYTEXT_free, vFp)
@@ -1231,6 +1234,7 @@ GO(DSA_set0_pqg, iFppp)
 GO(DSA_SIG_free, vFp) 
 GO(DSA_sign, iFipippp)
 GO(DSA_SIG_new, pFv)
+GO(DSA_SIG_get0, vFppp)
 //GO(DSA_sign_setup, 
 GO(DSA_size, iFp)
 GO(DSA_up_ref, iFp)
@@ -1266,7 +1270,7 @@ GO(DSA_verify, iFipipip)
 GO(EC_curve_nid2nist, pFi)
 GO(EC_curve_nist2nid, iFp)
 //GO(ecdh_check, 
-//GO(ECDH_compute_key, 
+GOM(ECDH_compute_key, iFEpLppp)
 //GO(ECDH_get_default_method, 
 //GO(ECDH_get_ex_data, 
 //GO(ECDH_get_ex_new_index, 
@@ -1398,7 +1402,7 @@ GO(EC_GFp_simple_method, pFv)
 GO(EC_GROUP_check, iFpp)
 GO(EC_GROUP_check_discriminant, iFpp)
 GO(EC_GROUP_clear_free, vFp)
-//GO(EC_GROUP_cmp, 
+GO(EC_GROUP_cmp, iFppp)
 //GO(EC_GROUP_copy, 
 //GO(EC_GROUP_dup, 
 GO(EC_GROUP_free, vFp)
@@ -1476,7 +1480,7 @@ GO(EC_METHOD_get_field_type, iFp)
 //GO(EC_POINT_add, 
 //GO(EC_POINT_bn2point, 
 GO(EC_POINT_clear_free, vFp)
-//GO(EC_POINT_cmp, 
+GO(EC_POINT_cmp, iFpppp)
 GO(EC_POINT_copy, iFpp)
 //GO(EC_POINT_dbl, 
 GO(EC_POINT_dup, pFpp)
@@ -1944,6 +1948,7 @@ GO(EVP_idea_cfb64, pFv)
 //GO(EVP_idea_ofb, 
 GO(EVP_KDF_CTX_free, vFp)
 GO(EVP_KDF_CTX_new, pFp)
+GO(EVP_KDF_CTX_set_params, iFpp)
 GO(EVP_KDF_derive, iFppLp)
 GO(EVP_KDF_fetch, pFppp)
 GO(EVP_KDF_free, vFp)
@@ -2814,6 +2819,7 @@ GOM(OSSL_PARAM_construct_int, vFEppp)
 GOM(OSSL_PARAM_construct_octet_string, vFEpppL)
 GOM(OSSL_PARAM_construct_uint, vFEppp)
 GOM(OSSL_PARAM_construct_utf8_string, vFEpppL)
+GO(OSSL_PARAM_construct_uint64, vFpp)
 GO(OSSL_PARAM_free, vFp)
 GO(OSSL_PARAM_get_BN, iFpp)
 GO(OSSL_PARAM_get_octet_string_ptr, iFppp)
