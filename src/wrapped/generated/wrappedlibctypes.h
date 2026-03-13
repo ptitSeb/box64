@@ -196,6 +196,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(stat, iFpp_t) \
 	GO(stat64, iFpp_t) \
 	GO(swapcontext, iFpp_t) \
+	GO(tss_create, iFpp_t) \
 	GO(__isoc99_scanf, iFpV_t) \
 	GO(execl, iFpV_t) \
 	GO(execle, iFpV_t) \
