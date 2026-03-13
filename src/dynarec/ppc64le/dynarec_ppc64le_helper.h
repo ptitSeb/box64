@@ -288,6 +288,92 @@
 // ========================================================================
 #define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
 
+// GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED(D)                                                                                \
+    if (MODREG) {                                                                               \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        wback = 0;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LDxw(x1, wback, fixedaddress);                                                          \
+        ed = x1;                                                                                \
+    }
+
+// Write back ed in wback (if wback not 0)
+#define WBACK                              \
+    if (wback) {                           \
+        SDxw(ed, wback, fixedaddress);     \
+        SMWRITE();                         \
+    }
+
+// GETEB will use i for ed, and can use r3 for wback.
+#define GETEB(i, D)                                                                             \
+    if (MODREG) {                                                                               \
+        if (rex.rex) {                                                                          \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                        \
+            wb2 = 0;                                                                            \
+        } else {                                                                                \
+            wback = (nextop & 7);                                                               \
+            wb2 = (wback >> 2) * 8;                                                             \
+            wback = TO_NAT((wback & 3));                                                        \
+        }                                                                                       \
+        BF_EXTRACT(i, wback, wb2 + 7, wb2);                                                     \
+        wb1 = 0;                                                                                \
+        ed = i;                                                                                 \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LBZ(i, fixedaddress, wback);                                                            \
+        wb1 = 1;                                                                                \
+        ed = i;                                                                                 \
+    }
+
+// GETGB will use i for gd
+#define GETGB(i)                                             \
+    if (rex.rex) {                                           \
+        gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gb2 = 0;                                             \
+    } else {                                                 \
+        gd = (nextop & 0x38) >> 3;                           \
+        gb2 = ((gd & 4) << 1);                               \
+        gb1 = TO_NAT((gd & 3));                              \
+    }                                                        \
+    gd = i;                                                  \
+    BF_EXTRACT(gd, gb1, gb2 + 7, gb2);
+
+#define GETGBEB(i, j, D)                                         \
+    GETEB(j, D);                                                 \
+    if (MODREG) {                                                \
+        if (rex.rex) {                                           \
+            gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+            gb2 = 0;                                             \
+        } else {                                                 \
+            gd = (nextop & 0x38) >> 3;                           \
+            gb2 = ((gd & 4) << 1);                               \
+            gb1 = TO_NAT((gd & 3));                              \
+        }                                                        \
+        if (gb1 == wback && gb2 == wb2)                          \
+            gd = ed;                                             \
+        else {                                                   \
+            GETGB(i);                                            \
+        }                                                        \
+    } else {                                                     \
+        GETGB(i);                                                \
+    }
+
+// Write gb (gd) back to original register / memory
+#define GBBACK() BF_INSERT(gb1, gd, gb2 + 7, gb2);
+
+// Write eb (ed) back to original register / memory
+#define EBBACK()                            \
+    if (wb1) {                              \
+        STB(ed, fixedaddress, wback);       \
+        SMWRITE();                          \
+    } else {                                \
+        BF_INSERT(wback, ed, wb2 + 7, wb2); \
+    }
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret, arg1, arg2)                          call_c(dyn, ninst, F, x6, ret, 1, 0, arg1, arg2, 0, 0, 0, 0)
