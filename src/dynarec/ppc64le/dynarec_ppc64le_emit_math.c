@@ -337,4 +337,155 @@ void emit_add8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s2, in
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+// emit SUB8 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_sub8(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        STB(s1, offsetof(x64emu_t, op1), xEmu);
+        STB(s2, offsetof(x64emu_t, op2), xEmu);
+        SET_DF(s3, d_sub8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
 
+    CLEAR_FLAGS(s3);
+    IFX (X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    SUB(s1, s1, s2);
+    ANDId(s1, s1, 0xff);
+    IFX (X_SF) {
+        SRDI(s3, s1, 7);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PEND) {
+        STB(s1, offsetof(x64emu_t, res), xEmu);
+    }
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, 8);
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit SUB8 instruction, from s1, constant c, store result in s1 using s2, s3, s4 and s5 as scratch
+void emit_sub8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5)
+{
+    MOV32w(s2, c & 0xff);
+    emit_sub8(dyn, ninst, s1, s2, s3, s4, s5);
+}
+
+// emit SUB32 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_sub32(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, rex.w ? d_sub64 : d_sub32);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    SUBxw(s1, s1, s2);
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_SF) {
+        SRDI(s3, s1, rex.w ? 63 : 31);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, rex.w ? 64 : 32);
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit SUB32 instruction, from s1, constant c, store result in s1 using s2, s3, s4 and s5 as scratch
+void emit_sub32c(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
+{
+    if ((s1 == xRSP) && (BOX64DRENV(dynarec_safeflags) < 2) && (!dyn->insts || (dyn->insts[ninst].x64.gen_flags == X_PEND) || (!BOX64ENV(dynarec_df) && (dyn->insts[ninst].x64.gen_flags == X_ALL)))) {
+        // special case when doing math on RSP and only PEND is needed: ignoring it!
+        if (c > -32768 && c <= 32768) {
+            ADDI(s1, s1, -c);
+        } else {
+            MOV64xw(s2, c);
+            SUBxw(s1, s1, s2);
+        }
+        if (!rex.w) { ZEROUP(s1); }
+        return;
+    }
+
+    IFX (X_PEND | X_AF | X_CF | X_OF) {
+        MOV64xw(s2, c);
+    } else if (c <= -32768 || c > 32768) {
+        MOV64xw(s2, c);
+    }
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, rex.w ? d_sub64 : d_sub32);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    if (c > -32768 && c <= 32768) {
+        ADDIxw(s1, s1, -c);
+    } else {
+        SUBxw(s1, s1, s2);
+    }
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_SF) {
+        SRDI(s3, s1, rex.w ? 63 : 31);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, rex.w ? 64 : 32);
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
