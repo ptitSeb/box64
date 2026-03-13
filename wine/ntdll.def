@@ -1214,7 +1214,7 @@ EXPORTS
   _splitpath @1208
   _splitpath_s @1209
   _strcmpi=_stricmp @1210
-  ; _stricmp @1211
+  _stricmp @1211
   _strlwr @1212
   _strlwr_s @1213
   _strnicmp @1214
