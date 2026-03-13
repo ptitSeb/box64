@@ -2550,6 +2550,7 @@ void iFEpippi(x64emu_t *emu, uintptr_t fnc);
 void iFEpIppp(x64emu_t *emu, uintptr_t fnc);
 void iFEpuipp(x64emu_t *emu, uintptr_t fnc);
 void iFEpuppp(x64emu_t *emu, uintptr_t fnc);
+void iFEpLppp(x64emu_t *emu, uintptr_t fnc);
 void iFEppipp(x64emu_t *emu, uintptr_t fnc);
 void iFEppupp(x64emu_t *emu, uintptr_t fnc);
 void iFEppppi(x64emu_t *emu, uintptr_t fnc);

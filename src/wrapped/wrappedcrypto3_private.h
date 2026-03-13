@@ -1270,7 +1270,7 @@ GO(DSA_verify, iFipipip)
 GO(EC_curve_nid2nist, pFi)
 GO(EC_curve_nist2nid, iFp)
 //GO(ecdh_check, 
-GO(ECDH_compute_key, iFpLppp) // ksco
+GOM(ECDH_compute_key, iFEpLppp)
 //GO(ECDH_get_default_method, 
 //GO(ECDH_get_ex_data, 
 //GO(ECDH_get_ex_new_index, 

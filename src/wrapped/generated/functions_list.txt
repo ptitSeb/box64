@@ -2513,6 +2513,7 @@
 #() iFEpIppp
 #() iFEpuipp
 #() iFEpuppp
+#() iFEpLppp
 #() iFEppipp
 #() iFEppupp
 #() iFEppppi
@@ -4308,6 +4309,8 @@ wrappedcrypto3:
   - PEM_read_bio_X509_REQ
 - iFpiipp:
   - ENGINE_ctrl
+- iFpLppp:
+  - ECDH_compute_key
 - pFppppp:
   - OSSL_STORE_open
 - iFilpppp:
