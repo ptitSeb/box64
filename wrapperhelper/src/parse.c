@@ -2966,13 +2966,13 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 						// Empty destructor
 						goto failed;
 					} else if (iret == 0) {
-						if (!type_t_equal(typ, kh_val(dest->f->type_map, it))) {
+						if ((kh_val(dest->f->type_map, it)->typ != TYPE_PRERESERVED) && !type_t_equal(typ, kh_val(dest->f->type_map, it))) {
 							log_error(&tok->loginfo, "'%s' is already in the type map with a different type\n", cident);
 							free(cident);
 							// Empty destructor
 							goto failed;
 						}
-						// We can safely ignore this since we have typedef-ed the same type
+						// We can safely ignore this since we have typedef-ed a prereserved type or the same type
 						free(cident);
 						type_del(typ);
 					} else {
@@ -3524,6 +3524,52 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 				string_trim(converted);
 				typ2->converted = converted;
 				// Empty destructor
+				break; }
+			case PRAGMA_PRERESERVE: {
+				string_t *converted = tok.tokv.pragma.val;
+				// Token moved
+				tok = proc_next_token(prep);
+				if (tok.tokt != PTOK_IDENT) {
+					log_error(&tok.loginfo, "unexpected token during pragma prereserve\n");
+					string_del(converted);
+					proc_token_del(&tok);
+					goto failed;
+				}
+				string_trim(converted);
+				string_trim(tok.tokv.str);
+				type_t *typ2 = type_new();
+				if (!typ2) {
+					log_memory("failed to create new type info structure\n");
+					string_del(converted);
+					type_del(typ2);
+					goto failed;
+				}
+				typ2->typ = TYPE_PRERESERVED;
+				typ2->val.preres.is_simple = 1;
+				typ2->converted = converted;
+				typ2 = type_try_merge(typ2, ret->type_set);
+				type_del(typ2);
+				if (!validate_type(&tok.loginfo, target, typ2)) {
+					string_del(converted);
+					string_del(tok.tokv.str);
+					goto failed;
+				}
+				int iret;
+				char *tname = string_steal(tok.tokv.str);
+				khiter_t it = kh_put(type_map, ret->type_map, tname, &iret);
+				if (iret < 0) {
+					log_memory("Error: failed to add prereserved type %s to type_map\n", tname);
+					free(tname);
+					goto failed;
+				} else if (iret == 0) {
+					log_error(&tok.loginfo, "failed to prereserve type %s: type already exists\n", tname);
+					free(tname);
+					goto failed;
+				} else {
+					kh_val(ret->type_map, it) = typ2;
+					++typ2->nrefs;
+				}
+				// Token moved
 				break; }
 			}
 		} else if (proc_token_iserror(&tok)) {
