@@ -4135,6 +4135,19 @@ EXPORT void my_exit(x64emu_t* emu, int code)
         emu->flags.quitonexit = 2;
         return;
     }
+    if(emu->size_stack && emu->init_stack) {
+        uintptr_t sp = R_RSP;
+        uintptr_t stack_lo = (uintptr_t)emu->init_stack;
+        uintptr_t stack_hi = stack_lo + emu->size_stack;
+        if(sp < stack_lo || sp > stack_hi) {
+            printf_log(LOG_INFO, "exit(%d) called from alternate stack "
+                "(RSP=%p, main stack=%p--%p), converting to emu quit\n",
+                code, (void*)sp, (void*)stack_lo, (void*)stack_hi);
+            emu->quit = 1;
+            R_EAX = code;
+            return;
+        }
+    }
     emu->quit = 1;
     box64_exit_code = code;
     endBox64();
