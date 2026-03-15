@@ -2921,7 +2921,7 @@ start_cur_token:
 						string_del(tok.tokv.str);
 						tok = ppsrc_next_token(src);
 						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
-							log_error(&tok.loginfo, "invalid pragma wrappers explicit_simple directive, skipping until EOL\n");
+							log_error(&tok.loginfo, "invalid pragma wrappers mark_simple directive, skipping until EOL\n");
 							goto preproc_hash_err;
 						}
 						src->st = PPST_NL;
@@ -2944,7 +2944,7 @@ start_cur_token:
 						string_del(tok.tokv.str);
 						tok = ppsrc_next_token(src);
 						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
-							log_error(&tok.loginfo, "invalid pragma wrappers explicit_simple directive, skipping until EOL\n");
+							log_error(&tok.loginfo, "invalid pragma wrappers type_letters directive, skipping until EOL\n");
 							goto preproc_hash_err;
 						}
 						src->st = PPST_PRAGMA_EXPLICIT;
@@ -2957,13 +2957,26 @@ start_cur_token:
 						string_del(tok.tokv.str);
 						tok = ppsrc_next_token(src);
 						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
-							log_error(&tok.loginfo, "invalid pragma wrappers explicit_simple directive, skipping until EOL\n");
+							log_error(&tok.loginfo, "invalid pragma wrappers type_letters_exact directive, skipping until EOL\n");
 							goto preproc_hash_err;
 						}
 						src->st = PPST_PRAGMA_EXPLICIT;
 						ret.tokt = PTOK_PRAGMA;
 						ret.loginfo = tok.loginfo;
 						ret.tokv.pragma.typ = PRAGMA_EXPLICIT_CONV_STRICT;
+						ret.tokv.pragma.val = tok.tokv.str;
+						return ret;
+					} else if (!strcmp(string_content(tok.tokv.str), "prereserve_simple")) {
+						string_del(tok.tokv.str);
+						tok = ppsrc_next_token(src);
+						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
+							log_error(&tok.loginfo, "invalid pragma wrappers prereserve_simple directive, skipping until EOL\n");
+							goto preproc_hash_err;
+						}
+						src->st = PPST_PRAGMA_EXPLICIT;
+						ret.tokt = PTOK_PRAGMA;
+						ret.loginfo = tok.loginfo;
+						ret.tokv.pragma.typ = PRAGMA_PRERESERVE;
 						ret.tokv.pragma.val = tok.tokv.str;
 						return ret;
 					} else {

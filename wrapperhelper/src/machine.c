@@ -158,6 +158,7 @@ void fill_self_recursion(type_t *typ, struct_t *st) {
 	if (typ->_internal_use) return; // Recursion, but not self recursion
 	typ->_internal_use = 1;
 	switch (typ->typ) {
+	case TYPE_PRERESERVED: break;
 	case TYPE_BUILTIN: break;
 	case TYPE_ARRAY:
 		fill_self_recursion(typ->val.array.typ, st);
@@ -210,6 +211,7 @@ int validate_type(loginfo_t *loginfo, machine_t *target, type_t *typ) {
 		}
 	}
 	switch (typ->typ) {
+	case TYPE_PRERESERVED: typ->szinfo.align = typ->szinfo.size = 0; return !!typ->converted;
 	case TYPE_BUILTIN:
 		switch (typ->val.builtin) {
 		case BTT_VOID:        typ->szinfo.align = typ->szinfo.size = 0; return 1;

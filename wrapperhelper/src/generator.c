@@ -745,7 +745,7 @@ success:
 
 // Simple versions (in practice, only use x86_64 and aarch64 as emu/target pair)
 static int is_simple_type_ptr_to_simple(type_t *typ, int *needs_D, int *needs_my, khash_t(conv_map) *conv_map) {
-	if (typ->converted) {
+	if (typ->converted && (typ->typ != TYPE_PRERESERVED)) {
 		// log_warning_nopos("%s uses a converted type but is not the converted type\n", string_content(obj_name));
 		*needs_my = 1;
 	} else if (kh_get(conv_map, conv_map, typ) != kh_end(conv_map)) {
@@ -753,6 +753,8 @@ static int is_simple_type_ptr_to_simple(type_t *typ, int *needs_D, int *needs_my
 		*needs_my = 1;
 	}
 	switch (typ->typ) {
+	case TYPE_PRERESERVED:
+		return typ->val.preres.is_simple;
 	case TYPE_BUILTIN:
 		return 1; // Assume pointers to builtin are simple
 	case TYPE_ARRAY:
@@ -793,6 +795,8 @@ static int is_simple_type_simple(type_t *typ, int *needs_D, int *needs_my, khash
 		*needs_my = 1;
 	}
 	switch (typ->typ) {
+	case TYPE_PRERESERVED:
+		return typ->val.preres.is_simple;
 	case TYPE_BUILTIN:
 		return (typ->val.builtin != BTT_FLOAT128)
 		    && (typ->val.builtin != BTT_CFLOAT128)
@@ -854,6 +858,9 @@ static int convert_type_simple(string_t *dest, type_t *emu_typ, type_t *target_t
 		*needs_my = 1;
 	}
 	switch (emu_typ->typ) {
+	case TYPE_PRERESERVED:
+		log_internal_nopos("convert_type_simple fallthrough to switch for TYPE_PRERESERVED\n");
+		return 0;
 	case TYPE_BUILTIN: {
 		int has_char = 0;
 		char c;
@@ -986,6 +993,7 @@ static int convert_type_post_simple(string_t *dest, type_t *emu_typ, type_t *tar
 	}
 	(void)target_typ;
 	switch (emu_typ->typ) {
+	case TYPE_PRERESERVED: return 1;
 	case TYPE_BUILTIN: return 1;
 	case TYPE_ARRAY: return 1;
 	case TYPE_STRUCT_UNION:
@@ -1215,7 +1223,7 @@ static enum safeness_e get_safeness_ptr(type_t *emu_typ, type_t *target_typ, int
 		log_error_nopos("%s: pointer with different types between emu and target\n", string_content(obj_name));
 		return SAFE_ABORT;
 	}
-	if (emu_typ->converted) {
+	if ((emu_typ->converted) && (emu_typ->typ != TYPE_PRERESERVED)) {
 		log_warning_nopos("%s uses a converted type but is not the converted type\n", string_content(obj_name));
 		*needs_my = 1;
 		return SAFE_OK;
@@ -1225,6 +1233,8 @@ static enum safeness_e get_safeness_ptr(type_t *emu_typ, type_t *target_typ, int
 		return SAFE_OK;
 	}
 	switch (emu_typ->typ) {
+	case TYPE_PRERESERVED:
+		return SAFE_ABORT;
 	case TYPE_BUILTIN:
 		if (emu_typ->val.builtin != target_typ->val.builtin) {
 			// log_warning_nopos("%s: emu and target have pointers to different size type\n", string_content(obj_name));
@@ -1330,7 +1340,7 @@ static enum safeness_e get_safeness(type_t *emu_typ, type_t *target_typ, int *ne
 		log_error_nopos("%s: data with different types between emu and target\n", string_content(obj_name));
 		return SAFE_ABORT; // Invalid type
 	}
-	if (emu_typ->converted) {
+	if ((emu_typ->converted) && (emu_typ->typ != TYPE_PRERESERVED)) {
 		// log_warning_nopos("%s uses a converted type but is not the converted type\n", string_content(obj_name));
 		*needs_my = 1;
 		return SAFE_OK;
@@ -1340,6 +1350,8 @@ static enum safeness_e get_safeness(type_t *emu_typ, type_t *target_typ, int *ne
 		return SAFE_OK;
 	}
 	switch (emu_typ->typ) {
+	case TYPE_PRERESERVED:
+		return SAFE_ABORT;
 	case TYPE_BUILTIN:
 		if ((emu_typ->val.builtin != target_typ->val.builtin)
 		    || (emu_typ->szinfo.size != target_typ->szinfo.size)
@@ -1446,6 +1458,9 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ, int
 		return 0;
 	}
 	switch (emu_typ->typ) {
+	case TYPE_PRERESERVED:
+		log_internal_nopos("convert_type fallthrough to switch for TYPE_PRERESERVED\n");
+		return 0;
 	case TYPE_BUILTIN: {
 		int has_char = 0;
 		char c;
@@ -1593,6 +1608,9 @@ static int convert_type(string_t *dest, type_t *emu_typ, type_t *target_typ, int
 			target_typ = target_typ->val.typ;
 		do_expanded:
 			switch (emu_typ->typ) {
+			case TYPE_PRERESERVED:
+				log_internal_nopos("convert_type got SAFE_EXPAND for TYPE_PRERESERVED\n");
+				return 0;
 			case TYPE_BUILTIN:
 				if (!convert_type(dest, emu_typ, target_typ, 0, needs_S, needs_D, needs_my, conv_map, obj_name)) {
 					return 0;
@@ -1660,6 +1678,7 @@ static int convert_type_post(string_t *dest, type_t *emu_typ, type_t *target_typ
 	}
 	(void)target_typ;
 	switch (emu_typ->typ) {
+	case TYPE_PRERESERVED: return 1;
 	case TYPE_BUILTIN: return 1;
 	case TYPE_ARRAY: return 1;
 	case TYPE_STRUCT_UNION:
